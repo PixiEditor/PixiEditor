@@ -47,18 +47,14 @@
                         </Border>
                         <userControls:EditableTextBlock
                     FontSize="16"
-                    VerticalAlignment="Center"
-                    IsEditing="{Binding GroupData.IsRenaming, ElementName=groupControl, Mode=TwoWay}"
-                    Text="{Binding GroupData.Name, ElementName=groupControl, Mode=TwoWay}" />
+                    VerticalAlignment="Center" />
                     </StackPanel>
                     <Image Source="/Images/Folder.png" Height="20" Margin="0,0,10,0" HorizontalAlignment="Right"/>
                 </StackPanel>
             </Grid>
             <Grid DragEnter="Grid_DragEnter" Drop="Grid_Drop_Bottom" 
                   DragLeave="Grid_DragLeave" Grid.Row="2"
-                  AllowDrop="{Binding GroupData.IsExpanded,
-                                      ElementName=groupControl,
-                                      Converter={converters:InverseBooleanConverter}}"
+                  AllowDrop="false"
                   Grid.ColumnSpan="2" Background="Transparent"/>
         </Grid>
         <Border.ContextMenu>

@@ -1,7 +1,6 @@
-﻿using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Position;
-using System.Collections.Generic;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.Models.Commands.Attributes;
 
 namespace PixiEditor.Models.Tools.Tools;
 
@@ -15,9 +14,9 @@ public class MoveViewportTool : ReadonlyTool
     }
 
     public override bool HideHighlight => true;
-    public override string Tooltip => $"Move viewport. ({Shortcut})"; 
+    public override string Tooltip => $"Move viewport. ({Shortcut})";
 
-    public override void Use(IReadOnlyList<Coordinates> pixels)
+    public override void Use(VecD pos)
     {
         // Implemented inside Zoombox.xaml.cs
     }

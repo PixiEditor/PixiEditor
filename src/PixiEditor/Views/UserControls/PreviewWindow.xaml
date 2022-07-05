@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
 
         <Viewbox Margin="30" VerticalAlignment="Center" x:Name="previewWindowViewbox">
-            <Grid x:Name="imageGrid" RenderOptions.BitmapScalingMode="NearestNeighbor"
+            <!--<Grid x:Name="imageGrid" RenderOptions.BitmapScalingMode="NearestNeighbor"
               Visibility="{Binding Document, Converter={converters:NotNullToVisibilityConverter}, ElementName=uc}"
               Height="{Binding Document.Height, ElementName=uc}" Width="{Binding Document.Width, ElementName=uc}"
               d:Width="8" d:Height="8">
@@ -49,7 +49,7 @@
                     Visibility="{Binding IsMouseOver, ElementName=imageGrid, Converter={StaticResource BoolToVisibilityConverter}}">
                     <Border BorderThickness=".1" BorderBrush="White"/>
                 </Border>
-            </Grid>
+            </Grid>-->
         </Viewbox>
 
         <Grid Grid.Row="1">

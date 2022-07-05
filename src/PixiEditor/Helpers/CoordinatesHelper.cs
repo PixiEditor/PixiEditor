@@ -1,11 +1,8 @@
-﻿using PixiEditor.Models.Position;
-using System;
-using System.Collections.Generic;
-
-namespace PixiEditor.Helpers;
+﻿namespace PixiEditor.Helpers;
 
 internal class CoordinatesHelper
 {
+    /*
     public static (Coordinates, Coordinates) GetSquareOrLineCoordinates(IReadOnlyList<Coordinates> coords)
     {
         if (DoCoordsFormLine(coords))
@@ -80,5 +77,5 @@ internal class CoordinatesHelper
         float y = -Math.Sign(start.Y - end.Y) * axisLength;
         end = new Coordinates((int)x + start.X, (int)y + start.Y);
         return (start, end);
-    }
+    }*/
 }

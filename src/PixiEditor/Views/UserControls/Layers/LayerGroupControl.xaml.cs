@@ -1,11 +1,8 @@
-﻿using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Undo;
-using PixiEditor.ViewModels.SubViewModels.Main;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls.Layers;
 
@@ -30,7 +27,7 @@ public partial class LayerGroupControl : UserControl
     }
 
     public static readonly DependencyProperty LayersViewModelProperty =
-        DependencyProperty.Register(nameof(LayersViewModel), typeof(LayersViewModel), typeof(LayerGroupControl), new PropertyMetadata(default(LayersViewModel), LayersViewModelCallback));
+        DependencyProperty.Register(nameof(LayersViewModel), typeof(LayersViewModel), typeof(LayerGroupControl), new PropertyMetadata(default(LayersViewModel)));
 
     public bool IsVisibleUndoTriggerable
     {
@@ -54,20 +51,6 @@ public partial class LayerGroupControl : UserControl
     public static string LayerGroupControlDataName = typeof(LayerGroupControl).FullName;
     public static string LayerContainerDataName = typeof(LayerStructureItemContainer).FullName;
 
-    private static void LayersViewModelCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        LayerGroupControl control = (LayerGroupControl)d;
-        if (e.OldValue is LayersViewModel oldVm && oldVm != e.NewValue)
-        {
-            oldVm.Owner.BitmapManager.StopUsingTool -= control.MouseController_StoppedRecordingChanges;
-        }
-
-        if (e.NewValue is LayersViewModel vm)
-        {
-            vm.Owner.BitmapManager.StopUsingTool += control.MouseController_StoppedRecordingChanges;
-        }
-    }
-
     public string GroupName
     {
         get { return (string)GetValue(GroupNameProperty); }
@@ -76,35 +59,6 @@ public partial class LayerGroupControl : UserControl
 
     public static readonly DependencyProperty GroupNameProperty =
         DependencyProperty.Register(nameof(GroupName), typeof(string), typeof(LayerGroupControl), new PropertyMetadata(default(string)));
-
-    public GuidStructureItem GroupData
-    {
-        get { return (GuidStructureItem)GetValue(GroupDataProperty); }
-        set { SetValue(GroupDataProperty, value); }
-    }
-
-    public static readonly DependencyProperty GroupDataProperty =
-        DependencyProperty.Register(nameof(GroupData), typeof(GuidStructureItem), typeof(LayerGroupControl), new PropertyMetadata(default(GuidStructureItem), GroupDataChangedCallback));
-
-    public void GeneratePreviewImage()
-    {
-        var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
-        var layers = doc.LayerStructure.GetGroupLayers(GroupData);
-        if (layers.Count > 0)
-        {
-            PreviewImage = BitmapUtils.GeneratePreviewBitmap(layers, doc.Width, doc.Height, 25, 25);
-        }
-    }
-
-    private static void GroupDataChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        LayerGroupControl control = (LayerGroupControl)d;
-        control.GeneratePreviewImage();
-        foreach (var layer in control.LayersViewModel.Owner.BitmapManager.ActiveDocument.Layers)
-        {
-            layer.IsVisible = layer.IsVisible;
-        }
-    }
 
     public WriteableBitmap PreviewImage
     {
@@ -118,11 +72,6 @@ public partial class LayerGroupControl : UserControl
     public LayerGroupControl()
     {
         InitializeComponent();
-    }
-
-    private void MouseController_StoppedRecordingChanges(object sender, EventArgs e)
-    {
-        GeneratePreviewImage();
     }
 
     private void Grid_DragEnter(object sender, DragEventArgs e)
@@ -149,6 +98,7 @@ public partial class LayerGroupControl : UserControl
         LayerItem.RemoveDragEffect(centerGrid);
     }
 
+    /*
     private void HandleDrop(IDataObject dataObj, Grid grid, bool above)
     {
         Guid referenceLayer = above ? GroupData.EndLayerGuid : GroupData.StartLayerGuid;
@@ -224,39 +174,40 @@ public partial class LayerGroupControl : UserControl
         {
             HandleGroupControlDrop(dataObj, referenceLayer, true, true);
         }
-    }
+    }*/
 
     private void Grid_Drop_Top(object sender, DragEventArgs e)
     {
-        HandleDrop(e.Data, (Grid)sender, true);
+        //HandleDrop(e.Data, (Grid)sender, true);
     }
 
     private void Grid_Drop_Center(object sender, DragEventArgs e)
     {
-        HandleDropInside(e.Data, (Grid)sender);
+        //HandleDropInside(e.Data, (Grid)sender);
         LayerItem.RemoveDragEffect(centerGrid);
     }
 
     private void Grid_Drop_Bottom(object sender, DragEventArgs e)
     {
-        HandleDrop(e.Data, (Grid)sender, false);
+        //HandleDrop(e.Data, (Grid)sender, false);
     }
 
     private void Border_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
-        var layer = doc.Layers.First(x => x.GuidValue == GroupData.EndLayerGuid);
-        if (doc.ActiveLayerGuid != layer.GuidValue)
-        {
-            doc.SetMainActiveLayer(doc.Layers.IndexOf(layer));
-        }
+        /*
+            var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
+            var layer = doc.Layers.First(x => x.GuidValue == GroupData.EndLayerGuid);
+            if (doc.ActiveLayerGuid != layer.GuidValue)
+            {
+                doc.SetMainActiveLayer(doc.Layers.IndexOf(layer));
+            }*/
     }
 
     private void CheckBox_Checked(object sender, RoutedEventArgs e)
     {
-        HandleCheckboxChange(((CheckBox)e.OriginalSource).IsChecked.Value);
+        //HandleCheckboxChange(((CheckBox)e.OriginalSource).IsChecked.Value);
     }
-
+    /*
     private void HandleCheckboxChange(bool value)
     {
         if (LayersViewModel?.Owner?.BitmapManager?.ActiveDocument != null)
@@ -300,7 +251,7 @@ public partial class LayerGroupControl : UserControl
 
             IsVisibleUndoTriggerable = value;
         }
-    }
+    }*/
 
     private void GroupControl_DragEnter(object sender, DragEventArgs e)
     {

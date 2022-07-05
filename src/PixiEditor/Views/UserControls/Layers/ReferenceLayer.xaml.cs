@@ -1,9 +1,8 @@
-﻿using Microsoft.Win32;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Microsoft.Win32;
+using PixiEditor.Models.IO;
 
 namespace PixiEditor.Views.UserControls.Layers;
 
@@ -12,7 +11,7 @@ namespace PixiEditor.Views.UserControls.Layers;
 /// </summary>
 public partial class ReferenceLayer : UserControl
 {
-    public Layer Layer
+    /*public Layer Layer
     {
         get { return (Layer)GetValue(ReferenceLayerProperty); }
         set { SetValue(ReferenceLayerProperty, value); }
@@ -20,7 +19,7 @@ public partial class ReferenceLayer : UserControl
 
 
     public static readonly DependencyProperty ReferenceLayerProperty =
-        DependencyProperty.Register(nameof(Layer), typeof(Layer), typeof(ReferenceLayer), new PropertyMetadata(default(Layer)));
+        DependencyProperty.Register(nameof(Layer), typeof(Layer), typeof(ReferenceLayer), new PropertyMetadata(default(Layer)));*/
 
 
     public ReferenceLayer()
@@ -30,12 +29,12 @@ public partial class ReferenceLayer : UserControl
 
     private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
     {
-        string path = OpenFilePicker();
+        /*string path = OpenFilePicker();
         if (path != null)
         {
             var bitmap = Importer.ImportSurface(path);
             Layer = new Layer("_Reference Layer", bitmap, bitmap.Width, bitmap.Height);
-        }
+        }*/
     }
 
     private string OpenFilePicker()
@@ -53,6 +52,6 @@ public partial class ReferenceLayer : UserControl
 
     private void TrashButton_Click(object sender, RoutedEventArgs e)
     {
-        Layer = null;
+        //Layer = null;
     }
 }

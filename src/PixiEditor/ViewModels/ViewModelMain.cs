@@ -1,18 +1,14 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
 using SkiaSharp;
-using System.ComponentModel;
-using System.Windows;
 
 namespace PixiEditor.ViewModels;
 
@@ -120,8 +116,6 @@ public class ViewModelMain : ViewModelBase
 
         Preferences.Init();
         BitmapManager = services.GetRequiredService<BitmapManager>();
-        BitmapManager.BitmapOperations.BitmapChanged += BitmapUtility_BitmapChanged;
-        BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
 
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
@@ -162,17 +156,6 @@ public class ViewModelMain : ViewModelBase
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
-    }
-
-    /// <summary>
-    ///     Resets most variables and controller, so new documents can be handled.
-    /// </summary>
-    public void ResetProgramStateValues()
-    {
-        foreach (var document in BitmapManager.Documents)
-        {
-            document.PreviewLayer.Reset();
-        }
     }
 
     public bool DocumentIsNotNull(object property)
@@ -244,6 +227,7 @@ public class ViewModelMain : ViewModelBase
     /// <returns>If document was removed successfully.</returns>
     private bool RemoveDocumentWithSaveConfirmation()
     {
+        /*
         ConfirmationType result = ConfirmationType.No;
 
         if (!BitmapManager.ActiveDocument.ChangesSaved)
@@ -269,7 +253,8 @@ public class ViewModelMain : ViewModelBase
         else
         {
             return false;
-        }
+        }*/
+        return false;
     }
 
     private void OnStartup(object parameter)
@@ -277,24 +262,24 @@ public class ViewModelMain : ViewModelBase
         OnStartupEvent?.Invoke(this, EventArgs.Empty);
     }
 
-    private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
+    private void BitmapManager_DocumentChanged(object sender)
     {
+        /*
         if (e.NewDocument != null)
         {
             e.NewDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
-        }
+        }*/
     }
 
     private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
     {
-        BitmapManager.ActiveDocument.ActiveSelection = new Selection(Array.Empty<Coordinates>(), new PixelSize(e.NewWidth, e.NewHeight));
-        BitmapManager.ActiveDocument.ChangesSaved = false;
-        BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, new Size(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
+        //BitmapManager.ActiveDocument.ChangesSaved = false;
+        //BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, new Size(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
     }
 
     private void BitmapUtility_BitmapChanged(object sender, EventArgs e)
     {
-        BitmapManager.ActiveDocument.ChangesSaved = false;
+        //BitmapManager.ActiveDocument.ChangesSaved = false;
         if (ToolsSubViewModel.ActiveTool is BitmapOperationTool)
         {
             ColorsSubViewModel.AddSwatch(ColorsSubViewModel.PrimaryColor);

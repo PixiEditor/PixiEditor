@@ -1,7 +1,6 @@
-﻿using PixiEditor.Models.Layers;
-using PixiEditor.ViewModels.SubViewModels.Main;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls.Layers;
 
@@ -10,16 +9,6 @@ namespace PixiEditor.Views.UserControls.Layers;
 /// </summary>
 public partial class LayerStructureItemContainer : UserControl
 {
-    public Layer Layer
-    {
-        get { return (Layer)GetValue(LayerProperty); }
-        set { SetValue(LayerProperty, value); }
-    }
-
-
-    public static readonly DependencyProperty LayerProperty =
-        DependencyProperty.Register(nameof(Layer), typeof(Layer), typeof(LayerStructureItemContainer), new PropertyMetadata(default(Layer)));
-
     public LayersViewModel LayerCommandsViewModel
     {
         get { return (LayersViewModel)GetValue(LayerCommandsViewModelProperty); }

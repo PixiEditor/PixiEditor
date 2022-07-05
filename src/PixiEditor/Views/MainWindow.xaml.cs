@@ -1,23 +1,16 @@
+﻿using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Interop;
+using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using AvalonDock.Layout;
 
 namespace PixiEditor;
 
@@ -60,12 +53,11 @@ public partial class MainWindow : Window
 
         DataContext.CloseAction = Close;
         Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-
-        DataContext.BitmapManager.DocumentChanged += BitmapManager_DocumentChanged;
-        preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
-        {
-            UpdateTaskbarIcon(x ? DataContext.BitmapManager.ActiveDocument : null);
-        });
+        /*
+                preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
+                {
+                    UpdateTaskbarIcon(x ? DataContext.BitmapManager.ActiveDocument : null);
+                });*/
 
         OnReleaseBuild();
     }
@@ -115,9 +107,9 @@ public partial class MainWindow : Window
     [Conditional("RELEASE")]
     private void OnReleaseBuild()
     {
-        rawLayerAnchorable.Hide();
+        //rawLayerAnchorable.Hide();
     }
-
+    /*
     private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
     {
         if (preferences.GetPreference("ImagePreviewInTaskbar", false))
@@ -125,7 +117,6 @@ public partial class MainWindow : Window
             UpdateTaskbarIcon(e.NewDocument);
         }
     }
-
     private void UpdateTaskbarIcon(Document document)
     {
         if (document?.PreviewImage == null)
@@ -140,7 +131,7 @@ public partial class MainWindow : Window
         previewCopy.Blit(new Rect(256, 256, 256, 256), pixiEditorLogo, new Rect(0, 0, 512, 512));
 
         Icon = previewCopy;
-    }
+    }*/
 
     private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
     {
@@ -205,7 +196,7 @@ public partial class MainWindow : Window
         if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if(files != null && files.Length > 0)
+            if (files != null && files.Length > 0)
             {
                 if (Importer.IsSupportedFile(files[0]))
                 {

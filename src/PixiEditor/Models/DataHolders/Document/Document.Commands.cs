@@ -10,7 +10,7 @@ public partial class Document
 
     private void SetRelayCommands()
     {
-        RequestCloseDocumentCommand = new RelayCommand(RequestCloseDocument);
-        SetAsActiveOnClickCommand = new RelayCommand(SetAsActiveOnClick);
+        //RequestCloseDocumentCommand = new RelayCommand(RequestCloseDocument);
+        //SetAsActiveOnClickCommand = new RelayCommand(SetAsActiveOnClick);
     }
 }

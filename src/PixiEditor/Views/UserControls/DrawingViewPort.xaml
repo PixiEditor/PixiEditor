@@ -75,8 +75,7 @@
                     </ImageBrush>
                 </Canvas.Background>
 
-                <local:ReferenceLayerView ReferenceLayerRenderer="{Binding ReferenceLayerRenderer}"
-                                          ShowReferenceLayer="{Binding ReferenceLayer.IsVisible}"
+                <local:ReferenceLayerView ShowReferenceLayer="{Binding ReferenceLayer.IsVisible}"
                                           HideReferenceLayer="{Binding XamlAccesibleViewModel.BitmapManager.HideReferenceLayer}"
                                           Width="{Binding Width}" Height="{Binding Height}"
                                           RenderOptions.BitmapScalingMode="NearestNeighbor"/>
@@ -91,13 +90,6 @@
                        RenderOptions.BitmapScalingMode="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:Zoombox}}, Path=Zoom, Converter={converters:ZoomLevelToBitmapScalingModeConverter}}" 
                        Stretch="Uniform" 
                        Visibility="{Binding XamlAccesibleViewModel.BitmapManager.OnlyReferenceLayer, Converter={InverseBoolToVisibilityConverter}}"/>
-
-                <local:PlainLayerView TargetLayer="{Binding ActiveSelection.SelectionLayer}"
-                                      VerticalAlignment="Top" HorizontalAlignment="Left"
-                                      Width="{Binding ActiveSelection.SelectionLayer.Width}"
-                                      Height="{Binding ActiveSelection.SelectionLayer.Height}"
-                                      Margin="{Binding ActiveSelection.SelectionLayer.Offset}"
-                                      Opacity="0.5"/>
 
                 <Grid ShowGridLines="True" Width="{Binding Width}" Height="{Binding Height}" Panel.ZIndex="10" 
                       Visibility="{Binding GridLinesVisible, Converter={StaticResource BoolToVisibilityConverter}, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:DrawingViewPort}}}">

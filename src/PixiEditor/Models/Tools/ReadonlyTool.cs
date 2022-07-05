@@ -1,9 +1,8 @@
-﻿using PixiEditor.Models.Position;
-using System.Collections.Generic;
+﻿using ChunkyImageLib.DataHolders;
 
 namespace PixiEditor.Models.Tools;
 
 public abstract class ReadonlyTool : Tool
 {
-    public abstract void Use(IReadOnlyList<Coordinates> pixels);
+    public abstract void Use(VecD position);
 }

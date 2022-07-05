@@ -1,11 +1,8 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
-using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Views.UserControls.Layers;
 
@@ -14,7 +11,7 @@ namespace PixiEditor.Views.UserControls.Layers;
 /// </summary>
 public partial class LayerItem : UserControl
 {
-    public static Brush HighlightColor = (SolidColorBrush)new BrushConverter().ConvertFrom(Document.SecondarySelectedLayerColor);
+    public static Brush HighlightColor = Brushes.Blue;
 
     public LayerItem()
     {
@@ -77,15 +74,6 @@ public partial class LayerItem : UserControl
 
     public static readonly DependencyProperty ControlButtonsVisibleProperty = DependencyProperty.Register(
         nameof(ControlButtonsVisible), typeof(Visibility), typeof(LayerItem), new PropertyMetadata(System.Windows.Visibility.Hidden));
-
-    public Layer LayerForPreview
-    {
-        get { return (Layer)GetValue(LayerForPreviewProperty); }
-        set { SetValue(LayerForPreviewProperty, value); }
-    }
-
-    public static readonly DependencyProperty LayerForPreviewProperty =
-        DependencyProperty.Register(nameof(LayerForPreview), typeof(Layer), typeof(LayerItem), new PropertyMetadata(null));
 
     public string LayerColor
     {
@@ -158,32 +146,32 @@ public partial class LayerItem : UserControl
         if (e.Data.GetDataPresent(LayerGroupControl.LayerContainerDataName))
         {
             var data = (LayerStructureItemContainer)e.Data.GetData(LayerGroupControl.LayerContainerDataName);
-            Guid layer = data.Layer.GuidValue;
-            var doc = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
+            //Guid layer = data.Layer.GuidValue;
+            //var doc = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
-            doc.MoveLayerInStructure(layer, LayerGuid, above);
+            /*doc.MoveLayerInStructure(layer, LayerGuid, above);
             if (dropInParentFolder)
             {
                 Guid? groupGuid = doc.LayerStructure.GetGroupByLayer(layer)?.Parent?.GroupGuid;
                 doc.LayerStructure.AssignParent(layer, groupGuid);
-            }
+            }*/
         }
 
         if (e.Data.GetDataPresent(LayerGroupControl.LayerGroupControlDataName))
         {
             var data = (LayerGroupControl)e.Data.GetData(LayerGroupControl.LayerGroupControlDataName);
-            Guid folder = data.GroupGuid;
+            //Guid folder = data.GroupGuid;
 
-            var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
+            //var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
 
-            var parentGroup = document.LayerStructure.GetGroupByLayer(LayerGuid);
+            /*var parentGroup = document.LayerStructure.GetGroupByLayer(LayerGuid);
 
             if (parentGroup == data.GroupData || document.LayerStructure.IsChildOf(parentGroup, data.GroupData))
             {
                 return;
             }
 
-            document.MoveGroupInStructure(folder, LayerGuid, above);
+            document.MoveGroupInStructure(folder, LayerGuid, above);*/
         }
     }
 

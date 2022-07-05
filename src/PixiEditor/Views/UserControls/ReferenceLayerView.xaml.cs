@@ -1,23 +1,10 @@
-﻿using PixiEditor.Models.Controllers;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace PixiEditor.Views.UserControls;
 
-/// <summary>
-/// Interaction logic for ReferenceLayerView.xaml
-/// </summary>
 public partial class ReferenceLayerView : UserControl
 {
-    public static readonly DependencyProperty ReferenceLayerRendererProperty =
-        DependencyProperty.Register(nameof(ReferenceLayerRenderer), typeof(SingleLayerRenderer), typeof(ReferenceLayerView));
-
-    public SingleLayerRenderer ReferenceLayerRenderer
-    {
-        get => (SingleLayerRenderer)GetValue(ReferenceLayerRendererProperty);
-        set => SetValue(ReferenceLayerRendererProperty, value);
-    }
-
     public static readonly DependencyProperty ShowReferenceLayerProperty =
         DependencyProperty.Register(nameof(ShowReferenceLayer), typeof(bool), typeof(ReferenceLayerView), new PropertyMetadata(UpdateVisibility));
 

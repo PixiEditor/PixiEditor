@@ -1,14 +1,13 @@
-﻿using System;
-using PixiEditor.Models.Position;
+﻿using ChunkyImageLib.DataHolders;
 
 namespace PixiEditor.Models.Controllers;
 
 public class MouseMovementEventArgs : EventArgs
 {
-    public MouseMovementEventArgs(Coordinates mousePosition)
+    public MouseMovementEventArgs(VecI mousePosition)
     {
         NewPosition = mousePosition;
     }
 
-    public Coordinates NewPosition { get; set; }
+    public VecI NewPosition { get; set; }
 }

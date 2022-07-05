@@ -10,9 +10,9 @@
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
-        <Grid>
+        <!--<Grid>
             <Grid Background="Transparent"/>
-        <Grid Grid.Row="0"  VerticalAlignment="Center">
+            <Grid Grid.Row="0"  VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="*"/>
@@ -36,8 +36,6 @@
                             BorderThickness="1" BorderBrush="Black"
                             Background="{StaticResource MainColor}"
                             Margin="5, 0, 10, 0">
-                        <local1:PlainLayerView TargetLayer="{Binding Layer, ElementName=uc}" Width="25" Height="25" 
-                       RenderOptions.BitmapScalingMode="NearestNeighbor"/>
                     </Border>
                     <Image Margin="0 0 5 0" Width="20" Source="/Images/Layer-add.png"  Visibility="{Binding Layer, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"/>
 
@@ -62,12 +60,12 @@
                             </BeginStoryboard>
                         </EventTrigger>
                         <EventTrigger RoutedEvent="CheckBox.Unchecked">
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="middleStackPanel" Storyboard.TargetProperty="Height" From="0" To="40" Duration="0:0:0.15"/>
-                                <DoubleAnimation Storyboard.TargetName="layerVisibilityCheckboxGrid" Storyboard.TargetProperty="Height" From="0" To="16" Duration="0:0:0.15"/>
-                            </Storyboard>
-                        </BeginStoryboard>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="middleStackPanel" Storyboard.TargetProperty="Height" From="0" To="40" Duration="0:0:0.15"/>
+                                    <DoubleAnimation Storyboard.TargetName="layerVisibilityCheckboxGrid" Storyboard.TargetProperty="Height" From="0" To="16" Duration="0:0:0.15"/>
+                                </Storyboard>
+                            </BeginStoryboard>
                         </EventTrigger>
 
                     </CheckBox.Triggers>
@@ -94,6 +92,6 @@
                     </CheckBox.Template>
                 </CheckBox>
             </Grid>
-    </Grid>
+        </Grid>-->
     </Border>
 </UserControl>

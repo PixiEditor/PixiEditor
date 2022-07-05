@@ -1,24 +1,9 @@
-﻿using PixiEditor.Exceptions;
-using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.ImageManipulation;
-using PixiEditor.Models.IO;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
-using PixiEditor.Models.Undo;
-using PixiEditor.Parser;
-using PixiEditor.ViewModels;
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.IO;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -35,15 +20,15 @@ public static class ClipboardController
     /// </summary>
     public static void CopyToClipboard(Document document)
     {
-        CopyToClipboard(
+        /*CopyToClipboard(
             document.Layers.Where(x => document.GetFinalLayerIsVisible(x) && x.IsActive).ToArray(),
             document.ActiveSelection.SelectionLayer,
             document.LayerStructure,
             document.Width,
             document.Height,
-            null/*document.ToSerializable()*/);
+            null/*document.ToSerializable());*/
     }
-
+    /*
     private static Surface CreateMaskedCombinedSurface(Layer[] layers, LayerStructure structure, Layer selLayer)
     {
         if (layers.Length == 0)
@@ -55,7 +40,7 @@ public static class ClipboardController
         combined.SkiaSurface.Canvas.DrawImage(snapshot, 0, 0, Surface.MaskingPaint);
         return combined;
     }
-
+    
     /// <summary>
     ///     Copies the selection to clipboard in PNG, Bitmap and DIB formats.
     /// </summary>
@@ -104,16 +89,17 @@ public static class ClipboardController
             data.SetData("PIXI", memoryStream); // PIXI, supports transparency, layers, groups and swatches
             ClipboardHelper.TrySetDataObject(data, true);
         }
-        */
+        
 
         ClipboardHelper.TrySetDataObject(data, true);
     }
-
+*/
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
     public static void PasteFromClipboard(Document document)
     {
+        /*
         Layer[] layers;
         try
         {
@@ -145,11 +131,12 @@ public static class ClipboardController
 
         document.UndoManager.AddUndoChange(change.ToChange(RemoveLayersProcess, undoArgs,
             RestoreLayersProcess, new object[] { document }, "Paste from clipboard"));
+        */
     }
-
+    /*
     private static void RemoveLayersProcess(object[] parameters)
     {
-        if (parameters.Length > 2 && parameters[1] is Document document && parameters[2] is PixelSize size) 
+        if (parameters.Length > 2 && parameters[1] is Document document && parameters[2] is PixelSize size)
         {
             document.RemoveLayersProcess(parameters);
             document.ResizeCanvas(size.Width, size.Height, Enums.AnchorPoint.Left | Enums.AnchorPoint.Top, false);
@@ -202,7 +189,7 @@ public static class ClipboardController
                 yield return layer;
             }
         }
-        else */
+        else 
         if (TryFromSingleImage(data, out Surface singleImage))
         {
             yield return new Layer("Image", singleImage, document.Width, document.Height);
@@ -234,7 +221,7 @@ public static class ClipboardController
             yield break;
         }
     }
-
+    */
     public static bool IsImageInClipboard()
     {
         DataObject dao = ClipboardHelper.TryGetDataObject();
@@ -255,7 +242,7 @@ public static class ClipboardController
                 }
             }
         }
-        catch(COMException)
+        catch (COMException)
         {
             return false;
         }
@@ -264,7 +251,7 @@ public static class ClipboardController
                dao.GetDataPresent(DataFormats.Bitmap) || dao.GetDataPresent(DataFormats.FileDrop) ||
                dao.GetDataPresent("PIXI");
     }
-
+    /*
     private static BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection, out int offsetX, out int offsetY, out int width, out int height)
     {
         offsetX = selection.Min(min => min.X);
@@ -345,5 +332,5 @@ public static class ClipboardController
     private static void ResizeToLayer(Document document, Layer layer)
     {
         document.ResizeCanvas(Math.Max(document.Width, layer.Width), Math.Max(document.Height, layer.Height), Enums.AnchorPoint.Left | Enums.AnchorPoint.Top, false);
-    }
+    }*/
 }

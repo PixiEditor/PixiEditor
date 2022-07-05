@@ -1,17 +1,12 @@
-﻿using PixiEditor.Helpers;
+﻿using System.Diagnostics;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Events;
-using PixiEditor.Models.Layers;
-using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Main;
 using SkiaSharp;
-using System;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Windows;
-using PixiEditor.Models.Commands.Attributes;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -20,7 +15,6 @@ public class BitmapManager : NotifyableObject
 {
     private ToolSessionController ToolSessionController { get; set; }
     public ICanvasInputTarget InputTarget => ToolSessionController;
-    public BitmapOperationsUtility BitmapOperations { get; set; }
 
     public System.Collections.ObjectModel.ObservableCollection<Document> Documents { get; set; } = new System.Collections.ObjectModel.ObservableCollection<Document>();
 
@@ -32,13 +26,9 @@ public class BitmapManager : NotifyableObject
         {
             if (activeDocument == value)
                 return;
-            activeDocument?.UpdatePreviewImage();
-            Document oldDoc = activeDocument;
             activeDocument = value;
-            activeDocument?.UpdatePreviewImage();
             RaisePropertyChanged(nameof(ActiveDocument));
             ActiveWindow = value;
-            DocumentChanged?.Invoke(this, new DocumentChangedEventArgs(value, oldDoc));
         }
     }
 
@@ -57,10 +47,7 @@ public class BitmapManager : NotifyableObject
         }
     }
 
-    public event EventHandler<DocumentChangedEventArgs> DocumentChanged;
     public event EventHandler StopUsingTool;
-
-    public Layer ActiveLayer => ActiveDocument.ActiveLayer;
 
     public SKColor PrimaryColor { get; set; }
 
@@ -98,17 +85,8 @@ public class BitmapManager : NotifyableObject
         ToolSessionController.PixelMousePositionChanged += OnPixelMousePositionChange;
         ToolSessionController.PreciseMousePositionChanged += OnPreciseMousePositionChange;
         ToolSessionController.KeyStateChanged += (_, _) => UpdateActionDisplay(_tools.ActiveTool);
-        BitmapOperations = new BitmapOperationsUtility(this, tools);
 
         undo.UndoRedoCalled += (_, _) => ToolSessionController.ForceStopActiveSessionIfAny();
-
-        DocumentChanged += BitmapManager_DocumentChanged;
-
-        _highlightPen = new PenTool(this)
-        {
-            AutomaticallyResizeCanvas = false
-        };
-        _highlightColor = new SKColor(0, 0, 0, 77);
     }
 
     [Evaluator.CanExecute("PixiEditor.HasDocument")]
@@ -125,7 +103,6 @@ public class BitmapManager : NotifyableObject
 
         Documents.Remove(document);
         ActiveDocument = nextIndex >= 0 ? Documents[nextIndex] : null;
-        document.Dispose();
     }
 
     public void UpdateActionDisplay(Tool tool)
@@ -137,7 +114,6 @@ public class BitmapManager : NotifyableObject
     {
         activeSession = e;
 
-        ActiveDocument.PreviewLayer.Reset();
         ExecuteTool();
     }
 
@@ -145,12 +121,6 @@ public class BitmapManager : NotifyableObject
     {
         activeSession = null;
 
-        if (e.Tool is BitmapOperationTool operationTool && operationTool.RequiresPreviewLayer)
-        {
-            BitmapOperations.ApplyPreviewLayer();
-        }
-
-        ActiveDocument.PreviewLayer.Reset();
         HighlightPixels(ToolSessionController.LastPixelPosition);
         StopUsingTool?.Invoke(this, EventArgs.Empty);
     }
@@ -184,11 +154,11 @@ public class BitmapManager : NotifyableObject
 
         if (activeSession.Tool is BitmapOperationTool operationTool)
         {
-            BitmapOperations.UseTool(activeSession.MouseMovement, operationTool, PrimaryColor);
+            //BitmapOperations.UseTool(activeSession.MouseMovement, operationTool, PrimaryColor);
         }
         else if (activeSession.Tool is ReadonlyTool readonlyTool)
         {
-            readonlyTool.Use(activeSession.MouseMovement);
+            //readonlyTool.Use(activeSession.MouseMovement);
         }
         else
         {
@@ -196,11 +166,12 @@ public class BitmapManager : NotifyableObject
         }
     }
 
-    private void BitmapManager_DocumentChanged(object sender, DocumentChangedEventArgs e)
+    private void BitmapManager_DocumentChanged(object sender)
     {
+        /*
         e.NewDocument?.GeneratePreviewLayer();
         if (e.OldDocument != e.NewDocument)
-            ToolSessionController.ForceStopActiveSessionIfAny();
+            ToolSessionController.ForceStopActiveSessionIfAny();*/
     }
 
     public void UpdateHighlightIfNecessary(bool forceHide = false)
@@ -211,44 +182,8 @@ public class BitmapManager : NotifyableObject
         HighlightPixels(forceHide ? new(-1, -1) : ToolSessionController.LastPixelPosition);
     }
 
-    private void HighlightPixels(Coordinates newPosition)
+    private void HighlightPixels(VecI position)
     {
-        if (ActiveDocument == null || ActiveDocument.Layers.Count == 0)
-        {
-            return;
-        }
 
-        var previewLayer = ActiveDocument.PreviewLayer;
-
-        if (newPosition.X > ActiveDocument.Width
-            || newPosition.Y > ActiveDocument.Height
-            || newPosition.X < 0 || newPosition.Y < 0
-            || _tools.ActiveTool.HideHighlight)
-        {
-            previewLayer.Reset();
-            previewLayerSize = -1;
-            return;
-        }
-
-        if (_tools.ToolSize != previewLayerSize || previewLayer.IsReset)
-        {
-            previewLayerSize = _tools.ToolSize;
-            halfSize = (int)Math.Floor(_tools.ToolSize / 2f);
-            previewLayer.CreateNewBitmap(_tools.ToolSize, _tools.ToolSize);
-
-            Coordinates cords = new Coordinates(halfSize, halfSize);
-
-            previewLayer.Offset = new Thickness(0, 0, 0, 0);
-            _highlightPen.Draw(previewLayer, cords, cords, _highlightColor, _tools.ToolSize);
-        }
-        AdjustOffset(newPosition, previewLayer);
-
-        previewLayer.InvokeLayerBitmapChange();
-    }
-
-    private void AdjustOffset(Coordinates newPosition, Layer previewLayer)
-    {
-        Coordinates start = newPosition - halfSize;
-        previewLayer.Offset = new Thickness(start.X, start.Y, 0, 0);
     }
 }

@@ -1,19 +1,15 @@
-﻿using Microsoft.Win32;
+﻿using System.IO;
+using System.Windows.Input;
+using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
-using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
-using PixiEditor.Parser;
 using PixiEditor.Views.Dialogs;
-using System.IO;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -77,6 +73,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
 
     public void NewDocument(int width, int height, bool addBaseLayer = true)
     {
+        /*
         Owner.BitmapManager.Documents.Add(new Document(width, height));
         Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents[^1];
         if (addBaseLayer)
@@ -85,6 +82,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         Owner.ResetProgramStateValues();
+        */
     }
 
     /// <summary>
@@ -93,6 +91,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
     /// <param name="path">Path to file.</param>
     public void OpenFile(string path)
     {
+        /*
         ImportFileDialog dialog = new ImportFileDialog();
 
         if (path != null && File.Exists(path))
@@ -109,11 +108,13 @@ public class FileViewModel : SubViewModel<ViewModelMain>
                 Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));
             Owner.BitmapManager.ActiveDocument.UpdatePreviewImage();
         }
+        */
     }
 
     [Command.Basic("PixiEditor.File.Open", "Open", "Open file", Key = Key.O, Modifiers = ModifierKeys.Control)]
     public void Open(string path)
     {
+        /*
         if (path == null)
         {
             Open();
@@ -141,6 +142,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("This .pixi file uses the old format,\n which is no longer supported and can't be opened.", "Old file format");
         }
+        */
     }
 
     private void Owner_OnStartupEvent(object sender, System.EventArgs e)
@@ -165,6 +167,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
 
     public void OpenRecent(object parameter)
     {
+        /*
         string path = (string)parameter;
 
         foreach (Document document in Owner.BitmapManager.Documents)
@@ -185,8 +188,9 @@ public class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         Open((string)parameter);
+        */
     }
-        
+
     public void Open()
     {
         var filter = SupportedFilesHelper.BuildOpenFilter();
@@ -213,24 +217,27 @@ public class FileViewModel : SubViewModel<ViewModelMain>
 
     private void OpenDocument(string path)
     {
+        /*
         Document document = Importer.ImportDocument(path);
 
         if (Owner.BitmapManager.Documents.Select(x => x.DocumentFilePath).All(y => y != path))
         {
-            Owner.BitmapManager.Documents.Add(document);
+          j  Owner.BitmapManager.Documents.Add(document);
             Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents.Last();
         }
         else
         {
             Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents.First(y => y.DocumentFilePath == path);
         }
+        */
     }
 
     [Command.Basic("PixiEditor.File.Save", false, "Save", "Save image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control)]
     [Command.Basic("PixiEditor.File.SaveAsNew", true, "Save as...", "Save image as new", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
     public void SaveDocument(bool asNew)
     {
-        if (asNew || string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath)) 
+        /*
+        if (asNew || string.IsNullOrEmpty(Owner.BitmapManager.ActiveDocument.DocumentFilePath))
         {
             Owner.BitmapManager.ActiveDocument.SaveWithDialog();
         }
@@ -238,6 +245,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
         {
             Owner.BitmapManager.ActiveDocument.Save();
         }
+        */
     }
 
     /// <summary>
@@ -247,9 +255,11 @@ public class FileViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.File.Export", "Export", "Export image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)]
     public void ExportFile()
     {
+        /*
         ViewModelMain.Current.ActionDisplay = "";
         WriteableBitmap bitmap = Owner.BitmapManager.ActiveDocument.Renderer.FinalBitmap;
         Exporter.Export(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
+        */
     }
 
     private void UpdateMaxRecentlyOpened(object parameter)

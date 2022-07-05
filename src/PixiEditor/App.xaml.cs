@@ -1,18 +1,9 @@
-﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels;
-using PixiEditor.Views.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Windows;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor;
 
@@ -107,12 +98,12 @@ public partial class App : Application
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
     {
         base.OnSessionEnding(e);
-
+        /*
         if (ViewModelMain.Current.BitmapManager.Documents.Any(x => !x.ChangesSaved))
         {
             ConfirmationType confirmation = ConfirmationDialog.Show($"{e.ReasonSessionEnding} with unsaved data. Are you sure?", $"{e.ReasonSessionEnding}");
             e.Cancel = confirmation != ConfirmationType.Yes;
-        }
+        }*/
     }
 
     private bool ParseArgument(string pattern, string args, out Group[] groups)

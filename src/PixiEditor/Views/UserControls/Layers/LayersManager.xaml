@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:vws="clr-namespace:PixiEditor.Views" 
-             xmlns:layers="clr-namespace:PixiEditor.Models.Layers"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
+             xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <Grid>
@@ -17,7 +17,7 @@
         </Grid.RowDefinitions>
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="0" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                <Button Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" 
+                <!--<Button Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" 
                         Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
                         CommandParameter="{Binding Path=SelectedItem, ElementName=layersManager}"
                                                 HorizontalAlignment="Stretch" Margin="5"
@@ -42,7 +42,7 @@
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Trash.png"/>
                     </Button.Background>
-                </Button>
+                </Button>-->
             </StackPanel>
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0,0,10,0" HorizontalAlignment="Right" Focusable="True">
                 <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
@@ -63,9 +63,8 @@
                 Visibility="{Binding Path=OpacityInputEnabled, ElementName=layersManager, 
                 Converter={BoolToVisibilityConverter}}" 
                 Background="{StaticResource MainColor}" 
-                Layer="{Binding LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument.ReferenceLayer, ElementName=layersManager, Mode=TwoWay}"
                 Grid.Row="3" VerticalAlignment="Bottom"/>
-            <TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding CachedLayerTreeRoot, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
+            <!--<TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding CachedLayerTreeRoot, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ui:ReversedOrderStackPanel/>
@@ -77,19 +76,19 @@
                                              IsVisibleUndoTriggerable="{Binding StructureData.IsVisible}" 
                                              GroupOpacity="{Binding StructureData.Opacity}"
                                              LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" 
-                                             GroupGuid="{Binding GuidValue}" 
-                                             GroupData="{Binding StructureData}"
+                                             GroupGuid="{Binding GuidValue}"
                                              MouseMove="LayerGroup_MouseMove"/>
-                    </HierarchicalDataTemplate>
-                    <DataTemplate DataType="{x:Type layers:Layer}">
+                    </HierarchicalDataTemplate>-->
+            <!--<DataTemplate DataType="{x:Type layers:Layer}">
                         <layerUserControls:LayerStructureItemContainer    
                             MouseDown="SelectActiveItem"
                             MouseMove="LayerStructureItemContainer_MouseMove" 
                             ContainerIndex="{Binding Converter={converters:IndexOfConverter}}"
-                            Layer="{Binding}" LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
-                    </DataTemplate>
+                            LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
+                    </DataTemplate>-->
+            <!--
                 </TreeView.Resources>
-            </TreeView>
+            </TreeView>-->
             <Border Name="dropBorder" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave" AllowDrop="True" Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
         </DockPanel>
     </Grid>

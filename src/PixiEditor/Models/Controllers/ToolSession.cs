@@ -1,18 +1,16 @@
-﻿using PixiEditor.Models.Position;
+﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Tools;
-using System;
-using System.Collections.Generic;
-using System.Windows.Input;
 using SkiaSharp;
 
 namespace PixiEditor.Models.Controllers;
 
 public class ToolSession
 {
-    private List<Coordinates> mouseMovement = new();
+    private List<VecI> mouseMovement = new();
     private bool ended = false;
 
-    public IReadOnlyList<Coordinates> MouseMovement => mouseMovement;
+    public IReadOnlyList<VecI> MouseMovement => mouseMovement;
     public Tool Tool { get; }
 
     public bool IsCtrlDown { get; private set; }
@@ -104,7 +102,7 @@ public class ToolSession
         Tool.OnKeyUp(key);
     }
 
-    public void OnPixelPositionChange(Coordinates pos)
+    public void OnPixelPositionChange(VecI pos)
     {
         UpdateMinMax(pos.X, pos.Y);
         mouseMovement.Add(pos);

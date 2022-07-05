@@ -1,9 +1,9 @@
-﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.ViewModels;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.UserControls;
 
@@ -61,10 +61,10 @@ public partial class PreviewWindow : UserControl
     {
         InitializeComponent();
 
-        imageGrid.MouseMove += ImageGrid_MouseMove;
+        /*imageGrid.MouseMove += ImageGrid_MouseMove;
         imageGrid.MouseRightButtonDown += ImageGrid_MouseRightButtonDown;
         imageGrid.MouseEnter += ImageGrid_MouseEnter;
-        imageGrid.MouseLeave += ImageGrid_MouseLeave;
+        imageGrid.MouseLeave += ImageGrid_MouseLeave;*/
     }
 
     private void ImageGrid_MouseLeave(object sender, MouseEventArgs e)
@@ -115,6 +115,7 @@ public partial class PreviewWindow : UserControl
 
     private void ImageGrid_MouseMove(object sender, MouseEventArgs e)
     {
+        /*
         if (Document == null)
         {
             return;
@@ -136,5 +137,6 @@ public partial class PreviewWindow : UserControl
 
         var color = Document.GetColorAtPoint(x, y);
         ColorCursorColor = Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
+        */
     }
 }

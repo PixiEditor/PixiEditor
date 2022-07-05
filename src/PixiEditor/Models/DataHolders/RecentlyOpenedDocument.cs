@@ -1,13 +1,11 @@
-﻿using PixiEditor.Helpers;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Windows.Media.Imaging;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
-using System;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.DataHolders;
 
@@ -87,7 +85,7 @@ public class RecentlyOpenedDocument : NotifyableObject
             using Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
                 serializableDocument.Layers
                     .Where(x => x.Opacity > 0.8)
-                    .Select(x => (x.ToSKImage(), new Coordinates(x.OffsetX, x.OffsetY))));
+                    .Select(x => (x.ToSKImage(), new VecI(x.OffsetX, x.OffsetY))));
 
             return DownscaleToMaxSize(surface.ToWriteableBitmap());
         }

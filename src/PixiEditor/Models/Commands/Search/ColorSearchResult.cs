@@ -1,7 +1,7 @@
-﻿using PixiEditor.Helpers.Extensions;
+﻿using System.Windows.Media;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.ViewModels;
 using SkiaSharp;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Commands.Search;
 
@@ -29,7 +29,7 @@ public class ColorSearchResult : SearchResult
         icon = GetIcon(color);
         this.target = target;
     }
-        
+
     public ColorSearchResult(SKColor color) : this(color, x => ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = x)
     {
         text = $"Set color to {color}";
@@ -37,13 +37,14 @@ public class ColorSearchResult : SearchResult
 
     public static ColorSearchResult PastePalette(SKColor color, string searchTerm = null)
     {
-        var result = new ColorSearchResult(color, x => ViewModelMain.Current.BitmapManager.ActiveDocument.Palette.Add(x))
+        //var result = new ColorSearchResult(color, x => ViewModelMain.Current.BitmapManager.ActiveDocument.Palette.Add(x))
+        var result = new ColorSearchResult(color, x => { })
         {
             SearchTerm = searchTerm
         };
         result.text = $"Add color {color} to palette";
         result.requiresDocument = true;
-            
+
         return result;
     }
 

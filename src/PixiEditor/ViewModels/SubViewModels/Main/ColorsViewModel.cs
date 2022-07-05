@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Windows.Input;
+using System.Windows.Media;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Search;
@@ -10,11 +12,8 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.ExternalServices;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Undo;
 using PixiEditor.Views.Dialogs;
 using SkiaSharp;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -77,18 +76,6 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
     [Command.Internal("PixiEditor.Colors.ReplaceColors")]
     public void ReplaceColors((SKColor oldColor, SKColor newColor) colors)
     {
-        Document activeDocument = Owner.BitmapManager?.ActiveDocument;
-        if (activeDocument != null)
-        {
-            activeDocument.ReplaceColor(colors.oldColor, colors.newColor);
-            ReplacePaletteColor(colors, activeDocument);
-            activeDocument.UndoManager.AddUndoChange(new Change(
-                ReplacePaletteColorProcess,
-                new object[] { (colors.newColor, colors.oldColor), activeDocument },
-                ReplacePaletteColorProcess,
-                new object[] { colors, activeDocument }));
-            activeDocument.UndoManager.SquashUndoChanges(2, $"Replace color {colors.oldColor} with {colors.newColor}");
-        }
 
     }
 
@@ -102,11 +89,11 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
 
     private static void ReplacePaletteColor((SKColor oldColor, SKColor newColor) colors, Document activeDocument)
     {
-        int oldIndex = activeDocument.Palette.IndexOf(colors.oldColor);
+        /*int oldIndex = activeDocument.Palette.IndexOf(colors.oldColor);
         if (oldIndex != -1)
         {
             activeDocument.Palette[oldIndex] = colors.newColor;
-        }
+        }*/
     }
 
     private async void OwnerOnStartupEvent(object sender, EventArgs e)
@@ -115,8 +102,8 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "Open Palette Browser", "Open Palette Browser", CanExecute = "PixiEditor.HasDocument", IconPath = "Globe.png")]
-    public void OpenPalettesBrowser() => PalettesBrowser.Open(PaletteDataSources, ImportPaletteCommand, Owner.BitmapManager.ActiveDocument.Palette);
-        
+    public void OpenPalettesBrowser() { } // PalettesBrowser.Open(PaletteDataSources, ImportPaletteCommand, Owner.BitmapManager.ActiveDocument.Palette);
+
     private async Task ImportLospecPalette()
     {
         var args = StartupArgs.Args;
@@ -185,6 +172,7 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
     [Command.Internal("PixiEditor.Colors.ImportPalette", CanExecute = "PixiEditor.Colors.CanImportPalette")]
     public void ImportPalette(List<string> palette)
     {
+        /*
         var doc = Owner.BitmapManager.ActiveDocument;
         if (doc is null)
             return;
@@ -198,13 +186,17 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
 
             doc.Palette.ReplaceRange(palette.Select(x => SKColor.Parse(x)));
         }
+        */
     }
 
     [Evaluator.CanExecute("PixiEditor.Colors.CanSelectPaletteColor")]
     public bool CanSelectPaletteColor(int index)
     {
+        /*
         var document = Owner.BitmapManager.ActiveDocument;
         return document?.Palette is not null && document.Palette.Count > index;
+        */
+        return false;
     }
 
     [Evaluator.Icon("PixiEditor.Colors.FirstPaletteColorIcon")]
@@ -231,6 +223,7 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
 
     private ImageSource GetPaletteColorIcon(int index)
     {
+        /*
         var document = Owner.BitmapManager.ActiveDocument;
 
         SKColor color;
@@ -239,7 +232,8 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
         else
             color = document.Palette[index];
 
-        return ColorSearchResult.GetIcon(color);
+        return ColorSearchResult.GetIcon(color);*/
+        return ColorSearchResult.GetIcon(SKColors.Transparent);
     }
 
     [Command.Basic("PixiEditor.Colors.SelectFirstPaletteColor", "Select color 1", "Select the first color in the palette", Key = Key.D1, Parameter = 0, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.FirstPaletteColorIcon")]
@@ -254,11 +248,13 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Colors.SelectTenthPaletteColor", "Select color 10", "Select the tenth color in the palette", Key = Key.D0, Parameter = 9, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.TenthPaletteColorIcon")]
     public void SelectPaletteColor(int index)
     {
+        /*
         var document = Owner.BitmapManager.ActiveDocument;
         if (document.Palette != null && document.Palette.Count > index)
         {
             PrimaryColor = document.Palette[index];
         }
+        */
     }
 
     [Command.Basic("PixiEditor.Colors.Swap", "Swap colors", "Swap primary and secondary colors", Key = Key.X)]
@@ -269,19 +265,23 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
 
     public void AddSwatch(SKColor color)
     {
+        /*
         if (!Owner.BitmapManager.ActiveDocument.Swatches.Contains(color))
         {
             Owner.BitmapManager.ActiveDocument.Swatches.Add(color);
         }
+        */
     }
 
     [Command.Internal("PixiEditor.Colors.RemoveSwatch")]
     public void RemoveSwatch(SKColor color)
     {
+        /*
         if (Owner.BitmapManager.ActiveDocument.Swatches.Contains(color))
         {
             Owner.BitmapManager.ActiveDocument.Swatches.Remove(color);
         }
+        */
     }
 
     [Command.Internal("PixiEditor.Colors.SelectColor")]

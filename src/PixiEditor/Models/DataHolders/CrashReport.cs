@@ -1,15 +1,9 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Parser;
-using PixiEditor.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Reflection;
 using System.Text;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.DataHolders;
 
@@ -93,6 +87,8 @@ public class CrashReport : IDisposable
 
     public List<Document> RecoverDocuments()
     {
+        return new List<Document>();
+        /*
         List<Document> documents = new();
         foreach (ZipArchiveEntry entry in ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")))
         {
@@ -114,6 +110,7 @@ public class CrashReport : IDisposable
         }
 
         return documents;
+        */
     }
 
     public void Dispose()
@@ -149,6 +146,7 @@ public class CrashReport : IDisposable
 
     public void Save()
     {
+        /*
         using FileStream zipStream = new(FilePath, FileMode.Create, FileAccess.Write);
         using ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
 
@@ -171,6 +169,7 @@ public class CrashReport : IDisposable
             }
             catch { }
         }
+        */
     }
 
     private void ExtractReport()

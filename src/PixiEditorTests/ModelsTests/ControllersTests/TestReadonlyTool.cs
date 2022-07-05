@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using PixiEditor.Models.Position;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Tools;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests;
@@ -16,7 +15,7 @@ public class TestReadonlyTool : ReadonlyTool
 
     public Action ToolAction { get; set; }
 
-    public override void Use(IReadOnlyList<Coordinates> pixels)
+    public override void Use(VecD pos)
     {
         ToolAction();
     }

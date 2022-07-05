@@ -1,11 +1,11 @@
-﻿using PixiEditor.Helpers;
+﻿using System.Windows;
+using System.Windows.Input;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
-using System.Windows;
-using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -22,7 +22,7 @@ public class IoViewModel : SubViewModel<ViewModelMain>
     private bool restoreToolOnKeyUp = false;
 
     private MouseInputFilter filter = new();
-    
+
     public IoViewModel(ViewModelMain owner)
         : base(owner)
     {
@@ -168,6 +168,7 @@ public class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseDown(object sender, MouseButton button)
     {
+        /*
         if (button == MouseButton.Left)
         {
             BitmapManager bitmapManager = Owner.BitmapManager;
@@ -177,6 +178,7 @@ public class IoViewModel : SubViewModel<ViewModelMain>
 
             bitmapManager.InputTarget.OnLeftMouseButtonDown(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
         }
+        */
     }
 
     private void OnPreviewMiddleMouseButton(object sender)
@@ -211,10 +213,11 @@ public class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseMove(object sender, EventArgs args)
     {
+        /*
         var activeDocument = Owner.BitmapManager.ActiveDocument;
         if (activeDocument == null)
             return;
-        Owner.BitmapManager.InputTarget.OnMouseMove(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
+        Owner.BitmapManager.InputTarget.OnMouseMove(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);*/
     }
 
     private void OnMouseUp(object sender, MouseButton button)

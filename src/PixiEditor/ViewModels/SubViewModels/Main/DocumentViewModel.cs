@@ -1,11 +1,6 @@
-﻿using PixiEditor.Models.Commands.Attributes;
+﻿using System.Windows.Input;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.Enums;
-using System.Windows.Input;
-using SkiaSharp;
-using System;
-using System.Linq;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -22,6 +17,7 @@ public class DocumentViewModel : SubViewModel<ViewModelMain>
 
     public void FlipDocument(object parameter)
     {
+        /*
         if (parameter is "Horizontal")
         {
             Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Horizontal);
@@ -30,24 +26,28 @@ public class DocumentViewModel : SubViewModel<ViewModelMain>
         {
             Owner.BitmapManager.ActiveDocument?.FlipActiveDocument(FlipType.Vertical);
         }
+        */
     }
 
     public void RotateDocument(object parameter)
     {
+        /*
         if (parameter is double angle)
         {
             Owner.BitmapManager.ActiveDocument?.RotateActiveDocument((float)angle);
         }
+        */
     }
 
     [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument")]
     public void ClipCanvas()
     {
-        Owner.BitmapManager.ActiveDocument?.ClipCanvas();
+        //Owner.BitmapManager.ActiveDocument?.ClipCanvas();
     }
 
     public void RequestCloseDocument(Document document)
     {
+        /*
         if (!document.ChangesSaved)
         {
             ConfirmationType result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
@@ -64,21 +64,25 @@ public class DocumentViewModel : SubViewModel<ViewModelMain>
         }
 
         Owner.BitmapManager.CloseDocument(document);
+        */
     }
 
     [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png")]
     public void DeletePixels()
     {
+        /*
         var doc = Owner.BitmapManager.ActiveDocument;
         Owner.BitmapManager.BitmapOperations.DeletePixels(
             doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray(),
             doc.ActiveSelection.SelectedPoints.ToArray());
+        */
     }
 
     [Command.Basic("PixiEditor.Document.ResizeDocument", false, "Resize Document", "Resize Document", CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
     [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "Resize Canvas", "Resize Canvas", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
     public void OpenResizePopup(bool canvas)
     {
+        /*
         ResizeDocumentDialog dialog = new ResizeDocumentDialog(
             Owner.BitmapManager.ActiveDocument.Width,
             Owner.BitmapManager.ActiveDocument.Height,
@@ -94,11 +98,12 @@ public class DocumentViewModel : SubViewModel<ViewModelMain>
                 Owner.BitmapManager.ActiveDocument.Resize(dialog.Width, dialog.Height);
             }
         }
+        */
     }
 
     [Command.Basic("PixiEditor.Document.CenterContent", "Center Content", "Center Content", CanExecute = "PixiEditor.HasDocument")]
     public void CenterContent()
     {
-        Owner.BitmapManager.ActiveDocument.CenterContent();
+        //Owner.BitmapManager.ActiveDocument.CenterContent();
     }
 }

@@ -50,8 +50,6 @@
                 x:Key="BoolToIntConverter" />
             <converters:NotNullToBoolConverter
                 x:Key="NotNullToBoolConverter" />
-            <converters:LayersToStructuredLayersConverter
-                x:Key="LayersToStructuredLayersConverter" />
             <converters:DoubleToIntConverter
                 x:Key="DoubleToIntConverter" />
             <converters:IsSpecifiedTypeConverter
@@ -659,27 +657,9 @@
                                             CanDockAsTabbedDocument="True"
                                             CanFloat="True">
                                             <layerUserControls:LayersManager
-                                                LayerCommandsViewModel="{Binding LayersSubViewModel}"
                                                 OpacityInputEnabled="{Binding BitmapManager.ActiveDocument, 
                     Converter={converters:NotNullToBoolConverter}}">
-                                                <layerUserControls:LayersManager.LayerTreeRoot>
-                                                    <MultiBinding
-                                                        Converter="{converters:LayersToStructuredLayersConverter}">
-                                                        <Binding
-                                                            Path="BitmapManager.ActiveDocument.Layers" />
-                                                        <Binding
-                                                            Path="BitmapManager.ActiveDocument.LayerStructure" />
-                                                    </MultiBinding>
-                                                </layerUserControls:LayersManager.LayerTreeRoot>
                                             </layerUserControls:LayersManager>
-                                        </LayoutAnchorable>
-                                        <LayoutAnchorable
-                                            x:Name="rawLayerAnchorable"
-                                            ContentId="rawLayer"
-                                            Title="Raw layers">
-                                            <layerUserControls:RawLayersViewer
-                                                Layers="{Binding BitmapManager.ActiveDocument.Layers}"
-                                                Structure="{Binding BitmapManager.ActiveDocument.LayerStructure}" />
                                         </LayoutAnchorable>
                                     </LayoutAnchorablePane>
                                     <LayoutAnchorablePane>
@@ -773,20 +753,20 @@
                             Text="X:"
                             Foreground="White"
                             FontSize="16" />
-                        <TextBlock
+                        <!--<TextBlock
                             Margin="4,0,10,0"
                             Text="{Binding BitmapManager.ActiveDocument.MouseXOnCanvas, Converter={converters:DoubleToIntConverter}}"
                             Foreground="White"
-                            FontSize="16" />
+                            FontSize="16" />-->
                         <TextBlock
                             Text="Y:"
                             Foreground="White"
                             FontSize="16" />
-                        <TextBlock
+                        <!--<TextBlock
                             Margin="4,0,10,0"
                             Text="{Binding BitmapManager.ActiveDocument.MouseYOnCanvas, Converter={converters:DoubleToIntConverter}}"
                             Foreground="White"
-                            FontSize="16" />
+                            FontSize="16" />-->
                     </StackPanel>
                 </DockPanel>
                 <StackPanel

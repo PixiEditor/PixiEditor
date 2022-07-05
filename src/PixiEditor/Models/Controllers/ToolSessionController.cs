@@ -1,8 +1,6 @@
-﻿using PixiEditor.Models.Position;
+﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Tools;
-using System;
-using System.Collections.Generic;
-using System.Windows.Input;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -21,7 +19,7 @@ public class ToolSessionController : ICanvasInputTarget
     public bool IsCtrlDown => keyboardState.ContainsKey(Key.LeftCtrl) ? keyboardState[Key.LeftCtrl] == KeyStates.Down : false;
     public bool IsAltDown => keyboardState.ContainsKey(Key.LeftAlt) ? keyboardState[Key.LeftAlt] == KeyStates.Down : false;
 
-    public Coordinates LastPixelPosition => new(lastPixelX, lastPixelY);
+    public VecI LastPixelPosition => new(lastPixelX, lastPixelY);
 
     private int lastPixelX;
     private int lastPixelY;
@@ -113,7 +111,7 @@ public class ToolSessionController : ICanvasInputTarget
         //call internal events
         PreciseMousePositionChanged?.Invoke(this, (newCanvasX, newCanvasY));
         if (pixelPosChanged)
-            PixelMousePositionChanged?.Invoke(this, new MouseMovementEventArgs(new Coordinates(newX, newY)));
+            PixelMousePositionChanged?.Invoke(this, new MouseMovementEventArgs(new VecI(newX, newY)));
     }
 
     public void OnLeftMouseButtonDown(double canvasPosX, double canvasPosY)

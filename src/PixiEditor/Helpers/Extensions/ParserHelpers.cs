@@ -1,11 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Layers;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Skia;
-using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace PixiEditor.Helpers.Extensions;
 
@@ -13,6 +7,7 @@ public static class ParserHelpers
 {
     public static Document ToDocument(this SerializableDocument serializableDocument)
     {
+        /*
         Document document = new Document(serializableDocument.Width, serializableDocument.Height)
         {
             Layers = serializableDocument.ToLayers(),
@@ -28,9 +23,10 @@ public static class ParserHelpers
         }
         document.Renderer.ForceRerender();
 
-        return document;
+        return document;*/
+        throw new NotImplementedException();
     }
-
+    /*
     public static WpfObservableRangeCollection<Layer> ToLayers(this SerializableDocument document)
     {
         WpfObservableRangeCollection<Layer> layers = new();
@@ -51,7 +47,7 @@ public static class ParserHelpers
             Offset = new(layer.OffsetX, layer.OffsetY, 0, 0),
         };
     }
-
+    
     public static WpfObservableRangeCollection<GuidStructureItem> ToGroups(this SerializableDocument sdocument, Document document)
     {
         WpfObservableRangeCollection<GuidStructureItem> groups = new();
@@ -162,5 +158,5 @@ public static class ParserHelpers
     {
         document.Palette.AddRange(palette);
         return document;
-    }
+    }*/
 }

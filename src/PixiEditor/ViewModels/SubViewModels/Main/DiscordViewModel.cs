@@ -1,8 +1,6 @@
 ﻿using DiscordRPC;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
-using System;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -79,7 +77,7 @@ public class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
     public DiscordViewModel(ViewModelMain owner, string clientId)
         : base(owner)
     {
-        Owner.BitmapManager.DocumentChanged += DocumentChanged;
+        //Owner.BitmapManager.DocumentChanged += DocumentChanged;
         this.clientId = clientId;
 
         Enabled = IPreferences.Current.GetPreference("EnableRichPresence", true);
@@ -106,6 +104,7 @@ public class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
 
     public void UpdatePresence(Document document)
     {
+        /*
         if (client == null)
         {
             return;
@@ -140,6 +139,7 @@ public class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         }
 
         client.SetPresence(richPresence);
+        */
     }
 
     public void Dispose()
@@ -168,7 +168,7 @@ public class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             }
         };
     }
-
+    /*
     private void DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
     {
         if (currentDocument != null)
@@ -186,6 +186,7 @@ public class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             currentDocument.LayersChanged += DocumentLayerChanged;
         }
     }
+    */
 
     private void DocumentLayerChanged(object sender, Models.Controllers.LayersChangedEventArgs e)
     {

@@ -1,15 +1,13 @@
-﻿using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Position;
-using SkiaSharp;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.Helpers.Extensions;
+using SkiaSharp;
 
 namespace PixiEditor.Models.DataHolders;
 
@@ -88,7 +86,7 @@ public class Surface : IDisposable
     /// <param name="width">The width of the <see cref="Surface"/></param>
     /// <param name="height">The height of the <see cref="Surface"/></param>
     /// <returns>A surface that has the <paramref name="images"/> drawn on it</returns>
-    public static Surface Combine(int width, int height, IEnumerable<(SKImage image, Coordinates offset)> images)
+    public static Surface Combine(int width, int height, IEnumerable<(SKImage image, VecI offset)> images)
     {
         Surface surface = new Surface(width, height);
 

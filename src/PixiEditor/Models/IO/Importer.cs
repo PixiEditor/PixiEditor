@@ -1,15 +1,11 @@
-﻿using PixiEditor.Exceptions;
-using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Parser;
-using SkiaSharp;
-using System;
-using System.IO;
+﻿using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
+using PixiEditor.Exceptions;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
+using SkiaSharp;
 
 namespace PixiEditor.Models.IO;
 
@@ -74,6 +70,7 @@ public class Importer : NotifyableObject
 
     public static Document ImportDocument(string path)
     {
+        /*
         try
         {
             Document doc = PixiEditor.Parser.PixiParser.Deserialize(path).ToDocument();
@@ -83,7 +80,8 @@ public class Importer : NotifyableObject
         catch (InvalidFileException)
         {
             throw new CorruptedFileException();
-        }
+        }*/
+        return null;
     }
 
     public static bool IsSupportedFile(string path)

@@ -1,20 +1,18 @@
-﻿using PixiEditor.Models.Commands.Attributes;
+﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Position;
-using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools;
 
 [Command.Tool(Key = Key.Z)]
 internal class ZoomTool : ReadonlyTool
 {
-    private BitmapManager BitmapManager { get; }
     private string defaultActionDisplay = "Click and move to zoom. Click to zoom in, hold ctrl and click to zoom out.";
 
     public ZoomTool(BitmapManager bitmapManager)
     {
         ActionDisplay = defaultActionDisplay;
-        BitmapManager = bitmapManager;
     }
 
     public override bool HideHighlight => true;
@@ -37,7 +35,7 @@ internal class ZoomTool : ReadonlyTool
         }
     }
 
-    public override void Use(IReadOnlyList<Coordinates> pixels)
+    public override void Use(VecD pos)
     {
         // Implemented inside Zoombox.xaml.cs
     }

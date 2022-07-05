@@ -5,7 +5,6 @@ using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.ClsFile;
 using PixiEditor.Models.IO.JascPalFile;
-using PixiEditor.Models.Services;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
@@ -62,7 +61,5 @@ public static class ServiceCollectionHelpers
         .AddSingleton<PaletteFileParser, JascFileParser>()
         .AddSingleton<PaletteFileParser, ClsFileParser>()
         // Palette data sources
-        .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>()
-        // Other
-        .AddSingleton<DocumentProvider>();
+        .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();
 }

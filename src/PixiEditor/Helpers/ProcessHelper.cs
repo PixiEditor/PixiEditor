@@ -2,13 +2,13 @@
 using System.Diagnostics;
 using System.Security.Principal;
 
-namespace PixiEditor.Models.Processes;
+namespace PixiEditor.Helpers;
 
 public static class ProcessHelper
 {
     public static Process RunAsAdmin(string path)
     {
-        Process proc = new Process();
+        var proc = new Process();
         try
         {
             proc.StartInfo.FileName = path;

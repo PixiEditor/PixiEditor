@@ -1,7 +1,5 @@
-﻿using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Undo;
-using System.IO;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using PixiEditor.Models.Commands.Attributes;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -13,7 +11,7 @@ public class UndoViewModel : SubViewModel<ViewModelMain>
     public UndoViewModel(ViewModelMain owner)
         : base(owner)
     {
-        var result = Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
+        //var result = Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
 
         //ClearUndoTempDirectory();
     }
@@ -30,8 +28,8 @@ public class UndoViewModel : SubViewModel<ViewModelMain>
         //sometimes CanRedo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
         if (CanRedo())
         {
-            Owner.BitmapManager.ActiveDocument.UndoManager.Redo();
-            Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
+            //Owner.BitmapManager.ActiveDocument.UndoManager.Redo();
+            //Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
         }
     }
 
@@ -47,8 +45,8 @@ public class UndoViewModel : SubViewModel<ViewModelMain>
         //sometimes CanUndo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
         if (CanUndo())
         {
-            Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
-            Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
+            //Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
+            //Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
         }
     }
 
@@ -57,11 +55,11 @@ public class UndoViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     public void ClearUndoTempDirectory()
     {
-        DirectoryInfo dirInfo = new DirectoryInfo(StorageBasedChange.DefaultUndoChangeLocation);
+        /*DirectoryInfo dirInfo = new DirectoryInfo(StorageBasedChange.DefaultUndoChangeLocation);
         foreach (FileInfo file in dirInfo.GetFiles())
         {
             file.Delete();
-        }
+        }*/
     }
 
     /// <summary>
@@ -72,7 +70,7 @@ public class UndoViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Undo.CanUndo")]
     public bool CanUndo()
     {
-        return Owner.BitmapManager.ActiveDocument?.UndoManager.CanUndo ?? false;
+        return false;
     }
 
     /// <summary>
@@ -83,6 +81,6 @@ public class UndoViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Undo.CanRedo")]
     public bool CanRedo()
     {
-        return Owner.BitmapManager.ActiveDocument?.UndoManager.CanRedo ?? false;
+        return false;
     }
 }

@@ -1,18 +1,14 @@
-﻿using Microsoft.Win32;
+﻿using System.IO;
+using System.IO.Compression;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Media.Imaging;
+using Microsoft.Win32;
 using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.IO;
 
@@ -51,6 +47,8 @@ public class Exporter
     /// <returns>Path.</returns>
     public static string SaveAsEditableFile(Document document, string path, FileType requestedType = FileType.Unset)
     {
+        return path;
+        /*
         var typeFromPath = ParseImageFormat(Path.GetExtension(path));
         FileType finalType = (typeFromPath, requestedType) switch
         {
@@ -80,6 +78,7 @@ public class Exporter
         }
 
         return path;
+        */
     }
 
     private static string AppendExtension(string path, FileTypeDialogData data)
