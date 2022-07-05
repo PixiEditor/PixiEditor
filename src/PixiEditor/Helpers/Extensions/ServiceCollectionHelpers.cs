@@ -35,7 +35,6 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<SelectionViewModel>()
         .AddSingleton<ViewportViewModel>()
         .AddSingleton<ColorsViewModel>()
-        .AddSingleton<DocumentViewModel>()
         .AddSingleton<RegistryViewModel>()
         .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
         .AddSingleton<DebugViewModel>()

@@ -1,46 +1,53 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Events;
 using PixiEditor.Models.Tools;
-using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
+#nullable enable
+[Command.Group("PixiEditor.Document", "Image")]
 internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 {
     public DocumentManagerViewModel(ViewModelMain owner) : base(owner)
     {
-        ToolSessionController = new ToolSessionController();
+        /*ToolSessionController = new ToolSessionController();
         ToolSessionController.SessionStarted += OnSessionStart;
         ToolSessionController.SessionEnded += OnSessionEnd;
         ToolSessionController.PixelMousePositionChanged += OnPixelMousePositionChange;
         ToolSessionController.PreciseMousePositionChanged += OnPreciseMousePositionChange;
-        ToolSessionController.KeyStateChanged += (_, _) => UpdateActionDisplay(_tools.ActiveTool);
+        ToolSessionController.KeyStateChanged += (_, _) => UpdateActionDisplay(_tools.ActiveTool);*/
 
         //undo.UndoRedoCalled += (_, _) => ToolSessionController.ForceStopActiveSessionIfAny();
     }
 
-    private ToolSessionController ToolSessionController { get; set; }
-    public ICanvasInputTarget InputTarget => ToolSessionController;
+    //private ToolSessionController ToolSessionController { get; set; }
+    //public ICanvasInputTarget InputTarget => ToolSessionController;
 
     public ObservableCollection<DocumentViewModel> Documents { get; set; } = new ObservableCollection<DocumentViewModel>();
+    public event EventHandler<DocumentChangedEventArgs>? ActiveDocumentChanged;
 
-    private DocumentViewModel activeDocument;
-    public DocumentViewModel ActiveDocument
+
+    private DocumentViewModel? activeDocument;
+    public DocumentViewModel? ActiveDocument
     {
         get => activeDocument;
         set
         {
             if (activeDocument == value)
                 return;
+            var prevDoc = activeDocument;
             activeDocument = value;
             RaisePropertyChanged(nameof(ActiveDocument));
+            ActiveDocumentChanged?.Invoke(this, new(value, prevDoc));
             ActiveWindow = value;
         }
     }
 
-    private object activeWindow;
-    public object ActiveWindow
+    private object? activeWindow;
+    public object? ActiveWindow
     {
         get => activeWindow;
         set
@@ -54,11 +61,11 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public event EventHandler StopUsingTool;
+    public event EventHandler? StopUsingTool;
 
-    private readonly ToolsViewModel _tools;
+    //private readonly ToolsViewModel _tools;
 
-    private ToolSession activeSession = null;
+    private ToolSession? activeSession = null;
 
     [Evaluator.CanExecute("PixiEditor.HasDocument")]
     public bool DocumentNotNull() => ActiveDocument != null;
@@ -80,7 +87,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 
     public void UpdateActionDisplay(Tool tool)
     {
-        tool?.UpdateActionDisplay(ToolSessionController.IsCtrlDown, ToolSessionController.IsShiftDown, ToolSessionController.IsAltDown);
+        //tool?.UpdateActionDisplay(ToolSessionController.IsCtrlDown, ToolSessionController.IsShiftDown, ToolSessionController.IsAltDown);
     }
 
     private void OnSessionStart(object sender, ToolSession e)
@@ -94,7 +101,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     {
         activeSession = null;
 
-        HighlightPixels(ToolSessionController.LastPixelPosition);
+        //HighlightPixels(ToolSessionController.LastPixelPosition);
         StopUsingTool?.Invoke(this, EventArgs.Empty);
     }
 
@@ -152,11 +159,85 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         if (activeSession != null)
             return;
 
-        HighlightPixels(forceHide ? new(-1, -1) : ToolSessionController.LastPixelPosition);
+        //HighlightPixels(forceHide ? new(-1, -1) : ToolSessionController.LastPixelPosition);
     }
 
     private void HighlightPixels(VecI position)
     {
 
     }
+
+
+    [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument")]
+    public void ClipCanvas()
+    {
+        //Owner.BitmapManager.ActiveDocument?.ClipCanvas();
+    }
+
+    /*
+    public void RequestCloseDocument(Document document)
+    {
+        /*
+        if (!document.ChangesSaved)
+        {
+            ConfirmationType result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
+            if (result == ConfirmationType.Yes)
+            {
+                Owner.FileSubViewModel.SaveDocument(false);
+                if (!document.ChangesSaved)
+                    return;
+            }
+            else if (result == ConfirmationType.Canceled)
+            {
+                return;
+            }
+        }
+
+        Owner.BitmapManager.CloseDocument(document);
+        
+    }
+*/
+
+    [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png")]
+    public void DeletePixels()
+    {
+        /*
+        var doc = Owner.BitmapManager.ActiveDocument;
+        Owner.BitmapManager.BitmapOperations.DeletePixels(
+            doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray(),
+            doc.ActiveSelection.SelectedPoints.ToArray());
+        */
+    }
+
+
+    [Command.Basic("PixiEditor.Document.ResizeDocument", false, "Resize Document", "Resize Document", CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "Resize Canvas", "Resize Canvas", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
+    public void OpenResizePopup(bool canvas)
+    {
+        /*
+        ResizeDocumentDialog dialog = new ResizeDocumentDialog(
+            Owner.BitmapManager.ActiveDocument.Width,
+            Owner.BitmapManager.ActiveDocument.Height,
+            canvas);
+        if (dialog.ShowDialog())
+        {
+            if (canvas)
+            {
+                Owner.BitmapManager.ActiveDocument.ResizeCanvas(dialog.Width, dialog.Height, dialog.ResizeAnchor);
+            }
+            else
+            {
+                Owner.BitmapManager.ActiveDocument.Resize(dialog.Width, dialog.Height);
+            }
+        }
+        
+*/
+    }
+
+    [Command.Basic("PixiEditor.Document.CenterContent", "Center Content", "Center Content", CanExecute = "PixiEditor.HasDocument")]
+    public void CenterContent()
+    {
+        //Owner.BitmapManager.ActiveDocument.CenterContent();
+    }
+
 }

@@ -4,6 +4,7 @@ using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
@@ -68,9 +69,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public void NewDocument(int width, int height, bool addBaseLayer = true)
     {
+        Owner.DocumentManagerSubViewModel.Documents.Add(new DocumentViewModel(Owner, "Unnamed"));
+        Owner.DocumentManagerSubViewModel.ActiveDocument = Owner.DocumentManagerSubViewModel.Documents[^1];
         /*
-        Owner.BitmapManager.Documents.Add(new Document(width, height));
-        Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents[^1];
         if (addBaseLayer)
         {
             Owner.BitmapManager.ActiveDocument.AddNewLayer("Base Layer");
@@ -221,7 +222,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         if (Owner.BitmapManager.Documents.Select(x => x.DocumentFilePath).All(y => y != path))
         {
-          j  Owner.BitmapManager.Documents.Add(document);
+            Owner.BitmapManager.Documents.Add(document);
             Owner.BitmapManager.ActiveDocument = Owner.BitmapManager.Documents.Last();
         }
         else

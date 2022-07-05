@@ -10,6 +10,7 @@
     xmlns:local="clr-namespace:PixiEditor"
     xmlns:tools="clr-namespace:PixiEditor.Models.Tools.Tools"
     xmlns:vm="clr-namespace:PixiEditor.ViewModels"
+    xmlns:doc="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
     xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
     xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
@@ -480,8 +481,8 @@
             </StackPanel>
             <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
                 <Grid AllowDrop="True" Drop="MainWindow_Drop">
-                    <DockingManager ActiveContent="{Binding BitmapManager.ActiveWindow, Mode=TwoWay}"
-                                           DocumentsSource="{Binding BitmapManager.Documents}">
+                    <DockingManager ActiveContent="{Binding DocumentManagerSubViewModel.ActiveWindow, Mode=TwoWay}"
+                                           DocumentsSource="{Binding DocumentManagerSubViewModel.Documents}">
                         <DockingManager.Theme>
                             <avalonDockTheme:PixiEditorDockTheme />
                         </DockingManager.Theme>
@@ -499,7 +500,7 @@
                         <DockingManager.LayoutItemTemplateSelector>
                             <ui:DocumentsTemplateSelector>
                                 <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
-                                    <DataTemplate DataType="{x:Type dataHolders:Document}">
+                                    <DataTemplate DataType="{x:Type doc:DocumentViewModel}">
                                         <usercontrols:DrawingViewPort
                                         CenterViewportTrigger="{Binding CenterViewportTrigger}"
                                         ZoomViewportTrigger="{Binding ZoomViewportTrigger}"

@@ -50,15 +50,13 @@ internal class ViewModelMain : ViewModelBase
 
     public ColorsViewModel ColorsSubViewModel { get; set; }
 
-    public DocumentViewModel DocumentSubViewModel { get; set; }
-
     public MiscViewModel MiscSubViewModel { get; set; }
 
     public DiscordViewModel DiscordViewModel { get; set; }
 
     public DebugViewModel DebugSubViewModel { get; set; }
 
-    public DocumentManagerViewModel DocumentManagerViewModel { get; set; }
+    public DocumentManagerViewModel DocumentManagerSubViewModel { get; set; }
 
     public CommandController CommandController { get; set; }
 
@@ -116,7 +114,7 @@ internal class ViewModelMain : ViewModelBase
         Preferences = services.GetRequiredService<IPreferences>();
 
         Preferences.Init();
-        DocumentManagerViewModel = services.GetRequiredService<DocumentManagerViewModel>();
+        DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
 
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
@@ -137,7 +135,6 @@ internal class ViewModelMain : ViewModelBase
 
         ToolsSubViewModel?.SetupTools(services);
 
-        DocumentSubViewModel = services.GetService<DocumentViewModel>();
         DiscordViewModel = services.GetService<DiscordViewModel>();
         UpdateSubViewModel = services.GetService<UpdateViewModel>();
         DebugSubViewModel = services.GetService<DebugViewModel>();
