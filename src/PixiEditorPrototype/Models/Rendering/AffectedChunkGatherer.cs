@@ -128,8 +128,7 @@ internal class AffectedChunkGatherer
 
     private void AddAllToMaskPreview(Guid memberGuid)
     {
-        var member = tracker.Document.FindMember(memberGuid);
-        if (member is null)
+        if (!tracker.Document.TryFindMember(memberGuid, out var member))
             return;
         if (member.Mask is not null)
         {

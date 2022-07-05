@@ -10,6 +10,9 @@ internal class ChunkPool
 
     private static object lockObj = new();
     private static ChunkPool? instance;
+    /// <summary>
+    /// The instance of the <see cref="ChunkPool"/>
+    /// </summary>
     public static ChunkPool Instance
     {
         get
@@ -18,8 +21,7 @@ internal class ChunkPool
             {
                 lock (lockObj)
                 {
-                    if (instance is null)
-                        instance = new ChunkPool();
+                    instance ??= new ChunkPool();
                 }
             }
             return instance;
@@ -30,6 +32,11 @@ internal class ChunkPool
     private readonly ConcurrentBag<Chunk> halfChunks = new();
     private readonly ConcurrentBag<Chunk> quarterChunks = new();
     private readonly ConcurrentBag<Chunk> eighthChunks = new();
+    
+    /// <summary>
+    /// Tries to take a chunk from the pool, returns null if there's no Chunk available
+    /// </summary>
+    /// <param name="resolution">The resolution for the chunk</param>
     internal Chunk? Get(ChunkResolution resolution) => GetBag(resolution).TryTake(out Chunk? item) ? item : null;
 
     private ConcurrentBag<Chunk> GetBag(ChunkResolution resolution)
@@ -44,6 +51,9 @@ internal class ChunkPool
         };
     }
 
+    /// <summary>
+    /// Returns a chunk back to the pool
+    /// </summary>
     internal void Push(Chunk chunk)
     {
         var chunks = GetBag(chunk.Resolution);

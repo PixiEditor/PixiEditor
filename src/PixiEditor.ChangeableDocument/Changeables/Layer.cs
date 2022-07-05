@@ -19,12 +19,19 @@ internal class Layer : StructureMember, IReadOnlyLayer
         LayerImage = image;
     }
 
+    /// <summary>
+    /// Disposes the layer's image and mask
+    /// </summary>
     public override void Dispose()
     {
         LayerImage.Dispose();
         Mask?.Dispose();
     }
 
+    /// <summary>
+    /// Creates a clone of the layer, its image and its mask
+    /// </summary>
+    /// <returns></returns>
     internal override Layer Clone()
     {
         return new Layer(LayerImage.CloneFromCommitted())

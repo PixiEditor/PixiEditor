@@ -16,11 +16,9 @@ internal class StructureMemberMaskIsVisible_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(memberGuid);
-        if (member is null)
+        if (!target.TryFindMember(memberGuid, out var member) || member.MaskIsVisible == newMaskIsVisible)
             return new Error();
-        if (member.MaskIsVisible == newMaskIsVisible)
-            return new Error();
+        
         originalMaskIsVisible = member.MaskIsVisible;
         return new Success();
     }

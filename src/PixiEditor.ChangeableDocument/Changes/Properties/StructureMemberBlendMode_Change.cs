@@ -17,8 +17,7 @@ internal class StructureMemberBlendMode_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(targetGuid);
-        if (member is null || member.BlendMode == newBlendMode)
+        if (!target.TryFindMember(targetGuid, out var member) || member.BlendMode == newBlendMode)
             return new Error();
         originalBlendMode = member.BlendMode;
         return new Success();

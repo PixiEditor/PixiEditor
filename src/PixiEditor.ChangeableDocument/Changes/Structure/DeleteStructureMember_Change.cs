@@ -38,7 +38,7 @@ internal class DeleteStructureMember_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document doc)
     {
-        var parent = (Folder)doc.FindMemberOrThrow(parentGuid);
+        var parent = doc.FindMemberOrThrow<Folder>(parentGuid);
 
         var copy = savedCopy!.Clone();
         parent.Children = parent.Children.Insert(originalIndex, copy);

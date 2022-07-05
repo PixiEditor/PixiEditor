@@ -16,8 +16,7 @@ internal class StructureMemberIsVisible_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(targetMember);
-        if (member is null || member.IsVisible == newIsVisible)
+        if (!target.TryFindMember(targetMember, out var member) || member.IsVisible == newIsVisible)
             return new Error();
         originalIsVisible = member.IsVisible;
         return new Success();

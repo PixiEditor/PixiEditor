@@ -14,9 +14,9 @@ internal class CreateStructureMemberMask_Change : Change
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        var member = target.FindMember(targetMember);
-        if (member is null || member.Mask is not null)
+        if (!target.TryFindMember(targetMember, out var member) || member.Mask is not null)
             return new Error();
+        
         return new Success();
     }
 

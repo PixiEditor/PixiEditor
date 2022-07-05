@@ -24,8 +24,7 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
 
     public override OneOf<Success, Error> InitializeAndValidate(Document document)
     {
-        var member = document.FindMember(memberGuid);
-        if (member is null)
+        if (!document.TryFindMember(memberGuid, out var member))
             return new Error();
         originalOpacity = member.Opacity;
         return new Success();
