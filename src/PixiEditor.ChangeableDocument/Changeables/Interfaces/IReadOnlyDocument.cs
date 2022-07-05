@@ -72,4 +72,5 @@ public interface IReadOnlyDocument
     /// </summary>
     /// <param name="guid">The <see cref="IReadOnlyStructureMember.GuidValue"/> of the member</param>
     IReadOnlyList<IReadOnlyStructureMember> FindMemberPath(Guid guid);
+    IReadOnlyReferenceLayer? ReferenceLayer { get; }
 }

@@ -14,20 +14,23 @@ internal static class Helpers
         List<TypeWithName> constructorArgs = changeConstructorInfo.Arguments;
         List<TypeWithName> properties = constructorArgs.Select(static typeWithName =>
             {
-                return new TypeWithName(typeWithName.Type, typeWithName.FullNamespace, VariableNameIntoPropertyName(typeWithName.Name));
+                return new TypeWithName(typeWithName.Type, typeWithName.FullNamespace, VariableNameIntoPropertyName(typeWithName.Name), typeWithName.Nullable);
             }).ToList();
 
         var propToVar = MatchMembers(properties, constructorArgs);
 
         StringBuilder sb = new();
-
-        sb.AppendLine("namespace PixiEditor.ChangeableDocument.Actions.Generated;");
+         
+        sb.AppendLine("namespace PixiEditor.ChangeableDocument.Actions.Generated;\n");
+        sb.AppendLine("[System.Runtime.CompilerServices.CompilerGenerated]");
         sb.AppendLine($"public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IMakeChangeAction");
         sb.AppendLine("{");
         sb.Append($"public {actionName}");
         AppendArgumentList(sb, constructorArgs);
         AppendConstructorBody(sb, propToVar);
+        sb.AppendLine("// Properties");
         AppendProperties(sb, properties);
+        sb.AppendLine("// Changes");
         AppendCreateCorrespondingChange(sb, changeConstructorInfo.ContainingClass, properties);
         sb.AppendLine("}");
 
@@ -41,7 +44,7 @@ internal static class Helpers
         List<TypeWithName> constructorArgs = changeConstructorInfo.Arguments;
         List<TypeWithName> properties = constructorArgs.Select(static typeWithName =>
         {
-            return new TypeWithName(typeWithName.Type, typeWithName.FullNamespace, VariableNameIntoPropertyName(typeWithName.Name));
+            return new TypeWithName(typeWithName.Type, typeWithName.FullNamespace, VariableNameIntoPropertyName(typeWithName.Name), typeWithName.Nullable);
         }).ToList();
 
         var constructorAssignments = MatchMembers(properties, constructorArgs);
@@ -94,7 +97,8 @@ public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IEndCha
             return new TypeWithName(
                 parameter.Type.ToDisplayString(TypeWithGenerics),
                 parameter.Type.ContainingNamespace.ToDisplayString(),
-                parameter.Name
+                parameter.Name,
+                parameter.NullableAnnotation is NullableAnnotation.Annotated
                 );
         }).ToList();
         string changeName = method.ContainingType.Name;
@@ -136,7 +140,14 @@ public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IEndCha
         sb.Append("(");
         for (int i = 0; i < variables.Count; i++)
         {
-            sb.Append(variables[i].TypeWithNamespace).Append(" ").Append(variables[i].Name);
+            sb.Append(variables[i].TypeWithNamespace);
+
+            if (variables[i].Nullable)
+            {
+                sb.Append("?");
+            }
+            
+            sb.Append(" ").Append(variables[i].Name);
             if (i != variables.Count - 1)
                 sb.Append(", ");
         }
@@ -195,7 +206,7 @@ public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IEndCha
     {
         foreach (var typeWithName in properties)
         {
-            sb.AppendLine($"public {typeWithName.TypeWithNamespace} {typeWithName.Name} {{ get; init; }}");
+            sb.AppendLine($"public {typeWithName.TypeWithNamespace}{(typeWithName.Nullable ? "?" : "")} {typeWithName.Name} {{ get; init; }}");
         }
     }
 

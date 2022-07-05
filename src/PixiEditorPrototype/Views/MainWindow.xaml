@@ -65,6 +65,17 @@
                         Delete
                     </Button>
                 </StackPanel>
+                <StackPanel 
+                    DockPanel.Dock="Top" 
+                    Orientation="Horizontal" 
+                    Margin="0,5,0,0">
+                    <Button 
+                        Margin="5,0" 
+                        Command="{Binding ActiveDocument.CreateReferenceLayerCommand}" 
+                        Width="80">
+                        Add reference
+                    </Button>
+                </StackPanel>
                 <StackPanel
                     DockPanel.Dock="Top"
                     Orientation="Horizontal"

@@ -13,12 +13,15 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     IReadOnlyStructureMember IReadOnlyDocument.FindMemberOrThrow(Guid guid) => FindMemberOrThrow(guid);
     (IReadOnlyStructureMember, IReadOnlyFolder) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) => FindChildAndParentOrThrow(guid);
 
+    IReadOnlyReferenceLayer? IReadOnlyDocument.ReferenceLayer => ReferenceLayer;
     /// <summary>
     /// The default size for a new document
     /// </summary>
+
     public static VecI DefaultSize { get; } = new VecI(64, 64);
     internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
     internal Selection Selection { get; } = new();
+    internal ReferenceLayer? ReferenceLayer { get; set; }
     public VecI Size { get; set; } = DefaultSize;
     public bool HorizontalSymmetryAxisEnabled { get; set; }
     public bool VerticalSymmetryAxisEnabled { get; set; }

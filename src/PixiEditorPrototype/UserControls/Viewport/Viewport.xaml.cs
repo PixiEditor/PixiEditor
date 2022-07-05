@@ -36,7 +36,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         DependencyProperty.Register(nameof(MouseMoveCommand), typeof(ICommand), typeof(Viewport), new(null));
 
     public static readonly DependencyProperty MouseUpCommandProperty =
-            DependencyProperty.Register(nameof(MouseUpCommand), typeof(ICommand), typeof(Viewport), new(null));
+        DependencyProperty.Register(nameof(MouseUpCommand), typeof(ICommand), typeof(Viewport), new(null));
 
     private static readonly DependencyProperty BitmapsProperty =
         DependencyProperty.Register(nameof(Bitmaps), typeof(Dictionary<ChunkResolution, WriteableBitmap>), typeof(Viewport), new(null, OnBitmapsChange));
@@ -87,6 +87,16 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(ZoomModeProperty, value);
     }
 
+    public double ZoomboxScale
+    {
+        get => zoombox.Scale;
+        // ReSharper disable once ValueParameterNotUsed
+        set
+        {
+            PropertyChanged?.Invoke(this, new(nameof(ReferenceLayerScale)));
+        }
+    }
+
     public bool FlipX
     {
         get => (bool)GetValue(FlipXProperty);
@@ -100,6 +110,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     }
 
     private double angle = 0;
+
     public double Angle
     {
         get => angle;
@@ -112,6 +123,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     }
 
     private VecD center = new(32, 32);
+
     public VecD Center
     {
         get => center;
@@ -124,6 +136,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     }
 
     private VecD realDimensions = new(double.MaxValue, double.MaxValue);
+
     public VecD RealDimensions
     {
         get => realDimensions;
@@ -142,6 +155,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     }
 
     private VecD dimensions = new(64, 64);
+
     public VecD Dimensions
     {
         get => dimensions;
@@ -167,6 +181,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         }
     }
 
+    public double ReferenceLayerScale =>
+        ZoomboxScale * ((Document?.ReferenceBitmap != null)
+            ? (Document.ReferenceShape.RectSize.X / (double)Document.ReferenceBitmap.Width)
+            : 1);
+
     public Zoombox Zoombox => zoombox;
 
     public Guid GuidValue { get; } = Guid.NewGuid();
@@ -175,16 +194,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         InitializeComponent();
 
-        Binding binding = new Binding();
-        binding.Source = this;
-        binding.Path = new PropertyPath("Document.Bitmaps");
+        Binding binding = new Binding { Source = this, Path = new PropertyPath("Document.Bitmaps") };
         SetBinding(BitmapsProperty, binding);
 
         Loaded += OnLoad;
         Unloaded += OnUnload;
     }
 
-    private Image? GetImage() => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[0];
+    private Image? GetImage() => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
+
     private void ForceRefreshFinalImage()
     {
         GetImage()?.InvalidateVisual();
@@ -230,5 +248,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private ViewportInfo GetLocation()
     {
         return new(Angle, Center, RealDimensions / 2, Dimensions / 2, CalculateResolution(), GuidValue, Delayed, ForceRefreshFinalImage);
+    }
+
+    private void OnReferenceImageSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        PropertyChanged?.Invoke(this, new(nameof(ReferenceLayerScale)));
     }
 }
