@@ -14,7 +14,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        if (target.HasMember(layerGuid))
+        if (target.HasMember<Layer>(layerGuid))
             return new Success();
         return new Error();
     }
