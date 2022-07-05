@@ -13,7 +13,7 @@ internal class Folder : StructureMember, IReadOnlyFolder
     IReadOnlyList<IReadOnlyStructureMember> IReadOnlyFolder.Children => Children;
 
     /// <summary>
-    /// Creates a clone of the folder, it's mask and all of it's children
+    /// Creates a clone of the folder, its mask and all of its children
     /// </summary>
     internal override Folder Clone()
     {

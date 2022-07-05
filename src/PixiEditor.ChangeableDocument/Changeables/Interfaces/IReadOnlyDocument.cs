@@ -28,7 +28,7 @@ public interface IReadOnlyDocument
     /// </summary>
     int HorizontalSymmetryAxisY { get; }
     /// <summary>
-    /// The position of the vertical symmetry axis (Mirrors top and bottom)
+    /// The position of the vertical symmetry axis (Mirrors left and right)
     /// </summary>
     int VerticalSymmetryAxisX { get; }
     /// <summary>
@@ -36,7 +36,7 @@ public interface IReadOnlyDocument
     /// </summary>
     void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action);
     /// <summary>
-    /// Find's the member with the <paramref name="guid"/> or returns null if not found
+    /// Finds the member with the <paramref name="guid"/> or returns null if not found
     /// </summary>
     /// <param name="guid">The <see cref="IReadOnlyStructureMember.GuidValue"/> of the member</param>
     IReadOnlyStructureMember? FindMember(Guid guid);
@@ -55,20 +55,20 @@ public interface IReadOnlyDocument
     /// <returns>True if the member could be found, otherwise false</returns>
     bool TryFindMember(Guid guid, [NotNullWhen(true)] out IReadOnlyStructureMember? member);
     /// <summary>
-    /// Find's the member with the <paramref name="guid"/> or throws a ArgumentException if not found
+    /// Finds the member with the <paramref name="guid"/> or throws a ArgumentException if not found
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <exception cref="ArgumentException">Thrown if the member could not be found</exception>
     IReadOnlyStructureMember FindMemberOrThrow(Guid guid);
     /// <summary>
-    /// Find's a member with the <paramref name="childGuid"/>  and it's parent, throws a ArgumentException if they can't be found
+    /// Finds a member with the <paramref name="childGuid"/>  and its parent, throws a ArgumentException if they can't be found
     /// </summary>
     /// <param name="childGuid">The <see cref="IReadOnlyStructureMember.GuidValue"/> of the member</param>
     /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)</returns>
     /// <exception cref="ArgumentException">Thrown if the member and parent could not be found</exception>
     (IReadOnlyStructureMember, IReadOnlyFolder) FindChildAndParentOrThrow(Guid childGuid);
     /// <summary>
-    /// Find's the path to the member with <paramref name="guid"/>, the first element will be the member
+    /// Finds the path to the member with <paramref name="guid"/>, the first element will be the member
     /// </summary>
     /// <param name="guid">The <see cref="IReadOnlyStructureMember.GuidValue"/> of the member</param>
     IReadOnlyList<IReadOnlyStructureMember> FindMemberPath(Guid guid);

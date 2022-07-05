@@ -29,7 +29,7 @@ internal class Layer : StructureMember, IReadOnlyLayer
     }
 
     /// <summary>
-    /// Creates a clone of the layer, it's image and it's mask
+    /// Creates a clone of the layer, its image and its mask
     /// </summary>
     /// <returns></returns>
     internal override Layer Clone()

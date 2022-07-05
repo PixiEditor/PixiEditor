@@ -58,7 +58,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
 
     /// <summary>
-    /// Check's if a member with the <paramref name="guid"/> exists
+    /// Checks if a member with the <paramref name="guid"/> exists
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <returns>True if the member can be found, otherwise false</returns>
@@ -69,7 +69,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
 
     /// <summary>
-    /// Check's if a member with the <paramref name="guid"/> exists and is of type <typeparamref name="T"/>
+    /// Checks if a member with the <paramref name="guid"/> exists and is of type <typeparamref name="T"/>
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <returns>True if the member can be found and is of type <typeparamref name="T"/>, otherwise false</returns>
@@ -80,14 +80,14 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
     
     /// <summary>
-    /// Find's the member with the <paramref name="guid"/> or throws a ArgumentException if not found
+    /// Finds the member with the <paramref name="guid"/> or throws a ArgumentException if not found
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <exception cref="ArgumentException">Thrown if the member could not be found</exception>
     public StructureMember FindMemberOrThrow(Guid guid) => FindMember(guid) ?? throw new ArgumentException($"Could not find member with guid '{guid}'");
 
     /// <summary>
-    /// Find's the member of type <typeparamref name="T"/> with the <paramref name="guid"/> or throws an exception
+    /// Finds the member of type <typeparamref name="T"/> with the <paramref name="guid"/> or throws an exception
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <exception cref="ArgumentException">Thrown if the member could not be found</exception>
@@ -95,7 +95,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     public T FindMemberOrThrow<T>(Guid guid) where T : StructureMember => (T)FindMember(guid)!;
 
     /// <summary>
-    /// Find's the member with the <paramref name="guid"/> or returns null if not found
+    /// Finds the member with the <paramref name="guid"/> or returns null if not found
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     public StructureMember? FindMember(Guid guid)
@@ -143,7 +143,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
 
     /// <summary>
-    /// Find's a member with the <paramref name="childGuid"/>  and it's parent, throws a ArgumentException if they can't be found
+    /// Finds a member with the <paramref name="childGuid"/>  and its parent, throws a ArgumentException if they can't be found
     /// </summary>
     /// <param name="childGuid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)</returns>
@@ -157,7 +157,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
 
     /// <summary>
-    /// Find's a member with the <paramref name="childGuid"/> and it's parent
+    /// Finds a member with the <paramref name="childGuid"/> and its parent
     /// </summary>
     /// <param name="childGuid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <returns>A value tuple consisting of child (<see cref="ValueTuple{T, T}.Item1"/>) and parent (<see cref="ValueTuple{T, T}.Item2"/>)<para>Child and parent can be null if not found!</para></returns>
@@ -173,7 +173,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
 
     /// <summary>
-    /// Find's the path to the member with <paramref name="guid"/>, the first element will be the member
+    /// Finds the path to the member with <paramref name="guid"/>, the first element will be the member
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     public List<StructureMember> FindMemberPath(Guid guid)

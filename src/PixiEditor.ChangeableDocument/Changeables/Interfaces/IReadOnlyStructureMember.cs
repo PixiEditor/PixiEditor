@@ -9,7 +9,7 @@ public interface IReadOnlyStructureMember
     /// </summary>
     bool IsVisible { get; }
     /// <summary>
-    /// The opacity of the member (Randing from 0f to 1f)
+    /// The opacity of the member (Ranging from 0f to 1f)
     /// </summary>
     float Opacity { get; }
     bool ClipToMemberBelow { get; }
