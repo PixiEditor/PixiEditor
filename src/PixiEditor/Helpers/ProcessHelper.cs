@@ -4,7 +4,7 @@ using System.Security.Principal;
 
 namespace PixiEditor.Helpers;
 
-public static class ProcessHelper
+internal static class ProcessHelper
 {
     public static Process RunAsAdmin(string path)
     {

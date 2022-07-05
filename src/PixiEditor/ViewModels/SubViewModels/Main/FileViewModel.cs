@@ -1,20 +1,15 @@
-﻿using System.IO;
-using System.Windows.Input;
-using Microsoft.Win32;
+﻿using System.Windows.Input;
 using Newtonsoft.Json.Linq;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.File", "File")]
-public class FileViewModel : SubViewModel<ViewModelMain>
+internal class FileViewModel : SubViewModel<ViewModelMain>
 {
     private bool hasRecent;
 
@@ -147,6 +142,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
 
     private void Owner_OnStartupEvent(object sender, System.EventArgs e)
     {
+        /*
         var args = StartupArgs.Args;
         var file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
         if (file != null)
@@ -161,6 +157,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
                 OpenHelloTherePopup();
             }
         }
+        */
     }
 
     [Command.Internal("PixiEditor.File.OpenRecent")]
@@ -193,6 +190,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
 
     public void Open()
     {
+        /*
         var filter = SupportedFilesHelper.BuildOpenFilter();
 
         OpenFileDialog dialog = new OpenFileDialog
@@ -213,6 +211,7 @@ public class FileViewModel : SubViewModel<ViewModelMain>
                 }
             }
         }
+        */
     }
 
     private void OpenDocument(string path)

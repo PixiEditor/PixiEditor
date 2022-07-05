@@ -11,7 +11,7 @@ using SkiaSharp;
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.Clipboard", "Clipboard")]
-public class ClipboardViewModel : SubViewModel<ViewModelMain>
+internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 {
     public ClipboardViewModel(ViewModelMain owner)
         : base(owner)
@@ -41,8 +41,10 @@ public class ClipboardViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Clipboard.Paste", "Paste", "Paste from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Control)]
     public void Paste()
     {
+        /*
         if (Owner.BitmapManager.ActiveDocument == null) return;
         ClipboardController.PasteFromClipboard(Owner.BitmapManager.ActiveDocument);
+        */
     }
 
     [Command.Basic("PixiEditor.Clipboard.PasteColor", "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
@@ -54,7 +56,7 @@ public class ClipboardViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Clipboard.Copy", "Copy", "Copy to clipboard", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control)]
     public void Copy()
     {
-        ClipboardController.CopyToClipboard(Owner.BitmapManager.ActiveDocument);
+        //ClipboardController.CopyToClipboard(Owner.BitmapManager.ActiveDocument);
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste")]

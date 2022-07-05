@@ -1,4 +1,5 @@
 <Window
+    x:ClassModifier="internal"
     x:Class="PixiEditor.MainWindow"
     MinHeight="500"
     MinWidth="700"

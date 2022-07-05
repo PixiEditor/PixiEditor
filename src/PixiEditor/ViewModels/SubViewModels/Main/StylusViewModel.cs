@@ -1,13 +1,13 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
+﻿using System.Windows.Input;
+using GalaSoft.MvvmLight.CommandWpf;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
-using System.Windows.Input;
-using PixiEditor.Models.Commands.Attributes;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-public class StylusViewModel : SubViewModel<ViewModelMain>
+internal class StylusViewModel : SubViewModel<ViewModelMain>
 {
     private bool isPenModeEnabled;
     private bool useTouchGestures;
@@ -80,7 +80,7 @@ public class StylusViewModel : SubViewModel<ViewModelMain>
 
     private void StylusOutOfRange(StylusEventArgs e)
     {
-        Owner.BitmapManager.UpdateHighlightIfNecessary(true);
+        //Owner.BitmapManager.UpdateHighlightIfNecessary(true);
     }
 
     private void StylusSystemGesture(StylusSystemGestureEventArgs e)

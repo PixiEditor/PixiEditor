@@ -12,13 +12,14 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.ExternalServices;
 using PixiEditor.Models.IO;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.Dialogs;
 using SkiaSharp;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.Colors", "Palette Colors")]
-public class ColorsViewModel : SubViewModel<ViewModelMain>
+internal class ColorsViewModel : SubViewModel<ViewModelMain>
 {
     public RelayCommand<List<string>> ImportPaletteCommand { get; set; }
 
@@ -39,7 +40,7 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
             if (primaryColor != value)
             {
                 primaryColor = value;
-                Owner.BitmapManager.PrimaryColor = value;
+                //Owner.BitmapManager.PrimaryColor = value;
                 RaisePropertyChanged(nameof(PrimaryColor));
             }
         }
@@ -70,7 +71,8 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Colors.CanReplaceColors")]
     public bool CanReplaceColors()
     {
-        return ViewModelMain.Current?.BitmapManager?.ActiveDocument is not null;
+        //return ViewModelMain.Current?.BitmapManager?.ActiveDocument is not null;
+        return false;
     }
 
     [Command.Internal("PixiEditor.Colors.ReplaceColors")]
@@ -81,13 +83,13 @@ public class ColorsViewModel : SubViewModel<ViewModelMain>
 
     private static void ReplacePaletteColorProcess(object[] args)
     {
-        (SKColor oldColor, SKColor newColor) colors = ((SKColor, SKColor))args[0];
-        Document activeDocument = (Document)args[1];
+        //(SKColor oldColor, SKColor newColor) colors = ((SKColor, SKColor))args[0];
+        //Document activeDocument = (Document)args[1];
 
-        ReplacePaletteColor(colors, activeDocument);
+        //ReplacePaletteColor(colors, activeDocument);
     }
 
-    private static void ReplacePaletteColor((SKColor oldColor, SKColor newColor) colors, Document activeDocument)
+    private static void ReplacePaletteColor((SKColor oldColor, SKColor newColor) colors, DocumentViewModel activeDocument)
     {
         /*int oldIndex = activeDocument.Palette.IndexOf(colors.oldColor);
         if (oldIndex != -1)

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters;
 
 [ValueConversion(typeof(object), typeof(Visibility))]
-public class NotNullToVisibilityConverter
+internal class NotNullToVisibilityConverter
     : MarkupConverter
 {
     public bool Inverted { get; set; }

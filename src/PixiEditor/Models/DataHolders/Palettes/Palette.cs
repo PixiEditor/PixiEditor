@@ -1,10 +1,9 @@
 ﻿#nullable enable
-using PixiEditor.Helpers;
-using System.Collections.Generic;
 using System.IO;
+using PixiEditor.Helpers;
 namespace PixiEditor.Models.DataHolders.Palettes;
 
-public class Palette : NotifyableObject
+internal class Palette : NotifyableObject
 {
     private string _name = "";
 

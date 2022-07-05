@@ -11,7 +11,7 @@ using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels;
 
-public class SettingsWindowViewModel : ViewModelBase
+internal class SettingsWindowViewModel : ViewModelBase
 {
     private string searchTerm;
     private int visibleGroups;
@@ -82,7 +82,7 @@ public class SettingsWindowViewModel : ViewModelBase
         // Sometimes, focus was brought back to the last edited shortcut
         Keyboard.ClearFocus();
     }
-        
+
     [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Import")]
     public static void ImportShortcuts()
     {
@@ -128,7 +128,7 @@ public class SettingsWindowViewModel : ViewModelBase
             foreach (var group in Commands)
             {
                 var visibleCommands = 0;
-                    
+
                 foreach (var command in group.Commands)
                 {
                     if ((command.Command.IsDebug && ViewModelMain.Current.DebugSubViewModel.UseDebug) ||
@@ -142,7 +142,7 @@ public class SettingsWindowViewModel : ViewModelBase
                         command.Visibility = Visibility.Collapsed;
                     }
                 }
-                    
+
                 group.Visibility = visibleCommands > 0 ? Visibility.Visible : Visibility.Collapsed;
             }
             return;
@@ -168,7 +168,7 @@ public class SettingsWindowViewModel : ViewModelBase
         }
     }
 
-    public class GroupSearchResult : NotifyableObject
+    internal class GroupSearchResult : NotifyableObject
     {
         private Visibility visibility;
 
@@ -189,7 +189,7 @@ public class SettingsWindowViewModel : ViewModelBase
         }
     }
 
-    public class CommandSearchResult : NotifyableObject
+    internal class CommandSearchResult : NotifyableObject
     {
         private Visibility visibility;
 

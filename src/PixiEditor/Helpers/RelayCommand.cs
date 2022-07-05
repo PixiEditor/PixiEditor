@@ -1,9 +1,8 @@
-﻿using System;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 
 namespace PixiEditor.Helpers;
 
-public class RelayCommand<T> : ICommand
+internal class RelayCommand<T> : ICommand
 {
     private readonly Action<T> execute;
     private readonly Predicate<T> canExecute;
@@ -38,7 +37,7 @@ public class RelayCommand<T> : ICommand
     public bool CanExecute(object parameter)
     {
         if (canExecute == null) return true;
-        if(parameter != null && parameter is not T)
+        if (parameter != null && parameter is not T)
         {
             throw new ArgumentException("Provided parameter type does not match RelayCommand parameter type");
         }
@@ -62,7 +61,7 @@ public class RelayCommand<T> : ICommand
     }
 }
 
-public class RelayCommand : RelayCommand<object>
+internal class RelayCommand : RelayCommand<object>
 {
     public RelayCommand(Action<object> execute, Predicate<object> canExecute) : base(execute, canExecute) { }
 

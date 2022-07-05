@@ -1,12 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PixiEditor.Helpers;
 
-public static class DependencyInjectionHelper
+internal static class DependencyInjectionHelper
 {
     public static T Inject<T>(this IServiceProvider provider)
         => (T)Inject(provider, typeof(T));

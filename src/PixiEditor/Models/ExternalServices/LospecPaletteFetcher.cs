@@ -1,16 +1,12 @@
-﻿using Newtonsoft.Json;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataHolders.Palettes;
-using PixiEditor.Models.Enums;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
+using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.Models.ExternalServices;
 
-public static class LospecPaletteFetcher
+internal static class LospecPaletteFetcher
 {
     public const string LospecApiUrl = "https://lospec.com/palette-list";
 
@@ -35,7 +31,7 @@ public static class LospecPaletteFetcher
                 return obj;
             }
         }
-        catch(HttpRequestException)
+        catch (HttpRequestException)
         {
             NoticeDialog.Show("Failed to download palette.", "Error");
             return null;

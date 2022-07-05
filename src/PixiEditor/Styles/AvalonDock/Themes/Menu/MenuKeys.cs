@@ -7,7 +7,7 @@ namespace PixiEditor.Styles.AvalonDock.Themes.Menu;
 /// menu specific colors, styles and other elements that are typically changed
 /// between themes.
 /// </summary>
-public static class MenuKeys
+internal static class MenuKeys
 {
     /// <summary>
     /// Gets the Brush key for the normal Menu separator border color.

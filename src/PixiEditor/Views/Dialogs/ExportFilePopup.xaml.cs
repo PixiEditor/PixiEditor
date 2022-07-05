@@ -1,11 +1,11 @@
-﻿using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Models.Enums;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views;
 
-public partial class ExportFilePopup : Window
+internal partial class ExportFilePopup : Window
 {
     public static readonly DependencyProperty SaveHeightProperty =
         DependencyProperty.Register(nameof(SaveHeight), typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));

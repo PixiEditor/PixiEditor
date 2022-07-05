@@ -1,10 +1,8 @@
 ﻿using SkiaSharp;
-using System;
-using System.Collections.Generic;
 
 namespace PixiEditor.Models.IO;
 
-public class PaletteFileData
+internal class PaletteFileData
 {
     public string Title { get; set; }
     public SKColor[] Colors { get; set; }

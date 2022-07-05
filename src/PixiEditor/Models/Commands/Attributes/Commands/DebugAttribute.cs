@@ -1,8 +1,8 @@
 ﻿namespace PixiEditor.Models.Commands.Attributes;
 
-public partial class Command
+internal partial class Command
 {
-    public class DebugAttribute : BasicAttribute
+    internal class DebugAttribute : BasicAttribute
     {
         public DebugAttribute(string internalName, string displayName, string description) : base($"#DEBUG#{internalName}", displayName, description)
         {

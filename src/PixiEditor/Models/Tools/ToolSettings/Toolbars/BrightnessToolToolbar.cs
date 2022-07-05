@@ -3,7 +3,7 @@ using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
-public class BrightnessToolToolbar : BasicToolbar
+internal class BrightnessToolToolbar : BasicToolbar
 {
     public BrightnessToolToolbar(float initialValue)
     {

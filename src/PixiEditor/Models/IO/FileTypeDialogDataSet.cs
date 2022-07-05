@@ -1,11 +1,9 @@
 ﻿using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PixiEditor.Models.IO;
 
-public class FileTypeDialogDataSet
+internal class FileTypeDialogDataSet
 {
     public enum SetKind { Any, Pixi, Images }
     IEnumerable<FileTypeDialogData> fileTypes;

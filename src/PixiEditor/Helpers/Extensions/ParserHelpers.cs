@@ -3,7 +3,7 @@ using PixiEditor.Parser;
 
 namespace PixiEditor.Helpers.Extensions;
 
-public static class ParserHelpers
+internal static class ParserHelpers
 {
     public static Document ToDocument(this SerializableDocument serializableDocument)
     {

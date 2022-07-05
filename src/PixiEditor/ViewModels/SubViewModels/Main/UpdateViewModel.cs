@@ -13,7 +13,7 @@ using PixiEditor.UpdateModule;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-public class UpdateViewModel : SubViewModel<ViewModelMain>
+internal class UpdateViewModel : SubViewModel<ViewModelMain>
 {
     private bool updateReadyToInstall = false;
 

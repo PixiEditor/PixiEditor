@@ -1,12 +1,12 @@
-﻿using SkiaSharp;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
-public partial class ColorReplacer : UserControl
+internal partial class ColorReplacer : UserControl
 {
     public SKColor ColorToReplace
     {

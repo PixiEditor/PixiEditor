@@ -1,7 +1,7 @@
-﻿using PixiEditor.Models.Commands;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Views.Dialogs;
@@ -9,13 +9,13 @@ namespace PixiEditor.Views.Dialogs;
 /// <summary>
 /// Interaction logic for ShortcutPopup.xaml.
 /// </summary>
-public partial class ShortcutPopup : Window
+internal partial class ShortcutPopup : Window
 {
     public static readonly DependencyProperty ControllerProperty =
         DependencyProperty.Register(nameof(Controller), typeof(CommandController), typeof(ShortcutPopup));
 
     Command settingsCommand;
-        
+
     public CommandController Controller
     {
         get => (CommandController)GetValue(ControllerProperty);
@@ -48,7 +48,7 @@ public partial class ShortcutPopup : Window
         {
             return;
         }
-            
+
         settingsCommand.Methods.Execute("Keybinds");
     }
 

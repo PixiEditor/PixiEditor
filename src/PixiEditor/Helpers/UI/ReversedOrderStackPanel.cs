@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 
 namespace PixiEditor.Helpers.UI;
 
-public class ReversedOrderStackPanel : StackPanel
+internal class ReversedOrderStackPanel : StackPanel
 {
     protected override Size ArrangeOverride(Size arrangeSize)
     {

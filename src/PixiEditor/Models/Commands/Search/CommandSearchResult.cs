@@ -1,9 +1,9 @@
-﻿using PixiEditor.Models.DataHolders;
-using System.Windows.Media;
+﻿using System.Windows.Media;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands.Search;
 
-public class CommandSearchResult : SearchResult
+internal class CommandSearchResult : SearchResult
 {
     public Command Command { get; }
 

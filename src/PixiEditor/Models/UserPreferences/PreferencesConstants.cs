@@ -1,6 +1,6 @@
 namespace PixiEditor.Models.UserPreferences;
 
-public static class PreferencesConstants
+internal static class PreferencesConstants
 {
     public const string FavouritePalettes = "FavouritePalettes";
 }

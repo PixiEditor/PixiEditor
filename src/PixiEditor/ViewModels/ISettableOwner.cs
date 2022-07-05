@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.ViewModels;
 
-public interface ISettableOwner<TOwner>
+internal interface ISettableOwner<TOwner>
 {
     public void SetOwner(TOwner owner);
 }

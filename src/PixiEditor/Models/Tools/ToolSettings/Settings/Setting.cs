@@ -1,12 +1,11 @@
-﻿using System;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using PixiEditor.Helpers;
 
 #pragma warning disable SA1402 // File may only contain a single type, Justification: "Same class with generic value"
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings;
 
-public abstract class Setting<T, TControl> : Setting<T>
+internal abstract class Setting<T, TControl> : Setting<T>
     where TControl : Control
 {
     protected Setting(string name)
@@ -21,7 +20,7 @@ public abstract class Setting<T, TControl> : Setting<T>
     }
 }
 
-public abstract class Setting<T> : Setting
+internal abstract class Setting<T> : Setting
 {
     protected Setting(string name)
         : base(name)
@@ -48,7 +47,7 @@ public abstract class Setting<T> : Setting
     }
 }
 
-public abstract class Setting : NotifyableObject
+internal abstract class Setting : NotifyableObject
 {
     protected Setting(string name)
     {

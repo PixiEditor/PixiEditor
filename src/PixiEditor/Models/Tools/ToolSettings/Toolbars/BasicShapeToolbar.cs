@@ -2,11 +2,11 @@
 
 namespace PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
-public class BasicShapeToolbar : BasicToolbar
+internal class BasicShapeToolbar : BasicToolbar
 {
     public BasicShapeToolbar()
     {
         Settings.Add(new BoolSetting("Fill", "Fill shape: "));
-        Settings.Add(new ColorSetting("FillColor",  "Fill color"));
+        Settings.Add(new ColorSetting("FillColor", "Fill color"));
     }
 }

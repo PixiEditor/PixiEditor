@@ -6,7 +6,6 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
@@ -14,10 +13,7 @@ using PixiEditor.ViewModels;
 
 namespace PixiEditor;
 
-/// <summary>
-///     Interaction logic for MainWindow.xaml.
-/// </summary>
-public partial class MainWindow : Window
+internal partial class MainWindow : Window
 {
     private static WriteableBitmap pixiEditorLogo;
 
@@ -64,6 +60,7 @@ public partial class MainWindow : Window
 
     public static MainWindow CreateWithDocuments(IEnumerable<Document> documents)
     {
+        /*
         MainWindow window = new();
         BitmapManager bitmapManager = window.services.GetRequiredService<BitmapManager>();
 
@@ -74,7 +71,8 @@ public partial class MainWindow : Window
 
         bitmapManager.ActiveDocument = bitmapManager.Documents.FirstOrDefault();
 
-        return window;
+        return window;*/
+        return null;
     }
 
     /// <summary>Brings main window to foreground.</summary>

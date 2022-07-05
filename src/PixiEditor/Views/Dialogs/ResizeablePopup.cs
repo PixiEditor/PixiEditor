@@ -1,9 +1,9 @@
-﻿using PixiEditor.Models.Enums;
-using System.Windows;
+﻿using System.Windows;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Views;
 
-public class ResizeablePopup : Window
+internal class ResizeablePopup : Window
 {
     public static readonly DependencyProperty NewPercentageSizeProperty =
         DependencyProperty.Register(nameof(NewPercentageSize), typeof(int), typeof(ResizeablePopup), new PropertyMetadata(0));

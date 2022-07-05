@@ -1,14 +1,14 @@
-﻿using PixiEditor.Models.Enums;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Views;
 
 /// <summary>
 ///     Interaction logic for SizeInput.xaml.
 /// </summary>
-public partial class SizeInput : UserControl
+internal partial class SizeInput : UserControl
 {
     public static readonly DependencyProperty SizeProperty =
         DependencyProperty.Register(nameof(Size), typeof(int), typeof(SizeInput), new PropertyMetadata(1, InputSizeChanged));

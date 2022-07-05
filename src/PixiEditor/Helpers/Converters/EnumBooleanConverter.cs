@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class EnumBooleanConverter : SingleInstanceConverter<EnumBooleanConverter>
+internal class EnumBooleanConverter : SingleInstanceConverter<EnumBooleanConverter>
 {
     #region IValueConverter Members
     public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

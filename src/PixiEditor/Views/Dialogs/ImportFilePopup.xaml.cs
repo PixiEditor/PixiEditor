@@ -1,10 +1,10 @@
-﻿using PixiEditor.ViewModels;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views;
 
-public partial class ImportFilePopup : Window
+internal partial class ImportFilePopup : Window
 {
     private readonly ImportFilePopupViewModel dc = new ImportFilePopupViewModel();
 

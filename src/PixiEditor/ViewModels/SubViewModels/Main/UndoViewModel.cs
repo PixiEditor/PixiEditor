@@ -4,7 +4,7 @@ using PixiEditor.Models.Commands.Attributes;
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.Undo", "Undo")]
-public class UndoViewModel : SubViewModel<ViewModelMain>
+internal class UndoViewModel : SubViewModel<ViewModelMain>
 {
     public event EventHandler UndoRedoCalled;
 

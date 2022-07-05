@@ -3,7 +3,7 @@ using PixiEditor.Views;
 
 namespace PixiEditor.Models.Dialogs;
 
-public static class ConfirmationDialog
+internal static class ConfirmationDialog
 {
     public static ConfirmationType Show(string message, string title)
     {

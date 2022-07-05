@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace PixiEditor.Views.UserControls;
 
-public partial class ReferenceLayerView : UserControl
+internal partial class ReferenceLayerView : UserControl
 {
     public static readonly DependencyProperty ShowReferenceLayerProperty =
         DependencyProperty.Register(nameof(ShowReferenceLayer), typeof(bool), typeof(ReferenceLayerView), new PropertyMetadata(UpdateVisibility));

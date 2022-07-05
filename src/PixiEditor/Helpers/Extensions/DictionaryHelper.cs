@@ -1,8 +1,6 @@
-﻿using System.Collections.Generic;
+﻿namespace PixiEditor.Helpers.Extensions;
 
-namespace PixiEditor.Helpers.Extensions;
-
-public static class DictionaryHelper
+internal static class DictionaryHelper
 {
     public static void AddRangeOverride<TKey, TValue>(
         this IDictionary<TKey, TValue> dict,

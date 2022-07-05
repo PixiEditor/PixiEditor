@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 
 namespace PixiEditor.Models.DataHolders;
 // Licensed to the .NET Foundation under one or more agreements.
@@ -17,7 +14,7 @@ namespace PixiEditor.Models.DataHolders;
 /// implementing INotifyCollectionChanged to notify listeners
 /// when items get added, removed or the whole list is refreshed.
 /// </summary>
-public class RangeObservableCollection<T> : ObservableCollection<T>
+internal class RangeObservableCollection<T> : ObservableCollection<T>
 {
     //------------------------------------------------------
     //

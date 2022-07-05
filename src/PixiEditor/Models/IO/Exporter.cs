@@ -12,7 +12,7 @@ using SkiaSharp;
 
 namespace PixiEditor.Models.IO;
 
-public class Exporter
+internal class Exporter
 {
     /// <summary>
     ///     Saves document as .pixi file that contains all document data.

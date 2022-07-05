@@ -1,10 +1,10 @@
-﻿using PixiEditor.Helpers;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Views.Dialogs;
 
-public partial class OptionPopup : Window
+internal partial class OptionPopup : Window
 {
     public static readonly DependencyProperty PopupContentProperty =
         DependencyProperty.Register(nameof(PopupContent), typeof(object), typeof(OptionPopup));

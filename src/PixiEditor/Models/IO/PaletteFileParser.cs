@@ -1,8 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace PixiEditor.Models.IO;
 
-namespace PixiEditor.Models.IO;
-
-public abstract class PaletteFileParser
+internal abstract class PaletteFileParser
 {
     public abstract Task<PaletteFileData> Parse(string path);
     public abstract Task Save(string path, PaletteFileData data);

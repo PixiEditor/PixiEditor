@@ -10,7 +10,7 @@ namespace PixiEditor;
 /// <summary>
 ///     Interaction logic for App.xaml.
 /// </summary>
-public partial class App : Application
+internal partial class App : Application
 {
     /// <summary>The event mutex name.</summary>
     private const string UniqueEventName = "33f1410b-2ad7-412a-a468-34fe0a85747c";

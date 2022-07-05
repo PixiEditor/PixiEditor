@@ -1,8 +1,6 @@
-﻿using System;
+﻿namespace PixiEditor.Models.Tools.ToolSettings;
 
-namespace PixiEditor.Models.Tools.ToolSettings;
-
-public class SettingValueChangedEventArgs<T> : EventArgs
+internal class SettingValueChangedEventArgs<T> : EventArgs
 {
     public T OldValue { get; set; }
 

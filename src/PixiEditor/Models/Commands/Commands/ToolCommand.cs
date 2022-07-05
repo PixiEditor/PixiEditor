@@ -1,11 +1,11 @@
-﻿using PixiEditor.ViewModels;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Commands;
 
-public partial class Command
+internal partial class Command
 {
-    public class ToolCommand : Command
+    internal class ToolCommand : Command
     {
         public Type ToolType { get; init; }
 

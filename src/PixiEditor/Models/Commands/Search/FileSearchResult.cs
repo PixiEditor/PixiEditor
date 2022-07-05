@@ -1,11 +1,10 @@
-﻿using PixiEditor.Helpers.Converters;
-using System.IO;
-using System.Windows;
+﻿using System.IO;
 using System.Windows.Media;
+using PixiEditor.Helpers.Converters;
 
 namespace PixiEditor.Models.Commands.Search;
 
-public class FileSearchResult : SearchResult
+internal class FileSearchResult : SearchResult
 {
     private readonly DrawingImage icon;
 

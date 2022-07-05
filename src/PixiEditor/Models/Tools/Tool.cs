@@ -1,15 +1,15 @@
-﻿using PixiEditor.Helpers;
+﻿using System.Windows.Input;
+using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools.ToolSettings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
-using System.Windows.Input;
 using SkiaSharp;
-using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Tools;
 
-public abstract class Tool : NotifyableObject
+internal abstract class Tool : NotifyableObject
 {
     public KeyCombination Shortcut { get; set; }
 

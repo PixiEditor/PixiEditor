@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Models.Commands;
 
-public class CommandMethods
+internal class CommandMethods
 {
     private readonly Command _command;
     private readonly Action<object> _execute;

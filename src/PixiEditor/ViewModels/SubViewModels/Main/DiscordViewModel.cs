@@ -1,14 +1,14 @@
 ﻿using DiscordRPC;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-public class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
+internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
 {
     private DiscordRpcClient client;
     private string clientId;
-    private Document currentDocument;
+    private DocumentViewModel currentDocument;
 
     public bool Enabled
     {
@@ -102,7 +102,7 @@ public class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         client = null;
     }
 
-    public void UpdatePresence(Document document)
+    public void UpdatePresence(DocumentViewModel document)
     {
         /*
         if (client == null)
@@ -203,7 +203,7 @@ public class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
 
     private void OnReady(object sender, DiscordRPC.Message.ReadyMessage args)
     {
-        UpdatePresence(Owner.BitmapManager.ActiveDocument);
+        //UpdatePresence(Owner.BitmapManager.ActiveDocument);
     }
 
     ~DiscordViewModel()

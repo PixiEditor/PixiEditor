@@ -1,13 +1,6 @@
-﻿using PixiEditor.Parser;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace PixiEditor.Models.DataHolders;
 
-namespace PixiEditor.Models.DataHolders;
-
-public partial class Document
+internal partial class Document
 {
     private readonly DateTime openedUtc = DateTime.UtcNow;
 

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Media;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class FormattedColorConverter
+internal class FormattedColorConverter
     : SingleInstanceMultiValueConverter<FormattedColorConverter>
 {
     public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)

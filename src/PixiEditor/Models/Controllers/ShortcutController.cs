@@ -1,11 +1,11 @@
-﻿using PixiEditor.Models.Commands;
+﻿using System.Windows.Input;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
-using System.Windows.Input;
 
 namespace PixiEditor.Models.Controllers;
 
-public class ShortcutController
+internal class ShortcutController
 {
     public static bool ShortcutExecutionBlocked => _shortcutExecutionBlockers.Count > 0;
 

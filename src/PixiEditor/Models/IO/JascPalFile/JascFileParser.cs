@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.IO;
 using SkiaSharp;
 
 namespace PixiEditor.Models.IO.JascPalFile;
@@ -8,16 +6,16 @@ namespace PixiEditor.Models.IO.JascPalFile;
 /// <summary>
 ///     This class is responsible for parsing JASC-PAL files. Which holds the color palette data.
 /// </summary>
-public class JascFileParser : PaletteFileParser
+internal class JascFileParser : PaletteFileParser
 {
     private static readonly string[] _supportedFileExtensions = new string[] { ".pal" };
     public override string[] SupportedFileExtensions => _supportedFileExtensions;
     public override string FileName => "Jasc Palette";
-    
+
     private static async Task<PaletteFileData> ParseFile(string path)
-    { 
+    {
         using var stream = File.OpenText(path);
-        
+
         string fileContent = await stream.ReadToEndAsync();
         string[] lines = fileContent.Split('\n');
         string name = Path.GetFileNameWithoutExtension(path);
@@ -42,7 +40,7 @@ public class JascFileParser : PaletteFileParser
     public static async Task<bool> SaveFile(string path, PaletteFileData data)
     {
         if (data is not { Colors.Length: > 0 }) return false;
-        
+
         string fileContent = "JASC-PAL\n0100\n" + data.Colors.Length;
         for (int i = 0; i < data.Colors.Length; i++)
         {

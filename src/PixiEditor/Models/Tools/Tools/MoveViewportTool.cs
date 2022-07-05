@@ -5,7 +5,7 @@ using PixiEditor.Models.Commands.Attributes;
 namespace PixiEditor.Models.Tools.Tools;
 
 [Command.Tool(Key = Key.H, Transient = Key.Space)]
-public class MoveViewportTool : ReadonlyTool
+internal class MoveViewportTool : ReadonlyTool
 {
     public MoveViewportTool()
     {

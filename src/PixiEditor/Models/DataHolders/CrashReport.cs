@@ -7,7 +7,7 @@ using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.DataHolders;
 
-public class CrashReport : IDisposable
+internal class CrashReport : IDisposable
 {
     public static CrashReport Generate(Exception exception)
     {
@@ -183,7 +183,7 @@ public class CrashReport : IDisposable
         ReportText = Encoding.UTF8.GetString(encodedReport);
     }
 
-    public class CrashReportUserMessage
+    internal class CrashReportUserMessage
     {
         public string Message { get; set; }
 

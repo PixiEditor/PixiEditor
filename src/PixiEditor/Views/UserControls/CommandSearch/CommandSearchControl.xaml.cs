@@ -1,9 +1,4 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Commands;
-using PixiEditor.Models.Commands.Search;
-using PixiEditor.Models.DataHolders;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text;
 using System.Windows;
@@ -12,11 +7,16 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using OneOf;
 using OneOf.Types;
+using PixiEditor.Helpers;
+using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Search;
+using PixiEditor.Models.DataHolders;
 using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls.CommandSearch;
 #nullable enable
-public partial class CommandSearchControl : UserControl, INotifyPropertyChanged
+internal partial class CommandSearchControl : UserControl, INotifyPropertyChanged
 {
     public static readonly DependencyProperty SearchTermProperty =
         DependencyProperty.Register(nameof(SearchTerm), typeof(string), typeof(CommandSearchControl), new PropertyMetadata(OnSearchTermChange));

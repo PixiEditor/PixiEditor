@@ -4,7 +4,7 @@ using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.Controllers;
 
-public class ToolSessionController : ICanvasInputTarget
+internal class ToolSessionController : ICanvasInputTarget
 {
     public event EventHandler<MouseMovementEventArgs> PixelMousePositionChanged;
     public event EventHandler<(double, double)> PreciseMousePositionChanged;

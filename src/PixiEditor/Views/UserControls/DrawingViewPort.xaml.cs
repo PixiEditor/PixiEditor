@@ -1,15 +1,14 @@
-﻿using PixiEditor.Helpers;
-using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Views.UserControls;
 
 /// <summary>
 /// Interaction logic for DrawingViewPort.xaml.
 /// </summary>
-public partial class DrawingViewPort : UserControl
+internal partial class DrawingViewPort : UserControl
 {
     public static readonly DependencyProperty MiddleMouseClickedCommandProperty =
         DependencyProperty.Register(nameof(MiddleMouseClickedCommand), typeof(ICommand), typeof(DrawingViewPort), new PropertyMetadata(default(ICommand)));

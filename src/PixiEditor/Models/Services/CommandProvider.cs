@@ -1,12 +1,12 @@
-﻿using PixiEditor.Models.Commands;
-using PixiEditor.Models.Commands.Evaluators;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Evaluators;
 using XAMLCommand = PixiEditor.Models.Commands.XAML.Command;
 
 namespace PixiEditor.Models.Services;
 
-public class CommandProvider
+internal class CommandProvider
 {
     private readonly CommandController _controller;
 

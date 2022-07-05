@@ -1,12 +1,12 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands.XAML;
 
-public class Menu : System.Windows.Controls.Menu
+internal class Menu : System.Windows.Controls.Menu
 {
     public static readonly DependencyProperty CommandNameProperty =
         DependencyProperty.RegisterAttached(

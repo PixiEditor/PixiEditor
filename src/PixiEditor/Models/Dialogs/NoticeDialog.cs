@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Models.Dialogs;
 
-public static class NoticeDialog
+internal static class NoticeDialog
 {
     public static void Show(string message, string title)
     {

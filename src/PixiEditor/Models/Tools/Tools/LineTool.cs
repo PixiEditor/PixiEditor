@@ -5,7 +5,7 @@ using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 namespace PixiEditor.Models.Tools.Tools;
 
 [Command.Tool(Key = Key.L)]
-public class LineTool : ShapeTool
+internal class LineTool : ShapeTool
 {
     private string defaltActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
 

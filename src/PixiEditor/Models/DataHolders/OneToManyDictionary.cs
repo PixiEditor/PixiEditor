@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace PixiEditor.Models.DataHolders;
 
 [DebuggerDisplay("Count = {Count}")]
-public class OneToManyDictionary<TKey, T> : ICollection<KeyValuePair<TKey, IEnumerable<T>>>
+internal class OneToManyDictionary<TKey, T> : ICollection<KeyValuePair<TKey, IEnumerable<T>>>
 {
     private readonly Dictionary<TKey, List<T>> _dictionary;
 

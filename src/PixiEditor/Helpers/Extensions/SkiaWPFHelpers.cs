@@ -1,9 +1,9 @@
-﻿using SkiaSharp;
-using System.Windows.Media;
+﻿using System.Windows.Media;
+using SkiaSharp;
 
 namespace PixiEditor.Helpers.Extensions;
 
-public static class SkiaWPFHelpers
+internal static class SkiaWPFHelpers
 {
     public static SKColor ToOpaqueSKColor(this Color color) => new(color.R, color.G, color.B);
     public static SKColor ToSKColor(this Color color) => new(color.R, color.G, color.B, color.A);

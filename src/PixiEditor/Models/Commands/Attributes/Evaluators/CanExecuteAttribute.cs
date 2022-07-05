@@ -1,9 +1,9 @@
 ﻿namespace PixiEditor.Models.Commands.Attributes;
 
-public partial class Evaluator
+internal partial class Evaluator
 {
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
-    public class CanExecuteAttribute : EvaluatorAttribute
+    internal class CanExecuteAttribute : EvaluatorAttribute
     {
         public string[] NamesOfRequiredCanExecuteEvaluators { get; }
 

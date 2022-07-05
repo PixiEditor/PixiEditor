@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Commands.Templates;
 
-public interface IShortcutDefaults
+internal interface IShortcutDefaults
 {
     ShortcutCollection DefaultShortcuts { get; }
 }

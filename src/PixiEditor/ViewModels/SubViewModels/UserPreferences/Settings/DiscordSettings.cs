@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
-public class DiscordSettings : SettingsGroup
+internal class DiscordSettings : SettingsGroup
 {
     private bool enableRichPresence = GetPreference(nameof(EnableRichPresence), true);
 

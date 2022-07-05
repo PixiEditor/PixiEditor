@@ -1,11 +1,11 @@
-﻿using PixiEditor.Views.Dialogs;
-using System.Collections;
+﻿using System.Collections;
 using System.Windows.Controls;
 using System.Windows.Media;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;
 
-public class OptionsDialog<T> : CustomDialog, IEnumerable<T>
+internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
 {
     private Dictionary<T, Action<T>> _results = new();
 

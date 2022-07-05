@@ -13,7 +13,7 @@ public delegate void MouseUpEventHandler(object sender, Point p, MouseButton but
 
 // see https://stackoverflow.com/questions/22659925/how-to-capture-mouseup-event-outside-the-wpf-window
 [ExcludeFromCodeCoverage]
-public static class GlobalMouseHook
+internal static class GlobalMouseHook
 {
     private const int WH_MOUSE_LL = 14;
     private const int WM_LBUTTONUP = 0x0202;
@@ -28,8 +28,8 @@ public static class GlobalMouseHook
     public static event MouseUpEventHandler OnMouseUp
     {
         add
-        { 
-// disable low-level hook in debug to prevent mouse lag when pausing in debugger
+        {
+            // disable low-level hook in debug to prevent mouse lag when pausing in debugger
 #if !DEBUG
                 Subscribe();
 #endif

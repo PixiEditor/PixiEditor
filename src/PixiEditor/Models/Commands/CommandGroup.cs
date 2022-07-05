@@ -1,10 +1,10 @@
-﻿using PixiEditor.Models.DataHolders;
-using System.Collections;
+﻿using System.Collections;
 using System.Windows.Input;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands;
 
-public class CommandGroup : IEnumerable<Command>
+internal class CommandGroup : IEnumerable<Command>
 {
     private readonly Command[] commands;
     private readonly Command[] visibleCommands;

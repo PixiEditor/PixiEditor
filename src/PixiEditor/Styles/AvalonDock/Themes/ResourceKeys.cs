@@ -6,7 +6,7 @@ namespace PixiEditor.Styles.AvalonDock.Themes;
 /// Resource key management class to keep track of all resources
 /// that can be re-styled in applications that make use of the implemented controls.
 /// </summary>
-public static class ResourceKeys
+internal static class ResourceKeys
 {
     #region Accent Keys
 

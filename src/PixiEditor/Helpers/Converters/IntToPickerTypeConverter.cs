@@ -1,10 +1,9 @@
-﻿using ColorPicker.Models;
-using System;
-using System.Globalization;
+﻿using System.Globalization;
+using ColorPicker.Models;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class IntToPickerTypeConverter
+internal class IntToPickerTypeConverter
     : SingleInstanceConverter<IntToPickerTypeConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)

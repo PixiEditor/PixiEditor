@@ -4,7 +4,7 @@ using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands.Templates;
 
-public partial class ShortcutProvider
+internal partial class ShortcutProvider
 {
     public string Name { get; set; }
 
@@ -26,7 +26,7 @@ public partial class ShortcutProvider
     public bool HasInstallationPresent => (this as IShortcutInstallation)?.InstallationPresent ?? false;
 
     public virtual string Description { get; } = string.Empty;
-    
+
     public ShortcutProvider(string name)
     {
         Name = name;

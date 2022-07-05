@@ -1,13 +1,13 @@
-﻿using PixiEditor.Models.Commands;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Dialogs;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Models.Commands;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.Views.UserControls;
 
-public class ShortcutBox : ContentControl
+internal class ShortcutBox : ContentControl
 {
     private readonly KeyCombinationBox box;
     private bool changingCombination;
@@ -51,12 +51,12 @@ public class ShortcutBox : ContentControl
             {
                 var oldShortcut = Command.Shortcut;
                 bool enableSwap = oldShortcut is not { Key: Key.None, Modifiers: ModifierKeys.None };
-                    
+
                 string text = enableSwap ?
                     $"This shortcut is already assigned to '{oldCommand.DisplayName}'\nDo you want to replace the existing shortcut or swap the two?" :
                     $"This shortcut is already assigned to '{oldCommand.DisplayName}'\nDo you want to replace the existing shortcut?";
                 OptionsDialog<string> dialog = new("Already assigned", text);
-                    
+
                 dialog.Add("Replace", x => controller.ReplaceShortcut(Command, e));
                 if (enableSwap)
                 {

@@ -3,7 +3,7 @@ using PixiEditor.Views;
 
 namespace PixiEditor.Models.Dialogs;
 
-public class ResizeDocumentDialog : CustomDialog
+internal class ResizeDocumentDialog : CustomDialog
 {
     private int height;
     private int width;

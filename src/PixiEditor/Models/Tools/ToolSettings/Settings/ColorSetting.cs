@@ -3,13 +3,12 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Interactivity;
 using System.Windows.Media;
-using ColorPicker;
 using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Views;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings;
 
-public class ColorSetting : Setting<Color>
+internal class ColorSetting : Setting<Color>
 {
     public ColorSetting(string name, string label = "")
         : base(name)

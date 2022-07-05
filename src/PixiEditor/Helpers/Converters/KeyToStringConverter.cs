@@ -1,10 +1,9 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Input;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class KeyToStringConverter
+internal class KeyToStringConverter
     : SingleInstanceConverter<KeyToStringConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)

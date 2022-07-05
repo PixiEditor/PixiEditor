@@ -1,12 +1,12 @@
-﻿using SkiaSharp;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls;
 
-public partial class SwatchesView : UserControl
+internal partial class SwatchesView : UserControl
 {
     public static readonly DependencyProperty SwatchesProperty =
         DependencyProperty.Register(nameof(Swatches), typeof(ObservableCollection<SKColor>), typeof(SwatchesView));

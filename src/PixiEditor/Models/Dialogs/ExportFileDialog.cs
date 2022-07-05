@@ -1,10 +1,10 @@
-﻿using PixiEditor.Models.Enums;
+﻿using System.Windows;
+using PixiEditor.Models.Enums;
 using PixiEditor.Views;
-using System.Windows;
 
 namespace PixiEditor.Models.Dialogs;
 
-public class ExportFileDialog : CustomDialog
+internal class ExportFileDialog : CustomDialog
 {
     FileType _chosenFormat;
 

@@ -1,9 +1,8 @@
-﻿using System;
-using PixiEditor.Models.Enums;
+﻿using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Models.Controllers;
 
-public class LayersChangedEventArgs : EventArgs
+internal class LayersChangedEventArgs : EventArgs
 {
     public LayersChangedEventArgs(Guid layerAffectedGuid, LayerAction layerChangeType)
     {

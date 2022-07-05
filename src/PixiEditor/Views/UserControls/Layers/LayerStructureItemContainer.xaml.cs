@@ -7,7 +7,7 @@ namespace PixiEditor.Views.UserControls.Layers;
 /// <summary>
 /// Interaction logic for LayerStructureItemContainer.xaml.
 /// </summary>
-public partial class LayerStructureItemContainer : UserControl
+internal partial class LayerStructureItemContainer : UserControl
 {
     public LayersViewModel LayerCommandsViewModel
     {

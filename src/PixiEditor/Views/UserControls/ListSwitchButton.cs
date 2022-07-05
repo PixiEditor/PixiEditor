@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace PixiEditor.Views.UserControls;
 
-public class ListSwitchButton : Button
+internal class ListSwitchButton : Button
 {
     public ObservableCollection<SwitchItem> Items
     {

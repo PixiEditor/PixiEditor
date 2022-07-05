@@ -8,7 +8,7 @@ using Command = PixiEditor.Models.Commands.Attributes.Command;
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.Window", "Windows")]
-public class WindowViewModel : SubViewModel<ViewModelMain>
+internal class WindowViewModel : SubViewModel<ViewModelMain>
 {
     private CommandController commandController;
     private ShortcutPopup shortcutPopup;
@@ -31,7 +31,7 @@ public class WindowViewModel : SubViewModel<ViewModelMain>
         {
             page = "General";
         }
-            
+
         var settings = new SettingsWindow(page);
         settings.Show();
     }
@@ -48,7 +48,7 @@ public class WindowViewModel : SubViewModel<ViewModelMain>
         ShortcutPopup.Show();
         ShortcutPopup.Activate();
     }
-        
+
     [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "Open Navigation Window", "Open Navigation Window")]
     public static void ShowAvalonDockWindow(string id)
     {

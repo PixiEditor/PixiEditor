@@ -10,7 +10,7 @@ using PixiEditor.Models.UserPreferences;
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.Tools", "Tools")]
-public class ToolsViewModel : SubViewModel<ViewModelMain>
+internal class ToolsViewModel : SubViewModel<ViewModelMain>
 {
     private Cursor toolCursor;
     private Tool activeTool;
@@ -41,7 +41,7 @@ public class ToolsViewModel : SubViewModel<ViewModelMain>
             if (ActiveTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is SizeSetting toolSize)
             {
                 toolSize.Value = value;
-                Owner.BitmapManager.UpdateHighlightIfNecessary();
+                //Owner.BitmapManager.UpdateHighlightIfNecessary();
             }
         }
     }
@@ -109,10 +109,10 @@ public class ToolsViewModel : SubViewModel<ViewModelMain>
             SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
 
         //update old tool
-        Owner.BitmapManager.UpdateActionDisplay(LastActionTool);
+        //Owner.BitmapManager.UpdateActionDisplay(LastActionTool);
         //update new tool
-        Owner.BitmapManager.UpdateActionDisplay(ActiveTool);
-        Owner.BitmapManager.UpdateHighlightIfNecessary();
+        //Owner.BitmapManager.UpdateActionDisplay(ActiveTool);
+        //Owner.BitmapManager.UpdateHighlightIfNecessary();
 
         tool.IsActive = true;
         SetToolCursor(tool.GetType());

@@ -1,11 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Markup;
 
 namespace PixiEditor.Helpers.Converters;
 
-public abstract class MultiValueMarkupConverter : MarkupExtension, IMultiValueConverter
+internal abstract class MultiValueMarkupConverter : MarkupExtension, IMultiValueConverter
 {
     public abstract object Convert(object[] values, Type targetType, object parameter, CultureInfo culture);
 

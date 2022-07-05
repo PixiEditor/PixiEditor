@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Helpers;
 
-public static class PaletteHelpers
+internal static class PaletteHelpers
 {
     public static string GetFilter(IList<PaletteFileParser> parsers, bool includeCommon)
     {

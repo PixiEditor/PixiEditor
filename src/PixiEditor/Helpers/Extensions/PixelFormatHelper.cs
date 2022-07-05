@@ -1,10 +1,9 @@
-﻿using SkiaSharp;
-using System;
-using System.Windows.Media;
+﻿using System.Windows.Media;
+using SkiaSharp;
 
 namespace PixiEditor.Helpers.Extensions;
 
-public static class PixelFormatHelper
+internal static class PixelFormatHelper
 {
     public static SKColorType ToSkia(this PixelFormat format, out SKAlphaType alphaType)
     {

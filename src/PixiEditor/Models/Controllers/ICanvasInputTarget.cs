@@ -1,9 +1,9 @@
-﻿using PixiEditor.Models.Tools;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using PixiEditor.Models.Tools;
 
 namespace PixiEditor.Models.Controllers;
 
-public interface ICanvasInputTarget
+internal interface ICanvasInputTarget
 {
     void OnToolChange(Tool tool);
     void OnKeyDown(Key key);

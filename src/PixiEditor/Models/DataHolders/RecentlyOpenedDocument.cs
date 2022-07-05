@@ -10,7 +10,7 @@ using PixiEditor.Parser.Skia;
 namespace PixiEditor.Models.DataHolders;
 
 [DebuggerDisplay("{FilePath}")]
-public class RecentlyOpenedDocument : NotifyableObject
+internal class RecentlyOpenedDocument : NotifyableObject
 {
     private bool corrupt;
 

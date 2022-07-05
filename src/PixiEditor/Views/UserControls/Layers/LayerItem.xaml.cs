@@ -9,7 +9,7 @@ namespace PixiEditor.Views.UserControls.Layers;
 /// <summary>
 /// Interaction logic for LayerItem.xaml.
 /// </summary>
-public partial class LayerItem : UserControl
+internal partial class LayerItem : UserControl
 {
     public static Brush HighlightColor = Brushes.Blue;
 

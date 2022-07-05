@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 
 namespace PixiEditor.Models.Commands.Evaluators;
 
-public class IconEvaluator : Evaluator<ImageSource>
+internal class IconEvaluator : Evaluator<ImageSource>
 {
     public static IconEvaluator Default { get; } = new CommandNameEvaluator();
 

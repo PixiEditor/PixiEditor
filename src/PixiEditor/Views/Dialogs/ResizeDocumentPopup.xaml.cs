@@ -6,7 +6,7 @@ namespace PixiEditor.Views;
 /// <summary>
 ///     Interaction logic for ResizeDocumentPopup.xaml
 /// </summary>
-public partial class ResizeDocumentPopup : ResizeablePopup
+internal partial class ResizeDocumentPopup : ResizeablePopup
 {
     public ResizeDocumentPopup()
     {

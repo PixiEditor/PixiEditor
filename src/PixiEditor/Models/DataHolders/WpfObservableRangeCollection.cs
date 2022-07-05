@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
 using System.Windows.Data;
 
 namespace PixiEditor.Models.DataHolders;
 
-public class WpfObservableRangeCollection<T> : RangeObservableCollection<T>
+internal class WpfObservableRangeCollection<T> : RangeObservableCollection<T>
 {
     public bool SuppressNotify { get; set; } = false;
     DeferredEventsCollection _deferredEvents;

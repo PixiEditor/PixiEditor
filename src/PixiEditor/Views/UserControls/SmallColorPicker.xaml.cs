@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Views.UserControls;
 
-public partial class SmallColorPicker : DualPickerControlBase
+internal partial class SmallColorPicker : DualPickerControlBase
 {
     public SmallColorPicker()
     {

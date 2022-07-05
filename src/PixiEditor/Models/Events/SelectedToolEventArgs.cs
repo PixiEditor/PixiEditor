@@ -1,13 +1,8 @@
 ﻿using PixiEditor.Models.Tools;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Models.Events;
 
-public class SelectedToolEventArgs
+internal class SelectedToolEventArgs
 {
     public SelectedToolEventArgs(Tool oldTool, Tool newTool)
     {

@@ -1,8 +1,8 @@
 ﻿namespace PixiEditor.Models.Commands.Templates;
 
-public interface IShortcutFile
+internal interface IShortcutFile
 {
     string Filter { get; }
-    
+
     ShortcutCollection GetShortcuts(string path);
 }

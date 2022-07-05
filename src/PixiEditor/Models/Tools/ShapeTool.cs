@@ -3,7 +3,7 @@ using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools;
 
-public abstract class ShapeTool : BitmapOperationTool
+internal abstract class ShapeTool : BitmapOperationTool
 {
     public ShapeTool()
     {

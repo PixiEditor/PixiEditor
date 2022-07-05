@@ -5,7 +5,7 @@ using PixiEditor.Models.Commands.Attributes;
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.Layer", "Image")]
-public class LayersViewModel : SubViewModel<ViewModelMain>
+internal class LayersViewModel : SubViewModel<ViewModelMain>
 {
     public RelayCommand SetActiveLayerCommand { get; set; }
 

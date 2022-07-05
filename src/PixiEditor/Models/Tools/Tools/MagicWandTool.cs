@@ -1,7 +1,6 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.Tools.Tools;
@@ -11,7 +10,7 @@ internal class MagicWandTool : ReadonlyTool
 {
     public override string Tooltip => $"Magic Wand ({Shortcut}). Flood's the selection";
 
-    public MagicWandTool(BitmapManager manager)
+    public MagicWandTool()
     {
         Toolbar = new MagicWandToolbar();
         ActionDisplay = "Click to flood the selection.";

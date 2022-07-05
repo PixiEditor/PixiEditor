@@ -2,7 +2,6 @@
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
 
@@ -11,7 +10,7 @@ namespace PixiEditor.Models.Tools.Tools;
 [Command.Tool(Key = Key.M)]
 internal class SelectTool : ReadonlyTool
 {
-    public SelectTool(BitmapManager bitmapManager)
+    public SelectTool()
     {
         ActionDisplay = "Click and move to select an area.";
         Toolbar = new SelectToolToolbar();

@@ -1,9 +1,8 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class BoolToIntConverter
+internal class BoolToIntConverter
     : SingleInstanceConverter<BoolToIntConverter>
 {
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

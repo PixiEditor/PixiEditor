@@ -1,13 +1,12 @@
-﻿using PixiEditor.Helpers;
+﻿using System.Windows;
+using System.Windows.Controls;
+using PixiEditor.Helpers;
 using PixiEditor.Models;
 using PixiEditor.Models.Enums;
-using System;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace PixiEditor.Views;
 
-public partial class SizePicker : UserControl
+internal partial class SizePicker : UserControl
 {
     public static readonly DependencyProperty EditingEnabledProperty =
         DependencyProperty.Register(nameof(EditingEnabled), typeof(bool), typeof(SizePicker), new PropertyMetadata(true));

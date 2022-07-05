@@ -1,10 +1,8 @@
 ﻿using PixiEditor.Models.Enums;
-using System;
-using System.Linq;
 
 namespace PixiEditor.Models.DataHolders.Palettes;
 
-public class FilteringSettings
+internal class FilteringSettings
 {
     public ColorsNumberMode ColorsNumberMode { get; set; }
     public int ColorsCount { get; set; }
@@ -25,14 +23,14 @@ public class FilteringSettings
         // Lexical comparison
         bool result = string.IsNullOrWhiteSpace(Name) || palette.Name.Contains(Name, StringComparison.OrdinalIgnoreCase);
 
-        if(!result)
+        if (!result)
         {
             return false;
         }
 
         result = (ShowOnlyFavourites && palette.IsFavourite) || !ShowOnlyFavourites;
 
-        if(!result)
+        if (!result)
         {
             return false;
         }

@@ -1,14 +1,14 @@
-﻿using PixiEditor.Models.DataHolders;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Views.UserControls;
 
 /// <summary>
 /// Interaction logic for KeyCombinationBox.xaml
 /// </summary>
-public partial class KeyCombinationBox : UserControl
+internal partial class KeyCombinationBox : UserControl
 {
     private KeyCombination currentCombination;
     private bool ignoreButtonPress;

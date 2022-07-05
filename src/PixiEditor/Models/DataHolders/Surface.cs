@@ -11,7 +11,7 @@ using SkiaSharp;
 
 namespace PixiEditor.Models.DataHolders;
 
-public class Surface : IDisposable
+internal class Surface : IDisposable
 {
     public static SKPaint ReplacingPaint { get; } = new() { BlendMode = SKBlendMode.Src };
     public static SKPaint BlendingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };

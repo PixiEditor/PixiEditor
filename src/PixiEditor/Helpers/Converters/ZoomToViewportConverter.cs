@@ -1,11 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class ZoomToViewportConverter
+internal class ZoomToViewportConverter
     : SingleInstanceConverter<ZoomToViewportConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)

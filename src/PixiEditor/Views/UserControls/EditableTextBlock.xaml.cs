@@ -1,15 +1,15 @@
-﻿using PixiEditor.Models.Controllers;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.Views;
 
 /// <summary>
 ///     Interaction logic for EditableTextBlock.xaml.
 /// </summary>
-public partial class EditableTextBlock : UserControl
+internal partial class EditableTextBlock : UserControl
 {
 
     public static readonly DependencyProperty TextBlockVisibilityProperty =
@@ -126,7 +126,7 @@ public partial class EditableTextBlock : UserControl
         DisableEditing();
     }
 
-    public class TextChangedEventArgs : EventArgs
+    internal class TextChangedEventArgs : EventArgs
     {
         public string NewText { get; set; }
 

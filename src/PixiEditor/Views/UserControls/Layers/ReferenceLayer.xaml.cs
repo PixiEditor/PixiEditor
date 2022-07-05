@@ -9,7 +9,7 @@ namespace PixiEditor.Views.UserControls.Layers;
 /// <summary>
 /// Interaction logic for ReferenceLayer.xaml
 /// </summary>
-public partial class ReferenceLayer : UserControl
+internal partial class ReferenceLayer : UserControl
 {
     /*public Layer Layer
     {

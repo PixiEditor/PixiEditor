@@ -1,11 +1,11 @@
-﻿using SkiaSharp;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
-public partial class PaletteColor : UserControl
+internal partial class PaletteColor : UserControl
 {
     public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
 

@@ -1,22 +1,22 @@
-﻿using Microsoft.Win32;
+﻿using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
+using Microsoft.Win32;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Views.Dialogs;
 using SkiaSharp;
-using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
 /// <summary>
 /// Interaction logic for Palette.xaml
 /// </summary>
-public partial class PaletteViewer : UserControl
+internal partial class PaletteViewer : UserControl
 {
     public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>)));
 

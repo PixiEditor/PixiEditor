@@ -1,13 +1,13 @@
-﻿using PixiEditor.Helpers;
+﻿using System.Diagnostics;
+using System.Windows.Media;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
-using System.Diagnostics;
-using System.Windows.Media;
 
 namespace PixiEditor.Models.Commands;
 
 [DebuggerDisplay("{InternalName,nq} ('{DisplayName,nq}')")]
-public abstract partial class Command : NotifyableObject
+internal abstract partial class Command : NotifyableObject
 {
     private KeyCombination _shortcut;
 

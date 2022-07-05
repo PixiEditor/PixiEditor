@@ -1,12 +1,12 @@
-﻿using PixiEditor.Helpers;
-using System.Windows;
+﻿using System.Windows;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Views;
 
 /// <summary>
 ///     Interaction logic for ConfirmationPopup.xaml
 /// </summary>
-public partial class ConfirmationPopup : Window
+internal partial class ConfirmationPopup : Window
 {
     public static readonly DependencyProperty ResultProperty =
         DependencyProperty.Register(nameof(Result), typeof(bool), typeof(ConfirmationPopup),

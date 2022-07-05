@@ -1,11 +1,11 @@
-﻿using PixiEditor.Models.Events;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Models.Events;
 
 namespace PixiEditor.Views.UserControls;
 
-public class InputBox : TextBox
+internal class InputBox : TextBox
 {
     public ICommand SubmitCommand
     {

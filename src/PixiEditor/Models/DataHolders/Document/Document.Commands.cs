@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Models.DataHolders;
 
-public partial class Document
+internal partial class Document
 {
     public RelayCommand RequestCloseDocumentCommand { get; set; }
 

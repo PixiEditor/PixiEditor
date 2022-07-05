@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Helpers.Extensions;
 
-public static class EnumerableHelpers
+internal static class EnumerableHelpers
 {
     /// <summary>
     /// Get's the item at the <paramref name="index"/> if it matches the <paramref name="predicate"/> or the first that matches after the <paramref name="index"/>.

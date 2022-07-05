@@ -5,7 +5,7 @@ using SkiaSharp;
 
 namespace PixiEditor.Models.Controllers;
 
-public class ToolSession
+internal class ToolSession
 {
     private List<VecI> mouseMovement = new();
     private bool ended = false;

@@ -1,14 +1,14 @@
-﻿using PixiEditor.Models.Enums;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Views;
 
 /// <summary>
 ///     Interaction logic for AnchorPointPicker.xaml
 /// </summary>
-public partial class AnchorPointPicker : UserControl
+internal partial class AnchorPointPicker : UserControl
 {
     public static readonly DependencyProperty AnchorPointProperty =
         DependencyProperty.Register(nameof(AnchorPoint), typeof(AnchorPoint), typeof(AnchorPointPicker),

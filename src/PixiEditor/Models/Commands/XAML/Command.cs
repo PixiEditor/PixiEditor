@@ -1,14 +1,11 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Windows.Input;
+using System.Windows.Markup;
 using PixiEditor.Helpers;
 using PixiEditor.ViewModels;
-using System.ComponentModel;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Markup;
 
 namespace PixiEditor.Models.Commands.XAML;
 
-public class Command : MarkupExtension
+internal class Command : MarkupExtension
 {
     private static CommandController commandController;
 

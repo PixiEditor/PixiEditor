@@ -1,6 +1,5 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
@@ -12,7 +11,7 @@ internal class PenTool : ShapeTool
     private readonly SizeSetting toolSizeSetting;
     private readonly BoolSetting pixelPerfectSetting;
 
-    public PenTool(BitmapManager bitmapManager)
+    public PenTool()
     {
         Cursor = Cursors.Pen;
         ActionDisplay = "Click and move to draw.";

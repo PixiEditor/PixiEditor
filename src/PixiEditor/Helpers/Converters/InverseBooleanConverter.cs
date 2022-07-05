@@ -1,10 +1,9 @@
-﻿using System;
-using System.Windows.Data;
+﻿using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters;
 
 [ValueConversion(typeof(bool), typeof(bool))]
-public class InverseBooleanConverter
+internal class InverseBooleanConverter
     : SingleInstanceConverter<InverseBooleanConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

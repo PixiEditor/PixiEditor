@@ -1,11 +1,11 @@
-﻿using PixiEditor.Models.Enums;
-using System.Globalization;
+﻿using System.Globalization;
 using System.IO;
 using System.Windows.Media;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class FileExtensionToColorConverter :
+internal class FileExtensionToColorConverter :
     SingleInstanceConverter<FileExtensionToColorConverter>
 {
     private static readonly Dictionary<string, SolidColorBrush> extensionsToBrushes;

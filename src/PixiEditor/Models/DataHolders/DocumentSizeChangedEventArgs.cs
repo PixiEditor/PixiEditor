@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.DataHolders;
 
-public class DocumentSizeChangedEventArgs
+internal class DocumentSizeChangedEventArgs
 {
     public DocumentSizeChangedEventArgs(int oldWidth, int oldHeight, int newWidth, int newHeight)
     {

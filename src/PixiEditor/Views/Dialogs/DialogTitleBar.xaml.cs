@@ -4,7 +4,7 @@ using System.Windows.Input;
 
 namespace PixiEditor.Views.Dialogs;
 
-public partial class DialogTitleBar : UserControl
+internal partial class DialogTitleBar : UserControl
 {
     public static readonly DependencyProperty TitleTextProperty =
         DependencyProperty.Register(nameof(TitleText), typeof(string), typeof(DialogTitleBar), new PropertyMetadata(""));

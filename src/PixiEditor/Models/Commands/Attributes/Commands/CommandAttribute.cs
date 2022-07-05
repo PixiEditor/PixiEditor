@@ -1,12 +1,12 @@
-﻿using PixiEditor.Models.DataHolders;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands.Attributes;
 
-public partial class Command
+internal partial class Command
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
-    public abstract class CommandAttribute : Attribute
+    internal abstract class CommandAttribute : Attribute
     {
         public string InternalName { get; }
 

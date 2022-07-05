@@ -1,19 +1,18 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using System;
-using System.IO;
+﻿using System.IO;
 using System.Text;
 using System.Web;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Views.Dialogs;
 
 /// <summary>
 /// Interaction logic for SendCrashReportWindow.xaml
 /// </summary>
-public partial class SendCrashReportWindow : Window
+internal partial class SendCrashReportWindow : Window
 {
     const string DiscordInviteLink = "https://discord.gg/eh8gx6vNEp";
 

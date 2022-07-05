@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Models.Controllers;
 
-public class MouseMovementEventArgs : EventArgs
+internal class MouseMovementEventArgs : EventArgs
 {
     public MouseMovementEventArgs(VecI mousePosition)
     {

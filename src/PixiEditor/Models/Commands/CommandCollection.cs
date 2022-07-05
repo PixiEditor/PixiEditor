@@ -1,13 +1,12 @@
-﻿using PixiEditor.Models.DataHolders;
-using System.Collections;
+﻿using System.Collections;
 using System.Diagnostics;
 using System.Windows.Input;
-using OneOf.Types;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands;
 
 [DebuggerDisplay("Count = {Count}")]
-public class CommandCollection : ICollection<Command>
+internal class CommandCollection : ICollection<Command>
 {
     private readonly Dictionary<string, Command> _commandInternalNames;
     private readonly OneToManyDictionary<KeyCombination, Command> _commandShortcuts;
@@ -73,7 +72,7 @@ public class CommandCollection : ICollection<Command>
         if (shortcut is { Key: Key.None, Modifiers: ModifierKeys.None })
             return;
         _commandShortcuts.AddRange(KeyCombination.None, _commandShortcuts[shortcut]);
-        _commandShortcuts.Clear(shortcut);      
+        _commandShortcuts.Clear(shortcut);
     }
 
     public IEnumerable<KeyValuePair<KeyCombination, IEnumerable<Command>>> GetShortcuts() =>

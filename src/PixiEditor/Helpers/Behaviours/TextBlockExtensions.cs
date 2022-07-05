@@ -4,7 +4,7 @@ using System.Windows.Documents;
 
 namespace PixiEditor.Helpers.Behaviours;
 
-public static class TextBlockExtensions
+internal static class TextBlockExtensions
 {
     public static IEnumerable<Inline> GetBindableInlines(DependencyObject obj)
     {

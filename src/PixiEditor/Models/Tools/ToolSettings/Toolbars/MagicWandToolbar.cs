@@ -3,7 +3,7 @@ using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
-public class MagicWandToolbar : SelectToolToolbar
+internal class MagicWandToolbar : SelectToolToolbar
 {
     public MagicWandToolbar()
         : base(false)

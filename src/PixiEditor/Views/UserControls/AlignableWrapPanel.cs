@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace PixiEditor.Views.UserControls;
 
-public class AlignableWrapPanel : Panel
+internal class AlignableWrapPanel : Panel
 {
     public HorizontalAlignment HorizontalContentAlignment
     {

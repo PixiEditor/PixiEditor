@@ -1,10 +1,9 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class ThresholdVisibilityConverter
+internal class ThresholdVisibilityConverter
     : MarkupConverter
 {
     public double Threshold { get; set; } = 100;

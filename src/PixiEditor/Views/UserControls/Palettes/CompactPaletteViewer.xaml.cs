@@ -1,15 +1,15 @@
-﻿using PixiEditor.Models.DataHolders;
-using SkiaSharp;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Models.DataHolders;
+using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
 /// <summary>
 /// Interaction logic for CompactPaletteViewer.xaml
 /// </summary>
-public partial class CompactPaletteViewer : UserControl
+internal partial class CompactPaletteViewer : UserControl
 {
     public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<SKColor>), typeof(CompactPaletteViewer));
 

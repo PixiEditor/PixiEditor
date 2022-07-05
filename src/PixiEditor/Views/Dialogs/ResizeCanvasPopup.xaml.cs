@@ -1,13 +1,13 @@
-﻿using PixiEditor.Models.Enums;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Views;
 
 /// <summary>
 ///     Interaction logic for ResizeCanvasPopup.xaml
 /// </summary>
-public partial class ResizeCanvasPopup : ResizeablePopup
+internal partial class ResizeCanvasPopup : ResizeablePopup
 {
 
     public static readonly DependencyProperty SelectedAnchorPointProperty =

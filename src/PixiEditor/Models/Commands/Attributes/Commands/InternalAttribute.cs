@@ -1,11 +1,11 @@
 ﻿namespace PixiEditor.Models.Commands.Attributes;
 
-public partial class Command
+internal partial class Command
 {
     /// <summary>
     /// A command that is not shown in the UI
     /// </summary>
-    public class InternalAttribute : BasicAttribute
+    internal class InternalAttribute : BasicAttribute
     {
         /// <summary>
         /// A command that is not shown in the UI

@@ -1,25 +1,32 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using SkiaSharp;
 
-namespace PixiEditor.Models.Controllers;
-
-[DebuggerDisplay("{Documents.Count} Document(s)")]
-public class BitmapManager : NotifyableObject
+namespace PixiEditor.ViewModels.SubViewModels.Document;
+internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 {
+    public DocumentManagerViewModel(ViewModelMain owner) : base(owner)
+    {
+        ToolSessionController = new ToolSessionController();
+        ToolSessionController.SessionStarted += OnSessionStart;
+        ToolSessionController.SessionEnded += OnSessionEnd;
+        ToolSessionController.PixelMousePositionChanged += OnPixelMousePositionChange;
+        ToolSessionController.PreciseMousePositionChanged += OnPreciseMousePositionChange;
+        ToolSessionController.KeyStateChanged += (_, _) => UpdateActionDisplay(_tools.ActiveTool);
+
+        //undo.UndoRedoCalled += (_, _) => ToolSessionController.ForceStopActiveSessionIfAny();
+    }
+
     private ToolSessionController ToolSessionController { get; set; }
     public ICanvasInputTarget InputTarget => ToolSessionController;
 
-    public System.Collections.ObjectModel.ObservableCollection<Document> Documents { get; set; } = new System.Collections.ObjectModel.ObservableCollection<Document>();
+    public ObservableCollection<DocumentViewModel> Documents { get; set; } = new ObservableCollection<DocumentViewModel>();
 
-    private Document activeDocument;
-    public Document ActiveDocument
+    private DocumentViewModel activeDocument;
+    public DocumentViewModel ActiveDocument
     {
         get => activeDocument;
         set
@@ -42,58 +49,23 @@ public class BitmapManager : NotifyableObject
                 return;
             activeWindow = value;
             RaisePropertyChanged(nameof(ActiveWindow));
-            if (activeWindow is Document doc)
+            if (activeWindow is DocumentViewModel doc)
                 ActiveDocument = doc;
         }
     }
 
     public event EventHandler StopUsingTool;
 
-    public SKColor PrimaryColor { get; set; }
-
-    private bool hideReferenceLayer;
-    public bool HideReferenceLayer
-    {
-        get => hideReferenceLayer;
-        set => SetProperty(ref hideReferenceLayer, value);
-    }
-
-    private bool onlyReferenceLayer;
-    public bool OnlyReferenceLayer
-    {
-        get => onlyReferenceLayer;
-        set => SetProperty(ref onlyReferenceLayer, value);
-    }
-
     private readonly ToolsViewModel _tools;
 
-    private int previewLayerSize;
-    private int halfSize;
-    private SKColor _highlightColor;
-    private PenTool _highlightPen;
-
     private ToolSession activeSession = null;
-
-
-    public BitmapManager(ToolsViewModel tools, UndoViewModel undo)
-    {
-        _tools = tools;
-
-        ToolSessionController = new ToolSessionController();
-        ToolSessionController.SessionStarted += OnSessionStart;
-        ToolSessionController.SessionEnded += OnSessionEnd;
-        ToolSessionController.PixelMousePositionChanged += OnPixelMousePositionChange;
-        ToolSessionController.PreciseMousePositionChanged += OnPreciseMousePositionChange;
-        ToolSessionController.KeyStateChanged += (_, _) => UpdateActionDisplay(_tools.ActiveTool);
-
-        undo.UndoRedoCalled += (_, _) => ToolSessionController.ForceStopActiveSessionIfAny();
-    }
 
     [Evaluator.CanExecute("PixiEditor.HasDocument")]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    public void CloseDocument(Document document)
+    public void CloseDocument(Guid documentGuid)
     {
+        /*
         int nextIndex = 0;
         if (document == ActiveDocument)
         {
@@ -103,6 +75,7 @@ public class BitmapManager : NotifyableObject
 
         Documents.Remove(document);
         ActiveDocument = nextIndex >= 0 ? Documents[nextIndex] : null;
+        */
     }
 
     public void UpdateActionDisplay(Tool tool)

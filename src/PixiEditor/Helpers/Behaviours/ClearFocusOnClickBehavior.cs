@@ -1,11 +1,10 @@
-﻿using PixiEditor.Models.Controllers;
-using System.Windows;
-using System.Windows.Input;
+﻿using System.Windows;
 using System.Windows.Interactivity;
+using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.Helpers.Behaviours;
 
-public class ClearFocusOnClickBehavior : Behavior<FrameworkElement>
+internal class ClearFocusOnClickBehavior : Behavior<FrameworkElement>
 {
     protected override void OnAttached()
     {
@@ -16,7 +15,7 @@ public class ClearFocusOnClickBehavior : Behavior<FrameworkElement>
 
     private void AssociatedObject_LostKeyboardFocus(object sender, System.Windows.Input.KeyboardFocusChangedEventArgs e)
     {
-            
+
     }
 
     protected override void OnDetaching()

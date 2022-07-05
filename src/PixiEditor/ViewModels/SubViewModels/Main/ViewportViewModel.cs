@@ -3,7 +3,7 @@ using PixiEditor.Models.Commands.Attributes;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-public class ViewportViewModel : SubViewModel<ViewModelMain>
+internal class ViewportViewModel : SubViewModel<ViewModelMain>
 {
     private bool gridLinesEnabled;
 

@@ -4,7 +4,7 @@ using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Helpers.UI;
 
-public class PanelsStyleSelector : StyleSelector
+internal class PanelsStyleSelector : StyleSelector
 {
     public Style DocumentTabStyle { get; set; }
 

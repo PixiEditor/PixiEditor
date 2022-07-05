@@ -1,11 +1,11 @@
-﻿using PixiEditor.Views;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using PixiEditor.Views;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings;
 
-public class SizeSetting : Setting<int>
+internal class SizeSetting : Setting<int>
 {
     public SizeSetting(string name, string label = null)
         : base(name)

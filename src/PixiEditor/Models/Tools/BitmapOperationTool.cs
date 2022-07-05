@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Models.Tools;
 
-public abstract class BitmapOperationTool : Tool
+internal abstract class BitmapOperationTool : Tool
 {
     public abstract void Use();
 

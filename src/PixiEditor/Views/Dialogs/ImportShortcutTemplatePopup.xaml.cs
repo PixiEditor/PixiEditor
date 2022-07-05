@@ -8,7 +8,7 @@ using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.Views.Dialogs;
 
-public partial class ImportShortcutTemplatePopup : Window
+internal partial class ImportShortcutTemplatePopup : Window
 {
     public IEnumerable<ShortcutProvider> Templates { get; set; }
 
@@ -21,7 +21,7 @@ public partial class ImportShortcutTemplatePopup : Window
             MinHeight = ActualHeight;
         };
     }
-    
+
     [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Provider.ImportDefault")]
     public static void ImportDefaults(ShortcutProvider provider)
     {
@@ -29,13 +29,13 @@ public partial class ImportShortcutTemplatePopup : Window
         {
             throw new ArgumentException("provider must implement IShortcutDefaults", nameof(provider));
         }
-        
+
         CommandController.Current.ResetShortcuts();
         CommandController.Current.Import(defaults.DefaultShortcuts);
-        
+
         Success(provider);
     }
-    
+
     [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Provider.ImportFile")]
     public static void ImportFile(ShortcutProvider provider)
     {
@@ -50,11 +50,11 @@ public partial class ImportShortcutTemplatePopup : Window
         {
             return;
         }
-        
+
         try
         {
             var shortcuts = defaults.GetShortcuts(picker.FileName);
-            
+
             CommandController.Current.ResetShortcuts();
             CommandController.Current.Import(shortcuts);
         }
@@ -74,7 +74,7 @@ public partial class ImportShortcutTemplatePopup : Window
         {
             throw new ArgumentException("provider must implement IShortcutInstallation", nameof(provider));
         }
-        
+
         CommandController.Current.ResetShortcuts();
 
         try

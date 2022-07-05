@@ -1,7 +1,7 @@
 ﻿namespace PixiEditor.Models.Commands.Exceptions;
 
 [Serializable]
-public class CommandNotFoundException : Exception
+internal class CommandNotFoundException : Exception
 {
     public string CommandName { get; set; }
 

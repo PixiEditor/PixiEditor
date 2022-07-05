@@ -10,7 +10,7 @@ namespace PixiEditor.Views.UserControls;
 /// <summary>
 /// Interaction logic for PreviewWindow.xaml
 /// </summary>
-public partial class PreviewWindow : UserControl
+internal partial class PreviewWindow : UserControl
 {
     public static readonly DependencyProperty DocumentProperty =
         DependencyProperty.Register(nameof(Document), typeof(Document), typeof(PreviewWindow));

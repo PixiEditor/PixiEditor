@@ -5,7 +5,7 @@ using SkiaSharp;
 
 namespace PixiEditor.Models.Commands.Search;
 
-public class ColorSearchResult : SearchResult
+internal class ColorSearchResult : SearchResult
 {
     private readonly DrawingImage icon;
     private readonly SKColor color;
@@ -17,7 +17,8 @@ public class ColorSearchResult : SearchResult
 
     public override string Description => $"{color} rgba({color.Red}, {color.Green}, {color.Blue}, {color.Alpha})";
 
-    public override bool CanExecute => !requiresDocument || (requiresDocument && ViewModelMain.Current.BitmapManager.ActiveDocument != null);
+    //public override bool CanExecute => !requiresDocument || (requiresDocument && ViewModelMain.Current.BitmapManager.ActiveDocument != null);
+    public override bool CanExecute => false;
 
     public override ImageSource Icon => icon;
 

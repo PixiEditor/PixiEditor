@@ -1,6 +1,5 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.Models.Tools.Tools;
 
@@ -9,7 +8,7 @@ internal class MoveTool : BitmapOperationTool
 {
     private string defaultActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
 
-    public MoveTool(BitmapManager bitmapManager)
+    public MoveTool()
     {
         ActionDisplay = defaultActionDisplay;
         Cursor = Cursors.Arrow;

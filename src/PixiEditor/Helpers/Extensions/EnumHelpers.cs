@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace PixiEditor.Helpers.Extensions;
 
-public static class EnumHelpers
+internal static class EnumHelpers
 {
     public static IEnumerable<T> GetFlags<T>(this T e)
         where T : Enum

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class EmptyStringToVisibilityConverter :
+internal class EmptyStringToVisibilityConverter :
     SingleInstanceConverter<EmptyStringToVisibilityConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)

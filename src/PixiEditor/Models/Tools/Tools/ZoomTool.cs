@@ -1,7 +1,6 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.Models.Tools.Tools;
 
@@ -10,7 +9,7 @@ internal class ZoomTool : ReadonlyTool
 {
     private string defaultActionDisplay = "Click and move to zoom. Click to zoom in, hold ctrl and click to zoom out.";
 
-    public ZoomTool(BitmapManager bitmapManager)
+    public ZoomTool()
     {
         ActionDisplay = defaultActionDisplay;
     }

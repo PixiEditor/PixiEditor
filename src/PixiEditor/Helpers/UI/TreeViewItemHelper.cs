@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Helpers.UI;
 
-public static class TreeViewItemHelper
+internal static class TreeViewItemHelper
 {
     public static GridLength GetIndent(DependencyObject obj)
     {

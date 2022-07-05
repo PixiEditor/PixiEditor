@@ -2,11 +2,11 @@
 
 namespace PixiEditor.Models.Commands.Templates;
 
-public partial class ShortcutProvider
+internal partial class ShortcutProvider
 {
     public static AsepriteProvider Aseprite { get; } = new();
-    
-    public class AsepriteProvider : ShortcutProvider, IShortcutDefaults
+
+    internal class AsepriteProvider : ShortcutProvider, IShortcutDefaults
     {
         public AsepriteProvider() : base("Aseprite")
         {

@@ -3,13 +3,13 @@ using System.Windows.Input;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class ModifierFlagToModifiersConverter : SingleInstanceConverter<ModifierFlagToModifiersConverter>
+internal class ModifierFlagToModifiersConverter : SingleInstanceConverter<ModifierFlagToModifiersConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         return GetModifiers((ModifierKeys)value);
     }
-    
+
     private IEnumerable<ModifierKeys> GetModifiers(ModifierKeys keys)
     {
         if (keys.HasFlag(ModifierKeys.Windows))

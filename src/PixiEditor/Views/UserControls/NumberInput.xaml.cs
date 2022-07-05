@@ -8,7 +8,7 @@ namespace PixiEditor.Views;
 /// <summary>
 ///     Interaction logic for NumerInput.xaml.
 /// </summary>
-public partial class NumberInput : UserControl
+internal partial class NumberInput : UserControl
 {
     public static readonly DependencyProperty ValueProperty =
         DependencyProperty.Register(

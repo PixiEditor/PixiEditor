@@ -1,10 +1,6 @@
-﻿using PixiEditor.ViewModels.SubViewModels.Main;
-using System.Collections.Generic;
-using System.Linq;
+﻿namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
-namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
-
-public class UpdateSettings : SettingsGroup
+internal class UpdateSettings : SettingsGroup
 {
     private bool checkUpdatesOnStartup = GetPreference("CheckUpdatesOnStartup", true);
 

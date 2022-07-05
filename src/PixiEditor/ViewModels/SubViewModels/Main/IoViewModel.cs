@@ -9,7 +9,7 @@ using PixiEditor.Models.Tools.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-public class IoViewModel : SubViewModel<ViewModelMain>
+internal class IoViewModel : SubViewModel<ViewModelMain>
 {
     public RelayCommand MouseMoveCommand { get; set; }
 
@@ -67,6 +67,7 @@ public class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnKeyDown(KeyEventArgs args)
     {
+        /*
         var key = args.Key;
         if (key == Key.System)
             key = args.SystemKey;
@@ -79,6 +80,7 @@ public class IoViewModel : SubViewModel<ViewModelMain>
         }
 
         HandleTransientKey(args, true);
+        */
     }
 
     private void HandleTransientKey(KeyEventArgs args, bool state)
@@ -143,6 +145,7 @@ public class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnKeyUp(KeyEventArgs args)
     {
+        /*
         var key = args.Key;
         if (key == Key.System)
             key = args.SystemKey;
@@ -153,6 +156,7 @@ public class IoViewModel : SubViewModel<ViewModelMain>
             Owner.BitmapManager.InputTarget.OnKeyUp(key);
 
         HandleTransientKey(args, false);
+        */
     }
 
     private void ProcessShortcutUp(KeyCombination shortcut)
@@ -222,6 +226,7 @@ public class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseUp(object sender, MouseButton button)
     {
+        /*
         if (Owner.BitmapManager.ActiveDocument == null)
             return;
         if (button == MouseButton.Left)
@@ -232,5 +237,6 @@ public class IoViewModel : SubViewModel<ViewModelMain>
         {
             ChangeToolState<MoveViewportTool>(false);
         }
+        */
     }
 }

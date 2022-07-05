@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
+﻿using System.Collections.ObjectModel;
 
 namespace PixiEditor.Views.UserControls;
 
-public class SwitchItemObservableCollection : ObservableCollection<SwitchItem> { }
+internal class SwitchItemObservableCollection : ObservableCollection<SwitchItem> { }

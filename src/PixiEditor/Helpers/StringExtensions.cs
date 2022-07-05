@@ -1,9 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿namespace PixiEditor.Helpers;
 
-namespace PixiEditor.Helpers;
-
-public static class StringExtensions
+internal static class StringExtensions
 {
     public static string Reverse(this string s)
     {

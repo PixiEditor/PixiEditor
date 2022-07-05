@@ -3,7 +3,7 @@ using PixiEditor.Views;
 
 namespace PixiEditor.Models.Dialogs;
 
-public class NewFileDialog : CustomDialog
+internal class NewFileDialog : CustomDialog
 {
     private int height = IPreferences.Current.GetPreference("DefaultNewFileHeight", Constants.DefaultCanvasSize);
 

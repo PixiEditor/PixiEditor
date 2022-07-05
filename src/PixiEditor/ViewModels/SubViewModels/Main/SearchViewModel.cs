@@ -1,10 +1,10 @@
-﻿using PixiEditor.Models.Commands.Attributes;
-using System.Windows.Input;
+﻿using System.Windows.Input;
+using PixiEditor.Models.Commands.Attributes;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.Search", "Search")]
-public class SearchViewModel : SubViewModel<ViewModelMain>
+internal class SearchViewModel : SubViewModel<ViewModelMain>
 {
     private bool searchWindowOpen;
     private string searchTerm;

@@ -1,20 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.IO;
 using CLSEncoderDecoder;
-using PixiEditor.Models.DataHolders.Palettes;
 using SkiaSharp;
 
 namespace PixiEditor.Models.IO.ClsFile;
 
-public class ClsFileParser : PaletteFileParser
+internal class ClsFileParser : PaletteFileParser
 {
     public override string FileName { get; } = "Clip Studio Paint Color Set";
 
     public override string[] SupportedFileExtensions { get; } = { ".cls" };
-    
+
     public override async Task<PaletteFileData> Parse(string path)
     {
         return await Task.Run(() =>
@@ -28,7 +23,7 @@ public class ClsFileParser : PaletteFileParser
             {
                 return new PaletteFileData("Corrupted", Array.Empty<SKColor>()) { IsCorrupted = true };
             }
-            
+
             PaletteFileData data = new(
                 set.Utf8Name,
                 set.Colors
@@ -43,7 +38,7 @@ public class ClsFileParser : PaletteFileParser
     public override async Task<bool> Save(string path, PaletteFileData data)
     {
         if (data?.Colors == null || data.Colors.Length <= 0) return false;
-        
+
         string name = data.Title;
         List<ClsColor> colors = data.Colors
             .Select(color => new ClsColor(color.Red, color.Green, color.Blue, color.Alpha)).ToList();
@@ -56,7 +51,7 @@ public class ClsFileParser : PaletteFileParser
             ClsColorSet set = new(colors, name);
             set.Save(path);
         });
-            
+
         return true;
 
     }

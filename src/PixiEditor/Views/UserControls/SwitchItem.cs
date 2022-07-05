@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Views.UserControls;
 
-public class SwitchItem
+internal class SwitchItem
 {
     public string Content { get; set; } = "";
     public Brush Background { get; set; }

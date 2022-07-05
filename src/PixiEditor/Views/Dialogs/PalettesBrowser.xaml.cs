@@ -1,3 +1,9 @@
+using System.Diagnostics;
+using System.IO;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Navigation;
 using Microsoft.Win32;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
@@ -10,16 +16,10 @@ using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.Views.UserControls.Palettes;
 using SkiaSharp;
-using System.Diagnostics;
-using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Navigation;
 
 namespace PixiEditor.Views.Dialogs;
 
-public partial class PalettesBrowser : Window
+internal partial class PalettesBrowser : Window
 {
     private const int ItemsPerLoad = 10;
 

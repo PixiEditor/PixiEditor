@@ -1,13 +1,10 @@
-﻿using PixiEditor.Models.Enums;
+﻿using System.IO;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace PixiEditor.Helpers;
 
-public class SupportedFilesHelper
+internal class SupportedFilesHelper
 {
     static Dictionary<FileType, FileTypeDialogData> fileTypeDialogsData;
     static List<FileTypeDialogData> allFileTypeDialogsData;

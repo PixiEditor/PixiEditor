@@ -6,7 +6,7 @@ using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 namespace PixiEditor.Models.Tools.Tools;
 
 [Command.Tool(Key = Key.U)]
-public class BrightnessTool : BitmapOperationTool
+internal class BrightnessTool : BitmapOperationTool
 {
     private const float CorrectionFactor = 5f; // Initial correction factor
 

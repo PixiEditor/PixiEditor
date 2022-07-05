@@ -1,10 +1,9 @@
-﻿using SkiaSharp;
-using System;
-using System.Windows;
+﻿using System.Windows;
+using SkiaSharp;
 
 namespace PixiEditor.Helpers.Extensions;
 
-public static class Int32RectHelper
+internal static class Int32RectHelper
 {
     public static Int32Rect Intersect(this Int32Rect rect, Int32Rect other)
     {

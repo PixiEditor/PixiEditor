@@ -1,10 +1,8 @@
 ﻿using PixiEditor.Models.Enums;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace PixiEditor.Models.IO;
 
-public class FileTypeDialogData
+internal class FileTypeDialogData
 {
     public FileType FileType { get; set; }
 

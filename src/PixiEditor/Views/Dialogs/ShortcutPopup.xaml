@@ -1,4 +1,5 @@
 ﻿<Window x:Class="PixiEditor.Views.Dialogs.ShortcutPopup"
+        x:ClassModifier="internal"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:s="clr-namespace:System;assembly=mscorlib"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

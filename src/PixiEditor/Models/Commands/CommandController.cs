@@ -1,16 +1,16 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.IO;
+using System.Reflection;
+using System.Windows.Media;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
-using System.IO;
-using System.Reflection;
-using System.Windows.Media;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Command;
 
 namespace PixiEditor.Models.Commands;
 
-public class CommandController
+internal class CommandController
 {
     private readonly ShortcutFile shortcutFile;
 
@@ -107,26 +107,26 @@ public class CommandController
                 switch (attribute)
                 {
                     case Evaluator.CanExecuteAttribute canExecuteAttribute:
-                    {
-                        var getRequiredEvaluatorsObjectsOfCurrentEvaluator =
-                            (CommandController controller) =>
-                                canExecuteAttribute.NamesOfRequiredCanExecuteEvaluators.Select(x => controller.CanExecuteEvaluators[x]);
+                        {
+                            var getRequiredEvaluatorsObjectsOfCurrentEvaluator =
+                                (CommandController controller) =>
+                                    canExecuteAttribute.NamesOfRequiredCanExecuteEvaluators.Select(x => controller.CanExecuteEvaluators[x]);
 
-                        AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
-                            methodInfo,
-                            maybeServiceInstance,
-                            canExecuteAttribute,
-                            CanExecuteEvaluators,
-                            evaluateFunction => new CanExecuteEvaluator()
-                            {
-                                Name = attribute.Name,
-                                Evaluate = evaluateFunctionArgument =>
-                                    evaluateFunction.Invoke(evaluateFunctionArgument) &&
-                                    getRequiredEvaluatorsObjectsOfCurrentEvaluator.Invoke(this).All(requiredEvaluator =>
-                                        requiredEvaluator.CallEvaluate(null, evaluateFunctionArgument))
-                            });
-                        break;
-                    }
+                            AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
+                                methodInfo,
+                                maybeServiceInstance,
+                                canExecuteAttribute,
+                                CanExecuteEvaluators,
+                                evaluateFunction => new CanExecuteEvaluator()
+                                {
+                                    Name = attribute.Name,
+                                    Evaluate = evaluateFunctionArgument =>
+                                        evaluateFunction.Invoke(evaluateFunctionArgument) &&
+                                        getRequiredEvaluatorsObjectsOfCurrentEvaluator.Invoke(this).All(requiredEvaluator =>
+                                            requiredEvaluator.CallEvaluate(null, evaluateFunctionArgument))
+                                });
+                            break;
+                        }
                     case Evaluator.IconAttribute icon:
                         AddEvaluator<Evaluator.IconAttribute, IconEvaluator, ImageSource>(methodInfo, maybeServiceInstance, icon, IconEvaluators);
                         break;

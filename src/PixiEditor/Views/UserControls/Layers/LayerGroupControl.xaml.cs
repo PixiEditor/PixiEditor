@@ -9,7 +9,7 @@ namespace PixiEditor.Views.UserControls.Layers;
 /// <summary>
 /// Interaction logic for LayerFolder.xaml.
 /// </summary>
-public partial class LayerGroupControl : UserControl
+internal partial class LayerGroupControl : UserControl
 {
     public Guid GroupGuid
     {

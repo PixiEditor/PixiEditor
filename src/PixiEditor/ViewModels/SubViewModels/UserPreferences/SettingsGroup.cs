@@ -1,11 +1,10 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using PixiEditor.Helpers;
 using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences;
 
-public class SettingsGroup : NotifyableObject
+internal class SettingsGroup : NotifyableObject
 {
     protected static T GetPreference<T>(string name)
     {
@@ -27,7 +26,7 @@ public class SettingsGroup : NotifyableObject
         IPreferences.Current.UpdatePreference(name, value);
     }
 
-    protected void RaiseAndUpdatePreference<T>(ref T backingStore, T value, [CallerMemberName]string name = "")
+    protected void RaiseAndUpdatePreference<T>(ref T backingStore, T value, [CallerMemberName] string name = "")
     {
         SetProperty(ref backingStore, value, propertyName: name);
         IPreferences.Current.UpdatePreference(name, value);

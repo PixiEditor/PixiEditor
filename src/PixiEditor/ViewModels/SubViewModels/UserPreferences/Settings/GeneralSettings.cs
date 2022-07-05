@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
-public class GeneralSettings : SettingsGroup
+internal class GeneralSettings : SettingsGroup
 {
     private bool imagePreviewInTaskbar = GetPreference(nameof(ImagePreviewInTaskbar), false);
 

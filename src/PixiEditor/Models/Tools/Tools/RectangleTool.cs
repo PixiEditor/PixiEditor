@@ -4,7 +4,7 @@ using PixiEditor.Models.Commands.Attributes;
 namespace PixiEditor.Models.Tools.Tools;
 
 [Command.Tool(Key = Key.R)]
-public class RectangleTool : ShapeTool
+internal class RectangleTool : ShapeTool
 {
     private string defaultActionDisplay = "Click and move to draw a rectangle. Hold Shift to draw a square.";
     public RectangleTool()

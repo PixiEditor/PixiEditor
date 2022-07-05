@@ -7,7 +7,7 @@ using PixiEditor.Models.IO;
 
 namespace PixiEditor.Models.Controllers;
 
-public static class ClipboardController
+internal static class ClipboardController
 {
     public static readonly string TempCopyFilePath = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),

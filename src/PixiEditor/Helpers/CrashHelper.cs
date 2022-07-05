@@ -1,13 +1,12 @@
-﻿using ByteSizeLib;
+﻿using System.Globalization;
+using System.Text;
+using ByteSizeLib;
 using Hardware.Info;
 using PixiEditor.Models.DataHolders;
-using System;
-using System.Globalization;
-using System.Text;
 
 namespace PixiEditor.Helpers;
 
-public class CrashHelper
+internal class CrashHelper
 {
     private readonly IHardwareInfo hwInfo;
 

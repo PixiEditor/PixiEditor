@@ -1,13 +1,12 @@
-﻿using GalaSoft.MvvmLight.CommandWpf;
+﻿using System.Diagnostics;
+using System.Windows;
+using GalaSoft.MvvmLight.CommandWpf;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Views.Dialogs;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows;
 
 namespace PixiEditor.ViewModels;
 
-public class CrashReportViewModel : ViewModelBase
+internal class CrashReportViewModel : ViewModelBase
 {
     private bool hasRecoveredDocuments = true;
 

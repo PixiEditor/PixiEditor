@@ -1,17 +1,17 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.ViewModels.SubViewModels.Main;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.Dialogs;
 
 /// <summary>
 /// Interaction logic for HelloTherePopup.xaml.
 /// </summary>
-public partial class HelloTherePopup : Window
+internal partial class HelloTherePopup : Window
 {
     public RecentlyOpenedCollection RecentlyOpened { get => FileViewModel.RecentlyOpened; }
 

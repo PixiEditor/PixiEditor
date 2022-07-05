@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace PixiEditor.Helpers;
 
 [Serializable]
-public class NotifyableObject : INotifyPropertyChanged
+internal class NotifyableObject : INotifyPropertyChanged
 {
     [field: NonSerialized]
     public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };

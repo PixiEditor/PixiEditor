@@ -1,14 +1,14 @@
-﻿using PixiEditor.Models.Commands;
-using CommandAttribute = PixiEditor.Models.Commands.Attributes.Command;
-using System.Reflection;
+﻿using System.Reflection;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Exceptions;
+using CommandAttribute = PixiEditor.Models.Commands.Attributes.Command;
 
 namespace PixiEditor.Helpers;
 
 /// <summary>
 /// Helps with debugging when using XAML
 /// </summary>
-public static class DesignCommandHelpers
+internal static class DesignCommandHelpers
 {
     private static IEnumerable<CommandAttribute.CommandAttribute> _commands;
 

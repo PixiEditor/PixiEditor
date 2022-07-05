@@ -1,9 +1,8 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class FloorConverter : SingleInstanceConverter<FloorConverter>
+internal class FloorConverter : SingleInstanceConverter<FloorConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {

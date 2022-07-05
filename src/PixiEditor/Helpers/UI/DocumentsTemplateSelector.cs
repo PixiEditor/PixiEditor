@@ -1,12 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using AvalonDock.Layout;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Helpers.UI;
 
-public class DocumentsTemplateSelector : DataTemplateSelector
+internal class DocumentsTemplateSelector : DataTemplateSelector
 {
     public DocumentsTemplateSelector()
     {

@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences;
 
-public class SettingsViewModel : SubViewModel<SettingsWindowViewModel>
+internal class SettingsViewModel : SubViewModel<SettingsWindowViewModel>
 {
     public GeneralSettings General { get; set; } = new GeneralSettings();
 

@@ -1,20 +1,17 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.Models.Tools.Tools;
 
 [Command.Tool(Key = Key.O, Transient = Key.LeftAlt)]
 internal class ColorPickerTool : ReadonlyTool
 {
-    private readonly BitmapManager _bitmapManager;
     private readonly string defaultActionDisplay = "Click to pick colors. Hold Ctrl to hide the canvas. Hold Shift to hide the reference layer";
 
-    public ColorPickerTool(BitmapManager bitmapManager)
+    public ColorPickerTool()
     {
         ActionDisplay = defaultActionDisplay;
-        _bitmapManager = bitmapManager;
     }
 
     public override bool HideHighlight => true;
@@ -25,6 +22,7 @@ internal class ColorPickerTool : ReadonlyTool
 
     public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
+        /*
         if (!IsActive)
         {
             _bitmapManager.HideReferenceLayer = false;
@@ -50,7 +48,7 @@ internal class ColorPickerTool : ReadonlyTool
             _bitmapManager.HideReferenceLayer = false;
             _bitmapManager.OnlyReferenceLayer = false;
             ActionDisplay = defaultActionDisplay;
-        }
+        }*/
     }
 
     public override void Use(VecD position)

@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.IO;
+using Newtonsoft.Json;
 using PixiEditor.Models.DataHolders;
-using System.IO;
 
 namespace PixiEditor.Models.Commands;
 
-public class ShortcutFile
+internal class ShortcutFile
 {
     private readonly CommandController _commands;
 

@@ -1,8 +1,8 @@
 ﻿namespace PixiEditor.Models.Commands.Attributes;
 
-public partial class Command
+internal partial class Command
 {
-    public class BasicAttribute : CommandAttribute
+    internal class BasicAttribute : CommandAttribute
     {
         /// <summary>
         /// Gets or sets the parameter that will be passed to the first argument of the method

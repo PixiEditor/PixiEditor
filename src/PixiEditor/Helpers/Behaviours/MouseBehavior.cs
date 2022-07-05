@@ -4,7 +4,7 @@ using System.Windows.Interactivity;
 
 namespace PixiEditor.Helpers.Behaviours
 {
-    public class MouseBehavior : Behavior<FrameworkElement>
+    internal class MouseBehavior : Behavior<FrameworkElement>
     {
         public static readonly DependencyProperty MouseYProperty = DependencyProperty.Register(nameof(MouseY), typeof(double), typeof(MouseBehavior), new PropertyMetadata(default(double)));
 

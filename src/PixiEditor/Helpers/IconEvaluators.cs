@@ -8,15 +8,15 @@ using Command = PixiEditor.Models.Commands.Command;
 
 namespace PixiEditor.Helpers;
 
-public static class IconEvaluators
+internal static class IconEvaluators
 {
     private static readonly FontFamily segeoMdl2 = new FontFamily("Segoe MDL2 Assets");
-    
+
     [Evaluator.Icon("PixiEditor.FontIcon")]
     public static ImageSource GetFontIcon(object parameter)
     {
         string symbolCode = GetIconName(parameter);
-        
+
         var textBlock = new TextBlock
         {
             FontFamily = segeoMdl2,

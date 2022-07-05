@@ -1,9 +1,8 @@
 ﻿using PixiEditor.Models;
-using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
-public class FileSettings : SettingsGroup
+internal class FileSettings : SettingsGroup
 {
     private bool showStartupWindow = GetPreference(nameof(ShowStartupWindow), true);
 

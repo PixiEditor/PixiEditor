@@ -1,16 +1,16 @@
-﻿using PixiEditor.Models.DataHolders;
-using SkiaSharp;
-using System.Collections.Specialized;
+﻿using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using PixiEditor.Models.DataHolders;
+using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
 /// <summary>
 /// Interaction logic for PaletteColorAdder.xaml
 /// </summary>
-public partial class PaletteColorAdder : UserControl
+internal partial class PaletteColorAdder : UserControl
 {
     public WpfObservableRangeCollection<SKColor> Colors
     {

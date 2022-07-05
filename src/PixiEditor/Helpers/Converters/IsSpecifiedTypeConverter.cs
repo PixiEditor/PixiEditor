@@ -1,11 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters;
 
 [ValueConversion(typeof(object), typeof(bool))]
-public class IsSpecifiedTypeConverter : MarkupConverter
+internal class IsSpecifiedTypeConverter : MarkupConverter
 {
     public Type SpecifiedType { get; set; }
 

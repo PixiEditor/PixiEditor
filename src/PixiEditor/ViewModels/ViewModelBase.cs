@@ -1,11 +1,10 @@
-﻿using PixiEditor.Helpers;
-using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.ViewModels;
 
-public class ViewModelBase : NotifyableObject
+internal class ViewModelBase : NotifyableObject
 {
     protected void CloseButton(object parameter)
     {

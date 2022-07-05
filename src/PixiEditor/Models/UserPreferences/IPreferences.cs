@@ -1,9 +1,8 @@
-﻿using System;
-using PixiEditor.ViewModels;
+﻿using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.UserPreferences;
 
-public interface IPreferences
+internal interface IPreferences
 {
     public static IPreferences Current => ViewModelMain.Current.Preferences;
 

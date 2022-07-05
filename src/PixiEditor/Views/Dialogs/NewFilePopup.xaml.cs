@@ -6,7 +6,7 @@ namespace PixiEditor.Views;
 /// <summary>
 ///     Interaction logic for NewFilePopup.xaml.
 /// </summary>
-public partial class NewFilePopup : Window
+internal partial class NewFilePopup : Window
 {
     public static readonly DependencyProperty FileHeightProperty =
         DependencyProperty.Register(nameof(FileHeight), typeof(int), typeof(NewFilePopup));

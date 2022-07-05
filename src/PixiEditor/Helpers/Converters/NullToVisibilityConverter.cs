@@ -1,10 +1,9 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class NullToVisibilityConverter
+internal class NullToVisibilityConverter
     : SingleInstanceConverter<NullToVisibilityConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)

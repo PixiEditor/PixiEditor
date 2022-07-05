@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Security.AccessControl;
 using System.Windows;
 using Microsoft.Win32;
@@ -8,7 +7,7 @@ using PixiEditor.Models.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-public class RegistryViewModel : SubViewModel<ViewModelMain>
+internal class RegistryViewModel : SubViewModel<ViewModelMain>
 {
     public RegistryViewModel(ViewModelMain owner) : base(owner)
     {

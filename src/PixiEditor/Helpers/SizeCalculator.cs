@@ -1,8 +1,6 @@
-﻿using System;
+﻿namespace PixiEditor.Helpers;
 
-namespace PixiEditor.Helpers;
-
-public static class SizeCalculator
+internal static class SizeCalculator
 {
     public static System.Drawing.Size CalcAbsoluteFromPercentage(float percentage, System.Drawing.Size currentSize)
     {

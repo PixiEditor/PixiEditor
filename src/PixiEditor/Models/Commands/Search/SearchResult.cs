@@ -1,12 +1,12 @@
-﻿using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Windows.Documents;
 using System.Windows.Media;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands.Search;
 
-public abstract class SearchResult : NotifyableObject
+internal abstract class SearchResult : NotifyableObject
 {
     private bool isSelected;
     private bool isMouseSelected;

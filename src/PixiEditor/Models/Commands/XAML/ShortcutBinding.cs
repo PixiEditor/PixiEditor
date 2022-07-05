@@ -1,16 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Windows.Data;
+using System.Windows.Markup;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels;
-using System.ComponentModel;
-using System.Windows;
-using System.Windows.Data;
-using System.Windows.Markup;
 using ActualCommand = PixiEditor.Models.Commands.Command;
 
 namespace PixiEditor.Models.Commands.XAML;
 
-public class ShortcutBinding : MarkupExtension
+internal class ShortcutBinding : MarkupExtension
 {
     private static CommandController commandController;
 

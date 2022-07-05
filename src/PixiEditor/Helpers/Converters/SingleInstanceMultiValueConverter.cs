@@ -1,8 +1,6 @@
-﻿using System;
+﻿namespace PixiEditor.Helpers.Converters;
 
-namespace PixiEditor.Helpers.Converters;
-
-public abstract class SingleInstanceMultiValueConverter<TThis> : MultiValueMarkupConverter
+internal abstract class SingleInstanceMultiValueConverter<TThis> : MultiValueMarkupConverter
     where TThis : SingleInstanceMultiValueConverter<TThis>
 {
     private static SingleInstanceMultiValueConverter<TThis> instance;

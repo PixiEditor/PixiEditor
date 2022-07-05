@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace PixiEditor.Models.DataHolders;
 
-namespace PixiEditor.Models.DataHolders;
-
-public class RecentlyOpenedCollection : System.Collections.ObjectModel.ObservableCollection<RecentlyOpenedDocument>
+internal class RecentlyOpenedCollection : System.Collections.ObjectModel.ObservableCollection<RecentlyOpenedDocument>
 {
     public RecentlyOpenedDocument this[string path]
     {
@@ -52,7 +45,7 @@ public class RecentlyOpenedCollection : System.Collections.ObjectModel.Observabl
         Insert(index, Create(path));
     }
 
-    private static RecentlyOpenedDocument Create(string path) => new (path);
+    private static RecentlyOpenedDocument Create(string path) => new(path);
 
     private RecentlyOpenedDocument Get(string path) => this.FirstOrDefault(x => x.FilePath == path);
 }

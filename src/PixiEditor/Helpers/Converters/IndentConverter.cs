@@ -1,11 +1,10 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class IndentConverter
+internal class IndentConverter
     : SingleInstanceConverter<IndentConverter>
 {
     private const int IndentSize = 20;

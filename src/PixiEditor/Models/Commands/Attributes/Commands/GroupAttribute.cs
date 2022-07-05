@@ -1,9 +1,9 @@
 ﻿namespace PixiEditor.Models.Commands.Attributes;
 
-public partial class Command
+internal partial class Command
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-    public class GroupAttribute : Attribute
+    internal class GroupAttribute : Attribute
     {
         public string InternalName { get; }
 

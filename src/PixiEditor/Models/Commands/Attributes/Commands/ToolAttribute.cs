@@ -2,10 +2,10 @@
 
 namespace PixiEditor.Models.Commands.Attributes;
 
-public partial class Command
+internal partial class Command
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    public class ToolAttribute : CommandAttribute
+    internal class ToolAttribute : CommandAttribute
     {
         public Key Transient { get; set; }
 

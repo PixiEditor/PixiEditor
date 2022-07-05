@@ -1,21 +1,17 @@
-﻿using PixiEditor.Helpers.Extensions;
+﻿using System.IO;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Models.UserPreferences;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace PixiEditor.Models.DataProviders;
 
-public delegate void CacheUpdate(RefreshType refreshType, Palette itemAffected, string oldName);
+internal delegate void CacheUpdate(RefreshType refreshType, Palette itemAffected, string oldName);
 
-public class LocalPalettesFetcher : PaletteListDataSource
+internal class LocalPalettesFetcher : PaletteListDataSource
 {
     public static string PathToPalettesFolder { get; } = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -117,7 +113,7 @@ public class LocalPalettesFetcher : PaletteListDataSource
         InitDir();
         await JascFileParser.SaveFile(path, new PaletteFileData(colors));
         watcher.EnableRaisingEvents = true;
-            
+
         await RefreshCache(RefreshType.Created, path);
     }
 
@@ -130,18 +126,18 @@ public class LocalPalettesFetcher : PaletteListDataSource
         watcher.EnableRaisingEvents = false;
         File.Delete(path);
         watcher.EnableRaisingEvents = true;
-            
+
         await RefreshCache(RefreshType.Deleted, path);
     }
 
     public void RenamePalette(string oldFileName, string newFileName)
     {
-        if (!Directory.Exists(PathToPalettesFolder)) 
+        if (!Directory.Exists(PathToPalettesFolder))
             return;
-            
+
         string oldPath = Path.Join(PathToPalettesFolder, oldFileName);
         string newPath = Path.Join(PathToPalettesFolder, newFileName);
-        if (!File.Exists(oldPath) || File.Exists(newPath)) 
+        if (!File.Exists(oldPath) || File.Exists(newPath))
             return;
 
         watcher.EnableRaisingEvents = false;

@@ -3,7 +3,7 @@
 namespace PixiEditor.Models.Commands.Evaluators;
 
 [DebuggerDisplay("{Name,nq}")]
-public abstract class Evaluator<T>
+internal abstract class Evaluator<T>
 {
     public string Name { get; init; }
 

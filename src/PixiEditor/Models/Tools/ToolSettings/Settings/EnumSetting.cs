@@ -1,17 +1,12 @@
-﻿using PixiEditor.Helpers.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings;
 
-public class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
+internal class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
     where TEnum : struct, Enum
 {
     private int selectedIndex = 0;

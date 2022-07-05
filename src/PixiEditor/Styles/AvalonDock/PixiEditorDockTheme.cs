@@ -7,13 +7,12 @@
    License (Ms-PL) as published at https://opensource.org/licenses/MS-PL
  ************************************************************************/
 
-using System;
 using AvalonDock.Themes;
 
 namespace PixiEditor.Styles.AvalonDock;
 
 /// <inheritdoc/>
-public class PixiEditorDockTheme : Theme
+internal class PixiEditorDockTheme : Theme
 {
     /// <inheritdoc/>
     public override Uri GetResourceUri()

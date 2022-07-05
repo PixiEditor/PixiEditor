@@ -9,7 +9,7 @@ using SkiaSharp;
 
 namespace PixiEditor.Models.IO;
 
-public class Importer : NotifyableObject
+internal class Importer : NotifyableObject
 {
     /// <summary>
     ///     Imports image from path and resizes it to given dimensions.

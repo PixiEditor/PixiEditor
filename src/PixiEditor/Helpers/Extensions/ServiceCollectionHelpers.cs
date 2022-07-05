@@ -9,11 +9,12 @@ using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Helpers.Extensions;
 
-public static class ServiceCollectionHelpers
+internal static class ServiceCollectionHelpers
 {
     /// <summary>
     /// Add's all the services required to fully run PixiEditor's MainWindow
@@ -42,7 +43,7 @@ public static class ServiceCollectionHelpers
         // Controllers
         .AddSingleton<ShortcutController>()
         .AddSingleton<CommandController>()
-        .AddSingleton<BitmapManager>()
+        .AddSingleton<DocumentManagerViewModel>()
         // Tools
         .AddSingleton<Tool, MoveViewportTool>()
         .AddSingleton<Tool, MoveTool>()

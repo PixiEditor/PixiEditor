@@ -1,11 +1,10 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
 using System.Text;
 
 namespace PixiEditor.Helpers;
 
-public static class VersionHelpers
+internal static class VersionHelpers
 {
     public static Version GetCurrentAssemblyVersion() => Assembly.GetExecutingAssembly().GetName().Version;
 

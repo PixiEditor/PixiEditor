@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Commands.Evaluators;
 
-public class CanExecuteEvaluator : Evaluator<bool>
+internal class CanExecuteEvaluator : Evaluator<bool>
 {
     public static CanExecuteEvaluator AlwaysTrue { get; } = new StaticValueEvaluator(true);
 

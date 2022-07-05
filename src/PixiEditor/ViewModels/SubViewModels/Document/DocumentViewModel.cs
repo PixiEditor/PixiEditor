@@ -1,11 +1,11 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.DataHolders;
 
-namespace PixiEditor.ViewModels.SubViewModels.Main;
+
+namespace PixiEditor.ViewModels.SubViewModels.Document;
 
 [Command.Group("PixiEditor.Document", "Image")]
-public class DocumentViewModel : SubViewModel<ViewModelMain>
+internal class DocumentViewModel : SubViewModel<ViewModelMain>
 {
     public const string ConfirmationDialogTitle = "Unsaved changes";
     public const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
@@ -44,7 +44,7 @@ public class DocumentViewModel : SubViewModel<ViewModelMain>
     {
         //Owner.BitmapManager.ActiveDocument?.ClipCanvas();
     }
-
+    /*
     public void RequestCloseDocument(Document document)
     {
         /*
@@ -64,9 +64,9 @@ public class DocumentViewModel : SubViewModel<ViewModelMain>
         }
 
         Owner.BitmapManager.CloseDocument(document);
-        */
+        
     }
-
+*/
     [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png")]
     public void DeletePixels()
     {

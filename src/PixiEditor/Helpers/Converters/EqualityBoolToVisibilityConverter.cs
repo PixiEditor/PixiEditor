@@ -3,7 +3,7 @@ using System.Windows;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class EqualityBoolToVisibilityConverter : MarkupConverter
+internal class EqualityBoolToVisibilityConverter : MarkupConverter
 {
     public bool Invert { get; set; }
 

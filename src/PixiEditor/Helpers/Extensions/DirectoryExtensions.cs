@@ -1,8 +1,6 @@
-﻿using System.Linq;
+﻿namespace PixiEditor.Helpers.Extensions;
 
-namespace PixiEditor.Helpers.Extensions;
-
-public static class DirectoryExtensions
+internal static class DirectoryExtensions
 {
     /// <summary>
     ///     Gets files in directory with multiple filters.

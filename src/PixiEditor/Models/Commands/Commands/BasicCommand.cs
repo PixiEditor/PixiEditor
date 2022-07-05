@@ -2,9 +2,9 @@
 
 namespace PixiEditor.Models.Commands;
 
-public partial class Command
+internal partial class Command
 {
-    public class BasicCommand : Command
+    internal class BasicCommand : Command
     {
         public object Parameter { get; init; }
 

@@ -7,12 +7,13 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Main;
 using SkiaSharp;
 
 namespace PixiEditor.ViewModels;
 
-public class ViewModelMain : ViewModelBase
+internal class ViewModelMain : ViewModelBase
 {
     private string actionDisplay;
     private bool overrideActionDisplay;
@@ -57,7 +58,7 @@ public class ViewModelMain : ViewModelBase
 
     public DebugViewModel DebugSubViewModel { get; set; }
 
-    public BitmapManager BitmapManager { get; set; }
+    public DocumentManagerViewModel DocumentManagerViewModel { get; set; }
 
     public CommandController CommandController { get; set; }
 
@@ -115,7 +116,7 @@ public class ViewModelMain : ViewModelBase
         Preferences = services.GetRequiredService<IPreferences>();
 
         Preferences.Init();
-        BitmapManager = services.GetRequiredService<BitmapManager>();
+        DocumentManagerViewModel = services.GetRequiredService<DocumentManagerViewModel>();
 
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
@@ -147,8 +148,6 @@ public class ViewModelMain : ViewModelBase
 
         MiscSubViewModel = services.GetService<MiscViewModel>();
 
-        BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
-
         CommandController = services.GetService<CommandController>();
         CommandController.Init(services);
         ShortcutController = new ShortcutController();
@@ -160,7 +159,8 @@ public class ViewModelMain : ViewModelBase
 
     public bool DocumentIsNotNull(object property)
     {
-        return BitmapManager.ActiveDocument != null;
+        return false;
+        //return BitmapManager.ActiveDocument != null;
     }
 
     public bool DocumentIsNotNull((SKColor oldColor, SKColor newColor) obj)
@@ -185,7 +185,8 @@ public class ViewModelMain : ViewModelBase
         e.NewTool.PropertyChanged += SelectedTool_PropertyChanged;
 
         NotifyToolActionDisplayChanged();
-        BitmapManager.InputTarget.OnToolChange(e.NewTool);
+
+        //BitmapManager.InputTarget.OnToolChange(e.NewTool);
     }
 
     private void SelectedTool_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -207,6 +208,7 @@ public class ViewModelMain : ViewModelBase
     /// <returns>If documents was removed successfully.</returns>
     private bool RemoveDocumentsWithSaveConfirmation()
     {
+        /*
         int docCount = BitmapManager.Documents.Count;
         for (int i = 0; i < docCount; i++)
         {
@@ -219,6 +221,8 @@ public class ViewModelMain : ViewModelBase
         }
 
         return true;
+        */
+        return false;
     }
 
     /// <summary>

@@ -1,9 +1,8 @@
 ﻿using SkiaSharp;
-using System;
 
 namespace PixiEditor.Models.Colors;
 
-public static class ExColor
+internal static class ExColor
 {
     /// <summary>
     ///     Creates color with corrected brightness.

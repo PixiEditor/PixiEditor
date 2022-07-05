@@ -7,7 +7,7 @@ namespace PixiEditor.Views.UserControls;
 /// <summary>
 /// Interaction logic for PrependTextBlock.xaml
 /// </summary>
-public partial class PrependTextBlock : UserControl
+internal partial class PrependTextBlock : UserControl
 {
     public static readonly DependencyProperty TextProperty =
         DependencyProperty.Register(nameof(Text), typeof(string), typeof(PrependTextBlock));

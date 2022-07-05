@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings;
 
-public class DropdownSetting : Setting<object>
+internal class DropdownSetting : Setting<object>
 {
     public DropdownSetting(string name, string[] values, string label)
         : base(name)

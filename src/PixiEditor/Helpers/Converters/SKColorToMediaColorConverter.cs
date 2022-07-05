@@ -1,12 +1,10 @@
-﻿using SkiaSharp;
-using System;
-using System.Globalization;
-using System.Windows.Data;
+﻿using System.Globalization;
 using System.Windows.Media;
+using SkiaSharp;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class SKColorToMediaColorConverter : SingleInstanceConverter<SKColorToMediaColorConverter>
+internal class SKColorToMediaColorConverter : SingleInstanceConverter<SKColorToMediaColorConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {

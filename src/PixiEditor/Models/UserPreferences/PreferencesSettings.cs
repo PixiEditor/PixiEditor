@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,7 +7,7 @@ using PixiEditor.ViewModels;
 namespace PixiEditor.Models.UserPreferences;
 
 [DebuggerDisplay("{Preferences.Count + LocalPreferences.Count} Preference(s)")]
-public class PreferencesSettings : IPreferences
+internal class PreferencesSettings : IPreferences
 {
     public static IPreferences Current => ViewModelMain.Current.Preferences;
 
@@ -177,7 +175,7 @@ public class PreferencesSettings : IPreferences
     {
         if (!dict.ContainsKey(name)) return fallbackValue;
         var preference = dict[name];
-        if(typeof(T) == preference.GetType()) return (T)preference;
+        if (typeof(T) == preference.GetType()) return (T)preference;
         if (preference.GetType() == typeof(JArray))
         {
             return ((JArray)preference).ToObject<T>();

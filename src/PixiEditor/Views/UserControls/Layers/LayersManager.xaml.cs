@@ -8,7 +8,7 @@ namespace PixiEditor.Views.UserControls.Layers;
 /// <summary>
 /// Interaction logic for LayersManager.xaml.
 /// </summary>
-public partial class LayersManager : UserControl
+internal partial class LayersManager : UserControl
 {
     public object SelectedItem
     {

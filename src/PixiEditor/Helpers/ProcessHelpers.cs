@@ -1,9 +1,8 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace PixiEditor.Helpers;
 
-public static class ProcessHelpers
+internal static class ProcessHelpers
 {
     public static void ShellExecute(string url)
     {

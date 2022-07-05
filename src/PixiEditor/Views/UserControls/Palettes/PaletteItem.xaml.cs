@@ -1,11 +1,11 @@
-﻿using PixiEditor.Models.DataHolders.Palettes;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Models.DataHolders.Palettes;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
-public partial class PaletteItem : UserControl
+internal partial class PaletteItem : UserControl
 {
     public Palette Palette
     {

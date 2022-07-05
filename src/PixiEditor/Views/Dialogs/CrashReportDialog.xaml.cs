@@ -1,14 +1,14 @@
-﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.ViewModels;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.Dialogs;
 
 /// <summary>
 /// Interaction logic for CrashReportDialog.xaml
 /// </summary>
-public partial class CrashReportDialog : Window
+internal partial class CrashReportDialog : Window
 {
     public CrashReportDialog(CrashReport report)
     {

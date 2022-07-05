@@ -1,9 +1,9 @@
-﻿using SkiaSharp;
-using System.Windows;
+﻿using System.Windows;
+using SkiaSharp;
 
 namespace PixiEditor.Helpers.Extensions;
 
-public static class SKRectIHelper
+internal static class SKRectIHelper
 {
     public static Int32Rect ToInt32Rect(this SKRectI rect)
     {

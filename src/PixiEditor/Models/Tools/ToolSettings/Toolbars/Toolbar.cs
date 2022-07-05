@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Toolbars;
 
-public abstract class Toolbar
+internal abstract class Toolbar
 {
     private static readonly List<Setting> SharedSettings = new List<Setting>();
 

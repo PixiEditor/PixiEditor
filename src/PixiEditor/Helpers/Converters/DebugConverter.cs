@@ -1,9 +1,8 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace PixiEditor.Helpers.Converters;
 
-public class DebugConverter
+internal class DebugConverter
     : SingleInstanceConverter<DebugConverter>
 {
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

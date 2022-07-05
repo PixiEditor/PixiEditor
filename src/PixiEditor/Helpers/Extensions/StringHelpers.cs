@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace PixiEditor.Helpers.Extensions;
 
-public static class StringHelpers
+internal static class StringHelpers
 {
     public static string AddSpacesBeforeUppercaseLetters(this string text)
     {

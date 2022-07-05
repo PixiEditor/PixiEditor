@@ -5,7 +5,7 @@ using System.Windows.Input;
 
 namespace PixiEditor.Helpers;
 
-public static class InputKeyHelpers
+internal static class InputKeyHelpers
 {
     /// <summary>
     /// Returns the charcter of the <paramref name="key"/> mapped to the users keyboard layout
