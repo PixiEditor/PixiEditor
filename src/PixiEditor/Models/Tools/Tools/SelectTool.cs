@@ -2,6 +2,7 @@
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
 

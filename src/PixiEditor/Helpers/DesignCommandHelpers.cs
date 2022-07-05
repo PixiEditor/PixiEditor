@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Exceptions;
-using CommandAttribute = PixiEditor.Models.Commands.Attributes.Command;
+using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.Helpers;
 

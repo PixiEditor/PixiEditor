@@ -61,7 +61,7 @@
                 </Grid.ColumnDefinitions>
                 <Label VerticalAlignment="Center" Margin="3,0,0,0">A:</Label>
                 <colorpicker:AlphaSlider Margin="5,0" Grid.Column="1" VerticalAlignment="Center" ColorState="{Binding ColorState, Mode=TwoWay, ElementName=uc}"/>
-                <vws:NumberInput 
+                <local:NumberInput 
                     Grid.Column="2" HorizontalAlignment="Right" Margin="5,0"
                     Min="0" Max="255"
                     Width="40" Height="20"

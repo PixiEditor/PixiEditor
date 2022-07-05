@@ -2,6 +2,8 @@
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Tools;

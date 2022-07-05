@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;

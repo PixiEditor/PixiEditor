@@ -4,7 +4,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using PixiEditor.Models.Controllers;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.UserControls;
 
 /// <summary>
 ///     Interaction logic for EditableTextBlock.xaml.

@@ -3,7 +3,7 @@ using System.Windows.Markup;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels;
-using ActualCommand = PixiEditor.Models.Commands.Command;
+using ActualCommand = PixiEditor.Models.Commands.Commands.Command;
 
 namespace PixiEditor.Models.Commands.XAML;
 

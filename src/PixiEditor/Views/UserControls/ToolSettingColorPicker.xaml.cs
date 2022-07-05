@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.UserControls;
 
 /// <summary>
 /// Interaction logic for ToolSettingColorPicker.xaml.

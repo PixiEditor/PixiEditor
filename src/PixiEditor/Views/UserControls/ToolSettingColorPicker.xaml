@@ -6,13 +6,14 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              xmlns:PixiEditor="clr-namespace:PixiEditor"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-             x:Class="PixiEditor.Views.ToolSettingColorPicker"
+             xmlns:views="clr-namespace:PixiEditor.Views"
+             x:Class="PixiEditor.Views.UserControls.ToolSettingColorPicker"
              mc:Ignorable="d" 
              x:Name="uc"
              d:Background="{StaticResource AccentColor}">
     <colorpicker:PortableColorPicker Width="40" Height="20" x:Name="ColorPicker" UseHintColor="True"
                                      HintColor="{Binding DataContext.ColorsSubViewModel.PrimaryColor, 
-        RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type PixiEditor:MainWindow}, AncestorLevel=1},
+        RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type views:MainWindow}, AncestorLevel=1},
         Converter={converters:SKColorToMediaColorConverter}}"
                                      SelectedColor="{Binding SelectedColor, ElementName=uc, Mode=TwoWay}"/>
 </UserControl>

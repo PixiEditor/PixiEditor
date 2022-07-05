@@ -2,10 +2,12 @@
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 

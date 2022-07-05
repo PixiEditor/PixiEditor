@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace PixiEditor.Models.Commands.Attributes;
+namespace PixiEditor.Models.Commands.Attributes.Commands;
 
 internal partial class Command
 {

@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.Models.IO;
 
 namespace PixiEditor.Models.Controllers;

@@ -11,6 +11,7 @@
     xmlns:dataholders="clr-namespace:PixiEditor.Models.DataHolders"
     xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
+    xmlns:document="clr-namespace:PixiEditor.Models.DataHolders.Document"
     x:Class="PixiEditor.Views.UserControls.DrawingViewPort"
     mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800" x:Name="uc">
@@ -21,7 +22,7 @@
         <converters:ZoomToViewportConverter x:Key="ZoomToViewportConverter" />
     </UserControl.Resources>
 
-    <local:Zoombox x:Name="zoombox" ClipToBounds="True" d:DataContext="{d:DesignInstance dataholders:Document}"
+    <local:Zoombox x:Name="zoombox" ClipToBounds="True" d:DataContext="{d:DesignInstance document:Document}"
                    UseTouchGestures="{Binding UseTouchGestures, ElementName=uc}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">

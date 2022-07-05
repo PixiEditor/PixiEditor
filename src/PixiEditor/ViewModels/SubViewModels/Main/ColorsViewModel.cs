@@ -3,6 +3,8 @@ using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;

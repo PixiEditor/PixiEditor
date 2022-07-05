@@ -1,4 +1,4 @@
-﻿<base:ResizeablePopup x:Class="PixiEditor.Views.ResizeDocumentPopup"
+﻿<dial:ResizeablePopup x:Class="PixiEditor.Views.Dialogs.ResizeDocumentPopup"
                       x:ClassModifier="internal"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,6 +12,7 @@
         Title="ResizeDocumentPopup" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
         Height="305" Width="310" MinHeight="305" MinWidth="310"
         xmlns:base="clr-namespace:PixiEditor.Views"
+        xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         WindowStyle="None">
 
     <WindowChrome.WindowChrome>
@@ -35,7 +36,7 @@
         <Button DockPanel.Dock="Bottom" Width="70" HorizontalAlignment="Center" Margin="15"
                 Style="{StaticResource DarkRoundButton}" Content="Resize" Click="Button_Click" IsDefault="True" />
 
-        <local:SizePicker HorizontalAlignment="Center" Width="240" Height="180" Margin="0,30,0,0"
+        <userControls:SizePicker HorizontalAlignment="Center" Width="240" Height="180" Margin="0,30,0,0"
             x:Name="sizePicker"
             PreserveAspectRatio="True"
                           Focusable="True"
@@ -47,4 +48,4 @@
             />
 
     </DockPanel>
-</base:ResizeablePopup>
+</dial:ResizeablePopup>

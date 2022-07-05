@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.Dialogs;
 
@@ -22,7 +23,7 @@ internal partial class ImportShortcutTemplatePopup : Window
         };
     }
 
-    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Provider.ImportDefault")]
+    [Command.Internal("PixiEditor.Shortcuts.Provider.ImportDefault")]
     public static void ImportDefaults(ShortcutProvider provider)
     {
         if (provider is not IShortcutDefaults defaults)
@@ -36,7 +37,7 @@ internal partial class ImportShortcutTemplatePopup : Window
         Success(provider);
     }
 
-    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Provider.ImportFile")]
+    [Command.Internal("PixiEditor.Shortcuts.Provider.ImportFile")]
     public static void ImportFile(ShortcutProvider provider)
     {
         if (provider is not IShortcutFile defaults)
@@ -67,7 +68,7 @@ internal partial class ImportShortcutTemplatePopup : Window
         Success(provider);
     }
 
-    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Provider.ImportInstallation")]
+    [Command.Internal("PixiEditor.Shortcuts.Provider.ImportInstallation")]
     public static void ImportInstallation(ShortcutProvider provider)
     {
         if (provider is not IShortcutInstallation defaults)

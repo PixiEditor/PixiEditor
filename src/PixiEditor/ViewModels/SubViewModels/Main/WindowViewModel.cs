@@ -2,8 +2,9 @@
 using AvalonDock.Layout;
 using GalaSoft.MvvmLight.CommandWpf;
 using PixiEditor.Models.Commands;
+using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
-using Command = PixiEditor.Models.Commands.Attributes.Command;
+using Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 

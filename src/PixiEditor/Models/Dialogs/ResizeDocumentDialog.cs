@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Enums;
 using PixiEditor.Views;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;
 

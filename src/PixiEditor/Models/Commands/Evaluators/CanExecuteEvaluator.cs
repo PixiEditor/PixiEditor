@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Models.Commands.Evaluators;
+﻿using PixiEditor.Models.Commands.Commands;
+
+namespace PixiEditor.Models.Commands.Evaluators;
 
 internal class CanExecuteEvaluator : Evaluator<bool>
 {

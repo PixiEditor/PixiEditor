@@ -47,7 +47,7 @@
                        RenderOptions.BitmapScalingMode="NearestNeighbor"/>-->
                     </Border>
 
-                    <local:EditableTextBlock
+                    <controls:EditableTextBlock
                     IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" FontSize="15"
                     VerticalAlignment="Center"
                     Text="{Binding LayerName, ElementName=uc, Mode=TwoWay}" />

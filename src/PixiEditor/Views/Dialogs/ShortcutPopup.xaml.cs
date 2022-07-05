@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Views.Dialogs;

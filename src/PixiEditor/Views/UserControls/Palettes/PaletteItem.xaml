@@ -6,6 +6,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:controls="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+             xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d"
              d:DesignHeight="200" 
              d:DesignWidth="800" 
@@ -25,7 +26,7 @@
         <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
             <Separator Background="{StaticResource MainColor}"/>
             <StackPanel Orientation="Horizontal">
-                <views:EditableTextBlock x:Name="titleTextBlock" OnSubmit="EditableTextBlock_OnSubmit" 
+                <userControls:EditableTextBlock x:Name="titleTextBlock" OnSubmit="EditableTextBlock_OnSubmit" 
                                          Text="{Binding Palette.Name, ElementName=paletteItem, Mode=TwoWay}" 
                                          Foreground="White" FontSize="20" MaxChars="50"/>
                 <Button Visibility="{Binding ElementName=paletteItem, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}}" Click="RenameButton_Click" Style="{StaticResource ImageButtonStyle}" Cursor="Hand" Width="20" Height="20">

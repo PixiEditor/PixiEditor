@@ -14,6 +14,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
+using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Palettes;
 using SkiaSharp;
 

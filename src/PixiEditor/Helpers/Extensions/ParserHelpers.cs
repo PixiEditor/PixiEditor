@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.Parser;
 
 namespace PixiEditor.Helpers.Extensions;

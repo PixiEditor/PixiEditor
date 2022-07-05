@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using PixiEditor.Helpers;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.Dialogs;
 
 /// <summary>
 ///     Interaction logic for ConfirmationPopup.xaml

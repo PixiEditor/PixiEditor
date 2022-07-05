@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace PixiEditor.Helpers;
+namespace PixiEditor;
 
 [Serializable]
 internal class NotifyableObject : INotifyPropertyChanged
@@ -31,7 +31,7 @@ internal class NotifyableObject : INotifyPropertyChanged
         };
     }
 
-    protected void RaisePropertyChanged(string property)
+    public void RaisePropertyChanged(string property)
     {
         if (property != null)
         {

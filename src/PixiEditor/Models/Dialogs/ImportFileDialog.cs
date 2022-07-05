@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Views;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;
 

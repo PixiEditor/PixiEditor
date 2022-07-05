@@ -2,6 +2,7 @@
 using System.Windows;
 using GalaSoft.MvvmLight.CommandWpf;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels;

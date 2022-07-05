@@ -10,6 +10,7 @@
         xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
         xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+        xmlns:commands1="clr-namespace:PixiEditor.Models.Commands.Commands"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         SizeToContent="Height"
@@ -98,7 +99,7 @@
                                     <TextBlock Text="{Binding DisplayName}" Foreground="White" FontSize="15" FontWeight="Medium" Margin="10,8,0,5"/>
                                     <ItemsControl ItemsSource="{Binding VisibleCommands}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type commands:Command}">
+                                            <DataTemplate DataType="{x:Type commands1:Command}">
                                                 <StackPanel Orientation="Horizontal" Margin="20,0,0,0" Visibility="{Binding Shortcut.Key, ConverterParameter=None, Converter={converters:EqualityBoolToVisibilityConverter Invert=True}}"
                                                             ToolTip="{Binding Description}">
                                                     <ItemsControl ItemsSource="{Binding Shortcut.Modifiers, Converter={converters:ModifierFlagToModifiersConverter}}">

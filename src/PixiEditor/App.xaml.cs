@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor;

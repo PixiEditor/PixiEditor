@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 using PixiEditor.Views;
+using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings;
 

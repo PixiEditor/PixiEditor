@@ -85,9 +85,9 @@ internal class CrashReport : IDisposable
 
     public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
 
-    public List<Document> RecoverDocuments()
+    public List<Document.Document> RecoverDocuments()
     {
-        return new List<Document>();
+        return new List<Document.Document>();
         /*
         List<Document> documents = new();
         foreach (ZipArchiveEntry entry in ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")))

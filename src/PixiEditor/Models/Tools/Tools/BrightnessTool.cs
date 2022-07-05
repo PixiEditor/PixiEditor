@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 

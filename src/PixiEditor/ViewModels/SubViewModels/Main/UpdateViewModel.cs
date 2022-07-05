@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.UpdateModule;

@@ -1,10 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Windows.Media;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
 
-namespace PixiEditor.Models.Commands;
+namespace PixiEditor.Models.Commands.Commands;
 
 [DebuggerDisplay("{InternalName,nq} ('{DisplayName,nq}')")]
 internal abstract partial class Command : NotifyableObject

@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using SkiaSharp;

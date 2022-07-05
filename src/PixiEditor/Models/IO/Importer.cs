@@ -5,6 +5,7 @@ using System.Windows.Media.Imaging;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Document;
 using SkiaSharp;
 
 namespace PixiEditor.Models.IO;

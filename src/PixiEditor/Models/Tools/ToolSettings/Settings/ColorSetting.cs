@@ -5,6 +5,7 @@ using System.Windows.Interactivity;
 using System.Windows.Media;
 using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Views;
+using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.Models.Tools.ToolSettings.Settings;
 

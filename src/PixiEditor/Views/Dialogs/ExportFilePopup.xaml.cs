@@ -3,7 +3,7 @@ using System.Windows.Input;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.Dialogs;
 
 internal partial class ExportFilePopup : Window
 {

@@ -1,6 +1,6 @@
 <Window
     x:ClassModifier="internal"
-    x:Class="PixiEditor.MainWindow"
+    x:Class="PixiEditor.Views.MainWindow"
     MinHeight="500"
     MinWidth="700"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

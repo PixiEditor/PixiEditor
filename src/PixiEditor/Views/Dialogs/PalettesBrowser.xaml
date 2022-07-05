@@ -80,7 +80,7 @@
                     <ComboBoxItem Content="Min"/>
                     <ComboBoxItem Content="Exact"/>
                 </ComboBox>
-                <views:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
+                <usercontrols:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
                                    FocusNext="True"
                                    Value="{Binding ColorsNumber, ElementName=palettesBrowser, Mode=TwoWay}"/>
                 <CheckBox Margin="10 0 0 0" VerticalAlignment="Center"

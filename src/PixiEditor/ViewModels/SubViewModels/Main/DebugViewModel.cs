@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.UserPreferences;
 

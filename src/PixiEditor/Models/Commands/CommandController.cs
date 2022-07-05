@@ -3,10 +3,12 @@ using System.Reflection;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Evaluators;
+using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
-using CommandAttribute = PixiEditor.Models.Commands.Attributes.Command;
+using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.Models.Commands;
 

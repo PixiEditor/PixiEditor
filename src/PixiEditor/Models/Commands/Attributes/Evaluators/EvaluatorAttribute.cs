@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.Models.Commands.Attributes;
+﻿namespace PixiEditor.Models.Commands.Attributes.Evaluators;
 
 internal static partial class Evaluator
 {

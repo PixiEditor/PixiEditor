@@ -1,4 +1,4 @@
-﻿<Window x:Class="PixiEditor.Views.NewFilePopup"
+﻿<Window x:Class="PixiEditor.Views.Dialogs.NewFilePopup"
         x:ClassModifier="internal"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,6 +8,7 @@
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d"
         ShowInTaskbar="False"
         DataContext="{DynamicResource NewFileMenuViewModel}" 
@@ -43,7 +44,7 @@
                 Command="{Binding OkCommand}"
                 CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
 
-        <local:SizePicker HorizontalAlignment="Center" Width="230" Height="125" Margin="0,30,0,0"
+        <userControls:SizePicker HorizontalAlignment="Center" Width="230" Height="125" Margin="0,30,0,0"
                               PreserveAspectRatio="False"
                               ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=newFilePopup}"
                               ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=newFilePopup}" 

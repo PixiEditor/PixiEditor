@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Windows.Input;
-using PixiEditor.Models.DataHolders;
+﻿using System.Diagnostics;
 
 namespace PixiEditor.Models.Commands.Templates;
 

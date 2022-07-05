@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:userControls1="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d" Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="groupControl" DragEnter="GroupControl_DragEnter" DragLeave="GroupControl_DragLeave" DragDrop.Drop="GroupControl_DragLeave">
     <UserControl.Resources>
@@ -46,7 +47,7 @@
                                 </RenderOptions.BitmapScalingMode>
                             </Image>
                         </Border>
-                        <userControls:EditableTextBlock
+                        <userControls1:EditableTextBlock
                     FontSize="16"
                     VerticalAlignment="Center" />
                     </StackPanel>

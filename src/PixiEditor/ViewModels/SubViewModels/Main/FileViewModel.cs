@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.UserPreferences;
@@ -69,7 +70,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public void NewDocument(int width, int height, bool addBaseLayer = true)
     {
-        Owner.DocumentManagerSubViewModel.Documents.Add(new DocumentViewModel(Owner, "Unnamed"));
+        Owner.DocumentManagerSubViewModel.Documents.Add(new DocumentViewModel("Unnamed"));
         Owner.DocumentManagerSubViewModel.ActiveDocument = Owner.DocumentManagerSubViewModel.Documents[^1];
         /*
         if (addBaseLayer)

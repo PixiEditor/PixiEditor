@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.UserControls;

@@ -2,7 +2,7 @@
 using System.Windows.Input;
 using PixiEditor.Models.Enums;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.Dialogs;
 
 /// <summary>
 ///     Interaction logic for ResizeCanvasPopup.xaml

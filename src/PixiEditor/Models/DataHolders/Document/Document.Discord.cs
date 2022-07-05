@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.Models.DataHolders;
+﻿namespace PixiEditor.Models.DataHolders.Document;
 
 internal partial class Document
 {

@@ -1,6 +1,6 @@
 ﻿using PixiEditor.Models.Commands.Evaluators;
 
-namespace PixiEditor.Models.Commands;
+namespace PixiEditor.Models.Commands.Commands;
 
 internal partial class Command
 {

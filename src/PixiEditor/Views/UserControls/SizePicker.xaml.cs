@@ -4,7 +4,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models;
 using PixiEditor.Models.Enums;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.UserControls;
 
 internal partial class SizePicker : UserControl
 {

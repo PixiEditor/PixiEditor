@@ -6,6 +6,7 @@ using PixiEditor.ViewModels.SubViewModels.UserPreferences;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs;
 
@@ -59,7 +60,7 @@ internal class SettingsWindowViewModel : ViewModelBase
 
     public List<GroupSearchResult> Commands { get; }
 
-    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Reset")]
+    [Command.Internal("PixiEditor.Shortcuts.Reset")]
     public static void ResetCommand()
     {
         var dialog = new OptionsDialog<string>("Are you sure?", "Are you sure you want to reset all shortcuts to their default value?")
@@ -69,7 +70,7 @@ internal class SettingsWindowViewModel : ViewModelBase
         }.ShowDialog();
     }
 
-    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Export")]
+    [Command.Internal("PixiEditor.Shortcuts.Export")]
     public static void ExportShortcuts()
     {
         var dialog = new SaveFileDialog();
@@ -83,7 +84,7 @@ internal class SettingsWindowViewModel : ViewModelBase
         Keyboard.ClearFocus();
     }
 
-    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.Import")]
+    [Command.Internal("PixiEditor.Shortcuts.Import")]
     public static void ImportShortcuts()
     {
         var dialog = new OpenFileDialog();
@@ -106,7 +107,7 @@ internal class SettingsWindowViewModel : ViewModelBase
         Keyboard.ClearFocus();
     }
 
-    [Models.Commands.Attributes.Command.Internal("PixiEditor.Shortcuts.OpenTemplatePopup")]
+    [Command.Internal("PixiEditor.Shortcuts.OpenTemplatePopup")]
     public static void OpenTemplatePopup()
     {
         new ImportShortcutTemplatePopup().ShowDialog();
@@ -193,7 +194,7 @@ internal class SettingsWindowViewModel : ViewModelBase
     {
         private Visibility visibility;
 
-        public Command Command { get; set; }
+        public Models.Commands.Commands.Command Command { get; set; }
 
         public Visibility Visibility
         {
@@ -201,7 +202,7 @@ internal class SettingsWindowViewModel : ViewModelBase
             set => SetProperty(ref visibility, value);
         }
 
-        public CommandSearchResult(Command command)
+        public CommandSearchResult(Models.Commands.Commands.Command command)
         {
             Command = command;
         }

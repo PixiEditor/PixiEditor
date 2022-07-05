@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.UserControls;
 
 /// <summary>
 ///     Interaction logic for NumerInput.xaml.

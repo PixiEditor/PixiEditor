@@ -3,8 +3,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.Search;
-using Command = PixiEditor.Models.Commands.Command;
+using Command = PixiEditor.Models.Commands.Commands.Command;
 
 namespace PixiEditor.Helpers;
 

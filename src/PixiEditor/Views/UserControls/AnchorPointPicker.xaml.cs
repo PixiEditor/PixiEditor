@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using PixiEditor.Models.Enums;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.UserControls;
 
 /// <summary>
 ///     Interaction logic for AnchorPointPicker.xaml

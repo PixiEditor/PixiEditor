@@ -6,12 +6,12 @@ using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 
-namespace PixiEditor;
+namespace PixiEditor.Views;
 
 internal partial class MainWindow : Window
 {

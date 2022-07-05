@@ -8,6 +8,7 @@
              xmlns:vws="clr-namespace:PixiEditor.Views" 
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
              xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers"
+             xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <Grid>
@@ -47,7 +48,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0,0,10,0" HorizontalAlignment="Right" Focusable="True">
                 <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
-                <vws:NumberInput
+                <userControls:NumberInput
                         Min="0" Max="100"
                         x:Name="numberInput"
                         IsEnabled="{Binding Path=OpacityInputEnabled, ElementName=layersManager}" 

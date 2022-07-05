@@ -1,7 +1,8 @@
 ﻿using System.Windows;
 using PixiEditor.Models.Enums;
+using PixiEditor.Views.UserControls;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.Dialogs;
 
 internal class ResizeablePopup : Window
 {

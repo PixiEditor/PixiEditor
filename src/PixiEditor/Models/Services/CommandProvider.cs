@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using XAMLCommand = PixiEditor.Models.Commands.XAML.Command;
 

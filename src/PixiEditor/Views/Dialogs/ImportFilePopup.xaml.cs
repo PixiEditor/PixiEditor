@@ -2,7 +2,7 @@
 using System.Windows.Input;
 using PixiEditor.ViewModels;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Views.Dialogs;
 
 internal partial class ImportFilePopup : Window
 {
