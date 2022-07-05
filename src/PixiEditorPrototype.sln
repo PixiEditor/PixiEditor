@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditorPrototype", "PixiEditorPrototype\PixiEditorPrototype.csproj", "{64D7EBA9-A3D0-4832-ACB7-3C519BD23755}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.ChangeableDocument", "PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj", "{181C9914-75B5-4BEB-AA16-F29B42A401EE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLib", "ChunkyImageLib\ChunkyImageLib.csproj", "{EFA4866B-F03E-4F6F-A7B8-1CA6467D5D17}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLibTest", "ChunkyImageLibTest\ChunkyImageLibTest.csproj", "{794971CA-8CD2-4D1D-BDD9-F41E2638D138}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChunkyImageLibVis", "ChunkyImageLibVis\ChunkyImageLibVis.csproj", "{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Zoombox", "PixiEditor.Zoombox\PixiEditor.Zoombox.csproj", "{232E58B6-8080-4725-8541-98BFCFE23A1C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2AF84829-B00E-4B10-B010-C9306C6DF278}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.ChangeableDocument.Gen", "PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj", "{07EE9CD1-5B4B-454D-A362-F7B42C49412F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{64D7EBA9-A3D0-4832-ACB7-3C519BD23755}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64D7EBA9-A3D0-4832-ACB7-3C519BD23755}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64D7EBA9-A3D0-4832-ACB7-3C519BD23755}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64D7EBA9-A3D0-4832-ACB7-3C519BD23755}.Release|Any CPU.Build.0 = Release|Any CPU
+		{181C9914-75B5-4BEB-AA16-F29B42A401EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{181C9914-75B5-4BEB-AA16-F29B42A401EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{181C9914-75B5-4BEB-AA16-F29B42A401EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{181C9914-75B5-4BEB-AA16-F29B42A401EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFA4866B-F03E-4F6F-A7B8-1CA6467D5D17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFA4866B-F03E-4F6F-A7B8-1CA6467D5D17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFA4866B-F03E-4F6F-A7B8-1CA6467D5D17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFA4866B-F03E-4F6F-A7B8-1CA6467D5D17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{794971CA-8CD2-4D1D-BDD9-F41E2638D138}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B0A0186-8AC0-4B1D-8587-4CE4E0E12567}.Release|Any CPU.Build.0 = Release|Any CPU
+		{232E58B6-8080-4725-8541-98BFCFE23A1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{232E58B6-8080-4725-8541-98BFCFE23A1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{232E58B6-8080-4725-8541-98BFCFE23A1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{232E58B6-8080-4725-8541-98BFCFE23A1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{07EE9CD1-5B4B-454D-A362-F7B42C49412F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07EE9CD1-5B4B-454D-A362-F7B42C49412F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07EE9CD1-5B4B-454D-A362-F7B42C49412F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07EE9CD1-5B4B-454D-A362-F7B42C49412F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {90FC4DB9-E9C3-4E6F-9564-0B1011A1B521}
+	EndGlobalSection
+EndGlobal
