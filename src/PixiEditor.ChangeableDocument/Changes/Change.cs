@@ -5,8 +5,6 @@ internal abstract class Change : IDisposable
     /// <summary>
     /// Checks if this change can be combined with the <paramref name="other"/> change. Returns false if not overridden
     /// </summary>
-    /// <param name="other"></param>
-    /// <returns></returns>
     public virtual bool IsMergeableWith(Change other) => false;
 
     /// <summary>

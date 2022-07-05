@@ -31,7 +31,7 @@ internal class CreateReferenceLayer_UpdateableChange : UpdateableChange
         return new Success();
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         target.ReferenceLayer!.Shape = shape;
         ignoreInUndo = true;

@@ -150,7 +150,10 @@ internal class DocumentViewModel : INotifyPropertyChanged
 
     public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
     {
-        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null), [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
     };
 
     public WriteableBitmap PreviewBitmap { get; set; }
@@ -287,9 +290,12 @@ internal class DocumentViewModel : INotifyPropertyChanged
                 new EndPasteImage_Action()
             );
             if (layer.Opacity != 1)
+            {
                 acc.AddFinishedActions(
                     new StructureMemberOpacity_Action(guid, layer.Opacity),
                     new EndStructureMemberOpacity_Action());
+            }
+
             if (!layer.IsVisible)
                 acc.AddFinishedActions(new StructureMemberIsVisible_Action(layer.IsVisible, guid));
         }
@@ -419,11 +425,11 @@ internal class DocumentViewModel : INotifyPropertyChanged
         var member = FindFirstSelectedMember();
         Helpers.ActionAccumulator.AddActions(
             new ChangeBrightness_Action(
-                member!.GuidValue, 
-                pos, 
-                correctionFactor, 
-                strokeWidth, 
-                repeat, 
+                member!.GuidValue,
+                pos,
+                correctionFactor,
+                strokeWidth,
+                repeat,
                 darken));
     }
 
@@ -435,7 +441,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
         updateableChangeActive = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndChangeBrightness_Action());
     }
-    
+
     public void StartUpdateLineBasedPen(VecI pos, SKColor color, bool replacing = false)
     {
         if (!CanStartUpdate())
@@ -780,9 +786,6 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return;
 
         var referenceImage = Surface.Load(dialog.FileName);
-
-        double shapeWidth;
-        double shapeHeight;
 
         RectD referenceImageRect = new RectD(VecD.Zero, SizeBindable).AspectFit(new RectD(VecD.Zero, referenceImage.Size));
         ShapeCorners corners = new ShapeCorners(referenceImageRect);

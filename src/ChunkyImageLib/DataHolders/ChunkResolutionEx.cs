@@ -18,7 +18,7 @@ public static class ChunkResolutionEx
     }
 
     /// <summary>
-    /// Returns the <see cref="ChunkPool.FullChunkSize"/> for the <paramref name="resolution"/>
+    /// Returns the size of a chunk of the resolution <paramref name="resolution"/>
     /// </summary>
     /// <seealso cref="ChunkPool"/>
     public static int PixelSize(this ChunkResolution resolution)
