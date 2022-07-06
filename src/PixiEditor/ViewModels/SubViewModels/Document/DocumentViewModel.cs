@@ -10,7 +10,6 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.BitmapActions;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
-using PixiEditor.ViewModels.Prototype;
 using SkiaSharp;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;

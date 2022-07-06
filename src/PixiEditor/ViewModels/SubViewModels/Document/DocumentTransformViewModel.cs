@@ -2,7 +2,7 @@
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Views.UserControls.TransformOverlay;
 
-namespace PixiEditor.ViewModels.Prototype;
+namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
 internal class DocumentTransformViewModel : INotifyPropertyChanged
 {

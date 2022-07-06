@@ -143,9 +143,9 @@ internal partial class LayerItem : UserControl
         Grid item = sender as Grid;
         RemoveDragEffect(item);
 
-        if (e.Data.GetDataPresent(LayerGroupControl.LayerContainerDataName))
+        if (e.Data.GetDataPresent(LayerFolderControl.LayerContainerDataName))
         {
-            var data = (LayerStructureItemContainer)e.Data.GetData(LayerGroupControl.LayerContainerDataName);
+            var data = (LayerStructureItemContainer)e.Data.GetData(LayerFolderControl.LayerContainerDataName);
             //Guid layer = data.Layer.GuidValue;
             //var doc = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
@@ -157,9 +157,9 @@ internal partial class LayerItem : UserControl
             }*/
         }
 
-        if (e.Data.GetDataPresent(LayerGroupControl.LayerGroupControlDataName))
+        if (e.Data.GetDataPresent(LayerFolderControl.LayerGroupControlDataName))
         {
-            var data = (LayerGroupControl)e.Data.GetData(LayerGroupControl.LayerGroupControlDataName);
+            var data = (LayerFolderControl)e.Data.GetData(LayerFolderControl.LayerGroupControlDataName);
             //Guid folder = data.GroupGuid;
 
             //var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;

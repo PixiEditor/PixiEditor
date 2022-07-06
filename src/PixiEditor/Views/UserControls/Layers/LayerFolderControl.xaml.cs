@@ -6,28 +6,23 @@ using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.UserControls.Layers;
 
-/// <summary>
-/// Interaction logic for LayerFolder.xaml.
-/// </summary>
-internal partial class LayerGroupControl : UserControl
+internal partial class LayerFolderControl : UserControl
 {
-    public Guid GroupGuid
+    public static readonly DependencyProperty GroupGuidProperty =
+        DependencyProperty.Register(nameof(FolderGuid), typeof(Guid), typeof(LayerFolderControl), new PropertyMetadata(Guid.NewGuid()));
+    public Guid FolderGuid
     {
-        get { return (Guid)GetValue(GroupGuidProperty); }
-        set { SetValue(GroupGuidProperty, value); }
+        get => (Guid)GetValue(GroupGuidProperty);
+        set => SetValue(GroupGuidProperty, value);
     }
 
-    public static readonly DependencyProperty GroupGuidProperty =
-        DependencyProperty.Register(nameof(GroupGuid), typeof(Guid), typeof(LayerGroupControl), new PropertyMetadata(Guid.NewGuid()));
-
+    public static readonly DependencyProperty LayersViewModelProperty =
+        DependencyProperty.Register(nameof(LayersViewModel), typeof(LayersViewModel), typeof(LayerFolderControl), new PropertyMetadata(default(LayersViewModel)));
     public LayersViewModel LayersViewModel
     {
         get { return (LayersViewModel)GetValue(LayersViewModelProperty); }
         set { SetValue(LayersViewModelProperty, value); }
     }
-
-    public static readonly DependencyProperty LayersViewModelProperty =
-        DependencyProperty.Register(nameof(LayersViewModel), typeof(LayersViewModel), typeof(LayerGroupControl), new PropertyMetadata(default(LayersViewModel)));
 
     public bool IsVisibleUndoTriggerable
     {
@@ -36,7 +31,7 @@ internal partial class LayerGroupControl : UserControl
     }
 
     public static readonly DependencyProperty IsVisibleUndoTriggerableProperty =
-        DependencyProperty.Register(nameof(IsVisibleUndoTriggerable), typeof(bool), typeof(LayerGroupControl), new PropertyMetadata(true));
+        DependencyProperty.Register(nameof(IsVisibleUndoTriggerable), typeof(bool), typeof(LayerFolderControl), new PropertyMetadata(true));
 
     public float GroupOpacity
     {
@@ -45,10 +40,10 @@ internal partial class LayerGroupControl : UserControl
     }
 
     public static readonly DependencyProperty GroupOpacityProperty =
-        DependencyProperty.Register(nameof(GroupOpacity), typeof(float), typeof(LayerGroupControl), new PropertyMetadata(1f));
+        DependencyProperty.Register(nameof(GroupOpacity), typeof(float), typeof(LayerFolderControl), new PropertyMetadata(1f));
 
 
-    public static string LayerGroupControlDataName = typeof(LayerGroupControl).FullName;
+    public static string LayerGroupControlDataName = typeof(LayerFolderControl).FullName;
     public static string LayerContainerDataName = typeof(LayerStructureItemContainer).FullName;
 
     public string GroupName
@@ -58,7 +53,7 @@ internal partial class LayerGroupControl : UserControl
     }
 
     public static readonly DependencyProperty GroupNameProperty =
-        DependencyProperty.Register(nameof(GroupName), typeof(string), typeof(LayerGroupControl), new PropertyMetadata(default(string)));
+        DependencyProperty.Register(nameof(GroupName), typeof(string), typeof(LayerFolderControl), new PropertyMetadata(default(string)));
 
     public WriteableBitmap PreviewImage
     {
@@ -67,9 +62,9 @@ internal partial class LayerGroupControl : UserControl
     }
 
     public static readonly DependencyProperty PreviewImageProperty =
-        DependencyProperty.Register(nameof(PreviewImage), typeof(WriteableBitmap), typeof(LayerGroupControl), new PropertyMetadata(default(WriteableBitmap)));
+        DependencyProperty.Register(nameof(PreviewImage), typeof(WriteableBitmap), typeof(LayerFolderControl), new PropertyMetadata(default(WriteableBitmap)));
 
-    public LayerGroupControl()
+    public LayerFolderControl()
     {
         InitializeComponent();
     }
@@ -253,12 +248,12 @@ internal partial class LayerGroupControl : UserControl
         }
     }*/
 
-    private void GroupControl_DragEnter(object sender, DragEventArgs e)
+    private void FolderControl_DragEnter(object sender, DragEventArgs e)
     {
         middleDropGrid.Visibility = Visibility.Visible;
     }
 
-    private void GroupControl_DragLeave(object sender, DragEventArgs e)
+    private void FolderControl_DragLeave(object sender, DragEventArgs e)
     {
         middleDropGrid.Visibility = Visibility.Collapsed;
     }

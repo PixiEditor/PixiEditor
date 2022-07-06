@@ -4,9 +4,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:docVm="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:vws="clr-namespace:PixiEditor.Views" 
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
+             xmlns:commands="clr-namespace:PixiEditor.Models.Commands.XAML" 
              xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d"
@@ -19,7 +21,7 @@
         </Grid.RowDefinitions>
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="0" HorizontalAlignment="Stretch">
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                <!--<Button Command="{Binding LayerCommandsViewModel.NewLayerCommand, ElementName=layersManager}" 
+                <Button Command="{commands:Command PixiEditor.Layer.New}" 
                         Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
                         CommandParameter="{Binding Path=SelectedItem, ElementName=layersManager}"
                                                 HorizontalAlignment="Stretch" Margin="5"
@@ -28,7 +30,7 @@
                         <ImageBrush ImageSource="/Images/Layer-add.png"/>
                     </Button.Background>
                 </Button>
-                <Button Command="{Binding LayerCommandsViewModel.NewGroupCommand, ElementName=layersManager}" 
+                <Button Command="{commands:Command PixiEditor.Layer.NewFolder}" 
                         CommandParameter="{Binding Path=SelectedItem, ElementName=layersManager}"
                         Height="24" Width="24" ToolTip="New Group" Cursor="Hand"
                                                 HorizontalAlignment="Stretch" Margin="5"
@@ -37,14 +39,14 @@
                         <ImageBrush ImageSource="/Images/Folder-add.png"/>
                     </Button.Background>
                 </Button>
-                <Button Command="{Binding LayerCommandsViewModel.DeleteSelectedCommand, ElementName=layersManager}"
+                <Button Command="{commands:Command PixiEditor.Layer.DeleteSelected}"
                         CommandParameter="{Binding ElementName=layersManager, Path=SelectedItem}" Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Trash.png"/>
                     </Button.Background>
-                </Button>-->
+                </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0,0,10,0" HorizontalAlignment="Right" Focusable="True">
                 <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
@@ -66,31 +68,29 @@
                 Converter={BoolToVisibilityConverter}}" 
                 Background="{StaticResource MainColor}" 
                 Grid.Row="3" VerticalAlignment="Bottom"/>
-            <!--<TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding CachedLayerTreeRoot, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
+            <TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding StructureRoot.Children, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ui:ReversedOrderStackPanel/>
                     </ItemsPanelTemplate>
                 </TreeView.ItemsPanel>
                 <TreeView.Resources>
-                    <HierarchicalDataTemplate DataType="{x:Type layers:LayerGroup}" ItemsSource="{Binding Items}">
-                        <layerUserControls:LayerGroupControl GroupName="{Binding Name}" MouseDown="SelectActiveItem"
-                                             IsVisibleUndoTriggerable="{Binding StructureData.IsVisible}" 
-                                             GroupOpacity="{Binding StructureData.Opacity}"
-                                             LayersViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}" 
-                                             GroupGuid="{Binding GuidValue}"
-                                             MouseMove="LayerGroup_MouseMove"/>
-                    </HierarchicalDataTemplate>-->
-            <!--<DataTemplate DataType="{x:Type layers:Layer}">
-                        <layerUserControls:LayerStructureItemContainer    
+                    <HierarchicalDataTemplate DataType="{x:Type docVm:FolderViewModel}" ItemsSource="{Binding Children}">
+                        <layerUserControls:LayerFolderControl 
+                            GroupName="{Binding NameBindable}" 
+                            IsVisibleUndoTriggerable="{Binding IsVisibleBindable}" 
+                            GroupOpacity="{Binding OpacityBindable}"
+                            FolderGuid="{Binding GuidValue}"
                             MouseDown="SelectActiveItem"
-                            MouseMove="LayerStructureItemContainer_MouseMove" 
-                            ContainerIndex="{Binding Converter={converters:IndexOfConverter}}"
-                            LayerCommandsViewModel="{Binding LayerCommandsViewModel, ElementName=layersManager}"/>
-                    </DataTemplate>-->
-            <!--
+                            MouseMove="LayerGroup_MouseMove"/>
+                    </HierarchicalDataTemplate>
+                    <DataTemplate DataType="{x:Type docVm:LayerViewModel}">
+                        <layerUserControls:LayerStructureItemContainer
+                            MouseDown="SelectActiveItem"
+                            MouseMove="LayerStructureItemContainer_MouseMove"/>
+                    </DataTemplate>
                 </TreeView.Resources>
-            </TreeView>-->
+            </TreeView>
             <Border Name="dropBorder" DragEnter="Grid_DragEnter" DragLeave="Grid_DragLeave" AllowDrop="True" Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
         </DockPanel>
     </Grid>

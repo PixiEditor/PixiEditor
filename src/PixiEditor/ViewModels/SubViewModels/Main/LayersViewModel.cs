@@ -1,7 +1,7 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Commands.Attributes.Evaluators;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -10,13 +10,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 {
     public RelayCommand SetActiveLayerCommand { get; set; }
 
-    public RelayCommand NewLayerCommand { get; set; }
-
-    public RelayCommand NewGroupCommand { get; set; }
-
     public RelayCommand CreateGroupFromActiveLayersCommand { get; set; }
-
-    public RelayCommand DeleteSelectedCommand { get; set; }
 
     public RelayCommand DeleteGroupCommand { get; set; }
 
@@ -42,8 +36,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         : base(owner)
     {
         SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
-        NewLayerCommand = new RelayCommand(NewLayer, CanCreateNewLayer);
-        NewGroupCommand = new RelayCommand(NewGroup, CanCreateNewLayer);
         CreateGroupFromActiveLayersCommand = new RelayCommand(CreateGroupFromActiveLayers, CanCreateGroupFromSelected);
         DeleteLayersCommand = new RelayCommand(DeleteActiveLayers, CanDeleteActiveLayers);
         DuplicateLayerCommand = new RelayCommand(DuplicateLayer, CanDuplicateLayer);
@@ -55,7 +47,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
         RenameGroupCommand = new RelayCommand(RenameGroup);
         DeleteGroupCommand = new RelayCommand(DeleteGroup, CanDeleteGroup);
-        DeleteSelectedCommand = new RelayCommand(DeleteSelected, CanDeleteSelected);
     }
 
     public void CreateGroupFromActiveLayers(object parameter)
@@ -63,6 +54,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     }
 
+    [Evaluator.CanExecute("PixiEditor.Layer.CanDeleteSelected")]
     public bool CanDeleteSelected(object parameter)
     {
         /*
@@ -92,6 +84,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
+    [Command.Basic("PixiEditor.Layer.DeleteSelected", "Delete selected layer/folder", "", CanExecute = "PixiEditor.Layer.CanDeleteSelected")]
     public void DeleteSelected(object parameter)
     {
         /*
@@ -127,7 +120,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
     }
 
-    public void NewGroup(object parameter)
+    [Command.Basic("PixiEditor.Layer.NewFolder", "New Folder", "Create new folder", CanExecute = "PixiEditor.HasDocument")]
+    public void NewFolder(object parameter)
     {
 
     }

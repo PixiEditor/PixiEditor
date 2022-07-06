@@ -2,41 +2,40 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using PixiEditor.Models.Controllers;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views.UserControls.Layers;
 
-/// <summary>
-/// Interaction logic for LayersManager.xaml.
-/// </summary>
 internal partial class LayersManager : UserControl
 {
+
+    public static readonly DependencyProperty SelectedItemProperty =
+        DependencyProperty.Register(nameof(SelectedItem), typeof(object), typeof(LayersManager), new PropertyMetadata(0));
     public object SelectedItem
     {
         get { return (object)GetValue(SelectedItemProperty); }
         set { SetValue(SelectedItemProperty, value); }
     }
 
-    public static readonly DependencyProperty SelectedItemProperty =
-        DependencyProperty.Register(nameof(SelectedItem), typeof(object), typeof(LayersManager), new PropertyMetadata(0));
 
-    /*
-    public LayersViewModel LayerCommandsViewModel
-    {
-        get { return (LayersViewModel)GetValue(LayerCommandsViewModelProperty); }
-        set { SetValue(LayerCommandsViewModelProperty, value); }
-    }
-    
-    public static readonly DependencyProperty LayerCommandsViewModelProperty =
-        DependencyProperty.Register(nameof(LayerCommandsViewModel), typeof(LayersViewModel), typeof(LayersManager), new PropertyMetadata(default(LayersViewModel), ViewModelChanged));
-    */
+    public static readonly DependencyProperty OpacityInputEnabledProperty =
+        DependencyProperty.Register(nameof(OpacityInputEnabled), typeof(bool), typeof(LayersManager), new PropertyMetadata(false));
+
     public bool OpacityInputEnabled
     {
         get { return (bool)GetValue(OpacityInputEnabledProperty); }
         set { SetValue(OpacityInputEnabledProperty, value); }
     }
 
-    public static readonly DependencyProperty OpacityInputEnabledProperty =
-        DependencyProperty.Register(nameof(OpacityInputEnabled), typeof(bool), typeof(LayersManager), new PropertyMetadata(false));
+    public static readonly DependencyProperty StructureRootProperty =
+        DependencyProperty.Register(nameof(StructureRoot), typeof(FolderViewModel), typeof(LayersManager), new(null));
+
+    public FolderViewModel StructureRoot
+    {
+        get => (FolderViewModel)GetValue(StructureRootProperty);
+        set => SetValue(StructureRootProperty, value);
+    }
+
 
     public LayersManager()
     {

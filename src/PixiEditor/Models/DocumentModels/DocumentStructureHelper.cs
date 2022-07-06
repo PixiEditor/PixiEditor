@@ -1,6 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.ViewModels.Prototype;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;

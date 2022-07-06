@@ -8,7 +8,6 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.BitmapActions;
-using PixiEditor.ViewModels.Prototype;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using SkiaSharp;
 

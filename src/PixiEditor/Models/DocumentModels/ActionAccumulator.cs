@@ -6,7 +6,6 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Rendering.RenderInfos;
-using PixiEditor.ViewModels.Prototype;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;

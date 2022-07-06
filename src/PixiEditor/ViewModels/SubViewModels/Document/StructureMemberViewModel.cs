@@ -6,10 +6,9 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
-using PixiEditor.ViewModels.SubViewModels.Document;
 using SkiaSharp;
 
-namespace PixiEditor.ViewModels.Prototype;
+namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
 internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 {

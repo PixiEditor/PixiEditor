@@ -6,7 +6,6 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering.RenderInfos;
-using PixiEditor.ViewModels.Prototype;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using SkiaSharp;
 

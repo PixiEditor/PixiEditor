@@ -1,8 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.Models.DocumentModels;
-using PixiEditor.ViewModels.SubViewModels.Document;
 
-namespace PixiEditor.ViewModels.Prototype;
+namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
 internal class LayerViewModel : StructureMemberViewModel
 {

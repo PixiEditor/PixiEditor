@@ -1,17 +1,20 @@
-﻿<UserControl x:Class="PixiEditor.Views.UserControls.Layers.LayerGroupControl"
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.Layers.LayerFolderControl"
              x:ClassModifier="internal"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
+             xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views" 
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:userControls1="clr-namespace:PixiEditor.Views.UserControls"
-             mc:Ignorable="d" Focusable="True"
-             d:DesignHeight="60" d:DesignWidth="250" Name="groupControl" DragEnter="GroupControl_DragEnter" DragLeave="GroupControl_DragLeave" DragDrop.Drop="GroupControl_DragLeave">
+             mc:Ignorable="d" 
+             Focusable="True"
+             d:DesignHeight="60" d:DesignWidth="250" Name="folderControl" DragEnter="FolderControl_DragEnter" DragLeave="FolderControl_DragLeave" DragDrop.Drop="FolderControl_DragLeave">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
-    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" Tag="{Binding ElementName=groupControl}" MouseDown="Border_MouseDown">
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" Tag="{Binding ElementName=folderControl}" MouseDown="Border_MouseDown">
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
@@ -30,7 +33,7 @@
                 </Grid.ColumnDefinitions>
                 <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center" Click="CheckBox_Checked"
-                      IsChecked="{Binding Path=IsVisibleUndoTriggerable, ElementName=groupControl}" Grid.Column="0" Height="16"/>
+                      IsChecked="{Binding Path=IsVisibleUndoTriggerable, ElementName=folderControl}" Grid.Column="0" Height="16"/>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
                     <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>
@@ -38,10 +41,10 @@
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
                         <Border Width="30" Height="30" BorderThickness="1" BorderBrush="Black" Background="{StaticResource MainColor}"
                            Margin="5, 0, 10, 0">
-                            <Image Source="{Binding PreviewImage, ElementName=groupControl}" Stretch="Uniform" Width="20" Height="20">
+                            <Image Source="{Binding PreviewImage, ElementName=folderControl}" Stretch="Uniform" Width="20" Height="20">
                                 <RenderOptions.BitmapScalingMode>
                                     <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                        <Binding Path="PreviewImage.PixelWidth" ElementName="groupControl"/>
+                                        <Binding Path="PreviewImage.PixelWidth" ElementName="folderControl"/>
                                         <Binding RelativeSource="{RelativeSource Mode=Self}" Path="ActualWidth"/>
                                     </MultiBinding>
                                 </RenderOptions.BitmapScalingMode>
