@@ -1,70 +1,24 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using PixiEditor.ViewModels.SubViewModels.Main;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views.UserControls.Layers;
 
-internal partial class LayerFolderControl : UserControl
+internal partial class FolderControl : UserControl
 {
-    public static readonly DependencyProperty GroupGuidProperty =
-        DependencyProperty.Register(nameof(FolderGuid), typeof(Guid), typeof(LayerFolderControl), new PropertyMetadata(Guid.NewGuid()));
-    public Guid FolderGuid
+    public static string FolderControlDataName = typeof(FolderControl).FullName;
+
+    public static readonly DependencyProperty FolderProperty =
+        DependencyProperty.Register(nameof(Folder), typeof(FolderViewModel), typeof(FolderControl), new(null));
+
+    public FolderViewModel Folder
     {
-        get => (Guid)GetValue(GroupGuidProperty);
-        set => SetValue(GroupGuidProperty, value);
+        get => (FolderViewModel)GetValue(FolderProperty);
+        set => SetValue(FolderProperty, value);
     }
 
-    public static readonly DependencyProperty LayersViewModelProperty =
-        DependencyProperty.Register(nameof(LayersViewModel), typeof(LayersViewModel), typeof(LayerFolderControl), new PropertyMetadata(default(LayersViewModel)));
-    public LayersViewModel LayersViewModel
-    {
-        get { return (LayersViewModel)GetValue(LayersViewModelProperty); }
-        set { SetValue(LayersViewModelProperty, value); }
-    }
-
-    public bool IsVisibleUndoTriggerable
-    {
-        get { return (bool)GetValue(IsVisibleUndoTriggerableProperty); }
-        set { SetValue(IsVisibleUndoTriggerableProperty, value); }
-    }
-
-    public static readonly DependencyProperty IsVisibleUndoTriggerableProperty =
-        DependencyProperty.Register(nameof(IsVisibleUndoTriggerable), typeof(bool), typeof(LayerFolderControl), new PropertyMetadata(true));
-
-    public float GroupOpacity
-    {
-        get { return (float)GetValue(GroupOpacityProperty); }
-        set { SetValue(GroupOpacityProperty, value); }
-    }
-
-    public static readonly DependencyProperty GroupOpacityProperty =
-        DependencyProperty.Register(nameof(GroupOpacity), typeof(float), typeof(LayerFolderControl), new PropertyMetadata(1f));
-
-
-    public static string LayerGroupControlDataName = typeof(LayerFolderControl).FullName;
-    public static string LayerContainerDataName = typeof(LayerStructureItemContainer).FullName;
-
-    public string GroupName
-    {
-        get { return (string)GetValue(GroupNameProperty); }
-        set { SetValue(GroupNameProperty, value); }
-    }
-
-    public static readonly DependencyProperty GroupNameProperty =
-        DependencyProperty.Register(nameof(GroupName), typeof(string), typeof(LayerFolderControl), new PropertyMetadata(default(string)));
-
-    public WriteableBitmap PreviewImage
-    {
-        get { return (WriteableBitmap)GetValue(PreviewImageProperty); }
-        set { SetValue(PreviewImageProperty, value); }
-    }
-
-    public static readonly DependencyProperty PreviewImageProperty =
-        DependencyProperty.Register(nameof(PreviewImage), typeof(WriteableBitmap), typeof(LayerFolderControl), new PropertyMetadata(default(WriteableBitmap)));
-
-    public LayerFolderControl()
+    public FolderControl()
     {
         InitializeComponent();
     }
@@ -73,24 +27,24 @@ internal partial class LayerFolderControl : UserControl
     {
         Grid item = sender as Grid;
 
-        item.Background = LayerItem.HighlightColor;
+        item.Background = LayerControl.HighlightColor;
     }
 
     private void Grid_CenterEnter(object sender, DragEventArgs e)
     {
-        centerGrid.Background = LayerItem.HighlightColor;
+        centerGrid.Background = LayerControl.HighlightColor;
     }
 
     private void Grid_DragLeave(object sender, DragEventArgs e)
     {
         Grid grid = (Grid)sender;
 
-        LayerItem.RemoveDragEffect(grid);
+        LayerControl.RemoveDragEffect(grid);
     }
 
     private void Grid_CenterLeave(object sender, DragEventArgs e)
     {
-        LayerItem.RemoveDragEffect(centerGrid);
+        LayerControl.RemoveDragEffect(centerGrid);
     }
 
     /*
@@ -179,7 +133,7 @@ internal partial class LayerFolderControl : UserControl
     private void Grid_Drop_Center(object sender, DragEventArgs e)
     {
         //HandleDropInside(e.Data, (Grid)sender);
-        LayerItem.RemoveDragEffect(centerGrid);
+        LayerControl.RemoveDragEffect(centerGrid);
     }
 
     private void Grid_Drop_Bottom(object sender, DragEventArgs e)

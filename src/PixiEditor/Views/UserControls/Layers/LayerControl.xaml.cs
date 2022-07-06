@@ -3,41 +3,30 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Helpers;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views.UserControls.Layers;
 
-/// <summary>
-/// Interaction logic for LayerItem.xaml.
-/// </summary>
-internal partial class LayerItem : UserControl
+internal partial class LayerControl : UserControl
 {
     public static Brush HighlightColor = Brushes.Blue;
 
-    public LayerItem()
+    public static readonly DependencyProperty LayerProperty =
+        DependencyProperty.Register(nameof(Layer), typeof(LayerViewModel), typeof(LayerControl), new(null));
+
+    public LayerViewModel Layer
+    {
+        get => (LayerViewModel)GetValue(LayerProperty);
+        set => SetValue(LayerProperty, value);
+    }
+
+    public LayerControl()
     {
         InitializeComponent();
     }
 
-    public static readonly DependencyProperty IsRenamingProperty = DependencyProperty.Register(
-        nameof(IsRenaming), typeof(bool), typeof(LayerItem), new PropertyMetadata(default(bool)));
-
-    public bool IsRenaming
-    {
-        get { return (bool)GetValue(IsRenamingProperty); }
-        set { SetValue(IsRenamingProperty, value); }
-    }
-
-    public static readonly DependencyProperty IsActiveProperty = DependencyProperty.Register(
-        nameof(IsActive), typeof(bool), typeof(LayerItem), new PropertyMetadata(default(bool)));
-
-    public bool IsActive
-    {
-        get { return (bool)GetValue(IsActiveProperty); }
-        set { SetValue(IsActiveProperty, value); }
-    }
-
     public static readonly DependencyProperty SetActiveLayerCommandProperty = DependencyProperty.Register(
-        nameof(SetActiveLayerCommand), typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
+        nameof(SetActiveLayerCommand), typeof(RelayCommand), typeof(LayerControl), new PropertyMetadata(default(RelayCommand)));
 
     public RelayCommand SetActiveLayerCommand
     {
@@ -45,35 +34,8 @@ internal partial class LayerItem : UserControl
         set { SetValue(SetActiveLayerCommandProperty, value); }
     }
 
-    public static readonly DependencyProperty LayerIndexProperty = DependencyProperty.Register(
-        nameof(LayerIndex), typeof(int), typeof(LayerItem), new PropertyMetadata(default(int)));
-
-    public int LayerIndex
-    {
-        get { return (int)GetValue(LayerIndexProperty); }
-        set { SetValue(LayerIndexProperty, value); }
-    }
-
-    public static readonly DependencyProperty LayerNameProperty = DependencyProperty.Register(
-        nameof(LayerName), typeof(string), typeof(LayerItem), new PropertyMetadata(default(string)));
-
-    public string LayerName
-    {
-        get { return (string)GetValue(LayerNameProperty); }
-        set { SetValue(LayerNameProperty, value); }
-    }
-
-    public Guid LayerGuid
-    {
-        get { return (Guid)GetValue(LayerGuidProperty); }
-        set { SetValue(LayerGuidProperty, value); }
-    }
-
-    public static readonly DependencyProperty LayerGuidProperty =
-        DependencyProperty.Register(nameof(LayerGuid), typeof(Guid), typeof(LayerItem), new PropertyMetadata(default(Guid)));
-
     public static readonly DependencyProperty ControlButtonsVisibleProperty = DependencyProperty.Register(
-        nameof(ControlButtonsVisible), typeof(Visibility), typeof(LayerItem), new PropertyMetadata(System.Windows.Visibility.Hidden));
+        nameof(ControlButtonsVisible), typeof(Visibility), typeof(LayerControl), new PropertyMetadata(System.Windows.Visibility.Hidden));
 
     public string LayerColor
     {
@@ -82,7 +44,7 @@ internal partial class LayerItem : UserControl
     }
 
     public static readonly DependencyProperty LayerColorProperty =
-        DependencyProperty.Register(nameof(LayerColor), typeof(string), typeof(LayerItem), new PropertyMetadata("#00000000"));
+        DependencyProperty.Register(nameof(LayerColor), typeof(string), typeof(LayerControl), new PropertyMetadata("#00000000"));
 
     public Visibility ControlButtonsVisible
     {
@@ -97,10 +59,10 @@ internal partial class LayerItem : UserControl
     }
 
     public static readonly DependencyProperty MoveToBackCommandProperty =
-        DependencyProperty.Register(nameof(MoveToBackCommand), typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
+        DependencyProperty.Register(nameof(MoveToBackCommand), typeof(RelayCommand), typeof(LayerControl), new PropertyMetadata(default(RelayCommand)));
 
     public static readonly DependencyProperty MoveToFrontCommandProperty = DependencyProperty.Register(
-        nameof(MoveToFrontCommand), typeof(RelayCommand), typeof(LayerItem), new PropertyMetadata(default(RelayCommand)));
+        nameof(MoveToFrontCommand), typeof(RelayCommand), typeof(LayerControl), new PropertyMetadata(default(RelayCommand)));
 
     public RelayCommand MoveToFrontCommand
     {
@@ -140,12 +102,13 @@ internal partial class LayerItem : UserControl
 
     private void HandleGridDrop(object sender, DragEventArgs e, bool above, bool dropInParentFolder = false)
     {
+        /*
         Grid item = sender as Grid;
         RemoveDragEffect(item);
 
-        if (e.Data.GetDataPresent(LayerFolderControl.LayerContainerDataName))
+        if (e.Data.GetDataPresent(FolderControl.LayerContainerDataName))
         {
-            var data = (LayerStructureItemContainer)e.Data.GetData(LayerFolderControl.LayerContainerDataName);
+            var data = (LayerControlContainer)e.Data.GetData(FolderControl.LayerContainerDataName);
             //Guid layer = data.Layer.GuidValue;
             //var doc = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
 
@@ -154,12 +117,12 @@ internal partial class LayerItem : UserControl
             {
                 Guid? groupGuid = doc.LayerStructure.GetGroupByLayer(layer)?.Parent?.GroupGuid;
                 doc.LayerStructure.AssignParent(layer, groupGuid);
-            }*/
+            }
         }
 
-        if (e.Data.GetDataPresent(LayerFolderControl.LayerGroupControlDataName))
+        if (e.Data.GetDataPresent(FolderControl.FolderControlDataName))
         {
-            var data = (LayerFolderControl)e.Data.GetData(LayerFolderControl.LayerGroupControlDataName);
+            var data = (FolderControl)e.Data.GetData(FolderControl.FolderControlDataName);
             //Guid folder = data.GroupGuid;
 
             //var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
@@ -171,8 +134,9 @@ internal partial class LayerItem : UserControl
                 return;
             }
 
-            document.MoveGroupInStructure(folder, LayerGuid, above);*/
+            document.MoveGroupInStructure(folder, LayerGuid, above);
         }
+*/
     }
 
     private void Grid_Drop_Top(object sender, DragEventArgs e)

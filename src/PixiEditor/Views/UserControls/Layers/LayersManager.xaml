@@ -76,16 +76,14 @@
                 </TreeView.ItemsPanel>
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type docVm:FolderViewModel}" ItemsSource="{Binding Children}">
-                        <layerUserControls:LayerFolderControl 
-                            GroupName="{Binding NameBindable}" 
-                            IsVisibleUndoTriggerable="{Binding IsVisibleBindable}" 
-                            GroupOpacity="{Binding OpacityBindable}"
-                            FolderGuid="{Binding GuidValue}"
+                        <layerUserControls:FolderControl
+                            Folder="{Binding}"
                             MouseDown="SelectActiveItem"
                             MouseMove="LayerGroup_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type docVm:LayerViewModel}">
-                        <layerUserControls:LayerStructureItemContainer
+                        <layerUserControls:LayerControl
+                            Layer="{Binding}"
                             MouseDown="SelectActiveItem"
                             MouseMove="LayerStructureItemContainer_MouseMove"/>
                     </DataTemplate>

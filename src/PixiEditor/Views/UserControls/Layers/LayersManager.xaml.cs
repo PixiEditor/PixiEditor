@@ -215,7 +215,7 @@ internal partial class LayersManager : UserControl
 
     private void Grid_DragEnter(object sender, DragEventArgs e)
     {
-        ((Border)sender).BorderBrush = LayerItem.HighlightColor;
+        ((Border)sender).BorderBrush = LayerControl.HighlightColor;
     }
 
     private void Grid_DragLeave(object sender, DragEventArgs e)
