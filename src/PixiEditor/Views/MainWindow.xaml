@@ -481,8 +481,9 @@
             </StackPanel>
             <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
                 <Grid AllowDrop="True" Drop="MainWindow_Drop">
-                    <DockingManager ActiveContent="{Binding DocumentManagerSubViewModel.ActiveWindow, Mode=TwoWay}"
-                                           DocumentsSource="{Binding DocumentManagerSubViewModel.Documents}">
+                    <DockingManager 
+                        ActiveContent="{Binding DocumentManagerSubViewModel.ActiveWindow, Mode=TwoWay}"
+                        DocumentsSource="{Binding DocumentManagerSubViewModel.Documents}">
                         <DockingManager.Theme>
                             <avalonDockTheme:PixiEditorDockTheme />
                         </DockingManager.Theme>
@@ -501,7 +502,9 @@
                             <ui:DocumentsTemplateSelector>
                                 <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
                                     <DataTemplate DataType="{x:Type doc:DocumentViewModel}">
-                                        <usercontrols:DrawingViewPort
+                                        <usercontrols:Viewport
+                                            Document="{Binding}"/>
+                                        <!--<usercontrols:DrawingViewPort
                                         CenterViewportTrigger="{Binding CenterViewportTrigger}"
                                         ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
                                         GridLinesVisible="{Binding XamlAccesibleViewModel.ViewportSubViewModel.GridLinesEnabled}"
@@ -584,7 +587,7 @@
                                                     </ContextMenu.Template>
                                                 </ContextMenu>
                                             </usercontrols:DrawingViewPort.ContextMenu>
-                                        </usercontrols:DrawingViewPort>
+                                            </usercontrols:DrawingViewPort> -->
                                     </DataTemplate>
                                 </ui:DocumentsTemplateSelector.DocumentsViewTemplate>
                             </ui:DocumentsTemplateSelector>

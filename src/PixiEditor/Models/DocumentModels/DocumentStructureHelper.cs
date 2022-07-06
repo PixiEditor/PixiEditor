@@ -4,7 +4,7 @@ using PixiEditor.ViewModels.Prototype;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;
-
+#nullable enable
 internal class DocumentStructureHelper
 {
     private DocumentViewModel doc;

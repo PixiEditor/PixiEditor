@@ -10,7 +10,7 @@ using PixiEditor.ViewModels.SubViewModels.Document;
 using SkiaSharp;
 
 namespace PixiEditor.ViewModels.Prototype;
-
+#nullable enable
 internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;

@@ -11,7 +11,7 @@ using PixiEditor.ViewModels.SubViewModels.Document;
 using SkiaSharp;
 
 namespace PixiEditor.Models.Rendering;
-
+#nullable enable
 internal class WriteableBitmapUpdater
 {
     private readonly DocumentViewModel doc;

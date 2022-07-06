@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 
 namespace PixiEditor.Views.UserControls.TransformOverlay;
+#nullable enable
 internal static class TransformUpdateHelper
 {
     public static ShapeCorners? UpdateShapeFromCorner

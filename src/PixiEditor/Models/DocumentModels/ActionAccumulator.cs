@@ -10,7 +10,7 @@ using PixiEditor.ViewModels.Prototype;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;
-
+#nullable enable
 internal class ActionAccumulator
 {
     private bool executing = false;
@@ -153,35 +153,35 @@ internal class ActionAccumulator
             switch (renderInfo)
             {
                 case DirtyRect_RenderInfo info:
-                {
-                    var bitmap = document.Bitmaps[info.Resolution];
-                    RectI finalRect = new RectI(VecI.Zero, new(bitmap.PixelWidth, bitmap.PixelHeight));
+                    {
+                        var bitmap = document.Bitmaps[info.Resolution];
+                        RectI finalRect = new RectI(VecI.Zero, new(bitmap.PixelWidth, bitmap.PixelHeight));
 
-                    RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                    bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
-                }
-                break;
+                        RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
+                        bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
+                    }
+                    break;
                 case PreviewDirty_RenderInfo info:
-                {
-                    var bitmap = helpers.StructureHelper.Find(info.GuidValue)?.PreviewBitmap;
-                    if (bitmap is null)
-                        continue;
-                    bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
-                }
-                break;
+                    {
+                        var bitmap = helpers.StructureHelper.Find(info.GuidValue)?.PreviewBitmap;
+                        if (bitmap is null)
+                            continue;
+                        bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
+                    }
+                    break;
                 case MaskPreviewDirty_RenderInfo info:
-                {
-                    var bitmap = helpers.StructureHelper.Find(info.GuidValue)?.MaskPreviewBitmap;
-                    if (bitmap is null)
-                        continue;
-                    bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
-                }
-                break;
+                    {
+                        var bitmap = helpers.StructureHelper.Find(info.GuidValue)?.MaskPreviewBitmap;
+                        if (bitmap is null)
+                            continue;
+                        bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
+                    }
+                    break;
                 case CanvasPreviewDirty_RenderInfo:
-                {
-                    document.PreviewBitmap.AddDirtyRect(new Int32Rect(0, 0, document.PreviewBitmap.PixelWidth, document.PreviewBitmap.PixelHeight));
-                }
-                break;
+                    {
+                        document.PreviewBitmap.AddDirtyRect(new Int32Rect(0, 0, document.PreviewBitmap.PixelWidth, document.PreviewBitmap.PixelHeight));
+                    }
+                    break;
             }
         }
     }

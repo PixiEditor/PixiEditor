@@ -2,7 +2,7 @@
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;
-
+#nullable enable
 internal class DocumentHelpers
 {
     public DocumentHelpers(DocumentViewModel doc)

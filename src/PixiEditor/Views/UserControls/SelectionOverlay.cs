@@ -5,7 +5,7 @@ using System.Windows.Media.Animation;
 using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls;
-
+#nullable enable
 internal class SelectionOverlay : Control
 {
     public static readonly DependencyProperty PathProperty =

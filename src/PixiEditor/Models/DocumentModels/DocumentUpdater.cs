@@ -13,7 +13,7 @@ using PixiEditor.ViewModels.SubViewModels.Document;
 using SkiaSharp;
 
 namespace PixiEditor.Models.DocumentModels;
-
+#nullable enable
 internal class DocumentUpdater
 {
     private DocumentViewModel doc;

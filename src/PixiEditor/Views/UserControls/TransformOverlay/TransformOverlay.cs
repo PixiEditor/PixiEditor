@@ -5,7 +5,7 @@ using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 
 namespace PixiEditor.Views.UserControls.TransformOverlay;
-
+#nullable enable
 internal class TransformOverlay : Control
 {
     public static readonly DependencyProperty RequestedCornersProperty =
@@ -219,7 +219,10 @@ internal class TransformOverlay : Control
 
             Corners = new ShapeCorners()
             {
-                BottomLeft = cornersOnStartMove.BottomLeft + delta, BottomRight = cornersOnStartMove.BottomRight + delta, TopLeft = cornersOnStartMove.TopLeft + delta, TopRight = cornersOnStartMove.TopRight + delta,
+                BottomLeft = cornersOnStartMove.BottomLeft + delta,
+                BottomRight = cornersOnStartMove.BottomRight + delta,
+                TopLeft = cornersOnStartMove.TopLeft + delta,
+                TopRight = cornersOnStartMove.TopRight + delta,
             };
 
             InternalState = InternalState with { Origin = originOnStartMove + delta };
@@ -305,7 +308,10 @@ internal class TransformOverlay : Control
         overlay.Corners = (ShapeCorners)args.NewValue;
         overlay.InternalState = new()
         {
-            ProportionalAngle1 = (overlay.Corners.BottomRight - overlay.Corners.TopLeft).Angle, ProportionalAngle2 = (overlay.Corners.TopRight - overlay.Corners.BottomLeft).Angle, OriginWasManuallyDragged = false, Origin = TransformHelper.OriginFromCorners(overlay.Corners),
+            ProportionalAngle1 = (overlay.Corners.BottomRight - overlay.Corners.TopLeft).Angle,
+            ProportionalAngle2 = (overlay.Corners.TopRight - overlay.Corners.BottomLeft).Angle,
+            OriginWasManuallyDragged = false,
+            Origin = TransformHelper.OriginFromCorners(overlay.Corners),
         };
         overlay.isResettingRequestedCorners = true;
         overlay.RequestedCorners = new ShapeCorners();

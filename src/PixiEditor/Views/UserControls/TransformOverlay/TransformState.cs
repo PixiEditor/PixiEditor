@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 
+#nullable enable
 namespace PixiEditor.Views.UserControls.TransformOverlay;
 internal struct TransformState
 {

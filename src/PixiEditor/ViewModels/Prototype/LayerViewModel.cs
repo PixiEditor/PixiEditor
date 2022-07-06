@@ -3,7 +3,7 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.ViewModels.Prototype;
-
+#nullable enable
 internal class LayerViewModel : StructureMemberViewModel
 {
     bool lockTransparency;

@@ -6,7 +6,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.Views.UserControls.SymmetryOverlay;
-
+#nullable enable
 internal class SymmetryOverlay : Control
 {
     public static readonly DependencyProperty HorizontalAxisYProperty =

@@ -9,7 +9,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 namespace PixiEditor.Models.Rendering;
-
+#nullable enable
 internal class AffectedChunkGatherer
 {
     private readonly DocumentChangeTracker tracker;
