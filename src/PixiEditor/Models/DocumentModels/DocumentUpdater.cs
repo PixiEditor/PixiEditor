@@ -131,7 +131,7 @@ internal class DocumentUpdater
 
     private void ProcessSelection(Selection_ChangeInfo info)
     {
-        doc.SetSelectionPath(info.NewPath);
+        doc.InternalUpdateSelectionPath(info.NewPath);
     }
 
     private void ProcessLayerLockTransparency(LayerLockTransparency_ChangeInfo info)
@@ -211,7 +211,7 @@ internal class DocumentUpdater
 
         doc.Bitmaps = newBitmaps;
 
-        doc.SetSize(info.Size);
+        doc.InternalSetSize(info.Size);
         doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
         doc.SetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
 

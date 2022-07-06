@@ -5,6 +5,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.Models.Events;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Zoombox;
@@ -252,5 +253,36 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnReferenceImageSizeChanged(object? sender, SizeChangedEventArgs e)
     {
         PropertyChanged?.Invoke(this, new(nameof(ReferenceLayerScale)));
+    }
+
+    private void Image_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (MouseDownCommand is null)
+            return;
+        var pos = e.GetPosition((IInputElement)sender);
+        VecD conv = new VecD(pos.X, pos.Y);
+        var parameter = new MouseOnCanvasEventArgs(e.ChangedButton, conv);
+
+        if (MouseDownCommand.CanExecute(parameter))
+            MouseDownCommand.Execute(parameter);
+    }
+
+    private void Image_MouseMove(object sender, MouseEventArgs e)
+    {
+        if (MouseMoveCommand is null)
+            return;
+        var pos = e.GetPosition((IInputElement)sender);
+        VecD conv = new VecD(pos.X, pos.Y);
+
+        if (MouseMoveCommand.CanExecute(conv))
+            MouseMoveCommand.Execute(conv);
+    }
+
+    private void Image_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (MouseUpCommand is null)
+            return;
+        if (MouseUpCommand.CanExecute(e.ChangedButton))
+            MouseUpCommand.Execute(e.ChangedButton);
     }
 }

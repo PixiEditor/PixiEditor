@@ -1,12 +1,15 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Events;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
@@ -14,11 +17,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 internal class IoViewModel : SubViewModel<ViewModelMain>
 {
     public RelayCommand MouseMoveCommand { get; set; }
-
     public RelayCommand MouseDownCommand { get; set; }
-
     public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
-
     public RelayCommand MouseUpCommand { get; set; }
 
     private bool restoreToolOnKeyUp = false;
@@ -69,20 +69,21 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnKeyDown(KeyEventArgs args)
     {
-        /*
+
         var key = args.Key;
         if (key == Key.System)
             key = args.SystemKey;
 
         ProcessShortcutDown(args.IsRepeat, key);
 
-        if (Owner.BitmapManager.ActiveDocument != null)
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument != null)
         {
-            Owner.BitmapManager.InputTarget.OnKeyDown(key);
+            //Owner.DocumentManagerSubViewModel.InputTarget.OnKeyDown(key);
+            Owner.DocumentManagerSubViewModel.ActiveDocument.OnKeyDown(key);
         }
 
         HandleTransientKey(args, true);
-        */
+
     }
 
     private void HandleTransientKey(KeyEventArgs args, bool state)
@@ -121,6 +122,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
 
+        // this was commented out before prototype integration
         //public void KeyPressed(Key key, ModifierKeys modifiers)
         //{
         //    if (!ShortcutExecutionBlocked)
@@ -147,18 +149,20 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnKeyUp(KeyEventArgs args)
     {
-        /*
         var key = args.Key;
         if (key == Key.System)
             key = args.SystemKey;
 
         ProcessShortcutUp(new(key, args.KeyboardDevice.Modifiers));
 
-        if (Owner.BitmapManager.ActiveDocument != null)
-            Owner.BitmapManager.InputTarget.OnKeyUp(key);
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is not null)
+        {
+            Owner.DocumentManagerSubViewModel.ActiveDocument.OnKeyUp(key);
+            //Owner.BitmapManager.InputTarget.OnKeyUp(key);
+        }
+
 
         HandleTransientKey(args, false);
-        */
     }
 
     private void ProcessShortcutUp(KeyCombination shortcut)
@@ -172,19 +176,18 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void OnMouseDown(object sender, MouseButton button)
+    private void OnMouseDown(object sender, MouseOnCanvasEventArgs args)
     {
-        /*
-        if (button == MouseButton.Left)
+        if (args.Button == MouseButton.Left)
         {
-            BitmapManager bitmapManager = Owner.BitmapManager;
-            var activeDocument = bitmapManager.ActiveDocument;
+            DocumentManagerViewModel docManager = Owner.DocumentManagerSubViewModel;
+            var activeDocument = docManager.ActiveDocument;
             if (activeDocument == null)
                 return;
 
-            bitmapManager.InputTarget.OnLeftMouseButtonDown(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
+            //docManager.InputTarget.OnLeftMouseButtonDown(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
+            docManager.ActiveDocument.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
         }
-        */
     }
 
     private void OnPreviewMiddleMouseButton(object sender)
@@ -217,28 +220,27 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void OnMouseMove(object sender, EventArgs args)
+    private void OnMouseMove(object sender, VecD pos)
     {
-        /*
-        var activeDocument = Owner.BitmapManager.ActiveDocument;
-        if (activeDocument == null)
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument is null)
             return;
-        Owner.BitmapManager.InputTarget.OnMouseMove(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);*/
+        //Owner.DocumentManagerSubViewModel.InputTarget.OnMouseMove(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
+        activeDocument.OnCanvasMouseMove(pos);
     }
 
     private void OnMouseUp(object sender, MouseButton button)
     {
-        /*
-        if (Owner.BitmapManager.ActiveDocument == null)
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
             return;
         if (button == MouseButton.Left)
         {
-            Owner.BitmapManager.InputTarget.OnLeftMouseButtonUp();
+            //Owner.BitmapManager.InputTarget.OnLeftMouseButtonUp();
+            Owner.DocumentManagerSubViewModel.ActiveDocument.OnCanvasLeftMouseButtonUp();
         }
         else if (button == MouseButton.Middle)
         {
             ChangeToolState<MoveViewportTool>(false);
         }
-        */
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Windows.Media;
+﻿using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
@@ -6,6 +7,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
+using PixiEditor.Models.BitmapActions;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels.Prototype;
@@ -105,6 +107,8 @@ internal class DocumentViewModel : NotifyableObject
     private int horizontalSymmetryAxisY;
 
     private SKPath selectionPath = new SKPath();
+    private Guid testLayerGuid = Guid.NewGuid();
+
 
     public DocumentViewModel(DocumentManagerViewModel owner, string name)
     {
@@ -150,9 +154,11 @@ internal class DocumentViewModel : NotifyableObject
         var previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
+
+        Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMember_Action(StructureRoot.GuidValue, testLayerGuid, 0, StructureMemberType.Layer));
     }
 
-    public void SetSize(VecI size)
+    public void InternalSetSize(VecI size)
     {
         this.size = size;
         RaisePropertyChanged(nameof(SizeBindable));
@@ -190,15 +196,57 @@ internal class DocumentViewModel : NotifyableObject
 
     public void AddOrUpdateViewport(ViewportInfo info)
     {
-        //Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(info));
+        Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(info));
     }
 
     public void RemoveViewport(Guid viewportGuid)
     {
-        //Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
+        Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
     }
 
-    public void SetSelectionPath(SKPath selectionPath)
+    public void OnKeyDown(Key args)
+    {
+
+    }
+
+    public void OnKeyUp(Key args)
+    {
+
+    }
+
+    private bool drawing = false;
+    public void OnCanvasLeftMouseButtonDown(VecD pos)
+    {
+        drawing = true;
+        Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
+            testLayerGuid,
+            SKColors.Black,
+            (VecI)pos,
+            (int)1,
+            false,
+            false));
+    }
+
+    public void OnCanvasMouseMove(VecD newPos)
+    {
+        if (!drawing)
+            return;
+        Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
+            testLayerGuid,
+            SKColors.Black,
+            (VecI)newPos,
+            (int)1,
+            false,
+            false));
+    }
+
+    public void OnCanvasLeftMouseButtonUp()
+    {
+        drawing = false;
+        Helpers.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
+    }
+
+    public void InternalUpdateSelectionPath(SKPath selectionPath)
     {
         (var toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
         toDispose.Dispose();

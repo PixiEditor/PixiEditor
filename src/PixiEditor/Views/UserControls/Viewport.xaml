@@ -56,28 +56,10 @@
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
-                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
-                        <i:Interaction.Triggers>
-                            <i:EventTrigger
-                                EventName="MouseDown">
-                                <i:InvokeCommandAction
-                                    Command="{Binding MouseDownCommand}"
-                                    PassEventArgsToCommand="True" />
-                            </i:EventTrigger>
-                            <i:EventTrigger
-                                EventName="MouseMove">
-                                <i:InvokeCommandAction
-                                    Command="{Binding MouseMoveCommand}"
-                                    PassEventArgsToCommand="True" />
-                            </i:EventTrigger>
-                            <i:EventTrigger
-                                EventName="MouseUp">
-                                <i:InvokeCommandAction
-                                    Command="{Binding MouseUpCommand}"
-                                    PassEventArgsToCommand="True" />
-                            </i:EventTrigger>
-                        </i:Interaction.Triggers>
-                    </Image>
+                        MouseDown="Image_MouseDown"
+                        MouseMove="Image_MouseMove"
+                        MouseUp="Image_MouseUp"
+                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"/>
                     <sym:SymmetryOverlay
                         ZoomboxScale="{Binding Zoombox.Scale}"
                         HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"

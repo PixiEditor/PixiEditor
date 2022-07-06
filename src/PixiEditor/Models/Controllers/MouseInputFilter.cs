@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.Models.Events;
 
 namespace PixiEditor.Models.Controllers;
 
 internal class MouseInputFilter
 {
-    public EventHandler<MouseButton> OnMouseDown;
-    public EventHandler OnMouseMove;
+    public EventHandler<MouseOnCanvasEventArgs> OnMouseDown;
+    public EventHandler<VecD> OnMouseMove;
     public EventHandler<MouseButton> OnMouseUp;
 
 
@@ -22,22 +19,23 @@ internal class MouseInputFilter
         [MouseButton.Middle] = MouseButtonState.Released,
     };
 
-    public void MouseDown(object args) => MouseDown(((MouseButtonEventArgs)args).ChangedButton);
-    public void MouseDown(MouseButton button)
+    public void MouseDown(object args) => MouseDown((MouseOnCanvasEventArgs)args);
+    public void MouseDown(MouseOnCanvasEventArgs args)
     {
+        var button = args.Button;
+
         if (button is MouseButton.XButton1 or MouseButton.XButton2)
             return;
         if (buttonStates[button] == MouseButtonState.Pressed)
             return;
         buttonStates[button] = MouseButtonState.Pressed;
 
-        OnMouseDown?.Invoke(this, button);
+        OnMouseDown?.Invoke(this, args);
     }
 
-    public void MouseMove(object args) => OnMouseMove?.Invoke(this, EventArgs.Empty);
-    public void MouseMove(MouseEventArgs args) => OnMouseMove?.Invoke(this, EventArgs.Empty);
+    public void MouseMove(object args) => OnMouseMove?.Invoke(this, (VecD)args);
 
-    public void MouseUp(object args) => MouseUp(((MouseButtonEventArgs)args).ChangedButton);
+    public void MouseUp(object args) => MouseUp((MouseButton)args);
     public void MouseUp(object sender, Point p, MouseButton button) => MouseUp(button);
     public void MouseUp(MouseButton button)
     {
