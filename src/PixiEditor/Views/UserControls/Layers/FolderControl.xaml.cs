@@ -7,8 +7,6 @@ namespace PixiEditor.Views.UserControls.Layers;
 
 internal partial class FolderControl : UserControl
 {
-    public static string FolderControlDataName = typeof(FolderControl).FullName;
-
     public static readonly DependencyProperty FolderProperty =
         DependencyProperty.Register(nameof(Folder), typeof(FolderViewModel), typeof(FolderControl), new(null));
 
@@ -17,6 +15,8 @@ internal partial class FolderControl : UserControl
         get => (FolderViewModel)GetValue(FolderProperty);
         set => SetValue(FolderProperty, value);
     }
+
+    public static string FolderControlDataName = typeof(FolderControl).FullName;
 
     public FolderControl()
     {

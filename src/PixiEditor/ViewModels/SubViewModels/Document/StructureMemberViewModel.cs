@@ -13,7 +13,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Document;
 internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
-    protected DocumentViewModel Document { get; }
+    public DocumentViewModel Document { get; }
     protected DocumentHelpers Helpers { get; }
 
 
@@ -106,18 +106,9 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         get => opacity;
     }
 
-    private bool isSelected;
-    public bool IsSelected
-    {
-        get => isSelected;
-        set
-        {
-            isSelected = value;
-            Document.RaisePropertyChanged(nameof(Document.SelectedStructureMember));
-        }
-    }
+    public bool IsSelected { get; set; }
+    public bool IsSoftSelected { get; set; }
     public bool ShouldDrawOnMask { get; set; }
-
 
     public const int PreviewSize = 48;
     public WriteableBitmap PreviewBitmap { get; set; }

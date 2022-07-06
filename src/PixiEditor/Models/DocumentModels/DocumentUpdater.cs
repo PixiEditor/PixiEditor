@@ -7,7 +7,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Models.BitmapActions;
+using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using SkiaSharp;
 
@@ -88,7 +88,47 @@ internal class DocumentUpdater
             case CreateReferenceLayer_ChangeInfo info:
                 ProcessCreateReferenceLayer(info);
                 break;
+            case SetSelectedMember_PassthroughAction info:
+                ProcessSetSelectedMember(info);
+                break;
+            case AddSoftSelectedMember_PassthroughAction info:
+                ProcessAddSoftSelectedMember(info);
+                break;
+            case ClearSoftSelectedMembers_PassthroughAction info:
+                ProcessClearSoftSelectedMembers(info);
+                break;
         }
+    }
+
+    private void ProcessClearSoftSelectedMembers(ClearSoftSelectedMembers_PassthroughAction info)
+    {
+        foreach (var oldMember in doc.SoftSelectedStructureMembers)
+        {
+            oldMember.IsSoftSelected = false;
+            oldMember.RaisePropertyChanged(nameof(oldMember.IsSoftSelected));
+        }
+        doc.InternalClearSoftSelectedMembers();
+    }
+
+    private void ProcessAddSoftSelectedMember(AddSoftSelectedMember_PassthroughAction info)
+    {
+        var member = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        member.IsSoftSelected = true;
+        member.RaisePropertyChanged(nameof(member.IsSoftSelected));
+        doc.InternalAddSoftSelectedMember(member);
+    }
+
+    private void ProcessSetSelectedMember(SetSelectedMember_PassthroughAction info)
+    {
+        if (doc.SelectedStructureMember is { } oldMember)
+        {
+            oldMember.IsSelected = false;
+            oldMember.RaisePropertyChanged(nameof(oldMember.IsSelected));
+        }
+        var member = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        member.IsSelected = true;
+        member.RaisePropertyChanged(nameof(member.IsSelected));
+        doc.InternalSetSelectedMember(member);
     }
 
     private void ProcessCreateReferenceLayer(CreateReferenceLayer_ChangeInfo info)
@@ -115,17 +155,17 @@ internal class DocumentUpdater
     private void ProcessSymmetryPosition(SymmetryAxisPosition_ChangeInfo info)
     {
         if (info.Direction == SymmetryAxisDirection.Horizontal)
-            doc.SetHorizontalSymmetryAxisY(info.NewPosition);
+            doc.InternalSetHorizontalSymmetryAxisY(info.NewPosition);
         else if (info.Direction == SymmetryAxisDirection.Vertical)
-            doc.SetVerticalSymmetryAxisX(info.NewPosition);
+            doc.InternalSetVerticalSymmetryAxisX(info.NewPosition);
     }
 
     private void ProcessSymmetryState(SymmetryAxisState_ChangeInfo info)
     {
         if (info.Direction == SymmetryAxisDirection.Horizontal)
-            doc.SetHorizontalSymmetryAxisEnabled(info.State);
+            doc.InternalSetHorizontalSymmetryAxisEnabled(info.State);
         else if (info.Direction == SymmetryAxisDirection.Vertical)
-            doc.SetVerticalSymmetryAxisEnabled(info.State);
+            doc.InternalSetVerticalSymmetryAxisEnabled(info.State);
     }
 
     private void ProcessSelection(Selection_ChangeInfo info)
@@ -211,8 +251,8 @@ internal class DocumentUpdater
         doc.Bitmaps = newBitmaps;
 
         doc.InternalSetSize(info.Size);
-        doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
-        doc.SetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
+        doc.InternalSetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
+        doc.InternalSetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
 
         var previewSize = StructureMemberViewModel.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
@@ -286,6 +326,9 @@ internal class DocumentUpdater
     {
         var (memberVM, folderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
         folderVM.Children.Remove(memberVM);
+        if (doc.SelectedStructureMember == memberVM)
+            doc.InternalSetSelectedMember(null);
+        doc.InternalClearSoftSelectedMembers();
     }
 
     private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)

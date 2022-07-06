@@ -25,15 +25,6 @@ internal partial class LayerControl : UserControl
         InitializeComponent();
     }
 
-    public static readonly DependencyProperty SetActiveLayerCommandProperty = DependencyProperty.Register(
-        nameof(SetActiveLayerCommand), typeof(RelayCommand), typeof(LayerControl), new PropertyMetadata(default(RelayCommand)));
-
-    public RelayCommand SetActiveLayerCommand
-    {
-        get { return (RelayCommand)GetValue(SetActiveLayerCommandProperty); }
-        set { SetValue(SetActiveLayerCommandProperty, value); }
-    }
-
     public static readonly DependencyProperty ControlButtonsVisibleProperty = DependencyProperty.Register(
         nameof(ControlButtonsVisible), typeof(Visibility), typeof(LayerControl), new PropertyMetadata(System.Windows.Visibility.Hidden));
 
@@ -152,5 +143,10 @@ internal partial class LayerControl : UserControl
     private void Grid_Drop_Below(object sender, DragEventArgs e)
     {
         HandleGridDrop(sender, e, false, true);
+    }
+
+    private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+    {
+        Layer?.Document.SetSelectedMember(Layer.GuidValue);
     }
 }

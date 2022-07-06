@@ -7,8 +7,8 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
-using PixiEditor.Models.BitmapActions;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Position;
 using SkiaSharp;
 
@@ -35,7 +35,10 @@ internal class DocumentViewModel : NotifyableObject
     public int Width => size.X;
     public int Height => size.Y;
 
-    public StructureMemberViewModel? SelectedStructureMember => FindFirstSelectedMember();
+    public StructureMemberViewModel? SelectedStructureMember { get; private set; } = null;
+
+    private HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
+    public IReadOnlyCollection<StructureMemberViewModel> SoftSelectedStructureMembers => softSelectedStructureMembers;
 
     public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
     {
@@ -155,6 +158,33 @@ internal class DocumentViewModel : NotifyableObject
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
 
         Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMember_Action(StructureRoot.GuidValue, testLayerGuid, 0, StructureMemberType.Layer));
+        SetSelectedMember(testLayerGuid);
+    }
+
+    #region Internal Methods
+    // these are intended to only be called from DocumentUpdater
+    public void InternalSetVerticalSymmetryAxisEnabled(bool verticalSymmetryAxisEnabled)
+    {
+        this.verticalSymmetryAxisEnabled = verticalSymmetryAxisEnabled;
+        RaisePropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
+    }
+
+    public void InternalSetHorizontalSymmetryAxisEnabled(bool horizontalSymmetryAxisEnabled)
+    {
+        this.horizontalSymmetryAxisEnabled = horizontalSymmetryAxisEnabled;
+        RaisePropertyChanged(nameof(HorizontalSymmetryAxisEnabledBindable));
+    }
+
+    public void InternalSetVerticalSymmetryAxisX(int verticalSymmetryAxisX)
+    {
+        this.verticalSymmetryAxisX = verticalSymmetryAxisX;
+        RaisePropertyChanged(nameof(VerticalSymmetryAxisXBindable));
+    }
+
+    public void InternalSetHorizontalSymmetryAxisY(int horizontalSymmetryAxisY)
+    {
+        this.horizontalSymmetryAxisY = horizontalSymmetryAxisY;
+        RaisePropertyChanged(nameof(HorizontalSymmetryAxisYBindable));
     }
 
     public void InternalSetSize(VecI size)
@@ -165,31 +195,22 @@ internal class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(Height));
     }
 
-    #region Symmetry
-
-    public void SetVerticalSymmetryAxisEnabled(bool verticalSymmetryAxisEnabled)
+    public void InternalUpdateSelectionPath(SKPath selectionPath)
     {
-        this.verticalSymmetryAxisEnabled = verticalSymmetryAxisEnabled;
-        RaisePropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
+        (var toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
+        toDispose.Dispose();
+        RaisePropertyChanged(nameof(SelectionPathBindable));
     }
 
-    public void SetHorizontalSymmetryAxisEnabled(bool horizontalSymmetryAxisEnabled)
+    public void InternalSetSelectedMember(StructureMemberViewModel? member)
     {
-        this.horizontalSymmetryAxisEnabled = horizontalSymmetryAxisEnabled;
-        RaisePropertyChanged(nameof(HorizontalSymmetryAxisEnabledBindable));
+        SelectedStructureMember = member;
+        RaisePropertyChanged(nameof(SelectedStructureMember));
     }
 
-    public void SetVerticalSymmetryAxisX(int verticalSymmetryAxisX)
-    {
-        this.verticalSymmetryAxisX = verticalSymmetryAxisX;
-        RaisePropertyChanged(nameof(VerticalSymmetryAxisXBindable));
-    }
+    public void InternalClearSoftSelectedMembers() => softSelectedStructureMembers.Clear();
 
-    public void SetHorizontalSymmetryAxisY(int horizontalSymmetryAxisY)
-    {
-        this.horizontalSymmetryAxisY = horizontalSymmetryAxisY;
-        RaisePropertyChanged(nameof(HorizontalSymmetryAxisYBindable));
-    }
+    public void InternalAddSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Add(member);
 
     #endregion
 
@@ -201,6 +222,21 @@ internal class DocumentViewModel : NotifyableObject
     public void RemoveViewport(Guid viewportGuid)
     {
         Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
+    }
+
+    public void SetSelectedMember(Guid memberGuid)
+    {
+        Helpers.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
+    }
+
+    public void AddSoftSelectedMember(Guid memberGuid)
+    {
+        Helpers.ActionAccumulator.AddActions(new AddSoftSelectedMember_PassthroughAction(memberGuid));
+    }
+
+    public void ClearSoftSelectedMembers()
+    {
+        Helpers.ActionAccumulator.AddActions(new ClearSoftSelectedMembers_PassthroughAction());
     }
 
     public void OnKeyDown(Key args)
@@ -243,12 +279,5 @@ internal class DocumentViewModel : NotifyableObject
     {
         drawing = false;
         Helpers.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
-    }
-
-    public void InternalUpdateSelectionPath(SKPath selectionPath)
-    {
-        (var toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
-        toDispose.Dispose();
-        RaisePropertyChanged(nameof(SelectionPathBindable));
     }
 }
