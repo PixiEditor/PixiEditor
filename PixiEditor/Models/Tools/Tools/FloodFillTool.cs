@@ -1,13 +1,15 @@
 ﻿using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using SkiaSharp;
-using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.G)]
     internal class FloodFillTool : BitmapOperationTool
     {
         private BitmapManager BitmapManager { get; }
@@ -20,7 +22,7 @@ namespace PixiEditor.Models.Tools.Tools
             UseDocumentRectForUndo = true;
         }
 
-        public override string Tooltip => $"Fills area with color. ({ShortcutKey})";
+        public override string Tooltip => $"Fills area with color. ({Shortcut})";
 
         public override void Use(Layer activeLayer, Layer previewLayer, IEnumerable<Layer> allLayers, IReadOnlyList<Coordinates> recordedMouseMovement, SKColor color)
         {

@@ -3,6 +3,7 @@ using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using System.Windows.Input;
+using PixiEditor.Models.Commands.Attributes;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
@@ -57,6 +58,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Owner.ToolsSubViewModel.AddPropertyChangedCallback(nameof(ToolsViewModel.ActiveTool), UpdateUseTouchGesture);
 
             UpdateUseTouchGesture();
+        }
+
+        [Command.Basic("PixiEditor.Stylus.TogglePenMode", "Toggle Pen Mode", "Toggle Pen Mode")]
+        public void TogglePenMode()
+        {
+            IsPenModeEnabled = !IsPenModeEnabled;
         }
 
         private void UpdateUseTouchGesture()

@@ -1,11 +1,7 @@
-﻿using PixiEditor.Models;
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
+﻿using PixiEditor.Models.Enums;
 using System.Globalization;
+using System.IO;
 using System.Windows.Media;
-using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Helpers.Converters
 {
@@ -29,12 +25,13 @@ namespace PixiEditor.Helpers.Converters
         {
             SupportedFilesHelper.GetFileTypeDialogData(format).Extensions.ForEach(i => extensionsToBrushes[i] = brush);
         }
-        
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            string extension = (string)value;
 
-            return extensionsToBrushes.ContainsKey(extension) ? extensionsToBrushes[extension] : UnknownBrush;
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            GetBrush((string)value);
+
+        public static Brush GetBrush(string path)
+        {
+            return extensionsToBrushes.GetValueOrDefault(Path.GetExtension(path).ToLower(), UnknownBrush);
         }
 
         private static SolidColorBrush ColorBrush(byte r, byte g, byte b)

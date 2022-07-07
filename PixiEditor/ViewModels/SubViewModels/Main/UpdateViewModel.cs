@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Processes;
 using PixiEditor.Models.UserPreferences;
@@ -20,8 +21,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         public UpdateChecker UpdateChecker { get; set; }
 
         public UpdateChannel[] UpdateChannels { get; } = new UpdateChannel[2];
-
-        public RelayCommand RestartApplicationCommand { get; set; }
 
         private string versionText;
 
@@ -53,7 +52,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             : base(owner)
         {
             Owner.OnStartupEvent += Owner_OnStartupEvent;
-            RestartApplicationCommand = new RelayCommand(RestartApplication);
             IPreferences.Current.AddCallback<string>("UpdateChannel", (val) => UpdateChecker.Channel = GetUpdateChannel(val));
             InitUpdateChecker();
         }
@@ -154,7 +152,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             Application.Current.Shutdown();
         }
 
-        private static void RestartApplication(object parameter)
+        [Command.Internal("PixiEditor.Restart")]
+        public static void RestartApplication()
         {
             try
             {

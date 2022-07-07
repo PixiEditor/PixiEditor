@@ -29,7 +29,7 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences
 
         protected void RaiseAndUpdatePreference<T>(ref T backingStore, T value, [CallerMemberName]string name = "")
         {
-            SetProperty(ref backingStore, value, name);
+            SetProperty(ref backingStore, value, propertyName: name);
             IPreferences.Current.UpdatePreference(name, value);
         }
     }

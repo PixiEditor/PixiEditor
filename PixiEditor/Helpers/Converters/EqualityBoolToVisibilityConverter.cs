@@ -1,17 +1,27 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 
 namespace PixiEditor.Helpers.Converters
 {
-    public class EqualityBoolToVisibilityConverter :
-        SingleInstanceConverter<EqualityBoolToVisibilityConverter>
+    public class EqualityBoolToVisibilityConverter : MarkupConverter
     {
+        public bool Invert { get; set; }
+
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
-                return false;
-            return value.Equals(parameter) ? Visibility.Visible : Visibility.Collapsed;
+                return Invert;
+
+            if (value.GetType().IsAssignableTo(typeof(Enum)) && parameter is string s)
+            {
+                parameter = Enum.Parse(value.GetType(), s);
+            }
+            else
+            {
+                parameter = System.Convert.ChangeType(parameter, value.GetType());
+            }
+
+            return value.Equals(parameter) != Invert ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

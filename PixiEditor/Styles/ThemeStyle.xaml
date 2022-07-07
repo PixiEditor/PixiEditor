@@ -73,7 +73,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border CornerRadius="4" Background="{TemplateBinding Background}">
                         <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
+                                          VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsEnabled" Value="False">

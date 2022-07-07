@@ -1,10 +1,8 @@
-﻿using System;
+﻿using PixiEditor.Models.Controllers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Controllers.Shortcuts;
 
 namespace PixiEditor.Views
 {
@@ -13,26 +11,23 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class EditableTextBlock : UserControl
     {
-        // Using a DependencyProperty as the backing store for TextBlockVisibility.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty TextBlockVisibilityProperty =
-            DependencyProperty.Register(
-                "TextBlockVisibility",
+            DependencyProperty.Register(nameof(TextBlockVisibility),
                 typeof(Visibility),
                 typeof(EditableTextBlock),
                 new PropertyMetadata(Visibility.Visible));
 
-        // Using a DependencyProperty as the backing store for Text.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register(
-                "Text",
+            DependencyProperty.Register(nameof(Text),
                 typeof(string),
                 typeof(EditableTextBlock),
                 new PropertyMetadata(default(string)));
 
-        // Using a DependencyProperty as the backing store for EnableEditing.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty EnableEditingProperty =
-            DependencyProperty.Register(
-                "IsEditing",
+            DependencyProperty.Register(nameof(IsEditing),
                 typeof(bool),
                 typeof(EditableTextBlock),
                 new PropertyMetadata(OnIsEditingChanged));
@@ -43,9 +38,9 @@ namespace PixiEditor.Views
             set { SetValue(MaxCharsProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for MaxChars.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty MaxCharsProperty =
-            DependencyProperty.Register("MaxChars", typeof(int), typeof(EditableTextBlock), new PropertyMetadata(int.MaxValue));
+            DependencyProperty.Register(nameof(MaxChars), typeof(int), typeof(EditableTextBlock), new PropertyMetadata(int.MaxValue));
 
 
         public event EventHandler<TextChangedEventArgs> OnSubmit;
@@ -80,7 +75,7 @@ namespace PixiEditor.Views
             IsEditing = true;
             Dispatcher.BeginInvoke(
                 DispatcherPriority.Input,
-                new Action(delegate()
+                new Action(delegate ()
                 {
                     textBox.Focus();         // Set Logical Focus
                     Keyboard.Focus(textBox); // Set Keyboard Focus

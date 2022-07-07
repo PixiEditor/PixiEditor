@@ -41,13 +41,19 @@ namespace PixiEditor.Helpers
             }
         }
 
-        protected bool SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = "")
+        protected bool SetProperty<T>(ref T backingStore, T value, Action beforeChange = null, [CallerMemberName] string propertyName = "") =>
+            SetProperty(ref backingStore, value, out _, beforeChange, propertyName);
+
+        protected bool SetProperty<T>(ref T backingStore, T value, out T oldValue, Action beforeChange = null, [CallerMemberName] string propertyName = "")
         {
             if (EqualityComparer<T>.Default.Equals(backingStore, value))
             {
+                oldValue = backingStore;
                 return false;
             }
 
+            beforeChange?.Invoke();
+            oldValue = backingStore;
             backingStore = value;
             PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             return true;

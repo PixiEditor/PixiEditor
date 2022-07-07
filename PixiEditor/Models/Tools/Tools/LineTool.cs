@@ -1,15 +1,16 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.Tools.ToolSettings.Toolbars;
 using SkiaSharp;
-using System;
-using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.L)]
     public class LineTool : ShapeTool
     {
         private List<Coordinates> linePoints = new List<Coordinates>();
@@ -25,7 +26,7 @@ namespace PixiEditor.Models.Tools.Tools
             Toolbar = new BasicToolbar();
         }
 
-        public override string Tooltip => $"Draws line on canvas ({ShortcutKey}). Hold Shift to draw even line.";
+        public override string Tooltip => $"Draws line on canvas ({Shortcut}). Hold Shift to draw even line.";
 
         public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {

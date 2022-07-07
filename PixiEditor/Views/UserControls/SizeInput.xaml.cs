@@ -1,5 +1,4 @@
 ﻿using PixiEditor.Models.Enums;
-using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -29,9 +28,9 @@ namespace PixiEditor.Views
             set { SetValue(OnScrollActionProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for OnScrollAction.  This enables animation, styling, binding, etc...
+
         public static readonly DependencyProperty OnScrollActionProperty =
-            DependencyProperty.Register("OnScrollAction", typeof(Action), typeof(SizeInput), new PropertyMetadata(null));
+            DependencyProperty.Register(nameof(OnScrollAction), typeof(Action), typeof(SizeInput), new PropertyMetadata(null));
 
         public SizeInput()
         {

@@ -1,4 +1,4 @@
-﻿using PixiEditor.Models.Controllers.Shortcuts;
+﻿using PixiEditor.Models.Controllers;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interactivity;

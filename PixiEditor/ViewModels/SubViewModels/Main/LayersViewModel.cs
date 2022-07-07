@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Layers;
 using PixiEditor.Views.UserControls.Layers;
@@ -8,6 +9,7 @@ using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Layer", "Image")]
     public class LayersViewModel : SubViewModel<ViewModelMain>
     {
         public RelayCommand SetActiveLayerCommand { get; set; }
@@ -201,6 +203,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             return Owner.BitmapManager.ActiveDocument?.Layers.Count(x => x.IsActive) > 0;
         }
 
+        [Command.Basic("PixiEditor.Layer.New", "New Layer", "Create new layer", CanExecute = "PixiEditor.HasDocument", Key = Key.N, Modifiers = ModifierKeys.Control | ModifierKeys.Shift, IconPath = "Layer-add.png")]
         public void NewLayer(object parameter)
         {
             GuidStructureItem control = GetGroupFromParameter(parameter);

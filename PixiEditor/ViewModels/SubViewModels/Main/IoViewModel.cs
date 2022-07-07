@@ -1,9 +1,9 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Controllers.Shortcuts;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Tools;
 using PixiEditor.Models.Tools.Tools;
-using System;
 using System.Windows;
 using System.Windows.Input;
 
@@ -83,6 +83,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
 
         private void HandleTransientKey(KeyEventArgs args, bool state)
         {
+            if (ShortcutController.ShortcutExecutionBlocked)
+            {
+                return;
+            }
+
             var controller = Owner.ShortcutController;
 
             Key finalKey = args.Key;
@@ -91,22 +96,49 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
                 finalKey = args.SystemKey;
             }
 
-            if (controller.TransientShortcuts.ContainsKey(finalKey))
+            Command.ToolCommand tool = CommandController.Current.Commands
+                .Select(x => x as Command.ToolCommand)
+                .FirstOrDefault(x => x != null && x.TransientKey == finalKey);
+
+            if (tool != null)
             {
-                ChangeToolState(controller.TransientShortcuts[finalKey].GetType(), state);
+                ChangeToolState(tool.ToolType, state);
             }
         }
 
         private void ProcessShortcutDown(bool isRepeat, Key key)
         {
-            if (isRepeat && !restoreToolOnKeyUp && Owner.ShortcutController.LastShortcut != null &&
-                Owner.ShortcutController.LastShortcut.Command == Owner.ToolsSubViewModel.SelectToolCommand)
+            if (isRepeat && !restoreToolOnKeyUp && Owner.ShortcutController.LastCommands != null &&
+                Owner.ShortcutController.LastCommands.Any(x => x is Command.ToolCommand))
             {
                 restoreToolOnKeyUp = true;
                 ShortcutController.BlockShortcutExection("ShortcutDown");
             }
 
             Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
+
+            //public void KeyPressed(Key key, ModifierKeys modifiers)
+            //{
+            //    if (!ShortcutExecutionBlocked)
+            //    {
+            //        Shortcut[] shortcuts = ShortcutGroups.SelectMany(x => x.Shortcuts).ToList().FindAll(x => x.ShortcutKey == key).ToArray();
+            //        if (shortcuts.Length < 1)
+            //        {
+            //            return;
+            //        }
+
+            //        shortcuts = shortcuts.OrderByDescending(x => x.Modifier).ToArray();
+            //        for (int i = 0; i < shortcuts.Length; i++)
+            //        {
+            //            if (modifiers.HasFlag(shortcuts[i].Modifier))
+            //            {
+            //                shortcuts[i].Execute();
+            //                LastShortcut = shortcuts[i];
+            //                break;
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         private void OnKeyUp(KeyEventArgs args)
@@ -115,7 +147,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             if (key == Key.System)
                 key = args.SystemKey;
 
-            ProcessShortcutUp(key);
+            ProcessShortcutUp(new(key, args.KeyboardDevice.Modifiers));
 
             if (Owner.BitmapManager.ActiveDocument != null)
                 Owner.BitmapManager.InputTarget.OnKeyUp(key);
@@ -123,10 +155,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
             HandleTransientKey(args, false);
         }
 
-        private void ProcessShortcutUp(Key key)
+        private void ProcessShortcutUp(KeyCombination shortcut)
         {
-            if (restoreToolOnKeyUp && Owner.ShortcutController.LastShortcut != null &&
-                Owner.ShortcutController.LastShortcut.ShortcutKey == key)
+            if (restoreToolOnKeyUp && Owner.ShortcutController.LastCommands != null &&
+                Owner.ShortcutController.LastCommands.Any(x => x.Shortcut == shortcut))
             {
                 restoreToolOnKeyUp = false;
                 Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);

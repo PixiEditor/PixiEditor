@@ -5,7 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" 
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters" xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+             xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters" 
+             xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+             xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
              mc:Ignorable="d" Name="swatchesView"
              d:DesignHeight="450" d:DesignWidth="300">
     <UserControl.Resources>
@@ -45,7 +47,7 @@
                         <palettes:PaletteColor.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Remove" Foreground="White"
-                                          Command="{Binding Source={x:Reference Name=swatchesView}, Path=DataContext.ColorsSubViewModel.RemoveSwatchCommand}"
+                                          Command="{cmds:Command PixiEditor.Colors.RemoveSwatch, UseProvided=True}"
                                           CommandParameter="{Binding}" />
                             </ContextMenu>
                         </palettes:PaletteColor.ContextMenu>

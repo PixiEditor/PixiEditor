@@ -1,9 +1,7 @@
-﻿using System;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using PixiEditor.Models.Controllers.Shortcuts;
 
 namespace PixiEditor.Views
 {
@@ -12,7 +10,6 @@ namespace PixiEditor.Views
     /// </summary>
     public partial class NumberInput : UserControl
     {
-        // Using a DependencyProperty as the backing store for Value.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register(
                 nameof(Value),
@@ -20,7 +17,6 @@ namespace PixiEditor.Views
                 typeof(NumberInput),
                 new PropertyMetadata(0f, OnValueChanged));
 
-        // Using a DependencyProperty as the backing store for Min.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MinProperty =
             DependencyProperty.Register(
                 nameof(Min),
@@ -28,7 +24,6 @@ namespace PixiEditor.Views
                 typeof(NumberInput),
                 new PropertyMetadata(float.NegativeInfinity));
 
-        // Using a DependencyProperty as the backing store for Max.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MaxProperty =
             DependencyProperty.Register(
                 nameof(Max),
@@ -38,17 +33,14 @@ namespace PixiEditor.Views
 
         private readonly Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$", RegexOptions.Compiled);
 
-
         public int Decimals
         {
             get { return (int)GetValue(DecimalsProperty); }
             set { SetValue(DecimalsProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Precision.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty DecimalsProperty =
-            DependencyProperty.Register("Decimals", typeof(int), typeof(NumberInput), new PropertyMetadata(2));
-
+            DependencyProperty.Register(nameof(Decimals), typeof(int), typeof(NumberInput), new PropertyMetadata(2));
 
         public Action OnScrollAction
         {
@@ -56,10 +48,8 @@ namespace PixiEditor.Views
             set { SetValue(OnScrollActionProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for OnScrollAction.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty OnScrollActionProperty =
-            DependencyProperty.Register("OnScrollAction", typeof(Action), typeof(NumberInput), new PropertyMetadata(null));
-
+            DependencyProperty.Register(nameof(OnScrollAction), typeof(Action), typeof(NumberInput), new PropertyMetadata(null));
 
         public NumberInput()
         {
@@ -84,8 +74,7 @@ namespace PixiEditor.Views
             set => SetValue(MaxProperty, value);
         }
 
-        public static readonly DependencyProperty FocusNextProperty = DependencyProperty.Register(
-            "FocusNext", typeof(bool), typeof(NumberInput), new PropertyMetadata(false));
+        public static readonly DependencyProperty FocusNextProperty = DependencyProperty.Register(nameof(FocusNext), typeof(bool), typeof(NumberInput), new PropertyMetadata(false));
 
         public bool FocusNext
         {

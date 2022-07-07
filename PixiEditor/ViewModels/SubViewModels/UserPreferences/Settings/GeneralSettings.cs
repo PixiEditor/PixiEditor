@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
+﻿namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
 {
     public class GeneralSettings : SettingsGroup
     {
@@ -14,6 +8,13 @@ namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings
         {
             get => imagePreviewInTaskbar;
             set => RaiseAndUpdatePreference(ref imagePreviewInTaskbar, value);
+        }
+
+        private bool isDebugModeEnabled = GetPreference(nameof(IsDebugModeEnabled), false);
+        public bool IsDebugModeEnabled
+        {
+            get => isDebugModeEnabled;
+            set => RaiseAndUpdatePreference(ref isDebugModeEnabled, value);
         }
     }
 }

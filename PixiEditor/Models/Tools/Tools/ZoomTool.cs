@@ -1,10 +1,11 @@
-﻿using PixiEditor.Models.Controllers;
+﻿using PixiEditor.Models.Commands.Attributes;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Position;
-using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.Z)]
     internal class ZoomTool : ReadonlyTool
     {
         private BitmapManager BitmapManager { get; }
@@ -18,7 +19,7 @@ namespace PixiEditor.Models.Tools.Tools
 
         public override bool HideHighlight => true;
 
-        public override string Tooltip => $"Zooms viewport ({ShortcutKey}). Click to zoom in, hold alt and click to zoom out.";
+        public override string Tooltip => $"Zooms viewport ({Shortcut}). Click to zoom in, hold alt and click to zoom out.";
 
         public override void OnKeyDown(Key key)
         {

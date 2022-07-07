@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interactivity;
@@ -46,8 +45,7 @@ namespace PixiEditor.Helpers.Behaviours
             set => SetValue(DeselectOnFocusLossProperty, value);
         }
 
-        public static readonly DependencyProperty FocusNextProperty = DependencyProperty.Register(
-            "FocusNext", typeof(bool), typeof(TextBoxFocusBehavior), new PropertyMetadata(false));
+        public static readonly DependencyProperty FocusNextProperty = DependencyProperty.Register(nameof(FocusNext), typeof(bool), typeof(TextBoxFocusBehavior), new PropertyMetadata(false));
 
         public bool FocusNext
         {

@@ -11,11 +11,7 @@ namespace PixiEditor.Helpers.Converters
         {
             if (value is Key key)
             {
-                return key switch
-                {
-                    Key.Space => "Space",
-                    _ => InputKeyHelpers.GetCharFromKey(key),
-                };
+                return InputKeyHelpers.GetKeyboardKey(key);
             }
             else if (value is ModifierKeys)
             {

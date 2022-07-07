@@ -6,9 +6,6 @@ using System.Windows.Input;
 
 namespace PixiEditor.Views.UserControls
 {
-    /// <summary>
-    /// Interaction logic for SwatchesView.xaml
-    /// </summary>
     public partial class SwatchesView : UserControl
     {
         public static readonly DependencyProperty SwatchesProperty =

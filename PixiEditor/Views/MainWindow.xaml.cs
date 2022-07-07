@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;

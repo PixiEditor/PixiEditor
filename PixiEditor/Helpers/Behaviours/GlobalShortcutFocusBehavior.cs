@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interactivity;
-using PixiEditor.Models.Controllers.Shortcuts;
+using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.Helpers.Behaviours
 {

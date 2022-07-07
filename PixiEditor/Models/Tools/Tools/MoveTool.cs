@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Helpers;
+using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
@@ -7,13 +8,12 @@ using PixiEditor.Models.Layers;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Undo;
 using SkiaSharp;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 
 namespace PixiEditor.Models.Tools.Tools
 {
+    [Command.Tool(Key = Key.V)]
     internal class MoveTool : BitmapOperationTool
     {
         private Layer[] affectedLayers;
@@ -40,7 +40,7 @@ namespace PixiEditor.Models.Tools.Tools
             BitmapManager = bitmapManager;
         }
 
-        public override string Tooltip => $"Moves selected pixels ({ShortcutKey}). Hold Ctrl to move all layers.";
+        public override string Tooltip => $"Moves selected pixels ({Shortcut}). Hold Ctrl to move all layers.";
 
         public override bool HideHighlight => true;
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.ClsFile;
@@ -36,12 +36,13 @@ namespace PixiEditor.Helpers.Extensions
                 .AddSingleton<ViewportViewModel>()
                 .AddSingleton<ColorsViewModel>()
                 .AddSingleton<DocumentViewModel>()
-                .AddSingleton<MiscViewModel>()
                 .AddSingleton<RegistryViewModel>()
-                .AddSingleton(x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
+                .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
                 .AddSingleton<DebugViewModel>()
+                .AddSingleton<SearchViewModel>()
                 // Controllers
                 .AddSingleton<ShortcutController>()
+                .AddSingleton<CommandController>()
                 .AddSingleton<BitmapManager>()
                 // Tools
                 .AddSingleton<Tool, MoveViewportTool>()

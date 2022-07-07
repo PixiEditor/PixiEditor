@@ -1,24 +1,18 @@
-﻿using PixiEditor.Helpers;
+﻿using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Undo;
-using System;
 using System.IO;
+using System.Windows.Input;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main
 {
+    [Command.Group("PixiEditor.Undo", "Undo")]
     public class UndoViewModel : SubViewModel<ViewModelMain>
     {
-        public RelayCommand UndoCommand { get; set; }
-
-        public RelayCommand RedoCommand { get; set; }
-
         public event EventHandler UndoRedoCalled;
 
         public UndoViewModel(ViewModelMain owner)
             : base(owner)
         {
-            UndoCommand = new RelayCommand(Undo, CanUndo);
-            RedoCommand = new RelayCommand(Redo, CanRedo);
-
             var result = Directory.CreateDirectory(StorageBasedChange.DefaultUndoChangeLocation);
 
             //ClearUndoTempDirectory();
@@ -27,13 +21,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <summary>
         ///     Redo last action.
         /// </summary>
-        /// <param name="parameter">CommandProperty.</param>
-        public void Redo(object parameter)
+        [Command.Basic("PixiEditor.Undo.Redo", "Redo", "Redo next step", CanExecute = "PixiEditor.Undo.CanRedo", Key = Key.Y, Modifiers = ModifierKeys.Control,
+                       IconPath = "E7A6", IconEvaluator = "PixiEditor.FontIcon")]
+        public void Redo()
         {
             UndoRedoCalled?.Invoke(this, EventArgs.Empty);
 
             //sometimes CanRedo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
-            if (CanRedo(null))
+            if (CanRedo())
             {
                 Owner.BitmapManager.ActiveDocument.UndoManager.Redo();
                 Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
@@ -43,13 +38,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// <summary>
         ///     Undo last action.
         /// </summary>
-        /// <param name="parameter">CommandParameter.</param>
-        public void Undo(object parameter)
+        [Command.Basic("PixiEditor.Undo.Undo", "Undo", "Undo previous step", CanExecute = "PixiEditor.Undo.CanUndo", Key = Key.Z, Modifiers = ModifierKeys.Control,
+         IconPath = "E7A7", IconEvaluator = "PixiEditor.FontIcon")]
+        public void Undo()
         {
             UndoRedoCalled?.Invoke(this, EventArgs.Empty);
 
             //sometimes CanUndo gets changed after UndoRedoCalled invoke, so check again (normally this is checked by the relaycommand)
-            if (CanUndo(null))
+            if (CanUndo())
             {
                 Owner.BitmapManager.ActiveDocument.UndoManager.Undo();
                 Owner.BitmapManager.ActiveDocument.ChangesSaved = false;
@@ -73,7 +69,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// </summary>
         /// <param name="property">CommandParameter.</param>
         /// <returns>True if can undo.</returns>
-        private bool CanUndo(object property)
+        [Evaluator.CanExecute("PixiEditor.Undo.CanUndo")]
+        public bool CanUndo()
         {
             return Owner.BitmapManager.ActiveDocument?.UndoManager.CanUndo ?? false;
         }
@@ -83,7 +80,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main
         /// </summary>
         /// <param name="property">CommandProperty.</param>
         /// <returns>True if can redo.</returns>
-        private bool CanRedo(object property)
+        [Evaluator.CanExecute("PixiEditor.Undo.CanRedo")]
+        public bool CanRedo()
         {
             return Owner.BitmapManager.ActiveDocument?.UndoManager.CanRedo ?? false;
         }

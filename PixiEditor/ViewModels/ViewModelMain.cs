@@ -1,26 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Threading;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
-using PixiEditor.Models.Controllers.Shortcuts;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Position;
 using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Main;
-using PixiEditor.Views.Dialogs;
 using SkiaSharp;
+using System.ComponentModel;
+using System.Windows;
 
 namespace PixiEditor.ViewModels
 {
@@ -71,11 +63,15 @@ namespace PixiEditor.ViewModels
 
         public BitmapManager BitmapManager { get; set; }
 
+        public CommandController CommandController { get; set; }
+
         public ShortcutController ShortcutController { get; set; }
 
         public StylusViewModel StylusSubViewModel { get; set; }
 
         public WindowViewModel WindowSubViewModel { get; set; }
+
+        public SearchViewModel SearchSubViewModel { get; set; }
 
         public RegistryViewModel RegistrySubViewModel { get; set; }
 
@@ -109,16 +105,6 @@ namespace PixiEditor.ViewModels
                 SetProperty(ref overrideActionDisplay, value);
                 RaisePropertyChanged(nameof(ActionDisplay));
             }
-        }
-
-        public bool IsDebug
-        {
-            get =>
-#if DEBUG
-                true;
-#else
-                false;
-#endif
         }
 
         public ViewModelMain(IServiceProvider serviceProvider)
@@ -159,88 +145,23 @@ namespace PixiEditor.ViewModels
             DocumentSubViewModel = services.GetService<DocumentViewModel>();
             DiscordViewModel = services.GetService<DiscordViewModel>();
             UpdateSubViewModel = services.GetService<UpdateViewModel>();
+            DebugSubViewModel = services.GetService<DebugViewModel>();
 
             WindowSubViewModel = services.GetService<WindowViewModel>();
             StylusSubViewModel = services.GetService<StylusViewModel>();
             RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
-            AddDebugOnlyViewModels();
-            AddReleaseOnlyViewModels();
-
-            ShortcutController = new ShortcutController(
-                    new ShortcutGroup(
-                        "Tools",
-                        CreateToolShortcut<PenTool>(Key.B, "Pen"),
-                        CreateToolShortcut<EraserTool>(Key.E, "Eraser"),
-                        CreateToolShortcut<ColorPickerTool>(Key.O, "Color picker"),
-                        CreateToolShortcut<RectangleTool>(Key.R, "Rectangle"),
-                        CreateToolShortcut<CircleTool>(Key.C, "Ellipse"),
-                        CreateToolShortcut<LineTool>(Key.L, "Line"),
-                        CreateToolShortcut<FloodFillTool>(Key.G, "Flood fill"),
-                        CreateToolShortcut<BrightnessTool>(Key.U, "Brightness"),
-                        CreateToolShortcut<MoveTool>(Key.V, "Move selection"),
-                        CreateToolShortcut<SelectTool>(Key.M, "Select"),
-                        CreateToolShortcut<ZoomTool>(Key.Z, "Zoom"),
-                        CreateToolShortcut<MoveViewportTool>(Key.H, "Move viewport"),
-                        CreateToolShortcut<MagicWandTool>(Key.W, "Magic wand"),
-                        new Shortcut(Key.OemPlus, ViewportSubViewModel.ZoomCommand, "Zoom in", 1),
-                        new Shortcut(Key.OemMinus, ViewportSubViewModel.ZoomCommand, "Zoom out", -1),
-                        new Shortcut(Key.OemOpenBrackets, ToolsSubViewModel.ChangeToolSizeCommand, "Decrease tool size", -1),
-                        new Shortcut(Key.OemCloseBrackets, ToolsSubViewModel.ChangeToolSizeCommand, "Increase tool size", 1)),
-                    new ShortcutGroup(
-                        "Editor",
-                        new Shortcut(Key.X, ColorsSubViewModel.SwapColorsCommand, "Swap primary and secondary colors"),
-                        new Shortcut(Key.Y, UndoSubViewModel.RedoCommand, "Redo", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.Z, UndoSubViewModel.UndoCommand, "Undo", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.D, SelectionSubViewModel.DeselectCommand, "Clear selection", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.A, SelectionSubViewModel.SelectAllCommand, "Select all", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.C, ClipboardSubViewModel.CopyCommand, "Copy", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.V, ClipboardSubViewModel.PasteCommand, "Paste", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.J, ClipboardSubViewModel.DuplicateCommand, "Duplicate", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.X, ClipboardSubViewModel.CutCommand, "Cut", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.Delete, DocumentSubViewModel.DeletePixelsCommand, "Clear selected area"),
-                        new Shortcut(Key.I, DocumentSubViewModel.OpenResizePopupCommand, "Resize image", modifier: ModifierKeys.Control | ModifierKeys.Shift),
-                        new Shortcut(Key.C, DocumentSubViewModel.OpenResizePopupCommand, "Resize canvas", "canvas", ModifierKeys.Control | ModifierKeys.Shift),
-                        new Shortcut(Key.F11, SystemCommands.MaximizeWindowCommand, "Maximize window")),
-                    new ShortcutGroup(
-                        "File",
-                        new Shortcut(Key.O, FileSubViewModel.OpenFileCommand, "Open image", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.S, FileSubViewModel.ExportFileCommand, "Export image", modifier: ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt),
-                        new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "Save", modifier: ModifierKeys.Control),
-                        new Shortcut(Key.S, FileSubViewModel.SaveDocumentCommand, "Save as new", "AsNew", ModifierKeys.Control | ModifierKeys.Shift),
-                        new Shortcut(Key.N, FileSubViewModel.OpenNewFilePopupCommand, "Create new image", modifier: ModifierKeys.Control)),
-                    new ShortcutGroup(
-                        "Layers",
-                        new Shortcut(Key.F2, LayersSubViewModel.RenameLayerCommand, "Rename active layer", BitmapManager.ActiveDocument?.ActiveLayerGuid)),
-                    new ShortcutGroup(
-                        "View",
-                        new Shortcut(Key.OemTilde, ViewportSubViewModel.ToggleGridLinesCommand, "Toggle gridlines", modifier: ModifierKeys.Control)));
-
-            Shortcut[] colorShortcuts = new Shortcut[10];
-            colorShortcuts[9] = new Shortcut(
-                Key.D0, ColorsSubViewModel.SelectPaletteColorCommand, 9);
-            for (int i = 0; i < colorShortcuts.Length - 1; i++)
-            {
-                //35 is a D1 key integer value
-                colorShortcuts[i] = new Shortcut((Key)35 + i, ColorsSubViewModel.SelectPaletteColorCommand, i);
-            }
-
-            ShortcutController.ShortcutGroups.Add(new ShortcutGroup("Palette Colors", colorShortcuts));
-
             MiscSubViewModel = services.GetService<MiscViewModel>();
-
-            // Add F1 shortcut after MiscSubViewModel is constructed
-            ShortcutController.ShortcutGroups.Add(
-                    new ShortcutGroup(
-                        "Misc",
-                        new Shortcut(Key.F1, MiscSubViewModel.OpenShortcutWindowCommand, "Open shortcuts window", true)));
-
-            ShortcutController.TransientShortcuts[Key.Space] = ToolsSubViewModel.ToolSet.First(x => x is MoveViewportTool);
-            ShortcutController.TransientShortcuts[Key.LeftAlt] = ToolsSubViewModel.ToolSet.First(x => x is ColorPickerTool);
 
             BitmapManager.PrimaryColor = ColorsSubViewModel.PrimaryColor;
 
+            CommandController = services.GetService<CommandController>();
+            CommandController.Init(services);
+            ShortcutController = new ShortcutController();
+
             ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
+
+            SearchSubViewModel = services.GetService<SearchViewModel>();
         }
 
         /// <summary>
@@ -295,29 +216,6 @@ namespace PixiEditor.ViewModels
         private void NotifyToolActionDisplayChanged()
         {
             if (!OverrideActionDisplay) RaisePropertyChanged(nameof(ActionDisplay));
-        }
-
-        [Conditional("DEBUG")]
-        private void AddDebugOnlyViewModels()
-        {
-            DebugSubViewModel = new DebugViewModel(this);
-        }
-
-        [Conditional("RELEASE")]
-        private void AddReleaseOnlyViewModels()
-        {
-        }
-
-        private Shortcut CreateToolShortcut<T>(Key key, ModifierKeys modifier = ModifierKeys.None)
-            where T : Tool
-        {
-            return new Shortcut(key, ToolsSubViewModel.SelectToolCommand, typeof(T), modifier);
-        }
-
-        private Shortcut CreateToolShortcut<T>(Key key, string description, ModifierKeys modifier = ModifierKeys.None)
-            where T : Tool
-        {
-            return new Shortcut(key, ToolsSubViewModel.SelectToolCommand, description, typeof(T), modifier);
         }
 
         /// <summary>

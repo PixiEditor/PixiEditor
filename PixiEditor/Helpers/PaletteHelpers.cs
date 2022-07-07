@@ -1,22 +1,24 @@
-﻿using System.Collections.Generic;
-using PixiEditor.Models.IO;
+﻿using PixiEditor.Models.IO;
 
 namespace PixiEditor.Helpers
 {
     public static class PaletteHelpers
     {
-        public static string GetFilter(IList<PaletteFileParser> parsers)
+        public static string GetFilter(IList<PaletteFileParser> parsers, bool includeCommon)
         {
             string filter = "";
 
-            List<string> allSupportedFormats = new();
-            foreach (var parser in parsers)
+            if (includeCommon)
             {
-                allSupportedFormats.AddRange(parser.SupportedFileExtensions);
+                List<string> allSupportedFormats = new();
+                foreach (var parser in parsers)
+                {
+                    allSupportedFormats.AddRange(parser.SupportedFileExtensions);
+                }
+                string allSupportedFormatsString = string.Join(';', allSupportedFormats).Replace(".", "*.");
+                filter += $"Palette Files ({allSupportedFormatsString})|{allSupportedFormatsString}|";
             }
-            string allSupportedFormatsString = string.Join(';', allSupportedFormats).Replace(".", "*.");
-            filter += $"Palette Files ({allSupportedFormatsString})|{allSupportedFormatsString}|";
-            
+
             foreach (var parser in parsers)
             {
                 string supportedFormats = string.Join(';', parser.SupportedFileExtensions).Replace(".", "*.");
