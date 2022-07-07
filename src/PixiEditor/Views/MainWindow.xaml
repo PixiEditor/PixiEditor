@@ -8,7 +8,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:PixiEditor"
-    xmlns:tools="clr-namespace:PixiEditor.Models.Tools.Tools"
+    xmlns:tools="clr-namespace:PixiEditor.ViewModels.SubViewModels.Tools.Tools"
     xmlns:vm="clr-namespace:PixiEditor.ViewModels"
     xmlns:doc="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
     xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
@@ -55,10 +55,10 @@
             <converters:DoubleToIntConverter
                 x:Key="DoubleToIntConverter" />
             <converters:IsSpecifiedTypeConverter
-                SpecifiedType="{x:Type tools:ZoomTool}"
+                SpecifiedType="{x:Type tools:ZoomToolViewModel}"
                 x:Key="IsZoomToolConverter" />
             <converters:IsSpecifiedTypeConverter
-                SpecifiedType="{x:Type tools:MoveViewportTool}"
+                SpecifiedType="{x:Type tools:MoveViewportToolViewModel}"
                 x:Key="IsMoveViewportToolConverter" />
             <converters:SKColorToMediaColorConverter
                 x:Key="SKColorToMediaColorConverter" />

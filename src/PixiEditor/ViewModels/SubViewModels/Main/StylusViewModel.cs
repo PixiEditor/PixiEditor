@@ -2,9 +2,9 @@
 using GalaSoft.MvvmLight.CommandWpf;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -37,7 +37,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         set => SetProperty(ref useTouchGestures, value);
     }
 
-    private Tool PreviousTool { get; set; }
+    private ToolViewModel PreviousTool { get; set; }
 
     public RelayCommand<StylusButtonEventArgs> StylusDownCommand { get; }
 
@@ -69,7 +69,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
 
     private void UpdateUseTouchGesture()
     {
-        if (Owner.ToolsSubViewModel.ActiveTool is not (MoveViewportTool or ZoomTool))
+        if (Owner.ToolsSubViewModel.ActiveTool is not (MoveViewportToolViewModel or ZoomToolViewModel))
         {
             UseTouchGestures = IsPenModeEnabled;
         }
@@ -101,7 +101,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         if (e.StylusButton.Guid == StylusPointProperties.TipButton.Id && e.Inverted)
         {
             PreviousTool = Owner.ToolsSubViewModel.ActiveTool;
-            Owner.ToolsSubViewModel.SetActiveTool<EraserTool>();
+            Owner.ToolsSubViewModel.SetActiveTool<EraserToolViewModel>();
             ToolSetByStylus = true;
         }
     }

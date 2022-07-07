@@ -5,12 +5,12 @@ using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.ClsFile;
 using PixiEditor.Models.IO.JascPalFile;
-using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Main;
+using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Helpers.Extensions;
 
@@ -44,19 +44,19 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<CommandController>()
         .AddSingleton<DocumentManagerViewModel>()
         // Tools
-        .AddSingleton<Tool, MoveViewportTool>()
-        .AddSingleton<Tool, MoveTool>()
-        .AddSingleton<Tool, PenTool>()
-        .AddSingleton<Tool, SelectTool>()
-        .AddSingleton<Tool, MagicWandTool>()
-        .AddSingleton<Tool, FloodFillTool>()
-        .AddSingleton<Tool, LineTool>()
-        .AddSingleton<Tool, CircleTool>()
-        .AddSingleton<Tool, RectangleTool>()
-        .AddSingleton<Tool, EraserTool>()
-        .AddSingleton<Tool, ColorPickerTool>()
-        .AddSingleton<Tool, BrightnessTool>()
-        .AddSingleton<Tool, ZoomTool>()
+        .AddSingleton<ToolViewModel, MoveViewportToolViewModel>()
+        .AddSingleton<ToolViewModel, MoveToolViewModel>()
+        .AddSingleton<ToolViewModel, PenToolViewModel>()
+        .AddSingleton<ToolViewModel, SelectToolViewModel>()
+        .AddSingleton<ToolViewModel, MagicWandToolViewModel>()
+        .AddSingleton<ToolViewModel, FloodFillToolViewModel>()
+        .AddSingleton<ToolViewModel, LineToolViewModel>()
+        .AddSingleton<ToolViewModel, CircleToolViewModel>()
+        .AddSingleton<ToolViewModel, RectangleToolViewModel>()
+        .AddSingleton<ToolViewModel, EraserToolViewModel>()
+        .AddSingleton<ToolViewModel, ColorPickerToolViewModel>()
+        .AddSingleton<ToolViewModel, BrightnessToolViewModel>()
+        .AddSingleton<ToolViewModel, ZoomToolViewModel>()
         // Palette Parsers
         .AddSingleton<PaletteFileParser, JascFileParser>()
         .AddSingleton<PaletteFileParser, ClsFileParser>()

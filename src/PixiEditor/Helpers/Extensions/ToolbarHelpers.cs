@@ -1,5 +1,5 @@
-﻿using PixiEditor.Models.Tools.ToolSettings.Settings;
-using PixiEditor.Models.Tools.ToolSettings.Toolbars;
+﻿using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
+using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Helpers.Extensions;
 

@@ -1,16 +1,16 @@
-﻿using PixiEditor.Models.Tools;
+﻿using PixiEditor.ViewModels.SubViewModels.Tools;
 
 namespace PixiEditor.Models.Events;
 
 internal class SelectedToolEventArgs
 {
-    public SelectedToolEventArgs(Tool oldTool, Tool newTool)
+    public SelectedToolEventArgs(ToolViewModel oldTool, ToolViewModel newTool)
     {
         OldTool = oldTool;
         NewTool = newTool;
     }
 
-    public Tool OldTool { get; set; }
+    public ToolViewModel OldTool { get; set; }
 
-    public Tool NewTool { get; set; }
+    public ToolViewModel NewTool { get; set; }
 }

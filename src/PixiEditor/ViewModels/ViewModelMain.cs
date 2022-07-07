@@ -5,10 +5,10 @@ using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.Tools;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Main;
+using PixiEditor.ViewModels.SubViewModels.Tools;
 using SkiaSharp;
 
 namespace PixiEditor.ViewModels;
@@ -188,7 +188,7 @@ internal class ViewModelMain : ViewModelBase
 
     private void SelectedTool_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(Tool.ActionDisplay))
+        if (e.PropertyName == nameof(ToolViewModel.ActionDisplay))
         {
             NotifyToolActionDisplayChanged();
         }
@@ -281,9 +281,9 @@ internal class ViewModelMain : ViewModelBase
     private void BitmapUtility_BitmapChanged(object sender, EventArgs e)
     {
         //BitmapManager.ActiveDocument.ChangesSaved = false;
-        if (ToolsSubViewModel.ActiveTool is BitmapOperationTool)
+        /*if (ToolsSubViewModel.ActiveTool is BitmapOperationTool)
         {
             ColorsSubViewModel.AddSwatch(ColorsSubViewModel.PrimaryColor);
-        }
+        }*/
     }
 }

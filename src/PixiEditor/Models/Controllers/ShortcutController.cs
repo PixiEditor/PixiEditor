@@ -2,7 +2,7 @@
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -14,7 +14,7 @@ internal class ShortcutController
 
     public IEnumerable<Command> LastCommands { get; private set; }
 
-    public Dictionary<KeyCombination, Tool> TransientShortcuts { get; set; } = new();
+    public Dictionary<KeyCombination, ToolViewModel> TransientShortcuts { get; set; } = new();
 
     public static void BlockShortcutExection(string blocker)
     {

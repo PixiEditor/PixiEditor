@@ -7,9 +7,9 @@ using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
@@ -69,7 +69,6 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnKeyDown(KeyEventArgs args)
     {
-
         var key = args.Key;
         if (key == Key.System)
             key = args.SystemKey;
@@ -77,13 +76,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         ProcessShortcutDown(args.IsRepeat, key);
 
         if (Owner.DocumentManagerSubViewModel.ActiveDocument != null)
-        {
-            //Owner.DocumentManagerSubViewModel.InputTarget.OnKeyDown(key);
             Owner.DocumentManagerSubViewModel.ActiveDocument.OnKeyDown(key);
-        }
+        Owner.ToolsSubViewModel.OnKeyDown(key);
 
         HandleTransientKey(args, true);
-
     }
 
     private void HandleTransientKey(KeyEventArgs args, bool state)
@@ -121,30 +117,6 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
 
         Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
-
-        // this was commented out before prototype integration
-        //public void KeyPressed(Key key, ModifierKeys modifiers)
-        //{
-        //    if (!ShortcutExecutionBlocked)
-        //    {
-        //        Shortcut[] shortcuts = ShortcutGroups.SelectMany(x => x.Shortcuts).ToList().FindAll(x => x.ShortcutKey == key).ToArray();
-        //        if (shortcuts.Length < 1)
-        //        {
-        //            return;
-        //        }
-
-        //        shortcuts = shortcuts.OrderByDescending(x => x.Modifier).ToArray();
-        //        for (int i = 0; i < shortcuts.Length; i++)
-        //        {
-        //            if (modifiers.HasFlag(shortcuts[i].Modifier))
-        //            {
-        //                shortcuts[i].Execute();
-        //                LastShortcut = shortcuts[i];
-        //                break;
-        //            }
-        //        }
-        //    }
-        //}
     }
 
     private void OnKeyUp(KeyEventArgs args)
@@ -156,11 +128,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         ProcessShortcutUp(new(key, args.KeyboardDevice.Modifiers));
 
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not null)
-        {
             Owner.DocumentManagerSubViewModel.ActiveDocument.OnKeyUp(key);
-            //Owner.BitmapManager.InputTarget.OnKeyUp(key);
-        }
-
+        Owner.ToolsSubViewModel.OnKeyUp(key);
 
         HandleTransientKey(args, false);
     }
@@ -192,11 +161,11 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnPreviewMiddleMouseButton(object sender)
     {
-        ChangeToolState<MoveViewportTool>(true);
+        ChangeToolState<MoveViewportToolViewModel>(true);
     }
 
     private void ChangeToolState<T>(bool setOn)
-        where T : Tool
+        where T : ToolViewModel
     {
         ChangeToolState(typeof(T), setOn);
     }
@@ -240,7 +209,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
         else if (button == MouseButton.Middle)
         {
-            ChangeToolState<MoveViewportTool>(false);
+            ChangeToolState<MoveViewportToolViewModel>(false);
         }
     }
 }

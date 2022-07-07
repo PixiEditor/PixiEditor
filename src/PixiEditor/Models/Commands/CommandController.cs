@@ -7,7 +7,7 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.Models.Commands;
@@ -164,14 +164,14 @@ internal class CommandController
         // Find tool commands
         foreach (var type in allTypesInPixiEditorAssembly)
         {
-            if (!type.IsAssignableTo(typeof(Tool)))
+            if (!type.IsAssignableTo(typeof(ToolViewModel)))
                 continue;
 
             var toolAttr = type.GetCustomAttribute<CommandAttribute.ToolAttribute>();
             if (toolAttr is null)
                 continue;
 
-            Tool toolInstance = serviceProvider.GetServices<Tool>().First(x => x.GetType() == type);
+            ToolViewModel toolInstance = serviceProvider.GetServices<ToolViewModel>().First(x => x.GetType() == type);
             string internalName = $"PixiEditor.Tools.Select.{type.Name}";
 
             var command = new Command.ToolCommand()

@@ -1,32 +1,30 @@
 ﻿using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.Tools;
-using PixiEditor.Models.Tools.Tools;
-using PixiEditor.Models.Tools.ToolSettings.Settings;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.Tools", "Tools")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>
 {
-    private Cursor toolCursor;
-    private Tool activeTool;
-
-    public Tool LastActionTool { get; private set; }
+    public ToolViewModel LastActionTool { get; private set; }
 
     public bool ActiveToolIsTransient { get; set; }
 
+    private Cursor toolCursor;
     public Cursor ToolCursor
     {
         get => toolCursor;
         set => SetProperty(ref toolCursor, value);
     }
 
-    public Tool ActiveTool
+    private ToolViewModel activeTool;
+    public ToolViewModel ActiveTool
     {
         get => activeTool;
         private set => SetProperty(ref activeTool, value);
@@ -42,14 +40,17 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             if (ActiveTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is SizeSetting toolSize)
             {
                 toolSize.Value = value;
-                //Owner.BitmapManager.UpdateHighlightIfNecessary();
             }
         }
     }
 
-    public List<Tool> ToolSet { get; private set; }
+    public List<ToolViewModel> ToolSet { get; private set; }
 
     public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
+
+    private bool shiftIsDown;
+    private bool ctrlIsDown;
+    private bool altIsDown;
 
     public ToolsViewModel(ViewModelMain owner)
         : base(owner)
@@ -57,8 +58,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
     public void SetupTools(IServiceProvider services)
     {
-        ToolSet = services.GetServices<Tool>().ToList();
-        SetActiveTool<PenTool>();
+        ToolSet = services.GetServices<ToolViewModel>().ToList();
+        SetActiveTool<PenToolViewModel>();
     }
 
     public void SetupToolsTooltipShortcuts(IServiceProvider services)
@@ -70,20 +71,18 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     }
 
     public void SetActiveTool<T>()
-        where T : Tool
+        where T : ToolViewModel
     {
         SetActiveTool(typeof(T));
     }
 
     [Command.Internal("PixiEditor.Tools.SelectTool", CanExecute = "PixiEditor.HasDocument")]
-    public void SetActiveTool(Tool tool)
+    public void SetActiveTool(ToolViewModel tool)
     {
         if (ActiveTool == tool) return;
 
         if (!tool.Toolbar.SettingsGenerated)
-        {
             tool.Toolbar.GenerateSettings();
-        }
 
         ActiveToolIsTransient = false;
         bool shareToolbar = IPreferences.Current.GetPreference<bool>("EnableSharedToolbar");
@@ -91,14 +90,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         {
             activeTool.IsActive = false;
             if (shareToolbar)
-            {
                 ActiveTool.Toolbar.SaveToolbarSettings();
-            }
         }
 
         LastActionTool = ActiveTool;
-
-
         ActiveTool = tool;
 
         if (shareToolbar)
@@ -110,10 +105,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
 
         //update old tool
-        //Owner.BitmapManager.UpdateActionDisplay(LastActionTool);
+        LastActionTool?.UpdateActionDisplay(false, false, false);
         //update new tool
-        //Owner.BitmapManager.UpdateActionDisplay(ActiveTool);
-        //Owner.BitmapManager.UpdateHighlightIfNecessary();
+        ActiveTool.UpdateActionDisplay(ctrlIsDown, shiftIsDown, altIsDown);
 
         tool.IsActive = true;
         SetToolCursor(tool.GetType());
@@ -132,7 +126,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        Tool tool = (Tool)parameter;
+        ToolViewModel tool = (ToolViewModel)parameter;
         SetActiveTool(tool.GetType());
     }
 
@@ -149,8 +143,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
     public void SetActiveTool(Type toolType)
     {
-        if (!typeof(Tool).IsAssignableFrom(toolType)) { throw new ArgumentException($"'{toolType}' does not inherit from {typeof(Tool)}"); }
-        Tool foundTool = ToolSet.First(x => x.GetType() == toolType);
+        if (!typeof(ToolViewModel).IsAssignableFrom(toolType)) { throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}"); }
+        ToolViewModel foundTool = ToolSet.First(x => x.GetType() == toolType);
         SetActiveTool(foundTool);
     }
 
@@ -164,5 +158,35 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         {
             ToolCursor = Cursors.Arrow;
         }
+    }
+
+    public void OnKeyDown(Key key)
+    {
+        bool shiftIsDown = key is Key.LeftShift or Key.RightShift;
+        bool ctrlIsDown = key is Key.LeftCtrl or Key.RightCtrl;
+        bool altIsDown = key is Key.LeftAlt or Key.RightAlt;
+        if (!shiftIsDown && !ctrlIsDown && !altIsDown)
+            return;
+        this.shiftIsDown |= shiftIsDown;
+        this.ctrlIsDown |= ctrlIsDown;
+        this.altIsDown |= altIsDown;
+
+        ActiveTool.UpdateActionDisplay(this.ctrlIsDown, this.shiftIsDown, this.altIsDown);
+    }
+
+    public void OnKeyUp(Key key)
+    {
+        bool shiftIsUp = key is Key.LeftShift or Key.RightShift;
+        bool ctrlIsUp = key is Key.LeftCtrl or Key.RightCtrl;
+        bool altIsUp = key is Key.LeftAlt or Key.RightAlt;
+        if (!shiftIsUp && !ctrlIsUp && !altIsUp)
+            return;
+        if (shiftIsUp)
+            this.shiftIsDown = false;
+        if (ctrlIsUp)
+            this.ctrlIsDown = false;
+        if (altIsUp)
+            this.altIsDown = false;
+        ActiveTool.UpdateActionDisplay(ctrlIsDown, shiftIsDown, altIsDown);
     }
 }

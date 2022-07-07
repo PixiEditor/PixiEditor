@@ -1,12 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
-using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
@@ -67,7 +65,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 
     //private readonly ToolsViewModel _tools;
 
-    private ToolSession? activeSession = null;
+    //private UpdateableChangeSession? activeSession = null;
 
     [Evaluator.CanExecute("PixiEditor.HasDocument")]
     public bool DocumentNotNull() => ActiveDocument != null;
@@ -87,19 +85,19 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         */
     }
 
-    public void UpdateActionDisplay(Tool tool)
+    public void UpdateActionDisplay(ToolViewModel tool)
     {
         //tool?.UpdateActionDisplay(ToolSessionController.IsCtrlDown, ToolSessionController.IsShiftDown, ToolSessionController.IsAltDown);
     }
-
-    private void OnSessionStart(object sender, ToolSession e)
+    /*
+    private void OnSessionStart(object sender, UpdateableChangeSession e)
     {
         activeSession = e;
 
         ExecuteTool();
     }
 
-    private void OnSessionEnd(object sender, ToolSession e)
+    private void OnSessionEnd(object sender, UpdateableChangeSession e)
     {
         activeSession = null;
 
@@ -109,28 +107,33 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 
     private void OnPreciseMousePositionChange(object sender, (double, double) e)
     {
+        /*
         if (activeSession == null || !activeSession.Tool.RequiresPreciseMouseData)
             return;
         ExecuteTool();
+        
     }
 
     private void OnPixelMousePositionChange(object sender, MouseMovementEventArgs e)
+    {*/
+    /*
+    if (activeSession != null)
     {
-        if (activeSession != null)
-        {
-            if (activeSession.Tool.RequiresPreciseMouseData)
-                return;
-            ExecuteTool();
+        if (activeSession.Tool.RequiresPreciseMouseData)
             return;
-        }
-        else
-        {
-            HighlightPixels(e.NewPosition);
-        }
+        ExecuteTool();
+        return;
     }
+    else
+    {
+        HighlightPixels(e.NewPosition);
+    }
+
+}*/
 
     private void ExecuteTool()
     {
+        /*
         if (activeSession == null)
             throw new Exception("Can't execute tool's Use outside a session");
 
@@ -146,6 +149,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         {
             throw new InvalidOperationException($"'{activeSession.Tool.GetType().Name}' is either not a Tool or can't inherit '{nameof(Tool)}' directly.\nChanges the base type to either '{nameof(BitmapOperationTool)}' or '{nameof(ReadonlyTool)}'");
         }
+        */
     }
 
     private void BitmapManager_DocumentChanged(object sender)
@@ -158,8 +162,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 
     public void UpdateHighlightIfNecessary(bool forceHide = false)
     {
-        if (activeSession != null)
-            return;
+        //if (activeSession != null)
+        //return;
 
         //HighlightPixels(forceHide ? new(-1, -1) : ToolSessionController.LastPixelPosition);
     }
