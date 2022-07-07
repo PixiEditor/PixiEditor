@@ -11,4 +11,6 @@
     <SolidColorBrush x:Key="SelectionColor" Color="#999" />
     <SolidColorBrush x:Key="UIElementBlue" Color="#FF0077C9"/>
     <SolidColorBrush x:Key="UIElementBorder" Color="#3F3F46" />
+    <SolidColorBrush x:Key="SelectedLayerColor" Color="#505056" />
+    <SolidColorBrush x:Key="SoftSelectedLayerColor" Color="#7D505056" />
 </ResourceDictionary>

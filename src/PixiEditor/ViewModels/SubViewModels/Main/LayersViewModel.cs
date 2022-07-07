@@ -1,15 +1,14 @@
 ﻿using System.Windows.Input;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
-
+#nullable enable
 [Command.Group("PixiEditor.Layer", "Image")]
 internal class LayersViewModel : SubViewModel<ViewModelMain>
 {
-    public RelayCommand SetActiveLayerCommand { get; set; }
-
     public RelayCommand CreateGroupFromActiveLayersCommand { get; set; }
 
     public RelayCommand DeleteGroupCommand { get; set; }
@@ -35,7 +34,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public LayersViewModel(ViewModelMain owner)
         : base(owner)
     {
-        SetActiveLayerCommand = new RelayCommand(SetActiveLayer);
         CreateGroupFromActiveLayersCommand = new RelayCommand(CreateGroupFromActiveLayers, CanCreateGroupFromSelected);
         DeleteLayersCommand = new RelayCommand(DeleteActiveLayers, CanDeleteActiveLayers);
         DuplicateLayerCommand = new RelayCommand(DuplicateLayer, CanDuplicateLayer);
@@ -120,15 +118,12 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
     }
 
-    [Command.Basic("PixiEditor.Layer.NewFolder", "New Folder", "Create new folder", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Layer.NewFolder", "New Folder", "Create new folder", CanExecute = "PixiEditor.Layer.CanCreateNewMember")]
     public void NewFolder(object parameter)
     {
-
-    }
-
-    public bool CanAddNewGroup(object property)
-    {
-        return CanCreateNewLayer(property) && false;
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
+            return;
+        doc.CreateStructureMember(StructureMemberType.Folder);
     }
 
     public bool CanMergeSelected(object obj)
@@ -141,15 +136,18 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
-    [Command.Basic("PixiEditor.Layer.New", "New Layer", "Create new layer", CanExecute = "PixiEditor.HasDocument", Key = Key.N, Modifiers = ModifierKeys.Control | ModifierKeys.Shift, IconPath = "Layer-add.png")]
+    [Command.Basic("PixiEditor.Layer.NewLayer", "New Layer", "Create new layer", CanExecute = "PixiEditor.Layer.CanCreateNewMember", Key = Key.N, Modifiers = ModifierKeys.Control | ModifierKeys.Shift, IconPath = "Layer-add.png")]
     public void NewLayer(object parameter)
     {
-
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
+            return;
+        doc.CreateStructureMember(StructureMemberType.Layer);
     }
 
-    public bool CanCreateNewLayer(object parameter)
+    [Evaluator.CanExecute("PixiEditor.Layer.CanCreateNewMember")]
+    public bool CanCreateNewMember(object parameter)
     {
-        return false;
+        return Owner.DocumentManagerSubViewModel.ActiveDocument is not null;
     }
 
     public void SetActiveLayer(object parameter)

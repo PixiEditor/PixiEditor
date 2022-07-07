@@ -143,6 +143,7 @@ internal partial class FolderControl : UserControl
 
     private void Border_MouseDown(object sender, MouseButtonEventArgs e)
     {
+        Folder?.Document.SetSelectedMember(Folder.GuidValue);
         /*
             var doc = LayersViewModel.Owner.BitmapManager.ActiveDocument;
             var layer = doc.Layers.First(x => x.GuidValue == GroupData.EndLayerGuid);

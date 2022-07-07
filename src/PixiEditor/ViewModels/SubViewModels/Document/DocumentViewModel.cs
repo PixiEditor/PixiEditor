@@ -55,8 +55,6 @@ internal class DocumentViewModel : NotifyableObject
 
     public VecI SizeBindable => size;
 
-    public StructureMemberViewModel? FindFirstSelectedMember() => Helpers.StructureHelper.FindFirstWhere(member => member.IsSelected);
-
     public int HorizontalSymmetryAxisYBindable => horizontalSymmetryAxisY;
     public int VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
 
@@ -109,8 +107,6 @@ internal class DocumentViewModel : NotifyableObject
     private int horizontalSymmetryAxisY;
 
     private SKPath selectionPath = new SKPath();
-    private Guid testLayerGuid = Guid.NewGuid();
-
 
     public DocumentViewModel(DocumentManagerViewModel owner, string name)
     {
@@ -157,6 +153,7 @@ internal class DocumentViewModel : NotifyableObject
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
 
+        Guid testLayerGuid = Guid.NewGuid();
         Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMember_Action(StructureRoot.GuidValue, testLayerGuid, 0, StructureMemberType.Layer));
         SetSelectedMember(testLayerGuid);
     }
@@ -224,6 +221,11 @@ internal class DocumentViewModel : NotifyableObject
         Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
     }
 
+    public void CreateStructureMember(StructureMemberType type)
+    {
+        Helpers.StructureHelper.CreateNewStructureMember(type);
+    }
+
     public void SetSelectedMember(Guid memberGuid)
     {
         Helpers.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
@@ -249,12 +251,14 @@ internal class DocumentViewModel : NotifyableObject
 
     }
 
-    private bool drawing = false;
+    private StructureMemberViewModel? drawingTarget = null;
     public void OnCanvasLeftMouseButtonDown(VecD pos)
     {
-        drawing = true;
+        if (SelectedStructureMember is null)
+            return;
+        drawingTarget = SelectedStructureMember;
         Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
-            testLayerGuid,
+            drawingTarget.GuidValue,
             SKColors.Black,
             (VecI)pos,
             (int)1,
@@ -264,10 +268,10 @@ internal class DocumentViewModel : NotifyableObject
 
     public void OnCanvasMouseMove(VecD newPos)
     {
-        if (!drawing)
+        if (drawingTarget is null)
             return;
         Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
-            testLayerGuid,
+            drawingTarget.GuidValue,
             SKColors.Black,
             (VecI)newPos,
             (int)1,
@@ -277,7 +281,7 @@ internal class DocumentViewModel : NotifyableObject
 
     public void OnCanvasLeftMouseButtonUp()
     {
-        drawing = false;
+        drawingTarget = null;
         Helpers.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
     }
 }

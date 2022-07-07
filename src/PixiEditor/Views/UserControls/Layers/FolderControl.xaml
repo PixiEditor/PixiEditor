@@ -10,11 +10,27 @@
              xmlns:userControls1="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d" 
              Focusable="True"
-             d:DesignHeight="60" d:DesignWidth="250" Name="folderControl" DragEnter="FolderControl_DragEnter" DragLeave="FolderControl_DragLeave" DragDrop.Drop="FolderControl_DragLeave">
+             d:DesignHeight="60" 
+             d:DesignWidth="250" 
+             x:Name="folderControl" 
+             DragEnter="FolderControl_DragEnter" 
+             DragLeave="FolderControl_DragLeave" 
+             DragDrop.Drop="FolderControl_DragLeave">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" Tag="{Binding ElementName=folderControl}" MouseDown="Border_MouseDown">
+        <Border.Background>
+            <Binding ElementName="folderControl" Path="Folder.Selection">
+                <Binding.Converter>
+                    <converters:StructureMemberSelectionTypeToColorConverter
+                        SoftColor="{StaticResource SoftSelectedLayerColor}"
+                        HardColor="{StaticResource SelectedLayerColor}"
+                        NoneColor="Transparent"
+                        />
+                </Binding.Converter>
+            </Binding>
+        </Border.Background>
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
@@ -33,7 +49,7 @@
                 </Grid.ColumnDefinitions>
                 <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center" Click="CheckBox_Checked"
-                      IsChecked="{Binding Path=IsVisibleUndoTriggerable, ElementName=folderControl}" Grid.Column="0" Height="16"/>
+                      IsChecked="{Binding Path=Folder.IsVisibleBindable, ElementName=folderControl}" Grid.Column="0" Height="16"/>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
                     <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>
@@ -41,18 +57,19 @@
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
                         <Border Width="30" Height="30" BorderThickness="1" BorderBrush="Black" Background="{StaticResource MainColor}"
                            Margin="5, 0, 10, 0">
-                            <Image Source="{Binding PreviewImage, ElementName=folderControl}" Stretch="Uniform" Width="20" Height="20">
+                            <Image Source="{Binding Folder.PreviewBitmap, ElementName=folderControl}" Stretch="Uniform" Width="20" Height="20">
                                 <RenderOptions.BitmapScalingMode>
                                     <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                        <Binding Path="PreviewImage.PixelWidth" ElementName="folderControl"/>
+                                        <Binding Path="Folder.PreviewBitmap.PixelWidth" ElementName="folderControl"/>
                                         <Binding RelativeSource="{RelativeSource Mode=Self}" Path="ActualWidth"/>
                                     </MultiBinding>
                                 </RenderOptions.BitmapScalingMode>
                             </Image>
                         </Border>
                         <userControls1:EditableTextBlock
-                    FontSize="16"
-                    VerticalAlignment="Center" />
+                            FontSize="15"
+                            VerticalAlignment="Center"
+                            Text="{Binding Folder.NameBindable, ElementName=folderControl, Mode=TwoWay}" />
                     </StackPanel>
                     <Image Source="/Images/Folder.png" Height="20" Margin="0,0,10,0" HorizontalAlignment="Right"/>
                 </StackPanel>

@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.Enums;
 using SkiaSharp;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
@@ -106,8 +107,7 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         get => opacity;
     }
 
-    public bool IsSelected { get; set; }
-    public bool IsSoftSelected { get; set; }
+    public StructureMemberSelectionType Selection { get; set; }
     public bool ShouldDrawOnMask { get; set; }
 
     public const int PreviewSize = 48;

@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views"
+             xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:controls="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
@@ -12,8 +13,18 @@
              mc:Ignorable="d" Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="uc"
              MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
-    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True"
-            Background="{Binding LayerColor, ElementName=uc}" MouseDown="Border_MouseDown">
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" MouseDown="Border_MouseDown">
+        <Border.Background>
+            <Binding ElementName="uc" Path="Layer.Selection">
+                <Binding.Converter>
+                    <conv:StructureMemberSelectionTypeToColorConverter
+                        SoftColor="{StaticResource SoftSelectedLayerColor}"
+                        HardColor="{StaticResource SelectedLayerColor}"
+                        NoneColor="Transparent"
+                        />
+                </Binding.Converter>
+            </Binding>
+        </Border.Background>
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
@@ -41,9 +52,9 @@
                     </Border>
 
                     <controls:EditableTextBlock
-                    IsEditing="{Binding IsRenaming, ElementName=uc, Mode=TwoWay}" FontSize="15"
-                    VerticalAlignment="Center"
-                    Text="{Binding Layer.NameBindable, ElementName=uc, Mode=TwoWay}" />
+                        FontSize="15"
+                        VerticalAlignment="Center"
+                        Text="{Binding Layer.NameBindable, ElementName=uc, Mode=TwoWay}" />
                 </StackPanel>
                 <Grid Margin="0, 0, 0, -2.5" DragEnter="Grid_DragEnter" VerticalAlignment="Bottom" Height="10" Drop="Grid_Drop_Below"  DragLeave="Grid_DragLeave" Grid.Row="2" Grid.Column="0" AllowDrop="True"  Background="Transparent" Name="dropBelowGrid"/>
                 <Grid Margin="0, 0, 0, -2.5" VerticalAlignment="Bottom" Height="10" Grid.Row="2" Grid.Column="1" Background="{Binding ElementName=dropBelowGrid, Path=Background}"/>

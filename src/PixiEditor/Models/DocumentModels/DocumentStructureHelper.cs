@@ -16,7 +16,7 @@ internal class DocumentStructureHelper
 
     public void CreateNewStructureMember(StructureMemberType type)
     {
-        var member = doc.FindFirstSelectedMember();
+        var member = doc.SelectedStructureMember;
         if (member is null)
         {
             var guid = Guid.NewGuid();

@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.DocumentPassthroughActions;
+using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using SkiaSharp;
 
@@ -104,8 +105,10 @@ internal class DocumentUpdater
     {
         foreach (var oldMember in doc.SoftSelectedStructureMembers)
         {
-            oldMember.IsSoftSelected = false;
-            oldMember.RaisePropertyChanged(nameof(oldMember.IsSoftSelected));
+            if (oldMember.Selection == StructureMemberSelectionType.Hard)
+                continue;
+            oldMember.Selection = StructureMemberSelectionType.None;
+            oldMember.RaisePropertyChanged(nameof(oldMember.Selection));
         }
         doc.InternalClearSoftSelectedMembers();
     }
@@ -113,8 +116,10 @@ internal class DocumentUpdater
     private void ProcessAddSoftSelectedMember(AddSoftSelectedMember_PassthroughAction info)
     {
         var member = helper.StructureHelper.FindOrThrow(info.GuidValue);
-        member.IsSoftSelected = true;
-        member.RaisePropertyChanged(nameof(member.IsSoftSelected));
+        if (member.Selection == StructureMemberSelectionType.Hard)
+            return;
+        member.Selection = StructureMemberSelectionType.Soft;
+        member.RaisePropertyChanged(nameof(member.Selection));
         doc.InternalAddSoftSelectedMember(member);
     }
 
@@ -122,12 +127,12 @@ internal class DocumentUpdater
     {
         if (doc.SelectedStructureMember is { } oldMember)
         {
-            oldMember.IsSelected = false;
-            oldMember.RaisePropertyChanged(nameof(oldMember.IsSelected));
+            oldMember.Selection = StructureMemberSelectionType.None;
+            oldMember.RaisePropertyChanged(nameof(oldMember.Selection));
         }
         var member = helper.StructureHelper.FindOrThrow(info.GuidValue);
-        member.IsSelected = true;
-        member.RaisePropertyChanged(nameof(member.IsSelected));
+        member.Selection = StructureMemberSelectionType.Hard;
+        member.RaisePropertyChanged(nameof(member.Selection));
         doc.InternalSetSelectedMember(member);
     }
 
