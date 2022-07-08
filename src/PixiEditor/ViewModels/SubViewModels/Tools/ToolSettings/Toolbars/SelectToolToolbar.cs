@@ -6,13 +6,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 internal class SelectToolToolbar : Toolbar
 {
-    public SelectToolToolbar(bool includeSelectionShape = true)
-    {
-        Settings.Add(new EnumSetting<SelectionMode>("SelectMode", "Selection type"));
+    public SelectionMode SelectMode => GetSetting<EnumSetting<SelectionMode>>(nameof(SelectMode)).Value;
+    public SelectionShape SelectShape => GetSetting<EnumSetting<SelectionShape>>(nameof(SelectShape)).Value;
 
-        if (includeSelectionShape)
-        {
-            Settings.Add(new EnumSetting<SelectionShape>("SelectShape", "Selection shape"));
-        }
+    public SelectToolToolbar()
+    {
+        Settings.Add(new EnumSetting<SelectionMode>(nameof(SelectMode), "Selection type"));
+        Settings.Add(new EnumSetting<SelectionShape>(nameof(SelectShape), "Selection shape"));
     }
 }

@@ -2,13 +2,8 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Commands.Attributes.Evaluators;
-using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Controllers;
-using SkiaSharp;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 

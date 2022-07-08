@@ -70,7 +70,7 @@ internal partial class EditableTextBlock : UserControl
 
     public void EnableEditing()
     {
-        ShortcutController.BlockShortcutExection("EditableTextBlock");
+        ShortcutController.BlockShortcutExecution("EditableTextBlock");
         TextBlockVisibility = Visibility.Hidden;
         IsEditing = true;
         Dispatcher.BeginInvoke(

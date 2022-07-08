@@ -3,14 +3,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
-using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Position;
-using SkiaSharp;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -82,7 +81,7 @@ internal class DocumentViewModel : NotifyableObject
         {
             if (ReferenceLayer is null)
                 return Matrix.Identity;
-            var skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceLayer.Shape, ReferenceLayer.Image.Size);
+            SKMatrix skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceLayer.Shape, ReferenceLayer.Image.Size);
             return new Matrix(skiaMatrix.ScaleX, skiaMatrix.SkewY, skiaMatrix.SkewX, skiaMatrix.ScaleY, skiaMatrix.TransX, skiaMatrix.TransY);
         }
     }
@@ -91,8 +90,6 @@ internal class DocumentViewModel : NotifyableObject
     public DocumentTransformViewModel TransformViewModel { get; }
 
     private DocumentHelpers Helpers { get; }
-
-    private readonly DocumentManagerViewModel owner;
 
     private int verticalSymmetryAxisX;
 
@@ -108,9 +105,8 @@ internal class DocumentViewModel : NotifyableObject
 
     private SKPath selectionPath = new SKPath();
 
-    public DocumentViewModel(DocumentManagerViewModel owner, string name)
+    public DocumentViewModel(string name)
     {
-        this.owner = owner;
         //Name = name;
         TransformViewModel = new();
         //TransformViewModel.TransformMoved += OnTransformUpdate;
@@ -141,15 +137,15 @@ internal class DocumentViewModel : NotifyableObject
         TransformSelectionPathCommand = new RelayCommand(TransformSelectionPath);
         TransformSelectedAreaCommand = new RelayCommand(TransformSelectedArea);*/
 
-        foreach (var bitmap in Bitmaps)
+        foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in Bitmaps)
         {
-            var surface = SKSurface.Create(
+            SKSurface? surface = SKSurface.Create(
                 new SKImageInfo(bitmap.Value.PixelWidth, bitmap.Value.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
                 bitmap.Value.BackBuffer, bitmap.Value.BackBufferStride);
             Surfaces[bitmap.Key] = surface;
         }
 
-        var previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
+        VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
 
@@ -194,7 +190,7 @@ internal class DocumentViewModel : NotifyableObject
 
     public void InternalUpdateSelectionPath(SKPath selectionPath)
     {
-        (var toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
+        (SKPath? toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
         toDispose.Dispose();
         RaisePropertyChanged(nameof(SelectionPathBindable));
     }
@@ -211,77 +207,28 @@ internal class DocumentViewModel : NotifyableObject
 
     #endregion
 
-    public void AddOrUpdateViewport(ViewportInfo info)
-    {
-        Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(info));
-    }
+    public void AddOrUpdateViewport(ViewportInfo info) => Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(info));
 
-    public void RemoveViewport(Guid viewportGuid)
-    {
-        Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
-    }
+    public void RemoveViewport(Guid viewportGuid) => Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
 
-    public void CreateStructureMember(StructureMemberType type)
-    {
-        Helpers.StructureHelper.CreateNewStructureMember(type);
-    }
+    public void CreateStructureMember(StructureMemberType type) => Helpers.StructureHelper.CreateNewStructureMember(type);
 
-    public void SetSelectedMember(Guid memberGuid)
-    {
-        Helpers.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
-    }
+    public void SetSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
 
-    public void AddSoftSelectedMember(Guid memberGuid)
-    {
-        Helpers.ActionAccumulator.AddActions(new AddSoftSelectedMember_PassthroughAction(memberGuid));
-    }
+    public void AddSoftSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new AddSoftSelectedMember_PassthroughAction(memberGuid));
 
-    public void ClearSoftSelectedMembers()
-    {
-        Helpers.ActionAccumulator.AddActions(new ClearSoftSelectedMembers_PassthroughAction());
-    }
+    public void ClearSoftSelectedMembers() => Helpers.ActionAccumulator.AddActions(new ClearSoftSelectedMembers_PassthroughAction());
 
-    public void OnKeyDown(Key args)
-    {
+    public void UsePenTool() => Helpers.ChangeController.TryStartUpdateableChange<LineBasedPenExecutor>();
 
-    }
 
-    public void OnKeyUp(Key args)
-    {
+    public void OnKeyDown(Key args) => Helpers.ChangeController.OnKeyDown(args);
 
-    }
+    public void OnKeyUp(Key args) => Helpers.ChangeController.OnKeyUp(args);
 
-    private StructureMemberViewModel? drawingTarget = null;
-    public void OnCanvasLeftMouseButtonDown(VecD pos)
-    {
-        if (SelectedStructureMember is null)
-            return;
-        drawingTarget = SelectedStructureMember;
-        Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
-            drawingTarget.GuidValue,
-            SKColors.Black,
-            (VecI)pos,
-            (int)1,
-            false,
-            false));
-    }
+    public void OnCanvasLeftMouseButtonDown(VecD pos) => Helpers.ChangeController.OnLeftMouseButtonDown(pos);
 
-    public void OnCanvasMouseMove(VecD newPos)
-    {
-        if (drawingTarget is null)
-            return;
-        Helpers.ActionAccumulator.AddActions(new LineBasedPen_Action(
-            drawingTarget.GuidValue,
-            SKColors.Black,
-            (VecI)newPos,
-            (int)1,
-            false,
-            false));
-    }
+    public void OnCanvasMouseMove(VecD newPos) => Helpers.ChangeController.OnMouseMove(newPos);
 
-    public void OnCanvasLeftMouseButtonUp()
-    {
-        drawingTarget = null;
-        Helpers.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
-    }
+    public void OnCanvasLeftMouseButtonUp() => Helpers.ChangeController.OnLeftMouseButtonUp();
 }

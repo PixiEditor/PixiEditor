@@ -1,11 +1,12 @@
 ﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
+using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -30,20 +31,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         private set => SetProperty(ref activeTool, value);
     }
 
-    public int ToolSize
-    {
-        get => ActiveTool.Toolbar.GetSetting<SizeSetting>("ToolSize") != null
-            ? ActiveTool.Toolbar.GetSetting<SizeSetting>("ToolSize").Value
-            : 1;
-        set
-        {
-            if (ActiveTool.Toolbar.GetSetting<SizeSetting>("ToolSize") is SizeSetting toolSize)
-            {
-                toolSize.Value = value;
-            }
-        }
-    }
-
     public List<ToolViewModel> ToolSet { get; private set; }
 
     public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
@@ -64,10 +51,16 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
     public void SetupToolsTooltipShortcuts(IServiceProvider services)
     {
-        foreach (var tool in ToolSet)
+        foreach (ToolViewModel tool in ToolSet)
         {
             tool.Shortcut = Owner.ShortcutController.GetToolShortcut(tool.GetType());
         }
+    }
+
+    public ToolViewModel? GetTool<T>()
+        where T : ToolViewModel
+    {
+        return ToolSet?.Where(static tool => tool is T).FirstOrDefault();
     }
 
     public void SetActiveTool<T>()
@@ -134,11 +127,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "Decrease Tool Size", "Decrease Tool Size", Key = Key.OemOpenBrackets)]
     public void ChangeToolSize(int increment)
     {
-        int newSize = ToolSize + increment;
+        if (ActiveTool?.Toolbar is not BasicToolbar toolbar)
+            return;
+        int newSize = toolbar.ToolSize + increment;
         if (newSize > 0)
-        {
-            ToolSize = newSize;
-        }
+            toolbar.ToolSize = newSize;
     }
 
     public void SetActiveTool(Type toolType)
@@ -158,6 +151,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         {
             ToolCursor = Cursors.Arrow;
         }
+    }
+
+    public void OnLeftMouseButtonDown(VecD canvasPos)
+    {
+        ActiveTool?.OnLeftMouseButtonDown(canvasPos);
     }
 
     public void OnKeyDown(Key key)

@@ -12,7 +12,7 @@ internal abstract class Toolbar
 
     public void GenerateSettings()
     {
-        foreach (var setting in Settings)
+        foreach (Setting setting in Settings)
         {
             setting.SettingControl = setting.GenerateControl();
         }
@@ -38,9 +38,9 @@ internal abstract class Toolbar
     public T GetSetting<T>(string name)
         where T : Setting
     {
-        var setting = Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
+        Setting setting = Settings.FirstOrDefault(currentSetting => string.Equals(currentSetting.Name, name, StringComparison.CurrentCultureIgnoreCase));
 
-        if (setting == null || !(setting is T convertedSetting))
+        if (setting is null || setting is not T convertedSetting)
         {
             return null;
         }
@@ -53,7 +53,7 @@ internal abstract class Toolbar
     /// </summary>
     public void SaveToolbarSettings()
     {
-        for (var i = 0; i < Settings.Count; i++)
+        for (int i = 0; i < Settings.Count; i++)
         {
             if (SharedSettings.Any(x => x.Name == Settings[i].Name))
             {
@@ -71,7 +71,7 @@ internal abstract class Toolbar
     /// </summary>
     public void LoadSharedSettings()
     {
-        for (var i = 0; i < SharedSettings.Count; i++)
+        for (int i = 0; i < SharedSettings.Count; i++)
         {
             if (Settings.Any(x => x.Name == SharedSettings[i].Name))
             {

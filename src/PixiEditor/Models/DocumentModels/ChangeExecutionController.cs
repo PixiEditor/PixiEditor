@@ -1,69 +1,72 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
 internal class ChangeExecutionController
 {
-    public event EventHandler<VecI>? PixelMousePositionChanged;
-    public event EventHandler<(double, double)>? PreciseMousePositionChanged;
-    public event EventHandler<(Key, KeyStates)>? KeyStateChanged;
-
     public MouseButtonState LeftMouseState { get; private set; }
+    public VecI LastPixelPosition => lastPixelPos;
+    public VecD LastPrecisePosition => lastPrecisePos;
+    public bool IsChangeActive => currentSession is not null;
 
-    public bool IsShiftDown => keyboardState.ContainsKey(Key.LeftShift) ? keyboardState[Key.LeftShift] == KeyStates.Down : false;
-    public bool IsCtrlDown => keyboardState.ContainsKey(Key.LeftCtrl) ? keyboardState[Key.LeftCtrl] == KeyStates.Down : false;
-    public bool IsAltDown => keyboardState.ContainsKey(Key.LeftAlt) ? keyboardState[Key.LeftAlt] == KeyStates.Down : false;
+    private readonly DocumentViewModel document;
+    private readonly DocumentHelpers helpers;
 
-    public VecI LastPixelPosition => new(lastPixelX, lastPixelY);
+    private VecI lastPixelPos;
+    private VecD lastPrecisePos;
 
-    private int lastPixelX;
-    private int lastPixelY;
+    private UpdateableChangeExecutor? currentSession = null;
 
-    private Dictionary<Key, KeyStates> keyboardState = new();
-    //private ToolViewModel? currentTool = null;
-    //private UpdateableChangeSession? currentSession = null;
-    /*
-    private void TryStartToolSession(ToolViewModel tool, double mouseXOnCanvas, double mouseYOnCanvas)
+    public ChangeExecutionController(DocumentViewModel document, DocumentHelpers helpers)
     {
-        if (currentSession is not null)
-            return;
-        currentSession = new(tool, mouseXOnCanvas, mouseYOnCanvas, keyboardState);
-        SessionStarted?.Invoke(this, currentSession);
+        this.document = document;
+        this.helpers = helpers;
     }
 
-    private void TryStopToolSession()
+    public bool TryStartUpdateableChange<T>()
+        where T : UpdateableChangeExecutor, new()
+    {
+        if (currentSession is not null)
+            return false;
+        T executor = new T();
+        executor.Initialize(document, helpers, this, EndChange);
+        if (executor.Start().IsT0)
+        {
+            currentSession = executor;
+            return true;
+        }
+        return false;
+    }
+
+    private void EndChange(UpdateableChangeExecutor executor)
+    {
+        if (executor != currentSession)
+            throw new InvalidOperationException();
+        currentSession = null;
+    }
+
+    public bool TryStopActiveUpdateableChange()
     {
         if (currentSession is null)
-            return;
-        currentSession.EndSession(keyboardState);
-        SessionEnded?.Invoke(this, currentSession);
+            return false;
+        currentSession.ForceStop();
         currentSession = null;
+        return true;
     }
 
     public void OnKeyDown(Key key)
     {
         key = ConvertRightKeys(key);
-        UpdateKeyState(key, KeyStates.Down);
         currentSession?.OnKeyDown(key);
-        KeyStateChanged?.Invoke(this, (key, KeyStates.Down));
     }
 
     public void OnKeyUp(Key key)
     {
         key = ConvertRightKeys(key);
-        UpdateKeyState(key, KeyStates.None);
         currentSession?.OnKeyUp(key);
-        KeyStateChanged?.Invoke(this, (key, KeyStates.None));
-    }
-
-    private void UpdateKeyState(Key key, KeyStates state)
-    {
-        key = ConvertRightKeys(key);
-        if (!keyboardState.ContainsKey(key))
-            keyboardState.Add(key, state);
-        else
-            keyboardState[key] = state;
     }
 
     private Key ConvertRightKeys(Key key)
@@ -77,49 +80,34 @@ internal class ChangeExecutionController
         return key;
     }
 
-    public void ForceStopActiveSessionIfAny() => TryStopToolSession();
-    
-    public void OnToolChange(ToolViewModel tool)
-    {
-        currentTool = tool;
-        TryStopToolSession();
-    }
-
-    public void OnMouseMove(double newCanvasX, double newCanvasY)
+    public void OnMouseMove(VecD newCanvasPos)
     {
         //update internal state
-
-        var newX = (int)Math.Floor(newCanvasX);
-        var newY = (int)Math.Floor(newCanvasY);
-        var pixelPosChanged = false;
-        if (lastPixelX != newX || lastPixelY != newY)
+        VecI newPixelPos = (VecI)newCanvasPos.Floor();
+        bool pixelPosChanged = false;
+        if (lastPixelPos != newPixelPos)
         {
-            lastPixelX = newX;
-            lastPixelY = newY;
+            lastPixelPos = newPixelPos;
             pixelPosChanged = true;
         }
-
+        lastPrecisePos = newCanvasPos;
 
         //call session events
-        if (currentSession != null && pixelPosChanged)
-            currentSession.OnPixelPositionChange(new(newX, newY));
-
-        //call internal events
-        PreciseMousePositionChanged?.Invoke(this, (newCanvasX, newCanvasY));
-        if (pixelPosChanged)
-            PixelMousePositionChanged?.Invoke(this, new MouseMovementEventArgs(new VecI(newX, newY)));
+        if (currentSession is not null)
+        {
+            if (pixelPosChanged)
+                currentSession.OnPixelPositionChange(newPixelPos);
+            currentSession.OnPrecisePositionChange(newCanvasPos);
+        }
     }
 
-    public void OnLeftMouseButtonDown(double canvasPosX, double canvasPosY)
+    public void OnLeftMouseButtonDown(VecD canvasPos)
     {
         //update internal state
         LeftMouseState = MouseButtonState.Pressed;
 
-        //call session events
-
-        if (currentTool == null)
-            throw new Exception("Current tool must not be null here");
-        TryStartToolSession(currentTool, canvasPosX, canvasPosY);
+        //call session event
+        currentSession?.OnLeftMouseButtonDown(canvasPos);
     }
 
     public void OnLeftMouseButtonUp()
@@ -128,6 +116,6 @@ internal class ChangeExecutionController
         LeftMouseState = MouseButtonState.Released;
 
         //call session events
-        TryStopToolSession();
-    }*/
+        currentSession?.OnLeftMouseButtonUp();
+    }
 }

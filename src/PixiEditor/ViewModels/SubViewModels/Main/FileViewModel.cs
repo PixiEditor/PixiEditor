@@ -69,7 +69,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public void NewDocument(int width, int height, bool addBaseLayer = true)
     {
-        Owner.DocumentManagerSubViewModel.Documents.Add(new DocumentViewModel(Owner.DocumentManagerSubViewModel, "Unnamed"));
+        Owner.DocumentManagerSubViewModel.Documents.Add(new DocumentViewModel("Unnamed"));
         Owner.DocumentManagerSubViewModel.ActiveDocument = Owner.DocumentManagerSubViewModel.Documents[^1];
         /*
         if (addBaseLayer)
@@ -271,11 +271,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        var recentlyOpenedDocuments = new List<RecentlyOpenedDocument>(RecentlyOpened.Take(newAmount));
+        List<RecentlyOpenedDocument> recentlyOpenedDocuments = new List<RecentlyOpenedDocument>(RecentlyOpened.Take(newAmount));
 
         RecentlyOpened.Clear();
 
-        foreach (var recent in recentlyOpenedDocuments)
+        foreach (RecentlyOpenedDocument recent in recentlyOpenedDocuments)
         {
             RecentlyOpened.Add(recent);
         }
@@ -283,7 +283,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
     {
-        var paths = IPreferences.Current.GetLocalPreference(nameof(RecentlyOpened), new JArray()).ToObject<string[]>()
+        IEnumerable<string> paths = IPreferences.Current.GetLocalPreference(nameof(RecentlyOpened), new JArray()).ToObject<string[]>()
             .Take(IPreferences.Current.GetPreference("MaxOpenedRecently", 8));
 
         List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();

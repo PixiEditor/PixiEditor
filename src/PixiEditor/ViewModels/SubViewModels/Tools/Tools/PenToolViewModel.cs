@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
@@ -15,5 +16,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
         }
 
         public override string Tooltip => $"Standard brush. ({Shortcut})";
+
+        public override void OnLeftMouseButtonDown(VecD pos)
+        {
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UsePenTool();
+        }
     }
 }

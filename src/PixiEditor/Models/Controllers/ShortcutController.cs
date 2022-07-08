@@ -16,7 +16,7 @@ internal class ShortcutController
 
     public Dictionary<KeyCombination, ToolViewModel> TransientShortcuts { get; set; } = new();
 
-    public static void BlockShortcutExection(string blocker)
+    public static void BlockShortcutExecution(string blocker)
     {
         if (_shortcutExecutionBlockers.Contains(blocker)) return;
         _shortcutExecutionBlockers.Add(blocker);

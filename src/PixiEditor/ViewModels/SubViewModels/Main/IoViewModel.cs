@@ -3,7 +3,6 @@ using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
-using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Events;
@@ -69,7 +68,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnKeyDown(KeyEventArgs args)
     {
-        var key = args.Key;
+        Key key = args.Key;
         if (key == Key.System)
             key = args.SystemKey;
 
@@ -89,7 +88,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        var controller = Owner.ShortcutController;
+        ShortcutController controller = Owner.ShortcutController;
 
         Key finalKey = args.Key;
         if (finalKey == Key.System)
@@ -97,8 +96,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             finalKey = args.SystemKey;
         }
 
-        Command.ToolCommand tool = CommandController.Current.Commands
-            .Select(x => x as Command.ToolCommand)
+        Models.Commands.Commands.Command.ToolCommand tool = CommandController.Current.Commands
+            .Select(x => x as Models.Commands.Commands.Command.ToolCommand)
             .FirstOrDefault(x => x != null && x.TransientKey == finalKey);
 
         if (tool != null)
@@ -110,10 +109,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     private void ProcessShortcutDown(bool isRepeat, Key key)
     {
         if (isRepeat && !restoreToolOnKeyUp && Owner.ShortcutController.LastCommands != null &&
-            Owner.ShortcutController.LastCommands.Any(x => x is Command.ToolCommand))
+            Owner.ShortcutController.LastCommands.Any(x => x is Models.Commands.Commands.Command.ToolCommand))
         {
             restoreToolOnKeyUp = true;
-            ShortcutController.BlockShortcutExection("ShortcutDown");
+            ShortcutController.BlockShortcutExecution("ShortcutDown");
         }
 
         Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
@@ -121,7 +120,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnKeyUp(KeyEventArgs args)
     {
-        var key = args.Key;
+        Key key = args.Key;
         if (key == Key.System)
             key = args.SystemKey;
 
@@ -150,12 +149,13 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         if (args.Button == MouseButton.Left)
         {
             DocumentManagerViewModel docManager = Owner.DocumentManagerSubViewModel;
-            var activeDocument = docManager.ActiveDocument;
+            DocumentViewModel activeDocument = docManager.ActiveDocument;
             if (activeDocument == null)
                 return;
 
             //docManager.InputTarget.OnLeftMouseButtonDown(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
             docManager.ActiveDocument.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
+            Owner.ToolsSubViewModel.OnLeftMouseButtonDown(args.PositionOnCanvas);
         }
     }
 
@@ -174,7 +174,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         if (setOn)
         {
-            var transientToolIsActive = Owner.ToolsSubViewModel.ActiveTool.GetType() == type;
+            bool transientToolIsActive = Owner.ToolsSubViewModel.ActiveTool.GetType() == type;
             if (!transientToolIsActive)
             {
                 Owner.ToolsSubViewModel.SetActiveTool(type);
@@ -191,7 +191,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseMove(object sender, VecD pos)
     {
-        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        DocumentViewModel activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument is null)
             return;
         //Owner.DocumentManagerSubViewModel.InputTarget.OnMouseMove(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);

@@ -4,8 +4,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 internal class PenToolbar : BasicToolbar
 {
+    public bool PixelPerfectEnabled => GetSetting<BoolSetting>(nameof(PixelPerfectEnabled)).Value;
     public PenToolbar()
     {
-        Settings.Add(new BoolSetting("PixelPerfectEnabled", "Pixel perfect"));
+        Settings.Add(new BoolSetting(nameof(PixelPerfectEnabled), "Pixel perfect"));
     }
 }

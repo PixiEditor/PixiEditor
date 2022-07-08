@@ -12,10 +12,12 @@ internal class DocumentHelpers
         Updater = new DocumentUpdater(doc, this);
         ActionAccumulator = new ActionAccumulator(doc, this);
         State = new DocumentState();
+        ChangeController = new ChangeExecutionController(doc, this);
     }
     public ActionAccumulator ActionAccumulator { get; }
     public DocumentChangeTracker Tracker { get; }
     public DocumentStructureHelper StructureHelper { get; }
     public DocumentUpdater Updater { get; }
     public DocumentState State { get; }
+    public ChangeExecutionController ChangeController { get; }
 }

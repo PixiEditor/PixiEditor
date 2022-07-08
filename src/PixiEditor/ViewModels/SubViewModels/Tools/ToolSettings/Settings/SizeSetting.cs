@@ -16,7 +16,7 @@ internal class SizeSetting : Setting<int>
 
     private SizeInput GenerateTextBox()
     {
-        var tb = new SizeInput
+        SizeInput tb = new SizeInput
         {
             Width = 65,
             Height = 20,
@@ -25,7 +25,7 @@ internal class SizeSetting : Setting<int>
             IsEnabled = true
         };
 
-        var binding = new Binding("Value")
+        Binding binding = new Binding("Value")
         {
             Mode = BindingMode.TwoWay,
         };
