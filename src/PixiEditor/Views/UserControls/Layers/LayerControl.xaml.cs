@@ -3,16 +3,17 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views.UserControls.Layers;
-
+#nullable enable
 internal partial class LayerControl : UserControl
 {
-    public static Brush HighlightColor = Brushes.Blue;
-
     public static readonly DependencyProperty LayerProperty =
         DependencyProperty.Register(nameof(Layer), typeof(LayerViewModel), typeof(LayerControl), new(null));
+
+    private readonly Brush? highlightColor;
 
     public LayerViewModel Layer
     {
@@ -23,6 +24,7 @@ internal partial class LayerControl : UserControl
     public LayerControl()
     {
         InitializeComponent();
+        highlightColor = (Brush?)App.Current.Resources["SoftSelectedLayerColor"];
     }
 
     public static readonly DependencyProperty ControlButtonsVisibleProperty = DependencyProperty.Register(
@@ -77,72 +79,57 @@ internal partial class LayerControl : UserControl
 
     }
 
-    private void Grid_DragEnter(object sender, DragEventArgs e)
+    private void Grid_DragEnter(object? sender, DragEventArgs e)
     {
-        Grid item = sender as Grid;
-
-        item.Background = HighlightColor;
+        Grid? item = sender as Grid;
+        if (item is not null)
+            item.Background = highlightColor;
     }
 
-    private void Grid_DragLeave(object sender, DragEventArgs e)
+    private void Grid_DragLeave(object? sender, DragEventArgs e)
     {
-        Grid item = sender as Grid;
-
-        RemoveDragEffect(item);
+        Grid? item = sender as Grid;
+        if (item is not null)
+            RemoveDragEffect(item);
     }
 
-    private void HandleGridDrop(object sender, DragEventArgs e, bool above, bool dropInParentFolder = false)
+    public static Guid? ExtractMemberGuid(IDataObject droppedMemberDataObject)
     {
-        /*
-        Grid item = sender as Grid;
-        RemoveDragEffect(item);
+        object droppedLayer = droppedMemberDataObject.GetData(FolderControl.LayerControlDataName);
+        object droppedFolder = droppedMemberDataObject.GetData(FolderControl.FolderControlDataName);
+        if (droppedLayer is LayerControl layer)
+            return layer.Layer.GuidValue;
+        else if (droppedFolder is FolderControl folder)
+            return folder.Folder.GuidValue;
+        return null;
+    }
 
-        if (e.Data.GetDataPresent(FolderControl.LayerContainerDataName))
-        {
-            var data = (LayerControlContainer)e.Data.GetData(FolderControl.LayerContainerDataName);
-            //Guid layer = data.Layer.GuidValue;
-            //var doc = data.LayerCommandsViewModel.Owner.BitmapManager.ActiveDocument;
-
-            /*doc.MoveLayerInStructure(layer, LayerGuid, above);
-            if (dropInParentFolder)
-            {
-                Guid? groupGuid = doc.LayerStructure.GetGroupByLayer(layer)?.Parent?.GroupGuid;
-                doc.LayerStructure.AssignParent(layer, groupGuid);
-            }
-        }
-
-        if (e.Data.GetDataPresent(FolderControl.FolderControlDataName))
-        {
-            var data = (FolderControl)e.Data.GetData(FolderControl.FolderControlDataName);
-            //Guid folder = data.GroupGuid;
-
-            //var document = data.LayersViewModel.Owner.BitmapManager.ActiveDocument;
-
-            /*var parentGroup = document.LayerStructure.GetGroupByLayer(LayerGuid);
-
-            if (parentGroup == data.GroupData || document.LayerStructure.IsChildOf(parentGroup, data.GroupData))
-            {
-                return;
-            }
-
-            document.MoveGroupInStructure(folder, LayerGuid, above);
-        }
-*/
+    private void HandleDrop(IDataObject dataObj, StructureMemberPlacement placement)
+    {
+        if (placement == StructureMemberPlacement.Inside)
+            return;
+        Guid? droppedMemberGuid = ExtractMemberGuid(dataObj);
+        if (droppedMemberGuid is null)
+            return;
+        Layer.Document.MoveStructureMember((Guid)droppedMemberGuid, Layer.GuidValue, placement);
     }
 
     private void Grid_Drop_Top(object sender, DragEventArgs e)
     {
-        HandleGridDrop(sender, e, true);
+        RemoveDragEffect((Grid)sender);
+        HandleDrop(e.Data, StructureMemberPlacement.Above);
     }
 
     private void Grid_Drop_Bottom(object sender, DragEventArgs e)
     {
-        HandleGridDrop(sender, e, false);
+        RemoveDragEffect((Grid)sender);
+        HandleDrop(e.Data, StructureMemberPlacement.Below);
     }
 
     private void Grid_Drop_Below(object sender, DragEventArgs e)
     {
-        HandleGridDrop(sender, e, false, true);
+        RemoveDragEffect((Grid)sender);
+        HandleDrop(e.Data, StructureMemberPlacement.BelowOutsideFolder);
     }
 
     private void Border_MouseDown(object sender, MouseButtonEventArgs e)

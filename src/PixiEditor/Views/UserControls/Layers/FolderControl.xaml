@@ -48,7 +48,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
-                      IsThreeState="False" HorizontalAlignment="Center" Click="CheckBox_Checked"
+                      IsThreeState="False" HorizontalAlignment="Center"
                       IsChecked="{Binding Path=Folder.IsVisibleBindable, ElementName=folderControl}" Grid.Column="0" Height="16"/>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">

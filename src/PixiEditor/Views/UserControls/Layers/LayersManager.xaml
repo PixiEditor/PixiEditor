@@ -103,6 +103,19 @@
                         <ui:ReversedOrderStackPanel/>
                     </ItemsPanelTemplate>
                 </TreeView.ItemsPanel>
+                <TreeView.ItemContainerStyle>
+                    <Style
+                            TargetType="TreeViewItem">
+                        <Setter
+                                Property="ItemsPanel">
+                            <Setter.Value>
+                                <ItemsPanelTemplate>
+                                    <ui:ReversedOrderStackPanel />
+                                </ItemsPanelTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TreeView.ItemContainerStyle>
                 <TreeView.Resources>
                     <HierarchicalDataTemplate DataType="{x:Type docVm:FolderViewModel}" ItemsSource="{Binding Children}">
                         <layerUserControls:FolderControl

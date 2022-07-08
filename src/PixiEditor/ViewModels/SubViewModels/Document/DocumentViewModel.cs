@@ -9,6 +9,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
@@ -231,6 +232,13 @@ internal class DocumentViewModel : NotifyableObject
     public void UseOpacitySlider() => Helpers.ChangeController.TryStartUpdateableChange<StructureMemberOpacityExecutor>();
 
     public void UsePenTool() => Helpers.ChangeController.TryStartUpdateableChange<LineBasedPenExecutor>();
+
+    public void MoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo, StructureMemberPlacement placement)
+    {
+        if (Helpers.ChangeController.IsChangeActive || memberToMove == memberToMoveIntoOrNextTo)
+            return;
+        Helpers.StructureHelper.TryMoveStructureMember(memberToMove, memberToMoveIntoOrNextTo, placement);
+    }
 
 
     public void OnKeyDown(Key args) => Helpers.ChangeController.OnKeyDown(args);

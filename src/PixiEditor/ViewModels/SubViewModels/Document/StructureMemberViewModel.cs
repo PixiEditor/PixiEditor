@@ -3,7 +3,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Enums;
 
@@ -121,11 +120,6 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public WriteableBitmap? MaskPreviewBitmap { get; set; }
     public SKSurface? MaskPreviewSurface { get; set; }
 
-    public RelayCommand MoveUpCommand { get; }
-    public RelayCommand MoveDownCommand { get; }
-    public RelayCommand UpdateOpacityCommand { get; }
-    public RelayCommand EndOpacityUpdateCommand { get; }
-
     public void RaisePropertyChanged(string name)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -145,26 +139,9 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         Document = doc;
         Helpers = helpers;
 
-        MoveUpCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, false));
-        MoveDownCommand = new(_ => Helpers.StructureHelper.MoveStructureMember(GuidValue, true));
-        UpdateOpacityCommand = new(UpdateOpacity);
-        EndOpacityUpdateCommand = new(EndOpacityUpdate);
-
         this.guidValue = guidValue;
         VecI previewSize = CalculatePreviewSize(doc.SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
-    }
-
-    private void EndOpacityUpdate(object? opacity)
-    {
-        Helpers.ActionAccumulator.AddFinishedActions(new EndStructureMemberOpacity_Action());
-    }
-
-    private void UpdateOpacity(object? opacity)
-    {
-        if (opacity is not double value)
-            throw new ArgumentException("The passed value isn't a double");
-        Helpers.ActionAccumulator.AddActions(new StructureMemberOpacity_Action(GuidValue, (float)value));
     }
 }
