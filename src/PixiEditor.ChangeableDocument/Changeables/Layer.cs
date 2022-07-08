@@ -31,7 +31,6 @@ internal class Layer : StructureMember, IReadOnlyLayer
     /// <summary>
     /// Creates a clone of the layer, its image and its mask
     /// </summary>
-    /// <returns></returns>
     internal override Layer Clone()
     {
         return new Layer(LayerImage.CloneFromCommitted())

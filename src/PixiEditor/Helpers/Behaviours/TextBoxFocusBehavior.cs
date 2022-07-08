@@ -93,7 +93,6 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
         {
             AssociatedObject.MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
         }
-
     }
 
     private void AssociatedObjectGotKeyboardFocus(

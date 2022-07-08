@@ -10,6 +10,7 @@ internal class ChangeExecutionController
     public MouseButtonState LeftMouseState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
+    public float LastOpacityValue = 1f;
     public bool IsChangeActive => currentSession is not null;
 
     private readonly DocumentViewModel document;
@@ -100,6 +101,14 @@ internal class ChangeExecutionController
             currentSession.OnPrecisePositionChange(newCanvasPos);
         }
     }
+
+    public void OnOpacitySliderDragStarted() => currentSession?.OnOpacitySliderDragStarted();
+    public void OnOpacitySliderDragged(float newValue)
+    {
+        LastOpacityValue = newValue;
+        currentSession?.OnOpacitySliderDragged(newValue);
+    }
+    public void OnOpacitySliderDragEnded() => currentSession?.OnOpacitySliderDragEnded();
 
     public void OnLeftMouseButtonDown(VecD canvasPos)
     {

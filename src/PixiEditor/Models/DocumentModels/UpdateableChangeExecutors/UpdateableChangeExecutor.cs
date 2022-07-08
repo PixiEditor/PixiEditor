@@ -31,6 +31,9 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnPrecisePositionChange(VecD pos) { }
     public virtual void OnLeftMouseButtonDown(VecD pos) { }
     public virtual void OnLeftMouseButtonUp() { }
+    public virtual void OnOpacitySliderDragStarted() { }
+    public virtual void OnOpacitySliderDragged(float newValue) { }
+    public virtual void OnOpacitySliderDragEnded() { }
     public virtual void OnKeyDown(Key key) { }
     public virtual void OnKeyUp(Key key) { }
 }

@@ -2,7 +2,6 @@
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Commands.Attributes.Evaluators;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
@@ -148,6 +147,27 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool CanCreateNewMember(object parameter)
     {
         return Owner.DocumentManagerSubViewModel.ActiveDocument is not null;
+    }
+
+    [Command.Internal("PixiEditor.Layer.OpacitySliderDragStarted")]
+    public void OpacitySliderDragStarted(object paramenter)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.UseOpacitySlider();
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragStarted();
+    }
+
+    [Command.Internal("PixiEditor.Layer.OpacitySliderDragged")]
+    public void OpacitySliderDragged(object paramenter)
+    {
+        if (paramenter is not double value)
+            return;
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragged((float)value);
+    }
+
+    [Command.Internal("PixiEditor.Layer.OpacitySliderDragEnded")]
+    public void OpacitySliderDragEnded(object paramenter)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragEnded();
     }
 
     public void SetActiveLayer(object parameter)

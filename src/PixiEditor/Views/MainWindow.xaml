@@ -665,10 +665,7 @@
                                             CanDockAsTabbedDocument="True"
                                             CanFloat="True">
                                             <layerUserControls:LayersManager
-                                                StructureRoot="{Binding DocumentManagerSubViewModel.ActiveDocument.StructureRoot}"
-                                                OpacityInputEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, 
-                    Converter={converters:NotNullToBoolConverter}}">
-                                            </layerUserControls:LayersManager>
+                                                ActiveDocument="{Binding DocumentManagerSubViewModel.ActiveDocument}"/>
                                         </LayoutAnchorable>
                                     </LayoutAnchorablePane>
                                     <LayoutAnchorablePane>

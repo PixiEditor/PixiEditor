@@ -4,21 +4,31 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
 
-namespace PixiEditorPrototype.Behaviors;
-
+namespace PixiEditor.Helpers.Behaviours;
+#nullable enable
 internal class SliderUpdateBehavior : Behavior<Slider>
 {
     public static DependencyProperty DragValueChangedProperty = DependencyProperty.Register(nameof(DragValueChanged), typeof(ICommand), typeof(SliderUpdateBehavior));
-    public ICommand? DragValueChanged
+    public ICommand DragValueChanged
     {
         get => (ICommand)GetValue(DragValueChangedProperty);
         set => SetValue(DragValueChangedProperty, value);
     }
+
     public static DependencyProperty DragEndedProperty = DependencyProperty.Register(nameof(DragEnded), typeof(ICommand), typeof(SliderUpdateBehavior));
-    public ICommand? DragEnded
+    public ICommand DragEnded
     {
         get => (ICommand)GetValue(DragEndedProperty);
         set => SetValue(DragEndedProperty, value);
+    }
+
+    public static readonly DependencyProperty DragStartedProperty =
+        DependencyProperty.Register(nameof(DragStarted), typeof(ICommand), typeof(SliderUpdateBehavior), new(null));
+
+    public ICommand DragStarted
+    {
+        get => (ICommand)GetValue(DragStartedProperty);
+        set => SetValue(DragStartedProperty, value);
     }
 
     public static DependencyProperty ValueFromSliderProperty =
@@ -51,10 +61,12 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     {
         if (attached)
             return;
-        attached = true;
+
         Thumb? thumb = GetThumb(AssociatedObject);
         if (thumb is null)
             return;
+
+        attached = true;
 
         thumb.DragStarted += Thumb_DragStarted;
         thumb.DragCompleted += Thumb_DragCompleted;
@@ -75,7 +87,7 @@ internal class SliderUpdateBehavior : Behavior<Slider>
 
     private static void OnSliderValuePropertyChange(DependencyObject slider, DependencyPropertyChangedEventArgs e)
     {
-        SliderUpdateBehavior? obj = (SliderUpdateBehavior)slider;
+        SliderUpdateBehavior obj = (SliderUpdateBehavior)slider;
         if (obj.dragging)
         {
             if (obj.DragValueChanged is not null && obj.DragValueChanged.CanExecute(e.NewValue))
@@ -95,6 +107,8 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     private void Thumb_DragStarted(object sender, DragStartedEventArgs e)
     {
         dragging = true;
+        if (DragStarted is not null && DragStarted.CanExecute(null))
+            DragStarted.Execute(null);
     }
 
     private static Thumb? GetThumb(Slider slider)

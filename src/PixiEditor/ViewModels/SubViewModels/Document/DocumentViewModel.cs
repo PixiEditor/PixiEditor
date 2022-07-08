@@ -207,6 +207,15 @@ internal class DocumentViewModel : NotifyableObject
 
     #endregion
 
+    public void SetMemberOpacity(Guid memberGuid, float value)
+    {
+        if (Helpers.ChangeController.IsChangeActive || value is > 1 or < 0)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(
+            new StructureMemberOpacity_Action(memberGuid, value),
+            new EndStructureMemberOpacity_Action());
+    }
+
     public void AddOrUpdateViewport(ViewportInfo info) => Helpers.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(info));
 
     public void RemoveViewport(Guid viewportGuid) => Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
@@ -219,16 +228,20 @@ internal class DocumentViewModel : NotifyableObject
 
     public void ClearSoftSelectedMembers() => Helpers.ActionAccumulator.AddActions(new ClearSoftSelectedMembers_PassthroughAction());
 
+    public void UseOpacitySlider() => Helpers.ChangeController.TryStartUpdateableChange<StructureMemberOpacityExecutor>();
+
     public void UsePenTool() => Helpers.ChangeController.TryStartUpdateableChange<LineBasedPenExecutor>();
 
 
     public void OnKeyDown(Key args) => Helpers.ChangeController.OnKeyDown(args);
-
     public void OnKeyUp(Key args) => Helpers.ChangeController.OnKeyUp(args);
 
     public void OnCanvasLeftMouseButtonDown(VecD pos) => Helpers.ChangeController.OnLeftMouseButtonDown(pos);
-
     public void OnCanvasMouseMove(VecD newPos) => Helpers.ChangeController.OnMouseMove(newPos);
-
     public void OnCanvasLeftMouseButtonUp() => Helpers.ChangeController.OnLeftMouseButtonUp();
+
+    public void OnOpacitySliderDragStarted() => Helpers.ChangeController.OnOpacitySliderDragStarted();
+    public void OnOpacitySliderDragged(float newValue) => Helpers.ChangeController.OnOpacitySliderDragged(newValue);
+    public void OnOpacitySliderDragEnded() => Helpers.ChangeController.OnOpacitySliderDragEnded();
+
 }

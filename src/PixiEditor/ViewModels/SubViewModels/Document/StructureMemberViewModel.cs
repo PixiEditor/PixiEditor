@@ -2,12 +2,10 @@
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Enums;
-using SkiaSharp;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
@@ -105,6 +103,12 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public float OpacityBindable
     {
         get => opacity;
+        // this is stupid. This setter shouldn't actually exist, but it has to because the NumberInput control is badly designed.
+        // You can't bind it's value using a OneWay binding, because it gets overwritten by NumberInput internally when it assigns something to Value
+        // This doesn't happen with TwoWay bindings because they behave differently and forward the value you set instead of getting replaced
+        // So really I just need a OneWay binding, but I'm forced to use a TwoWay binding with a setter
+        // The binding is in LayersManager's opacity field btw.
+        set { }
     }
 
     public StructureMemberSelectionType Selection { get; set; }
@@ -147,7 +151,7 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         EndOpacityUpdateCommand = new(EndOpacityUpdate);
 
         this.guidValue = guidValue;
-        var previewSize = CalculatePreviewSize(doc.SizeBindable);
+        VecI previewSize = CalculatePreviewSize(doc.SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
     }

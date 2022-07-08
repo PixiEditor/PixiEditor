@@ -6,7 +6,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:docVm="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:beh="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:vws="clr-namespace:PixiEditor.Views" 
+             xmlns:sys="clr-namespace:System;assembly=mscorlib" 
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
              xmlns:commands="clr-namespace:PixiEditor.Models.Commands.XAML" 
              xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers"
@@ -23,7 +26,6 @@
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                 <Button Command="{commands:Command PixiEditor.Layer.NewLayer}" 
                         Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
-                        CommandParameter="{Binding Path=SelectedItem, ElementName=layersManager}"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>
@@ -31,7 +33,6 @@
                     </Button.Background>
                 </Button>
                 <Button Command="{commands:Command PixiEditor.Layer.NewFolder}" 
-                        CommandParameter="{Binding Path=SelectedItem, ElementName=layersManager}"
                         Height="24" Width="24" ToolTip="New Group" Cursor="Hand"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
@@ -39,8 +40,7 @@
                         <ImageBrush ImageSource="/Images/Folder-add.png"/>
                     </Button.Background>
                 </Button>
-                <Button Command="{commands:Command PixiEditor.Layer.DeleteSelected}"
-                        CommandParameter="{Binding ElementName=layersManager, Path=SelectedItem}" Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
+                <Button Command="{commands:Command PixiEditor.Layer.DeleteSelected}" Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>
@@ -49,14 +49,44 @@
                 </Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0,0,10,0" HorizontalAlignment="Right" Focusable="True">
-                <Label Content="Opacity" Foreground="White" VerticalAlignment="Center"/>
+                <Slider
+                    Width="50"
+                    Minimum="0"
+                    Maximum="1"
+                    SmallChange="0.01"
+                    LargeChange="0.1"
+                    IsSnapToTickEnabled="False"
+                    x:Name="opacitySlider"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Stretch"
+                    Value="{Binding ElementName=layersManager, Path=ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=OneWay}">
+                    <i:Interaction.Behaviors>
+                        <beh:SliderUpdateBehavior
+                            DragStarted="{commands:Command PixiEditor.Layer.OpacitySliderDragStarted}"
+                            DragValueChanged="{commands:Command PixiEditor.Layer.OpacitySliderDragged, UseProvided=True}"
+                            DragEnded="{commands:Command PixiEditor.Layer.OpacitySliderDragEnded}"
+                            ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value}" />
+                    </i:Interaction.Behaviors>
+                </Slider>
                 <userControls:NumberInput
-                        Min="0" Max="100"
-                        x:Name="numberInput"
-                        IsEnabled="{Binding Path=OpacityInputEnabled, ElementName=layersManager}" 
-                        Width="40" Height="20"
-                        VerticalAlignment="Center"
-                        LostFocus="NumberInput_LostFocus"/>
+                    Min="0" Max="100"
+                    x:Name="numberInput"
+                    IsEnabled="{Binding Path=ActiveDocument, ElementName=layersManager, Converter={converters:NotNullToVisibilityConverter}}" 
+                    Width="40" Height="20"
+                    VerticalAlignment="Center"
+                    LostFocus="NumberInput_LostFocus">
+                    <userControls:NumberInput.Value>
+                        <Binding
+                            Mode="TwoWay"
+                            ElementName="layersManager"
+                            Path="ActiveDocument.SelectedStructureMember.OpacityBindable"
+                            Converter="{converters:MultiplyConverter}">
+                            <Binding.ConverterParameter>
+                                <sys:Double>100</sys:Double>
+                            </Binding.ConverterParameter>
+                        </Binding>
+                    </userControls:NumberInput.Value>
+                </userControls:NumberInput>
                 <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
             </StackPanel>
         </DockPanel>
@@ -64,11 +94,10 @@
         <DockPanel LastChildFill="True" Grid.Row="2" Margin="0, -12, 0, 0">
             <layerUserControls:ReferenceLayer
                 DockPanel.Dock="Bottom"
-                Visibility="{Binding Path=OpacityInputEnabled, ElementName=layersManager, 
-                Converter={BoolToVisibilityConverter}}" 
+                Visibility="{Binding Path=ActiveDocument, ElementName=layersManager, Converter={converters:NotNullToVisibilityConverter}}" 
                 Background="{StaticResource MainColor}" 
                 Grid.Row="3" VerticalAlignment="Bottom"/>
-            <TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding StructureRoot.Children, ElementName=layersManager}"  SelectedItemChanged="TreeView_SelectedItemChanged">
+            <TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding ActiveDocument.StructureRoot.Children, ElementName=layersManager}">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
                         <ui:ReversedOrderStackPanel/>
@@ -78,13 +107,11 @@
                     <HierarchicalDataTemplate DataType="{x:Type docVm:FolderViewModel}" ItemsSource="{Binding Children}">
                         <layerUserControls:FolderControl
                             Folder="{Binding}"
-                            MouseDown="SelectActiveItem"
                             MouseMove="LayerGroup_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type docVm:LayerViewModel}">
                         <layerUserControls:LayerControl
                             Layer="{Binding}"
-                            MouseDown="SelectActiveItem"
                             MouseMove="LayerStructureItemContainer_MouseMove"/>
                     </DataTemplate>
                 </TreeView.Resources>
