@@ -22,11 +22,15 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         PenToolbar? toolbar = penTool?.Toolbar as PenToolbar;
         if (vm is null || penTool is null || member is null || toolbar is null)
             return new Error();
+        drawOnMask = member.ShouldDrawOnMask;
+        if (drawOnMask && !member.HasMaskBindable)
+            return new Error();
+        if (!drawOnMask && member is not LayerViewModel)
+            return new Error();
 
         guidValue = member.GuidValue;
         color = vm.ColorsSubViewModel.PrimaryColor;
         toolSize = toolbar.ToolSize;
-        drawOnMask = member.ShouldDrawOnMask;
         pixelPerfect = toolbar.PixelPerfectEnabled;
 
         IAction? action = pixelPerfect switch

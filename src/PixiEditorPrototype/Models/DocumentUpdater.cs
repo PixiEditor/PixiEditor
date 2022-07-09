@@ -103,7 +103,7 @@ internal class DocumentUpdater
 
     private void ProcessMaskIsVisible(StructureMemberMaskIsVisible_ChangeInfo info)
     {
-        var member = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? member = helper.StructureHelper.FindOrThrow(info.GuidValue);
         member.SetMaskIsVisible(info.IsVisible);
     }
 
@@ -148,14 +148,14 @@ internal class DocumentUpdater
 
     private void ProcessStructureMemberMask(StructureMemberMask_ChangeInfo info)
     {
-        var memberVm = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? memberVm = helper.StructureHelper.FindOrThrow(info.GuidValue);
         memberVm.MaskPreviewSurface?.Dispose();
         memberVm.MaskPreviewSurface = null;
         memberVm.MaskPreviewBitmap = null;
 
         if (info.HasMask)
         {
-            var size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
+            VecI size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
             memberVm.MaskPreviewBitmap = CreateBitmap(size);
             memberVm.MaskPreviewSurface = CreateSKSurface(memberVm.MaskPreviewBitmap);
         }
@@ -175,7 +175,7 @@ internal class DocumentUpdater
 
     private void UpdateMemberBitmapsRecursively(FolderViewModel folder, VecI newSize)
     {
-        foreach (var member in folder.Children)
+        foreach (StructureMemberViewModel? member in folder.Children)
         {
             member.PreviewSurface.Dispose();
             member.PreviewBitmap = CreateBitmap(newSize);
@@ -202,7 +202,7 @@ internal class DocumentUpdater
     private void ProcessSize(Size_ChangeInfo info)
     {
         Dictionary<ChunkResolution, WriteableBitmap> newBitmaps = new();
-        foreach (var (res, surf) in doc.Surfaces)
+        foreach ((ChunkResolution res, SKSurface surf) in doc.Surfaces)
         {
             surf.Dispose();
             newBitmaps[res] = CreateBitmap((VecI)(info.Size * res.Multiplier()));
@@ -215,7 +215,7 @@ internal class DocumentUpdater
         doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
         doc.SetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
 
-        var previewSize = StructureMemberViewModel.CalculatePreviewSize(info.Size);
+        VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
         doc.PreviewBitmap = CreateBitmap(previewSize);
         doc.PreviewSurface = CreateSKSurface(doc.PreviewBitmap);
@@ -241,7 +241,7 @@ internal class DocumentUpdater
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)
     {
-        var parentFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(info.ParentGuid);
+        FolderViewModel? parentFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(info.ParentGuid);
 
         StructureMemberViewModel memberVM;
         if (info is CreateLayer_ChangeInfo layerInfo)
@@ -267,7 +267,7 @@ internal class DocumentUpdater
 
         if (info.HasMask)
         {
-            var size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
+            VecI size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
             memberVM.MaskPreviewBitmap = CreateBitmap(size);
             memberVM.MaskPreviewSurface = CreateSKSurface(memberVM.MaskPreviewBitmap);
         }
@@ -285,33 +285,33 @@ internal class DocumentUpdater
 
     private void ProcessDeleteStructureMember(DeleteStructureMember_ChangeInfo info)
     {
-        var (memberVM, folderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
+        (StructureMemberViewModel memberVM, FolderViewModel folderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
         folderVM.Children.Remove(memberVM);
     }
 
     private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)
     {
-        var memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
         memberVM.SetIsVisible(info.IsVisible);
     }
 
     private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)
     {
-        var memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
         memberVM.SetName(info.Name);
     }
 
     private void ProcessUpdateStructureMemberOpacity(StructureMemberOpacity_ChangeInfo info)
     {
-        var memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
         memberVM.SetOpacity(info.Opacity);
     }
 
     private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
     {
-        var (memberVM, curFolderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
+        (StructureMemberViewModel memberVM, FolderViewModel curFolderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
 
-        var targetFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(info.ParentToGuid);
+        FolderViewModel? targetFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(info.ParentToGuid);
 
         curFolderVM.Children.Remove(memberVM);
         targetFolderVM.Children.Insert(info.NewIndex, memberVM);

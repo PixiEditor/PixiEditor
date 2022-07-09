@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
-using PixiEditor.Models.Enums;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.Views.UserControls;
 
@@ -11,7 +11,7 @@ namespace PixiEditor.Views.UserControls;
 internal partial class AnchorPointPicker : UserControl
 {
     public static readonly DependencyProperty AnchorPointProperty =
-        DependencyProperty.Register(nameof(AnchorPoint), typeof(AnchorPoint), typeof(AnchorPointPicker),
+        DependencyProperty.Register(nameof(AnchorPoint), typeof(ResizeAnchor), typeof(AnchorPointPicker),
             new PropertyMetadata());
 
 
@@ -22,16 +22,30 @@ internal partial class AnchorPointPicker : UserControl
         InitializeComponent();
     }
 
-    public AnchorPoint AnchorPoint
+    public ResizeAnchor AnchorPoint
     {
-        get => (AnchorPoint)GetValue(AnchorPointProperty);
+        get => (ResizeAnchor)GetValue(AnchorPointProperty);
         set => SetValue(AnchorPointProperty, value);
     }
 
     private void ToggleButton_Checked(object sender, RoutedEventArgs e)
     {
         ToggleButton btn = (ToggleButton)sender;
-        AnchorPoint = (AnchorPoint)(1 << (Grid.GetRow(btn) + 3)) | (AnchorPoint)(1 << Grid.GetColumn(btn));
+        int row = Grid.GetRow(btn);
+        int column = Grid.GetColumn(btn);
+        AnchorPoint = (row, column) switch
+        {
+            (0, 0) => ResizeAnchor.TopLeft,
+            (1, 0) => ResizeAnchor.Top,
+            (2, 0) => ResizeAnchor.TopRight,
+            (0, 1) => ResizeAnchor.Left,
+            (1, 1) => ResizeAnchor.Center,
+            (2, 1) => ResizeAnchor.Right,
+            (0, 2) => ResizeAnchor.BottomLeft,
+            (1, 2) => ResizeAnchor.Bottom,
+            (2, 2) => ResizeAnchor.BottomRight,
+            _ => throw new NotImplementedException()
+        };
         if (_selectedToggleButton != null) _selectedToggleButton.IsChecked = false;
         _selectedToggleButton = btn;
     }

@@ -1,5 +1,5 @@
-﻿using PixiEditor.Models.Enums;
-using PixiEditor.Views;
+﻿using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.Enums;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;
@@ -18,7 +18,7 @@ internal class ResizeDocumentDialog : CustomDialog
 
     public bool OpenResizeCanvas { get; set; }
 
-    public AnchorPoint ResizeAnchor { get; set; }
+    public ResizeAnchor ResizeAnchor { get; set; }
 
     public int Width
     {
@@ -54,7 +54,7 @@ internal class ResizeDocumentDialog : CustomDialog
     bool ShowDialog<T>()
         where T : ResizeablePopup, new()
     {
-        var popup = new T()
+        T popup = new T()
         {
             NewAbsoluteHeight = Height,
             NewAbsoluteWidth = Width,

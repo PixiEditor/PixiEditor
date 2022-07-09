@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
@@ -26,13 +27,18 @@ internal class EllipseToolExecutor : UpdateableChangeExecutor
         ViewModels.SubViewModels.Document.StructureMemberViewModel? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolbar is null || member is null || ellipseTool is null)
             return new Error();
+        drawOnMask = member.ShouldDrawOnMask;
+        if (drawOnMask && !member.HasMaskBindable)
+            return new Error();
+        if (!drawOnMask && member is not LayerViewModel)
+            return new Error();
+
 
         fillColor = toolbar.Fill ? toolbar.FillColor.ToSKColor() : SKColors.Transparent;
         startPos = controller!.LastPixelPosition;
         strokeColor = colorsVM.PrimaryColor;
         strokeWidth = toolbar.ToolSize;
         memberGuid = member.GuidValue;
-        drawOnMask = member.ShouldDrawOnMask;
 
         DrawEllipseOrCircle(startPos);
         return new Success();

@@ -1,5 +1,7 @@
 ﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using Newtonsoft.Json.Linq;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
@@ -58,7 +60,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         NewFileDialog newFile = new NewFileDialog();
         if (newFile.ShowDialog())
         {
-            NewDocument(newFile.Width, newFile.Height);
+            NewDocument(new VecI(newFile.Width, newFile.Height));
         }
     }
 
@@ -67,18 +69,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         new HelloTherePopup(this).Show();
     }
 
-    public void NewDocument(int width, int height, bool addBaseLayer = true)
+    public void NewDocument(VecI size, bool addBaseLayer = true)
     {
-        Owner.DocumentManagerSubViewModel.Documents.Add(new DocumentViewModel("Unnamed"));
+        DocumentViewModel doc = new DocumentViewModel();
+        Owner.DocumentManagerSubViewModel.Documents.Add(doc);
         Owner.DocumentManagerSubViewModel.ActiveDocument = Owner.DocumentManagerSubViewModel.Documents[^1];
-        /*
-        if (addBaseLayer)
-        {
-            Owner.BitmapManager.ActiveDocument.AddNewLayer("Base Layer");
-        }
 
-        Owner.ResetProgramStateValues();
-        */
+        if (doc.SizeBindable != size)
+            doc.ResizeCanvas(size, ResizeAnchor.TopLeft);
+        if (addBaseLayer)
+            doc.CreateStructureMember(StructureMemberType.Layer);
     }
 
     /// <summary>

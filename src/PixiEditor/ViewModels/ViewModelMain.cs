@@ -121,7 +121,7 @@ internal class ViewModelMain : ViewModelBase
 
         FileSubViewModel = services.GetService<FileViewModel>();
         ToolsSubViewModel = services.GetService<ToolsViewModel>();
-        ToolsSubViewModel.SelectedToolChanged += BitmapManager_SelectedToolChanged;
+        ToolsSubViewModel.SelectedToolChanged += ToolsSubViewModel_SelectedToolChanged;
 
         IoSubViewModel = services.GetService<IoViewModel>();
         LayersSubViewModel = services.GetService<LayersViewModel>();
@@ -154,8 +154,7 @@ internal class ViewModelMain : ViewModelBase
 
     public bool DocumentIsNotNull(object property)
     {
-        return false;
-        //return BitmapManager.ActiveDocument != null;
+        return DocumentManagerSubViewModel.ActiveDocument is not null;
     }
 
     public bool DocumentIsNotNull((SKColor oldColor, SKColor newColor) obj)
@@ -173,7 +172,7 @@ internal class ViewModelMain : ViewModelBase
         ((CancelEventArgs)property).Cancel = !RemoveDocumentsWithSaveConfirmation();
     }
 
-    private void BitmapManager_SelectedToolChanged(object sender, SelectedToolEventArgs e)
+    private void ToolsSubViewModel_SelectedToolChanged(object sender, SelectedToolEventArgs e)
     {
         if (e.OldTool != null)
             e.OldTool.PropertyChanged -= SelectedTool_PropertyChanged;

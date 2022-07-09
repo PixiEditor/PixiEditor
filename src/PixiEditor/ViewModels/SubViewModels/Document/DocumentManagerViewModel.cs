@@ -1,8 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Commands.Attributes.Evaluators;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 
@@ -38,7 +39,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         {
             if (activeDocument == value)
                 return;
-            var prevDoc = activeDocument;
+            DocumentViewModel? prevDoc = activeDocument;
             activeDocument = value;
             RaisePropertyChanged(nameof(ActiveDocument));
             ActiveDocumentChanged?.Invoke(this, new(value, prevDoc));
@@ -220,24 +221,25 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "Resize Canvas", "Resize Canvas", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
     public void OpenResizePopup(bool canvas)
     {
-        /*
+        DocumentViewModel? doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
         ResizeDocumentDialog dialog = new ResizeDocumentDialog(
-            Owner.BitmapManager.ActiveDocument.Width,
-            Owner.BitmapManager.ActiveDocument.Height,
+            doc.Width,
+            doc.Height,
             canvas);
         if (dialog.ShowDialog())
         {
             if (canvas)
             {
-                Owner.BitmapManager.ActiveDocument.ResizeCanvas(dialog.Width, dialog.Height, dialog.ResizeAnchor);
+                doc.ResizeCanvas(new(dialog.Width, dialog.Height), dialog.ResizeAnchor);
             }
             else
             {
-                Owner.BitmapManager.ActiveDocument.Resize(dialog.Width, dialog.Height);
+                doc.ResizeImage(new(dialog.Width, dialog.Height), ResamplingMethod.NearestNeighbor);
             }
         }
-        
-*/
     }
 
     [Command.Basic("PixiEditor.Document.CenterContent", "Center Content", "Center Content", CanExecute = "PixiEditor.HasDocument")]

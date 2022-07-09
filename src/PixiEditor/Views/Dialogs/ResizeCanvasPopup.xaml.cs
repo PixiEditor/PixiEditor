@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using PixiEditor.Models.Enums;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.Views.Dialogs;
 
@@ -11,8 +11,8 @@ internal partial class ResizeCanvasPopup : ResizeablePopup
 {
 
     public static readonly DependencyProperty SelectedAnchorPointProperty =
-        DependencyProperty.Register(nameof(SelectedAnchorPoint), typeof(AnchorPoint), typeof(ResizeCanvasPopup),
-            new PropertyMetadata(AnchorPoint.Top | AnchorPoint.Left));
+        DependencyProperty.Register(nameof(SelectedAnchorPoint), typeof(ResizeAnchor), typeof(ResizeCanvasPopup),
+            new PropertyMetadata(ResizeAnchor.Top | ResizeAnchor.Left));
 
 
     public ResizeCanvasPopup()
@@ -22,9 +22,9 @@ internal partial class ResizeCanvasPopup : ResizeablePopup
         Loaded += (_, _) => sizePicker.FocusWidthPicker();
     }
 
-    public AnchorPoint SelectedAnchorPoint
+    public ResizeAnchor SelectedAnchorPoint
     {
-        get => (AnchorPoint)GetValue(SelectedAnchorPointProperty);
+        get => (ResizeAnchor)GetValue(SelectedAnchorPointProperty);
         set => SetValue(SelectedAnchorPointProperty, value);
     }
 

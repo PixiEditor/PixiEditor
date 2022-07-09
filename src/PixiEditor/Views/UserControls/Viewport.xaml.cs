@@ -234,6 +234,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Binding binding = new Binding { Source = this, Path = new PropertyPath("Document.Bitmaps") };
         SetBinding(BitmapsProperty, binding);
 
+        GetImage().Loaded += OnImageLoaded;
         Loaded += OnLoad;
         Unloaded += OnUnload;
     }
@@ -333,6 +334,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         zoombox.ZoomIntoCenter(delta);
     }
 
+    private void OnImageLoaded(object sender, EventArgs e)
+    {
+        zoombox.CenterContent();
+    }
+
     private static void CenterViewportTriggerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
     {
         Viewport? viewport = (Viewport)sender;
@@ -349,5 +355,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             ((ExecutionTrigger<double>)args.OldValue).Triggered -= viewport.ZoomZoomboxContent;
         if (args.NewValue != null)
             ((ExecutionTrigger<double>)args.NewValue).Triggered += viewport.ZoomZoomboxContent;
+    }
+
+    private void OnGridLoaded(object sender, RoutedEventArgs e)
+    {
+
     }
 }

@@ -109,7 +109,7 @@ internal class DocumentViewModel : NotifyableObject
 
     private SKPath selectionPath = new SKPath();
 
-    public DocumentViewModel(string name)
+    public DocumentViewModel()
     {
         //Name = name;
         Helpers = new DocumentHelpers(this);
@@ -152,10 +152,6 @@ internal class DocumentViewModel : NotifyableObject
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
-
-        Guid testLayerGuid = Guid.NewGuid();
-        Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMember_Action(StructureRoot.GuidValue, testLayerGuid, 0, StructureMemberType.Layer));
-        SetSelectedMember(testLayerGuid);
     }
 
     #region Internal Methods
@@ -225,6 +221,20 @@ internal class DocumentViewModel : NotifyableObject
     public void RemoveViewport(Guid viewportGuid) => Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
 
     public void CreateStructureMember(StructureMemberType type) => Helpers.StructureHelper.CreateNewStructureMember(type);
+
+    public void ResizeCanvas(VecI newSize, ResizeAnchor anchor)
+    {
+        if (Helpers.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 || newSize.Y < 1)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new ResizeCanvas_Action(newSize, anchor));
+    }
+
+    public void ResizeImage(VecI newSize, ResamplingMethod resampling)
+    {
+        if (Helpers.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 || newSize.Y < 1)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new ResizeImage_Action(newSize, resampling));
+    }
 
     public void SetSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
 
