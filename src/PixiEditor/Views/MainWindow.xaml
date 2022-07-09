@@ -506,6 +506,8 @@
                                             MouseDownCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseDownCommand}"
                                             MouseMoveCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseMoveCommand}"
                                             MouseUpCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseUpCommand}"
+                                            Cursor="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ToolCursor}"
+                                            GridLinesVisible="{Binding ElementName=mainWindow, Path=DataContext.ViewportSubViewModel.GridLinesEnabled}"
                                             Document="{Binding}"/>
                                         <!--<usercontrols:DrawingViewPort
                                         CenterViewportTrigger="{Binding CenterViewportTrigger}"

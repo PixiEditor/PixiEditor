@@ -44,6 +44,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly DependencyProperty DelayedProperty = DependencyProperty.Register(
         nameof(Delayed), typeof(bool), typeof(Viewport), new PropertyMetadata(false));
 
+    public static readonly DependencyProperty GridLinesVisibleProperty =
+        DependencyProperty.Register(nameof(GridLinesVisible), typeof(bool), typeof(Viewport), new(false));
+
+    public bool GridLinesVisible
+    {
+        get => (bool)GetValue(GridLinesVisibleProperty);
+        set => SetValue(GridLinesVisibleProperty, value);
+    }
+
     public bool Delayed
     {
         get => (bool)GetValue(DelayedProperty);
