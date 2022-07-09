@@ -17,7 +17,10 @@
     x:Name="vpUc"
     d:DesignHeight="450"
     d:DesignWidth="800">
-    <Grid>
+    <Grid 
+        MouseDown="Image_MouseDown"
+        MouseMove="Image_MouseMove"
+        MouseUp="Image_MouseUp">
         <zoombox:Zoombox
             x:Name="zoombox"
             UseTouchGestures="True"
@@ -69,9 +72,6 @@
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
-                        MouseDown="Image_MouseDown"
-                        MouseMove="Image_MouseMove"
-                        MouseUp="Image_MouseUp"
                         RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"/>
                     <sym:SymmetryOverlay
                         ZoomboxScale="{Binding Zoombox.Scale}"

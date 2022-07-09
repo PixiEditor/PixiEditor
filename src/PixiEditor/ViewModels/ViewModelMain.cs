@@ -7,9 +7,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Main;
 using PixiEditor.ViewModels.SubViewModels.Tools;
-using SkiaSharp;
 
 namespace PixiEditor.ViewModels;
 
@@ -275,7 +273,10 @@ internal class ViewModelMain : ViewModelBase
     private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
     {
         //BitmapManager.ActiveDocument.ChangesSaved = false;
-        //BitmapManager.ActiveDocument.CenterViewportTrigger.Execute(this, new Size(BitmapManager.ActiveDocument.Width, BitmapManager.ActiveDocument.Height));
+        DocumentViewModel doc = DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            throw new InvalidOperationException();
+        doc.CenterViewportTrigger.Execute(this, doc.SizeBindable);
     }
 
     private void BitmapUtility_BitmapChanged(object sender, EventArgs e)

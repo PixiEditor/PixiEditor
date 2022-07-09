@@ -5,6 +5,7 @@ using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -49,6 +50,24 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public static readonly DependencyProperty ZoomOutOnClickProperty =
         DependencyProperty.Register(nameof(ZoomOutOnClick), typeof(bool), typeof(Viewport), new(false));
+
+    public static readonly DependencyProperty ZoomViewportTriggerProperty =
+        DependencyProperty.Register(nameof(ZoomViewportTrigger), typeof(ExecutionTrigger<double>), typeof(Viewport), new(null, ZoomViewportTriggerChanged));
+
+    public static readonly DependencyProperty CenterViewportTriggerProperty =
+        DependencyProperty.Register(nameof(CenterViewportTrigger), typeof(ExecutionTrigger<VecI>), typeof(Viewport), new(null, CenterViewportTriggerChanged));
+
+    public ExecutionTrigger<VecI>? CenterViewportTrigger
+    {
+        get => (ExecutionTrigger<VecI>)GetValue(CenterViewportTriggerProperty);
+        set => SetValue(CenterViewportTriggerProperty, value);
+    }
+
+    public ExecutionTrigger<double>? ZoomViewportTrigger
+    {
+        get => (ExecutionTrigger<double>)GetValue(ZoomViewportTriggerProperty);
+        set => SetValue(ZoomViewportTriggerProperty, value);
+    }
 
     public bool ZoomOutOnClick
     {
@@ -277,7 +296,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         if (MouseDownCommand is null)
             return;
-        Point pos = e.GetPosition((IInputElement)sender);
+        Point pos = e.GetPosition(GetImage());
         VecD conv = new VecD(pos.X, pos.Y);
         MouseOnCanvasEventArgs? parameter = new MouseOnCanvasEventArgs(e.ChangedButton, conv);
 
@@ -289,7 +308,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         if (MouseMoveCommand is null)
             return;
-        Point pos = e.GetPosition((IInputElement)sender);
+        Point pos = e.GetPosition(GetImage());
         VecD conv = new VecD(pos.X, pos.Y);
 
         if (MouseMoveCommand.CanExecute(conv))
@@ -302,5 +321,33 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             return;
         if (MouseUpCommand.CanExecute(e.ChangedButton))
             MouseUpCommand.Execute(e.ChangedButton);
+    }
+
+    private void CenterZoomboxContent(object? sender, VecI args)
+    {
+        zoombox.CenterContent(args);
+    }
+
+    private void ZoomZoomboxContent(object? sender, double delta)
+    {
+        zoombox.ZoomIntoCenter(delta);
+    }
+
+    private static void CenterViewportTriggerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+    {
+        Viewport? viewport = (Viewport)sender;
+        if (args.OldValue != null)
+            ((ExecutionTrigger<VecI>)args.OldValue).Triggered -= viewport.CenterZoomboxContent;
+        if (args.NewValue != null)
+            ((ExecutionTrigger<VecI>)args.NewValue).Triggered += viewport.CenterZoomboxContent;
+    }
+
+    private static void ZoomViewportTriggerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
+    {
+        Viewport? viewport = (Viewport)sender;
+        if (args.OldValue != null)
+            ((ExecutionTrigger<double>)args.OldValue).Triggered -= viewport.ZoomZoomboxContent;
+        if (args.NewValue != null)
+            ((ExecutionTrigger<double>)args.NewValue).Triggered += viewport.ZoomZoomboxContent;
     }
 }

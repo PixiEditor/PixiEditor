@@ -90,6 +90,9 @@ internal class DocumentViewModel : NotifyableObject
     public SKPath SelectionPathBindable => selectionPath;
     public DocumentTransformViewModel TransformViewModel { get; }
 
+    public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
+    public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
+
     private DocumentHelpers Helpers { get; }
 
     private int verticalSymmetryAxisX;

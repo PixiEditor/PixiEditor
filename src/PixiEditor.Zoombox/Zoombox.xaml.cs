@@ -28,7 +28,6 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     public static readonly DependencyProperty UseTouchGesturesProperty =
         DependencyProperty.Register(nameof(UseTouchGestures), typeof(bool), typeof(Zoombox));
 
-
     public static readonly DependencyProperty ScaleProperty =
         DependencyProperty.Register(nameof(Scale), typeof(double), typeof(Zoombox), new(1.0, OnPropertyChange));
 
@@ -185,7 +184,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     }
 
     private double[]? zoomValues;
-    
+
     public Zoombox()
     {
         CalculateZoomValues();
@@ -195,12 +194,50 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void CalculateZoomValues()
     {
-        Span<double> roundZoomValues = stackalloc []{ .01, .02, .03, .04, .05, .06, .07, .08, .1, .13, .17, .2, .25, .33, .5, .67, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64 };
+        Span<double> roundZoomValues = stackalloc[]
+        {
+            .01,
+            .02,
+            .03,
+            .04,
+            .05,
+            .06,
+            .07,
+            .08,
+            .1,
+            .13,
+            .17,
+            .2,
+            .25,
+            .33,
+            .5,
+            .67,
+            1,
+            1.5,
+            2,
+            3,
+            4,
+            5,
+            6,
+            8,
+            10,
+            12,
+            14,
+            16,
+            20,
+            24,
+            28,
+            32,
+            40,
+            48,
+            56,
+            64
+        };
         List<double> interpolatedValues = new();
         for (int i = 0; i < roundZoomValues.Length - 1; i++)
         {
             double cur = roundZoomValues[i];
-            double next = roundZoomValues[i+1];
+            double next = roundZoomValues[i + 1];
             const int steps = 3;
             for (int j = 0; j < steps; j++)
             {
@@ -214,7 +251,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void RaiseViewportEvent()
     {
-        var realDim = new VecD(mainCanvas.ActualWidth, mainCanvas.ActualHeight);
+        VecD realDim = new VecD(mainCanvas.ActualWidth, mainCanvas.ActualHeight);
         RealDimensions = realDim;
         RaiseEvent(new ViewportRoutedEventArgs(
             ViewportMovedEvent,
@@ -249,11 +286,11 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         if (delta == 0)
             return;
-        var oldZoomboxMousePos = ToZoomboxSpace(mousePos);
+        VecD oldZoomboxMousePos = ToZoomboxSpace(mousePos);
 
         int curIndex = GetClosestRoundZoomValueIndex(Scale);
         int nextIndex = curIndex;
-        if (!(curIndex == 0 && delta < 0 || curIndex == zoomValues!.Length - 1 && delta > 0))
+        if (!((curIndex == 0 && delta < 0) || (curIndex == zoomValues!.Length - 1 && delta > 0)))
             nextIndex = delta < 0 ? curIndex - 1 : curIndex + 1;
         double newScale = zoomValues![nextIndex];
 
@@ -261,8 +298,8 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         newScale = Math.Clamp(newScale, MinScale, MaxScale);
         Scale = newScale;
 
-        var newZoomboxMousePos = ToZoomboxSpace(mousePos);
-        var deltaCenter = oldZoomboxMousePos - newZoomboxMousePos;
+        VecD newZoomboxMousePos = ToZoomboxSpace(mousePos);
+        VecD deltaCenter = oldZoomboxMousePos - newZoomboxMousePos;
         Center += deltaCenter;
     }
 
@@ -289,6 +326,8 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         activeMouseDownEventArgs = e;
         activeMouseDownPos = ToVecD(e.GetPosition(mainCanvas));
         Keyboard.Focus(this);
+        if (ZoomMode != ZoomboxMode.Normal)
+            e.Handled = true;
     }
 
     private void InitiateDrag(MouseButtonEventArgs e)
@@ -331,7 +370,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         if (activeDragOperation is null && activeMouseDownEventArgs is not null)
         {
-            var cur = ToVecD(e.GetPosition(mainCanvas));
+            VecD cur = ToVecD(e.GetPosition(mainCanvas));
 
             if ((cur - activeMouseDownPos).TaxicabLength > 3)
                 InitiateDrag(activeMouseDownEventArgs);
@@ -377,7 +416,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private static void OnPropertyChange(DependencyObject obj, DependencyPropertyChangedEventArgs args)
     {
-        var zoombox = (Zoombox)obj;
+        Zoombox? zoombox = (Zoombox)obj;
 
         VecD topLeft = zoombox.ToZoomboxSpace(VecD.Zero).Rotate(zoombox.Angle);
         VecD bottomRight = zoombox.ToZoomboxSpace(new(zoombox.mainCanvas.ActualWidth, zoombox.mainCanvas.ActualHeight)).Rotate(zoombox.Angle);

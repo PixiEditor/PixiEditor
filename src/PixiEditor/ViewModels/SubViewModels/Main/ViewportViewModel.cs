@@ -1,5 +1,4 @@
 ﻿using System.Windows.Input;
-using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
@@ -29,11 +28,7 @@ internal class ViewportViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.View.Zoomout", -1, "Zoom out", "Zoom out", CanExecute = "PixiEditor.HasDocument", Key = Key.OemMinus)]
     public void ZoomViewport(double zoom)
     {
-        /*
-        if (Owner.BitmapManager.ActiveDocument is not null)
-        {
-            Owner.BitmapManager.ActiveDocument.ZoomViewportTrigger.Execute(this, zoom);
-        }
-        */
+        Document.DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        doc?.ZoomViewportTrigger.Execute(this, zoom);
     }
 }

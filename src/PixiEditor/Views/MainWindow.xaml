@@ -503,6 +503,8 @@
                                 <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
                                     <DataTemplate DataType="{x:Type doc:DocumentViewModel}">
                                         <usercontrols:Viewport
+                                            CenterViewportTrigger="{Binding CenterViewportTrigger}"
+                                            ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
                                             MouseDownCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseDownCommand}"
                                             MouseMoveCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseMoveCommand}"
                                             MouseUpCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseUpCommand}"
