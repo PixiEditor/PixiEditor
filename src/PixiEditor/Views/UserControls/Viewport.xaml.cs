@@ -47,6 +47,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly DependencyProperty GridLinesVisibleProperty =
         DependencyProperty.Register(nameof(GridLinesVisible), typeof(bool), typeof(Viewport), new(false));
 
+    public static readonly DependencyProperty ZoomOutOnClickProperty =
+        DependencyProperty.Register(nameof(ZoomOutOnClick), typeof(bool), typeof(Viewport), new(false));
+
+    public bool ZoomOutOnClick
+    {
+        get => (bool)GetValue(ZoomOutOnClickProperty);
+        set => SetValue(ZoomOutOnClickProperty, value);
+    }
+
     public bool GridLinesVisible
     {
         get => (bool)GetValue(GridLinesVisibleProperty);

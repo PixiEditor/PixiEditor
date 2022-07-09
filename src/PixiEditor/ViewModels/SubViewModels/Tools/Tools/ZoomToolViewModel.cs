@@ -6,6 +6,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.Z)]
 internal class ZoomToolViewModel : ToolViewModel
 {
+    private bool zoomOutOnClick = false;
+    public bool ZoomOutOnClick
+    {
+        get => zoomOutOnClick;
+        set => SetProperty(ref zoomOutOnClick, value);
+    }
+
     private string defaultActionDisplay = "Click and move to zoom. Click to zoom in, hold ctrl and click to zoom out.";
 
     public ZoomToolViewModel()
@@ -22,10 +29,12 @@ internal class ZoomToolViewModel : ToolViewModel
         if (ctrlIsDown)
         {
             ActionDisplay = "Click and move to zoom. Click to zoom out, release ctrl and click to zoom in.";
+            ZoomOutOnClick = true;
         }
         else
         {
             ActionDisplay = defaultActionDisplay;
+            ZoomOutOnClick = false;
         }
     }
 }

@@ -508,6 +508,8 @@
                                             MouseUpCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseUpCommand}"
                                             Cursor="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ToolCursor}"
                                             GridLinesVisible="{Binding ElementName=mainWindow, Path=DataContext.ViewportSubViewModel.GridLinesEnabled}"
+                                            ZoomMode="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ActiveTool, Converter={converters:ActiveToolToZoomModeConverter}}"
+                                            ZoomOutOnClick="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ZoomTool.ZoomOutOnClick}"
                                             Document="{Binding}"/>
                                         <!--<usercontrols:DrawingViewPort
                                         CenterViewportTrigger="{Binding CenterViewportTrigger}"

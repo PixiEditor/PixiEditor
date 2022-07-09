@@ -13,6 +13,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 [Command.Group("PixiEditor.Tools", "Tools")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>
 {
+    public ZoomToolViewModel ZoomTool => (ZoomToolViewModel)GetTool<ZoomToolViewModel>();
+
     public ToolViewModel LastActionTool { get; private set; }
 
     public bool ActiveToolIsTransient { get; set; }

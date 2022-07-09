@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 
@@ -10,6 +11,7 @@ internal class ZoomDragOperation : IDragOperation
 
     private VecD scaleOrigin;
     private VecD screenScaleOrigin;
+    private double originalScale;
 
     public ZoomDragOperation(Zoombox zoomBox)
     {
@@ -18,20 +20,21 @@ internal class ZoomDragOperation : IDragOperation
 
     public void Start(MouseButtonEventArgs e)
     {
-        screenScaleOrigin = parent.ToZoomboxSpace(Zoombox.ToVecD(e.GetPosition(parent.mainCanvas)));
+        screenScaleOrigin = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
         scaleOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
+        originalScale = parent.Scale;
         parent.mainCanvas.CaptureMouse();
     }
 
     public void Update(MouseEventArgs e)
     {
-        var curScreenPos = e.GetPosition(parent.mainCanvas);
-        double deltaX = screenScaleOrigin.X - curScreenPos.X;
+        Point curScreenPos = e.GetPosition(parent.mainCanvas);
+        double deltaX = curScreenPos.X - screenScaleOrigin.X;
         double deltaPower = deltaX / 10.0;
 
-        parent.Scale *= Math.Pow(Zoombox.ScaleFactor, deltaPower);
+        parent.Scale = originalScale * Math.Pow(Zoombox.ScaleFactor, deltaPower);
 
-        var shiftedOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
+        VecD shiftedOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
         parent.Center += scaleOrigin - shiftedOrigin;
     }
 

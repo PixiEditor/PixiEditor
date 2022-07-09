@@ -27,6 +27,7 @@
             RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
+            ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}"
             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
             <Border
