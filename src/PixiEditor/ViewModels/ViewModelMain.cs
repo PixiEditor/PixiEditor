@@ -216,7 +216,7 @@ internal class ViewModelMain : ViewModelBase
 
         return true;
         */
-        return false;
+        return true;
     }
 
     /// <summary>

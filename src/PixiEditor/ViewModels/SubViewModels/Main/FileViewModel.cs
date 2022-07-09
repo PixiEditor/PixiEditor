@@ -1,10 +1,13 @@
-﻿using System.Windows.Input;
+﻿using System.IO;
+using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using Newtonsoft.Json.Linq;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.Dialogs;
@@ -143,14 +146,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private void Owner_OnStartupEvent(object sender, System.EventArgs e)
     {
-        /*
-        var args = StartupArgs.Args;
-        var file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
+        List<string> args = StartupArgs.Args;
+        string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
         if (file != null)
         {
             Open(file);
         }
-        else if ((Owner.BitmapManager.Documents.Count == 0
+        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0
                   || !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
         {
             if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
@@ -158,7 +160,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 OpenHelloTherePopup();
             }
         }
-        */
     }
 
     [Command.Internal("PixiEditor.File.OpenRecent")]

@@ -1,15 +1,13 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
-using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views;
 
@@ -49,13 +47,11 @@ internal partial class MainWindow : Window
 
         DataContext.CloseAction = Close;
         Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
-        /*
-                preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
-                {
-                    UpdateTaskbarIcon(x ? DataContext.BitmapManager.ActiveDocument : null);
-                });*/
 
-        OnReleaseBuild();
+        preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
+        {
+            UpdateTaskbarIcon(x ? DataContext?.DocumentManagerSubViewModel.ActiveDocument : null);
+        });
     }
 
     public static MainWindow CreateWithDocuments(IEnumerable<Document> documents)
@@ -102,11 +98,6 @@ internal partial class MainWindow : Window
         ((HwndSource)PresentationSource.FromVisual(this)).AddHook(Helpers.WindowSizeHelper.SetMaxSizeHook);
     }
 
-    [Conditional("RELEASE")]
-    private void OnReleaseBuild()
-    {
-        //rawLayerAnchorable.Hide();
-    }
     /*
     private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
     {
@@ -114,22 +105,23 @@ internal partial class MainWindow : Window
         {
             UpdateTaskbarIcon(e.NewDocument);
         }
-    }
-    private void UpdateTaskbarIcon(Document document)
+    }*/
+
+    private void UpdateTaskbarIcon(DocumentViewModel document)
     {
-        if (document?.PreviewImage == null)
+        if (document?.PreviewBitmap is null)
         {
             Icon = pixiEditorLogo;
             return;
         }
 
-        var previewCopy = document.PreviewImage.Clone()
+        WriteableBitmap previewCopy = document.PreviewBitmap.Clone()
             .Resize(512, 512, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
 
         previewCopy.Blit(new Rect(256, 256, 256, 256), pixiEditorLogo, new Rect(0, 0, 512, 512));
 
         Icon = previewCopy;
-    }*/
+    }
 
     private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
     {
