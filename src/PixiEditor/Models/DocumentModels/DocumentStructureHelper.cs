@@ -117,7 +117,7 @@ internal class DocumentStructureHelper
 
     private void HandleMoveInside(List<StructureMemberViewModel> memberToMovePath, List<StructureMemberViewModel> memberToMoveIntoPath)
     {
-        if (memberToMoveIntoPath[0] is not FolderViewModel folder)
+        if (memberToMoveIntoPath[0] is not FolderViewModel folder || memberToMoveIntoPath.Contains(memberToMovePath[0]))
             return;
         int index = folder.Children.Count;
         if (memberToMoveIntoPath[0].GuidValue == memberToMovePath[1].GuidValue) // member is already in this folder
@@ -130,8 +130,7 @@ internal class DocumentStructureHelper
     {
         FolderViewModel targetFolder = (FolderViewModel)memberToMoveRelativeToPath[1];
         if (memberToMovePath[1].GuidValue == memberToMoveRelativeToPath[1].GuidValue)
-        {
-            // members are in the same folder
+        { // members are in the same folder
             int indexOfMemberToMove = targetFolder.Children.IndexOf(memberToMovePath[0]);
             int indexOfMemberToMoveAbove = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
             int index = indexOfMemberToMoveAbove;
@@ -142,8 +141,9 @@ internal class DocumentStructureHelper
             helpers.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, targetFolder.GuidValue, index));
         }
         else
-        {
-            // members are in different folders
+        { // members are in different folders
+            if (memberToMoveRelativeToPath.Contains(memberToMovePath[0]))
+                return;
             int index = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
             if (above)
                 index++;

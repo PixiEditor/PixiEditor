@@ -18,38 +18,39 @@
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="37.5"/>
+            <RowDefinition Height="75"/>
             <RowDefinition Height="15"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
-        <DockPanel Background="{StaticResource MainColor}" Grid.Row="0" HorizontalAlignment="Stretch">
-            <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                <Button Command="{commands:Command PixiEditor.Layer.NewLayer}" 
+        <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" Background="{StaticResource MainColor}">
+            <DockPanel  HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <Button Command="{commands:Command PixiEditor.Layer.NewLayer}" 
                         Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Images/Layer-add.png"/>
-                    </Button.Background>
-                </Button>
-                <Button Command="{commands:Command PixiEditor.Layer.NewFolder}" 
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Images/Layer-add.png"/>
+                        </Button.Background>
+                    </Button>
+                    <Button Command="{commands:Command PixiEditor.Layer.NewFolder}" 
                         Height="24" Width="24" ToolTip="New Group" Cursor="Hand"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Images/Folder-add.png"/>
-                    </Button.Background>
-                </Button>
-                <Button Command="{commands:Command PixiEditor.Layer.DeleteSelected}" Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Images/Folder-add.png"/>
+                        </Button.Background>
+                    </Button>
+                    <Button Command="{commands:Command PixiEditor.Layer.DeleteSelected}" Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
-                    <Button.Background>
-                        <ImageBrush ImageSource="/Images/Trash.png"/>
-                    </Button.Background>
-                </Button>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0,0,10,0" HorizontalAlignment="Right" Focusable="True">
-                <Slider
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Images/Trash.png"/>
+                        </Button.Background>
+                    </Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0,0,10,0" HorizontalAlignment="Right" Focusable="True">
+                    <Slider
                     Width="50"
                     Minimum="0"
                     Maximum="1"
@@ -60,36 +61,43 @@
                     VerticalAlignment="Center"
                     HorizontalAlignment="Stretch"
                     Value="{Binding ElementName=layersManager, Path=ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=OneWay}">
-                    <i:Interaction.Behaviors>
-                        <beh:SliderUpdateBehavior
+                        <i:Interaction.Behaviors>
+                            <beh:SliderUpdateBehavior
                             DragStarted="{commands:Command PixiEditor.Layer.OpacitySliderDragStarted}"
                             DragValueChanged="{commands:Command PixiEditor.Layer.OpacitySliderDragged, UseProvided=True}"
                             DragEnded="{commands:Command PixiEditor.Layer.OpacitySliderDragEnded}"
                             ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value}" />
-                    </i:Interaction.Behaviors>
-                </Slider>
-                <userControls:NumberInput
+                        </i:Interaction.Behaviors>
+                    </Slider>
+                    <userControls:NumberInput
                     Min="0" Max="100"
                     x:Name="numberInput"
                     IsEnabled="{Binding Path=ActiveDocument, ElementName=layersManager, Converter={converters:NotNullToVisibilityConverter}}" 
                     Width="40" Height="20"
                     VerticalAlignment="Center"
                     LostFocus="NumberInput_LostFocus">
-                    <userControls:NumberInput.Value>
-                        <Binding
+                        <userControls:NumberInput.Value>
+                            <Binding
                             Mode="TwoWay"
                             ElementName="layersManager"
                             Path="ActiveDocument.SelectedStructureMember.OpacityBindable"
                             Converter="{converters:MultiplyConverter}">
-                            <Binding.ConverterParameter>
-                                <sys:Double>100</sys:Double>
-                            </Binding.ConverterParameter>
-                        </Binding>
-                    </userControls:NumberInput.Value>
-                </userControls:NumberInput>
-                <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
+                                <Binding.ConverterParameter>
+                                    <sys:Double>100</sys:Double>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </userControls:NumberInput.Value>
+                    </userControls:NumberInput>
+                    <Label Content="%" Foreground="White" VerticalAlignment="Center"/>
+                </StackPanel>
+            </DockPanel>
+            <StackPanel Orientation="Horizontal">
+                <userControls:BlendModeComboBox
+                            Margin="5,0"
+                            Width="80"
+                            SelectedBlendMode="{Binding ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay, ElementName=layersManager}" />
             </StackPanel>
-        </DockPanel>
+        </StackPanel>
         <Separator Grid.Row="1" Margin="0,-12, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
         <DockPanel LastChildFill="True" Grid.Row="2" Margin="0, -12, 0, 0">
             <layerUserControls:ReferenceLayer
