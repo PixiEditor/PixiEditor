@@ -1381,7 +1381,7 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Image Stretch="Uniform" Name="previewImage" Margin="1" Width="30" Height="20"
                                            RenderOptions.BitmapScalingMode="NearestNeighbor"
-                                           Source="{Binding LayoutItem.Model.PreviewImage, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                           Source="{Binding LayoutItem.Model.PreviewBitmap, RelativeSource={RelativeSource TemplatedParent}}"/>
                                     <ContentPresenter
 									Margin="4,0"
 									Content="{Binding Model, RelativeSource={RelativeSource TemplatedParent}}"

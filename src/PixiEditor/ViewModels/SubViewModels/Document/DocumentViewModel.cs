@@ -1,10 +1,12 @@
 ﻿using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -50,6 +52,7 @@ internal class DocumentViewModel : NotifyableObject
 
     public WriteableBitmap PreviewBitmap { get; set; }
     public SKSurface PreviewSurface { get; set; }
+    public string? FullFilePath { get; set; }
 
     public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
 
@@ -254,6 +257,41 @@ internal class DocumentViewModel : NotifyableObject
         Helpers.StructureHelper.TryMoveStructureMember(memberToMove, memberToMoveIntoOrNextTo, placement);
     }
 
+    public SKColor PickColor(VecI pos, bool fromAllLayers)
+    {
+        // there is a tiny chance that the image might get disposed by another thread
+        try
+        {
+            // it might've been a better idea to implement this function asynchonously
+            // via a passthrough action to avoid all the try catches
+            if (fromAllLayers)
+            {
+                VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
+                return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Helpers.Tracker.Document.StructureRoot)
+                    .Match<SKColor>(
+                        (Chunk chunk) =>
+                        {
+                            VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
+                            SKColor color = chunk.Surface.GetSRGBPixel(posOnChunk);
+                            chunk.Dispose();
+                            return color;
+                        },
+                        _ => SKColors.Transparent
+                    );
+            }
+
+            if (SelectedStructureMember is not LayerViewModel layerVm)
+                return SKColors.Transparent;
+            IReadOnlyStructureMember? maybeMember = Helpers.Tracker.Document.FindMember(layerVm.GuidValue);
+            if (maybeMember is not IReadOnlyLayer layer)
+                return SKColors.Transparent;
+            return layer.LayerImage.GetMostUpToDatePixel(pos);
+        }
+        catch (ObjectDisposedException)
+        {
+            return SKColors.Transparent;
+        }
+    }
 
     public void OnKeyDown(Key args) => Helpers.ChangeController.OnKeyDown(args);
     public void OnKeyUp(Key args) => Helpers.ChangeController.OnKeyUp(args);

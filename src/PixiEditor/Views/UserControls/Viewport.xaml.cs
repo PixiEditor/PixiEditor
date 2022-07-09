@@ -356,9 +356,4 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         if (args.NewValue != null)
             ((ExecutionTrigger<double>)args.NewValue).Triggered += viewport.ZoomZoomboxContent;
     }
-
-    private void OnGridLoaded(object sender, RoutedEventArgs e)
-    {
-
-    }
 }

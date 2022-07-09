@@ -637,7 +637,7 @@
                                                     SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
                                                     Colors="{Binding BitmapManager.ActiveDocument.Palette}" 
                                                     Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}}"/>
-                                                <palettes:PaletteViewer IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument, Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
+                                                <palettes:PaletteViewer IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
                                                     Swatches="{Binding BitmapManager.ActiveDocument.Swatches}"
                                                     SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
                                                     HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,Converter={converters:SKColorToMediaColorConverter}}"
@@ -683,7 +683,7 @@
                                             CanDockAsTabbedDocument="False"
                                             CanFloat="True">
                                             <usercontrols:PreviewWindow
-                                                Document="{Binding BitmapManager.ActiveDocument}"
+                                                Document="{Binding DataContext.DocumentManagerSubViewModel.ActiveDocument, ElementName=mainWindow}"
                                                 PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}" />
                                         </LayoutAnchorable>
                                     </LayoutAnchorablePane>

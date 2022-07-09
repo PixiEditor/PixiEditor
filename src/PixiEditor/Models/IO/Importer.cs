@@ -5,8 +5,7 @@ using System.Windows.Media.Imaging;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataHolders.Document;
-using SkiaSharp;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.IO;
 
@@ -24,7 +23,7 @@ internal class Importer : NotifyableObject
         Surface wbmp = ImportSurface(path);
         if (wbmp.Width != width || wbmp.Height != height)
         {
-            var resized = wbmp.ResizeNearestNeighbor(width, height);
+            Surface resized = wbmp.ResizeNearestNeighbor(width, height);
             wbmp.Dispose();
             return resized;
         }
@@ -38,7 +37,7 @@ internal class Importer : NotifyableObject
     /// <param name="path">Path of image.</param>
     public static Surface ImportSurface(string path)
     {
-        using var image = SKImage.FromEncodedData(path);
+        using SKImage image = SKImage.FromEncodedData(path);
         if (image == null)
             throw new CorruptedFileException();
         Surface surface = new Surface(image.Width, image.Height);
@@ -69,7 +68,7 @@ internal class Importer : NotifyableObject
         }
     }
 
-    public static Document ImportDocument(string path)
+    public static DocumentViewModel ImportDocument(string path)
     {
         /*
         try
@@ -102,13 +101,13 @@ internal class Importer : NotifyableObject
         int height = BitConverter.ToInt32(bytes, 4);
 
         SKImageInfo info = new SKImageInfo(width, height, SKColorType.RgbaF16);
-        var ptr = Marshal.AllocHGlobal(bytes.Length - 8);
+        IntPtr ptr = Marshal.AllocHGlobal(bytes.Length - 8);
         try
         {
             Marshal.Copy(bytes, 8, ptr, bytes.Length - 8);
             SKPixmap map = new(info, ptr);
             SKSurface surface = SKSurface.Create(map);
-            var finalSurface = new Surface(width, height);
+            Surface finalSurface = new Surface(width, height);
             surface.Draw(finalSurface.SkiaSurface.Canvas, 0, 0, Surface.ReplacingPaint);
             return finalSurface;
         }

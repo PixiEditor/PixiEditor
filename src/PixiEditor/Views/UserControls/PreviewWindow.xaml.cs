@@ -2,9 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataHolders.Document;
-using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views.UserControls;
 
@@ -14,11 +12,11 @@ namespace PixiEditor.Views.UserControls;
 internal partial class PreviewWindow : UserControl
 {
     public static readonly DependencyProperty DocumentProperty =
-        DependencyProperty.Register(nameof(Document), typeof(Document), typeof(PreviewWindow));
+        DependencyProperty.Register(nameof(Document), typeof(DocumentViewModel), typeof(PreviewWindow));
 
-    public Document Document
+    public DocumentViewModel Document
     {
-        get => (Document)GetValue(DocumentProperty);
+        get => (DocumentViewModel)GetValue(DocumentProperty);
         set => SetValue(DocumentProperty, value);
     }
 
@@ -62,10 +60,10 @@ internal partial class PreviewWindow : UserControl
     {
         InitializeComponent();
 
-        /*imageGrid.MouseMove += ImageGrid_MouseMove;
+        imageGrid.MouseMove += ImageGrid_MouseMove;
         imageGrid.MouseRightButtonDown += ImageGrid_MouseRightButtonDown;
         imageGrid.MouseEnter += ImageGrid_MouseEnter;
-        imageGrid.MouseLeave += ImageGrid_MouseLeave;*/
+        imageGrid.MouseLeave += ImageGrid_MouseLeave;
     }
 
     private void ImageGrid_MouseLeave(object sender, MouseEventArgs e)
@@ -116,8 +114,7 @@ internal partial class PreviewWindow : UserControl
 
     private void ImageGrid_MouseMove(object sender, MouseEventArgs e)
     {
-        /*
-        if (Document == null)
+        if (Document is null)
         {
             return;
         }
@@ -136,8 +133,7 @@ internal partial class PreviewWindow : UserControl
 
         ColorCursorPosition = newPos;
 
-        var color = Document.GetColorAtPoint(x, y);
+        SKColor color = Document.PickColor(new(x, y), true);
         ColorCursorColor = Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
-        */
     }
 }
