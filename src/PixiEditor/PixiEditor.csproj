@@ -177,8 +177,8 @@
 		<None Remove="Images\SocialMedia\WebsiteIcon.png" />
 		<None Remove="Images\SocialMedia\YouTubeIcon.png" />
 		<None Remove="Images\Tools\BrightnessImage.png" />
-		<None Remove="Images\Tools\CircleImage.png" />
 		<None Remove="Images\Tools\ColorPickerImage.png" />
+		<None Remove="Images\Tools\EllipseImage.png" />
 		<None Remove="Images\Tools\EraserImage.png" />
 		<None Remove="Images\Tools\FloodFillImage.png" />
 		<None Remove="Images\Tools\LineImage.png" />
@@ -270,7 +270,7 @@
 		<Resource Include="Images\SocialMedia\WebsiteIcon.png" />
 		<Resource Include="Images\SocialMedia\YouTubeIcon.png" />
 		<Resource Include="Images\Tools\BrightnessImage.png" />
-		<Resource Include="Images\Tools\CircleImage.png" />
+		<Resource Include="Images\Tools\EllipseImage.png" />
 		<Resource Include="Images\Tools\ColorPickerImage.png" />
 		<Resource Include="Images\Tools\EraserImage.png" />
 		<Resource Include="Images\Tools\FloodFillImage.png" />

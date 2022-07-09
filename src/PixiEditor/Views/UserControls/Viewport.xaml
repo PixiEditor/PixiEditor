@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
     xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
+    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
     xmlns:to="clr-namespace:PixiEditor.Views.UserControls.TransformOverlay"
     xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
     xmlns:sym="clr-namespace:PixiEditor.Views.UserControls.SymmetryOverlay"
@@ -29,12 +30,23 @@
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}"
             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
             <Border
-                BorderThickness="1"
-                Background="White"
-                BorderBrush="Black"
+                d:Width="64"
+                d:Height="64"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
+                DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}"
+                RenderOptions.BitmapScalingMode="NearestNeighbor">
+                <Border.Background>
+                    <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" ViewportUnits="Absolute">
+                        <ImageBrush.Viewport>
+                            <Binding Path="Scale" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type zoombox:Zoombox}}" Converter="{converters:ZoomToViewportConverter}">
+                                <Binding.ConverterParameter>
+                                    <sys:Double>16</sys:Double>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </ImageBrush.Viewport>
+                    </ImageBrush>
+                </Border.Background>
                 <Grid>
                     <Canvas>
                         <Image
@@ -79,6 +91,7 @@
                         RequestedCorners="{Binding Document.TransformViewModel.RequestedCorners, Mode=TwoWay}"
                         CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"
                         SideFreedom="{Binding Document.TransformViewModel.SideFreedom}"
+                        LockRotation="{Binding Document.TransformViewModel.LockRotation}"
                         InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
                         ZoomboxScale="{Binding Zoombox.Scale}" />
                 </Grid>
@@ -102,11 +115,6 @@
                 <RowDefinition
                     Height="1*" />
             </Grid.RowDefinitions>
-            <Border
-                BorderBrush="Red"
-                Grid.Row="1"
-                Grid.Column="1"
-                BorderThickness="1" />
         </Grid>
     </Grid>
 </UserControl>

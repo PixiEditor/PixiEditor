@@ -62,6 +62,7 @@
 
         <local:Zoombox.AdditionalContent>
             <Canvas Width="{Binding Width}" Height="{Binding Height}"
+                    d:Width="400" d:Height="400"
                     Loaded="OnCanvasLoaded"
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     RenderOptions.BitmapScalingMode="NearestNeighbor">

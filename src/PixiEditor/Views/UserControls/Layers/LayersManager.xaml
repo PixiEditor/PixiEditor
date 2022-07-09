@@ -59,14 +59,14 @@
                     IsSnapToTickEnabled="False"
                     x:Name="opacitySlider"
                     VerticalAlignment="Center"
-                    HorizontalAlignment="Stretch"
-                    Value="{Binding ElementName=layersManager, Path=ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=OneWay}">
+                    HorizontalAlignment="Stretch">
                         <i:Interaction.Behaviors>
                             <beh:SliderUpdateBehavior
-                            DragStarted="{commands:Command PixiEditor.Layer.OpacitySliderDragStarted}"
-                            DragValueChanged="{commands:Command PixiEditor.Layer.OpacitySliderDragged, UseProvided=True}"
-                            DragEnded="{commands:Command PixiEditor.Layer.OpacitySliderDragEnded}"
-                            ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value}" />
+                                Binding="{Binding ElementName=layersManager, Path=ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=OneWay}"
+                                DragStarted="{commands:Command PixiEditor.Layer.OpacitySliderDragStarted}"
+                                DragValueChanged="{commands:Command PixiEditor.Layer.OpacitySliderDragged, UseProvided=True}"
+                                DragEnded="{commands:Command PixiEditor.Layer.OpacitySliderDragEnded}"
+                                ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value, Mode=TwoWay}" />
                         </i:Interaction.Behaviors>
                     </Slider>
                     <userControls:NumberInput

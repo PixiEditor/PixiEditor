@@ -8,6 +8,16 @@ namespace PixiEditor.Helpers.Behaviours;
 #nullable enable
 internal class SliderUpdateBehavior : Behavior<Slider>
 {
+    public static readonly DependencyProperty BindingProperty =
+        DependencyProperty.Register(nameof(Binding), typeof(double), typeof(SliderUpdateBehavior), new(0.0, OnBindingValuePropertyChange));
+
+    public double Binding
+    {
+        get => (double)GetValue(BindingProperty);
+        set => SetValue(BindingProperty, value);
+    }
+
+
     public static DependencyProperty DragValueChangedProperty = DependencyProperty.Register(nameof(DragValueChanged), typeof(ICommand), typeof(SliderUpdateBehavior));
     public ICommand DragValueChanged
     {
@@ -41,7 +51,10 @@ internal class SliderUpdateBehavior : Behavior<Slider>
 
     private bool attached = false;
     private bool dragging = false;
-    private bool valueChangedWhileDragging = false;
+
+    private bool bindingValueChangedWhileDragging = false;
+    private double bindingValueWhileDragging = 0.0;
+
     protected override void OnAttached()
     {
         AssociatedObject.Loaded += AssociatedObject_Loaded;
@@ -92,16 +105,29 @@ internal class SliderUpdateBehavior : Behavior<Slider>
         {
             if (obj.DragValueChanged is not null && obj.DragValueChanged.CanExecute(e.NewValue))
                 obj.DragValueChanged.Execute(e.NewValue);
-            obj.valueChangedWhileDragging = true;
         }
+    }
+
+    private static void OnBindingValuePropertyChange(DependencyObject slider, DependencyPropertyChangedEventArgs e)
+    {
+        SliderUpdateBehavior obj = (SliderUpdateBehavior)slider;
+        if (obj.dragging)
+        {
+            obj.bindingValueChangedWhileDragging = true;
+            obj.bindingValueWhileDragging = (double)e.NewValue;
+            return;
+        }
+        obj.ValueFromSlider = (double)e.NewValue;
     }
 
     private void Thumb_DragCompleted(object sender, DragCompletedEventArgs e)
     {
         dragging = false;
-        if (valueChangedWhileDragging && DragEnded is not null && DragEnded.CanExecute(null))
+        if (DragEnded is not null && DragEnded.CanExecute(null))
             DragEnded.Execute(null);
-        valueChangedWhileDragging = false;
+        if (bindingValueChangedWhileDragging)
+            ValueFromSlider = bindingValueWhileDragging;
+        bindingValueChangedWhileDragging = false;
     }
 
     private void Thumb_DragStarted(object sender, DragStartedEventArgs e)

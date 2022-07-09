@@ -39,6 +39,17 @@ internal class DocumentTransformViewModel : INotifyPropertyChanged
         }
     }
 
+    private bool lockRotation;
+    public bool LockRotation
+    {
+        get => lockRotation;
+        set
+        {
+            lockRotation = value;
+            PropertyChanged?.Invoke(this, new(nameof(LockRotation)));
+        }
+    }
+
     private bool transformActive;
     public bool TransformActive
     {
@@ -80,11 +91,21 @@ internal class DocumentTransformViewModel : INotifyPropertyChanged
         TransformActive = false;
     }
 
-    public void ShowShapeTransform(ShapeCorners initPos)
+    public void ShowFixedAngleShapeTransform(ShapeCorners initPos)
+    {
+        CornerFreedom = TransformCornerFreedom.Scale;
+        SideFreedom = TransformSideFreedom.ScaleProportionally;
+        LockRotation = true;
+        RequestedCorners = initPos;
+        TransformActive = true;
+    }
+
+    public void ShowRotatingShapeTransform(ShapeCorners initPos)
     {
         CornerFreedom = TransformCornerFreedom.Scale;
         SideFreedom = TransformSideFreedom.ScaleProportionally;
         RequestedCorners = initPos;
+        LockRotation = false;
         TransformActive = true;
     }
 
@@ -93,6 +114,7 @@ internal class DocumentTransformViewModel : INotifyPropertyChanged
         CornerFreedom = TransformCornerFreedom.Free;
         SideFreedom = TransformSideFreedom.Free;
         RequestedCorners = initPos;
+        LockRotation = false;
         TransformActive = true;
     }
 }

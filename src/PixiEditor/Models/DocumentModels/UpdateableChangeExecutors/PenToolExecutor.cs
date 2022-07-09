@@ -1,16 +1,18 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class LineBasedPenExecutor : UpdateableChangeExecutor
+internal class PenToolExecutor : UpdateableChangeExecutor
 {
     private Guid guidValue;
     private SKColor color;
     private int toolSize;
     private bool drawOnMask;
+    private bool pixelPerfect;
 
     public override OneOf<Success, Error> Start()
     {
@@ -25,14 +27,13 @@ internal class LineBasedPenExecutor : UpdateableChangeExecutor
         color = vm.ColorsSubViewModel.PrimaryColor;
         toolSize = toolbar.ToolSize;
         drawOnMask = member.ShouldDrawOnMask;
+        pixelPerfect = toolbar.PixelPerfectEnabled;
 
-        LineBasedPen_Action? action = new(
-            guidValue,
-            color,
-            controller!.LastPixelPosition,
-            toolSize,
-            false,
-            drawOnMask);
+        IAction? action = pixelPerfect switch
+        {
+            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, toolSize, false, drawOnMask),
+            true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask)
+        };
         helpers!.ActionAccumulator.AddActions(action);
 
         return new Success();
@@ -40,24 +41,33 @@ internal class LineBasedPenExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        LineBasedPen_Action? action = new(
-            guidValue,
-            color,
-            pos,
-            toolSize,
-            false,
-            drawOnMask);
+        IAction? action = pixelPerfect switch
+        {
+            false => new LineBasedPen_Action(guidValue, color, pos, toolSize, false, drawOnMask),
+            true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask)
+        };
         helpers!.ActionAccumulator.AddActions(action);
     }
 
     public override void OnLeftMouseButtonUp()
     {
-        helpers!.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
+        IAction? action = pixelPerfect switch
+        {
+            false => new EndLineBasedPen_Action(),
+            true => new EndPixelPerfectPen_Action()
+        };
+
+        helpers!.ActionAccumulator.AddFinishedActions(action);
         onEnded?.Invoke(this);
     }
 
     public override void ForceStop()
     {
-        helpers!.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
+        IAction? action = pixelPerfect switch
+        {
+            false => new EndLineBasedPen_Action(),
+            true => new EndPixelPerfectPen_Action()
+        };
+        helpers!.ActionAccumulator.AddFinishedActions(action);
     }
 }

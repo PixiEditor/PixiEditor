@@ -109,11 +109,11 @@ internal class DocumentViewModel : NotifyableObject
     public DocumentViewModel(string name)
     {
         //Name = name;
-        TransformViewModel = new();
-        //TransformViewModel.TransformMoved += OnTransformUpdate;
-
         Helpers = new DocumentHelpers(this);
         StructureRoot = new FolderViewModel(this, Helpers, Helpers.Tracker.Document.StructureRoot.GuidValue);
+
+        TransformViewModel = new();
+        TransformViewModel.TransformMoved += (_, args) => Helpers.ChangeController.OnTransformMoved(args);
 
         /*UndoCommand = new RelayCommand(Undo);
         RedoCommand = new RelayCommand(Redo);
@@ -231,7 +231,8 @@ internal class DocumentViewModel : NotifyableObject
 
     public void UseOpacitySlider() => Helpers.ChangeController.TryStartUpdateableChange<StructureMemberOpacityExecutor>();
 
-    public void UsePenTool() => Helpers.ChangeController.TryStartUpdateableChange<LineBasedPenExecutor>();
+    public void UsePenTool() => Helpers.ChangeController.TryStartUpdateableChange<PenToolExecutor>();
+    public void UseEllipseTool() => Helpers.ChangeController.TryStartUpdateableChange<EllipseToolExecutor>();
 
     public void MoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo, StructureMemberPlacement placement)
     {

@@ -28,6 +28,9 @@ internal class TransformOverlay : Control
         DependencyProperty.Register(nameof(CornerFreedom), typeof(TransformCornerFreedom), typeof(TransformOverlay),
             new PropertyMetadata(TransformCornerFreedom.Locked));
 
+    public static readonly DependencyProperty LockRotationProperty =
+        DependencyProperty.Register(nameof(LockRotation), typeof(bool), typeof(TransformOverlay), new(false));
+
     public static readonly DependencyProperty SnapToAnglesProperty =
         DependencyProperty.Register(nameof(SnapToAngles), typeof(bool), typeof(TransformOverlay), new PropertyMetadata(false));
 
@@ -75,6 +78,12 @@ internal class TransformOverlay : Control
     {
         get => (double)GetValue(ZoomboxScaleProperty);
         set => SetValue(ZoomboxScaleProperty, value);
+    }
+
+    public bool LockRotation
+    {
+        get => (bool)GetValue(LockRotationProperty);
+        set => SetValue(LockRotationProperty, value);
     }
 
     private bool isResettingRequestedCorners = false;
@@ -174,8 +183,8 @@ internal class TransformOverlay : Control
         base.OnMouseDown(e);
 
         e.Handled = true;
-        var pos = TransformHelper.ToVecD(e.GetPosition(this));
-        var anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale);
+        VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
+        Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale);
         if (anchor is not null)
         {
             capturedAnchor = anchor;
@@ -190,13 +199,17 @@ internal class TransformOverlay : Control
             originOnStartMove = InternalState.Origin;
             cornersOnStartMove = Corners;
         }
-        else
+        else if (!LockRotation)
         {
             isRotating = true;
             mousePosOnStartRotate = TransformHelper.ToVecD(e.GetPosition(this));
             cornersOnStartRotate = Corners;
             propAngle1OnStartRotate = InternalState.ProportionalAngle1;
             propAngle2OnStartRotate = InternalState.ProportionalAngle2;
+        }
+        else
+        {
+            return;
         }
         CaptureMouse();
     }
@@ -211,8 +224,8 @@ internal class TransformOverlay : Control
 
         if (isMoving)
         {
-            var pos = TransformHelper.ToVecD(e.GetPosition(this));
-            var delta = pos - mousePosOnStartMove;
+            VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
+            VecD delta = pos - mousePosOnStartMove;
 
             if (Corners.IsSnappedToPixels)
                 delta = delta.Round();
@@ -229,8 +242,8 @@ internal class TransformOverlay : Control
         }
         else if (isRotating)
         {
-            var pos = TransformHelper.ToVecD(e.GetPosition(this));
-            var angle = (mousePosOnStartRotate - InternalState.Origin).CCWAngleTo(pos - InternalState.Origin);
+            VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
+            double angle = (mousePosOnStartRotate - InternalState.Origin).CCWAngleTo(pos - InternalState.Origin);
             if (SnapToAngles)
                 angle = TransformHelper.FindSnappingAngle(cornersOnStartRotate, angle);
             InternalState = InternalState with { ProportionalAngle1 = propAngle1OnStartRotate + angle, ProportionalAngle2 = propAngle2OnStartRotate + angle, };
@@ -243,16 +256,16 @@ internal class TransformOverlay : Control
         if (capturedAnchor is null)
             throw new InvalidOperationException("No anchor is captured");
         e.Handled = true;
-        if (TransformHelper.IsCorner((Anchor)capturedAnchor) && CornerFreedom == TransformCornerFreedom.Locked ||
-            TransformHelper.IsSide((Anchor)capturedAnchor) && SideFreedom == TransformSideFreedom.Locked)
+        if ((TransformHelper.IsCorner((Anchor)capturedAnchor) && CornerFreedom == TransformCornerFreedom.Locked) ||
+            (TransformHelper.IsSide((Anchor)capturedAnchor) && SideFreedom == TransformSideFreedom.Locked))
             return;
 
-        var pos = TransformHelper.ToVecD(e.GetPosition(this));
+        VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
 
         if (TransformHelper.IsCorner((Anchor)capturedAnchor))
         {
-            var targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
-            var newCorners = TransformUpdateHelper.UpdateShapeFromCorner
+            VecD targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
+            ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromCorner
                 ((Anchor)capturedAnchor, CornerFreedom, InternalState.ProportionalAngle1, InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
             if (newCorners is not null)
             {
@@ -264,8 +277,8 @@ internal class TransformOverlay : Control
         }
         else if (TransformHelper.IsSide((Anchor)capturedAnchor))
         {
-            var targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
-            var newCorners = TransformUpdateHelper.UpdateShapeFromSide
+            VecD targetPos = TransformHelper.GetAnchorPosition(cornersOnStartAnchorDrag, (Anchor)capturedAnchor) + pos - mousePosOnStartAnchorDrag;
+            ShapeCorners? newCorners = TransformUpdateHelper.UpdateShapeFromSide
                 ((Anchor)capturedAnchor, SideFreedom, InternalState.ProportionalAngle1, InternalState.ProportionalAngle2, cornersOnStartAnchorDrag, targetPos);
             if (newCorners is not null)
             {

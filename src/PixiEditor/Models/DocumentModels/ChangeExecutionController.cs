@@ -8,6 +8,7 @@ namespace PixiEditor.Models.DocumentModels;
 internal class ChangeExecutionController
 {
     public MouseButtonState LeftMouseState { get; private set; }
+    public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
     public float LastOpacityValue = 1f;
@@ -127,4 +128,12 @@ internal class ChangeExecutionController
         //call session events
         currentSession?.OnLeftMouseButtonUp();
     }
+
+    public void OnTransformMoved(ShapeCorners corners)
+    {
+        LastTransformState = corners;
+        currentSession?.OnTransformMoved(corners);
+    }
+
+    public void OnTransformApplied() => currentSession?.OnTransformApplied();
 }

@@ -142,9 +142,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         get => realDimensions;
         set
         {
-            var oldRes = CalculateResolution();
+            ChunkResolution oldRes = CalculateResolution();
             realDimensions = value;
-            var newRes = CalculateResolution();
+            ChunkResolution newRes = CalculateResolution();
 
             PropertyChanged?.Invoke(this, new(nameof(RealDimensions)));
             Document?.AddOrUpdateViewport(GetLocation());
@@ -161,9 +161,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         get => dimensions;
         set
         {
-            var oldRes = CalculateResolution();
+            ChunkResolution oldRes = CalculateResolution();
             dimensions = value;
-            var newRes = CalculateResolution();
+            ChunkResolution newRes = CalculateResolution();
 
             PropertyChanged?.Invoke(this, new(nameof(Dimensions)));
             Document?.AddOrUpdateViewport(GetLocation());
@@ -177,7 +177,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get
         {
-            return Document?.Bitmaps.TryGetValue(CalculateResolution(), out var value) == true ? value : null;
+            return Document?.Bitmaps.TryGetValue(CalculateResolution(), out WriteableBitmap? value) == true ? value : null;
         }
     }
 
@@ -220,9 +220,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private static void OnDocumentChange(DependencyObject viewportObj, DependencyPropertyChangedEventArgs args)
     {
-        var oldDoc = (DocumentViewModel?)args.OldValue;
-        var newDoc = (DocumentViewModel?)args.NewValue;
-        var viewport = (Viewport)viewportObj;
+        DocumentViewModel? oldDoc = (DocumentViewModel?)args.OldValue;
+        DocumentViewModel? newDoc = (DocumentViewModel?)args.NewValue;
+        Viewport? viewport = (Viewport)viewportObj;
         oldDoc?.RemoveViewport(viewport.GuidValue);
         newDoc?.AddOrUpdateViewport(viewport.GetLocation());
     }
@@ -247,7 +247,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private ViewportInfo GetLocation()
     {
-        return new(Angle, Center, RealDimensions / 2, Dimensions / 2, CalculateResolution(), GuidValue, Delayed, ForceRefreshFinalImage);
+        return new(Angle, Center, RealDimensions, Dimensions, CalculateResolution(), GuidValue, Delayed, ForceRefreshFinalImage);
     }
 
     private void OnReferenceImageSizeChanged(object? sender, SizeChangedEventArgs e)
@@ -259,9 +259,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         if (MouseDownCommand is null)
             return;
-        var pos = e.GetPosition((IInputElement)sender);
+        Point pos = e.GetPosition((IInputElement)sender);
         VecD conv = new VecD(pos.X, pos.Y);
-        var parameter = new MouseOnCanvasEventArgs(e.ChangedButton, conv);
+        MouseOnCanvasEventArgs? parameter = new MouseOnCanvasEventArgs(e.ChangedButton, conv);
 
         if (MouseDownCommand.CanExecute(parameter))
             MouseDownCommand.Execute(parameter);
@@ -271,7 +271,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         if (MouseMoveCommand is null)
             return;
-        var pos = e.GetPosition((IInputElement)sender);
+        Point pos = e.GetPosition((IInputElement)sender);
         VecD conv = new VecD(pos.X, pos.Y);
 
         if (MouseMoveCommand.CanExecute(conv))
