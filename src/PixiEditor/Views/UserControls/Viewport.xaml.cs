@@ -234,7 +234,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Binding binding = new Binding { Source = this, Path = new PropertyPath("Document.Bitmaps") };
         SetBinding(BitmapsProperty, binding);
 
-        GetImage().Loaded += OnImageLoaded;
+        GetImage()!.Loaded += OnImageLoaded;
         Loaded += OnLoad;
         Unloaded += OnUnload;
     }

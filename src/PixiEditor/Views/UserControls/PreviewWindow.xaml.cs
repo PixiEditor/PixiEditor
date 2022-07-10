@@ -2,13 +2,11 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views.UserControls;
 
-/// <summary>
-/// Interaction logic for PreviewWindow.xaml
-/// </summary>
 internal partial class PreviewWindow : UserControl
 {
     public static readonly DependencyProperty DocumentProperty =
@@ -119,10 +117,14 @@ internal partial class PreviewWindow : UserControl
             return;
         }
 
-        Point mousePos = e.GetPosition(imageGrid);
+        Point mousePos = e.GetPosition(viewport);
+        VecD mousePosConverted =
+            new VecD(mousePos.X, mousePos.Y)
+                .Divide(new VecD(viewport.ActualWidth, viewport.ActualHeight))
+                .Multiply(Document.SizeBindable);
 
-        int x = (int)mousePos.X;
-        int y = (int)mousePos.Y;
+        int x = (int)mousePosConverted.X;
+        int y = (int)mousePosConverted.Y;
 
         Thickness newPos = new Thickness(x, y, 0, 0);
 
