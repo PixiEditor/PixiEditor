@@ -4,6 +4,7 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -288,6 +289,25 @@ internal class DocumentViewModel : NotifyableObject
         if (Helpers.ChangeController.IsChangeActive || memberToMove == memberToMoveIntoOrNextTo)
             return;
         Helpers.StructureHelper.TryMoveStructureMember(memberToMove, memberToMoveIntoOrNextTo, placement);
+    }
+    public void MergeStructureMembers(IReadOnlyList<Guid> members)
+    {
+        if (Helpers.ChangeController.IsChangeActive || members.Count < 2)
+            return;
+        var (child, parent) = StructureViewModel.FindChildAndParent(members[0]);
+        if (child is null || parent is null)
+            return;
+        int index = parent.Children.IndexOf(child);
+        Guid newGuid = Guid.NewGuid();
+
+        //make a new layer, put combined image onto it, delete layers that were merged
+        Helpers.ActionAccumulator.AddActions(
+            new CreateStructureMember_Action(parent.GuidValue, newGuid, index, StructureMemberType.Layer),
+            new StructureMemberName_Action(newGuid, child.NameBindable),
+            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid));
+        foreach (var member in members)
+            Helpers.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
+        Helpers.ActionAccumulator.AddActions(new ChangeBoundary_Action());
     }
 
     public SKColor PickColor(VecI pos, bool fromAllLayers)

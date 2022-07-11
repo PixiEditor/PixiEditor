@@ -44,8 +44,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         member.Document.DeleteStructureMember(member.GuidValue);
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.CanDeleteAllSelected")]
-    public bool CanDeleteAllSelected(object parameter)
+    [Evaluator.CanExecute("PixiEditor.Layer.HasSelectedMembers")]
+    public bool HasSelectedMembers(object parameter)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -53,17 +53,39 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return doc.SelectedStructureMember is not null || doc.SoftSelectedStructureMembers.Count > 0;
     }
 
-    [Command.Basic("PixiEditor.Layer.DeleteAllSelected", "Delete all selected layers/folders", "Delete all selected layers and/or folders", CanExecute = "PixiEditor.Layer.CanDeleteAllSelected")]
+    [Evaluator.CanExecute("PixiEditor.Layer.HasMultipleSelectedMembers")]
+    public bool HasMultipleSelectedMembers(object parameter)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+        int count = doc.SoftSelectedStructureMembers.Count;
+        if (doc.SelectedStructureMember is not null)
+            count++;
+        return count > 1;
+    }
+
+    private List<Guid> GetSelected()
+    {
+        List<Guid> membersToDelete = new();
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return membersToDelete;
+        if (doc.SelectedStructureMember is not null)
+            membersToDelete.Add(doc.SelectedStructureMember.GuidValue);
+        membersToDelete.AddRange(doc.SoftSelectedStructureMembers.Select(static member => member.GuidValue));
+        return membersToDelete;
+    }
+
+    [Command.Basic("PixiEditor.Layer.DeleteAllSelected", "Delete all selected layers/folders", "Delete all selected layers and/or folders", CanExecute = "PixiEditor.Layer.HasSelectedMembers")]
     public void DeleteAllSelected(object parameter)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        List<Guid> membersToDelete = new();
-        if (doc.SelectedStructureMember is not null)
-            membersToDelete.Add(doc.SelectedStructureMember.GuidValue);
-        membersToDelete.AddRange(doc.SoftSelectedStructureMembers.Select(static member => member.GuidValue));
-        doc.DeleteStructureMembers(membersToDelete);
+        var selected = GetSelected();
+        if (selected.Count > 0)
+            doc.DeleteStructureMembers(selected);
     }
 
     [Command.Basic("PixiEditor.Layer.NewFolder", "New Folder", "Create new folder", CanExecute = "PixiEditor.Layer.CanCreateNewMember")]
@@ -129,7 +151,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
-    private bool CanMoveSelectedMember(bool upwards)
+    private bool HasSelectedMember(bool above)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         var member = doc?.SelectedStructureMember;
@@ -140,9 +162,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return false;
         var parent = (FolderViewModel)path[1];
         int index = parent.Children.IndexOf(path[0]);
-        if (upwards && index == parent.Children.Count - 1)
+        if (above && index == parent.Children.Count - 1)
             return false;
-        if (!upwards && index == 0)
+        if (!above && index == 0)
             return false;
         return true;
     }
@@ -172,43 +194,48 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.CanMoveSelectedMemberUpwards")]
-    public bool CanMoveSelectedMemberUpwards(object property) => CanMoveSelectedMember(true);
-    [Evaluator.CanExecute("PixiEditor.Layer.CanMoveSelectedMemberDownwards")]
-    public bool CanMoveSelectedMemberDownwards(object property) => CanMoveSelectedMember(false);
+    [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove")]
+    public bool HasMemberAbove(object property) => HasSelectedMember(true);
+    [Evaluator.CanExecute("PixiEditor.Layer.HasMemberBelow")]
+    public bool HasMemberBelow(object property) => HasSelectedMember(false);
 
-    [Command.Basic("PixiEditor.Layer.MoveSelectedMemberUpwards", "Move selected layer or folder upwards", "Move selected layer or folder upwards", CanExecute = "PixiEditor.Layer.CanMoveSelectedMemberUpwards")]
+    [Command.Basic("PixiEditor.Layer.MoveSelectedMemberUpwards", "Move selected layer or folder upwards", "Move selected layer or folder upwards", CanExecute = "PixiEditor.Layer.HasMemberAbove")]
     public void MoveSelectedMemberUpwards(object parameter) => MoveSelectedMember(true);
-    [Command.Basic("PixiEditor.Layer.MoveSelectedMemberDownwards", "Move selected layer or folder downwards", "Move selected layer or folder downwards", CanExecute = "PixiEditor.Layer.CanMoveSelectedMemberDownwards")]
+    [Command.Basic("PixiEditor.Layer.MoveSelectedMemberDownwards", "Move selected layer or folder downwards", "Move selected layer or folder downwards", CanExecute = "PixiEditor.Layer.HasMemberBelow")]
     public void MoveSelectedMemberDownwards(object parameter) => MoveSelectedMember(false);
 
-    public bool CanMergeSelected(object obj)
-    {
-        return false;
-    }
-
+    [Command.Basic("PixiEditor.Layer.MergeSelected", "Merge all selected layers/folders", "Merge all selected layers/folders", CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers")]
     public void MergeSelected(object parameter)
     {
-
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+        var selected = GetSelected();
+        if (selected.Count == 0)
+            return;
+        doc.MergeStructureMembers(selected);
     }
 
-    public bool CanMergeWithAbove(object property)
+    public void MergeSelectedWith(bool above)
     {
-        return false;
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var member = doc?.SelectedStructureMember;
+        if (doc is null || member is null)
+            return;
+        var (child, parent) = doc.StructureViewModel.FindChildAndParent(member.GuidValue);
+        if (child is null || parent is null)
+            return;
+        int index = parent.Children.IndexOf(child);
+        if (!above && index == 0)
+            return;
+        if (above && index == parent.Children.Count - 1)
+            return;
+        doc.MergeStructureMembers(new List<Guid> { member.GuidValue, above ? parent.Children[index + 1].GuidValue : parent.Children[index - 1].GuidValue });
     }
 
-    public void MergeWithAbove(object parameter)
-    {
+    [Command.Basic("PixiEditor.Layer.MergeWithAbove", "Merge selected layer with the one above it", "Merge selected layer with the one above it", CanExecute = "PixiEditor.Layer.HasMemberAbove")]
+    public void MergeWithAbove(object parameter) => MergeSelectedWith(true);
 
-    }
-
-    public bool CanMergeWithBelow(object property)
-    {
-        return false;
-    }
-
-    public void MergeWithBelow(object parameter)
-    {
-
-    }
+    [Command.Basic("PixiEditor.Layer.MergeWithBelow", "Merge selected layer with the one below it", "Merge selected layer with the one below it", CanExecute = "PixiEditor.Layer.HasMemberBelow")]
+    public void MergeWithBelow(object parameter) => MergeSelectedWith(false);
 }

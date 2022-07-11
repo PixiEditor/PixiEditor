@@ -41,6 +41,18 @@ internal class DocumentStructureViewModel
         return null;
     }
 
+    public (StructureMemberViewModel?, FolderViewModel?) FindChildAndParent(Guid childGuid)
+    {
+        List<StructureMemberViewModel>? path = FindPath(childGuid);
+        return path.Count switch
+        {
+            0 => (null, null),
+            1 => (path[0], null),
+            >= 2 => (path[0], (FolderViewModel)path[1]),
+            _ => (null, null),
+        }; 
+    }
+
     public (StructureMemberViewModel, FolderViewModel) FindChildAndParentOrThrow(Guid childGuid)
     {
         List<StructureMemberViewModel>? path = FindPath(childGuid);
