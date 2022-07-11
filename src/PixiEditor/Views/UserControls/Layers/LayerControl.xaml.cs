@@ -131,4 +131,9 @@ internal partial class LayerControl : UserControl
         RemoveDragEffect((Grid)sender);
         HandleDrop(e.Data, StructureMemberPlacement.BelowOutsideFolder);
     }
+
+    private void RenameMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        editableTextBlock.EnableEditing();
+    }
 }

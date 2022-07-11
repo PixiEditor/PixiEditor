@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.CommandSearch"
              xmlns:behaves="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:cmdssearch="clr-namespace:PixiEditor.Models.Commands.Search"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d"
              Foreground="White"
              d:DesignHeight="450" d:DesignWidth="600"

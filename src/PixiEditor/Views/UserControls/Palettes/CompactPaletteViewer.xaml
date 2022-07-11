@@ -4,7 +4,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Palettes" xmlns:b="http://schemas.microsoft.com/expression/2010/interactivity" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Palettes" 
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors" 
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d"  Name="compactPaletteViewer"
              d:DesignHeight="900" d:DesignWidth="30">
     <Grid Background="{StaticResource AccentColor}">

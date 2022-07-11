@@ -7,9 +7,10 @@
              xmlns:local="clr-namespace:PixiEditor.Views"
              xmlns:conv="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:controls="clr-namespace:PixiEditor.Views.UserControls"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
+             xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
              mc:Ignorable="d" 
              Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="uc"
@@ -53,6 +54,7 @@
                     </Border>
 
                     <controls:EditableTextBlock
+                        x:Name="editableTextBlock"
                         FontSize="15"
                         VerticalAlignment="Center"
                         Text="{Binding Layer.NameBindable, ElementName=uc, Mode=TwoWay}" />
@@ -67,18 +69,12 @@
             <ContextMenu>
                 <MenuItem Header="Duplicate"
                                          Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DuplicateLayerCommand,
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                           CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
                 </MenuItem>
-                <MenuItem Header="Delete"
-                                         Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.DeleteLayersCommand,
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                          CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                </MenuItem>
-                <MenuItem Header="Rename"
-                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.RenameLayerCommand,
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                </MenuItem>
+                <MenuItem Header="Delete" Command="{cmds:Command PixiEditor.Layer.DeleteAllSelected}"/>
+                <MenuItem Header="Rename" Click="RenameMenuItem_Click"/>
+
                 <MenuItem Header="Move to front"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToFrontCommand,
                                             RelativeSource={RelativeSource AncestorType=ContextMenu}}"

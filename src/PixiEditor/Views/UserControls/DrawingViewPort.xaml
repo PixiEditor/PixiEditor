@@ -1,11 +1,10 @@
 ﻿<UserControl
     x:ClassModifier="internal"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:cmd="http://www.galasoft.ch/mvvmlight"
     xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
     xmlns:dataholders="clr-namespace:PixiEditor.Models.DataHolders"
@@ -26,31 +25,31 @@
                    UseTouchGestures="{Binding UseTouchGestures, ElementName=uc}">
         <i:Interaction.Triggers>
             <i:EventTrigger EventName="MouseMove">
-                <cmd:EventToCommand Command="{Binding MouseMoveCommand, ElementName=uc}" PassEventArgsToCommand="True" />
+                <i:InvokeCommandAction Command="{Binding MouseMoveCommand, ElementName=uc}" PassEventArgsToCommand="True" />
             </i:EventTrigger>
             <i:EventTrigger EventName="MouseDown">
-                <cmd:EventToCommand Command="{Binding MouseDownCommand, ElementName=uc}" PassEventArgsToCommand="True" />
+                <i:InvokeCommandAction Command="{Binding MouseDownCommand, ElementName=uc}" PassEventArgsToCommand="True" />
             </i:EventTrigger>
             <i:EventTrigger EventName="MouseUp">
-                <cmd:EventToCommand Command="{Binding MouseUpCommand, ElementName=uc}" PassEventArgsToCommand="True" />
+                <i:InvokeCommandAction Command="{Binding MouseUpCommand, ElementName=uc}" PassEventArgsToCommand="True" />
             </i:EventTrigger>
             <i:EventTrigger EventName="PreviewMouseDown">
                 <i:InvokeCommandAction Command="{Binding PreviewMouseDownCommand, ElementName=uc}"/>
             </i:EventTrigger>
             <i:EventTrigger EventName="StylusButtonDown">
-                <cmd:EventToCommand Command="{Binding StylusButtonDownCommand, ElementName=uc}"
+                <i:InvokeCommandAction Command="{Binding StylusButtonDownCommand, ElementName=uc}"
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
             <i:EventTrigger EventName="StylusButtonUp">
-                <cmd:EventToCommand Command="{Binding StylusButtonUpCommand, ElementName=uc}"
+                <i:InvokeCommandAction Command="{Binding StylusButtonUpCommand, ElementName=uc}"
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
             <i:EventTrigger EventName="StylusSystemGesture">
-                <cmd:EventToCommand Command="{Binding StylusGestureCommand, ElementName=uc}"
+                <i:InvokeCommandAction Command="{Binding StylusGestureCommand, ElementName=uc}"
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
             <i:EventTrigger EventName="StylusOutOfRange">
-                <cmd:EventToCommand Command="{Binding StylusOutOfRangeCommand, ElementName=uc}"
+                <i:InvokeCommandAction Command="{Binding StylusOutOfRangeCommand, ElementName=uc}"
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>

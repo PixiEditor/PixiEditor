@@ -13,7 +13,6 @@
     xmlns:doc="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
     xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-    xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
     xmlns:cmd="http://www.galasoft.ch/mvvmlight"
@@ -88,19 +87,19 @@
             Executed="CommandBinding_Executed_Restore" />
     </Window.CommandBindings>
 
-    <i:Interaction.Triggers>
-        <i:EventTrigger
+    <b:Interaction.Triggers>
+        <b:EventTrigger
             EventName="ContentRendered">
-            <i:InvokeCommandAction
+            <b:InvokeCommandAction
                 Command="{Binding OnStartupCommand}" />
-        </i:EventTrigger>
-        <i:EventTrigger
+        </b:EventTrigger>
+        <b:EventTrigger
             EventName="Closing">
-            <cmd:EventToCommand
+            <b:InvokeCommandAction
                 Command="{Binding CloseWindowCommand}"
                 PassEventArgsToCommand="True" />
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
+        </b:EventTrigger>
+    </b:Interaction.Triggers>
     <Grid>
         <Grid
             Name="mainGrid"
@@ -122,9 +121,9 @@
                 <RowDefinition
                     Height="30" />
             </Grid.RowDefinitions>
-            <i:Interaction.Behaviors>
+            <b:Interaction.Behaviors>
                 <behaviours:ClearFocusOnClickBehavior />
-            </i:Interaction.Behaviors>
+            </b:Interaction.Behaviors>
             <DockPanel
                 Grid.Row="0"
                 Grid.Column="0"
@@ -359,13 +358,13 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger
                             EventName="MouseDown">
-                            <cmd:EventToCommand
+                            <b:InvokeCommandAction
                                 Command="{cmds:Command PixiEditor.Search.Toggle}"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                     <Grid Margin="5,0" VerticalAlignment="Center">
                         <TextBlock Foreground="White">Search...</TextBlock>
                         <TextBlock Text="{cmds:ShortcutBinding PixiEditor.Search.Toggle}"
@@ -508,36 +507,20 @@
                                             MouseDownCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseDownCommand}"
                                             MouseMoveCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseMoveCommand}"
                                             MouseUpCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseUpCommand}"
+                                            MiddleMouseClickedCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.PreviewMouseMiddleButtonCommand}"
                                             Cursor="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ToolCursor}"
                                             GridLinesVisible="{Binding ElementName=mainWindow, Path=DataContext.ViewportSubViewModel.GridLinesEnabled}"
                                             ZoomMode="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ActiveTool, Converter={converters:ActiveToolToZoomModeConverter}}"
                                             ZoomOutOnClick="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ZoomTool.ZoomOutOnClick}"
-                                            Document="{Binding}"/>
-                                        <!--<usercontrols:DrawingViewPort
-                                        CenterViewportTrigger="{Binding CenterViewportTrigger}"
-                                        ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
-                                        GridLinesVisible="{Binding XamlAccesibleViewModel.ViewportSubViewModel.GridLinesEnabled}"
-                                        Cursor="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ToolCursor}"
-                                        MiddleMouseClickedCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.PreviewMouseMiddleButtonCommand}"
-                                        MouseMoveCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseMoveCommand}"
-                                        MouseDownCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseDownCommand}"
-                                        MouseUpCommand="{Binding XamlAccesibleViewModel.IoSubViewModel.MouseUpCommand}"
-                                        MouseXOnCanvas="{Binding MouseXOnCanvas, Mode=TwoWay}"
-                                        MouseYOnCanvas="{Binding MouseYOnCanvas, Mode=TwoWay}"
-                                        StylusButtonDownCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusDownCommand}"
-                                        StylusButtonUpCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusUpCommand}"
-                                        StylusGestureCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusGestureCommand}"
-                                        StylusOutOfRangeCommand="{Binding XamlAccesibleViewModel.StylusSubViewModel.StylusOutOfRangeCommand}"
-                                        UseTouchGestures="{Binding XamlAccesibleViewModel.StylusSubViewModel.UseTouchGestures}"
-                                        IsUsingZoomTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:ZoomTool}}}"
-                                        IsUsingMoveViewportTool="{Binding XamlAccesibleViewModel.ToolsSubViewModel.ActiveTool, Converter={converters:IsSpecifiedTypeConverter SpecifiedType={x:Type tools:MoveViewportTool}}}"
-                                        Stylus.IsTapFeedbackEnabled="False" Stylus.IsTouchFeedbackEnabled="False">
-                                            <i:Interaction.Triggers>
-                                                <i:EventTrigger EventName="PreviewMouseDown">
-                                                    <i:InvokeCommandAction Command="{Binding SetAsActiveOnClickCommand}"/>
-                                                </i:EventTrigger>
-                                            </i:Interaction.Triggers>
-                                            <usercontrols:DrawingViewPort.ContextMenu>
+                                            UseTouchGestures="{Binding ElementName=mainWindow, Path=DataContext.StylusSubViewModel.UseTouchGestures}"
+                                            StylusButtonDownCommand="{cmds:Command PixiEditor.Stylus.StylusDown, UseProvided=True}"
+                                            StylusButtonUpCommand="{cmds:Command PixiEditor.Stylus.StylusUp, UseProvided=True}"
+                                            StylusGestureCommand="{cmds:Command PixiEditor.Stylus.StylusSystemGesture, UseProvided=True}"
+                                            StylusOutOfRangeCommand="{cmds:Command PixiEditor.Stylus.StylusOutOfRange, UseProvided=True}"
+                                            Stylus.IsTapFeedbackEnabled="False" 
+                                            Stylus.IsTouchFeedbackEnabled="False"
+                                            Document="{Binding}">
+                                            <usercontrols:Viewport.ContextMenu>
                                                 <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                                     <ContextMenu.Template>
                                                         <ControlTemplate>
@@ -595,8 +578,8 @@
                                                         </ControlTemplate>
                                                     </ContextMenu.Template>
                                                 </ContextMenu>
-                                            </usercontrols:DrawingViewPort.ContextMenu>
-                                            </usercontrols:DrawingViewPort> -->
+                                            </usercontrols:Viewport.ContextMenu>
+                                        </usercontrols:Viewport>
                                     </DataTemplate>
                                 </ui:DocumentsTemplateSelector.DocumentsViewTemplate>
                             </ui:DocumentsTemplateSelector>
@@ -613,9 +596,9 @@
                                             <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}"
                                                                          SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}" 
                                                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker">
-                                                <i:Interaction.Behaviors>
+                                                <b:Interaction.Behaviors>
                                                     <behaviours:GlobalShortcutFocusBehavior/>
-                                                </i:Interaction.Behaviors>
+                                                </b:Interaction.Behaviors>
                                             </usercontrols:SmallColorPicker>
                                         </LayoutAnchorable>
                                         <LayoutAnchorable ContentId="colorSliders" Title="Color Sliders" CanHide="False"
@@ -623,9 +606,9 @@
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
                                             <colorpicker:ColorSliders Style="{StaticResource DefaultColorPickerStyle}" 
                                                                   ColorState="{Binding ElementName=mainColorPicker, Path=ColorState, Delay=10, Mode=TwoWay}">
-                                                <i:Interaction.Behaviors>
+                                                <b:Interaction.Behaviors>
                                                     <behaviours:GlobalShortcutFocusBehavior/>
-                                                </i:Interaction.Behaviors>
+                                                </b:Interaction.Behaviors>
                                             </colorpicker:ColorSliders>
                                         </LayoutAnchorable>
                                         <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"

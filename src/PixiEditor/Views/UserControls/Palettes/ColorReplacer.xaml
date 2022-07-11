@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              mc:Ignorable="d" Name="uc"

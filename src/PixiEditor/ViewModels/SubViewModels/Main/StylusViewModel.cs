@@ -8,6 +8,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
+[Command.Group("PixiEditor.Stylus", "Stylus")]
 internal class StylusViewModel : SubViewModel<ViewModelMain>
 {
     private bool isPenModeEnabled;
@@ -39,22 +40,9 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
 
     private ToolViewModel PreviousTool { get; set; }
 
-    public RelayCommand<StylusButtonEventArgs> StylusDownCommand { get; }
-
-    public RelayCommand<StylusButtonEventArgs> StylusUpCommand { get; }
-
-    public RelayCommand<StylusEventArgs> StylusOutOfRangeCommand { get; }
-
-    public RelayCommand<StylusSystemGestureEventArgs> StylusGestureCommand { get; }
-
     public StylusViewModel(ViewModelMain owner)
         : base(owner)
     {
-        StylusDownCommand = new(StylusDown);
-        StylusUpCommand = new(StylusUp);
-        StylusOutOfRangeCommand = new(StylusOutOfRange);
-        StylusGestureCommand = new(StylusSystemGesture);
-
         isPenModeEnabled = IPreferences.Current.GetLocalPreference<bool>(nameof(IsPenModeEnabled));
         Owner.ToolsSubViewModel.AddPropertyChangedCallback(nameof(ToolsViewModel.ActiveTool), UpdateUseTouchGesture);
 
@@ -79,12 +67,14 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void StylusOutOfRange(StylusEventArgs e)
+    [Command.Internal("PixiEditor.Stylus.StylusOutOfRange")]
+    public void StylusOutOfRange(StylusEventArgs e)
     {
         //Owner.BitmapManager.UpdateHighlightIfNecessary(true);
     }
 
-    private void StylusSystemGesture(StylusSystemGestureEventArgs e)
+    [Command.Internal("PixiEditor.Stylus.StylusSystemGesture")]
+    public void StylusSystemGesture(StylusSystemGestureEventArgs e)
     {
         if (e.SystemGesture == SystemGesture.Drag || e.SystemGesture == SystemGesture.Tap)
         {
@@ -94,7 +84,8 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         e.Handled = true;
     }
 
-    private void StylusDown(StylusButtonEventArgs e)
+    [Command.Internal("PixiEditor.Stylus.StylusDown")]
+    public void StylusDown(StylusButtonEventArgs e)
     {
         e.Handled = true;
 
@@ -106,7 +97,8 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void StylusUp(StylusButtonEventArgs e)
+    [Command.Internal("PixiEditor.Stylus.StylusUp")]
+    public void StylusUp(StylusButtonEventArgs e)
     {
         e.Handled = true;
 

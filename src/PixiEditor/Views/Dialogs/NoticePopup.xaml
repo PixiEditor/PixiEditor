@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:system="clr-namespace:System;assembly=System.Runtime" 
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" WindowStyle="None"
         d:Title="Notice" Height="180" Width="400" MinHeight="180" MinWidth="400"

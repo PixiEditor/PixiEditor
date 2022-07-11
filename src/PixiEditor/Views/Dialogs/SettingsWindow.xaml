@@ -9,7 +9,7 @@
         xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" 
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
         xmlns:views="clr-namespace:PixiEditor.Views" 
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
         xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"

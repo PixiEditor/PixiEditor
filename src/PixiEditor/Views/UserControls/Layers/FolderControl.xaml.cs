@@ -85,4 +85,9 @@ internal partial class FolderControl : UserControl
     {
         middleDropGrid.Visibility = Visibility.Collapsed;
     }
+
+    private void RenameMenuItem_Click(object sender, RoutedEventArgs e)
+    {
+        editableTextBlock.EnableEditing();
+    }
 }

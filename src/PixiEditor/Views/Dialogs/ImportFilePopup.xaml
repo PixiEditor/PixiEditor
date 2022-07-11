@@ -8,7 +8,7 @@
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:vm="clr-namespace:PixiEditor.ViewModels"
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
-        xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
         Title="ImportFilePopup" ShowInTaskbar="False" 

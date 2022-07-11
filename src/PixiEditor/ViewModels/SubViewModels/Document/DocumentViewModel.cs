@@ -90,7 +90,7 @@ internal class DocumentViewModel : NotifyableObject
         }
     }
 
-    private string coordinatesString;
+    private string coordinatesString = "";
     public string CoordinatesString
     {
         get => coordinatesString;
@@ -232,7 +232,26 @@ internal class DocumentViewModel : NotifyableObject
 
     public void RemoveViewport(Guid viewportGuid) => Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
 
-    public void CreateStructureMember(StructureMemberType type) => Helpers.StructureHelper.CreateNewStructureMember(type);
+    public void CreateStructureMember(StructureMemberType type)
+    {
+        if (Helpers.ChangeController.IsChangeActive)
+            return;
+        Helpers.StructureHelper.CreateNewStructureMember(type);
+    }
+
+    public void DeleteStructureMember(Guid guidValue)
+    {
+        if (Helpers.ChangeController.IsChangeActive)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(guidValue));
+    }
+
+    public void DeleteStructureMembers(IReadOnlyList<Guid> guids)
+    {
+        if (Helpers.ChangeController.IsChangeActive)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(guids.Select(static guid => new DeleteStructureMember_Action(guid)).ToArray());
+    }
 
     public void ResizeCanvas(VecI newSize, ResizeAnchor anchor)
     {

@@ -326,8 +326,6 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         activeMouseDownEventArgs = e;
         activeMouseDownPos = ToVecD(e.GetPosition(mainCanvas));
         Keyboard.Focus(this);
-        if (ZoomMode != ZoomboxMode.Normal)
-            e.Handled = true;
     }
 
     private void InitiateDrag(MouseButtonEventArgs e)

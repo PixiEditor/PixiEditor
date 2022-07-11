@@ -141,17 +141,35 @@ internal partial class LayersManager : UserControl
 
     private void FolderControl_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        if (e.ChangedButton is not MouseButton.Left)
-            return;
         FolderControl control = (FolderControl)sender;
-        HandleMouseDown(control.Folder);
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            HandleMouseDown(control.Folder);
+        }
+        else
+        {
+            if (control.Folder is not null && control.Folder.Selection == StructureMemberSelectionType.None)
+            {
+                control.Folder.Document.SetSelectedMember(control.Folder.GuidValue);
+                control.Folder.Document.ClearSoftSelectedMembers();
+            }
+        }
     }
 
     private void LayerControl_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
-        if (e.ChangedButton is not MouseButton.Left)
-            return;
         LayerControl? control = (LayerControl)sender;
-        HandleMouseDown(control.Layer);
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            HandleMouseDown(control.Layer);
+        }
+        else
+        {
+            if (control.Layer is not null && control.Layer.Selection == StructureMemberSelectionType.None)
+            {
+                control.Layer.Document.SetSelectedMember(control.Layer.GuidValue);
+                control.Layer.Document.ClearSoftSelectedMembers();
+            }
+        }
     }
 }

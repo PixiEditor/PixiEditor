@@ -4,10 +4,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:userControls="clr-namespace:PixiEditor.Views" 
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:userControls1="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
              mc:Ignorable="d" 
              Focusable="True"
              d:DesignHeight="60" 
@@ -67,6 +68,7 @@
                             </Image>
                         </Border>
                         <userControls1:EditableTextBlock
+                            x:Name="editableTextBlock"
                             FontSize="15"
                             VerticalAlignment="Center"
                             Text="{Binding Folder.NameBindable, ElementName=folderControl, Mode=TwoWay}" />
@@ -81,14 +83,8 @@
         </Grid>
         <Border.ContextMenu>
             <ContextMenu>
-                <MenuItem Header="Rename"
-                                     Command="{Binding PlacementTarget.Tag.LayersViewModel.RenameGroupCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.GroupGuid, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                </MenuItem>
-                <MenuItem Header="Delete"
-                                     Command="{Binding PlacementTarget.Tag.LayersViewModel.DeleteGroupCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" CommandParameter="{Binding PlacementTarget.Tag.GroupGuid, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                </MenuItem>
+                <MenuItem Header="Rename" Click="RenameMenuItem_Click"/>
+                <MenuItem Header="Delete" Command="{cmds:Command PixiEditor.Layer.DeleteAllSelected}"/>
             </ContextMenu>
         </Border.ContextMenu>
     </Border>

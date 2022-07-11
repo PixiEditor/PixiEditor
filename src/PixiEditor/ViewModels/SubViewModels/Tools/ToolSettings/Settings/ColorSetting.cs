@@ -1,8 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Interactivity;
 using System.Windows.Media;
+using Microsoft.Xaml.Behaviors;
 using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Views.UserControls;
 

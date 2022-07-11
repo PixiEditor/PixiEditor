@@ -23,7 +23,6 @@ internal class ZoomDragOperation : IDragOperation
         screenScaleOrigin = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
         scaleOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
         originalScale = parent.Scale;
-        parent.mainCanvas.CaptureMouse();
     }
 
     public void Update(MouseEventArgs e)
@@ -40,6 +39,5 @@ internal class ZoomDragOperation : IDragOperation
 
     public void Terminate()
     {
-        parent.mainCanvas.ReleaseMouseCapture();
     }
 }

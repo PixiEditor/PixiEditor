@@ -57,6 +57,60 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly DependencyProperty CenterViewportTriggerProperty =
         DependencyProperty.Register(nameof(CenterViewportTrigger), typeof(ExecutionTrigger<VecI>), typeof(Viewport), new(null, CenterViewportTriggerChanged));
 
+    public static readonly DependencyProperty UseTouchGesturesProperty =
+        DependencyProperty.Register(nameof(UseTouchGestures), typeof(bool), typeof(Viewport), new(false));
+
+    public static readonly DependencyProperty StylusButtonDownCommandProperty =
+        DependencyProperty.Register(nameof(StylusButtonDownCommand), typeof(ICommand), typeof(Viewport), new(null));
+
+    public static readonly DependencyProperty StylusButtonUpCommandProperty =
+        DependencyProperty.Register(nameof(StylusButtonUpCommand), typeof(ICommand), typeof(Viewport), new(null));
+
+    public static readonly DependencyProperty StylusGestureCommandProperty =
+        DependencyProperty.Register(nameof(StylusGestureCommand), typeof(ICommand), typeof(Viewport), new(null));
+
+    public static readonly DependencyProperty StylusOutOfRangeCommandProperty =
+        DependencyProperty.Register(nameof(StylusOutOfRangeCommand), typeof(ICommand), typeof(Viewport), new(null));
+
+    public static readonly DependencyProperty MiddleMouseClickedCommandProperty =
+        DependencyProperty.Register(nameof(MiddleMouseClickedCommand), typeof(ICommand), typeof(Viewport), new(null));
+
+    public ICommand? MiddleMouseClickedCommand
+    {
+        get => (ICommand?)GetValue(MiddleMouseClickedCommandProperty);
+        set => SetValue(MiddleMouseClickedCommandProperty, value);
+    }
+
+    public ICommand? StylusOutOfRangeCommand
+    {
+        get => (ICommand?)GetValue(StylusOutOfRangeCommandProperty);
+        set => SetValue(StylusOutOfRangeCommandProperty, value);
+    }
+
+    public ICommand? StylusGestureCommand
+    {
+        get => (ICommand?)GetValue(StylusGestureCommandProperty);
+        set => SetValue(StylusGestureCommandProperty, value);
+    }
+
+    public ICommand? StylusButtonUpCommand
+    {
+        get => (ICommand?)GetValue(StylusButtonUpCommandProperty);
+        set => SetValue(StylusButtonUpCommandProperty, value);
+    }
+
+    public ICommand? StylusButtonDownCommand
+    {
+        get => (ICommand?)GetValue(StylusButtonDownCommandProperty);
+        set => SetValue(StylusButtonDownCommandProperty, value);
+    }
+
+    public bool UseTouchGestures
+    {
+        get => (bool)GetValue(UseTouchGesturesProperty);
+        set => SetValue(UseTouchGesturesProperty, value);
+    }
+
     public ExecutionTrigger<VecI>? CenterViewportTrigger
     {
         get => (ExecutionTrigger<VecI>)GetValue(CenterViewportTriggerProperty);
@@ -355,5 +409,13 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             ((ExecutionTrigger<double>)args.OldValue).Triggered -= viewport.ZoomZoomboxContent;
         if (args.NewValue != null)
             ((ExecutionTrigger<double>)args.NewValue).Triggered += viewport.ZoomZoomboxContent;
+    }
+
+    private void Grid_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (MiddleMouseClickedCommand is null)
+            return;
+        if (Mouse.MiddleButton == MouseButtonState.Pressed && MiddleMouseClickedCommand.CanExecute(null))
+            MiddleMouseClickedCommand.Execute(null);
     }
 }

@@ -20,10 +20,29 @@
     <Grid 
         MouseDown="Image_MouseDown"
         MouseMove="Image_MouseMove"
-        MouseUp="Image_MouseUp">
+        MouseUp="Image_MouseUp"
+        PreviewMouseDown="Grid_PreviewMouseDown">
+        <i:Interaction.Triggers>
+            <i:EventTrigger EventName="StylusButtonDown">
+                <i:InvokeCommandAction Command="{Binding StylusButtonDownCommand, ElementName=vpUc}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="StylusButtonUp">
+                <i:InvokeCommandAction Command="{Binding StylusButtonUpCommand, ElementName=vpUc}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="StylusSystemGesture">
+                <i:InvokeCommandAction Command="{Binding StylusGestureCommand, ElementName=vpUc}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+            <i:EventTrigger EventName="StylusOutOfRange">
+                <i:InvokeCommandAction Command="{Binding StylusOutOfRangeCommand, ElementName=vpUc}"
+                                        PassEventArgsToCommand="True"/>
+            </i:EventTrigger>
+        </i:Interaction.Triggers>
         <zoombox:Zoombox
             x:Name="zoombox"
-            UseTouchGestures="True"
+            UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Scale="{Binding ZoomboxScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"

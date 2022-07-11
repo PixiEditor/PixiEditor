@@ -8,42 +8,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 [Command.Group("PixiEditor.Layer", "Image")]
 internal class LayersViewModel : SubViewModel<ViewModelMain>
 {
-    public RelayCommand CreateGroupFromActiveLayersCommand { get; set; }
-
-    public RelayCommand DeleteGroupCommand { get; set; }
-
-    public RelayCommand DeleteLayersCommand { get; set; }
-
-    public RelayCommand DuplicateLayerCommand { get; set; }
-
-    public RelayCommand RenameLayerCommand { get; set; }
-
-    public RelayCommand RenameGroupCommand { get; set; }
-
-    public RelayCommand MoveToBackCommand { get; set; }
-
-    public RelayCommand MoveToFrontCommand { get; set; }
-
-    public RelayCommand MergeSelectedCommand { get; set; }
-
-    public RelayCommand MergeWithAboveCommand { get; set; }
-
-    public RelayCommand MergeWithBelowCommand { get; set; }
 
     public LayersViewModel(ViewModelMain owner)
         : base(owner)
     {
-        CreateGroupFromActiveLayersCommand = new RelayCommand(CreateGroupFromActiveLayers, CanCreateGroupFromSelected);
-        DeleteLayersCommand = new RelayCommand(DeleteActiveLayers, CanDeleteActiveLayers);
-        DuplicateLayerCommand = new RelayCommand(DuplicateLayer, CanDuplicateLayer);
-        MoveToBackCommand = new RelayCommand(MoveLayerToBack, CanMoveToBack);
-        MoveToFrontCommand = new RelayCommand(MoveLayerToFront, CanMoveToFront);
-        RenameLayerCommand = new RelayCommand(RenameLayer);
-        MergeSelectedCommand = new RelayCommand(MergeSelected, CanMergeSelected);
-        MergeWithAboveCommand = new RelayCommand(MergeWithAbove, CanMergeWithAbove);
-        MergeWithBelowCommand = new RelayCommand(MergeWithBelow, CanMergeWithBelow);
-        RenameGroupCommand = new RelayCommand(RenameGroup);
-        DeleteGroupCommand = new RelayCommand(DeleteGroup, CanDeleteGroup);
     }
 
     public void CreateGroupFromActiveLayers(object parameter)
@@ -54,67 +22,41 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Layer.CanDeleteSelected")]
     public bool CanDeleteSelected(object parameter)
     {
-        /*
-        bool paramIsLayerOrGroup = parameter is not null and (Layer or LayerGroup);
-        bool activeLayerExists = Owner.BitmapManager?.ActiveDocument?.ActiveLayer != null;
-        bool activeDocumentExists = Owner.BitmapManager.ActiveDocument != null;
-        bool allGood = (paramIsLayerOrGroup || activeLayerExists) && activeDocumentExists;
-        if (!allGood)
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (member is null)
             return false;
-
-        if (parameter is Layer or LayerStructureItemContainer)
-        {
-            return CanDeleteActiveLayers(null);
-        }
-        else if (parameter is LayerGroup group)
-        {
-            return CanDeleteGroup(group.GuidValue);
-        }
-        else if (parameter is LayerGroupControl groupControl)
-        {
-            return CanDeleteGroup(groupControl.GroupGuid);
-        }
-        else if (Owner.BitmapManager.ActiveDocument.ActiveLayer != null)
-        {
-            return CanDeleteActiveLayers(null);
-        }*/
-        return false;
+        return true;
     }
 
-    [Command.Basic("PixiEditor.Layer.DeleteSelected", "Delete selected layer/folder", "", CanExecute = "PixiEditor.Layer.CanDeleteSelected")]
+    [Command.Basic("PixiEditor.Layer.DeleteSelected", "Delete active layer/folder", "", CanExecute = "PixiEditor.Layer.CanDeleteSelected")]
     public void DeleteSelected(object parameter)
     {
-        /*
-        if (parameter is Layer or LayerStructureItemContainer)
-        {
-            DeleteActiveLayers(null);
-        }
-        else if (parameter is LayerGroup group)
-        {
-            DeleteGroup(group.GuidValue);
-        }
-        else if (parameter is LayerGroupControl groupControl)
-        {
-            DeleteGroup(groupControl.GroupGuid);
-        }
-        else if (Owner.BitmapManager.ActiveDocument.ActiveLayer != null)
-        {
-            DeleteActiveLayers(null);
-        }*/
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (member is null)
+            return;
+        member.Document.DeleteStructureMember(member.GuidValue);
     }
 
-    public bool CanDeleteGroup(object parameter)
+    [Evaluator.CanExecute("PixiEditor.Layer.CanDeleteAllSelected")]
+    public bool CanDeleteAllSelected(object parameter)
     {
-        return false;
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return false;
+        return doc.SelectedStructureMember is not null || doc.SoftSelectedStructureMembers.Count > 0;
     }
 
-    public void DeleteGroup(object parameter)
+    [Command.Basic("PixiEditor.Layer.DeleteAllSelected", "Delete all selected layers/folders", "", CanExecute = "PixiEditor.Layer.CanDeleteAllSelected")]
+    public void DeleteAllSelected(object parameter)
     {
-
-    }
-
-    public void RenameGroup(object parameter)
-    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+        List<Guid> membersToDelete = new();
+        if (doc.SelectedStructureMember is not null)
+            membersToDelete.Add(doc.SelectedStructureMember.GuidValue);
+        membersToDelete.AddRange(doc.SoftSelectedStructureMembers.Select(static member => member.GuidValue));
+        doc.DeleteStructureMembers(membersToDelete);
     }
 
     [Command.Basic("PixiEditor.Layer.NewFolder", "New Folder", "Create new folder", CanExecute = "PixiEditor.Layer.CanCreateNewMember")]
@@ -150,59 +92,24 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragStarted")]
-    public void OpacitySliderDragStarted(object paramenter)
+    public void OpacitySliderDragStarted(object parameter)
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.UseOpacitySlider();
         Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragStarted();
     }
 
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragged")]
-    public void OpacitySliderDragged(object paramenter)
+    public void OpacitySliderDragged(object parameter)
     {
-        if (paramenter is not double value)
+        if (parameter is not double value)
             return;
         Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragged((float)value);
     }
 
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragEnded")]
-    public void OpacitySliderDragEnded(object paramenter)
+    public void OpacitySliderDragEnded(object parameter)
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragEnded();
-    }
-
-    public void SetActiveLayer(object parameter)
-    {
-        //int index = (int)parameter;
-
-        //var doc = Owner.BitmapManager.ActiveDocument;
-
-        /*if (doc.Layers[index].IsActive && Mouse.RightButton == MouseButtonState.Pressed)
-        {
-            return;
-        }*/
-
-        if (Keyboard.IsKeyDown(Key.LeftCtrl))
-        {
-            //doc.ToggleLayer(index);
-        }
-        //else if (Keyboard.IsKeyDown(Key.LeftShift) && Owner.BitmapManager.ActiveDocument.Layers.Any(x => x.IsActive))
-        {
-            //doc.SelectLayersRange(index);
-        }
-        //else
-        {
-            //doc.SetMainActiveLayer(index);
-        }
-    }
-
-    public void DeleteActiveLayers(object unusedParameter)
-    {
-
-    }
-
-    public bool CanDeleteActiveLayers(object unusedParam)
-    {
-        return false;
     }
 
     public void DuplicateLayer(object parameter)

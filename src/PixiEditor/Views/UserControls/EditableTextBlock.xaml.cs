@@ -6,28 +6,27 @@ using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.Views.UserControls;
 
-/// <summary>
-///     Interaction logic for EditableTextBlock.xaml.
-/// </summary>
 internal partial class EditableTextBlock : UserControl
 {
-
     public static readonly DependencyProperty TextBlockVisibilityProperty =
-        DependencyProperty.Register(nameof(TextBlockVisibility),
+        DependencyProperty.Register(
+            nameof(TextBlockVisibility),
             typeof(Visibility),
             typeof(EditableTextBlock),
             new PropertyMetadata(Visibility.Visible));
 
 
     public static readonly DependencyProperty TextProperty =
-        DependencyProperty.Register(nameof(Text),
+        DependencyProperty.Register(
+            nameof(Text),
             typeof(string),
             typeof(EditableTextBlock),
             new PropertyMetadata(default(string)));
 
 
     public static readonly DependencyProperty EnableEditingProperty =
-        DependencyProperty.Register(nameof(IsEditing),
+        DependencyProperty.Register(
+            nameof(IsEditing),
             typeof(bool),
             typeof(EditableTextBlock),
             new PropertyMetadata(OnIsEditingChanged));
