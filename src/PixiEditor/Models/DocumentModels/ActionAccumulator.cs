@@ -92,19 +92,20 @@ internal class ActionAccumulator
             // Somehow this all works
             // Also, there is a bug report for this on github https://github.com/dotnet/wpf/issues/5816
 
+            // update the contents of the bitmaps
             var affectedChunks = new AffectedChunkGatherer(helpers.Tracker, changes);
             bool refreshDelayed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
             var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, refreshDelayed);
             
-            // lock bitmaps that need to be updated
+            // lock bitmaps
             foreach (var (_, bitmap) in document.Bitmaps)
             {
                 bitmap.Lock();
             }
-
-            // update bitmaps
             if (refreshDelayed)
                 LockPreviewBitmaps(document.StructureRoot);
+
+            // add dirty rectangles
             AddDirtyRects(renderResult);
 
             // unlock bitmaps
@@ -118,7 +119,8 @@ internal class ActionAccumulator
             // force refresh viewports for better responsiveness
             foreach (var (_, value) in helpers.State.Viewports)
             {
-                value.InvalidateVisual();
+                if (!value.Delayed)
+                    value.InvalidateVisual();
             }
         }
 

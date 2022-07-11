@@ -90,11 +90,19 @@ internal class DocumentViewModel : NotifyableObject
         }
     }
 
+    private string coordinatesString;
+    public string CoordinatesString
+    {
+        get => coordinatesString;
+        set => SetProperty(ref coordinatesString, value);
+    }
+
     public SKPath SelectionPathBindable => selectionPath;
     public DocumentTransformViewModel TransformViewModel { get; }
 
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
     public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
+
 
     private DocumentHelpers Helpers { get; }
 
@@ -300,7 +308,11 @@ internal class DocumentViewModel : NotifyableObject
     public void OnKeyUp(Key args) => Helpers.ChangeController.OnKeyUp(args);
 
     public void OnCanvasLeftMouseButtonDown(VecD pos) => Helpers.ChangeController.OnLeftMouseButtonDown(pos);
-    public void OnCanvasMouseMove(VecD newPos) => Helpers.ChangeController.OnMouseMove(newPos);
+    public void OnCanvasMouseMove(VecD newPos)
+    {
+        CoordinatesString = $"X: {(int)newPos.X} Y: {(int)newPos.Y}";
+        Helpers.ChangeController.OnMouseMove(newPos);
+    }
     public void OnCanvasLeftMouseButtonUp() => Helpers.ChangeController.OnLeftMouseButtonUp();
 
     public void OnOpacitySliderDragStarted() => Helpers.ChangeController.OnOpacitySliderDragStarted();

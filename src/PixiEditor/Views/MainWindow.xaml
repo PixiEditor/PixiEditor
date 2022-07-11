@@ -762,23 +762,9 @@
                         HorizontalAlignment="Right"
                         VerticalAlignment="Center">
                         <TextBlock
-                            Text="X:"
+                            Text="{Binding ElementName=mainWindow, Path=DataContext.DocumentManagerSubViewModel.ActiveDocument.CoordinatesString}"
                             Foreground="White"
                             FontSize="16" />
-                        <!--<TextBlock
-                            Margin="4,0,10,0"
-                            Text="{Binding BitmapManager.ActiveDocument.MouseXOnCanvas, Converter={converters:DoubleToIntConverter}}"
-                            Foreground="White"
-                            FontSize="16" />-->
-                        <TextBlock
-                            Text="Y:"
-                            Foreground="White"
-                            FontSize="16" />
-                        <!--<TextBlock
-                            Margin="4,0,10,0"
-                            Text="{Binding BitmapManager.ActiveDocument.MouseYOnCanvas, Converter={converters:DoubleToIntConverter}}"
-                            Foreground="White"
-                            FontSize="16" />-->
                     </StackPanel>
                 </DockPanel>
                 <StackPanel

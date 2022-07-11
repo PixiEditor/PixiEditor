@@ -103,7 +103,7 @@
                         </Grid.Resources>
                         <Rectangle Focusable="False" Visibility="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}">
                             <Rectangle.Fill>
-                                <VisualBrush Viewport="{Binding Document.Height, Converter={converters:IntToViewportRectConverter}, ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
+                                <VisualBrush Viewport="{Binding Document.Width, Converter={converters:IntToViewportRectConverter}, ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
                                     <VisualBrush.Visual>
                                         <Line X1="0" Y1="0" X2="0" Y2="1" Stroke="#88888888" StrokeThickness="{Binding Zoombox.Scale, Converter={converters:ReciprocalConverter}}"/>
                                     </VisualBrush.Visual>
