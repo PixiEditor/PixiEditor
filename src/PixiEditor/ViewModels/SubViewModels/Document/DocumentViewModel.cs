@@ -207,6 +207,7 @@ internal class DocumentViewModel : NotifyableObject
     public void InternalClearSoftSelectedMembers() => softSelectedStructureMembers.Clear();
 
     public void InternalAddSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Add(member);
+    public void InternalRemoveSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Remove(member);
 
     #endregion
 
@@ -242,6 +243,8 @@ internal class DocumentViewModel : NotifyableObject
     public void SetSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
 
     public void AddSoftSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new AddSoftSelectedMember_PassthroughAction(memberGuid));
+
+    public void RemoveSoftSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new RemoveSoftSelectedMember_PassthroughAction(memberGuid));
 
     public void ClearSoftSelectedMembers() => Helpers.ActionAccumulator.AddActions(new ClearSoftSelectedMembers_PassthroughAction());
 

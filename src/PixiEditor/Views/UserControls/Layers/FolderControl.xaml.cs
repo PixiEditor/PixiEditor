@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -75,11 +74,6 @@ internal partial class FolderControl : UserControl
     {
         LayerControl.RemoveDragEffect((Grid)sender);
         HandleDrop(e.Data, StructureMemberPlacement.Below);
-    }
-
-    private void Border_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        Folder?.Document.SetSelectedMember(Folder.GuidValue);
     }
 
     private void FolderControl_DragEnter(object sender, DragEventArgs e)

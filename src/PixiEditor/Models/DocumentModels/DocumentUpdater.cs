@@ -94,10 +94,25 @@ internal class DocumentUpdater
             case AddSoftSelectedMember_PassthroughAction info:
                 ProcessAddSoftSelectedMember(info);
                 break;
+            case RemoveSoftSelectedMember_PassthroughAction info:
+                ProcessRemoveSoftSelectedMember(info);
+                break;
             case ClearSoftSelectedMembers_PassthroughAction info:
                 ProcessClearSoftSelectedMembers(info);
                 break;
         }
+    }
+
+    private void ProcessRemoveSoftSelectedMember(RemoveSoftSelectedMember_PassthroughAction info)
+    {
+        StructureMemberViewModel? member = helper.StructureHelper.Find(info.GuidValue);
+        if (member is null || member.Selection == StructureMemberSelectionType.Hard)
+            return;
+        if (member.Selection != StructureMemberSelectionType.Soft)
+            return;
+        member.Selection = StructureMemberSelectionType.None;
+        member.RaisePropertyChanged(nameof(member.Selection));
+        doc.InternalRemoveSoftSelectedMember(member);
     }
 
     private void ProcessClearSoftSelectedMembers(ClearSoftSelectedMembers_PassthroughAction info)
@@ -114,8 +129,8 @@ internal class DocumentUpdater
 
     private void ProcessAddSoftSelectedMember(AddSoftSelectedMember_PassthroughAction info)
     {
-        StructureMemberViewModel? member = helper.StructureHelper.FindOrThrow(info.GuidValue);
-        if (member.Selection == StructureMemberSelectionType.Hard)
+        StructureMemberViewModel? member = helper.StructureHelper.Find(info.GuidValue);
+        if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         member.Selection = StructureMemberSelectionType.Soft;
         member.RaisePropertyChanged(nameof(member.Selection));

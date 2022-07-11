@@ -19,7 +19,7 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
-    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" Tag="{Binding ElementName=folderControl}" MouseDown="Border_MouseDown">
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" Tag="{Binding ElementName=folderControl}">
         <Border.Background>
             <Binding ElementName="folderControl" Path="Folder.Selection">
                 <Binding.Converter>

@@ -125,14 +125,18 @@
                     </Style>
                 </TreeView.ItemContainerStyle>
                 <TreeView.Resources>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
+                    <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent" />
                     <HierarchicalDataTemplate DataType="{x:Type docVm:FolderViewModel}" ItemsSource="{Binding Children}">
                         <layerUserControls:FolderControl
                             Folder="{Binding}"
+                            MouseDown="FolderControl_MouseDown"
                             MouseMove="LayerGroup_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type docVm:LayerViewModel}">
                         <layerUserControls:LayerControl
                             Layer="{Binding}"
+                            MouseDown="LayerControl_MouseDown"
                             MouseMove="LayerStructureItemContainer_MouseMove"/>
                     </DataTemplate>
                 </TreeView.Resources>

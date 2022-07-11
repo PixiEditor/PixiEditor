@@ -131,9 +131,4 @@ internal partial class LayerControl : UserControl
         RemoveDragEffect((Grid)sender);
         HandleDrop(e.Data, StructureMemberPlacement.BelowOutsideFolder);
     }
-
-    private void Border_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        Layer?.Document.SetSelectedMember(Layer.GuidValue);
-    }
 }

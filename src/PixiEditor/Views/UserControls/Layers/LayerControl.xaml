@@ -10,10 +10,11 @@
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity" 
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
-             mc:Ignorable="d" Focusable="True"
+             mc:Ignorable="d" 
+             Focusable="True"
              d:DesignHeight="60" d:DesignWidth="250" Name="uc"
              MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
-    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True" MouseDown="Border_MouseDown">
+    <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True">
         <Border.Background>
             <Binding ElementName="uc" Path="Layer.Selection">
                 <Binding.Converter>
