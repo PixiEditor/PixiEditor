@@ -183,7 +183,7 @@ internal class ActionAccumulator
                     break;
                 case PreviewDirty_RenderInfo info:
                     {
-                        var bitmap = helpers.StructureHelper.Find(info.GuidValue)?.PreviewBitmap;
+                        var bitmap = document.StructureViewModel.Find(info.GuidValue)?.PreviewBitmap;
                         if (bitmap is null)
                             continue;
                         bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
@@ -191,7 +191,7 @@ internal class ActionAccumulator
                     break;
                 case MaskPreviewDirty_RenderInfo info:
                     {
-                        var bitmap = helpers.StructureHelper.Find(info.GuidValue)?.MaskPreviewBitmap;
+                        var bitmap = document.StructureViewModel.Find(info.GuidValue)?.MaskPreviewBitmap;
                         if (bitmap is null)
                             continue;
                         bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));

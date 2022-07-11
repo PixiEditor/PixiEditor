@@ -196,7 +196,7 @@ internal class WriteableBitmapUpdater
         // update previews of individual members
         foreach (var (guid, chunks) in imagePreviewChunks)
         {
-            var memberVM = helpers.StructureHelper.Find(guid);
+            var memberVM = doc.StructureViewModel.Find(guid);
             if (memberVM is null)
                 continue;
             var member = helpers.Tracker.Document.FindMemberOrThrow(guid);
@@ -245,7 +245,7 @@ internal class WriteableBitmapUpdater
     {
         foreach (var (guid, chunks) in maskPreviewChunks)
         {
-            var memberVM = helpers.StructureHelper.Find(guid);
+            var memberVM = doc.StructureViewModel.Find(guid);
             if (memberVM is null || !memberVM.HasMaskBindable)
                 continue;
 

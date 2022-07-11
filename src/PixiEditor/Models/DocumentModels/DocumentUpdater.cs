@@ -105,7 +105,7 @@ internal class DocumentUpdater
 
     private void ProcessRemoveSoftSelectedMember(RemoveSoftSelectedMember_PassthroughAction info)
     {
-        StructureMemberViewModel? member = helper.StructureHelper.Find(info.GuidValue);
+        StructureMemberViewModel? member = doc.StructureViewModel.Find(info.GuidValue);
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         if (member.Selection != StructureMemberSelectionType.Soft)
@@ -129,7 +129,7 @@ internal class DocumentUpdater
 
     private void ProcessAddSoftSelectedMember(AddSoftSelectedMember_PassthroughAction info)
     {
-        StructureMemberViewModel? member = helper.StructureHelper.Find(info.GuidValue);
+        StructureMemberViewModel? member = doc.StructureViewModel.Find(info.GuidValue);
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         member.Selection = StructureMemberSelectionType.Soft;
@@ -144,7 +144,7 @@ internal class DocumentUpdater
             oldMember.Selection = StructureMemberSelectionType.None;
             oldMember.RaisePropertyChanged(nameof(oldMember.Selection));
         }
-        StructureMemberViewModel? member = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? member = doc.StructureViewModel.FindOrThrow(info.GuidValue);
         member.Selection = StructureMemberSelectionType.Hard;
         member.RaisePropertyChanged(nameof(member.Selection));
         doc.InternalSetSelectedMember(member);
@@ -161,13 +161,13 @@ internal class DocumentUpdater
 
     private void ProcessMaskIsVisible(StructureMemberMaskIsVisible_ChangeInfo info)
     {
-        StructureMemberViewModel? member = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? member = doc.StructureViewModel.FindOrThrow(info.GuidValue);
         member.SetMaskIsVisible(info.IsVisible);
     }
 
     private void ProcessClipToMemberBelow(StructureMemberClipToMemberBelow_ChangeInfo info)
     {
-        StructureMemberViewModel? member = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? member = doc.StructureViewModel.FindOrThrow(info.GuidValue);
         member.SetClipToMemberBelowEnabled(info.ClipToMemberBelow);
     }
 
@@ -194,19 +194,19 @@ internal class DocumentUpdater
 
     private void ProcessLayerLockTransparency(LayerLockTransparency_ChangeInfo info)
     {
-        LayerViewModel? layer = (LayerViewModel)helper.StructureHelper.FindOrThrow(info.GuidValue);
+        LayerViewModel? layer = (LayerViewModel)doc.StructureViewModel.FindOrThrow(info.GuidValue);
         layer.SetLockTransparency(info.LockTransparency);
     }
 
     private void ProcessStructureMemberBlendMode(StructureMemberBlendMode_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVm = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? memberVm = doc.StructureViewModel.FindOrThrow(info.GuidValue);
         memberVm.SetBlendMode(info.BlendMode);
     }
 
     private void ProcessStructureMemberMask(StructureMemberMask_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVm = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? memberVm = doc.StructureViewModel.FindOrThrow(info.GuidValue);
         memberVm.MaskPreviewSurface?.Dispose();
         memberVm.MaskPreviewSurface = null;
         memberVm.MaskPreviewBitmap = null;
@@ -301,7 +301,7 @@ internal class DocumentUpdater
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)
     {
-        FolderViewModel? parentFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(info.ParentGuid);
+        FolderViewModel? parentFolderVM = (FolderViewModel)doc.StructureViewModel.FindOrThrow(info.ParentGuid);
 
         StructureMemberViewModel memberVM;
         if (info is CreateLayer_ChangeInfo layerInfo)
@@ -353,7 +353,7 @@ internal class DocumentUpdater
 
     private void ProcessDeleteStructureMember(DeleteStructureMember_ChangeInfo info)
     {
-        (StructureMemberViewModel memberVM, FolderViewModel folderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
+        (StructureMemberViewModel memberVM, FolderViewModel folderVM) = doc.StructureViewModel.FindChildAndParentOrThrow(info.GuidValue);
         folderVM.Children.Remove(memberVM);
         if (doc.SelectedStructureMember == memberVM)
             doc.InternalSetSelectedMember(null);
@@ -362,27 +362,27 @@ internal class DocumentUpdater
 
     private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? memberVM = doc.StructureViewModel.FindOrThrow(info.GuidValue);
         memberVM.SetIsVisible(info.IsVisible);
     }
 
     private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? memberVM = doc.StructureViewModel.FindOrThrow(info.GuidValue);
         memberVM.SetName(info.Name);
     }
 
     private void ProcessUpdateStructureMemberOpacity(StructureMemberOpacity_ChangeInfo info)
     {
-        StructureMemberViewModel? memberVM = helper.StructureHelper.FindOrThrow(info.GuidValue);
+        StructureMemberViewModel? memberVM = doc.StructureViewModel.FindOrThrow(info.GuidValue);
         memberVM.SetOpacity(info.Opacity);
     }
 
     private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
     {
-        (StructureMemberViewModel memberVM, FolderViewModel curFolderVM) = helper.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
+        (StructureMemberViewModel memberVM, FolderViewModel curFolderVM) = doc.StructureViewModel.FindChildAndParentOrThrow(info.GuidValue);
 
-        FolderViewModel? targetFolderVM = (FolderViewModel)helper.StructureHelper.FindOrThrow(info.ParentToGuid);
+        FolderViewModel? targetFolderVM = (FolderViewModel)doc.StructureViewModel.FindOrThrow(info.ParentToGuid);
 
         curFolderVM.Children.Remove(memberVM);
         targetFolderVM.Children.Insert(info.NewIndex, memberVM);

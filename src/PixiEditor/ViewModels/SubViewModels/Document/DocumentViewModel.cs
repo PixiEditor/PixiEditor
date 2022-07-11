@@ -34,6 +34,8 @@ internal class DocumentViewModel : NotifyableObject
 
     public FolderViewModel StructureRoot { get; }
 
+    public DocumentStructureViewModel StructureViewModel { get; }
+
     public int Width => size.X;
     public int Height => size.Y;
 
@@ -124,6 +126,7 @@ internal class DocumentViewModel : NotifyableObject
     {
         //Name = name;
         Helpers = new DocumentHelpers(this);
+        StructureViewModel = new DocumentStructureViewModel(this);
         StructureRoot = new FolderViewModel(this, Helpers, Helpers.Tracker.Document.StructureRoot.GuidValue);
 
         TransformViewModel = new();

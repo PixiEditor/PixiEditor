@@ -87,7 +87,7 @@ internal static class ClipboardController
         {
             MemoryStream memoryStream = new();
             PixiParser.Serialize(document, memoryStream);
-            data.SetData("PIXI", memoryStream); // PIXI, supports transparency, layers, groups and swatches
+            data.SetData("PIXI", memoryStream); // PIXI, supports transparency, layers, folders and swatches
             ClipboardHelper.TrySetDataObject(data, true);
         }
         

@@ -75,16 +75,9 @@
                 <MenuItem Header="Delete" Command="{cmds:Command PixiEditor.Layer.DeleteAllSelected}"/>
                 <MenuItem Header="Rename" Click="RenameMenuItem_Click"/>
 
-                <MenuItem Header="Move to front"
-                                     Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToFrontCommand,
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                           CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                </MenuItem>
-                <MenuItem Header="Move to back"
-                                    Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MoveToBackCommand, 
-                                            RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                           CommandParameter="{Binding PlacementTarget.Tag.ContainerIndex, RelativeSource={RelativeSource AncestorType=ContextMenu}}">
-                </MenuItem>
+                <MenuItem Header="Move upwards" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberUpwards}"/>
+                <MenuItem Header="Move downwards" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberDownwards}"/>
+
                 <Separator/>
                 <MenuItem Header="Merge selected"
                                      Command="{Binding PlacementTarget.Tag.LayerCommandsViewModel.MergeSelectedCommand, 

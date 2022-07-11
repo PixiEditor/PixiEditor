@@ -34,7 +34,7 @@
                         </Button.Background>
                     </Button>
                     <Button Command="{commands:Command PixiEditor.Layer.NewFolder}" 
-                        Height="24" Width="24" ToolTip="New Group" Cursor="Hand"
+                        Height="24" Width="24" ToolTip="New Folder" Cursor="Hand"
                                                 HorizontalAlignment="Stretch" Margin="5"
                                                 Style="{StaticResource ToolButtonStyle}">
                         <Button.Background>
@@ -131,7 +131,7 @@
                         <layerUserControls:FolderControl
                             Folder="{Binding}"
                             MouseDown="FolderControl_MouseDown"
-                            MouseMove="LayerGroup_MouseMove"/>
+                            MouseMove="Folder_MouseMove"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type docVm:LayerViewModel}">
                         <layerUserControls:LayerControl
