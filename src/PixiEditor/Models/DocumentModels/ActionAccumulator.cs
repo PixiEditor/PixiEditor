@@ -73,19 +73,38 @@ internal class ActionAccumulator
                 helpers.Updater.ApplyChangeFromChangeInfo(info);
             }
 
-            // lock bitmaps that need to be updated
-            var affectedChunks = new AffectedChunkGatherer(helpers.Tracker, changes);
+            // render changes
+            // If you are a sane person or maybe just someone who reads WPF documentation, you might think that the reasonable order of operations should be
+            // 1. Lock the writeable bitmaps
+            // 2. Update their contents
+            // 3. Add dirty rectangles
+            // 4. Unlock them
+            // As it turns out, doing operations in this order leads to WPF render thread crashing in some circumstatances.
+            // Then the whole app freezes without throwing any errors, because the UI thread is blocked on a mutex, waiting for the dead render thread.
+            // This is despite the order clearly being adviced in the documentations here: https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap?view=windowsdesktop-6.0&viewFallbackFrom=net-6.0#remarks
+            // Because of that, I'm executing the operations in the order that makes a lot less sense:
+            // 1. Update the contents of the bitmaps
+            // 2. Lock Them
+            // 3. Add dirty rectangles
+            // 4. Unlock
+            // The locks clearly do nothing useful here, and I'm only calling them because WriteableBitmap checks if it's locked before letting you add dirty rectangles.
+            // Really, the locks are supposed to prevent me from updating the bitmap contents in step 1, but they can't since I'm doing direct unsafe memory copying
+            // Somehow this all works
+            // Also, there is a bug report for this on github https://github.com/dotnet/wpf/issues/5816
 
+            var affectedChunks = new AffectedChunkGatherer(helpers.Tracker, changes);
+            bool refreshDelayed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+            var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, refreshDelayed);
+            
+            // lock bitmaps that need to be updated
             foreach (var (_, bitmap) in document.Bitmaps)
             {
                 bitmap.Lock();
             }
-            bool refreshDelayed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-            if (refreshDelayed)
-                LockPreviewBitmaps(document.StructureRoot);
 
             // update bitmaps
-            var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, refreshDelayed);
+            if (refreshDelayed)
+                LockPreviewBitmaps(document.StructureRoot);
             AddDirtyRects(renderResult);
 
             // unlock bitmaps
