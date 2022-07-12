@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -69,6 +70,15 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         where T : ToolViewModel
     {
         SetActiveTool(typeof(T));
+    }
+
+    [Command.Basic("PixiEditor.Tools.ApplyTransform", "Apply transform", "", Key = Key.Enter)]
+    public void ApplyTransform()
+    {
+        DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+        doc.OnApplyTransform();
     }
 
     [Command.Internal("PixiEditor.Tools.SelectTool", CanExecute = "PixiEditor.HasDocument")]

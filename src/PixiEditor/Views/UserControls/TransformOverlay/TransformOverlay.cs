@@ -1,12 +1,13 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 
 namespace PixiEditor.Views.UserControls.TransformOverlay;
 #nullable enable
-internal class TransformOverlay : Control
+internal class TransformOverlay : Decorator
 {
     public static readonly DependencyProperty RequestedCornersProperty =
         DependencyProperty.Register(nameof(RequestedCorners), typeof(ShapeCorners), typeof(TransformOverlay),
@@ -181,7 +182,9 @@ internal class TransformOverlay : Control
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
-
+        if (e.ChangedButton != MouseButton.Left)
+            return;
+        
         e.Handled = true;
         VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
         Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale);
@@ -297,6 +300,8 @@ internal class TransformOverlay : Control
     protected override void OnMouseUp(MouseButtonEventArgs e)
     {
         base.OnMouseUp(e);
+        if (e.ChangedButton != MouseButton.Left)
+            return;
         if (ReleaseAnchor())
             e.Handled = true;
         else if (isMoving)

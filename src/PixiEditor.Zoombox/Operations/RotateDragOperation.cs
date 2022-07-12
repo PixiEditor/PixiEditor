@@ -22,6 +22,7 @@ internal class RotateDragOperation : IDragOperation
         initialClickAngle = GetAngle(new(pointCur.X, pointCur.Y));
         initialZoomboxAngle = owner.Angle;
         rotationProcess = new LockingRotationProcess(initialZoomboxAngle);
+        owner.mainGrid.CaptureMouse();
     }
 
     private double GetAngle(VecD point)
@@ -47,5 +48,6 @@ internal class RotateDragOperation : IDragOperation
 
     public void Terminate()
     {
+        owner.mainGrid.ReleaseMouseCapture();
     }
 }

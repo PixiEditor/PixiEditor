@@ -90,14 +90,7 @@ internal class EllipseToolExecutor : UpdateableChangeExecutor
         transforming = true;
         document!.TransformViewModel.ShowFixedAngleShapeTransform(new ShapeCorners(lastRect));
     }
-
-    public override void OnKeyDown(Key key)
-    {
-        if (key is not Key.Enter || !transforming)
-            return;
-        OnTransformApplied();
-    }
-
+    
     public override void ForceStop()
     {
         if (transforming)

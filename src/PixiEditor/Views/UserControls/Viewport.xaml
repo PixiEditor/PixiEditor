@@ -13,6 +13,7 @@
     xmlns:sym="clr-namespace:PixiEditor.Views.UserControls.SymmetryOverlay"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -93,6 +94,7 @@
                         Source="{Binding TargetBitmap}"
                         RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"/>
                     <sym:SymmetryOverlay
+                        IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
                         ZoomboxScale="{Binding Zoombox.Scale}"
                         HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"
                         VerticalAxisVisible="{Binding Document.VerticalSymmetryAxisEnabledBindable}"
@@ -104,6 +106,8 @@
                         Path="{Binding Document.SelectionPathBindable}"
                         ZoomboxScale="{Binding Zoombox.Scale}" />
                     <to:TransformOverlay
+                        Cursor="Arrow"
+                        IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:BoolToVisibilityConverter}}"
@@ -113,7 +117,7 @@
                         SideFreedom="{Binding Document.TransformViewModel.SideFreedom}"
                         LockRotation="{Binding Document.TransformViewModel.LockRotation}"
                         InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
-                        ZoomboxScale="{Binding Zoombox.Scale}" />
+                        ZoomboxScale="{Binding Zoombox.Scale}"/>
                     <Grid IsHitTestVisible="False" SnapsToDevicePixels="True"
                         ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10" 
                         Visibility="{Binding GridLinesVisible, Converter={converters:BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
@@ -142,5 +146,17 @@
                 </Grid>
             </Border>
         </zoombox:Zoombox>
+        <Button 
+            Panel.ZIndex="99999"
+            DockPanel.Dock="Bottom" 
+            Width="140" 
+            Height="28" 
+            Margin="5" 
+            VerticalAlignment="Bottom" 
+            Style="{StaticResource GrayRoundButton}"
+            Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:BoolToVisibilityConverter}, ElementName=vpUc}"
+            Command="{cmds:Command PixiEditor.Tools.ApplyTransform}">
+            Apply transform
+        </Button>
     </Grid>
 </UserControl>

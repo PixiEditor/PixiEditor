@@ -16,6 +16,7 @@ internal class MoveDragOperation : IDragOperation
     public void Start(MouseButtonEventArgs e)
     {
         prevMousePos = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
+        parent.mainGrid.CaptureMouse();
     }
 
     public void Update(MouseEventArgs e)
@@ -27,5 +28,6 @@ internal class MoveDragOperation : IDragOperation
 
     public void Terminate()
     {
+        parent.mainGrid.ReleaseMouseCapture();
     }
 }

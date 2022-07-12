@@ -19,7 +19,7 @@ public class RectangleOperationTests
         RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, SKColors.Black, SKColors.Transparent));
 
         HashSet<VecI> expected = new() { new(0, 0) };
-        var actual = operation.FindAffectedChunks();
+        var actual = operation.FindAffectedChunks(new(chunkSize));
 
         Assert.Equal(expected, actual);
     }
@@ -31,7 +31,7 @@ public class RectangleOperationTests
         RectangleOperation operation = new(new(new(x, y), new(w, h), 0, 1, SKColors.Black, SKColors.Transparent));
 
         HashSet<VecI> expected = new() { new(-1, -1), new(0, -1), new(-1, 0), new(0, 0) };
-        var actual = operation.FindAffectedChunks();
+        var actual = operation.FindAffectedChunks(new(chunkSize));
 
         Assert.Equal(expected, actual);
     }
@@ -48,7 +48,7 @@ public class RectangleOperationTests
             new(1, 2),            new(3, 2),
             new(1, 3), new(2, 3), new(3, 3),
         };
-        var actual = operation.FindAffectedChunks();
+        var actual = operation.FindAffectedChunks(new(chunkSize));
 
         Assert.Equal(expected, actual);
     }
@@ -65,7 +65,7 @@ public class RectangleOperationTests
             new(-4, -3),              new(-2, -3),
             new(-4, -2), new(-3, -2), new(-2, -2),
         };
-        var actual = operation.FindAffectedChunks();
+        var actual = operation.FindAffectedChunks(new(chunkSize));
 
         Assert.Equal(expected, actual);
     }
@@ -82,7 +82,7 @@ public class RectangleOperationTests
             new(1, 2), new(2, 2), new(3, 2),
             new(1, 3), new(2, 3), new(3, 3),
         };
-        var actual = operation.FindAffectedChunks();
+        var actual = operation.FindAffectedChunks(new(chunkSize));
 
         Assert.Equal(expected, actual);
     }
@@ -101,7 +101,7 @@ public class RectangleOperationTests
             new(0, 3), new(1, 3), new(2, 3), new(3, 3), new(4, 3),
             new(0, 4), new(1, 4), new(2, 4), new(3, 4), new(4, 4),
         };
-        var actual = operation.FindAffectedChunks();
+        var actual = operation.FindAffectedChunks(new(chunkSize));
 
         Assert.Equal(expected, actual);
     }
@@ -113,7 +113,7 @@ public class RectangleOperationTests
         RectangleOperation operation = new(new(new(x, y), new(w, h), 0, chunkSize, SKColors.Black, SKColors.White));
 
         HashSet<VecI> expected = new() { new(0, 0) };
-        var actual = operation.FindAffectedChunks();
+        var actual = operation.FindAffectedChunks(new(chunkSize));
 
         Assert.Equal(expected, actual);
     }

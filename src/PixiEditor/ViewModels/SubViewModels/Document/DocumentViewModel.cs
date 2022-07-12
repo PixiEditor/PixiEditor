@@ -394,5 +394,6 @@ internal class DocumentViewModel : NotifyableObject
     public void OnOpacitySliderDragStarted() => Helpers.ChangeController.OnOpacitySliderDragStarted();
     public void OnOpacitySliderDragged(float newValue) => Helpers.ChangeController.OnOpacitySliderDragged(newValue);
     public void OnOpacitySliderDragEnded() => Helpers.ChangeController.OnOpacitySliderDragEnded();
+    public void OnApplyTransform() => Helpers.ChangeController.OnTransformApplied();
     #endregion
 }

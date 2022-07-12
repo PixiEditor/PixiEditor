@@ -148,11 +148,13 @@ internal class SymmetryOverlay : Control
 
     private VecD ToVecD(Point pos) => new VecD(pos.X, pos.Y);
 
-    public SymmetryAxisDirection? capturedDirection;
+    private SymmetryAxisDirection? capturedDirection;
 
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
+        if (e.ChangedButton != MouseButton.Left)
+            return;
 
         var pos = ToVecD(e.GetPosition(this));
         var dir = IsTouchingHandle(pos);
@@ -178,6 +180,8 @@ internal class SymmetryOverlay : Control
     protected override void OnMouseUp(MouseButtonEventArgs e)
     {
         base.OnMouseUp(e);
+        if (e.ChangedButton != MouseButton.Left)
+            return;
 
         if (capturedDirection is null)
             return;
