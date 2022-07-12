@@ -1,5 +1,4 @@
 ﻿using System.Windows.Input;
-using GalaSoft.MvvmLight.CommandWpf;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.UserPreferences;

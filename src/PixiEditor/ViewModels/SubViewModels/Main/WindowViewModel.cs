@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 using AvalonDock.Layout;
-using GalaSoft.MvvmLight.CommandWpf;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;

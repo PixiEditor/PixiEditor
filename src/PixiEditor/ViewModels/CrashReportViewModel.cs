@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Windows;
-using GalaSoft.MvvmLight.CommandWpf;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
@@ -32,12 +32,12 @@ internal class CrashReportViewModel : ViewModelBase
         CrashReport = report;
         ReportText = report.ReportText;
         DocumentCount = report.GetDocumentCount();
-        OpenSendCrashReportCommand = new(() => new SendCrashReportWindow(CrashReport).Show());
-        RecoverDocumentsCommand = new(RecoverDocuments, () => hasRecoveredDocuments, false);
+        OpenSendCrashReportCommand = new((_) => new SendCrashReportWindow(CrashReport).Show());
+        RecoverDocumentsCommand = new(RecoverDocuments, (_) => hasRecoveredDocuments);
         AttachDebuggerCommand = new(AttachDebugger);
     }
 
-    public void RecoverDocuments()
+    public void RecoverDocuments(object args)
     {
         MainWindow window = MainWindow.CreateWithDocuments(CrashReport.RecoverDocuments());
 
@@ -52,7 +52,7 @@ internal class CrashReportViewModel : ViewModelBase
         IsDebugBuild = true;
     }
 
-    private void AttachDebugger()
+    private void AttachDebugger(object args)
     {
         if (!Debugger.Launch())
         {
