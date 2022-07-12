@@ -93,7 +93,7 @@ internal class ChunkyImageOperation : IDrawOperation
         chunk.Surface.SkiaSurface.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
         return OperationHelper.FindChunksTouchingRectangle(new(GetTopLeft(), imageToDraw.CommittedSize), ChunkyImage.FullChunkSize);
     }

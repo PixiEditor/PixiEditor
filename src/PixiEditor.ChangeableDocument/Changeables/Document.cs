@@ -1,5 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -14,10 +16,10 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     (IReadOnlyStructureMember, IReadOnlyFolder) IReadOnlyDocument.FindChildAndParentOrThrow(Guid guid) => FindChildAndParentOrThrow(guid);
 
     IReadOnlyReferenceLayer? IReadOnlyDocument.ReferenceLayer => ReferenceLayer;
+
     /// <summary>
     /// The default size for a new document
     /// </summary>
-
     public static VecI DefaultSize { get; } = new VecI(64, 64);
     internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
     internal Selection Selection { get; } = new();
@@ -35,6 +37,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
     
     public void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action) => ForEveryReadonlyMember(StructureRoot, action);
+
     /// <summary>
     /// Performs the specified action on each member of the document
     /// </summary>
@@ -76,7 +79,8 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     /// </summary>
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <returns>True if the member can be found and is of type <typeparamref name="T"/>, otherwise false</returns>
-    public bool HasMember<T>(Guid guid) where T : StructureMember
+    public bool HasMember<T>(Guid guid) 
+        where T : StructureMember
     {
         var list = FindMemberPath(guid);
         return list.Count > 0 && list[0] is T;

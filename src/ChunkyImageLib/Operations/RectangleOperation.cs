@@ -49,9 +49,9 @@ internal class RectangleOperation : IDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
-        if (Math.Abs(Data.Size.X) < 1 || Math.Abs(Data.Size.Y) < 1 || Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0)
+        if (Math.Abs(Data.Size.X) < 1 || Math.Abs(Data.Size.Y) < 1 || (Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0))
             return new();
         if (Data.FillColor.Alpha != 0 || Math.Abs(Data.Size.X) == 1 || Math.Abs(Data.Size.Y) == 1)
             return OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle, ChunkPool.FullChunkSize);

@@ -35,7 +35,7 @@ internal class SkiaLineOperation : IDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
         RectI bounds = RectI.FromTwoPoints(from, to).Inflate((int)Math.Ceiling(paint.StrokeWidth));
         return OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);

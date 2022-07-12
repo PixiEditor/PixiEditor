@@ -402,6 +402,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueReplaceColor(SKColor oldColor, SKColor newColor)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            ReplaceColorOperation operation = new(oldColor, newColor);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawRectangle(ShapeData rect)
     {
         lock (lockObject)
@@ -571,7 +582,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         foreach (var op in operations)
         {
-            var chunks = op.FindAffectedChunks();
+            var chunks = op.FindAffectedChunks(LatestSize);
             chunks.RemoveWhere(pos => IsOutsideBounds(pos, LatestSize));
             if (operation.IgnoreEmptyChunks)
                 chunks.IntersectWith(FindAllChunks());

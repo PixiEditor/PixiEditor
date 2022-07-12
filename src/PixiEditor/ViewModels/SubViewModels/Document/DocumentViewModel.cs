@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
@@ -124,7 +125,9 @@ internal class DocumentViewModel : NotifyableObject
 
     private SKPath selectionPath = new SKPath();
     public SKPath SelectionPathBindable => selectionPath;
-    
+
+    public WpfObservableRangeCollection<SKColor> Swatches { get; set; } = new WpfObservableRangeCollection<SKColor>();
+    public WpfObservableRangeCollection<SKColor> Palette { get; set; } = new WpfObservableRangeCollection<SKColor>();
 
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
     public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
@@ -270,6 +273,13 @@ internal class DocumentViewModel : NotifyableObject
         if (Helpers.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 || newSize.Y < 1)
             return;
         Helpers.ActionAccumulator.AddFinishedActions(new ResizeImage_Action(newSize, resampling));
+    }
+
+    public void ReplaceColor(SKColor oldColor, SKColor newColor)
+    {
+        if (Helpers.ChangeController.IsChangeActive || oldColor == newColor)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor, newColor));
     }
 
     public void SetSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));

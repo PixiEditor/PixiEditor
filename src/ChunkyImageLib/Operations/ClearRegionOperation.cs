@@ -25,7 +25,7 @@ internal class ClearRegionOperation : IDrawOperation
         chunk.Surface.SkiaSurface.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
         return OperationHelper.FindChunksTouchingRectangle(rect, ChunkPool.FullChunkSize);
     }

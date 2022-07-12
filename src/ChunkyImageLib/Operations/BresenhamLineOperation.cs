@@ -35,7 +35,7 @@ internal class BresenhamLineOperation : IDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
         RectI bounds = RectI.FromTwoPoints(from, to + new VecI(1));
         return OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);

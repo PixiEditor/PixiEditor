@@ -40,6 +40,7 @@ internal class EllipseToolExecutor : UpdateableChangeExecutor
         strokeWidth = toolbar.ToolSize;
         memberGuid = member.GuidValue;
 
+        colorsVM.AddSwatch(strokeColor);
         DrawEllipseOrCircle(startPos);
         return new Success();
     }

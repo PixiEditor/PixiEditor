@@ -31,7 +31,7 @@ internal class PathOperation : IDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
         return OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
     }

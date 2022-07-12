@@ -1,7 +1,14 @@
-﻿using SkiaSharp;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
+using SkiaSharp;
 
-namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
-internal struct FloodFillColorRange
+namespace ChunkyImageLib.DataHolders;
+
+public struct ColorBounds
 {
     public float LowerR { get; set; }
     public float LowerG { get; set; }
@@ -12,7 +19,7 @@ internal struct FloodFillColorRange
     public float UpperB { get; set; }
     public float UpperA { get; set; }
 
-    public FloodFillColorRange(SKColor color)
+    public ColorBounds(SKColor color)
     {
         static (float lower, float upper) FindInclusiveBoundaryPremul(byte channel, float alpha)
         {
@@ -35,4 +42,23 @@ internal struct FloodFillColorRange
         (LowerB, UpperB) = FindInclusiveBoundaryPremul(color.Blue, a);
         (LowerA, UpperA) = FindInclusiveBoundary(color.Alpha);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public unsafe bool IsWithinBounds(Half* pixel)
+    {
+        float r = (float)pixel[0];
+        float g = (float)pixel[1];
+        float b = (float)pixel[2];
+        float a = (float)pixel[3];
+        if (r < LowerR || r > UpperR)
+            return false;
+        if (g < LowerG || g > UpperG)
+            return false;
+        if (b < LowerB || b > UpperB)
+            return false;
+        if (a < LowerA || a > UpperA)
+            return false;
+        return true;
+    }
 }
+

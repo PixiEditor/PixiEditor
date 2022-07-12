@@ -33,6 +33,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         toolSize = toolbar.ToolSize;
         pixelPerfect = toolbar.PixelPerfectEnabled;
 
+        vm.ColorsSubViewModel.AddSwatch(color);
         IAction? action = pixelPerfect switch
         {
             false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, toolSize, false, drawOnMask),

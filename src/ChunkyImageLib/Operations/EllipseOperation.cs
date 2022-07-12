@@ -89,7 +89,7 @@ internal class EllipseOperation : IDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
         var chunks = OperationHelper.FindChunksTouchingEllipse
             (location.Center, location.Width / 2.0, location.Height / 2.0, ChunkyImage.FullChunkSize);

@@ -2,6 +2,7 @@
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using SkiaSharp;
+using ChunkyImageLib;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -42,15 +43,15 @@ internal static class FloodFillHelper
             static (EmptyChunk _) => SKColors.Transparent
         );
 
-        if (colorToReplace.Alpha == 0 && drawingColor.Alpha == 0 || colorToReplace == drawingColor)
+        if ((colorToReplace.Alpha == 0 && drawingColor.Alpha == 0) || colorToReplace == drawingColor)
             return new();
 
         RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, document.Size);
 
         // Pre-multiplies the color and convert it to floats. Since floats are imprecise, a range is used.
         // Used for faster pixel checking
-        FloodFillColorRange colorRange = new(colorToReplace);
-        ulong uLongColor = ToULong(drawingColor);
+        ColorBounds colorRange = new(colorToReplace);
+        ulong uLongColor = drawingColor.ToULong();
 
         Dictionary<VecI, Chunk> drawingChunks = new();
         HashSet<VecI> processedEmptyChunks = new();
@@ -124,35 +125,6 @@ internal static class FloodFillHelper
         return drawingChunks;
     }
 
-    private static unsafe ulong ToULong(SKColor color)
-    {
-        ulong result = 0;
-        Half* ptr = (Half*)&result;
-        float normalizedAlpha = color.Alpha / 255.0f;
-        ptr[0] = (Half)(color.Red / 255f * normalizedAlpha);
-        ptr[1] = (Half)(color.Green / 255f * normalizedAlpha);
-        ptr[2] = (Half)(color.Blue / 255f * normalizedAlpha);
-        ptr[3] = (Half)(normalizedAlpha);
-        return result;
-    }
-
-    private static unsafe bool IsWithinBounds(ref FloodFillColorRange bounds, Half* pixel)
-    {
-        float r = (float)pixel[0];
-        float g = (float)pixel[1];
-        float b = (float)pixel[2];
-        float a = (float)pixel[3];
-        if (r < bounds.LowerR || r > bounds.UpperR)
-            return false;
-        if (g < bounds.LowerG || g > bounds.UpperG)
-            return false;
-        if (b < bounds.LowerB || b > bounds.UpperB)
-            return false;
-        if (a < bounds.LowerA || a > bounds.UpperA)
-            return false;
-        return true;
-    }
-
     private static unsafe byte[]? FloodFillChunk(
         Chunk referenceChunk,
         Chunk drawingChunk,
@@ -163,7 +135,7 @@ internal static class FloodFillHelper
         ulong colorBits,
         SKColor color,
         VecI pos,
-        FloodFillColorRange bounds)
+        ColorBounds bounds)
     {
         if (referenceChunk.Surface.GetSRGBPixel(pos) == color || drawingChunk.Surface.GetSRGBPixel(pos) == color)
             return null;
@@ -189,13 +161,13 @@ internal static class FloodFillHelper
             *(ulong*)drawPixel = colorBits;
             pixelStates[pixelOffset] = Visited;
 
-            if (curPos.X > 0 && pixelStates[pixelOffset - 1] == InSelection && IsWithinBounds(ref bounds, refPixel - 4))
+            if (curPos.X > 0 && pixelStates[pixelOffset - 1] == InSelection && bounds.IsWithinBounds(refPixel - 4))
                 toVisit.Push(new(curPos.X - 1, curPos.Y));
-            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == InSelection && IsWithinBounds(ref bounds, refPixel + 4))
+            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] == InSelection && bounds.IsWithinBounds(refPixel + 4))
                 toVisit.Push(new(curPos.X + 1, curPos.Y));
-            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == InSelection && IsWithinBounds(ref bounds, refPixel - 4 * chunkSize))
+            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] == InSelection && bounds.IsWithinBounds(refPixel - 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y - 1));
-            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == InSelection && IsWithinBounds(ref bounds, refPixel + 4 * chunkSize))
+            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] == InSelection && bounds.IsWithinBounds(refPixel + 4 * chunkSize))
                 toVisit.Push(new(curPos.X, curPos.Y + 1));
         }
         return pixelStates;

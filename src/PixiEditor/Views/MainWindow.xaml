@@ -626,10 +626,12 @@
                                                 <palettes:CompactPaletteViewer 
                                                     IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument, Converter={converters:NotNullToBoolConverter}}"
                                                     SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
-                                                    Colors="{Binding BitmapManager.ActiveDocument.Palette}" 
+                                                    Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}" 
                                                     Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}}"/>
-                                                <palettes:PaletteViewer IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={converters:NotNullToBoolConverter}}" Colors="{Binding BitmapManager.ActiveDocument.Palette}"
-                                                    Swatches="{Binding BitmapManager.ActiveDocument.Swatches}"
+                                                <palettes:PaletteViewer 
+                                                    IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={converters:NotNullToBoolConverter}}" 
+                                                    Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}"
+                                                    Swatches="{Binding DocumentManagerSubViewModel.ActiveDocument.Swatches}"
                                                     SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
                                                     HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,Converter={converters:SKColorToMediaColorConverter}}"
                                                     DataSources="{Binding ColorsSubViewModel.PaletteDataSources}"
@@ -649,7 +651,7 @@
 										CanFloat="True">
                                             <usercontrols:SwatchesView
 											    SelectSwatchCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
-											    Swatches="{Binding BitmapManager.ActiveDocument.Swatches}" />
+											    Swatches="{Binding DocumentManagerSubViewModel.ActiveDocument.Swatches}" />
                                         </avalondock:LayoutAnchorable>
                                     </LayoutAnchorablePane>
                                     <LayoutAnchorablePane>

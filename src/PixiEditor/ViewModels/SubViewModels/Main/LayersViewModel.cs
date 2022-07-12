@@ -107,7 +107,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Layer.CanCreateNewMember")]
     public bool CanCreateNewMember(object parameter)
     {
-        return Owner.DocumentManagerSubViewModel.ActiveDocument is not null;
+        return Owner.DocumentManagerSubViewModel.ActiveDocument is { } doc && !doc.UpdateableChangeActive;
     }
 
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragStarted")]

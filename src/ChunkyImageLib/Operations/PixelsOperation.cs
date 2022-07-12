@@ -32,7 +32,7 @@ internal class PixelsOperation : IDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
         return pixels.Select(static pixel => OperationHelper.GetChunkPos((VecI)pixel, ChunkyImage.FullChunkSize)).ToHashSet();
     }

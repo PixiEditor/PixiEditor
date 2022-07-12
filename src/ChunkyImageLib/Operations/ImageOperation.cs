@@ -68,7 +68,7 @@ internal class ImageOperation : IDrawOperation
         chunk.Surface.SkiaSurface.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks()
+    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
         return OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize);
     }
