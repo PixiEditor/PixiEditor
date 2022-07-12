@@ -14,6 +14,18 @@ internal class DocumentStructureHelper
         this.helpers = helpers;
     }
 
+    private string GetUniqueName(string name, FolderViewModel folder)
+    {
+        int count = 1;
+        foreach (var child in folder.Children)
+        {
+            string childName = child.NameBindable;
+            if (childName.StartsWith(name))
+                count++;
+        }
+        return $"{name} {count}";
+    }
+
     public void CreateNewStructureMember(StructureMemberType type)
     {
         StructureMemberViewModel? member = doc.SelectedStructureMember;
@@ -22,7 +34,8 @@ internal class DocumentStructureHelper
             Guid guid = Guid.NewGuid();
             //put member on top
             helpers.ActionAccumulator.AddActions(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, guid, doc.StructureRoot.Children.Count, type));
-            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, type == StructureMemberType.Layer ? "New Layer" : "New Folder"));
+            string name = GetUniqueName(type == StructureMemberType.Layer ? "New Layer" : "New Folder", doc.StructureRoot);
+            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, name));
             return;
         }
         if (member is FolderViewModel folder)
@@ -30,19 +43,21 @@ internal class DocumentStructureHelper
             Guid guid = Guid.NewGuid();
             //put member inside folder on top
             helpers.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.GuidValue, guid, folder.Children.Count, type));
-            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, type == StructureMemberType.Layer ? "New Layer" : "New Folder"));
+            string name = GetUniqueName(type == StructureMemberType.Layer ? "New Layer" : "New Folder", folder);
+            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, name));
             return;
         }
         if (member is LayerViewModel layer)
         {
             Guid guid = Guid.NewGuid();
             //put member above the layer
-            List<StructureMemberViewModel>? path = doc.StructureViewModel.FindPath(layer.GuidValue);
+            List<StructureMemberViewModel> path = doc.StructureViewModel.FindPath(layer.GuidValue);
             if (path.Count < 2)
                 throw new InvalidOperationException("Couldn't find a path to the selected member");
-            FolderViewModel? parent = (FolderViewModel)path[1];
+            FolderViewModel parent = (FolderViewModel)path[1];
             helpers.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.GuidValue, guid, parent.Children.IndexOf(layer) + 1, type));
-            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, type == StructureMemberType.Layer ? "New Layer" : "New Folder"));
+            string name = GetUniqueName(type == StructureMemberType.Layer ? "New Layer" : "New Folder", parent);
+            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, name));
             return;
         }
         throw new ArgumentException($"Unknown member type: {type}");
