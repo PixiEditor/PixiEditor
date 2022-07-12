@@ -12,6 +12,8 @@ public class DocumentChangeTracker : IDisposable
     private bool disposed = false;
     private bool running = false;
     public IReadOnlyDocument Document => document;
+    public bool HasSavedUndo => undoStack.Any();
+    public bool HasSavedRedo => redoStack.Any();
 
     private UpdateableChange? activeUpdateableChange = null;
     private List<Change>? activePacket = null;

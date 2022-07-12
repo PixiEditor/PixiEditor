@@ -131,24 +131,20 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragEnded();
     }
 
+    [Command.Basic("PixiEditor.Layer.DuplicateSelectedLayer", "Duplicate selected layer", "Duplicate selected layer", CanExecute = "PixiEditor.Layer.CanDuplicatedSelectedLayer")]
     public void DuplicateLayer(object parameter)
     {
-
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (member is not LayerViewModel layerVM)
+            return;
+        member.Document.DuplicateLayer(member.GuidValue);
     }
 
+    [Evaluator.CanExecute("PixiEditor.Layer.CanDuplicatedSelectedLayer")]
     public bool CanDuplicateLayer(object property)
     {
-        return false;
-    }
-
-    public void RenameLayer(object parameter)
-    {
-
-    }
-
-    public bool CanRenameLayer(object parameter)
-    {
-        return false;
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        return member is LayerViewModel;
     }
 
     private bool HasSelectedMember(bool above)

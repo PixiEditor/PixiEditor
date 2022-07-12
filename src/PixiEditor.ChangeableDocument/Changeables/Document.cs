@@ -95,7 +95,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     /// <param name="guid">The <see cref="StructureMember.GuidValue"/> of the member</param>
     /// <exception cref="ArgumentException">Thrown if the member could not be found</exception>
     /// <exception cref="InvalidCastException">Thrown if the member is not of type <typeparamref name="T"/></exception>
-    public T FindMemberOrThrow<T>(Guid guid) where T : StructureMember => (T)FindMember(guid)!;
+    public T FindMemberOrThrow<T>(Guid guid) where T : StructureMember => (T?)FindMember(guid) ?? throw new ArgumentException($"Could not find member with guid '{guid}'");
 
     /// <summary>
     /// Finds the member with the <paramref name="guid"/> or returns null if not found
@@ -133,7 +133,8 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     /// <param name="member">The member</param>
     /// <typeparam name="T">The type of the <see cref="StructureMember"/></typeparam>
     /// <returns>True if the member could be found and is of type <typeparamref name="T"/>, otherwise false</returns>
-    public bool TryFindMember<T>(Guid guid, [NotNullWhen(true)] out T? member) where T : IReadOnlyStructureMember
+    public bool TryFindMember<T>(Guid guid, [NotNullWhen(true)] out T? member) 
+        where T : IReadOnlyStructureMember
     {
         if (!TryFindMember(guid, out var structureMember) || structureMember is not T cast)
         {
@@ -142,7 +143,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         }
 
         member = cast;
-        return false;
+        return true;
     }
 
     /// <summary>

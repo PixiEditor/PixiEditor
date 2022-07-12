@@ -33,6 +33,10 @@ internal class DocumentViewModel : NotifyableObject
         }
     }
 
+    public bool UpdateableChangeActive => Helpers.ChangeController.IsChangeActive;
+    public bool HasSavedUndo => Helpers.Tracker.HasSavedUndo;
+    public bool HasSavedRedo => Helpers.Tracker.HasSavedRedo;
+
     public FolderViewModel StructureRoot { get; }
 
     public DocumentStructureViewModel StructureViewModel { get; }
@@ -243,6 +247,13 @@ internal class DocumentViewModel : NotifyableObject
         Helpers.StructureHelper.CreateNewStructureMember(type);
     }
 
+    public void DuplicateLayer(Guid guidValue)
+    {
+        if (Helpers.ChangeController.IsChangeActive)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
+    }
+
     public void DeleteStructureMember(Guid guidValue)
     {
         if (Helpers.ChangeController.IsChangeActive)
@@ -283,6 +294,20 @@ internal class DocumentViewModel : NotifyableObject
 
     public void UsePenTool() => Helpers.ChangeController.TryStartUpdateableChange<PenToolExecutor>();
     public void UseEllipseTool() => Helpers.ChangeController.TryStartUpdateableChange<EllipseToolExecutor>();
+
+    public void Undo()
+    {
+        if (Helpers.ChangeController.IsChangeActive)
+            return;
+        Helpers.ActionAccumulator.AddActions(new Undo_Action());
+    }
+
+    public void Redo()
+    {
+        if (Helpers.ChangeController.IsChangeActive)
+            return;
+        Helpers.ActionAccumulator.AddActions(new Redo_Action());
+    }
 
     public void MoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo, StructureMemberPlacement placement)
     {

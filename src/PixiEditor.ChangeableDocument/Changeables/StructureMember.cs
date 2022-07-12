@@ -12,7 +12,7 @@ internal abstract class StructureMember : IChangeable, IReadOnlyStructureMember,
     public bool ClipToMemberBelow { get; set; } = false;
     public string Name { get; set; } = "Unnamed";
     public BlendMode BlendMode { get; set; } = BlendMode.Normal;
-    public Guid GuidValue { get; init; }
+    public Guid GuidValue { get; set; }
     public ChunkyImage? Mask { get; set; } = null;
     public bool MaskIsVisible { get; set; } = true;
     IReadOnlyChunkyImage? IReadOnlyStructureMember.Mask => Mask;
