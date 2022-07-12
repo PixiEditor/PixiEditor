@@ -10,6 +10,7 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -22,6 +23,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
 internal class DocumentViewModel : NotifyableObject
 {
+    public event EventHandler<LayersChangedEventArgs> LayersChanged;
+
     private bool busy = false;
     public bool Busy
     {
@@ -59,6 +62,8 @@ internal class DocumentViewModel : NotifyableObject
             return Helpers.Tracker.LastChangeGuid == lastChangeOnSave;
         }
     }
+
+    public DateTime OpenedUTC { get; } = DateTime.UtcNow;
 
     private bool horizontalSymmetryAxisEnabled;
     public bool HorizontalSymmetryAxisEnabledBindable
@@ -161,6 +166,9 @@ internal class DocumentViewModel : NotifyableObject
 
     #region Internal Methods
     // these are intended to only be called from DocumentUpdater
+
+    public void InternalRaiseLayersChanged(LayersChangedEventArgs args) => LayersChanged?.Invoke(this, args);
+
     public void InternalSetVerticalSymmetryAxisEnabled(bool verticalSymmetryAxisEnabled)
     {
         this.verticalSymmetryAxisEnabled = verticalSymmetryAxisEnabled;
@@ -378,7 +386,6 @@ internal class DocumentViewModel : NotifyableObject
             return SKColors.Transparent;
         }
     }
-
 
     #region Events
     public void OnKeyDown(Key args) => Helpers.ChangeController.OnKeyDown(args);

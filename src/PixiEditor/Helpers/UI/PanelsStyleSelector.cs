@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Helpers.UI;

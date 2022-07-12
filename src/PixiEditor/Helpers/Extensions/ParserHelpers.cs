@@ -1,14 +1,13 @@
 ﻿using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.Parser;
 
 namespace PixiEditor.Helpers.Extensions;
 
 internal static class ParserHelpers
 {
-    public static Document ToDocument(this SerializableDocument serializableDocument)
+    /*public static Document ToDocument(this SerializableDocument serializableDocument)
     {
-        /*
+        
         Document document = new Document(serializableDocument.Width, serializableDocument.Height)
         {
             Layers = serializableDocument.ToLayers(),
@@ -24,9 +23,9 @@ internal static class ParserHelpers
         }
         document.Renderer.ForceRerender();
 
-        return document;*/
+        return document;
         throw new NotImplementedException();
-    }
+    }*/
     /*
     public static WpfObservableRangeCollection<Layer> ToLayers(this SerializableDocument document)
     {

@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -358,6 +359,7 @@ internal class DocumentUpdater
             doc.RaisePropertyChanged(nameof(doc.SelectedStructureMember));
             doc.RaisePropertyChanged(nameof(memberVM.Selection));
         }
+        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Add));
     }
 
     private void ProcessDeleteStructureMember(DeleteStructureMember_ChangeInfo info)
@@ -367,6 +369,7 @@ internal class DocumentUpdater
         if (doc.SelectedStructureMember == memberVM)
             doc.InternalSetSelectedMember(null);
         doc.InternalClearSoftSelectedMembers();
+        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Remove));
     }
 
     private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)
@@ -395,5 +398,6 @@ internal class DocumentUpdater
 
         curFolderVM.Children.Remove(memberVM);
         targetFolderVM.Children.Insert(info.NewIndex, memberVM);
+        doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Move));
     }
 }

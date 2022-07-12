@@ -3,8 +3,8 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.Models.IO;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.Controllers;
 
@@ -14,21 +14,21 @@ internal static class ClipboardController
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor",
         "Copied.png");
-
+    /*
     /// <summary>
     /// Copies the selection to clipboard in PNG, Bitmap and DIB formats. <para/>
     /// Also serailizes the <paramref name="document"/> in the PIXI format and copies it to the clipboard.
     /// </summary>
     public static void CopyToClipboard(Document document)
     {
-        /*CopyToClipboard(
+        CopyToClipboard(
             document.Layers.Where(x => document.GetFinalLayerIsVisible(x) && x.IsActive).ToArray(),
             document.ActiveSelection.SelectionLayer,
             document.LayerStructure,
             document.Width,
             document.Height,
-            null/*document.ToSerializable());*/
-    }
+            null/*document.ToSerializable());
+    }*/
     /*
     private static Surface CreateMaskedCombinedSurface(Layer[] layers, LayerStructure structure, Layer selLayer)
     {
@@ -98,7 +98,7 @@ internal static class ClipboardController
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static void PasteFromClipboard(Document document)
+    public static void PasteFromClipboard(DocumentViewModel document)
     {
         /*
         Layer[] layers;

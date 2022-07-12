@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using PixiEditor.Helpers;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DataHolders;
 
@@ -85,9 +86,9 @@ internal class CrashReport : IDisposable
 
     public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
 
-    public List<Document.Document> RecoverDocuments()
+    public List<DocumentViewModel> RecoverDocuments()
     {
-        return new List<Document.Document>();
+        return new List<DocumentViewModel>();
         /*
         List<Document> documents = new();
         foreach (ZipArchiveEntry entry in ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")))

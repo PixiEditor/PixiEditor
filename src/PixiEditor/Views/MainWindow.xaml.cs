@@ -4,7 +4,6 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -54,7 +53,7 @@ internal partial class MainWindow : Window
         });
     }
 
-    public static MainWindow CreateWithDocuments(IEnumerable<Document> documents)
+    public static MainWindow CreateWithDocuments(IEnumerable<DocumentViewModel> documents)
     {
         /*
         MainWindow window = new();

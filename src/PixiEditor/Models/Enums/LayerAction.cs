@@ -4,6 +4,5 @@ public enum LayerAction
 {
     Add,
     Remove,
-    Move,
-    SetActive
+    Move
 }

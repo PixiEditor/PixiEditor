@@ -6,9 +6,9 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataHolders.Document;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using SkiaSharp;
 
 namespace PixiEditor.Models.IO;
@@ -20,7 +20,7 @@ internal class Exporter
     /// </summary>
     /// <param name="document">Document to save.</param>
     /// <param name="path">Path where file was saved.</param>
-    public static bool SaveAsEditableFileWithDialog(Document document, out string path)
+    public static bool SaveAsEditableFileWithDialog(DocumentViewModel document, out string path)
     {
         SaveFileDialog dialog = new SaveFileDialog
         {
@@ -46,7 +46,7 @@ internal class Exporter
     /// <param name="document">Document to be saved.</param>
     /// <param name="path">Path where to save file.</param>
     /// <returns>Path.</returns>
-    public static string SaveAsEditableFile(Document document, string path, FileType requestedType = FileType.Unset)
+    public static string SaveAsEditableFile(DocumentViewModel document, string path, FileType requestedType = FileType.Unset)
     {
         return path;
         /*

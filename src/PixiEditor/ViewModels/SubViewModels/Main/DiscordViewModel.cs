@@ -1,4 +1,7 @@
-﻿using DiscordRPC;
+﻿using System.ComponentModel;
+using DiscordRPC;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Events;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -77,7 +80,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
     public DiscordViewModel(ViewModelMain owner, string clientId)
         : base(owner)
     {
-        //Owner.BitmapManager.DocumentChanged += DocumentChanged;
+        Owner.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
         this.clientId = clientId;
 
         Enabled = IPreferences.Current.GetPreference("EnableRichPresence", true);
@@ -102,9 +105,8 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         client = null;
     }
 
-    public void UpdatePresence(DocumentViewModel document)
+    public void UpdatePresence(DocumentViewModel? document)
     {
-        /*
         if (client == null)
         {
             return;
@@ -116,7 +118,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         {
             richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
 
-            richPresence.Details = ShowDocumentName ? $"Editing {document.Name}".Limit(128) : "Editing an image";
+            richPresence.Details = ShowDocumentName ? $"Editing {document.FileName}".Limit(128) : "Editing an image";
 
             string state = string.Empty;
 
@@ -132,14 +134,27 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
 
             if (ShowLayerCount)
             {
-                state += document.Layers.Count == 1 ? "1 Layer" : $"{document.Layers.Count} Layers";
+                int count = CountLayers(document.StructureRoot);
+                state += count == 1 ? "1 Layer" : $"{count} Layers";
             }
 
             richPresence.State = state;
         }
 
         client.SetPresence(richPresence);
-        */
+    }
+
+    private int CountLayers(FolderViewModel folder)
+    {
+        int counter = 0;
+        foreach (var child in folder.Children)
+        {
+            if (child is LayerViewModel)
+                counter++;
+            else if (child is FolderViewModel innerFolder)
+                counter += CountLayers(innerFolder);
+        }
+        return counter;
     }
 
     public void Dispose()
@@ -168,8 +183,8 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             }
         };
     }
-    /*
-    private void DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
+    
+    private void DocumentChanged(object sender, DocumentChangedEventArgs e)
     {
         if (currentDocument != null)
         {
@@ -186,16 +201,17 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             currentDocument.LayersChanged += DocumentLayerChanged;
         }
     }
-    */
 
-    private void DocumentLayerChanged(object sender, Models.Controllers.LayersChangedEventArgs e)
+    private void DocumentLayerChanged(object sender, LayersChangedEventArgs e)
     {
         UpdatePresence(currentDocument);
     }
 
-    private void DocumentPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    private void DocumentPropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == "Name" || e.PropertyName == "Width" || e.PropertyName == "Height")
+        if (e.PropertyName == nameof(currentDocument.FileName)
+            || e.PropertyName == nameof(currentDocument.Width)
+            || e.PropertyName == nameof(currentDocument.Height))
         {
             UpdatePresence(currentDocument);
         }
@@ -203,7 +219,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
 
     private void OnReady(object sender, DiscordRPC.Message.ReadyMessage args)
     {
-        //UpdatePresence(Owner.BitmapManager.ActiveDocument);
+        UpdatePresence(Owner.DocumentManagerSubViewModel.ActiveDocument);
     }
 
     ~DiscordViewModel()
