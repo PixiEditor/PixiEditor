@@ -536,7 +536,7 @@
                                                                 <Grid>
                                                                     <Grid.ColumnDefinitions>
                                                                         <ColumnDefinition Width="100"/>
-                                                                        <ColumnDefinition Width="{Binding XamlAccesibleViewModel.BitmapManager.ActiveDocument.Palette, Converter={converters:PaletteItemsToWidthConverter}}"/>
+                                                                        <ColumnDefinition Width="{Binding Palette, Converter={converters:PaletteItemsToWidthConverter}}"/>
                                                                     </Grid.ColumnDefinitions>
                                                                     <Border BorderThickness="0 0 1 0" BorderBrush="Black">
                                                                         <StackPanel Orientation="Vertical" Grid.Column="0">
@@ -559,7 +559,7 @@
                                                                         </StackPanel>
                                                                     </Border>
                                                                     <ScrollViewer Margin="5" Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                                                                        <ItemsControl ItemsSource="{Binding XamlAccesibleViewModel.BitmapManager.ActiveDocument.Palette}" AlternationCount="9999">
+                                                                        <ItemsControl ItemsSource="{Binding Palette}" AlternationCount="9999">
                                                                             <ItemsControl.ItemsPanel>
                                                                                 <ItemsPanelTemplate>
                                                                                     <WrapPanel Orientation="Horizontal"
@@ -572,8 +572,8 @@
                                                                                         <b:Interaction.Triggers>
                                                                                             <b:EventTrigger EventName="MouseLeftButtonUp">
                                                                                                 <b:InvokeCommandAction
-                                     Command="{Binding DataContext.XamlAccesibleViewModel.ColorsSubViewModel.SelectColorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ContextMenu}}}"
-                                    CommandParameter="{Binding}" />
+                                                                                                    Command="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
+                                                                                                    CommandParameter="{Binding}" />
                                                                                             </b:EventTrigger>
                                                                                         </b:Interaction.Triggers>
                                                                                     </palettes:PaletteColor>
@@ -624,7 +624,7 @@
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
                                             <Grid>
                                                 <palettes:CompactPaletteViewer 
-                                                    IsEnabled="{Binding DocumentSubViewModel.Owner.BitmapManager.ActiveDocument, Converter={converters:NotNullToBoolConverter}}"
+                                                    IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={converters:NotNullToBoolConverter}}"
                                                     SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
                                                     Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}" 
                                                     Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}}"/>
