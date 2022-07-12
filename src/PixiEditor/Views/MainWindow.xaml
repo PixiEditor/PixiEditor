@@ -15,7 +15,6 @@
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
     xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
-    xmlns:cmd="http://www.galasoft.ch/mvvmlight"
     xmlns:avalondock="https://github.com/Dirkster99/AvalonDock"
     xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
     xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
@@ -491,7 +490,16 @@
                             <ui:PanelsStyleSelector>
                                 <ui:PanelsStyleSelector.DocumentTabStyle>
                                     <Style TargetType="{x:Type avalondock:LayoutItem}">
-                                        <Setter Property="Title" Value="{Binding Model.Name}" />
+                                        <Setter Property="Title">
+                                            <Setter.Value>
+                                                <MultiBinding Converter="{converters:ConcatStringsConverter}" ConverterParameter=" ">
+                                                    <MultiBinding.Bindings>
+                                                        <Binding Path="Model.FileName"/>
+                                                        <Binding Path="Model.AllChangesSaved" Converter="{converters:BoolToAsteriskConverter}"/>
+                                                    </MultiBinding.Bindings>
+                                                </MultiBinding>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Setter Property="CloseCommand" Value="{Binding Model.RequestCloseDocumentCommand}" />
                                     </Style>
                                 </ui:PanelsStyleSelector.DocumentTabStyle>

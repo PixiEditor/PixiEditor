@@ -2,6 +2,8 @@
 
 internal abstract class Change : IDisposable
 {
+    public Guid ChangeGuid { get; } = Guid.NewGuid();
+
     /// <summary>
     /// Checks if this change can be combined with the <paramref name="other"/> change. Returns false if not overridden
     /// </summary>

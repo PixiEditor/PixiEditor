@@ -1,6 +1,7 @@
 ﻿using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
@@ -22,6 +23,14 @@ internal class DocumentUpdater
     {
         this.doc = doc;
         this.helper = helper;
+    }
+
+    /// <summary>
+    /// Don't call this outside ActionAccumulator
+    /// </summary>
+    public void AfterUndoBoundaryPassed()
+    {
+        doc.RaisePropertyChanged(nameof(doc.AllChangesSaved));
     }
 
     /// <summary>

@@ -68,10 +68,13 @@ internal class ActionAccumulator
                 changes = await helpers.Tracker.ProcessActions(toExecute);
 
             // update viewmodels based on changes
+            bool undoBoundaryPassed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
             foreach (IChangeInfo? info in changes)
             {
                 helpers.Updater.ApplyChangeFromChangeInfo(info);
             }
+            if (undoBoundaryPassed)
+                helpers.Updater.AfterUndoBoundaryPassed();
 
             // render changes
             // If you are a sane person or maybe just someone who reads WPF documentation, you might think that the reasonable order of operations should be
@@ -94,15 +97,14 @@ internal class ActionAccumulator
 
             // update the contents of the bitmaps
             var affectedChunks = new AffectedChunkGatherer(helpers.Tracker, changes);
-            bool refreshDelayed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-            var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, refreshDelayed);
+            var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, undoBoundaryPassed);
             
             // lock bitmaps
             foreach (var (_, bitmap) in document.Bitmaps)
             {
                 bitmap.Lock();
             }
-            if (refreshDelayed)
+            if (undoBoundaryPassed)
                 LockPreviewBitmaps(document.StructureRoot);
 
             // add dirty rectangles
@@ -113,7 +115,7 @@ internal class ActionAccumulator
             {
                 bitmap.Unlock();
             }
-            if (refreshDelayed)
+            if (undoBoundaryPassed)
                 UnlockPreviewBitmaps(document.StructureRoot);
 
             // force refresh viewports for better responsiveness

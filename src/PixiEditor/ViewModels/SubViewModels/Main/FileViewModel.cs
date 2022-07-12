@@ -86,6 +86,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             doc.ResizeCanvas(size, ResizeAnchor.TopLeft);
         if (addBaseLayer)
             doc.CreateStructureMember(StructureMemberType.Layer);
+        doc.ClearUndo();
+        doc.MarkAsSaved();
 
         return doc;
     }

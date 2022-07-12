@@ -14,6 +14,18 @@ public class DocumentChangeTracker : IDisposable
     public IReadOnlyDocument Document => document;
     public bool HasSavedUndo => undoStack.Any();
     public bool HasSavedRedo => redoStack.Any();
+    public Guid? LastChangeGuid
+    {
+        get
+        {
+            if (!undoStack.Any())
+                return null;
+            List<Change> list = undoStack.Peek();
+            if (list.Count == 0)
+                return null;
+            return list[^1].ChangeGuid;
+        }
+    }
 
     private UpdateableChange? activeUpdateableChange = null;
     private List<Change>? activePacket = null;
@@ -34,16 +46,22 @@ public class DocumentChangeTracker : IDisposable
         activeUpdateableChange?.Dispose();
 
         if (activePacket != null)
+        {
             foreach (var change in activePacket)
                 change.Dispose();
+        }
 
         foreach (var list in undoStack)
+        {
             foreach (var change in list)
                 change.Dispose();
+        }
 
         foreach (var list in redoStack)
+        {
             foreach (var change in list)
                 change.Dispose();
+        }
     }
 
     public DocumentChangeTracker()
@@ -58,8 +76,11 @@ public class DocumentChangeTracker : IDisposable
         activePacket.Add(change);
 
         foreach (var changesToDispose in redoStack)
+        {
             foreach (var changeToDispose in changesToDispose)
                 changeToDispose.Dispose();
+        }
+
         redoStack.Clear();
     }
 

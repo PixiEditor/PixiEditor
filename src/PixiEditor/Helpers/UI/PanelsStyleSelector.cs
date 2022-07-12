@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Document;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Helpers.UI;
 
@@ -11,7 +12,7 @@ internal class PanelsStyleSelector : StyleSelector
 
     public override Style SelectStyle(object item, DependencyObject container)
     {
-        if (item is Document)
+        if (item is DocumentViewModel)
         {
             return DocumentTabStyle;
         }

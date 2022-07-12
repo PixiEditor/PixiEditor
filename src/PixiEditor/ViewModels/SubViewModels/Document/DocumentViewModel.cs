@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.IO;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
@@ -20,72 +21,80 @@ namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
 internal class DocumentViewModel : NotifyableObject
 {
-    public const string ConfirmationDialogTitle = "Unsaved changes";
-    public const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
-
+    private bool busy = false;
     public bool Busy
     {
         get => busy;
+        set => SetProperty(ref busy, value);
+    }
+
+    private string coordinatesString = "";
+    public string CoordinatesString
+    {
+        get => coordinatesString;
+        set => SetProperty(ref coordinatesString, value);
+    }
+
+    private string? fullFilePath = null;
+    public string? FullFilePath 
+    { 
+        get => fullFilePath;
         set
         {
-            busy = value;
-            RaisePropertyChanged(nameof(Busy));
+            SetProperty(ref fullFilePath, value);
+            RaisePropertyChanged(nameof(FileName));
+        }
+    }
+    public string FileName
+    {
+        get => fullFilePath is null ? "Unnamed" : Path.GetFileName(fullFilePath);
+    }
+
+    private Guid? lastChangeOnSave = null;
+    public bool AllChangesSaved
+    {
+        get
+        {
+            return Helpers.Tracker.LastChangeGuid == lastChangeOnSave;
         }
     }
 
-    public bool UpdateableChangeActive => Helpers.ChangeController.IsChangeActive;
-    public bool HasSavedUndo => Helpers.Tracker.HasSavedUndo;
-    public bool HasSavedRedo => Helpers.Tracker.HasSavedRedo;
-
-    public FolderViewModel StructureRoot { get; }
-
-    public DocumentStructureViewModel StructureViewModel { get; }
-
-    public int Width => size.X;
-    public int Height => size.Y;
-
-    public StructureMemberViewModel? SelectedStructureMember { get; private set; } = null;
-
-    private HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
-    public IReadOnlyCollection<StructureMemberViewModel> SoftSelectedStructureMembers => softSelectedStructureMembers;
-
-    public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
-    {
-        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null),
-        [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
-    };
-
-    public WriteableBitmap PreviewBitmap { get; set; }
-    public SKSurface PreviewSurface { get; set; }
-    public string? FullFilePath { get; set; }
-
-    public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
-
-    public VecI SizeBindable => size;
-
-    public int HorizontalSymmetryAxisYBindable => horizontalSymmetryAxisY;
-    public int VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
-
+    private bool horizontalSymmetryAxisEnabled;
     public bool HorizontalSymmetryAxisEnabledBindable
     {
         get => horizontalSymmetryAxisEnabled;
         set => Helpers.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Horizontal, value));
     }
 
+    private bool verticalSymmetryAxisEnabled;
     public bool VerticalSymmetryAxisEnabledBindable
     {
         get => verticalSymmetryAxisEnabled;
         set => Helpers.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
     }
 
-    public IReadOnlyReferenceLayer? ReferenceLayer => Helpers.Tracker.Document.ReferenceLayer;
+    private VecI size = new VecI(64, 64);
+    public int Width => size.X;
+    public int Height => size.Y;
+    public VecI SizeBindable => size;
 
+    private int horizontalSymmetryAxisY;
+    public int HorizontalSymmetryAxisYBindable => horizontalSymmetryAxisY;
+
+    private int verticalSymmetryAxisX;
+    public int VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
+
+    private HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
+    public IReadOnlyCollection<StructureMemberViewModel> SoftSelectedStructureMembers => softSelectedStructureMembers;
+
+
+    public bool UpdateableChangeActive => Helpers.ChangeController.IsChangeActive;
+    public bool HasSavedUndo => Helpers.Tracker.HasSavedUndo;
+    public bool HasSavedRedo => Helpers.Tracker.HasSavedRedo;
+    public IReadOnlyReferenceLayer? ReferenceLayer => Helpers.Tracker.Document.ReferenceLayer;
     public BitmapSource? ReferenceBitmap => ReferenceLayer?.Image.ToWriteableBitmap();
     public VecI ReferenceBitmapSize => ReferenceLayer?.Image.Size ?? VecI.Zero;
     public ShapeCorners ReferenceShape => ReferenceLayer?.Shape ?? default;
-
     public Matrix ReferenceTransformMatrix
     {
         get
@@ -97,35 +106,32 @@ internal class DocumentViewModel : NotifyableObject
         }
     }
 
-    private string coordinatesString = "";
-    public string CoordinatesString
-    {
-        get => coordinatesString;
-        set => SetProperty(ref coordinatesString, value);
-    }
+    public FolderViewModel StructureRoot { get; }
+    public DocumentStructureViewModel StructureViewModel { get; }
+    public StructureMemberViewModel? SelectedStructureMember { get; private set; } = null;
 
+    public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
+    public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
+    {
+        [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Quarter] = new WriteableBitmap(16, 16, 96, 96, PixelFormats.Pbgra32, null),
+        [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
+    };
+    public WriteableBitmap PreviewBitmap { get; set; }
+    public SKSurface PreviewSurface { get; set; }
+
+
+    private SKPath selectionPath = new SKPath();
     public SKPath SelectionPathBindable => selectionPath;
-    public DocumentTransformViewModel TransformViewModel { get; }
+    
 
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
     public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
+    public DocumentTransformViewModel TransformViewModel { get; }
 
 
     private DocumentHelpers Helpers { get; }
-
-    private int verticalSymmetryAxisX;
-
-    private bool horizontalSymmetryAxisEnabled;
-
-    private bool verticalSymmetryAxisEnabled;
-
-    private bool busy = false;
-
-    private VecI size = new VecI(64, 64);
-
-    private int horizontalSymmetryAxisY;
-
-    private SKPath selectionPath = new SKPath();
 
     public DocumentViewModel()
     {
@@ -136,29 +142,6 @@ internal class DocumentViewModel : NotifyableObject
 
         TransformViewModel = new();
         TransformViewModel.TransformMoved += (_, args) => Helpers.ChangeController.OnTransformMoved(args);
-
-        /*UndoCommand = new RelayCommand(Undo);
-        RedoCommand = new RelayCommand(Redo);
-        ClearSelectionCommand = new RelayCommand(ClearSelection);
-        CreateNewLayerCommand = new RelayCommand(_ => Helpers.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer));
-        CreateNewFolderCommand = new RelayCommand(_ => Helpers.StructureHelper.CreateNewStructureMember(StructureMemberType.Folder));
-        DeleteStructureMemberCommand = new RelayCommand(DeleteStructureMember);
-        ResizeCanvasCommand = new RelayCommand(ResizeCanvas);
-        ResizeImageCommand = new RelayCommand(ResizeImage);
-        CombineCommand = new RelayCommand(Combine);
-        ClearHistoryCommand = new RelayCommand(ClearHistory);
-        CreateMaskCommand = new RelayCommand(CreateMask);
-        DeleteMaskCommand = new RelayCommand(DeleteMask);
-        ToggleLockTransparencyCommand = new RelayCommand(ToggleLockTransparency);
-        PasteImageCommand = new RelayCommand(PasteImage);
-        CreateReferenceLayerCommand = new RelayCommand(CreateReferenceLayer);
-        ApplyTransformCommand = new RelayCommand(ApplyTransform);
-        DragSymmetryCommand = new RelayCommand(DragSymmetry);
-        EndDragSymmetryCommand = new RelayCommand(EndDragSymmetry);
-        ClipToMemberBelowCommand = new RelayCommand(ClipToMemberBelow);
-        ApplyMaskCommand = new RelayCommand(ApplyMask);
-        TransformSelectionPathCommand = new RelayCommand(TransformSelectionPath);
-        TransformSelectedAreaCommand = new RelayCommand(TransformSelectedArea);*/
 
         foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in Bitmaps)
         {
@@ -240,6 +223,13 @@ internal class DocumentViewModel : NotifyableObject
 
     public void RemoveViewport(Guid viewportGuid) => Helpers.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
 
+    public void ClearUndo()
+    {
+        if (Helpers.ChangeController.IsChangeActive)
+            return;
+        Helpers.ActionAccumulator.AddActions(new DeleteRecordedChanges_Action());
+    }
+
     public void CreateStructureMember(StructureMemberType type)
     {
         if (Helpers.ChangeController.IsChangeActive)
@@ -293,6 +283,7 @@ internal class DocumentViewModel : NotifyableObject
     public void UseOpacitySlider() => Helpers.ChangeController.TryStartUpdateableChange<StructureMemberOpacityExecutor>();
 
     public void UsePenTool() => Helpers.ChangeController.TryStartUpdateableChange<PenToolExecutor>();
+
     public void UseEllipseTool() => Helpers.ChangeController.TryStartUpdateableChange<EllipseToolExecutor>();
 
     public void Undo()
@@ -315,6 +306,7 @@ internal class DocumentViewModel : NotifyableObject
             return;
         Helpers.StructureHelper.TryMoveStructureMember(memberToMove, memberToMoveIntoOrNextTo, placement);
     }
+
     public void MergeStructureMembers(IReadOnlyList<Guid> members)
     {
         if (Helpers.ChangeController.IsChangeActive || members.Count < 2)
@@ -333,6 +325,12 @@ internal class DocumentViewModel : NotifyableObject
         foreach (var member in members)
             Helpers.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
         Helpers.ActionAccumulator.AddActions(new ChangeBoundary_Action());
+    }
+
+    public void MarkAsSaved()
+    {
+        lastChangeOnSave = Helpers.Tracker.LastChangeGuid;
+        RaisePropertyChanged(nameof(AllChangesSaved));
     }
 
     public SKColor PickColor(VecI pos, bool fromAllLayers)
@@ -371,6 +369,8 @@ internal class DocumentViewModel : NotifyableObject
         }
     }
 
+
+    #region Events
     public void OnKeyDown(Key args) => Helpers.ChangeController.OnKeyDown(args);
     public void OnKeyUp(Key args) => Helpers.ChangeController.OnKeyUp(args);
 
@@ -381,9 +381,8 @@ internal class DocumentViewModel : NotifyableObject
         Helpers.ChangeController.OnMouseMove(newPos);
     }
     public void OnCanvasLeftMouseButtonUp() => Helpers.ChangeController.OnLeftMouseButtonUp();
-
     public void OnOpacitySliderDragStarted() => Helpers.ChangeController.OnOpacitySliderDragStarted();
     public void OnOpacitySliderDragged(float newValue) => Helpers.ChangeController.OnOpacitySliderDragged(newValue);
     public void OnOpacitySliderDragEnded() => Helpers.ChangeController.OnOpacitySliderDragEnded();
-
+    #endregion
 }
