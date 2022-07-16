@@ -7,11 +7,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.L)]
 internal class LineToolViewModel : ShapeTool
 {
-    private string defaltActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
+    private string defaultActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
 
     public LineToolViewModel()
     {
-        ActionDisplay = defaltActionDisplay;
+        ActionDisplay = defaultActionDisplay;
         Toolbar = new BasicToolbar();
     }
 
@@ -22,6 +22,6 @@ internal class LineToolViewModel : ShapeTool
         if (shiftIsDown)
             ActionDisplay = "Click and move mouse to draw an even line.";
         else
-            ActionDisplay = defaltActionDisplay;
+            ActionDisplay = defaultActionDisplay;
     }
 }

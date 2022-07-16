@@ -60,10 +60,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public ToolViewModel? GetTool<T>()
+    public T? GetTool<T>()
         where T : ToolViewModel
     {
-        return ToolSet?.Where(static tool => tool is T).FirstOrDefault();
+        return (T)ToolSet?.Where(static tool => tool is T).FirstOrDefault();
     }
 
     public void SetActiveTool<T>()
