@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
+using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;
@@ -35,7 +36,7 @@ internal class ChangeExecutionController
             return false;
         T executor = new T();
         executor.Initialize(document, helpers, this, EndChange);
-        if (executor.Start().IsT0)
+        if (executor.Start() == ExecutionState.Success)
         {
             currentSession = executor;
             return true;

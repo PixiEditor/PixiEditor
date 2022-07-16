@@ -7,7 +7,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class EllipseToolExecutor : UpdateableChangeExecutor
+internal class RectangleToolExecutor : UpdateableChangeExecutor
 {
     private int strokeWidth;
     private SKColor fillColor;
@@ -16,17 +16,17 @@ internal class EllipseToolExecutor : UpdateableChangeExecutor
     private bool drawOnMask;
 
     private bool transforming = false;
-    private EllipseToolViewModel? ellipseTool;
+    private RectangleToolViewModel? rectangleTool;
     private VecI startPos;
     private RectI lastRect;
 
     public override ExecutionState Start()
     {
         ColorsViewModel? colorsVM = ViewModelMain.Current?.ColorsSubViewModel;
-        ellipseTool = (EllipseToolViewModel?)(ViewModelMain.Current?.ToolsSubViewModel.GetTool<EllipseToolViewModel>());
-        BasicShapeToolbar? toolbar = (BasicShapeToolbar?)ellipseTool?.Toolbar;
-        ViewModels.SubViewModels.Document.StructureMemberViewModel? member = document?.SelectedStructureMember;
-        if (colorsVM is null || toolbar is null || member is null || ellipseTool is null)
+        rectangleTool = (RectangleToolViewModel?)(ViewModelMain.Current?.ToolsSubViewModel.GetTool<RectangleToolViewModel>());
+        BasicShapeToolbar? toolbar = (BasicShapeToolbar?)rectangleTool?.Toolbar;
+        StructureMemberViewModel? member = document?.SelectedStructureMember;
+        if (colorsVM is null || toolbar is null || member is null || rectangleTool is null)
             return ExecutionState.Error;
         drawOnMask = member.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
@@ -41,23 +41,21 @@ internal class EllipseToolExecutor : UpdateableChangeExecutor
         memberGuid = member.GuidValue;
 
         colorsVM.AddSwatch(strokeColor);
-        DrawEllipseOrCircle(startPos);
+        DrawRectangle(startPos);
         return ExecutionState.Success;
     }
 
-    private void DrawEllipseOrCircle(VecI curPos)
+    private void DrawRectangle(VecI curPos)
     {
         RectI rect = RectI.FromTwoPoints(startPos, curPos);
         if (rect.Width == 0)
             rect.Width = 1;
         if (rect.Height == 0)
             rect.Height = 1;
-
-        if (ellipseTool!.DrawCircle)
-            rect.Width = rect.Height = Math.Min(rect.Width, rect.Height);
+        
         lastRect = rect;
 
-        helpers!.ActionAccumulator.AddActions(new DrawEllipse_Action(memberGuid, rect, strokeColor, fillColor, strokeWidth, drawOnMask));
+        helpers!.ActionAccumulator.AddActions(new DrawRectangle_Action(memberGuid, new ShapeData(rect.Center, rect.Size, 0, strokeWidth, strokeColor, fillColor), drawOnMask));
     }
 
     public override void OnTransformMoved(ShapeCorners corners)
@@ -65,13 +63,15 @@ internal class EllipseToolExecutor : UpdateableChangeExecutor
         if (!transforming)
             return;
 
+        var rect = (RectI)RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
+        
         helpers!.ActionAccumulator.AddActions(
-            new DrawEllipse_Action(memberGuid, (RectI)RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize), strokeColor, fillColor, strokeWidth, drawOnMask));
+            new DrawRectangle_Action(memberGuid, new ShapeData(rect.Center, rect.Size, corners.RectRotation, strokeWidth, strokeColor, fillColor), drawOnMask));
     }
 
     public override void OnTransformApplied()
     {
-        helpers!.ActionAccumulator.AddFinishedActions(new EndDrawEllipse_Action());
+        helpers!.ActionAccumulator.AddFinishedActions(new EndDrawRectangle_Action());
         document!.TransformViewModel.HideTransform();
         onEnded?.Invoke(this);
     }
@@ -80,7 +80,7 @@ internal class EllipseToolExecutor : UpdateableChangeExecutor
     {
         if (transforming)
             return;
-        DrawEllipseOrCircle(pos);
+        DrawRectangle(pos);
     }
 
     public override void OnLeftMouseButtonUp()
@@ -95,6 +95,6 @@ internal class EllipseToolExecutor : UpdateableChangeExecutor
     {
         if (transforming)
             document!.TransformViewModel.HideTransform();
-        helpers!.ActionAccumulator.AddFinishedActions(new EndDrawEllipse_Action());
+        helpers!.ActionAccumulator.AddFinishedActions(new EndDrawRectangle_Action());
     }
 }

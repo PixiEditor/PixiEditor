@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -22,5 +23,10 @@ internal class RectangleToolViewModel : ShapeTool
             ActionDisplay = "Click and move to draw a square.";
         else
             ActionDisplay = defaultActionDisplay;
+    }
+    
+    public override void OnLeftMouseButtonDown(VecD pos)
+    {
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UseRectangleTool();
     }
 }

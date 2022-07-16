@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -25,7 +26,7 @@ internal abstract class UpdateableChangeExecutor
         this.onEnded = onEnded;
     }
 
-    public abstract OneOf<Success, Error> Start();
+    public abstract ExecutionState Start();
     public abstract void ForceStop();
     public virtual void OnPixelPositionChange(VecI pos) { }
     public virtual void OnPrecisePositionChange(VecD pos) { }

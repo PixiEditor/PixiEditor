@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -14,19 +15,19 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     private bool drawOnMask;
     private bool pixelPerfect;
 
-    public override OneOf<Success, Error> Start()
+    public override ExecutionState Start()
     {
         ViewModelMain? vm = ViewModelMain.Current;
         StructureMemberViewModel? member = document!.SelectedStructureMember;
         PenToolViewModel? penTool = (PenToolViewModel?)(vm?.ToolsSubViewModel.GetTool<PenToolViewModel>());
         PenToolbar? toolbar = penTool?.Toolbar as PenToolbar;
         if (vm is null || penTool is null || member is null || toolbar is null)
-            return new Error();
+            return ExecutionState.Error;
         drawOnMask = member.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
-            return new Error();
+            return ExecutionState.Error;
         if (!drawOnMask && member is not LayerViewModel)
-            return new Error();
+            return ExecutionState.Error;
 
         guidValue = member.GuidValue;
         color = vm.ColorsSubViewModel.PrimaryColor;
@@ -41,7 +42,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         };
         helpers!.ActionAccumulator.AddActions(action);
 
-        return new Success();
+        return ExecutionState.Success;
     }
 
     public override void OnPixelPositionChange(VecI pos)

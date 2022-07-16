@@ -1,15 +1,17 @@
-﻿namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
+﻿using PixiEditor.Models.Enums;
+
+namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class StructureMemberOpacityExecutor : UpdateableChangeExecutor
 {
     private Guid memberGuid;
-    public override OneOf<Success, Error> Start()
+    public override ExecutionState Start()
     {
         if (document.SelectedStructureMember is null)
-            return new Error();
+            return ExecutionState.Error;
         memberGuid = document.SelectedStructureMember.GuidValue;
         StructureMemberOpacity_Action action = new StructureMemberOpacity_Action(memberGuid, document.SelectedStructureMember.OpacityBindable);
         helpers.ActionAccumulator.AddActions(action);
-        return new Success();
+        return ExecutionState.Success;
     }
 
     public override void OnOpacitySliderDragged(float newValue)
