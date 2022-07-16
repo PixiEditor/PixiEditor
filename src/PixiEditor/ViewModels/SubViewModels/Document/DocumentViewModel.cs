@@ -305,8 +305,8 @@ internal class DocumentViewModel : NotifyableObject
     public void UseRectangleTool() => Helpers.ChangeController.TryStartUpdateableChange<RectangleToolExecutor>();
     
     public void UseEllipseTool() => Helpers.ChangeController.TryStartUpdateableChange<EllipseToolExecutor>();
-    
-    
+
+    public void UseLineTool() => Helpers.ChangeController.TryStartUpdateableChange<LineToolExecutor>();
 
     public void Undo()
     {

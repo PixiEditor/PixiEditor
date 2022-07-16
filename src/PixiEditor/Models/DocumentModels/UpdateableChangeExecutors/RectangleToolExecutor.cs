@@ -21,7 +21,7 @@ internal class RectangleToolExecutor : ShapeToolExecutor<RectangleToolViewModel>
 
     protected override void DrawShape(VecI currentPos) => DrawRectangle(currentPos);
 
-    protected override IAction TransformMovedAction(ShapeData data) => new DrawRectangle_Action(memberGuid, data, drawOnMask);
+    protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) => new DrawRectangle_Action(memberGuid, data, drawOnMask);
 
     protected override IAction EndDrawAction() => new EndDrawRectangle_Action();
 }

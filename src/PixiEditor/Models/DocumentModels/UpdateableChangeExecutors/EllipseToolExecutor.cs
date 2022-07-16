@@ -23,7 +23,7 @@ internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
 
     protected override void DrawShape(VecI currentPos) => DrawEllipseOrCircle(currentPos);
 
-    protected override IAction TransformMovedAction(ShapeData data) =>
+    protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) =>
         new DrawEllipse_Action(memberGuid, (RectI)RectD.FromCenterAndSize(data.Center, data.Size), strokeColor,
             fillColor, strokeWidth, drawOnMask);
 

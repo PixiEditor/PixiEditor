@@ -48,19 +48,18 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     }
 
     protected abstract void DrawShape(VecI currentPos);
-    protected abstract IAction TransformMovedAction(ShapeData data);
+    protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
     protected abstract IAction EndDrawAction();
 
     public override void OnTransformMoved(ShapeCorners corners)
     {
         if (!transforming)
             return;
-
+        
         var rect = (RectI)RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
-
         ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, strokeWidth, strokeColor,
             fillColor);
-        IAction drawAction = TransformMovedAction(shapeData);
+        IAction drawAction = TransformMovedAction(shapeData, corners);
         
         helpers!.ActionAccumulator.AddActions(drawAction);
     }
