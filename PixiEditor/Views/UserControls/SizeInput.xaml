@@ -48,6 +48,7 @@
                     <behaviors:TextBoxFocusBehavior 
                         SelectOnMouseClick="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}" 
                         ConfirmOnEnter="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
+                        FocusNext="True"
                         DeselectOnFocusLoss="True"/>
                 </i:Interaction.Behaviors>
             </TextBox>
