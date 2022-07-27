@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
@@ -14,4 +15,9 @@ internal class EraserToolViewModel : ToolViewModel
     }
 
     public override string Tooltip => $"Erasers color from pixel. ({Shortcut})";
+    
+    public override void OnLeftMouseButtonDown(VecD pos)
+    {
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UseEraserTool();
+    }
 }
