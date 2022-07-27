@@ -24,7 +24,11 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public string NameBindable
     {
         get => name;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(GuidValue, value));
+        set
+        {
+            if (!Document.UpdateableChangeActive)
+                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(GuidValue, value));
+        }
     }
 
     private bool isVisible;
@@ -36,7 +40,11 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public bool IsVisibleBindable
     {
         get => isVisible;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, GuidValue));
+        set
+        {
+            if (!Document.UpdateableChangeActive)
+                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, GuidValue));
+        }
     }
 
     private bool maskIsVisible;
@@ -60,7 +68,11 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public BlendMode BlendModeBindable
     {
         get => blendMode;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberBlendMode_Action(value, GuidValue));
+        set
+        {
+            if (!Document.UpdateableChangeActive)
+                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberBlendMode_Action(value, GuidValue));
+        }
     }
 
     private bool clipToMemberBelowEnabled;
@@ -72,7 +84,11 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public bool ClipToMemberBelowEnabledBindable
     {
         get => clipToMemberBelowEnabled;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberClipToMemberBelow_Action(value, GuidValue));
+        set
+        {
+            if (!Document.UpdateableChangeActive)
+                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberClipToMemberBelow_Action(value, GuidValue));
+        }
     }
 
     private bool hasMask;
@@ -111,7 +127,19 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     }
 
     public StructureMemberSelectionType Selection { get; set; }
-    public bool ShouldDrawOnMask { get; set; }
+
+    private bool shouldDrawOnMask = false;
+    public bool ShouldDrawOnMask
+    {
+        get => shouldDrawOnMask;
+        set
+        {
+            if (value == shouldDrawOnMask)
+                return;
+            shouldDrawOnMask = value;
+            PropertyChanged?.Invoke(this, new(nameof(ShouldDrawOnMask)));
+        }
+    }
 
     public const int PreviewSize = 48;
     public WriteableBitmap PreviewBitmap { get; set; }

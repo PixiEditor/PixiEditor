@@ -40,8 +40,8 @@ internal class DocumentViewModel : NotifyableObject
     }
 
     private string? fullFilePath = null;
-    public string? FullFilePath 
-    { 
+    public string? FullFilePath
+    {
         get => fullFilePath;
         set
         {
@@ -290,6 +290,20 @@ internal class DocumentViewModel : NotifyableObject
         Helpers.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor, newColor));
     }
 
+    public void CreateMask(Guid memberGuid)
+    {
+        if (Helpers.ChangeController.IsChangeActive)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(memberGuid));
+    }
+
+    public void DeleteMask(Guid memberGuid)
+    {
+        if (Helpers.ChangeController.IsChangeActive)
+            return;
+        Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(memberGuid));
+    }
+
     public void SetSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
 
     public void AddSoftSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new AddSoftSelectedMember_PassthroughAction(memberGuid));
@@ -304,7 +318,7 @@ internal class DocumentViewModel : NotifyableObject
     public void UseEraserTool() => Helpers.ChangeController.TryStartUpdateableChange<EraserToolExecutor>();
 
     public void UseRectangleTool() => Helpers.ChangeController.TryStartUpdateableChange<RectangleToolExecutor>();
-    
+
     public void UseEllipseTool() => Helpers.ChangeController.TryStartUpdateableChange<EllipseToolExecutor>();
 
     public void UseLineTool() => Helpers.ChangeController.TryStartUpdateableChange<LineToolExecutor>();

@@ -136,4 +136,16 @@ internal partial class LayerControl : UserControl
     {
         editableTextBlock.EnableEditing();
     }
+
+    private void MaskMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (Layer is not null)
+            Layer.ShouldDrawOnMask = true;
+    }
+
+    private void LayerMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (Layer is not null)
+            Layer.ShouldDrawOnMask = false;
+    }
 }
