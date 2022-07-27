@@ -1,5 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.Actions.Generated;
-using PixiEditor.Models.DocumentModels;
+﻿using PixiEditor.Models.DocumentModels;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
@@ -14,7 +13,11 @@ internal class LayerViewModel : StructureMemberViewModel
     public bool LockTransparencyBindable
     {
         get => lockTransparency;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(GuidValue, value));
+        set
+        {
+            if (!Document.UpdateableChangeActive)
+                Helpers.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(GuidValue, value));
+        }
     }
     public LayerViewModel(DocumentViewModel doc, DocumentHelpers helpers, Guid guidValue) : base(doc, helpers, guidValue)
     {

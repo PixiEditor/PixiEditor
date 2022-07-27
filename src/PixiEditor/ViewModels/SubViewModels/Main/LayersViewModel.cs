@@ -1,6 +1,5 @@
 ﻿using System.Windows.Input;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -188,6 +187,56 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
                 return;
             doc.MoveStructureMember(member.GuidValue, parent.Children[curIndex - 1].GuidValue, StructureMemberPlacement.Below);
         }
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasMask")]
+    public bool ActiveMemberHasMask() => Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false;
+
+    [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasNoMask")]
+    public bool ActiveLayerHasNoMask() => !ActiveMemberHasMask();
+
+    private bool? DoesMaskVisibilityEqual(bool value)
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (member is null || !member.HasMaskBindable)
+            return false;
+        return member.MaskIsVisibleBindable == value;
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Layer.CanEnableMask")]
+    public bool CanEnableMask() => DoesMaskVisibilityEqual(false) ?? false;
+
+    [Evaluator.CanExecute("PixiEditor.Layer.CanDisableMask")]
+    public bool CanDisableMask() => DoesMaskVisibilityEqual(true) ?? false;
+
+    [Command.Basic("PixiEditor.Layer.EnableMask", "Enable mask", "Enable mask", CanExecute = "PixiEditor.Layer.CanEnableMask", Parameter = true)]
+    [Command.Basic("PixiEditor.Layer.DisableMask", "Disable mask", "Disable mask", CanExecute = "PixiEditor.Layer.CanDisableMask", Parameter = false)]
+    public void ToggleMaskVisibility(bool newVisibility)
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (member is null || !member.HasMaskBindable || member.MaskIsVisibleBindable == newVisibility)
+            return;
+        member.MaskIsVisibleBindable = newVisibility;
+    }
+
+    [Command.Basic("PixiEditor.Layer.CreateMask", "Create mask", "Create mask", CanExecute = "PixiEditor.Layer.ActiveLayerHasNoMask")]
+    public void CreateMask(object parameter)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var member = doc?.SelectedStructureMember;
+        if (member is null || member.HasMaskBindable)
+            return;
+        doc!.CreateMask(member.GuidValue);
+    }
+
+    [Command.Basic("PixiEditor.Layer.DeleteMask", "Delete mask", "Delete mask", CanExecute = "PixiEditor.Layer.ActiveLayerHasMask")]
+    public void DeleteMask(object parameter)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var member = doc?.SelectedStructureMember;
+        if (member is null || !member.HasMaskBindable)
+            return;
+        doc!.DeleteMask(member.GuidValue);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove")]

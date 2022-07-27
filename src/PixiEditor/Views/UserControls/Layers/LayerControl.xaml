@@ -16,6 +16,10 @@
              Focusable="True"
              d:DesignHeight="35" d:DesignWidth="250" Name="uc"
              MouseLeave="LayerItem_OnMouseLeave" MouseEnter="LayerItem_OnMouseEnter">
+    <UserControl.Resources>
+        <conv:BoolToBrushConverter x:Key="LayerBorderConverter" FalseBrush="White" TrueBrush="Black"/>
+        <conv:BoolToBrushConverter x:Key="MaskBorderConverter" FalseBrush="Black" TrueBrush="White"/>
+    </UserControl.Resources>
     <Border BorderThickness="0 0 0 0.5" BorderBrush="Gray" MinWidth="60" Focusable="True">
         <Border.Background>
             <Binding ElementName="uc" Path="Layer.Selection">
@@ -39,7 +43,7 @@
             <Grid AllowDrop="True" DragEnter="Grid_DragEnter" Drop="Grid_Drop_Top" DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
             <Grid Grid.Row="1" Grid.RowSpan="3" Margin="0,-10,0,0" VerticalAlignment="Center" AllowDrop="False">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="22"/>
+                    <ColumnDefinition Width="24"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <CheckBox Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
@@ -48,22 +52,42 @@
                       Grid.Column="0" Height="16" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
                     <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>
-                    <Border Width="30" Height="30" BorderThickness="1" BorderBrush="Black" Background="{StaticResource MainColor}">
+                    <Border 
+                        Width="30" Height="30" 
+                        BorderThickness="1"
+                        Background="{StaticResource MainColor}"
+                        MouseDown="LayerMouseDown">
+                        <Border.BorderBrush>
+                            <MultiBinding Converter="{StaticResource LayerBorderConverter}">
+                                <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask"/>
+                                <Binding ElementName="uc" Path="Layer.HasMaskBindable"/>
+                            </MultiBinding>
+                        </Border.BorderBrush>
                         <Image Source="{Binding Layer.PreviewBitmap,ElementName=uc}" Stretch="Uniform" Width="20" Height="20"
-                       RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                           RenderOptions.BitmapScalingMode="NearestNeighbor" IsHitTestVisible="False"/>
                     </Border>
-                    <Border Width="30" Height="30" BorderThickness="1" BorderBrush="Black" Background="{StaticResource MainColor}"
-                            Visibility="{Binding Layer.MaskIsVisibleBindable, ElementName=uc, Converter={conv:BoolToVisibilityConverter}}">
-                        <Grid>
+                    <Border 
+                        Width="30" Height="30" 
+                        BorderThickness="1" 
+                        Background="{StaticResource MainColor}"
+                        Margin="3,0,0,0"
+                        Visibility="{Binding Layer.HasMaskBindable, ElementName=uc, Converter={conv:BoolToVisibilityConverter}}"
+                        MouseDown="MaskMouseDown">
+                        <Border.BorderBrush>
+                            <MultiBinding Converter="{StaticResource MaskBorderConverter}">
+                                <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask"/>
+                            </MultiBinding>
+                        </Border.BorderBrush>
+                        <Grid IsHitTestVisible="False">
                             <Image Source="{Binding Layer.MaskPreviewBitmap,ElementName=uc}" Stretch="Uniform" Width="20" Height="20"
-                           RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                           RenderOptions.BitmapScalingMode="NearestNeighbor" IsHitTestVisible="False"/>
                             <Path 
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z" 
                                 Fill="{StaticResource PixiRed}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                 Visibility="{Binding Layer.MaskIsVisibleBindable, ElementName=uc, Converter={InverseBoolToVisibilityConverter}}"/>
                         </Grid>
                     </Border>
-                    <StackPanel Margin="3,0,0,0">
+                    <StackPanel Margin="3,0,5,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock d:Text="100" Foreground="White">
                                 <TextBlock.Text>
@@ -105,6 +129,11 @@
                 <MenuItem Header="Rename" Click="RenameMenuItem_Click"/>
                 <MenuItem Header="Move upwards" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberUpwards}"/>
                 <MenuItem Header="Move downwards" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberDownwards}"/>
+                <Separator/>
+                <MenuItem Header="Create mask" Command="{cmds:Command PixiEditor.Layer.CreateMask}"/>
+                <MenuItem Header="Delete mask" Command="{cmds:Command PixiEditor.Layer.DeleteMask}"/>
+                <MenuItem Header="Enable mask" Command="{cmds:Command PixiEditor.Layer.EnableMask}"/>
+                <MenuItem Header="Disable mask" Command="{cmds:Command PixiEditor.Layer.DisableMask}"/>
                 <Separator/>
                 <MenuItem Header="Merge selected" Command="{cmds:Command PixiEditor.Layer.MergeSelected}"/>
                 <MenuItem Header="Merge with above" Command="{cmds:Command PixiEditor.Layer.MergeWithAbove}"/>

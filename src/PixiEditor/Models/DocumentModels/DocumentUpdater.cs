@@ -1,7 +1,6 @@
 ﻿using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
@@ -229,6 +228,8 @@ internal class DocumentUpdater
         }
         memberVm.SetHasMask(info.HasMask);
         memberVm.RaisePropertyChanged(nameof(memberVm.MaskPreviewBitmap));
+        if (!info.HasMask)
+            memberVm.ShouldDrawOnMask = false;
     }
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
