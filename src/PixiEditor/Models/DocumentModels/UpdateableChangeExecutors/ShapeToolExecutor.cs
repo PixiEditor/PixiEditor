@@ -21,7 +21,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     protected T? toolViewModel;
     protected VecI startPos;
     protected RectI lastRect;
-    
+
     public override ExecutionState Start()
     {
         ColorsViewModel? colorsVM = ViewModelMain.Current?.ColorsSubViewModel;
@@ -30,7 +30,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         StructureMemberViewModel? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolbar is null || member is null)
             return ExecutionState.Error;
-        drawOnMask = member.ShouldDrawOnMask;
+        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
         if (!drawOnMask && member is not LayerViewModel)
@@ -55,12 +55,12 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         if (!transforming)
             return;
-        
+
         var rect = (RectI)RectD.FromCenterAndSize(corners.RectCenter, corners.RectSize);
         ShapeData shapeData = new ShapeData(rect.Center, rect.Size, corners.RectRotation, strokeWidth, strokeColor,
             fillColor);
         IAction drawAction = TransformMovedAction(shapeData, corners);
-        
+
         helpers!.ActionAccumulator.AddActions(drawAction);
     }
 
@@ -75,7 +75,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         if (transforming)
             return;
-        
+
         DrawShape(pos);
     }
 
@@ -86,7 +86,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         transforming = true;
         document!.TransformViewModel.ShowFixedAngleShapeTransform(new ShapeCorners(lastRect));
     }
-    
+
     public override void ForceStop()
     {
         if (transforming)

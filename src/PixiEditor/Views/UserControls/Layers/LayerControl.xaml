@@ -53,6 +53,9 @@
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
                     <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>
                     <Border 
+                        Visibility="{Binding Layer.ClipToMemberBelowEnabledBindable, ElementName=uc, Converter={conv:BoolToVisibilityConverter}}"
+                        Background="{StaticResource PixiRed}" Width="3" Margin="1,1,2,1" CornerRadius="1"/>
+                    <Border 
                         Width="30" Height="30" 
                         BorderThickness="1"
                         Background="{StaticResource MainColor}"
@@ -112,8 +115,10 @@
                             d:Text="New Layer"
                             Text="{Binding Layer.NameBindable, ElementName=uc, Mode=TwoWay}" />
                     </StackPanel>
-                    <WrapPanel Orientation="Vertical">
-                        
+                    <WrapPanel Orientation="Vertical" Margin="0,3,3,3" >
+                        <Grid Background="Black" Visibility="{Binding Layer.LockTransparencyBindable, ElementName=uc, Converter={BoolToVisibilityConverter}}">
+                            <Path Fill="White" Data="M 0 0 L 12 0 L 12 3 L 0 3 L 0 6 L 12 6 L 12 9 L 0 9 L 0 12 L 12 12 L 12 0 L 9 0 L 9 12 L 6 12 L 6 0 L 3 0 L 3 12 L 0 12 L 0 12 Z"/>
+                        </Grid>
                     </WrapPanel>
                 </StackPanel>
                 <Grid Margin="0, 0, 0, -2.5" DragEnter="Grid_DragEnter" VerticalAlignment="Bottom" Height="10" Drop="Grid_Drop_Below"  DragLeave="Grid_DragLeave" Grid.Row="2" Grid.Column="0" AllowDrop="True"  Background="Transparent" Name="dropBelowGrid"/>
@@ -129,6 +134,9 @@
                 <MenuItem Header="Rename" Click="RenameMenuItem_Click"/>
                 <MenuItem Header="Move upwards" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberUpwards}"/>
                 <MenuItem Header="Move downwards" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberDownwards}"/>
+                <Separator/>
+                <MenuItem Header="Clip to layer below" Command="{cmds:Command PixiEditor.Layer.EnableClipToMemberBelow}"/>
+                <MenuItem Header="Disable clip to layer below" Command="{cmds:Command PixiEditor.Layer.DisableClipToMemberBelow}"/>
                 <Separator/>
                 <MenuItem Header="Create mask" Command="{cmds:Command PixiEditor.Layer.CreateMask}"/>
                 <MenuItem Header="Delete mask" Command="{cmds:Command PixiEditor.Layer.DeleteMask}"/>

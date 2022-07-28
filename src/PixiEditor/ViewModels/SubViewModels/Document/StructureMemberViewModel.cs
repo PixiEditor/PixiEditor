@@ -128,19 +128,6 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 
     public StructureMemberSelectionType Selection { get; set; }
 
-    private bool shouldDrawOnMask = false;
-    public bool ShouldDrawOnMask
-    {
-        get => shouldDrawOnMask;
-        set
-        {
-            if (value == shouldDrawOnMask)
-                return;
-            shouldDrawOnMask = value;
-            PropertyChanged?.Invoke(this, new(nameof(ShouldDrawOnMask)));
-        }
-    }
-
     public const int PreviewSize = 48;
     public WriteableBitmap PreviewBitmap { get; set; }
     public SKSurface PreviewSurface { get; set; }
