@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2">
+                    xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
+                    xmlns:controls="clr-namespace:PixiEditor.Views.UserControls">
 
     <SolidColorBrush x:Key="ComboBox.Static.Background" Color="#252525" />
     <SolidColorBrush x:Key="ComboBox.Static.Border" Color="#2F2F37" />
@@ -253,6 +254,11 @@
         <Setter Property="Template" Value="{DynamicResource DarkComboBox}" />
     </Style>
 
+    <Style TargetType="controls:BlendModeComboBox">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Template" Value="{DynamicResource DarkComboBox}" />
+    </Style>
+    
     <Style TargetType="ComboBoxItem">
         <Setter Property="Background" Value="#111111" />
         <Setter Property="Foreground" Value="White" />

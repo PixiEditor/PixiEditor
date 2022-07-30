@@ -19,6 +19,20 @@ internal class LayerViewModel : StructureMemberViewModel
                 Helpers.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(GuidValue, value));
         }
     }
+
+    private bool shouldDrawOnMask = false;
+    public bool ShouldDrawOnMask
+    {
+        get => shouldDrawOnMask;
+        set
+        {
+            if (value == shouldDrawOnMask)
+                return;
+            shouldDrawOnMask = value;
+            RaisePropertyChanged(nameof(ShouldDrawOnMask));
+        }
+    }
+
     public LayerViewModel(DocumentViewModel doc, DocumentHelpers helpers, Guid guidValue) : base(doc, helpers, guidValue)
     {
     }

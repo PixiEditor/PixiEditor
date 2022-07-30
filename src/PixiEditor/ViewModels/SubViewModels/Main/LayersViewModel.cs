@@ -239,17 +239,32 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc!.DeleteMask(member.GuidValue);
     }
 
+    [Evaluator.CanExecute("PixiEditor.Layer.CanEnableClipToMemberBelow")]
+    public bool CanClipToMemberBelow() => !Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.ClipToMemberBelowEnabledBindable ?? false;
+    [Evaluator.CanExecute("PixiEditor.Layer.CanDisableClipToMemberBelow")]
+    public bool CanDisableClipToMemberBelow() => Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.ClipToMemberBelowEnabledBindable ?? false;
+
+    [Command.Basic("PixiEditor.Layer.EnableClipToMemberBelow", "Clip to layer below", "Clip to layer below", Parameter = true, CanExecute = "PixiEditor.Layer.CanEnableClipToMemberBelow")]
+    [Command.Basic("PixiEditor.Layer.DisableClipToMemberBelow", "Disable clip to layer below", "Disable clip to layer below", Parameter = false, CanExecute = "PixiEditor.Layer.CanDisableClipToMemberBelow")]
+    public void ToogleClipToMemberBelow(bool newValue)
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (member is null || member.ClipToMemberBelowEnabledBindable == newValue)
+            return;
+        member.ClipToMemberBelowEnabledBindable = newValue;
+    }
+
     [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove")]
     public bool HasMemberAbove(object property) => HasSelectedMember(true);
     [Evaluator.CanExecute("PixiEditor.Layer.HasMemberBelow")]
     public bool HasMemberBelow(object property) => HasSelectedMember(false);
 
-    [Command.Basic("PixiEditor.Layer.MoveSelectedMemberUpwards", "Move selected layer or folder upwards", "Move selected layer or folder upwards", CanExecute = "PixiEditor.Layer.HasMemberAbove")]
+    [Command.Basic("PixiEditor.Layer.MoveSelectedMemberUpwards", "Move selected layer upwards", "Move selected layer or folder upwards", CanExecute = "PixiEditor.Layer.HasMemberAbove")]
     public void MoveSelectedMemberUpwards(object parameter) => MoveSelectedMember(true);
-    [Command.Basic("PixiEditor.Layer.MoveSelectedMemberDownwards", "Move selected layer or folder downwards", "Move selected layer or folder downwards", CanExecute = "PixiEditor.Layer.HasMemberBelow")]
+    [Command.Basic("PixiEditor.Layer.MoveSelectedMemberDownwards", "Move selected layer downwards", "Move selected layer or folder downwards", CanExecute = "PixiEditor.Layer.HasMemberBelow")]
     public void MoveSelectedMemberDownwards(object parameter) => MoveSelectedMember(false);
 
-    [Command.Basic("PixiEditor.Layer.MergeSelected", "Merge all selected layers/folders", "Merge all selected layers/folders", CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers")]
+    [Command.Basic("PixiEditor.Layer.MergeSelected", "Merge all selected layers", "Merge all selected layers", CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers")]
     public void MergeSelected(object parameter)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

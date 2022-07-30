@@ -23,7 +23,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         PenToolbar? toolbar = penTool?.Toolbar as PenToolbar;
         if (vm is null || penTool is null || member is null || toolbar is null)
             return ExecutionState.Error;
-        drawOnMask = member.ShouldDrawOnMask;
+        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
         if (!drawOnMask && member is not LayerViewModel)

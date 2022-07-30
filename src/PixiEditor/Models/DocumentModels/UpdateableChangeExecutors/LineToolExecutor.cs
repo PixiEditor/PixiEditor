@@ -17,12 +17,12 @@ internal class LineToolExecutor : ShapeToolExecutor<LineToolViewModel>
         StructureMemberViewModel? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolbar is null || member is null)
             return ExecutionState.Error;
-        drawOnMask = member.ShouldDrawOnMask;
+        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
         if (!drawOnMask && member is not LayerViewModel)
             return ExecutionState.Error;
-        
+
         startPos = controller!.LastPixelPosition;
         strokeColor = colorsVM.PrimaryColor;
         strokeWidth = toolbar.ToolSize;

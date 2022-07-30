@@ -228,8 +228,8 @@ internal class DocumentUpdater
         }
         memberVm.SetHasMask(info.HasMask);
         memberVm.RaisePropertyChanged(nameof(memberVm.MaskPreviewBitmap));
-        if (!info.HasMask)
-            memberVm.ShouldDrawOnMask = false;
+        if (!info.HasMask && memberVm is LayerViewModel layer)
+            layer.ShouldDrawOnMask = false;
     }
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
