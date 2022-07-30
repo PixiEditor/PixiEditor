@@ -315,7 +315,10 @@ internal class DocumentViewModel : NotifyableObject
     public void UseOpacitySlider() => Helpers.ChangeController.TryStartUpdateableChange<StructureMemberOpacityExecutor>();
 
     public void UsePenTool() => Helpers.ChangeController.TryStartUpdateableChange<PenToolExecutor>();
+    
     public void UseEraserTool() => Helpers.ChangeController.TryStartUpdateableChange<EraserToolExecutor>();
+
+    public void UseColorPickerTool() => Helpers.ChangeController.TryStartUpdateableChange<ColorPickerToolExecutor>();
 
     public void UseRectangleTool() => Helpers.ChangeController.TryStartUpdateableChange<RectangleToolExecutor>();
 

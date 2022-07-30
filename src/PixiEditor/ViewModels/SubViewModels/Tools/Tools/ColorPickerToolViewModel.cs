@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -16,6 +17,11 @@ internal class ColorPickerToolViewModel : ToolViewModel
     public override bool HideHighlight => true;
 
     public override string Tooltip => $"Picks the primary color from the canvas. ({Shortcut})";
+
+    public override void OnLeftMouseButtonDown(VecD pos)
+    {
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UseColorPickerTool();
+    }
 
     public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
