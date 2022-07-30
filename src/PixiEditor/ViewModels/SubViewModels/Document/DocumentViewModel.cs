@@ -290,18 +290,20 @@ internal class DocumentViewModel : NotifyableObject
         Helpers.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor, newColor));
     }
 
-    public void CreateMask(Guid memberGuid)
+    public void CreateMask(StructureMemberViewModel member)
     {
         if (Helpers.ChangeController.IsChangeActive)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(memberGuid));
+        if (!member.MaskIsVisibleBindable)
+            Helpers.ActionAccumulator.AddActions(new StructureMemberMaskIsVisible_Action(true, member.GuidValue));
+        Helpers.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(member.GuidValue));
     }
 
-    public void DeleteMask(Guid memberGuid)
+    public void DeleteMask(StructureMemberViewModel member)
     {
         if (Helpers.ChangeController.IsChangeActive)
             return;
-        Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(memberGuid));
+        Helpers.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.GuidValue));
     }
 
     public void SetSelectedMember(Guid memberGuid) => Helpers.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));

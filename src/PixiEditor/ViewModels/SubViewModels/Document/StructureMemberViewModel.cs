@@ -56,7 +56,11 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public bool MaskIsVisibleBindable
     {
         get => maskIsVisible;
-        set => Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberMaskIsVisible_Action(value, GuidValue));
+        set
+        {
+            if (!Document.UpdateableChangeActive)
+                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberMaskIsVisible_Action(value, GuidValue));
+        }
     }
 
     private BlendMode blendMode;

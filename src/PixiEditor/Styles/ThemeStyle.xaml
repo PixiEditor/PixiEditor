@@ -312,9 +312,23 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="MenuItem">
-                    <Border x:Name="Bd" Background="Transparent" Margin="10 0 10 0">
+                    <Border x:Name="Bd" Background="Transparent" Margin="3,0">
                         <Grid>
-                            <ContentPresenter Margin="6,3,6,3" ContentSource="Header" RecognizesAccessKey="True" />
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition x:Name="Col0" MinWidth="17" Width="Auto"
+                                                  SharedSizeGroup="MenuItemIconColumnGroup" />
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="MenuTextColumnGroup" />
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Checkmark -->
+                            <Grid Grid.Column="0" Visibility="Hidden" Margin="4,0,6,0" x:Name="Check"
+                                  VerticalAlignment="Center">
+                                <Path x:Name="GlyphPanelpath" VerticalAlignment="Center"
+                                      Fill="{TemplateBinding Foreground}"
+                                      Data="M0,2 L0,4.8 L2.5,7.4 L7.1,2.8 L7.1,0 L2.5,4.6 z"
+                                      FlowDirection="LeftToRight" />
+                            </Grid>
+                            <ContentPresenter Grid.Column="1" Margin="3,3,5,3" ContentSource="Header" RecognizesAccessKey="True" />
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -323,6 +337,12 @@
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground" Value="Gray" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="False">
+                            <Setter TargetName="Check" Property="Visibility" Value="Hidden"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

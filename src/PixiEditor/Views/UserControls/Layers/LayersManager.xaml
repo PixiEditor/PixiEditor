@@ -23,35 +23,47 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" Background="{StaticResource MainColor}">
-            <DockPanel  HorizontalAlignment="Stretch">
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                    <Button Command="{commands:Command PixiEditor.Layer.NewLayer}" 
-                        Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
-                        HorizontalAlignment="Stretch" Margin="5,5,0,5"
-                        Style="{StaticResource ToolButtonStyle}">
-                        <Button.Background>
-                            <ImageBrush ImageSource="/Images/Layer-add.png"/>
-                        </Button.Background>
-                    </Button>
-                    <Button Command="{commands:Command PixiEditor.Layer.NewFolder}" 
-                        Height="24" Width="24" ToolTip="New Folder" Cursor="Hand"
-                                                HorizontalAlignment="Stretch"  Margin="5,5,0,5"
-                                                Style="{StaticResource ToolButtonStyle}">
-                        <Button.Background>
-                            <ImageBrush ImageSource="/Images/Folder-add.png"/>
-                        </Button.Background>
-                    </Button>
-                    <Button Command="{commands:Command PixiEditor.Layer.DeleteSelected}" Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
-                            HorizontalAlignment="Stretch" Margin="5,5,0,5"
-                            Style="{StaticResource ToolButtonStyle}">
-                        <Button.Background>
-                            <ImageBrush ImageSource="/Images/Trash.png"/>
-                        </Button.Background>
-                    </Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Margin="0,0,10,0" HorizontalAlignment="Right" Focusable="True">
-
-                </StackPanel>
+            <DockPanel HorizontalAlignment="Stretch">
+                <Button 
+                    Command="{commands:Command PixiEditor.Layer.NewLayer}" 
+                    DockPanel.Dock="Left"
+                    Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
+                    HorizontalAlignment="Stretch" Margin="5,5,0,5"
+                    Style="{StaticResource ToolButtonStyle}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Layer-add.png"/>
+                    </Button.Background>
+                </Button>
+                <Button 
+                    Command="{commands:Command PixiEditor.Layer.NewFolder}" 
+                    Height="24" Width="24" ToolTip="New Folder" Cursor="Hand"
+                    DockPanel.Dock="Left"
+                    HorizontalAlignment="Stretch"  Margin="5,5,0,5"
+                    Style="{StaticResource ToolButtonStyle}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Folder-add.png"/>
+                    </Button.Background>
+                </Button>
+                <Button 
+                    Command="{commands:Command PixiEditor.Layer.DeleteSelected}" Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
+                    HorizontalAlignment="Stretch" Margin="5,5,0,5"
+                    DockPanel.Dock="Left"
+                    Style="{StaticResource ToolButtonStyle}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Trash.png"/>
+                    </Button.Background>
+                </Button>
+                <Button 
+                    Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    HorizontalAlignment="Stretch" Margin="5"
+                    Style="{StaticResource ToolButtonStyle}"
+                    Command="{commands:Command PixiEditor.Layer.ToggleLockTransparency}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Lock-alpha.png"/>
+                    </Button.Background>
+                </Button>
+                <Grid/>
             </DockPanel>
             <DockPanel>
                 <userControls:BlendModeComboBox
@@ -86,7 +98,8 @@
                     Maximum="1"
                     SmallChange="0.01"
                     LargeChange="0.1"
-                    IsSnapToTickEnabled="False"
+                    IsSnapToTickEnabled="True"
+                    TickFrequency="0.01"
                     x:Name="opacitySlider"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Stretch">

@@ -9,24 +9,23 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 [Command.Group("PixiEditor.Layer", "Image")]
 internal class LayersViewModel : SubViewModel<ViewModelMain>
 {
-
     public LayersViewModel(ViewModelMain owner)
         : base(owner)
     {
     }
 
-    public void CreateFolderFromActiveLayers(object parameter)
+    public void CreateFolderFromActiveLayers()
     {
 
     }
 
-    public bool CanCreateFolderFromSelected(object obj)
+    public bool CanCreateFolderFromSelected()
     {
         return false;
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.CanDeleteSelected")]
-    public bool CanDeleteSelected(object parameter)
+    public bool CanDeleteSelected()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         if (member is null)
@@ -35,7 +34,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteSelected", "Delete active layer/folder", "Delete active layer or folder", CanExecute = "PixiEditor.Layer.CanDeleteSelected")]
-    public void DeleteSelected(object parameter)
+    public void DeleteSelected()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         if (member is null)
@@ -44,7 +43,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasSelectedMembers")]
-    public bool HasSelectedMembers(object parameter)
+    public bool HasSelectedMembers()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -53,7 +52,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasMultipleSelectedMembers")]
-    public bool HasMultipleSelectedMembers(object parameter)
+    public bool HasMultipleSelectedMembers()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -66,18 +65,18 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     private List<Guid> GetSelected()
     {
-        List<Guid> membersToDelete = new();
+        List<Guid> members = new();
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
-            return membersToDelete;
+            return members;
         if (doc.SelectedStructureMember is not null)
-            membersToDelete.Add(doc.SelectedStructureMember.GuidValue);
-        membersToDelete.AddRange(doc.SoftSelectedStructureMembers.Select(static member => member.GuidValue));
-        return membersToDelete;
+            members.Add(doc.SelectedStructureMember.GuidValue);
+        members.AddRange(doc.SoftSelectedStructureMembers.Select(static member => member.GuidValue));
+        return members;
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteAllSelected", "Delete all selected layers/folders", "Delete all selected layers and/or folders", CanExecute = "PixiEditor.Layer.HasSelectedMembers")]
-    public void DeleteAllSelected(object parameter)
+    public void DeleteAllSelected()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -88,7 +87,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.NewFolder", "New Folder", "Create new folder", CanExecute = "PixiEditor.Layer.CanCreateNewMember")]
-    public void NewFolder(object parameter)
+    public void NewFolder()
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return;
@@ -96,7 +95,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.NewLayer", "New Layer", "Create new layer", CanExecute = "PixiEditor.Layer.CanCreateNewMember", Key = Key.N, Modifiers = ModifierKeys.Control | ModifierKeys.Shift, IconPath = "Layer-add.png")]
-    public void NewLayer(object parameter)
+    public void NewLayer()
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return;
@@ -104,13 +103,22 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.CanCreateNewMember")]
-    public bool CanCreateNewMember(object parameter)
+    public bool CanCreateNewMember()
     {
         return Owner.DocumentManagerSubViewModel.ActiveDocument is { } doc && !doc.UpdateableChangeActive;
     }
 
+    [Command.Internal("PixiEditor.Layer.ToggleLockTransparency", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer")]
+    public void ToggleLockTransparency()
+    {
+        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        if (member is not LayerViewModel layerVm)
+            return;
+        layerVm.LockTransparencyBindable = !layerVm.LockTransparencyBindable;
+    }
+
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragStarted")]
-    public void OpacitySliderDragStarted(object parameter)
+    public void OpacitySliderDragStarted()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.UseOpacitySlider();
         Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragStarted();
@@ -125,13 +133,13 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragEnded")]
-    public void OpacitySliderDragEnded(object parameter)
+    public void OpacitySliderDragEnded()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragEnded();
     }
 
-    [Command.Basic("PixiEditor.Layer.DuplicateSelectedLayer", "Duplicate selected layer", "Duplicate selected layer", CanExecute = "PixiEditor.Layer.CanDuplicatedSelectedLayer")]
-    public void DuplicateLayer(object parameter)
+    [Command.Basic("PixiEditor.Layer.DuplicateSelectedLayer", "Duplicate selected layer", "Duplicate selected layer", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer")]
+    public void DuplicateLayer()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         if (member is not LayerViewModel layerVM)
@@ -139,8 +147,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         member.Document.DuplicateLayer(member.GuidValue);
     }
 
-    [Evaluator.CanExecute("PixiEditor.Layer.CanDuplicatedSelectedLayer")]
-    public bool CanDuplicateLayer(object property)
+    [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer")]
+    public bool SelectedMemberIsLayer(object property)
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         return member is LayerViewModel;
@@ -195,63 +203,24 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasNoMask")]
     public bool ActiveLayerHasNoMask() => !ActiveMemberHasMask();
 
-    private bool? DoesMaskVisibilityEqual(bool value)
-    {
-        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is null || !member.HasMaskBindable)
-            return false;
-        return member.MaskIsVisibleBindable == value;
-    }
-
-    [Evaluator.CanExecute("PixiEditor.Layer.CanEnableMask")]
-    public bool CanEnableMask() => DoesMaskVisibilityEqual(false) ?? false;
-
-    [Evaluator.CanExecute("PixiEditor.Layer.CanDisableMask")]
-    public bool CanDisableMask() => DoesMaskVisibilityEqual(true) ?? false;
-
-    [Command.Basic("PixiEditor.Layer.EnableMask", "Enable mask", "Enable mask", CanExecute = "PixiEditor.Layer.CanEnableMask", Parameter = true)]
-    [Command.Basic("PixiEditor.Layer.DisableMask", "Disable mask", "Disable mask", CanExecute = "PixiEditor.Layer.CanDisableMask", Parameter = false)]
-    public void ToggleMaskVisibility(bool newVisibility)
-    {
-        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is null || !member.HasMaskBindable || member.MaskIsVisibleBindable == newVisibility)
-            return;
-        member.MaskIsVisibleBindable = newVisibility;
-    }
-
     [Command.Basic("PixiEditor.Layer.CreateMask", "Create mask", "Create mask", CanExecute = "PixiEditor.Layer.ActiveLayerHasNoMask")]
-    public void CreateMask(object parameter)
+    public void CreateMask()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         var member = doc?.SelectedStructureMember;
         if (member is null || member.HasMaskBindable)
             return;
-        doc!.CreateMask(member.GuidValue);
+        doc!.CreateMask(member);
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteMask", "Delete mask", "Delete mask", CanExecute = "PixiEditor.Layer.ActiveLayerHasMask")]
-    public void DeleteMask(object parameter)
+    public void DeleteMask()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         var member = doc?.SelectedStructureMember;
         if (member is null || !member.HasMaskBindable)
             return;
-        doc!.DeleteMask(member.GuidValue);
-    }
-
-    [Evaluator.CanExecute("PixiEditor.Layer.CanEnableClipToMemberBelow")]
-    public bool CanClipToMemberBelow() => !Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.ClipToMemberBelowEnabledBindable ?? false;
-    [Evaluator.CanExecute("PixiEditor.Layer.CanDisableClipToMemberBelow")]
-    public bool CanDisableClipToMemberBelow() => Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.ClipToMemberBelowEnabledBindable ?? false;
-
-    [Command.Basic("PixiEditor.Layer.EnableClipToMemberBelow", "Clip to layer below", "Clip to layer below", Parameter = true, CanExecute = "PixiEditor.Layer.CanEnableClipToMemberBelow")]
-    [Command.Basic("PixiEditor.Layer.DisableClipToMemberBelow", "Disable clip to layer below", "Disable clip to layer below", Parameter = false, CanExecute = "PixiEditor.Layer.CanDisableClipToMemberBelow")]
-    public void ToogleClipToMemberBelow(bool newValue)
-    {
-        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
-        if (member is null || member.ClipToMemberBelowEnabledBindable == newValue)
-            return;
-        member.ClipToMemberBelowEnabledBindable = newValue;
+        doc!.DeleteMask(member);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove")]
@@ -260,12 +229,12 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool HasMemberBelow(object property) => HasSelectedMember(false);
 
     [Command.Basic("PixiEditor.Layer.MoveSelectedMemberUpwards", "Move selected layer upwards", "Move selected layer or folder upwards", CanExecute = "PixiEditor.Layer.HasMemberAbove")]
-    public void MoveSelectedMemberUpwards(object parameter) => MoveSelectedMember(true);
+    public void MoveSelectedMemberUpwards() => MoveSelectedMember(true);
     [Command.Basic("PixiEditor.Layer.MoveSelectedMemberDownwards", "Move selected layer downwards", "Move selected layer or folder downwards", CanExecute = "PixiEditor.Layer.HasMemberBelow")]
-    public void MoveSelectedMemberDownwards(object parameter) => MoveSelectedMember(false);
+    public void MoveSelectedMemberDownwards() => MoveSelectedMember(false);
 
     [Command.Basic("PixiEditor.Layer.MergeSelected", "Merge all selected layers", "Merge all selected layers", CanExecute = "PixiEditor.Layer.HasMultipleSelectedMembers")]
-    public void MergeSelected(object parameter)
+    public void MergeSelected()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -294,8 +263,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.MergeWithAbove", "Merge selected layer with the one above it", "Merge selected layer with the one above it", CanExecute = "PixiEditor.Layer.HasMemberAbove")]
-    public void MergeWithAbove(object parameter) => MergeSelectedWith(true);
+    public void MergeWithAbove() => MergeSelectedWith(true);
 
     [Command.Basic("PixiEditor.Layer.MergeWithBelow", "Merge selected layer with the one below it", "Merge selected layer with the one below it", CanExecute = "PixiEditor.Layer.HasMemberBelow")]
-    public void MergeWithBelow(object parameter) => MergeSelectedWith(false);
+    public void MergeWithBelow() => MergeSelectedWith(false);
 }
