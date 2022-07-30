@@ -54,7 +54,16 @@
                     </Button.Background>
                 </Button>
                 <Button 
-                    Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
+                    Command="{commands:Command PixiEditor.Layer.MergeWithBelow}" Height="24" Width="24" ToolTip="Merge with below" Cursor="Hand"
+                    HorizontalAlignment="Stretch" Margin="5,5,0,5"
+                    DockPanel.Dock="Left"
+                    Style="{StaticResource ToolButtonStyle}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Merge-downwards.png"/>
+                    </Button.Background>
+                </Button>
+                <Button 
+                    Height="24" Width="24" ToolTip="Lock transparency" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5"
                     Style="{StaticResource ToolButtonStyle}"
@@ -121,25 +130,12 @@
                 Visibility="{Binding Path=ActiveDocument, ElementName=layersManager, Converter={converters:NotNullToVisibilityConverter}}" 
                 Background="{StaticResource MainColor}" 
                 Grid.Row="3" VerticalAlignment="Bottom"/>
-            <TreeView DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding ActiveDocument.StructureRoot.Children, ElementName=layersManager}">
+            <TreeView ItemContainerStyle="{StaticResource TreeViewItemStyle}" DockPanel.Dock="Top" Name="treeView" ItemsSource="{Binding ActiveDocument.StructureRoot.Children, ElementName=layersManager}" HorizontalContentAlignment="Stretch">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <ui:ReversedOrderStackPanel/>
+                        <ui:ReversedOrderStackPanel />
                     </ItemsPanelTemplate>
                 </TreeView.ItemsPanel>
-                <TreeView.ItemContainerStyle>
-                    <Style
-                            TargetType="TreeViewItem">
-                        <Setter
-                                Property="ItemsPanel">
-                            <Setter.Value>
-                                <ItemsPanelTemplate>
-                                    <ui:ReversedOrderStackPanel />
-                                </ItemsPanelTemplate>
-                            </Setter.Value>
-                        </Setter>
-                    </Style>
-                </TreeView.ItemContainerStyle>
                 <TreeView.Resources>
                     <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Transparent"/>
                     <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="Transparent" />

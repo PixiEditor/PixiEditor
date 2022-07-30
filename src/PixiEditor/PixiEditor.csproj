@@ -160,6 +160,7 @@
 		<None Remove="Images\hard-drive.png" />
 		<None Remove="Images\Layer-add.png" />
 		<None Remove="Images\Lock-alpha.png" />
+		<None Remove="Images\Merge-downwards.png" />
 		<None Remove="Images\MoveImage.png" />
 		<None Remove="Images\MoveViewportImage.png" />
 		<None Remove="Images\penMode.png" />
@@ -250,6 +251,7 @@
 		<Resource Include="Images\hard-drive.png" />
 		<Resource Include="Images\Layer-add.png" />
 		<Resource Include="Images\Lock-alpha.png" />
+		<Resource Include="Images\Merge-downwards.png" />
 		<Resource Include="Images\penMode.png" />
 		<Resource Include="Images\PixiBotLogo.png" />
 		<Resource Include="Images\PixiEditorLogo.png" />

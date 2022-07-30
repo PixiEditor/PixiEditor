@@ -1,7 +1,8 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
-                    xmlns:controls="clr-namespace:PixiEditor.Views.UserControls">
+                    xmlns:controls="clr-namespace:PixiEditor.Views.UserControls"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <SolidColorBrush x:Key="ComboBox.Static.Background" Color="#252525" />
     <SolidColorBrush x:Key="ComboBox.Static.Border" Color="#2F2F37" />
@@ -188,11 +189,11 @@
             <Popup x:Name="PART_Popup" AllowsTransparency="true" Grid.ColumnSpan="2"
                    IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="1" Placement="Bottom">
-                <theme:SystemDropShadowChrome x:Name="shadow" Color="Transparent"
+                <theme:SystemDropShadowChrome x:Name="shadow" Color="Transparent" CornerRadius="5"
                                               MinWidth="{Binding ActualWidth, ElementName=templateRoot}"
                                               MaxHeight="{TemplateBinding MaxDropDownHeight}">
                     <Border x:Name="dropDownBorder"
-                            Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}" BorderThickness="1"
+                            Background="{StaticResource DarkerAccentColor}" BorderThickness="0"
                             BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}">
                         <ScrollViewer x:Name="DropDownScrollViewer">
                             <Grid x:Name="grid" RenderOptions.ClearTypeHint="Enabled">
@@ -260,7 +261,7 @@
     </Style>
     
     <Style TargetType="ComboBoxItem">
-        <Setter Property="Background" Value="#111111" />
+        <Setter Property="Background" Value="{StaticResource DarkerAccentColor}" />
         <Setter Property="Foreground" Value="White" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="OverridesDefaultStyle" Value="True" />
@@ -268,8 +269,8 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBoxItem">
                     <Border Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0">
-                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
+                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Center" Margin="3,2"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
@@ -279,6 +280,24 @@
                             <Setter Property="Foreground" Value="{StaticResource MainColor}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="Separator">
+        <Setter Property="Height"
+                Value="1" />
+        <Setter Property="Margin"
+                Value="0,4,0,4" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Border BorderThickness="1">
+                        <Border.BorderBrush>
+                            <SolidColorBrush Color="#FF4D4D4D" />
+                        </Border.BorderBrush>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

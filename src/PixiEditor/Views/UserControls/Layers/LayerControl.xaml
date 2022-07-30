@@ -105,7 +105,7 @@
                             <TextBlock 
                                 Margin="5,0,0,0" 
                                 d:Text="Normal" 
-                                Foreground="White" 
+                                Foreground="White"
                                 Text="{Binding Layer.BlendModeBindable, ElementName=uc, Converter={conv:BlendModeToStringConverter}}"/>
                         </StackPanel>
                         <controls:EditableTextBlock
