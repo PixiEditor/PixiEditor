@@ -97,19 +97,21 @@ internal partial class NumberInput : UserControl
     {
         int step = e.Delta / 100;
 
+        float newValue = Value;
         if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
         {
             float multiplier = (Max - Min) * 0.1f;
-            Value += step * multiplier;
+            newValue += step * multiplier;
         }
         else if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
         {
-            Value += step / 2f;
+            newValue += step / 2f;
         }
         else
         {
-            Value += step;
+            newValue += step;
         }
+        Value = (float)Math.Round(Math.Clamp(newValue, Min, Max), Decimals);
 
         OnScrollAction?.Invoke();
     }

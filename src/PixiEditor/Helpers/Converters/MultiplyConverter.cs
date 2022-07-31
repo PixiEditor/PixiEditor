@@ -15,7 +15,11 @@ internal class MultiplyConverter : SingleInstanceConverter<MultiplyConverter>
 
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        return 0;
+        double? actuallyValue = NumberToDouble(value);
+        double? factor = NumberToDouble(parameter);
+        if (actuallyValue is null || factor is null)
+            return DependencyProperty.UnsetValue;
+        return actuallyValue / factor;
     }
 
     private double? NumberToDouble(object number)

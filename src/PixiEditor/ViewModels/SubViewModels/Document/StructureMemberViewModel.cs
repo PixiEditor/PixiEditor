@@ -122,12 +122,14 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public float OpacityBindable
     {
         get => opacity;
-        // this is stupid. This setter shouldn't actually exist, but it has to because the NumberInput control is badly designed.
-        // You can't bind it's value using a OneWay binding, because it gets overwritten by NumberInput internally when it assigns something to Value
-        // This doesn't happen with TwoWay bindings because they behave differently and forward the value you set instead of getting replaced
-        // So really I just need a OneWay binding, but I'm forced to use a TwoWay binding with a setter
-        // The binding is in LayersManager's opacity field btw.
-        set { }
+        set
+        {
+            if (Document.UpdateableChangeActive)
+                return;
+            Helpers.ActionAccumulator.AddFinishedActions(
+                new StructureMemberOpacity_Action(GuidValue, value),
+                new EndStructureMemberOpacity_Action());
+        }
     }
 
     public StructureMemberSelectionType Selection { get; set; }

@@ -53,7 +53,7 @@ internal partial class LayersManager : UserControl
     {
         if (ActiveDocument?.SelectedStructureMember is null)
             return;
-        ActiveDocument.SetMemberOpacity(ActiveDocument.SelectedStructureMember.GuidValue, numberInput.Value / 100f);
+        //ActiveDocument.SetMemberOpacity(ActiveDocument.SelectedStructureMember.GuidValue, numberInput.Value / 100f);
 
         // does anyone know why this is here?
         ShortcutController.UnblockShortcutExecutionAll();
