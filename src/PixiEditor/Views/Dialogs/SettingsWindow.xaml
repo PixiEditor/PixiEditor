@@ -129,7 +129,7 @@
 
                 <Label Grid.Row="11" Grid.Column="1" Style="{StaticResource SettingsText}">Update stream</Label>
                 <ComboBox Grid.Row="11" Grid.Column="2" VerticalAlignment="Center"
-                    Width="110" Height="22" HorizontalAlignment="Left"
+                    Width="110" Height="21.96" HorizontalAlignment="Left"
                     ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
                     SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}"/>
 

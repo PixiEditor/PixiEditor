@@ -17,6 +17,7 @@
                 <ResourceDictionary Source="Styles/DarkScrollBarStyle.xaml" />
                 <ResourceDictionary Source="Styles/ImageCheckBoxStyle.xaml" />
                 <ResourceDictionary Source="Styles/DarkCheckboxStyle.xaml" />
+                <ResourceDictionary Source="Styles/DarkSliderStyle.xaml" />
                 <ResourceDictionary Source="Styles/ListSwitchButtonStyle.xaml" />
                 <ResourceDictionary Source="Styles/LabelStyles.xaml" />
                 <ResourceDictionary Source="Styles/PixiListBoxItemStyle.xaml" />

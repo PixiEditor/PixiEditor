@@ -18,17 +18,17 @@
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="65"/>
+            <RowDefinition Height="58"/>
             <RowDefinition Height="15"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" HorizontalAlignment="Stretch" Background="{StaticResource MainColor}">
-            <DockPanel HorizontalAlignment="Stretch">
+            <DockPanel HorizontalAlignment="Stretch" Margin="3,5,3,3">
                 <Button 
                     Command="{commands:Command PixiEditor.Layer.NewLayer}" 
                     DockPanel.Dock="Left"
                     Height="24" Width="24" Cursor="Hand" ToolTip="New Layer"
-                    HorizontalAlignment="Stretch" Margin="5,5,0,5"
+                    HorizontalAlignment="Stretch" Margin="0,0,5,0"
                     Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Layer-add.png"/>
@@ -38,7 +38,7 @@
                     Command="{commands:Command PixiEditor.Layer.NewFolder}" 
                     Height="24" Width="24" ToolTip="New Folder" Cursor="Hand"
                     DockPanel.Dock="Left"
-                    HorizontalAlignment="Stretch"  Margin="5,5,0,5"
+                    HorizontalAlignment="Stretch"  Margin="0,0,5,0"
                     Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Folder-add.png"/>
@@ -46,7 +46,7 @@
                 </Button>
                 <Button 
                     Command="{commands:Command PixiEditor.Layer.DeleteSelected}" Height="24" Width="24" ToolTip="Delete selected" Cursor="Hand"
-                    HorizontalAlignment="Stretch" Margin="5,5,0,5"
+                    HorizontalAlignment="Stretch" Margin="0,0,5,0"
                     DockPanel.Dock="Left"
                     Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>
@@ -55,7 +55,7 @@
                 </Button>
                 <Button 
                     Command="{commands:Command PixiEditor.Layer.MergeWithBelow}" Height="24" Width="24" ToolTip="Merge with below" Cursor="Hand"
-                    HorizontalAlignment="Stretch" Margin="5,5,0,5"
+                    HorizontalAlignment="Stretch" Margin="0,0,5,0"
                     DockPanel.Dock="Left"
                     Style="{StaticResource ToolButtonStyle}">
                     <Button.Background>
@@ -65,7 +65,7 @@
                 <Button 
                     Height="24" Width="24" ToolTip="Lock transparency" Cursor="Hand"
                     DockPanel.Dock="Right"
-                    HorizontalAlignment="Stretch" Margin="5"
+                    HorizontalAlignment="Stretch" Margin="5,0,0,0"
                     Style="{StaticResource ToolButtonStyle}"
                     Command="{commands:Command PixiEditor.Layer.ToggleLockTransparency}">
                     <Button.Background>
@@ -74,10 +74,10 @@
                 </Button>
                 <Grid/>
             </DockPanel>
-            <DockPanel>
+            <DockPanel Margin="3,0">
                 <userControls:BlendModeComboBox
                     DockPanel.Dock="Left"
-                    Margin="5,0"
+                    Margin="0,0,5,0"
                     Width="80"
                     SelectedBlendMode="{Binding ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay, ElementName=layersManager}" />
                 <userControls:NumberInput
@@ -87,7 +87,7 @@
                     DockPanel.Dock="Right"
                     IsEnabled="{Binding Path=ActiveDocument, ElementName=layersManager, Converter={converters:NotNullToVisibilityConverter}}" 
                     Width="35" Height="20"
-                    Margin="0,0,5,0"
+                    Margin="5,0,0,0"
                     VerticalAlignment="Center"
                     LostFocus="NumberInput_LostFocus">
                     <userControls:NumberInput.Value>
