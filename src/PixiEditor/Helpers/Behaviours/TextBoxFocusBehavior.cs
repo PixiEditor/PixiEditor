@@ -87,7 +87,14 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
     {
         if (!FocusNext)
         {
-            MainWindow.Current.mainGrid.Focus();
+            FrameworkElement parent = (FrameworkElement)AssociatedObject.Parent;
+            while (parent is IInputElement elem && !elem.Focusable)
+            {
+                parent = (FrameworkElement)parent.Parent;
+            }
+
+            DependencyObject scope = FocusManager.GetFocusScope(AssociatedObject);
+            FocusManager.SetFocusedElement(scope, parent);
         }
         else
         {
