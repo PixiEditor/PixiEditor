@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PixiEditor.ViewModels.SubViewModels.Document;
 
-namespace PixiEditor.ViewModels.SubViewModels.Document;
+namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
-internal class DocumentStructureViewModel
+internal class DocumentStructureModule
 {
     private readonly DocumentViewModel doc;
-    public DocumentStructureViewModel(DocumentViewModel owner)
+    public DocumentStructureModule(DocumentViewModel owner)
     {
         this.doc = owner;
     }

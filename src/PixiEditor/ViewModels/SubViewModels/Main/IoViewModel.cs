@@ -75,7 +75,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         ProcessShortcutDown(args.IsRepeat, key);
 
         if (Owner.DocumentManagerSubViewModel.ActiveDocument != null)
-            Owner.DocumentManagerSubViewModel.ActiveDocument.OnKeyDown(key);
+            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnKeyDown(key);
         Owner.ToolsSubViewModel.OnKeyDown(key);
 
         HandleTransientKey(args, true);
@@ -127,7 +127,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         ProcessShortcutUp(new(key, args.KeyboardDevice.Modifiers));
 
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not null)
-            Owner.DocumentManagerSubViewModel.ActiveDocument.OnKeyUp(key);
+            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnKeyUp(key);
         Owner.ToolsSubViewModel.OnKeyUp(key);
 
         HandleTransientKey(args, false);
@@ -154,7 +154,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 return;
 
             //docManager.InputTarget.OnLeftMouseButtonDown(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
-            docManager.ActiveDocument.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
+            docManager.ActiveDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
             Owner.ToolsSubViewModel.OnLeftMouseButtonDown(args.PositionOnCanvas);
         }
     }
@@ -195,7 +195,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         if (activeDocument is null)
             return;
         //Owner.DocumentManagerSubViewModel.InputTarget.OnMouseMove(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
-        activeDocument.OnCanvasMouseMove(pos);
+        activeDocument.EventInlet.OnCanvasMouseMove(pos);
     }
 
     private void OnMouseUp(object sender, MouseButton button)
@@ -205,7 +205,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         if (button == MouseButton.Left)
         {
             //Owner.BitmapManager.InputTarget.OnLeftMouseButtonUp();
-            Owner.DocumentManagerSubViewModel.ActiveDocument.OnCanvasLeftMouseButtonUp();
+            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnCanvasLeftMouseButtonUp();
         }
         else if (button == MouseButton.Middle)
         {

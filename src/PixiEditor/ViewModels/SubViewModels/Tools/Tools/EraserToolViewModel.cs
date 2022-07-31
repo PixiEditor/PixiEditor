@@ -18,6 +18,6 @@ internal class EraserToolViewModel : ToolViewModel
     
     public override void OnLeftMouseButtonDown(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UseEraserTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEraserTool();
     }
 }

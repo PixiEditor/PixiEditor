@@ -3,9 +3,9 @@ using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
-internal class DocumentHelpers
+internal class DocumentInternalParts
 {
-    public DocumentHelpers(DocumentViewModel doc)
+    public DocumentInternalParts(DocumentViewModel doc)
     {
         Tracker = new DocumentChangeTracker();
         StructureHelper = new DocumentStructureHelper(doc, this);

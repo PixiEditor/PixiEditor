@@ -6,5 +6,5 @@ namespace PixiEditor.ViewModels.SubViewModels.Document;
 internal class FolderViewModel : StructureMemberViewModel
 {
     public ObservableCollection<StructureMemberViewModel> Children { get; } = new();
-    public FolderViewModel(DocumentViewModel doc, DocumentHelpers helpers, Guid guidValue) : base(doc, helpers, guidValue) { }
+    public FolderViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid guidValue) : base(doc, internals, guidValue) { }
 }

@@ -209,7 +209,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         {
             angle = value;
             PropertyChanged?.Invoke(this, new(nameof(Angle)));
-            Document?.AddOrUpdateViewport(GetLocation());
+            Document?.Operations.AddOrUpdateViewport(GetLocation());
         }
     }
 
@@ -222,7 +222,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         {
             center = value;
             PropertyChanged?.Invoke(this, new(nameof(Center)));
-            Document?.AddOrUpdateViewport(GetLocation());
+            Document?.Operations.AddOrUpdateViewport(GetLocation());
         }
     }
 
@@ -238,7 +238,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             ChunkResolution newRes = CalculateResolution();
 
             PropertyChanged?.Invoke(this, new(nameof(RealDimensions)));
-            Document?.AddOrUpdateViewport(GetLocation());
+            Document?.Operations.AddOrUpdateViewport(GetLocation());
 
             if (oldRes != newRes)
                 PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
@@ -257,7 +257,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             ChunkResolution newRes = CalculateResolution();
 
             PropertyChanged?.Invoke(this, new(nameof(Dimensions)));
-            Document?.AddOrUpdateViewport(GetLocation());
+            Document?.Operations.AddOrUpdateViewport(GetLocation());
 
             if (oldRes != newRes)
                 PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
@@ -302,12 +302,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void OnUnload(object sender, RoutedEventArgs e)
     {
-        Document?.RemoveViewport(GuidValue);
+        Document?.Operations.RemoveViewport(GuidValue);
     }
 
     private void OnLoad(object sender, RoutedEventArgs e)
     {
-        Document?.AddOrUpdateViewport(GetLocation());
+        Document?.Operations.AddOrUpdateViewport(GetLocation());
     }
 
     private static void OnDocumentChange(DependencyObject viewportObj, DependencyPropertyChangedEventArgs args)
@@ -315,8 +315,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         DocumentViewModel? oldDoc = (DocumentViewModel?)args.OldValue;
         DocumentViewModel? newDoc = (DocumentViewModel?)args.NewValue;
         Viewport? viewport = (Viewport)viewportObj;
-        oldDoc?.RemoveViewport(viewport.GuidValue);
-        newDoc?.AddOrUpdateViewport(viewport.GetLocation());
+        oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
+        newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
     private static void OnBitmapsChange(DependencyObject viewportObj, DependencyPropertyChangedEventArgs args)

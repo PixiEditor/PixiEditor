@@ -28,6 +28,6 @@ internal class LineToolViewModel : ShapeTool
     
     public override void OnLeftMouseButtonDown(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UseLineTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseLineTool();
     }
 }

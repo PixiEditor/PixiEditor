@@ -39,7 +39,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         if (member is null)
             return;
-        member.Document.DeleteStructureMember(member.GuidValue);
+        member.Document.Operations.DeleteStructureMember(member.GuidValue);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasSelectedMembers")]
@@ -83,7 +83,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
         var selected = GetSelected();
         if (selected.Count > 0)
-            doc.DeleteStructureMembers(selected);
+            doc.Operations.DeleteStructureMembers(selected);
     }
 
     [Command.Basic("PixiEditor.Layer.NewFolder", "New Folder", "Create new folder", CanExecute = "PixiEditor.Layer.CanCreateNewMember")]
@@ -91,7 +91,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return;
-        doc.CreateStructureMember(StructureMemberType.Folder);
+        doc.Operations.CreateStructureMember(StructureMemberType.Folder);
     }
 
     [Command.Basic("PixiEditor.Layer.NewLayer", "New Layer", "Create new layer", CanExecute = "PixiEditor.Layer.CanCreateNewMember", Key = Key.N, Modifiers = ModifierKeys.Control | ModifierKeys.Shift, IconPath = "Layer-add.png")]
@@ -99,7 +99,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
             return;
-        doc.CreateStructureMember(StructureMemberType.Layer);
+        doc.Operations.CreateStructureMember(StructureMemberType.Layer);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.CanCreateNewMember")]
@@ -120,8 +120,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragStarted")]
     public void OpacitySliderDragStarted()
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.UseOpacitySlider();
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragStarted();
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseOpacitySlider();
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnOpacitySliderDragStarted();
     }
 
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragged")]
@@ -129,13 +129,13 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         if (parameter is not double value)
             return;
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragged((float)value);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnOpacitySliderDragged((float)value);
     }
 
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragEnded")]
     public void OpacitySliderDragEnded()
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.OnOpacitySliderDragEnded();
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnOpacitySliderDragEnded();
     }
 
     [Command.Basic("PixiEditor.Layer.DuplicateSelectedLayer", "Duplicate selected layer", "Duplicate selected layer", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer")]
@@ -144,7 +144,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         if (member is not LayerViewModel layerVM)
             return;
-        member.Document.DuplicateLayer(member.GuidValue);
+        member.Document.Operations.DuplicateLayer(member.GuidValue);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer")]
@@ -160,7 +160,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = doc?.SelectedStructureMember;
         if (member is null)
             return false;
-        var path = doc!.StructureViewModel.FindPath(member.GuidValue);
+        var path = doc!.StructureHelper.FindPath(member.GuidValue);
         if (path.Count < 2)
             return false;
         var parent = (FolderViewModel)path[1];
@@ -178,7 +178,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         if (member is null)
             return;
-        var path = doc!.StructureViewModel.FindPath(member.GuidValue);
+        var path = doc!.StructureHelper.FindPath(member.GuidValue);
         if (path.Count < 2)
             return;
         var parent = (FolderViewModel)path[1];
@@ -187,13 +187,13 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         {
             if (curIndex == parent.Children.Count - 1)
                 return;
-            doc.MoveStructureMember(member.GuidValue, parent.Children[curIndex + 1].GuidValue, StructureMemberPlacement.Above);
+            doc.Operations.MoveStructureMember(member.GuidValue, parent.Children[curIndex + 1].GuidValue, StructureMemberPlacement.Above);
         }
         else
         {
             if (curIndex == 0)
                 return;
-            doc.MoveStructureMember(member.GuidValue, parent.Children[curIndex - 1].GuidValue, StructureMemberPlacement.Below);
+            doc.Operations.MoveStructureMember(member.GuidValue, parent.Children[curIndex - 1].GuidValue, StructureMemberPlacement.Below);
         }
     }
 
@@ -210,7 +210,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = doc?.SelectedStructureMember;
         if (member is null || member.HasMaskBindable)
             return;
-        doc!.CreateMask(member);
+        doc!.Operations.CreateMask(member);
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteMask", "Delete mask", "Delete mask", CanExecute = "PixiEditor.Layer.ActiveLayerHasMask")]
@@ -220,7 +220,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = doc?.SelectedStructureMember;
         if (member is null || !member.HasMaskBindable)
             return;
-        doc!.DeleteMask(member);
+        doc!.Operations.DeleteMask(member);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove")]
@@ -242,7 +242,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var selected = GetSelected();
         if (selected.Count == 0)
             return;
-        doc.MergeStructureMembers(selected);
+        doc.Operations.MergeStructureMembers(selected);
     }
 
     public void MergeSelectedWith(bool above)
@@ -251,7 +251,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = doc?.SelectedStructureMember;
         if (doc is null || member is null)
             return;
-        var (child, parent) = doc.StructureViewModel.FindChildAndParent(member.GuidValue);
+        var (child, parent) = doc.StructureHelper.FindChildAndParent(member.GuidValue);
         if (child is null || parent is null)
             return;
         int index = parent.Children.IndexOf(child);
@@ -259,7 +259,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
         if (above && index == parent.Children.Count - 1)
             return;
-        doc.MergeStructureMembers(new List<Guid> { member.GuidValue, above ? parent.Children[index + 1].GuidValue : parent.Children[index - 1].GuidValue });
+        doc.Operations.MergeStructureMembers(new List<Guid> { member.GuidValue, above ? parent.Children[index + 1].GuidValue : parent.Children[index - 1].GuidValue });
     }
 
     [Command.Basic("PixiEditor.Layer.MergeWithAbove", "Merge selected layer with the one above it", "Merge selected layer with the one above it", CanExecute = "PixiEditor.Layer.HasMemberAbove")]

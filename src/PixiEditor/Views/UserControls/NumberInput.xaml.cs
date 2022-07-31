@@ -5,9 +5,6 @@ using System.Windows.Input;
 
 namespace PixiEditor.Views.UserControls;
 
-/// <summary>
-///     Interaction logic for NumerInput.xaml.
-/// </summary>
 internal partial class NumberInput : UserControl
 {
     public static readonly DependencyProperty ValueProperty =

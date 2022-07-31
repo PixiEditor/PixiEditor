@@ -61,12 +61,12 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
             fillColor);
         IAction drawAction = TransformMovedAction(shapeData, corners);
 
-        helpers!.ActionAccumulator.AddActions(drawAction);
+        internals!.ActionAccumulator.AddActions(drawAction);
     }
 
     public override void OnTransformApplied()
     {
-        helpers!.ActionAccumulator.AddFinishedActions(EndDrawAction());
+        internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
         document!.TransformViewModel.HideTransform();
         onEnded?.Invoke(this);
     }
@@ -91,6 +91,6 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         if (transforming)
             document!.TransformViewModel.HideTransform();
-        helpers!.ActionAccumulator.AddFinishedActions(EndDrawAction());
+        internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
     }
 }

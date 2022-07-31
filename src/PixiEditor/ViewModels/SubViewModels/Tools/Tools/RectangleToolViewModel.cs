@@ -27,6 +27,6 @@ internal class RectangleToolViewModel : ShapeTool
     
     public override void OnLeftMouseButtonDown(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UseRectangleTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseRectangleTool();
     }
 }

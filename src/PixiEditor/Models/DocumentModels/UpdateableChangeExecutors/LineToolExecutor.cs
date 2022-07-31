@@ -43,7 +43,7 @@ internal class LineToolExecutor : ShapeToolExecutor<LineToolViewModel>
 
         lastRect = rect;
 
-        helpers!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, strokeWidth, strokeColor, SKStrokeCap.Butt, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, strokeWidth, strokeColor, SKStrokeCap.Butt, drawOnMask));
     }
 
     protected override void DrawShape(VecI currentPos) => DrawLine(currentPos);

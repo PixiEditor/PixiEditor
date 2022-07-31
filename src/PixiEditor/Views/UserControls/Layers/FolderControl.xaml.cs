@@ -55,7 +55,7 @@ internal partial class FolderControl : UserControl
         Guid? droppedMemberGuid = LayerControl.ExtractMemberGuid(dataObj);
         if (droppedMemberGuid is null)
             return;
-        Folder.Document.MoveStructureMember((Guid)droppedMemberGuid, Folder.GuidValue, placement);
+        Folder.Document.Operations.MoveStructureMember((Guid)droppedMemberGuid, Folder.GuidValue, placement);
     }
 
     private void Grid_Drop_Top(object sender, DragEventArgs e)

@@ -59,12 +59,12 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
 
     private void OnUnload(object sender, RoutedEventArgs e)
     {
-        Document?.RemoveViewport(GuidValue);
+        Document?.Operations.RemoveViewport(GuidValue);
     }
 
     private void OnLoad(object sender, RoutedEventArgs e)
     {
-        Document?.AddOrUpdateViewport(GetLocation());
+        Document?.Operations.AddOrUpdateViewport(GetLocation());
     }
 
     private ChunkResolution CalculateResolution()
@@ -108,20 +108,20 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         DocumentViewModel? oldDoc = (DocumentViewModel?)args.OldValue;
         DocumentViewModel? newDoc = (DocumentViewModel?)args.NewValue;
         FixedViewport? viewport = (FixedViewport)viewportObj;
-        oldDoc?.RemoveViewport(viewport.GuidValue);
-        newDoc?.AddOrUpdateViewport(viewport.GetLocation());
+        oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
+        newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
     private static void OnBitmapsChange(DependencyObject viewportObj, DependencyPropertyChangedEventArgs args)
     {
         FixedViewport? viewport = ((FixedViewport)viewportObj);
         viewport.PropertyChanged?.Invoke(viewportObj, new(nameof(TargetBitmap)));
-        viewport.Document!.AddOrUpdateViewport(viewport.GetLocation());
+        viewport.Document!.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
     private void OnImageSizeChanged(object sender, SizeChangedEventArgs e)
     {
         PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
-        Document?.AddOrUpdateViewport(GetLocation());
+        Document?.Operations.AddOrUpdateViewport(GetLocation());
     }
 }

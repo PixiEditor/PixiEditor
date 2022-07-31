@@ -83,10 +83,10 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument = Owner.DocumentManagerSubViewModel.Documents[^1];
 
         if (doc.SizeBindable != size)
-            doc.ResizeCanvas(size, ResizeAnchor.TopLeft);
+            doc.Operations.ResizeCanvas(size, ResizeAnchor.TopLeft);
         if (addBaseLayer)
-            doc.CreateStructureMember(StructureMemberType.Layer);
-        doc.ClearUndo();
+            doc.Operations.CreateStructureMember(StructureMemberType.Layer);
+        doc.Operations.ClearUndo();
         doc.MarkAsSaved();
 
         return doc;

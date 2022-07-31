@@ -40,7 +40,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, toolSize, false, drawOnMask),
             true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask)
         };
-        helpers!.ActionAccumulator.AddActions(action);
+        internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
     }
@@ -52,7 +52,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             false => new LineBasedPen_Action(guidValue, color, pos, toolSize, false, drawOnMask),
             true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask)
         };
-        helpers!.ActionAccumulator.AddActions(action);
+        internals!.ActionAccumulator.AddActions(action);
     }
 
     public override void OnLeftMouseButtonUp()
@@ -63,7 +63,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             true => new EndPixelPerfectPen_Action()
         };
 
-        helpers!.ActionAccumulator.AddFinishedActions(action);
+        internals!.ActionAccumulator.AddFinishedActions(action);
         onEnded?.Invoke(this);
     }
 
@@ -74,6 +74,6 @@ internal class PenToolExecutor : UpdateableChangeExecutor
             false => new EndLineBasedPen_Action(),
             true => new EndPixelPerfectPen_Action()
         };
-        helpers!.ActionAccumulator.AddFinishedActions(action);
+        internals!.ActionAccumulator.AddFinishedActions(action);
     }
 }

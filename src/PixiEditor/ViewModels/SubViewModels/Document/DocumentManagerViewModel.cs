@@ -233,11 +233,11 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         {
             if (canvas)
             {
-                doc.ResizeCanvas(new(dialog.Width, dialog.Height), dialog.ResizeAnchor);
+                doc.Operations.ResizeCanvas(new(dialog.Width, dialog.Height), dialog.ResizeAnchor);
             }
             else
             {
-                doc.ResizeImage(new(dialog.Width, dialog.Height), ResamplingMethod.NearestNeighbor);
+                doc.Operations.ResizeImage(new(dialog.Width, dialog.Height), ResamplingMethod.NearestNeighbor);
             }
         }
     }

@@ -36,7 +36,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
         vm.ColorsSubViewModel.AddSwatch(color);
         IAction? action = new LineBasedPen_Action(guidValue, SKColors.Transparent, controller!.LastPixelPosition, toolSize, true,
             drawOnMask);
-        helpers!.ActionAccumulator.AddActions(action);
+        internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
     }
@@ -44,18 +44,18 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
     public override void OnPixelPositionChange(VecI pos)
     {
         IAction? action = new LineBasedPen_Action(guidValue, SKColors.Transparent, pos, toolSize, true, drawOnMask);
-        helpers!.ActionAccumulator.AddActions(action);
+        internals!.ActionAccumulator.AddActions(action);
     }
 
     public override void OnLeftMouseButtonUp()
     {
-        helpers!.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
+        internals!.ActionAccumulator.AddFinishedActions(new EndLineBasedPen_Action());
         onEnded?.Invoke(this);
     }
 
     public override void ForceStop()
     {
         IAction? action = new EndLineBasedPen_Action();
-        helpers!.ActionAccumulator.AddFinishedActions(action);
+        internals!.ActionAccumulator.AddFinishedActions(action);
     }
 }

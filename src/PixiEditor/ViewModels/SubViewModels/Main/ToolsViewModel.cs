@@ -78,7 +78,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        doc.OnApplyTransform();
+        doc.EventInlet.OnApplyTransform();
     }
 
     [Command.Internal("PixiEditor.Tools.SelectTool", CanExecute = "PixiEditor.HasDocument")]

@@ -20,7 +20,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
 
     public override void OnLeftMouseButtonDown(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UseColorPickerTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseColorPickerTool();
     }
 
     public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)

@@ -16,7 +16,7 @@ internal class LayerViewModel : StructureMemberViewModel
         set
         {
             if (!Document.UpdateableChangeActive)
-                Helpers.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(GuidValue, value));
+                Internals.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(GuidValue, value));
         }
     }
 
@@ -33,7 +33,7 @@ internal class LayerViewModel : StructureMemberViewModel
         }
     }
 
-    public LayerViewModel(DocumentViewModel doc, DocumentHelpers helpers, Guid guidValue) : base(doc, helpers, guidValue)
+    public LayerViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid guidValue) : base(doc, internals, guidValue)
     {
     }
 }

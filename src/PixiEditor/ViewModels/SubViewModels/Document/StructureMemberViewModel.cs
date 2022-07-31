@@ -12,11 +12,11 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
     public DocumentViewModel Document { get; }
-    protected DocumentHelpers Helpers { get; }
+    protected DocumentInternalParts Internals { get; }
 
 
     private string name = "";
-    public void SetName(string name)
+    public void InternalSetName(string name)
     {
         this.name = name;
         RaisePropertyChanged(nameof(NameBindable));
@@ -27,12 +27,12 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         set
         {
             if (!Document.UpdateableChangeActive)
-                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(GuidValue, value));
+                Internals.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(GuidValue, value));
         }
     }
 
     private bool isVisible;
-    public void SetIsVisible(bool isVisible)
+    public void InternalSetIsVisible(bool isVisible)
     {
         this.isVisible = isVisible;
         RaisePropertyChanged(nameof(IsVisibleBindable));
@@ -43,12 +43,12 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         set
         {
             if (!Document.UpdateableChangeActive)
-                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, GuidValue));
+                Internals.ActionAccumulator.AddFinishedActions(new StructureMemberIsVisible_Action(value, GuidValue));
         }
     }
 
     private bool maskIsVisible;
-    public void SetMaskIsVisible(bool maskIsVisible)
+    public void InternalSetMaskIsVisible(bool maskIsVisible)
     {
         this.maskIsVisible = maskIsVisible;
         RaisePropertyChanged(nameof(MaskIsVisibleBindable));
@@ -59,12 +59,12 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         set
         {
             if (!Document.UpdateableChangeActive)
-                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberMaskIsVisible_Action(value, GuidValue));
+                Internals.ActionAccumulator.AddFinishedActions(new StructureMemberMaskIsVisible_Action(value, GuidValue));
         }
     }
 
     private BlendMode blendMode;
-    public void SetBlendMode(BlendMode blendMode)
+    public void InternalSetBlendMode(BlendMode blendMode)
     {
         this.blendMode = blendMode;
         RaisePropertyChanged(nameof(BlendModeBindable));
@@ -75,12 +75,12 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         set
         {
             if (!Document.UpdateableChangeActive)
-                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberBlendMode_Action(value, GuidValue));
+                Internals.ActionAccumulator.AddFinishedActions(new StructureMemberBlendMode_Action(value, GuidValue));
         }
     }
 
     private bool clipToMemberBelowEnabled;
-    public void SetClipToMemberBelowEnabled(bool clipToMemberBelowEnabled)
+    public void InternalSetClipToMemberBelowEnabled(bool clipToMemberBelowEnabled)
     {
         this.clipToMemberBelowEnabled = clipToMemberBelowEnabled;
         RaisePropertyChanged(nameof(ClipToMemberBelowEnabledBindable));
@@ -91,12 +91,12 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         set
         {
             if (!Document.UpdateableChangeActive)
-                Helpers.ActionAccumulator.AddFinishedActions(new StructureMemberClipToMemberBelow_Action(value, GuidValue));
+                Internals.ActionAccumulator.AddFinishedActions(new StructureMemberClipToMemberBelow_Action(value, GuidValue));
         }
     }
 
     private bool hasMask;
-    public void SetHasMask(bool hasMask)
+    public void InternalSetHasMask(bool hasMask)
     {
         this.hasMask = hasMask;
         RaisePropertyChanged(nameof(HasMaskBindable));
@@ -114,7 +114,7 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 
     private float opacity;
 
-    public void SetOpacity(float opacity)
+    public void InternalSetOpacity(float opacity)
     {
         this.opacity = opacity;
         RaisePropertyChanged(nameof(OpacityBindable));
@@ -126,7 +126,7 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         {
             if (Document.UpdateableChangeActive)
                 return;
-            Helpers.ActionAccumulator.AddFinishedActions(
+            Internals.ActionAccumulator.AddFinishedActions(
                 new StructureMemberOpacity_Action(GuidValue, value),
                 new EndStructureMemberOpacity_Action());
         }
@@ -155,10 +155,10 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
             new VecI(prSize, (int)Math.Round(prSize * proportions));
     }
 
-    public StructureMemberViewModel(DocumentViewModel doc, DocumentHelpers helpers, Guid guidValue)
+    public StructureMemberViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid guidValue)
     {
         Document = doc;
-        Helpers = helpers;
+        Internals = internals;
 
         this.guidValue = guidValue;
         VecI previewSize = CalculatePreviewSize(doc.SizeBindable);

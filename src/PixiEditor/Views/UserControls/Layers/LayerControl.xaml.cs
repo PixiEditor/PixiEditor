@@ -111,7 +111,7 @@ internal partial class LayerControl : UserControl
         Guid? droppedMemberGuid = ExtractMemberGuid(dataObj);
         if (droppedMemberGuid is null)
             return;
-        Layer.Document.MoveStructureMember((Guid)droppedMemberGuid, Layer.GuidValue, placement);
+        Layer.Document.Operations.MoveStructureMember((Guid)droppedMemberGuid, Layer.GuidValue, placement);
     }
 
     private void Grid_Drop_Top(object sender, DragEventArgs e)

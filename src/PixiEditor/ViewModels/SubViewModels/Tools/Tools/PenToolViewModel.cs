@@ -19,7 +19,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
 
         public override void OnLeftMouseButtonDown(VecD pos)
         {
-            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UsePenTool();
+            ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
         }
     }
 }

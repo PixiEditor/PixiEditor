@@ -33,6 +33,6 @@ internal class EllipseToolViewModel : ShapeTool
 
     public override void OnLeftMouseButtonDown(VecD pos)
     {
-        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.UseEllipseTool();
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEllipseTool();
     }
 }

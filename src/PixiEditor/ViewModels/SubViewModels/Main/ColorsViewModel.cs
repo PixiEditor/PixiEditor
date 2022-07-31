@@ -81,7 +81,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || colors.oldColor == colors.newColor)
             return;
-        doc.ReplaceColor(colors.oldColor, colors.newColor);
+        doc.Operations.ReplaceColor(colors.oldColor, colors.newColor);
     }
 
     private async void OwnerOnStartupEvent(object sender, EventArgs e)

@@ -14,7 +14,7 @@ namespace PixiEditor.Models.Rendering;
 internal class WriteableBitmapUpdater
 {
     private readonly DocumentViewModel doc;
-    private readonly DocumentHelpers helpers;
+    private readonly DocumentInternalParts internals;
 
     private static readonly SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
     private static readonly SKPaint SmoothReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.Medium, IsAntialias = true };
@@ -43,10 +43,10 @@ internal class WriteableBitmapUpdater
     private Dictionary<Guid, HashSet<VecI>> previewDelayedChunks = new();
     private Dictionary<Guid, HashSet<VecI>> maskPreviewDelayedChunks = new();
 
-    public WriteableBitmapUpdater(DocumentViewModel doc, DocumentHelpers helpers)
+    public WriteableBitmapUpdater(DocumentViewModel doc, DocumentInternalParts internals)
     {
         this.doc = doc;
-        this.helpers = helpers;
+        this.internals = internals;
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ internal class WriteableBitmapUpdater
 
         var chunksOnDelayedViewports = new Dictionary<ChunkResolution, HashSet<VecI>>() { [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new() };
 
-        foreach (var (_, viewport) in helpers.State.Viewports)
+        foreach (var (_, viewport) in internals.State.Viewports)
         {
             var viewportChunks = OperationHelper.FindChunksTouchingRectangle(
                 viewport.Center,
@@ -149,7 +149,7 @@ internal class WriteableBitmapUpdater
         UpdateMainImage(chunksToRerender, infos);
 
         var (imagePreviewChunksToRerender, maskPreviewChunksToRerender) = FindPreviewChunksToRerender(chunkGatherer, !updateDelayed);
-        var previewSize = StructureMemberViewModel.CalculatePreviewSize(helpers.Tracker.Document.Size);
+        var previewSize = StructureMemberViewModel.CalculatePreviewSize(internals.Tracker.Document.Size);
         float scaling = (float)previewSize.X / doc.SizeBindable.X;
         UpdateImagePreviews(imagePreviewChunksToRerender, scaling, infos);
         UpdateMaskPreviews(maskPreviewChunksToRerender, scaling, infos);
@@ -177,7 +177,7 @@ internal class WriteableBitmapUpdater
                 _ => ChunkResolution.Eighth,
             };
             var pos = chunkPos * resolution.PixelSize();
-            var rendered = ChunkRenderer.MergeWholeStructure(chunkPos, resolution, helpers.Tracker.Document.StructureRoot);
+            var rendered = ChunkRenderer.MergeWholeStructure(chunkPos, resolution, internals.Tracker.Document.StructureRoot);
             doc.PreviewSurface.Canvas.Save();
             doc.PreviewSurface.Canvas.Scale(scaling);
             doc.PreviewSurface.Canvas.Scale(1 / (float)resolution.Multiplier());
@@ -196,10 +196,10 @@ internal class WriteableBitmapUpdater
         // update previews of individual members
         foreach (var (guid, chunks) in imagePreviewChunks)
         {
-            var memberVM = doc.StructureViewModel.Find(guid);
+            var memberVM = doc.StructureHelper.Find(guid);
             if (memberVM is null)
                 continue;
-            var member = helpers.Tracker.Document.FindMemberOrThrow(guid);
+            var member = internals.Tracker.Document.FindMemberOrThrow(guid);
 
             memberVM.PreviewSurface.Canvas.Save();
             memberVM.PreviewSurface.Canvas.Scale(scaling);
@@ -245,11 +245,11 @@ internal class WriteableBitmapUpdater
     {
         foreach (var (guid, chunks) in maskPreviewChunks)
         {
-            var memberVM = doc.StructureViewModel.Find(guid);
+            var memberVM = doc.StructureHelper.Find(guid);
             if (memberVM is null || !memberVM.HasMaskBindable)
                 continue;
 
-            var member = helpers.Tracker.Document.FindMemberOrThrow(guid);
+            var member = internals.Tracker.Document.FindMemberOrThrow(guid);
             memberVM.MaskPreviewSurface!.Canvas.Save();
             memberVM.MaskPreviewSurface.Canvas.Scale(scaling);
 
@@ -285,7 +285,7 @@ internal class WriteableBitmapUpdater
 
     private void RenderChunk(VecI chunkPos, SKSurface screenSurface, ChunkResolution resolution)
     {
-        ChunkRenderer.MergeWholeStructure(chunkPos, resolution, helpers.Tracker.Document.StructureRoot).Switch(
+        ChunkRenderer.MergeWholeStructure(chunkPos, resolution, internals.Tracker.Document.StructureRoot).Switch(
             (Chunk chunk) =>
             {
                 screenSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);

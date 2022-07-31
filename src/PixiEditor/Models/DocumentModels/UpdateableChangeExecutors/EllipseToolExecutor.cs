@@ -18,7 +18,7 @@ internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
             rect.Width = rect.Height = Math.Min(rect.Width, rect.Height);
         lastRect = rect;
 
-        helpers!.ActionAccumulator.AddActions(new DrawEllipse_Action(memberGuid, rect, strokeColor, fillColor, strokeWidth, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new DrawEllipse_Action(memberGuid, rect, strokeColor, fillColor, strokeWidth, drawOnMask));
     }
 
     protected override void DrawShape(VecI currentPos) => DrawEllipseOrCircle(currentPos);

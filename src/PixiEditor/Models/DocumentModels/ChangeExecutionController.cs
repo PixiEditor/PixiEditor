@@ -16,17 +16,17 @@ internal class ChangeExecutionController
     public bool IsChangeActive => currentSession is not null;
 
     private readonly DocumentViewModel document;
-    private readonly DocumentHelpers helpers;
+    private readonly DocumentInternalParts internals;
 
     private VecI lastPixelPos;
     private VecD lastPrecisePos;
 
     private UpdateableChangeExecutor? currentSession = null;
 
-    public ChangeExecutionController(DocumentViewModel document, DocumentHelpers helpers)
+    public ChangeExecutionController(DocumentViewModel document, DocumentInternalParts internals)
     {
         this.document = document;
-        this.helpers = helpers;
+        this.internals = internals;
     }
 
     public bool TryStartUpdateableChange<T>()
@@ -35,7 +35,7 @@ internal class ChangeExecutionController
         if (currentSession is not null)
             return false;
         T executor = new T();
-        executor.Initialize(document, helpers, this, EndChange);
+        executor.Initialize(document, internals, this, EndChange);
         if (executor.Start() == ExecutionState.Success)
         {
             currentSession = executor;

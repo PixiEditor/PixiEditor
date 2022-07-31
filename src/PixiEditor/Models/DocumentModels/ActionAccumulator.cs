@@ -16,16 +16,16 @@ internal class ActionAccumulator
 
     private List<IAction> queuedActions = new();
     private DocumentViewModel document;
-    private DocumentHelpers helpers;
+    private DocumentInternalParts internals;
 
     private WriteableBitmapUpdater renderer;
 
-    public ActionAccumulator(DocumentViewModel doc, DocumentHelpers helpers)
+    public ActionAccumulator(DocumentViewModel doc, DocumentInternalParts internals)
     {
         this.document = doc;
-        this.helpers = helpers;
+        this.internals = internals;
 
-        renderer = new(doc, helpers);
+        renderer = new(doc, internals);
     }
 
     public void AddFinishedActions(params IAction[] actions)
@@ -65,16 +65,16 @@ internal class ActionAccumulator
             if (AreAllPassthrough(toExecute))
                 changes = toExecute.Select(a => (IChangeInfo?)a).ToList();
             else
-                changes = await helpers.Tracker.ProcessActions(toExecute);
+                changes = await internals.Tracker.ProcessActions(toExecute);
 
             // update viewmodels based on changes
             bool undoBoundaryPassed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
             foreach (IChangeInfo? info in changes)
             {
-                helpers.Updater.ApplyChangeFromChangeInfo(info);
+                internals.Updater.ApplyChangeFromChangeInfo(info);
             }
             if (undoBoundaryPassed)
-                helpers.Updater.AfterUndoBoundaryPassed();
+                internals.Updater.AfterUndoBoundaryPassed();
 
             // render changes
             // If you are a sane person or maybe just someone who reads WPF documentation, you might think that the reasonable order of operations should be
@@ -96,7 +96,7 @@ internal class ActionAccumulator
             // Also, there is a bug report for this on github https://github.com/dotnet/wpf/issues/5816
 
             // update the contents of the bitmaps
-            var affectedChunks = new AffectedChunkGatherer(helpers.Tracker, changes);
+            var affectedChunks = new AffectedChunkGatherer(internals.Tracker, changes);
             var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, undoBoundaryPassed);
             
             // lock bitmaps
@@ -119,7 +119,7 @@ internal class ActionAccumulator
                 UnlockPreviewBitmaps(document.StructureRoot);
 
             // force refresh viewports for better responsiveness
-            foreach (var (_, value) in helpers.State.Viewports)
+            foreach (var (_, value) in internals.State.Viewports)
             {
                 if (!value.Delayed)
                     value.InvalidateVisual();
@@ -185,7 +185,7 @@ internal class ActionAccumulator
                     break;
                 case PreviewDirty_RenderInfo info:
                     {
-                        var bitmap = document.StructureViewModel.Find(info.GuidValue)?.PreviewBitmap;
+                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewBitmap;
                         if (bitmap is null)
                             continue;
                         bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
@@ -193,7 +193,7 @@ internal class ActionAccumulator
                     break;
                 case MaskPreviewDirty_RenderInfo info:
                     {
-                        var bitmap = document.StructureViewModel.Find(info.GuidValue)?.MaskPreviewBitmap;
+                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewBitmap;
                         if (bitmap is null)
                             continue;
                         bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));

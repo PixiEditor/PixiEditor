@@ -7,11 +7,11 @@ namespace PixiEditor.Models.DocumentModels;
 internal class DocumentStructureHelper
 {
     private DocumentViewModel doc;
-    private DocumentHelpers helpers;
-    public DocumentStructureHelper(DocumentViewModel doc, DocumentHelpers helpers)
+    private DocumentInternalParts internals;
+    public DocumentStructureHelper(DocumentViewModel doc, DocumentInternalParts internals)
     {
         this.doc = doc;
-        this.helpers = helpers;
+        this.internals = internals;
     }
 
     private string GetUniqueName(string name, FolderViewModel folder)
@@ -33,31 +33,31 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member on top
-            helpers.ActionAccumulator.AddActions(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, guid, doc.StructureRoot.Children.Count, type));
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, guid, doc.StructureRoot.Children.Count, type));
             string name = GetUniqueName(type == StructureMemberType.Layer ? "New Layer" : "New Folder", doc.StructureRoot);
-            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, name));
+            internals.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, name));
             return;
         }
         if (member is FolderViewModel folder)
         {
             Guid guid = Guid.NewGuid();
             //put member inside folder on top
-            helpers.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.GuidValue, guid, folder.Children.Count, type));
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.GuidValue, guid, folder.Children.Count, type));
             string name = GetUniqueName(type == StructureMemberType.Layer ? "New Layer" : "New Folder", folder);
-            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, name));
+            internals.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, name));
             return;
         }
         if (member is LayerViewModel layer)
         {
             Guid guid = Guid.NewGuid();
             //put member above the layer
-            List<StructureMemberViewModel> path = doc.StructureViewModel.FindPath(layer.GuidValue);
+            List<StructureMemberViewModel> path = doc.StructureHelper.FindPath(layer.GuidValue);
             if (path.Count < 2)
                 throw new InvalidOperationException("Couldn't find a path to the selected member");
             FolderViewModel parent = (FolderViewModel)path[1];
-            helpers.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.GuidValue, guid, parent.Children.IndexOf(layer) + 1, type));
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.GuidValue, guid, parent.Children.IndexOf(layer) + 1, type));
             string name = GetUniqueName(type == StructureMemberType.Layer ? "New Layer" : "New Folder", parent);
-            helpers.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, name));
+            internals.ActionAccumulator.AddFinishedActions(new StructureMemberName_Action(guid, name));
             return;
         }
         throw new ArgumentException($"Unknown member type: {type}");
@@ -70,7 +70,7 @@ internal class DocumentStructureHelper
         int index = folder.Children.Count;
         if (memberToMoveIntoPath[0].GuidValue == memberToMovePath[1].GuidValue) // member is already in this folder
             index--;
-        helpers.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, folder.GuidValue, index));
+        internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, folder.GuidValue, index));
         return;
     }
 
@@ -86,7 +86,7 @@ internal class DocumentStructureHelper
                 index++;
             if (indexOfMemberToMove < indexOfMemberToMoveAbove)
                 index--;
-            helpers.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, targetFolder.GuidValue, index));
+            internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, targetFolder.GuidValue, index));
         }
         else
         { // members are in different folders
@@ -95,14 +95,14 @@ internal class DocumentStructureHelper
             int index = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
             if (above)
                 index++;
-            helpers.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, targetFolder.GuidValue, index));
+            internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, targetFolder.GuidValue, index));
         }
     }
 
     public void TryMoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo, StructureMemberPlacement placement)
     {
-        List<StructureMemberViewModel> memberPath = doc.StructureViewModel.FindPath(memberToMove);
-        List<StructureMemberViewModel> refPath = doc.StructureViewModel.FindPath(memberToMoveIntoOrNextTo);
+        List<StructureMemberViewModel> memberPath = doc.StructureHelper.FindPath(memberToMove);
+        List<StructureMemberViewModel> refPath = doc.StructureHelper.FindPath(memberToMoveIntoOrNextTo);
         if (memberPath.Count < 2 || refPath.Count < 2)
             return;
         switch (placement)
@@ -125,7 +125,7 @@ internal class DocumentStructureHelper
                         HandleMoveAboveBelow(memberPath, refPath, false);
                         break;
                     }
-                    HandleMoveAboveBelow(memberPath, doc.StructureViewModel.FindPath(refPath[1].GuidValue), false);
+                    HandleMoveAboveBelow(memberPath, doc.StructureHelper.FindPath(refPath[1].GuidValue), false);
                 }
                 break;
         }

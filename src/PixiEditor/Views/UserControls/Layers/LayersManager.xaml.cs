@@ -65,7 +65,7 @@ internal partial class LayersManager : UserControl
         Guid? droppedGuid = LayerControl.ExtractMemberGuid(e.Data);
         if (droppedGuid is null || ActiveDocument is null)
             return;
-        ActiveDocument.MoveStructureMember((Guid)droppedGuid, ActiveDocument.StructureRoot.Children[0].GuidValue, StructureMemberPlacement.Below);
+        ActiveDocument.Operations.MoveStructureMember((Guid)droppedGuid, ActiveDocument.StructureRoot.Children[0].GuidValue, StructureMemberPlacement.Below);
     }
 
     private void Grid_DragEnter(object sender, DragEventArgs e)
@@ -113,15 +113,15 @@ internal partial class LayersManager : UserControl
             if (memberVM.Selection == StructureMemberSelectionType.Hard)
                 return;
             else if (memberVM.Selection == StructureMemberSelectionType.Soft)
-                ActiveDocument.RemoveSoftSelectedMember(memberVM.GuidValue);
+                ActiveDocument.Operations.RemoveSoftSelectedMember(memberVM.GuidValue);
             else if (memberVM.Selection == StructureMemberSelectionType.None)
-                ActiveDocument.AddSoftSelectedMember(memberVM.GuidValue);
+                ActiveDocument.Operations.AddSoftSelectedMember(memberVM.GuidValue);
         }
         else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
         {
             if (ActiveDocument.SelectedStructureMember is null || ActiveDocument.SelectedStructureMember.GuidValue == memberVM.GuidValue)
                 return;
-            ActiveDocument.ClearSoftSelectedMembers();
+            ActiveDocument.Operations.ClearSoftSelectedMembers();
             TraverseRange(
                 ActiveDocument.SelectedStructureMember.GuidValue,
                 memberVM.GuidValue,
@@ -129,13 +129,13 @@ internal partial class LayersManager : UserControl
                 static member =>
                 {
                     if (member.Selection == StructureMemberSelectionType.None)
-                        member.Document.AddSoftSelectedMember(member.GuidValue);
+                        member.Document.Operations.AddSoftSelectedMember(member.GuidValue);
                 });
         }
         else
         {
-            ActiveDocument.SetSelectedMember(memberVM.GuidValue);
-            ActiveDocument.ClearSoftSelectedMembers();
+            ActiveDocument.Operations.SetSelectedMember(memberVM.GuidValue);
+            ActiveDocument.Operations.ClearSoftSelectedMembers();
         }
     }
 
@@ -150,8 +150,8 @@ internal partial class LayersManager : UserControl
         {
             if (control.Folder is not null && control.Folder.Selection == StructureMemberSelectionType.None)
             {
-                control.Folder.Document.SetSelectedMember(control.Folder.GuidValue);
-                control.Folder.Document.ClearSoftSelectedMembers();
+                control.Folder.Document.Operations.SetSelectedMember(control.Folder.GuidValue);
+                control.Folder.Document.Operations.ClearSoftSelectedMembers();
             }
         }
     }
@@ -167,8 +167,8 @@ internal partial class LayersManager : UserControl
         {
             if (control.Layer is not null && control.Layer.Selection == StructureMemberSelectionType.None)
             {
-                control.Layer.Document.SetSelectedMember(control.Layer.GuidValue);
-                control.Layer.Document.ClearSoftSelectedMembers();
+                control.Layer.Document.Operations.SetSelectedMember(control.Layer.GuidValue);
+                control.Layer.Document.Operations.ClearSoftSelectedMembers();
             }
         }
     }

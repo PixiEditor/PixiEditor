@@ -8,20 +8,20 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal abstract class UpdateableChangeExecutor
 {
     protected DocumentViewModel? document;
-    protected DocumentHelpers? helpers;
+    protected DocumentInternalParts? internals;
     protected ChangeExecutionController? controller;
     private bool initialized = false;
 
     protected Action<UpdateableChangeExecutor>? onEnded;
 
-    public void Initialize(DocumentViewModel document, DocumentHelpers helpers, ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)
+    public void Initialize(DocumentViewModel document, DocumentInternalParts internals, ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)
     {
         if (initialized)
             throw new InvalidOperationException();
         initialized = true;
 
         this.document = document;
-        this.helpers = helpers;
+        this.internals = internals;
         this.controller = controller;
         this.onEnded = onEnded;
     }

@@ -16,7 +16,7 @@ internal class RectangleToolExecutor : ShapeToolExecutor<RectangleToolViewModel>
         
         lastRect = rect;
 
-        helpers!.ActionAccumulator.AddActions(new DrawRectangle_Action(memberGuid, new ShapeData(rect.Center, rect.Size, 0, strokeWidth, strokeColor, fillColor), drawOnMask));
+        internals!.ActionAccumulator.AddActions(new DrawRectangle_Action(memberGuid, new ShapeData(rect.Center, rect.Size, 0, strokeWidth, strokeColor, fillColor), drawOnMask));
     }
 
     protected override void DrawShape(VecI currentPos) => DrawRectangle(currentPos);
