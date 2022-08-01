@@ -13,7 +13,6 @@ internal class SelectionOverlay : Control
         DependencyProperty.Register(nameof(Path), typeof(SKPath), typeof(SelectionOverlay),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
-
     public static readonly DependencyProperty ZoomboxScaleProperty =
         DependencyProperty.Register(nameof(ZoomboxScale), typeof(double), typeof(SelectionOverlay), new(1.0, OnZoomboxScaleChanged));
 
@@ -63,6 +62,7 @@ internal class SelectionOverlay : Control
             RepeatBehavior = RepeatBehavior.Forever,
             Duration = new Duration(new TimeSpan(0, 0, 0, 0, 500))
         });
+
     }
 
     protected override void OnRender(DrawingContext drawingContext)

@@ -3,7 +3,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
-internal abstract class Toolbar
+internal abstract class Toolbar : NotifyableObject
 {
     private static readonly List<Setting> SharedSettings = new List<Setting>();
 

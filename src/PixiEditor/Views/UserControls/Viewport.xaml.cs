@@ -288,16 +288,17 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Binding binding = new Binding { Source = this, Path = new PropertyPath("Document.Bitmaps") };
         SetBinding(BitmapsProperty, binding);
 
-        GetImage()!.Loaded += OnImageLoaded;
+        MainImage!.Loaded += OnImageLoaded;
         Loaded += OnLoad;
         Unloaded += OnUnload;
     }
 
-    private Image? GetImage() => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
+    public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
+    public Grid BackgroundGrid => mainGrid;
 
     private void ForceRefreshFinalImage()
     {
-        GetImage()?.InvalidateVisual();
+        MainImage?.InvalidateVisual();
     }
 
     private void OnUnload(object sender, RoutedEventArgs e)
@@ -351,7 +352,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         if (MouseDownCommand is null)
             return;
-        Point pos = e.GetPosition(GetImage());
+        Point pos = e.GetPosition(MainImage);
         VecD conv = new VecD(pos.X, pos.Y);
         MouseOnCanvasEventArgs? parameter = new MouseOnCanvasEventArgs(e.ChangedButton, conv);
 
@@ -363,7 +364,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         if (MouseMoveCommand is null)
             return;
-        Point pos = e.GetPosition(GetImage());
+        Point pos = e.GetPosition(MainImage);
         VecD conv = new VecD(pos.X, pos.Y);
 
         if (MouseMoveCommand.CanExecute(conv))

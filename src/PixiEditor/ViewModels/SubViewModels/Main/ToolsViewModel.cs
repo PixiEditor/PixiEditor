@@ -10,33 +10,42 @@ using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
-
+#nullable enable
 [Command.Group("PixiEditor.Tools", "Tools")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>
 {
-    public ZoomToolViewModel ZoomTool => (ZoomToolViewModel)GetTool<ZoomToolViewModel>();
+    public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();
 
-    public ToolViewModel LastActionTool { get; private set; }
+    public ToolViewModel? LastActionTool { get; private set; }
 
     public bool ActiveToolIsTransient { get; set; }
 
-    private Cursor toolCursor;
-    public Cursor ToolCursor
+    private Cursor? toolCursor;
+    public Cursor? ToolCursor
     {
         get => toolCursor;
         set => SetProperty(ref toolCursor, value);
     }
 
-    private ToolViewModel activeTool;
-    public ToolViewModel ActiveTool
+    public BasicToolbar? ActiveBasicToolbar
     {
-        get => activeTool;
-        private set => SetProperty(ref activeTool, value);
+        get => ActiveTool?.Toolbar as BasicToolbar;
     }
 
-    public List<ToolViewModel> ToolSet { get; private set; }
+    private ToolViewModel? activeTool;
+    public ToolViewModel? ActiveTool
+    {
+        get => activeTool;
+        private set
+        {
+            SetProperty(ref activeTool, value);
+            RaisePropertyChanged(nameof(ActiveBasicToolbar));
+        }
+    }
 
-    public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;
+    public List<ToolViewModel>? ToolSet { get; private set; }
+
+    public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
     private bool shiftIsDown;
     private bool ctrlIsDown;
@@ -54,7 +63,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
     public void SetupToolsTooltipShortcuts(IServiceProvider services)
     {
-        foreach (ToolViewModel tool in ToolSet)
+        foreach (ToolViewModel tool in ToolSet!)
         {
             tool.Shortcut = Owner.ShortcutController.GetToolShortcut(tool.GetType());
         }
@@ -63,7 +72,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     public T? GetTool<T>()
         where T : ToolViewModel
     {
-        return (T)ToolSet?.Where(static tool => tool is T).FirstOrDefault();
+        return (T?)ToolSet?.Where(static tool => tool is T).FirstOrDefault();
     }
 
     public void SetActiveTool<T>()
@@ -75,7 +84,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Tools.ApplyTransform", "Apply transform", "", Key = Key.Enter)]
     public void ApplyTransform()
     {
-        DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        DocumentViewModel? doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
         doc.EventInlet.OnApplyTransform();
@@ -91,9 +100,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
         ActiveToolIsTransient = false;
         bool shareToolbar = IPreferences.Current.GetPreference<bool>("EnableSharedToolbar");
-        if (ActiveTool != null)
+        if (ActiveTool is not null)
         {
-            activeTool.IsActive = false;
+            ActiveTool.IsActive = false;
             if (shareToolbar)
                 ActiveTool.Toolbar.SaveToolbarSettings();
         }
@@ -148,16 +157,17 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
     public void SetActiveTool(Type toolType)
     {
-        if (!typeof(ToolViewModel).IsAssignableFrom(toolType)) { throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}"); }
-        ToolViewModel foundTool = ToolSet.First(x => x.GetType() == toolType);
+        if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
+            throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
+        ToolViewModel foundTool = ToolSet!.First(x => x.GetType() == toolType);
         SetActiveTool(foundTool);
     }
 
     private void SetToolCursor(Type tool)
     {
-        if (tool != null)
+        if (tool is not null)
         {
-            ToolCursor = ActiveTool.Cursor;
+            ToolCursor = ActiveTool?.Cursor;
         }
         else
         {
@@ -181,7 +191,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         this.ctrlIsDown |= ctrlIsDown;
         this.altIsDown |= altIsDown;
 
-        ActiveTool.UpdateActionDisplay(this.ctrlIsDown, this.shiftIsDown, this.altIsDown);
+        ActiveTool?.UpdateActionDisplay(this.ctrlIsDown, this.shiftIsDown, this.altIsDown);
     }
 
     public void OnKeyUp(Key key)
@@ -197,6 +207,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             this.ctrlIsDown = false;
         if (altIsUp)
             this.altIsDown = false;
-        ActiveTool.UpdateActionDisplay(ctrlIsDown, shiftIsDown, altIsDown);
+        ActiveTool?.UpdateActionDisplay(ctrlIsDown, shiftIsDown, altIsDown);
     }
 }

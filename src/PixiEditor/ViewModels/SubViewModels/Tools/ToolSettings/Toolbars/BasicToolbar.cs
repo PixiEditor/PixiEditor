@@ -14,6 +14,9 @@ internal class BasicToolbar : Toolbar
     }
     public BasicToolbar()
     {
-        Settings.Add(new SizeSetting(nameof(ToolSize), "Tool size:"));
+        var setting = new SizeSetting(nameof(ToolSize), "Tool size:");
+        setting.ValueChanged += (_, _) => RaisePropertyChanged(nameof(ToolSize));
+        Settings.Add(setting);
+
     }
 }

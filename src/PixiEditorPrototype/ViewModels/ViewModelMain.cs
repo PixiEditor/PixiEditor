@@ -49,7 +49,7 @@ internal class ViewModelMain : INotifyPropertyChanged
             PropertyChanged?.Invoke(this, new(nameof(SelectedColor)));
         }
     }
-    
+
     public bool NormalZoombox
     {
         set
@@ -215,35 +215,35 @@ internal class ViewModelMain : INotifyPropertyChanged
         switch (toolOnMouseDown)
         {
             case Tool.Rectangle:
-            {
-                var rect = RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos);
-                ActiveDocument!.StartUpdateRectangle(new ShapeData(
-                    rect.Center,
-                    rect.Size,
-                    0,
-                    (int)StrokeWidth,
-                    new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
-                    new SKColor(0, 0, 255, 128)));
-                break;
-            }
+                {
+                    var rect = RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos);
+                    ActiveDocument!.StartUpdateRectangle(new ShapeData(
+                        rect.Center,
+                        rect.Size,
+                        0,
+                        (int)StrokeWidth,
+                        new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
+                        new SKColor(0, 0, 255, 128)));
+                    break;
+                }
             case Tool.Ellipse:
-            {
-                ActiveDocument!.StartUpdateEllipse(
-                    RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
-                    new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
-                    new SKColor(0, 0, 255, 128),
-                    (int)StrokeWidth);
-                break;
-            }
+                {
+                    ActiveDocument!.StartUpdateEllipse(
+                        RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
+                        new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
+                        new SKColor(0, 0, 255, 128),
+                        (int)StrokeWidth);
+                    break;
+                }
             case Tool.Line:
-            {
-                ActiveDocument!.StartUpdateLine(
-                    (VecI)mouseDownCanvasPos, (VecI)canvasPos,
-                    new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
-                    LineStrokeCap,
-                    (int)StrokeWidth);
-                break;
-            }
+                {
+                    ActiveDocument!.StartUpdateLine(
+                        (VecI)mouseDownCanvasPos, (VecI)canvasPos,
+                        new SKColor(SelectedColor.R, SelectedColor.G, SelectedColor.B, SelectedColor.A),
+                        LineStrokeCap,
+                        (int)StrokeWidth);
+                    break;
+                }
             case Tool.SelectRectangle:
                 ActiveDocument!.StartUpdateRectSelection(
                     RectI.FromTwoPixels((VecI)mouseDownCanvasPos, (VecI)canvasPos),
