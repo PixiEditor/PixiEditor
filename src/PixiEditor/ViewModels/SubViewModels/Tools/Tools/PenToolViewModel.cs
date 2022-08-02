@@ -2,12 +2,14 @@
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
 {
     [Command.Tool(Key = Key.B)]
     internal class PenToolViewModel : ShapeTool
     {
+        public override BrushShape BrushShape => BrushShape.Circle;
         public PenToolViewModel()
         {
             Cursor = Cursors.Pen;

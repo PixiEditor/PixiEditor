@@ -25,7 +25,7 @@ internal class LineToolViewModel : ShapeTool
         else
             ActionDisplay = defaultActionDisplay;
     }
-    
+
     public override void OnLeftMouseButtonDown(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseLineTool();

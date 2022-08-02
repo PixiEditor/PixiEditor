@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using SkiaSharp;
+using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
@@ -8,6 +8,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 internal class FloodFillToolViewModel : ToolViewModel
 {
     private SKPaint fillPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+
+    public override BrushShape BrushShape => BrushShape.Pixel;
 
     public FloodFillToolViewModel()
     {

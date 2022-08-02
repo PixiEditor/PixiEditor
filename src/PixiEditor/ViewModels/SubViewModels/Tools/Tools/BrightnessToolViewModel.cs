@@ -2,6 +2,7 @@
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
@@ -19,6 +20,8 @@ internal class BrightnessToolViewModel : ToolViewModel
     }
 
     public override string Tooltip => $"Makes pixels brighter or darker ({Shortcut}). Hold Ctrl to make pixels darker.";
+
+    public override BrushShape BrushShape => BrushShape.Circle;
 
     public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
 

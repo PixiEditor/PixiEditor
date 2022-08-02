@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
@@ -12,6 +13,7 @@ internal class MoveViewportToolViewModel : ToolViewModel
         ActionDisplay = "Click and move to pan viewport.";
     }
 
+    public override BrushShape BrushShape => BrushShape.Hidden;
     public override bool HideHighlight => true;
     public override string Tooltip => $"Move viewport. ({Shortcut})";
 }

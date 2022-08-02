@@ -2,6 +2,7 @@
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools;
 
@@ -14,6 +15,8 @@ internal abstract class ToolViewModel : NotifyableObject
     public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
 
     public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
+
+    public virtual BrushShape BrushShape => BrushShape.Square;
 
     public virtual bool HideHighlight { get; }
 

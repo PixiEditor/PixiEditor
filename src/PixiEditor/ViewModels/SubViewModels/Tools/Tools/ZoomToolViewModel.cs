@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
@@ -14,6 +15,8 @@ internal class ZoomToolViewModel : ToolViewModel
     }
 
     private string defaultActionDisplay = "Click and move to zoom. Click to zoom in, hold ctrl and click to zoom out.";
+
+    public override BrushShape BrushShape => BrushShape.Hidden;
 
     public ZoomToolViewModel()
     {

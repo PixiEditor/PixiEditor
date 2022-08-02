@@ -111,10 +111,12 @@
                         ZoomboxScale="{Binding Zoombox.Scale}" />
                     <brush:BrushShapeOverlay
                         IsHitTestVisible="False"
+                        Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:InverseBoolToVisibilityConverter}}"
                         ZoomboxScale="{Binding Zoombox.Scale}"
                         MouseEventSource="{Binding Zoombox.Tag.BackgroundGrid, Mode=OneTime}"
                         MouseReference="{Binding Zoombox.Tag.MainImage, Mode=OneTime}"
                         BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={vm:MainVM}}"
+                        BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={vm:MainVM}, FallbackValue={x:Static brush:BrushShape.Hidden}}"
                         />
                     <to:TransformOverlay
                         Cursor="Arrow"

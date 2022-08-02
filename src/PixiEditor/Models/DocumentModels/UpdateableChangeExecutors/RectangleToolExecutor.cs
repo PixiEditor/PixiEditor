@@ -8,12 +8,11 @@ internal class RectangleToolExecutor : ShapeToolExecutor<RectangleToolViewModel>
 {
     private void DrawRectangle(VecI curPos)
     {
-        RectI rect = RectI.FromTwoPoints(startPos, curPos);
-        if (rect.Width == 0)
-            rect.Width = 1;
-        if (rect.Height == 0)
-            rect.Height = 1;
-        
+        RectI rect;
+        if (toolViewModel!.DrawSquare)
+            rect = GetSquaredCoordinates(startPos, curPos);
+        else
+            rect = RectI.FromTwoPixels(startPos, curPos);
         lastRect = rect;
 
         internals!.ActionAccumulator.AddActions(new DrawRectangle_Action(memberGuid, new ShapeData(rect.Center, rect.Size, 0, strokeWidth, strokeColor, fillColor), drawOnMask));

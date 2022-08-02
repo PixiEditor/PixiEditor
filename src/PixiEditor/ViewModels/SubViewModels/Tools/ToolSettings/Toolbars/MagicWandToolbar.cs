@@ -4,7 +4,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
-internal class MagicWandToolbar : BasicToolbar
+internal class MagicWandToolbar : Toolbar
 {
     public SelectionMode SelectMode => GetSetting<EnumSetting<SelectionMode>>(nameof(SelectMode)).Value;
     public DocumentScope DocumentScope => GetSetting<EnumSetting<DocumentScope>>(nameof(DocumentScope)).Value;

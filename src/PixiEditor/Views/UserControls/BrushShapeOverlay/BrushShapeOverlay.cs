@@ -22,6 +22,16 @@ internal class BrushShapeOverlay : Control
     public static readonly DependencyProperty MouseReferenceProperty =
         DependencyProperty.Register(nameof(MouseReference), typeof(UIElement), typeof(BrushShapeOverlay), new(null));
 
+    public static readonly DependencyProperty BrushShapeProperty =
+        DependencyProperty.Register(nameof(BrushShape), typeof(BrushShape), typeof(BrushShapeOverlay),
+            new FrameworkPropertyMetadata(BrushShape.Circle, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public BrushShape BrushShape
+    {
+        get => (BrushShape)GetValue(BrushShapeProperty);
+        set => SetValue(BrushShapeProperty, value);
+    }
+
     public UIElement? MouseReference
     {
         get => (UIElement?)GetValue(MouseReferenceProperty);
@@ -46,8 +56,7 @@ internal class BrushShapeOverlay : Control
         set => SetValue(ZoomboxScaleProperty, value);
     }
 
-    private Pen whitePen = new Pen(Brushes.White, 1);
-    private Pen blackPen = new Pen(Brushes.Black, 1);
+    private Pen whitePen = new Pen(Brushes.LightGray, 1);
     private Point lastMousePos = new();
 
     public BrushShapeOverlay()
@@ -72,7 +81,7 @@ internal class BrushShapeOverlay : Control
 
     private void SourceMouseMove(object sender, MouseEventArgs args)
     {
-        if (MouseReference is null)
+        if (MouseReference is null || BrushShape == BrushShape.Hidden)
             return;
         lastMousePos = args.GetPosition(MouseReference);
         InvalidateVisual();
@@ -84,29 +93,128 @@ internal class BrushShapeOverlay : Control
             (Point)(new Point(Math.Floor(lastMousePos.X), Math.Floor(lastMousePos.Y)) - new Point(BrushSize / 2, BrushSize / 2)),
             new Size(BrushSize, BrushSize)
             );
-        var rectI = new RectI((int)winRect.X, (int)winRect.Y, (int)winRect.Width, (int)winRect.Height);
+        switch (BrushShape)
+        {
+            case BrushShape.Pixel:
+                drawingContext.DrawRectangle(
+                    null, whitePen, new Rect(new Point(Math.Floor(lastMousePos.X), Math.Floor(lastMousePos.Y)), new Size(1, 1)));
+                break;
+            case BrushShape.Square:
+                drawingContext.DrawRectangle(null, whitePen, winRect);
+                break;
+            case BrushShape.Circle:
+                DrawCircleBrushShape(drawingContext, winRect);
+                break;
+        }
+    }
 
+    private void DrawCircleBrushShape(DrawingContext drawingContext, Rect winRect)
+    {
+        var rectI = new RectI((int)winRect.X, (int)winRect.Y, (int)winRect.Width, (int)winRect.Height);
         if (BrushSize < 3)
         {
-            drawingContext.DrawRectangle(null, blackPen, winRect);
+            drawingContext.DrawRectangle(null, whitePen, winRect);
+        }
+        else if (BrushSize == 3)
+        {
+            var lp = new VecI((int)lastMousePos.X, (int)lastMousePos.Y);
+            PathFigure figure = new PathFigure()
+            {
+                StartPoint = new Point(lp.X, lp.Y),
+                Segments = new PathSegmentCollection()
+                {
+                    new LineSegment(new(lp.X, lp.Y - 1), true),
+                    new LineSegment(new(lp.X + 1, lp.Y - 1), true),
+                    new LineSegment(new(lp.X + 1, lp.Y), true),
+                    new LineSegment(new(lp.X + 2, lp.Y), true),
+                    new LineSegment(new(lp.X + 2, lp.Y + 1), true),
+                    new LineSegment(new(lp.X + 2, lp.Y + 1), true),
+                    new LineSegment(new(lp.X + 1, lp.Y + 1), true),
+                    new LineSegment(new(lp.X + 1, lp.Y + 2), true),
+                    new LineSegment(new(lp.X, lp.Y + 2), true),
+                    new LineSegment(new(lp.X, lp.Y + 1), true),
+                    new LineSegment(new(lp.X - 1, lp.Y + 1), true),
+                    new LineSegment(new(lp.X - 1, lp.Y), true),
+                },
+                IsClosed = true
+            };
+
+            var geometry = new PathGeometry(new PathFigure[] { figure });
+            drawingContext.DrawGeometry(null, whitePen, geometry);
+        }
+        else if (BrushSize > 200)
+        {
+            VecD center = rectI.Center;
+            drawingContext.DrawEllipse(null, whitePen, new Point(center.X, center.Y), rectI.Width / 2.0, rectI.Height / 2.0);
         }
         else
         {
             var geometry = ConstructEllipseOutline(rectI);
             drawingContext.DrawGeometry(null, whitePen, geometry);
         }
-        //drawingContext.DrawRectangle(null, whitePen, winRect.inf);
     }
+
+    private static int Mod(int x, int m) => (x % m + m) % m;
 
     private static PathGeometry ConstructEllipseOutline(RectI rectangle)
     {
-        var points = EllipseHelper.GenerateEllipseFromRect(rectangle);
         var center = rectangle.Center;
+        var points = EllipseHelper.GenerateEllipseFromRect(rectangle);
         points.Sort((vec, vec2) => Math.Sign((vec - center).Angle - (vec2 - center).Angle));
+        List<VecI> finalPoints = new();
+        for (int i = 0; i < points.Count; i++)
+        {
+            VecI prev = points[Mod(i - 1, points.Count)];
+            VecI point = points[i];
+            VecI next = points[Mod(i + 1, points.Count)];
+
+            bool atBottom = point.Y >= center.Y;
+            bool onRight = point.X >= center.X;
+            if (atBottom)
+            {
+                if (onRight)
+                {
+                    if (prev.Y != point.Y)
+                        finalPoints.Add(new(point.X + 1, point.Y));
+                    finalPoints.Add(new(point.X + 1, point.Y + 1));
+                    if (next.X != point.X)
+                        finalPoints.Add(new(point.X, point.Y + 1));
+
+                }
+                else
+                {
+                    if (prev.X != point.X)
+                        finalPoints.Add(new(point.X + 1, point.Y + 1));
+                    finalPoints.Add(new(point.X, point.Y + 1));
+                    if (next.Y != point.Y)
+                        finalPoints.Add(point);
+                }
+            }
+            else
+            {
+                if (onRight)
+                {
+                    if (prev.X != point.X)
+                        finalPoints.Add(point);
+                    finalPoints.Add(new(point.X + 1, point.Y));
+                    if (next.Y != point.Y)
+                        finalPoints.Add(new(point.X + 1, point.Y + 1));
+                }
+                else
+                {
+                    if (prev.Y != point.Y)
+                        finalPoints.Add(new(point.X, point.Y + 1));
+                    finalPoints.Add(point);
+                    if (next.X != point.X)
+                        finalPoints.Add(new(point.X + 1, point.Y));
+                }
+            }
+        }
+
         PathFigure figure = new PathFigure()
         {
-            StartPoint = new Point(points[0].X, points[0].Y),
-            Segments = new PathSegmentCollection(points.Select(static point => new LineSegment(new Point(point.X, point.Y), true))),
+            StartPoint = new Point(finalPoints[0].X, finalPoints[0].Y),
+            Segments = new PathSegmentCollection(finalPoints.Select(static point => new LineSegment(new Point(point.X, point.Y), true))),
             IsClosed = true
         };
 
@@ -119,6 +227,5 @@ internal class BrushShapeOverlay : Control
         var self = (BrushShapeOverlay)obj;
         double newScale = (double)args.NewValue;
         self.whitePen.Thickness = 1.0 / newScale;
-        self.blackPen.Thickness = 1.0 / newScale;
     }
 }

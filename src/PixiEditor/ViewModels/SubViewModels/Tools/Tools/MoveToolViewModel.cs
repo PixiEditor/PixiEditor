@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
@@ -16,6 +17,7 @@ internal class MoveToolViewModel : ToolViewModel
 
     public override string Tooltip => $"Moves selected pixels ({Shortcut}). Hold Ctrl to move all layers.";
 
+    public override BrushShape BrushShape => BrushShape.Hidden;
     public override bool HideHighlight => true;
 
     public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)

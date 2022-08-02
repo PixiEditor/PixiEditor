@@ -35,7 +35,7 @@ internal class LineToolExecutor : ShapeToolExecutor<LineToolViewModel>
 
     private void DrawLine(VecI curPos)
     {
-        RectI rect = RectI.FromTwoPoints(startPos, curPos);
+        RectI rect = RectI.FromTwoPixels(startPos, curPos);
         if (rect.Width == 0)
             rect.Width = 1;
         if (rect.Height == 0)

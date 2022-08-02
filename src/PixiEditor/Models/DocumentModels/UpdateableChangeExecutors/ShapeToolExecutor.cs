@@ -51,6 +51,16 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
     protected abstract IAction EndDrawAction();
 
+    protected RectI GetSquaredCoordinates(VecI startPos, VecI curPos)
+    {
+        VecI pos1 = (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round();
+        VecI pos2 = (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, -1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round();
+
+        if ((pos1 - curPos).LengthSquared > (pos2 - curPos).LengthSquared)
+            return RectI.FromTwoPixels(startPos, (VecI)pos2);
+        return RectI.FromTwoPixels(startPos, (VecI)pos1);
+    }
+
     public override void OnTransformMoved(ShapeCorners corners)
     {
         if (!transforming)
