@@ -197,7 +197,7 @@ internal static class TransformHelper
         };
     }
 
-    public static Anchor? GetAnchorInPosition(VecD pos, ShapeCorners corners, VecD origin, double zoomboxScale)
+    public static Anchor? GetAnchorInPosition(VecD pos, ShapeCorners corners, VecD origin, double zoomboxScale, double sizeMult = 1)
     {
         VecD topLeft = corners.TopLeft;
         VecD topRight = corners.TopRight;
@@ -205,35 +205,35 @@ internal static class TransformHelper
         VecD bottomRight = corners.BottomRight;
 
         // corners
-        if (IsWithinAnchor(topLeft, pos, zoomboxScale))
+        if (IsWithinAnchor(topLeft, pos, zoomboxScale, sizeMult))
             return Anchor.TopLeft;
-        if (IsWithinAnchor(topRight, pos, zoomboxScale))
+        if (IsWithinAnchor(topRight, pos, zoomboxScale, sizeMult))
             return Anchor.TopRight;
-        if (IsWithinAnchor(bottomLeft, pos, zoomboxScale))
+        if (IsWithinAnchor(bottomLeft, pos, zoomboxScale, sizeMult))
             return Anchor.BottomLeft;
-        if (IsWithinAnchor(bottomRight, pos, zoomboxScale))
+        if (IsWithinAnchor(bottomRight, pos, zoomboxScale, sizeMult))
             return Anchor.BottomRight;
 
         // sides
-        if (IsWithinAnchor((bottomLeft - topLeft) / 2 + topLeft, pos, zoomboxScale))
+        if (IsWithinAnchor((bottomLeft - topLeft) / 2 + topLeft, pos, zoomboxScale, sizeMult))
             return Anchor.Left;
-        if (IsWithinAnchor((bottomRight - topRight) / 2 + topRight, pos, zoomboxScale))
+        if (IsWithinAnchor((bottomRight - topRight) / 2 + topRight, pos, zoomboxScale, sizeMult))
             return Anchor.Right;
-        if (IsWithinAnchor((topLeft - topRight) / 2 + topRight, pos, zoomboxScale))
+        if (IsWithinAnchor((topLeft - topRight) / 2 + topRight, pos, zoomboxScale, sizeMult))
             return Anchor.Top;
-        if (IsWithinAnchor((bottomLeft - bottomRight) / 2 + bottomRight, pos, zoomboxScale))
+        if (IsWithinAnchor((bottomLeft - bottomRight) / 2 + bottomRight, pos, zoomboxScale, sizeMult))
             return Anchor.Bottom;
 
         // origin
-        if (IsWithinAnchor(origin, pos, zoomboxScale))
+        if (IsWithinAnchor(origin, pos, zoomboxScale, sizeMult))
             return Anchor.Origin;
         return null;
     }
 
-    public static bool IsWithinAnchor(VecD anchorPos, VecD mousePos, double zoomboxScale)
+    public static bool IsWithinAnchor(VecD anchorPos, VecD mousePos, double zoomboxScale, double sizeMult = 1)
     {
         var delta = (anchorPos - mousePos).Abs();
-        double scaled = AnchorSize / zoomboxScale / 2;
+        double scaled = AnchorSize * sizeMult / zoomboxScale / 2;
         return delta.X < scaled && delta.Y < scaled;
     }
 

@@ -94,7 +94,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         if (transforming)
             return;
         transforming = true;
-        document!.TransformViewModel.ShowFixedAngleShapeTransform(new ShapeCorners(lastRect));
+        document!.TransformViewModel.ShowRotatingShapeTransform(new ShapeCorners(lastRect));
     }
 
     public override void ForceStop()
