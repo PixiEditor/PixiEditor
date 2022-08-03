@@ -10,8 +10,8 @@ internal class EllipseOperation : IDrawOperation
     private readonly SKColor strokeColor;
     private readonly SKColor fillColor;
     private readonly int strokeWidth;
-    private bool init = false;
     private readonly SKPaint paint;
+    private bool init = false;
     private SKPath? outerPath;
     private SKPath? innerPath;
     private SKPoint[]? ellipse;
@@ -34,7 +34,7 @@ internal class EllipseOperation : IDrawOperation
         {
             var ellipseList = EllipseHelper.GenerateEllipseFromRect(location);
             ellipse = ellipseList.Select(a => (SKPoint)a).ToArray();
-            if (fillColor.Alpha > 0)
+            if (fillColor.Alpha > 0 || paint.BlendMode != SKBlendMode.SrcOver)
             {
                 (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseIntoRegions(ellipseList, location);
                 ellipseFill = fill.Select(a => (SKPoint)a).ToArray();
@@ -62,7 +62,7 @@ internal class EllipseOperation : IDrawOperation
 
         if (strokeWidth == 1)
         {
-            if (fillColor.Alpha > 0)
+            if (fillColor.Alpha > 0 || paint.BlendMode != SKBlendMode.SrcOver)
             {
                 paint.Color = fillColor;
                 surf.Canvas.DrawPoints(SKPointMode.Lines, ellipseFill, paint);
@@ -73,7 +73,7 @@ internal class EllipseOperation : IDrawOperation
         }
         else
         {
-            if (fillColor.Alpha > 0)
+            if (fillColor.Alpha > 0 || paint.BlendMode != SKBlendMode.SrcOver)
             {
                 surf.Canvas.Save();
                 surf.Canvas.ClipPath(innerPath);

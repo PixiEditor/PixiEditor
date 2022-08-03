@@ -8,6 +8,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
     private readonly int strokeWidth;
     private readonly bool replacing;
     private readonly bool drawOnMask;
+    private readonly SKPaint srcPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
 
     private CommittedChunkStorage? storedChunks;
     private readonly List<VecI> points = new();
@@ -51,9 +52,15 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         int opCount = image.QueueLength;
 
         if (strokeWidth == 1)
+        {
             image.EnqueueDrawBresenhamLine(from, to, color, SKBlendMode.Src);
+        }
         else
-            image.EnqueueDrawSkiaLine(from, to, SKStrokeCap.Round, strokeWidth, color, SKBlendMode.Src);
+        {
+            var rect = new RectI(to - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+            image.EnqueueDrawEllipse(rect, color, color, 1, srcPaint);
+            image.EnqueueDrawSkiaLine(from, to, SKStrokeCap.Butt, strokeWidth, color, SKBlendMode.Src);
+        }
         var affChunks = image.FindAffectedChunks(opCount);
 
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
@@ -64,17 +71,32 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         if (points.Count == 1)
         {
             if (strokeWidth == 1)
+            {
                 targetImage.EnqueueDrawBresenhamLine(points[0], points[0], color, SKBlendMode.Src);
+            }
             else
-                targetImage.EnqueueDrawSkiaLine(points[0], points[0], SKStrokeCap.Round, strokeWidth, color, SKBlendMode.Src);
+            {
+                var rect = new RectI(points[0] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+                targetImage.EnqueueDrawEllipse(rect, color, color, 1, srcPaint);
+            }
             return;
         }
+
+        var firstRect = new RectI(points[0] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+        targetImage.EnqueueDrawEllipse(firstRect, color, color, 1, srcPaint);
+
         for (int i = 1; i < points.Count; i++)
         {
             if (strokeWidth == 1)
+            {
                 targetImage.EnqueueDrawBresenhamLine(points[i - 1], points[i], color, SKBlendMode.Src);
+            }
             else
-                targetImage.EnqueueDrawSkiaLine(points[i - 1], points[i], SKStrokeCap.Round, strokeWidth, color, SKBlendMode.Src);
+            {
+                var rect = new RectI(points[i] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
+                targetImage.EnqueueDrawEllipse(rect, color, color, 1, srcPaint);
+                targetImage.EnqueueDrawSkiaLine(points[i - 1], points[i], SKStrokeCap.Butt, strokeWidth, color, SKBlendMode.Src);
+            }
         }
     }
 
