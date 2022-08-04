@@ -1,18 +1,25 @@
 ﻿<Window
     x:ClassModifier="internal"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Palettes" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
-             xmlns:gif="http://wpfanimatedgif.codeplex.com" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:views="clr-namespace:PixiEditor.Views"
-             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-             xmlns:PixiEditor="clr-namespace:PixiEditor"
-             xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
-             x:Class="PixiEditor.Views.Dialogs.PalettesBrowser"
-             mc:Ignorable="d"
-             Title="Palettes Browser" WindowStartupLocation="CenterScreen" MinWidth="200" Height="600" Width="850" WindowStyle="None"
-             x:Name="palettesBrowser">
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Palettes" 
+    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
+    xmlns:gif="http://wpfanimatedgif.codeplex.com" 
+    xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" 
+    xmlns:views="clr-namespace:PixiEditor.Views"
+    xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+    xmlns:PixiEditor="clr-namespace:PixiEditor"
+    xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+    x:Class="PixiEditor.Views.Dialogs.PalettesBrowser"
+    mc:Ignorable="d"
+    Title="Palettes Browser" 
+    WindowStartupLocation="CenterScreen" 
+    MinWidth="200" 
+    Height="600" Width="850" 
+    WindowStyle="None"
+    x:Name="palettesBrowser">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>

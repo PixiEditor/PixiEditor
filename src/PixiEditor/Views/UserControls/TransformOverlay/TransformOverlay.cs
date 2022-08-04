@@ -127,6 +127,7 @@ internal class TransformOverlay : Decorator
     {
         base.OnRender(drawingContext);
         DrawOverlay(drawingContext, new(ActualWidth, ActualHeight), Corners, InternalState.Origin, ZoomboxScale);
+        UpdateRotationCursor(TransformHelper.ToVecD(Mouse.GetPosition(this)));
     }
 
     private void DrawOverlay
@@ -234,22 +235,24 @@ internal class TransformOverlay : Decorator
         return TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale, 15) is not null;
     }
 
+    private void UpdateRotationCursor(VecD mousePos)
+    {
+        if (!ShouldRotate(mousePos))
+        {
+            rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
+        }
+        else
+        {
+            var matrix = new TranslateTransform(mousePos.X, mousePos.Y).Value;
+            matrix.RotateAt((mousePos - InternalState.Origin).Angle * 180 / Math.PI - 90, mousePos.X, mousePos.Y);
+            matrix.ScaleAt(8 / ZoomboxScale, 8 / ZoomboxScale, mousePos.X, mousePos.Y);
+            rotateCursorGeometry.Transform = new MatrixTransform(matrix);
+        }
+    }
+
     protected override void OnMouseMove(MouseEventArgs e)
     {
-        {
-            var vector = TransformHelper.ToVecD(e.GetPosition(this));
-            if (!ShouldRotate(vector))
-            {
-                rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
-            }
-            else
-            {
-                var matrix = new TranslateTransform(vector.X, vector.Y).Value;
-                matrix.RotateAt((vector - InternalState.Origin).Angle * 180 / Math.PI - 90, vector.X, vector.Y);
-                //matrix.ScaleAt(0.035, 0.035, vector.X, vector.Y);
-                rotateCursorGeometry.Transform = new MatrixTransform(matrix);
-            }
-        }
+        UpdateRotationCursor(TransformHelper.ToVecD(e.GetPosition(this)));
 
         if (capturedAnchor is not null)
         {

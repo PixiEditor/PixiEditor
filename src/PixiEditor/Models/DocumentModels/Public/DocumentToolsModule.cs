@@ -31,4 +31,6 @@ internal class DocumentToolsModule
     public void UseSelectTool() => Internals.ChangeController.TryStartUpdateableChange<SelectToolExecutor>();
 
     public void UseBrightnessTool() => Internals.ChangeController.TryStartUpdateableChange<BrightnessToolExecutor>();
+
+    public void UseFloodFillTool() => Internals.ChangeController.TryStartUpdateableChange<FloodFillToolExecutor>();
 }
