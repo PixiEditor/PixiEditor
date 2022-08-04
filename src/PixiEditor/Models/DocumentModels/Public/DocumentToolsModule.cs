@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PixiEditor.Models.DocumentModels;
+﻿using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -35,4 +30,5 @@ internal class DocumentToolsModule
 
     public void UseSelectTool() => Internals.ChangeController.TryStartUpdateableChange<SelectToolExecutor>();
 
+    public void UseBrightnessTool() => Internals.ChangeController.TryStartUpdateableChange<BrightnessToolExecutor>();
 }

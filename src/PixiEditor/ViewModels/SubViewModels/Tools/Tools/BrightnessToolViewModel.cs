@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
@@ -23,13 +23,24 @@ internal class BrightnessToolViewModel : ToolViewModel
 
     public override BrushShape BrushShape => BrushShape.Circle;
 
-    public BrightnessMode Mode { get; set; } = BrightnessMode.Default;
+    public bool Darken { get; private set; } = false;
 
     public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (!ctrlIsDown)
+        {
             ActionDisplay = defaultActionDisplay;
+            Darken = false;
+        }
         else
+        {
             ActionDisplay = "Draw on pixels to make them darker. Release Ctrl to brighten.";
+            Darken = true;
+        }
+    }
+
+    public override void OnLeftMouseButtonDown(VecD pos)
+    {
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrightnessTool();
     }
 }
