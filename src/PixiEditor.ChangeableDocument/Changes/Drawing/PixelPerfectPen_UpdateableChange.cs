@@ -20,7 +20,6 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         this.memberGuid = memberGuid;
         this.color = color;
         this.drawOnMask = drawOnMask;
-        incomingPoints!.Add(pos);
     }
 
     [UpdateChangeMethod]
@@ -54,6 +53,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         if (pointsCount == 1)
         {
             image.EnqueueDrawPixel(incomingPoints![0], color, SKBlendMode.Src);
+            confirmedPixels.Add(incomingPoints[0]);
             return;
         }
 
@@ -63,18 +63,18 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
             return;
         }
 
-        
+
         confirmedPixels.UnionWith(pixelsToConfirm2);
         (pixelsToConfirm2, pixelsToConfirm) = (pixelsToConfirm, pixelsToConfirm2);
         pixelsToConfirm.Clear();
-        
+
         SKPoint[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
         foreach (VecI pixel in line)
         {
             pixelsToConfirm.Add(pixel);
         }
         image.EnqueueDrawPixels(line.Select(point => (VecI)point), color, SKBlendMode.Src);
-        
+
         if (pointsCount >= 3 && IsLShape(pointsCount - 1) && !confirmedPixels.Contains(incomingPoints[pointsCount - 2]))
         {
             VecI pixelToErase = incomingPoints[pointsCount - 2];
