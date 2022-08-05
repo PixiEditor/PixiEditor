@@ -12,7 +12,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
-
+#nullable enable
 internal class IoViewModel : SubViewModel<ViewModelMain>
 {
     public RelayCommand MouseMoveCommand { get; set; }
@@ -22,22 +22,44 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private bool restoreToolOnKeyUp = false;
 
-    private MouseInputFilter filter = new();
+    private MouseInputFilter mouseFilter = new();
+    private KeyboardInputFilter keyboardFilter = new();
 
     public IoViewModel(ViewModelMain owner)
         : base(owner)
     {
-        MouseDownCommand = new RelayCommand(filter.MouseDown);
-        MouseMoveCommand = new RelayCommand(filter.MouseMove);
-        MouseUpCommand = new RelayCommand(filter.MouseUp);
+        MouseDownCommand = new RelayCommand(mouseFilter.MouseDownInlet);
+        MouseMoveCommand = new RelayCommand(mouseFilter.MouseMoveInlet);
+        MouseUpCommand = new RelayCommand(mouseFilter.MouseUpInlet);
         PreviewMouseMiddleButtonCommand = new RelayCommand(OnPreviewMiddleMouseButton);
-        GlobalMouseHook.OnMouseUp += filter.MouseUp;
+        GlobalMouseHook.OnMouseUp += mouseFilter.MouseUpInlet;
 
         InputManager.Current.PreProcessInput += Current_PreProcessInput;
 
-        filter.OnMouseDown += OnMouseDown;
-        filter.OnMouseMove += OnMouseMove;
-        filter.OnMouseUp += OnMouseUp;
+        mouseFilter.OnMouseDown += OnMouseDown;
+        mouseFilter.OnMouseMove += OnMouseMove;
+        mouseFilter.OnMouseUp += OnMouseUp;
+
+        keyboardFilter.OnAnyKeyDown += OnKeyDown;
+        keyboardFilter.OnAnyKeyUp += OnKeyUp;
+
+        keyboardFilter.OnConvertedKeyDown += OnConvertedKeyDown;
+        keyboardFilter.OnConvertedKeyUp += OnConvertedKeyDown;
+
+        Application.Current.Deactivated += keyboardFilter.DeactivatedInlet;
+        Application.Current.Deactivated += mouseFilter.DeactivatedInlet;
+    }
+
+    private void OnConvertedKeyDown(object? sender, FilteredKeyEventArgs args)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnConvertedKeyDown(args.Key);
+        Owner.ToolsSubViewModel.ConvertedKeyDownInlet(args);
+    }
+
+    private void OnConvertedKeyUp(object? sender, FilteredKeyEventArgs args)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnConvertedKeyUp(args.Key);
+        Owner.ToolsSubViewModel.ConvertedKeyUpInlet(args);
     }
 
     private void Current_PreProcessInput(object sender, PreProcessInputEventArgs e)
@@ -48,40 +70,35 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
             if (inputEvent is KeyboardEventArgs)
             {
-                KeyboardEventArgs k = inputEvent as KeyboardEventArgs;
+                KeyboardEventArgs k = (KeyboardEventArgs)inputEvent;
                 RoutedEvent r = k.RoutedEvent;
-                KeyEventArgs keyEvent = k as KeyEventArgs;
+                KeyEventArgs? keyEvent = k as KeyEventArgs;
 
-                if (keyEvent != null && keyEvent?.InputSource?.RootVisual != MainWindow.Current) return;
+                if (keyEvent is null && keyEvent?.InputSource?.RootVisual != MainWindow.Current)
+                    return;
                 if (r == Keyboard.KeyDownEvent)
                 {
-                    OnKeyDown(keyEvent);
+                    keyboardFilter.KeyDownInlet(keyEvent);
                 }
 
                 if (r == Keyboard.KeyUpEvent)
                 {
-                    OnKeyUp(keyEvent);
+                    keyboardFilter.KeyUpInlet(keyEvent);
                 }
             }
         }
     }
 
-    private void OnKeyDown(KeyEventArgs args)
+    private void OnKeyDown(object? sender, FilteredKeyEventArgs args)
     {
-        Key key = args.Key;
-        if (key == Key.System)
-            key = args.SystemKey;
+        ProcessShortcutDown(args.IsRepeat, args.Key);
 
-        ProcessShortcutDown(args.IsRepeat, key);
-
-        if (Owner.DocumentManagerSubViewModel.ActiveDocument != null)
-            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnKeyDown(key);
-        Owner.ToolsSubViewModel.OnKeyDown(key);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnKeyDown(args.Key);
 
         HandleTransientKey(args, true);
     }
 
-    private void HandleTransientKey(KeyEventArgs args, bool state)
+    private void HandleTransientKey(FilteredKeyEventArgs args, bool state)
     {
         if (ShortcutController.ShortcutExecutionBlocked)
         {
@@ -90,17 +107,11 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         ShortcutController controller = Owner.ShortcutController;
 
-        Key finalKey = args.Key;
-        if (finalKey == Key.System)
-        {
-            finalKey = args.SystemKey;
-        }
-
-        Models.Commands.Commands.Command.ToolCommand tool = CommandController.Current.Commands
+        Models.Commands.Commands.Command.ToolCommand? tool = CommandController.Current.Commands
             .Select(x => x as Models.Commands.Commands.Command.ToolCommand)
-            .FirstOrDefault(x => x != null && x.TransientKey == finalKey);
+            .FirstOrDefault(x => x != null && x.TransientKey == args.Key);
 
-        if (tool != null)
+        if (tool is not null)
         {
             ChangeToolState(tool.ToolType, state);
         }
@@ -118,17 +129,12 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
     }
 
-    private void OnKeyUp(KeyEventArgs args)
+    private void OnKeyUp(object? sender, FilteredKeyEventArgs args)
     {
-        Key key = args.Key;
-        if (key == Key.System)
-            key = args.SystemKey;
-
-        ProcessShortcutUp(new(key, args.KeyboardDevice.Modifiers));
+        ProcessShortcutUp(new(args.Key, args.Modifiers));
 
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not null)
-            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnKeyUp(key);
-        Owner.ToolsSubViewModel.OnKeyUp(key);
+            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnKeyUp(args.Key);
 
         HandleTransientKey(args, false);
     }
@@ -139,23 +145,23 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             Owner.ShortcutController.LastCommands.Any(x => x.Shortcut == shortcut))
         {
             restoreToolOnKeyUp = false;
-            Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
+            if (Owner.ToolsSubViewModel.LastActionTool is { } tool)
+                Owner.ToolsSubViewModel.SetActiveTool(tool);
             ShortcutController.UnblockShortcutExecution("ShortcutDown");
         }
     }
 
-    private void OnMouseDown(object sender, MouseOnCanvasEventArgs args)
+    private void OnMouseDown(object? sender, MouseOnCanvasEventArgs args)
     {
         if (args.Button == MouseButton.Left)
         {
             DocumentManagerViewModel docManager = Owner.DocumentManagerSubViewModel;
-            DocumentViewModel activeDocument = docManager.ActiveDocument;
+            DocumentViewModel? activeDocument = docManager.ActiveDocument;
             if (activeDocument == null)
                 return;
 
-            //docManager.InputTarget.OnLeftMouseButtonDown(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
-            docManager.ActiveDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
-            Owner.ToolsSubViewModel.OnLeftMouseButtonDown(args.PositionOnCanvas);
+            activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
+            Owner.ToolsSubViewModel.LeftMouseButtonDownInlet(args.PositionOnCanvas);
         }
     }
 
@@ -174,7 +180,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         if (setOn)
         {
-            bool transientToolIsActive = Owner.ToolsSubViewModel.ActiveTool.GetType() == type;
+            var tool = Owner.ToolsSubViewModel.ActiveTool;
+            if (tool is null)
+                return;
+            bool transientToolIsActive = tool.GetType() == type;
             if (!transientToolIsActive)
             {
                 Owner.ToolsSubViewModel.SetActiveTool(type);
@@ -189,22 +198,20 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void OnMouseMove(object sender, VecD pos)
+    private void OnMouseMove(object? sender, VecD pos)
     {
-        DocumentViewModel activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        DocumentViewModel? activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument is null)
             return;
-        //Owner.DocumentManagerSubViewModel.InputTarget.OnMouseMove(activeDocument.MouseXOnCanvas, activeDocument.MouseYOnCanvas);
         activeDocument.EventInlet.OnCanvasMouseMove(pos);
     }
 
-    private void OnMouseUp(object sender, MouseButton button)
+    private void OnMouseUp(object? sender, MouseButton button)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
             return;
         if (button == MouseButton.Left)
         {
-            //Owner.BitmapManager.InputTarget.OnLeftMouseButtonUp();
             Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnCanvasLeftMouseButtonUp();
         }
         else if (button == MouseButton.Middle)

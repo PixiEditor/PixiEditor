@@ -1,12 +1,10 @@
 ﻿using System.IO;
-using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using Models.DocumentModels.Public;
-using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
@@ -15,10 +13,6 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
-using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
-using PixiEditor.Models.DocumentPassthroughActions;
-using PixiEditor.Models.Enums;
-using PixiEditor.Models.Position;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -158,7 +152,7 @@ internal class DocumentViewModel : NotifyableObject
         StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
 
         TransformViewModel = new();
-        TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.OnTransformMoved(args);
+        TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
 
         foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in Bitmaps)
         {

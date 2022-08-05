@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -19,18 +14,21 @@ internal class DocumentEventsModule
         Internals = internals;
     }
 
-    public void OnKeyDown(Key args) => Internals.ChangeController.OnKeyDown(args);
-    public void OnKeyUp(Key args) => Internals.ChangeController.OnKeyUp(args);
+    public void OnKeyDown(Key args) { }
+    public void OnKeyUp(Key args) { }
 
-    public void OnCanvasLeftMouseButtonDown(VecD pos) => Internals.ChangeController.OnLeftMouseButtonDown(pos);
+    public void OnConvertedKeyDown(Key args) => Internals.ChangeController.ConvertedKeyDownInlet(args);
+    public void OnConvertedKeyUp(Key args) => Internals.ChangeController.ConvertedKeyUpInlet(args);
+
+    public void OnCanvasLeftMouseButtonDown(VecD pos) => Internals.ChangeController.LeftMouseButtonDownInlet(pos);
     public void OnCanvasMouseMove(VecD newPos)
     {
         Document.CoordinatesString = $"X: {(int)newPos.X} Y: {(int)newPos.Y}";
-        Internals.ChangeController.OnMouseMove(newPos);
+        Internals.ChangeController.MouseMoveInlet(newPos);
     }
-    public void OnCanvasLeftMouseButtonUp() => Internals.ChangeController.OnLeftMouseButtonUp();
-    public void OnOpacitySliderDragStarted() => Internals.ChangeController.OnOpacitySliderDragStarted();
-    public void OnOpacitySliderDragged(float newValue) => Internals.ChangeController.OnOpacitySliderDragged(newValue);
-    public void OnOpacitySliderDragEnded() => Internals.ChangeController.OnOpacitySliderDragEnded();
-    public void OnApplyTransform() => Internals.ChangeController.OnTransformApplied();
+    public void OnCanvasLeftMouseButtonUp() => Internals.ChangeController.LeftMouseButtonUpInlet();
+    public void OnOpacitySliderDragStarted() => Internals.ChangeController.OpacitySliderDragStartedInlet();
+    public void OnOpacitySliderDragged(float newValue) => Internals.ChangeController.OpacitySliderDraggedInlet(newValue);
+    public void OnOpacitySliderDragEnded() => Internals.ChangeController.OpacitySliderDragEndedInlet();
+    public void OnApplyTransform() => Internals.ChangeController.TransformAppliedInlet();
 }

@@ -4,7 +4,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Events;
 
 namespace PixiEditor.Models.Controllers;
-
+#nullable enable
 internal class MouseInputFilter
 {
     public EventHandler<MouseOnCanvasEventArgs> OnMouseDown;
@@ -19,8 +19,8 @@ internal class MouseInputFilter
         [MouseButton.Middle] = MouseButtonState.Released,
     };
 
-    public void MouseDown(object args) => MouseDown((MouseOnCanvasEventArgs)args);
-    public void MouseDown(MouseOnCanvasEventArgs args)
+    public void MouseDownInlet(object args) => MouseDownInlet((MouseOnCanvasEventArgs)args);
+    public void MouseDownInlet(MouseOnCanvasEventArgs args)
     {
         var button = args.Button;
 
@@ -33,11 +33,11 @@ internal class MouseInputFilter
         OnMouseDown?.Invoke(this, args);
     }
 
-    public void MouseMove(object args) => OnMouseMove?.Invoke(this, (VecD)args);
+    public void MouseMoveInlet(object args) => OnMouseMove?.Invoke(this, (VecD)args);
 
-    public void MouseUp(object args) => MouseUp((MouseButton)args);
-    public void MouseUp(object sender, Point p, MouseButton button) => MouseUp(button);
-    public void MouseUp(MouseButton button)
+    public void MouseUpInlet(object args) => MouseUpInlet((MouseButton)args);
+    public void MouseUpInlet(object? sender, Point p, MouseButton button) => MouseUpInlet(button);
+    public void MouseUpInlet(MouseButton button)
     {
         if (button is MouseButton.XButton1 or MouseButton.XButton2)
             return;
@@ -46,5 +46,12 @@ internal class MouseInputFilter
         buttonStates[button] = MouseButtonState.Released;
 
         OnMouseUp?.Invoke(this, button);
+    }
+
+    public void DeactivatedInlet(object? sender, EventArgs e)
+    {
+        MouseUpInlet(MouseButton.Left);
+        MouseUpInlet(MouseButton.Middle);
+        MouseUpInlet(MouseButton.Right);
     }
 }

@@ -60,30 +60,17 @@ internal class ChangeExecutionController
         return true;
     }
 
-    public void OnKeyDown(Key key)
+    public void ConvertedKeyDownInlet(Key key)
     {
-        key = ConvertRightKeys(key);
-        currentSession?.OnKeyDown(key);
+        currentSession?.OnConvertedKeyDown(key);
     }
 
-    public void OnKeyUp(Key key)
+    public void ConvertedKeyUpInlet(Key key)
     {
-        key = ConvertRightKeys(key);
-        currentSession?.OnKeyUp(key);
+        currentSession?.OnConvertedKeyUp(key);
     }
 
-    private Key ConvertRightKeys(Key key)
-    {
-        if (key == Key.RightAlt)
-            return Key.LeftAlt;
-        if (key == Key.RightCtrl)
-            return Key.LeftCtrl;
-        if (key == Key.RightShift)
-            return Key.LeftShift;
-        return key;
-    }
-
-    public void OnMouseMove(VecD newCanvasPos)
+    public void MouseMoveInlet(VecD newCanvasPos)
     {
         //update internal state
         VecI newPixelPos = (VecI)newCanvasPos.Floor();
@@ -104,15 +91,15 @@ internal class ChangeExecutionController
         }
     }
 
-    public void OnOpacitySliderDragStarted() => currentSession?.OnOpacitySliderDragStarted();
-    public void OnOpacitySliderDragged(float newValue)
+    public void OpacitySliderDragStartedInlet() => currentSession?.OnOpacitySliderDragStarted();
+    public void OpacitySliderDraggedInlet(float newValue)
     {
         LastOpacityValue = newValue;
         currentSession?.OnOpacitySliderDragged(newValue);
     }
-    public void OnOpacitySliderDragEnded() => currentSession?.OnOpacitySliderDragEnded();
+    public void OpacitySliderDragEndedInlet() => currentSession?.OnOpacitySliderDragEnded();
 
-    public void OnLeftMouseButtonDown(VecD canvasPos)
+    public void LeftMouseButtonDownInlet(VecD canvasPos)
     {
         //update internal state
         LeftMouseState = MouseButtonState.Pressed;
@@ -121,7 +108,7 @@ internal class ChangeExecutionController
         currentSession?.OnLeftMouseButtonDown(canvasPos);
     }
 
-    public void OnLeftMouseButtonUp()
+    public void LeftMouseButtonUpInlet()
     {
         //update internal state
         LeftMouseState = MouseButtonState.Released;
@@ -130,11 +117,11 @@ internal class ChangeExecutionController
         currentSession?.OnLeftMouseButtonUp();
     }
 
-    public void OnTransformMoved(ShapeCorners corners)
+    public void TransformMovedInlet(ShapeCorners corners)
     {
         LastTransformState = corners;
         currentSession?.OnTransformMoved(corners);
     }
 
-    public void OnTransformApplied() => currentSession?.OnTransformApplied();
+    public void TransformAppliedInlet() => currentSession?.OnTransformApplied();
 }

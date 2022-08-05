@@ -175,38 +175,18 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public void OnLeftMouseButtonDown(VecD canvasPos)
+    public void LeftMouseButtonDownInlet(VecD canvasPos)
     {
         ActiveTool?.OnLeftMouseButtonDown(canvasPos);
     }
 
-    public void OnKeyDown(Key key)
+    public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)
     {
-        bool shiftIsDown = key is Key.LeftShift or Key.RightShift;
-        bool ctrlIsDown = key is Key.LeftCtrl or Key.RightCtrl;
-        bool altIsDown = key is Key.LeftAlt or Key.RightAlt;
-        if (!shiftIsDown && !ctrlIsDown && !altIsDown)
-            return;
-        this.shiftIsDown |= shiftIsDown;
-        this.ctrlIsDown |= ctrlIsDown;
-        this.altIsDown |= altIsDown;
-
-        ActiveTool?.UpdateActionDisplay(this.ctrlIsDown, this.shiftIsDown, this.altIsDown);
+        ActiveTool?.UpdateActionDisplay(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
     }
 
-    public void OnKeyUp(Key key)
+    public void ConvertedKeyUpInlet(FilteredKeyEventArgs args)
     {
-        bool shiftIsUp = key is Key.LeftShift or Key.RightShift;
-        bool ctrlIsUp = key is Key.LeftCtrl or Key.RightCtrl;
-        bool altIsUp = key is Key.LeftAlt or Key.RightAlt;
-        if (!shiftIsUp && !ctrlIsUp && !altIsUp)
-            return;
-        if (shiftIsUp)
-            this.shiftIsDown = false;
-        if (ctrlIsUp)
-            this.ctrlIsDown = false;
-        if (altIsUp)
-            this.altIsDown = false;
-        ActiveTool?.UpdateActionDisplay(ctrlIsDown, shiftIsDown, altIsDown);
+        ActiveTool?.UpdateActionDisplay(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
     }
 }

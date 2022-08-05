@@ -35,8 +35,8 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnOpacitySliderDragStarted() { }
     public virtual void OnOpacitySliderDragged(float newValue) { }
     public virtual void OnOpacitySliderDragEnded() { }
-    public virtual void OnKeyDown(Key key) { }
-    public virtual void OnKeyUp(Key key) { }
+    public virtual void OnConvertedKeyDown(Key key) { }
+    public virtual void OnConvertedKeyUp(Key key) { }
     public virtual void OnTransformMoved(ShapeCorners corners) { }
     public virtual void OnTransformApplied() { }
 }
