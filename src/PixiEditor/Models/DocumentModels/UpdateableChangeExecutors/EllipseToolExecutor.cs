@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -19,6 +20,7 @@ internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
         internals!.ActionAccumulator.AddActions(new DrawEllipse_Action(memberGuid, rect, strokeColor, fillColor, strokeWidth, drawOnMask));
     }
 
+    protected override DocumentTransformMode TransformMode => DocumentTransformMode.NoRotation;
     protected override void DrawShape(VecI currentPos) => DrawEllipseOrCircle(currentPos);
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) =>

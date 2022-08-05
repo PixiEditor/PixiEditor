@@ -52,13 +52,13 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnConvertedKeyDown(object? sender, FilteredKeyEventArgs args)
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnConvertedKeyDown(args.Key);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnConvertedKeyDown(args);
         Owner.ToolsSubViewModel.ConvertedKeyDownInlet(args);
     }
 
     private void OnConvertedKeyUp(object? sender, FilteredKeyEventArgs args)
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnConvertedKeyUp(args.Key);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnConvertedKeyUp(args);
         Owner.ToolsSubViewModel.ConvertedKeyUpInlet(args);
     }
 

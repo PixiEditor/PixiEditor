@@ -29,7 +29,8 @@ internal class TransformOverlay : Decorator
             new PropertyMetadata(TransformCornerFreedom.Locked));
 
     public static readonly DependencyProperty LockRotationProperty =
-        DependencyProperty.Register(nameof(LockRotation), typeof(bool), typeof(TransformOverlay), new(false));
+        DependencyProperty.Register(nameof(LockRotation), typeof(bool), typeof(TransformOverlay),
+            new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty SnapToAnglesProperty =
         DependencyProperty.Register(nameof(SnapToAngles), typeof(bool), typeof(TransformOverlay), new PropertyMetadata(false));
@@ -127,7 +128,9 @@ internal class TransformOverlay : Decorator
     {
         base.OnRender(drawingContext);
         DrawOverlay(drawingContext, new(ActualWidth, ActualHeight), Corners, InternalState.Origin, ZoomboxScale);
-        UpdateRotationCursor(TransformHelper.ToVecD(Mouse.GetPosition(this)));
+
+        if (capturedAnchor is null)
+            UpdateRotationCursor(TransformHelper.ToVecD(Mouse.GetPosition(this)));
     }
 
     private void DrawOverlay
@@ -235,11 +238,12 @@ internal class TransformOverlay : Decorator
         return TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale, 15) is not null;
     }
 
-    private void UpdateRotationCursor(VecD mousePos)
+    private bool UpdateRotationCursor(VecD mousePos)
     {
-        if (!ShouldRotate(mousePos))
+        if ((!ShouldRotate(mousePos) && !isRotating) || LockRotation)
         {
             rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
+            return false;
         }
         else
         {
@@ -247,12 +251,13 @@ internal class TransformOverlay : Decorator
             matrix.RotateAt((mousePos - InternalState.Origin).Angle * 180 / Math.PI - 90, mousePos.X, mousePos.Y);
             matrix.ScaleAt(8 / ZoomboxScale, 8 / ZoomboxScale, mousePos.X, mousePos.Y);
             rotateCursorGeometry.Transform = new MatrixTransform(matrix);
+            return true;
         }
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
     {
-        UpdateRotationCursor(TransformHelper.ToVecD(e.GetPosition(this)));
+        Cursor finalCursor = Cursors.Arrow;
 
         if (capturedAnchor is not null)
         {
@@ -260,9 +265,15 @@ internal class TransformOverlay : Decorator
             return;
         }
 
+        if (UpdateRotationCursor(TransformHelper.ToVecD(e.GetPosition(this))))
+            finalCursor = Cursors.None;
+
+        VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
+        Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale);
+
         if (isMoving)
         {
-            VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
+            finalCursor = Cursors.SizeAll;
             VecD delta = pos - mousePosOnStartMove;
 
             if (Corners.IsSnappedToPixels)
@@ -280,13 +291,20 @@ internal class TransformOverlay : Decorator
         }
         else if (isRotating)
         {
-            VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
+            finalCursor = Cursors.None;
             double angle = (mousePosOnStartRotate - InternalState.Origin).CCWAngleTo(pos - InternalState.Origin);
             if (SnapToAngles)
                 angle = TransformHelper.FindSnappingAngle(cornersOnStartRotate, angle);
             InternalState = InternalState with { ProportionalAngle1 = propAngle1OnStartRotate + angle, ProportionalAngle2 = propAngle2OnStartRotate + angle, };
             Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
         }
+        else if (anchor is not null)
+        {
+            finalCursor = TransformHelper.GetResizeCursor((Anchor)anchor, Corners);
+        }
+
+        if (Cursor != finalCursor)
+            Cursor = finalCursor;
     }
 
     private void HandleCapturedAnchorMovement(MouseEventArgs e)
@@ -338,7 +356,9 @@ internal class TransformOverlay : Decorator
         if (e.ChangedButton != MouseButton.Left)
             return;
         if (ReleaseAnchor())
+        {
             e.Handled = true;
+        }
         else if (isMoving)
         {
             isMoving = false;
@@ -350,6 +370,9 @@ internal class TransformOverlay : Decorator
             isRotating = false;
             e.Handled = true;
             ReleaseMouseCapture();
+            Cursor = Cursors.Arrow;
+            var pos = TransformHelper.ToVecD(e.GetPosition(this));
+            UpdateRotationCursor(pos);
         }
     }
 

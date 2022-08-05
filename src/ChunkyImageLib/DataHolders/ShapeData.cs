@@ -18,6 +18,7 @@ public record struct ShapeData
     public SKColor FillColor { get; }
     public SKBlendMode BlendMode { get; }
     public VecD Center { get; }
+
     /// <summary>Can be negative to show flipping </summary>
     public VecD Size { get; }
     public double Angle { get; }

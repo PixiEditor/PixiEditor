@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels.Public;
@@ -17,8 +18,16 @@ internal class DocumentEventsModule
     public void OnKeyDown(Key args) { }
     public void OnKeyUp(Key args) { }
 
-    public void OnConvertedKeyDown(Key args) => Internals.ChangeController.ConvertedKeyDownInlet(args);
-    public void OnConvertedKeyUp(Key args) => Internals.ChangeController.ConvertedKeyUpInlet(args);
+    public void OnConvertedKeyDown(FilteredKeyEventArgs args)
+    {
+        Internals.ChangeController.ConvertedKeyDownInlet(args.Key);
+        Document.TransformViewModel.ModifierKeysInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
+    }
+    public void OnConvertedKeyUp(FilteredKeyEventArgs args)
+    {
+        Internals.ChangeController.ConvertedKeyUpInlet(args.Key);
+        Document.TransformViewModel.ModifierKeysInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
+    }
 
     public void OnCanvasLeftMouseButtonDown(VecD pos) => Internals.ChangeController.LeftMouseButtonDownInlet(pos);
     public void OnCanvasMouseMove(VecD newPos)

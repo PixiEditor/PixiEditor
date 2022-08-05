@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 #nullable enable
 
@@ -30,6 +31,40 @@ internal static class TransformHelper
         corners.BottomLeft = corners.BottomLeft.Round();
         corners.BottomRight = corners.BottomRight.Round();
         return corners;
+    }
+
+    public static Cursor GetResizeCursor(Anchor anchor, ShapeCorners corners)
+    {
+        double angle;
+        if (IsSide(anchor))
+        {
+            var (left, right) = GetCornersOnSide(anchor);
+            VecD leftPos = GetAnchorPosition(corners, left);
+            VecD rightPos = GetAnchorPosition(corners, right);
+            angle = (leftPos - rightPos).Angle + Math.PI / 2;
+        }
+        else if (IsCorner(anchor))
+        {
+            var (left, right) = GetNeighboringCorners(anchor);
+            VecD leftPos = GetAnchorPosition(corners, left);
+            VecD curPos = GetAnchorPosition(corners, anchor);
+            VecD rightPos = GetAnchorPosition(corners, right);
+            angle = ((curPos - leftPos).Normalize() + (curPos - rightPos).Normalize()).Angle;
+        }
+        else
+        {
+            return Cursors.Arrow;
+        }
+        angle = Math.Round(angle * 4 / Math.PI);
+        angle = (int)((angle % 8 + 8) % 8);
+        if (angle is (0 or 4))
+            return Cursors.SizeWE;
+        else if (angle is (2 or 6))
+            return Cursors.SizeNS;
+        else if (angle is (1 or 5))
+            return Cursors.SizeNWSE;
+        else
+            return Cursors.SizeNESW;
     }
 
     private static double GetSnappingAngle(double angle)
