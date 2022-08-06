@@ -9,9 +9,11 @@ internal class ZoomToViewportConverter
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is double scale)
+        if (value is double scale && parameter is double factor)
         {
-            double newSize = Math.Clamp((double)parameter / scale, 1, 9999);
+            double newSize = Math.Clamp((double)factor / scale, 1, 9999);
+            if (newSize > 1 && newSize < 4)
+                newSize = 4;
             return new Rect(0, 0, newSize, newSize);
         }
 
