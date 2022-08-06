@@ -173,6 +173,36 @@ internal class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(AllChangesSaved));
     }
 
+    public Surface? MaybeExtractSelectedArea()
+    {
+        if (SelectedStructureMember is null || SelectedStructureMember is not LayerViewModel layerVm || SelectionPathBindable.IsEmpty)
+            return null;
+
+        IReadOnlyLayer? layer = (IReadOnlyLayer?)Internals.Tracker.Document.FindMember(layerVm.GuidValue);
+        if (layer is null)
+            return null;
+            
+        RectI bounds = (RectI)SelectionPathBindable.TightBounds;
+        Surface output = new(bounds.Size);
+
+        SKPath clipPath = new SKPath(SelectionPathBindable) { FillType = SKPathFillType.EvenOdd };
+        clipPath.Transform(SKMatrix.CreateTranslation(-bounds.X, -bounds.Y));
+        output.SkiaSurface.Canvas.Save();
+        output.SkiaSurface.Canvas.ClipPath(clipPath);
+        try
+        {
+            layer.LayerImage.DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.SkiaSurface, VecI.Zero);
+        }
+        catch (ObjectDisposedException)
+        {
+            output.Dispose();
+            return null;
+        }
+        output.SkiaSurface.Canvas.Restore();
+
+        return output;
+    }
+
     public SKColor PickColor(VecI pos, bool fromAllLayers)
     {
         // there is a tiny chance that the image might get disposed by another thread

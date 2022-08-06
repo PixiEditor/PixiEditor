@@ -13,7 +13,7 @@ internal class Selection : IReadOnlySelection, IDisposable
             try
             {
                 // I think this might throw if another thread disposes SelectionPath at the wrong time?
-                return new SKPath(SelectionPath);
+                return new SKPath(SelectionPath) { FillType = SKPathFillType.EvenOdd };
             }
             catch (Exception)
             {

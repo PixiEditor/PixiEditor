@@ -44,6 +44,19 @@ internal class ChangeExecutionController
         return false;
     }
 
+    public bool TryStartUpdateableChange(UpdateableChangeExecutor brandNewExecutor)
+    {
+        if (currentSession is not null)
+            return false;
+        brandNewExecutor.Initialize(document, internals, this, EndChange);
+        if (brandNewExecutor.Start() == ExecutionState.Success)
+        {
+            currentSession = brandNewExecutor;
+            return true;
+        }
+        return false;
+    }
+
     private void EndChange(UpdateableChangeExecutor executor)
     {
         if (executor != currentSession)

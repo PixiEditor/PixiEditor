@@ -1,4 +1,6 @@
-﻿using ChunkyImageLib;
+﻿using System;
+using System.IO;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using SkiaSharp;
 using Xunit;
@@ -6,6 +8,25 @@ using Xunit;
 namespace ChunkyImageLibTest;
 public class ChunkyImageTests
 {
+    public static Surface ImportImage(string path, VecI size)
+    {
+        Surface original = Surface.Load(path);
+        if (original.Size != size)
+        {
+            Surface resized = original.ResizeNearestNeighbor(size);
+            original.Dispose();
+            return resized;
+        }
+        return original;
+    }
+
+    [Fact]
+    public void LoadDemo()
+    {
+        var path = @"C:\Users\egor0\Desktop\SpazzS1.png";
+        ImportImage(path, new VecI(5,5));
+    }
+
     [Fact]
     public void Dispose_ComplexImage_ReturnsAllChunks()
     {

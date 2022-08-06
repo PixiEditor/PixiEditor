@@ -301,7 +301,11 @@ internal class TransformOverlay : Decorator
         }
         else if (anchor is not null)
         {
-            finalCursor = TransformHelper.GetResizeCursor((Anchor)anchor, Corners);
+            if ((TransformHelper.IsCorner((Anchor)anchor) && CornerFreedom == TransformCornerFreedom.Free) ||
+                (TransformHelper.IsSide((Anchor)anchor) && SideFreedom == TransformSideFreedom.Free))
+                finalCursor = Cursors.Arrow;
+            else
+                finalCursor = TransformHelper.GetResizeCursor((Anchor)anchor, Corners);
         }
 
         if (Cursor != finalCursor)

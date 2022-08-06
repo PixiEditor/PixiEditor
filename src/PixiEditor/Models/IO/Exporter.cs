@@ -3,6 +3,8 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
+using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
@@ -125,10 +127,10 @@ internal class Exporter
     }
     public static void SaveAsGZippedBytes(string path, Surface surface)
     {
-        SaveAsGZippedBytes(path, surface, SKRectI.Create(0, 0, surface.Width, surface.Height));
+        SaveAsGZippedBytes(path, surface, new RectI(VecI.Zero, surface.Size));
     }
 
-    public static void SaveAsGZippedBytes(string path, Surface surface, SKRectI rectToSave)
+    public static void SaveAsGZippedBytes(string path, Surface surface, RectI rectToSave)
     {
         var imageInfo = new SKImageInfo(rectToSave.Width, rectToSave.Height, SKColorType.RgbaF16);
         var unmanagedBuffer = Marshal.AllocHGlobal(rectToSave.Width * rectToSave.Height * 8);

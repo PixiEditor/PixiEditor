@@ -52,7 +52,12 @@ internal class DocumentTransformViewModel : NotifyableObject
     public ShapeCorners RequestedCorners
     {
         get => requestedCorners;
-        set => SetProperty(ref requestedCorners, value);
+        set
+        {
+            // We must raise the event if if the value hasn't changed, so I'm not using SetProperty
+            requestedCorners = value;
+            RaisePropertyChanged(nameof(RequestedCorners));
+        }
     }
 
     private ShapeCorners corners;

@@ -12,20 +12,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Document;
 [Command.Group("PixiEditor.Document", "Image")]
 internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 {
-    public DocumentManagerViewModel(ViewModelMain owner) : base(owner)
-    {
-        /*ToolSessionController = new ToolSessionController();
-        ToolSessionController.SessionStarted += OnSessionStart;
-        ToolSessionController.SessionEnded += OnSessionEnd;
-        ToolSessionController.PixelMousePositionChanged += OnPixelMousePositionChange;
-        ToolSessionController.PreciseMousePositionChanged += OnPreciseMousePositionChange;
-        ToolSessionController.KeyStateChanged += (_, _) => UpdateActionDisplay(_tools.ActiveTool);*/
-
-        //undo.UndoRedoCalled += (_, _) => ToolSessionController.ForceStopActiveSessionIfAny();
-    }
-
-    //private ToolSessionController ToolSessionController { get; set; }
-    //public ICanvasInputTarget InputTarget => ToolSessionController;
+    public DocumentManagerViewModel(ViewModelMain owner) : base(owner) { }
 
     public ObservableCollection<DocumentViewModel> Documents { get; set; } = new ObservableCollection<DocumentViewModel>();
     public event EventHandler<DocumentChangedEventArgs>? ActiveDocumentChanged;
@@ -62,12 +49,6 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public event EventHandler? StopUsingTool;
-
-    //private readonly ToolsViewModel _tools;
-
-    //private UpdateableChangeSession? activeSession = null;
-
     [Evaluator.CanExecute("PixiEditor.HasDocument")]
     public bool DocumentNotNull() => ActiveDocument != null;
 
@@ -90,90 +71,6 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     {
         //tool?.UpdateActionDisplay(ToolSessionController.IsCtrlDown, ToolSessionController.IsShiftDown, ToolSessionController.IsAltDown);
     }
-    /*
-    private void OnSessionStart(object sender, UpdateableChangeSession e)
-    {
-        activeSession = e;
-
-        ExecuteTool();
-    }
-
-    private void OnSessionEnd(object sender, UpdateableChangeSession e)
-    {
-        activeSession = null;
-
-        //HighlightPixels(ToolSessionController.LastPixelPosition);
-        StopUsingTool?.Invoke(this, EventArgs.Empty);
-    }
-
-    private void OnPreciseMousePositionChange(object sender, (double, double) e)
-    {
-        /*
-        if (activeSession == null || !activeSession.Tool.RequiresPreciseMouseData)
-            return;
-        ExecuteTool();
-        
-    }
-
-    private void OnPixelMousePositionChange(object sender, MouseMovementEventArgs e)
-    {*/
-    /*
-    if (activeSession != null)
-    {
-        if (activeSession.Tool.RequiresPreciseMouseData)
-            return;
-        ExecuteTool();
-        return;
-    }
-    else
-    {
-        HighlightPixels(e.NewPosition);
-    }
-
-}*/
-
-    private void ExecuteTool()
-    {
-        /*
-        if (activeSession == null)
-            throw new Exception("Can't execute tool's Use outside a session");
-
-        if (activeSession.Tool is BitmapOperationTool operationTool)
-        {
-            //BitmapOperations.UseTool(activeSession.MouseMovement, operationTool, PrimaryColor);
-        }
-        else if (activeSession.Tool is ReadonlyTool readonlyTool)
-        {
-            //readonlyTool.Use(activeSession.MouseMovement);
-        }
-        else
-        {
-            throw new InvalidOperationException($"'{activeSession.Tool.GetType().Name}' is either not a Tool or can't inherit '{nameof(Tool)}' directly.\nChanges the base type to either '{nameof(BitmapOperationTool)}' or '{nameof(ReadonlyTool)}'");
-        }
-        */
-    }
-
-    private void BitmapManager_DocumentChanged(object sender)
-    {
-        /*
-        e.NewDocument?.GeneratePreviewLayer();
-        if (e.OldDocument != e.NewDocument)
-            ToolSessionController.ForceStopActiveSessionIfAny();*/
-    }
-
-    public void UpdateHighlightIfNecessary(bool forceHide = false)
-    {
-        //if (activeSession != null)
-        //return;
-
-        //HighlightPixels(forceHide ? new(-1, -1) : ToolSessionController.LastPixelPosition);
-    }
-
-    private void HighlightPixels(VecI position)
-    {
-
-    }
-
 
     [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument")]
     public void ClipCanvas()
@@ -208,12 +105,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png")]
     public void DeletePixels()
     {
-        /*
-        var doc = Owner.BitmapManager.ActiveDocument;
-        Owner.BitmapManager.BitmapOperations.DeletePixels(
-            doc.Layers.Where(x => x.IsActive && doc.GetFinalLayerIsVisible(x)).ToArray(),
-            doc.ActiveSelection.SelectedPoints.ToArray());
-        */
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteSelectedPixels();
     }
 
 

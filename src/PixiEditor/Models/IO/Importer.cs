@@ -2,6 +2,8 @@
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
+using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
@@ -14,35 +16,19 @@ internal class Importer : NotifyableObject
     /// <summary>
     ///     Imports image from path and resizes it to given dimensions.
     /// </summary>
-    /// <param name="path">Path of image.</param>
-    /// <param name="width">New width of image.</param>
-    /// <param name="height">New height of image.</param>
+    /// <param name="path">Path of the image.</param>
+    /// <param name="size">New size of the image.</param>
     /// <returns>WriteableBitmap of imported image.</returns>
-    public static Surface ImportImage(string path, int width, int height)
+    public static Surface ImportImage(string path, VecI size)
     {
-        Surface wbmp = ImportSurface(path);
-        if (wbmp.Width != width || wbmp.Height != height)
+        Surface original = Surface.Load(path);
+        if (original.Size != size)
         {
-            Surface resized = wbmp.ResizeNearestNeighbor(width, height);
-            wbmp.Dispose();
+            Surface resized = original.ResizeNearestNeighbor(size);
+            original.Dispose();
             return resized;
         }
-
-        return wbmp;
-    }
-
-    /// <summary>
-    ///     Imports image from path and resizes it to given dimensions.
-    /// </summary>
-    /// <param name="path">Path of image.</param>
-    public static Surface ImportSurface(string path)
-    {
-        using SKImage image = SKImage.FromEncodedData(path);
-        if (image == null)
-            throw new CorruptedFileException();
-        Surface surface = new Surface(image.Width, image.Height);
-        surface.SkiaSurface.Canvas.DrawImage(image, new SKPoint(0, 0));
-        return surface;
+        return original;
     }
 
     public static WriteableBitmap ImportWriteableBitmap(string path)
@@ -107,8 +93,9 @@ internal class Importer : NotifyableObject
             Marshal.Copy(bytes, 8, ptr, bytes.Length - 8);
             SKPixmap map = new(info, ptr);
             SKSurface surface = SKSurface.Create(map);
-            Surface finalSurface = new Surface(width, height);
-            surface.Draw(finalSurface.SkiaSurface.Canvas, 0, 0, Surface.ReplacingPaint);
+            Surface finalSurface = new Surface(new VecI(width, height));
+            using SKPaint paint = new() { BlendMode = SKBlendMode.Src };
+            surface.Draw(finalSurface.SkiaSurface.Canvas, 0, 0, paint);
             return finalSurface;
         }
         finally

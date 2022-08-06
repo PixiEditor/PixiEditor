@@ -1,6 +1,13 @@
-﻿using System.IO;
+﻿using System.Collections.Specialized;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
@@ -8,59 +15,27 @@ using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.Controllers;
 
+#nullable enable
 internal static class ClipboardController
 {
     public static readonly string TempCopyFilePath = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor",
         "Copied.png");
-    /*
-    /// <summary>
-    /// Copies the selection to clipboard in PNG, Bitmap and DIB formats. <para/>
-    /// Also serailizes the <paramref name="document"/> in the PIXI format and copies it to the clipboard.
-    /// </summary>
-    public static void CopyToClipboard(Document document)
-    {
-        CopyToClipboard(
-            document.Layers.Where(x => document.GetFinalLayerIsVisible(x) && x.IsActive).ToArray(),
-            document.ActiveSelection.SelectionLayer,
-            document.LayerStructure,
-            document.Width,
-            document.Height,
-            null/*document.ToSerializable());
-    }*/
-    /*
-    private static Surface CreateMaskedCombinedSurface(Layer[] layers, LayerStructure structure, Layer selLayer)
-    {
-        if (layers.Length == 0)
-            throw new ArgumentException("Can't combine 0 layers");
-        selLayer.ClipCanvas();
-
-        Surface combined = BitmapUtils.CombineLayers(new Int32Rect(selLayer.OffsetX, selLayer.OffsetY, selLayer.Width, selLayer.Height), layers, structure);
-        using SKImage snapshot = selLayer.LayerBitmap.SkiaSurface.Snapshot();
-        combined.SkiaSurface.Canvas.DrawImage(snapshot, 0, 0, Surface.MaskingPaint);
-        return combined;
-    }
     
     /// <summary>
     ///     Copies the selection to clipboard in PNG, Bitmap and DIB formats.
     /// </summary>
-    /// <param name="layers">Layers where selection is.</param>
-    public static void CopyToClipboard(Layer[] layers, Layer selLayer, LayerStructure structure, int originalImageWidth, int originalImageHeight, SerializableDocument document = null)
+    public static void CopyToClipboard(DocumentViewModel document)
     {
         if (!ClipboardHelper.TryClear())
             return;
-        if (layers.Length == 0)
+        
+        using Surface? surface = document.MaybeExtractSelectedArea();
+        if (surface is null)
             return;
 
-        using Surface surface = CreateMaskedCombinedSurface(layers, structure, selLayer);
         DataObject data = new DataObject();
-
-
-        //BitmapSource croppedBmp = BitmapSelectionToBmpSource(finalBitmap, selLayer, out int offsetX, out int offsetY, out int width, out int height);
-
-        //Remove for now
-        //data.SetData(typeof(CropData), new CropData(width, height, offsetX, offsetY).ToStream());
 
         using (SKData pngData = surface.SkiaSurface.Snapshot().Encode())
         {
@@ -71,7 +46,7 @@ internal static class ClipboardController
             data.SetData("PNG", pngStream, false); // PNG, supports transparency
 
             pngStream.Position = 0;
-            Directory.CreateDirectory(Path.GetDirectoryName(TempCopyFilePath));
+            Directory.CreateDirectory(Path.GetDirectoryName(TempCopyFilePath)!);
             using FileStream fileStream = new FileStream(TempCopyFilePath, FileMode.Create, FileAccess.Write);
             pngStream.CopyTo(fileStream);
             data.SetFileDropList(new StringCollection() { TempCopyFilePath });
@@ -81,148 +56,65 @@ internal static class ClipboardController
         data.SetData(DataFormats.Bitmap, finalBitmap, true); // Bitmap, no transparency
         data.SetImage(finalBitmap); // DIB format, no transparency
 
-        // Remove pixi copying for now
-        /*
-        if (document != null)
-        {
-            MemoryStream memoryStream = new();
-            PixiParser.Serialize(document, memoryStream);
-            data.SetData("PIXI", memoryStream); // PIXI, supports transparency, layers, folders and swatches
-            ClipboardHelper.TrySetDataObject(data, true);
-        }
-        
-
         ClipboardHelper.TrySetDataObject(data, true);
     }
-*/
+
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static void PasteFromClipboard(DocumentViewModel document)
+    public static bool TryPasteFromClipboard(DocumentViewModel document)
     {
-        /*
-        Layer[] layers;
-        try
+        List<(string? name, Surface image)> images = GetImagesFromClipboard();
+        if (images.Count == 0)
+            return false;
+
+        if (images.Count == 1)
         {
-            layers = GetLayersFromClipboard(document).ToArray();
-        }
-        catch
-        {
-            return;
-        }
-
-        int resizedCount = 0;
-
-        Guid[] guids = layers.Select(x => x.GuidValue).ToArray();
-
-        var undoArgs = new object[] { guids, document, new PixelSize(document.Width, document.Height) };
-
-        foreach (var layer in layers)
-        {
-            document.Layers.Add(layer);
-
-            if (layer.Width > document.Width || layer.Height > document.Height)
-            {
-                ResizeToLayer(document, layer);
-                resizedCount++;
-            }
+            document.Operations.PasteImageWithTransform(images[0].image, VecI.Zero);
+            return true;
         }
 
-        StorageBasedChange change = new StorageBasedChange(document, layers, false);
-
-        document.UndoManager.AddUndoChange(change.ToChange(RemoveLayersProcess, undoArgs,
-            RestoreLayersProcess, new object[] { document }, "Paste from clipboard"));
-        */
+        document.Operations.PasteImagesAsLayers(images);
+        return true;
     }
-    /*
-    private static void RemoveLayersProcess(object[] parameters)
-    {
-        if (parameters.Length > 2 && parameters[1] is Document document && parameters[2] is PixelSize size)
-        {
-            document.RemoveLayersProcess(parameters);
-            document.ResizeCanvas(size.Width, size.Height, Enums.AnchorPoint.Left | Enums.AnchorPoint.Top, false);
-        }
-    }
-
-    private static void RestoreLayersProcess(Layer[] layers, UndoLayer[] data, object[] parameters)
-    {
-        if (parameters.Length > 0 && parameters[0] is Document document)
-        {
-            document.RestoreLayersProcess(layers, data);
-            foreach (var layer in layers)
-            {
-                ResizeToLayer(document, layer);
-            }
-        }
-    }
-
+    
     /// <summary>
-    ///     Gets image from clipboard, supported PNG, Dib and Bitmap.
+    /// Gets images from clipboard, supported PNG, Dib and Bitmap.
     /// </summary>
-    private static IEnumerable<Layer> GetLayersFromClipboard(Document document)
+    private static List<(string? name, Surface image)> GetImagesFromClipboard()
     {
         DataObject data = ClipboardHelper.TryGetDataObject();
+        List<(string? name, Surface image)> surfaces = new();
+
         if (data == null)
-            yield break;
+            return surfaces;
 
-        //Remove pixi for now
-        /*
-        if (data.GetDataPresent("PIXI"))
+        if (TryExtractSingleImage(data, out Surface? singleImage))
         {
-            SerializableDocument document = GetSerializable(data, out CropData crop);
-            SKRectI cropRect = SKRectI.Create(crop.OffsetX, crop.OffsetY, crop.Width, crop.Height);
-
-            foreach (SerializableLayer sLayer in document)
-            {
-                SKRectI intersect;
-
-                if (//layer.OffsetX > crop.OffsetX + crop.Width || layer.OffsetY > crop.OffsetY + crop.Height ||
-                    !sLayer.IsVisible || sLayer.Opacity == 0 ||
-                    (intersect = SKRectI.Intersect(cropRect, sLayer.GetRect())) == SKRectI.Empty)
-                {
-                    continue;
-                }
-
-                var layer = sLayer.ToLayer();
-
-                layer.Crop(intersect);
-
-                yield return layer;
-            }
-        }
-        else 
-        if (TryFromSingleImage(data, out Surface singleImage))
-        {
-            yield return new Layer("Image", singleImage, document.Width, document.Height);
+            surfaces.Add((null, singleImage));
+            return surfaces;
         }
         else if (data.GetDataPresent(DataFormats.FileDrop))
         {
-            foreach (string path in data.GetFileDropList())
+            foreach (string? path in data.GetFileDropList())
             {
-                if (!Importer.IsSupportedFile(path))
+                if (path is null || !Importer.IsSupportedFile(path))
+                    continue;
+                try
+                {
+                    Surface imported = Surface.Load(path);
+                    string filename = Path.GetFileName(path);
+                    surfaces.Add((filename, imported));
+                }
+                catch
                 {
                     continue;
                 }
-
-                Layer layer = null;
-
-                try
-                {
-                    layer = new(Path.GetFileName(path), Importer.ImportSurface(path), document.Width, document.Height);
-                }
-                catch (CorruptedFileException)
-                {
-                }
-
-                yield return layer ?? new($"Corrupt {path}", document.Width, document.Height);
             }
         }
-        else
-        {
-            yield break;
-        }
+        return surfaces;
     }
-    */
+    
     public static bool IsImageInClipboard()
     {
         DataObject dao = ClipboardHelper.TryGetDataObject();
@@ -249,45 +141,18 @@ internal static class ClipboardController
         }
 
         return dao.GetDataPresent("PNG") || dao.GetDataPresent(DataFormats.Dib) ||
-               dao.GetDataPresent(DataFormats.Bitmap) || dao.GetDataPresent(DataFormats.FileDrop) ||
-               dao.GetDataPresent("PIXI");
-    }
-    /*
-    private static BitmapSource BitmapSelectionToBmpSource(WriteableBitmap bitmap, Coordinates[] selection, out int offsetX, out int offsetY, out int width, out int height)
-    {
-        offsetX = selection.Min(min => min.X);
-        offsetY = selection.Min(min => min.Y);
-        width = selection.Max(max => max.X) - offsetX + 1;
-        height = selection.Max(max => max.Y) - offsetY + 1;
-        return bitmap.Crop(offsetX, offsetY, width, height);
+               dao.GetDataPresent(DataFormats.Bitmap) || dao.GetDataPresent(DataFormats.FileDrop);
     }
 
     private static BitmapSource FromPNG(DataObject data)
     {
-        MemoryStream pngStream = data.GetData("PNG") as MemoryStream;
+        MemoryStream pngStream = (MemoryStream)data.GetData("PNG");
         PngBitmapDecoder decoder = new PngBitmapDecoder(pngStream, BitmapCreateOptions.IgnoreImageCache, BitmapCacheOption.OnLoad);
 
         return decoder.Frames[0];
     }
 
-    private static unsafe SerializableDocument GetSerializable(DataObject data, out CropData cropData)
-    {
-        MemoryStream pixiStream = data.GetData("PIXI") as MemoryStream;
-        SerializableDocument document = PixiParser.Deserialize(pixiStream);
-
-        if (data.GetDataPresent(typeof(CropData)))
-        {
-            cropData = CropData.FromStream(data.GetData(typeof(CropData)) as MemoryStream);
-        }
-        else
-        {
-            cropData = new CropData(document.Width, document.Height, 0, 0);
-        }
-
-        return document;
-    }
-
-    private static bool TryFromSingleImage(DataObject data, out Surface result)
+    private static bool TryExtractSingleImage(DataObject data, [NotNullWhen(true)] out Surface? result)
     {
         try
         {
@@ -309,7 +174,7 @@ internal static class ClipboardController
 
             if (source.Format.IsSkiaSupported())
             {
-                result = new Surface(source);
+                result = SurfaceHelpers.FromBitmapSource(source);
             }
             else
             {
@@ -319,7 +184,7 @@ internal static class ClipboardController
                 newFormat.DestinationFormat = PixelFormats.Bgra32;
                 newFormat.EndInit();
 
-                result = new Surface(newFormat);
+                result = SurfaceHelpers.FromBitmapSource(newFormat);
             }
 
             return true;
@@ -329,9 +194,4 @@ internal static class ClipboardController
         result = null;
         return false;
     }
-
-    private static void ResizeToLayer(Document document, Layer layer)
-    {
-        document.ResizeCanvas(Math.Max(document.Width, layer.Width), Math.Max(document.Height, layer.Height), Enums.AnchorPoint.Left | Enums.AnchorPoint.Top, false);
-    }*/
 }

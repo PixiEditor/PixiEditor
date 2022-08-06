@@ -217,7 +217,7 @@
                             cmds:Menu.Command="PixiEditor.Clipboard.Paste" />
                         <MenuItem
                             Header="_Duplicate"
-                            cmds:Menu.Command="PixiEditor.Clipboard.Duplicate" />
+                            cmds:Menu.Command="PixiEditor.Layer.DuplicateSelectedLayer" />
                         <Separator />
                         <MenuItem
                             Header="_Delete Selected"

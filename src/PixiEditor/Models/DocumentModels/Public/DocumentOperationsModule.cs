@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels.Public;
+#nullable enable
 internal class DocumentOperationsModule
 {
     private DocumentViewModel Document { get; }
@@ -39,6 +42,20 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new ClearSelection_Action());
     }
 
+    public void DeleteSelectedPixels(bool clearSelection = false)
+    {
+        var member = Document.SelectedStructureMember;
+        if (Internals.ChangeController.IsChangeActive || member is null)
+            return;
+        bool drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
+        if (drawOnMask && !member.HasMaskBindable)
+            return;
+        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.GuidValue, drawOnMask));
+        if (clearSelection)
+            Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
+        Internals.ActionAccumulator.AddFinishedActions();
+    }
+
     public void SetMemberOpacity(Guid memberGuid, float value)
     {
         if (Internals.ChangeController.IsChangeActive || value is > 1 or < 0)
@@ -59,11 +76,33 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddActions(new DeleteRecordedChanges_Action());
     }
 
-    public void CreateStructureMember(StructureMemberType type)
+    public void PasteImagesAsLayers(List<(string? name, Surface image)> images)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
-        Internals.StructureHelper.CreateNewStructureMember(type);
+        
+        RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
+        foreach (var imageWithName in images)
+        {
+            maxSize = maxSize.Union(new RectI(VecI.Zero, imageWithName.image.Size));
+        }
+
+        if (maxSize.Size != Document.SizeBindable)
+            Internals.ActionAccumulator.AddActions(new ResizeCanvas_Action(maxSize.Size, ResizeAnchor.TopLeft));
+
+        foreach (var imageWithName in images)
+        {
+            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, imageWithName.name, true);
+            DrawImage(imageWithName.image, new ShapeCorners(new RectD(VecD.Zero, imageWithName.image.Size)), layerGuid, true, false, false);
+        }
+        Internals.ActionAccumulator.AddFinishedActions();
+    }
+
+    public Guid? CreateStructureMember(StructureMemberType type, string? name = null)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return null;
+        return Internals.StructureHelper.CreateNewStructureMember(type, name, true);
     }
 
     public void DuplicateLayer(Guid guidValue)
@@ -171,5 +210,25 @@ internal class DocumentOperationsModule
         foreach (var member in members)
             Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
         Internals.ActionAccumulator.AddActions(new ChangeBoundary_Action());
+    }
+
+    public void PasteImageWithTransform(Surface image, VecI startPos)
+    {
+        Internals.ChangeController.TryStartUpdateableChange(new PasteImageExecutor(image, startPos));
+    }
+
+    public void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask) =>
+        DrawImage(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, true);
+
+    private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, bool finish)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+        Internals.ActionAccumulator.AddActions(
+            new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask),
+            new EndPasteImage_Action()
+            );
+        if (finish)
+            Internals.ActionAccumulator.AddFinishedActions();
     }
 }

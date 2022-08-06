@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Windows.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
@@ -70,6 +71,7 @@ internal class RecentlyOpenedDocument : NotifyableObject
     {
         if (FileExtension == ".pixi")
         {
+            /*
             SerializableDocument serializableDocument;
 
             try
@@ -87,7 +89,8 @@ internal class RecentlyOpenedDocument : NotifyableObject
                     .Where(x => x.Opacity > 0.8)
                     .Select(x => (x.ToSKImage(), new VecI(x.OffsetX, x.OffsetY))));
 
-            return DownscaleToMaxSize(surface.ToWriteableBitmap());
+            return DownscaleToMaxSize(surface.ToWriteableBitmap());*/
+            return null;
         }
         else if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
         {

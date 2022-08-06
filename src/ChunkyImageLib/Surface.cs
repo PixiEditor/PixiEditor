@@ -14,6 +14,7 @@ public class Surface : IDisposable
     public VecI Size { get; }
 
     private SKPaint drawingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private SKPaint nearestNeighborReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.None };
 
     public Surface(VecI size)
     {
@@ -38,12 +39,34 @@ public class Surface : IDisposable
     {
         if (!File.Exists(path))
             throw new FileNotFoundException(null, path);
-        using var bitmap = SKBitmap.Decode(path);
-        if (bitmap is null)
+        using var image = SKImage.FromEncodedData(path);
+        if (image is null)
             throw new ArgumentException($"The image with path {path} couldn't be loaded");
-        var surface = new Surface(new VecI(bitmap.Width, bitmap.Height));
-        surface.SkiaSurface.Canvas.DrawBitmap(bitmap, 0, 0);
+
+        var surface = new Surface(new VecI(image.Width, image.Height));
+        surface.SkiaSurface.Canvas.DrawImage(image, 0, 0);
+
         return surface;
+    }
+
+    public unsafe void DrawBytes(VecI size, byte[] bytes, SKColorType colorType, SKAlphaType alphaType)
+    {
+        SKImageInfo info = new SKImageInfo(size.X, size.Y, colorType, alphaType);
+
+        fixed (void* pointer = bytes)
+        {
+            using SKPixmap map = new(info, new IntPtr(pointer));
+            using SKSurface surface = SKSurface.Create(map);
+            surface.Draw(SkiaSurface.Canvas, 0, 0, drawingPaint);
+        }
+    }
+
+    public Surface ResizeNearestNeighbor(VecI newSize)
+    {
+        using SKImage image = SkiaSurface.Snapshot();
+        Surface newSurface = new(newSize);
+        newSurface.SkiaSurface.Canvas.DrawImage(image, new SKRect(0, 0, newSize.X, newSize.Y), nearestNeighborReplacingPaint);
+        return newSurface;
     }
 
     public unsafe void CopyTo(Surface other)
@@ -104,7 +127,7 @@ public class Surface : IDisposable
         return surface;
     }
 
-    private unsafe static IntPtr CreateBuffer(int width, int height, int bytesPerPixel)
+    private static unsafe IntPtr CreateBuffer(int width, int height, int bytesPerPixel)
     {
         int byteC = width * height * bytesPerPixel;
         var buffer = Marshal.AllocHGlobal(byteC);
@@ -118,6 +141,7 @@ public class Surface : IDisposable
             return;
         disposed = true;
         drawingPaint.Dispose();
+        nearestNeighborReplacingPaint.Dispose();
         Marshal.FreeHGlobal(PixelBuffer);
         GC.SuppressFinalize(this);
     }
