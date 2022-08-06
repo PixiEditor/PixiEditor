@@ -386,6 +386,8 @@ internal class TransformOverlay : Decorator
         TransformOverlay overlay = (TransformOverlay)obj;
         if (overlay.isResettingRequestedCorners)
             return;
+        overlay.isMoving = false;
+        overlay.isRotating = false;
         overlay.Corners = (ShapeCorners)args.NewValue;
         overlay.InternalState = new()
         {
