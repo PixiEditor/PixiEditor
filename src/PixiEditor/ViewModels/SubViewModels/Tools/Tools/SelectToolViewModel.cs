@@ -14,6 +14,7 @@ internal class SelectToolViewModel : ToolViewModel
     {
         ActionDisplay = "Click and move to select an area.";
         Toolbar = new SelectToolToolbar();
+        Cursor = Cursors.Cross;
     }
 
     public SelectionMode SelectionType { get; set; } = SelectionMode.Add;
