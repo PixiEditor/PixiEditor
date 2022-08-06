@@ -233,7 +233,8 @@ internal class TransformOverlay : Decorator
     private bool ShouldRotate(VecD mousePos)
     {
         if (Corners.IsPointInside(mousePos) ||
-            TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale) is not null)
+            TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale) is not null ||
+            TransformHelper.IsWithinTransformHandle(TransformHelper.GetDragHandlePos(Corners, ZoomboxScale), mousePos, ZoomboxScale))
             return false;
         return TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale, 15) is not null;
     }

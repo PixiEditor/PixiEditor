@@ -1,76 +1,58 @@
-﻿using System.ComponentModel;
-using ChunkyImageLib.DataHolders;
+﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Views.UserControls.TransformOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
-internal class DocumentTransformViewModel : INotifyPropertyChanged
+internal class DocumentTransformViewModel : NotifyableObject
 {
     private TransformState internalState;
     public TransformState InternalState
     {
         get => internalState;
-        set
-        {
-            internalState = value;
-            PropertyChanged?.Invoke(this, new(nameof(InternalState)));
-        }
+        set => SetProperty(ref internalState, value);
     }
 
     private TransformCornerFreedom cornerFreedom;
     public TransformCornerFreedom CornerFreedom
     {
         get => cornerFreedom;
-        set
-        {
-            cornerFreedom = value;
-            PropertyChanged?.Invoke(this, new(nameof(CornerFreedom)));
-        }
+        set => SetProperty(ref cornerFreedom, value);
     }
 
     private TransformSideFreedom sideFreedom;
     public TransformSideFreedom SideFreedom
     {
         get => sideFreedom;
-        set
-        {
-            sideFreedom = value;
-            PropertyChanged?.Invoke(this, new(nameof(SideFreedom)));
-        }
+        set => SetProperty(ref sideFreedom, value);
     }
 
     private bool lockRotation;
     public bool LockRotation
     {
         get => lockRotation;
-        set
-        {
-            lockRotation = value;
-            PropertyChanged?.Invoke(this, new(nameof(LockRotation)));
-        }
+        set => SetProperty(ref lockRotation, value);
+    }
+
+    private bool snapToAngles;
+    public bool SnapToAngles
+    {
+        get => snapToAngles;
+        set => SetProperty(ref snapToAngles, value);
     }
 
     private bool transformActive;
     public bool TransformActive
     {
         get => transformActive;
-        set
-        {
-            transformActive = value;
-            PropertyChanged?.Invoke(this, new(nameof(TransformActive)));
-        }
+        set => SetProperty(ref transformActive, value);
     }
 
     private ShapeCorners requestedCorners;
     public ShapeCorners RequestedCorners
     {
         get => requestedCorners;
-        set
-        {
-            requestedCorners = value;
-            PropertyChanged?.Invoke(this, new(nameof(RequestedCorners)));
-        }
+        set => SetProperty(ref requestedCorners, value);
     }
 
     private ShapeCorners corners;
@@ -79,12 +61,11 @@ internal class DocumentTransformViewModel : INotifyPropertyChanged
         get => corners;
         set
         {
-            corners = value;
-            PropertyChanged?.Invoke(this, new(nameof(Corners)));
+            SetProperty(ref corners, value);
             TransformMoved?.Invoke(this, value);
         }
     }
-    public event PropertyChangedEventHandler? PropertyChanged;
+
     public event EventHandler<ShapeCorners>? TransformMoved;
 
     private DocumentTransformMode activeTransformMode = DocumentTransformMode.Rotation;
@@ -109,6 +90,7 @@ internal class DocumentTransformViewModel : INotifyPropertyChanged
         var requestedCornerFreedom = TransformCornerFreedom.Scale;
         var requestedSideFreedom = TransformSideFreedom.Stretch;
 
+        SnapToAngles = isShiftDown;
         if (isShiftDown)
         {
             requestedCornerFreedom = TransformCornerFreedom.ScaleProportionally;

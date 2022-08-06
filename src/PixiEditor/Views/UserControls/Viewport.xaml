@@ -129,6 +129,7 @@
                         CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"
                         SideFreedom="{Binding Document.TransformViewModel.SideFreedom}"
                         LockRotation="{Binding Document.TransformViewModel.LockRotation}"
+                        SnapToAngles="{Binding Document.TransformViewModel.SnapToAngles}"
                         InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
                         ZoomboxScale="{Binding Zoombox.Scale}"/>
                     <Grid IsHitTestVisible="False" SnapsToDevicePixels="True"
