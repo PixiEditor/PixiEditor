@@ -4,6 +4,7 @@ namespace PixiEditor.Views.UserControls.TransformOverlay;
 #nullable enable
 internal static class TransformUpdateHelper
 {
+    private const double epsilon = 0.00001;
     public static ShapeCorners? UpdateShapeFromCorner
         (Anchor targetCorner, TransformCornerFreedom freedom, double propAngle1, double propAngle2, ShapeCorners corners, VecD desiredPos)
     {
@@ -15,33 +16,61 @@ internal static class TransformUpdateHelper
 
         if (freedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale)
         {
+            // find opposite corners
             VecD targetPos = TransformHelper.GetAnchorPosition(corners, targetCorner);
             Anchor opposite = TransformHelper.GetOpposite(targetCorner);
             VecD oppositePos = TransformHelper.GetAnchorPosition(corners, opposite);
 
+            // constrain desired pos to a "propotional" diagonal line if needed
             if (freedom == TransformCornerFreedom.ScaleProportionally)
             {
                 double correctAngle = targetCorner is Anchor.TopLeft or Anchor.BottomRight ? propAngle1 : propAngle2;
                 desiredPos = desiredPos.ProjectOntoLine(oppositePos, oppositePos + VecD.FromAngleAndLength(correctAngle, 1));
             }
 
+            // find neighboring corners
             (Anchor leftNeighbor, Anchor rightNeighbor) = TransformHelper.GetNeighboringCorners(targetCorner);
             VecD leftNeighborPos = TransformHelper.GetAnchorPosition(corners, leftNeighbor);
             VecD rightNeighborPos = TransformHelper.GetAnchorPosition(corners, rightNeighbor);
 
             double angle = corners.RectRotation;
+            if (double.IsNaN(angle))
+                angle = 0;
+
+            // find positions of neighboring corners relative to the opposite corner, while also undoing the transform rotation
             VecD targetTrans = (targetPos - oppositePos).Rotate(-angle);
             VecD leftNeighTrans = (leftNeighborPos - oppositePos).Rotate(-angle);
             VecD rightNeighTrans = (rightNeighborPos - oppositePos).Rotate(-angle);
 
+            // find by how much move each corner
             VecD delta = (desiredPos - targetPos).Rotate(-angle);
-
+            VecD leftNeighDelta = TransferZeros(leftNeighTrans, delta);
+            VecD rightNeighDelta = TransferZeros(rightNeighTrans, delta);
+            
+            // handle cases where the transform overlay is squished into a line or a single point
+            bool squishedWithLeft = leftNeighTrans.TaxicabLength < epsilon;
+            bool squishedWithRight = rightNeighTrans.TaxicabLength < epsilon;
+            if (squishedWithLeft && squishedWithRight)
+            {
+                leftNeighDelta = TransferZeros(new(0, 1), delta);
+                rightNeighDelta = TransferZeros(new(1, 0), delta);
+            }
+            else if (squishedWithLeft)
+            {
+                leftNeighDelta = TransferZeros(SwapAxes(rightNeighTrans), delta);
+            }
+            else if (squishedWithRight)
+            {
+                rightNeighDelta = TransferZeros(SwapAxes(leftNeighTrans), delta);
+            }
+            
+            // move the corners, while reapplying the transform rotation
             corners = TransformHelper.UpdateCorner(corners, targetCorner,
                 (targetTrans + delta).Rotate(angle) + oppositePos);
             corners = TransformHelper.UpdateCorner(corners, leftNeighbor,
-                (leftNeighTrans + delta.Multiply(leftNeighTrans.Divide(targetTrans))).Rotate(angle) + oppositePos);
+                (leftNeighTrans + leftNeighDelta).Rotate(angle) + oppositePos);
             corners = TransformHelper.UpdateCorner(corners, rightNeighbor,
-                (rightNeighTrans + delta.Multiply(rightNeighTrans.Divide(targetTrans))).Rotate(angle) + oppositePos);
+                (rightNeighTrans + rightNeighDelta).Rotate(angle) + oppositePos);
 
             return corners;
         }
@@ -52,6 +81,17 @@ internal static class TransformUpdateHelper
             return newCorners.IsLegal ? newCorners : null;
         }
         throw new ArgumentException($"Freedom degree {freedom} is not supported");
+    }
+
+    private static VecD SwapAxes(VecD vec) => new VecD(vec.Y, vec.X);
+
+    private static VecD TransferZeros(VecD from, VecD to)
+    {
+        if (Math.Abs(from.X) < epsilon)
+            to.X = 0;
+        if (Math.Abs(from.Y) < epsilon)
+            to.Y = 0;
+        return to;
     }
 
     public static ShapeCorners? UpdateShapeFromSide
@@ -136,9 +176,16 @@ fallback:
             var oppPos = TransformHelper.GetAnchorPosition(corners, opposite);
 
             if (freedom == TransformSideFreedom.Shear)
+            {
                 desiredPos = desiredPos.ProjectOntoLine(leftCornerPos, rightCornerPos);
+            }
             else if (freedom == TransformSideFreedom.Stretch)
-                desiredPos = desiredPos.ProjectOntoLine(targetPos, oppPos);
+            {
+                if ((targetPos - oppPos).TaxicabLength > epsilon)
+                    desiredPos = desiredPos.ProjectOntoLine(targetPos, oppPos);
+                else
+                    desiredPos = desiredPos.ProjectOntoLine(targetPos, (leftCornerPos - targetPos).Rotate(Math.PI / 2) + targetPos);
+            }
 
             var delta = desiredPos - targetPos;
             var newCorners = TransformHelper.UpdateCorner(corners, leftCorner, leftCornerPos + delta);

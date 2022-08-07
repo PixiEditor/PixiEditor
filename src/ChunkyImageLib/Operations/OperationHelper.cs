@@ -153,7 +153,8 @@ public static class OperationHelper
             return new HashSet<VecI>();
         if (corners.IsInverted)
             corners = corners with { BottomLeft = corners.TopRight, TopRight = corners.BottomLeft };
-        List<VecI>[] lines = new List<VecI>[] {
+        List<VecI>[] lines = new List<VecI>[] 
+        {
             FindChunksAlongLine(corners.TopRight, corners.TopLeft, chunkSize),
             FindChunksAlongLine(corners.BottomRight, corners.TopRight, chunkSize),
             FindChunksAlongLine(corners.BottomLeft, corners.BottomRight, chunkSize),
@@ -234,7 +235,7 @@ public static class OperationHelper
 
     public static HashSet<VecI> FillLines(List<VecI>[] lines)
     {
-        if (lines.Length == 0)
+        if (lines.Length == 0 || lines.Any(static line => line.Count == 0))
             return new HashSet<VecI>();
 
         //find min and max X for each Y in lines

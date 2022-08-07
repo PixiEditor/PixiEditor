@@ -34,6 +34,8 @@ public struct ShapeCorners
     {
         get
         {
+            if (HasNaNOrInfinity)
+                return false;
             var top = TopLeft - TopRight;
             var right = TopRight - BottomRight;
             var bottom = BottomRight - BottomLeft;
