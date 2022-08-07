@@ -30,11 +30,14 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
     private Selection_ChangeInfo CommonApply(Document target)
     {
         using var rectPath = new SKPath() { FillType = SKPathFillType.EvenOdd };
-        rectPath.MoveTo(rect.TopLeft);
-        rectPath.LineTo(rect.TopRight);
-        rectPath.LineTo(rect.BottomRight);
-        rectPath.LineTo(rect.BottomLeft);
-        rectPath.Close();
+        if (!rect.IsZeroArea)
+        {
+            rectPath.MoveTo(rect.TopLeft);
+            rectPath.LineTo(rect.TopRight);
+            rectPath.LineTo(rect.BottomRight);
+            rectPath.LineTo(rect.BottomLeft);
+            rectPath.Close();
+        }
 
         var toDispose = target.Selection.SelectionPath;
         if (mode == SelectionMode.New)

@@ -32,7 +32,7 @@ internal class SelectToolExecutor : UpdateableChangeExecutor
         selectShape = toolbar.SelectShape;
         selectMode = toolbar.SelectMode;
 
-        IAction action = CreateUpdateAction(selectShape, new RectI(startPos, new(1)), selectMode);
+        IAction action = CreateUpdateAction(selectShape, new RectI(startPos, new(0)), selectMode);
         internals!.ActionAccumulator.AddActions(action);
         
         return ExecutionState.Success;

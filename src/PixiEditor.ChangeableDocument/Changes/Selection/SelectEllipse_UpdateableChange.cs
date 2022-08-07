@@ -31,7 +31,8 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
     private Selection_ChangeInfo CommonApply(Document target)
     {
         using var ellipsePath = new SKPath() { FillType = SKPathFillType.EvenOdd };
-        ellipsePath.AddOval(borders);
+        if (!borders.IsZeroArea)
+            ellipsePath.AddOval(borders);
 
         var toDispose = target.Selection.SelectionPath;
         if (mode == SelectionMode.New)
