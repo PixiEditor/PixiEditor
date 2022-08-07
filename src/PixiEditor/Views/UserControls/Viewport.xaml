@@ -131,7 +131,8 @@
                         LockRotation="{Binding Document.TransformViewModel.LockRotation}"
                         SnapToAngles="{Binding Document.TransformViewModel.SnapToAngles}"
                         InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
-                        ZoomboxScale="{Binding Zoombox.Scale}"/>
+                        ZoomboxScale="{Binding Zoombox.Scale}"
+                        ZoomboxAngle="{Binding Zoombox.Angle}"/>
                     <Grid IsHitTestVisible="False" SnapsToDevicePixels="True"
                         ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10" 
                         Visibility="{Binding GridLinesVisible, Converter={converters:BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">

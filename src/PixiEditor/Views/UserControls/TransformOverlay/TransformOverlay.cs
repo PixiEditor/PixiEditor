@@ -39,6 +39,15 @@ internal class TransformOverlay : Decorator
         DependencyProperty.Register(nameof(InternalState), typeof(TransformState), typeof(TransformOverlay),
             new FrameworkPropertyMetadata(default(TransformState), FrameworkPropertyMetadataOptions.AffectsRender));
 
+    public static readonly DependencyProperty ZoomboxAngleProperty =
+        DependencyProperty.Register(nameof(ZoomboxAngle), typeof(double), typeof(TransformOverlay), new(0.0));
+
+    public double ZoomboxAngle
+    {
+        get => (double)GetValue(ZoomboxAngleProperty);
+        set => SetValue(ZoomboxAngleProperty, value);
+    }
+
     public TransformState InternalState
     {
         get => (TransformState)GetValue(InternalStateProperty);
@@ -305,7 +314,7 @@ internal class TransformOverlay : Decorator
                 (TransformHelper.IsSide((Anchor)anchor) && SideFreedom == TransformSideFreedom.Free))
                 finalCursor = Cursors.Arrow;
             else
-                finalCursor = TransformHelper.GetResizeCursor((Anchor)anchor, Corners);
+                finalCursor = TransformHelper.GetResizeCursor((Anchor)anchor, Corners, ZoomboxAngle);
         }
 
         if (Cursor != finalCursor)

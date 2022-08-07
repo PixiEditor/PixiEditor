@@ -15,5 +15,5 @@ internal class MoveViewportToolViewModel : ToolViewModel
 
     public override BrushShape BrushShape => BrushShape.Hidden;
     public override bool HideHighlight => true;
-    public override string Tooltip => $"Move viewport. ({Shortcut})";
+    public override string Tooltip => $"Moves viewport. ({Shortcut})";
 }

@@ -45,6 +45,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<DocumentManagerViewModel>()
         // Tools
         .AddSingleton<ToolViewModel, MoveViewportToolViewModel>()
+        .AddSingleton<ToolViewModel, RotateViewportToolViewModel>()
         .AddSingleton<ToolViewModel, MoveToolViewModel>()
         .AddSingleton<ToolViewModel, PenToolViewModel>()
         .AddSingleton<ToolViewModel, SelectToolViewModel>()

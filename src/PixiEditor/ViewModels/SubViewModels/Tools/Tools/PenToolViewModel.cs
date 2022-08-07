@@ -17,7 +17,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
             Toolbar = new PenToolbar();
         }
 
-        public override string Tooltip => $"Standard brush. ({Shortcut})";
+        public override string Tooltip => $"Pen. ({Shortcut})";
 
         public override void OnLeftMouseButtonDown(VecD pos)
         {

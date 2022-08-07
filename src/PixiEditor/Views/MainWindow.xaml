@@ -53,12 +53,6 @@
                 x:Key="NotNullToBoolConverter" />
             <converters:DoubleToIntConverter
                 x:Key="DoubleToIntConverter" />
-            <converters:IsSpecifiedTypeConverter
-                SpecifiedType="{x:Type tools:ZoomToolViewModel}"
-                x:Key="IsZoomToolConverter" />
-            <converters:IsSpecifiedTypeConverter
-                SpecifiedType="{x:Type tools:MoveViewportToolViewModel}"
-                x:Key="IsMoveViewportToolConverter" />
             <converters:SKColorToMediaColorConverter
                 x:Key="SKColorToMediaColorConverter" />
             <ResourceDictionary.MergedDictionaries>
@@ -714,6 +708,7 @@
                                     ToolTip="{Binding Tooltip}">
                                     <Button.Background>
                                         <ImageBrush
+                                            RenderOptions.BitmapScalingMode="Fant"
                                             ImageSource="{Binding ImagePath}"
                                             Stretch="Uniform" />
                                     </Button.Background>

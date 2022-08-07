@@ -189,6 +189,7 @@
 		<None Remove="Images\Tools\MoveViewportImage.png" />
 		<None Remove="Images\Tools\PenImage.png" />
 		<None Remove="Images\Tools\RectangleImage.png" />
+		<None Remove="Images\Tools\RotateViewportImage.png" />
 		<None Remove="Images\Tools\SelectImage.png" />
 		<None Remove="Images\Tools\ZoomImage.png" />
 		<None Remove="Images\Trash.png" />
@@ -276,6 +277,7 @@
 		<Resource Include="Images\Tools\MoveViewportImage.png" />
 		<Resource Include="Images\Tools\PenImage.png" />
 		<Resource Include="Images\Tools\RectangleImage.png" />
+		<Resource Include="Images\Tools\RotateViewportImage.png" />
 		<Resource Include="Images\Tools\SelectImage.png" />
 		<Resource Include="Images\Tools\ZoomImage.png" />
 		<Resource Include="Images\Trash.png" />

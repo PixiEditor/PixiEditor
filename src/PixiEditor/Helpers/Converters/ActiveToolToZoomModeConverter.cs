@@ -11,6 +11,7 @@ internal class ActiveToolToZoomModeConverter : SingleInstanceConverter<ActiveToo
         {
             MoveViewportToolViewModel => ZoomboxMode.Move,
             ZoomToolViewModel => ZoomboxMode.Zoom,
+            RotateViewportToolViewModel => ZoomboxMode.Rotate,
             _ => ZoomboxMode.Normal,
         };
     }

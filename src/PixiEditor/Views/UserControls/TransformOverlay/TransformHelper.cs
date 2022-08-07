@@ -33,7 +33,7 @@ internal static class TransformHelper
         return corners;
     }
 
-    public static Cursor GetResizeCursor(Anchor anchor, ShapeCorners corners)
+    public static Cursor GetResizeCursor(Anchor anchor, ShapeCorners corners, double zoomboxAngle)
     {
         double angle;
         if (IsSide(anchor))
@@ -55,6 +55,7 @@ internal static class TransformHelper
         {
             return Cursors.Arrow;
         }
+        angle += zoomboxAngle;
         angle = Math.Round(angle * 4 / Math.PI);
         angle = (int)((angle % 8 + 8) % 8);
         if (angle is (0 or 4))
