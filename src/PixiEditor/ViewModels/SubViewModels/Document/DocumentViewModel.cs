@@ -167,6 +167,78 @@ internal class DocumentViewModel : NotifyableObject
         PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
     }
 
+    public static DocumentViewModel Build(Action<DocumentViewModelBuilder> builder)
+    {
+        var builderInstance = new DocumentViewModelBuilder();
+        builder(builderInstance);
+
+        var viewModel = new DocumentViewModel();
+        viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
+
+        var acc = viewModel.Internals.ActionAccumulator;
+
+        AddMembers(viewModel.StructureRoot.GuidValue, builderInstance.Children);
+        
+        acc.AddFinishedActions(new DeleteRecordedChanges_Action());
+
+        return viewModel;
+
+        void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
+        {
+            acc.AddActions(
+                new CreateStructureMember_Action(parentGuid, member.GuidValue, 0, member is DocumentViewModelBuilder.LayerBuilder ? StructureMemberType.Layer : StructureMemberType.Folder),
+                new StructureMemberName_Action(member.GuidValue, member.Name)
+            );
+            
+            if (!member.IsVisible)
+                acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.GuidValue));
+
+            if (member is DocumentViewModelBuilder.LayerBuilder layer)
+            {
+                PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY, false);
+            }
+
+            if (member.HasMask)
+            {
+                var maskSurface = member.Mask.Surface.Surface;
+                
+                acc.AddActions(new CreateStructureMemberMask_Action(member.GuidValue));
+                
+                if (!member.Mask.IsVisible)
+                    acc.AddActions(new StructureMemberMaskIsVisible_Action(member.Mask.IsVisible, member.GuidValue));
+                
+                PasteImage(member.GuidValue, member.Mask.Surface, maskSurface.Size.X, maskSurface.Size.Y, 0, 0, true);
+            }
+            
+            acc.AddFinishedActions();
+            
+            if (member is DocumentViewModelBuilder.FolderBuilder { Children: not null } folder)
+            {
+                AddMembers(member.GuidValue, folder.Children);
+            }
+        }
+
+        void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX, int offsetY, bool onMask)
+        {
+            acc.AddActions(
+                new PasteImage_Action(surface.Surface, new(new RectD(new VecD(offsetX, offsetY), new(width, height))), guid, true, onMask),
+                new EndPasteImage_Action());
+        }
+
+        void AddMembers(Guid parentGuid, IEnumerable<DocumentViewModelBuilder.StructureMemberBuilder> builders)
+        {
+            foreach (var child in builders.Reverse())
+            {
+                if (child.GuidValue == default)
+                {
+                    child.GuidValue = Guid.NewGuid();
+                }
+
+                AddMember(parentGuid, child);
+            }
+        }
+    }
+
     public void MarkAsSaved()
     {
         lastChangeOnSave = Internals.Tracker.LastChangeGuid;
