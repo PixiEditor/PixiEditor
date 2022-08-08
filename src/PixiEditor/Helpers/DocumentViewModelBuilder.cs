@@ -39,6 +39,12 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public MaskBuilder Mask => maskBuilder ??= new MaskBuilder();
 
         public Guid GuidValue { get; set; }
+
+        public StructureMemberBuilder()
+        {
+            IsVisible = true;
+            Opacity = 1;
+        }
         
         public StructureMemberBuilder WithName(string name)
         {
@@ -111,7 +117,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public new LayerBuilder WithMask(Action<MaskBuilder> mask) => base.WithMask(mask) as LayerBuilder;
         
         public new LayerBuilder WithGuid(Guid guid) => base.WithGuid(guid) as LayerBuilder;
-        
+
         public LayerBuilder WithSurface(Surface surface)
         {
             Surface = new(surface);
@@ -193,6 +199,11 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public bool IsVisible { get; set; }
         
         public SurfaceBuilder Surface { get; set; }
+
+        public MaskBuilder()
+        {
+            IsVisible = true;
+        }
         
         public MaskBuilder WithVisibility(bool isVisible)
         {
@@ -228,7 +239,7 @@ internal class ChildrenBuilder
         Children.Add(layerBuilder);
         return this;
     }
-        
+    
     public ChildrenBuilder WithFolder(Action<DocumentViewModelBuilder.FolderBuilder> folder)
     {
         var folderBuilder = new DocumentViewModelBuilder.FolderBuilder();
