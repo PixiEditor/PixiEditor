@@ -113,7 +113,6 @@ internal class ViewModelMain : ViewModelBase
 
         Preferences.Init();
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
-
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
         OnStartupCommand = new RelayCommand(OnStartup);

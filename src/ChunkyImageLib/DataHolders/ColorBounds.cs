@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using ComputeSharp;
 using SkiaSharp;
 
 namespace ChunkyImageLib.DataHolders;
@@ -59,6 +60,22 @@ public struct ColorBounds
         if (a < LowerA || a > UpperA)
             return false;
         return true;
+    }
+    
+    [ShaderMethod]
+    public readonly bool IsWithinBounds(float4 color)
+    {
+        float r = color.R;
+        float g = color.G;
+        float b = color.B;
+        float a = color.A;
+        if (r < LowerR || r > UpperR)
+            return false;
+        if (g < LowerG || g > UpperG)
+            return false;
+        if (b < LowerB || b > UpperB)
+            return false;
+        return !(a < LowerA) && !(a > UpperA);
     }
 }
 

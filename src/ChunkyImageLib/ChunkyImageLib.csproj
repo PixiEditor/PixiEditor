@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ComputeSharp.Core" Version="2.0.0-alpha.26" />
+    <PackageReference Include="ComputeSharp.Dynamic" Version="2.0.0-alpha.26" />
     <PackageReference Include="OneOf" Version="3.0.216" />
     <PackageReference Include="SkiaSharp" Version="2.80.3" />
   </ItemGroup>
