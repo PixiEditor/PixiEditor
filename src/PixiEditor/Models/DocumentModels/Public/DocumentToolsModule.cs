@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
+using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace Models.DocumentModels.Public;
@@ -14,23 +15,37 @@ internal class DocumentToolsModule
         this.Internals = internals;
     }
 
-    public void UseOpacitySlider() => Internals.ChangeController.TryStartUpdateableChange<StructureMemberOpacityExecutor>();
+    public void UseOpacitySlider() => Internals.ChangeController.TryStartExecutor<StructureMemberOpacityExecutor>();
 
-    public void UsePenTool() => Internals.ChangeController.TryStartUpdateableChange<PenToolExecutor>();
+    public void UseShiftLayerTool() => Internals.ChangeController.TryStartExecutor<ShiftLayerExecutor>();
 
-    public void UseEraserTool() => Internals.ChangeController.TryStartUpdateableChange<EraserToolExecutor>();
+    public void UsePenTool() => Internals.ChangeController.TryStartExecutor<PenToolExecutor>();
 
-    public void UseColorPickerTool() => Internals.ChangeController.TryStartUpdateableChange<ColorPickerToolExecutor>();
+    public void UseEraserTool() => Internals.ChangeController.TryStartExecutor<EraserToolExecutor>();
 
-    public void UseRectangleTool() => Internals.ChangeController.TryStartUpdateableChange<RectangleToolExecutor>();
+    public void UseColorPickerTool() => Internals.ChangeController.TryStartExecutor<ColorPickerToolExecutor>();
 
-    public void UseEllipseTool() => Internals.ChangeController.TryStartUpdateableChange<EllipseToolExecutor>();
+    public void UseRectangleTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<RectangleToolExecutor>(force);
+    }
 
-    public void UseLineTool() => Internals.ChangeController.TryStartUpdateableChange<LineToolExecutor>();
+    public void UseEllipseTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<EllipseToolExecutor>(force);
+    }
 
-    public void UseSelectTool() => Internals.ChangeController.TryStartUpdateableChange<SelectToolExecutor>();
+    public void UseLineTool()
+    {
+        bool force = Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked;
+        Internals.ChangeController.TryStartExecutor<LineToolExecutor>(force);
+    }
 
-    public void UseBrightnessTool() => Internals.ChangeController.TryStartUpdateableChange<BrightnessToolExecutor>();
+    public void UseSelectTool() => Internals.ChangeController.TryStartExecutor<SelectToolExecutor>();
 
-    public void UseFloodFillTool() => Internals.ChangeController.TryStartUpdateableChange<FloodFillToolExecutor>();
+    public void UseBrightnessTool() => Internals.ChangeController.TryStartExecutor<BrightnessToolExecutor>();
+
+    public void UseFloodFillTool() => Internals.ChangeController.TryStartExecutor<FloodFillToolExecutor>();
 }

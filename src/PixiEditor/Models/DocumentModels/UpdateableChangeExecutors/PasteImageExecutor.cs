@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChunkyImageLib;
+﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -39,7 +34,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
 
         ShapeCorners corners = new(new RectD(pos, image.Size));
         internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid, false, drawOnMask));
-        document.TransformViewModel.ShowTransform(DocumentTransformMode.Freeform, corners);
+        document.TransformViewModel.ShowTransform(DocumentTransformMode.Freeform, true, corners);
 
         return ExecutionState.Success;
     }

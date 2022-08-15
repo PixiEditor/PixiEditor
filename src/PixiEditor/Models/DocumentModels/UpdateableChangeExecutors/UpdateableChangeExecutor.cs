@@ -13,6 +13,7 @@ internal abstract class UpdateableChangeExecutor
     private bool initialized = false;
 
     protected Action<UpdateableChangeExecutor>? onEnded;
+    public virtual ExecutorType Type => ExecutorType.Regular;
 
     public void Initialize(DocumentViewModel document, DocumentInternalParts internals, ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)
     {

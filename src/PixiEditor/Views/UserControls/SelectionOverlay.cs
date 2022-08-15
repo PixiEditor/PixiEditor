@@ -2,7 +2,6 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using SkiaSharp;
 
 namespace PixiEditor.Views.UserControls;
 #nullable enable
@@ -12,9 +11,17 @@ internal class SelectionOverlay : Control
         DependencyProperty.Register(nameof(Path), typeof(SKPath), typeof(SelectionOverlay),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
-
     public static readonly DependencyProperty ZoomboxScaleProperty =
         DependencyProperty.Register(nameof(ZoomboxScale), typeof(double), typeof(SelectionOverlay), new(1.0, OnZoomboxScaleChanged));
+
+    public static readonly DependencyProperty ShowFillProperty =
+        DependencyProperty.Register(nameof(ShowFill), typeof(bool), typeof(SelectionOverlay), new(true, OnShowFillChanged));
+
+    public bool ShowFill
+    {
+        get => (bool)GetValue(ShowFillProperty);
+        set => SetValue(ShowFillProperty, value);
+    }
 
     public double ZoomboxScale
     {
@@ -85,5 +92,11 @@ internal class SelectionOverlay : Control
         double newScale = (double)args.NewValue;
         self.whitePen.Thickness = 1.0 / newScale;
         self.blackDashedPen.Thickness = 1.0 / newScale;
+    }
+
+    private static void OnShowFillChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)
+    {
+        var self = (SelectionOverlay)obj;
+        self.fillBrush.Opacity = (bool)args.NewValue ? 1 : 0;
     }
 }

@@ -50,4 +50,6 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public virtual void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
     public virtual void OnLeftMouseButtonDown(VecD pos) { }
+    public virtual void OnSelected() { }
+    public virtual void OnDeselected() { }
 }

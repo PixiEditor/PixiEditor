@@ -9,6 +9,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal class LineToolExecutor : ShapeToolExecutor<LineToolViewModel>
 {
+    public override ExecutorType Type => ExecutorType.ToolLinked;
     public override ExecutionState Start()
     {
         ColorsViewModel? colorsVM = ViewModelMain.Current?.ColorsSubViewModel;

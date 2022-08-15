@@ -48,13 +48,20 @@ internal class DocumentTransformViewModel : NotifyableObject
         set => SetProperty(ref transformActive, value);
     }
 
+    private bool coverWholeScreen;
+    public bool CoverWholeScreen
+    {
+        get => coverWholeScreen;
+        set => SetProperty(ref coverWholeScreen, value);
+    }
+
     private ShapeCorners requestedCorners;
     public ShapeCorners RequestedCorners
     {
         get => requestedCorners;
         set
         {
-            // We must raise the event if if the value hasn't changed, so I'm not using SetProperty
+            // The event must be raised even if the value hasn't changed, so I'm not using SetProperty
             requestedCorners = value;
             RaisePropertyChanged(nameof(RequestedCorners));
         }
@@ -80,13 +87,14 @@ internal class DocumentTransformViewModel : NotifyableObject
         TransformActive = false;
     }
 
-    public void ShowTransform(DocumentTransformMode mode, ShapeCorners initPos)
+    public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos)
     {
         activeTransformMode = mode;
         CornerFreedom = TransformCornerFreedom.Scale;
         SideFreedom = TransformSideFreedom.Stretch;
         LockRotation = mode == DocumentTransformMode.NoRotation;
         RequestedCorners = initPos;
+        CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
     }
 

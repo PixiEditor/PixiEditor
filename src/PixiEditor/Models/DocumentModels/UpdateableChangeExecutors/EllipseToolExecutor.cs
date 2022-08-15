@@ -20,6 +20,7 @@ internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
         internals!.ActionAccumulator.AddActions(new DrawEllipse_Action(memberGuid, rect, strokeColor, fillColor, strokeWidth, drawOnMask));
     }
 
+    public override ExecutorType Type => ExecutorType.ToolLinked;
     protected override DocumentTransformMode TransformMode => DocumentTransformMode.NoRotation;
     protected override void DrawShape(VecI currentPos) => DrawEllipseOrCircle(currentPos);
 

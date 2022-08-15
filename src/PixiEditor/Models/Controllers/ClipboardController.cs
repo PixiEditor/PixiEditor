@@ -7,9 +7,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -22,7 +21,7 @@ internal static class ClipboardController
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor",
         "Copied.png");
-    
+
     /// <summary>
     ///     Copies the selection to clipboard in PNG, Bitmap and DIB formats.
     /// </summary>
@@ -30,14 +29,19 @@ internal static class ClipboardController
     {
         if (!ClipboardHelper.TryClear())
             return;
-        
-        using Surface? surface = document.MaybeExtractSelectedArea();
-        if (surface is null)
-            return;
 
+        var surface = document.MaybeExtractSelectedArea();
+        if (surface.IsT0)
+            return;
+        if (surface.IsT1)
+        {
+            NoticeDialog.Show("Selected area is empty", "Nothing to copy");
+            return;
+        }
+        var (actuallySurface, _) = surface.AsT2;
         DataObject data = new DataObject();
 
-        using (SKData pngData = surface.SkiaSurface.Snapshot().Encode())
+        using (SKData pngData = actuallySurface.SkiaSurface.Snapshot().Encode())
         {
             // Stream should not be disposed
             MemoryStream pngStream = new MemoryStream();
@@ -52,7 +56,7 @@ internal static class ClipboardController
             data.SetFileDropList(new StringCollection() { TempCopyFilePath });
         }
 
-        WriteableBitmap finalBitmap = surface.ToWriteableBitmap();
+        WriteableBitmap finalBitmap = actuallySurface.ToWriteableBitmap();
         data.SetData(DataFormats.Bitmap, finalBitmap, true); // Bitmap, no transparency
         data.SetImage(finalBitmap); // DIB format, no transparency
 
@@ -77,7 +81,7 @@ internal static class ClipboardController
         document.Operations.PasteImagesAsLayers(images);
         return true;
     }
-    
+
     /// <summary>
     /// Gets images from clipboard, supported PNG, Dib and Bitmap.
     /// </summary>
@@ -114,7 +118,7 @@ internal static class ClipboardController
         }
         return surfaces;
     }
-    
+
     public static bool IsImageInClipboard()
     {
         DataObject dao = ClipboardHelper.TryGetDataObject();

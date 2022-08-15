@@ -16,6 +16,7 @@
     xmlns:vm="clr-namespace:PixiEditor.ViewModels"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+    xmlns:tools ="clr-namespace:PixiEditor.ViewModels.SubViewModels.Tools.Tools"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -76,6 +77,9 @@
                     </ImageBrush>
                 </Border.Background>
                 <Grid>
+                    <Grid.Resources>
+                        <converters:IsSpecifiedTypeConverter x:Key="IsSelectToolConverter" SpecifiedType="{x:Type tools:SelectToolViewModel}"/>
+                    </Grid.Resources>
                     <Canvas>
                         <Image
                             Width="{Binding Document.ReferenceBitmap.Width}"
@@ -107,6 +111,7 @@
                         DragCommand="{Binding Document.DragSymmetryCommand}"
                         DragEndCommand="{Binding Document.EndDragSymmetryCommand}" />
                     <uc:SelectionOverlay
+                        ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={StaticResource IsSelectToolConverter}}"
                         Path="{Binding Document.SelectionPathBindable}"
                         ZoomboxScale="{Binding Zoombox.Scale}" />
                     <brush:BrushShapeOverlay
@@ -129,6 +134,7 @@
                         CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"
                         SideFreedom="{Binding Document.TransformViewModel.SideFreedom}"
                         LockRotation="{Binding Document.TransformViewModel.LockRotation}"
+                        CoverWholeScreen="{Binding Document.TransformViewModel.CoverWholeScreen}"
                         SnapToAngles="{Binding Document.TransformViewModel.SnapToAngles}"
                         InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
                         ZoomboxScale="{Binding Zoombox.Scale}"

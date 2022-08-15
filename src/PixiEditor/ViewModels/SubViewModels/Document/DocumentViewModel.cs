@@ -246,16 +246,39 @@ internal class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(AllChangesSaved));
     }
 
-    public Surface? MaybeExtractSelectedArea()
+    /// <summary>
+    /// Takes the selected area and converts it into a surface
+    /// </summary>
+    /// <returns><see cref="Error"/> on error, <see cref="None"/> for empty <see cref="Surface"/>, <see cref="Surface"/> otherwise.</returns>
+    public OneOf<Error, None, (Surface, RectI)> MaybeExtractSelectedArea(StructureMemberViewModel? layerToExtractFrom = null)
     {
-        if (SelectedStructureMember is null || SelectedStructureMember is not LayerViewModel layerVm || SelectionPathBindable.IsEmpty)
-            return null;
+        layerToExtractFrom ??= SelectedStructureMember;
+        if (layerToExtractFrom is null || layerToExtractFrom is not LayerViewModel layerVm)
+            return new Error();
+        if (SelectionPathBindable.IsEmpty)
+            return new None();
 
         IReadOnlyLayer? layer = (IReadOnlyLayer?)Internals.Tracker.Document.FindMember(layerVm.GuidValue);
         if (layer is null)
-            return null;
-            
+            return new Error();
+
         RectI bounds = (RectI)SelectionPathBindable.TightBounds;
+        RectI? memberImageBounds;
+        try
+        {
+            memberImageBounds = layer.LayerImage.FindLatestBounds();
+        }
+        catch (ObjectDisposedException)
+        {
+            return new Error();
+        }
+        if (memberImageBounds is null)
+            return new None();
+        bounds = bounds.Intersect(memberImageBounds.Value);
+        bounds = bounds.Intersect(new RectI(VecI.Zero, SizeBindable));
+        if (bounds.IsZeroOrNegativeArea)
+            return new None();
+
         Surface output = new(bounds.Size);
 
         SKPath clipPath = new SKPath(SelectionPathBindable) { FillType = SKPathFillType.EvenOdd };
@@ -269,11 +292,11 @@ internal class DocumentViewModel : NotifyableObject
         catch (ObjectDisposedException)
         {
             output.Dispose();
-            return null;
+            return new Error();
         }
         output.SkiaSurface.Canvas.Restore();
 
-        return output;
+        return (output, bounds);
     }
 
     public SKColor PickColor(VecI pos, bool fromAllLayers)

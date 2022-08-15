@@ -12,4 +12,9 @@ internal abstract class ShapeTool : ToolViewModel
         Cursor = Cursors.Cross;
         Toolbar = new BasicShapeToolbar();
     }
+
+    public override void OnDeselected()
+    {
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+    }
 }

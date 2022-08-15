@@ -90,16 +90,48 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         LatestSize = size;
         committedChunks = new()
         {
-            [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new(),
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new(),
         };
         latestChunks = new()
         {
-            [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new(),
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new(),
         };
         latestChunksData = new()
         {
-            [ChunkResolution.Full] = new(), [ChunkResolution.Half] = new(), [ChunkResolution.Quarter] = new(), [ChunkResolution.Eighth] = new(),
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new(),
         };
+    }
+
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public RectI? FindLatestBounds()
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            RectI? rect = null;
+            foreach (var (pos, _) in committedChunks[ChunkResolution.Full])
+            {
+                RectI chunkBounds = new RectI(pos * FullChunkSize, new VecI(FullChunkSize));
+                rect ??= chunkBounds;
+                rect = rect.Value.Union(chunkBounds);
+            }
+            foreach (var (pos, _) in latestChunks[ChunkResolution.Full])
+            {
+                RectI chunkBounds = new RectI(pos * FullChunkSize, new VecI(FullChunkSize));
+                rect ??= chunkBounds;
+                rect = rect.Value.Union(chunkBounds);
+            }
+            return rect;
+        }
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
@@ -138,7 +170,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             };
         }
     }
-    
+
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public SKColor GetMostUpToDatePixel(VecI posOnImage)
     {
@@ -174,11 +206,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             {
                 Chunk? committedChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
                 Chunk? latestChunk = GetLatestChunk(chunkPos, ChunkResolution.Full);
-                SKColor committedColor = committedChunk is null ? 
-                    SKColors.Transparent :  
+                SKColor committedColor = committedChunk is null ?
+                    SKColors.Transparent :
                     committedChunk.Surface.GetSRGBPixel(posInChunk);
                 SKColor latestColor = latestChunk is null ?
-                    SKColors.Transparent : 
+                    SKColors.Transparent :
                     latestChunk.Surface.GetSRGBPixel(posInChunk);
                 // using a whole chunk just to draw 1 pixel is kinda dumb,
                 // but this should be faster than any approach that requires allocations
@@ -191,7 +223,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             }
         }
     }
-    
+
     /// <returns>
     /// True if the chunk existed and was drawn, otherwise false
     /// </returns>
@@ -441,6 +473,20 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueDrawImage(SKMatrix transformMatrix, Surface image, SKPaint? paint = null, bool copyImage = true)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            ImageOperation operation = new(transformMatrix, image, paint, copyImage);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <summary>
+    /// Be careful about the copyImage argument, see other overload for details
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawImage(ShapeCorners corners, Surface image, SKPaint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
@@ -452,10 +498,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <summary>
-    /// Be careful about the copyImage argument. The default is true, and this is a thread safe version without any side effects. 
-    /// It will however copy the surface right away which can be slow (in updateable changes especially). 
-    /// If copyImage is set to false, the image won't be copied and instead a reference will be stored.
-    /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
+    /// Be careful about the copyImage argument, see other overload for details
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawImage(VecI pos, Surface image, SKPaint? paint = null, bool copyImage = true)
@@ -542,6 +585,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         {
             ThrowIfDisposed();
             ClearRegionOperation operation = new(region);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueClearPath(SKPath path, RectI? pathTightBounds = null)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            ClearPathOperation operation = new(path, pathTightBounds);
             EnqueueOperation(operation);
         }
     }

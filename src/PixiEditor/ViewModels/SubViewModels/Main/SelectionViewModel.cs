@@ -1,7 +1,5 @@
 ﻿using System.Windows.Input;
-using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Commands.Attributes.Evaluators;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -35,5 +33,11 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     public bool SelectionIsNotEmpty()
     {
         return !Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectionPathBindable?.IsEmpty ?? false;
+    }
+
+    [Command.Basic("PixiEditor.Selection.TransformArea", "Transform selected area", "Transform selected area", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.T, Modifiers = ModifierKeys.Control)]
+    public void TransformSelectedArea()
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(false);
     }
 }

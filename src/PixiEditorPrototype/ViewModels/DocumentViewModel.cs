@@ -563,7 +563,7 @@ internal class DocumentViewModel : INotifyPropertyChanged
             return;
         updateableChangeActive = true;
         shiftingLayer = true;
-        Helpers.ActionAccumulator.AddActions(new ShiftLayer_Action(layer.GuidValue, delta));
+        Helpers.ActionAccumulator.AddActions(new ShiftLayer_Action(layer.GuidValue, delta, false));
     }
 
     public void EndShiftLayer()

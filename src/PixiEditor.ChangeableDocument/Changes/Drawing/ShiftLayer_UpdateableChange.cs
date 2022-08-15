@@ -2,14 +2,16 @@
 internal class ShiftLayer_UpdateableChange : UpdateableChange
 {
     private readonly Guid layerGuid;
+    private bool keepOriginal;
     private VecI delta;
     private CommittedChunkStorage? originalLayerChunks;
 
     [GenerateUpdateableChangeActions]
-    public ShiftLayer_UpdateableChange(Guid layerGuid, VecI delta)
+    public ShiftLayer_UpdateableChange(Guid layerGuid, VecI delta, bool keepOriginal)
     {
         this.delta = delta;
         this.layerGuid = layerGuid;
+        this.keepOriginal = keepOriginal;
     }
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
@@ -20,9 +22,10 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI delta)
+    public void Update(VecI delta, bool keepOriginal)
     {
         this.delta = delta;
+        this.keepOriginal = keepOriginal;
     }
 
     private HashSet<VecI> DrawShiftedLayer(Document target)
@@ -30,7 +33,8 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         var targetImage = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
         var prevChunks = targetImage.FindAffectedChunks();
         targetImage.CancelChanges();
-        targetImage.EnqueueClear();
+        if (!keepOriginal)
+            targetImage.EnqueueClear();
         targetImage.EnqueueDrawChunkyImage(delta, targetImage, false, false);
         var curChunks = targetImage.FindAffectedChunks();
         curChunks.UnionWith(prevChunks);

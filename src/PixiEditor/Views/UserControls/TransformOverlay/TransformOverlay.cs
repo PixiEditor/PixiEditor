@@ -42,6 +42,16 @@ internal class TransformOverlay : Decorator
     public static readonly DependencyProperty ZoomboxAngleProperty =
         DependencyProperty.Register(nameof(ZoomboxAngle), typeof(double), typeof(TransformOverlay), new(0.0));
 
+    public static readonly DependencyProperty ConverWholeScreenProperty =
+        DependencyProperty.Register(nameof(CoverWholeScreen), typeof(bool), typeof(TransformOverlay),
+            new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public bool CoverWholeScreen
+    {
+        get => (bool)GetValue(ConverWholeScreenProperty);
+        set => SetValue(ConverWholeScreenProperty, value);
+    }
+
     public double ZoomboxAngle
     {
         get => (double)GetValue(ZoomboxAngleProperty);
@@ -96,6 +106,8 @@ internal class TransformOverlay : Decorator
         set => SetValue(LockRotationProperty, value);
     }
 
+    private const int anchorSizeMultiplierForRotation = 15;
+
     private bool isResettingRequestedCorners = false;
     private bool isMoving = false;
     private VecD mousePosOnStartMove = new();
@@ -142,11 +154,51 @@ internal class TransformOverlay : Decorator
             UpdateRotationCursor(TransformHelper.ToVecD(Mouse.GetPosition(this)));
     }
 
+    private void DrawMouseInputArea(DrawingContext context, VecD size)
+    {
+        if (CoverWholeScreen)
+        {
+            context.DrawRectangle(Brushes.Transparent, null, new Rect(new Point(-size.X * 50, -size.Y * 50), new Size(size.X * 101, size.Y * 101)));
+            return;
+        }
+
+        StreamGeometry geometry = new();
+        using (StreamGeometryContext ctx = geometry.Open())
+        {
+            ctx.BeginFigure(TransformHelper.ToPoint(Corners.TopLeft), true, true);
+            ctx.LineTo(TransformHelper.ToPoint(Corners.TopRight), true, true);
+            ctx.LineTo(TransformHelper.ToPoint(Corners.BottomRight), true, true);
+            ctx.LineTo(TransformHelper.ToPoint(Corners.BottomLeft), true, true);
+            ctx.Close();
+        }
+
+        if (LockRotation)
+            return;
+
+        context.DrawGeometry(Brushes.Transparent, null, geometry);
+        Span<Point> points = stackalloc Point[]
+        {
+            TransformHelper.ToPoint(Corners.TopLeft),
+            TransformHelper.ToPoint(Corners.TopRight),
+            TransformHelper.ToPoint(Corners.BottomLeft),
+            TransformHelper.ToPoint(Corners.BottomRight),
+            TransformHelper.ToPoint((Corners.TopLeft + Corners.TopRight) / 2),
+            TransformHelper.ToPoint((Corners.TopLeft + Corners.BottomLeft) / 2),
+            TransformHelper.ToPoint((Corners.BottomRight + Corners.TopRight) / 2),
+            TransformHelper.ToPoint((Corners.BottomRight + Corners.BottomLeft) / 2),
+        };
+        double ellipseSize = (TransformHelper.AnchorSize * anchorSizeMultiplierForRotation - 2) / (ZoomboxScale * 2);
+        foreach (var point in points)
+        {
+            context.DrawEllipse(Brushes.Transparent, null, point, ellipseSize, ellipseSize);
+        }
+    }
+
     private void DrawOverlay
         (DrawingContext context, VecD size, ShapeCorners corners, VecD origin, double zoomboxScale)
     {
-        // draw transparent background to enable mouse input everywhere
-        context.DrawRectangle(Brushes.Transparent, null, new Rect(new Point(-size.X * 50, -size.Y * 50), new Size(size.X * 101, size.Y * 101)));
+        // draw transparent background to enable mouse input
+        DrawMouseInputArea(context, size);
 
         blackPen.Thickness = 1 / zoomboxScale;
         blackDashedPen.Thickness = 1 / zoomboxScale;
@@ -201,6 +253,12 @@ internal class TransformOverlay : Decorator
         context.DrawGeometry(Brushes.White, blackPen, rotateCursorGeometry);
     }
 
+    protected override void OnMouseLeave(MouseEventArgs e)
+    {
+        base.OnMouseLeave(e);
+        rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
+    }
+
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
@@ -245,7 +303,7 @@ internal class TransformOverlay : Decorator
             TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale) is not null ||
             TransformHelper.IsWithinTransformHandle(TransformHelper.GetDragHandlePos(Corners, ZoomboxScale), mousePos, ZoomboxScale))
             return false;
-        return TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale, 15) is not null;
+        return TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale, anchorSizeMultiplierForRotation) is not null;
     }
 
     private bool UpdateRotationCursor(VecD mousePos)

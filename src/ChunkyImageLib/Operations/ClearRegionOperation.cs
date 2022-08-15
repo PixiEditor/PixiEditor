@@ -5,7 +5,7 @@ namespace ChunkyImageLib.Operations;
 
 internal class ClearRegionOperation : IDrawOperation
 {
-    RectI rect;
+    private RectI rect;
 
     public bool IgnoreEmptyChunks => true;
 

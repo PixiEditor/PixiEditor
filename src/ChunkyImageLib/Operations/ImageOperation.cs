@@ -53,6 +53,30 @@ internal class ImageOperation : IDrawOperation
         imageWasCopied = copyImage;
     }
 
+    public ImageOperation(SKMatrix transformMatrix, Surface image, SKPaint? paint = null, bool copyImage = true)
+    {
+        if (paint is not null)
+            customPaint = paint.Clone();
+
+        this.corners = new ShapeCorners()
+        {
+            TopLeft = transformMatrix.MapPoint(0, 0),
+            TopRight = transformMatrix.MapPoint(image.Size.X, 0),
+            BottomLeft = transformMatrix.MapPoint(0, image.Size.Y),
+            BottomRight = transformMatrix.MapPoint(image.Size),
+        };
+        this.transformMatrix = transformMatrix;
+
+        // copying is needed for thread safety
+        if (copyImage)
+            toPaint = new Surface(image);
+        else
+            toPaint = image;
+        imageWasCopied = copyImage;
+    }
+
+
+
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
         //customPaint.FilterQuality = chunk.Resolution != ChunkResolution.Full;

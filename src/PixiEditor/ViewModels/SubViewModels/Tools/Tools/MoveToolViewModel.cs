@@ -1,5 +1,7 @@
 ﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -12,6 +14,7 @@ internal class MoveToolViewModel : ToolViewModel
     public MoveToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
+        Toolbar = new MoveToolToolbar();
         Cursor = Cursors.Arrow;
     }
 
@@ -20,11 +23,18 @@ internal class MoveToolViewModel : ToolViewModel
     public override BrushShape BrushShape => BrushShape.Hidden;
     public override bool HideHighlight => true;
 
-    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void OnLeftMouseButtonDown(VecD pos)
     {
-        if (ctrlIsDown)
-            ActionDisplay = "Hold mouse to move all layers.";
-        else
-            ActionDisplay = defaultActionDisplay;
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseShiftLayerTool();
+    }
+
+    public override void OnSelected()
+    {
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
+    }
+
+    public override void OnDeselected()
+    {
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
     }
 }

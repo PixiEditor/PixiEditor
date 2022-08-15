@@ -1,11 +1,10 @@
-﻿using ChunkyImageLib.Operations;
-using SkiaSharp;
+﻿using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class TransformSelectionPath_UpdateableChange : UpdateableChange
 {
     private SKPath? originalPath;
-    private ShapeCorners originalCorners;
+    private RectI originalTightBounds;
     private ShapeCorners newCorners;
 
     [GenerateUpdateableChangeActions]
@@ -25,35 +24,19 @@ internal class TransformSelectionPath_UpdateableChange : UpdateableChange
         if (target.Selection.SelectionPath.IsEmpty)
             return new Error();
         originalPath = new(target.Selection.SelectionPath);
-        var bounds = originalPath.TightBounds;
-        originalCorners = new(bounds);
+        originalTightBounds = (RectI)originalPath.TightBounds;
         return new Success();
-    }
-
-    private Selection_ChangeInfo CommonApply(Document target)
-    {
-        SKPath newPath = new(originalPath);
-
-        var matrix = SKMatrix.CreateTranslation((float)-originalCorners.TopLeft.X, (float)-originalCorners.TopLeft.Y).PostConcat(
-            OperationHelper.CreateMatrixFromPoints(newCorners, originalCorners.RectSize));
-        newPath.Transform(matrix);
-
-        var toDispose = target.Selection.SelectionPath;
-        target.Selection.SelectionPath = newPath;
-        toDispose.Dispose();
-
-        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         ignoreInUndo = false;
-        return CommonApply(target);
+        return SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalTightBounds, newCorners);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        return CommonApply(target);
+        return SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalTightBounds, newCorners);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)

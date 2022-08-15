@@ -33,8 +33,7 @@ internal class ClearSelectedArea_Change : Change
         RectD bounds = target.Selection.SelectionPath.Bounds;
         RectI intBounds = (RectI)bounds.Intersect(SKRect.Create(0, 0, target.Size.X, target.Size.Y)).RoundOutwards();
 
-        image.SetClippingPath(target.Selection.SelectionPath);
-        image.EnqueueClearRegion(intBounds);
+        image.EnqueueClearPath(target.Selection.SelectionPath, intBounds);
         var affChunks = image.FindAffectedChunks();
         savedChunks = new(image, affChunks);
         image.CommitChanges();

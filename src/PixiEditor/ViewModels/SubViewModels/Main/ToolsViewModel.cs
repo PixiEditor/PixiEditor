@@ -120,8 +120,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
         //update old tool
         LastActionTool?.UpdateActionDisplay(false, false, false);
+        LastActionTool?.OnDeselected();
         //update new tool
         ActiveTool.UpdateActionDisplay(ctrlIsDown, shiftIsDown, altIsDown);
+        ActiveTool.OnSelected();
 
         tool.IsActive = true;
         SetToolCursor(tool.GetType());

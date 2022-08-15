@@ -29,13 +29,22 @@ internal class ChangeExecutionController
         this.internals = internals;
     }
 
-    public bool TryStartUpdateableChange<T>()
+    public ExecutorType GetCurrentExecutorType()
+    {
+        if (currentSession is null)
+            return ExecutorType.None;
+        return currentSession.Type;
+    }
+
+    public bool TryStartExecutor<T>(bool force = false)
         where T : UpdateableChangeExecutor, new()
     {
-        if (currentSession is not null)
+        if (currentSession is not null && !force)
             return false;
+        if (force)
+            currentSession?.ForceStop();
         T executor = new T();
-        executor.Initialize(document, internals, this, EndChange);
+        executor.Initialize(document, internals, this, EndExecutor);
         if (executor.Start() == ExecutionState.Success)
         {
             currentSession = executor;
@@ -44,11 +53,13 @@ internal class ChangeExecutionController
         return false;
     }
 
-    public bool TryStartUpdateableChange(UpdateableChangeExecutor brandNewExecutor)
+    public bool TryStartExecutor(UpdateableChangeExecutor brandNewExecutor, bool force = false)
     {
-        if (currentSession is not null)
+        if (currentSession is not null && !force)
             return false;
-        brandNewExecutor.Initialize(document, internals, this, EndChange);
+        if (force)
+            currentSession?.ForceStop();
+        brandNewExecutor.Initialize(document, internals, this, EndExecutor);
         if (brandNewExecutor.Start() == ExecutionState.Success)
         {
             currentSession = brandNewExecutor;
@@ -57,14 +68,14 @@ internal class ChangeExecutionController
         return false;
     }
 
-    private void EndChange(UpdateableChangeExecutor executor)
+    private void EndExecutor(UpdateableChangeExecutor executor)
     {
         if (executor != currentSession)
             throw new InvalidOperationException();
         currentSession = null;
     }
 
-    public bool TryStopActiveUpdateableChange()
+    public bool TryStopActiveExecutor()
     {
         if (currentSession is null)
             return false;

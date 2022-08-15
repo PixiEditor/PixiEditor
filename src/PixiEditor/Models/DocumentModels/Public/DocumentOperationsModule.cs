@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ChunkyImageLib;
+﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
@@ -80,7 +75,7 @@ internal class DocumentOperationsModule
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
-        
+
         RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
         foreach (var imageWithName in images)
         {
@@ -214,7 +209,24 @@ internal class DocumentOperationsModule
 
     public void PasteImageWithTransform(Surface image, VecI startPos)
     {
-        Internals.ChangeController.TryStartUpdateableChange(new PasteImageExecutor(image, startPos));
+        if (Document.SelectedStructureMember is null)
+            return;
+        Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos));
+    }
+
+    public void TransformSelectedArea(bool toolLinked)
+    {
+        if (Document.SelectedStructureMember is null ||
+            Internals.ChangeController.IsChangeActive && !toolLinked ||
+            Document.SelectionPathBindable.IsEmpty)
+            return;
+        Internals.ChangeController.TryStartExecutor(new TransformSelectedAreaExecutor(toolLinked));
+    }
+
+    public void TryStopToolLinkedExecutor()
+    {
+        if (Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked)
+            Internals.ChangeController.TryStopActiveExecutor();
     }
 
     public void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask) =>
@@ -222,10 +234,10 @@ internal class DocumentOperationsModule
 
     private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, bool finish)
     {
-        if (Internals.ChangeController.IsChangeActive)
+        if (Internals.ChangeController.IsChangeActive || Document.SelectedStructureMember is null)
             return;
         Internals.ActionAccumulator.AddActions(
-            new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask),
+            new PasteImage_Action(image, corners, Document.SelectedStructureMember.GuidValue, ignoreClipSymmetriesEtc, drawOnMask),
             new EndPasteImage_Action()
             );
         if (finish)
