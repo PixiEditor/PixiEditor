@@ -172,10 +172,10 @@ internal class TransformOverlay : Decorator
             ctx.Close();
         }
 
+        context.DrawGeometry(Brushes.Transparent, null, geometry);
         if (LockRotation)
             return;
 
-        context.DrawGeometry(Brushes.Transparent, null, geometry);
         Span<Point> points = stackalloc Point[]
         {
             TransformHelper.ToPoint(Corners.TopLeft),
