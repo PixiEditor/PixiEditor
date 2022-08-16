@@ -1,7 +1,9 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Views.UserControls.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -36,6 +38,9 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnOpacitySliderDragStarted() { }
     public virtual void OnOpacitySliderDragged(float newValue) { }
     public virtual void OnOpacitySliderDragEnded() { }
+    public virtual void OnSymmetryDragStarted(SymmetryAxisDirection dir) { }
+    public virtual void OnSymmetryDragged(SymmetryAxisDragInfo info) { }
+    public virtual void OnSymmetryDragEnded(SymmetryAxisDirection dir) { }
     public virtual void OnConvertedKeyDown(Key key) { }
     public virtual void OnConvertedKeyUp(Key key) { }
     public virtual void OnTransformMoved(ShapeCorners corners) { }

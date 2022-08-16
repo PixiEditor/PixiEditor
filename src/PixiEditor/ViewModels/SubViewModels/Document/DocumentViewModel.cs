@@ -66,14 +66,22 @@ internal class DocumentViewModel : NotifyableObject
     public bool HorizontalSymmetryAxisEnabledBindable
     {
         get => horizontalSymmetryAxisEnabled;
-        set => Internals.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Horizontal, value));
+        set
+        {
+            if (!Internals.ChangeController.IsChangeActive)
+                Internals.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Horizontal, value));
+        }
     }
 
     private bool verticalSymmetryAxisEnabled;
     public bool VerticalSymmetryAxisEnabledBindable
     {
         get => verticalSymmetryAxisEnabled;
-        set => Internals.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
+        set
+        {
+            if (!Internals.ChangeController.IsChangeActive)
+                Internals.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
+        }
     }
 
     private VecI size = new VecI(64, 64);
@@ -179,7 +187,7 @@ internal class DocumentViewModel : NotifyableObject
         var acc = viewModel.Internals.ActionAccumulator;
 
         AddMembers(viewModel.StructureRoot.GuidValue, builderInstance.Children);
-        
+
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());
 
         return viewModel;
@@ -190,7 +198,7 @@ internal class DocumentViewModel : NotifyableObject
                 new CreateStructureMember_Action(parentGuid, member.GuidValue, 0, member is DocumentViewModelBuilder.LayerBuilder ? StructureMemberType.Layer : StructureMemberType.Folder),
                 new StructureMemberName_Action(member.GuidValue, member.Name)
             );
-            
+
             if (!member.IsVisible)
                 acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.GuidValue));
 
@@ -202,17 +210,17 @@ internal class DocumentViewModel : NotifyableObject
             if (member.HasMask)
             {
                 var maskSurface = member.Mask.Surface.Surface;
-                
+
                 acc.AddActions(new CreateStructureMemberMask_Action(member.GuidValue));
-                
+
                 if (!member.Mask.IsVisible)
                     acc.AddActions(new StructureMemberMaskIsVisible_Action(member.Mask.IsVisible, member.GuidValue));
-                
+
                 PasteImage(member.GuidValue, member.Mask.Surface, maskSurface.Size.X, maskSurface.Size.Y, 0, 0, true);
             }
-            
+
             acc.AddFinishedActions();
-            
+
             if (member is DocumentViewModelBuilder.FolderBuilder { Children: not null } folder)
             {
                 AddMembers(member.GuidValue, folder.Children);

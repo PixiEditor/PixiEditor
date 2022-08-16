@@ -1,7 +1,9 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Views.UserControls.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 internal class DocumentEventsModule
@@ -40,4 +42,7 @@ internal class DocumentEventsModule
     public void OnOpacitySliderDragged(float newValue) => Internals.ChangeController.OpacitySliderDraggedInlet(newValue);
     public void OnOpacitySliderDragEnded() => Internals.ChangeController.OpacitySliderDragEndedInlet();
     public void OnApplyTransform() => Internals.ChangeController.TransformAppliedInlet();
+    public void OnSymmetryDragStarted(SymmetryAxisDirection dir) => Internals.ChangeController.SymmetryDragStartedInlet(dir);
+    public void OnSymmetryDragged(SymmetryAxisDragInfo info) => Internals.ChangeController.SymmetryDraggedInlet(info);
+    public void OnSymmetryDragEnded(SymmetryAxisDirection dir) => Internals.ChangeController.SymmetryDragEndedInlet(dir);
 }

@@ -108,8 +108,9 @@
                         VerticalAxisVisible="{Binding Document.VerticalSymmetryAxisEnabledBindable}"
                         HorizontalAxisY="{Binding Document.HorizontalSymmetryAxisYBindable, Mode=OneWay}"
                         VerticalAxisX="{Binding Document.VerticalSymmetryAxisXBindable, Mode=OneWay}"
-                        DragCommand="{Binding Document.DragSymmetryCommand}"
-                        DragEndCommand="{Binding Document.EndDragSymmetryCommand}" />
+                        DragCommand="{cmds:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
+                        DragEndCommand="{cmds:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}" 
+                        DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}" />
                     <uc:SelectionOverlay
                         ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={StaticResource IsSelectToolConverter}}"
                         Path="{Binding Document.SelectionPathBindable}"

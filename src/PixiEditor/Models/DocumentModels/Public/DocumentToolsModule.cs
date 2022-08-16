@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.DocumentModels;
+﻿using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -14,6 +15,8 @@ internal class DocumentToolsModule
         this.Document = doc;
         this.Internals = internals;
     }
+
+    public void UseSymmetry(SymmetryAxisDirection dir) => Internals.ChangeController.TryStartExecutor(new SymmetryExecutor(dir));
 
     public void UseOpacitySlider() => Internals.ChangeController.TryStartExecutor<StructureMemberOpacityExecutor>();
 

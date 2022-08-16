@@ -236,15 +236,26 @@
                             Header="Resize _Image..."
                             cmds:Menu.Command="PixiEditor.Document.ResizeDocument" />
                         <MenuItem
-                            Header="_Resize Canvas..."
+                            Header="Resize _Canvas..."
                             cmds:Menu.Command="PixiEditor.Document.ResizeCanvas" />
-                        <MenuItem
-                            Header="_Clip Canvas"
-                            cmds:Menu.Command="PixiEditor.Document.ClipCanvas" />
                         <Separator />
                         <MenuItem
-                            Header="_Center Content"
+                            Header="Cli_p Canvas"
+                            cmds:Menu.Command="PixiEditor.Document.ClipCanvas" />
+                        <MenuItem
+                            Header="Cente_r Content"
                             cmds:Menu.Command="PixiEditor.Document.CenterContent" />
+                        <Separator />
+                        <MenuItem
+                            IsCheckable="True"
+                            IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
+                            IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.HorizontalSymmetryAxisEnabledBindable}"
+                            Header="_Horizontal Line Symmetry"/>
+                        <MenuItem
+                            IsCheckable="True"
+                            IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
+                            IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable}"
+                            Header="_Vertical Line Symmetry"/>
                         <!--<Separator/>
                     <MenuItem Header="_Rotate to right 90&#186;" Command="{Binding DocumentSubViewModel.RotateToRightCommand}">
                         <MenuItem.CommandParameter>

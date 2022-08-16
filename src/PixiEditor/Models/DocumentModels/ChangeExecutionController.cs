@@ -1,8 +1,10 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Views.UserControls.SymmetryOverlay;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable
@@ -13,6 +15,8 @@ internal class ChangeExecutionController
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
     public float LastOpacityValue = 1f;
+    public int LastHorizontalSymmetryAxisPosition { get; private set; }
+    public int LastVerticalSymmetryAxisPosition { get; private set; }
     public bool IsChangeActive => currentSession is not null;
 
     private readonly DocumentViewModel document;
@@ -122,6 +126,23 @@ internal class ChangeExecutionController
         currentSession?.OnOpacitySliderDragged(newValue);
     }
     public void OpacitySliderDragEndedInlet() => currentSession?.OnOpacitySliderDragEnded();
+
+    public void SymmetryDragStartedInlet(SymmetryAxisDirection dir) => currentSession?.OnSymmetryDragStarted(dir);
+    public void SymmetryDraggedInlet(SymmetryAxisDragInfo info)
+    {
+        switch (info.Direction)
+        {
+            case SymmetryAxisDirection.Horizontal:
+                LastHorizontalSymmetryAxisPosition = info.NewPosition;
+                break;
+            case SymmetryAxisDirection.Vertical:
+                LastVerticalSymmetryAxisPosition = info.NewPosition;
+                break;
+        }
+        currentSession?.OnSymmetryDragged(info);
+    }
+
+    public void SymmetryDragEndedInlet(SymmetryAxisDirection dir) => currentSession?.OnSymmetryDragEnded(dir);
 
     public void LeftMouseButtonDownInlet(VecD canvasPos)
     {

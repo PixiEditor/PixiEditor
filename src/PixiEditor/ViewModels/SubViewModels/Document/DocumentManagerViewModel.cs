@@ -1,11 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.Views.UserControls.SymmetryOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
@@ -101,6 +101,46 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         
     }
 */
+    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument")]
+    public void ToggleVerticalSymmetryAxis()
+    {
+        if (ActiveDocument is null)
+            return;
+        ActiveDocument.VerticalSymmetryAxisEnabledBindable ^= true;
+    }
+
+    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "Toggle horizontal symmetry axis", "Toggle horizontal symmetry axis", CanExecute = "PixiEditor.HasDocument")]
+    public void ToggleHorizontalSymmetryAxis()
+    {
+        if (ActiveDocument is null)
+            return;
+        ActiveDocument.HorizontalSymmetryAxisEnabledBindable ^= true;
+    }
+
+    [Command.Internal("PixiEditor.Document.DragSymmetry", CanExecute = "PixiEditor.HasDocument")]
+    public void DragSymmetry(SymmetryAxisDragInfo info)
+    {
+        if (ActiveDocument is null)
+            return;
+        ActiveDocument.EventInlet.OnSymmetryDragged(info);
+    }
+
+    [Command.Internal("PixiEditor.Document.StartDragSymmetry", CanExecute = "PixiEditor.HasDocument")]
+    public void StartDragSymmetry(SymmetryAxisDirection dir)
+    {
+        if (ActiveDocument is null)
+            return;
+        ActiveDocument.EventInlet.OnSymmetryDragStarted(dir);
+        ActiveDocument.Tools.UseSymmetry(dir);
+    }
+
+    [Command.Internal("PixiEditor.Document.EndDragSymmetry", CanExecute = "PixiEditor.HasDocument")]
+    public void EndDragSymmetry(SymmetryAxisDirection dir)
+    {
+        if (ActiveDocument is null)
+            return;
+        ActiveDocument.EventInlet.OnSymmetryDragEnded(dir);
+    }
 
     [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png")]
     public void DeletePixels()

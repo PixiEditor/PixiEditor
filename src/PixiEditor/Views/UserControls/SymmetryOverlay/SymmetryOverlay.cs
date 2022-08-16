@@ -77,6 +77,15 @@ internal class SymmetryOverlay : Control
         set => SetValue(DragEndCommandProperty, value);
     }
 
+    public static readonly DependencyProperty DragStartCommandProperty =
+        DependencyProperty.Register(nameof(DragStartCommand), typeof(ICommand), typeof(SymmetryOverlay), new(null));
+
+    public ICommand? DragStartCommand
+    {
+        get => (ICommand?)GetValue(DragStartCommandProperty);
+        set => SetValue(DragStartCommandProperty, value);
+    }
+
     private const double HandleSize = 16;
     private PathGeometry handleGeometry = new()
     {
@@ -163,6 +172,7 @@ internal class SymmetryOverlay : Control
         capturedDirection = dir.Value;
         CaptureMouse();
         e.Handled = true;
+        CallSymmetryDragStartCommand(dir.Value);
     }
 
     private void CallSymmetryDragCommand(SymmetryAxisDirection direction, int position)
@@ -175,6 +185,11 @@ internal class SymmetryOverlay : Control
     {
         if (DragEndCommand is not null && DragEndCommand.CanExecute(direction))
             DragEndCommand.Execute(direction);
+    }
+    private void CallSymmetryDragStartCommand(SymmetryAxisDirection direction)
+    {
+        if (DragStartCommand is not null && DragStartCommand.CanExecute(direction))
+            DragStartCommand.Execute(direction);
     }
 
     protected override void OnMouseUp(MouseButtonEventArgs e)
