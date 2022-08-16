@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
-internal class DrawLine_UpdateableChange : UpdateableChange 
+internal class DrawLine_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
     private VecI from;
@@ -35,7 +35,7 @@ internal class DrawLine_UpdateableChange : UpdateableChange
         this.caps = caps;
         this.strokeWidth = strokeWidth;
     }
-    
+
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
@@ -48,11 +48,14 @@ internal class DrawLine_UpdateableChange : UpdateableChange
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var oldAffected = image.FindAffectedChunks();
         image.CancelChanges();
-        DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-        if (strokeWidth == 1)
-            image.EnqueueDrawBresenhamLine(from, to, color, SKBlendMode.SrcOver);
-        else
-            image.EnqueueDrawSkiaLine(from, to, caps, strokeWidth, color, SKBlendMode.SrcOver);
+        if (from != to)
+        {
+            DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
+            if (strokeWidth == 1)
+                image.EnqueueDrawBresenhamLine(from, to, color, SKBlendMode.SrcOver);
+            else
+                image.EnqueueDrawSkiaLine(from, to, caps, strokeWidth, color, SKBlendMode.SrcOver);
+        }
         var totalAffected = image.FindAffectedChunks();
         totalAffected.UnionWith(oldAffected);
         return totalAffected;
@@ -65,13 +68,19 @@ internal class DrawLine_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
+        if (from == to)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
+
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var affected = CommonApply(target);
         if (savedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
         savedChunks = new CommittedChunkStorage(image, image.FindAffectedChunks());
         image.CommitChanges();
-        
+
         ignoreInUndo = false;
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affected, drawOnMask);
     }

@@ -30,13 +30,13 @@ internal class LineToolExecutor : ShapeToolExecutor<LineToolViewModel>
         memberGuid = member.GuidValue;
 
         colorsVM.AddSwatch(strokeColor);
-        DrawShape(startPos);
+        DrawShape(startPos, true);
         return ExecutionState.Success;
     }
 
-    private void DrawLine(VecI curPos)
+    private void DrawLine(VecI curPos, bool firstDraw)
     {
-        RectI rect = RectI.FromTwoPixels(startPos, curPos);
+        RectI rect = firstDraw ? new RectI(curPos, VecI.Zero) : RectI.FromTwoPixels(startPos, curPos);
         if (rect.Width == 0)
             rect.Width = 1;
         if (rect.Height == 0)
@@ -47,7 +47,7 @@ internal class LineToolExecutor : ShapeToolExecutor<LineToolViewModel>
         internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, strokeWidth, strokeColor, SKStrokeCap.Butt, drawOnMask));
     }
 
-    protected override void DrawShape(VecI currentPos) => DrawLine(currentPos);
+    protected override void DrawShape(VecI currentPos, bool firstDraw) => DrawLine(currentPos, firstDraw);
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
     {

@@ -22,6 +22,8 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     protected VecI startPos;
     protected RectI lastRect;
 
+    private bool noMovement = true;
+
     public override ExecutionState Start()
     {
         ColorsViewModel? colorsVM = ViewModelMain.Current?.ColorsSubViewModel;
@@ -43,11 +45,11 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         memberGuid = member.GuidValue;
 
         colorsVM.AddSwatch(strokeColor);
-        DrawShape(startPos);
+        DrawShape(startPos, true);
         return ExecutionState.Success;
     }
 
-    protected abstract void DrawShape(VecI currentPos);
+    protected abstract void DrawShape(VecI currentPos, bool firstDraw);
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
     protected abstract IAction EndDrawAction();
     protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Rotation;
@@ -86,14 +88,20 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         if (transforming)
             return;
-
-        DrawShape(pos);
+        noMovement = false;
+        DrawShape(pos, false);
     }
 
     public override void OnLeftMouseButtonUp()
     {
         if (transforming)
             return;
+        if (noMovement)
+        {
+            internals!.ActionAccumulator.AddFinishedActions(EndDrawAction());
+            onEnded?.Invoke(this);
+            return;
+        }
         transforming = true;
         document!.TransformViewModel.ShowTransform(TransformMode, false, new ShapeCorners(lastRect));
     }

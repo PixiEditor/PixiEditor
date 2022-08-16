@@ -7,10 +7,12 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
 {
-    private void DrawEllipseOrCircle(VecI curPos)
+    private void DrawEllipseOrCircle(VecI curPos, bool firstDraw)
     {
         RectI rect;
-        if (toolViewModel!.DrawCircle)
+        if (firstDraw)
+            rect = new RectI(curPos, VecI.Zero);
+        else if (toolViewModel!.DrawCircle)
             rect = GetSquaredCoordinates(startPos, curPos);
         else
             rect = RectI.FromTwoPixels(startPos, curPos);
@@ -22,7 +24,7 @@ internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
     protected override DocumentTransformMode TransformMode => DocumentTransformMode.NoRotation;
-    protected override void DrawShape(VecI currentPos) => DrawEllipseOrCircle(currentPos);
+    protected override void DrawShape(VecI currentPos, bool firstDraw) => DrawEllipseOrCircle(currentPos, firstDraw);
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) =>
         new DrawEllipse_Action(memberGuid, (RectI)RectD.FromCenterAndSize(data.Center, data.Size), strokeColor,

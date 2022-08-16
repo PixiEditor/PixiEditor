@@ -8,10 +8,12 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class RectangleToolExecutor : ShapeToolExecutor<RectangleToolViewModel>
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
-    private void DrawRectangle(VecI curPos)
+    private void DrawRectangle(VecI curPos, bool firstDraw)
     {
         RectI rect;
-        if (toolViewModel!.DrawSquare)
+        if (firstDraw)
+            rect = new RectI(curPos, VecI.Zero);
+        else if (toolViewModel!.DrawSquare)
             rect = GetSquaredCoordinates(startPos, curPos);
         else
             rect = RectI.FromTwoPixels(startPos, curPos);
@@ -20,7 +22,7 @@ internal class RectangleToolExecutor : ShapeToolExecutor<RectangleToolViewModel>
         internals!.ActionAccumulator.AddActions(new DrawRectangle_Action(memberGuid, new ShapeData(rect.Center, rect.Size, 0, strokeWidth, strokeColor, fillColor), drawOnMask));
     }
 
-    protected override void DrawShape(VecI currentPos) => DrawRectangle(currentPos);
+    protected override void DrawShape(VecI currentPos, bool first) => DrawRectangle(currentPos, first);
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) => new DrawRectangle_Action(memberGuid, data, drawOnMask);
 

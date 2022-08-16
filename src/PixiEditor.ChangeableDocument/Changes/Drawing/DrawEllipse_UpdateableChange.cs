@@ -41,8 +41,12 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
         var oldAffectedChunks = targetImage.FindAffectedChunks();
 
         targetImage.CancelChanges();
-        DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
-        targetImage.EnqueueDrawEllipse(location, strokeColor, fillColor, strokeWidth);
+
+        if (!location.IsZeroOrNegativeArea)
+        {
+            DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
+            targetImage.EnqueueDrawEllipse(location, strokeColor, fillColor, strokeWidth);
+        }
 
         var affectedChunks = targetImage.FindAffectedChunks();
         affectedChunks.UnionWith(oldAffectedChunks);
@@ -52,6 +56,12 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
+        if (location.IsZeroOrNegativeArea)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
+
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var chunks = UpdateEllipse(target, image);
         storedChunks = new CommittedChunkStorage(image, image.FindAffectedChunks());

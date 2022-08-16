@@ -33,8 +33,12 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         var oldAffectedChunks = targetImage.FindAffectedChunks();
 
         targetImage.CancelChanges();
-        DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
-        targetImage.EnqueueDrawRectangle(rect);
+
+        if (!(rect.Size.X <= 0 || rect.Size.Y <= 0))
+        {
+            DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, targetImage, memberGuid, drawOnMask);
+            targetImage.EnqueueDrawRectangle(rect);
+        }
 
         var affectedChunks = targetImage.FindAffectedChunks();
         affectedChunks.UnionWith(oldAffectedChunks);
@@ -51,6 +55,12 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
+        if (rect.Size.X <= 0 || rect.Size.Y <= 0)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
+
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var affectedChunks = UpdateRectangle(target, targetImage);
         storedChunks = new CommittedChunkStorage(targetImage, affectedChunks);
