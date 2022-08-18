@@ -48,12 +48,12 @@ internal class SkiaLineOperation : IDrawOperation
         if (verAxisX is not null)
         {
             newFrom = newFrom.ReflectX((int)verAxisX);
-            newTo = newFrom.ReflectX((int)verAxisX);
+            newTo = newTo.ReflectX((int)verAxisX);
         }
         if (horAxisY is not null)
         {
             newFrom = newFrom.ReflectY((int)horAxisY);
-            newTo = newFrom.ReflectY((int)horAxisY);
+            newTo = newTo.ReflectY((int)horAxisY);
         }
         return new SkiaLineOperation(newFrom, newTo, paint.StrokeCap, paint.StrokeWidth, paint.Color, paint.BlendMode);
     }
