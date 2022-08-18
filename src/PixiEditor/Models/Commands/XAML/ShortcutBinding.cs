@@ -2,7 +2,6 @@
 using System.Windows.Markup;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.ViewModels;
 using ActualCommand = PixiEditor.Models.Commands.Commands.Command;
 
 namespace PixiEditor.Models.Commands.XAML;
@@ -19,15 +18,15 @@ internal class ShortcutBinding : MarkupExtension
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
+        //if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+        //{
+        var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
+        return new KeyCombination(attribute.Key, attribute.Modifiers).ToString();
+        //}
+
         if (commandController == null)
         {
             commandController = ViewModelMain.Current.CommandController;
-        }
-
-        if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
-        {
-            var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
-            return new KeyCombination(attribute.Key, attribute.Modifiers).ToString();
         }
 
         return GetBinding(commandController.Commands[Name]).ProvideValue(serviceProvider);

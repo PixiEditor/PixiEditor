@@ -1,7 +1,6 @@
 ﻿using System.Windows.Input;
 using System.Windows.Markup;
 using PixiEditor.Helpers;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.Models.Commands.XAML;
 
@@ -21,11 +20,6 @@ internal class Command : MarkupExtension
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        if (commandController == null)
-        {
-            commandController = ViewModelMain.Current.CommandController;
-        }
-
         if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
         {
             var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
@@ -38,6 +32,11 @@ internal class Command : MarkupExtension
                     DefaultShortcut = attribute.GetShortcut(),
                     Shortcut = attribute.GetShortcut()
                 }, false);
+        }
+
+        if (commandController is null)
+        {
+            commandController = ViewModelMain.Current.CommandController;
         }
 
         var command = commandController.Commands[Name];
