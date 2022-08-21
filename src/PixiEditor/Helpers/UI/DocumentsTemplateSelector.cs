@@ -1,6 +1,5 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Helpers.UI;
 
@@ -15,7 +14,7 @@ internal class DocumentsTemplateSelector : DataTemplateSelector
 
     public override DataTemplate SelectTemplate(object item, DependencyObject container)
     {
-        if (item is DocumentViewModel)
+        if (item is ViewportWindowViewModel)
         {
             return DocumentsViewTemplate;
         }

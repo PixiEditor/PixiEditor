@@ -116,7 +116,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     {
         FixedViewport? viewport = ((FixedViewport)viewportObj);
         viewport.PropertyChanged?.Invoke(viewportObj, new(nameof(TargetBitmap)));
-        viewport.Document!.Operations.AddOrUpdateViewport(viewport.GetLocation());
+        viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
     private void OnImageSizeChanged(object sender, SizeChangedEventArgs e)

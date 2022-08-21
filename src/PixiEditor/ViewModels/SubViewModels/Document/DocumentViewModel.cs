@@ -21,6 +21,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Document;
 internal class DocumentViewModel : NotifyableObject
 {
     public event EventHandler<LayersChangedEventArgs>? LayersChanged;
+    public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
 
     private bool busy = false;
     public bool Busy
@@ -143,8 +144,6 @@ internal class DocumentViewModel : NotifyableObject
     public WpfObservableRangeCollection<SKColor> Swatches { get; set; } = new WpfObservableRangeCollection<SKColor>();
     public WpfObservableRangeCollection<SKColor> Palette { get; set; } = new WpfObservableRangeCollection<SKColor>();
 
-    public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
-    public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
     public DocumentTransformViewModel TransformViewModel { get; }
 
 
@@ -347,6 +346,8 @@ internal class DocumentViewModel : NotifyableObject
     // these are intended to only be called from DocumentUpdater
 
     public void InternalRaiseLayersChanged(LayersChangedEventArgs args) => LayersChanged?.Invoke(this, args);
+
+    public void InternalRaiseSizeChanged(DocumentSizeChangedEventArgs args) => SizeChanged?.Invoke(this, args);
 
     public void InternalSetVerticalSymmetryAxisEnabled(bool verticalSymmetryAxisEnabled)
     {

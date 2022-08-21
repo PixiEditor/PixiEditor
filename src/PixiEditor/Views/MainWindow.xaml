@@ -275,10 +275,9 @@
                     <MenuItem
                         Header="_View">
                         <MenuItem
-                            Header="_Show Grid Lines"
-                            IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
-                            IsCheckable="True"
-                            InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}" />
+                            Header="New window for current image"
+                            cmds:Menu.Command="PixiEditor.Window.CreateNewViewport" />
+                        <Separator/>
                         <MenuItem
                             Header="Open _Startup Window"
                             ToolTip="Hello there!"
@@ -287,8 +286,14 @@
                             Header="Open _Navigation Window"
                             cmds:Menu.Command="PixiEditor.Window.OpenNavigationWindow" />
                         <MenuItem
-                            Header="Open _Shortcuts Window"
+                            Header="Open Short_cuts Window"
                             cmds:Menu.Command="PixiEditor.Window.OpenShortcutWindow" />
+                        <Separator/>
+                        <MenuItem
+                            Header="Show _Grid Lines"
+                            IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
+                            IsCheckable="True"
+                            InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}" />
                     </MenuItem>
                     <MenuItem
                         Header="_Help">
@@ -487,8 +492,8 @@
             <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
                 <Grid AllowDrop="True" Drop="MainWindow_Drop">
                     <DockingManager 
-                        ActiveContent="{Binding DocumentManagerSubViewModel.ActiveWindow, Mode=TwoWay}"
-                        DocumentsSource="{Binding DocumentManagerSubViewModel.Documents}">
+                        ActiveContent="{Binding WindowSubViewModel.ActiveWindow, Mode=TwoWay}"
+                        DocumentsSource="{Binding WindowSubViewModel.Viewports}">
                         <DockingManager.Theme>
                             <avalonDockTheme:PixiEditorDockTheme />
                         </DockingManager.Theme>
@@ -501,13 +506,14 @@
                                             <Setter.Value>
                                                 <MultiBinding Converter="{converters:ConcatStringsConverter}" ConverterParameter=" ">
                                                     <MultiBinding.Bindings>
-                                                        <Binding Path="Model.FileName"/>
-                                                        <Binding Path="Model.AllChangesSaved" Converter="{converters:BoolToAsteriskConverter}"/>
+                                                        <Binding Path="Model.Document.FileName"/>
+                                                        <Binding Path="Model.Document.AllChangesSaved" Converter="{converters:BoolToAsteriskConverter}"/>
+                                                        <Binding Path="Model.Index"/>
                                                     </MultiBinding.Bindings>
                                                 </MultiBinding>
                                             </Setter.Value>
                                         </Setter>
-                                        <Setter Property="CloseCommand" Value="{Binding Model.RequestCloseDocumentCommand}" />
+                                        <Setter Property="CloseCommand" Value="{Binding Model.RequestCloseCommand}" />
                                     </Style>
                                 </ui:PanelsStyleSelector.DocumentTabStyle>
                             </ui:PanelsStyleSelector>
@@ -515,26 +521,26 @@
                         <DockingManager.LayoutItemTemplateSelector>
                             <ui:DocumentsTemplateSelector>
                                 <ui:DocumentsTemplateSelector.DocumentsViewTemplate>
-                                    <DataTemplate DataType="{x:Type doc:DocumentViewModel}">
+                                    <DataTemplate DataType="{x:Type vm:ViewportWindowViewModel}">
                                         <usercontrols:Viewport
                                             CenterViewportTrigger="{Binding CenterViewportTrigger}"
                                             ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
                                             MouseDownCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseDownCommand}"
                                             MouseMoveCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseMoveCommand}"
                                             MouseUpCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseUpCommand}"
-                                            MiddleMouseClickedCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.PreviewMouseMiddleButtonCommand}"
-                                            Cursor="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ToolCursor}"
-                                            GridLinesVisible="{Binding ElementName=mainWindow, Path=DataContext.ViewportSubViewModel.GridLinesEnabled}"
-                                            ZoomMode="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ActiveTool, Converter={converters:ActiveToolToZoomModeConverter}}"
-                                            ZoomOutOnClick="{Binding ElementName=mainWindow, Path=DataContext.ToolsSubViewModel.ZoomTool.ZoomOutOnClick}"
-                                            UseTouchGestures="{Binding ElementName=mainWindow, Path=DataContext.StylusSubViewModel.UseTouchGestures}"
+                                            MiddleMouseClickedCommand="{Binding IoSubViewModel.PreviewMouseMiddleButtonCommand, Source={vm:MainVM}}"
+                                            Cursor="{Binding ToolsSubViewModel.ToolCursor, Source={vm:MainVM}}"
+                                            GridLinesVisible="{Binding ViewportSubViewModel.GridLinesEnabled, Source={vm:MainVM}}"
+                                            ZoomMode="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:ActiveToolToZoomModeConverter}}"
+                                            ZoomOutOnClick="{Binding ToolsSubViewModel.ZoomTool.ZoomOutOnClick, Source={vm:MainVM}}"
+                                            UseTouchGestures="{Binding StylusSubViewModel.UseTouchGestures, Source={vm:MainVM}}"
                                             StylusButtonDownCommand="{cmds:Command PixiEditor.Stylus.StylusDown, UseProvided=True}"
                                             StylusButtonUpCommand="{cmds:Command PixiEditor.Stylus.StylusUp, UseProvided=True}"
                                             StylusGestureCommand="{cmds:Command PixiEditor.Stylus.StylusSystemGesture, UseProvided=True}"
                                             StylusOutOfRangeCommand="{cmds:Command PixiEditor.Stylus.StylusOutOfRange, UseProvided=True}"
                                             Stylus.IsTapFeedbackEnabled="False" 
                                             Stylus.IsTouchFeedbackEnabled="False"
-                                            Document="{Binding}">
+                                            Document="{Binding Document}">
                                             <usercontrols:Viewport.ContextMenu>
                                                 <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                                     <ContextMenu.Template>

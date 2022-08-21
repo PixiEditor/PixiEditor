@@ -1,20 +1,18 @@
-﻿namespace PixiEditor.Models.DataHolders;
+﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.ViewModels.SubViewModels.Document;
+
+namespace PixiEditor.Models.DataHolders;
 
 internal class DocumentSizeChangedEventArgs
 {
-    public DocumentSizeChangedEventArgs(int oldWidth, int oldHeight, int newWidth, int newHeight)
+    public DocumentSizeChangedEventArgs(DocumentViewModel document, VecI oldSize, VecI newSize)
     {
-        OldWidth = oldWidth;
-        OldHeight = oldHeight;
-        NewWidth = newWidth;
-        NewHeight = newHeight;
+        Document = document;
+        OldSize = oldSize;
+        NewSize = newSize;
     }
 
-    public int OldWidth { get; set; }
-
-    public int OldHeight { get; set; }
-
-    public int NewWidth { get; set; }
-
-    public int NewHeight { get; set; }
+    public VecI OldSize { get; }
+    public VecI NewSize { get; }
+    public DocumentViewModel Document { get; }
 }

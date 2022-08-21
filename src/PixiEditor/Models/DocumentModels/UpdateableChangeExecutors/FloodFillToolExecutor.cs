@@ -27,6 +27,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         if (!drawOnMask && member is not LayerViewModel)
             return ExecutionState.Error;
 
+        colorsVM.AddSwatch(color);
         memberGuid = member.GuidValue;
         considerAllLayers = fillTool.ConsiderAllLayers;
         color = colorsVM.PrimaryColor;

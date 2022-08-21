@@ -80,7 +80,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         DocumentViewModel doc = new DocumentViewModel();
         Owner.DocumentManagerSubViewModel.Documents.Add(doc);
-        Owner.DocumentManagerSubViewModel.ActiveDocument = Owner.DocumentManagerSubViewModel.Documents[^1];
 
         if (doc.SizeBindable != size)
             doc.Operations.ResizeCanvas(size, ResizeAnchor.TopLeft);
@@ -88,6 +87,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             doc.Operations.CreateStructureMember(StructureMemberType.Layer);
         doc.Operations.ClearUndo();
         doc.MarkAsSaved();
+        Owner.WindowSubViewModel.CreateNewViewport(doc);
+        Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
 
         return doc;
     }
@@ -173,7 +174,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             if (document.FullFilePath is not null && document.FullFilePath == path)
             {
-                Owner.DocumentManagerSubViewModel.ActiveDocument = document;
+                Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
                 return;
             }
         }
@@ -207,7 +208,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
                 if (Owner.DocumentManagerSubViewModel.Documents.Count > 0)
                 {
-                    Owner.DocumentManagerSubViewModel.ActiveDocument = Owner.DocumentManagerSubViewModel.Documents[^1];
+                    Owner.WindowSubViewModel.MakeDocumentViewportActive(Owner.DocumentManagerSubViewModel.Documents[^1]);
                 }
             }
         }
@@ -220,22 +221,27 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         if (manager.Documents.Select(x => x.FullFilePath).All(y => y != path))
         {
             manager.Documents.Add(document);
-            manager.ActiveDocument = manager.Documents[^1];
+            Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
         }
         else
         {
-            manager.ActiveDocument = manager.Documents.First(y => y.FullFilePath == path);
+            Owner.WindowSubViewModel.MakeDocumentViewportActive(manager.Documents.First(y => y.FullFilePath == path));
         }
     }
 
     [Command.Basic("PixiEditor.File.Save", false, "Save", "Save image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control)]
     [Command.Basic("PixiEditor.File.SaveAsNew", true, "Save as...", "Save image as new", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
-    public void SaveDocument(bool asNew)
+    public bool SaveActiveDocument(bool asNew)
     {
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
-            return;
-        if (asNew || string.IsNullOrEmpty(doc.FullFilePath))
+            return false;
+        return SaveDocument(doc, asNew);
+    }
+
+    public bool SaveDocument(DocumentViewModel document, bool asNew)
+    {
+        if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
             //doc.SaveWithDialog();
         }
@@ -243,6 +249,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             //doc.Save();
         }
+        return false;
     }
 
     /// <summary>

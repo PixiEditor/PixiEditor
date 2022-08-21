@@ -62,6 +62,7 @@ public class Chunk : IDisposable
     {
         if (returned)
             return;
+        Surface.SkiaSurface.Canvas.Flush();
         returned = true;
         Interlocked.Decrement(ref chunkCounter);
         ChunkPool.Instance.Push(this);

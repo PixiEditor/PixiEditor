@@ -270,6 +270,8 @@ internal class DocumentUpdater
 
     private void ProcessSize(Size_ChangeInfo info)
     {
+        VecI oldSize = doc.SizeBindable;
+
         Dictionary<ChunkResolution, WriteableBitmap> newBitmaps = new();
         foreach ((ChunkResolution res, SKSurface surf) in doc.Surfaces)
         {
@@ -294,7 +296,7 @@ internal class DocumentUpdater
 
         UpdateMemberBitmapsRecursively(doc.StructureRoot, previewSize);
 
-        doc.CenterViewportTrigger.Execute(doc, doc.SizeBindable);
+        doc.InternalRaiseSizeChanged(new(doc, oldSize, info.Size));
     }
 
     private WriteableBitmap CreateBitmap(VecI size)

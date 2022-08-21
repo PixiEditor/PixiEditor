@@ -4,7 +4,6 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Events;
-using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
@@ -12,8 +11,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Document;
 [Command.Group("PixiEditor.Document", "Image")]
 internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 {
-    public DocumentManagerViewModel(ViewModelMain owner) : base(owner) { }
-
     public ObservableCollection<DocumentViewModel> Documents { get; set; } = new ObservableCollection<DocumentViewModel>();
     public event EventHandler<DocumentChangedEventArgs>? ActiveDocumentChanged;
 
@@ -22,7 +19,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     public DocumentViewModel? ActiveDocument
     {
         get => activeDocument;
-        set
+        // Use WindowSubViewModel.MakeDocumentViewportActive(document);
+        private set
         {
             if (activeDocument == value)
                 return;
@@ -30,47 +28,18 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
             activeDocument = value;
             RaisePropertyChanged(nameof(ActiveDocument));
             ActiveDocumentChanged?.Invoke(this, new(value, prevDoc));
-            ActiveWindow = value;
         }
     }
 
-    private object? activeWindow;
-    public object? ActiveWindow
+    public DocumentManagerViewModel(ViewModelMain owner) : base(owner)
     {
-        get => activeWindow;
-        set
-        {
-            if (activeWindow == value)
-                return;
-            activeWindow = value;
-            RaisePropertyChanged(nameof(ActiveWindow));
-            if (activeWindow is DocumentViewModel doc)
-                ActiveDocument = doc;
-        }
+        owner.WindowSubViewModel.ActiveViewportChanged += (_, args) => ActiveDocument = args.Document;
     }
+
+    public void MakeActiveDocumentNull() => ActiveDocument = null;
 
     [Evaluator.CanExecute("PixiEditor.HasDocument")]
     public bool DocumentNotNull() => ActiveDocument != null;
-
-    public void CloseDocument(Guid documentGuid)
-    {
-        /*
-        int nextIndex = 0;
-        if (document == ActiveDocument)
-        {
-            nextIndex = Documents.Count > 1 ? Documents.IndexOf(document) : -1;
-            nextIndex += nextIndex > 0 ? -1 : 0;
-        }
-
-        Documents.Remove(document);
-        ActiveDocument = nextIndex >= 0 ? Documents[nextIndex] : null;
-        */
-    }
-
-    public void UpdateActionDisplay(ToolViewModel tool)
-    {
-        //tool?.UpdateActionDisplay(ToolSessionController.IsCtrlDown, ToolSessionController.IsShiftDown, ToolSessionController.IsAltDown);
-    }
 
     [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument")]
     public void ClipCanvas()
@@ -78,29 +47,6 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         //Owner.BitmapManager.ActiveDocument?.ClipCanvas();
     }
 
-    /*
-    public void RequestCloseDocument(Document document)
-    {
-        /*
-        if (!document.ChangesSaved)
-        {
-            ConfirmationType result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
-            if (result == ConfirmationType.Yes)
-            {
-                Owner.FileSubViewModel.SaveDocument(false);
-                if (!document.ChangesSaved)
-                    return;
-            }
-            else if (result == ConfirmationType.Canceled)
-            {
-                return;
-            }
-        }
-
-        Owner.BitmapManager.CloseDocument(document);
-        
-    }
-*/
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument")]
     public void ToggleVerticalSymmetryAxis()
     {

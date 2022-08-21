@@ -1,28 +1,110 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
 using AvalonDock.Layout;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 using Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
+#nullable enable
 [Command.Group("PixiEditor.Window", "Windows")]
 internal class WindowViewModel : SubViewModel<ViewModelMain>
 {
     private CommandController commandController;
-    private ShortcutPopup shortcutPopup;
-
+    private ShortcutPopup? shortcutPopup;
     private ShortcutPopup ShortcutPopup => shortcutPopup ?? (shortcutPopup = new(commandController));
 
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
+    public ObservableCollection<ViewportWindowViewModel> Viewports { get; } = new();
+    public event EventHandler<ViewportWindowViewModel>? ActiveViewportChanged;
+
+    private object? activeWindow;
+    public object? ActiveWindow
+    {
+        get => activeWindow;
+        set
+        {
+            if (activeWindow == value)
+                return;
+            activeWindow = value;
+            RaisePropertyChanged(nameof(ActiveWindow));
+            if (activeWindow is ViewportWindowViewModel viewport)
+                ActiveViewportChanged?.Invoke(this, viewport);
+        }
+    }
 
     public WindowViewModel(ViewModelMain owner, CommandController commandController)
         : base(owner)
     {
         ShowAvalonDockWindowCommand = new(ShowAvalonDockWindow);
         this.commandController = commandController;
+    }
+
+    [Command.Basic("PixiEditor.Window.CreateNewViewport", "New window for current image", "New window for current image", CanExecute = "PixiEditor.HasDocument")]
+    public void CreateNewViewport()
+    {
+        var doc = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+        CreateNewViewport(doc);
+    }
+
+    public void CreateNewViewport(DocumentViewModel doc)
+    {
+        Viewports.Add(new ViewportWindowViewModel(doc));
+        foreach (var viewport in Viewports.Where(vp => vp.Document == doc))
+        {
+            viewport.RaisePropertyChanged(nameof(viewport.Index));
+        }
+    }
+
+    public void MakeDocumentViewportActive(DocumentViewModel? doc)
+    {
+        if (doc is null)
+        {
+            ActiveWindow = null;
+            Owner.DocumentManagerSubViewModel.MakeActiveDocumentNull();
+            return;
+        }
+        ActiveWindow = Viewports.Where(viewport => viewport.Document == doc).FirstOrDefault();
+    }
+
+    public string CalculateViewportIndex(ViewportWindowViewModel viewport)
+    {
+        ViewportWindowViewModel[] viewports = Viewports.Where(a => a.Document == viewport.Document).ToArray();
+        if (viewports.Length < 2)
+            return "";
+        return $"[{Array.IndexOf(viewports, viewport) + 1}]";
+    }
+
+    public void OnViewportWindowCloseButtonPressed(ViewportWindowViewModel viewport)
+    {
+        var viewports = Viewports.Where(vp => vp.Document == viewport.Document).ToArray();
+        if (viewports.Length == 1)
+        {
+            Owner.DisposeDocumentWithSaveConfirmation(viewport.Document);
+        }
+        else
+        {
+            Viewports.Remove(viewport);
+            foreach (var sibling in viewports)
+            {
+                sibling.RaisePropertyChanged(nameof(sibling.Index));
+            }
+        }
+    }
+
+    public void CloseViewportsForDocument(DocumentViewModel document)
+    {
+        var viewports = Viewports.Where(vp => vp.Document == document).ToArray();
+        foreach (ViewportWindowViewModel viewport in viewports)
+        {
+            Viewports.Remove(viewport);
+        }
     }
 
     [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "Open Settings", "Open Settings Window", Key = Key.OemComma, Modifiers = ModifierKeys.Control)]

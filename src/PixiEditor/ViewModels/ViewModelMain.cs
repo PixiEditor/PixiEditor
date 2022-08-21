@@ -4,6 +4,8 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -44,7 +46,7 @@ internal class ViewModelMain : ViewModelBase
 
     public SelectionViewModel SelectionSubViewModel { get; set; }
 
-    public ViewportViewModel ViewportSubViewModel { get; set; }
+    public ViewOptionsViewModel ViewportSubViewModel { get; set; }
 
     public ColorsViewModel ColorsSubViewModel { get; set; }
 
@@ -112,6 +114,7 @@ internal class ViewModelMain : ViewModelBase
         Preferences = services.GetRequiredService<IPreferences>();
 
         Preferences.Init();
+        WindowSubViewModel = services.GetService<WindowViewModel>();
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
@@ -126,7 +129,7 @@ internal class ViewModelMain : ViewModelBase
         LayersSubViewModel = services.GetService<LayersViewModel>();
         ClipboardSubViewModel = services.GetService<ClipboardViewModel>();
         UndoSubViewModel = services.GetService<UndoViewModel>();
-        ViewportSubViewModel = services.GetService<ViewportViewModel>();
+        ViewportSubViewModel = services.GetService<ViewOptionsViewModel>();
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
         ColorsSubViewModel?.SetupPaletteParsers(services);
 
@@ -136,7 +139,6 @@ internal class ViewModelMain : ViewModelBase
         UpdateSubViewModel = services.GetService<UpdateViewModel>();
         DebugSubViewModel = services.GetService<DebugViewModel>();
 
-        WindowSubViewModel = services.GetService<WindowViewModel>();
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
@@ -149,6 +151,8 @@ internal class ViewModelMain : ViewModelBase
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
+
+        DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
     }
 
     public bool DocumentIsNotNull(object property)
@@ -168,7 +172,7 @@ internal class ViewModelMain : ViewModelBase
             throw new ArgumentException();
         }
 
-        ((CancelEventArgs)property).Cancel = !RemoveDocumentsWithSaveConfirmation();
+        ((CancelEventArgs)property).Cancel = !DisposeAllDocumentsWithSaveConfirmation();
     }
 
     private void ToolsSubViewModel_SelectedToolChanged(object sender, SelectedToolEventArgs e)
@@ -178,8 +182,6 @@ internal class ViewModelMain : ViewModelBase
         e.NewTool.PropertyChanged += SelectedTool_PropertyChanged;
 
         NotifyToolActionDisplayChanged();
-
-        //BitmapManager.InputTarget.OnToolChange(e.NewTool);
     }
 
     private void SelectedTool_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -196,17 +198,16 @@ internal class ViewModelMain : ViewModelBase
     }
 
     /// <summary>
-    /// Removes documents with unsaved changes confirmation dialog.
+    /// Closes documents with unsaved changes confirmation dialog.
     /// </summary>
     /// <returns>If documents was removed successfully.</returns>
-    private bool RemoveDocumentsWithSaveConfirmation()
+    private bool DisposeAllDocumentsWithSaveConfirmation()
     {
-        /*
-        int docCount = BitmapManager.Documents.Count;
+        int docCount = DocumentManagerSubViewModel.Documents.Count;
         for (int i = 0; i < docCount; i++)
         {
-            BitmapManager.ActiveDocument = BitmapManager.Documents.First();
-            bool canceled = !RemoveDocumentWithSaveConfirmation();
+            WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.First());
+            bool canceled = !DisposeActiveDocumentWithSaveConfirmation();
             if (canceled)
             {
                 return false;
@@ -214,43 +215,58 @@ internal class ViewModelMain : ViewModelBase
         }
 
         return true;
-        */
-        return true;
     }
 
     /// <summary>
-    /// Removes document with unsaved changes confirmation dialog.
+    /// Disposes the active document after showing the unsaved changes confirmation dialog.
     /// </summary>
-    /// <returns>If document was removed successfully.</returns>
-    private bool RemoveDocumentWithSaveConfirmation()
+    /// <returns>If the document was closed successfully.</returns>
+    public bool DisposeActiveDocumentWithSaveConfirmation()
     {
-        /*
-        ConfirmationType result = ConfirmationType.No;
+        if (DocumentManagerSubViewModel.ActiveDocument is null)
+            return false;
+        return DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument);
+    }
 
-        if (!BitmapManager.ActiveDocument.ChangesSaved)
+    public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
+    {
+        const string ConfirmationDialogTitle = "Unsaved changes";
+        const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
+
+        ConfirmationType result = ConfirmationType.No;
+        if (!document.AllChangesSaved)
         {
-            result = ConfirmationDialog.Show(DocumentViewModel.ConfirmationDialogMessage, DocumentViewModel.ConfirmationDialogTitle);
+            result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
             if (result == ConfirmationType.Yes)
             {
-                FileSubViewModel.SaveDocument(false);
-                //cancel was pressed in the save file dialog
-                if (!BitmapManager.ActiveDocument.ChangesSaved)
+                if (!FileSubViewModel.SaveDocument(document, false))
                     return false;
             }
         }
 
         if (result != ConfirmationType.Canceled)
         {
-            var doc = BitmapManager.ActiveDocument;
-            BitmapManager.Documents.Remove(doc);
-            doc.Dispose();
+            DocumentManagerSubViewModel.Documents.Remove(document);
+            if (DocumentManagerSubViewModel.ActiveDocument == document)
+            {
+                if (DocumentManagerSubViewModel.Documents.Count > 0)
+                    WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.Last());
+                else
+                    WindowSubViewModel.MakeDocumentViewportActive(null);
+            }
+
+            // TODO: this thing should actually dispose the document to free up ram
+            // We need the UI to be able to handle disposed documents
+            // Like, the viewports should show nothing, the commands shouldn't work, etc. At least nothing should crash or behave unexpectidly
+            // Mostly we only care about this because avalondock doesn't remove the UI elements of closed viewports (at least not right away)
+            // So they remain alive and keep "showing" the now disposed DocumentViewModel
+            // And since they reference the DocumentViewModel it doesn't get collected by GC
+
+            // document.Dispose();
+            WindowSubViewModel.CloseViewportsForDocument(document);
 
             return true;
         }
-        else
-        {
-            return false;
-        }*/
         return false;
     }
 
@@ -259,30 +275,19 @@ internal class ViewModelMain : ViewModelBase
         OnStartupEvent?.Invoke(this, EventArgs.Empty);
     }
 
-    private void BitmapManager_DocumentChanged(object sender)
+    private void OnActiveDocumentChanged(object sender, DocumentChangedEventArgs e)
     {
-        /*
-        if (e.NewDocument != null)
-        {
-            e.NewDocument.DocumentSizeChanged += ActiveDocument_DocumentSizeChanged;
-        }*/
+        if (e.OldDocument is not null)
+            e.OldDocument.SizeChanged -= ActiveDocument_DocumentSizeChanged;
+        if (e.NewDocument is not null)
+            e.NewDocument.SizeChanged += ActiveDocument_DocumentSizeChanged;
     }
 
     private void ActiveDocument_DocumentSizeChanged(object sender, DocumentSizeChangedEventArgs e)
     {
-        //BitmapManager.ActiveDocument.ChangesSaved = false;
-        DocumentViewModel doc = DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is null)
-            throw new InvalidOperationException();
-        doc.CenterViewportTrigger.Execute(this, doc.SizeBindable);
-    }
-
-    private void BitmapUtility_BitmapChanged(object sender, EventArgs e)
-    {
-        //BitmapManager.ActiveDocument.ChangesSaved = false;
-        /*if (ToolsSubViewModel.ActiveTool is BitmapOperationTool)
+        foreach (var viewport in WindowSubViewModel.Viewports.Where(viewport => viewport.Document == e.Document))
         {
-            ColorsSubViewModel.AddSwatch(ColorsSubViewModel.PrimaryColor);
-        }*/
+            viewport.CenterViewportTrigger.Execute(this, e.NewSize);
+        }
     }
 }

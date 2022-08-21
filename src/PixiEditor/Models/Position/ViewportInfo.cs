@@ -1,6 +1,10 @@
 ﻿using ChunkyImageLib.DataHolders;
 
 namespace PixiEditor.Models.Position;
+
+/// <summary>
+/// Used to keep track of viewports inside DocumentViewModel without directly referencing them
+/// </summary>
 internal readonly record struct ViewportInfo(
     double Angle,
     VecD Center,

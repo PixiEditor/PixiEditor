@@ -2,8 +2,8 @@
 using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
-
-internal class ViewportViewModel : SubViewModel<ViewModelMain>
+#nullable enable
+internal class ViewOptionsViewModel : SubViewModel<ViewModelMain>
 {
     private bool gridLinesEnabled;
 
@@ -13,7 +13,7 @@ internal class ViewportViewModel : SubViewModel<ViewModelMain>
         set => SetProperty(ref gridLinesEnabled, value);
     }
 
-    public ViewportViewModel(ViewModelMain owner)
+    public ViewOptionsViewModel(ViewModelMain owner)
         : base(owner)
     {
     }
@@ -28,7 +28,9 @@ internal class ViewportViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.View.Zoomout", -1, "Zoom out", "Zoom out", CanExecute = "PixiEditor.HasDocument", Key = Key.OemMinus)]
     public void ZoomViewport(double zoom)
     {
-        Document.DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        doc?.ZoomViewportTrigger.Execute(this, zoom);
+        ViewportWindowViewModel? viewport = Owner.WindowSubViewModel.ActiveWindow as ViewportWindowViewModel;
+        if (viewport is null)
+            return;
+        viewport.ZoomViewportTrigger.Execute(this, zoom);
     }
 }
