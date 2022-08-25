@@ -6,15 +6,26 @@ namespace ChunkyImageLib.Shaders;
 [AutoConstructor]
 public readonly partial struct ReplaceColorShader : IComputeShader
 {
-    public readonly IReadWriteNormalizedTexture2D<float4> texture;
+    public readonly ReadWriteTexture2D<uint2> texture;
     public readonly HlslColorBounds colorBounds;
-    public readonly Float3 newColor;
+    public readonly UInt2 newColor;
     public void Execute()
     {
-        float4 rgba = texture[ThreadIds.XY].RGBA;
-        if(IsWithinBounds(rgba))
+        uint2 rgba = texture[ThreadIds.XY];
+        Float4 rgbaFloat = new Float4(
+            Hlsl.Float16ToFloat32(rgba.X),
+            Hlsl.Float16ToFloat32(rgba.X >> 16),
+            Hlsl.Float16ToFloat32(rgba.Y),
+            Hlsl.Float16ToFloat32(rgba.Y >> 16)
+        );
+        
+        if(IsWithinBounds(rgbaFloat))
         {
-            texture[ThreadIds.XY].RGB = newColor;
+            texture[ThreadIds.XY] = newColor;
+        }
+        else
+        {
+            texture[ThreadIds.XY] = rgba;
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using ChunkyImageLib.DataHolders;
@@ -31,23 +32,30 @@ internal class ReplaceColorOperation : IDrawOperation
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
-        ReplaceColor(oldColorBoundsHlsl, oldColor, newColor, chunk);
+        ReplaceColor(oldColorBoundsHlsl, newColor, chunk);
     }
 
-    private static void ReplaceColor(HlslColorBounds oldColorBounds, SKColor oldColor, SKColor newColor, Chunk chunk)
+    private static void ReplaceColor(HlslColorBounds oldColorBounds, SKColor newColor, Chunk chunk)
     {
-        var span = chunk.Surface.SkiaSurface.PeekPixels().GetPixelSpan<Rgba64>();
+        Span<UInt2> span = chunk.Surface.SkiaSurface.PeekPixels().GetPixelSpan<uint2>();
         using var texture = GraphicsDevice.GetDefault()
-            .AllocateReadWriteTexture2D<Rgba64, float4>(span, chunk.PixelSize.X, chunk.PixelSize.Y);
+            .AllocateReadWriteTexture2D<uint2>(chunk.PixelSize.X, chunk.PixelSize.Y);
+
+        texture.CopyFrom(span);
+        
+        uint convR = (BitConverter.HalfToUInt16Bits((Half)(newColor.Red / 255f)));
+        uint convG = (BitConverter.HalfToUInt16Bits((Half)(newColor.Green / 255f)));
+        uint convB = (BitConverter.HalfToUInt16Bits((Half)(newColor.Blue / 255f)));
+        uint convA = (BitConverter.HalfToUInt16Bits((Half)(newColor.Alpha / 255f)));
+
+        UInt2 newCol = new UInt2(convG << 16 | convR, convB | convA << 16);
         
         GraphicsDevice.GetDefault().For(texture.Width, texture.Height, 
             new ReplaceColorShader(
                 texture,
                 oldColorBounds,
-                new Float3(newColor.Red / 255f, newColor.Green / 255f, newColor.Blue / 255f)));
-        Rgba64[] pixels = new Rgba64[texture.Width * texture.Height];
-        texture.CopyTo(pixels);
-        ApplyPixelsToChunk(chunk, pixels);
+                newCol));
+        texture.CopyTo(span);
         //SKImage processedImage = SKBitmap.
         
         /*int maxThreads = Environment.ProcessorCount;
@@ -65,17 +73,18 @@ internal class ReplaceColorOperation : IDrawOperation
         }*/
     }
 
-    private static unsafe void ApplyPixelsToChunk(Chunk chunk, Rgba64[] pixels)
+    private static Float4 ToFloat4(UInt2 pixel)
     {
-        using var drawPixmap = chunk.Surface.SkiaSurface.PeekPixels();
-        Half* drawArray = (Half*)drawPixmap.GetPixels();
+        return new Float4(
+            Hlsl.Float16ToFloat32(pixel.X),
+            Hlsl.Float16ToFloat32(pixel.X >> 16),
+            Hlsl.Float16ToFloat32(pixel.Y),
+            Hlsl.Float16ToFloat32(pixel.Y >> 16));
+    }
 
-        for (int i = 0; i < pixels.Length; i++)
-        {
-            ulong pixel = pixels[i].PackedValue;
-            Half* drawPixel = drawArray + i * 4;
-            *(ulong*)drawPixel = pixel;
-        }
+    private static ulong PackPixel(Float4 pixel)
+    {
+        return (ulong)pixel.R << 0 | (ulong)pixel.G << 8 | (ulong)pixel.B << 16 | (ulong)pixel.A << 24;
     }
 
     public HashSet<VecI> FindAffectedChunks(VecI imageSize)
