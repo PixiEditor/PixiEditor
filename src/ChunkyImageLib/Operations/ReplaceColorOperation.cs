@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -42,49 +43,15 @@ internal class ReplaceColorOperation : IDrawOperation
             .AllocateReadWriteTexture2D<uint2>(chunk.PixelSize.X, chunk.PixelSize.Y);
 
         texture.CopyFrom(span);
-        
-        uint convR = (BitConverter.HalfToUInt16Bits((Half)(newColor.Red / 255f)));
-        uint convG = (BitConverter.HalfToUInt16Bits((Half)(newColor.Green / 255f)));
-        uint convB = (BitConverter.HalfToUInt16Bits((Half)(newColor.Blue / 255f)));
-        uint convA = (BitConverter.HalfToUInt16Bits((Half)(newColor.Alpha / 255f)));
 
-        UInt2 newCol = new UInt2(convG << 16 | convR, convB | convA << 16);
+        UInt2 packedColor = ShaderUtils.PackPixel(newColor);
         
         GraphicsDevice.GetDefault().For(texture.Width, texture.Height, 
             new ReplaceColorShader(
                 texture,
                 oldColorBounds,
-                newCol));
+                packedColor));
         texture.CopyTo(span);
-        //SKImage processedImage = SKBitmap.
-        
-        /*int maxThreads = Environment.ProcessorCount;
-        VecI imageSize = chunk.PixelSize;
-        int rowsPerThread = imageSize.Y / maxThreads;
-
-        using SKPixmap pixmap = chunk.Surface.SkiaSurface.PeekPixels();
-        IntPtr pixels = pixmap.GetPixels();
-
-        Half* endOffset = (Half*)(pixels + pixmap.BytesSize);
-        for (Half* i = (Half*)pixels; i < endOffset; i += 4)
-        {
-            if (oldColorBounds.IsWithinBounds(i))
-                *(ulong*)i = newColorBits;
-        }*/
-    }
-
-    private static Float4 ToFloat4(UInt2 pixel)
-    {
-        return new Float4(
-            Hlsl.Float16ToFloat32(pixel.X),
-            Hlsl.Float16ToFloat32(pixel.X >> 16),
-            Hlsl.Float16ToFloat32(pixel.Y),
-            Hlsl.Float16ToFloat32(pixel.Y >> 16));
-    }
-
-    private static ulong PackPixel(Float4 pixel)
-    {
-        return (ulong)pixel.R << 0 | (ulong)pixel.G << 8 | (ulong)pixel.B << 16 | (ulong)pixel.A << 24;
     }
 
     public HashSet<VecI> FindAffectedChunks(VecI imageSize)

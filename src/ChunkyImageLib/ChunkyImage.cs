@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;
@@ -693,6 +694,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         {
             ThrowIfDisposed();
             var affectedChunks = FindAffectedChunks();
+
             foreach (var chunk in affectedChunks)
             {
                 MaybeCreateAndProcessQueueForChunk(chunk, ChunkResolution.Full);

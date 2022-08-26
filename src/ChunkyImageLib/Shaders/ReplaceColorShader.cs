@@ -12,20 +12,11 @@ public readonly partial struct ReplaceColorShader : IComputeShader
     public void Execute()
     {
         uint2 rgba = texture[ThreadIds.XY];
-        Float4 rgbaFloat = new Float4(
-            Hlsl.Float16ToFloat32(rgba.X),
-            Hlsl.Float16ToFloat32(rgba.X >> 16),
-            Hlsl.Float16ToFloat32(rgba.Y),
-            Hlsl.Float16ToFloat32(rgba.Y >> 16)
-        );
+        Float4 rgbaFloat = ShaderUtils.UnpackPixel(rgba);
         
         if(IsWithinBounds(rgbaFloat))
         {
             texture[ThreadIds.XY] = newColor;
-        }
-        else
-        {
-            texture[ThreadIds.XY] = rgba;
         }
     }
 
