@@ -24,7 +24,7 @@ internal class PixelOperation : IDrawOperation
         // a hacky way to make the lines look slightly better on non full res chunks
         paint.Color = new SKColor(color.Red, color.Green, color.Blue, (byte)(color.Alpha * chunk.Resolution.Multiplier()));
 
-        SKSurface surf = chunk.Surface.SkiaSurface;
+        SKSurface surf = chunk.Surface.DrawingSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);

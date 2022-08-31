@@ -41,7 +41,7 @@ internal static class ClipboardController
         var (actuallySurface, _) = surface.AsT2;
         DataObject data = new DataObject();
 
-        using (SKData pngData = actuallySurface.SkiaSurface.Snapshot().Encode())
+        using (SKData pngData = actuallySurface.DrawingSurface.Snapshot().Encode())
         {
             // Stream should not be disposed
             MemoryStream pngStream = new MemoryStream();

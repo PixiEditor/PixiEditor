@@ -38,7 +38,7 @@ internal class ReplaceColorOperation : IDrawOperation
 
     private static void ReplaceColor(HlslColorBounds oldColorBounds, SKColor newColor, Chunk chunk)
     {
-        Span<UInt2> span = chunk.Surface.SkiaSurface.PeekPixels().GetPixelSpan<uint2>();
+        Span<UInt2> span = chunk.Surface.DrawingSurface.PeekPixels().GetPixelSpan<uint2>();
         using var texture = GraphicsDevice.GetDefault()
             .AllocateReadWriteTexture2D<uint2>(chunk.PixelSize.X, chunk.PixelSize.Y);
 

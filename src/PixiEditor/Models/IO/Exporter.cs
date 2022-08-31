@@ -138,7 +138,7 @@ internal class Exporter
         var bytes = new byte[rectToSave.Width * rectToSave.Height * 8 + 8];
         try
         {
-            surface.SkiaSurface.ReadPixels(imageInfo, unmanagedBuffer, rectToSave.Width * 8, rectToSave.Left, rectToSave.Top);
+            surface.DrawingSurface.ReadPixels(imageInfo, unmanagedBuffer, rectToSave.Width * 8, rectToSave.Left, rectToSave.Top);
             Marshal.Copy(unmanagedBuffer, bytes, 8, rectToSave.Width * rectToSave.Height * 8);
         }
         finally

@@ -27,7 +27,7 @@ internal class SkiaLineOperation : IDrawOperation
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
         paint.IsAntialias = chunk.Resolution != ChunkResolution.Full;
-        var surf = chunk.Surface.SkiaSurface;
+        var surf = chunk.Surface.DrawingSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);

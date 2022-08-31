@@ -66,7 +66,7 @@ internal static class FloodFillHelper
             if (!drawingChunks.ContainsKey(chunkPos))
             {
                 var chunk = Chunk.Create();
-                chunk.Surface.SkiaSurface.Canvas.Clear(SKColors.Transparent);
+                chunk.Surface.DrawingSurface.Canvas.Clear(SKColors.Transparent);
                 drawingChunks[chunkPos] = chunk;
             }
             var drawingChunk = drawingChunks[chunkPos];
@@ -77,7 +77,7 @@ internal static class FloodFillHelper
             {
                 if (colorToReplace.Alpha == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
-                    drawingChunk.Surface.SkiaSurface.Canvas.Clear(drawingColor);
+                    drawingChunk.Surface.DrawingSurface.Canvas.Clear(drawingColor);
                     for (int i = 0; i < chunkSize; i++)
                     {
                         if (chunkPos.Y > 0)
@@ -143,10 +143,10 @@ internal static class FloodFillHelper
         byte[] pixelStates = new byte[chunkSize * chunkSize];
         DrawSelection(pixelStates, selection, globalSelectionBounds, chunkPos, chunkSize);
 
-        using var refPixmap = referenceChunk.Surface.SkiaSurface.PeekPixels();
+        using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
 
-        using var drawPixmap = drawingChunk.Surface.SkiaSurface.PeekPixels();
+        using var drawPixmap = drawingChunk.Surface.DrawingSurface.PeekPixels();
         Half* drawArray = (Half*)drawPixmap.GetPixels();
 
         Stack<VecI> toVisit = new();

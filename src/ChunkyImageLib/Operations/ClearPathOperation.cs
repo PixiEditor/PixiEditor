@@ -17,15 +17,15 @@ internal class ClearPathOperation : IDrawOperation
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
-        chunk.Surface.SkiaSurface.Canvas.Save();
+        chunk.Surface.DrawingSurface.Canvas.Save();
 
         using SKPath transformedPath = new(path);
         float scale = (float)chunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkyImage.FullChunkSize * scale;
         transformedPath.Transform(SKMatrix.CreateScaleTranslation(scale, scale, (float)trans.X, (float)trans.Y));
-        chunk.Surface.SkiaSurface.Canvas.ClipPath(transformedPath);
-        chunk.Surface.SkiaSurface.Canvas.Clear();
-        chunk.Surface.SkiaSurface.Canvas.Restore();
+        chunk.Surface.DrawingSurface.Canvas.ClipPath(transformedPath);
+        chunk.Surface.DrawingSurface.Canvas.Clear();
+        chunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
     public HashSet<VecI> FindAffectedChunks(VecI imageSize)

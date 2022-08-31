@@ -81,10 +81,10 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
 
         // draw
         Surface output = new(pathBounds.Size);
-        output.SkiaSurface.Canvas.Save();
-        output.SkiaSurface.Canvas.ClipPath(clipPath);
-        image.DrawMostUpToDateRegionOn(pathBounds, ChunkResolution.Full, output.SkiaSurface, VecI.Zero);
-        output.SkiaSurface.Canvas.Restore();
+        output.DrawingSurface.Canvas.Save();
+        output.DrawingSurface.Canvas.ClipPath(clipPath);
+        image.DrawMostUpToDateRegionOn(pathBounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);
+        output.DrawingSurface.Canvas.Restore();
 
         return (output, pathBounds);
     }

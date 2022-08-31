@@ -95,7 +95,7 @@ internal class Importer : NotifyableObject
             SKSurface surface = SKSurface.Create(map);
             Surface finalSurface = new Surface(new VecI(width, height));
             using SKPaint paint = new() { BlendMode = SKBlendMode.Src };
-            surface.Draw(finalSurface.SkiaSurface.Canvas, 0, 0, paint);
+            surface.Draw(finalSurface.DrawingSurface.Canvas, 0, 0, paint);
             return finalSurface;
         }
         finally

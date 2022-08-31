@@ -218,8 +218,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 using Chunk tempChunk = Chunk.Create(ChunkResolution.Eighth);
                 using SKPaint committedPaint = new SKPaint() { Color = committedColor, BlendMode = SKBlendMode.Src };
                 using SKPaint latestPaint = new SKPaint() { Color = latestColor, BlendMode = this.blendMode };
-                tempChunk.Surface.SkiaSurface.Canvas.DrawPoint(VecI.Zero, committedPaint);
-                tempChunk.Surface.SkiaSurface.Canvas.DrawPoint(VecI.Zero, latestPaint);
+                tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, committedPaint);
+                tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, latestPaint);
                 return tempChunk.Surface.GetSRGBPixel(VecI.Zero);
             }
         }
@@ -272,11 +272,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
             // combine with committed and then draw
             using var tempChunk = Chunk.Create(resolution);
-            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(committedChunk.Surface.SkiaSurface, 0, 0, ReplacingPaint);
+            tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(committedChunk.Surface.DrawingSurface, 0, 0, ReplacingPaint);
             blendModePaint.BlendMode = blendMode;
-            tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(latestChunk.AsT2.Surface.SkiaSurface, 0, 0, blendModePaint);
+            tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(latestChunk.AsT2.Surface.DrawingSurface, 0, 0, blendModePaint);
             if (lockTransparency)
-                OperationHelper.ClampAlpha(tempChunk.Surface.SkiaSurface, committedChunk.Surface.SkiaSurface);
+                OperationHelper.ClampAlpha(tempChunk.Surface.DrawingSurface, committedChunk.Surface.DrawingSurface);
             tempChunk.DrawOnSurface(surface, pos, paint);
 
             return true;
@@ -786,13 +786,13 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                     if (lockTransparency)
                     {
                         using Chunk tempChunk = Chunk.Create(resolution);
-                        tempChunk.Surface.SkiaSurface.Canvas.DrawSurface(maybeCommitted.Surface.SkiaSurface, 0, 0, ReplacingPaint);
-                        maybeCommitted.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
-                        OperationHelper.ClampAlpha(maybeCommitted.Surface.SkiaSurface, tempChunk.Surface.SkiaSurface);
+                        tempChunk.Surface.DrawingSurface.Canvas.DrawSurface(maybeCommitted.Surface.DrawingSurface, 0, 0, ReplacingPaint);
+                        maybeCommitted.Surface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, 0, 0, blendModePaint);
+                        OperationHelper.ClampAlpha(maybeCommitted.Surface.DrawingSurface, tempChunk.Surface.DrawingSurface);
                     }
                     else
                     {
-                        maybeCommitted.Surface.SkiaSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, 0, 0, blendModePaint);
+                        maybeCommitted.Surface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, 0, 0, blendModePaint);
                     }
 
                     chunk.Dispose();
@@ -912,7 +912,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             if (lockTransparency && !chunkData.IsDeleted && MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) is not null)
             {
                 var committed = GetCommittedChunk(chunkPos, resolution);
-                OperationHelper.ClampAlpha(targetChunk!.Surface.SkiaSurface, committed!.Surface.SkiaSurface);
+                OperationHelper.ClampAlpha(targetChunk!.Surface.DrawingSurface, committed!.Surface.DrawingSurface);
             }
 
             chunkData.QueueProgress = queuedOperations.Count;
@@ -936,13 +936,13 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
 
         var intersection = Chunk.Create(resolution);
-        intersection.Surface.SkiaSurface.Canvas.Clear(SKColors.White);
+        intersection.Surface.DrawingSurface.Canvas.Clear(SKColors.White);
 
         foreach (var mask in activeClips)
         {
             if (mask.CommittedChunkExists(chunkPos))
             {
-                mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.SkiaSurface, VecI.Zero, ClippingPaint);
+                mask.DrawCommittedChunkOn(chunkPos, resolution, intersection.Surface.DrawingSurface, VecI.Zero, ClippingPaint);
             }
             else
             {
@@ -974,7 +974,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 return chunkData.IsDeleted;
 
             if (chunkData.IsDeleted)
-                targetChunk.Surface.SkiaSurface.Canvas.Clear();
+                targetChunk.Surface.DrawingSurface.Canvas.Clear();
 
             // just regular drawing
             if (combinedRasterClips.IsT0) //Everything is visible as far as raster clips are concerned
@@ -987,14 +987,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             var clip = combinedRasterClips.AsT2;
 
             using var tempChunk = Chunk.Create(targetChunk.Resolution);
-            targetChunk.DrawOnSurface(tempChunk.Surface.SkiaSurface, VecI.Zero, ReplacingPaint);
+            targetChunk.DrawOnSurface(tempChunk.Surface.DrawingSurface, VecI.Zero, ReplacingPaint);
 
             CallDrawWithClip(chunkOperation, tempChunk, resolution, chunkPos);
 
-            clip.DrawOnSurface(tempChunk.Surface.SkiaSurface, VecI.Zero, ClippingPaint);
-            clip.DrawOnSurface(targetChunk.Surface.SkiaSurface, VecI.Zero, InverseClippingPaint);
+            clip.DrawOnSurface(tempChunk.Surface.DrawingSurface, VecI.Zero, ClippingPaint);
+            clip.DrawOnSurface(targetChunk.Surface.DrawingSurface, VecI.Zero, InverseClippingPaint);
 
-            tempChunk.DrawOnSurface(targetChunk.Surface.SkiaSurface, VecI.Zero, AddingPaint);
+            tempChunk.DrawOnSurface(targetChunk.Surface.DrawingSurface, VecI.Zero, AddingPaint);
             return false;
         }
 
@@ -1010,15 +1010,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         if (clippingPath is not null && !clippingPath.IsEmpty)
         {
-            int count = targetChunk.Surface.SkiaSurface.Canvas.Save();
+            int count = targetChunk.Surface.DrawingSurface.Canvas.Save();
 
             using SKPath transformedPath = new(clippingPath);
             float scale = (float)resolution.Multiplier();
             VecD trans = -chunkPos * FullChunkSize * scale;
             transformedPath.Transform(SKMatrix.CreateScaleTranslation(scale, scale, (float)trans.X, (float)trans.Y));
-            targetChunk.Surface.SkiaSurface.Canvas.ClipPath(transformedPath);
+            targetChunk.Surface.DrawingSurface.Canvas.ClipPath(transformedPath);
             operation.DrawOnChunk(targetChunk, chunkPos);
-            targetChunk.Surface.SkiaSurface.Canvas.RestoreToCount(count);
+            targetChunk.Surface.DrawingSurface.Canvas.RestoreToCount(count);
         }
         else
         {
@@ -1101,11 +1101,11 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         if (existingFullResChunk is not null)
         {
             var newChunk = Chunk.Create(resolution);
-            newChunk.Surface.SkiaSurface.Canvas.Save();
-            newChunk.Surface.SkiaSurface.Canvas.Scale((float)resolution.Multiplier());
+            newChunk.Surface.DrawingSurface.Canvas.Save();
+            newChunk.Surface.DrawingSurface.Canvas.Scale((float)resolution.Multiplier());
 
-            newChunk.Surface.SkiaSurface.Canvas.DrawSurface(existingFullResChunk.Surface.SkiaSurface, 0, 0, SmoothReplacingPaint);
-            newChunk.Surface.SkiaSurface.Canvas.Restore();
+            newChunk.Surface.DrawingSurface.Canvas.DrawSurface(existingFullResChunk.Surface.DrawingSurface, 0, 0, SmoothReplacingPaint);
+            newChunk.Surface.DrawingSurface.Canvas.Restore();
             committedChunks[resolution][chunkPos] = newChunk;
             return newChunk;
         }
@@ -1137,7 +1137,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             if (blendMode == SKBlendMode.Src)
                 maybeCommittedAnyRes.Surface.CopyTo(newChunk.Surface);
             else
-                newChunk.Surface.SkiaSurface.Canvas.Clear();
+                newChunk.Surface.DrawingSurface.Canvas.Clear();
             latestChunks[resolution][chunkPos] = newChunk;
             return newChunk;
         }
@@ -1157,7 +1157,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         // no previous chunks exist
         var newLatestChunk = Chunk.Create(resolution);
-        newLatestChunk.Surface.SkiaSurface.Canvas.Clear();
+        newLatestChunk.Surface.DrawingSurface.Canvas.Clear();
         latestChunks[resolution][chunkPos] = newLatestChunk;
         return newLatestChunk;
     }

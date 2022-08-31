@@ -16,9 +16,9 @@ internal class RectangleOperation : IDrawOperation
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
-        var skiaSurf = chunk.Surface.SkiaSurface;
+        var skiaSurf = chunk.Surface.DrawingSurface;
 
-        var surf = chunk.Surface.SkiaSurface;
+        var surf = chunk.Surface.DrawingSurface;
 
         var rect = RectD.FromCenterAndSize(Data.Center, Data.Size.Abs());
         var innerRect = rect.Inflate(-Data.StrokeWidth);

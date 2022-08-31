@@ -86,10 +86,10 @@ internal class ImageOperation : IDrawOperation
         var scaleTrans = SKMatrix.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
         var finalMatrix = SKMatrix.Concat(scaleTrans, transformMatrix);
 
-        chunk.Surface.SkiaSurface.Canvas.Save();
-        chunk.Surface.SkiaSurface.Canvas.SetMatrix(finalMatrix);
-        chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, 0, 0, customPaint);
-        chunk.Surface.SkiaSurface.Canvas.Restore();
+        chunk.Surface.DrawingSurface.Canvas.Save();
+        chunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
+        chunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
+        chunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
     public HashSet<VecI> FindAffectedChunks(VecI imageSize)

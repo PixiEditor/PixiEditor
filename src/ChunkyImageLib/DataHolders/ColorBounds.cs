@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.CompilerServices;
 using ComputeSharp;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.PixelE;
 
 namespace ChunkyImageLib.DataHolders;
 
@@ -20,7 +16,7 @@ public struct ColorBounds
     public float UpperB { get; set; }
     public float UpperA { get; set; }
 
-    public ColorBounds(SKColor color)
+    public ColorBounds(Color color)
     {
         static (float lower, float upper) FindInclusiveBoundaryPremul(byte channel, float alpha)
         {
@@ -36,12 +32,12 @@ public struct ColorBounds
             return (subHalf / 255f, addHalf / 255f);
         }
 
-        float a = color.Alpha / 255f;
+        float a = color.A / 255f;
 
-        (LowerR, UpperR) = FindInclusiveBoundaryPremul(color.Red, a);
-        (LowerG, UpperG) = FindInclusiveBoundaryPremul(color.Green, a);
-        (LowerB, UpperB) = FindInclusiveBoundaryPremul(color.Blue, a);
-        (LowerA, UpperA) = FindInclusiveBoundary(color.Alpha);
+        (LowerR, UpperR) = FindInclusiveBoundaryPremul(color.R, a);
+        (LowerG, UpperG) = FindInclusiveBoundaryPremul(color.G, a);
+        (LowerB, UpperB) = FindInclusiveBoundaryPremul(color.B, a);
+        (LowerA, UpperA) = FindInclusiveBoundary(color.A);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

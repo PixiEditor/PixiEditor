@@ -53,7 +53,7 @@ internal class EllipseOperation : IDrawOperation
     {
         if (!init)
             Init();
-        var surf = chunk.Surface.SkiaSurface;
+        var surf = chunk.Surface.DrawingSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);

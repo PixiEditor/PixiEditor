@@ -53,7 +53,7 @@ internal class FloodFillChunkCache : IDisposable
             return new EmptyChunk();
         Chunk chunkOnImage = Chunk.Create(ChunkResolution.Full);
 
-        if (!image.DrawMostUpToDateChunkOn(pos, ChunkResolution.Full, chunkOnImage.Surface.SkiaSurface, VecI.Zero, ReplacingPaint))
+        if (!image.DrawMostUpToDateChunkOn(pos, ChunkResolution.Full, chunkOnImage.Surface.DrawingSurface, VecI.Zero, ReplacingPaint))
         {
             chunkOnImage.Dispose();
             acquiredChunks[pos] = new EmptyChunk();

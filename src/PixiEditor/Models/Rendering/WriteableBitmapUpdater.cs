@@ -227,7 +227,7 @@ internal class WriteableBitmapUpdater
                     OneOf<Chunk, EmptyChunk> rendered = ChunkRenderer.MergeWholeStructure(chunk, ChunkResolution.Full, folder);
                     if (rendered.IsT0)
                     {
-                        memberVM.PreviewSurface.Canvas.DrawSurface(rendered.AsT0.Surface.SkiaSurface, pos, SmoothReplacingPaint);
+                        memberVM.PreviewSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos, SmoothReplacingPaint);
                         rendered.AsT0.Dispose();
                     }
                     else
@@ -288,7 +288,7 @@ internal class WriteableBitmapUpdater
         ChunkRenderer.MergeWholeStructure(chunkPos, resolution, internals.Tracker.Document.StructureRoot).Switch(
             (Chunk chunk) =>
             {
-                screenSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
+                screenSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
                 chunk.Dispose();
             },
             (EmptyChunk _) =>

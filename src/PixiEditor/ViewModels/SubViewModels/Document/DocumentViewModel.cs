@@ -290,18 +290,18 @@ internal class DocumentViewModel : NotifyableObject
 
         SKPath clipPath = new SKPath(SelectionPathBindable) { FillType = SKPathFillType.EvenOdd };
         clipPath.Transform(SKMatrix.CreateTranslation(-bounds.X, -bounds.Y));
-        output.SkiaSurface.Canvas.Save();
-        output.SkiaSurface.Canvas.ClipPath(clipPath);
+        output.DrawingSurface.Canvas.Save();
+        output.DrawingSurface.Canvas.ClipPath(clipPath);
         try
         {
-            layer.LayerImage.DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.SkiaSurface, VecI.Zero);
+            layer.LayerImage.DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);
         }
         catch (ObjectDisposedException)
         {
             output.Dispose();
             return new Error();
         }
-        output.SkiaSurface.Canvas.Restore();
+        output.DrawingSurface.Canvas.Restore();
 
         return (output, bounds);
     }

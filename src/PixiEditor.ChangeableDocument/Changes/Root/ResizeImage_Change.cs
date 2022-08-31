@@ -49,7 +49,7 @@ internal class ResizeImage_Change : Change
         image.DrawMostUpToDateRegionOn(
             new(VecI.Zero, originalSize), 
             ChunkResolution.Full,
-            originalSurface.SkiaSurface,
+            originalSurface.DrawingSurface,
             VecI.Zero);
         
         bool downscaling = newSize.LengthSquared < originalSize.LengthSquared;
@@ -61,10 +61,10 @@ internal class ResizeImage_Change : Change
         };
 
         using Surface newSurface = new(newSize);
-        newSurface.SkiaSurface.Canvas.Save();
-        newSurface.SkiaSurface.Canvas.Scale(newSize.X / (float)originalSize.X, newSize.Y / (float)originalSize.Y);
-        newSurface.SkiaSurface.Canvas.DrawSurface(originalSurface.SkiaSurface, 0, 0, paint);
-        newSurface.SkiaSurface.Canvas.Restore();
+        newSurface.DrawingSurface.Canvas.Save();
+        newSurface.DrawingSurface.Canvas.Scale(newSize.X / (float)originalSize.X, newSize.Y / (float)originalSize.Y);
+        newSurface.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
+        newSurface.DrawingSurface.Canvas.Restore();
         
         image.EnqueueResize(newSize);
         image.EnqueueClear();

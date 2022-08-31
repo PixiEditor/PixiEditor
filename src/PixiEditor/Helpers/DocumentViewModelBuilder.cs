@@ -189,7 +189,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         
         public SurfaceBuilder WithImage(ReadOnlySpan<byte> buffer, int x, int y)
         {
-            Surface.SkiaSurface.Canvas.DrawBitmap(SKBitmap.Decode(buffer), 0, 0);
+            Surface.DrawingSurface.Canvas.DrawBitmap(SKBitmap.Decode(buffer), 0, 0);
             return this;
         }
     }

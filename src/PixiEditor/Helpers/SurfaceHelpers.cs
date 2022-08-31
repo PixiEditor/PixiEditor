@@ -46,7 +46,7 @@ public static class SurfaceHelpers
         byte[] buffer = new byte[width * height * imageInfo.BytesPerPixel];
         fixed (void* pointer = buffer)
         {
-            if (!surface.SkiaSurface.ReadPixels(imageInfo, new IntPtr(pointer), imageInfo.RowBytes, 0, 0))
+            if (!surface.DrawingSurface.ReadPixels(imageInfo, new IntPtr(pointer), imageInfo.RowBytes, 0, 0))
             {
                 throw new InvalidOperationException("Could not read surface into buffer");
             }
