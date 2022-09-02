@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+﻿using PixiEditor.DrawingApi.Core.Numerics;
+
+namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal static class DrawingChangeHelper
 {
     public static HashSet<VecI> ApplyStoredChunksDisposeAndSetToNull(Document target, Guid memberGuid, bool drawOnMask, ref CommittedChunkStorage? storage)

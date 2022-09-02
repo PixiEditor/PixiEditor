@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;

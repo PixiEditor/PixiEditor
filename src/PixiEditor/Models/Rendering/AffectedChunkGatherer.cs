@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Models.Rendering;
 #nullable enable

@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Bridge.Operations;
+﻿using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
+using PixiEditor.DrawingApi.Core.Bridge.Operations;
 
 namespace PixiEditor.DrawingApi.Core.Bridge
 {
@@ -9,5 +10,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge
         public IImageOperations ImageOperations { get; }
         public ICanvasOperations CanvasOperations { get; }
         public IPaintOperations PaintOperations { get; set; }
+        public IVectorPathImplementation PathImplementation { get; set; }
+        public IMatrix3X3Implementation MatrixImplementation { get; set; }
     }
 }

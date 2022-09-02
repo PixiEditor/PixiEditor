@@ -4,6 +4,7 @@ using ChunkyImageLib.Operations;
 using OneOf;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.ViewModels.SubViewModels.Document;

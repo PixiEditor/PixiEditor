@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Shaders;
 using ComputeSharp;
+using PixiEditor.DrawingApi.Core.Numerics;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;

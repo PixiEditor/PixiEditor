@@ -1,28 +1,32 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 internal class PathOperation : IDrawOperation
 {
-    private readonly SKPath path;
+    private readonly VectorPath path;
 
-    private readonly SKPaint paint;
+    private readonly Paint paint;
     private readonly RectI bounds;
 
     public bool IgnoreEmptyChunks => false;
 
-    public PathOperation(SKPath path, SKColor color, float strokeWidth, SKStrokeCap cap, SKBlendMode blendMode, RectI? customBounds = null)
+    public PathOperation(VectorPath path, Color color, float strokeWidth, StrokeCap cap, BlendMode blendMode, RectI? customBounds = null)
     {
-        this.path = new SKPath(path);
-        paint = new() { Color = color, Style = SKPaintStyle.Stroke, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
+        this.path = new VectorPath(path);
+        paint = new() { Color = color, Style = PaintStyle.Stroke, StrokeWidth = strokeWidth, StrokeCap = cap, BlendMode = blendMode };
 
-        RectI floatBounds = customBounds ?? (RectI)((RectD)path.TightBounds).RoundOutwards();
+        RectI floatBounds = customBounds ?? (RectI)(path.TightBounds).RoundOutwards();
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
     }
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
-        paint.IsAntialias = chunk.Resolution != ChunkResolution.Full;
+        paint.IsAntiAliased = chunk.Resolution != ChunkResolution.Full;
         var surf = chunk.Surface.DrawingSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
@@ -38,8 +42,8 @@ internal class PathOperation : IDrawOperation
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
     {
-        var matrix = SKMatrix.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, verAxisX ?? 0, horAxisY ?? 0);
-        using var copy = new SKPath(path);
+        var matrix = Matrix3X3.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, verAxisX ?? 0, horAxisY ?? 0);
+        using var copy = new VectorPath(path);
         copy.Transform(matrix);
 
         RectI newBounds = bounds;

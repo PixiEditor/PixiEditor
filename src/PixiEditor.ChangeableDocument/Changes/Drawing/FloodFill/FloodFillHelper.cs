@@ -3,6 +3,7 @@ using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using SkiaSharp;
 using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 

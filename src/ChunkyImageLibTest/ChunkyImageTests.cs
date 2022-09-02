@@ -2,6 +2,7 @@
 using System.IO;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 using SkiaSharp;
 using Xunit;
 

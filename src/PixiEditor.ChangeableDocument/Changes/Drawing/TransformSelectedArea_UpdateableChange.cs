@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changes.Selection;
+using PixiEditor.DrawingApi.Core.Numerics;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;

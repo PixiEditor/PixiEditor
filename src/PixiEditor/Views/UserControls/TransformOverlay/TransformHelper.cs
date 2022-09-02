@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
+
 #nullable enable
 
 namespace PixiEditor.Views.UserControls.TransformOverlay;

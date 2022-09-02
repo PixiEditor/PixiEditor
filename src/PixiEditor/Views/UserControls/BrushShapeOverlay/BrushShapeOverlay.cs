@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Views.UserControls.BrushShapeOverlay;
 #nullable enable

@@ -1,6 +1,7 @@
-﻿using SkiaSharp;
+﻿using System;
+using SkiaSharp;
 
-namespace ChunkyImageLib.DataHolders;
+namespace PixiEditor.DrawingApi.Core.Numerics;
 public struct RectD : IEquatable<RectD>
 {
     public static RectD Empty { get; } = new RectD();

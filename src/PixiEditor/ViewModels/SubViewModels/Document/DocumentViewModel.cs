@@ -9,6 +9,8 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -135,7 +137,7 @@ internal class DocumentViewModel : NotifyableObject
         [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
     };
     public WriteableBitmap PreviewBitmap { get; set; }
-    public SKSurface PreviewSurface { get; set; }
+    public DrawingSurface PreviewSurface { get; set; }
 
 
     private SKPath selectionPath = new SKPath();

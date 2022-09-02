@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;

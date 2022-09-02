@@ -3,6 +3,7 @@ using System.IO;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Helpers;

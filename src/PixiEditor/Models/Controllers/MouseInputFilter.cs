@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Events;
 
 namespace PixiEditor.Models.Controllers;

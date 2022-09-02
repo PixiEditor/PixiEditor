@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
+using PixiEditor.DrawingApi.Core.Numerics;
 using SkiaSharp;
 
 namespace ChunkyImageLib;

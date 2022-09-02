@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Views.UserControls.TransformOverlay;
 #nullable enable

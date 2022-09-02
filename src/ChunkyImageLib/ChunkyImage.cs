@@ -4,6 +4,7 @@ using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;
 using OneOf.Types;
+using PixiEditor.DrawingApi.Core.Numerics;
 using SkiaSharp;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]

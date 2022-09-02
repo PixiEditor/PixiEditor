@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Zoombox.Operations;
 

@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.PixelE;
 using SkiaSharp;

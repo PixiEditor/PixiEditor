@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Views.UserControls.SymmetryOverlay;
 #nullable enable
