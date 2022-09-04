@@ -1,13 +1,14 @@
 ﻿using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace ChunkyImageLib;
 public static class IReadOnlyChunkyImageEx
 {
     public static void DrawMostUpToDateRegionOn
-        (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, SKSurface surface, VecI pos, SKPaint? paint = null)
+        (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null)
     {
         surface.Canvas.Save();
         surface.Canvas.ClipRect(SKRect.Create(pos, fullResRegion.Size));

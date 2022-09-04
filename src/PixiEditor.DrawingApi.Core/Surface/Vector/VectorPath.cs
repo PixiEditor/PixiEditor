@@ -45,6 +45,8 @@ public class VectorPath : NativeObject
     /// <value>The tight bounds of the path.</value>
     public RectD TightBounds => DrawingBackendApi.Current.PathImplementation.GetTightBounds(this);
 
+    public bool IsEmpty => VerbCount == 0;
+
     public VectorPath() : base(DrawingBackendApi.Current.PathImplementation.Create())
     {
     }
@@ -52,6 +54,10 @@ public class VectorPath : NativeObject
     public VectorPath(VectorPath other) : base(DrawingBackendApi.Current.PathImplementation.Clone(other))
     {
     }
+    
+    /// <param name="matrix">The matrix to use for transformation.</param>
+    /// <summary>Applies a transformation matrix to the all the elements in the path.</summary>
+    public void Transform(Matrix3X3 matrix) => DrawingBackendApi.Current.PathImplementation.Transform(this, matrix);
 
     public override void Dispose()
     {

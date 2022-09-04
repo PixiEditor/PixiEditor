@@ -21,4 +21,5 @@ public interface IVectorPathImplementation
     public IntPtr Create();
     public IntPtr Clone(VectorPath other);
     public RectD GetTightBounds(VectorPath vectorPath);
+    public void Transform(VectorPath vectorPath, Matrix3X3 matrix);
 }

@@ -1,21 +1,22 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 public static class BresenhamLineHelper
 {
-    public static SKPoint[] GetBresenhamLine(VecI start, VecI end)
+    public static Point[] GetBresenhamLine(VecI start, VecI end)
     {
         int count = Math.Abs((start - end).LongestAxis) + 1;
         if (count > 100000)
-            return new SKPoint[0];
-        SKPoint[] output = new SKPoint[count];
+            return Array.Empty<Point>();
+        Point[] output = new Point[count];
         CalculateBresenhamLine(start, end, output);
         return output;
     }
 
-    private static void CalculateBresenhamLine(VecI start, VecI end, SKPoint[] output)
+    private static void CalculateBresenhamLine(VecI start, VecI end, Point[] output)
     {
         int index = 0;
 
@@ -26,7 +27,7 @@ public static class BresenhamLineHelper
 
         if (x1 == x2 && y1 == y2)
         {
-            output[index] = start;
+            output[index] = new Point(start);
             return;
         }
 
@@ -55,7 +56,7 @@ public static class BresenhamLineHelper
             dy = y1 - y2;
         }
 
-        output[index] = new SKPoint(x, y);
+        output[index] = new Point(x, y);
         index++;
 
         if (dx > dy)
@@ -78,7 +79,7 @@ public static class BresenhamLineHelper
                     x += xi;
                 }
 
-                output[index] = new SKPoint(x, y);
+                output[index] = new Point(x, y);
                 index++;
             }
         }
@@ -102,7 +103,7 @@ public static class BresenhamLineHelper
                     y += yi;
                 }
 
-                output[index] = new SKPoint(x, y);
+                output[index] = new Point(x, y);
                 index++;
             }
         }

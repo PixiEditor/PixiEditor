@@ -1,24 +1,26 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
-internal class SkiaLineOperation : IDrawOperation
+internal class DrawingSurfaceLineOperation : IDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
 
-    private SKPaint paint;
+    private Paint paint;
     private readonly VecI from;
     private readonly VecI to;
 
-    public SkiaLineOperation(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color, SKBlendMode blendMode)
+    public DrawingSurfaceLineOperation(VecI from, VecI to, StrokeCap strokeCap, float strokeWidth, Color color, BlendMode blendMode)
     {
         paint = new()
         {
             StrokeCap = strokeCap,
             StrokeWidth = strokeWidth,
             Color = color,
-            Style = SKPaintStyle.Stroke,
+            Style = PaintStyle.Stroke,
             BlendMode = blendMode,
         };
         this.from = from;
@@ -27,7 +29,7 @@ internal class SkiaLineOperation : IDrawOperation
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
-        paint.IsAntialias = chunk.Resolution != ChunkResolution.Full;
+        paint.IsAntiAliased = chunk.Resolution != ChunkResolution.Full;
         var surf = chunk.Surface.DrawingSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
@@ -56,7 +58,7 @@ internal class SkiaLineOperation : IDrawOperation
             newFrom = newFrom.ReflectY((int)horAxisY);
             newTo = newTo.ReflectY((int)horAxisY);
         }
-        return new SkiaLineOperation(newFrom, newTo, paint.StrokeCap, paint.StrokeWidth, paint.Color, paint.BlendMode);
+        return new DrawingSurfaceLineOperation(newFrom, newTo, paint.StrokeCap, paint.StrokeWidth, paint.Color, paint.BlendMode);
     }
 
     public void Dispose()

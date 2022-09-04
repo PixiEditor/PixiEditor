@@ -1,15 +1,17 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace ChunkyImageLib;
 
 public interface IReadOnlyChunkyImage
 {
-    bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, SKSurface surface, VecI pos, SKPaint? paint = null);
+    bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null);
     RectI? FindLatestBounds();
-    SKColor GetCommittedPixel(VecI posOnImage);
-    SKColor GetMostUpToDatePixel(VecI posOnImage);
+    Color GetCommittedPixel(VecI posOnImage);
+    Color GetMostUpToDatePixel(VecI posOnImage);
     bool LatestOrCommittedChunkExists(VecI chunkPos);
     HashSet<VecI> FindAffectedChunks(int fromOperationIndex = 0);
     HashSet<VecI> FindCommittedChunks();

@@ -8,14 +8,15 @@ using System.Threading.Tasks;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Shaders;
 using ComputeSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 internal class ReplaceColorOperation : IDrawOperation
 {
-    private readonly SKColor oldColor;
-    private readonly SKColor newColor;
+    private readonly Color oldColor;
+    private readonly Color newColor;
 
     private readonly ColorBounds oldColorBounds;
     private readonly HlslColorBounds oldColorBoundsHlsl;
@@ -23,12 +24,12 @@ internal class ReplaceColorOperation : IDrawOperation
 
     public bool IgnoreEmptyChunks => true;
 
-    public ReplaceColorOperation(SKColor oldColor, SKColor newColor)
+    public ReplaceColorOperation(Color oldColor, Color newColor)
     {
         this.oldColor = oldColor;
         this.newColor = newColor;
         oldColorBounds = new ColorBounds(oldColor);
-        oldColorBoundsHlsl = new HlslColorBounds(new Float4(oldColor.Red, oldColor.Green, oldColor.Blue, oldColor.Alpha));
+        oldColorBoundsHlsl = new HlslColorBounds(new Float4(oldColor.R, oldColor.G, oldColor.B, oldColor.A));
         newColorBits = newColor.ToULong();
     }
 
@@ -37,7 +38,7 @@ internal class ReplaceColorOperation : IDrawOperation
         ReplaceColor(oldColorBoundsHlsl, newColor, chunk);
     }
 
-    private static void ReplaceColor(HlslColorBounds oldColorBounds, SKColor newColor, Chunk chunk)
+    private static void ReplaceColor(HlslColorBounds oldColorBounds, Color newColor, Chunk chunk)
     {
         Span<UInt2> span = chunk.Surface.DrawingSurface.PeekPixels().GetPixelSpan<uint2>();
         using var texture = GraphicsDevice.GetDefault()

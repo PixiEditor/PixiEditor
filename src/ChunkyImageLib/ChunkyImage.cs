@@ -4,7 +4,9 @@ using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;
 using OneOf.Types;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
@@ -31,7 +33,7 @@ namespace ChunkyImageLib;
 /// You can check the current state via queuedOperations.Count == 0
 /// 
 /// Depending on the chosen blend mode the latest chunks contain different things:
-///     - SKBlendMode.Src: default mode, the latest chunks are the same as committed ones but with some or all queued operations applied. 
+///     - BlendMode.Src: default mode, the latest chunks are the same as committed ones but with some or all queued operations applied. 
 ///         This means that operations can work with the existing pixels.
 ///     - Any other blend mode: the latest chunks contain only the things drawn by the queued operations.
 ///         They need to be drawn over the committed chunks to obtain the final image. In this case, operations won't have access to the existing pixels.
@@ -55,12 +57,12 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private int commitCounter = 0;
 
     public const int FullChunkSize = ChunkPool.FullChunkSize;
-    private static SKPaint ClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstIn };
-    private static SKPaint InverseClippingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.DstOut };
-    private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
-    private static SKPaint SmoothReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.Medium };
-    private static SKPaint AddingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Plus };
-    private readonly SKPaint blendModePaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private static Paint ClippingPaint { get; } = new Paint() { BlendMode = BlendMode.DstIn };
+    private static Paint InverseClippingPaint { get; } = new Paint() { BlendMode = BlendMode.DstOut };
+    private static Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
+    private static Paint SmoothReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.Medium };
+    private static Paint AddingPaint { get; } = new Paint() { BlendMode = BlendMode.Plus };
+    private readonly Paint blendModePaint = new Paint() { BlendMode = BlendMode.Src };
 
     public VecI CommittedSize { get; private set; }
     public VecI LatestSize { get; private set; }
@@ -76,7 +78,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     private readonly List<(IOperation operation, HashSet<VecI> affectedChunks)> queuedOperations = new();
     private readonly List<ChunkyImage> activeClips = new();
-    private SKBlendMode blendMode = SKBlendMode.Src;
+    private BlendMode blendMode = BlendMode.Src;
     private bool lockTransparency = false;
     private SKPath? clippingPath;
     private int? horizontalSymmetryAxis = null;
@@ -158,7 +160,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public SKColor GetCommittedPixel(VecI posOnImage)
+    public Color GetCommittedPixel(VecI posOnImage)
     {
         lock (lockObject)
         {
@@ -167,14 +169,14 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             var posInChunk = posOnImage - chunkPos * FullChunkSize;
             return MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full) switch
             {
-                null => SKColors.Transparent,
+                null => Colors.Transparent,
                 var chunk => chunk.Surface.GetSRGBPixel(posInChunk)
             };
         }
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public SKColor GetMostUpToDatePixel(VecI posOnImage)
+    public Color GetMostUpToDatePixel(VecI posOnImage)
     {
         lock (lockObject)
         {
@@ -188,18 +190,18 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 Chunk? committedChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
                 return committedChunk switch
                 {
-                    null => SKColors.Transparent,
+                    null => Colors.Transparent,
                     _ => committedChunk.Surface.GetSRGBPixel(posInChunk)
                 };
             }
 
             // something is queued, blend mode is Src so no merging needed
-            if (blendMode == SKBlendMode.Src)
+            if (blendMode == BlendMode.Src)
             {
                 Chunk? latestChunk = GetLatestChunk(chunkPos, ChunkResolution.Full);
                 return latestChunk switch
                 {
-                    null => SKColors.Transparent,
+                    null => Colors.Transparent,
                     _ => latestChunk.Surface.GetSRGBPixel(posInChunk)
                 };
             }
@@ -208,17 +210,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             {
                 Chunk? committedChunk = MaybeGetCommittedChunk(chunkPos, ChunkResolution.Full);
                 Chunk? latestChunk = GetLatestChunk(chunkPos, ChunkResolution.Full);
-                SKColor committedColor = committedChunk is null ?
-                    SKColors.Transparent :
+                Color committedColor = committedChunk is null ?
+                    Colors.Transparent :
                     committedChunk.Surface.GetSRGBPixel(posInChunk);
-                SKColor latestColor = latestChunk is null ?
-                    SKColors.Transparent :
+                Color latestColor = latestChunk is null ?
+                    Colors.Transparent :
                     latestChunk.Surface.GetSRGBPixel(posInChunk);
                 // using a whole chunk just to draw 1 pixel is kinda dumb,
                 // but this should be faster than any approach that requires allocations
                 using Chunk tempChunk = Chunk.Create(ChunkResolution.Eighth);
-                using SKPaint committedPaint = new SKPaint() { Color = committedColor, BlendMode = SKBlendMode.Src };
-                using SKPaint latestPaint = new SKPaint() { Color = latestColor, BlendMode = this.blendMode };
+                using Paint committedPaint = new Paint() { Color = committedColor, BlendMode = BlendMode.Src };
+                using Paint latestPaint = new Paint() { Color = latestColor, BlendMode = this.blendMode };
                 tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, committedPaint);
                 tempChunk.Surface.DrawingSurface.Canvas.DrawPixel(VecI.Zero, latestPaint);
                 return tempChunk.Surface.GetSRGBPixel(VecI.Zero);
@@ -230,7 +232,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// True if the chunk existed and was drawn, otherwise false
     /// </returns>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, SKSurface surface, VecI pos, SKPaint? paint = null)
+    public bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null)
     {
         lock (lockObject)
         {
@@ -251,7 +253,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             var committedChunk = GetCommittedChunk(chunkPos, resolution);
 
             // draw committed directly
-            if (latestChunk.IsT0 || latestChunk.IsT1 && committedChunk is not null && blendMode != SKBlendMode.Src)
+            if (latestChunk.IsT0 || latestChunk.IsT1 && committedChunk is not null && blendMode != BlendMode.Src)
             {
                 if (committedChunk is null)
                     return false;
@@ -260,7 +262,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             }
 
             // no need to combine with committed, draw directly
-            if (blendMode == SKBlendMode.Src || committedChunk is null)
+            if (blendMode == BlendMode.Src || committedChunk is null)
             {
                 if (latestChunk.IsT2)
                 {
@@ -304,7 +306,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    internal bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, SKSurface surface, VecI pos, SKPaint? paint = null)
+    internal bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null)
     {
         lock (lockObject)
         {
@@ -390,7 +392,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// Porter duff compositing operators (apart from SrcOver) likely won't have the intended effect.
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void SetBlendMode(SKBlendMode mode)
+    public void SetBlendMode(BlendMode mode)
     {
         lock (lockObject)
         {
@@ -436,7 +438,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueReplaceColor(SKColor oldColor, SKColor newColor)
+    public void EnqueueReplaceColor(Color oldColor, Color newColor)
     {
         lock (lockObject)
         {
@@ -458,7 +460,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawEllipse(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth, SKPaint? paint = null)
+    public void EnqueueDrawEllipse(RectI location, Color strokeColor, Color fillColor, int strokeWidth, Paint? paint = null)
     {
         lock (lockObject)
         {
@@ -475,7 +477,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawImage(SKMatrix transformMatrix, Surface image, SKPaint? paint = null, bool copyImage = true)
+    public void EnqueueDrawImage(SKMatrix transformMatrix, Surface image, Paint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
         {
@@ -489,7 +491,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// Be careful about the copyImage argument, see other overload for details
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawImage(ShapeCorners corners, Surface image, SKPaint? paint = null, bool copyImage = true)
+    public void EnqueueDrawImage(ShapeCorners corners, Surface image, Paint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
         {
@@ -503,7 +505,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// Be careful about the copyImage argument, see other overload for details
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawImage(VecI pos, Surface image, SKPaint? paint = null, bool copyImage = true)
+    public void EnqueueDrawImage(VecI pos, Surface image, Paint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
         {
@@ -515,7 +517,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawPath(SKPath path, SKColor color, float strokeWidth, SKStrokeCap strokeCap, SKBlendMode blendMode, RectI? customBounds = null)
+    public void EnqueueDrawPath(SKPath path, Color color, float strokeWidth, SKStrokeCap strokeCap, BlendMode blendMode, RectI? customBounds = null)
     {
         lock (lockObject)
         {
@@ -526,7 +528,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawBresenhamLine(VecI from, VecI to, SKColor color, SKBlendMode blendMode)
+    public void EnqueueDrawBresenhamLine(VecI from, VecI to, Color color, BlendMode blendMode)
     {
         lock (lockObject)
         {
@@ -537,18 +539,18 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawSkiaLine(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, SKColor color, SKBlendMode blendMode)
+    public void EnqueueDrawSkiaLine(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, Color color, BlendMode blendMode)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            SkiaLineOperation operation = new(from, to, strokeCap, strokeWidth, color, blendMode);
+            DrawingSurfaceLineOperation operation = new(from, to, strokeCap, strokeWidth, color, blendMode);
             EnqueueOperation(operation);
         }
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawPixels(IEnumerable<VecI> pixels, SKColor color, SKBlendMode blendMode)
+    public void EnqueueDrawPixels(IEnumerable<VecI> pixels, Color color, BlendMode blendMode)
     {
         lock (lockObject)
         {
@@ -559,7 +561,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawPixel(VecI pos, SKColor color, SKBlendMode blendMode)
+    public void EnqueueDrawPixel(VecI pos, Color color, BlendMode blendMode)
     {
         lock (lockObject)
         {
@@ -664,7 +666,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
             //clear additional state
             activeClips.Clear();
-            blendMode = SKBlendMode.Src;
+            blendMode = BlendMode.Src;
             lockTransparency = false;
             horizontalSymmetryAxis = null;
             verticalSymmetryAxis = null;
@@ -710,7 +712,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             CommittedSize = LatestSize;
             queuedOperations.Clear();
             activeClips.Clear();
-            blendMode = SKBlendMode.Src;
+            blendMode = BlendMode.Src;
             lockTransparency = false;
             horizontalSymmetryAxis = null;
             verticalSymmetryAxis = null;
@@ -748,7 +750,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 }
 
                 // do a swap
-                if (blendMode == SKBlendMode.Src)
+                if (blendMode == BlendMode.Src)
                 {
                     // delete committed version
                     if (committedChunks[resolution].ContainsKey(pos))
@@ -937,7 +939,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
 
         var intersection = Chunk.Create(resolution);
-        intersection.Surface.DrawingSurface.Canvas.Clear(SKColors.White);
+        intersection.Surface.DrawingSurface.Canvas.Clear(Colors.White);
 
         foreach (var mask in activeClips)
         {
@@ -1135,7 +1137,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         if (maybeCommittedAnyRes is not null)
         {
             Chunk newChunk = Chunk.Create(resolution);
-            if (blendMode == SKBlendMode.Src)
+            if (blendMode == BlendMode.Src)
                 maybeCommittedAnyRes.Surface.CopyTo(newChunk.Surface);
             else
                 newChunk.Surface.DrawingSurface.Canvas.Clear();

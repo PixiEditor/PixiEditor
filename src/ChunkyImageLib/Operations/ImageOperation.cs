@@ -1,16 +1,17 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 
 internal class ImageOperation : IDrawOperation
 {
-    private SKMatrix transformMatrix;
+    private Matrix3X3 transformMatrix;
     private ShapeCorners corners;
     private Surface toPaint;
     private bool imageWasCopied = false;
-    private readonly SKPaint? customPaint;
+    private readonly Paint? customPaint;
 
     public bool IgnoreEmptyChunks => false;
 
@@ -26,7 +27,7 @@ internal class ImageOperation : IDrawOperation
             BottomRight = pos + image.Size,
             BottomLeft = new VecD(pos.X, pos.Y + image.Size.Y)
         };
-        transformMatrix = SKMatrix.CreateIdentity();
+        transformMatrix = Matrix3X3.CreateIdentity();
         transformMatrix.TransX = pos.X;
         transformMatrix.TransY = pos.Y;
 

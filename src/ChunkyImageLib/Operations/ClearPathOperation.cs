@@ -1,18 +1,19 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 internal class ClearPathOperation : IDrawOperation
 {
-    private SKPath path;
+    private VectorPath path;
     private RectI pathTightBounds;
 
     public bool IgnoreEmptyChunks => true;
 
-    public ClearPathOperation(SKPath path, RectI? pathTightBounds = null)
+    public ClearPathOperation(VectorPath path, RectI? pathTightBounds = null)
     {
-        this.path = new SKPath(path);
+        this.path = new VectorPath(path);
         this.pathTightBounds = (RectI)(pathTightBounds ?? path.TightBounds);
     }
 
@@ -20,10 +21,10 @@ internal class ClearPathOperation : IDrawOperation
     {
         chunk.Surface.DrawingSurface.Canvas.Save();
 
-        using SKPath transformedPath = new(path);
+        using VectorPath transformedPath = new(path);
         float scale = (float)chunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkyImage.FullChunkSize * scale;
-        transformedPath.Transform(SKMatrix.CreateScaleTranslation(scale, scale, (float)trans.X, (float)trans.Y));
+        transformedPath.Transform(Matrix3X3.CreateScaleTranslation(scale, scale, (float)trans.X, (float)trans.Y));
         chunk.Surface.DrawingSurface.Canvas.ClipPath(transformedPath);
         chunk.Surface.DrawingSurface.Canvas.Clear();
         chunk.Surface.DrawingSurface.Canvas.Restore();
@@ -40,8 +41,8 @@ internal class ClearPathOperation : IDrawOperation
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
     {
-        var matrix = SKMatrix.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, verAxisX ?? 0, horAxisY ?? 0);
-        using var copy = new SKPath(path);
+        var matrix = Matrix3X3.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, verAxisX ?? 0, horAxisY ?? 0);
+        using var copy = new VectorPath(path);
         copy.Transform(matrix);
 
         var newRect = pathTightBounds;

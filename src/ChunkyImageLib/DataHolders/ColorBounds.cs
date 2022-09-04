@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using ComputeSharp;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.PixelE;
 
 namespace ChunkyImageLib.DataHolders;
 

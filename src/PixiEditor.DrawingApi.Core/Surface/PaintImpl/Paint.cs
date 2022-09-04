@@ -7,16 +7,28 @@ namespace PixiEditor.DrawingApi.Core.Surface
     /// <summary>
     ///     Class used to define surface paint, which is a collection of paint operations.
     /// </summary>
-    public class Paint : IDisposable
+    public class Paint : NativeObject
     {
         public Color Color { get; set; }
         public BlendMode BlendMode { get; set; } = BlendMode.Src;
         public FilterQuality FilterQuality { get; set; } = FilterQuality.None;
         public bool IsAntiAliased { get; set; } = false;
-
-        public void Dispose()
+        public PaintStyle Style { get; set; }
+        public StrokeCap StrokeCap { get; set; }
+        public float StrokeWidth { get; set; }
+        
+        
+        internal Paint(IntPtr objPtr) : base(objPtr)
         {
-            DrawingBackendApi.Current.PaintOperations.Dispose(this);
+        }
+        
+        public Paint() : base(DrawingBackendApi.Current.PaintImplementation.CreatePaint())
+        {
+        }
+
+        public override void Dispose()
+        {
+            DrawingBackendApi.Current.PaintImplementation.Dispose(ObjectPointer);
         }
     }
 }

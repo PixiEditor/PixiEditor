@@ -1,5 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
@@ -7,29 +9,29 @@ namespace ChunkyImageLib.Operations;
 internal class PixelsOperation : IDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
-    private readonly SKPoint[] pixels;
-    private readonly SKColor color;
-    private readonly SKBlendMode blendMode;
-    private readonly SKPaint paint;
+    private readonly Point[] pixels;
+    private readonly Color color;
+    private readonly BlendMode blendMode;
+    private readonly Paint paint;
 
-    public PixelsOperation(IEnumerable<VecI> pixels, SKColor color, SKBlendMode blendMode)
+    public PixelsOperation(IEnumerable<VecI> pixels, Color color, BlendMode blendMode)
     {
-        this.pixels = pixels.Select(pixel => (SKPoint)pixel).ToArray();
+        this.pixels = pixels.Select(pixel => (Point)pixel).ToArray();
         this.color = color;
         this.blendMode = blendMode;
-        paint = new SKPaint() { BlendMode = blendMode };
+        paint = new Paint() { BlendMode = blendMode };
     }
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
         // a hacky way to make the lines look slightly better on non full res chunks
-        paint.Color = new SKColor(color.Red, color.Green, color.Blue, (byte)(color.Alpha * chunk.Resolution.Multiplier()));
+        paint.Color = new Color(color.R, color.G, color.B, (byte)(color.A * chunk.Resolution.Multiplier()));
 
-        SKSurface surf = chunk.Surface.DrawingSurface;
+        DrawingSurface surf = chunk.Surface.DrawingSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
-        surf.Canvas.DrawPoints(SKPointMode.Points, pixels, paint);
+        surf.Canvas.DrawPoints(PointMode.Points, pixels, paint);
         surf.Canvas.Restore();
     }
 

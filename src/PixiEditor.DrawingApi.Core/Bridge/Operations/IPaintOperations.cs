@@ -1,9 +1,11 @@
-﻿using PixiEditor.DrawingApi.Core.Surface;
+﻿using System;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.Operations
 {
     public interface IPaintOperations
     {
-        public void Dispose(Paint paint);
+        public IntPtr CreatePaint();
+        public void Dispose(IntPtr paintObjPointer);
     }
 }

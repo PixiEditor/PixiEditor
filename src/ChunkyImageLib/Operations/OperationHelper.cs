@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
@@ -21,11 +22,11 @@ public static class OperationHelper
     /// <summary>
     /// toModify[x,y].Alpha = Math.Min(toModify[x,y].Alpha, toGetAlphaFrom[x,y].Alpha)
     /// </summary>
-    public unsafe static void ClampAlpha(SKSurface toModify, SKSurface toGetAlphaFrom)
+    public unsafe static void ClampAlpha(DrawingSurface toModify, DrawingSurface toGetAlphaFrom)
     {
-        using (var map = toModify.PeekPixels())
+        using (Pixmap map = toModify.PeekPixels())
         {
-            using (var refMap = toGetAlphaFrom.PeekPixels())
+            using (Pixmap refMap = toGetAlphaFrom.PeekPixels())
             {
                 long* pixels = (long*)map.GetPixels();
                 long* refPixels = (long*)refMap.GetPixels();
@@ -76,11 +77,11 @@ public static class OperationHelper
         };
     }
 
-    public static SKMatrix CreateMatrixFromPoints(ShapeCorners corners, VecD size)
-        => CreateMatrixFromPoints((SKPoint)corners.TopLeft, (SKPoint)corners.TopRight, (SKPoint)corners.BottomRight, (SKPoint)corners.BottomLeft, (float)size.X, (float)size.Y);
+    public static Matrix3X3 CreateMatrixFromPoints(ShapeCorners corners, VecD size)
+        => CreateMatrixFromPoints((Point)corners.TopLeft, (Point)corners.TopRight, (Point)corners.BottomRight, (Point)corners.BottomLeft, (float)size.X, (float)size.Y);
 
     // see https://stackoverflow.com/questions/48416118/perspective-transform-in-skia/72364829#72364829
-    public static SKMatrix CreateMatrixFromPoints(SKPoint topLeft, SKPoint topRight, SKPoint botRight, SKPoint botLeft, float width, float height)
+    public static Matrix3X3 CreateMatrixFromPoints(Point topLeft, Point topRight, Point botRight, Point botLeft, float width, float height)
     {
         (float x1, float y1) = (topLeft.X, topLeft.Y);
         (float x2, float y2) = (topRight.X, topRight.Y);
@@ -98,7 +99,7 @@ public static class OperationHelper
         float persp1 = (-y1 * x2 + x1 * y2 - x1 * y3 - y2 * x4 + y3 * x4 + x2 * y4 + y1 * x3 - y4 * x3) / (x2 * y3 * h + y2 * x4 * h - y3 * x4 * h - x2 * y4 * h - y2 * h * x3 + y4 * h * x3);
         float persp2 = 1;
 
-        return new SKMatrix(scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2);
+        return new Matrix3X3(scaleX, skewX, transX, skewY, scaleY, transY, persp0, persp1, persp2);
     }
 
     public static (ShapeCorners, ShapeCorners) CreateStretchedHexagon(VecD centerPos, double hexagonSide, double stretchX)

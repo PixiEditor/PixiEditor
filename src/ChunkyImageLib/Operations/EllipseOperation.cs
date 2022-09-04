@@ -1,5 +1,8 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
@@ -8,24 +11,24 @@ internal class EllipseOperation : IDrawOperation
     public bool IgnoreEmptyChunks => false;
 
     private readonly RectI location;
-    private readonly SKColor strokeColor;
-    private readonly SKColor fillColor;
+    private readonly Color strokeColor;
+    private readonly Color fillColor;
     private readonly int strokeWidth;
-    private readonly SKPaint paint;
+    private readonly Paint paint;
     private bool init = false;
-    private SKPath? outerPath;
-    private SKPath? innerPath;
-    private SKPoint[]? ellipse;
-    private SKPoint[]? ellipseFill;
+    private VectorPath? outerPath;
+    private VectorPath? innerPath;
+    private Point[]? ellipse;
+    private Point[]? ellipseFill;
     private RectI? ellipseFillRect;
 
-    public EllipseOperation(RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth, SKPaint? paint = null)
+    public EllipseOperation(RectI location, Color strokeColor, Color fillColor, int strokeWidth, Paint? paint = null)
     {
         this.location = location;
         this.strokeColor = strokeColor;
         this.fillColor = fillColor;
         this.strokeWidth = strokeWidth;
-        this.paint = paint?.Clone() ?? new SKPaint();
+        this.paint = paint?.Clone() ?? new Paint();
     }
 
     private void Init()
@@ -34,18 +37,18 @@ internal class EllipseOperation : IDrawOperation
         if (strokeWidth == 1)
         {
             var ellipseList = EllipseHelper.GenerateEllipseFromRect(location);
-            ellipse = ellipseList.Select(a => (SKPoint)a).ToArray();
-            if (fillColor.Alpha > 0 || paint.BlendMode != SKBlendMode.SrcOver)
+            ellipse = ellipseList.Select(a => (Point)a).ToArray();
+            if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
                 (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseIntoRegions(ellipseList, location);
-                ellipseFill = fill.Select(a => (SKPoint)a).ToArray();
+                ellipseFill = fill.Select(a => (Point)a).ToArray();
             }
         }
         else
         {
-            outerPath = new SKPath();
+            outerPath = new VectorPath();
             outerPath.ArcTo(location, 0, 359, true);
-            innerPath = new SKPath();
+            innerPath = new VectorPath();
             innerPath.ArcTo(location.Inflate(-strokeWidth), 0, 359, true);
         }
     }
@@ -59,22 +62,22 @@ internal class EllipseOperation : IDrawOperation
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
 
-        paint.IsAntialias = chunk.Resolution != ChunkResolution.Full;
+        paint.IsAntiAliased = chunk.Resolution != ChunkResolution.Full;
 
         if (strokeWidth == 1)
         {
-            if (fillColor.Alpha > 0 || paint.BlendMode != SKBlendMode.SrcOver)
+            if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
                 paint.Color = fillColor;
-                surf.Canvas.DrawPoints(SKPointMode.Lines, ellipseFill, paint);
-                surf.Canvas.DrawRect((SKRect)ellipseFillRect!, paint);
+                surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill, paint);
+                surf.Canvas.DrawRect(ellipseFillRect!, paint);
             }
             paint.Color = strokeColor;
-            surf.Canvas.DrawPoints(SKPointMode.Points, ellipse, paint);
+            surf.Canvas.DrawPoints(PointMode.Points, ellipse, paint);
         }
         else
         {
-            if (fillColor.Alpha > 0 || paint.BlendMode != SKBlendMode.SrcOver)
+            if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
                 surf.Canvas.Save();
                 surf.Canvas.ClipPath(innerPath);
@@ -94,7 +97,7 @@ internal class EllipseOperation : IDrawOperation
     {
         var chunks = OperationHelper.FindChunksTouchingEllipse
             (location.Center, location.Width / 2.0, location.Height / 2.0, ChunkyImage.FullChunkSize);
-        if (fillColor.Alpha == 0)
+        if (fillColor.A == 0)
         {
             chunks.ExceptWith(OperationHelper.FindChunksFullyInsideEllipse
                 (location.Center, location.Width / 2.0 - strokeWidth * 2, location.Height / 2.0 - strokeWidth * 2, ChunkyImage.FullChunkSize));
