@@ -7,5 +7,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public Image Snapshot(DrawingSurface drawingSurface);
         public void DisposeImage(Image image);
         public Image FromEncodedData(string path);
+        public Pixmap PeekPixels(DrawingSurface drawingSurface);
     }
 }

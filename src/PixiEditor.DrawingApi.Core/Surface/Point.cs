@@ -23,6 +23,7 @@ public struct Point : IEquatable<Point>
         X = pointPos.X;
         Y = pointPos.Y;
     }
+    
 
     /// <summary>Gets a value indicating whether this point is empty.</summary>
     /// <value />
@@ -287,6 +288,26 @@ public struct Point : IEquatable<Point>
     public static bool operator !=(Point left, Point right)
     {
         return !left.Equals(right);
+    }
+    
+    public static explicit operator Point(VecI vec)
+    {
+        return new Point(vec.X, vec.Y);
+    }
+    
+    public static explicit operator Point(VecD vec)
+    {
+        return new Point((float)vec.X, (float)vec.Y);
+    }
+    
+    public static explicit operator VecI(Point vec)
+    {
+        return new VecI((int)vec.X, (int)vec.Y);
+    }
+    
+    public static explicit operator VecD(Point vec)
+    {
+        return new VecD(vec.X, vec.Y);
     }
 
     /// <summary>Calculates the hashcode for this point.</summary>

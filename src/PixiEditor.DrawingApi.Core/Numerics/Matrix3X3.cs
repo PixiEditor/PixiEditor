@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
@@ -9,8 +10,8 @@ namespace PixiEditor.DrawingApi.Core.Numerics;
 /// <remarks>
 ///     It extends the traditional 2D affine transformation matrix with three perspective components that allow simple
 ///     3D effects to be created with it. Those components must be manually set by using the
-///     <see cref="P:SkiaSharp.Matrix3x3.Persp0" />, <see cref="P:SkiaSharp.Matrix3x3.Persp1" />,
-///     <see cref="P:SkiaSharp.Matrix3x3.Persp2" /> fields of the matrix.
+///     <see cref="Matrix3X3.Persp0" />, <see cref="Matrix3X3.Persp1" />,
+///     <see cref="Matrix3X3.Persp2" /> fields of the matrix.
 /// </remarks>
 public struct Matrix3X3 : IEquatable<Matrix3X3>
 {
@@ -196,10 +197,17 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
         values[7] = Persp1;
         values[8] = Persp2;
     }
+    
+    public VecD MapPoint(int p0, int p1)
+    {
+        return DrawingBackendApi.Current.MatrixImplementation.MapPoint(this, p0, p1);   
+    }
+    
+    public VecD MapPoint(VecI size) => MapPoint(size.X, size.Y);
 
     public static Matrix3X3 CreateIdentity()
     {
-        return new Matrix3X3() {ScaleX = 1f, ScaleY = 1f, Persp2 = 1f};
+        return new Matrix3X3() { ScaleX = 1f, ScaleY = 1f, Persp2 = 1f };
     }
 
     public static Matrix3X3 CreateTranslation(float x, float y)
@@ -344,6 +352,11 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
     {
         return DrawingBackendApi.Current.MatrixImplementation.Concat(in first, in second);
     }
+    
+    public Matrix3X3 PostConcat(Matrix3X3 globalMatrix)
+    {
+        return DrawingBackendApi.Current.MatrixImplementation.PostConcat(in this, in globalMatrix);
+    }
 
     private static void SetSinCos(ref Matrix3X3 matrix, float sin, float cos)
     {
@@ -386,6 +399,7 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
     {
         return (float)((a * (double)b) - (c * (double)d));
     }
+    
 
     private class Indices
     {

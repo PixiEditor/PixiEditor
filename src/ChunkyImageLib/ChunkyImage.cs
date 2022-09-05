@@ -7,6 +7,7 @@ using OneOf.Types;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
@@ -80,7 +81,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private readonly List<ChunkyImage> activeClips = new();
     private BlendMode blendMode = BlendMode.Src;
     private bool lockTransparency = false;
-    private SKPath? clippingPath;
+    private VectorPath? clippingPath;
     private int? horizontalSymmetryAxis = null;
     private int? verticalSymmetryAxis = null;
 
@@ -377,7 +378,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void SetClippingPath(SKPath clippingPath)
+    public void SetClippingPath(VectorPath clippingPath)
     {
         lock (lockObject)
         {
@@ -477,7 +478,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// Surface is NOT THREAD SAFE, so if you pass a Surface here with copyImage == false you must not do anything with that surface anywhere (not even read) until CommitChanges/CancelChanges is called.
     /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawImage(SKMatrix transformMatrix, Surface image, Paint? paint = null, bool copyImage = true)
+    public void EnqueueDrawImage(Matrix3X3 transformMatrix, Surface image, Paint? paint = null, bool copyImage = true)
     {
         lock (lockObject)
         {
@@ -517,7 +518,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawPath(SKPath path, Color color, float strokeWidth, SKStrokeCap strokeCap, BlendMode blendMode, RectI? customBounds = null)
+    public void EnqueueDrawPath(VectorPath path, Color color, float strokeWidth, StrokeCap strokeCap, BlendMode blendMode, RectI? customBounds = null)
     {
         lock (lockObject)
         {
@@ -539,7 +540,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawSkiaLine(VecI from, VecI to, SKStrokeCap strokeCap, float strokeWidth, Color color, BlendMode blendMode)
+    public void EnqueueDrawSkiaLine(VecI from, VecI to, StrokeCap strokeCap, float strokeWidth, Color color, BlendMode blendMode)
     {
         lock (lockObject)
         {
@@ -594,7 +595,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueClearPath(SKPath path, RectI? pathTightBounds = null)
+    public void EnqueueClearPath(VectorPath path, RectI? pathTightBounds = null)
     {
         lock (lockObject)
         {
@@ -1015,10 +1016,10 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         {
             int count = targetChunk.Surface.DrawingSurface.Canvas.Save();
 
-            using SKPath transformedPath = new(clippingPath);
+            using VectorPath transformedPath = new(clippingPath);
             float scale = (float)resolution.Multiplier();
             VecD trans = -chunkPos * FullChunkSize * scale;
-            transformedPath.Transform(SKMatrix.CreateScaleTranslation(scale, scale, (float)trans.X, (float)trans.Y));
+            transformedPath.Transform(Matrix3X3.CreateScaleTranslation(scale, scale, (float)trans.X, (float)trans.Y));
             targetChunk.Surface.DrawingSurface.Canvas.ClipPath(transformedPath);
             operation.DrawOnChunk(targetChunk, chunkPos);
             targetChunk.Surface.DrawingSurface.Canvas.RestoreToCount(count);

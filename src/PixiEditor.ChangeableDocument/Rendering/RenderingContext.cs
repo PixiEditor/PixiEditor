@@ -1,18 +1,20 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.ChangeableDocument.Enums;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface;
+using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
+using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 internal class RenderingContext : IDisposable
 {
-    public SKPaint BlendModePaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
-    public SKPaint BlendModeOpacityPaint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
-    public SKPaint ReplacingPaintWithOpacity = new SKPaint() { BlendMode = SKBlendMode.Src };
+    public Paint BlendModePaint = new () { BlendMode = DrawingApiBlendMode.SrcOver };
+    public Paint BlendModeOpacityPaint = new () { BlendMode = DrawingApiBlendMode.SrcOver };
+    public Paint ReplacingPaintWithOpacity = new () { BlendMode = DrawingApiBlendMode.Src };
 
     public void UpdateFromMember(IReadOnlyStructureMember member)
     {
-        SKColor opacityColor = new(255, 255, 255, (byte)Math.Round(member.Opacity * 255));
-        SKBlendMode blendMode = GetSKBlendMode(member.BlendMode);
+        Color opacityColor = new(255, 255, 255, (byte)Math.Round(member.Opacity * 255));
+        DrawingApiBlendMode blendMode = GetDrawingBlendMode(member.BlendMode);
 
         BlendModeOpacityPaint.Color = opacityColor;
         BlendModeOpacityPaint.BlendMode = blendMode;
@@ -20,28 +22,28 @@ internal class RenderingContext : IDisposable
         ReplacingPaintWithOpacity.Color = opacityColor;
     }
 
-    private static SKBlendMode GetSKBlendMode(BlendMode blendMode)
+    private static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)
     {
         return blendMode switch
         {
-            BlendMode.Normal => SKBlendMode.SrcOver,
-            BlendMode.Darken => SKBlendMode.Darken,
-            BlendMode.Multiply => SKBlendMode.Multiply,
-            BlendMode.ColorBurn => SKBlendMode.ColorBurn,
-            BlendMode.Lighten => SKBlendMode.Lighten,
-            BlendMode.Screen => SKBlendMode.Screen,
-            BlendMode.ColorDodge => SKBlendMode.ColorDodge,
-            BlendMode.LinearDodge => SKBlendMode.Plus,
-            BlendMode.Overlay => SKBlendMode.Overlay,
-            BlendMode.SoftLight => SKBlendMode.SoftLight,
-            BlendMode.HardLight => SKBlendMode.HardLight,
-            BlendMode.Difference => SKBlendMode.Difference,
-            BlendMode.Exclusion => SKBlendMode.Exclusion,
-            BlendMode.Hue => SKBlendMode.Hue,
-            BlendMode.Saturation => SKBlendMode.Saturation,
-            BlendMode.Luminosity => SKBlendMode.Luminosity,
-            BlendMode.Color => SKBlendMode.Color,
-            _ => SKBlendMode.SrcOver,
+            BlendMode.Normal => DrawingApiBlendMode.SrcOver,
+            BlendMode.Darken => DrawingApiBlendMode.Darken,
+            BlendMode.Multiply => DrawingApiBlendMode.Multiply,
+            BlendMode.ColorBurn => DrawingApiBlendMode.ColorBurn,
+            BlendMode.Lighten => DrawingApiBlendMode.Lighten,
+            BlendMode.Screen => DrawingApiBlendMode.Screen,
+            BlendMode.ColorDodge => DrawingApiBlendMode.ColorDodge,
+            BlendMode.LinearDodge => DrawingApiBlendMode.Plus,
+            BlendMode.Overlay => DrawingApiBlendMode.Overlay,
+            BlendMode.SoftLight => DrawingApiBlendMode.SoftLight,
+            BlendMode.HardLight => DrawingApiBlendMode.HardLight,
+            BlendMode.Difference => DrawingApiBlendMode.Difference,
+            BlendMode.Exclusion => DrawingApiBlendMode.Exclusion,
+            BlendMode.Hue => DrawingApiBlendMode.Hue,
+            BlendMode.Saturation => DrawingApiBlendMode.Saturation,
+            BlendMode.Luminosity => DrawingApiBlendMode.Luminosity,
+            BlendMode.Color => DrawingApiBlendMode.Color,
+            _ => DrawingApiBlendMode.SrcOver,
         };
     }
 

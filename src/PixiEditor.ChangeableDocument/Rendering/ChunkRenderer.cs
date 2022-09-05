@@ -1,13 +1,14 @@
 ﻿using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
 public static class ChunkRenderer
 {
-    private static readonly SKPaint ClippingPaint = new SKPaint() { BlendMode = SKBlendMode.DstIn };
+    private static readonly Paint ClippingPaint = new Paint() { BlendMode = BlendMode.DstIn };
 
     public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root)
     {

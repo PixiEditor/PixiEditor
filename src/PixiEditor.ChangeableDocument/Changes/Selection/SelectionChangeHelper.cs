@@ -1,16 +1,17 @@
 ﻿using ChunkyImageLib.Operations;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class SelectionChangeHelper
 {
     public static Selection_ChangeInfo DoSelectionTransform(
-        Document target, SKPath originalPath, RectI originalPathTightBounds, ShapeCorners to)
+        Document target, VectorPath originalPath, RectI originalPathTightBounds, ShapeCorners to)
     {
-        SKPath newPath = new(originalPath);
+        VectorPath newPath = new(originalPath);
 
-        var matrix = SKMatrix.CreateTranslation((float)-originalPathTightBounds.X, (float)-originalPathTightBounds.Y).PostConcat(
+        var matrix = Matrix3X3.CreateTranslation((float)-originalPathTightBounds.X, (float)-originalPathTightBounds.Y).PostConcat(
             OperationHelper.CreateMatrixFromPoints(to, originalPathTightBounds.Size));
         newPath.Transform(matrix);
 
@@ -18,6 +19,6 @@ internal class SelectionChangeHelper
         target.Selection.SelectionPath = newPath;
         toDispose.Dispose();
 
-        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
 }

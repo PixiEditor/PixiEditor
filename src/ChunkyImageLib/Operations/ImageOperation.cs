@@ -15,7 +15,7 @@ internal class ImageOperation : IDrawOperation
 
     public bool IgnoreEmptyChunks => false;
 
-    public ImageOperation(VecI pos, Surface image, SKPaint? paint = null, bool copyImage = true)
+    public ImageOperation(VecI pos, Surface image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -39,7 +39,7 @@ internal class ImageOperation : IDrawOperation
         imageWasCopied = copyImage;
     }
 
-    public ImageOperation(ShapeCorners corners, Surface image, SKPaint? paint = null, bool copyImage = true)
+    public ImageOperation(ShapeCorners corners, Surface image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -55,7 +55,7 @@ internal class ImageOperation : IDrawOperation
         imageWasCopied = copyImage;
     }
 
-    public ImageOperation(SKMatrix transformMatrix, Surface image, SKPaint? paint = null, bool copyImage = true)
+    public ImageOperation(Matrix3X3 transformMatrix, Surface image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -85,8 +85,8 @@ internal class ImageOperation : IDrawOperation
         float scaleMult = (float)chunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkPool.FullChunkSize;
 
-        var scaleTrans = SKMatrix.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
-        var finalMatrix = SKMatrix.Concat(scaleTrans, transformMatrix);
+        var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
+        var finalMatrix = Matrix3X3.Concat(scaleTrans, transformMatrix);
 
         chunk.Surface.DrawingSurface.Canvas.Save();
         chunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);

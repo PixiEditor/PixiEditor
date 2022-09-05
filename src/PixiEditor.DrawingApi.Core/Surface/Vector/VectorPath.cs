@@ -1,6 +1,7 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Surface.Vector;
 
@@ -46,6 +47,7 @@ public class VectorPath : NativeObject
     public RectD TightBounds => DrawingBackendApi.Current.PathImplementation.GetTightBounds(this);
 
     public bool IsEmpty => VerbCount == 0;
+    public RectD Bounds => DrawingBackendApi.Current.PathImplementation.GetBounds(this);
 
     public VectorPath() : base(DrawingBackendApi.Current.PathImplementation.Create())
     {
@@ -62,5 +64,30 @@ public class VectorPath : NativeObject
     public override void Dispose()
     {
         DrawingBackendApi.Current.PathImplementation.Dispose(this);
+    }
+
+    public void Reset()
+    {
+        DrawingBackendApi.Current.PathImplementation.Reset(this);
+    }
+
+    public void MoveTo(Point point)
+    {
+        DrawingBackendApi.Current.PathImplementation.MoveTo(this, point);
+    }
+
+    public void LineTo(Point point)
+    {
+        DrawingBackendApi.Current.PathImplementation.LineTo(this, point);
+    }
+
+    public void QuadTo(Point mid, Point point)
+    {
+        DrawingBackendApi.Current.PathImplementation.QuadTo(this, mid, point);
+    }
+
+    public void CubicTo(Point mid1, Point mid2, Point point)
+    {
+        DrawingBackendApi.Current.PathImplementation.CubicTo(this, mid1, mid2, point);
     }
 }

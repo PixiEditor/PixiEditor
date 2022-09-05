@@ -1,4 +1,6 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
@@ -7,13 +9,13 @@ internal class FloodFill_Change : Change
 {
     private readonly Guid memberGuid;
     private readonly VecI pos;
-    private readonly SKColor color;
+    private readonly Color color;
     private readonly bool referenceAll;
     private readonly bool drawOnMask;
     private CommittedChunkStorage? chunkStorage = null;
 
     [GenerateMakeChangeAction]
-    public FloodFill_Change(Guid memberGuid, VecI pos, SKColor color, bool referenceAll, bool drawOnMask)
+    public FloodFill_Change(Guid memberGuid, VecI pos, Color color, bool referenceAll, bool drawOnMask)
     {
         this.memberGuid = memberGuid;
         this.pos = pos;
@@ -35,7 +37,7 @@ internal class FloodFill_Change : Change
     {
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
 
-        SKPath? selection = target.Selection.SelectionPath.IsEmpty ? null : target.Selection.SelectionPath;
+        VectorPath? selection = target.Selection.SelectionPath.IsEmpty ? null : target.Selection.SelectionPath;
         HashSet<Guid> membersToReference = new();
         if (referenceAll)
             target.ForEveryReadonlyMember(member => membersToReference.Add(member.GuidValue));

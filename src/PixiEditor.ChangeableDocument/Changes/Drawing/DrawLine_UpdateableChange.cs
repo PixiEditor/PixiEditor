@@ -1,5 +1,6 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
-using SkiaSharp;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
@@ -9,14 +10,14 @@ internal class DrawLine_UpdateableChange : UpdateableChange
     private VecI from;
     private VecI to;
     private int strokeWidth;
-    private SKColor color;
-    private SKStrokeCap caps;
+    private Color color;
+    private StrokeCap caps;
     private readonly bool drawOnMask;
     private CommittedChunkStorage? savedChunks;
 
     [GenerateUpdateableChangeActions]
     public DrawLine_UpdateableChange
-        (Guid memberGuid, VecI from, VecI to, int strokeWidth, SKColor color, SKStrokeCap caps, bool drawOnMask)
+        (Guid memberGuid, VecI from, VecI to, int strokeWidth, Color color, StrokeCap caps, bool drawOnMask)
     {
         this.memberGuid = memberGuid;
         this.from = from;
@@ -28,7 +29,7 @@ internal class DrawLine_UpdateableChange : UpdateableChange
     }
 
     [UpdateChangeMethod]
-    public void Update(VecI from, VecI to, int strokeWidth, SKColor color, SKStrokeCap caps)
+    public void Update(VecI from, VecI to, int strokeWidth, Color color, StrokeCap caps)
     {
         this.from = from;
         this.to = to;
@@ -53,9 +54,9 @@ internal class DrawLine_UpdateableChange : UpdateableChange
         {
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
             if (strokeWidth == 1)
-                image.EnqueueDrawBresenhamLine(from, to, color, SKBlendMode.SrcOver);
+                image.EnqueueDrawBresenhamLine(from, to, color, BlendMode.SrcOver);
             else
-                image.EnqueueDrawSkiaLine(from, to, caps, strokeWidth, color, SKBlendMode.SrcOver);
+                image.EnqueueDrawSkiaLine(from, to, caps, strokeWidth, color, BlendMode.SrcOver);
         }
         var totalAffected = image.FindAffectedChunks();
         totalAffected.UnionWith(oldAffected);

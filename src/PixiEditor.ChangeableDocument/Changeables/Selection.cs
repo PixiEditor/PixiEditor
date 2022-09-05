@@ -1,23 +1,25 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
 internal class Selection : IReadOnlySelection, IDisposable
 {
-    public static SKColor SelectionColor { get; } = SKColors.CornflowerBlue;
-    public SKPath SelectionPath { get; set; } = new();
-    SKPath IReadOnlySelection.SelectionPath 
+    public static Color SelectionColor { get; } = Colors.CornflowerBlue;
+    public VectorPath SelectionPath { get; set; } = new();
+    VectorPath IReadOnlySelection.SelectionPath 
     {
-        get {
+        get 
+        {
             try
             {
                 // I think this might throw if another thread disposes SelectionPath at the wrong time?
-                return new SKPath(SelectionPath) { FillType = SKPathFillType.EvenOdd };
+                return new VectorPath(SelectionPath) { FillType = PathFillType.EvenOdd };
             }
             catch (Exception)
             {
-                return new SKPath();
+                return new VectorPath();
             }
         }
     }

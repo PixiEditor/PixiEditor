@@ -1,16 +1,16 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
-using SkiaSharp;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class ReplaceColor_Change : Change
 {
-    private readonly SKColor oldColor;
-    private readonly SKColor newColor;
+    private readonly Color oldColor;
+    private readonly Color newColor;
 
     private Dictionary<Guid, CommittedChunkStorage>? savedChunks;
 
     [GenerateMakeChangeAction]
-    public ReplaceColor_Change(SKColor oldColor, SKColor newColor)
+    public ReplaceColor_Change(Color oldColor, Color newColor)
     {
         this.oldColor = oldColor;
         this.newColor = newColor;

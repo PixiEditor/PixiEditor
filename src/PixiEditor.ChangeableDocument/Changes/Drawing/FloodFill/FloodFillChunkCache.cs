@@ -1,13 +1,14 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
 internal class FloodFillChunkCache : IDisposable
 {
-    private SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
 
     private readonly HashSet<Guid>? membersToRender;
     private readonly IReadOnlyFolder? structureRoot;

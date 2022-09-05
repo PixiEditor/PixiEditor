@@ -17,7 +17,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
 
         public Pixmap PeekPixels()
         {
-            
+            return DrawingBackendApi.Current.ImageOperations.PeekPixels(this);
         }
     }
 }

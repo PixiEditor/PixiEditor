@@ -1,5 +1,5 @@
 ﻿using PixiEditor.DrawingApi.Core.Numerics;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PasteImage_UpdateableChange : UpdateableChange
@@ -10,7 +10,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     private readonly bool drawOnMask;
     private readonly Surface imageToPaste;
     private CommittedChunkStorage? savedChunks;
-    private static SKPaint RegularPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
+    private static Paint RegularPaint { get; } = new Paint() { BlendMode = BlendMode.SrcOver };
 
     private bool hasEnqueudImage = false;
 

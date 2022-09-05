@@ -1,21 +1,23 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class LineBasedPen_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
-    private readonly SKColor color;
+    private readonly Color color;
     private readonly int strokeWidth;
     private readonly bool replacing;
     private readonly bool drawOnMask;
-    private readonly SKPaint srcPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private readonly Paint srcPaint = new Paint() { BlendMode = BlendMode.Src };
 
     private CommittedChunkStorage? storedChunks;
     private readonly List<VecI> points = new();
 
     [GenerateUpdateableChangeActions]
-    public LineBasedPen_UpdateableChange(Guid memberGuid, SKColor color, VecI pos, int strokeWidth, bool replacing, bool drawOnMask)
+    public LineBasedPen_UpdateableChange(Guid memberGuid, Color color, VecI pos, int strokeWidth, bool replacing, bool drawOnMask)
     {
         this.memberGuid = memberGuid;
         this.color = color;
@@ -39,7 +41,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
             return new Error();
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         if (!replacing)
-            image.SetBlendMode(SKBlendMode.SrcOver);
+            image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         return new Success();
     }
@@ -54,13 +56,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
 
         if (strokeWidth == 1)
         {
-            image.EnqueueDrawBresenhamLine(from, to, color, SKBlendMode.Src);
+            image.EnqueueDrawBresenhamLine(from, to, color, BlendMode.Src);
         }
         else
         {
             var rect = new RectI(to - new VecI(strokeWidth / 2), new VecI(strokeWidth));
             image.EnqueueDrawEllipse(rect, color, color, 1, srcPaint);
-            image.EnqueueDrawSkiaLine(from, to, SKStrokeCap.Butt, strokeWidth, color, SKBlendMode.Src);
+            image.EnqueueDrawSkiaLine(from, to, StrokeCap.Butt, strokeWidth, color, BlendMode.Src);
         }
         var affChunks = image.FindAffectedChunks(opCount);
 
@@ -73,7 +75,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         {
             if (strokeWidth == 1)
             {
-                targetImage.EnqueueDrawBresenhamLine(points[0], points[0], color, SKBlendMode.Src);
+                targetImage.EnqueueDrawBresenhamLine(points[0], points[0], color, BlendMode.Src);
             }
             else
             {
@@ -90,13 +92,13 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         {
             if (strokeWidth == 1)
             {
-                targetImage.EnqueueDrawBresenhamLine(points[i - 1], points[i], color, SKBlendMode.Src);
+                targetImage.EnqueueDrawBresenhamLine(points[i - 1], points[i], color, BlendMode.Src);
             }
             else
             {
                 var rect = new RectI(points[i] - new VecI(strokeWidth / 2), new VecI(strokeWidth));
                 targetImage.EnqueueDrawEllipse(rect, color, color, 1, srcPaint);
-                targetImage.EnqueueDrawSkiaLine(points[i - 1], points[i], SKStrokeCap.Butt, strokeWidth, color, SKBlendMode.Src);
+                targetImage.EnqueueDrawSkiaLine(points[i - 1], points[i], StrokeCap.Butt, strokeWidth, color, BlendMode.Src);
             }
         }
     }
@@ -119,7 +121,7 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         else
         {
             if (!replacing)
-                image.SetBlendMode(SKBlendMode.SrcOver);
+                image.SetBlendMode(BlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
             FastforwardEnqueueDrawLines(image);

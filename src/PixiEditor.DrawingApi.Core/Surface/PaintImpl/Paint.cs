@@ -1,6 +1,7 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Surface
 {
@@ -24,6 +25,11 @@ namespace PixiEditor.DrawingApi.Core.Surface
         
         public Paint() : base(DrawingBackendApi.Current.PaintImplementation.CreatePaint())
         {
+        }
+        
+        public Paint Clone()
+        {
+            return DrawingBackendApi.Current.PaintImplementation.Clone(ObjectPointer);
         }
 
         public override void Dispose()

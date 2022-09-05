@@ -1,20 +1,20 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
-using SkiaSharp;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class DrawEllipse_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
     private RectI location;
-    private readonly SKColor strokeColor;
-    private readonly SKColor fillColor;
+    private readonly Color strokeColor;
+    private readonly Color fillColor;
     private readonly int strokeWidth;
     private readonly bool drawOnMask;
 
     private CommittedChunkStorage? storedChunks;
 
     [GenerateUpdateableChangeActions]
-    public DrawEllipse_UpdateableChange(Guid memberGuid, RectI location, SKColor strokeColor, SKColor fillColor, int strokeWidth, bool drawOnMask)
+    public DrawEllipse_UpdateableChange(Guid memberGuid, RectI location, Color strokeColor, Color fillColor, int strokeWidth, bool drawOnMask)
     {
         this.memberGuid = memberGuid;
         this.location = location;

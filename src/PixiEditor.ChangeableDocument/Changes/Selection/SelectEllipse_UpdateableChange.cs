@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
@@ -25,13 +26,13 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        originalPath = new SKPath(target.Selection.SelectionPath);
+        originalPath = new VectorPath(target.Selection.SelectionPath);
         return new Success();
     }
 
     private Selection_ChangeInfo CommonApply(Document target)
     {
-        using var ellipsePath = new SKPath() { FillType = SKPathFillType.EvenOdd };
+        using var ellipsePath = new VectorPath() { FillType = PathFillType.EvenOdd };
         if (!borders.IsZeroArea)
             ellipsePath.AddOval(borders);
 
@@ -42,7 +43,7 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
             target.Selection.SelectionPath = originalPath!.Op(ellipsePath, mode.ToSKPathOp());
         toDispose.Dispose();
 
-        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
@@ -59,9 +60,9 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new SKPath(originalPath));
+        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath));
         toDispose.Dispose();
-        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
 
     public override void Dispose()

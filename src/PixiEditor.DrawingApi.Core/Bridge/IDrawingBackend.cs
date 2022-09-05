@@ -9,8 +9,9 @@ namespace PixiEditor.DrawingApi.Core.Bridge
         public IDrawingBackendColorOperations ColorOperations { get; }
         public IImageOperations ImageOperations { get; }
         public ICanvasOperations CanvasOperations { get; }
-        public IPaintOperations PaintImplementation { get; set; }
+        public IPaintImplementation PaintImplementation { get; set; }
         public IVectorPathImplementation PathImplementation { get; set; }
         public IMatrix3X3Implementation MatrixImplementation { get; set; }
+        public IPixmapImplementation PixmapImplementation { get; set; }
     }
 }

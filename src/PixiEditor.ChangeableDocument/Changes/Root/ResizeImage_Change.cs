@@ -1,7 +1,9 @@
 ﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
+using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -34,13 +36,13 @@ internal class ResizeImage_Change : Change
         return new Success();
     }
 
-    private static SKFilterQuality ToFilterQuality(ResamplingMethod method, bool downscaling) =>
+    private static FilterQuality ToFilterQuality(ResamplingMethod method, bool downscaling) =>
         (method, downscaling) switch
         {
-            (ResamplingMethod.NearestNeighbor, _) => SKFilterQuality.None,
-            (ResamplingMethod.Bilinear, true) => SKFilterQuality.Medium,
-            (ResamplingMethod.Bilinear, false) => SKFilterQuality.Low,
-            (ResamplingMethod.Bicubic, _) => SKFilterQuality.High,
+            (ResamplingMethod.NearestNeighbor, _) => FilterQuality.None,
+            (ResamplingMethod.Bilinear, true) => FilterQuality.Medium,
+            (ResamplingMethod.Bilinear, false) => FilterQuality.Low,
+            (ResamplingMethod.Bicubic, _) => FilterQuality.High,
             _ => throw new ArgumentOutOfRangeException(),
         };
 
@@ -54,11 +56,11 @@ internal class ResizeImage_Change : Change
             VecI.Zero);
         
         bool downscaling = newSize.LengthSquared < originalSize.LengthSquared;
-        SKFilterQuality quality = ToFilterQuality(method, downscaling);
-        using SKPaint paint = new()
+        FilterQuality quality = ToFilterQuality(method, downscaling);
+        using Paint paint = new()
         {
             FilterQuality = quality, 
-            BlendMode = SKBlendMode.Src,
+            BlendMode = BlendMode.Src,
         };
 
         using Surface newSurface = new(newSize);

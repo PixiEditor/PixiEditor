@@ -1,4 +1,5 @@
 ﻿using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
@@ -7,9 +8,10 @@ namespace PixiEditor.DrawingApi.Core.Surface
 {
     public class Canvas
     {
+        public void DrawPixel(VecI position, Paint drawingPaint) => DrawPixel(position.X, position.Y, drawingPaint);
         public void DrawPixel(int posX, int posY, Paint drawingPaint) => DrawingBackendApi.Current.CanvasOperations.DrawPixel(posX, posY, drawingPaint);
 
-        public void DrawSurface(DrawingSurface original, int x, int y, Paint paint) 
+        public void DrawSurface(DrawingSurface original, int x, int y, Paint? paint) 
             => DrawingBackendApi.Current.CanvasOperations.DrawSurface(original, x, y, paint);
         
         public void DrawSurface(DrawingSurface original, int x, int y) => DrawSurface(original, x, y, null);
@@ -95,10 +97,30 @@ namespace PixiEditor.DrawingApi.Core.Surface
         {
             DrawingBackendApi.Current.CanvasOperations.Clear();
         }
+        
+        public void Clear(Color color)
+        {
+            DrawingBackendApi.Current.CanvasOperations.Clear(color);
+        }
 
         public void DrawLine(VecI from, VecI to, Paint paint)
         {
             DrawingBackendApi.Current.CanvasOperations.DrawLine(from, to, paint);
+        }
+
+        public void Flush()
+        {
+            DrawingBackendApi.Current.CanvasOperations.Flush();
+        }
+
+        public void SetMatrix(Matrix3X3 finalMatrix)
+        {
+            DrawingBackendApi.Current.CanvasOperations.SetMatrix(finalMatrix);
+        }
+
+        public void RestoreToCount(int count)
+        {
+            DrawingBackendApi.Current.CanvasOperations.RestoreToCount(count);
         }
     }
 }

@@ -3,7 +3,10 @@ using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using SkiaSharp;
 using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -28,9 +31,9 @@ internal static class FloodFillHelper
     public static Dictionary<VecI, Chunk> FloodFill(
         HashSet<Guid> membersToFloodFill,
         IReadOnlyDocument document,
-        SKPath? selection,
+        VectorPath? selection,
         VecI startingPos,
-        SKColor drawingColor)
+        Color drawingColor)
     {
         int chunkSize = ChunkResolution.Full.PixelSize();
 
@@ -39,12 +42,12 @@ internal static class FloodFillHelper
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
-        SKColor colorToReplace = cache.GetChunk(initChunkPos).Match(
+        Color colorToReplace = cache.GetChunk(initChunkPos).Match(
             (Chunk chunk) => chunk.Surface.GetSRGBPixel(initPosOnChunk),
-            static (EmptyChunk _) => SKColors.Transparent
+            static (EmptyChunk _) => Colors.Transparent
         );
 
-        if ((colorToReplace.Alpha == 0 && drawingColor.Alpha == 0) || colorToReplace == drawingColor)
+        if ((colorToReplace.A == 0 && drawingColor.A == 0) || colorToReplace == drawingColor)
             return new();
 
         RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, document.Size);
@@ -67,7 +70,7 @@ internal static class FloodFillHelper
             if (!drawingChunks.ContainsKey(chunkPos))
             {
                 var chunk = Chunk.Create();
-                chunk.Surface.DrawingSurface.Canvas.Clear(SKColors.Transparent);
+                chunk.Surface.DrawingSurface.Canvas.Clear(Colors.Transparent);
                 drawingChunks[chunkPos] = chunk;
             }
             var drawingChunk = drawingChunks[chunkPos];
@@ -76,7 +79,7 @@ internal static class FloodFillHelper
             // don't call floodfill if the chunk is empty
             if (referenceChunk.IsT1)
             {
-                if (colorToReplace.Alpha == 0 && !processedEmptyChunks.Contains(chunkPos))
+                if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
                     drawingChunk.Surface.DrawingSurface.Canvas.Clear(drawingColor);
                     for (int i = 0; i < chunkSize; i++)
@@ -129,12 +132,12 @@ internal static class FloodFillHelper
     private static unsafe byte[]? FloodFillChunk(
         Chunk referenceChunk,
         Chunk drawingChunk,
-        SKPath? selection,
+        VectorPath? selection,
         RectI globalSelectionBounds,
         VecI chunkPos,
         int chunkSize,
         ulong colorBits,
-        SKColor color,
+        Color color,
         VecI pos,
         ColorBounds bounds)
     {
@@ -177,7 +180,7 @@ internal static class FloodFillHelper
     /// <summary>
     /// Use skia to set all pixels in array that are inside selection to InSelection
     /// </summary>
-    private static unsafe void DrawSelection(byte[] array, SKPath? selection, RectI globalBounds, VecI chunkPos, int chunkSize)
+    private static unsafe void DrawSelection(byte[] array, VectorPath? selection, RectI globalBounds, VecI chunkPos, int chunkSize)
     {
         if (selection is null)
         {
@@ -191,15 +194,15 @@ internal static class FloodFillHelper
         RectI localBounds = globalBounds.Offset(-chunkPos * chunkSize).Intersect(new(0, 0, chunkSize, chunkSize));
         if (localBounds.IsZeroOrNegativeArea)
             return;
-        SKPath shiftedSelection = new SKPath(selection);
-        shiftedSelection.Transform(SKMatrix.CreateTranslation(-chunkPos.X * chunkSize, -chunkPos.Y * chunkSize));
+        VectorPath shiftedSelection = new VectorPath(selection);
+        shiftedSelection.Transform(Matrix3X3.CreateTranslation(-chunkPos.X * chunkSize, -chunkPos.Y * chunkSize));
 
         fixed (byte* arr = array)
         {
-            using SKSurface drawingSurface = SKSurface.Create(
-                new SKImageInfo(localBounds.Right, localBounds.Bottom, SKColorType.Gray8, SKAlphaType.Opaque), (IntPtr)arr, chunkSize);
+            using DrawingSurface drawingSurface = SKSurface.Create(
+                new SKImageInfo(localBounds.Right, localBounds.Bottom, ColorType.Gray8, AlphaType.Opaque), (IntPtr)arr, chunkSize);
             drawingSurface.Canvas.ClipPath(shiftedSelection);
-            drawingSurface.Canvas.Clear(new SKColor(InSelection, InSelection, InSelection));
+            drawingSurface.Canvas.Clear(new Color(InSelection, InSelection, InSelection));
             drawingSurface.Canvas.Flush();
         }
     }
