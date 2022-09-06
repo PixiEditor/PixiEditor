@@ -1,6 +1,7 @@
 ﻿using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
@@ -82,10 +83,17 @@ namespace PixiEditor.DrawingApi.Core.Surface
         {
             DrawingBackendApi.Current.CanvasOperations.DrawRect(x, y, width, height, paint);
         }
+        
+        public void DrawRect(RectI rect, Paint paint) => DrawRect(rect.X, rect.Y, rect.Width, rect.Height, paint);
 
-        public void ClipPath(VectorPath clipPath)
+        public void ClipPath(VectorPath clipPath) => ClipPath(clipPath, ClipOperation.Intersect);
+
+        public void ClipPath(VectorPath clipPath, ClipOperation clipOperation) =>
+            ClipPath(clipPath, clipOperation, false);
+        
+        public void ClipPath(VectorPath clipPath, ClipOperation clipOperation, bool antialias)
         {
-            DrawingBackendApi.Current.CanvasOperations.ClipPath(clipPath);
+            DrawingBackendApi.Current.CanvasOperations.ClipPath(clipPath, clipOperation, antialias);
         }
 
         public void ClipRect(RectD rect)
@@ -121,6 +129,11 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public void RestoreToCount(int count)
         {
             DrawingBackendApi.Current.CanvasOperations.RestoreToCount(count);
+        }
+
+        public void DrawColor(Color color, BlendMode paintBlendMode)
+        {
+            DrawingBackendApi.Current.CanvasOperations.DrawColor(color, paintBlendMode);
         }
     }
 }

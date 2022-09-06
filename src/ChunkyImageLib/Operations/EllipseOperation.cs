@@ -69,24 +69,24 @@ internal class EllipseOperation : IDrawOperation
             if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
                 paint.Color = fillColor;
-                surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill, paint);
-                surf.Canvas.DrawRect(ellipseFillRect!, paint);
+                surf.Canvas.DrawPoints(PointMode.Lines, ellipseFill!, paint);
+                surf.Canvas.DrawRect(ellipseFillRect!.Value, paint);
             }
             paint.Color = strokeColor;
-            surf.Canvas.DrawPoints(PointMode.Points, ellipse, paint);
+            surf.Canvas.DrawPoints(PointMode.Points, ellipse!, paint);
         }
         else
         {
             if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
                 surf.Canvas.Save();
-                surf.Canvas.ClipPath(innerPath);
+                surf.Canvas.ClipPath(innerPath!);
                 surf.Canvas.DrawColor(fillColor, paint.BlendMode);
                 surf.Canvas.Restore();
             }
             surf.Canvas.Save();
-            surf.Canvas.ClipPath(outerPath);
-            surf.Canvas.ClipPath(innerPath, SKClipOperation.Difference);
+            surf.Canvas.ClipPath(outerPath!);
+            surf.Canvas.ClipPath(innerPath!, ClipOperation.Difference);
             surf.Canvas.DrawColor(strokeColor, paint.BlendMode);
             surf.Canvas.Restore();
         }

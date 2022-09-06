@@ -9,7 +9,7 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
 {
     private RectI borders;
     private readonly SelectionMode mode;
-    private SKPath? originalPath;
+    private VectorPath? originalPath;
 
     [GenerateUpdateableChangeActions]
     public SelectEllipse_UpdateableChange(RectI borders, SelectionMode mode)
@@ -40,7 +40,7 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
         if (mode == SelectionMode.New)
             target.Selection.SelectionPath = new(ellipsePath);
         else
-            target.Selection.SelectionPath = originalPath!.Op(ellipsePath, mode.ToSKPathOp());
+            target.Selection.SelectionPath = originalPath!.Op(ellipsePath, mode.ToVectorPathOp());
         toDispose.Dispose();
 
         return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
@@ -60,7 +60,7 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath));
+        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath!));
         toDispose.Dispose();
         return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }

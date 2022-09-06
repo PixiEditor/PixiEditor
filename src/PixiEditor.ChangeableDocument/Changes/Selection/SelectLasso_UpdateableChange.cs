@@ -1,30 +1,31 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class SelectLasso_UpdateableChange : UpdateableChange
 {
-    private SKPath? originalPath;
-    private SKPath path = new() { FillType = SKPathFillType.EvenOdd };
+    private VectorPath? originalPath;
+    private VectorPath path = new() { FillType = PathFillType.EvenOdd };
     private readonly SelectionMode mode;
 
     [GenerateUpdateableChangeActions]
     public SelectLasso_UpdateableChange(VecI point, SelectionMode mode)
     {
-        path.MoveTo(point);
+        path.MoveTo((Point)point);
         this.mode = mode;
     }
 
     [UpdateChangeMethod]
     public void Update(VecI point)
     {
-        path.LineTo(point);
+        path.LineTo((Point)point);
     }
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        originalPath = new SKPath(target.Selection.SelectionPath);
+        originalPath = new VectorPath(target.Selection.SelectionPath);
         return new Success();
     }
 
@@ -33,17 +34,17 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
         var toDispose = target.Selection.SelectionPath;
         if (mode == SelectionMode.New)
         {
-            var copy = new SKPath(path);
+            var copy = new VectorPath(path);
             copy.Close();
             target.Selection.SelectionPath = copy;
         }
         else
         {
-            target.Selection.SelectionPath = originalPath!.Op(path, mode.ToSKPathOp());
+            target.Selection.SelectionPath = originalPath!.Op(path, mode.ToVectorPathOp());
         }
         toDispose.Dispose();
 
-        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
@@ -59,9 +60,9 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var toDispose = target.Selection.SelectionPath;
-        target.Selection.SelectionPath = new(originalPath);
+        target.Selection.SelectionPath = new(originalPath!);
         toDispose.Dispose();
-        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
 
     public override void Dispose()

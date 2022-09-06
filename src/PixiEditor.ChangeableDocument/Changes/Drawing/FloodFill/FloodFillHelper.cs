@@ -6,6 +6,7 @@ using ChunkyImageLib;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
@@ -199,8 +200,8 @@ internal static class FloodFillHelper
 
         fixed (byte* arr = array)
         {
-            using DrawingSurface drawingSurface = SKSurface.Create(
-                new SKImageInfo(localBounds.Right, localBounds.Bottom, ColorType.Gray8, AlphaType.Opaque), (IntPtr)arr, chunkSize);
+            using DrawingSurface drawingSurface = DrawingSurface.Create(
+                new ImageInfo(localBounds.Right, localBounds.Bottom, ColorType.Gray8, AlphaType.Opaque), (IntPtr)arr, chunkSize);
             drawingSurface.Canvas.ClipPath(shiftedSelection);
             drawingSurface.Canvas.Clear(new Color(InSelection, InSelection, InSelection));
             drawingSurface.Canvas.Flush();

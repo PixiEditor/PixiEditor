@@ -90,4 +90,24 @@ public class VectorPath : NativeObject
     {
         DrawingBackendApi.Current.PathImplementation.CubicTo(this, mid1, mid2, point);
     }
+
+    public void ArcTo(RectI oval, int startAngle, int sweepAngle, bool forceMoveTo)
+    {
+        DrawingBackendApi.Current.PathImplementation.ArcTo(this, oval, startAngle, sweepAngle, forceMoveTo);
+    }
+
+    public void AddOval(RectI borders)
+    {
+        DrawingBackendApi.Current.PathImplementation.AddOval(this, borders);
+    }
+
+    public VectorPath Op(VectorPath ellipsePath, VectorPathOp pathOp)
+    {
+        return DrawingBackendApi.Current.PathImplementation.Op(this, ellipsePath, pathOp);
+    }
+
+    public void Close()
+    {
+        DrawingBackendApi.Current.PathImplementation.Close(this);
+    }
 }

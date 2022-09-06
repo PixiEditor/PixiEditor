@@ -1,4 +1,6 @@
-﻿using PixiEditor.DrawingApi.Core.Bridge;
+﻿using System;
+using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.DrawingApi.Core.Surface
 {
@@ -18,6 +20,11 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public Pixmap PeekPixels()
         {
             return DrawingBackendApi.Current.ImageOperations.PeekPixels(this);
+        }
+
+        public static DrawingSurface Create(ImageInfo imageInfo, IntPtr arr, int chunkSize)
+        {
+            
         }
     }
 }

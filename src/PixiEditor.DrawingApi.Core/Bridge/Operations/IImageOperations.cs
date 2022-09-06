@@ -1,4 +1,5 @@
 ﻿using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.Operations
 {

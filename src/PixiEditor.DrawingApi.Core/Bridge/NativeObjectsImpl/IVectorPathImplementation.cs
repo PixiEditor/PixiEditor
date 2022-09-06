@@ -29,4 +29,8 @@ public interface IVectorPathImplementation
     public void LineTo(VectorPath vectorPath, Point point);
     public void QuadTo(VectorPath vectorPath, Point mid, Point point);
     public void CubicTo(VectorPath vectorPath, Point mid1, Point mid2, Point point);
+    public void ArcTo(VectorPath vectorPath, RectI oval, int startAngle, int sweepAngle, bool forceMoveTo);
+    public void AddOval(VectorPath vectorPath, RectI borders);
+    public VectorPath Op(VectorPath vectorPath, VectorPath ellipsePath, VectorPathOp pathOp);
+    public void Close(VectorPath vectorPath);
 }

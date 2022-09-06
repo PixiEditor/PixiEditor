@@ -1,6 +1,6 @@
 ﻿using PixiEditor.DrawingApi.Core.Bridge;
 
-namespace PixiEditor.DrawingApi.Core.Surface
+namespace PixiEditor.DrawingApi.Core.Surface.ImageData
 {
     /// <summary>An abstraction for drawing a rectangle of pixels.</summary>
     /// <remarks>

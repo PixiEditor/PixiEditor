@@ -1,10 +1,11 @@
 ﻿using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class TransformSelectionPath_UpdateableChange : UpdateableChange
 {
-    private SKPath? originalPath;
+    private VectorPath? originalPath;
     private RectI originalTightBounds;
     private ShapeCorners newCorners;
 
@@ -43,9 +44,9 @@ internal class TransformSelectionPath_UpdateableChange : UpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var toDispose = target.Selection.SelectionPath;
-        target.Selection.SelectionPath = new SKPath(originalPath);
+        target.Selection.SelectionPath = new VectorPath(originalPath!);
         toDispose.Dispose();
-        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
 
     public override void Dispose()

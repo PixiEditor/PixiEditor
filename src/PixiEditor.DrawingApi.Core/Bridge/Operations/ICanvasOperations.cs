@@ -1,6 +1,7 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.Operations
@@ -18,7 +19,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void DrawPoint(VecI pos, Paint paint);
         public void DrawPoints(PointMode pointMode, Point[] points, Paint paint);
         public void DrawRect(int x, int y, int width, int height, Paint paint);
-        public void ClipPath(VectorPath clipPath);
+        public void ClipPath(VectorPath clipPath, ClipOperation clipOperation, bool antialias);
         public void ClipRect(RectD rect);
         public void Clear();
         public void Clear(Color color);
@@ -26,5 +27,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void Flush();
         public void SetMatrix(Matrix3X3 finalMatrix);
         public void RestoreToCount(int count);
+        public void DrawColor(Color color, BlendMode paintBlendMode);
     }
 }
