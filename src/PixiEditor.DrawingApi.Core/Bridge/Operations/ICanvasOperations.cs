@@ -20,7 +20,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void DrawPoints(PointMode pointMode, Point[] points, Paint paint);
         public void DrawRect(int x, int y, int width, int height, Paint paint);
         public void ClipPath(VectorPath clipPath, ClipOperation clipOperation, bool antialias);
-        public void ClipRect(RectD rect);
+        public void ClipRect(RectD rect, ClipOperation clipOperation);
         public void Clear();
         public void Clear(Color color);
         public void DrawLine(VecI from, VecI to, Paint paint);
@@ -28,5 +28,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void SetMatrix(Matrix3X3 finalMatrix);
         public void RestoreToCount(int count);
         public void DrawColor(Color color, BlendMode paintBlendMode);
+        public void RotateRadians(float dataAngle, float centerX, float centerY);
     }
 }

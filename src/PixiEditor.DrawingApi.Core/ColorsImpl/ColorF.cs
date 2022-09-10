@@ -337,7 +337,7 @@ namespace PixiEditor.DrawingApi.Core.ColorsImpl
         /// <returns>The new <see cref="T:DrawingApiCore.ColorF" /> instance.</returns>
         public static implicit operator ColorF(Color color)
         {
-            return DrawingBackendApi.Current.ColorOperations.ColorToColorF((uint)color);
+            return DrawingBackendApi.Current.ColorImplementation.ColorToColorF((uint)color);
         }
 
         /// <param name="color">The color to convert.</param>
@@ -346,7 +346,7 @@ namespace PixiEditor.DrawingApi.Core.ColorsImpl
         /// <remarks>As a result of converting a floating-point color to an integer color, some data loss will occur.</remarks>
         public static explicit operator Color(ColorF color)
         {
-            return DrawingBackendApi.Current.ColorOperations.ColorFToColor(color);
+            return DrawingBackendApi.Current.ColorImplementation.ColorFToColor(color);
         }
 
         /// <param name="obj">The object to compare with the current object.</param>

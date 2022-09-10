@@ -96,9 +96,9 @@ namespace PixiEditor.DrawingApi.Core.Surface
             DrawingBackendApi.Current.CanvasOperations.ClipPath(clipPath, clipOperation, antialias);
         }
 
-        public void ClipRect(RectD rect)
+        public void ClipRect(RectD rect, ClipOperation clipOperation = ClipOperation.Intersect)
         {
-            DrawingBackendApi.Current.CanvasOperations.ClipRect(rect);
+            DrawingBackendApi.Current.CanvasOperations.ClipRect(rect, clipOperation);
         }
 
         public void Clear()
@@ -134,6 +134,11 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public void DrawColor(Color color, BlendMode paintBlendMode)
         {
             DrawingBackendApi.Current.CanvasOperations.DrawColor(color, paintBlendMode);
+        }
+
+        public void RotateRadians(float dataAngle, float centerX, float centerY)
+        {
+            DrawingBackendApi.Current.CanvasOperations.RotateRadians(dataAngle, centerX, centerY);
         }
     }
 }

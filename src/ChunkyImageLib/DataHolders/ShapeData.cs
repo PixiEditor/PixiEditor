@@ -1,11 +1,13 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace ChunkyImageLib.DataHolders;
 
 public record struct ShapeData
 {
-    public ShapeData(VecD center, VecD size, double rotation, int strokeWidth, SKColor strokeColor, SKColor fillColor, SKBlendMode blendMode = SKBlendMode.SrcOver)
+    public ShapeData(VecD center, VecD size, double rotation, int strokeWidth, Color strokeColor, Color fillColor, BlendMode blendMode = BlendMode.SrcOver)
     {
         StrokeColor = strokeColor;
         FillColor = fillColor;
@@ -15,9 +17,9 @@ public record struct ShapeData
         StrokeWidth = strokeWidth;
         BlendMode = blendMode;
     }
-    public SKColor StrokeColor { get; }
-    public SKColor FillColor { get; }
-    public SKBlendMode BlendMode { get; }
+    public Color StrokeColor { get; }
+    public Color FillColor { get; }
+    public BlendMode BlendMode { get; }
     public VecD Center { get; }
 
     /// <summary>Can be negative to show flipping </summary>

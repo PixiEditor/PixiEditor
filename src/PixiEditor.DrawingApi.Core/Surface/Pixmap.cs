@@ -1,6 +1,5 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
-using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Surface;
 
@@ -9,6 +8,9 @@ public class Pixmap : NativeObject
     internal Pixmap(IntPtr objPtr) : base(objPtr)
     {
     }
+
+    public int Width { get; set; }
+    public int Height { get; set; }
 
     public override void Dispose()
     {

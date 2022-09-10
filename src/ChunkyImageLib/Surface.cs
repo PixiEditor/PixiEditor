@@ -54,14 +54,14 @@ public class Surface : IDisposable
         return surface;
     }
 
-    public unsafe void DrawBytes(VecI size, byte[] bytes, SKColorType colorType, SKAlphaType alphaType)
+    public unsafe void DrawBytes(VecI size, byte[] bytes, ColorType colorType, AlphaType alphaType)
     {
-        SKImageInfo info = new SKImageInfo(size.X, size.Y, colorType, alphaType);
+        ImageInfo info = new ImageInfo(size.X, size.Y, colorType, alphaType);
 
         fixed (void* pointer = bytes)
         {
-            using SKPixmap map = new(info, new IntPtr(pointer));
-            using SKSurface surface = SKSurface.Create(map);
+            using Pixmap map = new(info, new IntPtr(pointer));
+            using DrawingSurface surface = DrawingSurface.Create(map);
             surface.Draw(DrawingSurface.Canvas, 0, 0, drawingPaint);
         }
     }
@@ -126,7 +126,7 @@ public class Surface : IDisposable
 
     private DrawingSurface CreateDrawingSurface()
     {
-        var surface = SKSurface.Create(new SKImageInfo(Size.X, Size.Y, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()), PixelBuffer);
+        var surface = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb()), PixelBuffer);
         if (surface is null)
             throw new InvalidOperationException($"Could not create surface (Size:{Size})");
         return surface;

@@ -4,13 +4,27 @@ using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.DrawingApi.Core.Surface
 {
-    public class DrawingSurface
+    public class DrawingSurface : NativeObject
     {
         public float Width { get; set; }
         public float Height { get; set; }
         
         public DrawingSurfaceProperties Properties { get; private set; }
         public Canvas Canvas { get; private set; }
+        
+        internal DrawingSurface(IntPtr objPtr) : base(objPtr)
+        {
+        }
+        
+        public DrawingSurface Create(Pixmap imageInfo)
+        {
+            return DrawingBackendApi.Current.SurfaceOperations.Create(ObjectPointer, imageInfo);
+        }
+        
+        public void Draw(Canvas drawingSurfaceCanvas, int x, int y, Paint drawingPaint)
+        {
+            DrawingBackendApi.Current.SurfaceOperations.Draw(this, drawingSurfaceCanvas, x, y, drawingPaint);
+        }
 
         public Image Snapshot()
         {
@@ -19,12 +33,21 @@ namespace PixiEditor.DrawingApi.Core.Surface
 
         public Pixmap PeekPixels()
         {
-            return DrawingBackendApi.Current.ImageOperations.PeekPixels(this);
+            return DrawingBackendApi.Current.SurfaceOperations.PeekPixels(this);
+        }
+        
+        public bool ReadPixels(ImageInfo dstInfo, IntPtr dstPixels, int dstRowBytes, int srcX, int srcY)
+        {
+            return DrawingBackendApi.Current.SurfaceOperations.ReadPixels(this, dstInfo, dstPixels, dstRowBytes, srcX, srcY);
         }
 
-        public static DrawingSurface Create(ImageInfo imageInfo, IntPtr arr, int chunkSize)
+        public static DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes)
         {
-            
+            return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo, pixels, rowBytes);
+        }
+
+        public override void Dispose()
+        {
         }
     }
 }

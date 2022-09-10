@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.Numerics;
 using HashCode = System.HashCode;
 
 namespace PixiEditor.DrawingApi.Core.Surface.ImageData;
@@ -10,7 +11,7 @@ public struct ImageInfo : System.IEquatable<ImageInfo>
     
     /// <summary>The current 32-bit color for the current platform.</summary>
     /// <remarks>On Windows, it is typically <see cref="ColorType.Bgra8888" />, and on Unix-based systems (macOS, Linux) it is typically <see cref="ColorType.Rgba8888" />.</remarks>
-    public static readonly ColorType PlatformColorType = SkiaApi.sk_colortype_get_default_8888().FromNative();
+    public static readonly ColorType PlatformColorType = DrawingBackendApi.Current.ColorImplementation.GetPlatformColorType();
     
     /// <summary>The number of bits to shift left for the alpha color component.</summary>
     public static readonly int PlatformColorAlphaShift;
@@ -26,11 +27,7 @@ public struct ImageInfo : System.IEquatable<ImageInfo>
 
     static unsafe ImageInfo()
     {
-      fixed (int* a = &ImageInfo.PlatformColorAlphaShift)
-        fixed (int* r = &ImageInfo.PlatformColorRedShift)
-          fixed (int* g = &ImageInfo.PlatformColorGreenShift)
-            fixed (int* b = &ImageInfo.PlatformColorBlueShift)
-              SkiaApi.sk_color_get_bit_shift(a, r, g, b);
+      DrawingBackendApi.Current.ImageOperations.GetColorShifts(ref PlatformColorAlphaShift, ref PlatformColorRedShift, ref PlatformColorGreenShift, ref PlatformColorBlueShift);
     }
 
     /// <summary>Gets or sets the width.</summary>
@@ -59,7 +56,7 @@ public struct ImageInfo : System.IEquatable<ImageInfo>
       this.Height = height;
       this.ColorType = ImageInfo.PlatformColorType;
       this.AlphaType = AlphaType.Premul;
-      this.ColorSpace = (ColorSpace) null;
+      this.ColorSpace = (ColorSpace)null;
     }
 
     public ImageInfo(int width, int height, ColorType colorType)
@@ -97,7 +94,7 @@ public struct ImageInfo : System.IEquatable<ImageInfo>
     /// <summary>Gets the number of bytes used per pixel.</summary>
     /// <value />
     /// <remarks>This is calculated from the <see cref="ImageInfo.ColorType" />. If the color type is <see cref="ColorType.Unknown" />, then the value will be 0.</remarks>
-    public readonly int BytesPerPixel => this.ColorType.GetBytesPerPixel();
+    public readonly int BytesPerPixel => ColorType.GetBytesPerPixel();
 
     /// <summary>Gets the number of bits used per pixel.</summary>
     /// <value />
@@ -141,7 +138,7 @@ public struct ImageInfo : System.IEquatable<ImageInfo>
     public readonly RectI Rect => RectI.Create(this.Width, this.Height);
 
 
-    public readonly ImageInfo WithSize(VecI size) => this.WithSize(size.Width, size.Height);
+    public readonly ImageInfo WithSize(VecI size) => this.WithSize(size.X, size.Y);
 
     /// <param name="width">The width.</param>
     /// <param name="height">The height.</param>

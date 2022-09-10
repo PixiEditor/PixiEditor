@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
@@ -32,7 +33,7 @@ internal class RectangleOperation : IDrawOperation
         skiaSurf.Canvas.RotateRadians((float)Data.Angle, (float)rect.Center.X, (float)rect.Center.Y);
 
         // draw fill
-        if (Data.FillColor.Alpha > 0)
+        if (Data.FillColor.A > 0)
         {
             skiaSurf.Canvas.Save();
             skiaSurf.Canvas.ClipRect((SKRect)innerRect);
@@ -42,8 +43,8 @@ internal class RectangleOperation : IDrawOperation
 
         // draw stroke
         skiaSurf.Canvas.Save();
-        skiaSurf.Canvas.ClipRect((SKRect)rect);
-        skiaSurf.Canvas.ClipRect((SKRect)innerRect, SKClipOperation.Difference);
+        skiaSurf.Canvas.ClipRect(rect);
+        skiaSurf.Canvas.ClipRect(innerRect, ClipOperation.Difference);
         skiaSurf.Canvas.DrawColor(Data.StrokeColor, Data.BlendMode);
         skiaSurf.Canvas.Restore();
 
@@ -52,9 +53,9 @@ internal class RectangleOperation : IDrawOperation
 
     public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
-        if (Math.Abs(Data.Size.X) < 1 || Math.Abs(Data.Size.Y) < 1 || (Data.StrokeColor.Alpha == 0 && Data.FillColor.Alpha == 0))
+        if (Math.Abs(Data.Size.X) < 1 || Math.Abs(Data.Size.Y) < 1 || (Data.StrokeColor.A == 0 && Data.FillColor.A == 0))
             return new();
-        if (Data.FillColor.Alpha != 0 || Math.Abs(Data.Size.X) == 1 || Math.Abs(Data.Size.Y) == 1)
+        if (Data.FillColor.A != 0 || Math.Abs(Data.Size.X) == 1 || Math.Abs(Data.Size.Y) == 1)
             return OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle, ChunkPool.FullChunkSize);
 
         var chunks = OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle, ChunkPool.FullChunkSize);

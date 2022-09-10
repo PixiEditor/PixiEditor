@@ -344,4 +344,15 @@ public struct RectI : IEquatable<RectI>
     {
         return $"{{X: {X}, Y: {Y}, W: {Width}, H: {Height}}}";
     }
+
+    public static RectI Create(int width, int height)
+    {
+        return new RectI()
+        {
+            Left = 0,
+            Right = width,
+            Top = 0,
+            Bottom = height
+        };
+    }
 }

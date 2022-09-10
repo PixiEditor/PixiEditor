@@ -4,6 +4,7 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using SkiaSharp;
 
 namespace PixiEditor.Helpers;
@@ -38,11 +39,11 @@ public static class SurfaceHelpers
         return result;
     }
 
-    private static unsafe byte[] ToByteArray(Surface surface, SKColorType colorType = SKColorType.Bgra8888, SKAlphaType alphaType = SKAlphaType.Premul)
+    private static unsafe byte[] ToByteArray(Surface surface, ColorType colorType = ColorType.Bgra8888, AlphaType alphaType = AlphaType.Premul)
     {
         int width = surface.Size.X;
         int height = surface.Size.Y;
-        var imageInfo = new SKImageInfo(width, height, colorType, alphaType, SKColorSpace.CreateSrgb());
+        var imageInfo = new ImageInfo(width, height, colorType, alphaType, ColorSpace.CreateSrgb());
 
         byte[] buffer = new byte[width * height * imageInfo.BytesPerPixel];
         fixed (void* pointer = buffer)

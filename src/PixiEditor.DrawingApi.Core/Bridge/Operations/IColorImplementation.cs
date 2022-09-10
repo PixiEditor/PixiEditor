@@ -1,10 +1,12 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.Operations
 {
-    public interface IDrawingBackendColorOperations
+    public interface IColorImplementation
     {
         public ColorF ColorToColorF(uint colorValue);
         public Color ColorFToColor(ColorF color);
+        public ColorType GetPlatformColorType();
     }
 }

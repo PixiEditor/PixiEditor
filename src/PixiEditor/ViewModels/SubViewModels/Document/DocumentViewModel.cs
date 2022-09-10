@@ -11,6 +11,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
@@ -118,7 +119,7 @@ internal class DocumentViewModel : NotifyableObject
         {
             if (ReferenceLayer is null)
                 return Matrix.Identity;
-            SKMatrix skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceLayer.Shape, ReferenceLayer.Image.Size);
+            Matrix3X3 skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceLayer.Shape, ReferenceLayer.Image.Size);
             return new Matrix(skiaMatrix.ScaleX, skiaMatrix.SkewY, skiaMatrix.SkewX, skiaMatrix.ScaleY, skiaMatrix.TransX, skiaMatrix.TransY);
         }
     }
@@ -170,14 +171,14 @@ internal class DocumentViewModel : NotifyableObject
         foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in Bitmaps)
         {
             DrawingSurface? surface = DrawingSurface.Create(
-                new SKImageInfo(bitmap.Value.PixelWidth, bitmap.Value.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
+                new ImageInfo(bitmap.Value.PixelWidth, bitmap.Value.PixelHeight, ColorType.Bgra8888, AlphaType.Premul, ColorSpace.CreateSrgb()),
                 bitmap.Value.BackBuffer, bitmap.Value.BackBufferStride);
             Surfaces[bitmap.Key] = surface;
         }
 
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
-        PreviewSurface = DrawingSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
+        PreviewSurface = DrawingSurface.Create(new ImageInfo(previewSize.X, previewSize.Y, ColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
     }
 
     public static DocumentViewModel Build(Action<DocumentViewModelBuilder> builder)
