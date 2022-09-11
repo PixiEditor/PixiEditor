@@ -29,5 +29,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void RestoreToCount(int count);
         public void DrawColor(Color color, BlendMode paintBlendMode);
         public void RotateRadians(float dataAngle, float centerX, float centerY);
+        public void DrawImage(Image image, RectD rect, Paint paint);
+        public void DrawBitmap(Bitmap bitmap, int x, int y);
     }
 }

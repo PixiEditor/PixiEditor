@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Bridge;
+﻿using System;
+using PixiEditor.DrawingApi.Core.Bridge;
 
 namespace PixiEditor.DrawingApi.Core.Surface.ImageData
 {
@@ -12,6 +13,9 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
     /// </remarks>
     public class Image : PixelDataObject
     {
+        public int Width { get; set; }
+        public int Height { get; set; }
+        
         public override void Dispose()
         {
             DrawingBackendApi.Current.ImageOperations.DisposeImage(this);
@@ -20,6 +24,11 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
         public static Image FromEncodedData(string path)
         {
             return DrawingBackendApi.Current.ImageOperations.FromEncodedData(path);
+        }
+
+        public ImgData Encode()
+        {
+            return DrawingBackendApi.Current.ImageOperations.Encode(this);
         }
     }
 }

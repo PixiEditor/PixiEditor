@@ -10,4 +10,7 @@ public interface ISurfaceOperations
     public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes);
     public bool ReadPixels(DrawingSurface drawingSurface, ImageInfo dstInfo, IntPtr dstPixels, int dstRowBytes, int srcX, int srcY);
     public void Draw(DrawingSurface drawingSurface, Canvas surfaceToDraw, int x, int y, Paint drawingPaint);
+    public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer);
+    public DrawingSurface Create(Pixmap pixmap);
+    public DrawingSurface Create(ImageInfo imageInfo);
 }

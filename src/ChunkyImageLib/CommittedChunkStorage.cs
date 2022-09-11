@@ -1,6 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace ChunkyImageLib;
 
@@ -8,7 +8,7 @@ public class CommittedChunkStorage : IDisposable
 {
     private bool disposed = false;
     private List<(VecI, Chunk?)> savedChunks = new();
-    private static SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private static Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
 
     public CommittedChunkStorage(ChunkyImage image, HashSet<VecI> committedChunksToSave)
     {

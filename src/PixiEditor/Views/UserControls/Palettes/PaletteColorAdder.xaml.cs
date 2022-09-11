@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using PixiEditor.Models.DataHolders;
-using SkiaSharp;
+using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
@@ -12,9 +12,9 @@ namespace PixiEditor.Views.UserControls.Palettes;
 /// </summary>
 internal partial class PaletteColorAdder : UserControl
 {
-    public WpfObservableRangeCollection<SKColor> Colors
+    public WpfObservableRangeCollection<BackendColor> Colors
     {
-        get { return (WpfObservableRangeCollection<SKColor>)GetValue(ColorsProperty); }
+        get { return (WpfObservableRangeCollection<BackendColor>)GetValue(ColorsProperty); }
         set { SetValue(ColorsProperty, value); }
     }
 
@@ -38,11 +38,11 @@ internal partial class PaletteColorAdder : UserControl
         }
     }
 
-    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>), OnSwatchesChanged));
+    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<BackendColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<BackendColor>), OnSwatchesChanged));
 
-    public WpfObservableRangeCollection<SKColor> Swatches
+    public WpfObservableRangeCollection<BackendColor> Swatches
     {
-        get { return (WpfObservableRangeCollection<SKColor>)GetValue(SwatchesProperty); }
+        get { return (WpfObservableRangeCollection<BackendColor>)GetValue(SwatchesProperty); }
         set { SetValue(SwatchesProperty, value); }
     }
 
@@ -60,7 +60,7 @@ internal partial class PaletteColorAdder : UserControl
 
 
     public static readonly DependencyProperty ColorsProperty =
-        DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>), OnColorsChanged));
+        DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<BackendColor>), typeof(PaletteColorAdder), new PropertyMetadata(default(WpfObservableRangeCollection<BackendColor>), OnColorsChanged));
 
     private static void OnColorsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
@@ -85,7 +85,7 @@ internal partial class PaletteColorAdder : UserControl
 
     private void UpdateAddButton()
     {
-        AddButton.IsEnabled = !Colors.Contains(ToSKColor(SelectedColor)) && SelectedColor.A == 255;
+        AddButton.IsEnabled = !Colors.Contains(ToBackendColor(SelectedColor)) && SelectedColor.A == 255;
     }
 
     private static void OnSwatchesChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -110,7 +110,7 @@ internal partial class PaletteColorAdder : UserControl
 
     private void UpdateAddSwatchesButton()
     {
-        AddFromSwatches.IsEnabled = Swatches != null && Swatches.Where(x => x.Alpha == 255).Any(x => !Colors.Contains(x));
+        AddFromSwatches.IsEnabled = Swatches != null && Swatches.Where(x => x.A == 255).Any(x => !Colors.Contains(x));
     }
 
     public PaletteColorAdder()
@@ -120,7 +120,7 @@ internal partial class PaletteColorAdder : UserControl
 
     private void Button_Click(object sender, RoutedEventArgs e)
     {
-        SKColor color = ToSKColor(SelectedColor);
+        BackendColor color = ToBackendColor(SelectedColor);
         if (!Colors.Contains(color))
         {
             Colors.Add(color.WithAlpha(255));
@@ -129,9 +129,9 @@ internal partial class PaletteColorAdder : UserControl
     }
 
     private void PortableColorPicker_ColorChanged(object sender, RoutedEventArgs e) =>
-        AddButton.IsEnabled = !Colors.Contains(ToSKColor(SelectedColor));
+        AddButton.IsEnabled = !Colors.Contains(ToBackendColor(SelectedColor));
 
-    private static SKColor ToSKColor(Color color) => new SKColor(color.R, color.G, color.B, color.A);
+    private static BackendColor ToBackendColor(Color color) => new BackendColor(color.R, color.G, color.B, color.A);
 
     private void AddFromSwatches_OnClick(object sender, RoutedEventArgs e)
     {
@@ -139,7 +139,7 @@ internal partial class PaletteColorAdder : UserControl
 
         foreach (var color in Swatches)
         {
-            if (color.Alpha < 255) continue; // No alpha support for now, palette colors shouldn't be transparent
+            if (color.A < 255) continue; // No alpha support for now, palette colors shouldn't be transparent
 
             if (!Colors.Contains(color))
             {

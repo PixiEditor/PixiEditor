@@ -7,6 +7,7 @@ using PixiEditor.ViewModels;
 using SkiaSharp;
 using System.IO;
 using System.Text.RegularExpressions;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.Views.UserControls.CommandSearch;
 
@@ -131,11 +132,11 @@ internal static class CommandSearchControlHelper
         return Directory.Exists(directory);
     }
 
-    public static OneOf<SKColor, Error, None> MaybeParseColor(string query)
+    public static OneOf<Color, Error, None> MaybeParseColor(string query)
     {
         if (query.StartsWith('#'))
         {
-            if (!SKColor.TryParse(query, out var color))
+            if (!Color.TryParse(query, out var color))
                 return new Error();
             return color;
         }
@@ -161,7 +162,7 @@ internal static class CommandSearchControlHelper
         return new None();
     }
 
-    private static SKColor? ParseRGB(Match match)
+    private static Color? ParseRGB(Match match)
     {
         bool invalid = !(
             byte.TryParse(match.Groups["r"].ValueSpan, out var r) &
@@ -177,6 +178,6 @@ internal static class CommandSearchControlHelper
         if (!string.IsNullOrEmpty(aText) && !byte.TryParse(aText, out a))
             return null;
 
-        return new SKColor(r, g, b, a);
+        return new Color(r, g, b, a);
     }
 }

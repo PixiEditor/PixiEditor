@@ -2,21 +2,22 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using SkiaSharp;
+using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
+using BackendColors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
 internal partial class ColorReplacer : UserControl
 {
-    public SKColor ColorToReplace
+    public BackendColor ColorToReplace
     {
-        get { return (SKColor)GetValue(ColorToReplaceProperty); }
+        get { return (BackendColor)GetValue(ColorToReplaceProperty); }
         set { SetValue(ColorToReplaceProperty, value); }
     }
 
 
     public static readonly DependencyProperty ColorToReplaceProperty =
-        DependencyProperty.Register(nameof(ColorToReplace), typeof(SKColor), typeof(ColorReplacer), new PropertyMetadata(SKColors.White));
+        DependencyProperty.Register(nameof(ColorToReplace), typeof(BackendColor), typeof(ColorReplacer), new PropertyMetadata(BackendColors.White));
 
 
     public Color HintColor
@@ -68,7 +69,7 @@ internal partial class ColorReplacer : UserControl
         if (e.Data.GetDataPresent(PaletteColor.PaletteColorDaoFormat))
         {
             string hex = (string)e.Data.GetData(PaletteColor.PaletteColorDaoFormat);
-            ColorToReplace = SKColor.Parse(hex).WithAlpha(255);
+            ColorToReplace = BackendColor.Parse(hex).WithAlpha(255);
         }
     }
 
@@ -79,7 +80,7 @@ internal partial class ColorReplacer : UserControl
 
     private void ReplaceButton_OnClick(object sender, RoutedEventArgs e)
     {
-        SKColor first = ColorToReplace.WithAlpha(255);
+        BackendColor first = ColorToReplace.WithAlpha(255);
         Color rawSecond = NewColor;
 
         SKColor second = new SKColor(rawSecond.R, rawSecond.G, rawSecond.B, 255);
@@ -90,6 +91,6 @@ internal partial class ColorReplacer : UserControl
             ReplaceColorsCommand.Execute(pack);
         }
 
-        ColorToReplace = SKColors.White;
+        ColorToReplace = BackendColors.White;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -13,8 +14,8 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T : ShapeTool
 {
     protected int strokeWidth;
-    protected SKColor fillColor;
-    protected SKColor strokeColor;
+    protected Color fillColor;
+    protected Color strokeColor;
     protected Guid memberGuid;
     protected bool drawOnMask;
 
@@ -39,7 +40,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         if (!drawOnMask && member is not LayerViewModel)
             return ExecutionState.Error;
 
-        fillColor = toolbar.Fill ? toolbar.FillColor.ToSKColor() : SKColors.Transparent;
+        fillColor = toolbar.Fill ? toolbar.FillColor.ToColor() : DrawingApi.Core.ColorsImpl.Colors.Transparent;
         startPos = controller!.LastPixelPosition;
         strokeColor = colorsVM.PrimaryColor;
         strokeWidth = toolbar.ToolSize;

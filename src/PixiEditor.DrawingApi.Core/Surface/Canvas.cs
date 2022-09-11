@@ -23,6 +23,8 @@ namespace PixiEditor.DrawingApi.Core.Surface
         }
 
         public void DrawImage(Image image, int x, int y) => DrawingBackendApi.Current.CanvasOperations.DrawImage(image, x, y);
+        
+        public void DrawImage(Image image, RectD rect, Paint paint) => DrawingBackendApi.Current.CanvasOperations.DrawImage(image, rect, paint);
 
         public int Save()
         {
@@ -139,6 +141,11 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public void RotateRadians(float dataAngle, float centerX, float centerY)
         {
             DrawingBackendApi.Current.CanvasOperations.RotateRadians(dataAngle, centerX, centerY);
+        }
+
+        public void DrawBitmap(Bitmap bitmap, int x, int y)
+        {
+            DrawingBackendApi.Current.CanvasOperations.DrawBitmap(bitmap, x, y);
         }
     }
 }

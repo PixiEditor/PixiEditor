@@ -1,7 +1,7 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
-namespace PixiEditor.DrawingApi.Core.Bridge.Operations
+namespace PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl
 {
     public interface IColorImplementation
     {

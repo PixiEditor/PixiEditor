@@ -9,5 +9,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void DisposeImage(Image image);
         public Image FromEncodedData(string path);
         public void GetColorShifts(ref int platformColorAlphaShift, ref int platformColorRedShift, ref int platformColorGreenShift, ref int platformColorBlueShift);
+        public ImgData Encode(Image image);
     }
 }

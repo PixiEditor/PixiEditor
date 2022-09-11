@@ -15,5 +15,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge
         public IPixmapImplementation PixmapImplementation { get; set; }
         public ISurfaceOperations SurfaceOperations { get; set; }
         public IColorSpaceImplementation ColorSpaceImplementation { get; set; }
+        public IImgDataImplementation ImgDataImplementation { get; set; }
+        public IBitmapImplementation BitmapImplementation { get; set; }
     }
 }

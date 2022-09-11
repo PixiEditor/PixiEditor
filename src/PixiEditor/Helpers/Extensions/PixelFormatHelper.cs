@@ -1,71 +1,80 @@
 ﻿using System.Windows.Media;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.Helpers.Extensions;
 
 internal static class PixelFormatHelper
 {
-    public static SKColorType ToSkia(this PixelFormat format, out SKAlphaType alphaType)
+    public static ColorType ToColorType(this PixelFormat format, out AlphaType alphaType)
     {
-        if (TryToSkia(format, out SKColorType color, out alphaType))
+        if (TryConvertToColorType(format, out var color, out alphaType))
         {
             return color;
         }
-        else
-        {
-            throw new NotImplementedException($"Skia does not support the '{format}' format");
-        }
+
+        throw new NotImplementedException($"Skia does not support the '{format}' format");
     }
 
-    public static bool TryToSkia(this PixelFormat format, out SKColorType colorType, out SKAlphaType alphaType)
+    public static bool TryConvertToColorType(this PixelFormat format, out ColorType colorType, out AlphaType alphaType)
     {
         if (format == PixelFormats.Rgba64)
         {
-            alphaType = SKAlphaType.Unpremul;
-            colorType = SKColorType.Rgba16161616;
+            alphaType = AlphaType.Unpremul;
+            colorType = ColorType.Rgba16161616;
             return true;
         }
-        else if (format == PixelFormats.Bgra32)
+
+        if (format == PixelFormats.Bgra32)
         {
-            alphaType = SKAlphaType.Unpremul;
-            colorType = SKColorType.Bgra8888;
+            alphaType = AlphaType.Unpremul;
+            colorType = ColorType.Bgra8888;
             return true;
         }
-        else if (format == PixelFormats.Default)
+
+        if (format == PixelFormats.Default)
         {
-            alphaType = SKAlphaType.Unpremul;
-            colorType = SKColorType.RgbaF16;
+            alphaType = AlphaType.Unpremul;
+            colorType = ColorType.RgbaF16;
             return true;
         }
-        else if (format == PixelFormats.Gray8)
+
+        if (format == PixelFormats.Gray8)
         {
-            alphaType = SKAlphaType.Opaque;
-            colorType = SKColorType.Gray8;
+            alphaType = AlphaType.Opaque;
+            colorType = ColorType.Gray8;
             return true;
         }
-        else if (format == PixelFormats.Pbgra32)
+
+        if (format == PixelFormats.Pbgra32)
         {
-            alphaType = SKAlphaType.Premul;
-            colorType = SKColorType.Bgra8888;
+            alphaType = AlphaType.Premul;
+            colorType = ColorType.Bgra8888;
             return true;
         }
-        else if (format == PixelFormats.Bgr101010 || format == PixelFormats.Bgr24 || format == PixelFormats.Bgr32 || format == PixelFormats.Bgr555 ||
-                 format == PixelFormats.Bgr565 || format == PixelFormats.BlackWhite || format == PixelFormats.Cmyk32 || format == PixelFormats.Gray16 ||
-                 format == PixelFormats.Gray2 || format == PixelFormats.Gray32Float || format == PixelFormats.Gray4 || format == PixelFormats.Indexed1 ||
-                 format == PixelFormats.Indexed2 || format == PixelFormats.Indexed4 || format == PixelFormats.Indexed8 || format == PixelFormats.Prgba128Float ||
-                 format == PixelFormats.Prgba64 || format == PixelFormats.Rgb128Float || format == PixelFormats.Rgb24 || format == PixelFormats.Rgb48 ||
-                 format == PixelFormats.Rgba128Float)
+
+        if (format == PixelFormats.Bgr101010 || format == PixelFormats.Bgr24 || format == PixelFormats.Bgr32 ||
+            format == PixelFormats.Bgr555 ||
+            format == PixelFormats.Bgr565 || format == PixelFormats.BlackWhite || format == PixelFormats.Cmyk32 ||
+            format == PixelFormats.Gray16 ||
+            format == PixelFormats.Gray2 || format == PixelFormats.Gray32Float || format == PixelFormats.Gray4 ||
+            format == PixelFormats.Indexed1 ||
+            format == PixelFormats.Indexed2 || format == PixelFormats.Indexed4 || format == PixelFormats.Indexed8 ||
+            format == PixelFormats.Prgba128Float ||
+            format == PixelFormats.Prgba64 || format == PixelFormats.Rgb128Float || format == PixelFormats.Rgb24 ||
+            format == PixelFormats.Rgb48 ||
+            format == PixelFormats.Rgba128Float)
         {
-            alphaType = SKAlphaType.Unknown;
-            colorType = SKColorType.Unknown;
+            alphaType = AlphaType.Unknown;
+            colorType = ColorType.Unknown;
             return false;
         }
 
-        throw new NotImplementedException($"'{format}' has not been implemented by {nameof(PixelFormatHelper)}.{nameof(TryToSkia)}()");
+        throw new NotImplementedException(
+            $"'{format}' has not been implemented by {nameof(PixelFormatHelper)}.{nameof(TryConvertToColorType)}()");
     }
 
     public static bool IsSkiaSupported(this PixelFormat format)
     {
-        return TryToSkia(format, out _, out _);
+        return TryConvertToColorType(format, out _, out _);
     }
 }

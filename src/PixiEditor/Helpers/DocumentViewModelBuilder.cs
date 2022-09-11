@@ -1,10 +1,8 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.DrawingApi.Core.Surface;
+using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.Helpers;
 
@@ -190,7 +188,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         
         public SurfaceBuilder WithImage(ReadOnlySpan<byte> buffer, int x, int y)
         {
-            Surface.DrawingSurface.Canvas.DrawBitmap(SKBitmap.Decode(buffer), 0, 0);
+            Surface.DrawingSurface.Canvas.DrawBitmap(Bitmap.Decode(buffer), 0, 0);
             return this;
         }
     }

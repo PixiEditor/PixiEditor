@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
@@ -106,7 +107,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         return newName;
     }
 
-    public async Task SavePalette(string fileName, SKColor[] colors)
+    public async Task SavePalette(string fileName, Color[] colors)
     {
         watcher.EnableRaisingEvents = false;
         string path = Path.Join(PathToPalettesFolder, fileName);

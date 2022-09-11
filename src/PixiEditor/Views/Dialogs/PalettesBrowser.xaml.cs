@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using Microsoft.Win32;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
@@ -136,7 +137,7 @@ internal partial class PalettesBrowser : Window
     private char[] separators = new char[] { ' ', ',' };
 
     private SortingType InternalSortingType => (SortingType)Enum.Parse(typeof(SortingType), SortingType.Replace(" ", ""));
-    public WpfObservableRangeCollection<SKColor> CurrentEditingPalette { get; set; }
+    public WpfObservableRangeCollection<Color> CurrentEditingPalette { get; set; }
     public static PalettesBrowser Instance { get; internal set; }
 
     private LocalPalettesFetcher LocalPalettesFetcher
@@ -167,7 +168,7 @@ internal partial class PalettesBrowser : Window
         };
     }
 
-    public static PalettesBrowser Open(WpfObservableRangeCollection<PaletteListDataSource> dataSources, ICommand importPaletteCommand, WpfObservableRangeCollection<SKColor> currentEditingPalette)
+    public static PalettesBrowser Open(WpfObservableRangeCollection<PaletteListDataSource> dataSources, ICommand importPaletteCommand, WpfObservableRangeCollection<Color> currentEditingPalette)
     {
         if (Instance != null) return Instance;
         PalettesBrowser browser = new PalettesBrowser

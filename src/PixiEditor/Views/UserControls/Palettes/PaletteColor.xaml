@@ -9,7 +9,7 @@
              mc:Ignorable="d" MouseDown="PaletteColor_OnMouseDown"
              d:DesignHeight="45" d:DesignWidth="45" Name="uc" MouseMove="PaletteColor_OnMouseMove">
     <UserControl.Resources>
-        <converters:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter" />
+        <converters:BackendColorToMediaColorConverter x:Key="BackendColorToMediaColorConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
     <UserControl.Style>
@@ -30,7 +30,7 @@
         </Border>
         <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" BorderThickness="0 0 0 0.1" BorderBrush="White">
             <Border.Background>
-                <SolidColorBrush Color="{Binding Color, Converter={StaticResource SKColorToMediaColorConverter}, ElementName=uc}" />
+                <SolidColorBrush Color="{Binding Color, Converter={StaticResource BackendColorToMediaColorConverter}, ElementName=uc}" />
             </Border.Background>
         </Border>
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Margin="0 0 0 -1"

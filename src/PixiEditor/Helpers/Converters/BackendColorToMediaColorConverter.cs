@@ -1,29 +1,27 @@
 ﻿using System.Globalization;
 using System.Windows.Media;
-using SkiaSharp;
+using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Helpers.Converters;
 
-internal class SKColorToMediaColorConverter : SingleInstanceConverter<SKColorToMediaColorConverter>
+internal class BackendColorToMediaColorConverter : SingleInstanceConverter<BackendColorToMediaColorConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        var skcolor = (SKColor)value;
-        var color = Color.FromArgb(skcolor.Alpha, skcolor.Red, skcolor.Green, skcolor.Blue);
+        var backendColor = (BackendColor)value;
+        var color = Color.FromArgb(backendColor.A, backendColor.R, backendColor.G, backendColor.B);
 
         if (targetType == typeof(Brush))
         {
             return new SolidColorBrush(color);
         }
-        else
-        {
-            return color;
-        }
+
+        return color;
     }
 
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
         var color = (Color)value;
-        return new SKColor(color.R, color.G, color.B, color.A);
+        return new BackendColor(color.R, color.G, color.B, color.A);
     }
 }

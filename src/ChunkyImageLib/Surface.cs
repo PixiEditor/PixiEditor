@@ -1,12 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.PixelE;
-using SkiaSharp;
 
 namespace ChunkyImageLib;
 
@@ -70,7 +67,7 @@ public class Surface : IDisposable
     {
         using Image image = DrawingSurface.Snapshot();
         Surface newSurface = new(newSize);
-        newSurface.DrawingSurface.Canvas.DrawImage(image, new SKRect(0, 0, newSize.X, newSize.Y), nearestNeighborReplacingPaint);
+        newSurface.DrawingSurface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), nearestNeighborReplacingPaint);
         return newSurface;
     }
 
@@ -90,7 +87,7 @@ public class Surface : IDisposable
     {
         Half* ptr = (Half*)(PixelBuffer + (pos.X + pos.Y * Size.X) * BytesPerPixel);
         float a = (float)ptr[3];
-        return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
+        return (Color)new ColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
     }
 
     public void SetSRGBPixel(VecI pos, Color color)
@@ -114,7 +111,7 @@ public class Surface : IDisposable
 
     public void SaveToDesktop(string filename = "savedSurface.png")
     {
-        using var final = SKSurface.Create(new SKImageInfo(Size.X, Size.Y, SKColorType.Rgba8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
+        using var final = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.Rgba8888, AlphaType.Premul, ColorSpace.CreateSrgb()));
         final.Canvas.DrawSurface(DrawingSurface, 0, 0);
         using (var snapshot = final.Snapshot())
         {

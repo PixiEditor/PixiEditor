@@ -18,7 +18,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
         
         public DrawingSurface Create(Pixmap imageInfo)
         {
-            return DrawingBackendApi.Current.SurfaceOperations.Create(ObjectPointer, imageInfo);
+            return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo);
         }
         
         public void Draw(Canvas drawingSurfaceCanvas, int x, int y, Paint drawingPaint)
@@ -40,10 +40,20 @@ namespace PixiEditor.DrawingApi.Core.Surface
         {
             return DrawingBackendApi.Current.SurfaceOperations.ReadPixels(this, dstInfo, dstPixels, dstRowBytes, srcX, srcY);
         }
+        
+        public DrawingSurface Create(ImageInfo imageInfo)
+        {
+            return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo);
+        }
 
         public static DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes)
         {
             return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo, pixels, rowBytes);
+        }
+        
+        public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
+        {
+            return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo, pixelBuffer);
         }
 
         public override void Dispose()

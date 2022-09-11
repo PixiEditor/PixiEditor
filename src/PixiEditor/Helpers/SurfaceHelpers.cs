@@ -13,7 +13,7 @@ public static class SurfaceHelpers
 {
     public static Surface FromBitmapSource(BitmapSource original)
     {
-        SKColorType color = original.Format.ToSkia(out SKAlphaType alpha);
+        ColorType color = original.Format.ToColorType(out AlphaType alpha);
         if (original.PixelWidth <= 0 || original.PixelHeight <= 0)
             throw new ArgumentException("Surface dimensions must be non-zero");
 

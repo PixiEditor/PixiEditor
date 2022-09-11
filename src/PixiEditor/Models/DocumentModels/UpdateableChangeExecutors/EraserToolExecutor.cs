@@ -1,6 +1,6 @@
 ﻿#nullable enable
-using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -12,7 +12,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class EraserToolExecutor : UpdateableChangeExecutor
 {
     private Guid guidValue;
-    private SKColor color;
+    private Color color;
     private int toolSize;
     private bool drawOnMask;
 
@@ -35,7 +35,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
         toolSize = toolbar.ToolSize;
 
         vm.ColorsSubViewModel.AddSwatch(color);
-        IAction? action = new LineBasedPen_Action(guidValue, SKColors.Transparent, controller!.LastPixelPosition, toolSize, true,
+        IAction? action = new LineBasedPen_Action(guidValue, DrawingApi.Core.ColorsImpl.Colors.Transparent, controller!.LastPixelPosition, toolSize, true,
             drawOnMask);
         internals!.ActionAccumulator.AddActions(action);
 
@@ -44,7 +44,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        IAction? action = new LineBasedPen_Action(guidValue, SKColors.Transparent, pos, toolSize, true, drawOnMask);
+        IAction? action = new LineBasedPen_Action(guidValue, DrawingApi.Core.ColorsImpl.Colors.Transparent, pos, toolSize, true, drawOnMask);
         internals!.ActionAccumulator.AddActions(action);
     }
 

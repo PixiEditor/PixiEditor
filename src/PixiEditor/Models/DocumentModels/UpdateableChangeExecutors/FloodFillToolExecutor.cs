@@ -1,5 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions.Undo;
+﻿using PixiEditor.ChangeableDocument.Actions.Undo;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -12,7 +12,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
     private bool considerAllLayers;
     private bool drawOnMask;
     private Guid memberGuid;
-    private SKColor color;
+    private Color color;
 
     public override ExecutionState Start()
     {

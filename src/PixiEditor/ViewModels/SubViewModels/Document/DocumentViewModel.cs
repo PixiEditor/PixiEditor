@@ -147,8 +147,8 @@ internal class DocumentViewModel : NotifyableObject
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
 
-    public WpfObservableRangeCollection<SKColor> Swatches { get; set; } = new WpfObservableRangeCollection<SKColor>();
-    public WpfObservableRangeCollection<SKColor> Palette { get; set; } = new WpfObservableRangeCollection<SKColor>();
+    public WpfObservableRangeCollection<Color> Swatches { get; set; } = new WpfObservableRangeCollection<Color>();
+    public WpfObservableRangeCollection<Color> Palette { get; set; } = new WpfObservableRangeCollection<Color>();
 
     public DocumentTransformViewModel TransformViewModel { get; }
 
@@ -387,7 +387,7 @@ internal class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(Height));
     }
 
-    public void InternalUpdateSelectionPath(SKPath VectorPath)
+    public void InternalUpdateSelectionPath(VectorPath vectorPath)
     {
         (VectorPath? toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
         toDispose.Dispose();
