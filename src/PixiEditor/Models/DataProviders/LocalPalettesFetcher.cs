@@ -1,12 +1,10 @@
 ﻿using System.IO;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.JascPalFile;
 using PixiEditor.Models.UserPreferences;
-using SkiaSharp;
 
 namespace PixiEditor.Models.DataProviders;
 

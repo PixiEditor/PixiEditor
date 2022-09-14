@@ -1,6 +1,4 @@
-﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
-using SkiaSharp;
+﻿using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace ChunkyImageLib.Operations;
 
@@ -21,7 +19,7 @@ internal class ClearRegionOperation : IDrawOperation
         VecI convSize = OperationHelper.ConvertForResolution(rect.Size, chunk.Resolution);
 
         chunk.Surface.DrawingSurface.Canvas.Save();
-        chunk.Surface.DrawingSurface.Canvas.ClipRect(SKRect.Create(convPos - chunkPos.Multiply(chunk.PixelSize), convSize));
+        chunk.Surface.DrawingSurface.Canvas.ClipRect(RectD.Create(convPos - chunkPos.Multiply(chunk.PixelSize), convSize));
         chunk.Surface.DrawingSurface.Canvas.Clear();
         chunk.Surface.DrawingSurface.Canvas.Restore();
     }

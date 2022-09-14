@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using PixiEditor.Models.DataHolders;
-using SkiaSharp;
+using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
@@ -11,11 +11,11 @@ namespace PixiEditor.Views.UserControls.Palettes;
 /// </summary>
 internal partial class CompactPaletteViewer : UserControl
 {
-    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<SKColor>), typeof(CompactPaletteViewer));
+    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<BackendColor>), typeof(CompactPaletteViewer));
 
-    public WpfObservableRangeCollection<SKColor> Colors
+    public WpfObservableRangeCollection<BackendColor> Colors
     {
-        get { return (WpfObservableRangeCollection<SKColor>)GetValue(ColorsProperty); }
+        get { return (WpfObservableRangeCollection<BackendColor>)GetValue(ColorsProperty); }
         set { SetValue(ColorsProperty, value); }
     }
 
@@ -37,7 +37,7 @@ internal partial class CompactPaletteViewer : UserControl
     private void RemoveColorMenuItem_OnClick(object sender, RoutedEventArgs e)
     {
         MenuItem menuItem = (MenuItem)sender;
-        SKColor color = (SKColor)menuItem.CommandParameter;
+        BackendColor color = (BackendColor)menuItem.CommandParameter;
         if (Colors.Contains(color))
         {
             Colors.Remove(color);

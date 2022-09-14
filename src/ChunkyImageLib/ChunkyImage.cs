@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;
@@ -8,7 +7,6 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
-using SkiaSharp;
 
 [assembly: InternalsVisibleTo("ChunkyImageLibTest")]
 

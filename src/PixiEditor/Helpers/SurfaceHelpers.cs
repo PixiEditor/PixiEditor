@@ -2,10 +2,8 @@
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using SkiaSharp;
 
 namespace PixiEditor.Helpers;
 

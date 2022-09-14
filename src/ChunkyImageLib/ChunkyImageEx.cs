@@ -2,7 +2,6 @@
 using ChunkyImageLib.Operations;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
-using SkiaSharp;
 
 namespace ChunkyImageLib;
 public static class IReadOnlyChunkyImageEx
@@ -11,7 +10,7 @@ public static class IReadOnlyChunkyImageEx
         (this IReadOnlyChunkyImage image, RectI fullResRegion, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null)
     {
         surface.Canvas.Save();
-        surface.Canvas.ClipRect(SKRect.Create(pos, fullResRegion.Size));
+        surface.Canvas.ClipRect(RectD.Create(pos, fullResRegion.Size));
 
         VecI chunkTopLeft = OperationHelper.GetChunkPos(fullResRegion.TopLeft, ChunkyImage.FullChunkSize);
         VecI chunkBotRigth = OperationHelper.GetChunkPos(fullResRegion.BottomRight, ChunkyImage.FullChunkSize);

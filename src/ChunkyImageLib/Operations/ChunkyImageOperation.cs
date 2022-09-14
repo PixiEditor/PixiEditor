@@ -1,6 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
-using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 internal class ChunkyImageOperation : IDrawOperation
@@ -27,7 +26,7 @@ internal class ChunkyImageOperation : IDrawOperation
         {
             VecI pixelPos = chunkPos * ChunkyImage.FullChunkSize;
             VecI topLeftImageCorner = GetTopLeft();
-            SKRect clippingRect = SKRect.Create(
+            RectD clippingRect = RectD.Create(
                 OperationHelper.ConvertForResolution(topLeftImageCorner - pixelPos, chunk.Resolution),
                 OperationHelper.ConvertForResolution(imageToDraw.CommittedSize, chunk.Resolution));
             chunk.Surface.DrawingSurface.Canvas.ClipRect(clippingRect);

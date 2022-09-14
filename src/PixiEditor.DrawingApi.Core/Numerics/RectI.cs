@@ -1,5 +1,4 @@
 ﻿using System;
-using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
 public struct RectI : IEquatable<RectI>
@@ -197,7 +196,10 @@ public struct RectI : IEquatable<RectI>
     /// </summary>
     public readonly RectI AspectFit(RectI rect)
     {
-        return (RectI)((RectD)this).AspectFit(rect);
+        RectD rectD = (RectD)rect;
+        RectD thisD = (RectD)this;
+        RectD aspect = rectD.AspectFit(thisD);
+        return new RectI((int)aspect.Left, (int)aspect.Top, (int)aspect.Width, (int)aspect.Height);
     }
 
     public readonly bool ContainsInclusive(VecI point) => ContainsInclusive(point.X, point.Y);
@@ -269,49 +271,6 @@ public struct RectI : IEquatable<RectI>
             Right = right,
             Top = top,
             Bottom = bottom
-        };
-    }
-
-    public static implicit operator RectD(RectI rect)
-    {
-        return new RectD()
-        {
-            Left = rect.left,
-            Right = rect.right,
-            Top = rect.top,
-            Bottom = rect.bottom
-        };
-    }
-
-    public static implicit operator SKRect(RectI rect)
-    {
-        return new SKRect(rect.left, rect.top, rect.right, rect.bottom);
-    }
-
-    public static implicit operator SKRectI(RectI rect)
-    {
-        return new SKRectI(rect.left, rect.top, rect.right, rect.bottom);
-    }
-
-    public static explicit operator RectI(SKRect rect)
-    {
-        return new RectI()
-        {
-            Left = (int)rect.Left,
-            Right = (int)rect.Right,
-            Top = (int)rect.Top,
-            Bottom = (int)rect.Bottom
-        };
-    }
-
-    public static implicit operator RectI(SKRectI rect)
-    {
-        return new RectI()
-        {
-            Left = rect.Left,
-            Right = rect.Right,
-            Top = rect.Top,
-            Bottom = rect.Bottom
         };
     }
 

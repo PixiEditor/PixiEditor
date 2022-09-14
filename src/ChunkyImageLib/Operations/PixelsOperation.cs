@@ -2,7 +2,6 @@
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
-using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 
@@ -16,7 +15,7 @@ internal class PixelsOperation : IDrawOperation
 
     public PixelsOperation(IEnumerable<VecI> pixels, Color color, BlendMode blendMode)
     {
-        this.pixels = pixels.Select(pixel => (Point)pixel).ToArray();
+        this.pixels = pixels.Select(pixel => new Point(pixel.X, pixel.Y)).ToArray();
         this.color = color;
         this.blendMode = blendMode;
         paint = new Paint() { BlendMode = blendMode };
@@ -37,7 +36,7 @@ internal class PixelsOperation : IDrawOperation
 
     public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
-        return pixels.Select(static pixel => OperationHelper.GetChunkPos((VecI)pixel, ChunkyImage.FullChunkSize)).ToHashSet();
+        return pixels.Select(static pixel => OperationHelper.GetChunkPos(pixel, ChunkyImage.FullChunkSize)).ToHashSet();
     }
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)

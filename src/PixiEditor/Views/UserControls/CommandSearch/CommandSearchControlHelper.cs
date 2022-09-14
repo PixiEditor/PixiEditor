@@ -1,10 +1,5 @@
-using OneOf;
-using OneOf.Types;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
-using PixiEditor.Models.Commands.Search;
-using PixiEditor.ViewModels;
-using SkiaSharp;
 using System.IO;
 using System.Text.RegularExpressions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;

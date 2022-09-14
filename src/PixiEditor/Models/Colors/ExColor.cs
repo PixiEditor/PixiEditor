@@ -1,6 +1,4 @@
-﻿using SkiaSharp;
-
-namespace PixiEditor.Models.Colors;
+﻿namespace PixiEditor.Models.Colors;
 
 internal static class ExColor
 {

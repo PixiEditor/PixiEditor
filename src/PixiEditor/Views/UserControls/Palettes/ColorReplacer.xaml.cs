@@ -83,7 +83,7 @@ internal partial class ColorReplacer : UserControl
         BackendColor first = ColorToReplace.WithAlpha(255);
         Color rawSecond = NewColor;
 
-        SKColor second = new SKColor(rawSecond.R, rawSecond.G, rawSecond.B, 255);
+        BackendColor second = new BackendColor(rawSecond.R, rawSecond.G, rawSecond.B, 255);
 
         var pack = (first, second);
         if (ReplaceColorsCommand.CanExecute(pack))

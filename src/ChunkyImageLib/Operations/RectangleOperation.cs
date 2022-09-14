@@ -1,7 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
-using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 
@@ -36,7 +35,7 @@ internal class RectangleOperation : IDrawOperation
         if (Data.FillColor.A > 0)
         {
             skiaSurf.Canvas.Save();
-            skiaSurf.Canvas.ClipRect((SKRect)innerRect);
+            skiaSurf.Canvas.ClipRect(innerRect);
             skiaSurf.Canvas.DrawColor(Data.FillColor, Data.BlendMode);
             skiaSurf.Canvas.Restore();
         }

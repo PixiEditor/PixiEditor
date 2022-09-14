@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.Models.IO.JascPalFile;
 
@@ -24,11 +24,11 @@ internal class JascFileParser : PaletteFileParser
         if (ValidateFile(fileType, magicBytes))
         {
             int colorCount = int.Parse(lines[2]);
-            SKColor[] colors = new SKColor[colorCount];
+            Color[] colors = new Color[colorCount];
             for (int i = 0; i < colorCount; i++)
             {
                 string[] colorData = lines[i + 3].Split(' ');
-                colors[i] = new SKColor(byte.Parse(colorData[0]), byte.Parse(colorData[1]), byte.Parse(colorData[2]));
+                colors[i] = new Color(byte.Parse(colorData[0]), byte.Parse(colorData[1]), byte.Parse(colorData[2]));
             }
 
             return new PaletteFileData(name, colors);
@@ -44,7 +44,7 @@ internal class JascFileParser : PaletteFileParser
         string fileContent = "JASC-PAL\n0100\n" + data.Colors.Length;
         for (int i = 0; i < data.Colors.Length; i++)
         {
-            fileContent += "\n" + data.Colors[i].Red + " " + data.Colors[i].Green + " " + data.Colors[i].Blue;
+            fileContent += "\n" + data.Colors[i].R + " " + data.Colors[i].G + " " + data.Colors[i].B;
         }
 
         await File.WriteAllTextAsync(path, fileContent);
@@ -60,7 +60,7 @@ internal class JascFileParser : PaletteFileParser
         }
         catch
         {
-            return new PaletteFileData("Corrupted", Array.Empty<SKColor>()) { IsCorrupted = true };
+            return new PaletteFileData("Corrupted", Array.Empty<Color>()) { IsCorrupted = true };
         }
     }
 

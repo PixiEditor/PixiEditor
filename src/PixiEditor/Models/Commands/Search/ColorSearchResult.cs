@@ -1,7 +1,4 @@
 ﻿using System.Windows.Media;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.ViewModels;
-using SkiaSharp;
 
 namespace PixiEditor.Models.Commands.Search;
 

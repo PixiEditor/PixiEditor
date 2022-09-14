@@ -1,5 +1,4 @@
 ﻿using System;
-using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
 public struct RectD : IEquatable<RectD>
@@ -107,6 +106,12 @@ public struct RectD : IEquatable<RectD>
         right = x + width;
         bottom = y + height;
     }
+    
+    public static RectD Create(VecI pos, VecI size)
+    {
+        return new RectD(pos.X, pos.Y, size.X, size.Y);
+    }
+    
     public static RectD FromSides(double left, double right, double top, double bottom)
     {
         return new RectD()
@@ -317,28 +322,7 @@ public struct RectD : IEquatable<RectD>
         };
     }
 
-    public static explicit operator SKRect(RectD rect)
-    {
-        return new SKRect((float)rect.left, (float)rect.top, (float)rect.right, (float)rect.bottom);
-    }
-
-    public static explicit operator SKRectI(RectD rect)
-    {
-        return new SKRectI((int)rect.left, (int)rect.top, (int)rect.right, (int)rect.bottom);
-    }
-
-    public static implicit operator RectD(SKRect rect)
-    {
-        return new RectD()
-        {
-            Left = rect.Left,
-            Right = rect.Right,
-            Top = rect.Top,
-            Bottom = rect.Bottom
-        };
-    }
-
-    public static implicit operator RectD(SKRectI rect)
+    public static explicit operator RectD(RectI rect)
     {
         return new RectD()
         {

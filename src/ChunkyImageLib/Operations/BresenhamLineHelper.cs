@@ -1,7 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
-using SkiaSharp;
 
 namespace ChunkyImageLib.Operations;
 public static class BresenhamLineHelper
