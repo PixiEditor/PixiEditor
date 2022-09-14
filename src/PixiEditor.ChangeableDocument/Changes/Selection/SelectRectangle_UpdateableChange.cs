@@ -35,10 +35,10 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         using var rectPath = new VectorPath() { FillType = PathFillType.EvenOdd };
         if (!rect.IsZeroArea)
         {
-            rectPath.MoveTo((Point)rect.TopLeft);
-            rectPath.LineTo((Point)rect.TopRight);
-            rectPath.LineTo((Point)rect.BottomRight);
-            rectPath.LineTo((Point)rect.BottomLeft);
+            rectPath.MoveTo(rect.TopLeft);
+            rectPath.LineTo(rect.TopRight);
+            rectPath.LineTo(rect.BottomRight);
+            rectPath.LineTo(rect.BottomLeft);
             rectPath.Close();
         }
 

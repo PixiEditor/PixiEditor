@@ -21,7 +21,7 @@ internal class ClsFileParser : PaletteFileParser
             }
             catch
             {
-                return new PaletteFileData("Corrupted", Array.Empty<SKColor>()) { IsCorrupted = true };
+                return new PaletteFileData("Corrupted", Array.Empty<Color>()) { IsCorrupted = true };
             }
 
             PaletteFileData data = new(

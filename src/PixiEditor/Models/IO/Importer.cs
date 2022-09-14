@@ -5,6 +5,8 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
@@ -87,15 +89,15 @@ internal class Importer : NotifyableObject
         int width = BitConverter.ToInt32(bytes, 0);
         int height = BitConverter.ToInt32(bytes, 4);
 
-        SKImageInfo info = new SKImageInfo(width, height, SKColorType.RgbaF16);
+        ImageInfo info = new ImageInfo(width, height, ColorType.RgbaF16);
         IntPtr ptr = Marshal.AllocHGlobal(bytes.Length - 8);
         try
         {
             Marshal.Copy(bytes, 8, ptr, bytes.Length - 8);
-            SKPixmap map = new(info, ptr);
-            SKSurface surface = SKSurface.Create(map);
+            Pixmap map = new(info, ptr);
+            DrawingSurface surface = DrawingSurface.Create(map);
             Surface finalSurface = new Surface(new VecI(width, height));
-            using SKPaint paint = new() { BlendMode = SKBlendMode.Src };
+            using Paint paint = new() { BlendMode = BlendMode.Src };
             surface.Draw(finalSurface.DrawingSurface.Canvas, 0, 0, paint);
             return finalSurface;
         }

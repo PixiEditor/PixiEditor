@@ -314,4 +314,15 @@ public struct RectI : IEquatable<RectI>
             Bottom = height
         };
     }
+    
+    public static RectI Create(int x, int y, int width, int height)
+    {
+        return new RectI()
+        {
+            Left = x,
+            Right = width,
+            Top = y,
+            Bottom = height
+        };
+    }
 }

@@ -36,11 +36,11 @@ internal class EllipseOperation : IDrawOperation
         if (strokeWidth == 1)
         {
             var ellipseList = EllipseHelper.GenerateEllipseFromRect(location);
-            ellipse = ellipseList.Select(a => (Point)a).ToArray();
+            ellipse = ellipseList.Select(a => new Point(a)).ToArray();
             if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
                 (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseIntoRegions(ellipseList, location);
-                ellipseFill = fill.Select(a => (Point)a).ToArray();
+                ellipseFill = fill.Select(a => new Point(a)).ToArray();
             }
         }
         else

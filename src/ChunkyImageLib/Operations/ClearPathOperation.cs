@@ -14,7 +14,7 @@ internal class ClearPathOperation : IDrawOperation
     public ClearPathOperation(VectorPath path, RectI? pathTightBounds = null)
     {
         this.path = new VectorPath(path);
-        this.pathTightBounds = (RectI)(pathTightBounds ?? path.TightBounds);
+        this.pathTightBounds = (pathTightBounds ?? (RectI)path.TightBounds);
     }
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)

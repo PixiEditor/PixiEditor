@@ -13,14 +13,14 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
     [GenerateUpdateableChangeActions]
     public SelectLasso_UpdateableChange(VecI point, SelectionMode mode)
     {
-        path.MoveTo((Point)point);
+        path.MoveTo(point);
         this.mode = mode;
     }
 
     [UpdateChangeMethod]
     public void Update(VecI point)
     {
-        path.LineTo((Point)point);
+        path.LineTo(point);
     }
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)

@@ -72,11 +72,11 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         pixelsToConfirm.Clear();
 
         Point[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
-        foreach (VecI pixel in line)
+        foreach (Point pixel in line)
         {
             pixelsToConfirm.Add(pixel);
         }
-        image.EnqueueDrawPixels(line.Select(point => (VecI)point), color, BlendMode.Src);
+        image.EnqueueDrawPixels(line.Select(point => new VecI((int)point.X, (int)point.Y)), color, BlendMode.Src);
 
         if (pointsCount >= 3 && IsLShape(pointsCount - 1) && !confirmedPixels.Contains(incomingPoints[pointsCount - 2]))
         {

@@ -32,7 +32,7 @@ internal class ClearSelectedArea_Change : Change
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
 
         RectD bounds = target.Selection.SelectionPath.Bounds;
-        RectI intBounds = (RectI)bounds.Intersect(SKRect.Create(0, 0, target.Size.X, target.Size.Y)).RoundOutwards();
+        RectI intBounds = (RectI)bounds.Intersect(new RectD(0, 0, target.Size.X, target.Size.Y)).RoundOutwards();
 
         image.EnqueueClearPath(target.Selection.SelectionPath, intBounds);
         var affChunks = image.FindAffectedChunks();

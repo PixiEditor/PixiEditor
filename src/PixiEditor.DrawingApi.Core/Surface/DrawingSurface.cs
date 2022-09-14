@@ -16,7 +16,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
         {
         }
         
-        public DrawingSurface Create(Pixmap imageInfo)
+        public static DrawingSurface Create(Pixmap imageInfo)
         {
             return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo);
         }

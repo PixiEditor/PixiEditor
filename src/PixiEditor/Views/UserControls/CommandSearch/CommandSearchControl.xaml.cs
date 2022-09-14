@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.DataHolders;
@@ -131,7 +132,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
     {
         e.Handled = true;
 
-        OneOf<SKColor, Error, None> result;
+        OneOf<Color, Error, None> result;
 
         if (e.Key == Key.Enter && SelectedResult is not null)
         {
@@ -179,28 +180,28 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         }
     }
 
-    private void SwitchColor(SKColor color)
+    private void SwitchColor(Color color)
     {
         if (SearchTerm.StartsWith('#'))
         {
-            if (color.Alpha == 255)
+            if (color.A == 255)
             {
-                SearchTerm = $"rgb({color.Red},{color.Green},{color.Blue})";
+                SearchTerm = $"rgb({color.R},{color.G},{color.B})";
             }
             else
             {
-                SearchTerm = $"rgba({color.Red},{color.Green},{color.Blue},{color.Alpha})";
+                SearchTerm = $"rgba({color.R},{color.G},{color.B},{color.A})";
             }
         }
         else
         {
-            if (color.Alpha == 255)
+            if (color.A == 255)
             {
-                SearchTerm = $"#{color.Red:X2}{color.Green:X2}{color.Blue:X2}";
+                SearchTerm = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
             }
             else
             {
-                SearchTerm = $"#{color.Red:X2}{color.Green:X2}{color.Blue:X2}{color.Alpha:X2}";
+                SearchTerm = $"#{color.R:X2}{color.G:X2}{color.B:X2}{color.A:X2}";
             }
         }
     }
@@ -211,7 +212,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
             return;
         if (SelectedResult is null)
         {
-            SelectedResult = Results.Where(x => x.CanExecute).First();
+            SelectedResult = Results.First(x => x.CanExecute);
             return;
         }
 
