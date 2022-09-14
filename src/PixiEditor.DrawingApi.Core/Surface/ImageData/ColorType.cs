@@ -1,6 +1,4 @@
-﻿using SkiaSharp;
-
-namespace PixiEditor.DrawingApi.Core.Surface.ImageData;
+﻿namespace PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 /// <summary>Describes how to interpret the components of a pixel.</summary>
 public enum ColorType

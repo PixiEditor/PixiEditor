@@ -1,6 +1,5 @@
 ﻿using ComputeSharp;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using SkiaSharp;
 
 namespace ChunkyImageLib.Shaders;
 

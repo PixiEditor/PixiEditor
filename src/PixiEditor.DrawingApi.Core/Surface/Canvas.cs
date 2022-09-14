@@ -3,7 +3,6 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
-using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Surface
 {

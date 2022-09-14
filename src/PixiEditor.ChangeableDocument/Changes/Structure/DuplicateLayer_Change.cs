@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 internal class DuplicateLayer_Change : Change

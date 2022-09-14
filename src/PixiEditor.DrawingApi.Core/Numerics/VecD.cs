@@ -1,5 +1,4 @@
 ﻿using System;
-using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
 
@@ -183,42 +182,12 @@ public struct VecD : IEquatable<VecD>
     {
         return !(a.X == b.X && a.Y == b.Y);
     }
-    public static implicit operator VecD(SKPoint point)
-    {
-        return new VecD(point.X, point.Y);
-    }
-    public static implicit operator VecD(SKSize size)
-    {
-        return new VecD(size.Width, size.Height);
-    }
-    public static implicit operator VecD(SKPointI point)
-    {
-        return new VecD(point.X, point.Y);
-    }
-    public static implicit operator VecD(SKSizeI size)
-    {
-        return new VecD(size.Width, size.Height);
-    }
+
     public static explicit operator VecI(VecD vec)
     {
         return new VecI((int)vec.X, (int)vec.Y);
     }
-    public static explicit operator SKPointI(VecD vec)
-    {
-        return new SKPointI((int)vec.X, (int)vec.Y);
-    }
-    public static explicit operator SKPoint(VecD vec)
-    {
-        return new SKPoint((float)vec.X, (float)vec.Y);
-    }
-    public static explicit operator SKSizeI(VecD vec)
-    {
-        return new SKSizeI((int)vec.X, (int)vec.Y);
-    }
-    public static explicit operator SKSize(VecD vec)
-    {
-        return new SKSize((float)vec.X, (float)vec.Y);
-    }
+    
     public static implicit operator VecD((double, double) tuple)
     {
         return new VecD(tuple.Item1, tuple.Item2);

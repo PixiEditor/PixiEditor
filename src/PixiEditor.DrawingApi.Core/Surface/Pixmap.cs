@@ -1,7 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Surface;
 

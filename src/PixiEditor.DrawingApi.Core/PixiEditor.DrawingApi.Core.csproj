@@ -6,8 +6,4 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>10</LangVersion>
     </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="2.80.3" />
-  </ItemGroup>
 </Project>

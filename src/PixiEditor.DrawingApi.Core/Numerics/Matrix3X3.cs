@@ -1,8 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
 using PixiEditor.DrawingApi.Core.Bridge;
-using PixiEditor.DrawingApi.Core.Surface;
-using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
 

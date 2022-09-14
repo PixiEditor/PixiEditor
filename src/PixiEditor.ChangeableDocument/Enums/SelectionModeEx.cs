@@ -1,5 +1,4 @@
 ﻿using PixiEditor.DrawingApi.Core.Surface.Vector;
-using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Enums;
 internal static class SelectionModeEx

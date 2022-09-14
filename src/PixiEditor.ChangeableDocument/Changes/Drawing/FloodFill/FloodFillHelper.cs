@@ -1,8 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using SkiaSharp;
-using ChunkyImageLib;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;

@@ -1,6 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;

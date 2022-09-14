@@ -2,7 +2,6 @@
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
-using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 

@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using SkiaSharp;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
