@@ -28,7 +28,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
 
         public Image Snapshot()
         {
-            return DrawingBackendApi.Current.ImageOperations.Snapshot(this);
+            return DrawingBackendApi.Current.ImageImplementation.Snapshot(this);
         }
 
         public Pixmap PeekPixels()

@@ -27,7 +27,7 @@ public struct ImageInfo : System.IEquatable<ImageInfo>
 
     static unsafe ImageInfo()
     {
-      DrawingBackendApi.Current.ImageOperations.GetColorShifts(ref PlatformColorAlphaShift, ref PlatformColorRedShift, ref PlatformColorGreenShift, ref PlatformColorBlueShift);
+      DrawingBackendApi.Current.ImageImplementation.GetColorShifts(ref PlatformColorAlphaShift, ref PlatformColorRedShift, ref PlatformColorGreenShift, ref PlatformColorBlueShift);
     }
 
     /// <summary>Gets or sets the width.</summary>

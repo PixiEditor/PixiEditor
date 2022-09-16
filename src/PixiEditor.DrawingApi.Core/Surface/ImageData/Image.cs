@@ -11,24 +11,29 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
     ///     <para />
     ///     <para>An image always has a non-zero dimensions. If there is a request to create a new image, either directly or via a surface, and either of the requested dimensions are zero, then <see langword="null" /> will be returned.</para>
     /// </remarks>
-    public class Image : PixelDataObject
+    public class Image : NativeObject
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int Width => DrawingBackendApi.Current.ImageImplementation.GetWidth(ObjectPointer);
         
+        public int Height => DrawingBackendApi.Current.ImageImplementation.GetHeight(ObjectPointer);
+        
+        public Image(IntPtr objPtr) : base(objPtr)
+        {
+        }
+
         public override void Dispose()
         {
-            DrawingBackendApi.Current.ImageOperations.DisposeImage(this);
+            DrawingBackendApi.Current.ImageImplementation.DisposeImage(this);
         }
 
         public static Image FromEncodedData(string path)
         {
-            return DrawingBackendApi.Current.ImageOperations.FromEncodedData(path);
+            return DrawingBackendApi.Current.ImageImplementation.FromEncodedData(path);
         }
 
         public ImgData Encode()
         {
-            return DrawingBackendApi.Current.ImageOperations.Encode(this);
+            return DrawingBackendApi.Current.ImageImplementation.Encode(this);
         }
     }
 }

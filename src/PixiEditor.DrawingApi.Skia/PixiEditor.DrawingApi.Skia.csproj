@@ -9,4 +9,8 @@
       <PackageReference Include="SkiaSharp" Version="2.80.3" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj" />
+    </ItemGroup>
+
 </Project>
