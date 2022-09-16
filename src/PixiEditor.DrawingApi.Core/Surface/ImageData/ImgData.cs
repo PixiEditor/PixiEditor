@@ -10,6 +10,11 @@ public class ImgData : NativeObject
     public ImgData(IntPtr objPtr) : base(objPtr)
     {
     }
+    
+    ~ImgData()
+    {
+        Dispose();
+    }
 
     public override void Dispose()
     {

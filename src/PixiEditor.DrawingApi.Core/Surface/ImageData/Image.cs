@@ -20,6 +20,11 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
         public Image(IntPtr objPtr) : base(objPtr)
         {
         }
+        
+        ~Image()
+        {
+            Dispose();
+        }
 
         public override void Dispose()
         {

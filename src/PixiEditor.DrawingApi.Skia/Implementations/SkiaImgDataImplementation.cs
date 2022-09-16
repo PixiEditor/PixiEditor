@@ -22,12 +22,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void SaveTo(ImgData imgData, FileStream stream)
         {
-            throw new NotImplementedException();
+            SKData data = ManagedImgDataObjects[imgData.ObjectPointer];
+            data.SaveTo(stream);
         }
 
         public Stream AsStream(ImgData imgData)
         {
-            throw new NotImplementedException();
+            SKData data = ManagedImgDataObjects[imgData.ObjectPointer];
+            return data.AsStream();
         }
     }
 }
