@@ -7,13 +7,11 @@ using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations
 {
-    public class SkiaImageImplementation : IImageImplementation
+    public class SkiaImageImplementation : SkObjectImplementation<SKImage>, IImageImplementation
     {
-        internal readonly Dictionary<IntPtr, SKImage> ManagedImages = new Dictionary<IntPtr, SKImage>();
-
-        private readonly SkiaImgDataImplementation _imgImplementation;
+        private readonly SkObjectImplementation<SKData> _imgImplementation;
         
-        public SkiaImageImplementation(SkiaImgDataImplementation imgDataImplementation)
+        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation)
         {
             _imgImplementation = imgDataImplementation;
         }
@@ -25,14 +23,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void DisposeImage(Image image)
         {
-            ManagedImages[image.ObjectPointer].Dispose();
-            ManagedImages.Remove(image.ObjectPointer);
+            ManagedInstances[image.ObjectPointer].Dispose();
+            ManagedInstances.Remove(image.ObjectPointer);
         }
 
         public Image FromEncodedData(string path)
         {
             var nativeImg = SKImage.FromEncodedData(path);
-            ManagedImages[nativeImg.Handle] = nativeImg;
+            ManagedInstances[nativeImg.Handle] = nativeImg;
             return new Image(nativeImg.Handle);
         }
 
@@ -47,20 +45,20 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public ImgData Encode(Image image)
         {
-            var native = ManagedImages[image.ObjectPointer];
+            var native = ManagedInstances[image.ObjectPointer];
             var encoded = native.Encode();
-            _imgImplementation.ManagedImgDataObjects[encoded.Handle] = encoded;
+            _imgImplementation.ManagedInstances[encoded.Handle] = encoded;
             return new ImgData(encoded.Handle);
         }
 
         public int GetWidth(IntPtr objectPointer)
         {
-            return ManagedImages[objectPointer].Width;
+            return ManagedInstances[objectPointer].Width;
         }
 
         public int GetHeight(IntPtr objectPointer)
         {
-            return ManagedImages[objectPointer].Height;
+            return ManagedInstances[objectPointer].Height;
         }
     }
 }

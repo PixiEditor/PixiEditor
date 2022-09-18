@@ -18,7 +18,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public float StrokeWidth { get; set; }
         
         
-        internal Paint(IntPtr objPtr) : base(objPtr)
+        public Paint(IntPtr objPtr) : base(objPtr)
         {
         }
         

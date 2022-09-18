@@ -7,28 +7,26 @@ using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations
 {
-    public sealed class SkiaImgDataImplementation : IImgDataImplementation
+    public sealed class SkiaImgDataImplementation : SkObjectImplementation<SKData>, IImgDataImplementation
     {
-        internal readonly Dictionary<IntPtr, SKData> ManagedImgDataObjects = new Dictionary<IntPtr, SKData>();
-
         public void Dispose(IntPtr objectPointer)
         {
-            if (ManagedImgDataObjects.ContainsKey(objectPointer))
+            if (ManagedInstances.ContainsKey(objectPointer))
             {
-                ManagedImgDataObjects[objectPointer].Dispose();
-                ManagedImgDataObjects.Remove(objectPointer);
+                ManagedInstances[objectPointer].Dispose();
+                ManagedInstances.Remove(objectPointer);
             }
         }
 
         public void SaveTo(ImgData imgData, FileStream stream)
         {
-            SKData data = ManagedImgDataObjects[imgData.ObjectPointer];
+            SKData data = ManagedInstances[imgData.ObjectPointer];
             data.SaveTo(stream);
         }
 
         public Stream AsStream(ImgData imgData)
         {
-            SKData data = ManagedImgDataObjects[imgData.ObjectPointer];
+            SKData data = ManagedInstances[imgData.ObjectPointer];
             return data.AsStream();
         }
     }

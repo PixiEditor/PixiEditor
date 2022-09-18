@@ -10,7 +10,7 @@ namespace PixiEditor.DrawingApi.Skia
         public IColorImplementation ColorImplementation { get; }
         public IImageImplementation ImageImplementation { get; }
         public IImgDataImplementation ImgDataImplementation { get; }
-        public ICanvasOperations CanvasOperations { get; }
+        public ICanvasImplementation CanvasImplementation { get; }
         public IPaintImplementation PaintImplementation { get; }
         public IVectorPathImplementation PathImplementation { get; }
         public IMatrix3X3Implementation MatrixImplementation { get; }
