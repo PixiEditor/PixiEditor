@@ -85,7 +85,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             ManagedInstances[objPtr].DrawPoints(
                 (SKPointMode)pointMode,
-                points,
+                CastUtility.UnsafeArrayCast<Point, SKPoint>(points),
                 _paintImpl[paint.ObjectPointer]);
         }
 
@@ -136,7 +136,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void DrawColor(IntPtr objPtr, Color color, BlendMode paintBlendMode)
         {
-            ManagedInstances[objPtr].DrawColor(color, (SKBlendMode)paintBlendMode);
+            ManagedInstances[objPtr].DrawColor(color.ToSKColor(), (SKBlendMode)paintBlendMode);
         }
 
         public void RotateRadians(IntPtr objPtr, float radians, float centerX, float centerY)
@@ -148,7 +148,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             ManagedInstances[objPtr].DrawImage(
                 _imageImpl[image.ObjectPointer],
-                rect, 
+                rect.ToSKRect(), 
                 _paintImpl[paint.ObjectPointer]);
         }
 
