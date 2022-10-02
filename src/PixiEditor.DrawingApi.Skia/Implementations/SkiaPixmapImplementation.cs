@@ -29,5 +29,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[pixmap.Handle] = pixmap;
             return pixmap.Handle;
         }
+
+        public Pixmap CreateFrom(SKPixmap pixmap)
+        {
+            ManagedInstances[pixmap.Handle] = pixmap;
+            return new Pixmap(pixmap.Info.ToImageInfo(), pixmap.GetPixels());
+        }
     }
 }

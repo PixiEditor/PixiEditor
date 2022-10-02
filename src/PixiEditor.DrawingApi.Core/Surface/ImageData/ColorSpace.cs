@@ -5,7 +5,7 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 public class ColorSpace : NativeObject
 {
-    internal ColorSpace(IntPtr objPtr) : base(objPtr)
+    public ColorSpace(IntPtr objPtr) : base(objPtr)
     {
     }
     

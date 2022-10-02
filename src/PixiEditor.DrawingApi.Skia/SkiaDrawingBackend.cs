@@ -38,6 +38,8 @@ namespace PixiEditor.DrawingApi.Skia
             MatrixImplementation = new SkiaMatrixImplementation();
             
             PixmapImplementation = new SkiaPixmapImplementation();
+
+            ColorSpaceImplementation = new SkiaColorSpaceImplementation();
             
             CanvasImplementation = new SkiaCanvasImplementation(paintImpl, imgImpl, pathImpl);
         }

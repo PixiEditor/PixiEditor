@@ -18,7 +18,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public Pixmap PeekPixels(DrawingSurface drawingSurface)
         {
             SKPixmap pixmap = ManagedInstances[drawingSurface.ObjectPointer].PeekPixels();
-            _pixmapImplementation.CreateFrom()
+            return _pixmapImplementation.CreateFrom(pixmap);
         }
 
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes)

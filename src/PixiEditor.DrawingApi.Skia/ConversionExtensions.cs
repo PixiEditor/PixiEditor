@@ -49,5 +49,13 @@ namespace PixiEditor.DrawingApi.Skia
         {
             return new SKImageInfo(info.Width, info.Height, (SKColorType)info.ColorType, (SKAlphaType)info.AlphaType);
         }
+
+        public static ImageInfo ToImageInfo(this SKImageInfo info)
+        {
+            return new ImageInfo(info.Width, info.Height, 
+                (ColorType)info.ColorType, 
+                (AlphaType)info.AlphaType,
+                info.ColorSpace)
+        }
     }
 }
