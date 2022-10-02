@@ -12,7 +12,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public DrawingSurfaceProperties Properties { get; private set; }
         public Canvas Canvas { get; private set; }
         
-        internal DrawingSurface(IntPtr objPtr) : base(objPtr)
+        public DrawingSurface(IntPtr objPtr) : base(objPtr)
         {
         }
         
