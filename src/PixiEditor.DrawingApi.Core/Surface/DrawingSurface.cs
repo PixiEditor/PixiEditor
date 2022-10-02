@@ -18,12 +18,12 @@ namespace PixiEditor.DrawingApi.Core.Surface
         
         public static DrawingSurface Create(Pixmap imageInfo)
         {
-            return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo);
+            return DrawingBackendApi.Current.SurfaceImplementation.Create(imageInfo);
         }
         
         public void Draw(Canvas drawingSurfaceCanvas, int x, int y, Paint drawingPaint)
         {
-            DrawingBackendApi.Current.SurfaceOperations.Draw(this, drawingSurfaceCanvas, x, y, drawingPaint);
+            DrawingBackendApi.Current.SurfaceImplementation.Draw(this, drawingSurfaceCanvas, x, y, drawingPaint);
         }
 
         public Image Snapshot()
@@ -33,27 +33,27 @@ namespace PixiEditor.DrawingApi.Core.Surface
 
         public Pixmap PeekPixels()
         {
-            return DrawingBackendApi.Current.SurfaceOperations.PeekPixels(this);
+            return DrawingBackendApi.Current.SurfaceImplementation.PeekPixels(this);
         }
         
         public bool ReadPixels(ImageInfo dstInfo, IntPtr dstPixels, int dstRowBytes, int srcX, int srcY)
         {
-            return DrawingBackendApi.Current.SurfaceOperations.ReadPixels(this, dstInfo, dstPixels, dstRowBytes, srcX, srcY);
+            return DrawingBackendApi.Current.SurfaceImplementation.ReadPixels(this, dstInfo, dstPixels, dstRowBytes, srcX, srcY);
         }
         
         public DrawingSurface Create(ImageInfo imageInfo)
         {
-            return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo);
+            return DrawingBackendApi.Current.SurfaceImplementation.Create(imageInfo);
         }
 
         public static DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes)
         {
-            return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo, pixels, rowBytes);
+            return DrawingBackendApi.Current.SurfaceImplementation.Create(imageInfo, pixels, rowBytes);
         }
         
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
         {
-            return DrawingBackendApi.Current.SurfaceOperations.Create(imageInfo, pixelBuffer);
+            return DrawingBackendApi.Current.SurfaceImplementation.Create(imageInfo, pixelBuffer);
         }
 
         public override void Dispose()

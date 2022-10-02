@@ -4,7 +4,7 @@ using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.Operations;
 
-public interface ISurfaceOperations
+public interface ISurfaceImplementation
 {
     public Pixmap PeekPixels(DrawingSurface drawingSurface);
     public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes);

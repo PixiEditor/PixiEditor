@@ -13,7 +13,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge
         public IVectorPathImplementation PathImplementation { get; }
         public IMatrix3X3Implementation MatrixImplementation { get; }
         public IPixmapImplementation PixmapImplementation { get; }
-        public ISurfaceOperations SurfaceOperations { get; }
+        public ISurfaceImplementation SurfaceImplementation { get; }
         public IColorSpaceImplementation ColorSpaceImplementation { get; }
         public IImgDataImplementation ImgDataImplementation { get; }
         public IBitmapImplementation BitmapImplementation { get; }

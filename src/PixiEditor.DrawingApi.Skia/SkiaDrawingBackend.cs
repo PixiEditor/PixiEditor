@@ -15,22 +15,29 @@ namespace PixiEditor.DrawingApi.Skia
         public IVectorPathImplementation PathImplementation { get; }
         public IMatrix3X3Implementation MatrixImplementation { get; }
         public IPixmapImplementation PixmapImplementation { get; }
-        public ISurfaceOperations SurfaceOperations { get; }
+        public ISurfaceImplementation SurfaceImplementation { get; }
         public IColorSpaceImplementation ColorSpaceImplementation { get; }
         public IBitmapImplementation BitmapImplementation { get; }
         
         public SkiaDrawingBackend()
         {
             ColorImplementation = new SkiaColorImplementation();
+            
             SkiaImgDataImplementation dataImpl = new SkiaImgDataImplementation();
             ImgDataImplementation = dataImpl;
+            
             SkiaImageImplementation imgImpl = new SkiaImageImplementation(dataImpl);
             ImageImplementation = imgImpl;
+            
             SkiaPaintImplementation paintImpl = new SkiaPaintImplementation();
             PaintImplementation = paintImpl;
             
             SkiaPathImplementation pathImpl = new SkiaPathImplementation();
             PathImplementation = pathImpl;
+            
+            MatrixImplementation = new SkiaMatrixImplementation();
+            
+            PixmapImplementation = new SkiaPixmapImplementation();
             
             CanvasImplementation = new SkiaCanvasImplementation(paintImpl, imgImpl, pathImpl);
         }

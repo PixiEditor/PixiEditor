@@ -8,6 +8,6 @@ public interface IPixmapImplementation
 {
     public void Dispose(IntPtr objectPointer);
     public IntPtr GetPixels(IntPtr objectPointer);
-    public Span<T> GetPixelSpan<T>(Pixmap pixmap);
+    public Span<T> GetPixelSpan<T>(Pixmap pixmap) where T : unmanaged;
     public IntPtr Construct(IntPtr dataPtr, ImageInfo imgInfo);
 }
