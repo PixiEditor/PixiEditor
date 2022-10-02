@@ -17,9 +17,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private readonly SkObjectImplementation<SKBitmap> _bitmapImpl;
         private readonly SkObjectImplementation<SKPath> _pathImpl;
 
-        public SkiaCanvasImplementation(SkObjectImplementation<SKPaint> paintImpl)
+        public SkiaCanvasImplementation(SkObjectImplementation<SKPaint> paintImpl, SkObjectImplementation<SKSurface> surfaceImpl, SkObjectImplementation<SKImage> imageImpl, SkObjectImplementation<SKBitmap> bitmapImpl, SkObjectImplementation<SKPath> pathImpl)
         {
             _paintImpl = paintImpl;
+            _surfaceImpl = surfaceImpl;
+            _imageImpl = imageImpl;
+            _bitmapImpl = bitmapImpl;
+            _pathImpl = pathImpl;
         }
         
         public void DrawPixel(IntPtr objectPointer, int posX, int posY, Paint drawingPaint)
@@ -155,6 +159,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public void DrawBitmap(IntPtr objPtr, Bitmap bitmap, int x, int y)
         {
             ManagedInstances[objPtr].DrawBitmap(_bitmapImpl[bitmap.ObjectPointer], x, y);
+        }
+
+        public void Dispose(IntPtr objectPointer)
+        {
+            ManagedInstances[objectPointer].Dispose();
         }
     }
 }

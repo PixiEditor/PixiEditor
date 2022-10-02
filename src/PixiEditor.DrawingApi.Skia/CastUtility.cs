@@ -9,10 +9,12 @@ namespace PixiEditor.DrawingApi.Skia
             unsafe
             {
                 T2[] target = new T2[source.Length];
-                fixed (int* p = &target)
+                fixed (void* p = &target)
                 {
                     Unsafe.Copy(p, ref source);
                 }
+                
+                return target;
             }
         }
     }

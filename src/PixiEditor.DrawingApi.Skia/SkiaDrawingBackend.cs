@@ -24,7 +24,15 @@ namespace PixiEditor.DrawingApi.Skia
             ColorImplementation = new SkiaColorImplementation();
             SkiaImgDataImplementation dataImpl = new SkiaImgDataImplementation();
             ImgDataImplementation = dataImpl;
-            ImageImplementation = new SkiaImageImplementation(dataImpl);
+            SkiaImageImplementation imgImpl = new SkiaImageImplementation(dataImpl);
+            ImageImplementation = imgImpl;
+            SkiaPaintImplementation paintImpl = new SkiaPaintImplementation();
+            PaintImplementation = paintImpl;
+            
+            SkiaPathImplementation pathImpl = new SkiaPathImplementation();
+            PathImplementation = pathImpl;
+            
+            CanvasImplementation = new SkiaCanvasImplementation(paintImpl, imgImpl, pathImpl);
         }
         
         public void Setup()

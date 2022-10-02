@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Bridge;
+﻿using System;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Surface.Vector;
@@ -46,6 +47,10 @@ public class VectorPath : NativeObject
 
     public bool IsEmpty => VerbCount == 0;
     public RectD Bounds => DrawingBackendApi.Current.PathImplementation.GetBounds(this);
+    
+    public VectorPath(IntPtr nativePointer) : base(nativePointer)
+    {
+    }
 
     public VectorPath() : base(DrawingBackendApi.Current.PathImplementation.Create())
     {
