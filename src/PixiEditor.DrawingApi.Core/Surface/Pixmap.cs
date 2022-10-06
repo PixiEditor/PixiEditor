@@ -28,7 +28,7 @@ public class Pixmap : NativeObject
         return DrawingBackendApi.Current.PixmapImplementation.GetPixels(ObjectPointer);
     }
 
-    public Span<T> GetPixelSpan<T>()
+    public Span<T> GetPixelSpan<T>() where T : unmanaged
     {
         return DrawingBackendApi.Current.PixmapImplementation.GetPixelSpan<T>(this);
     }

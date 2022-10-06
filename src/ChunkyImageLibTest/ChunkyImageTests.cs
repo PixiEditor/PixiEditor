@@ -1,11 +1,8 @@
-﻿using System;
-using System.IO;
-using ChunkyImageLib;
+﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
-using SkiaSharp;
 using Xunit;
 
 namespace ChunkyImageLibTest;

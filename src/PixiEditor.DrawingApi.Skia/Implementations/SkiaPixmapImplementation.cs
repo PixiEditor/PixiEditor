@@ -8,9 +8,18 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 {
     public class SkiaPixmapImplementation : SkObjectImplementation<SKPixmap>, IPixmapImplementation
     {
+        private readonly SkiaColorSpaceImplementation _colorSpaceImplementation;
+        
+        public SkiaPixmapImplementation(SkiaColorSpaceImplementation colorSpaceImplementation)
+        {
+            _colorSpaceImplementation = colorSpaceImplementation;
+        }
+        
         public void Dispose(IntPtr objectPointer)
         {
             ManagedInstances[objectPointer].Dispose();
+            
+            ManagedInstances.Remove(objectPointer);
         }
 
         public IntPtr GetPixels(IntPtr objectPointer)
@@ -33,7 +42,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public Pixmap CreateFrom(SKPixmap pixmap)
         {
             ManagedInstances[pixmap.Handle] = pixmap;
-            return new Pixmap(pixmap.Info.ToImageInfo(), pixmap.GetPixels());
+            return new Pixmap(pixmap.Info.ToImageInfo(_colorSpaceImplementation), pixmap.GetPixels());
         }
     }
 }

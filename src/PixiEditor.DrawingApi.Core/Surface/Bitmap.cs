@@ -5,7 +5,7 @@ namespace PixiEditor.DrawingApi.Core.Surface;
 
 public class Bitmap : NativeObject
 {
-    internal Bitmap(IntPtr objPtr) : base(objPtr)
+    public Bitmap(IntPtr objPtr) : base(objPtr)
     {
     }
 

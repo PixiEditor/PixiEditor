@@ -17,7 +17,9 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void Dispose(IntPtr paintObjPointer)
         {
-            throw new NotImplementedException();
+            SKPaint paint = ManagedInstances[paintObjPointer];
+            paint.Dispose();
+            ManagedInstances.Remove(paintObjPointer);
         }
 
         public Paint Clone(IntPtr paintObjPointer)

@@ -32,6 +32,8 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public void Dispose(VectorPath path)
         {
             ManagedInstances[path.ObjectPointer].Dispose();
+            
+            ManagedInstances.Remove(path.ObjectPointer);
         }
 
         public bool IsPathOval(VectorPath path)

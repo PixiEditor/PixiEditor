@@ -2,6 +2,7 @@
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Skia.Implementations;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia
@@ -50,12 +51,14 @@ namespace PixiEditor.DrawingApi.Skia
             return new SKImageInfo(info.Width, info.Height, (SKColorType)info.ColorType, (SKAlphaType)info.AlphaType);
         }
 
-        public static ImageInfo ToImageInfo(this SKImageInfo info)
+        public static ImageInfo ToImageInfo(this SKImageInfo info, SkiaColorSpaceImplementation colorSpaceImpl)
         {
-            return new ImageInfo(info.Width, info.Height, 
-                (ColorType)info.ColorType, 
+            ColorSpace cs = new ColorSpace(info.ColorSpace.Handle);
+            colorSpaceImpl.ManagedInstances[info.ColorSpace.Handle] = info.ColorSpace;
+            return new ImageInfo(info.Width, info.Height,
+                (ColorType)info.ColorType,
                 (AlphaType)info.AlphaType,
-                info.ColorSpace)
+                cs);
         }
     }
 }

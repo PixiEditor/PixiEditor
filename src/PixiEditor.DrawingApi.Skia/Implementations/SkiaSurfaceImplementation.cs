@@ -9,10 +9,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public class SkiaSurfaceImplementation : SkObjectImplementation<SKSurface>, ISurfaceImplementation
     {
         private readonly SkiaPixmapImplementation _pixmapImplementation;
+        private readonly SkiaCanvasImplementation _canvasImplementation;
+        private readonly SkiaPaintImplementation _paintImplementation;
         
-        public SkiaSurfaceImplementation(SkiaPixmapImplementation pixmapImplementation)
+        public SkiaSurfaceImplementation(SkiaPixmapImplementation pixmapImplementation, SkiaCanvasImplementation canvasImplementation, SkiaPaintImplementation paintImplementation)
         {
             _pixmapImplementation = pixmapImplementation;
+            _canvasImplementation = canvasImplementation;
+            _paintImplementation = paintImplementation;
         }
         
         public Pixmap PeekPixels(DrawingSurface drawingSurface)
@@ -38,7 +42,9 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void Draw(DrawingSurface drawingSurface, Canvas surfaceToDraw, int x, int y, Paint drawingPaint)
         {
-            ManagedInstances[drawingSurface.ObjectPointer].Draw(surfaceToDraw, x, y, drawingPaint);
+            SKCanvas canvas = _canvasImplementation[surfaceToDraw.ObjectPointer];
+            SKPaint paint = _paintImplementation[drawingPaint.ObjectPointer];
+            ManagedInstances[drawingSurface.ObjectPointer].Draw(canvas, x, y, paint);
         }
 
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
@@ -51,9 +57,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public DrawingSurface Create(Pixmap pixmap)
         {
-            SKSurface skSurface = SKSurface.Create(pixmap);
+            SKPixmap skPixmap = _pixmapImplementation[pixmap.ObjectPointer];
+            SKSurface skSurface = SKSurface.Create(skPixmap);
             DrawingSurface surface = new DrawingSurface(skSurface.Handle);
             ManagedInstances[skSurface.Handle] = skSurface;
+            return surface;
         }
 
         public DrawingSurface Create(ImageInfo imageInfo)
