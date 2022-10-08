@@ -73,7 +73,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void Translate(IntPtr objPtr, float translationX, float translationY)
         {
-            ManagedInstances[objPtr].Scale(translationX, translationY);
+            ManagedInstances[objPtr].Translate(translationX, translationY);
         }
 
         public void DrawPath(IntPtr objPtr, VectorPath path, Paint paint)

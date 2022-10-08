@@ -12,10 +12,6 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public IntPtr CreatePaint()
         {
             SKPaint skPaint = new SKPaint();
-            skPaint.IsAntialias = false;
-            skPaint.BlendMode = SKBlendMode.Src;
-            skPaint.FilterQuality = SKFilterQuality.None;
-            
             ManagedInstances[skPaint.Handle] = skPaint;
             return skPaint.Handle;
         }

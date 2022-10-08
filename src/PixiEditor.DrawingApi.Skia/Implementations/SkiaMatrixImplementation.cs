@@ -15,17 +15,18 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public Matrix3X3 Concat(in Matrix3X3 first, in Matrix3X3 second)
         {
-            throw new System.NotImplementedException();
+            return first.ToSkMatrix().PreConcat(second.ToSkMatrix()).ToMatrix3X3();
         }
 
         public Matrix3X3 PostConcat(in Matrix3X3 first, in Matrix3X3 second)
         {
-            throw new System.NotImplementedException();
+            return first.ToSkMatrix().PostConcat(second.ToSkMatrix()).ToMatrix3X3();
         }
 
         public VecD MapPoint(Matrix3X3 matrix, int p0, int p1)
         {
-            throw new System.NotImplementedException();
+            var mapped = matrix.ToSkMatrix().MapPoint(p0, p1);
+            return new VecD(mapped.X, mapped.Y);
         }
     }
 }
