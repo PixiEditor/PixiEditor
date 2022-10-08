@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.DrawingApi.Core.Surface;
+﻿using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+
+namespace PixiEditor.DrawingApi.Core.Surface;
 
 /// <summary>Various options for <see cref="Paint.StrokeCap" />.</summary>
 /// <remarks>This is the treatment that is applied to the beginning and end of each non-closed contour (e.g. lines).</remarks>

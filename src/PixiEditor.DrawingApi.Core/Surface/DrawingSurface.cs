@@ -1,19 +1,17 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace PixiEditor.DrawingApi.Core.Surface
 {
     public class DrawingSurface : NativeObject
     {
-        public float Width { get; set; }
-        public float Height { get; set; }
-        
-        public DrawingSurfaceProperties Properties { get; private set; }
         public Canvas Canvas { get; private set; }
         
-        public DrawingSurface(IntPtr objPtr) : base(objPtr)
+        public DrawingSurface(IntPtr objPtr, Canvas canvas) : base(objPtr)
         {
+            Canvas = canvas;
         }
         
         public static DrawingSurface Create(Pixmap imageInfo)
@@ -41,7 +39,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
             return DrawingBackendApi.Current.SurfaceImplementation.ReadPixels(this, dstInfo, dstPixels, dstRowBytes, srcX, srcY);
         }
         
-        public DrawingSurface Create(ImageInfo imageInfo)
+        public static DrawingSurface Create(ImageInfo imageInfo)
         {
             return DrawingBackendApi.Current.SurfaceImplementation.Create(imageInfo);
         }
@@ -51,13 +49,14 @@ namespace PixiEditor.DrawingApi.Core.Surface
             return DrawingBackendApi.Current.SurfaceImplementation.Create(imageInfo, pixels, rowBytes);
         }
         
-        public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
+        public static DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
         {
             return DrawingBackendApi.Current.SurfaceImplementation.Create(imageInfo, pixelBuffer);
         }
 
         public override void Dispose()
         {
+            DrawingBackendApi.Current.SurfaceImplementation.Dispose(this);
         }
     }
 }

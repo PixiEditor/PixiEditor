@@ -32,9 +32,9 @@ internal class ReplaceColorOperation : IDrawOperation
 
     private static void ReplaceColor(HlslColorBounds oldColorBounds, Color newColor, Chunk chunk)
     {
-        Span<UInt2> span = chunk.Surface.DrawingSurface.PeekPixels().GetPixelSpan<uint2>();
+        Span<UInt2> span = chunk.Surface.DrawingSurface.PeekPixels().GetPixelSpan<UInt2>();
         using var texture = GraphicsDevice.GetDefault()
-            .AllocateReadWriteTexture2D<uint2>(chunk.PixelSize.X, chunk.PixelSize.Y);
+            .AllocateReadWriteTexture2D<UInt2>(chunk.PixelSize.X, chunk.PixelSize.Y);
 
         texture.CopyFrom(span);
 

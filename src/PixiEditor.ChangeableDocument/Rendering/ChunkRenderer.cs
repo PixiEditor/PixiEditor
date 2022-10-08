@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 

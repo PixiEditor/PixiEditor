@@ -50,11 +50,21 @@ namespace PixiEditor.DrawingApi.Skia
         {
             return new SKImageInfo(info.Width, info.Height, (SKColorType)info.ColorType, (SKAlphaType)info.AlphaType);
         }
+        
+        public static Color ToBackendColor(this SKColor color)
+        {
+            return new Color(color.Red, color.Green, color.Blue, color.Alpha);
+        }
 
         public static ImageInfo ToImageInfo(this SKImageInfo info, SkiaColorSpaceImplementation colorSpaceImpl)
         {
-            ColorSpace cs = new ColorSpace(info.ColorSpace.Handle);
-            colorSpaceImpl.ManagedInstances[info.ColorSpace.Handle] = info.ColorSpace;
+            ColorSpace? cs = null;
+            if (info.ColorSpace != null)
+            {
+                cs = new ColorSpace(info.ColorSpace.Handle);
+                colorSpaceImpl.ManagedInstances[info.ColorSpace.Handle] = info.ColorSpace;
+            }
+
             return new ImageInfo(info.Width, info.Height,
                 (ColorType)info.ColorType,
                 (AlphaType)info.AlphaType,

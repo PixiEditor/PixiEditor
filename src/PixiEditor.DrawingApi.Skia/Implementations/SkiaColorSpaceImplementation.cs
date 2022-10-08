@@ -7,6 +7,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 {
     public class SkiaColorSpaceImplementation : SkObjectImplementation<SKColorSpace>, IColorSpaceImplementation
     {
+        private readonly IntPtr _srgbPointer;
+        
+        public SkiaColorSpaceImplementation()
+        {
+            _srgbPointer = SKColorSpace.CreateSrgb().Handle;
+        }
+        
         public ColorSpace CreateSrgb()
         {
             SKColorSpace skColorSpace = SKColorSpace.CreateSrgb();
@@ -16,8 +23,8 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void Dispose(IntPtr objectPointer)
         {
+            if (objectPointer == _srgbPointer) return;
             ManagedInstances[objectPointer].Dispose();
-            
             ManagedInstances.Remove(objectPointer);
         }
     }

@@ -334,6 +334,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
+		<ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
 		<ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
 		<ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
 	</ItemGroup>

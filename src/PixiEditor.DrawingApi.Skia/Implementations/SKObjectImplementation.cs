@@ -6,7 +6,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 {
     public abstract class SkObjectImplementation<T> where T : SKObject
     {
-        internal Dictionary<IntPtr, T> ManagedInstances = new Dictionary<IntPtr, T>();
+        internal readonly Dictionary<IntPtr, T> ManagedInstances = new Dictionary<IntPtr, T>();
         
         public virtual void DisposeObject(IntPtr objPtr)
         {

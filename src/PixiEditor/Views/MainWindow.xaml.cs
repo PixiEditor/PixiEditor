@@ -4,6 +4,8 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -31,6 +33,9 @@ internal partial class MainWindow : Window
         services = new ServiceCollection()
             .AddPixiEditor()
             .BuildServiceProvider();
+
+        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
+        DrawingBackendApi.SetupBackend(skiaDrawingBackend);
 
         preferences = services.GetRequiredService<IPreferences>();
         DataContext = services.GetRequiredService<ViewModelMain>();

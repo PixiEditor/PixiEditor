@@ -1,22 +1,15 @@
 ﻿using System;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace PixiEditor.DrawingApi.Skia
 {
     public static class CastUtility
     {
-        public static unsafe T2[] UnsafeArrayCast<T1, T2>(T1[] source) where T2 : unmanaged
+        public static T2[] UnsafeArrayCast<T1, T2>(T1[] source) where T1 : struct where T2 : struct
         {
-            unsafe
-            {
-                T2[] target = new T2[source.Length];
-                fixed (void* p = target)
-                {
-                    Unsafe.Copy(p, ref source);
-                }
-                
-                return target;
-            }
+            return MemoryMarshal.Cast<T1, T2>(source).ToArray();
         }
     }
 }

@@ -4,6 +4,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace ChunkyImageLib;
 
@@ -123,7 +124,7 @@ public class Surface : IDisposable
 
     private DrawingSurface CreateDrawingSurface()
     {
-        var surface = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb()), PixelBuffer);
+        var surface = PixiEditor.DrawingApi.Core.Surface.DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb()), PixelBuffer);
         if (surface is null)
             throw new InvalidOperationException($"Could not create surface (Size:{Size})");
         return surface;

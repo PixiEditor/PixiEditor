@@ -8,7 +8,7 @@ public class Bitmap : NativeObject
     public Bitmap(IntPtr objPtr) : base(objPtr)
     {
     }
-
+    
     public override void Dispose()
     {
         DrawingBackendApi.Current.BitmapImplementation.Dispose(ObjectPointer);

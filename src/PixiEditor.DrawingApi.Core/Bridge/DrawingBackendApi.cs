@@ -3,7 +3,7 @@ using PixiEditor.DrawingApi.Core.Exceptions;
 
 namespace PixiEditor.DrawingApi.Core.Bridge
 {
-    public class DrawingBackendApi
+    public static class DrawingBackendApi
     {
         private static IDrawingBackend _current;
 
@@ -18,9 +18,9 @@ namespace PixiEditor.DrawingApi.Core.Bridge
             }
         }
         
-        public void SetupBackend(IDrawingBackend backend)
+        public static void SetupBackend(IDrawingBackend backend)
         {
-            if (Current != null)
+            if (_current != null)
             {
                 throw new InitializationDuplicateException("Drawing backend was already initialized.");
             }

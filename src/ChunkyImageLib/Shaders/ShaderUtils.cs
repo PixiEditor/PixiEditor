@@ -5,9 +5,9 @@ namespace ChunkyImageLib.Shaders;
 
 public static class ShaderUtils
 {
-    public static float4 UnpackPixel(uint2 packedPixel)
+    public static Float4 UnpackPixel(UInt2 packedPixel)
     {
-        return new float4(
+        return new Float4(
             Hlsl.Float16ToFloat32(packedPixel.X),
             Hlsl.Float16ToFloat32(packedPixel.X >> 16),
             Hlsl.Float16ToFloat32(packedPixel.Y),
@@ -15,7 +15,7 @@ public static class ShaderUtils
         );
     }
 
-    public static uint2 PackPixel(Color color)
+    public static UInt2 PackPixel(Color color)
     {
         uint convR = (BitConverter.HalfToUInt16Bits((Half)(color.R / 255f)));
         uint convG = (BitConverter.HalfToUInt16Bits((Half)(color.G / 255f)));

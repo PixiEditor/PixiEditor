@@ -48,7 +48,7 @@ public struct ImageInfo : System.IEquatable<ImageInfo>
 
     /// <summary>Gets or sets the color space.</summary>
     /// <value />
-    public ColorSpace ColorSpace { get; set; }
+    public ColorSpace? ColorSpace { get; set; }
 
     public ImageInfo(int width, int height)
     {
@@ -56,7 +56,7 @@ public struct ImageInfo : System.IEquatable<ImageInfo>
       this.Height = height;
       this.ColorType = ImageInfo.PlatformColorType;
       this.AlphaType = AlphaType.Premul;
-      this.ColorSpace = (ColorSpace)null;
+      this.ColorSpace = null;
     }
 
     public ImageInfo(int width, int height, ColorType colorType)

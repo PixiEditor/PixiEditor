@@ -4,6 +4,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using SkiaSharp;
 
@@ -12,7 +13,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public sealed class SkiaCanvasImplementation : SkObjectImplementation<SKCanvas>, ICanvasImplementation
     {
         private readonly SkObjectImplementation<SKPaint> _paintImpl;
-        private readonly SkObjectImplementation<SKSurface> _surfaceImpl;
+        private SkObjectImplementation<SKSurface> _surfaceImpl;
         private readonly SkObjectImplementation<SKImage> _imageImpl;
         private readonly SkObjectImplementation<SKBitmap> _bitmapImpl;
         private readonly SkObjectImplementation<SKPath> _pathImpl;
@@ -24,6 +25,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             _imageImpl = imageImpl;
             _bitmapImpl = bitmapImpl;
             _pathImpl = pathImpl;
+        }
+        
+        public void SetSurfaceImpl(SkiaSurfaceImplementation surfaceImpl)
+        {
+            _surfaceImpl = surfaceImpl;
         }
         
         public void DrawPixel(IntPtr objectPointer, int posX, int posY, Paint drawingPaint)
@@ -100,37 +106,40 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void ClipPath(IntPtr objPtr, VectorPath clipPath, ClipOperation clipOperation, bool antialias)
         {
-            throw new NotImplementedException();
+            SKCanvas canvas = ManagedInstances[objPtr];
+            canvas.ClipPath(_pathImpl[clipPath.ObjectPointer], (SKClipOperation)clipOperation, antialias);
         }
 
         public void ClipRect(IntPtr objPtr, RectD rect, ClipOperation clipOperation)
         {
-            throw new NotImplementedException();
+            SKCanvas canvas = ManagedInstances[objPtr];
+            canvas.ClipRect(rect.ToSKRect(), (SKClipOperation)clipOperation);
         }
 
         public void Clear(IntPtr objPtr)
         {
-            throw new NotImplementedException();
+            ManagedInstances[objPtr].Clear();
         }
 
         public void Clear(IntPtr objPtr, Color color)
         {
-            throw new NotImplementedException();
+            ManagedInstances[objPtr].Clear(color.ToSKColor());
         }
 
         public void DrawLine(IntPtr objPtr, VecI from, VecI to, Paint paint)
         {
-            throw new NotImplementedException();
+            ManagedInstances[objPtr].DrawLine(from.X, from.Y, to.X, to.Y, _paintImpl[paint.ObjectPointer]);
         }
 
         public void Flush(IntPtr objPtr)
         {
-            throw new NotImplementedException();
+            ManagedInstances[objPtr].Flush();
         }
 
         public void SetMatrix(IntPtr objPtr, Matrix3X3 finalMatrix)
         {
-            throw new NotImplementedException();
+            SKCanvas canvas = ManagedInstances[objPtr];
+            canvas.SetMatrix(finalMatrix.ToSkMatrix());
         }
 
         public void RestoreToCount(IntPtr objPtr, int count)

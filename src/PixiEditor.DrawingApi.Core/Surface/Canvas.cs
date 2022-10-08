@@ -3,14 +3,14 @@ using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.DrawingApi.Core.Surface
 {
     public class Canvas : NativeObject
     {
-        
-        internal Canvas(IntPtr objPtr) : base(objPtr)
+        public Canvas(IntPtr objPtr) : base(objPtr)
         {
         }
         

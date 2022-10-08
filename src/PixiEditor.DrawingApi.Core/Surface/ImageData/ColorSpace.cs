@@ -7,6 +7,7 @@ public class ColorSpace : NativeObject
 {
     public ColorSpace(IntPtr objPtr) : base(objPtr)
     {
+        
     }
     
     public static ColorSpace CreateSrgb()
