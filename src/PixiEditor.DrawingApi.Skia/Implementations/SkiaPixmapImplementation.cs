@@ -39,6 +39,16 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return pixmap.Handle;
         }
 
+        public int GetWidth(Pixmap pixmap)
+        {
+            return ManagedInstances[pixmap.ObjectPointer].Width;
+        }
+
+        public int GetHeight(Pixmap pixmap)
+        {
+            return ManagedInstances[pixmap.ObjectPointer].Height;
+        }
+
         public Pixmap CreateFrom(SKPixmap pixmap)
         {
             ManagedInstances[pixmap.Handle] = pixmap;

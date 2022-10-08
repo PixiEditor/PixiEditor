@@ -15,8 +15,15 @@ public class Pixmap : NativeObject
         ObjectPointer = DrawingBackendApi.Current.PixmapImplementation.Construct(dataPtr, imgInfo);
     }
 
-    public int Width { get; set; }
-    public int Height { get; set; }
+    public int Width
+    {
+        get => DrawingBackendApi.Current.PixmapImplementation.GetWidth(this);
+    }
+
+    public int Height
+    {
+        get => DrawingBackendApi.Current.PixmapImplementation.GetHeight(this);
+    }
 
     public override void Dispose()
     {
