@@ -1,11 +1,12 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 
 internal class SelectRectangle_UpdateableChange : UpdateableChange
 {
-    private SKPath? originalPath;
+    private VectorPath? originalPath;
     private RectI rect;
     private readonly SelectionMode mode;
 
@@ -17,7 +18,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
     }
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
     {
-        originalPath = new SKPath(target.Selection.SelectionPath);
+        originalPath = new VectorPath(target.Selection.SelectionPath);
         return new Success();
     }
 
@@ -29,7 +30,7 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
 
     private Selection_ChangeInfo CommonApply(Document target)
     {
-        using var rectPath = new SKPath() { FillType = SKPathFillType.EvenOdd };
+        using var rectPath = new VectorPath() { FillType = PathFillType.EvenOdd };
         if (!rect.IsZeroArea)
         {
             rectPath.MoveTo(rect.TopLeft);
@@ -43,10 +44,10 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         if (mode == SelectionMode.New)
             target.Selection.SelectionPath = new(rectPath);
         else
-            target.Selection.SelectionPath = originalPath!.Op(rectPath, mode.ToSKPathOp());
+            target.Selection.SelectionPath = originalPath!.Op(rectPath, mode.ToVectorPathOp());
         toDispose.Dispose();
 
-        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
@@ -63,9 +64,9 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new SKPath(originalPath));
+        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath!));
         toDispose.Dispose();
-        return new Selection_ChangeInfo(new SKPath(target.Selection.SelectionPath));
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
 
     public override void Dispose()

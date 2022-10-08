@@ -53,8 +53,8 @@
                 x:Key="NotNullToBoolConverter" />
             <converters:DoubleToIntConverter
                 x:Key="DoubleToIntConverter" />
-            <converters:SKColorToMediaColorConverter
-                x:Key="SKColorToMediaColorConverter" />
+            <converters:BackendColorToMediaColorConverter
+                x:Key="BackendColorToMediaColorConverter" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
                     Source="pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml" />
@@ -614,8 +614,8 @@
                                         <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
                                                       CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
-                                            <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}"
-                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}" 
+                                            <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}"
+                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}" 
                                                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker">
                                                 <b:Interaction.Behaviors>
                                                     <behaviours:GlobalShortcutFocusBehavior/>
@@ -646,7 +646,7 @@
                                                     Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}"
                                                     Swatches="{Binding DocumentManagerSubViewModel.ActiveDocument.Swatches}"
                                                     SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
-                                                    HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,Converter={converters:SKColorToMediaColorConverter}}"
+                                                    HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,Converter={converters:BackendColorToMediaColorConverter}}"
                                                     DataSources="{Binding ColorsSubViewModel.PaletteDataSources}"
                                                     FileParsers="{Binding ColorsSubViewModel.PaletteParsers}"
                                                     Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}, ConverterParameter=Hidden}"
@@ -690,7 +690,7 @@
                                             CanFloat="True">
                                             <usercontrols:PreviewWindow
                                                 Document="{Binding DataContext.DocumentManagerSubViewModel.ActiveDocument, ElementName=mainWindow}"
-                                                PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource SKColorToMediaColorConverter}}" />
+                                                PrimaryColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}" />
                                         </LayoutAnchorable>
                                     </LayoutAnchorablePane>
                                 </LayoutAnchorablePaneGroup>
@@ -741,7 +741,7 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                    <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:SKColorToMediaColorConverter}}"
+                    <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:BackendColorToMediaColorConverter}}"
                             BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
                             Grid.Row="1" Height="30"/>
                 </Grid>

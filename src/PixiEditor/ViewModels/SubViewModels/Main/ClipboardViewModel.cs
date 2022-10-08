@@ -36,7 +36,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Clipboard.PasteColor", "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
     public void PasteColor()
     {
-        Owner.ColorsSubViewModel.PrimaryColor = SKColor.Parse(Clipboard.GetText().Trim());
+        Owner.ColorsSubViewModel.PrimaryColor = DrawingApi.Core.ColorsImpl.Color.Parse(Clipboard.GetText().Trim());
     }
 
     [Command.Basic("PixiEditor.Clipboard.Copy", "Copy", "Copy to clipboard", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = ModifierKeys.Control)]
@@ -64,13 +64,13 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
         if (CanPasteColor())
         {
-            color = SKColor.Parse(Clipboard.GetText().Trim()).ToOpaqueColor();
+            color = DrawingApi.Core.ColorsImpl.Color.Parse(Clipboard.GetText().Trim()).ToOpaqueMediaColor();
         }
         else
         {
             color = Colors.Transparent;
         }
 
-        return ColorSearchResult.GetIcon(color.ToOpaqueSKColor());
+        return ColorSearchResult.GetIcon(color.ToOpaqueColor());
     }
 }

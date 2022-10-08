@@ -2,7 +2,8 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using ChunkyImageLib.DataHolders;
+using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views.UserControls;
@@ -135,7 +136,7 @@ internal partial class PreviewWindow : UserControl
 
         ColorCursorPosition = newPos;
 
-        SKColor color = Document.PickColor(new(x, y), true);
-        ColorCursorColor = Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
+        BackendColor color = Document.PickColor(new(x, y), true);
+        ColorCursorColor = Color.FromArgb(color.A, color.R, color.G, color.B);
     }
 }

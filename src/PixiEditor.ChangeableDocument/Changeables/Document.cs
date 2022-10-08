@@ -1,7 +1,6 @@
-﻿using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 

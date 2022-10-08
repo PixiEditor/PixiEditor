@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Enums;
+using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
@@ -136,10 +138,10 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 
     public const int PreviewSize = 48;
     public WriteableBitmap PreviewBitmap { get; set; }
-    public SKSurface PreviewSurface { get; set; }
+    public DrawingSurface PreviewSurface { get; set; }
 
     public WriteableBitmap? MaskPreviewBitmap { get; set; }
-    public SKSurface? MaskPreviewSurface { get; set; }
+    public DrawingSurface? MaskPreviewSurface { get; set; }
 
     public void RaisePropertyChanged(string name)
     {
@@ -163,6 +165,6 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         this.guidValue = guidValue;
         VecI previewSize = CalculatePreviewSize(doc.SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
-        PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
+        PreviewSurface = DrawingSurface.Create(new ImageInfo(previewSize.X, previewSize.Y, ColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
     }
 }

@@ -1,17 +1,17 @@
-﻿using ChunkyImageLib.DataHolders;
-using ComputeSharp;
+﻿using ComputeSharp;
 
 namespace ChunkyImageLib.Shaders;
 
 [AutoConstructor]
-public readonly partial struct ReplaceColorShader : IComputeShader
+internal readonly partial struct ReplaceColorShader : IComputeShader
 {
-    public readonly ReadWriteTexture2D<uint2> texture;
+    public readonly ReadWriteTexture2D<UInt2> texture;
     public readonly HlslColorBounds colorBounds;
     public readonly UInt2 newColor;
+    
     public void Execute()
     {
-        uint2 rgba = texture[ThreadIds.XY];
+        UInt2 rgba = texture[ThreadIds.XY];
         Float4 rgbaFloat = ShaderUtils.UnpackPixel(rgba);
         
         if(IsWithinBounds(rgbaFloat))
@@ -20,7 +20,7 @@ public readonly partial struct ReplaceColorShader : IComputeShader
         }
     }
 
-    private bool IsWithinBounds(float4 color)
+    private bool IsWithinBounds(Float4 color)
     {
         float r = color.R;
         float g = color.G;
@@ -47,7 +47,7 @@ public readonly struct HlslColorBounds
     public readonly float UpperB;
     public readonly float UpperA;
 
-    public HlslColorBounds(float4 color)
+    public HlslColorBounds(Float4 color)
     {
         static (float lower, float upper) FindInclusiveBoundaryPremul(float channel, float alpha)
         {

@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.UserControls.SymmetryOverlay;

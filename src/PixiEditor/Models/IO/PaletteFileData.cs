@@ -1,14 +1,14 @@
-﻿using SkiaSharp;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.Models.IO;
 
 internal class PaletteFileData
 {
     public string Title { get; set; }
-    public SKColor[] Colors { get; set; }
+    public Color[] Colors { get; set; }
     public bool IsCorrupted { get; set; } = false;
 
-    public PaletteFileData(SKColor[] colors)
+    public PaletteFileData(Color[] colors)
     {
         Colors = colors;
         Title = "";
@@ -16,16 +16,16 @@ internal class PaletteFileData
 
     public PaletteFileData(List<string> colors)
     {
-        Colors = new SKColor[colors.Count];
+        Colors = new Color[colors.Count];
         for (int i = 0; i < colors.Count; i++)
         {
-            Colors[i] = SKColor.Parse(colors[i]);
+            Colors[i] = Color.Parse(colors[i]);
         }
 
         Title = "";
     }
 
-    public PaletteFileData(string title, SKColor[] colors)
+    public PaletteFileData(string title, Color[] colors)
     {
         Title = title;
         Colors = colors;

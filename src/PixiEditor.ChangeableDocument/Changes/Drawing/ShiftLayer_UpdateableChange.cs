@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+﻿using PixiEditor.DrawingApi.Core.Numerics;
+
+namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class ShiftLayer_UpdateableChange : UpdateableChange
 {
     private readonly Guid layerGuid;

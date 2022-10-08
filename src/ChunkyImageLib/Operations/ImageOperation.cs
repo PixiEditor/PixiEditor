@@ -1,19 +1,21 @@
 ﻿using ChunkyImageLib.DataHolders;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace ChunkyImageLib.Operations;
 
 internal class ImageOperation : IDrawOperation
 {
-    private SKMatrix transformMatrix;
+    private Matrix3X3 transformMatrix;
     private ShapeCorners corners;
     private Surface toPaint;
     private bool imageWasCopied = false;
-    private readonly SKPaint? customPaint;
+    private readonly Paint? customPaint;
 
     public bool IgnoreEmptyChunks => false;
 
-    public ImageOperation(VecI pos, Surface image, SKPaint? paint = null, bool copyImage = true)
+    public ImageOperation(VecI pos, Surface image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -25,7 +27,7 @@ internal class ImageOperation : IDrawOperation
             BottomRight = pos + image.Size,
             BottomLeft = new VecD(pos.X, pos.Y + image.Size.Y)
         };
-        transformMatrix = SKMatrix.CreateIdentity();
+        transformMatrix = Matrix3X3.CreateIdentity();
         transformMatrix.TransX = pos.X;
         transformMatrix.TransY = pos.Y;
 
@@ -37,7 +39,7 @@ internal class ImageOperation : IDrawOperation
         imageWasCopied = copyImage;
     }
 
-    public ImageOperation(ShapeCorners corners, Surface image, SKPaint? paint = null, bool copyImage = true)
+    public ImageOperation(ShapeCorners corners, Surface image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -53,7 +55,7 @@ internal class ImageOperation : IDrawOperation
         imageWasCopied = copyImage;
     }
 
-    public ImageOperation(SKMatrix transformMatrix, Surface image, SKPaint? paint = null, bool copyImage = true)
+    public ImageOperation(Matrix3X3 transformMatrix, Surface image, Paint? paint = null, bool copyImage = true)
     {
         if (paint is not null)
             customPaint = paint.Clone();
@@ -83,13 +85,13 @@ internal class ImageOperation : IDrawOperation
         float scaleMult = (float)chunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkPool.FullChunkSize;
 
-        var scaleTrans = SKMatrix.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
-        var finalMatrix = SKMatrix.Concat(scaleTrans, transformMatrix);
+        var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
+        var finalMatrix = Matrix3X3.Concat(scaleTrans, transformMatrix);
 
-        chunk.Surface.SkiaSurface.Canvas.Save();
-        chunk.Surface.SkiaSurface.Canvas.SetMatrix(finalMatrix);
-        chunk.Surface.SkiaSurface.Canvas.DrawSurface(toPaint.SkiaSurface, 0, 0, customPaint);
-        chunk.Surface.SkiaSurface.Canvas.Restore();
+        chunk.Surface.DrawingSurface.Canvas.Save();
+        chunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
+        chunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
+        chunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
     public HashSet<VecI> FindAffectedChunks(VecI imageSize)

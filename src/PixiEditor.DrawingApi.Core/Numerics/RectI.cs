@@ -1,6 +1,6 @@
-﻿using SkiaSharp;
+﻿using System;
 
-namespace ChunkyImageLib.DataHolders;
+namespace PixiEditor.DrawingApi.Core.Numerics;
 public struct RectI : IEquatable<RectI>
 {
     public static RectI Empty { get; } = new RectI();
@@ -196,7 +196,10 @@ public struct RectI : IEquatable<RectI>
     /// </summary>
     public readonly RectI AspectFit(RectI rect)
     {
-        return (RectI)((RectD)this).AspectFit(rect);
+        RectD rectD = (RectD)rect;
+        RectD thisD = (RectD)this;
+        RectD aspect = rectD.AspectFit(thisD);
+        return new RectI((int)aspect.Left, (int)aspect.Top, (int)aspect.Width, (int)aspect.Height);
     }
 
     public readonly bool ContainsInclusive(VecI point) => ContainsInclusive(point.X, point.Y);
@@ -271,49 +274,6 @@ public struct RectI : IEquatable<RectI>
         };
     }
 
-    public static implicit operator RectD(RectI rect)
-    {
-        return new RectD()
-        {
-            Left = rect.left,
-            Right = rect.right,
-            Top = rect.top,
-            Bottom = rect.bottom
-        };
-    }
-
-    public static implicit operator SKRect(RectI rect)
-    {
-        return new SKRect(rect.left, rect.top, rect.right, rect.bottom);
-    }
-
-    public static implicit operator SKRectI(RectI rect)
-    {
-        return new SKRectI(rect.left, rect.top, rect.right, rect.bottom);
-    }
-
-    public static explicit operator RectI(SKRect rect)
-    {
-        return new RectI()
-        {
-            Left = (int)rect.Left,
-            Right = (int)rect.Right,
-            Top = (int)rect.Top,
-            Bottom = (int)rect.Bottom
-        };
-    }
-
-    public static implicit operator RectI(SKRectI rect)
-    {
-        return new RectI()
-        {
-            Left = rect.Left,
-            Right = rect.Right,
-            Top = rect.Top,
-            Bottom = rect.Bottom
-        };
-    }
-
     public static bool operator ==(RectI left, RectI right)
     {
         return left.left == right.left && left.right == right.right && left.top == right.top && left.bottom == right.bottom;
@@ -342,5 +302,27 @@ public struct RectI : IEquatable<RectI>
     public override string ToString()
     {
         return $"{{X: {X}, Y: {Y}, W: {Width}, H: {Height}}}";
+    }
+
+    public static RectI Create(int width, int height)
+    {
+        return new RectI()
+        {
+            Left = 0,
+            Right = width,
+            Top = 0,
+            Bottom = height
+        };
+    }
+    
+    public static RectI Create(int x, int y, int width, int height)
+    {
+        return new RectI()
+        {
+            Left = x,
+            Right = width,
+            Top = y,
+            Bottom = height
+        };
     }
 }

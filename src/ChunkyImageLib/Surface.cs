@@ -1,7 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using ChunkyImageLib.DataHolders;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace ChunkyImageLib;
 
@@ -9,12 +12,12 @@ public class Surface : IDisposable
 {
     private bool disposed;
     public IntPtr PixelBuffer { get; }
-    public SKSurface SkiaSurface { get; }
+    public DrawingSurface DrawingSurface { get; }
     public int BytesPerPixel { get; }
     public VecI Size { get; }
 
-    private SKPaint drawingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
-    private SKPaint nearestNeighborReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.None };
+    private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
+    private Paint nearestNeighborReplacingPaint = new() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.None };
 
     public Surface(VecI size)
     {
@@ -27,45 +30,45 @@ public class Surface : IDisposable
 
         BytesPerPixel = 8;
         PixelBuffer = CreateBuffer(size.X, size.Y, BytesPerPixel);
-        SkiaSurface = CreateSKSurface();
+        DrawingSurface = CreateDrawingSurface();
     }
 
     public Surface(Surface original) : this(original.Size)
     {
-        SkiaSurface.Canvas.DrawSurface(original.SkiaSurface, 0, 0);
+        DrawingSurface.Canvas.DrawSurface(original.DrawingSurface, 0, 0);
     }
 
     public static Surface Load(string path)
     {
         if (!File.Exists(path))
             throw new FileNotFoundException(null, path);
-        using var image = SKImage.FromEncodedData(path);
+        using var image = Image.FromEncodedData(path);
         if (image is null)
             throw new ArgumentException($"The image with path {path} couldn't be loaded");
 
         var surface = new Surface(new VecI(image.Width, image.Height));
-        surface.SkiaSurface.Canvas.DrawImage(image, 0, 0);
+        surface.DrawingSurface.Canvas.DrawImage(image, 0, 0);
 
         return surface;
     }
 
-    public unsafe void DrawBytes(VecI size, byte[] bytes, SKColorType colorType, SKAlphaType alphaType)
+    public unsafe void DrawBytes(VecI size, byte[] bytes, ColorType colorType, AlphaType alphaType)
     {
-        SKImageInfo info = new SKImageInfo(size.X, size.Y, colorType, alphaType);
+        ImageInfo info = new ImageInfo(size.X, size.Y, colorType, alphaType);
 
         fixed (void* pointer = bytes)
         {
-            using SKPixmap map = new(info, new IntPtr(pointer));
-            using SKSurface surface = SKSurface.Create(map);
-            surface.Draw(SkiaSurface.Canvas, 0, 0, drawingPaint);
+            using Pixmap map = new(info, new IntPtr(pointer));
+            using DrawingSurface surface = DrawingSurface.Create(map);
+            surface.Draw(DrawingSurface.Canvas, 0, 0, drawingPaint);
         }
     }
 
     public Surface ResizeNearestNeighbor(VecI newSize)
     {
-        using SKImage image = SkiaSurface.Snapshot();
+        using Image image = DrawingSurface.Snapshot();
         Surface newSurface = new(newSize);
-        newSurface.SkiaSurface.Canvas.DrawImage(image, new SKRect(0, 0, newSize.X, newSize.Y), nearestNeighborReplacingPaint);
+        newSurface.DrawingSurface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), nearestNeighborReplacingPaint);
         return newSurface;
     }
 
@@ -74,24 +77,24 @@ public class Surface : IDisposable
         if (other.Size != Size)
             throw new ArgumentException("Target Surface must have the same dimensions");
         int bytesC = Size.X * Size.Y * BytesPerPixel;
-        using var pixmap = other.SkiaSurface.PeekPixels();
+        using var pixmap = other.DrawingSurface.PeekPixels();
         Buffer.MemoryCopy((void*)PixelBuffer, (void*)pixmap.GetPixels(), bytesC, bytesC);
     }
 
     /// <summary>
     /// Consider getting a pixmap from SkiaSurface.PeekPixels().GetPixels() and writing into it's buffer for bulk pixel get/set. Don't forget to dispose the pixmap afterwards.
     /// </summary>
-    public unsafe SKColor GetSRGBPixel(VecI pos)
+    public unsafe Color GetSRGBPixel(VecI pos)
     {
         Half* ptr = (Half*)(PixelBuffer + (pos.X + pos.Y * Size.X) * BytesPerPixel);
         float a = (float)ptr[3];
-        return (SKColor)new SKColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
+        return (Color)new ColorF((float)ptr[0] / a, (float)ptr[1] / a, (float)ptr[2] / a, (float)ptr[3]);
     }
 
-    public void SetSRGBPixel(VecI pos, SKColor color)
+    public void SetSRGBPixel(VecI pos, Color color)
     {
         drawingPaint.Color = color;
-        SkiaSurface.Canvas.DrawPoint(pos.X, pos.Y, drawingPaint);
+        DrawingSurface.Canvas.DrawPixel(pos.X, pos.Y, drawingPaint);
     }
 
     public unsafe bool IsFullyTransparent()
@@ -109,8 +112,8 @@ public class Surface : IDisposable
 
     public void SaveToDesktop(string filename = "savedSurface.png")
     {
-        using var final = SKSurface.Create(new SKImageInfo(Size.X, Size.Y, SKColorType.Rgba8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()));
-        final.Canvas.DrawSurface(SkiaSurface, 0, 0);
+        using var final = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.Rgba8888, AlphaType.Premul, ColorSpace.CreateSrgb()));
+        final.Canvas.DrawSurface(DrawingSurface, 0, 0);
         using (var snapshot = final.Snapshot())
         {
             using var stream = File.Create(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), filename));
@@ -119,9 +122,9 @@ public class Surface : IDisposable
         }
     }
 
-    private SKSurface CreateSKSurface()
+    private DrawingSurface CreateDrawingSurface()
     {
-        var surface = SKSurface.Create(new SKImageInfo(Size.X, Size.Y, SKColorType.RgbaF16, SKAlphaType.Premul, SKColorSpace.CreateSrgb()), PixelBuffer);
+        var surface = PixiEditor.DrawingApi.Core.Surface.DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb()), PixelBuffer);
         if (surface is null)
             throw new InvalidOperationException($"Could not create surface (Size:{Size})");
         return surface;

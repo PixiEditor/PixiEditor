@@ -1,4 +1,4 @@
-﻿using SkiaSharp;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.Models.Colors;
 
@@ -13,19 +13,19 @@ internal static class ExColor
     ///     Negative values produce darker colors.
     /// </param>
     /// <returns>
-    ///     Corrected <see cref="SKColor" /> structure.
+    ///     Corrected <see cref="Color" /> structure.
     /// </returns>
-    public static SKColor ChangeColorBrightness(SKColor color, float correctionFactor)
+    public static Color ChangeColorBrightness(Color color, float correctionFactor)
     {
-        Tuple<int, float, float> hsl = RgbToHsl(color.Red, color.Green, color.Blue);
+        Tuple<int, float, float> hsl = RgbToHsl(color.R, color.G, color.B);
         int h = hsl.Item1;
         float s = hsl.Item2;
         float l = hsl.Item3;
 
         l = Math.Clamp(l + correctionFactor, 0, 100);
-        SKColor rgb = HslToRgb(h, s, l);
+        Color rgb = HslToRgb(h, s, l);
 
-        return new SKColor(rgb.Red, rgb.Green, rgb.Blue, color.Alpha);
+        return new Color(rgb.R, rgb.G, rgb.B, color.A);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ internal static class ExColor
     ///     Converts HSL color format to RGB.
     /// </summary>
     /// <returns>RGB Color.</returns>
-    public static SKColor HslToRgb(int h, float s, float l)
+    public static Color HslToRgb(int h, float s, float l)
     {
         s /= 100;
         l /= 100;
@@ -118,7 +118,7 @@ internal static class ExColor
             b = (byte)(255 * HueToRgb(v1, v2, hue - (1.0f / 3)));
         }
 
-        return new SKColor(r, g, b);
+        return new Color(r, g, b);
     }
 
     private static float HueToRgb(float v1, float v2, float hue)

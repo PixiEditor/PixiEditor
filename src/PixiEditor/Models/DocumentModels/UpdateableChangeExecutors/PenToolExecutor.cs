@@ -1,5 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -10,7 +12,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class PenToolExecutor : UpdateableChangeExecutor
 {
     private Guid guidValue;
-    private SKColor color;
+    private Color color;
     private int toolSize;
     private bool drawOnMask;
     private bool pixelPerfect;

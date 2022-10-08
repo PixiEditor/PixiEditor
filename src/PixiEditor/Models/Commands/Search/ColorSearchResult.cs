@@ -1,21 +1,18 @@
 ﻿using System.Windows.Media;
-using PixiEditor.Helpers.Extensions;
-using PixiEditor.ViewModels;
-using SkiaSharp;
 
 namespace PixiEditor.Models.Commands.Search;
 
 internal class ColorSearchResult : SearchResult
 {
     private readonly DrawingImage icon;
-    private readonly SKColor color;
+    private readonly DrawingApi.Core.ColorsImpl.Color color;
     private string text;
     private bool requiresDocument;
-    private readonly Action<SKColor> target;
+    private readonly Action<DrawingApi.Core.ColorsImpl.Color> target;
 
     public override string Text => text;
 
-    public override string Description => $"{color} rgba({color.Red}, {color.Green}, {color.Blue}, {color.Alpha})";
+    public override string Description => $"{color} rgba({color.R}, {color.G}, {color.B}, {color.A})";
 
     //public override bool CanExecute => !requiresDocument || (requiresDocument && ViewModelMain.Current.BitmapManager.ActiveDocument != null);
     public override bool CanExecute => false;
@@ -24,19 +21,19 @@ internal class ColorSearchResult : SearchResult
 
     public override void Execute() => target(color);
 
-    private ColorSearchResult(SKColor color, Action<SKColor> target)
+    private ColorSearchResult(DrawingApi.Core.ColorsImpl.Color color, Action<DrawingApi.Core.ColorsImpl.Color> target)
     {
         this.color = color;
         icon = GetIcon(color);
         this.target = target;
     }
 
-    public ColorSearchResult(SKColor color) : this(color, x => ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = x)
+    public ColorSearchResult(DrawingApi.Core.ColorsImpl.Color color) : this(color, x => ViewModelMain.Current.ColorsSubViewModel.PrimaryColor = x)
     {
         text = $"Set color to {color}";
     }
 
-    public static ColorSearchResult PastePalette(SKColor color, string searchTerm = null)
+    public static ColorSearchResult PastePalette(DrawingApi.Core.ColorsImpl.Color color, string searchTerm = null)
     {
         //var result = new ColorSearchResult(color, x => ViewModelMain.Current.BitmapManager.ActiveDocument.Palette.Add(x))
         var result = new ColorSearchResult(color, x => { })
@@ -49,9 +46,9 @@ internal class ColorSearchResult : SearchResult
         return result;
     }
 
-    public static DrawingImage GetIcon(SKColor color)
+    public static DrawingImage GetIcon(DrawingApi.Core.ColorsImpl.Color color)
     {
-        var drawing = new GeometryDrawing() { Brush = new SolidColorBrush(color.ToOpaqueColor()), Pen = new(Brushes.White, 1) };
+        var drawing = new GeometryDrawing() { Brush = new SolidColorBrush(color.ToOpaqueMediaColor()), Pen = new(Brushes.White, 1) };
         var geometry = new EllipseGeometry(new(5, 5), 5, 5) { };
         drawing.Geometry = geometry;
         return new DrawingImage(drawing);

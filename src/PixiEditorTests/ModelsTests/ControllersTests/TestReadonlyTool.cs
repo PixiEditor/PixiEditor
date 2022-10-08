@@ -1,5 +1,6 @@
 ﻿using System;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Tools;
 
 namespace PixiEditorTests.ModelsTests.ControllersTests;

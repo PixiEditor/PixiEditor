@@ -7,6 +7,9 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
@@ -224,7 +227,7 @@ internal class DocumentUpdater
         {
             VecI size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
             memberVm.MaskPreviewBitmap = CreateBitmap(size);
-            memberVm.MaskPreviewSurface = CreateSKSurface(memberVm.MaskPreviewBitmap);
+            memberVm.MaskPreviewSurface = CreateDrawingSurface(memberVm.MaskPreviewBitmap);
         }
         memberVm.InternalSetHasMask(info.HasMask);
         memberVm.RaisePropertyChanged(nameof(memberVm.MaskPreviewBitmap));
@@ -248,7 +251,7 @@ internal class DocumentUpdater
         {
             member.PreviewSurface.Dispose();
             member.PreviewBitmap = CreateBitmap(newSize);
-            member.PreviewSurface = CreateSKSurface(member.PreviewBitmap);
+            member.PreviewSurface = CreateDrawingSurface(member.PreviewBitmap);
             member.RaisePropertyChanged(nameof(member.PreviewBitmap));
 
             member.MaskPreviewSurface?.Dispose();
@@ -257,7 +260,7 @@ internal class DocumentUpdater
             if (member.HasMaskBindable)
             {
                 member.MaskPreviewBitmap = CreateBitmap(newSize);
-                member.MaskPreviewSurface = CreateSKSurface(member.MaskPreviewBitmap);
+                member.MaskPreviewSurface = CreateDrawingSurface(member.MaskPreviewBitmap);
             }
             member.RaisePropertyChanged(nameof(member.MaskPreviewBitmap));
 
@@ -273,11 +276,11 @@ internal class DocumentUpdater
         VecI oldSize = doc.SizeBindable;
 
         Dictionary<ChunkResolution, WriteableBitmap> newBitmaps = new();
-        foreach ((ChunkResolution res, SKSurface surf) in doc.Surfaces)
+        foreach ((ChunkResolution res, DrawingSurface surf) in doc.Surfaces)
         {
             surf.Dispose();
             newBitmaps[res] = CreateBitmap((VecI)(info.Size * res.Multiplier()));
-            doc.Surfaces[res] = CreateSKSurface(newBitmaps[res]);
+            doc.Surfaces[res] = CreateDrawingSurface(newBitmaps[res]);
         }
 
         doc.Bitmaps = newBitmaps;
@@ -289,7 +292,7 @@ internal class DocumentUpdater
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
         doc.PreviewBitmap = CreateBitmap(previewSize);
-        doc.PreviewSurface = CreateSKSurface(doc.PreviewBitmap);
+        doc.PreviewSurface = CreateDrawingSurface(doc.PreviewBitmap);
 
         doc.RaisePropertyChanged(nameof(doc.Bitmaps));
         doc.RaisePropertyChanged(nameof(doc.PreviewBitmap));
@@ -304,10 +307,10 @@ internal class DocumentUpdater
         return new WriteableBitmap(Math.Max(size.X, 1), Math.Max(size.Y, 1), 96, 96, PixelFormats.Pbgra32, null);
     }
 
-    private SKSurface CreateSKSurface(WriteableBitmap bitmap)
+    private DrawingSurface CreateDrawingSurface(WriteableBitmap bitmap)
     {
-        return SKSurface.Create(
-            new SKImageInfo(bitmap.PixelWidth, bitmap.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
+        return DrawingSurface.Create(
+            new ImageInfo(bitmap.PixelWidth, bitmap.PixelHeight, ColorType.Bgra8888, AlphaType.Premul, ColorSpace.CreateSrgb()),
             bitmap.BackBuffer,
             bitmap.BackBufferStride);
     }
@@ -342,7 +345,7 @@ internal class DocumentUpdater
         {
             VecI size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
             memberVM.MaskPreviewBitmap = CreateBitmap(size);
-            memberVM.MaskPreviewSurface = CreateSKSurface(memberVM.MaskPreviewBitmap);
+            memberVM.MaskPreviewSurface = CreateDrawingSurface(memberVM.MaskPreviewBitmap);
         }
 
         parentFolderVM.Children.Insert(info.Index, memberVM);

@@ -1,4 +1,6 @@
-﻿namespace ChunkyImageLib.DataHolders;
+﻿using PixiEditor.DrawingApi.Core.Numerics;
+
+namespace ChunkyImageLib.DataHolders;
 public struct ShapeCorners
 {
     public ShapeCorners(VecD center, VecD size)

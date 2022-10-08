@@ -2,10 +2,7 @@
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Commands.Attributes.Evaluators;
-using PixiEditor.Models.Commands.Search;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
@@ -14,9 +11,9 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.ExternalServices;
 using PixiEditor.Models.IO;
-using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.Dialogs;
-using SkiaSharp;
+using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
+using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -31,10 +28,10 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     public LocalPalettesFetcher LocalPaletteFetcher => _localPaletteFetcher ??=
         (LocalPalettesFetcher)PaletteDataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
 
-    private SKColor primaryColor = SKColors.Black;
+    private Color primaryColor = Colors.Black;
     private LocalPalettesFetcher _localPaletteFetcher;
 
-    public SKColor PrimaryColor // Primary color, hooked with left mouse button
+    public Color PrimaryColor // Primary color, hooked with left mouse button
     {
         get => primaryColor;
         set
@@ -47,9 +44,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private SKColor secondaryColor = SKColors.White;
+    private Color secondaryColor = Colors.White;
 
-    public SKColor SecondaryColor
+    public Color SecondaryColor
     {
         get => secondaryColor;
         set
@@ -76,7 +73,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Colors.ReplaceColors")]
-    public void ReplaceColors((SKColor oldColor, SKColor newColor) colors)
+    public void ReplaceColors((Color oldColor, Color newColor) colors)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || colors.oldColor == colors.newColor)
@@ -105,7 +102,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         if (lospecPaletteArg != null)
         {
             var browser = PalettesBrowser.Open(PaletteDataSources, ImportPaletteCommand,
-                new WpfObservableRangeCollection<SKColor>());
+                new WpfObservableRangeCollection<Color>());
 
             browser.IsFetching = true;
             var palette = await LospecPaletteFetcher.FetchPalette(lospecPaletteArg.Split(@"://")[1].Replace("/", ""));
@@ -141,7 +138,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
 
         await LocalPaletteFetcher.SavePalette(
             palette.FileName,
-            palette.Colors.Select(SKColor.Parse).ToArray());
+            palette.Colors.Select(Color.Parse).ToArray());
 
         await browser.UpdatePaletteList();
         if (browser.SortedResults.Any(x => x.FileName == palette.FileName))
@@ -173,10 +170,10 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         {
             if (doc.Palette is null)
             {
-                doc.Palette = new WpfObservableRangeCollection<SKColor>();
+                doc.Palette = new WpfObservableRangeCollection<DrawingApi.Core.ColorsImpl.Color>();
             }
 
-            doc.Palette.ReplaceRange(palette.Select(x => SKColor.Parse(x)));
+            doc.Palette.ReplaceRange(palette.Select(x => Color.Parse(x)));
         }
     }
 
@@ -213,9 +210,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
-        SKColor color;
+        Color color;
         if (document?.Palette is null || document.Palette.Count <= index)
-            color = SKColors.Gray;
+            color = Colors.Gray;
         else
             color = document.Palette[index];
 
@@ -247,7 +244,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         (PrimaryColor, SecondaryColor) = (SecondaryColor, PrimaryColor);
     }
 
-    public void AddSwatch(SKColor color)
+    public void AddSwatch(Color color)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -259,7 +256,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Colors.RemoveSwatch")]
-    public void RemoveSwatch(SKColor color)
+    public void RemoveSwatch(Color color)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -271,7 +268,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Colors.SelectColor")]
-    public void SelectColor(SKColor color)
+    public void SelectColor(Color color)
     {
         PrimaryColor = color;
     }

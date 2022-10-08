@@ -4,14 +4,13 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Helpers;
-using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using SkiaSharp;
 
 namespace PixiEditor.Models.IO;
 
@@ -132,13 +131,13 @@ internal class Exporter
 
     public static void SaveAsGZippedBytes(string path, Surface surface, RectI rectToSave)
     {
-        var imageInfo = new SKImageInfo(rectToSave.Width, rectToSave.Height, SKColorType.RgbaF16);
+        var imageInfo = new ImageInfo(rectToSave.Width, rectToSave.Height, ColorType.RgbaF16);
         var unmanagedBuffer = Marshal.AllocHGlobal(rectToSave.Width * rectToSave.Height * 8);
         //+8 bytes for width and height
         var bytes = new byte[rectToSave.Width * rectToSave.Height * 8 + 8];
         try
         {
-            surface.SkiaSurface.ReadPixels(imageInfo, unmanagedBuffer, rectToSave.Width * 8, rectToSave.Left, rectToSave.Top);
+            surface.DrawingSurface.ReadPixels(imageInfo, unmanagedBuffer, rectToSave.Width * 8, rectToSave.Left, rectToSave.Top);
             Marshal.Copy(unmanagedBuffer, bytes, 8, rectToSave.Width * rectToSave.Height * 8);
         }
         finally

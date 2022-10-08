@@ -9,11 +9,17 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
+using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
+using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -113,7 +119,7 @@ internal class DocumentViewModel : NotifyableObject
         {
             if (ReferenceLayer is null)
                 return Matrix.Identity;
-            SKMatrix skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceLayer.Shape, ReferenceLayer.Image.Size);
+            Matrix3X3 skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceLayer.Shape, ReferenceLayer.Image.Size);
             return new Matrix(skiaMatrix.ScaleX, skiaMatrix.SkewY, skiaMatrix.SkewX, skiaMatrix.ScaleY, skiaMatrix.TransX, skiaMatrix.TransY);
         }
     }
@@ -126,7 +132,7 @@ internal class DocumentViewModel : NotifyableObject
 
     public StructureMemberViewModel? SelectedStructureMember { get; private set; } = null;
 
-    public Dictionary<ChunkResolution, SKSurface> Surfaces { get; set; } = new();
+    public Dictionary<ChunkResolution, DrawingSurface> Surfaces { get; set; } = new();
     public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
     {
         [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
@@ -135,14 +141,14 @@ internal class DocumentViewModel : NotifyableObject
         [ChunkResolution.Eighth] = new WriteableBitmap(8, 8, 96, 96, PixelFormats.Pbgra32, null),
     };
     public WriteableBitmap PreviewBitmap { get; set; }
-    public SKSurface PreviewSurface { get; set; }
+    public DrawingSurface PreviewSurface { get; set; }
 
 
-    private SKPath selectionPath = new SKPath();
-    public SKPath SelectionPathBindable => selectionPath;
+    private VectorPath selectionPath = new VectorPath();
+    public VectorPath SelectionPathBindable => selectionPath;
 
-    public WpfObservableRangeCollection<SKColor> Swatches { get; set; } = new WpfObservableRangeCollection<SKColor>();
-    public WpfObservableRangeCollection<SKColor> Palette { get; set; } = new WpfObservableRangeCollection<SKColor>();
+    public WpfObservableRangeCollection<Color> Swatches { get; set; } = new WpfObservableRangeCollection<Color>();
+    public WpfObservableRangeCollection<Color> Palette { get; set; } = new WpfObservableRangeCollection<Color>();
 
     public DocumentTransformViewModel TransformViewModel { get; }
 
@@ -164,15 +170,15 @@ internal class DocumentViewModel : NotifyableObject
 
         foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in Bitmaps)
         {
-            SKSurface? surface = SKSurface.Create(
-                new SKImageInfo(bitmap.Value.PixelWidth, bitmap.Value.PixelHeight, SKColorType.Bgra8888, SKAlphaType.Premul, SKColorSpace.CreateSrgb()),
+            DrawingSurface? surface = DrawingSurface.Create(
+                new ImageInfo(bitmap.Value.PixelWidth, bitmap.Value.PixelHeight, ColorType.Bgra8888, AlphaType.Premul, ColorSpace.CreateSrgb()),
                 bitmap.Value.BackBuffer, bitmap.Value.BackBufferStride);
             Surfaces[bitmap.Key] = surface;
         }
 
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
-        PreviewSurface = SKSurface.Create(new SKImageInfo(previewSize.X, previewSize.Y, SKColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
+        PreviewSurface = DrawingSurface.Create(new ImageInfo(previewSize.X, previewSize.Y, ColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
     }
 
     public static DocumentViewModel Build(Action<DocumentViewModelBuilder> builder)
@@ -288,25 +294,25 @@ internal class DocumentViewModel : NotifyableObject
 
         Surface output = new(bounds.Size);
 
-        SKPath clipPath = new SKPath(SelectionPathBindable) { FillType = SKPathFillType.EvenOdd };
-        clipPath.Transform(SKMatrix.CreateTranslation(-bounds.X, -bounds.Y));
-        output.SkiaSurface.Canvas.Save();
-        output.SkiaSurface.Canvas.ClipPath(clipPath);
+        VectorPath clipPath = new VectorPath(SelectionPathBindable) { FillType = PathFillType.EvenOdd };
+        clipPath.Transform(Matrix3X3.CreateTranslation(-bounds.X, -bounds.Y));
+        output.DrawingSurface.Canvas.Save();
+        output.DrawingSurface.Canvas.ClipPath(clipPath);
         try
         {
-            layer.LayerImage.DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.SkiaSurface, VecI.Zero);
+            layer.LayerImage.DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);
         }
         catch (ObjectDisposedException)
         {
             output.Dispose();
             return new Error();
         }
-        output.SkiaSurface.Canvas.Restore();
+        output.DrawingSurface.Canvas.Restore();
 
         return (output, bounds);
     }
 
-    public SKColor PickColor(VecI pos, bool fromAllLayers)
+    public Color PickColor(VecI pos, bool fromAllLayers)
     {
         // there is a tiny chance that the image might get disposed by another thread
         try
@@ -317,28 +323,28 @@ internal class DocumentViewModel : NotifyableObject
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
                 return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Internals.Tracker.Document.StructureRoot)
-                    .Match<SKColor>(
+                    .Match<Color>(
                         (Chunk chunk) =>
                         {
                             VecI posOnChunk = pos - chunkPos * ChunkyImage.FullChunkSize;
-                            SKColor color = chunk.Surface.GetSRGBPixel(posOnChunk);
+                            var color = chunk.Surface.GetSRGBPixel(posOnChunk);
                             chunk.Dispose();
                             return color;
                         },
-                        _ => SKColors.Transparent
+                        _ => Colors.Transparent
                     );
             }
 
             if (SelectedStructureMember is not LayerViewModel layerVm)
-                return SKColors.Transparent;
+                return Colors.Transparent;
             IReadOnlyStructureMember? maybeMember = Internals.Tracker.Document.FindMember(layerVm.GuidValue);
             if (maybeMember is not IReadOnlyLayer layer)
-                return SKColors.Transparent;
+                return Colors.Transparent;
             return layer.LayerImage.GetMostUpToDatePixel(pos);
         }
         catch (ObjectDisposedException)
         {
-            return SKColors.Transparent;
+            return Colors.Transparent;
         }
     }
 
@@ -381,9 +387,9 @@ internal class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(Height));
     }
 
-    public void InternalUpdateSelectionPath(SKPath selectionPath)
+    public void InternalUpdateSelectionPath(VectorPath vectorPath)
     {
-        (SKPath? toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
+        (VectorPath? toDispose, this.selectionPath) = (this.selectionPath, vectorPath);
         toDispose.Dispose();
         RaisePropertyChanged(nameof(SelectionPathBindable));
     }

@@ -1,12 +1,14 @@
 ﻿using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
 public static class ChunkRenderer
 {
-    private static readonly SKPaint ClippingPaint = new SKPaint() { BlendMode = SKBlendMode.DstIn };
+    private static readonly Paint ClippingPaint = new Paint() { BlendMode = BlendMode.DstIn };
 
     public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root)
     {
@@ -48,13 +50,13 @@ public static class ChunkRenderer
         context.UpdateFromMember(layer);
 
         Chunk renderingResult = Chunk.Create(resolution);
-        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
+        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
         }
 
-        if (!layer.Mask!.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, VecI.Zero, ClippingPaint))
+        if (!layer.Mask!.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, ClippingPaint))
         {
             // should pretty much never happen due to the check above, but you can never be sure with many threads
             renderingResult.Dispose();
@@ -62,9 +64,9 @@ public static class ChunkRenderer
         }
 
         if (clippingChunk.IsT2)
-            OperationHelper.ClampAlpha(renderingResult.Surface.SkiaSurface, clippingChunk.AsT2.Surface.SkiaSurface);
+            OperationHelper.ClampAlpha(renderingResult.Surface.DrawingSurface, clippingChunk.AsT2.Surface.DrawingSurface);
 
-        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(renderingResult.Surface.SkiaSurface, 0, 0, context.BlendModePaint);
+        targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(renderingResult.Surface.DrawingSurface, 0, 0, context.BlendModePaint);
         return renderingResult;
     }
 
@@ -79,15 +81,15 @@ public static class ChunkRenderer
 
         context.UpdateFromMember(layer);
         Chunk renderingResult = Chunk.Create(resolution);
-        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.SkiaSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
+        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
         }
 
         if (clippingChunk.IsT2)
-            OperationHelper.ClampAlpha(renderingResult.Surface.SkiaSurface, clippingChunk.AsT2.Surface.SkiaSurface);
-        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(renderingResult.Surface.SkiaSurface, 0, 0, context.BlendModePaint);
+            OperationHelper.ClampAlpha(renderingResult.Surface.DrawingSurface, clippingChunk.AsT2.Surface.DrawingSurface);
+        targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(renderingResult.Surface.DrawingSurface, 0, 0, context.BlendModePaint);
         return renderingResult;
     }
 
@@ -112,7 +114,7 @@ public static class ChunkRenderer
             return;
         }
         context.UpdateFromMember(layer);
-        layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.SkiaSurface, VecI.Zero, context.BlendModeOpacityPaint);
+        layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.DrawingSurface, VecI.Zero, context.BlendModeOpacityPaint);
     }
 
     private static OneOf<EmptyChunk, Chunk> RenderFolder(
@@ -140,7 +142,7 @@ public static class ChunkRenderer
 
         if (folder.Mask is not null && folder.MaskIsVisible)
         {
-            if (!folder.Mask.DrawMostUpToDateChunkOn(chunkPos, resolution, contents.Surface.SkiaSurface, VecI.Zero, ClippingPaint))
+            if (!folder.Mask.DrawMostUpToDateChunkOn(chunkPos, resolution, contents.Surface.DrawingSurface, VecI.Zero, ClippingPaint))
             {
                 // this shouldn't really happen due to the check above, but another thread could edit the mask in the meantime
                 contents.Dispose();
@@ -149,10 +151,10 @@ public static class ChunkRenderer
         }
 
         if (clippingChunk.IsT2)
-            OperationHelper.ClampAlpha(contents.Surface.SkiaSurface, clippingChunk.AsT2.Surface.SkiaSurface);
+            OperationHelper.ClampAlpha(contents.Surface.DrawingSurface, clippingChunk.AsT2.Surface.DrawingSurface);
         context.UpdateFromMember(folder);
-        contents.Surface.SkiaSurface.Canvas.DrawSurface(contents.Surface.SkiaSurface, 0, 0, context.ReplacingPaintWithOpacity);
-        targetChunk.Surface.SkiaSurface.Canvas.DrawSurface(contents.Surface.SkiaSurface, 0, 0, context.BlendModePaint);
+        contents.Surface.DrawingSurface.Canvas.DrawSurface(contents.Surface.DrawingSurface, 0, 0, context.ReplacingPaintWithOpacity);
+        targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(contents.Surface.DrawingSurface, 0, 0, context.BlendModePaint);
 
         return contents;
     }
@@ -168,7 +170,7 @@ public static class ChunkRenderer
             return new EmptyChunk();
 
         Chunk targetChunk = Chunk.Create(resolution);
-        targetChunk.Surface.SkiaSurface.Canvas.Clear();
+        targetChunk.Surface.DrawingSurface.Canvas.Clear();
 
         OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk = new FilledChunk();
         for (int i = 0; i < folder.Children.Count; i++)

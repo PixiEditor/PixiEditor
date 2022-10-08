@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
@@ -9,11 +9,11 @@ internal partial class PaletteColor : UserControl
 {
     public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
 
-    public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(nameof(Color), typeof(SKColor), typeof(PaletteColor), new PropertyMetadata(default(SKColor)));
+    public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(nameof(Color), typeof(Color), typeof(PaletteColor), new PropertyMetadata(default(Color)));
 
-    public SKColor Color
+    public Color Color
     {
-        get { return (SKColor)GetValue(ColorProperty); }
+        get { return (Color)GetValue(ColorProperty); }
         set { SetValue(ColorProperty, value); }
     }
 

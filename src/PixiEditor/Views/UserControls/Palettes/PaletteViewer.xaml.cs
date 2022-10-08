@@ -9,7 +9,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Views.Dialogs;
-using SkiaSharp;
+using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
@@ -18,18 +18,18 @@ namespace PixiEditor.Views.UserControls.Palettes;
 /// </summary>
 internal partial class PaletteViewer : UserControl
 {
-    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<SKColor>)));
+    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<BackendColor>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<BackendColor>)));
 
-    public WpfObservableRangeCollection<SKColor> Swatches
+    public WpfObservableRangeCollection<BackendColor> Swatches
     {
-        get => (WpfObservableRangeCollection<SKColor>)GetValue(SwatchesProperty);
+        get => (WpfObservableRangeCollection<BackendColor>)GetValue(SwatchesProperty);
         set => SetValue(SwatchesProperty, value);
     }
-    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<SKColor>), typeof(PaletteViewer));
+    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<BackendColor>), typeof(PaletteViewer));
 
-    public WpfObservableRangeCollection<SKColor> Colors
+    public WpfObservableRangeCollection<BackendColor> Colors
     {
-        get { return (WpfObservableRangeCollection<SKColor>)GetValue(ColorsProperty); }
+        get { return (WpfObservableRangeCollection<BackendColor>)GetValue(ColorsProperty); }
         set { SetValue(ColorsProperty, value); }
     }
 
@@ -99,7 +99,7 @@ internal partial class PaletteViewer : UserControl
     private void RemoveColorMenuItem_OnClick(object sender, RoutedEventArgs e)
     {
         MenuItem menuItem = (MenuItem)sender;
-        SKColor color = (SKColor)menuItem.CommandParameter;
+        BackendColor color = (BackendColor)menuItem.CommandParameter;
         if (Colors.Contains(color))
         {
             Colors.Remove(color);
@@ -185,7 +185,7 @@ internal partial class PaletteViewer : UserControl
         if (e.Data.GetDataPresent(PaletteColor.PaletteColorDaoFormat))
         {
             string data = (string)e.Data.GetData(PaletteColor.PaletteColorDaoFormat);
-            SKColor color = SKColor.Parse(data);
+            BackendColor color = BackendColor.Parse(data);
             if (Colors.Contains(color))
             {
                 PaletteColor paletteColor = sender as PaletteColor;
@@ -206,7 +206,7 @@ internal partial class PaletteViewer : UserControl
     private void ReplaceColor_OnClick(object sender, RoutedEventArgs e)
     {
         MenuItem menuItem = (MenuItem)sender;
-        SKColor color = (SKColor)menuItem.CommandParameter;
+        BackendColor color = (BackendColor)menuItem.CommandParameter;
         Replacer.ColorToReplace = color;
         Replacer.VisibilityCheckbox.IsChecked = false;
     }

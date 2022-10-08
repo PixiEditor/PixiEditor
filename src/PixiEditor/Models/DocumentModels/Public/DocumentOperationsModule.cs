@@ -2,6 +2,8 @@
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
@@ -135,7 +137,7 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new ResizeImage_Action(newSize, resampling));
     }
 
-    public void ReplaceColor(SKColor oldColor, SKColor newColor)
+    public void ReplaceColor(Color oldColor, Color newColor)
     {
         if (Internals.ChangeController.IsChangeActive || oldColor == newColor)
             return;

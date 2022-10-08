@@ -13,7 +13,7 @@
              d:DesignHeight="450" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
-            <conv:SKColorToMediaColorConverter x:Key="SKColorToMediaColorConverter"/>
+            <conv:BackendColorToMediaColorConverter x:Key="BackendColorToMediaColorConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">

@@ -1,16 +1,16 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class SetSelection_Change : Change
 {
-    private readonly SKPath selection;
-    private SKPath? originalSelection;
+    private readonly VectorPath selection;
+    private VectorPath? originalSelection;
 
     [GenerateMakeChangeAction]
-    public SetSelection_Change(SKPath selection)
+    public SetSelection_Change(VectorPath selection)
     {
-        this.selection = new SKPath(selection) { FillType = SKPathFillType.EvenOdd };
+        this.selection = new VectorPath(selection) { FillType = PathFillType.EvenOdd };
     }
 
     public override OneOf<Success, Error> InitializeAndValidate(Document target)
@@ -21,14 +21,14 @@ internal class SetSelection_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        target.Selection.SelectionPath = new SKPath(selection) { FillType = SKPathFillType.EvenOdd };
+        target.Selection.SelectionPath = new VectorPath(selection) { FillType = PathFillType.EvenOdd };
         ignoreInUndo = false;
-        return new Selection_ChangeInfo(new SKPath(selection) { FillType = SKPathFillType.EvenOdd });
+        return new Selection_ChangeInfo(new VectorPath(selection) { FillType = PathFillType.EvenOdd });
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        target.Selection.SelectionPath = new SKPath(originalSelection) { FillType = SKPathFillType.EvenOdd };
-        return new Selection_ChangeInfo(new SKPath(originalSelection) { FillType = SKPathFillType.EvenOdd });
+        target.Selection.SelectionPath = new VectorPath(originalSelection!) { FillType = PathFillType.EvenOdd };
+        return new Selection_ChangeInfo(new VectorPath(originalSelection!) { FillType = PathFillType.EvenOdd });
     }
 }

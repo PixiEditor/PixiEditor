@@ -1,11 +1,13 @@
 ﻿using ChunkyImageLib.Operations;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 
 internal class PixelPerfectPen_UpdateableChange : UpdateableChange
 {
-    private readonly SKColor color;
+    private readonly Color color;
     private readonly bool drawOnMask;
     private readonly Guid memberGuid;
     private readonly HashSet<VecI> confirmedPixels = new();
@@ -15,7 +17,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
     private CommittedChunkStorage? chunkStorage;
 
     [GenerateUpdateableChangeActions]
-    public PixelPerfectPen_UpdateableChange(Guid memberGuid, VecI pos, SKColor color, bool drawOnMask)
+    public PixelPerfectPen_UpdateableChange(Guid memberGuid, VecI pos, Color color, bool drawOnMask)
     {
         this.memberGuid = memberGuid;
         this.color = color;
@@ -33,7 +35,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
             return new Error();
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        image.SetBlendMode(SKBlendMode.SrcOver);
+        image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         return new Success();
     }
@@ -52,7 +54,7 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
     {
         if (pointsCount == 1)
         {
-            image.EnqueueDrawPixel(incomingPoints![0], color, SKBlendMode.Src);
+            image.EnqueueDrawPixel(incomingPoints![0], color, BlendMode.Src);
             confirmedPixels.Add(incomingPoints[0]);
             return;
         }
@@ -68,17 +70,17 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         (pixelsToConfirm2, pixelsToConfirm) = (pixelsToConfirm, pixelsToConfirm2);
         pixelsToConfirm.Clear();
 
-        SKPoint[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
-        foreach (VecI pixel in line)
+        Point[] line = BresenhamLineHelper.GetBresenhamLine(incomingPoints[pointsCount - 2], incomingPoints[pointsCount - 1]);
+        foreach (Point pixel in line)
         {
             pixelsToConfirm.Add(pixel);
         }
-        image.EnqueueDrawPixels(line.Select(point => (VecI)point), color, SKBlendMode.Src);
+        image.EnqueueDrawPixels(line.Select(point => new VecI((int)point.X, (int)point.Y)), color, BlendMode.Src);
 
         if (pointsCount >= 3 && IsLShape(pointsCount - 1) && !confirmedPixels.Contains(incomingPoints[pointsCount - 2]))
         {
             VecI pixelToErase = incomingPoints[pointsCount - 2];
-            image.EnqueueDrawPixel(pixelToErase, SKColors.Transparent, SKBlendMode.Src);
+            image.EnqueueDrawPixel(pixelToErase, Colors.Transparent, BlendMode.Src);
             pixelsToConfirm.Remove(pixelToErase);
             pixelsToConfirm2.Remove(pixelToErase);
             incomingPoints.RemoveAt(pointsCount - 2);
@@ -110,9 +112,9 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         }
         else
         {
-            image.SetBlendMode(SKBlendMode.SrcOver);
+            image.SetBlendMode(BlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-            image.EnqueueDrawPixels(confirmedPixels, color, SKBlendMode.Src);
+            image.EnqueueDrawPixels(confirmedPixels, color, BlendMode.Src);
         }
 
         var affChunks = image.FindAffectedChunks();

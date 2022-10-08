@@ -1,8 +1,8 @@
-﻿using System;
-using System.IO;
-using ChunkyImageLib;
+﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using Xunit;
 
 namespace ChunkyImageLibTest;
@@ -24,30 +24,30 @@ public class ChunkyImageTests
     public void LoadDemo()
     {
         var path = @"C:\Users\egor0\Desktop\SpazzS1.png";
-        ImportImage(path, new VecI(5,5));
+        ImportImage(path, new VecI(5, 5));
     }
 
     [Fact]
     public void Dispose_ComplexImage_ReturnsAllChunks()
     {
         ChunkyImage image = new ChunkyImage(new(ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize));
-        image.EnqueueDrawRectangle(new(new(5, 5), new(80, 80), 0, 2, SKColors.AliceBlue, SKColors.Snow));
+        image.EnqueueDrawRectangle(new(new(5, 5), new(80, 80), 0, 2, Colors.AliceBlue, Colors.Snow));
         using (Chunk target = Chunk.Create())
         {
-            image.DrawMostUpToDateChunkOn(new(0, 0), ChunkResolution.Full, target.Surface.SkiaSurface, VecI.Zero);
+            image.DrawMostUpToDateChunkOn(new(0, 0), ChunkResolution.Full, target.Surface.DrawingSurface, VecI.Zero);
             image.CancelChanges();
             image.EnqueueResize(new(ChunkyImage.FullChunkSize * 4, ChunkyImage.FullChunkSize * 4));
-            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, SKColors.AliceBlue, SKColors.Snow, SKBlendMode.Multiply));
+            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, Colors.AliceBlue, Colors.Snow, BlendMode.Multiply));
             image.CommitChanges();
-            image.SetBlendMode(SKBlendMode.Overlay);
-            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, SKColors.AliceBlue, SKColors.Snow, SKBlendMode.Multiply));
-            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, SKColors.AliceBlue, SKColors.Snow));
+            image.SetBlendMode(BlendMode.Overlay);
+            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, Colors.AliceBlue, Colors.Snow, BlendMode.Multiply));
+            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, Colors.AliceBlue, Colors.Snow));
             image.CommitChanges();
-            image.SetBlendMode(SKBlendMode.Screen);
-            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, SKColors.AliceBlue, SKColors.Snow));
+            image.SetBlendMode(BlendMode.Screen);
+            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, Colors.AliceBlue, Colors.Snow));
             image.CancelChanges();
-            image.SetBlendMode(SKBlendMode.SrcOver);
-            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, SKColors.AliceBlue, SKColors.Snow));
+            image.SetBlendMode(BlendMode.SrcOver);
+            image.EnqueueDrawRectangle(new(VecD.Zero, image.CommittedSize, 0, 2, Colors.AliceBlue, Colors.Snow));
         }
         image.Dispose();
 
@@ -60,9 +60,9 @@ public class ChunkyImageTests
         const int chunkSize = ChunkyImage.FullChunkSize;
         ChunkyImage image = new ChunkyImage(new VecI(chunkSize * 2));
         image.EnqueueDrawRectangle
-            (new ShapeData(new VecD(chunkSize), new VecD(chunkSize * 2), 0, 0, SKColors.Transparent, SKColors.Red));
+            (new ShapeData(new VecD(chunkSize), new VecD(chunkSize * 2), 0, 0, Colors.Transparent, Colors.Red));
         image.CommitChanges();
-        Assert.Equal(SKColors.Red, image.GetCommittedPixel(new VecI(chunkSize + chunkSize / 2)));
+        Assert.Equal(Colors.Red, image.GetCommittedPixel(new VecI(chunkSize + chunkSize / 2)));
         image.Dispose();
         Assert.Equal(0, Chunk.ChunkCounter);
     }
@@ -73,8 +73,8 @@ public class ChunkyImageTests
         const int chunkSize = ChunkyImage.FullChunkSize;
         ChunkyImage image = new ChunkyImage(new VecI(chunkSize * 2));
         image.EnqueueDrawRectangle
-            (new ShapeData(new VecD(chunkSize), new VecD(chunkSize * 2), 0, 0, SKColors.Transparent, SKColors.Red));
-        Assert.Equal(SKColors.Red, image.GetMostUpToDatePixel(new VecI(chunkSize + chunkSize / 2)));
+            (new ShapeData(new VecD(chunkSize), new VecD(chunkSize * 2), 0, 0, Colors.Transparent, Colors.Red));
+        Assert.Equal(Colors.Red, image.GetMostUpToDatePixel(new VecI(chunkSize + chunkSize / 2)));
         image.Dispose();
         Assert.Equal(0, Chunk.ChunkCounter);
     }
@@ -85,17 +85,17 @@ public class ChunkyImageTests
         const int chunkSize = ChunkyImage.FullChunkSize;
         ChunkyImage image = new ChunkyImage(new VecI(chunkSize * 2));
         image.EnqueueDrawRectangle
-            (new ShapeData(new VecD(chunkSize), new VecD(chunkSize * 2), 0, 0, SKColors.Transparent, SKColors.Red));
+            (new ShapeData(new VecD(chunkSize), new VecD(chunkSize * 2), 0, 0, Colors.Transparent, Colors.Red));
         image.CommitChanges();
-        image.SetBlendMode(SKBlendMode.SrcOver);
+        image.SetBlendMode(BlendMode.SrcOver);
         image.EnqueueDrawRectangle(new ShapeData(
             new VecD(chunkSize),
             new VecD(chunkSize * 2),
             0, 
             0,
-            SKColors.Transparent,
-            new SKColor(0, 255, 0, 128)));
-        Assert.Equal(new SKColor(127, 128, 0), image.GetMostUpToDatePixel(new VecI(chunkSize + chunkSize / 2)));
+            Colors.Transparent,
+            new Color(0, 255, 0, 128)));
+        Assert.Equal(new Color(127, 128, 0), image.GetMostUpToDatePixel(new VecI(chunkSize + chunkSize / 2)));
         image.Dispose();
         Assert.Equal(0, Chunk.ChunkCounter);
     }
@@ -110,8 +110,8 @@ public class ChunkyImageTests
                 new VecD(chunkSize * 10),
                 0,
                 0,
-                SKColors.Transparent,
-                SKColors.Red));
+                Colors.Transparent,
+                Colors.Red));
         image.CommitChanges();
         Assert.Collection(
             image.FindAllChunks(), 

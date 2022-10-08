@@ -1,20 +1,23 @@
-﻿using SkiaSharp;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class PathBasedPen_UpdateableChange : UpdateableChange
 {
     private readonly Guid memberGuid;
-    private readonly SKColor color;
+    private readonly Color color;
     private readonly float strokeWidth;
     private readonly bool drawOnMask;
 
     private CommittedChunkStorage? storedChunks;
-    private SKPath tempPath = new();
+    private VectorPath tempPath = new();
 
     private List<VecD> points = new();
 
     [GenerateUpdateableChangeActions]
-    public PathBasedPen_UpdateableChange(Guid memberGuid, VecD pos, SKColor color, float strokeWidth, bool drawOnMask)
+    public PathBasedPen_UpdateableChange(Guid memberGuid, VecD pos, Color color, float strokeWidth, bool drawOnMask)
     {
         this.memberGuid = memberGuid;
         this.color = color;
@@ -34,7 +37,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
             return new Error();
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        image.SetBlendMode(SKBlendMode.SrcOver);
+        image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
         return new Success();
     }
@@ -52,7 +55,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         for (int i = 0; i < points.Count; i++)
         {
             UpdateTempPath(i + 1);
-            image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round, SKBlendMode.Src);
+            image.EnqueueDrawPath(tempPath, color, strokeWidth, StrokeCap.Round, BlendMode.Src);
         }
     }
 
@@ -61,18 +64,18 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         tempPath.Reset();
         if (points.Count == 1)
         {
-            tempPath.MoveTo((SKPoint)points[0]);
+            tempPath.MoveTo((Point)points[0]);
             return;
         }
         if (points.Count == 2)
         {
-            tempPath.MoveTo((SKPoint)points[0]);
-            tempPath.LineTo((SKPoint)points[1]);
+            tempPath.MoveTo((Point)points[0]);
+            tempPath.LineTo((Point)points[1]);
             return;
         }
         var (mid, _) = FindCubicPoints(points[^3], points[^2], points[^1], points[^1]);
-        tempPath.MoveTo((SKPoint)points[^2]);
-        tempPath.QuadTo((SKPoint)mid, (SKPoint)points[^1]);
+        tempPath.MoveTo((Point)points[^2]);
+        tempPath.QuadTo((Point)mid, (Point)points[^1]);
     }
 
     private void UpdateTempPath(int pointsCount)
@@ -80,20 +83,20 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         tempPath.Reset();
         if (pointsCount is 1 or 2)
         {
-            tempPath.MoveTo((SKPoint)points[0]);
+            tempPath.MoveTo((Point)points[0]);
             return;
         }
         if (pointsCount == 3)
         {
             var (mid, _) = FindCubicPoints(points[0], points[1], points[2], points[2]);
-            tempPath.MoveTo((SKPoint)points[0]);
-            tempPath.QuadTo((SKPoint)mid, (SKPoint)points[2]);
+            tempPath.MoveTo((Point)points[0]);
+            tempPath.QuadTo((Point)mid, (Point)points[2]);
             return;
         }
 
         var (mid1, mid2) = FindCubicPoints(points[pointsCount - 4], points[pointsCount - 3], points[pointsCount - 2], points[pointsCount - 1]);
-        tempPath.MoveTo((SKPoint)points[pointsCount - 3]);
-        tempPath.CubicTo((SKPoint)mid1, (SKPoint)mid2, (SKPoint)points[pointsCount - 2]);
+        tempPath.MoveTo((Point)points[pointsCount - 3]);
+        tempPath.CubicTo((Point)mid1, (Point)mid2, (Point)points[pointsCount - 2]);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -107,7 +110,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         {
             UpdateTempPathFinish();
 
-            image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round, SKBlendMode.Src);
+            image.EnqueueDrawPath(tempPath, color, strokeWidth, StrokeCap.Round, BlendMode.Src);
             var affChunks = image.FindAffectedChunks();
             storedChunks = new CommittedChunkStorage(image, affChunks);
             image.CommitChanges();
@@ -116,7 +119,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         }
         else
         {
-            image.SetBlendMode(SKBlendMode.SrcOver);
+            image.SetBlendMode(BlendMode.SrcOver);
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
             FastforwardEnqueueDrawPath(image);
@@ -134,7 +137,7 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
 
         int opCount = image.QueueLength;
-        image.EnqueueDrawPath(tempPath, color, strokeWidth, SKStrokeCap.Round, SKBlendMode.Src);
+        image.EnqueueDrawPath(tempPath, color, strokeWidth, StrokeCap.Round, BlendMode.Src);
         var affChunks = image.FindAffectedChunks(opCount);
 
         return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);

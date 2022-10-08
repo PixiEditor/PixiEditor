@@ -2,13 +2,14 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.Views.UserControls;
 #nullable enable
 internal class SelectionOverlay : Control
 {
     public static readonly DependencyProperty PathProperty =
-        DependencyProperty.Register(nameof(Path), typeof(SKPath), typeof(SelectionOverlay),
+        DependencyProperty.Register(nameof(Path), typeof(VectorPath), typeof(SelectionOverlay),
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty ZoomboxScaleProperty =
@@ -29,9 +30,9 @@ internal class SelectionOverlay : Control
         set => SetValue(ZoomboxScaleProperty, value);
     }
 
-    public SKPath? Path
+    public VectorPath? Path
     {
-        get => (SKPath?)GetValue(PathProperty);
+        get => (VectorPath?)GetValue(PathProperty);
         set => SetValue(PathProperty, value);
     }
 

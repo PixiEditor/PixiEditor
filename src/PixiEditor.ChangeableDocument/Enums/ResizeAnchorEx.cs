@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Enums;
+﻿using PixiEditor.DrawingApi.Core.Numerics;
+
+namespace PixiEditor.ChangeableDocument.Enums;
 
 internal static class ResizeAnchorEx
 {

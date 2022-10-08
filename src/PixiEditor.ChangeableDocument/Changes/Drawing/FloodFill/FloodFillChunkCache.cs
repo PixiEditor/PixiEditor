@@ -1,12 +1,14 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
 internal class FloodFillChunkCache : IDisposable
 {
-    private SKPaint ReplacingPaint { get; } = new SKPaint() { BlendMode = SKBlendMode.Src };
+    private Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
 
     private readonly HashSet<Guid>? membersToRender;
     private readonly IReadOnlyFolder? structureRoot;
@@ -53,7 +55,7 @@ internal class FloodFillChunkCache : IDisposable
             return new EmptyChunk();
         Chunk chunkOnImage = Chunk.Create(ChunkResolution.Full);
 
-        if (!image.DrawMostUpToDateChunkOn(pos, ChunkResolution.Full, chunkOnImage.Surface.SkiaSurface, VecI.Zero, ReplacingPaint))
+        if (!image.DrawMostUpToDateChunkOn(pos, ChunkResolution.Full, chunkOnImage.Surface.DrawingSurface, VecI.Zero, ReplacingPaint))
         {
             chunkOnImage.Dispose();
             acquiredChunks[pos] = new EmptyChunk();

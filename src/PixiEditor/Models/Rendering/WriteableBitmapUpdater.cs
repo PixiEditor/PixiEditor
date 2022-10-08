@@ -1,13 +1,14 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
-using OneOf;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using SkiaSharp;
 
 namespace PixiEditor.Models.Rendering;
 #nullable enable
@@ -16,9 +17,9 @@ internal class WriteableBitmapUpdater
     private readonly DocumentViewModel doc;
     private readonly DocumentInternalParts internals;
 
-    private static readonly SKPaint ReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
-    private static readonly SKPaint SmoothReplacingPaint = new SKPaint() { BlendMode = SKBlendMode.Src, FilterQuality = SKFilterQuality.Medium, IsAntialias = true };
-    private static readonly SKPaint ClearPaint = new SKPaint() { BlendMode = SKBlendMode.Src, Color = SKColors.Transparent };
+    private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
+    private static readonly Paint SmoothReplacingPaint = new() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.Medium, IsAntiAliased = true };
+    private static readonly Paint ClearPaint = new() { BlendMode = BlendMode.Src, Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent };
 
     /// <summary>
     /// Chunks that have been updated but don't need to be re-rendered because they are out of view
@@ -227,7 +228,7 @@ internal class WriteableBitmapUpdater
                     OneOf<Chunk, EmptyChunk> rendered = ChunkRenderer.MergeWholeStructure(chunk, ChunkResolution.Full, folder);
                     if (rendered.IsT0)
                     {
-                        memberVM.PreviewSurface.Canvas.DrawSurface(rendered.AsT0.Surface.SkiaSurface, pos, SmoothReplacingPaint);
+                        memberVM.PreviewSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos, SmoothReplacingPaint);
                         rendered.AsT0.Dispose();
                     }
                     else
@@ -270,7 +271,7 @@ internal class WriteableBitmapUpdater
         foreach (var (resolution, chunks) in chunksToRerender)
         {
             int chunkSize = resolution.PixelSize();
-            SKSurface screenSurface = doc.Surfaces[resolution];
+            DrawingSurface screenSurface = doc.Surfaces[resolution];
             foreach (var chunkPos in chunks)
             {
                 RenderChunk(chunkPos, screenSurface, resolution);
@@ -283,12 +284,12 @@ internal class WriteableBitmapUpdater
         }
     }
 
-    private void RenderChunk(VecI chunkPos, SKSurface screenSurface, ChunkResolution resolution)
+    private void RenderChunk(VecI chunkPos, DrawingSurface screenSurface, ChunkResolution resolution)
     {
         ChunkRenderer.MergeWholeStructure(chunkPos, resolution, internals.Tracker.Document.StructureRoot).Switch(
             (Chunk chunk) =>
             {
-                screenSurface.Canvas.DrawSurface(chunk.Surface.SkiaSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
+                screenSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);
                 chunk.Dispose();
             },
             (EmptyChunk _) =>

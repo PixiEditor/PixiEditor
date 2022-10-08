@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -7,7 +7,7 @@ internal class PaletteItemsToWidthConverter : SingleInstanceConverter<PaletteIte
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is IList<SKColor> colors && colors.Count == 0)
+        if (value is IList<Color> colors && colors.Count == 0)
         {
             return 0;
         }

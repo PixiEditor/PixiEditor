@@ -1,5 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -44,14 +46,14 @@ internal class LineToolExecutor : ShapeToolExecutor<LineToolViewModel>
 
         lastRect = rect;
 
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, strokeWidth, strokeColor, SKStrokeCap.Butt, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
     }
 
     protected override void DrawShape(VecI currentPos, bool firstDraw) => DrawLine(currentPos, firstDraw);
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
     {
-        return new DrawLine_Action(memberGuid, (VecI)corners.TopLeft, (VecI)corners.BottomRight.Ceiling(), strokeWidth, strokeColor, SKStrokeCap.Butt,
+        return new DrawLine_Action(memberGuid, (VecI)corners.TopLeft, (VecI)corners.BottomRight.Ceiling(), strokeWidth, strokeColor, StrokeCap.Butt,
             drawOnMask);
     }
 

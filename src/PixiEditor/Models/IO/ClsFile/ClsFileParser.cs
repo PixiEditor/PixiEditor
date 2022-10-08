@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using CLSEncoderDecoder;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.Models.IO.ClsFile;
 
@@ -21,14 +21,14 @@ internal class ClsFileParser : PaletteFileParser
             }
             catch
             {
-                return new PaletteFileData("Corrupted", Array.Empty<SKColor>()) { IsCorrupted = true };
+                return new PaletteFileData("Corrupted", Array.Empty<Color>()) { IsCorrupted = true };
             }
 
             PaletteFileData data = new(
                 set.Utf8Name,
                 set.Colors
                     .Where(static color => color.Alpha > 0)
-                    .Select(static color => new SKColor(color.Red, color.Green, color.Blue, 255))
+                    .Select(static color => new Color(color.Red, color.Green, color.Blue, 255))
                     .ToArray()
             );
             return data;
@@ -41,7 +41,7 @@ internal class ClsFileParser : PaletteFileParser
 
         string name = data.Title;
         List<ClsColor> colors = data.Colors
-            .Select(color => new ClsColor(color.Red, color.Green, color.Blue, color.Alpha)).ToList();
+            .Select(color => new ClsColor(color.R, color.G, color.B, color.A)).ToList();
         await Task.Run(() =>
         {
             if (name.Length == 0)

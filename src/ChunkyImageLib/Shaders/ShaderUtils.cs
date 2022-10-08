@@ -1,13 +1,13 @@
 ﻿using ComputeSharp;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace ChunkyImageLib.Shaders;
 
 public static class ShaderUtils
 {
-    public static float4 UnpackPixel(uint2 packedPixel)
+    public static Float4 UnpackPixel(UInt2 packedPixel)
     {
-        return new float4(
+        return new Float4(
             Hlsl.Float16ToFloat32(packedPixel.X),
             Hlsl.Float16ToFloat32(packedPixel.X >> 16),
             Hlsl.Float16ToFloat32(packedPixel.Y),
@@ -15,12 +15,12 @@ public static class ShaderUtils
         );
     }
 
-    public static uint2 PackPixel(SKColor color)
+    public static UInt2 PackPixel(Color color)
     {
-        uint convR = (BitConverter.HalfToUInt16Bits((Half)(color.Red / 255f)));
-        uint convG = (BitConverter.HalfToUInt16Bits((Half)(color.Green / 255f)));
-        uint convB = (BitConverter.HalfToUInt16Bits((Half)(color.Blue / 255f)));
-        uint convA = (BitConverter.HalfToUInt16Bits((Half)(color.Alpha / 255f)));
+        uint convR = (BitConverter.HalfToUInt16Bits((Half)(color.R / 255f)));
+        uint convG = (BitConverter.HalfToUInt16Bits((Half)(color.G / 255f)));
+        uint convB = (BitConverter.HalfToUInt16Bits((Half)(color.B / 255f)));
+        uint convA = (BitConverter.HalfToUInt16Bits((Half)(color.A / 255f)));
 
         return new UInt2(convG << 16 | convR, convB | convA << 16);
     }

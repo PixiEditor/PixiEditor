@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using System.Windows;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Zoombox;
 

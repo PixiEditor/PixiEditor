@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
@@ -160,7 +161,7 @@ internal class ViewModelMain : ViewModelBase
         return DocumentManagerSubViewModel.ActiveDocument is not null;
     }
 
-    public bool DocumentIsNotNull((SKColor oldColor, SKColor newColor) obj)
+    public bool DocumentIsNotNull((Color oldColor, Color newColor) obj)
     {
         return DocumentIsNotNull(null);
     }

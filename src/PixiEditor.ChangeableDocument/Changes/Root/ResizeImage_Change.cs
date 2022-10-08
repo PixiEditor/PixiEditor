@@ -1,6 +1,9 @@
 ﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -33,13 +36,13 @@ internal class ResizeImage_Change : Change
         return new Success();
     }
 
-    private static SKFilterQuality ToFilterQuality(ResamplingMethod method, bool downscaling) =>
+    private static FilterQuality ToFilterQuality(ResamplingMethod method, bool downscaling) =>
         (method, downscaling) switch
         {
-            (ResamplingMethod.NearestNeighbor, _) => SKFilterQuality.None,
-            (ResamplingMethod.Bilinear, true) => SKFilterQuality.Medium,
-            (ResamplingMethod.Bilinear, false) => SKFilterQuality.Low,
-            (ResamplingMethod.Bicubic, _) => SKFilterQuality.High,
+            (ResamplingMethod.NearestNeighbor, _) => FilterQuality.None,
+            (ResamplingMethod.Bilinear, true) => FilterQuality.Medium,
+            (ResamplingMethod.Bilinear, false) => FilterQuality.Low,
+            (ResamplingMethod.Bicubic, _) => FilterQuality.High,
             _ => throw new ArgumentOutOfRangeException(),
         };
 
@@ -49,22 +52,22 @@ internal class ResizeImage_Change : Change
         image.DrawMostUpToDateRegionOn(
             new(VecI.Zero, originalSize), 
             ChunkResolution.Full,
-            originalSurface.SkiaSurface,
+            originalSurface.DrawingSurface,
             VecI.Zero);
         
         bool downscaling = newSize.LengthSquared < originalSize.LengthSquared;
-        SKFilterQuality quality = ToFilterQuality(method, downscaling);
-        using SKPaint paint = new()
+        FilterQuality quality = ToFilterQuality(method, downscaling);
+        using Paint paint = new()
         {
             FilterQuality = quality, 
-            BlendMode = SKBlendMode.Src,
+            BlendMode = BlendMode.Src,
         };
 
         using Surface newSurface = new(newSize);
-        newSurface.SkiaSurface.Canvas.Save();
-        newSurface.SkiaSurface.Canvas.Scale(newSize.X / (float)originalSize.X, newSize.Y / (float)originalSize.Y);
-        newSurface.SkiaSurface.Canvas.DrawSurface(originalSurface.SkiaSurface, 0, 0, paint);
-        newSurface.SkiaSurface.Canvas.Restore();
+        newSurface.DrawingSurface.Canvas.Save();
+        newSurface.DrawingSurface.Canvas.Scale(newSize.X / (float)originalSize.X, newSize.Y / (float)originalSize.Y);
+        newSurface.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
+        newSurface.DrawingSurface.Canvas.Restore();
         
         image.EnqueueResize(newSize);
         image.EnqueueClear();

@@ -1,5 +1,8 @@
 ﻿using ChunkyImageLib.DataHolders;
-using SkiaSharp;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace ChunkyImageLib.Operations;
 internal class BresenhamLineOperation : IDrawOperation
@@ -7,31 +10,31 @@ internal class BresenhamLineOperation : IDrawOperation
     public bool IgnoreEmptyChunks => false;
     private readonly VecI from;
     private readonly VecI to;
-    private readonly SKColor color;
-    private readonly SKBlendMode blendMode;
-    private readonly SKPoint[] points;
-    private SKPaint paint;
+    private readonly Color color;
+    private readonly BlendMode blendMode;
+    private readonly Point[] points;
+    private Paint paint;
 
-    public BresenhamLineOperation(VecI from, VecI to, SKColor color, SKBlendMode blendMode)
+    public BresenhamLineOperation(VecI from, VecI to, Color color, BlendMode blendMode)
     {
         this.from = from;
         this.to = to;
         this.color = color;
         this.blendMode = blendMode;
-        paint = new SKPaint() { BlendMode = blendMode };
+        paint = new Paint() { BlendMode = blendMode };
         points = BresenhamLineHelper.GetBresenhamLine(from, to);
     }
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
         // a hacky way to make the lines look slightly better on non full res chunks
-        paint.Color = new SKColor(color.Red, color.Green, color.Blue, (byte)(color.Alpha * chunk.Resolution.Multiplier()));
+        paint.Color = new Color(color.R, color.G, color.B, (byte)(color.A * chunk.Resolution.Multiplier()));
 
-        var surf = chunk.Surface.SkiaSurface;
+        var surf = chunk.Surface.DrawingSurface;
         surf.Canvas.Save();
         surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
-        surf.Canvas.DrawPoints(SKPointMode.Points, points, paint);
+        surf.Canvas.DrawPoints(PointMode.Points, points, paint);
         surf.Canvas.Restore();
     }
 
