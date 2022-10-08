@@ -8,7 +8,7 @@ namespace ChunkyImageLib;
 public class Chunk : IDisposable
 {
     private static volatile int chunkCounter = 0;
-    
+
     /// <summary>
     /// The number of chunks that haven't yet been returned (includes garbage collected chunks).
     /// Used in tests to make sure that all chunks are disposed.
@@ -16,17 +16,17 @@ public class Chunk : IDisposable
     public static int ChunkCounter => chunkCounter;
 
     private bool returned = false;
-    
+
     /// <summary>
     /// The surface of the chunk
     /// </summary>
     public Surface Surface { get; }
-    
+
     /// <summary>
     /// The size of the chunk
     /// </summary>
     public VecI PixelSize { get; }
-    
+
     /// <summary>
     /// The resolution of the chunk
     /// </summary>
@@ -68,7 +68,6 @@ public class Chunk : IDisposable
     {
         if (returned)
             return;
-        Surface.DrawingSurface.Canvas.Flush();
         returned = true;
         Interlocked.Decrement(ref chunkCounter);
         ChunkPool.Instance.Push(this);

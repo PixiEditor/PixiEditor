@@ -1204,9 +1204,4 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         disposed = true;
     }
-
-    ~ChunkyImage()
-    {
-        DisposeAll();
-    }
 }
