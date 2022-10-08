@@ -31,8 +31,8 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public void Dispose(VectorPath path)
         {
+            if (path.IsDisposed) return;
             ManagedInstances[path.ObjectPointer].Dispose();
-            
             ManagedInstances.Remove(path.ObjectPointer);
         }
 
@@ -74,14 +74,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public IntPtr Create()
         {
             SKPath path = new SKPath();
-            ManagedInstances[path.Handle] = path;
+            ManagedInstances.Add(path.Handle, path);
             return path.Handle;
         }
 
         public IntPtr Clone(VectorPath other)
         {
             SKPath path = new SKPath(ManagedInstances[other.ObjectPointer]);
-            ManagedInstances[path.Handle] = path;
+            ManagedInstances.Add(path.Handle, path);
             return path.Handle;
         }
 
@@ -140,7 +140,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public VectorPath Op(VectorPath vectorPath, VectorPath ellipsePath, VectorPathOp pathOp)
         {
             SKPath skPath = ManagedInstances[vectorPath.ObjectPointer].Op(ManagedInstances[ellipsePath.ObjectPointer], (SKPathOp)pathOp);
-            ManagedInstances[skPath.Handle] = skPath;
+            ManagedInstances.Add(skPath.Handle, skPath);
             return new VectorPath(skPath.Handle);
         }
 

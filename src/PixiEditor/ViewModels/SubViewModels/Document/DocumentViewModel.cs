@@ -389,7 +389,7 @@ internal class DocumentViewModel : NotifyableObject
 
     public void InternalUpdateSelectionPath(VectorPath vectorPath)
     {
-        (VectorPath? toDispose, this.selectionPath) = (this.selectionPath, selectionPath);
+        (VectorPath? toDispose, this.selectionPath) = (this.selectionPath, vectorPath);
         toDispose.Dispose();
         RaisePropertyChanged(nameof(SelectionPathBindable));
     }

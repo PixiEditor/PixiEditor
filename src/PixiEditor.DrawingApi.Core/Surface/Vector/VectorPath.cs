@@ -48,6 +48,8 @@ public class VectorPath : NativeObject
     public bool IsEmpty => VerbCount == 0;
     public RectD Bounds => DrawingBackendApi.Current.PathImplementation.GetBounds(this);
     
+    public bool IsDisposed { get; private set; }
+    
     public VectorPath(IntPtr nativePointer) : base(nativePointer)
     {
     }
@@ -67,6 +69,7 @@ public class VectorPath : NativeObject
     public override void Dispose()
     {
         DrawingBackendApi.Current.PathImplementation.Dispose(this);
+        IsDisposed = true;
     }
 
     public void Reset()
