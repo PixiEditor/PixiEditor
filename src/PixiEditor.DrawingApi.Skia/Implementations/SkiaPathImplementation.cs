@@ -148,5 +148,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             ManagedInstances[vectorPath.ObjectPointer].Close();
         }
+
+        public string ToSvgPathData(VectorPath vectorPath)
+        {
+            return ManagedInstances[vectorPath.ObjectPointer].ToSvgPathData();
+        }
     }
 }

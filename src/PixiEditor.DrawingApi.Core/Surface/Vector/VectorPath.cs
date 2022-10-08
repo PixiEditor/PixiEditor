@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 
@@ -115,5 +116,10 @@ public class VectorPath : NativeObject
     public void Close()
     {
         DrawingBackendApi.Current.PathImplementation.Close(this);
+    }
+
+    public string ToSvgPathData()
+    {
+        return DrawingBackendApi.Current.PathImplementation.ToSvgPathData(this);
     }
 }
