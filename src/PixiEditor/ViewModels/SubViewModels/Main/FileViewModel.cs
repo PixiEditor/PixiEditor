@@ -222,6 +222,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         if (manager.Documents.Select(x => x.FullFilePath).All(y => y != path))
         {
             manager.Documents.Add(document);
+            Owner.WindowSubViewModel.CreateNewViewport(document);
             Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
         }
         else

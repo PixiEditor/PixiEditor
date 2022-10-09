@@ -24,6 +24,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
     {
         private MaskBuilder maskBuilder;
         
+        public int OrderInStructure { get; set; }
+
         public string Name { get; set; }
         
         public bool IsVisible { get; set; }
@@ -43,6 +45,12 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         {
             IsVisible = true;
             Opacity = 1;
+        }
+        
+        public StructureMemberBuilder WithOrderInStructure(int order)
+        {
+            OrderInStructure = order;
+            return this;
         }
         
         public StructureMemberBuilder WithName(string name)
@@ -155,7 +163,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
     public class FolderBuilder : StructureMemberBuilder
     {
-        public IEnumerable<StructureMemberBuilder> Children { get; set; }
+        public List<StructureMemberBuilder> Children { get; set; } = new List<StructureMemberBuilder>();
 
         public new FolderBuilder WithName(string name) => base.WithName(name) as FolderBuilder;
         
@@ -168,9 +176,12 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public new FolderBuilder WithMask(Action<MaskBuilder> mask) => base.WithMask(mask) as FolderBuilder;
         
         public new FolderBuilder WithGuid(Guid guid) => base.WithGuid(guid) as FolderBuilder;
-        
+
         public FolderBuilder WithChildren(Action<ChildrenBuilder> children)
         {
+            ChildrenBuilder childrenBuilder = new();
+            children(childrenBuilder);
+            Children = childrenBuilder.Children;
             return this;
         }
     }
@@ -229,7 +240,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
 internal class ChildrenBuilder
 {
-    public ICollection<DocumentViewModelBuilder.StructureMemberBuilder> Children { get; set; } = new List<DocumentViewModelBuilder.StructureMemberBuilder>();
+    public List<DocumentViewModelBuilder.StructureMemberBuilder> Children { get; set; } = new List<DocumentViewModelBuilder.StructureMemberBuilder>();
         
     public ChildrenBuilder WithLayer(Action<DocumentViewModelBuilder.LayerBuilder> layer)
     {

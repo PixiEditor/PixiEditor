@@ -11,6 +11,7 @@ using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.IO;
@@ -60,18 +61,16 @@ internal class Importer : NotifyableObject
 
     public static DocumentViewModel ImportDocument(string path)
     {
-        /*
         try
         {
-            Document doc = PixiEditor.Parser.PixiParser.Deserialize(path).ToDocument();
-            doc.DocumentFilePath = path;
+            DocumentViewModel doc = PixiParser.Deserialize(path).ToDocument();
+            doc.FullFilePath = path;
             return doc;
         }
         catch (InvalidFileException)
         {
             throw new CorruptedFileException();
-        }*/
-        return null;
+        }
     }
 
     public static bool IsSupportedFile(string path)

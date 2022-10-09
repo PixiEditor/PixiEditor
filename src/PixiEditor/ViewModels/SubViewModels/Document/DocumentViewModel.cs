@@ -211,6 +211,10 @@ internal class DocumentViewModel : NotifyableObject
             {
                 PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY, false);
             }
+            
+            acc.AddActions(
+                new StructureMemberOpacity_Action(member.GuidValue, member.Opacity),
+                new EndStructureMemberOpacity_Action());
 
             if (member.HasMask)
             {
