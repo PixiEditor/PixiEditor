@@ -191,6 +191,9 @@ internal class DocumentViewModel : NotifyableObject
 
         var acc = viewModel.Internals.ActionAccumulator;
 
+        viewModel.Swatches = new WpfObservableRangeCollection<Color>(builderInstance.Swatches);
+        viewModel.Palette = new WpfObservableRangeCollection<Color>(builderInstance.Palette);
+
         AddMembers(viewModel.StructureRoot.GuidValue, builderInstance.Children);
 
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());

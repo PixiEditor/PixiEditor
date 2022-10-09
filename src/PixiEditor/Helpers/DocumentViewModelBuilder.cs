@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
@@ -9,14 +10,29 @@ namespace PixiEditor.Helpers;
 internal class DocumentViewModelBuilder : ChildrenBuilder
 {
     public int Width { get; set; }
-
     public int Height { get; set; }
+    
+    public List<Color> Swatches { get; set; } = new List<Color>();
+    public List<Color> Palette { get; set; } = new List<Color>();
+    
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
         Width = width;
         Height = height;
 
+        return this;
+    }
+    
+    public DocumentViewModelBuilder WithSwatches(List<Color> swatches)
+    {
+        Swatches = swatches;
+        return this;
+    }
+    
+    public DocumentViewModelBuilder WithPalette(List<Color> palette)
+    {
+        Palette = palette;
         return this;
     }
 

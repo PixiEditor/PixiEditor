@@ -1,4 +1,5 @@
-﻿using PixiEditor.Parser;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -11,8 +12,11 @@ internal static class ParserHelpers
         List<SerializableLayer> builtLayers = new List<SerializableLayer>();
         DocumentViewModel vm = DocumentViewModel.Build(builder =>
         {
-            builder.WithSize(serializableDocument.Width, serializableDocument.Height);
-            
+            builder
+                .WithSize(serializableDocument.Width, serializableDocument.Height)
+                .WithPalette(serializableDocument.Palette.Select(x => new Color(x.R, x.G, x.B, x.A)).ToList())
+                .WithSwatches(serializableDocument.Swatches.Select(x => new Color(x.R, x.G, x.B, x.A)).ToList());
+
             if (serializableDocument.Groups != null)
             {
                 foreach (var group in serializableDocument.Groups)
