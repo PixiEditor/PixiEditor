@@ -10,15 +10,33 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public class SkiaImageImplementation : SkObjectImplementation<SKImage>, IImageImplementation
     {
         private readonly SkObjectImplementation<SKData> _imgImplementation;
+        private SkObjectImplementation<SKSurface> _surfaceImplementation;
         
         public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation)
         {
             _imgImplementation = imgDataImplementation;
         }
         
+        public void SetSurfaceImplementation(SkObjectImplementation<SKSurface> surfaceImplementation)
+        {
+            _surfaceImplementation = surfaceImplementation;
+        }
+        
         public Image Snapshot(DrawingSurface drawingSurface)
         {
-            throw new NotImplementedException();
+            var surface = _surfaceImplementation[drawingSurface.ObjectPointer];
+            SKImage snapshot = surface.Snapshot();
+            
+            ManagedInstances[snapshot.Handle] = snapshot;
+            return new Image(snapshot.Handle);
+        }
+        
+        public Image FromEncodedData(byte[] dataBytes)
+        {
+            SKImage img = SKImage.FromEncodedData(dataBytes);
+            ManagedInstances[img.Handle] = img;
+            
+            return new Image(img.Handle);
         }
 
         public void DisposeImage(Image image)

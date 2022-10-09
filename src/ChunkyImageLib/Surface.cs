@@ -37,6 +37,17 @@ public class Surface : IDisposable
     {
         DrawingSurface.Canvas.DrawSurface(original.DrawingSurface, 0, 0);
     }
+    
+    public static Surface Combine(int width, int height, List<(Image img, VecI offset)> images)
+    {
+        Surface surface = new Surface(new VecI(width, height));
+        foreach (var (img, offset) in images)
+        {
+            surface.DrawingSurface.Canvas.DrawImage(img, offset.X, offset.Y);
+        }
+
+        return surface;
+    }
 
     public static Surface Load(string path)
     {
@@ -137,7 +148,7 @@ public class Surface : IDisposable
         Unsafe.InitBlockUnaligned((byte*)buffer, 0, (uint)byteC);
         return buffer;
     }
-
+    
     public void Dispose()
     {
         if (disposed)

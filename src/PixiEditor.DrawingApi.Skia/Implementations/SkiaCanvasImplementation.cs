@@ -18,16 +18,15 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private readonly SkObjectImplementation<SKBitmap> _bitmapImpl;
         private readonly SkObjectImplementation<SKPath> _pathImpl;
 
-        public SkiaCanvasImplementation(SkObjectImplementation<SKPaint> paintImpl, SkObjectImplementation<SKSurface> surfaceImpl, SkObjectImplementation<SKImage> imageImpl, SkObjectImplementation<SKBitmap> bitmapImpl, SkObjectImplementation<SKPath> pathImpl)
+        public SkiaCanvasImplementation(SkObjectImplementation<SKPaint> paintImpl, SkObjectImplementation<SKImage> imageImpl, SkObjectImplementation<SKBitmap> bitmapImpl, SkObjectImplementation<SKPath> pathImpl)
         {
             _paintImpl = paintImpl;
-            _surfaceImpl = surfaceImpl;
             _imageImpl = imageImpl;
             _bitmapImpl = bitmapImpl;
             _pathImpl = pathImpl;
         }
         
-        public void SetSurfaceImpl(SkiaSurfaceImplementation surfaceImpl)
+        public void SetSurfaceImplementation(SkiaSurfaceImplementation surfaceImpl)
         {
             _surfaceImpl = surfaceImpl;
         }

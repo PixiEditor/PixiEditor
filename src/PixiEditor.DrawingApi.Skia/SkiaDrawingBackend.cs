@@ -46,11 +46,12 @@ namespace PixiEditor.DrawingApi.Skia
             SkiaBitmapImplementation bitmapImpl = new SkiaBitmapImplementation();
             BitmapImplementation = bitmapImpl;
             
-            SkiaCanvasImplementation canvasImpl = new SkiaCanvasImplementation(paintImpl, null, imgImpl, bitmapImpl, pathImpl);
+            SkiaCanvasImplementation canvasImpl = new SkiaCanvasImplementation(paintImpl, imgImpl, bitmapImpl, pathImpl);
             
             var surfaceImpl = new SkiaSurfaceImplementation(pixmapImpl, canvasImpl, paintImpl);
 
-            canvasImpl.SetSurfaceImpl(surfaceImpl);
+            canvasImpl.SetSurfaceImplementation(surfaceImpl);
+            imgImpl.SetSurfaceImplementation(surfaceImpl);
 
             CanvasImplementation = canvasImpl;
 

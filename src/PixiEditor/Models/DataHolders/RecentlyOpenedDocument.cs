@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
@@ -71,7 +72,7 @@ internal class RecentlyOpenedDocument : NotifyableObject
     {
         if (FileExtension == ".pixi")
         {
-            /*
+            
             SerializableDocument serializableDocument;
 
             try
@@ -87,12 +88,11 @@ internal class RecentlyOpenedDocument : NotifyableObject
             using Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
                 serializableDocument.Layers
                     .Where(x => x.Opacity > 0.8)
-                    .Select(x => (x.ToSKImage(), new VecI(x.OffsetX, x.OffsetY))));
+                    .Select(x => (x.ToImage(), new VecI(x.OffsetX, x.OffsetY))).ToList());
 
-            return DownscaleToMaxSize(surface.ToWriteableBitmap());*/
-            return null;
+            return DownscaleToMaxSize(surface.ToWriteableBitmap());
         }
-        else if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
+        if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
         {
             WriteableBitmap bitmap = null;
 

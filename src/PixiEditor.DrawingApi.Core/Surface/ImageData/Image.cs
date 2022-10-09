@@ -30,6 +30,11 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
         {
             return DrawingBackendApi.Current.ImageImplementation.FromEncodedData(path);
         }
+        
+        public static Image FromEncodedData(byte[] dataBytes)
+        {
+            return DrawingBackendApi.Current.ImageImplementation.FromEncodedData(dataBytes);
+        }
 
         public ImgData Encode()
         {

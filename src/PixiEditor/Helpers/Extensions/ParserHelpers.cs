@@ -1,4 +1,5 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -7,6 +8,11 @@ namespace PixiEditor.Helpers.Extensions;
 
 internal static class ParserHelpers
 {
+    public static Image ToImage(this SerializableLayer serializableLayer)
+    {
+        return Image.FromEncodedData(serializableLayer.PngBytes);
+    }
+    
     public static DocumentViewModel ToDocument(this SerializableDocument serializableDocument)
     {
         List<SerializableLayer> builtLayers = new List<SerializableLayer>();
