@@ -236,12 +236,11 @@ internal class DocumentOperationsModule
 
     private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, bool finish)
     {
-        if (Internals.ChangeController.IsChangeActive || Document.SelectedStructureMember is null)
+        if (Internals.ChangeController.IsChangeActive)
             return;
         Internals.ActionAccumulator.AddActions(
-            new PasteImage_Action(image, corners, Document.SelectedStructureMember.GuidValue, ignoreClipSymmetriesEtc, drawOnMask),
-            new EndPasteImage_Action()
-            );
+            new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask),
+            new EndPasteImage_Action());
         if (finish)
             Internals.ActionAccumulator.AddFinishedActions();
     }

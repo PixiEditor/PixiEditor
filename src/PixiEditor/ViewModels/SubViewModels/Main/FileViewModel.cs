@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Windows.Input;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using Newtonsoft.Json.Linq;
@@ -111,9 +112,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             DocumentViewModel doc = NewDocument(new(dialog.FileWidth, dialog.FileHeight), false);
             doc.FullFilePath = path;
-            /*doc.AddNewLayer(
-                "Image",
-                Importer.ImportImage(dialog.FilePath, dialog.FileWidth, dialog.FileHeight));*/
+
+            Guid? guid = doc.Operations.CreateStructureMember(StructureMemberType.Layer, "Image");
+            Surface surface = Importer.ImportImage(dialog.FilePath, new VecI(dialog.FileWidth, dialog.FileHeight));
+            RectD corners = RectD.FromTwoPoints(new VecD(0, 0), new VecD(dialog.FileWidth, dialog.FileHeight));
+            doc.Operations.DrawImage(surface, new ShapeCorners(corners), guid.Value, true, false);
         }
     }
 
