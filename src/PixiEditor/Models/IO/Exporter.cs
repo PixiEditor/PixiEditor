@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
@@ -49,8 +50,6 @@ internal class Exporter
     /// <returns>Path.</returns>
     public static string SaveAsEditableFile(DocumentViewModel document, string path, FileType requestedType = FileType.Unset)
     {
-        return path;
-        /*
         var typeFromPath = ParseImageFormat(Path.GetExtension(path));
         FileType finalType = (typeFromPath, requestedType) switch
         {
@@ -67,12 +66,12 @@ internal class Exporter
 
         if (finalType != FileType.Pixi)
         {
-            var bitmap = document.Renderer.FinalBitmap;
+            var bitmap = document.Bitmaps[ChunkResolution.Full];
             SaveAs(encodersFactory[finalType](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
         }
         else if (Directory.Exists(Path.GetDirectoryName(path)))
         {
-            Parser.PixiParser.Serialize(ParserHelpers.ToSerializable(document), path);
+            Parser.PixiParser.Serialize(document.ToSerializable(), path);
         }
         else
         {
@@ -80,7 +79,6 @@ internal class Exporter
         }
 
         return path;
-        */
     }
 
     private static string AppendExtension(string path, FileTypeDialogData data)

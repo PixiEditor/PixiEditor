@@ -246,15 +246,25 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public bool SaveDocument(DocumentViewModel document, bool asNew)
     {
+        string path = "";
+        bool success = false;
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
-            //doc.SaveWithDialog();
+            success = Exporter.SaveAsEditableFileWithDialog(document, out path);
         }
         else
         {
-            //doc.Save();
+            path = Exporter.SaveAsEditableFile(document, document.FullFilePath);
+            success = path != null;
         }
-        return false;
+
+        document.FullFilePath = path;
+        if (success)
+        {
+            document.MarkAsSaved();
+        }
+
+        return success;
     }
 
     /// <summary>

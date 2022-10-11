@@ -4,6 +4,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Events;
@@ -109,7 +110,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         ShortcutController controller = Owner.ShortcutController;
 
         Models.Commands.Commands.Command.ToolCommand? tool = CommandController.Current.Commands
-            .Select(x => x as Models.Commands.Commands.Command.ToolCommand)
+            .OfType<Command.ToolCommand?>()
             .FirstOrDefault(x => x != null && x.TransientKey == args.Key);
 
         if (tool is not null)

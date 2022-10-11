@@ -1,4 +1,7 @@
-﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+﻿using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
+using ChunkyImageLib.Operations;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
@@ -157,6 +160,95 @@ internal static class ParserHelpers
         }
     }
     
+    public static SerializableDocument ToSerializable(this DocumentViewModel document)
+    {
+        return new SerializableDocument(document.Width, document.Height,
+                ToSerializableGroups(document.StructureRoot, document),
+                ToSerializableLayers(document.StructureRoot))
+            .AddSwatches(document.Swatches)
+            .AddPalette(document.Palette);
+    }
+
+    private static List<SerializableLayer> ToSerializableLayers(FolderViewModel documentStructureRoot)
+    {
+        List<SerializableLayer> layers = new List<SerializableLayer>();
+        
+        Traverse(documentStructureRoot, member =>
+        {
+            if (member is LayerViewModel layer)
+            {
+                layers.Add(layer.ToSerializable());
+            }
+        });
+        
+        return layers;
+    }
+
+    private static SerializableLayer ToSerializable(this LayerViewModel layer)
+    {
+        return new SerializableLayer();
+    }
+
+    private static List<SerializableGroup> ToSerializableGroups(FolderViewModel documentStructureRoot, DocumentViewModel documentViewModel, int passIndex = 0)
+    {
+        List<SerializableGroup> group = new List<SerializableGroup>();
+        
+        int currentLayerIndex = passIndex;
+        foreach (var memberViewModel in documentStructureRoot.Children)
+        {
+            if (memberViewModel is FolderViewModel folder && folder != documentViewModel.StructureRoot)
+            {
+                int startIndex = currentLayerIndex;
+                int endIndex = GetEndIndex(folder, startIndex);
+                group.Add(new SerializableGroup(folder.NameBindable, startIndex, endIndex, ToSerializableGroups(folder, documentViewModel, passIndex)));        
+            }
+            else if(memberViewModel is LayerViewModel layer)
+            {
+                currentLayerIndex++;
+            }
+        }
+        
+        return group;
+    }
+
+    private static int GetEndIndex(FolderViewModel folder, int startIndex)
+    {
+        int endIndex = startIndex;
+        Traverse(folder, member =>
+        {
+            if (member is LayerViewModel)
+            {
+                endIndex++;
+            }
+        });
+        
+        return endIndex;
+    }
+
+    private static void Traverse(FolderViewModel root, Action<StructureMemberViewModel> action)
+    {
+        foreach (var child in root.Children)
+        {
+            action(child);
+            if (child is FolderViewModel folder)
+            {
+                Traverse(folder, action);
+            }
+        }
+    }
+
+    private static SerializableDocument AddSwatches(this SerializableDocument document, IEnumerable<Color> colors)
+    {
+        document.Swatches.AddRange(colors.Select(x => System.Drawing.Color.FromArgb(x.A, x.R, x.G, x.B)));
+        return document;
+    }
+
+    private static SerializableDocument AddPalette(this SerializableDocument document, IEnumerable<Color> palette)
+    {
+        document.Palette.AddRange(palette.Select(x => System.Drawing.Color.FromArgb(x.A, x.R, x.G, x.B)));
+        return document;
+    }
+    
     /*
     public static WpfObservableRangeCollection<Layer> ToLayers(this SerializableDocument document)
     {
@@ -210,15 +302,6 @@ internal static class ParserHelpers
         group.Subgroups = new(sgroup.Subgroups.ToGroups(document, group));
 
         return group;
-    }
-
-    public static SerializableDocument ToSerializable(this Document document)
-    {
-        return new SerializableDocument(document.Width, document.Height,
-                document.LayerStructure.Groups.ToSerializable(document),
-                document.Layers.ToSerializable())
-            .AddSwatches(document.Swatches)
-            .AddPalette(document.Palette);
     }
 
     public static IEnumerable<SerializableLayer> ToSerializable(this IEnumerable<Layer> layers)
@@ -277,17 +360,5 @@ internal static class ParserHelpers
         {
             yield return sgroup.ToGroup(parent, document);
         }
-    }
-
-    private static SerializableDocument AddSwatches(this SerializableDocument document, IEnumerable<SKColor> colors)
-    {
-        document.Swatches.AddRange(colors);
-        return document;
-    }
-
-    private static SerializableDocument AddPalette(this SerializableDocument document, IEnumerable<SKColor> palette)
-    {
-        document.Palette.AddRange(palette);
-        return document;
     }*/
 }
