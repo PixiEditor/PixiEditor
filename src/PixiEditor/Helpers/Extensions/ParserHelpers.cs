@@ -1,7 +1,10 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
@@ -160,16 +163,16 @@ internal static class ParserHelpers
         }
     }
     
-    public static SerializableDocument ToSerializable(this DocumentViewModel document)
+    public static SerializableDocument ToSerializable(this DocumentViewModel documentViewModel)
     {
-        return new SerializableDocument(document.Width, document.Height,
-                ToSerializableGroups(document.StructureRoot, document),
-                ToSerializableLayers(document.StructureRoot))
-            .AddSwatches(document.Swatches)
-            .AddPalette(document.Palette);
+        return new SerializableDocument(documentViewModel.Width, documentViewModel.Height,
+                ToSerializableGroups(documentViewModel.StructureRoot, documentViewModel),
+                ToSerializableLayers(documentViewModel.StructureRoot, documentViewModel))
+            .AddSwatches(documentViewModel.Swatches)
+            .AddPalette(documentViewModel.Palette);
     }
 
-    private static List<SerializableLayer> ToSerializableLayers(FolderViewModel documentStructureRoot)
+    private static List<SerializableLayer> ToSerializableLayers(FolderViewModel documentStructureRoot, DocumentViewModel document)
     {
         List<SerializableLayer> layers = new List<SerializableLayer>();
         
@@ -177,15 +180,17 @@ internal static class ParserHelpers
         {
             if (member is LayerViewModel layer)
             {
-                layers.Add(layer.ToSerializable());
+                layers.Add(layer.ToSerializable(document));
             }
         });
         
         return layers;
     }
 
-    private static SerializableLayer ToSerializable(this LayerViewModel layer)
+    private static SerializableLayer ToSerializable(this LayerViewModel layer, DocumentViewModel document)
     {
+        var result = document.GetLayerImage(layer.GuidValue);
+
         return new SerializableLayer();
     }
 
