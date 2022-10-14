@@ -35,6 +35,51 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         Selection.Dispose();
     }
     
+    /// <summary>
+    ///     Creates a surface for layer image.
+    /// </summary>
+    /// <param name="layerGuid">Guid of the layer inside structure.</param>
+    /// <returns>Surface if the layer has some drawn pixels, null if the image is empty.</returns>
+    /// <exception cref="ArgumentException">Exception when guid is not found inside structure or if it's not a layer</exception>
+    /// <remarks>So yeah, welcome folks to the multithreaded world, where possibilities are endless! (and chances of objects getting
+    /// edited, in between of processing you want to make exist). You might encounter ObjectDisposedException and other mighty creatures here if
+    /// you are lucky enough. Have fun!</remarks>
+    public Surface? GetLayerImage(Guid layerGuid)
+    {
+        var layer = (IReadOnlyLayer?)FindMember(layerGuid);
+
+        if (layer is null)
+            throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
+
+
+        RectI? tightBounds = layer.LayerImage.FindLatestBounds();
+
+        if (tightBounds is null)
+            return null;
+
+        tightBounds = tightBounds.Value.Intersect(RectI.Create(0, 0, Size.X, Size.Y));
+
+        Surface surface = new Surface(tightBounds.Value.Size);
+
+        layer.LayerImage.DrawMostUpToDateRegionOn(
+            tightBounds.Value,
+            ChunkResolution.Full,
+            surface.DrawingSurface, VecI.Zero);
+
+        return surface;
+    }
+
+    public RectI? GetLayerTightBounds(Guid layerGuid)
+    {
+        var layer = (IReadOnlyLayer?)FindMember(layerGuid);
+
+        if (layer is null)
+            throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
+
+
+        return layer.LayerImage.FindLatestBounds();
+    }
+    
     public void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action) => ForEveryReadonlyMember(StructureRoot, action);
 
     /// <summary>

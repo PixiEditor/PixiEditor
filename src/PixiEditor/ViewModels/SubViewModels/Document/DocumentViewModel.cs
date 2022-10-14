@@ -24,7 +24,7 @@ using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 
 #nullable enable
-internal class DocumentViewModel : NotifyableObject
+internal partial class DocumentViewModel : NotifyableObject
 {
     public event EventHandler<LayersChangedEventArgs>? LayersChanged;
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;
@@ -179,41 +179,6 @@ internal class DocumentViewModel : NotifyableObject
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = DrawingSurface.Create(new ImageInfo(previewSize.X, previewSize.Y, ColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
-    }
-    
-    /// <summary>
-    ///     Creates a surface for layer image.
-    /// </summary>
-    /// <param name="layerGuid">Guid of the layer inside structure.</param>
-    /// <returns>Surface if the layer has some drawn pixels, null if the image is empty.</returns>
-    /// <exception cref="ArgumentException">Exception when guid is not found inside structure or if it's not a layer</exception>
-    /// <remarks>So yeah, welcome folks to the multithreaded world, where possibilities are endless! (and chances of objects getting
-    /// edited, in between of processing you want to make exist). You might encounter ObjectDisposedException and other mighty creatures here if
-    /// you are lucky enough. Have fun!</remarks>
-    public Surface? GetLayerImage(Guid layerGuid)
-    {
-        IReadOnlyDocument document = Internals.Tracker.Document;
-        var layer = (IReadOnlyLayer?)document.FindMember(layerGuid);
-
-        if (layer is null)
-            throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
-
-
-        RectI? tightBounds = layer.LayerImage.FindLatestBounds();
-
-        if (tightBounds is null)
-            return null;
-
-        tightBounds = tightBounds.Value.Intersect(RectI.Create(0, 0, document.Size.X, document.Size.Y));
-
-        Surface surface = new Surface(tightBounds.Value.Size);
-
-        layer.LayerImage.DrawMostUpToDateRegionOn(
-            tightBounds.Value,
-            ChunkResolution.Full,
-            surface.DrawingSurface, VecI.Zero);
-
-        return surface;
     }
 
     public static DocumentViewModel Build(Action<DocumentViewModelBuilder> builder)

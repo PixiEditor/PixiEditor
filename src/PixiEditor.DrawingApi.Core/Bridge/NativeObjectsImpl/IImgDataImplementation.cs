@@ -9,4 +9,5 @@ public interface IImgDataImplementation
     public void Dispose(IntPtr objectPointer);
     public void SaveTo(ImgData imgData, FileStream stream);
     public Stream AsStream(ImgData imgData);
+    public ReadOnlySpan<byte> AsSpan(ImgData imgData);
 }

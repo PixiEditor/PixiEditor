@@ -30,4 +30,9 @@ public class ImgData : NativeObject
     {
         return DrawingBackendApi.Current.ImgDataImplementation.AsStream(this);
     }
+
+    public ReadOnlySpan<byte> AsSpan()
+    {
+        return DrawingBackendApi.Current.ImgDataImplementation.AsSpan(this);
+    }
 }

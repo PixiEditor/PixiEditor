@@ -29,5 +29,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             SKData data = ManagedInstances[imgData.ObjectPointer];
             return data.AsStream();
         }
+
+        public ReadOnlySpan<byte> AsSpan(ImgData imgData)
+        {
+            SKData data = ManagedInstances[imgData.ObjectPointer];
+            return data.AsSpan();
+        }
     }
 }

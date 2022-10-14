@@ -8,6 +8,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
+using PixiEditor.Parser.Skia;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Helpers.Extensions;
@@ -100,7 +101,17 @@ internal static class ParserHelpers
                         .WithOpacity(layer.Opacity)
                         .WithVisibility(layer.IsVisible)
                         .WithRect(layer.Width, layer.Height, layer.OffsetX, layer.OffsetY)
-                        .WithSurface((surfaceBuilder) => surfaceBuilder.WithImage(layer.PngBytes))
+                        .WithSurface((surfaceBuilder) =>
+                        {
+                            if (layer.PngBytes is { Length: > 0 })
+                            {
+                                surfaceBuilder.WithImage(layer.PngBytes);
+                            }
+                            else
+                            {
+                                surfaceBuilder.Surface = new Surface(new VecI(1, 1));
+                            }
+                        })
                         .WithOrderInStructure(document.Layers.IndexOf(layer));
                 });
             }
@@ -162,93 +173,14 @@ internal static class ParserHelpers
             previousOrder = order;
         }
     }
-    
-    public static SerializableDocument ToSerializable(this DocumentViewModel documentViewModel)
-    {
-        return new SerializableDocument(documentViewModel.Width, documentViewModel.Height,
-                ToSerializableGroups(documentViewModel.StructureRoot, documentViewModel),
-                ToSerializableLayers(documentViewModel.StructureRoot, documentViewModel))
-            .AddSwatches(documentViewModel.Swatches)
-            .AddPalette(documentViewModel.Palette);
-    }
 
-    private static List<SerializableLayer> ToSerializableLayers(FolderViewModel documentStructureRoot, DocumentViewModel document)
-    {
-        List<SerializableLayer> layers = new List<SerializableLayer>();
-        
-        Traverse(documentStructureRoot, member =>
-        {
-            if (member is LayerViewModel layer)
-            {
-                layers.Add(layer.ToSerializable(document));
-            }
-        });
-        
-        return layers;
-    }
-
-    private static SerializableLayer ToSerializable(this LayerViewModel layer, DocumentViewModel document)
-    {
-        var result = document.GetLayerImage(layer.GuidValue);
-
-        return new SerializableLayer();
-    }
-
-    private static List<SerializableGroup> ToSerializableGroups(FolderViewModel documentStructureRoot, DocumentViewModel documentViewModel, int passIndex = 0)
-    {
-        List<SerializableGroup> group = new List<SerializableGroup>();
-        
-        int currentLayerIndex = passIndex;
-        foreach (var memberViewModel in documentStructureRoot.Children)
-        {
-            if (memberViewModel is FolderViewModel folder && folder != documentViewModel.StructureRoot)
-            {
-                int startIndex = currentLayerIndex;
-                int endIndex = GetEndIndex(folder, startIndex);
-                group.Add(new SerializableGroup(folder.NameBindable, startIndex, endIndex, ToSerializableGroups(folder, documentViewModel, passIndex)));        
-            }
-            else if(memberViewModel is LayerViewModel layer)
-            {
-                currentLayerIndex++;
-            }
-        }
-        
-        return group;
-    }
-
-    private static int GetEndIndex(FolderViewModel folder, int startIndex)
-    {
-        int endIndex = startIndex;
-        Traverse(folder, member =>
-        {
-            if (member is LayerViewModel)
-            {
-                endIndex++;
-            }
-        });
-        
-        return endIndex;
-    }
-
-    private static void Traverse(FolderViewModel root, Action<StructureMemberViewModel> action)
-    {
-        foreach (var child in root.Children)
-        {
-            action(child);
-            if (child is FolderViewModel folder)
-            {
-                Traverse(folder, action);
-            }
-        }
-    }
-
-    private static SerializableDocument AddSwatches(this SerializableDocument document, IEnumerable<Color> colors)
+    public static SerializableDocument AddSwatches(this SerializableDocument document, IEnumerable<Color> colors)
     {
         document.Swatches.AddRange(colors.Select(x => System.Drawing.Color.FromArgb(x.A, x.R, x.G, x.B)));
         return document;
     }
 
-    private static SerializableDocument AddPalette(this SerializableDocument document, IEnumerable<Color> palette)
+    public static SerializableDocument AddPalette(this SerializableDocument document, IEnumerable<Color> palette)
     {
         document.Palette.AddRange(palette.Select(x => System.Drawing.Color.FromArgb(x.A, x.R, x.G, x.B)));
         return document;

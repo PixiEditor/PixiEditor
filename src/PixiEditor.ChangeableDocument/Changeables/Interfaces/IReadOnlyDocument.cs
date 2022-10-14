@@ -43,6 +43,9 @@ public interface IReadOnlyDocument
     /// Performs the specified action on each readonly member of the document
     /// </summary>
     void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action);
+    
+    public Surface? GetLayerImage(Guid layerGuid);
+    public RectI? GetLayerTightBounds(Guid layerGuid);
 
     /// <summary>
     /// Finds the member with the <paramref name="guid"/> or returns null if not found
