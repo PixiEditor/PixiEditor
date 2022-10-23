@@ -128,8 +128,9 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         {
             if (Document.UpdateableChangeActive)
                 return;
+            float newValue = Math.Clamp(value, 0, 1);
             Internals.ActionAccumulator.AddFinishedActions(
-                new StructureMemberOpacity_Action(GuidValue, value),
+                new StructureMemberOpacity_Action(GuidValue, newValue),
                 new EndStructureMemberOpacity_Action());
         }
     }
