@@ -17,6 +17,11 @@ internal static class ParserHelpers
 {
     public static Image ToImage(this SerializableLayer serializableLayer)
     {
+        if(serializableLayer.PngBytes == null)
+        {
+            return null;
+        }
+
         return Image.FromEncodedData(serializableLayer.PngBytes);
     }
     

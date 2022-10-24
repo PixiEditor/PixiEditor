@@ -45,6 +45,15 @@
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
+        <Button Width="32" Height="32" ToolTip="Reset viewport"
+                HorizontalAlignment="Right" Margin="5" Style="{StaticResource OverlayButton}"
+                VerticalAlignment="Top" Panel.ZIndex="2" 
+                Click="ResetViewportClicked"
+                Cursor="Hand">
+            <Button.Content>
+                <Image Width="30" Height="30" Source="/Images/Layout.png"/>
+            </Button.Content>
+            </Button>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"

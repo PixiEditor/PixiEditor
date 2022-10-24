@@ -394,6 +394,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         zoombox.CenterContent();
     }
+    
+    private void ResetViewportClicked(object sender, RoutedEventArgs e)
+    {
+        zoombox.Angle = 0;
+        zoombox.CenterContent();
+    }
 
     private static void CenterViewportTriggerChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
     {
