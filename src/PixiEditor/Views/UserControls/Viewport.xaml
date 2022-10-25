@@ -45,15 +45,22 @@
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
-        <Button Width="32" Height="32" ToolTip="Reset viewport"
-                HorizontalAlignment="Right" Margin="5" Style="{StaticResource OverlayButton}"
-                VerticalAlignment="Top" Panel.ZIndex="2" 
-                Click="ResetViewportClicked"
-                Cursor="Hand">
+        <Border Padding="5" BorderThickness="1" CornerRadius="5" Margin="5" Background="#C8202020" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="2">
+        <StackPanel Orientation="Horizontal">
+            <TextBlock Margin="5 0" 
+                       Text="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, 
+             Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
+                       Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16"/>
+            <Button Width="32" Height="32" ToolTip="Reset viewport"
+                    Style="{StaticResource OverlayButton}"
+                    Click="ResetViewportClicked"
+                    Cursor="Hand">
             <Button.Content>
                 <Image Width="30" Height="30" Source="/Images/Layout.png"/>
             </Button.Content>
             </Button>
+        </StackPanel>
+        </Border>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
