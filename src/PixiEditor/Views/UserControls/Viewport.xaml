@@ -46,8 +46,9 @@
             </i:EventTrigger>
         </i:Interaction.Triggers>
         <Border Padding="5" BorderThickness="1" CornerRadius="5" Margin="5" Background="#C8202020" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="2">
-        <StackPanel Orientation="Horizontal">
-            <TextBlock Margin="5 0" 
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+            <TextBlock Margin="5 0" TextAlignment="Center"
                        Text="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, 
              Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
                        Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16"/>
@@ -56,9 +57,33 @@
                     Click="ResetViewportClicked"
                     Cursor="Hand">
             <Button.Content>
-                <Image Width="30" Height="30" Source="/Images/Layout.png"/>
+                <Image Width="28" Height="28" Source="/Images/Layout.png"/>
             </Button.Content>
             </Button>
+        </StackPanel>
+            <Separator/>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <ToggleButton Width="32" Height="32" ToolTip="Toggle vertical symmetry"
+                        Style="{StaticResource OverlayToggleButton}"
+                        IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable}"
+                        Cursor="Hand">
+                    <ToggleButton.Content>
+                        <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png"/>
+                    </ToggleButton.Content>
+                </ToggleButton>
+                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ToolTip="Toggle horizontal symmetry"
+                              Style="{StaticResource OverlayToggleButton}"
+                              IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"
+                              Cursor="Hand">
+                    <ToggleButton.Content>
+                        <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png">
+                            <Image.LayoutTransform>
+                                <RotateTransform Angle="90"/>
+                            </Image.LayoutTransform>
+                        </Image>
+                    </ToggleButton.Content>
+                </ToggleButton>
+            </StackPanel>
         </StackPanel>
         </Border>
         <zoombox:Zoombox

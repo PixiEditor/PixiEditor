@@ -161,6 +161,44 @@
             </Setter.Value>
         </Setter>
     </Style>
+    
+    <Style TargetType="ToggleButton" x:Key="OverlayToggleButton">
+        <Setter Property="OverridesDefaultStyle" Value="True" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Height" Value="28"/>
+        <Setter Property="Width" Value="70"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border CornerRadius="4" Background="{TemplateBinding Background}">
+                        <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Foreground" Value="Gray" />
+                            <Setter Property="Cursor" Value="Arrow" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#FF515151" />
+                            <Setter Property="Foreground" Value="White" />
+                            <Setter Property="Cursor" Value="Hand" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter Property="Background" Value="#505050" />
+                            <Setter Property="Foreground" Value="White" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter Property="Background" Value="#404040" />
+                            <Setter Property="Foreground" Value="White" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <Style TargetType="Button" x:Key="AccentDarkRoundButton" BasedOn="{StaticResource BaseDarkButton}">
         <Setter Property="OverridesDefaultStyle" Value="True" />

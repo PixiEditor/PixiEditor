@@ -176,6 +176,21 @@ internal class SymmetryOverlay : Control
         CallSymmetryDragStartCommand(dir.Value);
     }
 
+    protected override void OnMouseEnter(MouseEventArgs e)
+    {
+        base.OnMouseEnter(e);
+        var pos = ToVecD(e.GetPosition(this));
+        var dir = IsTouchingHandle(pos);
+        if (dir is null) return;
+        
+        Cursor = dir.Value switch
+        {
+            SymmetryAxisDirection.Horizontal => Cursors.SizeNS,
+            SymmetryAxisDirection.Vertical => Cursors.SizeWE,
+            _ => Cursors.Arrow
+        };
+    }
+
     private void CallSymmetryDragCommand(SymmetryAxisDirection direction, int position)
     {
         SymmetryAxisDragInfo dragInfo = new(direction, position);
