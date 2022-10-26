@@ -17,6 +17,7 @@
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:tools ="clr-namespace:PixiEditor.ViewModels.SubViewModels.Tools.Tools"
+    xmlns:views="clr-namespace:PixiEditor.Views"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -45,7 +46,10 @@
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
-        <Border Padding="5" BorderThickness="1" CornerRadius="5" Margin="5" Background="#C8202020" HorizontalAlignment="Right" VerticalAlignment="Top" Panel.ZIndex="2">
+        <views:TogglableFlyout Margin="5" IconPath="/Images/Settings.png" ToolTip="Viewport settings"
+                               Panel.ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <views:TogglableFlyout.Child>
+                <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="#C8202020" Panel.ZIndex="2">
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
             <TextBlock Margin="5 0" TextAlignment="Center"
@@ -86,6 +90,8 @@
             </StackPanel>
         </StackPanel>
         </Border>
+            </views:TogglableFlyout.Child>
+        </views:TogglableFlyout>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"

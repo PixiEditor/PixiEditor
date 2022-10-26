@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
+[StructLayout(LayoutKind.Sequential)]
 public struct RectI : IEquatable<RectI>
 {
     public static RectI Empty { get; } = new RectI();

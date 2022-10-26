@@ -329,6 +329,8 @@
 		<Resource Include="Images\Layout.png" />
 		<None Remove="Images\SymmetryVertical.png" />
 		<Resource Include="Images\SymmetryVertical.png" />
+		<None Remove="Images\Settings.png" />
+		<Resource Include="Images\Settings.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
