@@ -9,8 +9,8 @@
              mc:Ignorable="d"
              d:DesignHeight="380" d:DesignWidth="200" Name="togglableFlyout">
     <Border Background="Transparent">
-        <Grid>
-            <Border Background="#C8202020" CornerRadius="5" Padding="5" x:Name="btnBorder">
+        <StackPanel Orientation="Vertical">
+            <Border HorizontalAlignment="Right" Background="#C8202020" CornerRadius="5" Padding="5" x:Name="btnBorder">
                 <ToggleButton Padding="0" Margin="0" ToolTip="{Binding ElementName=togglableFlyout, Path=ToolTip}"
                               x:Name="toggleButton" BorderThickness="0" Width="24" Height="24" Background="Transparent">
                     <ToggleButton.Template>
@@ -52,9 +52,9 @@
                     </ToggleButton.Template>
                 </ToggleButton>
             </Border>
-            <userControls:NestedPopup AllowsTransparency="True" x:Name="popup" StaysOpen="True" IsOpen="{Binding Path=IsChecked, ElementName=toggleButton, Mode=TwoWay}" 
-                   Child="{Binding ElementName=togglableFlyout, Path=Child}" 
-                   PopupAnimation="Fade" PlacementTarget="{Binding ElementName=btnBorder}"/>
-        </Grid>
+            <ContentControl x:Name="popup" DataContext="{Binding ElementName=togglableFlyout}"
+                              Visibility="{Binding Path=IsChecked, ElementName=toggleButton, Converter={converters:BoolToVisibilityConverter}}" 
+                   Content="{Binding ElementName=togglableFlyout, Path=Child}" />
+        </StackPanel>
     </Border>
 </UserControl>
