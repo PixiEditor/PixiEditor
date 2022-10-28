@@ -124,9 +124,6 @@
                     </ImageBrush>
                 </Border.Background>
                 <Grid>
-                    <Grid.Resources>
-                        <converters:IsSpecifiedTypeConverter x:Key="IsSelectToolConverter" SpecifiedType="{x:Type tools:SelectToolViewModel}"/>
-                    </Grid.Resources>
                     <Canvas>
                         <Image
                             Width="{Binding Document.ReferenceBitmap.Width}"
@@ -159,7 +156,7 @@
                         DragEndCommand="{cmds:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}" 
                         DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}" />
                     <uc:SelectionOverlay
-                        ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={StaticResource IsSelectToolConverter}}"
+                        ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                         Path="{Binding Document.SelectionPathBindable}"
                         ZoomboxScale="{Binding Zoombox.Scale}" />
                     <brush:BrushShapeOverlay

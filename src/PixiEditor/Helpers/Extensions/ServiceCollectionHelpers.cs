@@ -51,6 +51,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<ToolViewModel, SelectToolViewModel>()
         .AddSingleton<ToolViewModel, MagicWandToolViewModel>()
         .AddSingleton<ToolViewModel, FloodFillToolViewModel>()
+        .AddSingleton<ToolViewModel, LassoToolViewModel>()
         .AddSingleton<ToolViewModel, LineToolViewModel>()
         .AddSingleton<ToolViewModel, EllipseToolViewModel>()
         .AddSingleton<ToolViewModel, RectangleToolViewModel>()

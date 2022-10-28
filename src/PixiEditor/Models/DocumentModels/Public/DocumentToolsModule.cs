@@ -51,4 +51,6 @@ internal class DocumentToolsModule
     public void UseBrightnessTool() => Internals.ChangeController.TryStartExecutor<BrightnessToolExecutor>();
 
     public void UseFloodFillTool() => Internals.ChangeController.TryStartExecutor<FloodFillToolExecutor>();
+
+    public void UseLassoTool() => Internals.ChangeController.TryStartExecutor<LassoToolExecuter>();
 }
