@@ -69,7 +69,7 @@
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <ToggleButton Width="32" Height="32" ToolTip="Toggle vertical symmetry"
                         Style="{StaticResource OverlayToggleButton}"
-                        IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable}"
+                        IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                         Cursor="Hand">
                     <ToggleButton.Content>
                         <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png"/>
@@ -77,7 +77,7 @@
                 </ToggleButton>
                 <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ToolTip="Toggle horizontal symmetry"
                               Style="{StaticResource OverlayToggleButton}"
-                              IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"
+                              IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
                     <ToggleButton.Content>
                         <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png">

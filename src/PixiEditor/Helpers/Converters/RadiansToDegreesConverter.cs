@@ -17,4 +17,3 @@ internal class RadiansToDegreesConverter : SingleInstanceConverter<RadiansToDegr
         return 0;
     }
 }
-
