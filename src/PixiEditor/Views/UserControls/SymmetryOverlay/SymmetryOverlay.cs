@@ -189,7 +189,7 @@ internal class SymmetryOverlay : Control
         string text = upper ? $"{start - horizontalAxisY}px ({(start - horizontalAxisY) / RenderSize.Height * 100:F1}%)" : $"{horizontalAxisY}px ({(horizontalAxisY) / RenderSize.Height * 100:F1}%)";
         
         var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
-            FlowDirection.LeftToRight, new Typeface("Segeo UI"), 16.0 / ZoomboxScale, Brushes.White,
+            FlowDirection.LeftToRight, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White,
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
         if (ActualHeight < formattedText.Height * 2.5 || (horizontalAxisY == (int)RenderSize.Height && upper) || (horizontalAxisY == 0 && !upper))
@@ -222,7 +222,7 @@ internal class SymmetryOverlay : Control
         string text = right ? $"{start - verticalAxisX}px ({(start - verticalAxisX) / RenderSize.Width * 100:F1}%)" : $"{verticalAxisX}px ({(verticalAxisX) / RenderSize.Width * 100:F1}%)";
         
         var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
-            FlowDirection.LeftToRight, new Typeface("Segeo UI"), 16.0 / ZoomboxScale, Brushes.White,
+            FlowDirection.LeftToRight, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White,
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
         if (ActualWidth < formattedText.Width * 2.5 || (verticalAxisX == (int)RenderSize.Width && right) || (verticalAxisX == 0 && !right))
