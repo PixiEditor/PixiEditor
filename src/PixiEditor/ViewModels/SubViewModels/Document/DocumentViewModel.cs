@@ -155,7 +155,7 @@ internal partial class DocumentViewModel : NotifyableObject
 
     private DocumentInternalParts Internals { get; }
 
-    public DocumentViewModel()
+    private DocumentViewModel()
     {
         Internals = new DocumentInternalParts(this);
         Tools = new DocumentToolsModule(this, Internals);

@@ -80,14 +80,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public DocumentViewModel NewDocument(VecI size, bool addBaseLayer = true)
     {
-        DocumentViewModel doc = new DocumentViewModel();
-        Owner.DocumentManagerSubViewModel.Documents.Add(doc);
+        var doc = DocumentViewModel.Build(d =>
+        {
+            d.WithSize(size.X, size.Y);
 
-        if (doc.SizeBindable != size)
-            doc.Operations.ResizeCanvas(size, ResizeAnchor.TopLeft);
-        if (addBaseLayer)
-            doc.Operations.CreateStructureMember(StructureMemberType.Layer);
-        doc.Operations.ClearUndo();
+            if (addBaseLayer)
+            {
+                d.WithLayer(l => l.WithName("Base Layer").WithSurface(new Surface(size)));
+            }
+        });
+
         doc.MarkAsSaved();
         Owner.WindowSubViewModel.CreateNewViewport(doc);
         Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
