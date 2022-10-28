@@ -11,7 +11,7 @@ internal class RadiansToDegreesConverter : SingleInstanceConverter<RadiansToDegr
 
         if (value is double angle)
         {
-            return Math.Truncate(angle * RadiansToDegrees);
+            return Math.Truncate((angle * RadiansToDegrees + 360) % 360);
         }
 
         return 0;
