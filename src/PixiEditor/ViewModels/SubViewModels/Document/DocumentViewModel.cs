@@ -18,6 +18,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Views.UserControls.SymmetryOverlay;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 
@@ -190,6 +191,15 @@ internal partial class DocumentViewModel : NotifyableObject
         viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
 
         var acc = viewModel.Internals.ActionAccumulator;
+
+        viewModel.Internals.ChangeController.SymmetryDraggedInlet(new SymmetryAxisDragInfo(SymmetryAxisDirection.Horizontal, builderInstance.Height / 2));
+        viewModel.Internals.ChangeController.SymmetryDraggedInlet(new SymmetryAxisDragInfo(SymmetryAxisDirection.Vertical, builderInstance.Width / 2));
+
+        acc.AddActions(
+            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Horizontal, builderInstance.Height / 2),
+            new EndSymmetryAxisPosition_Action(),
+            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Vertical, builderInstance.Width / 2),
+            new EndSymmetryAxisPosition_Action());
 
         viewModel.Swatches = new WpfObservableRangeCollection<Color>(builderInstance.Swatches);
         viewModel.Palette = new WpfObservableRangeCollection<Color>(builderInstance.Palette);
