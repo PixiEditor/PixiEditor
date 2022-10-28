@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -87,15 +88,26 @@ internal class SymmetryOverlay : Control
         set => SetValue(DragStartCommandProperty, value);
     }
 
-    private const double HandleSize = 16;
+    private const double HandleSize = 12;
     private PathGeometry handleGeometry = new()
     {
         FillRule = FillRule.Nonzero,
         Figures = (PathFigureCollection?)new PathFigureCollectionConverter()
-            .ConvertFrom($"M -1 -0.5 L -0.5 -0.5 L 0 0 L -0.5 0.5 L -1 0.5 Z"),
+            .ConvertFrom($"M -1.1146 -0.6603 c -0.1215 -0.1215 -0.3187 -0.1215 -0.4401 0 l -0.4401 0.4401 c -0.1215 0.1215 -0.1215 0.3187 0 0.4401 l 0.4401 0.4401 c 0.1215 0.1215 0.3187 0.1215 0.4401 0 l 0.4401 -0.4401 c 0.1215 -0.1215 0.1215 -0.3187 0 -0.4401 l -0.4401 -0.4401 Z M -0.5834 0.0012 l 0.5833 -0.0013"),
     };
 
-    private Pen borderPen = new Pen(Brushes.Black, 1.0);
+    private const double DashWidth = 10.0;
+    const int RulerOffset = -35;
+    const int RulerWidth = 4;
+
+    private Brush handleFill = Brushes.Transparent;
+    private Pen rulerPen = new(Brushes.White, 1.0);
+    private Pen borderPen = new(new SolidColorBrush(Color.FromRgb(200, 200, 200)), 1.0);
+    private Pen checkerBlack = new(new SolidColorBrush(Color.FromRgb(170, 170, 170)), 1.0) { DashStyle = new DashStyle(new[] { DashWidth, DashWidth }, 0) };
+    private Pen checkerWhite = new(new SolidColorBrush(Color.FromRgb(100, 100, 100)), 1.0) { DashStyle = new DashStyle(new[] { DashWidth, DashWidth }, DashWidth) };
+
+    private double PenThickness => 1.0 / ZoomboxScale;
+    
     private int horizontalAxisY;
     private int verticalAxisX;
 
@@ -105,31 +117,129 @@ internal class SymmetryOverlay : Control
         if (!HorizontalAxisVisible && !VerticalAxisVisible)
             return;
 
-        borderPen.Thickness = 1.0 / ZoomboxScale;
+        borderPen.Thickness = 3 * PenThickness;
+        checkerBlack.Thickness = PenThickness;
+        checkerWhite.Thickness = PenThickness;
+        rulerPen.Thickness = PenThickness;
+        
         handleGeometry.Transform = new ScaleTransform(HandleSize / ZoomboxScale, HandleSize / ZoomboxScale);
 
         if (HorizontalAxisVisible)
         {
+            if (capturedDirection == SymmetryAxisDirection.Horizontal || hoveredDirection == SymmetryAxisDirection.Horizontal)
+            {
+                if (horizontalAxisY != 0)
+                {
+                    DrawHorizontalRuler(drawingContext, false);
+                }
+
+                if (horizontalAxisY != (int)RenderSize.Height)
+                {
+                    DrawHorizontalRuler(drawingContext, true);
+                }
+            }
+            
             drawingContext.PushTransform(new TranslateTransform(0, horizontalAxisY));
-            drawingContext.DrawGeometry(Brushes.White, borderPen, handleGeometry);
+            drawingContext.DrawGeometry(handleFill, borderPen, handleGeometry);
             drawingContext.PushTransform(new RotateTransform(180, ActualWidth / 2, 0));
-            drawingContext.DrawGeometry(Brushes.White, borderPen, handleGeometry);
+            drawingContext.DrawGeometry(handleFill, borderPen, handleGeometry);
             drawingContext.Pop();
             drawingContext.Pop();
-            drawingContext.DrawLine(borderPen, new(0, horizontalAxisY), new(ActualWidth, horizontalAxisY));
+            drawingContext.DrawLine(checkerBlack, new(0, horizontalAxisY), new(ActualWidth, horizontalAxisY));
+            drawingContext.DrawLine(checkerWhite, new(0, horizontalAxisY), new(ActualWidth, horizontalAxisY));
         }
         if (VerticalAxisVisible)
         {
+            if (capturedDirection == SymmetryAxisDirection.Vertical || hoveredDirection == SymmetryAxisDirection.Vertical)
+            {
+                if (verticalAxisX != 0)
+                {
+                    DrawVerticalRuler(drawingContext, false);
+                }
+
+                if (verticalAxisX != (int)RenderSize.Width)
+                {
+                    DrawVerticalRuler(drawingContext, true);
+                }
+            }
+            
             drawingContext.PushTransform(new RotateTransform(90));
             drawingContext.PushTransform(new TranslateTransform(0, -verticalAxisX));
-            drawingContext.DrawGeometry(Brushes.White, borderPen, handleGeometry);
+            drawingContext.DrawGeometry(handleFill, borderPen, handleGeometry);
             drawingContext.PushTransform(new RotateTransform(180, ActualHeight / 2, 0));
-            drawingContext.DrawGeometry(Brushes.White, borderPen, handleGeometry);
+            drawingContext.DrawGeometry(handleFill, borderPen, handleGeometry);
             drawingContext.Pop();
             drawingContext.Pop();
             drawingContext.Pop();
-            drawingContext.DrawLine(borderPen, new(verticalAxisX, 0), new(verticalAxisX, ActualHeight));
+            drawingContext.DrawLine(checkerBlack, new(verticalAxisX, 0), new(verticalAxisX, ActualHeight));
+            drawingContext.DrawLine(checkerWhite, new(verticalAxisX, 0), new(verticalAxisX, ActualHeight));
         }
+    }
+
+    private void DrawHorizontalRuler(DrawingContext drawingContext, bool upper)
+    {
+        double start = upper ? RenderSize.Height : 0;
+        bool drawRight = Mouse.GetPosition(this).X > RenderSize.Width / 2;
+        double xOffset = drawRight ? RenderSize.Width - RulerOffset * PenThickness * 2 : 0;
+        
+        drawingContext.DrawLine(rulerPen, new Point(RulerOffset * PenThickness + xOffset, start), new Point(RulerOffset * PenThickness + xOffset, horizontalAxisY));
+        drawingContext.DrawLine(rulerPen, new Point((RulerOffset - RulerWidth) * PenThickness + xOffset, start), new Point((RulerOffset + RulerWidth) * PenThickness + xOffset, start));
+        drawingContext.DrawLine(rulerPen, new Point((RulerOffset - RulerWidth) * PenThickness + xOffset, horizontalAxisY), new Point((RulerOffset + RulerWidth) * PenThickness + xOffset, horizontalAxisY));
+
+        string text = upper ? $"{start - horizontalAxisY}px ({(start - horizontalAxisY) / RenderSize.Height * 100:F1}%)" : $"{horizontalAxisY}px ({(horizontalAxisY) / RenderSize.Height * 100:F1}%)";
+        
+        var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
+            FlowDirection.LeftToRight, new Typeface("Segeo UI"), 16.0 / ZoomboxScale, Brushes.White,
+            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+        if (ActualHeight < formattedText.Height * 2.5 || (horizontalAxisY == (int)RenderSize.Height && upper) || (horizontalAxisY == 0 && !upper))
+        {
+            return;
+        }
+
+        formattedText.TextAlignment = drawRight ? TextAlignment.Left : TextAlignment.Right;
+
+        double textY = horizontalAxisY / 2.0 - formattedText.Height / 2;
+
+        if (upper)
+        {
+            textY += RenderSize.Height / 2;
+        }
+        
+        drawingContext.DrawText(formattedText, new Point(RulerOffset * PenThickness - (drawRight ? -1 : 1) + xOffset, textY));
+    }
+
+    private void DrawVerticalRuler(DrawingContext drawingContext, bool right)
+    {
+        double start = right ? RenderSize.Width : 0;
+        bool drawBottom = Mouse.GetPosition(this).Y > RenderSize.Height / 2;
+        double yOffset = drawBottom ? RenderSize.Height - RulerOffset * PenThickness * 2 : 0;
+
+        drawingContext.DrawLine(rulerPen, new Point(start, RulerOffset * PenThickness + yOffset), new Point(verticalAxisX, RulerOffset * PenThickness + yOffset));
+        drawingContext.DrawLine(rulerPen, new Point(start, (RulerOffset - RulerWidth) * PenThickness + yOffset), new Point(start, (RulerOffset + RulerWidth) * PenThickness + yOffset));
+        drawingContext.DrawLine(rulerPen, new Point(verticalAxisX, (RulerOffset - RulerWidth) * PenThickness + yOffset), new Point(verticalAxisX, (RulerOffset + RulerWidth) * PenThickness + yOffset));
+
+        string text = right ? $"{start - verticalAxisX}px ({(start - verticalAxisX) / RenderSize.Width * 100:F1}%)" : $"{verticalAxisX}px ({(verticalAxisX) / RenderSize.Width * 100:F1}%)";
+        
+        var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
+            FlowDirection.LeftToRight, new Typeface("Segeo UI"), 16.0 / ZoomboxScale, Brushes.White,
+            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+
+        if (ActualWidth < formattedText.Width * 2.5 || (verticalAxisX == (int)RenderSize.Width && right) || (verticalAxisX == 0 && !right))
+        {
+            return;
+        }
+
+        formattedText.TextAlignment = TextAlignment.Center;
+
+        double textX = verticalAxisX / 2.0;
+
+        if (right)
+        {
+            textX += RenderSize.Width / 2;
+        }
+        
+        drawingContext.DrawText(formattedText, new Point(textX, RulerOffset * PenThickness - (drawBottom ? -0.7 : 0.3 + formattedText.Height) + yOffset));
     }
 
     protected override HitTestResult? HitTestCore(PointHitTestParameters hitTestParameters)
@@ -143,7 +253,7 @@ internal class SymmetryOverlay : Control
 
     private SymmetryAxisDirection? IsTouchingHandle(VecD position)
     {
-        double radius = HandleSize / ZoomboxScale / 2;
+        double radius = HandleSize * 4 / ZoomboxScale / 2;
         VecD left = new(-radius, horizontalAxisY);
         VecD right = new(ActualWidth + radius, horizontalAxisY);
         VecD up = new(verticalAxisX, -radius);
@@ -159,7 +269,24 @@ internal class SymmetryOverlay : Control
     private VecD ToVecD(Point pos) => new VecD(pos.X, pos.Y);
 
     private SymmetryAxisDirection? capturedDirection;
+    private SymmetryAxisDirection? hoveredDirection;
 
+    private void UpdateHovered(SymmetryAxisDirection? direction)
+    {
+        Cursor = (hoveredDirection ?? capturedDirection) switch
+        {
+            SymmetryAxisDirection.Horizontal => Cursors.SizeNS,
+            SymmetryAxisDirection.Vertical => Cursors.SizeWE,
+            _ => Cursors.Arrow
+        };
+
+        if (hoveredDirection == direction)
+            return;
+        
+        hoveredDirection = direction;
+        InvalidateVisual();
+    }
+    
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
@@ -181,14 +308,12 @@ internal class SymmetryOverlay : Control
         base.OnMouseEnter(e);
         var pos = ToVecD(e.GetPosition(this));
         var dir = IsTouchingHandle(pos);
-        if (dir is null) return;
-        
-        Cursor = dir.Value switch
-        {
-            SymmetryAxisDirection.Horizontal => Cursors.SizeNS,
-            SymmetryAxisDirection.Vertical => Cursors.SizeWE,
-            _ => Cursors.Arrow
-        };
+        UpdateHovered(dir);
+    }
+
+    protected override void OnMouseLeave(MouseEventArgs e)
+    {
+        UpdateHovered(null);
     }
 
     private void CallSymmetryDragCommand(SymmetryAxisDirection direction, int position)
@@ -216,29 +341,47 @@ internal class SymmetryOverlay : Control
 
         if (capturedDirection is null)
             return;
+        
         ReleaseMouseCapture();
 
         CallSymmetryDragEndCommand((SymmetryAxisDirection)capturedDirection);
 
         capturedDirection = null;
+        UpdateHovered(IsTouchingHandle(ToVecD(e.GetPosition(this))));
+        // Not calling invalidate visual might result in ruler not disappearing when releasing the mouse over the canvas 
+        InvalidateVisual();
         e.Handled = true;
     }
 
     protected override void OnMouseMove(MouseEventArgs e)
     {
         base.OnMouseMove(e);
+        
+        var pos = ToVecD(e.GetPosition(this));
+        UpdateHovered(IsTouchingHandle(pos));
 
         if (capturedDirection is null)
             return;
-        var pos = ToVecD(e.GetPosition(this));
         if (capturedDirection == SymmetryAxisDirection.Horizontal)
         {
             horizontalAxisY = (int)Math.Round(Math.Clamp(pos.Y, 0, ActualHeight));
+
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                horizontalAxisY = (int)(Math.Round(horizontalAxisY / RenderSize.Height * 8) / 8 * RenderSize.Height);
+            }
+            
             CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, horizontalAxisY);
         }
         else if (capturedDirection == SymmetryAxisDirection.Vertical)
         {
             verticalAxisX = (int)Math.Round(Math.Clamp(pos.X, 0, ActualWidth));
+            
+            if (Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                verticalAxisX = (int)(Math.Round(verticalAxisX / RenderSize.Width * 8) / 8 * RenderSize.Width);
+            }
+
             CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, verticalAxisX);
         }
         e.Handled = true;
