@@ -6,6 +6,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:diag="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+        xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d"
         Title="Import from template" Foreground="White"
         MinWidth="580"
@@ -32,9 +33,19 @@
                              TitleText="Import from template" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Templates, ElementName=window}"
                       Margin="10,10,10,5">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="0,5,0,0">
+                    <userControls:ShortcutsTemplateCard 
+                        TemplateName="{Binding Name}" Margin="0 0 5 0" 
+                        Logo="{Binding LogoPath}" Cursor="Hand" 
+                        MouseLeftButtonUp="OnTemplateCardLeftMouseButtonDown"
+                        HoverLogo="{Binding Path=HoverLogoPath}"/>
+                    <!--<Grid Margin="0,5,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
@@ -63,7 +74,7 @@
                                     CommandParameter="{Binding}" Content="Import defaults"
                                     Visibility="{Binding HasDefaultShortcuts, Converter={BoolToVisibilityConverter}}"/>
                         </StackPanel>
-                    </Grid>
+                    </Grid>-->
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

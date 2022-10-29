@@ -335,6 +335,8 @@
 		<Resource Include="Images\Tools\LassoImage.png" />
 		<None Remove="Images\TemplateLogos\Aseprite.png" />
 		<Resource Include="Images\TemplateLogos\Aseprite.png" />
+		<None Remove="Images\TemplateLogos\Aseprite-Hover.png" />
+		<Resource Include="Images\TemplateLogos\Aseprite-Hover.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
@@ -374,4 +376,12 @@
 	    <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
 	  </Page>
 	</ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\ShortcutActionMaps\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

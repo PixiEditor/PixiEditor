@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Microsoft.Win32;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -45,6 +46,49 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         }
 
         ProcessHelpers.ShellExecuteEV(path);
+    }
+    
+    [Command.Debug("PixiEditor.Debug.DumpAllCommands", "Dump All Commands", "Dumps All Commands to a text file")]
+    public void DumpAllCommands()
+    {
+        SaveFileDialog dialog = new SaveFileDialog();
+        var dialogResult = dialog.ShowDialog();
+        if (dialogResult.HasValue && dialogResult.Value)
+        {
+            var commands = Owner.CommandController.Commands;
+
+            using StreamWriter writer = new StreamWriter(dialog.FileName);
+            foreach (var command in commands)
+            {
+                writer.WriteLine($"InternalName: {command.InternalName}");
+                writer.WriteLine($"Default Shortcut: {command.DefaultShortcut}");
+                writer.WriteLine($"IsDebug: {command.IsDebug}");
+                writer.WriteLine();
+            }
+        }
+    }
+    
+    [Command.Debug("PixiEditor.Debug.GenerateKeysTemplate", "Generate key bindings template", "Generates key bindings json template")]
+    public void GenerateKeysTemplate()
+    {
+        SaveFileDialog dialog = new SaveFileDialog();
+        var dialogResult = dialog.ShowDialog();
+        if (dialogResult.HasValue && dialogResult.Value)
+        {
+            var commands = Owner.CommandController.Commands;
+
+            using StreamWriter writer = new StreamWriter(dialog.FileName);
+            writer.WriteLine("{");
+            foreach (var command in commands)
+            {
+                if(command.IsDebug) continue;
+                writer.WriteLine($"\"\" : \"{command.InternalName}\",");
+            }
+            
+            writer.WriteLine("}");
+            
+            ProcessHelpers.ShellExecuteEV(dialog.FileName);
+        }
     }
 
     [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory")]

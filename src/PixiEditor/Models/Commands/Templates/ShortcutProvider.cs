@@ -1,12 +1,11 @@
-﻿using System.Diagnostics;
-
-namespace PixiEditor.Models.Commands.Templates;
+﻿namespace PixiEditor.Models.Commands.Templates;
 
 internal partial class ShortcutProvider
 {
     public string Name { get; set; }
     
     public string LogoPath { get; set; }
+    public string HoverLogoPath { get; set; }
 
     /// <summary>
     /// Set this to true if this provider has default shortcuts

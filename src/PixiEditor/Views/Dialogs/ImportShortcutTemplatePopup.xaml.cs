@@ -6,6 +6,7 @@ using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.Views.Dialogs;
 
@@ -33,37 +34,6 @@ internal partial class ImportShortcutTemplatePopup : Window
 
         CommandController.Current.ResetShortcuts();
         CommandController.Current.Import(defaults.DefaultShortcuts);
-
-        Success(provider);
-    }
-
-    [Command.Internal("PixiEditor.Shortcuts.Provider.ImportFile")]
-    public static void ImportFile(ShortcutProvider provider)
-    {
-        if (provider is not IShortcutFile defaults)
-        {
-            throw new ArgumentException("provider must implement IShortcutFile", nameof(provider));
-        }
-
-        var picker = new OpenFileDialog();
-
-        if (!picker.ShowDialog().GetValueOrDefault())
-        {
-            return;
-        }
-
-        try
-        {
-            var template = defaults.GetShortcutsTemplate(picker.FileName);
-
-            CommandController.Current.ResetShortcuts();
-            CommandController.Current.Import(template.Shortcuts);
-        }
-        catch (FileFormatException)
-        {
-            NoticeDialog.Show($"The file was not in a correct format", "Error");
-            return;
-        }
 
         Success(provider);
     }
@@ -101,5 +71,25 @@ internal partial class ImportShortcutTemplatePopup : Window
     private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
     {
         SystemCommands.CloseWindow(this);
+    }
+
+    private void OnTemplateCardLeftMouseButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        ShortcutsTemplateCard card = (ShortcutsTemplateCard)sender;
+        ShortcutProvider provider = card.DataContext as ShortcutProvider;
+        
+        ImportFromProvider(provider);
+    }
+
+    private void ImportFromProvider(ShortcutProvider provider)
+    {
+        if (provider.ProvidesFromInstallation && provider.HasInstallationPresent)
+        {
+            ImportInstallation(provider);
+        }
+        else if (provider.HasDefaultShortcuts)
+        {
+            ImportDefaults(provider);
+        }
     }
 }

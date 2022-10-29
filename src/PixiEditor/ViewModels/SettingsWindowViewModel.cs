@@ -92,12 +92,22 @@ internal class SettingsWindowViewModel : ViewModelBase
         dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         if (dialog.ShowDialog().GetValueOrDefault())
         {
-            var shortcuts = ShortcutFile.LoadTemplate(dialog.FileName)?.Shortcuts.ToList();
-            if (shortcuts is null)
+            List<Shortcut> shortcuts = new List<Shortcut>();
+            try
+            {
+                shortcuts = ShortcutFile.LoadTemplate(dialog.FileName)?.Shortcuts.ToList();
+                if (shortcuts is null)
+                {
+                    NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
+                    return;
+                }
+            }
+            catch (Exception e)
             {
                 NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
                 return;
             }
+            
             CommandController.Current.ResetShortcuts();
             CommandController.Current.Import(shortcuts, false);
             File.Copy(dialog.FileName, CommandController.ShortcutsPath, true);

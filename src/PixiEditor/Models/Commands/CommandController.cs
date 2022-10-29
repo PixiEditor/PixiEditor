@@ -2,11 +2,13 @@
 using System.Reflection;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
@@ -14,7 +16,7 @@ namespace PixiEditor.Models.Commands;
 
 internal class CommandController
 {
-    private readonly ShortcutFile shortcutFile;
+    private ShortcutFile shortcutFile;
 
     public static CommandController Current { get; private set; }
 
@@ -92,7 +94,18 @@ internal class CommandController
 
     public void Init(IServiceProvider serviceProvider)
     {
-        ShortcutsTemplate template = shortcutFile.LoadTemplate();
+        ShortcutsTemplate template = new();
+        try
+        {
+            template = shortcutFile.LoadTemplate();
+        }
+        catch (JsonException)
+        {
+            File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true);
+            shortcutFile = new ShortcutFile(ShortcutsPath, this);
+            template = shortcutFile.LoadTemplate();
+            NoticeDialog.Show("Shortcuts file was corrupted, resetting to default.", "Corrupted shortcuts file");
+        }
 
         Type[] allTypesInPixiEditorAssembly = typeof(CommandController).Assembly.GetTypes();
 
