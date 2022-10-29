@@ -10,7 +10,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 internal class FloodFillToolViewModel : ToolViewModel
 {
     private readonly string defaultActionDisplay = "Press on an area to fill it. Hold down Ctrl to consider all layers.";
-    private SKPaint fillPaint = new SKPaint() { BlendMode = SKBlendMode.Src };
 
     public override BrushShape BrushShape => BrushShape.Pixel;
 

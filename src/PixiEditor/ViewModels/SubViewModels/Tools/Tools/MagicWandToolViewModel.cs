@@ -1,5 +1,7 @@
 ﻿using System.Windows.Input;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
@@ -12,9 +14,15 @@ internal class MagicWandToolViewModel : ToolViewModel
 
     public override BrushShape BrushShape => BrushShape.Pixel;
 
+    [Settings.Enum("Mode")]
+    public SelectionMode SelectMode => GetValue<SelectionMode>();
+
+    [Settings.Enum("Scope")]
+    public DocumentScope DocumentScope => GetValue<DocumentScope>();
+    
     public MagicWandToolViewModel()
     {
-        Toolbar = new MagicWandToolbar();
+        Toolbar = ToolbarFactory.Create<MagicWandToolViewModel>();
         ActionDisplay = "Click to flood the selection.";
     }
 }

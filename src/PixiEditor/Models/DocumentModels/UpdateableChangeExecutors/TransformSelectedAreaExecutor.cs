@@ -9,7 +9,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
 {
     private Guid[]? membersToTransform;
-    private MoveToolToolbar? toolbar;
+    private MoveToolViewModel? tool;
 
     public override ExecutorType Type { get; }
 
@@ -20,8 +20,8 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
 
     public override ExecutionState Start()
     {
-        toolbar = (MoveToolToolbar?)(ViewModelMain.Current?.ToolsSubViewModel.GetTool<MoveToolViewModel>()?.Toolbar);
-        if (toolbar is null || document!.SelectedStructureMember is null || document!.SelectionPathBindable.IsEmpty)
+        tool = ViewModelMain.Current?.ToolsSubViewModel.GetTool<MoveToolViewModel>();
+        if (tool is null || document!.SelectedStructureMember is null || document!.SelectionPathBindable.IsEmpty)
             return ExecutionState.Error;
 
         var members = document.SoftSelectedStructureMembers
@@ -35,14 +35,14 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
         document.TransformViewModel.ShowTransform(DocumentTransformMode.Freeform, true, corners);
         membersToTransform = members.Select(static a => a.GuidValue).ToArray();
         internals!.ActionAccumulator.AddActions(
-            new TransformSelectedArea_Action(membersToTransform, corners, toolbar.KeepOriginalImage, false));
+            new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false));
         return ExecutionState.Success;
     }
 
     public override void OnTransformMoved(ShapeCorners corners)
     {
         internals!.ActionAccumulator.AddActions(
-            new TransformSelectedArea_Action(membersToTransform!, corners, toolbar!.KeepOriginalImage, false));
+            new TransformSelectedArea_Action(membersToTransform!, corners, tool!.KeepOriginalImage, false));
     }
 
     public override void OnTransformApplied()

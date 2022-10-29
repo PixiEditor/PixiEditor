@@ -14,10 +14,13 @@ internal class LineToolViewModel : ShapeTool
     public LineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = new BasicToolbar();
+        Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>();
     }
 
     public override string Tooltip => $"Draws line on canvas ({Shortcut}). Hold Shift to draw even line.";
+
+    [Settings.Inherited]
+    public int ToolSize => GetValue<int>();
 
     public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

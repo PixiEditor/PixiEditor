@@ -16,7 +16,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class SelectToolExecutor : UpdateableChangeExecutor
 {
     private SelectToolViewModel? toolViewModel;
-    private SelectToolToolbar? toolbar;
+    private Toolbar? toolbar;
     private VecI startPos;
     private SelectionShape selectShape;
     private SelectionMode selectMode;
@@ -24,14 +24,14 @@ internal class SelectToolExecutor : UpdateableChangeExecutor
     public override ExecutionState Start()
     {
         toolViewModel = ViewModelMain.Current?.ToolsSubViewModel.GetTool<SelectToolViewModel>();
-        toolbar = (SelectToolToolbar?)(toolViewModel?.Toolbar);
+        toolbar = toolViewModel?.Toolbar;
 
         if (toolViewModel is null || toolbar is null)
             return ExecutionState.Error;
         
         startPos = controller!.LastPixelPosition;
-        selectShape = toolbar.SelectShape;
-        selectMode = toolbar.SelectMode;
+        selectShape = toolViewModel.SelectShape;
+        selectMode = toolViewModel.SelectMode;
 
         IAction action = CreateUpdateAction(selectShape, new RectI(startPos, new(0)), selectMode);
         internals!.ActionAccumulator.AddActions(action);

@@ -5,13 +5,13 @@ using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
-internal class SizeSetting : Setting<int>
+internal sealed class SizeSetting : Setting<int>
 {
     public SizeSetting(string name, string label = null)
         : base(name)
     {
-        Value = 1;
         Label = label;
+        Value = 1;
     }
 
     private SizeInput GenerateTextBox()

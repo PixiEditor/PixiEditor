@@ -8,13 +8,16 @@ using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
-internal class ColorSetting : Setting<Color>
+internal sealed class ColorSetting : Setting<Color>
 {
-    public ColorSetting(string name, string label = "")
+    public ColorSetting(string name, string label = "") : this(name, Colors.White, label)
+    { }
+    
+    public ColorSetting(string name, Color defaultValue, string label = "")
         : base(name)
     {
         Label = label;
-        Value = Color.FromArgb(255, 255, 255, 255);
+        Value = defaultValue;
     }
 
     private ToolSettingColorPicker GenerateColorPicker()

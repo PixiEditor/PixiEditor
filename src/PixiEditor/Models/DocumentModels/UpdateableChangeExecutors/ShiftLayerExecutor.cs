@@ -11,20 +11,20 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
 {
     private Guid guidValue;
     private VecI startPos;
-    private MoveToolToolbar? toolbar;
+    private MoveToolViewModel? tool;
 
     public override ExecutionState Start()
     {
         ViewModelMain? vm = ViewModelMain.Current;
         StructureMemberViewModel? member = document!.SelectedStructureMember;
-        toolbar = (MoveToolToolbar?)(ViewModelMain.Current?.ToolsSubViewModel.GetTool<MoveToolViewModel>()?.Toolbar);
-        if (vm is null || member is not LayerViewModel layer || layer.ShouldDrawOnMask || toolbar is null)
+        tool = ViewModelMain.Current?.ToolsSubViewModel.GetTool<MoveToolViewModel>();
+        if (vm is null || member is not LayerViewModel layer || layer.ShouldDrawOnMask || tool is null)
             return ExecutionState.Error;
 
         guidValue = member.GuidValue;
         startPos = controller!.LastPixelPosition;
 
-        ShiftLayer_Action action = new(guidValue, VecI.Zero, toolbar.KeepOriginalImage);
+        ShiftLayer_Action action = new(guidValue, VecI.Zero, tool.KeepOriginalImage);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -32,7 +32,7 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        ShiftLayer_Action action = new(guidValue, pos - startPos, toolbar!.KeepOriginalImage);
+        ShiftLayer_Action action = new(guidValue, pos - startPos, tool!.KeepOriginalImage);
         internals!.ActionAccumulator.AddActions(action);
     }
 

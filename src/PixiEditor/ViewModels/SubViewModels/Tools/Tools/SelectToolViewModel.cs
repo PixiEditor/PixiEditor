@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
@@ -14,12 +15,16 @@ internal class SelectToolViewModel : ToolViewModel
     public SelectToolViewModel()
     {
         ActionDisplay = "Click and move to select an area.";
-        Toolbar = new SelectToolToolbar();
+        Toolbar = ToolbarFactory.Create<SelectToolViewModel>();
         Cursor = Cursors.Cross;
     }
 
-    public SelectionMode SelectionType { get; set; } = SelectionMode.Add;
+    [Settings.Enum("Mode")]
+    public SelectionMode SelectMode => GetValue<SelectionMode>();
 
+    [Settings.Enum("Shape")]
+    public SelectionShape SelectShape => GetValue<SelectionShape>();
+    
     public override BrushShape BrushShape => BrushShape.Pixel;
 
     public override string Tooltip => $"Selects area. ({Shortcut})";

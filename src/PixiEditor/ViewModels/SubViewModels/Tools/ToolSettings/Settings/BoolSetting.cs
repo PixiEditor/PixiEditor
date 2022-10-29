@@ -5,7 +5,7 @@ using System.Windows.Data;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
-internal class BoolSetting : Setting<bool>
+internal sealed class BoolSetting : Setting<bool>
 {
     public BoolSetting(string name, string label = "")
         : this(name, false, label)

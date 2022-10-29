@@ -6,10 +6,10 @@ using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
-internal class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
+internal sealed class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
     where TEnum : struct, Enum
 {
-    private int selectedIndex = 0;
+    private int selectedIndex;
 
     /// <summary>
     /// Gets or sets the selected Index of the <see cref="ComboBox"/>.
@@ -29,7 +29,7 @@ internal class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
     /// <summary>
     /// Gets or sets the selected value of the <see cref="ComboBox"/>.
     /// </summary>
-    public new TEnum Value
+    public override TEnum Value
     {
         get => (TEnum)(SettingControl.SelectedItem as ComboBoxItem).Tag;
         set
@@ -43,6 +43,8 @@ internal class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
                     SelectedIndex = i;
                 }
             }
+
+            base.Value = value;
         }
     }
 
@@ -60,7 +62,7 @@ internal class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
     public EnumSetting(string name, string label, TEnum defaultValue)
         : this(name, label)
     {
-        Value = defaultValue;
+        base.Value = defaultValue;
     }
 
     private static ComboBox GenerateDropdown()
