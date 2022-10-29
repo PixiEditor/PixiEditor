@@ -19,20 +19,20 @@ internal partial class ShortcutProvider
         {
         }
 
-        public ShortcutCollection DefaultShortcuts { get; } = new()
+        public List<Shortcut> DefaultShortcuts { get; } = new()
         {
             // Add shortcuts for undo and redo
-            { "PixiEditor.Undo.Undo", Key.Z, ModifierKeys.Control },
-            { "PixiEditor.Undo.Redo", Key.Y, ModifierKeys.Control },
-            "PixiEditor.Colors.Swap"
+            new Shortcut(Key.Z, ModifierKeys.Control, "PixiEditor.Undo.Undo"),
+            new Shortcut(Key.Y, ModifierKeys.Control, "PixiEditor.Undo.Redo"),
+            new Shortcut(Key.X, ModifierKeys.None, "PixiEditor.Colors.Swap")
         };
 
         public string Filter => "json (*.json)|*.json";
 
-        public ShortcutCollection GetShortcuts(string path) => new(ShortcutFile.LoadShortcuts(path));
+        public ShortcutsTemplate GetShortcutsTemplate(string path) => ShortcutFile.LoadTemplate(path);
 
         public bool InstallationPresent => File.Exists(InstallationPath);
 
-        public ShortcutCollection GetInstalledShortcuts() => new(ShortcutFile.LoadShortcuts(InstallationPath));
+        public ShortcutsTemplate GetInstalledShortcuts() => ShortcutFile.LoadTemplate(InstallationPath);
     }
 }

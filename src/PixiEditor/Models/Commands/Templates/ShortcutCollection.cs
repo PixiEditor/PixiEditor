@@ -3,16 +3,16 @@ using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands.Templates;
 
-internal class ShortcutCollection : OneToManyDictionary<KeyCombination, string>
+internal class ShortcutCollection : List<Shortcut>
 {
     public ShortcutCollection() { }
 
-    public ShortcutCollection(IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> enumerable) : base(enumerable)
+    public ShortcutCollection(List<Shortcut> enumerable) : base(enumerable)
     { }
 
     public void Add(string commandName, Key key, ModifierKeys modifiers)
     {
-        Add(new(key, modifiers), commandName);
+        Add(new Shortcut(new KeyCombination(key, modifiers), new List<string>() { commandName }));
     }
 
     /// <summary>
@@ -20,6 +20,6 @@ internal class ShortcutCollection : OneToManyDictionary<KeyCombination, string>
     /// </summary>
     public void Add(string commandName)
     {
-        Add(KeyCombination.None, commandName);
+        Add(new Shortcut(KeyCombination.None, new List<string> { commandName }));
     }
 }

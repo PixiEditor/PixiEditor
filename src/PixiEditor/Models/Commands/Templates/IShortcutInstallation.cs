@@ -4,5 +4,5 @@ internal interface IShortcutInstallation
 {
     bool InstallationPresent { get; }
 
-    ShortcutCollection GetInstalledShortcuts();
+    ShortcutsTemplate GetInstalledShortcuts();
 }

@@ -28,7 +28,7 @@ internal partial class ImportShortcutTemplatePopup : Window
     {
         if (provider is not IShortcutDefaults defaults)
         {
-            throw new ArgumentException("provider must implement IShortcutDefaults", nameof(provider));
+            throw new ArgumentException("Provider must implement IShortcutDefaults", nameof(provider));
         }
 
         CommandController.Current.ResetShortcuts();
@@ -54,10 +54,10 @@ internal partial class ImportShortcutTemplatePopup : Window
 
         try
         {
-            var shortcuts = defaults.GetShortcuts(picker.FileName);
+            var template = defaults.GetShortcutsTemplate(picker.FileName);
 
             CommandController.Current.ResetShortcuts();
-            CommandController.Current.Import(shortcuts);
+            CommandController.Current.Import(template.Shortcuts);
         }
         catch (FileFormatException)
         {
@@ -73,14 +73,14 @@ internal partial class ImportShortcutTemplatePopup : Window
     {
         if (provider is not IShortcutInstallation defaults)
         {
-            throw new ArgumentException("provider must implement IShortcutInstallation", nameof(provider));
+            throw new ArgumentException("Provider must implement IShortcutInstallation", nameof(provider));
         }
 
         CommandController.Current.ResetShortcuts();
 
         try
         {
-            CommandController.Current.Import(defaults.GetInstalledShortcuts());
+            CommandController.Current.Import(defaults.GetInstalledShortcuts().Shortcuts);
         }
         catch
         {

@@ -7,7 +7,6 @@ namespace PixiEditor.Models.Commands;
 internal class ShortcutFile
 {
     private readonly CommandController _commands;
-
     public string Path { get; }
 
     public ShortcutFile(string path, CommandController controller)
@@ -24,21 +23,32 @@ internal class ShortcutFile
 
     public void SaveShortcuts()
     {
-        OneToManyDictionary<KeyCombination, string> shortcuts = new();
+        List<Shortcut> shortcuts = new();
 
         foreach (var shortcut in _commands.Commands.GetShortcuts())
         {
             foreach (var command in shortcut.Value.Where(x => x.Shortcut != x.DefaultShortcut))
             {
-                shortcuts.Add(shortcut.Key, command.InternalName);
+                Shortcut shortcutToAdd = new Shortcut(shortcut.Key, new List<string> { command.InternalName });
+                shortcuts.Add(shortcutToAdd);
             }
         }
+        
+        ShortcutsTemplate template = new()
+        {
+            Shortcuts = shortcuts.ToList(),
+        };
 
-        File.WriteAllText(Path, JsonConvert.SerializeObject(shortcuts));
+        File.WriteAllText(Path, JsonConvert.SerializeObject(template));
     }
 
-    public IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> LoadShortcuts() => LoadShortcuts(Path);
+    public ShortcutsTemplate LoadTemplate() => LoadTemplate(Path);
 
-    public static IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> LoadShortcuts(string path) =>
-        JsonConvert.DeserializeObject<IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>>>(File.ReadAllText(path));
+    public static ShortcutsTemplate LoadTemplate(string path)
+    {
+        var template = JsonConvert.DeserializeObject<ShortcutsTemplate>(File.ReadAllText(path));
+        if (template == null) return new ShortcutsTemplate();
+
+        return template;
+    }
 }

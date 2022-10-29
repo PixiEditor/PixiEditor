@@ -333,6 +333,8 @@
 		<Resource Include="Images\Settings.png" />
 		<None Remove="Images\Tools\LassoImage.png" />
 		<Resource Include="Images\Tools\LassoImage.png" />
+		<None Remove="Images\TemplateLogos\Aseprite.png" />
+		<Resource Include="Images\TemplateLogos\Aseprite.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

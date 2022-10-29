@@ -41,6 +41,7 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
                                    ToolTip="{Binding Description}"/>
+                        <Image Source="{Binding LogoPath}" Width="48" Height="48"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <StackPanel.Resources>
                                 <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}">

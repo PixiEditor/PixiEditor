@@ -45,13 +45,13 @@ internal class CommandController
         IconEvaluators = new();
     }
 
-    public void Import(IEnumerable<KeyValuePair<KeyCombination, IEnumerable<string>>> shortcuts, bool save = true)
+    public void Import(List<Shortcut> shortcuts, bool save = true)
     {
         foreach (var shortcut in shortcuts)
         {
-            foreach (var command in shortcut.Value)
+            foreach (var command in shortcut.Commands)
             {
-                ReplaceShortcut(Commands[command], shortcut.Key);
+                ReplaceShortcut(Commands[command], shortcut.KeyCombination);
             }
         }
 
@@ -92,8 +92,7 @@ internal class CommandController
 
     public void Init(IServiceProvider serviceProvider)
     {
-        KeyValuePair<KeyCombination, IEnumerable<string>>[] shortcuts = shortcutFile.LoadShortcuts()?.ToArray()
-                                                                        ?? Array.Empty<KeyValuePair<KeyCombination, IEnumerable<string>>>();
+        ShortcutsTemplate template = shortcutFile.LoadTemplate();
 
         Type[] allTypesInPixiEditorAssembly = typeof(CommandController).Assembly.GetTypes();
 
@@ -204,7 +203,7 @@ internal class CommandController
         }
 
         KeyCombination GetShortcut(string internalName, KeyCombination defaultShortcut)
-            => shortcuts.FirstOrDefault(x => x.Value.Contains(internalName), new(defaultShortcut, null)).Key;
+            => template.Shortcuts.FirstOrDefault(x => x.Commands.Contains(internalName), new Shortcut(defaultShortcut, (List<string>)null)).KeyCombination;
 
         void AddCommandToCommandsCollection(Command command)
         {

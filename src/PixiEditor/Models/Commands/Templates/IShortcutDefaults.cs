@@ -2,5 +2,5 @@
 
 internal interface IShortcutDefaults
 {
-    ShortcutCollection DefaultShortcuts { get; }
+    List<Shortcut> DefaultShortcuts { get; }
 }

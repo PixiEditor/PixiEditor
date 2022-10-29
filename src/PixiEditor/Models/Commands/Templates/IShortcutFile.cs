@@ -4,5 +4,5 @@ internal interface IShortcutFile
 {
     string Filter { get; }
 
-    ShortcutCollection GetShortcuts(string path);
+    ShortcutsTemplate GetShortcutsTemplate(string path);
 }

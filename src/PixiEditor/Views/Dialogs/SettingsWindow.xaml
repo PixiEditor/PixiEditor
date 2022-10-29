@@ -15,6 +15,7 @@
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+        xmlns:settingGroups="clr-namespace:PixiEditor.Views.Dialogs.SettingGroups"
         mc:Ignorable="d"
         Title="Settings" Name="window" 
         Height="688" Width="780"
@@ -211,50 +212,7 @@
                 <TextBox Grid.Row="1" Style="{StaticResource DarkTextBoxStyle}" Margin="0,10"
                          Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
-                <ScrollViewer Grid.Row="2" x:Name="commandScroll">
-                    <ScrollViewer.Template>
-                        <ControlTemplate TargetType="{x:Type ScrollViewer}">
-                            <Grid x:Name="Grid" Background="{TemplateBinding Background}">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Rectangle x:Name="Corner" Grid.Column="1" Fill="{DynamicResource {x:Static SystemColors.ControlBrushKey}}" Grid.Row="1"/>
-                                <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" CanContentScroll="{TemplateBinding CanContentScroll}" CanHorizontallyScroll="False" CanVerticallyScroll="False" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" Grid.Column="0" Margin="{TemplateBinding Padding}" Grid.Row="0"/>
-                                <ScrollBar x:Name="PART_VerticalScrollBar" AutomationProperties.AutomationId="VerticalScrollBar" Cursor="Arrow" Grid.Column="1" Maximum="{TemplateBinding ScrollableHeight}" Minimum="0" Grid.Row="0" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}" Margin="0,5,0,20"/>
-                                <ScrollBar x:Name="PART_HorizontalScrollBar" AutomationProperties.AutomationId="HorizontalScrollBar" Cursor="Arrow" Grid.Column="0" Maximum="{TemplateBinding ScrollableWidth}" Minimum="0" Orientation="Horizontal" Grid.Row="1" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}"/>
-                            </Grid>
-                        </ControlTemplate>
-                    </ScrollViewer.Template>
-                    <Grid>
-                        <TextBlock Foreground="LightGray" HorizontalAlignment="Center" TextAlignment="Center"
-                                   Visibility="{Binding VisibleGroups, ConverterParameter=0, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter}}"
-                                   Text="Nothing found"/>
-                        <ItemsControl ItemsSource="{Binding Commands}" Foreground="White">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="0,0,0,20" Visibility="{Binding Visibility}">
-                                        <TextBlock Text="{Binding DisplayName}" FontSize="22" FontWeight="SemiBold"/>
-                                        <ItemsControl ItemsSource="{Binding Commands}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid Margin="0,5,5,0" Visibility="{Binding Visibility}">
-                                                        <TextBlock Text="{Binding Command.DisplayName}" ToolTip="{Binding Command.Description}"/>
-                                                        <usercontrols:ShortcutBox Width="120" Command="{Binding Command}" HorizontalAlignment="Right"/>
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </Grid>
-                </ScrollViewer>
+                <settingGroups:ShortcutsBinder Grid.Row="2"/>
 
                 <Grid Grid.Row="2" Height="10" VerticalAlignment="Top"
                       Visibility="{Binding VerticalOffset, ElementName=commandScroll, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter Invert=True}, ConverterParameter=0}"
