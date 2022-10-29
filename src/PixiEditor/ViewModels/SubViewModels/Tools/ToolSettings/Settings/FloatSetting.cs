@@ -4,7 +4,7 @@ using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
-internal class FloatSetting : Setting<float>
+internal sealed class FloatSetting : Setting<float>
 {
     public FloatSetting(
         string name,

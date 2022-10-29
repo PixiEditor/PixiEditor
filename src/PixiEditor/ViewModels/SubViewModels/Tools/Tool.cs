@@ -1,7 +1,10 @@
-﻿using System.Windows.Input;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
@@ -53,4 +56,17 @@ internal abstract class ToolViewModel : NotifyableObject
     public virtual void OnLeftMouseButtonDown(VecD pos) { }
     public virtual void OnSelected() { }
     public virtual void OnDeselected() { }
+
+    protected T GetValue<T>([CallerMemberName] string name = null)
+    {
+        var setting = Toolbar.GetSetting(name);
+
+        if (setting.GetSettingType().IsAssignableTo(typeof(Enum)))
+        {
+            var property = setting.GetType().GetProperty("Value",  BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+            return (T)property!.GetValue(setting);
+        }
+
+        return (T)setting.Value;
+    }
 }

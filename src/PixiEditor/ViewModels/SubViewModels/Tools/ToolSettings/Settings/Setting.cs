@@ -28,7 +28,7 @@ internal abstract class Setting<T> : Setting
 
     public event EventHandler<SettingValueChangedEventArgs<T>> ValueChanged;
 
-    public new T Value
+    public new virtual T Value
     {
         get => (T)base.Value;
         set
@@ -44,6 +44,8 @@ internal abstract class Setting<T> : Setting
             RaisePropertyChanged(nameof(Value));
         }
     }
+
+    public override Type GetSettingType() => typeof(T);
 }
 
 internal abstract class Setting : NotifyableObject
@@ -64,4 +66,6 @@ internal abstract class Setting : NotifyableObject
     public Control SettingControl { get; set; }
 
     public abstract Control GenerateControl();
+
+    public abstract Type GetSettingType();
 }

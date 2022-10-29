@@ -19,18 +19,17 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
     {
         ViewModelMain? vm = ViewModelMain.Current;
         StructureMemberViewModel? member = document!.SelectedStructureMember;
-        BrightnessToolViewModel? brightnessTool = vm?.ToolsSubViewModel.GetTool<BrightnessToolViewModel>();
-        BrightnessToolToolbar? toolbar = brightnessTool?.Toolbar as BrightnessToolToolbar;
-        if (vm is null || brightnessTool is null || member is null || toolbar is null)
+        BrightnessToolViewModel? tool = vm?.ToolsSubViewModel.GetTool<BrightnessToolViewModel>();
+        if (vm is null || tool is null || member is null)
             return ExecutionState.Error;
         if (member is not LayerViewModel layer || layer.ShouldDrawOnMask)
             return ExecutionState.Error;
 
         guidValue = member.GuidValue;
-        repeat = toolbar.BrightnessMode == BrightnessMode.Repeat;
-        toolSize = toolbar.ToolSize;
-        darken = brightnessTool.Darken;
-        correctionFactor = toolbar.CorrectionFactor;
+        repeat = tool.BrightnessMode == BrightnessMode.Repeat;
+        toolSize = tool.ToolSize;
+        darken = tool.Darken;
+        correctionFactor = tool.CorrectionFactor;
 
         ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat, darken);
         internals!.ActionAccumulator.AddActions(action);

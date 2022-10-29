@@ -21,11 +21,10 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     {
         ViewModelMain? vm = ViewModelMain.Current;
         StructureMemberViewModel? member = document!.SelectedStructureMember;
-        PenToolViewModel? penTool = (PenToolViewModel?)(vm?.ToolsSubViewModel.GetTool<PenToolViewModel>());
-        PenToolbar? toolbar = penTool?.Toolbar as PenToolbar;
-        if (vm is null || penTool is null || member is null || toolbar is null)
+        PenToolViewModel? penTool = vm?.ToolsSubViewModel.GetTool<PenToolViewModel>();
+        if (vm is null || penTool is null || member is null || penTool?.Toolbar is not BasicToolbar toolbar)
             return ExecutionState.Error;
-        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
+        drawOnMask = member is not LayerViewModel layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
         if (!drawOnMask && member is not LayerViewModel)
@@ -34,7 +33,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         guidValue = member.GuidValue;
         color = vm.ColorsSubViewModel.PrimaryColor;
         toolSize = toolbar.ToolSize;
-        pixelPerfect = toolbar.PixelPerfectEnabled;
+        pixelPerfect = penTool.PixelPerfectEnabled;
 
         vm.ColorsSubViewModel.AddSwatch(color);
         IAction? action = pixelPerfect switch

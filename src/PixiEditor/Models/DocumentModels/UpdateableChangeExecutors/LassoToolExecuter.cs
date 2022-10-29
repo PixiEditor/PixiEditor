@@ -12,7 +12,7 @@ internal sealed class LassoToolExecuter : UpdateableChangeExecutor
     
     public override ExecutionState Start()
     {
-        mode = ((LassoToolbar)ViewModelMain.Current?.ToolsSubViewModel.GetTool<LassoToolViewModel>()?.Toolbar)?.SelectMode;
+        mode = ViewModelMain.Current?.ToolsSubViewModel.GetTool<LassoToolViewModel>()?.SelectMode;
 
         if (mode == null)
             return ExecutionState.Error;
