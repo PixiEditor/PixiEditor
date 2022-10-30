@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using System.IO;
+using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -24,12 +26,12 @@ internal partial class DocumentViewModel
         IReadOnlyDocument doc = Internals.Tracker.Document;
 
         AddMembers(doc.StructureRoot.Children, doc, root);
-        
+
         var document = new PixiDocument
         {
             Width = Width, Height = Height,
             Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
-            RootFolder = root
+            RootFolder = root, PreviewImage = PreviewSurface.Snapshot().Encode().AsSpan().ToArray()
         };
 
         return document;

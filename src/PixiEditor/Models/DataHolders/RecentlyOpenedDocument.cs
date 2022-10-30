@@ -73,17 +73,33 @@ internal class RecentlyOpenedDocument : NotifyableObject
     {
         if (FileExtension == ".pixi")
         {
-            
             SerializableDocument serializableDocument;
 
             try
             {
-                serializableDocument = DepractedPixiParser.Deserialize(filePath);
+                var document = PixiParser.Deserialize(filePath);
+
+                if (document.PreviewImage == null || document.PreviewImage.Length == 0)
+                {
+                    return null;
+                }
+                
+                using var data = new MemoryStream(document.PreviewImage);
+                var decoder = new PngBitmapDecoder(data, BitmapCreateOptions.None, BitmapCacheOption.OnDemand);
+                return new WriteableBitmap(decoder.Frames[0]);
             }
             catch
             {
-                corrupt = true;
-                return null;
+
+                try
+                {
+                    serializableDocument = DepractedPixiParser.Deserialize(filePath);
+                }
+                catch
+                {
+                    corrupt = true;
+                    return null;
+                }
             }
 
             using Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
