@@ -3,8 +3,6 @@ using System.Reflection;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using PixiEditor.Models.Commands.Attributes;
-using PixiEditor.Models.Commands.Attributes.Evaluators;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
@@ -30,7 +28,7 @@ internal class CommandController
 
     public Dictionary<string, IconEvaluator> IconEvaluators { get; }
 
-    public CommandController(IServiceProvider services)
+    public CommandController()
     {
         Current ??= this;
 
@@ -66,7 +64,7 @@ internal class CommandController
         }
     }
 
-    private static List<(string internalName, string displayName)> FindCommandGroups(Type[] typesToSearchForAttributes)
+    private static List<(string internalName, string displayName)> FindCommandGroups(IEnumerable<Type> typesToSearchForAttributes)
     {
         List<(string internalName, string displayName)> result = new();
 
@@ -109,76 +107,33 @@ internal class CommandController
             template = shortcutFile.LoadTemplate();
             NoticeDialog.Show("Shortcuts file was corrupted, resetting to default.", "Corrupted shortcuts file");
         }
-
-        Type[] allTypesInPixiEditorAssembly = typeof(CommandController).Assembly.GetTypes();
-
-        List<(string internalName, string displayName)> commandGroupsData = FindCommandGroups(allTypesInPixiEditorAssembly);
+        var compiledCommandList = new CommandNameList();
+        List<(string internalName, string displayName)> commandGroupsData = FindCommandGroups(compiledCommandList.Groups);
         OneToManyDictionary<string, Command> commands = new(); // internal name of the corr. group -> command in that group
 
-        // Find evaluators
-        ForEachMethod(allTypesInPixiEditorAssembly, serviceProvider, (methodInfo, maybeServiceInstance) =>
+        LoadEvaluators(serviceProvider, compiledCommandList);
+        LoadCommands(serviceProvider, compiledCommandList, commandGroupsData, commands, template);
+        LoadTools(serviceProvider, commandGroupsData, commands, template);
+
+        foreach (var (groupInternalName, storedCommands) in commands)
         {
-            var evaluatorAttrs = methodInfo.GetCustomAttributes<Evaluator.EvaluatorAttribute>();
-            foreach (var attribute in evaluatorAttrs)
-            {
-                switch (attribute)
-                {
-                    case Evaluator.CanExecuteAttribute canExecuteAttribute:
-                        {
-                            var getRequiredEvaluatorsObjectsOfCurrentEvaluator =
-                                (CommandController controller) =>
-                                    canExecuteAttribute.NamesOfRequiredCanExecuteEvaluators.Select(x => controller.CanExecuteEvaluators[x]);
+            var groupData = commandGroupsData.FirstOrDefault(group => group.internalName == groupInternalName);
+            string groupDisplayName;
+            if (groupData == default)
+                groupDisplayName = "Misc";
+            else
+                groupDisplayName = groupData.displayName;
+            CommandGroups.Add(new(groupDisplayName, storedCommands));
+        }
+    }
 
-                            AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
-                                methodInfo,
-                                maybeServiceInstance,
-                                canExecuteAttribute,
-                                CanExecuteEvaluators,
-                                evaluateFunction => new CanExecuteEvaluator()
-                                {
-                                    Name = attribute.Name,
-                                    Evaluate = evaluateFunctionArgument =>
-                                        evaluateFunction.Invoke(evaluateFunctionArgument) &&
-                                        getRequiredEvaluatorsObjectsOfCurrentEvaluator.Invoke(this).All(requiredEvaluator =>
-                                            requiredEvaluator.CallEvaluate(null, evaluateFunctionArgument))
-                                });
-                            break;
-                        }
-                    case Evaluator.IconAttribute icon:
-                        AddEvaluator<Evaluator.IconAttribute, IconEvaluator, ImageSource>(methodInfo, maybeServiceInstance, icon, IconEvaluators);
-                        break;
-                }
-            }
-        });
-
-        // Find basic commands
-        ForEachMethod(allTypesInPixiEditorAssembly, serviceProvider, (methodInfo, maybeServiceInstance) =>
+    private void LoadTools(IServiceProvider serviceProvider, List<(string internalName, string displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands,
+        ShortcutsTemplate template)
+    {
+        foreach (var toolInstance in serviceProvider.GetServices<ToolViewModel>())
         {
-            var commandAttrs = methodInfo.GetCustomAttributes<CommandAttribute.CommandAttribute>();
+            var type = toolInstance.GetType();
 
-            foreach (var attribute in commandAttrs)
-            {
-                if (attribute is CommandAttribute.BasicAttribute basic)
-                {
-                    AddCommand(methodInfo, maybeServiceInstance, attribute, (isDebug, name, x, xCan, xIcon) => new Command.BasicCommand(x, xCan)
-                    {
-                        InternalName = name,
-                        IsDebug = isDebug,
-                        DisplayName = attribute.DisplayName,
-                        Description = attribute.Description,
-                        IconPath = attribute.IconPath,
-                        IconEvaluator = xIcon,
-                        DefaultShortcut = attribute.GetShortcut(),
-                        Shortcut = GetShortcut(name, attribute.GetShortcut()),
-                        Parameter = basic.Parameter,
-                    });
-                }
-            }
-        });
-
-        // Find tool commands
-        foreach (var type in allTypesInPixiEditorAssembly)
-        {
             if (!type.IsAssignableTo(typeof(ToolViewModel)))
                 continue;
 
@@ -186,7 +141,6 @@ internal class CommandController
             if (toolAttr is null)
                 continue;
 
-            ToolViewModel toolInstance = serviceProvider.GetServices<ToolViewModel>().First(x => x.GetType() == type);
             string internalName = $"PixiEditor.Tools.Select.{type.Name}";
 
             var command = new Command.ToolCommand()
@@ -198,86 +152,65 @@ internal class CommandController
                 IconEvaluator = IconEvaluator.Default,
                 TransientKey = toolAttr.Transient,
                 DefaultShortcut = toolAttr.GetShortcut(),
-                Shortcut = GetShortcut(internalName, toolAttr.GetShortcut()),
+                Shortcut = GetShortcut(internalName, toolAttr.GetShortcut(), template),
                 ToolType = type,
             };
 
             Commands.Add(command);
-            AddCommandToCommandsCollection(command);
+            AddCommandToCommandsCollection(command, commandGroupsData, commands);
         }
+    }
 
-        // save all commands into CommandGroups
-        foreach (var (groupInternalName, storedCommands) in commands)
+    private KeyCombination GetShortcut(string internalName, KeyCombination defaultShortcut, ShortcutsTemplate template) =>
+        template.Shortcuts
+            .FirstOrDefault(x => x.Commands.Contains(internalName), new Shortcut(defaultShortcut, (List<string>)null))
+            .KeyCombination;
+
+    private void AddCommandToCommandsCollection(Command command, List<(string internalName, string displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands)
+    {
+        (string internalName, string displayName) group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.internalName));
+        if (group == default)
+            commands.Add("", command);
+        else
+            commands.Add(group.internalName, command);
+    }
+
+    private void LoadCommands(IServiceProvider serviceProvider, CommandNameList compiledCommandList, List<(string internalName, string displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands, ShortcutsTemplate template)
+    {
+        foreach (var type in compiledCommandList.Commands)
         {
-            var groupData = commandGroupsData.Where(group => group.internalName == groupInternalName).FirstOrDefault();
-            string groupDisplayName;
-            if (groupData == default)
-                groupDisplayName = "Misc";
-            else
-                groupDisplayName = groupData.displayName;
-            CommandGroups.Add(new(groupDisplayName, storedCommands));
+            foreach (var methodNames in type.Value)
+            {
+                var name = methodNames.Item1;
+
+                var methodInfo = type.Key.GetMethod(name, methodNames.Item2.ToArray());
+
+                var commandAttrs = methodInfo.GetCustomAttributes<CommandAttribute.CommandAttribute>();
+
+                foreach (var attribute in commandAttrs)
+                {
+                    if (attribute is CommandAttribute.BasicAttribute basic)
+                    {
+                        AddCommand(methodInfo, serviceProvider.GetService(type.Key), attribute,
+                            (isDebug, name, x, xCan, xIcon) => new Command.BasicCommand(x, xCan)
+                            {
+                                InternalName = name,
+                                IsDebug = isDebug,
+                                DisplayName = attribute.DisplayName,
+                                Description = attribute.Description,
+                                IconPath = attribute.IconPath,
+                                IconEvaluator = xIcon,
+                                DefaultShortcut = attribute.GetShortcut(),
+                                Shortcut = GetShortcut(name, attribute.GetShortcut(), template),
+                                Parameter = basic.Parameter,
+                            });
+                    }
+                }
+            }
         }
-
-        KeyCombination GetShortcut(string internalName, KeyCombination defaultShortcut)
-            => template.Shortcuts.FirstOrDefault(x => x.Commands.Contains(internalName), new Shortcut(defaultShortcut, (List<string>)null)).KeyCombination;
-
-        void AddCommandToCommandsCollection(Command command)
-        {
-            (string internalName, string displayName) group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.internalName));
-            if (group == default)
-                commands.Add("", command);
-            else
-                commands.Add(group.internalName, command);
-        }
-
-        void AddEvaluator<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute, IDictionary<string, T> evaluators)
-            where T : Evaluator<TParameter>, new()
-            where TAttr : Evaluator.EvaluatorAttribute
-            => AddEvaluatorFactory<TAttr, T, TParameter>(method, instance, attribute, evaluators, x => new T() { Name = attribute.Name, Evaluate = x });
-
-        void AddEvaluatorFactory<TAttr, T, TParameter>(MethodInfo method, object serviceInstance, TAttr attribute, IDictionary<string, T> evaluators, Func<Func<object, TParameter>, T> factory)
-            where T : Evaluator<TParameter>, new()
-            where TAttr : Evaluator.EvaluatorAttribute
-        {
-            if (method.ReturnType != typeof(TParameter))
-            {
-                throw new Exception($"Invalid return type for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}\nExpected '{typeof(TParameter).FullName}'");
-            }
-            else if (method.GetParameters().Length > 1)
-            {
-                throw new Exception($"Too many parameters for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}");
-            }
-            else if (!method.IsStatic && serviceInstance is null)
-            {
-                throw new Exception($"No type instance for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name} found");
-            }
-
-            var parameters = method.GetParameters();
-
-            Func<object, TParameter> func;
-
-            if (parameters.Length == 1)
-            {
-                func = x => (TParameter)method.Invoke(serviceInstance, new[] { CastParameter(x, parameters[0].ParameterType) });
-            }
-            else
-            {
-                func = x => (TParameter)method.Invoke(serviceInstance, null);
-            }
-
-            T evaluator = factory(func);
-
-            evaluators.Add(evaluator.Name, evaluator);
-        }
-
-        object CastParameter(object input, Type target)
-        {
-            if (target == typeof(object) || target == input?.GetType())
-                return input;
-            return Convert.ChangeType(input, target);
-        }
-
-        TCommand AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute, Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
+        
+        void AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute,
+            Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
             where TAttr : CommandAttribute.CommandAttribute
             where TCommand : Command
         {
@@ -285,11 +218,13 @@ internal class CommandController
             {
                 if (method.GetParameters().Length > 1)
                 {
-                    throw new Exception($"Too many parameters for the CanExecute evaluator '{attribute.InternalName}' at {method.ReflectedType.FullName}.{method.Name}");
+                    throw new Exception(
+                        $"Too many parameters for the CanExecute evaluator '{attribute.InternalName}' at {method.ReflectedType.FullName}.{method.Name}");
                 }
                 else if (!method.IsStatic && instance is null)
                 {
-                    throw new Exception($"No type instance for the CanExecute evaluator '{attribute.InternalName}' at {method.ReflectedType.FullName}.{method.Name} found");
+                    throw new Exception(
+                        $"No type instance for the CanExecute evaluator '{attribute.InternalName}' at {method.ReflectedType.FullName}.{method.Name} found");
                 }
             }
 
@@ -297,7 +232,7 @@ internal class CommandController
 
             Action<object> action;
 
-            if (parameters == null || parameters.Length != 1)
+            if (parameters is not { Length: 1 })
             {
                 action = x => method.Invoke(instance, null);
             }
@@ -322,9 +257,112 @@ internal class CommandController
                 attribute.IconEvaluator != null ? IconEvaluators[attribute.IconEvaluator] : IconEvaluator.Default);
 
             Commands.Add(command);
-            AddCommandToCommandsCollection(command);
+            AddCommandToCommandsCollection(command, commandGroupsData, commands);
+        }
+    }
 
-            return command;
+    private void LoadEvaluators(IServiceProvider serviceProvider, CommandNameList compiledCommandList)
+    {
+        object CastParameter(object input, Type target)
+        {
+            if (target == typeof(object) || target == input?.GetType())
+                return input;
+            return Convert.ChangeType(input, target);
+        }
+
+        void AddEvaluatorFactory<TAttr, T, TParameter>(MethodInfo method, object serviceInstance, TAttr attribute,
+            IDictionary<string, T> evaluators, Func<Func<object, TParameter>, T> factory)
+            where T : Evaluator<TParameter>, new()
+            where TAttr : Evaluator.EvaluatorAttribute
+        {
+            if (method.ReturnType != typeof(TParameter))
+            {
+                throw new Exception(
+                    $"Invalid return type for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}\nExpected '{typeof(TParameter).FullName}'");
+            }
+            else if (method.GetParameters().Length > 1)
+            {
+                throw new Exception(
+                    $"Too many parameters for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}");
+            }
+            else if (!method.IsStatic && serviceInstance is null)
+            {
+                throw new Exception(
+                    $"No type instance for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name} found");
+            }
+
+            var parameters = method.GetParameters();
+
+            Func<object, TParameter> func;
+
+            if (parameters.Length == 1)
+            {
+                func = x => (TParameter)method.Invoke(serviceInstance,
+                    new[] { CastParameter(x, parameters[0].ParameterType) });
+            }
+            else
+            {
+                func = x => (TParameter)method.Invoke(serviceInstance, null);
+            }
+
+            T evaluator = factory(func);
+
+            evaluators.Add(evaluator.Name, evaluator);
+        }
+
+        void AddEvaluator<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute,
+            IDictionary<string, T> evaluators)
+            where T : Evaluator<TParameter>, new()
+            where TAttr : Evaluator.EvaluatorAttribute
+            => AddEvaluatorFactory<TAttr, T, TParameter>(method, instance, attribute, evaluators,
+                x => new T() { Name = attribute.Name, Evaluate = x });
+
+        {
+            foreach (var type in compiledCommandList.Evaluators)
+            {
+                foreach (var methodNames in type.Value)
+                {
+                    var name = methodNames.Item1;
+
+                    var methodInfo = type.Key.GetMethod(name, methodNames.Item2.ToArray());
+
+                    var commandAttrs = methodInfo.GetCustomAttributes<Evaluator.EvaluatorAttribute>();
+
+                    foreach (var attribute in commandAttrs)
+                    {
+                        switch (attribute)
+                        {
+                            case Evaluator.CanExecuteAttribute canExecuteAttribute:
+                            {
+                                var getRequiredEvaluatorsObjectsOfCurrentEvaluator =
+                                    (CommandController controller) =>
+                                        canExecuteAttribute.NamesOfRequiredCanExecuteEvaluators.Select(x =>
+                                            controller.CanExecuteEvaluators[x]);
+
+                                AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
+                                    methodInfo,
+                                    serviceProvider.GetService(type.Key),
+                                    canExecuteAttribute,
+                                    CanExecuteEvaluators,
+                                    evaluateFunction => new CanExecuteEvaluator()
+                                    {
+                                        Name = attribute.Name,
+                                        Evaluate = evaluateFunctionArgument =>
+                                            evaluateFunction.Invoke(evaluateFunctionArgument) &&
+                                            getRequiredEvaluatorsObjectsOfCurrentEvaluator.Invoke(this).All(
+                                                requiredEvaluator =>
+                                                    requiredEvaluator.CallEvaluate(null, evaluateFunctionArgument))
+                                    });
+                                break;
+                            }
+                            case Evaluator.IconAttribute icon:
+                                AddEvaluator<Evaluator.IconAttribute, IconEvaluator, ImageSource>(methodInfo,
+                                    serviceProvider.GetService(type.Key), icon, IconEvaluators);
+                                break;
+                        }
+                    }
+                }
+            }
         }
     }
 

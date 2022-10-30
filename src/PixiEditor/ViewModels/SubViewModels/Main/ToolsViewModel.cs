@@ -59,7 +59,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     public void SetupTools(IServiceProvider services)
     {
         ToolSet = services.GetServices<ToolViewModel>().ToList();
-        SetActiveTool<PenToolViewModel>();
     }
 
     public void SetupToolsTooltipShortcuts(IServiceProvider services)
