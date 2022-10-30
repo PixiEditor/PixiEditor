@@ -18,17 +18,12 @@ internal class ShortcutBinding : MarkupExtension
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        //if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
-        //{
+#if DEBUG
         var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
         return new KeyCombination(attribute.Key, attribute.Modifiers).ToString();
-        //}
+#endif
 
-        if (commandController == null)
-        {
-            commandController = ViewModelMain.Current.CommandController;
-        }
-
+        commandController ??= ViewModelMain.Current.CommandController;
         return GetBinding(commandController.Commands[Name]).ProvideValue(serviceProvider);
     }
 

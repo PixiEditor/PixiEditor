@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Events;
+using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
@@ -28,6 +29,11 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
             activeDocument = value;
             RaisePropertyChanged(nameof(ActiveDocument));
             ActiveDocumentChanged?.Invoke(this, new(value, prevDoc));
+            
+            if (ViewModelMain.Current.ToolsSubViewModel.ActiveTool == null)
+            {
+                ViewModelMain.Current.ToolsSubViewModel.SetActiveTool<PenToolViewModel>();
+            }
         }
     }
 

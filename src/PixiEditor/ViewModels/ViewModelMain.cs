@@ -82,7 +82,7 @@ internal class ViewModelMain : ViewModelBase
                 return actionDisplay;
             }
 
-            return ToolsSubViewModel.ActiveTool.ActionDisplay;
+            return ToolsSubViewModel.ActiveTool?.ActionDisplay;
         }
         set
         {
