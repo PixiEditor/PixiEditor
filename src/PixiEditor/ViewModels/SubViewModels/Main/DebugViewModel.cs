@@ -103,6 +103,33 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    [Command.Debug("PixiEditor.Debug.ValidateShortcutMap", "Validate Shortcut Map", "Validates shortcut map")]
+    public void ValidateShortcutMap()
+    {
+        OpenFileDialog dialog = new OpenFileDialog();
+        dialog.Filter = "Json files (*.json)|*.json";
+        dialog.InitialDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data", "ShortcutActionMaps");
+        var dialogResult = dialog.ShowDialog();
+        
+        if (dialogResult.HasValue && dialogResult.Value)
+        {
+            string file = File.ReadAllText(dialog.FileName);
+            var keyDefinitions = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(file);
+            int emptyKeys = file.Split("\"\":").Length - 1;
+            int unknownCommands = 0;
+            
+            foreach (var keyDefinition in keyDefinitions)
+            {
+                if (!Owner.CommandController.Commands.ContainsKey(keyDefinition.Value.Command))
+                {
+                    unknownCommands++;
+                }
+            }
+
+            NoticeDialog.Show($"Empty keys: {emptyKeys}\nUnknown Commands: {unknownCommands}", "Result");
+        }
+    }
+
     [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory")]
     public static void OpenInstallLocation()
     {

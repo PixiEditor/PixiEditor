@@ -26,7 +26,7 @@ public record HumanReadableKeyCombination(string key, string[] modifiers = null)
     {
         Key parsedKey = Key.None;
         ModifierKeys parsedModifiers = ModifierKeys.None;
-        if (Enum.TryParse(key, out parsedKey))
+        if (TryParseSpecial(key, out parsedKey) || Enum.TryParse(key, true, out parsedKey))
         {
             parsedModifiers = ParseModifiers(modifiers);
         }
@@ -36,6 +36,28 @@ public record HumanReadableKeyCombination(string key, string[] modifiers = null)
         }
         
         return new KeyCombination(parsedKey, parsedModifiers);
+    }
+
+    private bool TryParseSpecial(string key, out Key parsed)
+    {
+        switch (key.ToLower())
+        {
+            case "shift":
+                parsed = Key.LeftShift;
+                return true;
+            case "ctrl":
+                parsed = Key.LeftCtrl;
+                return true;
+            case "alt":
+                parsed = Key.LeftAlt;
+                return true;
+            case "win":
+                parsed = Key.LWin;
+                return true;
+            default:
+                parsed = Key.None;
+                return false;
+        }
     }
 
     private ModifierKeys ParseModifiers(string[] strings)

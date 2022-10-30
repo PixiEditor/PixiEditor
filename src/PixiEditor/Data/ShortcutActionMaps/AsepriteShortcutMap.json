@@ -663,15 +663,15 @@
       },
       "Parameters": []
     },
-    "": {
+    "Clear": {
       "Command": "PixiEditor.Document.DeletePixels",
       "DefaultShortcut": {
-        "key": "None",
+        "key": "Delete",
         "modifiers": null
       },
       "Parameters": []
     },
-    "": {
+    "SpriteSize": {
       "Command": "PixiEditor.Document.ResizeDocument",
       "DefaultShortcut": {
         "key": "None",
@@ -679,10 +679,10 @@
       },
       "Parameters": []
     },
-    "": {
+    "CanvasSize": {
       "Command": "PixiEditor.Document.ResizeCanvas",
       "DefaultShortcut": {
-        "key": "None",
+        "key": "C",
         "modifiers": null
       },
       "Parameters": []
