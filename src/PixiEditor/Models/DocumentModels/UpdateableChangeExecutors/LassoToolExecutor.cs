@@ -6,7 +6,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
-internal sealed class LassoToolExecuter : UpdateableChangeExecutor
+internal sealed class LassoToolExecutor : UpdateableChangeExecutor
 {
     private SelectionMode? mode;
     

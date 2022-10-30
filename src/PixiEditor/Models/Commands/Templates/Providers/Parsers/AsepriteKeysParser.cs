@@ -24,7 +24,7 @@ public class AsepriteKeysParser : KeysParser
     public AsepriteKeysParser(string mapFileName) : base(mapFileName)
     {
     }
-    
+
     public override ShortcutsTemplate Parse(string path)
     {
         if (!File.Exists(path))
@@ -84,8 +84,6 @@ public class AsepriteKeysParser : KeysParser
                 continue;
             }
 
-            string asepriteCommand = commandName;
-            
             var mappedEntry = Map[commandName];
             commandName = mappedEntry.Command;
 

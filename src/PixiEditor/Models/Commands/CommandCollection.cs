@@ -17,6 +17,7 @@ internal class CommandCollection : ICollection<Command>
     public bool IsReadOnly => false;
 
     public Command this[string name] => _commandInternalNames[name];
+    public bool ContainsKey(string key) => _commandInternalNames.ContainsKey(key);
 
     public IEnumerable<Command> this[KeyCombination shortcut] => _commandShortcuts[shortcut];
 

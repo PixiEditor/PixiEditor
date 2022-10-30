@@ -7,7 +7,7 @@ using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
-[Command.ToolAttribute(Key = Key.L)]
+[Command.ToolAttribute(Key = Key.Q)]
 internal class LassoToolViewModel : ToolViewModel
 {
     public LassoToolViewModel()

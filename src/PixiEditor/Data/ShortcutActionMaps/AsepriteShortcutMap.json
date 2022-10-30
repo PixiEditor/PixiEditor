@@ -63,7 +63,7 @@
       },
       "Parameters": []
     },
-    "Color": {
+    "": {
       "Command": "PixiEditor.Clipboard.PasteColor",
       "DefaultShortcut": {
         "key": "None",

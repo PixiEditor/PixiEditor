@@ -53,7 +53,10 @@ internal class CommandController
         {
             foreach (var command in shortcut.Commands)
             {
-                ReplaceShortcut(Commands[command], shortcut.KeyCombination);
+                if (Commands.ContainsKey(command))
+                {
+                    ReplaceShortcut(Commands[command], shortcut.KeyCombination);
+                }
             }
         }
 

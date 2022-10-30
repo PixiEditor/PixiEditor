@@ -11,7 +11,10 @@ public abstract class KeysParser
 
     public Dictionary<string, KeyDefinition> Map => _cachedMap ??= LoadKeysMap();
     private Dictionary<string, KeyDefinition> _cachedMap;
-
+    
+    public List<Shortcut> Defaults => _cachedDefaults ??= ParseDefaults();
+    private List<Shortcut> _cachedDefaults;
+    
     public KeysParser(string mapFileName)
     {
         _fullMapFilePath = Path.Combine("Data", "ShortcutActionMaps", mapFileName);
@@ -32,5 +35,19 @@ public abstract class KeysParser
         if(dict == null) throw new Exception("Keys map file is empty.");
         if(dict.ContainsKey("")) dict.Remove("");
         return dict;
+    }
+    
+    private List<Shortcut> ParseDefaults()
+    {
+        var defaults = new List<Shortcut>();
+        foreach (var (key, value) in Map)
+        {
+            if (value.DefaultShortcut != null)
+            {
+                defaults.Add(new Shortcut(value.DefaultShortcut.ToKeyCombination(), Map[key].Command));
+            }
+        }
+        
+        return defaults;
     }
 }
