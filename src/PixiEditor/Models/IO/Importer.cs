@@ -12,7 +12,9 @@ using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Parser;
+using PixiEditor.Parser.Deprecated;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
 
 namespace PixiEditor.Models.IO;
 
@@ -63,13 +65,22 @@ internal class Importer : NotifyableObject
     {
         try
         {
-            DocumentViewModel doc = PixiParser.Deserialize(path).ToDocument();
+            var doc = PixiParser.Deserialize(path).ToDocument();
             doc.FullFilePath = path;
             return doc;
         }
         catch (InvalidFileException)
         {
-            throw new CorruptedFileException();
+            try
+            {
+                var doc = DepractedPixiParser.Deserialize(path).ToDocument();
+                doc.FullFilePath = path;
+                return doc;
+            }
+            catch (InvalidFileException)
+            {
+                throw new CorruptedFileException();
+            }
         }
     }
 

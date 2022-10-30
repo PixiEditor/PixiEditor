@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.Parser.Deprecated;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
@@ -77,7 +78,7 @@ internal class RecentlyOpenedDocument : NotifyableObject
 
             try
             {
-                serializableDocument = PixiParser.Deserialize(filePath);
+                serializableDocument = DepractedPixiParser.Deserialize(filePath);
             }
             catch
             {

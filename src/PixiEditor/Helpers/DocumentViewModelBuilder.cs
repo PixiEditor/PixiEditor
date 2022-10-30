@@ -24,17 +24,23 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         return this;
     }
     
-    public DocumentViewModelBuilder WithSwatches(List<Color> swatches)
+    public DocumentViewModelBuilder WithSwatches(IEnumerable<Color> swatches)
     {
-        Swatches = swatches;
+        Swatches = new (swatches);
         return this;
     }
+
+    public DocumentViewModelBuilder WithSwatches<T>(IEnumerable<T> swatches, Func<T, Color> toColor) =>
+        WithSwatches(swatches.Select(toColor));
     
-    public DocumentViewModelBuilder WithPalette(List<Color> palette)
+    public DocumentViewModelBuilder WithPalette(IEnumerable<Color> palette)
     {
-        Palette = palette;
+        Palette = new(palette);
         return this;
     }
+
+    public DocumentViewModelBuilder WithPalette<T>(IEnumerable<T> pallet, Func<T, Color> toColor) =>
+        WithPalette(pallet.Select(toColor));
 
     public abstract class StructureMemberBuilder
     {
@@ -97,6 +103,11 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         {
             mask(Mask);
             return this;
+        }
+
+        public StructureMemberBuilder WithMask<T>(T reference, Action<MaskBuilder, T> mask)
+        {
+            return reference != null ? WithMask(x => mask(x, reference)) : this;
         }
         
         public StructureMemberBuilder WithGuid(Guid guid)

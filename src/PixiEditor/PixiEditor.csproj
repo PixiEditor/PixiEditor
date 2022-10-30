@@ -216,8 +216,8 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="OneOf" Version="3.0.216" />
 		<PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
-		<PackageReference Include="PixiEditor.Parser" Version="2.1.0.3" />
-		<PackageReference Include="PixiEditor.Parser.Skia" Version="2.1.0" />
+		<PackageReference Include="PixiEditor.Parser" Version="3.0.0" />
+		<PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
 		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
 		<PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
 		<PackageReference Include="WriteableBitmapEx">
@@ -349,7 +349,7 @@
 		<ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
 		<ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
 		<ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
-		<ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"  />
+		<ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
 	</ItemGroup>
 	<ItemGroup>
 		<Reference Include="PixiParser">

@@ -1,112 +1,114 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using System.Drawing;
+using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Parser;
-using TerraFX.Interop.Windows;
+using PixiEditor.Parser.Collections;
+using BlendMode = PixiEditor.Parser.BlendMode;
+using PixiDocument = PixiEditor.Parser.Document;
+using PixiColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 
 internal partial class DocumentViewModel
 {
-    public SerializableDocument ToSerializable()
+    public PixiDocument ToSerializable()
     {
+        var root = new Folder();
+        
         IReadOnlyDocument doc = Internals.Tracker.Document;
 
-        SerializableDocument document = new SerializableDocument(Width, Height,
-            ToSerializableGroups(doc.StructureRoot, doc),
-            ToSerializableLayers(doc))
-            .AddSwatches(Swatches)
-            .AddPalette(Palette);
+        AddMembers(doc.StructureRoot.Children, doc, root);
+        
+        var document = new PixiDocument
+        {
+            Width = Width, Height = Height,
+            Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
+            RootFolder = root
+        };
 
         return document;
     }
 
-    private static List<SerializableLayer> ToSerializableLayers(IReadOnlyDocument document)
+    private static void AddMembers(IEnumerable<IReadOnlyStructureMember> members, IReadOnlyDocument document, Folder parent)
     {
-        List<SerializableLayer> layers = new List<SerializableLayer>();
-        
-        document.ForEveryReadonlyMember(member =>
+        foreach (var member in members)
         {
-            if (member is IReadOnlyLayer layer)
+            if (member is IReadOnlyFolder readOnlyFolder)
             {
-                SerializableLayer serializable = ToSerializable(layer, document);
-                if (serializable != null)
-                {
-                    layers.Add(serializable);
-                }
-            }
-        });
-        
-        return layers;
-    }
+                var folder = ToSerializable(readOnlyFolder);
 
-    private static SerializableLayer ToSerializable(IReadOnlyLayer layer, IReadOnlyDocument document)
+                AddMembers(readOnlyFolder.Children, document, folder);
+
+                parent.Children.Add(folder);
+            }
+            else if (member is IReadOnlyLayer readOnlyLayer)
+            {
+                parent.Children.Add(ToSerializable(readOnlyLayer, document));
+            }
+        }
+    }
+    
+    private static Folder ToSerializable(IReadOnlyFolder folder)
+    {
+        return new Folder
+        {
+            Name = folder.Name,
+            BlendMode = (BlendMode)(int)folder.BlendMode,
+            Enabled = folder.IsVisible,
+            Opacity = folder.Opacity,
+            Mask = GetMask(folder.Mask, folder.MaskIsVisible)
+        };
+    }
+    
+    private static ImageLayer ToSerializable(IReadOnlyLayer layer, IReadOnlyDocument document)
     {
         var result = document.GetLayerImage(layer.GuidValue);
 
-        if (result != null)
+        var tightBounds = document.GetLayerTightBounds(layer.GuidValue);
+        using var data = result?.DrawingSurface.Snapshot().Encode();
+        byte[] bytes = data?.AsSpan().ToArray();
+        var serializable = new ImageLayer
         {
-            RectI tightBounds = document.GetLayerTightBounds(layer.GuidValue).Value;
-            var serializable = new SerializableLayer(result.Size.X, result.Size.Y, tightBounds.X, tightBounds.Y)
-                { IsVisible = layer.IsVisible, Name = layer.Name, Opacity = layer.Opacity };
-            using var data = result.DrawingSurface.Snapshot().Encode();
-            byte[] bytes = data.AsSpan().ToArray();
-            serializable.PngBytes = bytes;
-            
-            return serializable;
-        }
+            Width = result?.Size.X ?? 0, Height = result?.Size.Y ?? 0, OffsetX = tightBounds?.X ?? 0, OffsetY = tightBounds?.Y ?? 0,
+            Enabled = layer.IsVisible, BlendMode = (BlendMode)(int)layer.BlendMode, ImageBytes = bytes,
+            Name = layer.Name, Opacity = layer.Opacity, Mask = GetMask(layer.Mask, layer.MaskIsVisible)
+        };
 
-        return new SerializableLayer(1, 1) { Name = layer.Name, IsVisible = layer.IsVisible, Opacity = layer.Opacity };
+        return serializable;
     }
 
-    private static List<SerializableGroup> ToSerializableGroups(IReadOnlyFolder documentStructureRoot, IReadOnlyDocument document, int passIndex = 0)
+    private static Mask GetMask(IReadOnlyChunkyImage mask, bool maskVisible)
     {
-        List<SerializableGroup> group = new List<SerializableGroup>();
+        if (mask == null) 
+            return null;
         
-        int currentLayerIndex = passIndex;
-        foreach (var memberViewModel in documentStructureRoot.Children)
+        var maskBound = mask.FindLatestBounds();
+
+        if (maskBound == null)
         {
-            if (memberViewModel is IReadOnlyFolder folder && folder != document.StructureRoot)
-            {
-                int startIndex = currentLayerIndex;
-                int endIndex = GetEndIndex(folder, startIndex);
-                group.Add(new SerializableGroup(folder.Name, startIndex, endIndex, ToSerializableGroups(folder, document, startIndex)));        
-            }
-            else if(memberViewModel is IReadOnlyLayer)
-            {
-                currentLayerIndex++;
-            }
+            return new Mask();
         }
         
-        return group;
+        var surface = DrawingBackendApi.Current.SurfaceImplementation.Create(new ImageInfo(
+            maskBound.Value.Width,
+            maskBound.Value.Height));
+                
+        mask.DrawMostUpToDateRegionOn(new RectI(0, 0, maskBound.Value.Width, maskBound.Value.Height), ChunkResolution.Full, surface, new VecI(0, 0));
+
+        return new Mask
+        {
+            Width = maskBound.Value.Width, Height = maskBound.Value.Height,
+            OffsetX = maskBound.Value.X, OffsetY = maskBound.Value.Y,
+            Enabled = maskVisible, ImageBytes = surface.Snapshot().Encode().AsSpan().ToArray()
+        };
     }
 
-    private static int GetEndIndex(IReadOnlyFolder folder, int startIndex)
-    {
-        int endIndex = startIndex - 1;
-        Traverse(folder, member =>
-        {
-            if (member is IReadOnlyLayer)
-            {
-                endIndex++;
-            }
-        });
-        
-        return endIndex;
-    }
-    
-    private static void Traverse(IReadOnlyFolder folder, Action<IReadOnlyStructureMember> action)
-    {
-        action(folder);
-        foreach (var member in folder.Children)
-        {
-            if (member is IReadOnlyLayer)
-            {
-                action(member);
-            }
-            if (member is IReadOnlyFolder subFolder)
-            {
-                Traverse(subFolder, action);
-            }
-        }
-    }
+    private ColorCollection ToCollection(WpfObservableRangeCollection<PixiColor> collection) =>
+        new(collection.Select(x => Color.FromArgb(x.A, x.R, x.G, x.B)));
 }
