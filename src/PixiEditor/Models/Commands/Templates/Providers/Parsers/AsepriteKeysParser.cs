@@ -58,11 +58,8 @@ public class AsepriteKeysParser : KeysParser
     private void LoadCommands(XmlDocument document, List<KeyDefinition> keyDefinitions)
     {
         XmlNodeList commands = document.SelectNodes("keyboard/commands/key");
-        if(commands == null || commands.Count == 0)
-        {
-            ApplyDefaults(keyDefinitions, "PixiEditor");
-            return;
-        }
+        ApplyDefaults(keyDefinitions, "PixiEditor");
+
 
         foreach (XmlNode commandNode in commands)
         {
@@ -135,12 +132,8 @@ public class AsepriteKeysParser : KeysParser
     private void LoadTools(XmlDocument document, List<KeyDefinition> keyDefinitions)
     {
         XmlNodeList tools = document.SelectNodes("keyboard/tools/key");
-        if(tools == null || tools.Count == 0)
-        {
-            ApplyDefaults(keyDefinitions, "PixiEditor.Tools");
-            return;
-        }
-        
+        ApplyDefaults(keyDefinitions, "PixiEditor.Tools");
+
         foreach (XmlNode tool in tools)
         {
             if(tool.Attributes == null) continue;
