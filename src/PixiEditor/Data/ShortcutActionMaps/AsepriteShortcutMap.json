@@ -375,7 +375,7 @@
       },
       "Parameters": []
     },
-    "": {
+    "MergeDownLayer": {
       "Command": "PixiEditor.Layer.MergeWithBelow",
       "DefaultShortcut": {
         "key": "None",
@@ -383,67 +383,27 @@
       },
       "Parameters": []
     },
-    "": {
+    "Launch.path=/docs/.type=url": {
       "Command": "PixiEditor.Links.OpenDocumentation",
       "DefaultShortcut": {
-        "key": "None",
+        "key": "B",
         "modifiers": null
       },
       "Parameters": []
     },
-    "": {
-      "Command": "PixiEditor.Links.OpenWebsite",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Links.OpenRepository",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Links.OpenLicense",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Links.OpenOtherLicenses",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Search.Toggle",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
+    "MaskAll": {
       "Command": "PixiEditor.Selection.SelectAll",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "A",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
-    "": {
+    "DeselectMask": {
       "Command": "PixiEditor.Selection.Clear",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "D",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
@@ -463,83 +423,35 @@
       },
       "Parameters": []
     },
-    "": {
-      "Command": "PixiEditor.Stylus.StylusOutOfRange",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Stylus.StylusSystemGesture",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Stylus.StylusDown",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Stylus.StylusUp",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Tools.ApplyTransform",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Tools.SelectTool",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
+    "ChangeBrush.change=increment-size": {
       "Command": "PixiEditor.Tools.IncreaseSize",
       "DefaultShortcut": {
-        "key": "None",
+        "key": "+",
         "modifiers": null
       },
       "Parameters": []
     },
-    "": {
+    "ChangeBrush.change=decrement-size": {
       "Command": "PixiEditor.Tools.DecreaseSize",
       "DefaultShortcut": {
-        "key": "None",
+        "key": "-",
         "modifiers": null
       },
       "Parameters": []
     },
-    "": {
+    "Redo": {
       "Command": "PixiEditor.Undo.Redo",
       "DefaultShortcut": {
         "key": "None",
-        "modifiers": null
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
-    "": {
+    "Undo": {
       "Command": "PixiEditor.Undo.Undo",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "Z",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
@@ -551,27 +463,27 @@
       },
       "Parameters": []
     },
-    "": {
+    "ShowGrid": {
       "Command": "PixiEditor.View.ToggleGrid",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "'",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
-    "": {
+    "Zoom.action=in": {
       "Command": "PixiEditor.View.ZoomIn",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "+",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
-    "": {
+    "Zoom.action=out": {
       "Command": "PixiEditor.View.Zoomout",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "-",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
