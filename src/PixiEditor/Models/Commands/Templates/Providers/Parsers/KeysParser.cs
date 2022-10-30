@@ -9,8 +9,8 @@ public abstract class KeysParser
 
     private static string _fullMapFilePath;
 
-    public Dictionary<string, string> Map => _cachedMap ??= LoadKeysMap();
-    private Dictionary<string, string> _cachedMap;
+    public Dictionary<string, KeyDefinition> Map => _cachedMap ??= LoadKeysMap();
+    private Dictionary<string, KeyDefinition> _cachedMap;
 
     public KeysParser(string mapFileName)
     {
@@ -25,10 +25,12 @@ public abstract class KeysParser
     
     public abstract ShortcutsTemplate Parse(string filePath);
     
-    private Dictionary<string, string> LoadKeysMap()
+    private Dictionary<string, KeyDefinition> LoadKeysMap()
     {
         string text = File.ReadAllText(_fullMapFilePath);
-        var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(text);
+        var dict = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(text);
+        if(dict == null) throw new Exception("Keys map file is empty.");
+        if(dict.ContainsKey("")) dict.Remove("");
         return dict;
     }
 }

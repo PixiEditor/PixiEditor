@@ -2,9 +2,11 @@
 using System.IO;
 using System.Reflection;
 using Microsoft.Win32;
+using Newtonsoft.Json;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.UserPreferences;
 
@@ -78,15 +80,25 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             var commands = Owner.CommandController.Commands;
 
             using StreamWriter writer = new StreamWriter(dialog.FileName);
-            writer.WriteLine("{");
+            Dictionary<string, KeyDefinition> keyDefinitions = new Dictionary<string, KeyDefinition>();
             foreach (var command in commands)
             {
-                if(command.IsDebug) continue;
-                writer.WriteLine($"\"\" : \"{command.InternalName}\",");
+                if(command.IsDebug)
+                    continue;
+                keyDefinitions.Add($"(provider).{command.InternalName}", new KeyDefinition(command.InternalName, new HumanReadableKeyCombination("None"), Array.Empty<string>()));
+            }
+
+            writer.Write(JsonConvert.SerializeObject(keyDefinitions, Formatting.Indented));
+            writer.Close();
+            string file = File.ReadAllText(dialog.FileName);
+            foreach (var command in commands)
+            {
+                if(command.IsDebug)
+                    continue;
+                file = file.Replace($"(provider).{command.InternalName}", "");
             }
             
-            writer.WriteLine("}");
-            
+            File.WriteAllText(dialog.FileName, file);
             ProcessHelpers.ShellExecuteEV(dialog.FileName);
         }
     }

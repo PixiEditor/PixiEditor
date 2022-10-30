@@ -1,6 +1,7 @@
 ﻿using System.Drawing;
 using System.IO;
 using System.Windows.Input;
+using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands;
@@ -14,6 +15,17 @@ public sealed class ShortcutsTemplate
     {
         Shortcuts = new List<Shortcut>();
     }
+
+    public static ShortcutsTemplate FromKeyDefinitions(List<KeyDefinition> keyDefinitions)
+    {
+        ShortcutsTemplate template = new ShortcutsTemplate();
+        foreach (KeyDefinition keyDefinition in keyDefinitions)
+        {
+            template.Shortcuts.Add(new Shortcut(keyDefinition.DefaultShortcut.ToKeyCombination(), keyDefinition.Command));
+        }
+
+        return template;
+    }
 }
 
 [Serializable]
@@ -22,7 +34,7 @@ public sealed class Shortcut
     public KeyCombination KeyCombination { get; set; }
     public List<string> Commands { get; set; }
     
-    public Shortcut() {}
+    public Shortcut() { }
 
     public Shortcut(KeyCombination keyCombination, List<string> commands)
     {
