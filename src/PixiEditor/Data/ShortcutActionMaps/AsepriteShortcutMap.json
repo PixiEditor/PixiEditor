@@ -583,15 +583,15 @@
       },
       "Parameters": []
     },
-    "": {
+    "Options": {
       "Command": "PixiEditor.Window.OpenSettingsWindow",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "K",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
-    "": {
+    "Home": {
       "Command": "PixiEditor.Window.OpenStartupWindow",
       "DefaultShortcut": {
         "key": "None",
@@ -599,18 +599,22 @@
       },
       "Parameters": []
     },
-    "": {
+    "KeyboardShortcuts": {
       "Command": "PixiEditor.Window.OpenShortcutWindow",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "F7",
+        "modifiers": [
+            "Ctrl",
+            "Alt",
+            "Shift"
+        ]
       },
       "Parameters": []
     },
-    "": {
+    "TogglePreview": {
       "Command": "PixiEditor.Window.OpenNavigationWindow",
       "DefaultShortcut": {
-        "key": "None",
+        "key": "F7",
         "modifiers": null
       },
       "Parameters": []
@@ -623,7 +627,7 @@
       },
       "Parameters": []
     },
-    "": {
+    "SymmetryMode.orientation=vertical": {
       "Command": "PixiEditor.Document.ToggleVerticalSymmetryAxis",
       "DefaultShortcut": {
         "key": "None",
@@ -631,32 +635,8 @@
       },
       "Parameters": []
     },
-    "": {
+    "SymmetryMode.orientation=horizontal": {
       "Command": "PixiEditor.Document.ToggleHorizontalSymmetryAxis",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Document.DragSymmetry",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Document.StartDragSymmetry",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Document.EndDragSymmetry",
       "DefaultShortcut": {
         "key": "None",
         "modifiers": null
