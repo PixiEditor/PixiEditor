@@ -1,6 +1,4 @@
-﻿using PixiEditor.Helpers;
-
-namespace PixiEditor.Models.Dialogs;
+﻿namespace PixiEditor.Models.Dialogs;
 
 internal abstract class CustomDialog : NotifyableObject
 {

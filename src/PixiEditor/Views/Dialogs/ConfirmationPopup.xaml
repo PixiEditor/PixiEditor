@@ -28,16 +28,16 @@
 
         <StackPanel DockPanel.Dock="Bottom" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
                     Margin="0,0,10,15">
-            <Button Margin="10,0,10,0" Width="70" IsDefault="True"
+            <Button Margin="10,0,10,0" MinWidth="70" IsDefault="True" Padding="5 0"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
-                    Style="{StaticResource DarkRoundButton}" Content="Yes">
+                    Style="{StaticResource DarkRoundButton}" Content="{Binding ElementName=popup, Path=FirstOptionText}">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Width="70"
+            <Button MinWidth="70" Padding="5 0"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
-                    Style="{StaticResource DarkRoundButton}" Content="No">
+                    Style="{StaticResource DarkRoundButton}" Content="{Binding ElementName=popup, Path=SecondOptionText}">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>

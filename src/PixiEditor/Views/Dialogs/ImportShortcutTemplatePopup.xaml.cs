@@ -1,7 +1,5 @@
-﻿using System.IO;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
-using Microsoft.Win32;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
@@ -77,19 +75,46 @@ internal partial class ImportShortcutTemplatePopup : Window
     {
         ShortcutsTemplateCard card = (ShortcutsTemplateCard)sender;
         ShortcutProvider provider = card.DataContext as ShortcutProvider;
-        
-        ImportFromProvider(provider);
+
+        if (ImportFromProvider(provider))
+        {
+            Close();
+        }
     }
 
-    private void ImportFromProvider(ShortcutProvider provider)
+    /// <summary>
+    ///     Imports shortcuts from a provider. If provider has installation available, then user will be asked to choose between installation and defaults.
+    /// </summary>
+    /// <param name="provider">Shortcut provider.</param>
+    /// <returns>True if imported shortcuts.</returns>
+    private bool ImportFromProvider(ShortcutProvider provider)
     {
         if (provider.ProvidesFromInstallation && provider.HasInstallationPresent)
         {
-            ImportInstallation(provider);
+            var result = OptionDialog.Show(
+                $"We've detected, that you have {provider.Name} installed. Do you want to import shortcuts from it?",
+                "Import from installation",
+                "Import from installation",
+                "Use defaults");
+
+            if (result == OptionResult.Option1)
+            {
+                ImportInstallation(provider);
+            }
+            else if (result == OptionResult.Option2)
+            {
+                ImportDefaults(provider);
+            }
+            
+            return result != OptionResult.Canceled;
         }
-        else if (provider.HasDefaultShortcuts)
+        
+        if (provider.HasDefaultShortcuts)
         {
             ImportDefaults(provider);
+            return true;
         }
+        
+        return false;
     }
 }

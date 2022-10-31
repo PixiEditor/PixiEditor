@@ -15,6 +15,24 @@ internal partial class ConfirmationPopup : Window
     public static readonly DependencyProperty BodyProperty =
         DependencyProperty.Register(nameof(Body), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata(""));
 
+    public static readonly DependencyProperty FirstOptionTextProperty = DependencyProperty.Register(
+        nameof(FirstOptionText), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata("Yes"));
+
+    public string FirstOptionText
+    {
+        get { return (string)GetValue(FirstOptionTextProperty); }
+        set { SetValue(FirstOptionTextProperty, value); }
+    }
+
+    public static readonly DependencyProperty SecondOptionTextProperty = DependencyProperty.Register(
+        nameof(SecondOptionText), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata("No"));
+
+    public string SecondOptionText
+    {
+        get { return (string)GetValue(SecondOptionTextProperty); }
+        set { SetValue(SecondOptionTextProperty, value); }
+    }
+    
     public ConfirmationPopup()
     {
         InitializeComponent();

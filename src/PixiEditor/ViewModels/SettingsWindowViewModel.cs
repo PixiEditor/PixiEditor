@@ -120,7 +120,14 @@ internal class SettingsWindowViewModel : ViewModelBase
     [Command.Internal("PixiEditor.Shortcuts.OpenTemplatePopup")]
     public static void OpenTemplatePopup()
     {
-        new ImportShortcutTemplatePopup().ShowDialog();
+        ImportShortcutTemplatePopup popup = new ImportShortcutTemplatePopup();
+        var settingsWindow = Application.Current.Windows.OfType<SettingsWindow>().FirstOrDefault();
+        if(settingsWindow is not null)
+        {
+            popup.Owner = settingsWindow;
+        }
+        
+        popup.ShowDialog();
     }
 
     public SettingsWindowViewModel()

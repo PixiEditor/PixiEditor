@@ -205,7 +205,7 @@
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Import}"
                             Content="Import"/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.OpenTemplatePopup}"
-                            Content="Import from..."/>
+                            Content="Shortcut Templates"/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Reset}"
                             Content="Reset all"/>
                 </StackPanel>

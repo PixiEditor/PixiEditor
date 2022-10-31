@@ -9,6 +9,7 @@
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d"
         Title="Import from template" Foreground="White"
+        WindowStartupLocation="CenterOwner"
         MinWidth="580"
         SizeToContent="WidthAndHeight" WindowStyle="None"
         Background="{StaticResource AccentColor}"
