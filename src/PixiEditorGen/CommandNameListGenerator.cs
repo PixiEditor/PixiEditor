@@ -105,7 +105,10 @@ internal partial class CommandNameList {
 
                 var parameters = string.Join(",", method.Item3.Select(x => $"typeof({x})"));
                 
-                code.AppendLine($"      Commands[typeof({method.Item1})].Add((\"{method.Item2}\", new Type[] {{ {parameters} }}));");
+                bool hasParameters = parameters.Length > 0;
+                string paramString = hasParameters ? $"new Type[] {{ {parameters} }}" : "Array.Empty<Type>()";
+                
+                code.AppendLine($"      Commands[typeof({method.Item1})].Add((\"{method.Item2}\", {paramString}));");
             }
 
             code.Append("   }\n}");
@@ -138,8 +141,8 @@ internal partial class CommandNameList {
                 else
                 {
                     var parameters = string.Join(",", method.Item3.Select(x => $"typeof({x})"));
-                
-                    code.AppendLine($"      Evaluators[typeof({method.Item1})].Add((\"{method.Item2}\", new Type[] {{ {parameters} }}));");
+                    string paramString = parameters.Length > 0 ? $"new Type[] {{ {parameters} }}" : "Array.Empty<Type>()";
+                    code.AppendLine($"      Evaluators[typeof({method.Item1})].Add((\"{method.Item2}\", {paramString}));");
                 }
             }
 

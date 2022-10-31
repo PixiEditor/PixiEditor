@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace PixiEditor.Models.Commands;
+﻿namespace PixiEditor.Models.Commands;
 
 internal partial class CommandNameList
 {
