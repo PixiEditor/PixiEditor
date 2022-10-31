@@ -69,7 +69,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         NewFileDialog newFile = new NewFileDialog();
         if (newFile.ShowDialog())
         {
-            NewDocument(new VecI(newFile.Width, newFile.Height));
+            NewDocument(b => b
+                .WithSize(newFile.Width,newFile.Height)
+                .WithLayer(l => l
+                    .WithName("Base Layer")
+                    .WithSurface(new Surface(new VecI(newFile.Width, newFile.Height)))));
         }
     }
 
@@ -78,17 +82,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         new HelloTherePopup(this).Show();
     }
 
-    public DocumentViewModel NewDocument(VecI size, bool addBaseLayer = true)
+    public DocumentViewModel NewDocument(Action<DocumentViewModelBuilder> builder)
     {
-        var doc = DocumentViewModel.Build(d =>
-        {
-            d.WithSize(size.X, size.Y);
-
-            if (addBaseLayer)
-            {
-                d.WithLayer(l => l.WithName("Base Layer").WithSurface(new Surface(size)));
-            }
-        });
+        var doc = DocumentViewModel.Build(builder);
 
         doc.MarkAsSaved();
         Owner.WindowSubViewModel.CreateNewViewport(doc);
@@ -112,13 +108,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         if (dialog.ShowDialog())
         {
-            DocumentViewModel doc = NewDocument(new(dialog.FileWidth, dialog.FileHeight), false);
+            DocumentViewModel doc = NewDocument(b => b
+                .WithSize(dialog.FileWidth, dialog.FileHeight)
+                .WithLayer(l => l
+                    .WithName("Image")
+                    .WithSize(dialog.FileWidth, dialog.FileHeight)
+                    .WithSurface(Importer.ImportImage(dialog.FilePath, new VecI(dialog.FileWidth, dialog.FileHeight)))));
             doc.FullFilePath = path;
-
-            Guid? guid = doc.Operations.CreateStructureMember(StructureMemberType.Layer, "Image");
-            Surface surface = Importer.ImportImage(dialog.FilePath, new VecI(dialog.FileWidth, dialog.FileHeight));
-            RectD corners = RectD.FromTwoPoints(new VecD(0, 0), new VecD(dialog.FileWidth, dialog.FileHeight));
-            doc.Operations.DrawImage(surface, new ShapeCorners(corners), guid.Value, true, false);
         }
     }
 
