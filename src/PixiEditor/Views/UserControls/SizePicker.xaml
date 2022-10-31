@@ -9,7 +9,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
-             mc:Ignorable="d"
+             mc:Ignorable="d" Background="Transparent"
              d:DesignHeight="200" d:DesignWidth="240" Name="uc">
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -27,7 +27,7 @@
             <Setter Property="Height" Value="25"/>
         </Style>
     </UserControl.Resources>
-    <Border Background="{StaticResource MainColor}" VerticalAlignment="Stretch">
+    <Border Background="{StaticResource MainColor}" VerticalAlignment="Stretch" CornerRadius="10">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid Height="60" HorizontalAlignment="Center" DockPanel.Dock="Top"
                   Visibility="{Binding SizeUnitSelectionVisibility, ElementName=uc}">

@@ -4,7 +4,7 @@ internal partial class Command
 {
     internal class DebugAttribute : BasicAttribute
     {
-        public DebugAttribute(string internalName, string displayName, string description) : base($"#DEBUG#{internalName}", displayName, description)
+        public DebugAttribute(string internalName, string displayName, string descriptiveName) : base($"#DEBUG#{internalName}", displayName, descriptiveName)
         {
         }
 

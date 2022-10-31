@@ -313,6 +313,10 @@
                         <MenuItem
                             Header="_Third Party Licenses"
                             cmds:Menu.Command="PixiEditor.Links.OpenOtherLicenses" />
+                        <Separator/>
+                        <MenuItem
+                            Header="_About"
+                            cmds:Menu.Command="PixiEditor.Window.OpenAboutWindow" />
                     </MenuItem>
                     <MenuItem
                         Header="_Debug"

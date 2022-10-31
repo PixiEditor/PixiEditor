@@ -435,6 +435,14 @@
       },
       "Parameters": []
     },
+    "About": {
+      "Command": "PixiEditor.Window.OpenAboutWindow",
+      "DefaultShortcut": {
+        "key": "None",
+        "modifiers": null
+      },
+      "Parameters": []
+    },
     "TogglePreview": {
       "Command": "PixiEditor.Window.OpenNavigationWindow",
       "DefaultShortcut": {
