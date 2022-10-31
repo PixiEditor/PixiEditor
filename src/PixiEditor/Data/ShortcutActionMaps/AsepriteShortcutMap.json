@@ -1,65 +1,17 @@
 ﻿{
-    "": {
-      "Command": "PixiEditor.Shortcuts.Provider.ImportDefault",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Shortcuts.Provider.ImportInstallation",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Shortcuts.Reset",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Shortcuts.Export",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Shortcuts.Import",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Shortcuts.OpenTemplatePopup",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
+    "Cut": {
       "Command": "PixiEditor.Clipboard.Cut",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "X",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
-    "": {
+    "Paste": {
       "Command": "PixiEditor.Clipboard.Paste",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "V",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
@@ -71,19 +23,11 @@
       },
       "Parameters": []
     },
-    "": {
+    "Copy": {
       "Command": "PixiEditor.Clipboard.Copy",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Colors.ReplaceColors",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "C",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
@@ -95,7 +39,7 @@
       },
       "Parameters": []
     },
-    "": {
+    "LoadPalette": {
       "Command": "PixiEditor.Colors.ImportPalette",
       "DefaultShortcut": {
         "key": "None",
@@ -183,10 +127,10 @@
       },
       "Parameters": []
     },
-    "": {
+    "SwitchColors": {
       "Command": "PixiEditor.Colors.Swap",
       "DefaultShortcut": {
-        "key": "None",
+        "key": "X",
         "modifiers": null
       },
       "Parameters": []
@@ -199,27 +143,19 @@
       },
       "Parameters": []
     },
-    "": {
-      "Command": "PixiEditor.Colors.SelectColor",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
+    "NewFile": {
       "Command": "PixiEditor.File.New",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "N",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
-    "": {
+    "OpenFile": {
       "Command": "PixiEditor.File.Open",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "O",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
@@ -231,31 +167,31 @@
       },
       "Parameters": []
     },
-    "": {
+    "SaveFile": {
       "Command": "PixiEditor.File.Save",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "S",
+        "modifiers": ["Ctrl"]
       },
       "Parameters": []
     },
-    "AsNew": {
+    "SaveFileAs": {
       "Command": "PixiEditor.File.SaveAsNew",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "S",
+        "modifiers": ["Ctrl", "Shift"]
       },
       "Parameters": []
     },
-    "": {
+    "SaveFileCopyAs": {
       "Command": "PixiEditor.File.Export",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "S",
+        "modifiers": ["Ctrl", "Alt", "Shift"]
       },
       "Parameters": []
     },
-    "": {
+    "RemoveLayer": {
       "Command": "PixiEditor.Layer.DeleteSelected",
       "DefaultShortcut": {
         "key": "None",
@@ -271,23 +207,23 @@
       },
       "Parameters": []
     },
-    "": {
+    "NewLayer.group=true": {
       "Command": "PixiEditor.Layer.NewFolder",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "N",
+        "modifiers": ["Alt", "Shift"]
       },
       "Parameters": []
     },
-    "": {
+    "NewLayer": {
       "Command": "PixiEditor.Layer.NewLayer",
       "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
+        "key": "N",
+        "modifiers": ["Shift"]
       },
       "Parameters": []
     },
-    "": {
+    "SetInkType.type=lock-alpha": {
       "Command": "PixiEditor.Layer.ToggleLockTransparency",
       "DefaultShortcut": {
         "key": "None",
@@ -295,31 +231,7 @@
       },
       "Parameters": []
     },
-    "": {
-      "Command": "PixiEditor.Layer.OpacitySliderDragStarted",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Layer.OpacitySliderDragged",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
-      "Command": "PixiEditor.Layer.OpacitySliderDragEnded",
-      "DefaultShortcut": {
-        "key": "None",
-        "modifiers": null
-      },
-      "Parameters": []
-    },
-    "": {
+    "DuplicateLayer": {
       "Command": "PixiEditor.Layer.DuplicateSelectedLayer",
       "DefaultShortcut": {
         "key": "None",
