@@ -12,6 +12,8 @@ public partial class AboutPopup : Window
         InitializeComponent();
     }
     
+    
+    
     private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
     {
         e.CanExecute = true;

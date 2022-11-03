@@ -13,6 +13,7 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
     {
     }
 
+    [Command.Basic("PixiEditor.Links.OpenHyperlink", "Open Hyperlink", "Open a hyperlink")]
     [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/introduction", "Documentation", "Open Documentation")]
     [Command.Basic("PixiEditor.Links.OpenWebsite", "https://pixieditor.net", "Website", "Open Website")]
     [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "Repository", "Open Repository")]

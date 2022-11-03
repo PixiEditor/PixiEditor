@@ -261,6 +261,7 @@
 		<Resource Include="Images\Processing.gif" />
 		<Resource Include="Images\Replace.png" />
 		<Resource Include="Images\Search.png" />
+		<Resource Include="Images\SocialMedia\Avatars\flabbet.png" />
 		<Resource Include="Images\SocialMedia\DiscordIcon.png" />
 		<Resource Include="Images\SocialMedia\DonateIcon.png" />
 		<Resource Include="Images\SocialMedia\GitHubIcon.png" />
@@ -338,7 +339,10 @@
 		<None Remove="Images\TemplateLogos\Aseprite-Hover.png" />
 		<Resource Include="Images\TemplateLogos\Aseprite-Hover.png" />
 		<None Remove="Images\SocialMedia\flabbet.png" />
-		<Resource Include="Images\SocialMedia\flabbet.png" />
+		<None Remove="Images\SocialMedia\Avatars\Equbuxu.png" />
+		<Resource Include="Images\SocialMedia\Avatars\Equbuxu.png" />
+		<None Remove="Images\SocialMedia\Avatars\CPK.png" />
+		<Resource Include="Images\SocialMedia\Avatars\CPK.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

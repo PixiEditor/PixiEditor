@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -33,8 +34,6 @@ internal partial class HelloTherePopup : Window
     public RelayCommand OpenNewFileCommand { get; set; }
 
     public RelayCommand OpenRecentCommand { get; set; }
-
-    public RelayCommand OpenHyperlinkCommand { get => null; }
 
     public RelayCommand OpenInExplorerCommand { get; set; }
 

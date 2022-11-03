@@ -232,6 +232,7 @@
     <Style x:Key="HyperlinkTextButton" TargetType="{x:Type Button}">
         <Setter Property="OverridesDefaultStyle" Value="True"/>
         <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -241,10 +242,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="TextBlock.TextDecorations" Value="Underline"/>
+                            <Setter Property="Foreground" Value="Gray"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="False">
-                            <Setter Property="TextBlock.TextDecorations" Value="{x:Null}"/>
+                            <Setter Property="Foreground" Value="White"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -269,6 +270,37 @@
                             <Setter Property="Opacity" TargetName="brd" Value="1" />
                         </Trigger>
                     </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}" x:Key="SocialMediaButton">
+        <Setter Property="Width" Value="50"/>
+        <Setter Property="Margin" Value="5,8,5,0"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Height" Value="50"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{Binding Tag, RelativeSource={RelativeSource Self}}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                    <Border
+                        x:Name="Border"
+                        Background="{TemplateBinding Background}"
+                        Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" 
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        CornerRadius="5">
+                        <ContentControl>
+                            <Image Margin="8" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}"
+                                   RenderOptions.BitmapScalingMode="Fant"/>
+                        </ContentControl>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

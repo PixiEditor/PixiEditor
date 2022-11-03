@@ -6,9 +6,11 @@
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+        xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d" WindowStyle="None"
         Title="About" WindowStartupLocation="CenterScreen"
-        Height="300" Width="400" Name="aboutPopup">
+        Height="490" Width="400" Name="aboutPopup" MinWidth="100" MinHeight="100">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
                         Executed="CommandBinding_Executed_Close" />
@@ -25,7 +27,7 @@
         </b:Interaction.Behaviors>
 
         <local:DialogTitleBar DockPanel.Dock="Top"
-                             TitleText="{Binding ElementName=popup, Path=Title}" 
+                             TitleText="{Binding ElementName=aboutPopup, Path=Title}" 
                              CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <StackPanel DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
@@ -33,33 +35,66 @@
                 <TextBlock FontSize="40" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0">PixiEditor</TextBlock>
             </StackPanel>
             <TextBlock Foreground="White" HorizontalAlignment="Center" FontSize="20" FontWeight="Medium" Text="{Binding VersionText}"/>
-            <Label Content="Project Maintainers" Style="{StaticResource Header2}" Margin="10 5"/>
+            <Label Content="Project Maintainers" Style="{StaticResource Header2}" Margin="10 20 0 5"/>
             <StackPanel Orientation="Horizontal" Margin="20 0">
                 <Ellipse Width="32" Height="32">
                     <Ellipse.Fill>
-                        <ImageBrush ImageSource="/Images/SocialMedia/flabbet.png"/>
+                        <ImageBrush ImageSource="/Images/SocialMedia/Avatars/flabbet.png"/>
                     </Ellipse.Fill>
                 </Ellipse>
-                <TextBlock Text="Krzysztof Krysiński (flabbet)" Foreground="White" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="16">
-                </TextBlock>
+                <Button Content="Krzysztof Krysiński (flabbet)" VerticalAlignment="Center" Style="{StaticResource HyperlinkTextButton}"
+                        Margin="10 0 0 0" FontSize="14"
+                        Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/flabbet"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="20 5">
+                <Ellipse Width="32" Height="32">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="/Images/SocialMedia/Avatars/Equbuxu.png"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <Button Content="Egor Mozgovoy (Equbuxu)" Style="{StaticResource HyperlinkTextButton}" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="14"
+                        Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/equbuxu"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="20 0">
                 <Ellipse Width="32" Height="32">
                     <Ellipse.Fill>
-                        <ImageBrush ImageSource="/Images/SocialMedia/flabbet.png"/>
+                        <ImageBrush ImageSource="/Images/SocialMedia/Avatars/CPK.png"/>
                     </Ellipse.Fill>
                 </Ellipse>
-                <TextBlock Text="Egor Mozgovoy (Equbuxu)" Foreground="White" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="16">
-                </TextBlock>
+                <Button Style="{StaticResource HyperlinkTextButton}" Content="Philip Kreuz (CPK)" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="14"
+                        Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/CPKreuz"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="20 0">
-                <Ellipse Width="32" Height="32">
-                    <Ellipse.Fill>
-                        <ImageBrush ImageSource="/Images/SocialMedia/flabbet.png"/>
-                    </Ellipse.Fill>
-                </Ellipse>
-                <Button Style="{StaticResource HyperlinkTextButton}" Content="Philip Kreuz (CPK)" Foreground="White" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="16"/>
-            </StackPanel>
+            
+            <Button Style="{StaticResource HyperlinkTextButton}" Content="And other awesome contributors" VerticalAlignment="Center" Margin="20 10 0 0" FontSize="14"
+                    Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor/graphs/contributors"/>
+            
+            <Button Style="{StaticResource HyperlinkTextButton}" Content="License" VerticalAlignment="Center" Margin="10 20 0 0" FontSize="14"
+                    Command="{cmds:Command PixiEditor.Links.OpenLicense}"/>
+            <Button Style="{StaticResource HyperlinkTextButton}" Content="Third Party Licenses" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="14"
+                    Command="{cmds:Command PixiEditor.Links.OpenOtherLicenses}"/>
+            <Button Style="{StaticResource HyperlinkTextButton}" Content="Documentation" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="14"
+                    Command="{cmds:Command PixiEditor.Links.OpenDocumentation}"/>
+            
+            <userControls:AlignableWrapPanel DockPanel.Dock="Bottom" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,20,0,15">
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://pixieditor.net"
+                            Style="{StaticResource SocialMediaButton}" Tag="#e3002d" ToolTip="Website"
+                            Content="/Images/SocialMedia/WebsiteIcon.png"/>
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://discord.gg/tzkQFDkqQS"
+                            Style="{StaticResource SocialMediaButton}" Tag="#7289DA" ToolTip="Discord"
+                            Content="/Images/SocialMedia/DiscordIcon.png"/>
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://reddit.com/r/PixiEditor"
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" ToolTip="Reddit"
+                            Content="/Images/SocialMedia/RedditIcon.png"/>
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
+                            Style="{StaticResource SocialMediaButton}" Tag="Black" ToolTip="GitHub"
+                            Content="/Images/SocialMedia/GithubIcon.png"/>
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ" 
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" ToolTip="YouTube"
+                            Content="/Images/SocialMedia/YouTubeIcon.png"/>
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://opencollective.com/pixieditor"
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ToolTip="Donate"
+                            Content="/Images/SocialMedia/DonateIcon.png"/>
+                </userControls:AlignableWrapPanel>
         </StackPanel>
     </DockPanel>
 </Window>
