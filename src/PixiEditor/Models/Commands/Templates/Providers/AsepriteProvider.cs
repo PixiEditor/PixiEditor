@@ -8,7 +8,7 @@ internal partial class ShortcutProvider
 {
     public static AsepriteProvider Aseprite { get; } = new();
 
-    internal class AsepriteProvider : ShortcutProvider, IShortcutDefaults, IShortcutInstallation
+    internal class AsepriteProvider : ShortcutProvider, IShortcutDefaults, IShortcutInstallation, ICustomShortcutFormat
     {
         private static string InstallationPath { get; } = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Aseprite", "user.aseprite-keys");
@@ -26,9 +26,11 @@ internal partial class ShortcutProvider
         
         public ShortcutsTemplate GetInstalledShortcuts()
         {
-            return _parser.Parse(InstallationPath);
+            return _parser.Parse(InstallationPath, true);
         }
 
         public List<Shortcut> DefaultShortcuts => _parser.Defaults;
+        public KeysParser KeysParser => _parser;
+        public string[] CustomShortcutExtensions => new[] { ".aseprite-keys" };
     }
 }

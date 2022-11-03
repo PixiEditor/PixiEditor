@@ -26,7 +26,13 @@ public abstract class KeysParser
         MapFileName = mapFileName;
     }
     
-    public abstract ShortcutsTemplate Parse(string filePath);
+    /// <summary>
+    ///     Parses custom shortcuts file into ShortcutTemplate.
+    /// </summary>
+    /// <param name="filePath">Path to the file.</param>
+    /// <param name="applyTemplateDefaults">If true, all shortcuts available in the key map will be loaded, and then overwritten by entries in the file. If false, only entries from the file will be applied.</param>
+    /// <returns>Parsed ShortcutTemplate.</returns>
+    public abstract ShortcutsTemplate Parse(string filePath, bool applyTemplateDefaults);
     
     private Dictionary<string, KeyDefinition> LoadKeysMap()
     {

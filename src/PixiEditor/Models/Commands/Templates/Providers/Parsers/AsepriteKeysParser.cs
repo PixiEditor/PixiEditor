@@ -26,7 +26,7 @@ public class AsepriteKeysParser : KeysParser
     {
     }
 
-    public override ShortcutsTemplate Parse(string path)
+    public override ShortcutsTemplate Parse(string path, bool applyDefaults)
     {
         if (!File.Exists(path))
         {
@@ -38,28 +38,30 @@ public class AsepriteKeysParser : KeysParser
             throw new ArgumentException("File is not aseprite-keys file", nameof(path));
         }
         
-        return LoadAndParse(path);
+        return LoadAndParse(path, applyDefaults);
     }
 
-    private ShortcutsTemplate LoadAndParse(string path)
+    private ShortcutsTemplate LoadAndParse(string path, bool applyDefaults)
     {
         XmlDocument doc = new XmlDocument();
         doc.Load(path);
         
         List<KeyDefinition> keyDefinitions = new List<KeyDefinition>(); // DefaultShortcut is actually mapped shortcut.
 
-        LoadCommands(doc, keyDefinitions);
-        LoadTools(doc, keyDefinitions);
+        LoadCommands(doc, keyDefinitions, applyDefaults);
+        LoadTools(doc, keyDefinitions, applyDefaults);
         
         ShortcutsTemplate template = ShortcutsTemplate.FromKeyDefinitions(keyDefinitions);
         return template;
     }
 
-    private void LoadCommands(XmlDocument document, List<KeyDefinition> keyDefinitions)
+    private void LoadCommands(XmlDocument document, List<KeyDefinition> keyDefinitions, bool applyDefaults)
     {
         XmlNodeList commands = document.SelectNodes("keyboard/commands/key");
-        ApplyDefaults(keyDefinitions, "PixiEditor");
-
+        if (applyDefaults)
+        {
+            ApplyDefaults(keyDefinitions, "PixiEditor");
+        }
 
         foreach (XmlNode commandNode in commands)
         {
@@ -129,10 +131,13 @@ public class AsepriteKeysParser : KeysParser
     /// Each tool entry is a key XML node with command attribute under 'tool' parameter and shortcut under 'shortcut' parameter.
     /// </summary>
     /// <param name="keyDefinitions">Definitions to write to</param>
-    private void LoadTools(XmlDocument document, List<KeyDefinition> keyDefinitions)
+    private void LoadTools(XmlDocument document, List<KeyDefinition> keyDefinitions, bool applyDefaults)
     {
         XmlNodeList tools = document.SelectNodes("keyboard/tools/key");
-        ApplyDefaults(keyDefinitions, "PixiEditor.Tools");
+        if (applyDefaults)
+        {
+            ApplyDefaults(keyDefinitions, "PixiEditor.Tools");
+        }
 
         foreach (XmlNode tool in tools)
         {

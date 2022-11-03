@@ -31,7 +31,7 @@ internal partial class ShortcutProvider
         Name = name;
     }
 
-    public static IEnumerable<ShortcutProvider> GetProviders() => new ShortcutProvider[]
+    public static ShortcutProvider[] GetProviders() => new ShortcutProvider[]
     {
         #if DEBUG
         Debug,

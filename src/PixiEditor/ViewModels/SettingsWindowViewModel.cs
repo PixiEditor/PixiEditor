@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Dialogs;
@@ -7,6 +8,7 @@ using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs;
 
@@ -60,6 +62,8 @@ internal class SettingsWindowViewModel : ViewModelBase
 
     public List<GroupSearchResult> Commands { get; }
 
+    private static List<ICustomShortcutFormat> _customShortcutFormats;
+
     [Command.Internal("PixiEditor.Shortcuts.Reset")]
     public static void ResetCommand()
     {
@@ -87,18 +91,19 @@ internal class SettingsWindowViewModel : ViewModelBase
     [Command.Internal("PixiEditor.Shortcuts.Import")]
     public static void ImportShortcuts()
     {
+        _customShortcutFormats ??= ShortcutProvider.GetProviders().OfType<ICustomShortcutFormat>().ToList();
         var dialog = new OpenFileDialog();
-        dialog.Filter = "PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json|All files (*.*)|*.*";
+        string filterEntries = $"PixiShorts (*.pixisc)|*.pixisc|json (*.json)|*.json{BuildCustomParsersFormat(_customShortcutFormats, out string extensionsString)}";
+        extensionsString = $"*.pixisc;*json;{extensionsString}";
+        dialog.Filter = $"All Shortcut ({extensionsString})|{extensionsString}|{filterEntries}|All files (*.*)|*.*";
         dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         if (dialog.ShowDialog().GetValueOrDefault())
         {
             List<Shortcut> shortcuts = new List<Shortcut>();
             try
             {
-                shortcuts = ShortcutFile.LoadTemplate(dialog.FileName)?.Shortcuts.ToList();
-                if (shortcuts is null)
+                if (!TryImport(dialog, ref shortcuts))
                 {
-                    NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
                     return;
                 }
             }
@@ -115,6 +120,57 @@ internal class SettingsWindowViewModel : ViewModelBase
         }
         // Sometimes, focus was brought back to the last edited shortcut
         Keyboard.ClearFocus();
+    }
+
+    private static bool TryImport(OpenFileDialog dialog, ref List<Shortcut> shortcuts)
+    {
+        if (dialog.FileName.EndsWith(".pixisc") || dialog.FileName.EndsWith(".json"))
+        {
+            shortcuts = ShortcutFile.LoadTemplate(dialog.FileName)?.Shortcuts.ToList();
+            if (shortcuts is null)
+            {
+                NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
+                return false;
+            }
+        }
+        else
+        {
+            var provider = _customShortcutFormats.FirstOrDefault(x =>
+                x.CustomShortcutExtensions.Contains(Path.GetExtension(dialog.FileName), StringComparer.OrdinalIgnoreCase));
+            if (provider is null)
+            {
+                NoticeDialog.Show("This file format is unsupported.", "Invalid file");
+                return false;
+            }
+
+            shortcuts = provider.KeysParser.Parse(dialog.FileName, false)?.Shortcuts.ToList();
+        }
+
+        return true;
+    }
+
+    private static string BuildCustomParsersFormat(IList<ICustomShortcutFormat> customFormats, out string extensionsString)
+    {
+        if (customFormats is null || customFormats.Count == 0)
+        {
+            extensionsString = string.Empty;
+            return string.Empty;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        StringBuilder extensionsBuilder = new StringBuilder();
+        foreach (ICustomShortcutFormat format in customFormats)
+        {
+            foreach (var extension in format.CustomShortcutExtensions)
+            {
+                string extensionWithoutDot = extension.TrimStart('.');
+                extensionsBuilder.Append($"*.{extensionWithoutDot};");
+                builder.Append($"|{extensionWithoutDot} (*.{extensionWithoutDot})|*.{extensionWithoutDot}");
+            }
+        }
+
+        extensionsString = extensionsBuilder.ToString();
+        return builder.ToString();
     }
 
     [Command.Internal("PixiEditor.Shortcuts.OpenTemplatePopup")]

@@ -337,6 +337,8 @@
 		<Resource Include="Images\TemplateLogos\Aseprite.png" />
 		<None Remove="Images\TemplateLogos\Aseprite-Hover.png" />
 		<Resource Include="Images\TemplateLogos\Aseprite-Hover.png" />
+		<None Remove="Images\SocialMedia\flabbet.png" />
+		<Resource Include="Images\SocialMedia\flabbet.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

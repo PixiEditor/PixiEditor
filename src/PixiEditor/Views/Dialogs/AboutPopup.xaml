@@ -7,8 +7,8 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         mc:Ignorable="d" WindowStyle="None"
-        Title="About" WindowStartupLocation="CenterScreen" 
-        Height="300" Width="400">
+        Title="About" WindowStartupLocation="CenterScreen"
+        Height="300" Width="400" Name="aboutPopup">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
                         Executed="CommandBinding_Executed_Close" />
@@ -27,8 +27,39 @@
         <local:DialogTitleBar DockPanel.Dock="Top"
                              TitleText="{Binding ElementName=popup, Path=Title}" 
                              CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
-        <Grid DockPanel.Dock="Bottom">
-            
-        </Grid>
+        <StackPanel DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+                <Image Source="../../Images/PixiEditorLogo.png" Height="40" VerticalAlignment="Center"/>
+                <TextBlock FontSize="40" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0">PixiEditor</TextBlock>
+            </StackPanel>
+            <TextBlock Foreground="White" HorizontalAlignment="Center" FontSize="20" FontWeight="Medium" Text="{Binding VersionText}"/>
+            <Label Content="Project Maintainers" Style="{StaticResource Header2}" Margin="10 5"/>
+            <StackPanel Orientation="Horizontal" Margin="20 0">
+                <Ellipse Width="32" Height="32">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="/Images/SocialMedia/flabbet.png"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="Krzysztof Krysiński (flabbet)" Foreground="White" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="16">
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="20 0">
+                <Ellipse Width="32" Height="32">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="/Images/SocialMedia/flabbet.png"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="Egor Mozgovoy (Equbuxu)" Foreground="White" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="16">
+                </TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="20 0">
+                <Ellipse Width="32" Height="32">
+                    <Ellipse.Fill>
+                        <ImageBrush ImageSource="/Images/SocialMedia/flabbet.png"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <Button Style="{StaticResource HyperlinkTextButton}" Content="Philip Kreuz (CPK)" Foreground="White" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="16"/>
+            </StackPanel>
+        </StackPanel>
     </DockPanel>
 </Window>

@@ -20,7 +20,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <TextBox Text="{Binding SearchTerm, Mode=TwoWay, ElementName=uc, UpdateSourceTrigger=PropertyChanged}" FontSize="18"
+        <TextBox Text="{Binding SearchTerm, Mode=TwoWay, ElementName=uc, UpdateSourceTrigger=PropertyChanged}" FontSize="17"
                  Padding="5"
                  x:Name="textBox">
             <i:Interaction.Behaviors>
