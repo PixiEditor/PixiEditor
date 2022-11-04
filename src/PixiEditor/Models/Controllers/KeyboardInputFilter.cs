@@ -75,12 +75,10 @@ internal class KeyboardInputFilter
         Key key = args.Key;
         if (key == Key.System)
             key = args.SystemKey;
-
-        var (shift, ctrl, alt) = GetModifierStates();
         
-        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.Down, keyboardState, OnAnyKeyDown, shift, ctrl, alt);
+        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.Down, keyboardState, OnAnyKeyDown);
         key = ConvertRightKeys(key);
-        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.Down, converterdKeyboardState, OnConvertedKeyDown, shift, ctrl, alt);
+        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.Down, converterdKeyboardState, OnConvertedKeyDown);
     }
 
     public void KeyUpInlet(KeyEventArgs args)
@@ -88,12 +86,10 @@ internal class KeyboardInputFilter
         Key key = args.Key;
         if (key == Key.System)
             key = args.SystemKey;
-
-        var (shift, ctrl, alt) = GetModifierStates();
         
-        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.None, keyboardState, OnAnyKeyUp, shift, ctrl, alt);
+        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.None, keyboardState, OnAnyKeyUp);
         key = ConvertRightKeys(key);
-        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.None, converterdKeyboardState, OnConvertedKeyUp, shift, ctrl, alt);
+        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.None, converterdKeyboardState, OnConvertedKeyUp);
     }
 
     private void MaybeUpdateKeyState(
@@ -101,15 +97,13 @@ internal class KeyboardInputFilter
         bool isRepeatFromArgs,
         KeyStates newKeyState,
         Dictionary<Key, KeyStates> targetKeyboardState,
-        EventHandler<FilteredKeyEventArgs>? eventToRaise,
-        bool shift,
-        bool ctrl,
-        bool alt)
+        EventHandler<FilteredKeyEventArgs>? eventToRaise)
     {
         bool keyWasUpdated = UpdateKeyState(key, newKeyState, targetKeyboardState);
         bool isRepeat = isRepeatFromArgs && !keyWasUpdated;
         if (!isRepeat && !keyWasUpdated)
             return;
+        var (shift, ctrl, alt) = GetModifierStates();
         eventToRaise?.Invoke(this, new FilteredKeyEventArgs(key, key, newKeyState, isRepeat, shift, ctrl, alt));
     }
 }
