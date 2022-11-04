@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -27,26 +28,78 @@ internal partial class LayersManager : UserControl
         highlightColor = (Brush?)App.Current.Resources["SoftSelectedLayerColor"];
     }
 
-    private void LayerStructureItemContainer_MouseMove(object? sender, System.Windows.Input.MouseEventArgs? e)
+    private void LayerControl_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        LayerControl control = (LayerControl)sender;
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            HandleMouseDown(control.Layer);
+            control.CaptureMouse();
+        }
+        else
+        {
+            if (control.Layer is not null && control.Layer.Selection == StructureMemberSelectionType.None)
+            {
+                control.Layer.Document.Operations.SetSelectedMember(control.Layer.GuidValue);
+                control.Layer.Document.Operations.ClearSoftSelectedMembers();
+            }
+        }
+    }
+    
+    private void LayerControl_MouseMove(object? sender, System.Windows.Input.MouseEventArgs? e)
     {
         if (e is null)
             return;
-        if (sender is LayerControl container
-            && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed /*&& !container.Layer.IsRenaming*/)
+        if (sender is LayerControl container &&
+            e.LeftButton == System.Windows.Input.MouseButtonState.Pressed &&
+            container.IsMouseCaptured)
         {
             Dispatcher.InvokeAsync(() => DragDrop.DoDragDrop(container, container, DragDropEffects.Move));
         }
     }
 
-    private void Folder_MouseMove(object? sender, System.Windows.Input.MouseEventArgs? e)
+    private void LayerControl_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not LayerControl layerControl)
+            return;
+        layerControl.ReleaseMouseCapture();
+    }
+    
+    private void FolderControl_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        FolderControl control = (FolderControl)sender;
+        if (e.ChangedButton == MouseButton.Left)
+        {
+            HandleMouseDown(control.Folder);
+            control.CaptureMouse();
+        }
+        else
+        {
+            if (control.Folder is not null && control.Folder.Selection == StructureMemberSelectionType.None)
+            {
+                control.Folder.Document.Operations.SetSelectedMember(control.Folder.GuidValue);
+                control.Folder.Document.Operations.ClearSoftSelectedMembers();
+            }
+        }
+    }
+    
+    private void FolderControl_MouseMove(object? sender, System.Windows.Input.MouseEventArgs? e)
     {
         if (e is null)
             return;
-        if (sender is FolderControl container && e.LeftButton == System.Windows.Input.MouseButtonState.Pressed
-                                                  /*&& !container.GroupData.IsRenaming*/)
+        if (sender is FolderControl container && 
+            e.LeftButton == System.Windows.Input.MouseButtonState.Pressed &&
+            container.IsMouseCaptured)
         {
             Dispatcher.InvokeAsync(() => DragDrop.DoDragDrop(container, container, DragDropEffects.Move));
         }
+    }
+    
+    private void FolderControl_MouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not FolderControl folderControl)
+            return;
+        folderControl.ReleaseMouseCapture();
     }
 
     private void NumberInput_LostFocus(object? sender, RoutedEventArgs? e)
@@ -136,40 +189,6 @@ internal partial class LayersManager : UserControl
         {
             ActiveDocument.Operations.SetSelectedMember(memberVM.GuidValue);
             ActiveDocument.Operations.ClearSoftSelectedMembers();
-        }
-    }
-
-    private void FolderControl_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-    {
-        FolderControl control = (FolderControl)sender;
-        if (e.ChangedButton == MouseButton.Left)
-        {
-            HandleMouseDown(control.Folder);
-        }
-        else
-        {
-            if (control.Folder is not null && control.Folder.Selection == StructureMemberSelectionType.None)
-            {
-                control.Folder.Document.Operations.SetSelectedMember(control.Folder.GuidValue);
-                control.Folder.Document.Operations.ClearSoftSelectedMembers();
-            }
-        }
-    }
-
-    private void LayerControl_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-    {
-        LayerControl? control = (LayerControl)sender;
-        if (e.ChangedButton == MouseButton.Left)
-        {
-            HandleMouseDown(control.Layer);
-        }
-        else
-        {
-            if (control.Layer is not null && control.Layer.Selection == StructureMemberSelectionType.None)
-            {
-                control.Layer.Document.Operations.SetSelectedMember(control.Layer.GuidValue);
-                control.Layer.Document.Operations.ClearSoftSelectedMembers();
-            }
         }
     }
 }

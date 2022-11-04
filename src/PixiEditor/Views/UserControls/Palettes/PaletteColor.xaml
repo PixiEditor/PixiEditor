@@ -6,8 +6,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
-             mc:Ignorable="d" MouseDown="PaletteColor_OnMouseDown"
-             d:DesignHeight="45" d:DesignWidth="45" Name="uc" MouseMove="PaletteColor_OnMouseMove">
+             mc:Ignorable="d" 
+             d:DesignHeight="45" d:DesignWidth="45" 
+             x:Name="uc" 
+             MouseDown="PaletteColor_OnMouseDown"
+             MouseMove="PaletteColor_OnMouseMove"
+             MouseUp="PaletteColor_OnMouseUp">
     <UserControl.Resources>
         <converters:BackendColorToMediaColorConverter x:Key="BackendColorToMediaColorConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />

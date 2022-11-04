@@ -48,7 +48,7 @@ internal partial class PaletteColor : UserControl
     private void PaletteColor_OnMouseMove(object sender, MouseEventArgs e)
     {
         PaletteColor color = sender as PaletteColor;
-        if (color != null && e.LeftButton == MouseButtonState.Pressed)
+        if (color != null && e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
         {
             var movedDistance = (clickPoint - e.GetPosition(this)).Length;
             if (movedDistance > 10)
@@ -66,6 +66,12 @@ internal partial class PaletteColor : UserControl
         if (e.ChangedButton == MouseButton.Left)
         {
             clickPoint = e.GetPosition(this);
+            CaptureMouse();
         }
+    }
+
+    private void PaletteColor_OnMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        ReleaseMouseCapture();
     }
 }

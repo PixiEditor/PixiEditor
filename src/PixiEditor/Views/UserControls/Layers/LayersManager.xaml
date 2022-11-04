@@ -143,13 +143,15 @@
                         <layerUserControls:FolderControl
                             Folder="{Binding}"
                             MouseDown="FolderControl_MouseDown"
-                            MouseMove="Folder_MouseMove"/>
+                            MouseMove="FolderControl_MouseMove"
+                            MouseUp="FolderControl_MouseUp"/>
                     </HierarchicalDataTemplate>
                     <DataTemplate DataType="{x:Type docVm:LayerViewModel}">
                         <layerUserControls:LayerControl
                             Layer="{Binding}"
                             MouseDown="LayerControl_MouseDown"
-                            MouseMove="LayerStructureItemContainer_MouseMove"/>
+                            MouseMove="LayerControl_MouseMove"
+                            MouseUp="LayerControl_MouseUp"/>
                     </DataTemplate>
                 </TreeView.Resources>
             </TreeView>
