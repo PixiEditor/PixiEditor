@@ -88,7 +88,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public RectD GetTightBounds(VectorPath vectorPath)
         {
             SKRect rect = ManagedInstances[vectorPath.ObjectPointer].TightBounds;
-            return new RectD(rect.Left, rect.Top, rect.Right, rect.Bottom);
+            return new RectD(rect.Left, rect.Top, rect.Width, rect.Height);
         }
 
         public void Transform(VectorPath vectorPath, Matrix3X3 matrix)
