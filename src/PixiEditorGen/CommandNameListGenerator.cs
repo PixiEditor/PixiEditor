@@ -10,6 +10,8 @@ public class CommandNameListGenerator : IIncrementalGenerator
     private const string Command = "PixiEditor.Models.Commands.Attributes.Commands";
 
     private const string Evaluators = "PixiEditor.Models.Commands.Attributes.Evaluators.Evaluator";
+
+    private const string Groups = "PixiEditor.Models.Commands.Attributes.Commands.Command.GroupAttribute";
     
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -65,12 +67,12 @@ public class CommandNameListGenerator : IIncrementalGenerator
         var groupList = context.SyntaxProvider.CreateSyntaxProvider(
             (x, token) =>
             {
-                return x is MethodDeclarationSyntax method && method.AttributeLists.Count > 0;
+                return x is TypeDeclarationSyntax type && type.AttributeLists.Count > 0;
             }, static (context, cancelToken) =>
             {
-                var method = (MethodDeclarationSyntax)context.Node;
+                var method = (TypeDeclarationSyntax)context.Node;
 
-                if (!HasCommandAttribute(method, context, cancelToken, Evaluators))
+                if (!HasCommandAttribute(method, context, cancelToken, Groups))
                     return null;
 
                 var symbol = context.SemanticModel.GetDeclaredSymbol(method, cancelToken);
@@ -170,9 +172,9 @@ internal partial class CommandNameList {
         });
     }
     
-    private static bool HasCommandAttribute(MethodDeclarationSyntax method, GeneratorSyntaxContext context, CancellationToken token, string commandAttributeStart)
+    private static bool HasCommandAttribute(MemberDeclarationSyntax declaration, GeneratorSyntaxContext context, CancellationToken token, string commandAttributeStart)
     {
-        foreach (var attrList in method.AttributeLists)
+        foreach (var attrList in declaration.AttributeLists)
         {
             foreach (var attribute in attrList.Attributes)
             {
