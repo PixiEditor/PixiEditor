@@ -247,7 +247,9 @@ internal class ViewModelMain : ViewModelBase
 
         if (result != ConfirmationType.Canceled)
         {
-            DocumentManagerSubViewModel.Documents.Remove(document);
+            if (!DocumentManagerSubViewModel.Documents.Remove(document))
+                throw new InvalidOperationException("Trying to close a document that's not in the documents collection. Likely, the document wasn't added there after creation by mistake.");
+            
             if (DocumentManagerSubViewModel.ActiveDocument == document)
             {
                 if (DocumentManagerSubViewModel.Documents.Count > 0)
@@ -258,7 +260,7 @@ internal class ViewModelMain : ViewModelBase
 
             // TODO: this thing should actually dispose the document to free up ram
             // We need the UI to be able to handle disposed documents
-            // Like, the viewports should show nothing, the commands shouldn't work, etc. At least nothing should crash or behave unexpectidly
+            // Like, the viewports should show nothing, the commands shouldn't work, etc. At least nothing should crash or behave unexpectedly
             // Mostly we only care about this because avalondock doesn't remove the UI elements of closed viewports (at least not right away)
             // So they remain alive and keep "showing" the now disposed DocumentViewModel
             // And since they reference the DocumentViewModel it doesn't get collected by GC

@@ -343,6 +343,8 @@
 		<Resource Include="Images\SocialMedia\Avatars\Equbuxu.png" />
 		<None Remove="Images\SocialMedia\Avatars\CPK.png" />
 		<Resource Include="Images\SocialMedia\Avatars\CPK.png" />
+		<None Remove="Images\Create-mask.png" />
+		<Resource Include="Images\Create-mask.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

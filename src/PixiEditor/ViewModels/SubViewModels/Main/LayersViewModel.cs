@@ -201,7 +201,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool ActiveMemberHasMask() => Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false;
 
     [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasNoMask")]
-    public bool ActiveLayerHasNoMask() => !ActiveMemberHasMask();
+    public bool ActiveLayerHasNoMask() => !Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false;
 
     [Command.Basic("PixiEditor.Layer.CreateMask", "Create mask", "Create mask", CanExecute = "PixiEditor.Layer.ActiveLayerHasNoMask")]
     public void CreateMask()

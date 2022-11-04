@@ -63,6 +63,16 @@
                     </Button.Background>
                 </Button>
                 <Button 
+                    Height="24" Width="24" ToolTip="Create mask" Cursor="Hand"
+                    DockPanel.Dock="Right"
+                    HorizontalAlignment="Stretch" Margin="5,0,0,0"
+                    Style="{StaticResource ToolButtonStyle}"
+                    Command="{commands:Command PixiEditor.Layer.CreateMask}">
+                    <Button.Background>
+                        <ImageBrush ImageSource="/Images/Create-mask.png"/>
+                    </Button.Background>
+                </Button>
+                <Button 
                     Height="24" Width="24" ToolTip="Lock transparency" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
