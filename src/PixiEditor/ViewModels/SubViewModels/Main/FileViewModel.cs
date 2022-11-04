@@ -87,6 +87,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         var doc = DocumentViewModel.Build(builder);
 
         doc.MarkAsSaved();
+        Owner.DocumentManagerSubViewModel.Documents.Add(doc);
         Owner.WindowSubViewModel.CreateNewViewport(doc);
         Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
 

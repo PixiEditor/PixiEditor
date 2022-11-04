@@ -12,7 +12,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Document;
 [Command.Group("PixiEditor.Document", "Image")]
 internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 {
-    public ObservableCollection<DocumentViewModel> Documents { get; set; } = new ObservableCollection<DocumentViewModel>();
+    public ObservableCollection<DocumentViewModel> Documents { get; } = new ObservableCollection<DocumentViewModel>();
     public event EventHandler<DocumentChangedEventArgs>? ActiveDocumentChanged;
 
 
