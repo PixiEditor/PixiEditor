@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Events;
+using TerraFX.Interop.Windows;
 
 namespace PixiEditor.Models.Controllers;
 #nullable enable
@@ -75,17 +76,11 @@ internal class KeyboardInputFilter
         if (key == Key.System)
             key = args.SystemKey;
 
-        if (!UpdateKeyState(key, KeyStates.Down, keyboardState))
-            return;
-
-        key = ConvertRightKeys(key);
-
-        bool raiseConverted = UpdateKeyState(key, KeyStates.Down, converterdKeyboardState);
-
         var (shift, ctrl, alt) = GetModifierStates();
-        OnAnyKeyDown?.Invoke(this, new FilteredKeyEventArgs(key, key, KeyStates.Down, args.IsRepeat, shift, ctrl, alt));
-        if (raiseConverted)
-            OnConvertedKeyDown?.Invoke(this, new FilteredKeyEventArgs(key, key, KeyStates.Down, args.IsRepeat, shift, ctrl, alt));
+        
+        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.Down, keyboardState, OnAnyKeyDown, shift, ctrl, alt);
+        key = ConvertRightKeys(key);
+        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.Down, converterdKeyboardState, OnConvertedKeyDown, shift, ctrl, alt);
     }
 
     public void KeyUpInlet(KeyEventArgs args)
@@ -94,16 +89,27 @@ internal class KeyboardInputFilter
         if (key == Key.System)
             key = args.SystemKey;
 
-        if (!UpdateKeyState(key, KeyStates.None, keyboardState))
-            return;
-
-        key = ConvertRightKeys(key);
-
-        bool raiseConverted = UpdateKeyState(key, KeyStates.None, converterdKeyboardState);
-
         var (shift, ctrl, alt) = GetModifierStates();
-        OnAnyKeyUp?.Invoke(this, new FilteredKeyEventArgs(key, key, KeyStates.None, args.IsRepeat, shift, ctrl, alt));
-        if (raiseConverted)
-            OnConvertedKeyUp?.Invoke(this, new FilteredKeyEventArgs(key, key, KeyStates.None, args.IsRepeat, shift, ctrl, alt));
+        
+        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.None, keyboardState, OnAnyKeyUp, shift, ctrl, alt);
+        key = ConvertRightKeys(key);
+        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.None, converterdKeyboardState, OnConvertedKeyUp, shift, ctrl, alt);
+    }
+
+    private void MaybeUpdateKeyState(
+        Key key,
+        bool isRepeatFromArgs,
+        KeyStates newKeyState,
+        Dictionary<Key, KeyStates> targetKeyboardState,
+        EventHandler<FilteredKeyEventArgs>? eventToRaise,
+        bool shift,
+        bool ctrl,
+        bool alt)
+    {
+        bool keyWasUpdated = UpdateKeyState(key, newKeyState, targetKeyboardState);
+        bool isRepeat = isRepeatFromArgs && !keyWasUpdated;
+        if (!isRepeat && !keyWasUpdated)
+            return;
+        eventToRaise?.Invoke(this, new FilteredKeyEventArgs(key, key, newKeyState, isRepeat, shift, ctrl, alt));
     }
 }
