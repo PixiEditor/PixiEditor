@@ -30,14 +30,14 @@
                     Margin="0,0,10,15">
             <Button Margin="10,0,10,0" MinWidth="70" IsDefault="True" Padding="5 0"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
-                    Style="{StaticResource DarkRoundButton}" Content="{Binding ElementName=popup, Path=FirstOptionText}">
+                    Style="{StaticResource DarkRoundButton}" Content="{Binding Path=DataContext.FirstOptionText}">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>
             </Button>
             <Button MinWidth="70" Padding="5 0"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
-                    Style="{StaticResource DarkRoundButton}" Content="{Binding ElementName=popup, Path=SecondOptionText}">
+                    Style="{StaticResource DarkRoundButton}" Content="{Binding Path=DataContext.SecondOptionText}">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>

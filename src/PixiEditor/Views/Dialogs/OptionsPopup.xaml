@@ -32,7 +32,7 @@
         <ItemsControl ItemsSource="{Binding Options, ElementName=popup}" Grid.Row="2" Margin="15">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Button Content="{Binding}" Style="{StaticResource DarkRoundButton}" Margin="5,0"
+                    <Button Content="{Binding}" Style="{StaticResource DarkRoundButton}" MinWidth="70" Margin="5,0"
                             Command="{Binding CloseCommand, ElementName=popup}" CommandParameter="{Binding}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
