@@ -52,7 +52,15 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         : base(owner)
     {
         Owner.OnStartupEvent += Owner_OnStartupEvent;
-        IPreferences.Current.AddCallback<string>("UpdateChannel", (val) => UpdateChecker.Channel = GetUpdateChannel(val));
+        IPreferences.Current.AddCallback<string>("UpdateChannel", val =>
+        {
+            string prevChannel = UpdateChecker.Channel.ApiUrl;
+            UpdateChecker.Channel = GetUpdateChannel(val);
+            if (prevChannel != UpdateChecker.Channel.ApiUrl)
+            {
+                ConditionalUPDATE();
+            }
+        });
         InitUpdateChecker();
     }
 
@@ -66,6 +74,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe"));
         if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
         {
+            UpdateReadyToInstall = false;
             VersionText = "Downloading update...";
             if (updateCompatible)
             {
@@ -83,32 +92,35 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         return false;
     }
 
-    private static void AskToInstall()
+    private void AskToInstall()
     {
 #if RELEASE || DEV_RELEASE
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
                 string dir = AppDomain.CurrentDomain.BaseDirectory;
                 UpdateDownloader.CreateTempDirectory();
-                bool updateZipExists = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.zip").Length > 0;
-                string[] updateExeFiles = Directory.GetFiles(UpdateDownloader.DownloadLocation, "update-*.exe");
-                bool updateExeExists = updateExeFiles.Length > 0;
+                bool updateFileExists = File.Exists(
+                    Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
+                string exePath = Path.Join(UpdateDownloader.DownloadLocation,
+                    $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe");
 
+                bool updateExeExists = File.Exists(exePath);
+                
                 string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
 
-                if (updateZipExists || updateExeExists)
+                if (updateFileExists || updateExeExists)
                 {
                     ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
                     var result = ConfirmationDialog.Show("Update is ready to be installed. Do you want to install it now?", "New update");
                     if (result == Models.Enums.ConfirmationType.Yes)
                     {
-                        if (updateZipExists && File.Exists(updaterPath))
+                        if (updateFileExists && File.Exists(updaterPath))
                         {
                             InstallHeadless(updaterPath);
                         }
                         else if (updateExeExists)
                         {
-                            OpenExeInstaller(updateExeFiles[0]);
+                            OpenExeInstaller(exePath);
                         }
                     }
                 }

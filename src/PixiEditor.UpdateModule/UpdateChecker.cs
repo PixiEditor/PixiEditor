@@ -18,7 +18,20 @@ public class UpdateChecker
 
     public ReleaseInfo LatestReleaseInfo { get; private set; }
 
-    public UpdateChannel Channel { get; set; }
+    private UpdateChannel _channel;
+    public UpdateChannel Channel 
+    {
+        get => _channel;
+        set
+        {
+            bool changed = _channel != value;
+            if (changed)
+            {
+                _channel = value;
+                LatestReleaseInfo = null;
+            }
+        }
+    }
 
     public string CurrentVersionTag { get; }
 
@@ -28,19 +41,9 @@ public class UpdateChecker
     /// <param name="originalVer">Version to compare.</param>
     /// <param name="newVer">Version to compare with.</param>
     /// <returns>True if semantic version is higher.</returns>
-    public static bool VersionBigger(string originalVer, string newVer)
+    public static bool VersionDifferent(string originalVer, string newVer)
     {
-        if (!ParseVersionString(originalVer, out float ver1))
-        {
-            return false;
-        }
-
-        if (ParseVersionString(newVer, out float ver2))
-        {
-            return ver2 > ver1;
-        }
-
-        return false;
+        return NormalizeVersionString(originalVer) != NormalizeVersionString(newVer);
     }
 
     public async Task<bool> CheckUpdateAvailable()
@@ -51,7 +54,7 @@ public class UpdateChecker
 
     public bool CheckUpdateAvailable(ReleaseInfo latestRelease)
     {
-        return latestRelease.WasDataFetchSuccessful && VersionBigger(CurrentVersionTag, latestRelease.TagName);
+        return latestRelease.WasDataFetchSuccessful && VersionDifferent(CurrentVersionTag, latestRelease.TagName);
     }
 
     public bool IsUpdateCompatible(string[] incompatibleVersions)
@@ -97,8 +100,8 @@ public class UpdateChecker
         return new ReleaseInfo(false);
     }
 
-    private static bool ParseVersionString(string versionString, out float version)
+    private static string NormalizeVersionString(string versionString)
     {
-        return float.TryParse(versionString[..7].Replace(".", string.Empty).Insert(1, "."), NumberStyles.Any, CultureInfo.InvariantCulture, out version);
+        return versionString[..7];
     }
 }
