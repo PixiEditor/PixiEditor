@@ -9,7 +9,7 @@ using PixiEditor.Views.UserControls.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
-[Command.Tool(Key = Key.R)]
+[Command.Tool(Key = Key.N)]
 internal class RotateViewportToolViewModel : ToolViewModel
 {
     public override BrushShape BrushShape => BrushShape.Hidden;
