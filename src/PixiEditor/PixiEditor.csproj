@@ -345,6 +345,8 @@
 		<Resource Include="Images\SocialMedia\Avatars\CPK.png" />
 		<None Remove="Images\Create-mask.png" />
 		<Resource Include="Images\Create-mask.png" />
+		<None Remove="Images\FlipHorizontal.png" />
+		<Resource Include="Images\FlipHorizontal.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

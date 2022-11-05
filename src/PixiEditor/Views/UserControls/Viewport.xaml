@@ -88,6 +88,29 @@
                     </ToggleButton.Content>
                 </ToggleButton>
             </StackPanel>
+            <Separator/>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <ToggleButton Width="32" Height="32" ToolTip="Flip Horizontally"
+                              Style="{StaticResource OverlayToggleButton}"
+                              IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
+                              Cursor="Hand">
+                    <ToggleButton.Content>
+                        <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png"/>
+                    </ToggleButton.Content>
+                </ToggleButton>
+                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ToolTip="Flip Vertically"
+                              Style="{StaticResource OverlayToggleButton}"
+                              IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
+                              Cursor="Hand">
+                    <ToggleButton.Content>
+                        <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png">
+                            <Image.LayoutTransform>
+                                <RotateTransform Angle="90"/>
+                            </Image.LayoutTransform>
+                        </Image>
+                    </ToggleButton.Content>
+                </ToggleButton>
+            </StackPanel>
         </StackPanel>
         </Border>
             </views:TogglableFlyout.Child>
@@ -103,8 +126,8 @@
             Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
             ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
-            FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}"
-            FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
+            FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
+            FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}">
             <Border
                 d:Width="64"
                 d:Height="64"
