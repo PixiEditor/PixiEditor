@@ -306,7 +306,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    internal bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null)
+    public bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null)
     {
         lock (lockObject)
         {

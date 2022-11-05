@@ -40,7 +40,7 @@ internal class EllipseOperation : IDrawOperation
             ellipse = ellipseList.Select(a => new Point(a)).ToArray();
             if (fillColor.A > 0 || paint.BlendMode != BlendMode.SrcOver)
             {
-                (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseIntoRegions(ellipseList, location);
+                (var fill, ellipseFillRect) = EllipseHelper.SplitEllipseFillIntoRegions(ellipseList, location);
                 ellipseFill = fill.Select(a => new Point(a)).ToArray();
             }
         }

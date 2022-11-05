@@ -1,8 +1,8 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 
-namespace PixiEditor.Models.Colors;
+namespace PixiEditor.ChangeableDocument;
 
-internal static class ExColor
+public static class ColorHelper
 {
     /// <summary>
     ///     Creates color with corrected brightness.

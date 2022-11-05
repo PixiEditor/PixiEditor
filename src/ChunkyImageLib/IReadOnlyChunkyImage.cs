@@ -9,6 +9,7 @@ namespace ChunkyImageLib;
 public interface IReadOnlyChunkyImage
 {
     bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null);
+    bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null);
     RectI? FindLatestBounds();
     Color GetCommittedPixel(VecI posOnImage);
     Color GetMostUpToDatePixel(VecI posOnImage);

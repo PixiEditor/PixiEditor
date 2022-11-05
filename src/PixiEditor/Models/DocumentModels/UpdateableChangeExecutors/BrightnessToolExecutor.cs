@@ -11,7 +11,6 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
 {
     private Guid guidValue;
     private bool repeat;
-    private bool darken;
     private float correctionFactor;
     private int toolSize;
 
@@ -28,10 +27,9 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
         guidValue = member.GuidValue;
         repeat = tool.BrightnessMode == BrightnessMode.Repeat;
         toolSize = tool.ToolSize;
-        darken = tool.Darken;
-        correctionFactor = tool.CorrectionFactor;
+        correctionFactor = tool.Darken ? -tool.CorrectionFactor : tool.CorrectionFactor;
 
-        ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat, darken);
+        ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -39,7 +37,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        ChangeBrightness_Action action = new(guidValue, pos, correctionFactor, toolSize, repeat, darken);
+        ChangeBrightness_Action action = new(guidValue, pos, correctionFactor, toolSize, repeat);
         internals!.ActionAccumulator.AddActions(action);
     }
 

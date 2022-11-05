@@ -4,7 +4,10 @@ using PixiEditor.DrawingApi.Core.Numerics;
 namespace ChunkyImageLib.Operations;
 public class EllipseHelper
 {
-    public static (List<VecI> lines, RectI rect) SplitEllipseIntoRegions(List<VecI> ellipse, RectI ellipseBounds)
+    /// <summary>
+    /// Separates the ellipse's inner area into a bunch of horizontal lines and one big rectangle for drawing.
+    /// </summary>
+    public static (List<VecI> lines, RectI rect) SplitEllipseFillIntoRegions(IReadOnlyList<VecI> ellipse, RectI ellipseBounds)
     {
         if (ellipse.Count == 0)
             return (new(), RectI.Empty);
@@ -49,6 +52,44 @@ public class EllipseHelper
         }
         return (lines, inscribedRect);
     }
+    
+    /// <summary>
+    /// Splits the ellipse into a bunch of horizontal lines.
+    /// The resulting list contains consecutive pairs of <see cref="VecI"/>s, each pair has one for the start of the line and one for the end.
+    /// </summary>
+    public static List<VecI> SplitEllipseIntoLines(List<VecI> ellipse)
+    {
+        List<VecI> lines = new();
+        var sorted = ellipse.OrderBy(
+            a => a,
+            Comparer<VecI>.Create((a, b) => a.Y != b.Y ? a.Y - b.Y : a.X - b.X)
+        );
+
+        int minX = int.MaxValue;
+        int maxX = int.MinValue;
+        VecI? prev = null;
+        foreach (var point in sorted)
+        {
+            if (prev.HasValue && point.Y != prev.Value.Y)
+            {
+                int prevY = prev.Value.Y;
+                lines.Add(new(minX, prevY));
+                lines.Add(new(maxX, prevY));
+                minX = int.MaxValue;
+                maxX = int.MinValue;
+            }
+            minX = Math.Min(point.X, minX);
+            maxX = Math.Max(point.X, maxX);
+            prev = point;
+        }
+        if (prev != null)
+        {
+            lines.Add(new(minX, prev.Value.Y));
+            lines.Add(new(maxX, prev.Value.Y));
+        }
+        return lines;
+    }
+    
     public static List<VecI> GenerateEllipseFromRect(RectI rect)
     {
         if (rect.IsZeroOrNegativeArea)
