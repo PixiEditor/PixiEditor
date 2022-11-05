@@ -46,8 +46,8 @@ internal class BresenhamLineOperation : IDrawOperation
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
     {
-        VecI newFrom = from;
-        VecI newTo = to;
+        RectI newFrom = new RectI(from, new VecI(1));
+        RectI newTo = new RectI(to, new VecI(1));
         if (verAxisX is not null)
         {
             newFrom = newFrom.ReflectX((int)verAxisX);
@@ -58,7 +58,7 @@ internal class BresenhamLineOperation : IDrawOperation
             newFrom = newFrom.ReflectY((int)horAxisY);
             newTo = newTo.ReflectY((int)horAxisY);
         }
-        return new BresenhamLineOperation(newFrom, newTo, color, blendMode);
+        return new BresenhamLineOperation(newFrom.Pos, newTo.Pos, color, blendMode);
     }
 
     public void Dispose()
