@@ -542,6 +542,8 @@
                                             StylusButtonUpCommand="{cmds:Command PixiEditor.Stylus.StylusUp, UseProvided=True}"
                                             StylusGestureCommand="{cmds:Command PixiEditor.Stylus.StylusSystemGesture, UseProvided=True}"
                                             StylusOutOfRangeCommand="{cmds:Command PixiEditor.Stylus.StylusOutOfRange, UseProvided=True}"
+                                            FlipX="{Binding FlipX, Mode=TwoWay}"
+                                            FlipY="{Binding FlipY, Mode=TwoWay}"
                                             Stylus.IsTapFeedbackEnabled="False" 
                                             Stylus.IsTouchFeedbackEnabled="False"
                                             Document="{Binding Document}">

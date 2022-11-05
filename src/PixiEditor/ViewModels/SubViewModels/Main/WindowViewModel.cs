@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
 using AvalonDock.Layout;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -55,10 +56,35 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             return;
         CreateNewViewport(doc);
     }
+    
+    [Command.Basic("PixiEditor.Window.CenterActiveViewport", "Center active viewport", "Center active viewport", CanExecute = "PixiEditor.HasDocument")]
+    public void CenterCurrentViewport()
+    {
+        if (ActiveWindow is ViewportWindowViewModel viewport)
+            viewport.CenterViewportTrigger.Execute(this, viewport.Document.SizeBindable);
+    }
+    
+    [Command.Basic("PixiEditor.Window.FlipHorizontally", "Flip Viewport Horizontally", "Flip Viewport Horizontally", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipViewportHorizontally()
+    {
+        if (ActiveWindow is ViewportWindowViewModel viewport)
+        {
+            viewport.FlipX = !viewport.FlipX;
+        }
+    }
+    
+    [Command.Basic("PixiEditor.Window.FlipVertically", "Flip Viewport Vertically", "Flip Viewport Vertically", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipViewportVertically()
+    {
+        if (ActiveWindow is ViewportWindowViewModel viewport)
+        {
+            viewport.FlipY = !viewport.FlipY;
+        }
+    }
 
     public void CreateNewViewport(DocumentViewModel doc)
     {
-        Viewports.Add(new ViewportWindowViewModel(doc));
+        Viewports.Add(new ViewportWindowViewModel(this, doc));
         foreach (var viewport in Viewports.Where(vp => vp.Document == doc))
         {
             viewport.RaisePropertyChanged(nameof(viewport.Index));
