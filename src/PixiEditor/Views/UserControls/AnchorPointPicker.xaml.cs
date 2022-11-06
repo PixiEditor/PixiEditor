@@ -33,7 +33,7 @@ internal partial class AnchorPointPicker : UserControl
         ToggleButton btn = (ToggleButton)sender;
         int row = Grid.GetRow(btn);
         int column = Grid.GetColumn(btn);
-        AnchorPoint = (row, column) switch
+        AnchorPoint = (column, row) switch
         {
             (0, 0) => ResizeAnchor.TopLeft,
             (1, 0) => ResizeAnchor.Top,
