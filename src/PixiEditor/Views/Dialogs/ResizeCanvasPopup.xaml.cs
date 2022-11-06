@@ -12,7 +12,7 @@ internal partial class ResizeCanvasPopup : ResizeablePopup
 
     public static readonly DependencyProperty SelectedAnchorPointProperty =
         DependencyProperty.Register(nameof(SelectedAnchorPoint), typeof(ResizeAnchor), typeof(ResizeCanvasPopup),
-            new PropertyMetadata(ResizeAnchor.Top | ResizeAnchor.Left));
+            new PropertyMetadata(ResizeAnchor.TopLeft));
 
 
     public ResizeCanvasPopup()

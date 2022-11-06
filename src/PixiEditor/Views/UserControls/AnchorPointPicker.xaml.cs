@@ -12,7 +12,7 @@ internal partial class AnchorPointPicker : UserControl
 {
     public static readonly DependencyProperty AnchorPointProperty =
         DependencyProperty.Register(nameof(AnchorPoint), typeof(ResizeAnchor), typeof(AnchorPointPicker),
-            new PropertyMetadata());
+            new PropertyMetadata(ResizeAnchor.TopLeft));
 
 
     private ToggleButton _selectedToggleButton;
