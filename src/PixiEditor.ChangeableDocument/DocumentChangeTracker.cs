@@ -171,11 +171,17 @@ public class DocumentChangeTracker : IDisposable
             return;
         }
         foreach (var changesToDispose in redoStack)
+        {
             foreach (var changeToDispose in changesToDispose)
                 changeToDispose.Dispose();
+        }
+
         foreach (var changesToDispose in undoStack)
+        {
             foreach (var changeToDispose in changesToDispose)
                 changeToDispose.Dispose();
+        }
+
         redoStack.Clear();
         undoStack.Clear();
     }
@@ -189,7 +195,7 @@ public class DocumentChangeTracker : IDisposable
         }
         var change = act.CreateCorrespondingChange();
         var validationResult = change.InitializeAndValidate(document);
-        if (validationResult.IsT1)
+        if (!validationResult)
         {
             Trace.WriteLine($"Change {change} failed validation");
             change.Dispose();
@@ -210,7 +216,7 @@ public class DocumentChangeTracker : IDisposable
         {
             var newChange = act.CreateCorrespondingChange();
             var validationResult = newChange.InitializeAndValidate(document);
-            if (validationResult.IsT1)
+            if (!validationResult)
             {
                 Trace.WriteLine($"Change {newChange} failed validation");
                 newChange.Dispose();

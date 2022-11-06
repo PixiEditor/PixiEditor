@@ -33,17 +33,17 @@ internal class LineBasedPen_UpdateableChange : UpdateableChange
         points.Add(pos);
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
-            return new Error();
+            return false;
         if (strokeWidth < 1)
-            return new Error();
+            return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         if (!replacing)
             image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)

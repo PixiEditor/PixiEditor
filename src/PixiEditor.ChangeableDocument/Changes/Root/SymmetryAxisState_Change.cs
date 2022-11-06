@@ -15,7 +15,7 @@ internal class SymmetryAxisState_Change : Change
         this.newEnabled = enabled;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         originalEnabled = direction switch
         {
@@ -24,8 +24,8 @@ internal class SymmetryAxisState_Change : Change
             _ => throw new NotImplementedException(),
         };
         if (originalEnabled == newEnabled)
-            return new Error();
-        return new Success();
+            return false;
+        return true;
     }
 
     private void SetState(Document target, bool state)

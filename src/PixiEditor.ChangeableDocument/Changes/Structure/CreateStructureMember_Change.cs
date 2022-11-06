@@ -20,11 +20,9 @@ internal class CreateStructureMember_Change : Change
         newMemberGuid = newGuid;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
-        if (!target.HasMember(parentFolderGuid))
-            return new Error();
-        return new Success();
+        return target.HasMember(parentFolderGuid);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply, out bool ignoreInUndo)

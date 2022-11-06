@@ -21,14 +21,14 @@ internal class ResizeCanvas_Change : Change
         this.anchor = anchor;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (target.Size == newSize || newSize.X < 1 || newSize.Y < 1)
-            return new Error();
+            return false;
         originalSize = target.Size;
         originalHorAxisY = target.HorizontalSymmetryAxisY;
         originalVerAxisX = target.VerticalSymmetryAxisX;
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

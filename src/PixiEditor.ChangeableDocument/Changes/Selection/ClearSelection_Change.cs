@@ -9,12 +9,12 @@ internal class ClearSelection_Change : Change
     [GenerateMakeChangeAction]
     public ClearSelection_Change() { }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (target.Selection.SelectionPath.IsEmpty)
-            return new Error();
+            return false;
         originalPath = new VectorPath(target.Selection.SelectionPath);
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

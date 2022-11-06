@@ -14,13 +14,9 @@ internal class ClearSelectedArea_Change : Change
         this.drawOnMask = drawOnMask;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
-        if (target.Selection.SelectionPath.IsEmpty)
-            return new Error();
-        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
-            return new Error();
-        return new Success();
+        return !target.Selection.SelectionPath.IsEmpty && DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

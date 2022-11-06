@@ -40,13 +40,13 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
             positions.Add(pos);
     }
     
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, layerGuid, false))
-            return new Error();
+            return false;
         Layer layer = (Layer)target.FindMemberOrThrow(layerGuid);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, layer.LayerImage, layerGuid, false);
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)

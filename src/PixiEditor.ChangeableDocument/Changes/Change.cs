@@ -14,7 +14,7 @@ internal abstract class Change : IDisposable
     /// </summary>
     /// <param name="target">The document the change will be applied on</param>
     /// <returns><see cref="Success"/> if all parameters are valid, otherwise <see cref="Error"/></returns>
-    public abstract OneOf<Success, Error> InitializeAndValidate(Document target);
+    public abstract bool InitializeAndValidate(Document target);
 
     /// <summary>
     /// Applies the change to the <paramref name="target"/>

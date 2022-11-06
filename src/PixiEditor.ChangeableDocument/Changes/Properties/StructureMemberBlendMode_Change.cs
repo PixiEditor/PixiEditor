@@ -15,12 +15,12 @@ internal class StructureMemberBlendMode_Change : Change
         this.targetGuid = memberGuid;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!target.TryFindMember(targetGuid, out var member) || member.BlendMode == newBlendMode)
-            return new Error();
+            return false;
         originalBlendMode = member.BlendMode;
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

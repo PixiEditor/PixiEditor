@@ -30,11 +30,9 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
         this.location = location;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
-        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
-            return new Error();
-        return new Success();
+        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
     }
 
     private HashSet<VecI> UpdateEllipse(Document target, ChunkyImage targetImage)

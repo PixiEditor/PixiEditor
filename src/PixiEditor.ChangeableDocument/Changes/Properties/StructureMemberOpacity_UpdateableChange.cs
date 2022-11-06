@@ -22,12 +22,12 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
         newOpacity = opacity;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document document)
+    public override bool InitializeAndValidate(Document document)
     {
         if (!document.TryFindMember(memberGuid, out var member))
-            return new Error();
+            return false;
         originalOpacity = member.Opacity;
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)

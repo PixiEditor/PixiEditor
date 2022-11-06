@@ -17,11 +17,9 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         this.drawOnMask = drawOnMask;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
-        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
-            return new Error();
-        return new Success();
+        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
     }
 
     [UpdateChangeMethod]

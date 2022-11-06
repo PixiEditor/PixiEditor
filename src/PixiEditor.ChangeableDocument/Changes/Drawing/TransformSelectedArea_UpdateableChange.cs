@@ -37,15 +37,15 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         this.drawOnMask = transformMask;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (membersToTransform.Length == 0 || target.Selection.SelectionPath.IsEmpty)
-            return new Error();
+            return false;
 
         foreach (var guid in membersToTransform)
         {
             if (!DrawingChangeHelper.IsValidForDrawing(target, guid, drawOnMask))
-                return new Error();
+                return false;
         }
 
         originalPath = new VectorPath(target.Selection.SelectionPath) { FillType = PathFillType.EvenOdd };
@@ -60,11 +60,12 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
                 continue;
             images.Add(guid, (extracted.AsT1.image, extracted.AsT1.extractedRect.Pos));
         }
+
         if (images.Count == 0)
-            return new Error();
+            return false;
         originalTightBounds = bounds;
         globalMatrix = OperationHelper.CreateMatrixFromPoints(corners, originalTightBounds.Size);
-        return new Success();
+        return true;
     }
 
     public OneOf<None, (Surface image, RectI extractedRect)> ExtractArea(ChunkyImage image, VectorPath path, RectI pathBounds)

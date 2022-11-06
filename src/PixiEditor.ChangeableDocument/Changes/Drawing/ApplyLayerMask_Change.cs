@@ -14,14 +14,14 @@ internal class ApplyLayerMask_Change : Change
         this.layerGuid = layerGuid;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!target.TryFindMember<Layer>(layerGuid, out var layer) || layer.Mask is null)
-            return new Error();
+            return false;
 
         savedLayer = new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindCommittedChunks());
         savedMask = new CommittedChunkStorage(layer.Mask, layer.Mask.FindCommittedChunks());
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

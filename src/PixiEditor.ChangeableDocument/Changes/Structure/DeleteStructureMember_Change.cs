@@ -15,16 +15,16 @@ internal class DeleteStructureMember_Change : Change
         this.memberGuid = memberGuid;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document document)
+    public override bool InitializeAndValidate(Document document)
     {
         var (member, parent) = document.FindChildAndParent(memberGuid);
         if (member is null || parent is null)
-            return new Error();
+            return false;
 
         originalIndex = parent.Children.IndexOf(member);
         parentGuid = parent.GuidValue;
         savedCopy = member.Clone();
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply, out bool ignoreInUndo)

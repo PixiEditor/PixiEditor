@@ -14,12 +14,12 @@ internal class StructureMemberClipToMemberBelow_Change : Change
         this.memberGuid = memberGuid;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!target.TryFindMember(memberGuid, out var member) || member.ClipToMemberBelow == newValue)
-            return new Error();
+            return false;
         originalValue = member.ClipToMemberBelow;
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

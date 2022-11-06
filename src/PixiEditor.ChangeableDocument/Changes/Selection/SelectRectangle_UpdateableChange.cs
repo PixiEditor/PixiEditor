@@ -16,10 +16,10 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         this.rect = rect;
         this.mode = mode;
     }
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         originalPath = new VectorPath(target.Selection.SelectionPath);
-        return new Success();
+        return true;
     }
 
     [UpdateChangeMethod]

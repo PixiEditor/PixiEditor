@@ -13,13 +13,13 @@ internal class DeleteStructureMemberMask_Change : Change
         this.memberGuid = memberGuid;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!target.TryFindMember(memberGuid, out var member) || member.Mask is null)
-            return new Error();
+            return false;
         
         storedMask = member.Mask.CloneFromCommitted();
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

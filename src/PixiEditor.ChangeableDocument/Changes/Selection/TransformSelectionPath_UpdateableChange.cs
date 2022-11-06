@@ -20,13 +20,13 @@ internal class TransformSelectionPath_UpdateableChange : UpdateableChange
         this.newCorners = corners;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (target.Selection.SelectionPath.IsEmpty)
-            return new Error();
+            return false;
         originalPath = new(target.Selection.SelectionPath);
         originalTightBounds = (RectI)originalPath.TightBounds;
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

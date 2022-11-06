@@ -21,7 +21,7 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
         newPos = pos;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         originalPos = direction switch
         {
@@ -29,7 +29,7 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
             SymmetryAxisDirection.Vertical => target.VerticalSymmetryAxisX,
             _ => throw new NotImplementedException(),
         };
-        return new Success();
+        return true;
     }
 
     private void SetPosition(Document target, int position)

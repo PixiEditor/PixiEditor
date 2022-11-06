@@ -20,15 +20,15 @@ internal class MoveStructureMember_Change : Change
         this.targetFolderIndex = targetFolderIndex;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document document)
+    public override bool InitializeAndValidate(Document document)
     {
         var (member, curFolder) = document.FindChildAndParent(memberGuid);
         var targetFolder = document.FindMember(targetFolderGuid);
         if (member is null || curFolder is null || targetFolder is not Folder)
-            return new Error();
+            return false;
         originalFolderGuid = curFolder.GuidValue;
         originalFolderIndex = curFolder.Children.IndexOf(member);
-        return new Success();
+        return true;
     }
 
     private static void Move(Document document, Guid memberGuid, Guid targetFolderGuid, int targetIndex)

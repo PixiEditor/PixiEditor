@@ -14,13 +14,13 @@ internal class StructureMemberMaskIsVisible_Change : Change
         this.newMaskIsVisible = maskIsVisible;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!target.TryFindMember(memberGuid, out var member) || member.MaskIsVisible == newMaskIsVisible)
-            return new Error();
+            return false;
         
         originalMaskIsVisible = member.MaskIsVisible;
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

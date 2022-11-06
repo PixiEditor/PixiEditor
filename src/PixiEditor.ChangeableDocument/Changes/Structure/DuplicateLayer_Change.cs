@@ -11,11 +11,11 @@ internal class DuplicateLayer_Change : Change
     {
         this.layerGuid = layerGuid;
     }
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!target.TryFindMember<Layer>(layerGuid, out Layer? layer))
-            return new Error();
-        return new Success();
+            return false;
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

@@ -32,14 +32,14 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
         points.Add(pos);
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
-            return new Error();
+            return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-        return new Success();
+        return true;
     }
 
     private static (VecD, VecD) FindCubicPoints(VecD prev, VecD mid1, VecD mid2, VecD next)

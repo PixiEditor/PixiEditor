@@ -14,12 +14,12 @@ internal class StructureMemberIsVisible_Change : Change
         this.newIsVisible = isVisible;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!target.TryFindMember(targetMember, out var member) || member.IsVisible == newIsVisible)
-            return new Error();
+            return false;
         originalIsVisible = member.IsVisible;
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

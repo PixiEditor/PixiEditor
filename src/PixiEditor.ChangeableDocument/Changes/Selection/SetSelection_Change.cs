@@ -13,10 +13,10 @@ internal class SetSelection_Change : Change
         this.selection = new VectorPath(selection) { FillType = PathFillType.EvenOdd };
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         originalSelection = ((IReadOnlySelection)target.Selection).SelectionPath;
-        return new Success();
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

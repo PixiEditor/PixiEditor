@@ -30,14 +30,14 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
         incomingPoints!.Add(pos);
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
-            return new Error();
+            return false;
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         image.SetBlendMode(BlendMode.SrcOver);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
-        return new Success();
+        return true;
     }
 
     private bool IsLShape(int lastPixelIndex)

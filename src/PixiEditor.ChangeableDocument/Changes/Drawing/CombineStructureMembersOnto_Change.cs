@@ -19,21 +19,22 @@ internal class CombineStructureMembersOnto_Change : Change
         this.targetLayer = targetLayer;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!target.HasMember(targetLayer) || membersToMerge.Count == 0)
-            return new Error();
+            return false;
         foreach (Guid guid in membersToMerge)
         {
             if (!target.TryFindMember(guid, out var member))
-                return new Error();
+                return false;
             
             if (member is Layer layer)
                 layersToCombine.Add(layer.GuidValue);
             else if (member is Folder innerFolder)
                 AddChildren(innerFolder, layersToCombine);
         }
-        return new Success();
+
+        return true;
     }
 
     private void AddChildren(Folder folder, HashSet<Guid> collection)

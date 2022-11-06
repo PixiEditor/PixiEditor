@@ -12,12 +12,9 @@ internal class CreateStructureMemberMask_Change : Change
         targetMember = memberGuid;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember(targetMember, out var member) || member.Mask is not null)
-            return new Error();
-        
-        return new Success();
+        return target.TryFindMember(targetMember, out var member) && member.Mask is null;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

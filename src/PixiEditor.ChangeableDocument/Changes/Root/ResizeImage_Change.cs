@@ -25,15 +25,15 @@ internal class ResizeImage_Change : Change
         this.method = method;
     }
     
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (target.Size == newSize || newSize.X < 1 || newSize.Y < 1)
-            return new Error();
+            return false;
         
         originalSize = target.Size;
         originalHorAxisY = target.HorizontalSymmetryAxisY;
         originalVerAxisX = target.VerticalSymmetryAxisX;
-        return new Success();
+        return true;
     }
 
     private static FilterQuality ToFilterQuality(ResamplingMethod method, bool downscaling) =>

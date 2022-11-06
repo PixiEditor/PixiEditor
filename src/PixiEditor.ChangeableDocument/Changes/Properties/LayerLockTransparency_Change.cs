@@ -14,15 +14,15 @@ internal class LayerLockTransparency_Change : Change
         this.newValue = newValue;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (!target.TryFindMember<Layer>(layerGuid, out var layer))
-            return new Error();
+            return false;
 
         originalValue = layer.LockTransparency;
         if (originalValue == newValue)
-            return new Error();
-        return new Success();
+            return false;
+        return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

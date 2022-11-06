@@ -23,13 +23,12 @@ internal class FloodFill_Change : Change
         this.drawOnMask = drawOnMask;
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         if (pos.X < 0 || pos.Y < 0 || pos.X >= target.Size.X || pos.Y >= target.Size.X)
-            return new Error();
-        if (!DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask))
-            return new Error();
-        return new Success();
+            return false;
+        
+        return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

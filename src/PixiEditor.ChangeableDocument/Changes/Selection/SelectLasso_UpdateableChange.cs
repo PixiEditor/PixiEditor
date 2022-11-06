@@ -22,10 +22,10 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
         path.LineTo(point);
     }
 
-    public override OneOf<Success, Error> InitializeAndValidate(Document target)
+    public override bool InitializeAndValidate(Document target)
     {
         originalPath = new VectorPath(target.Selection.SelectionPath);
-        return new Success();
+        return true;
     }
 
     private Selection_ChangeInfo CommonApply(Document target)
