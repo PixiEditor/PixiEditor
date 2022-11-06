@@ -60,6 +60,30 @@ public class Chunk : IDisposable
     {
         surface.Canvas.DrawSurface(Surface.DrawingSurface, pos.X, pos.Y, paint);
     }
+    
+    public unsafe RectI? FindPreciseBounds()
+    {
+        RectI? bounds = null;
+        if(returned) return bounds;
+        
+        ulong* ptr = (ulong*)Surface.PixelBuffer;
+        for (int y = 0; y < Surface.Size.Y; y++)
+        {
+            for (int x = 0; x < Surface.Size.X; x++)
+            {
+                int i = y * Surface.Size.X + x;
+                // ptr[i] actually contains 4 16-bit floats. We only care about the first one which is alpha.
+                // An empty pixel can have alpha of 0 or -0 (not sure if -0 actually ever comes up). 0 in hex is 0x0, -0 in hex is 0x8000
+                if ((ptr[i] & 0x1111_0000_0000_0000) != 0 && (ptr[i] & 0x1111_0000_0000_0000) != 0x8000_0000_0000_0000)
+                {
+                    bounds ??= new RectI(x, y, 1, 1);
+                    bounds = bounds.Value.Union(new RectI(x, y, 1, 1));
+                }
+            }
+        }
+        
+        return bounds;
+    }
 
     /// <summary>
     /// Returns the chunk back to the pool

@@ -244,4 +244,11 @@ internal class DocumentOperationsModule
         if (finish)
             Internals.ActionAccumulator.AddFinishedActions();
     }
+
+    public void ClipCanvas()
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+        Internals.ActionAccumulator.AddFinishedActions(new ClipCanvas_Action());
+    }
 }

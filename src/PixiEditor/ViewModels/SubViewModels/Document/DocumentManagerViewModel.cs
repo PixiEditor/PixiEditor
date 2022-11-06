@@ -50,7 +50,10 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument")]
     public void ClipCanvas()
     {
-        //Owner.BitmapManager.ActiveDocument?.ClipCanvas();
+        if (ActiveDocument is null)
+            return;
+        
+        ActiveDocument?.Operations.ClipCanvas();
     }
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument")]

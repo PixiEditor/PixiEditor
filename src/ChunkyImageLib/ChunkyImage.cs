@@ -137,6 +137,31 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             return rect;
         }
     }
+    
+    public RectI? FindPreciseBounds()
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            RectI? chunkBounds = FindLatestBounds();
+            if(!chunkBounds.HasValue) return null;
+
+            RectI? preciseBounds = null;
+
+            foreach (var chunk in committedChunks[ChunkResolution.Full])
+            {
+                if(!chunkBounds.Value.Intersects(new RectI(chunk.Key, new VecI(FullChunkSize)))) continue;
+                
+                RectI? chunkPreciseBounds = chunk.Value.FindPreciseBounds();
+                if(!chunkPreciseBounds.HasValue) continue;
+                
+                preciseBounds ??= chunkPreciseBounds.Value;
+                preciseBounds = preciseBounds.Value.Union(chunkPreciseBounds.Value);
+            }
+
+            return preciseBounds;
+        }
+    }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public ChunkyImage CloneFromCommitted()

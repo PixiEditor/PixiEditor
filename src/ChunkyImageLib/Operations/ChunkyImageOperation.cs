@@ -5,16 +5,16 @@ namespace ChunkyImageLib.Operations;
 internal class ChunkyImageOperation : IDrawOperation
 {
     private readonly ChunkyImage imageToDraw;
-    private readonly VecI pos;
+    private readonly VecI targetPos;
     private readonly bool mirrorHorizontal;
     private readonly bool mirrorVertical;
 
     public bool IgnoreEmptyChunks => false;
 
-    public ChunkyImageOperation(ChunkyImage imageToDraw, VecI pos, bool mirrorHorizontal, bool mirrorVertical)
+    public ChunkyImageOperation(ChunkyImage imageToDraw, VecI targetPos, bool mirrorHorizontal, bool mirrorVertical)
     {
         this.imageToDraw = imageToDraw;
-        this.pos = pos;
+        this.targetPos = targetPos;
         this.mirrorHorizontal = mirrorHorizontal;
         this.mirrorVertical = mirrorVertical;
     }
@@ -22,7 +22,6 @@ internal class ChunkyImageOperation : IDrawOperation
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
         chunk.Surface.DrawingSurface.Canvas.Save();
-
         {
             VecI pixelPos = chunkPos * ChunkyImage.FullChunkSize;
             VecI topLeftImageCorner = GetTopLeft();
@@ -36,7 +35,7 @@ internal class ChunkyImageOperation : IDrawOperation
         chunkPixelCenter.X += ChunkyImage.FullChunkSize / 2;
         chunkPixelCenter.Y += ChunkyImage.FullChunkSize / 2;
 
-        VecI chunkCenterOnImage = chunkPixelCenter - pos;
+        VecI chunkCenterOnImage = chunkPixelCenter - targetPos;
         VecI chunkSize = chunk.PixelSize;
         if (mirrorHorizontal)
         {
@@ -64,7 +63,7 @@ internal class ChunkyImageOperation : IDrawOperation
             chunk.Surface.DrawingSurface,
             (VecI)((topLeft * ChunkyImage.FullChunkSize - chunkCenterOnImage).Add(ChunkyImage.FullChunkSize / 2) * chunk.Resolution.Multiplier()));
 
-        VecI gridShift = pos % ChunkyImage.FullChunkSize;
+        VecI gridShift = targetPos % ChunkyImage.FullChunkSize;
         if (gridShift.X != 0)
         {
             imageToDraw.DrawCommittedChunkOn(
@@ -100,7 +99,7 @@ internal class ChunkyImageOperation : IDrawOperation
 
     private VecI GetTopLeft()
     {
-        VecI topLeft = pos;
+        VecI topLeft = targetPos;
         if (mirrorHorizontal)
             topLeft.X -= imageToDraw.CommittedSize.X;
         if (mirrorVertical)
@@ -110,7 +109,7 @@ internal class ChunkyImageOperation : IDrawOperation
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
     {
-        var newPos = pos;
+        var newPos = targetPos;
         if (verAxisX is not null)
             newPos = newPos.ReflectX((int)verAxisX);
         if (horAxisY is not null)

@@ -236,6 +236,11 @@ public struct RectI : IEquatable<RectI>
         return left < rect.right && right > rect.left && top < rect.bottom && bottom > rect.top;
     }
 
+    /// <summary>
+    ///     Returns the intersection of two rectangles.
+    /// </summary>
+    /// <param name="other">Rectangle to intersect with.</param>
+    /// <returns>Intersected rect.</returns>
     public readonly RectI Intersect(RectI other)
     {
         int left = Math.Max(this.left, other.left);
@@ -254,6 +259,11 @@ public struct RectI : IEquatable<RectI>
             Top = top,
             Bottom = bottom
         };
+    }
+    
+    public bool Intersects(RectI rectI)
+    {
+        return left < rectI.right && right > rectI.left && top < rectI.bottom && bottom > rectI.top;
     }
 
     public readonly RectI Union(RectI other)
