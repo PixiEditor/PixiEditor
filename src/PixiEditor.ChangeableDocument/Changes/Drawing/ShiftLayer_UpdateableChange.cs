@@ -1,24 +1,39 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using System.Runtime.InteropServices;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class ShiftLayer_UpdateableChange : UpdateableChange
 {
-    private readonly Guid layerGuid;
+    private List<Guid> layerGuids;
     private bool keepOriginal;
     private VecI delta;
-    private CommittedChunkStorage? originalLayerChunks;
+    private Dictionary<Guid, CommittedChunkStorage?> originalLayerChunks = new();
+    
+    private List<IChangeInfo> _tempChanges = new();
 
     [GenerateUpdateableChangeActions]
-    public ShiftLayer_UpdateableChange(Guid layerGuid, VecI delta, bool keepOriginal)
+    public ShiftLayer_UpdateableChange(List<Guid> layerGuids, VecI delta, bool keepOriginal)
     {
         this.delta = delta;
-        this.layerGuid = layerGuid;
+        this.layerGuids = layerGuids;
         this.keepOriginal = keepOriginal;
     }
 
     public override bool InitializeAndValidate(Document target)
     {
-        return target.HasMember<Layer>(layerGuid);
+        if (layerGuids.Count == 0)
+        {
+            return false;
+        }
+
+        layerGuids = target.ExtractLayers(layerGuids);
+
+        foreach (var layer in layerGuids)
+        {
+            if (!target.HasMember(layer)) return false;
+        }
+        
+        return true;
     }
 
     [UpdateChangeMethod]
@@ -30,33 +45,55 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
-        var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
-
-        if (originalLayerChunks is not null)
-            throw new InvalidOperationException("saved chunks is not null even though we are trying to save them again");
-        originalLayerChunks = new(image, image.FindAffectedChunks());
-        image.CommitChanges();
+        originalLayerChunks = new Dictionary<Guid, CommittedChunkStorage?>();
+        List<IChangeInfo> changes = new List<IChangeInfo>();
+        foreach (var layerGuid in layerGuids)
+        {
+            var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
+            var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
+            
+            changes.Add(new LayerImageChunks_ChangeInfo(layerGuid, chunks));
+            
+            originalLayerChunks[layerGuid] = new(image, image.FindAffectedChunks());
+            image.CommitChanges();
+        }
 
         ignoreInUndo = delta.TaxicabLength == 0;
-        return new LayerImageChunks_ChangeInfo(layerGuid, chunks);
+        return changes;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
-        return new LayerImageChunks_ChangeInfo(layerGuid, chunks);
+        _tempChanges.Clear();
+
+        foreach (var layerGuid in layerGuids)
+        {
+            var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
+            _tempChanges.Add(new LayerImageChunks_ChangeInfo(layerGuid, chunks));
+        }
+        
+        return _tempChanges;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
-        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalLayerChunks);
-        return new LayerImageChunks_ChangeInfo(layerGuid, affected);
+        List<IChangeInfo> changes = new List<IChangeInfo>();
+        foreach (var layerGuid in layerGuids)
+        {
+            var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
+            CommittedChunkStorage? originalChunks = originalLayerChunks[layerGuid];
+            var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
+            changes.Add(new LayerImageChunks_ChangeInfo(layerGuid, affected));
+        }
+        
+        return changes;
     }
 
     public override void Dispose()
     {
-        originalLayerChunks?.Dispose();
+        foreach (var (_, value) in originalLayerChunks)
+        {
+            value?.Dispose();
+        }
     }
 }

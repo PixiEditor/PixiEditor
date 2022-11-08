@@ -9,7 +9,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
 internal class ShiftLayerExecutor : UpdateableChangeExecutor
 {
-    private Guid guidValue;
+    private List<Guid> _affectedMemberGuids = new List<Guid>();
     private VecI startPos;
     private MoveToolViewModel? tool;
 
@@ -17,22 +17,39 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
     {
         ViewModelMain? vm = ViewModelMain.Current;
         StructureMemberViewModel? member = document!.SelectedStructureMember;
+        if(member != null)
+            _affectedMemberGuids.Add(member.GuidValue);
+        _affectedMemberGuids.AddRange(document!.SoftSelectedStructureMembers.Select(x => x.GuidValue));
         tool = ViewModelMain.Current?.ToolsSubViewModel.GetTool<MoveToolViewModel>();
-        if (vm is null || member is not LayerViewModel layer || layer.ShouldDrawOnMask || tool is null)
+        if (vm is null || tool is null)
             return ExecutionState.Error;
-
-        guidValue = member.GuidValue;
+        
+        RemoveDrawOnMaskLayers(_affectedMemberGuids);
+        
         startPos = controller!.LastPixelPosition;
 
-        ShiftLayer_Action action = new(guidValue, VecI.Zero, tool.KeepOriginalImage);
+        ShiftLayer_Action action = new(_affectedMemberGuids, VecI.Zero, tool.KeepOriginalImage);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
     }
 
+    private void RemoveDrawOnMaskLayers(List<Guid> affectedMemberGuids)
+    {
+        for (var i = 0; i < affectedMemberGuids.Count; i++)
+        {
+            var guid = affectedMemberGuids[i];
+            if (document!.StructureHelper.FindOrThrow(guid) is LayerViewModel { ShouldDrawOnMask: true })
+            {
+                _affectedMemberGuids.Remove(guid);
+                i--;
+            }
+        }
+    }
+
     public override void OnPixelPositionChange(VecI pos)
     {
-        ShiftLayer_Action action = new(guidValue, pos - startPos, tool!.KeepOriginalImage);
+        ShiftLayer_Action action = new(_affectedMemberGuids, pos - startPos, tool!.KeepOriginalImage);
         internals!.ActionAccumulator.AddActions(action);
     }
 
