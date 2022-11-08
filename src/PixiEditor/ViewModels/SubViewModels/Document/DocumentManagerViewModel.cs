@@ -132,7 +132,11 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Document.CenterContent", "Center Content", "Center Content", CanExecute = "PixiEditor.HasDocument")]
     public void CenterContent()
     {
-        //Owner.BitmapManager.ActiveDocument.CenterContent();
+        if(ActiveDocument is null || ActiveDocument.SelectedStructureMember == null)
+            return;
+        
+        List<Guid> layerGuids = new List<Guid>() { ActiveDocument.SelectedStructureMember.GuidValue };
+        layerGuids.AddRange(ActiveDocument.SoftSelectedStructureMembers.Select(x => x.GuidValue));
+        ActiveDocument.Operations.CenterContent(layerGuids);
     }
-
 }

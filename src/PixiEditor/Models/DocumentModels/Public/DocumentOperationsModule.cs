@@ -251,4 +251,12 @@ internal class DocumentOperationsModule
             return;
         Internals.ActionAccumulator.AddFinishedActions(new ClipCanvas_Action());
     }
+
+    public void CenterContent(IReadOnlyList<Guid> structureMembers)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+
+        Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList()));
+    }
 }

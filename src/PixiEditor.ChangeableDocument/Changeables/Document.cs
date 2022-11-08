@@ -261,4 +261,40 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         }
         return false;
     }
+    
+    public List<Guid> ExtractLayers(List<Guid> members)
+    {
+        var result = new List<Guid>();
+        foreach (var member in members)
+        {
+            if (TryFindMember(member, out var structureMember))
+            {
+                if (structureMember is Layer layer && !result.Contains(layer.GuidValue))
+                {
+                    result.Add(layer.GuidValue);
+                }
+                else if (structureMember is Folder folder)
+                {
+                    ExtractLayers(folder, result);
+                }
+            }
+        }
+        return result;
+    }
+
+    private List<Guid> ExtractLayers(Folder folder, List<Guid> list)
+    {
+        foreach (var member in folder.Children)
+        {
+            if (member is Layer layer && !list.Contains(layer.GuidValue))
+            {
+                list.Add(layer.GuidValue);
+            }
+            else if (member is Folder childFolder)
+            {
+                ExtractLayers(childFolder, list);
+            }
+        }
+        return list;
+    }
 }

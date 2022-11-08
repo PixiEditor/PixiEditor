@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
-using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;

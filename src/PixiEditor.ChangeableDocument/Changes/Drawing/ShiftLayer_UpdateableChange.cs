@@ -28,22 +28,9 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         this.keepOriginal = keepOriginal;
     }
 
-    private HashSet<VecI> DrawShiftedLayer(Document target)
-    {
-        var targetImage = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
-        var prevChunks = targetImage.FindAffectedChunks();
-        targetImage.CancelChanges();
-        if (!keepOriginal)
-            targetImage.EnqueueClear();
-        targetImage.EnqueueDrawChunkyImage(delta, targetImage, false, false);
-        var curChunks = targetImage.FindAffectedChunks();
-        curChunks.UnionWith(prevChunks);
-        return curChunks;
-    }
-
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var chunks = DrawShiftedLayer(target);
+        var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
         var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
 
         if (originalLayerChunks is not null)
@@ -57,7 +44,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        var chunks = DrawShiftedLayer(target);
+        var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
         return new LayerImageChunks_ChangeInfo(layerGuid, chunks);
     }
 
