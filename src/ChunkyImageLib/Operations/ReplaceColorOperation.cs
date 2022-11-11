@@ -40,7 +40,7 @@ internal class ReplaceColorOperation : IDrawOperation
 
         UInt2 packedColor = ShaderUtils.PackPixel(newColor);
         
-        GraphicsDevice.GetDefault().For(texture.Width, texture.Height, 
+        GraphicsDevice.GetDefault().For(texture.Width, texture.Height, 1,  8, 8, 1,
             new ReplaceColorShader(
                 texture,
                 oldColorBounds,

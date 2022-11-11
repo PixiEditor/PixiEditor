@@ -57,7 +57,6 @@ public struct ColorBounds
         return true;
     }
     
-    [ShaderMethod]
     public readonly bool IsWithinBounds(Float4 color)
     {
         float r = color.R;

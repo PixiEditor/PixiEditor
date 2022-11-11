@@ -3,6 +3,7 @@
 namespace ChunkyImageLib.Shaders;
 
 [AutoConstructor]
+[EmbeddedBytecode(8, 8, 1)]
 internal readonly partial struct ReplaceColorShader : IComputeShader
 {
     public readonly ReadWriteTexture2D<UInt2> texture;
