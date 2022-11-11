@@ -207,7 +207,7 @@
                         InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
                         ZoomboxScale="{Binding Zoombox.Scale}"
                         ZoomboxAngle="{Binding Zoombox.Angle}"/>
-                    <Grid IsHitTestVisible="False" SnapsToDevicePixels="True"
+                    <Grid IsHitTestVisible="False" 
                         ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10" 
                         Visibility="{Binding GridLinesVisible, Converter={converters:BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
                         <Grid.Resources>
@@ -217,7 +217,8 @@
                             <Rectangle.Fill>
                                 <VisualBrush Viewport="{Binding Document.Width, Converter={converters:IntToViewportRectConverter}, ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
                                     <VisualBrush.Visual>
-                                        <Line X1="0" Y1="0" X2="0" Y2="1" Stroke="#88888888" StrokeThickness="{Binding Zoombox.Scale, Converter={converters:ReciprocalConverter}}"/>
+                                        <Line X1="0" Y1="0" X2="0" Y2="1" Stroke="Black" 
+                                              StrokeThickness="{Binding Zoombox.Scale, Converter={converters:ReciprocalConverter}}"/>
                                     </VisualBrush.Visual>
                                 </VisualBrush>
                             </Rectangle.Fill>
@@ -226,7 +227,47 @@
                             <Rectangle.Fill>
                                 <VisualBrush Viewport="{Binding Document.Height, Converter={converters:IntToViewportRectConverter}}" ViewboxUnits="Absolute" TileMode="Tile" >
                                     <VisualBrush.Visual>
-                                        <Line X1="0" Y1="0" X2="1" Y2="0" Stroke="#88888888" StrokeThickness="{Binding Zoombox.Scale, Converter={converters:ReciprocalConverter}}"/>
+                                        <Line X1="0" Y1="0" X2="1" Y2="0" Stroke="Black" StrokeThickness="{Binding Zoombox.Scale, Converter={converters:ReciprocalConverter}}"/>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Rectangle Focusable="False" Visibility="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}">
+                            <Rectangle.Fill>
+                                <VisualBrush Viewport="{Binding Document.Width, Converter={converters:IntToViewportRectConverter}, ConverterParameter=vertical}" ViewboxUnits="Absolute" TileMode="Tile" >
+                                    <VisualBrush.Visual>
+                                        <Line X1="0" Y1="0" X2="0" Y2="1" Stroke="White">
+                                            <Line.StrokeThickness>
+                                                <Binding Converter="{converters:ReciprocalConverter}">
+                                                    <Binding.Path>Zoombox.Scale</Binding.Path>
+                                                    <Binding.ConverterParameter>
+                                                        <sys:Double>
+                                                            1.1
+                                                        </sys:Double>
+                                                    </Binding.ConverterParameter>
+                                                </Binding>
+                                            </Line.StrokeThickness>
+                                        </Line>
+                                    </VisualBrush.Visual>
+                                </VisualBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Rectangle Focusable="False" Visibility="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}">
+                            <Rectangle.Fill>
+                                <VisualBrush Viewport="{Binding Document.Height, Converter={converters:IntToViewportRectConverter}}" ViewboxUnits="Absolute" TileMode="Tile" >
+                                    <VisualBrush.Visual>
+                                        <Line X1="0" Y1="0" X2="1" Y2="0" Stroke="White">
+                                            <Line.StrokeThickness>
+                                                <Binding Converter="{converters:ReciprocalConverter}">
+                                                    <Binding.Path>Zoombox.Scale</Binding.Path>
+                                                    <Binding.ConverterParameter>
+                                                        <sys:Double>
+                                                            1.1
+                                                        </sys:Double>
+                                                    </Binding.ConverterParameter>
+                                                </Binding>
+                                            </Line.StrokeThickness>
+                                        </Line>
                                     </VisualBrush.Visual>
                                 </VisualBrush>
                             </Rectangle.Fill>
