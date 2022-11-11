@@ -273,11 +273,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.File.Export", "Export", "Export image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)]
     public void ExportFile()
     {
-        /*
         ViewModelMain.Current.ActionDisplay = "";
-        WriteableBitmap bitmap = Owner.BitmapManager.ActiveDocument.Renderer.FinalBitmap;
-        Exporter.Export(bitmap, new Size(bitmap.PixelWidth, bitmap.PixelHeight));
-        */
+        DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var bitmap = doc.Bitmaps[ChunkResolution.Full];
+        if (Exporter.Export(bitmap, new VecI(bitmap.PixelWidth, bitmap.PixelHeight), out string path))
+        {
+            ProcessHelper.OpenInExplorer(path);
+        }
     }
 
     private void UpdateMaxRecentlyOpened(object parameter)

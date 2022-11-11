@@ -111,7 +111,7 @@ internal class Exporter
     /// </summary>
     /// <param name="bitmap">Bitmap to be saved as file.</param>
     /// <param name="fileDimensions">Size of file.</param>
-    public static void Export(WriteableBitmap bitmap, Size fileDimensions)
+    public static bool Export(WriteableBitmap bitmap, VecI fileDimensions, out string path)
     {
         ExportFileDialog info = new ExportFileDialog(fileDimensions);
 
@@ -120,7 +120,13 @@ internal class Exporter
         {
             if (encodersFactory.ContainsKey(info.ChosenFormat))
                 SaveAs(encodersFactory[info.ChosenFormat](), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
+            
+            path = info.FilePath;
+            return true;
         }
+
+        path = string.Empty;
+        return false;
     }
     public static void SaveAsGZippedBytes(string path, Surface surface)
     {
@@ -162,11 +168,9 @@ internal class Exporter
         try
         {
             bitmap = bitmap.Resize(exportWidth, exportHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
-            using (var stream = new FileStream(savePath, FileMode.Create))
-            {
-                encoder.Frames.Add(BitmapFrame.Create(bitmap));
-                encoder.Save(stream);
-            }
+            using var stream = new FileStream(savePath, FileMode.Create);
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            encoder.Save(stream);
         }
         catch (Exception err)
         {

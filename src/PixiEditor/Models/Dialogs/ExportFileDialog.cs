@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
@@ -15,10 +16,10 @@ internal class ExportFileDialog : CustomDialog
 
     private int fileWidth;
 
-    public ExportFileDialog(Size fileDimensions)
+    public ExportFileDialog(VecI size)
     {
-        FileHeight = (int)fileDimensions.Height;
-        FileWidth = (int)fileDimensions.Width;
+        FileHeight = size.X;
+        FileWidth = size.Y;
     }
 
     public int FileWidth

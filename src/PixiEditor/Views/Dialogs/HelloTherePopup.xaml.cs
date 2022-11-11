@@ -112,9 +112,8 @@ internal partial class HelloTherePopup : Window
 
     private void OpenInExplorer(object parameter)
     {
-        string path = Path.GetFullPath((string)parameter);
-
-        Process.Start("explorer.exe", $"/select,\"{path}\"");
+        if (parameter is not string value) return;
+        ProcessHelper.OpenInExplorer(value);
     }
 
     private bool CanOpenInExplorer(object parameter) => File.Exists((string)parameter);
