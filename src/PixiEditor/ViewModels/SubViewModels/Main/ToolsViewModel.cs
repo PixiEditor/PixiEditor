@@ -203,6 +203,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
     public void HandleToolRepeatShortcutDown()
     {
+        if(ActiveTool == null) return;
         if (ActiveTool is null or { IsTransient: false })
         {
             ShortcutController.BlockShortcutExecution("ShortcutDown");
@@ -212,6 +213,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     
     public void HandleToolShortcutUp()
     {
+        if(ActiveTool == null) return;
         if (ActiveTool.IsTransient && LastActionTool is { } tool)
             SetActiveTool(tool, false);
         ShortcutController.UnblockShortcutExecution("ShortcutDown");

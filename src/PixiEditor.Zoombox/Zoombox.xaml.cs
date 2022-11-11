@@ -132,7 +132,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     public double FlipTransformX => FlipX ? -1 : 1;
     public double FlipTransformY => FlipY ? -1 : 1;
     public double RotateTransformAngle => Angle * 180 / Math.PI;
-    internal const double MaxScale = 70;
+    internal const double MaxScale = 384;
 
     internal double MinScale
     {
@@ -232,7 +232,17 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
             40,
             48,
             56,
-            64
+            64,
+            80,
+            96,
+            112,
+            128,
+            160,
+            192,
+            224,
+            256,
+            320,
+            384,
         };
         List<double> interpolatedValues = new();
         for (int i = 0; i < roundZoomValues.Length - 1; i++)
