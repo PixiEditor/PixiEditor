@@ -19,7 +19,7 @@ internal class CommandCollection : ICollection<Command>
     public Command this[string name] => _commandInternalNames[name];
     public bool ContainsKey(string key) => _commandInternalNames.ContainsKey(key);
 
-    public IEnumerable<Command> this[KeyCombination shortcut] => _commandShortcuts[shortcut];
+    public List<Command> this[KeyCombination shortcut] => _commandShortcuts[shortcut];
 
     public CommandCollection()
     {

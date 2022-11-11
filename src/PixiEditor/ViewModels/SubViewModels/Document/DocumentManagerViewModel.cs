@@ -32,7 +32,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
             
             if (ViewModelMain.Current.ToolsSubViewModel.ActiveTool == null)
             {
-                ViewModelMain.Current.ToolsSubViewModel.SetActiveTool<PenToolViewModel>();
+                ViewModelMain.Current.ToolsSubViewModel.SetActiveTool<PenToolViewModel>(false);
             }
         }
     }

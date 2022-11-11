@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -18,8 +19,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();
 
     public ToolViewModel? LastActionTool { get; private set; }
-
-    public bool ActiveToolIsTransient { get; set; }
 
     private Cursor? toolCursor;
     public Cursor? ToolCursor
@@ -51,6 +50,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     private bool shiftIsDown;
     private bool ctrlIsDown;
     private bool altIsDown;
+    
+    private ToolViewModel _preTransientTool;
+
 
     public ToolsViewModel(ViewModelMain owner)
         : base(owner)
@@ -75,10 +77,10 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         return (T?)ToolSet?.Where(static tool => tool is T).FirstOrDefault();
     }
 
-    public void SetActiveTool<T>()
+    public void SetActiveTool<T>(bool transient)
         where T : ToolViewModel
     {
-        SetActiveTool(typeof(T));
+        SetActiveTool(typeof(T), transient);
     }
 
     [Command.Basic("PixiEditor.Tools.ApplyTransform", "Apply transform", "", Key = Key.Enter)]
@@ -93,12 +95,21 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     [Command.Internal("PixiEditor.Tools.SelectTool", CanExecute = "PixiEditor.HasDocument")]
     public void SetActiveTool(ToolViewModel tool)
     {
-        if (ActiveTool == tool) return;
+        SetActiveTool(tool, false);
+    }
+    
+    public void SetActiveTool(ToolViewModel tool, bool transient)
+    {
+        if (ActiveTool == tool)
+        {
+            ActiveTool.IsTransient = transient;
+            return;
+        }
 
         if (!tool.Toolbar.SettingsGenerated)
             tool.Toolbar.GenerateSettings();
 
-        ActiveToolIsTransient = false;
+        if (ActiveTool != null) ActiveTool.IsTransient = false;
         bool shareToolbar = IPreferences.Current.GetPreference<bool>("EnableSharedToolbar");
         if (ActiveTool is not null)
         {
@@ -109,7 +120,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
         LastActionTool = ActiveTool;
         ActiveTool = tool;
-
+        
         if (shareToolbar)
         {
             ActiveTool.Toolbar.LoadSharedSettings();
@@ -126,6 +137,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         ActiveTool.OnSelected();
 
         tool.IsActive = true;
+        ActiveTool.IsTransient = transient;
         SetToolCursor(tool.GetType());
 
         if (Owner.StylusSubViewModel != null)
@@ -138,12 +150,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     {
         if (parameter is Type type)
         {
-            SetActiveTool(type);
+            SetActiveTool(type, false);
             return;
         }
 
         ToolViewModel tool = (ToolViewModel)parameter;
-        SetActiveTool(tool.GetType());
+        SetActiveTool(tool.GetType(), false);
     }
 
     [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "Increase Tool Size", "Increase Tool Size", Key = Key.OemCloseBrackets)]
@@ -157,12 +169,24 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             toolbar.ToolSize = newSize;
     }
 
-    public void SetActiveTool(Type toolType)
+    public void SetActiveTool(Type toolType, bool transient)
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
         ToolViewModel foundTool = ToolSet!.First(x => x.GetType() == toolType);
-        SetActiveTool(foundTool);
+        SetActiveTool(foundTool, transient);
+    }
+    
+    public void RestorePreviousTool()
+    {
+        if (LastActionTool != null)
+        {
+            SetActiveTool(LastActionTool, false);
+        }
+        else
+        {
+            SetActiveTool<PenToolViewModel>(false);
+        }
     }
 
     private void SetToolCursor(Type tool)
@@ -175,6 +199,22 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         {
             ToolCursor = Cursors.Arrow;
         }
+    }
+
+    public void HandleToolRepeatShortcutDown()
+    {
+        if (ActiveTool is null or { IsTransient: false })
+        {
+            ShortcutController.BlockShortcutExecution("ShortcutDown");
+            ActiveTool.IsTransient = true;
+        }
+    }
+    
+    public void HandleToolShortcutUp()
+    {
+        if (ActiveTool.IsTransient && LastActionTool is { } tool)
+            SetActiveTool(tool, false);
+        ShortcutController.UnblockShortcutExecution("ShortcutDown");
     }
 
     public void LeftMouseButtonDownInlet(VecD canvasPos)

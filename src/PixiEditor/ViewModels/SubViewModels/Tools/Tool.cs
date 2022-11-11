@@ -12,6 +12,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools;
 
 internal abstract class ToolViewModel : NotifyableObject
 {
+    public bool IsTransient { get; set; } = false;
     public KeyCombination Shortcut { get; set; }
 
     public virtual string ToolName => GetType().Name.Replace("Tool", string.Empty).Replace("ViewModel", string.Empty);

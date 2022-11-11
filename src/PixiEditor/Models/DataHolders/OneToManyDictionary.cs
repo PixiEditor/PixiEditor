@@ -25,7 +25,7 @@ internal class OneToManyDictionary<TKey, T> : ICollection<KeyValuePair<TKey, IEn
     public bool IsReadOnly => false;
 
     [NotNull]
-    public IEnumerable<T> this[TKey key]
+    public List<T> this[TKey key]
     {
         get
         {

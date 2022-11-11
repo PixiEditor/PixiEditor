@@ -22,8 +22,6 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
     public RelayCommand MouseUpCommand { get; set; }
 
-    private bool restoreToolOnKeyUp = false;
-
     private MouseInputFilter mouseFilter = new();
     private KeyboardInputFilter keyboardFilter = new();
 
@@ -66,7 +64,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void Current_PreProcessInput(object sender, PreProcessInputEventArgs e)
     {
-        if (e != null && e.StagingItem != null && e.StagingItem.Input != null)
+        if (e is { StagingItem: { Input: { } } })
         {
             InputEventArgs inputEvent = e.StagingItem.Input;
 
@@ -94,38 +92,39 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     private void OnKeyDown(object? sender, FilteredKeyEventArgs args)
     {
         ProcessShortcutDown(args.IsRepeat, args.Key);
-
         Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnKeyDown(args.Key);
-
-        HandleTransientKey(args, true);
     }
 
-    private void HandleTransientKey(FilteredKeyEventArgs args, bool state)
+    private void HandleTransientKey(Key transientKey)
     {
         if (ShortcutController.ShortcutExecutionBlocked)
         {
             return;
         }
 
-        ShortcutController controller = Owner.ShortcutController;
-
-        Models.Commands.Commands.Command.ToolCommand? tool = CommandController.Current.Commands
-            .OfType<Command.ToolCommand?>()
-            .FirstOrDefault(x => x != null && x.TransientKey == args.Key);
+        var tool = GetTransientTool(transientKey);
 
         if (tool is not null)
         {
-            ChangeToolState(tool.ToolType, state);
+            Owner.ToolsSubViewModel.SetActiveTool(tool.ToolType, true);
         }
+    }
+
+    private static Command.ToolCommand? GetTransientTool(Key transientKey)
+    {
+        Command.ToolCommand? tool = CommandController.Current.Commands
+            .OfType<Command.ToolCommand?>()
+            .FirstOrDefault(x => x != null && x.TransientKey == transientKey);
+        return tool;
     }
 
     private void ProcessShortcutDown(bool isRepeat, Key key)
     {
-        if (isRepeat && !restoreToolOnKeyUp && Owner.ShortcutController.LastCommands != null &&
-            Owner.ShortcutController.LastCommands.Any(x => x is Models.Commands.Commands.Command.ToolCommand))
+        HandleTransientKey(key);
+        if (isRepeat && Owner.ShortcutController.LastCommands != null &&
+            Owner.ShortcutController.LastCommands.Any(x => x is Command.ToolCommand))
         {
-            restoreToolOnKeyUp = true;
-            ShortcutController.BlockShortcutExecution("ShortcutDown");
+            Owner.ToolsSubViewModel.HandleToolRepeatShortcutDown();
         }
 
         Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
@@ -135,21 +134,17 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         ProcessShortcutUp(new(args.Key, args.Modifiers));
 
-        if (Owner.DocumentManagerSubViewModel.ActiveDocument is not null)
-            Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnKeyUp(args.Key);
-
-        HandleTransientKey(args, false);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnKeyUp(args.Key);
     }
 
     private void ProcessShortcutUp(KeyCombination shortcut)
     {
-        if (restoreToolOnKeyUp && Owner.ShortcutController.LastCommands != null &&
-            Owner.ShortcutController.LastCommands.Any(x => x.Shortcut == shortcut))
+        var transientTool = GetTransientTool(shortcut.Key);
+
+        if (Owner.ShortcutController.LastCommands != null &&
+            Owner.ShortcutController.LastCommands.Any(x => x.Shortcut == shortcut) || transientTool is not null)
         {
-            restoreToolOnKeyUp = false;
-            if (Owner.ToolsSubViewModel.LastActionTool is { } tool)
-                Owner.ToolsSubViewModel.SetActiveTool(tool);
-            ShortcutController.UnblockShortcutExecution("ShortcutDown");
+            Owner.ToolsSubViewModel.HandleToolShortcutUp();
         }
     }
 
@@ -169,35 +164,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnPreviewMiddleMouseButton(object sender)
     {
-        ChangeToolState<MoveViewportToolViewModel>(true);
-    }
-
-    private void ChangeToolState<T>(bool setOn)
-        where T : ToolViewModel
-    {
-        ChangeToolState(typeof(T), setOn);
-    }
-
-    private void ChangeToolState(Type type, bool setOn)
-    {
-        if (setOn)
-        {
-            var tool = Owner.ToolsSubViewModel.ActiveTool;
-            if (tool is null)
-                return;
-            bool transientToolIsActive = tool.GetType() == type;
-            if (!transientToolIsActive)
-            {
-                Owner.ToolsSubViewModel.SetActiveTool(type);
-                Owner.ToolsSubViewModel.ActiveToolIsTransient = true;
-            }
-        }
-        else if (Owner.ToolsSubViewModel.LastActionTool != null && Owner.ToolsSubViewModel.ActiveToolIsTransient)
-        {
-            Owner.ToolsSubViewModel.SetActiveTool(Owner.ToolsSubViewModel.LastActionTool);
-            restoreToolOnKeyUp = false;
-            ShortcutController.UnblockShortcutExecution("ShortcutDown");
-        }
+        Owner.ToolsSubViewModel.SetActiveTool<MoveViewportToolViewModel>(true);
     }
 
     private void OnMouseMove(object? sender, VecD pos)
@@ -218,7 +185,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
         else if (button == MouseButton.Middle)
         {
-            ChangeToolState<MoveViewportToolViewModel>(false);
+            Owner.ToolsSubViewModel.RestorePreviousTool();
         }
     }
 }

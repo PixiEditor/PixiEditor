@@ -91,7 +91,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         if (e.StylusButton.Guid == StylusPointProperties.TipButton.Id && e.Inverted)
         {
             PreviousTool = Owner.ToolsSubViewModel.ActiveTool;
-            Owner.ToolsSubViewModel.SetActiveTool<EraserToolViewModel>();
+            Owner.ToolsSubViewModel.SetActiveTool<EraserToolViewModel>(true);
             ToolSetByStylus = true;
         }
     }
@@ -103,7 +103,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
 
         if (ToolSetByStylus && e.StylusButton.Guid == StylusPointProperties.TipButton.Id && e.Inverted)
         {
-            Owner.ToolsSubViewModel.SetActiveTool(PreviousTool);
+            Owner.ToolsSubViewModel.SetActiveTool(PreviousTool, false);
         }
     }
 }
