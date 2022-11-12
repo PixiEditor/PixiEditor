@@ -1,8 +1,17 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.Immutable;
+using System.Windows;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using ChunkyImageLib.DataHolders;
+using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
@@ -267,4 +276,69 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Layer.MergeWithBelow", "Merge selected layer with the one below it", "Merge selected layer with the one below it", CanExecute = "PixiEditor.Layer.HasMemberBelow")]
     public void MergeWithBelow() => MergeSelectedWith(false);
+
+    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerExists")]
+    public bool ReferenceLayerExists() => Owner.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.ReferenceBitmap is not null;
+    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExist")]
+    public bool ReferenceLayerDoesntExist() => 
+        Owner.DocumentManagerSubViewModel.ActiveDocument is null ? false : Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
+
+    [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "Import reference layer", "Import reference layer", "PixiEditor.Layer.ReferenceLayerDoesntExist")]
+    public void ImportReferenceLayer()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        string path = OpenReferenceLayerFilePicker();
+        if (path is null)
+            return;
+
+        WriteableBitmap bitmap;
+        try
+        {
+            bitmap = Importer.ImportWriteableBitmap(path);
+        }
+        catch (Exception e)
+        {
+            NoticeDialog.Show("Error while importing the image", "Error");
+            return;
+        }
+
+        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
+        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
+
+        VecI size = new VecI(bitmap.PixelWidth, bitmap.PixelHeight);
+
+        RectD referenceImageRect = new RectD(VecD.Zero, doc.SizeBindable).AspectFit(new RectD(VecD.Zero, size));
+        ShapeCorners corners = new ShapeCorners(referenceImageRect);
+
+        doc.Operations.ImportReferenceLayer(
+            pixels.ToImmutableArray(), 
+            size, 
+            corners);
+    }
+
+    [Command.Basic("PixiEditor.Layer.DeleteReferenceLayer", "Delete reference layer", "Delete reference layer", "PixiEditor.Layer.ReferenceLayerExists")]
+    public void DeleteReferenceLayer()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.Operations.DeleteReferenceLayer();
+    }
+
+    private string OpenReferenceLayerFilePicker()
+    {
+        var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
+        OpenFileDialog dialog = new OpenFileDialog
+        {
+            Title = "Reference layer path",
+            CheckPathExists = true,
+            Filter = imagesFilter
+        };
+
+        return (bool)dialog.ShowDialog() ? dialog.FileName : null;
+    }
 }

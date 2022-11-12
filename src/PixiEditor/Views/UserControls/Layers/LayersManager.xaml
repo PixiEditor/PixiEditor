@@ -137,6 +137,7 @@
         <DockPanel LastChildFill="True" Grid.Row="2" Margin="0, -12, 0, 0">
             <layerUserControls:ReferenceLayer
                 DockPanel.Dock="Bottom"
+                Document="{Binding Path=ActiveDocument, ElementName=layersManager}"
                 Visibility="{Binding Path=ActiveDocument, ElementName=layersManager, Converter={converters:NotNullToVisibilityConverter}}" 
                 Background="{StaticResource MainColor}" 
                 Grid.Row="3" VerticalAlignment="Bottom"/>

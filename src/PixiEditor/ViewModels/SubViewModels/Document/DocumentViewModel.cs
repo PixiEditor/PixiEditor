@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Immutable;
+using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
@@ -111,20 +112,6 @@ internal partial class DocumentViewModel : NotifyableObject
     public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
     public bool HasSavedRedo => Internals.Tracker.HasSavedRedo;
-    public IReadOnlyReferenceLayer? ReferenceLayer => Internals.Tracker.Document.ReferenceLayer;
-    public BitmapSource? ReferenceBitmap => ReferenceLayer?.Image.ToWriteableBitmap();
-    public VecI ReferenceBitmapSize => ReferenceLayer?.Image.Size ?? VecI.Zero;
-    public ShapeCorners ReferenceShape => ReferenceLayer?.Shape ?? default;
-    public Matrix ReferenceTransformMatrix
-    {
-        get
-        {
-            if (ReferenceLayer is null)
-                return Matrix.Identity;
-            Matrix3X3 skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceLayer.Shape, ReferenceLayer.Image.Size);
-            return new Matrix(skiaMatrix.ScaleX, skiaMatrix.SkewY, skiaMatrix.SkewX, skiaMatrix.ScaleY, skiaMatrix.TransX, skiaMatrix.TransY);
-        }
-    }
 
     public FolderViewModel StructureRoot { get; }
     public DocumentStructureModule StructureHelper { get; }
@@ -153,7 +140,7 @@ internal partial class DocumentViewModel : NotifyableObject
     public WpfObservableRangeCollection<Color> Palette { get; set; } = new WpfObservableRangeCollection<Color>();
 
     public DocumentTransformViewModel TransformViewModel { get; }
-
+    public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
 
     private DocumentInternalParts Internals { get; }
 
@@ -181,6 +168,8 @@ internal partial class DocumentViewModel : NotifyableObject
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
         PreviewSurface = DrawingSurface.Create(new ImageInfo(previewSize.X, previewSize.Y, ColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
+
+        ReferenceLayerViewModel = new(this, Internals);
     }
 
     public static DocumentViewModel Build(Action<DocumentViewModelBuilder> builder)
@@ -335,7 +324,7 @@ internal partial class DocumentViewModel : NotifyableObject
         // there is a tiny chance that the image might get disposed by another thread
         try
         {
-            // it might've been a better idea to implement this function asynchonously
+            // it might've been a better idea to implement this function asynchronously
             // via a passthrough action to avoid all the try catches
             if (fromAllLayers)
             {
@@ -422,6 +411,5 @@ internal partial class DocumentViewModel : NotifyableObject
 
     public void InternalAddSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Add(member);
     public void InternalRemoveSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Remove(member);
-
     #endregion
 }

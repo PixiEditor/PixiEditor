@@ -149,15 +149,16 @@
                 <Grid>
                     <Canvas>
                         <Image
-                            Width="{Binding Document.ReferenceBitmap.Width}"
-                            Height="{Binding Document.ReferenceBitmap.Height}"
-                            Source="{Binding Document.ReferenceBitmap, Mode=OneWay}"
+                            Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Width}"
+                            Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Height}"
+                            Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
+                            Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToVisibilityConverter}}"
                             SizeChanged="OnReferenceImageSizeChanged"
                             RenderOptions.BitmapScalingMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <MatrixTransform
-                                        Matrix="{Binding Document.ReferenceTransformMatrix}" />
+                                        Matrix="{Binding Document.ReferenceLayerViewModel.ReferenceTransformMatrix}" />
                                 </TransformGroup>
                             </Image.RenderTransform>
                         </Image>

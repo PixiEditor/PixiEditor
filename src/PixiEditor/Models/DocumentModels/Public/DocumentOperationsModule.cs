@@ -1,5 +1,7 @@
-﻿using ChunkyImageLib;
+﻿using System.Collections.Immutable;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
@@ -8,6 +10,7 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
+using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels.Public;
@@ -258,5 +261,21 @@ internal class DocumentOperationsModule
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList()));
+    }
+
+    public void ImportReferenceLayer(ImmutableArray<byte> imagePbgra32Bytes, VecI imageSize, ShapeCorners corners)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+
+        Internals.ActionAccumulator.AddFinishedActions(new SetReferenceLayer_Action(corners, imagePbgra32Bytes, imageSize));
+    }
+
+    public void DeleteReferenceLayer()
+    {
+        if (Internals.ChangeController.IsChangeActive || Document.ReferenceLayerViewModel.ReferenceBitmap is null)
+            return;
+
+        Internals.ActionAccumulator.AddFinishedActions(new DeleteReferenceLayer_Action());
     }
 }

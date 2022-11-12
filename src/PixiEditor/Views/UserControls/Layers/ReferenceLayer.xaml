@@ -3,48 +3,67 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Layers" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" xmlns:i="http://schemas.microsoft.com/xaml/behaviors" xmlns:local1="clr-namespace:PixiEditor.Views.UserControls" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Layers" 
+             xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours" 
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
+             xmlns:local1="clr-namespace:PixiEditor.Views.UserControls" 
+             xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" Name="uc">
     <Border BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="0 2 0 0" MinWidth="60" Focusable="True">
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>
-        <!--<Grid>
+        <Grid>
             <Grid Background="Transparent"/>
             <Grid Grid.Row="0"  VerticalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Grid Visibility="{Binding Layer, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"  Grid.ColumnSpan="2" Grid.RowSpan="2" Panel.ZIndex="5">
-                    <Grid MouseDown="Grid_MouseDown" Cursor="Hand" Visibility="{Binding ElementName=visibilityCheckbox, Path=IsChecked, Converter={InverseBoolToVisibilityConverter}}"  Background="Transparent"/>
+                <Grid Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"  Grid.ColumnSpan="2" Grid.RowSpan="2" Panel.ZIndex="5">
+                    <Grid Cursor="Hand" Visibility="{Binding ElementName=visibilityCheckbox, Path=IsChecked, Converter={InverseBoolToVisibilityConverter}}"  Background="Transparent">
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseUp">
+                                <i:InvokeCommandAction Command="{cmds:Command PixiEditor.Layer.ImportReferenceLayer}"
+                                    PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </Grid>
                 </Grid>
                 <Grid Grid.Column="0" Height="16" Name="layerVisibilityCheckboxGrid">
                     <CheckBox 
-                        Visibility="{Binding Layer, 
+                        Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, 
                                              ElementName=uc, 
                                              Converter={converters:NotNullToVisibilityConverter}}"
                         Style="{StaticResource ImageCheckBox}" VerticalAlignment="Center"
                         IsThreeState="False" HorizontalAlignment="Center" 
-                        IsChecked="{Binding Path=Layer.IsVisible, Mode=TwoWay, ElementName=uc}"/>
+                        IsChecked="{Binding Path=Document.ReferenceLayerViewModel.IsVisibleBindable, Mode=TwoWay, ElementName=uc}"/>
                 </Grid>
                 <StackPanel Name="middleStackPanel" Height="40" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Center">
                     <Border HorizontalAlignment="Left" 
-                            Visibility="{Binding Layer, ElementName=uc, Converter={converters:NotNullToVisibilityConverter}}" 
+                            Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NotNullToVisibilityConverter}}" 
                             Width="30" Height="30"
                             BorderThickness="1" BorderBrush="Black"
                             Background="{StaticResource MainColor}"
                             Margin="5, 0, 10, 0">
+                        <Image Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap,ElementName=uc}" Stretch="Uniform" Width="26" Height="26"
+                           RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
                     </Border>
-                    <Image Margin="0 0 5 0" Width="20" Source="/Images/Layer-add.png"  Visibility="{Binding Layer, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"/>
+                    <Image Margin="0 0 5 0" Width="20" Source="/Images/Layer-add.png"  
+                           Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"/>
 
                     <local1:PrependTextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" 
                                              Margin="0 0 5 0" Prepend="Add " Foreground="White" 
-                                             HidePrepend="{Binding Layer, ElementName=uc, Converter={converters:NotNullToBoolConverter}}"
+                                             HidePrepend="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NotNullToBoolConverter}}"
                                              FontSize="15" VerticalAlignment="Center" Text="Reference Layer" />
-                    <Button Click="TrashButton_Click" Cursor="Hand" Grid.Column="1" Visibility="{Binding Layer, ElementName=uc, Converter={BoolToVisibilityConverter}}" Style="{StaticResource ImageButtonStyle}" Width="20" Height="20" HorizontalAlignment="Right">
+                    <Button Cursor="Hand" Grid.Column="1" 
+                            Command="{cmds:Command PixiEditor.Layer.DeleteReferenceLayer}"
+                            Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={BoolToVisibilityConverter}}" 
+                            Style="{StaticResource ImageButtonStyle}" 
+                            Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
                             <ImageBrush ImageSource="/Images/Trash.png"/>
                         </Button.Background>
@@ -93,6 +112,6 @@
                     </CheckBox.Template>
                 </CheckBox>
             </Grid>
-        </Grid>-->
+        </Grid>
     </Border>
 </UserControl>

@@ -274,8 +274,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     }
 
     public double ReferenceLayerScale =>
-        ZoomboxScale * ((Document?.ReferenceBitmap != null)
-            ? (Document.ReferenceShape.RectSize.X / (double)Document.ReferenceBitmap.Width)
+        ZoomboxScale * ((Document?.ReferenceLayerViewModel.ReferenceBitmap != null && Document?.ReferenceLayerViewModel.ReferenceShapeBindable != null)
+            ? (Document.ReferenceLayerViewModel.ReferenceShapeBindable.RectSize.X / (double)Document.ReferenceLayerViewModel.ReferenceBitmap.PixelWidth)
             : 1);
 
     public PixiEditor.Zoombox.Zoombox Zoombox => zoombox;
