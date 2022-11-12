@@ -25,6 +25,7 @@ public interface IVectorPathImplementation
     public void Transform(VectorPath vectorPath, Matrix3X3 matrix);
     public RectD GetBounds(VectorPath vectorPath);
     public void Reset(VectorPath vectorPath);
+    public void AddRect(VectorPath path, RectI rect, PathDirection direction);
     public void MoveTo(VectorPath vectorPath, Point point);
     public void LineTo(VectorPath vectorPath, Point point);
     public void QuadTo(VectorPath vectorPath, Point mid, Point point);
@@ -34,4 +35,5 @@ public interface IVectorPathImplementation
     public VectorPath Op(VectorPath vectorPath, VectorPath ellipsePath, VectorPathOp pathOp);
     public void Close(VectorPath vectorPath);
     public string ToSvgPathData(VectorPath vectorPath);
+    public void AddPath(VectorPath vectorPath, VectorPath path, AddPathMode mode);
 }

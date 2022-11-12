@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -24,5 +25,10 @@ internal class MagicWandToolViewModel : ToolViewModel
     {
         Toolbar = ToolbarFactory.Create<MagicWandToolViewModel>();
         ActionDisplay = "Click to flood the selection.";
+    }
+    
+    public override void OnLeftMouseButtonDown(VecD pos)
+    {
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseMagicWandTool();
     }
 }

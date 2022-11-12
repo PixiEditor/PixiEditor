@@ -107,6 +107,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[vectorPath.ObjectPointer].Reset();
         }
 
+        public void AddRect(VectorPath path, RectI rect, PathDirection direction)
+        {
+            ManagedInstances[path.ObjectPointer].AddRect(rect.ToSkRect(), (SKPathDirection)direction);
+        }
+
         public void MoveTo(VectorPath vectorPath, Point point)
         {
             ManagedInstances[vectorPath.ObjectPointer].MoveTo(point.ToSkPoint());
@@ -136,7 +141,19 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             ManagedInstances[vectorPath.ObjectPointer].AddOval(borders.ToSkRect());
         }
+        
+        public void AddPath(VectorPath vectorPath, VectorPath other, AddPathMode mode)
+        {
+            ManagedInstances[vectorPath.ObjectPointer].AddPath(ManagedInstances[other.ObjectPointer], (SKPathAddMode)mode);
+        }
 
+        /// <summary>
+        ///     Compute the result of a logical operation on two paths.
+        /// </summary>
+        /// <param name="vectorPath">Source operand</param>
+        /// <param name="ellipsePath">The second operand.</param>
+        /// <param name="pathOp">The logical operator.</param>
+        /// <returns>Returns the resulting path if the operation was successful, otherwise null.h</returns>
         public VectorPath Op(VectorPath vectorPath, VectorPath ellipsePath, VectorPathOp pathOp)
         {
             SKPath skPath = ManagedInstances[vectorPath.ObjectPointer].Op(ManagedInstances[ellipsePath.ObjectPointer], (SKPathOp)pathOp);

@@ -108,11 +108,20 @@ public class VectorPath : NativeObject
         DrawingBackendApi.Current.PathImplementation.AddOval(this, borders);
     }
 
-    public VectorPath Op(VectorPath ellipsePath, VectorPathOp pathOp)
+    /// <summary>
+    ///     Compute the result of a logical operation on two paths.
+    /// </summary>
+    /// <param name="other">Other path.</param>
+    /// <param name="pathOp">Logical operand.</param>
+    /// <returns>Returns the resulting path if the operation was successful, otherwise null.</returns>
+    public VectorPath Op(VectorPath other, VectorPathOp pathOp)
     {
-        return DrawingBackendApi.Current.PathImplementation.Op(this, ellipsePath, pathOp);
+        return DrawingBackendApi.Current.PathImplementation.Op(this, other, pathOp);
     }
 
+    /// <summary>
+    ///     Closes current contour.
+    /// </summary>
     public void Close()
     {
         DrawingBackendApi.Current.PathImplementation.Close(this);
@@ -122,4 +131,26 @@ public class VectorPath : NativeObject
     {
         return DrawingBackendApi.Current.PathImplementation.ToSvgPathData(this);
     }
+
+    public void AddRect(RectI rect, PathDirection direction = PathDirection.Clockwise)
+    {
+        DrawingBackendApi.Current.PathImplementation.AddRect(this, rect, direction);
+    }
+
+    public void AddPath(VectorPath path, AddPathMode mode)
+    {
+        DrawingBackendApi.Current.PathImplementation.AddPath(this, path, mode);
+    }
+}
+
+public enum PathDirection
+{
+    Clockwise,
+    CounterClockwise
+}
+
+public enum AddPathMode
+{
+    Append,
+    Extend
 }

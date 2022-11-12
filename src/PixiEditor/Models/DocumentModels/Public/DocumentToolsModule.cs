@@ -53,4 +53,6 @@ internal class DocumentToolsModule
     public void UseFloodFillTool() => Internals.ChangeController.TryStartExecutor<FloodFillToolExecutor>();
 
     public void UseLassoTool() => Internals.ChangeController.TryStartExecutor<LassoToolExecutor>();
+
+    public void UseMagicWandTool() => Internals.ChangeController.TryStartExecutor<MagicWandToolExecutor>();
 }

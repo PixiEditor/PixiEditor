@@ -15,6 +15,7 @@ public struct VecI : IEquatable<VecI>
     public int ShortestAxis => (Math.Abs(X) < Math.Abs(Y)) ? X : Y;
 
     public static VecI Zero { get; } = new(0, 0);
+    public static VecI One { get; } = new(1, 1);
 
     public VecI(int x, int y)
     {

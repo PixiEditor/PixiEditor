@@ -205,4 +205,124 @@ internal static class FloodFillHelper
             drawingSurface.Canvas.Flush();
         }
     }
+
+    public static VectorPath GetFloodFillSelection(VecI startingPos, HashSet<Guid> membersToFloodFill,
+        IReadOnlyDocument document)
+    {
+        int chunkSize = ChunkResolution.Full.PixelSize();
+
+        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document);
+
+        VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
+        VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
+        VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
+        
+        Color colorToReplace = cache.GetChunk(initChunkPos).Match(
+            (Chunk chunk) => chunk.Surface.GetSRGBPixel(initPosOnChunk),
+            static (EmptyChunk _) => Colors.Transparent
+        );
+        
+        ColorBounds colorRange = new(colorToReplace);
+
+        Dictionary<VecI, Chunk> drawingChunks = new();
+        HashSet<VecI> processedEmptyChunks = new();
+        Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
+        positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
+        
+        VectorPath selection = new();
+        selection.AddRect(new RectI(startingPos, VecI.One));
+        while (positionsToFloodFill.Count > 0)
+        {
+            var (chunkPos, posOnChunk) = positionsToFloodFill.Pop();
+
+            if (!drawingChunks.ContainsKey(chunkPos))
+            {
+                var chunk = Chunk.Create();
+                drawingChunks[chunkPos] = chunk;
+            }
+            var referenceChunk = cache.GetChunk(chunkPos);
+
+            // don't call floodfill if the chunk is empty
+            if (referenceChunk.IsT1)
+            {
+                if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
+                {
+                    for (int i = 0; i < chunkSize; i++)
+                    {
+                        if (chunkPos.Y > 0)
+                            positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
+                        if (chunkPos.Y < imageSizeInChunks.Y - 1)
+                            positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
+                        if (chunkPos.X > 0)
+                            positionsToFloodFill.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
+                        if (chunkPos.X < imageSizeInChunks.X - 1)
+                            positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
+                    }
+                    processedEmptyChunks.Add(chunkPos);
+                }
+                continue;
+            }
+
+            // use regular flood fill for chunks that have something in them
+            var reallyReferenceChunk = referenceChunk.AsT0;
+            var maybeArray = GetChunkFloodFill(
+                reallyReferenceChunk,
+                chunkSize,
+                posOnChunk,
+                colorRange, ref selection);
+
+            if (maybeArray is null)
+                continue;
+            for (int i = 0; i < chunkSize; i++)
+            {
+                if (chunkPos.Y > 0 && maybeArray[i] == Visited)
+                    positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
+                if (chunkPos.Y < imageSizeInChunks.Y - 1 && maybeArray[chunkSize * (chunkSize - 1) + i] == Visited)
+                    positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
+                if (chunkPos.X > 0 && maybeArray[i * chunkSize] == Visited)
+                    positionsToFloodFill.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
+                if (chunkPos.X < imageSizeInChunks.X - 1 && maybeArray[i * chunkSize + (chunkSize - 1)] == Visited)
+                    positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
+            }
+        }
+
+        return selection;
+    }
+
+    private static unsafe byte[]? GetChunkFloodFill(
+        Chunk referenceChunk,
+        int chunkSize,
+        VecI pos,
+        ColorBounds bounds, ref VectorPath selection)
+    {
+
+        byte[] pixelStates = new byte[chunkSize * chunkSize];
+
+        using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
+        Half* refArray = (Half*)refPixmap.GetPixels();
+        
+        Stack<VecI> toVisit = new();
+        toVisit.Push(pos);
+
+        while (toVisit.Count > 0)
+        {
+            VecI curPos = toVisit.Pop();
+            int pixelOffset = curPos.X + curPos.Y * chunkSize;
+            Half* refPixel = refArray + pixelOffset * 4;
+            pixelStates[pixelOffset] = Visited;
+
+            if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited && bounds.IsWithinBounds(refPixel - 4))
+                toVisit.Push(new(curPos.X - 1, curPos.Y));
+            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] != Visited && bounds.IsWithinBounds(refPixel + 4))
+                toVisit.Push(new(curPos.X + 1, curPos.Y));
+            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] != Visited && bounds.IsWithinBounds(refPixel - 4 * chunkSize))
+                toVisit.Push(new(curPos.X, curPos.Y - 1));
+            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] != Visited && bounds.IsWithinBounds(refPixel + 4 * chunkSize))
+                toVisit.Push(new(curPos.X, curPos.Y + 1));
+
+            selection.AddRect(new RectI(curPos, VecI.One));
+        }
+        
+        return pixelStates;
+    }
 }
