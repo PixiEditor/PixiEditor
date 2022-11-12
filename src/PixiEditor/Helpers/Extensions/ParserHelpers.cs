@@ -7,8 +7,8 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Deprecated;
 using PixiEditor.Parser.Collections.Deprecated;
+using PixiEditor.Parser.Deprecated;
 using PixiEditor.Parser.Skia;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -18,14 +18,14 @@ internal static class ParserHelpers
 {
     public static Image ToImage(this SerializableLayer serializableLayer)
     {
-        if(serializableLayer.PngBytes == null)
+        if (serializableLayer.PngBytes == null)
         {
             return null;
         }
 
         return Image.FromEncodedData(serializableLayer.PngBytes);
     }
-    
+
     public static DocumentViewModel ToDocument(this SerializableDocument serializableDocument)
     {
         List<SerializableLayer> builtLayers = new List<SerializableLayer>();
@@ -40,17 +40,19 @@ internal static class ParserHelpers
             {
                 foreach (var group in serializableDocument.Groups)
                 {
-                    builder.WithFolder((folderBuilder =>
+                    builder.WithFolder(folderBuilder =>
                     {
-                        builtLayers = BuildFolder(folderBuilder, group,
+                        builtLayers.AddRange(BuildFolder(
+                            folderBuilder,
+                            group,
                             GatherFolderLayers(group, serializableDocument.Layers),
-                            serializableDocument);
-                    }));
+                            serializableDocument));
+                    });
                 }
             }
-            
+
             BuildLayers(serializableDocument.Layers.Where(x => !builtLayers.Contains(x)), builder, serializableDocument);
-            SortMembers(builder.Children);
+            SortMembersRecursively(builder.Children);
         });
 
         return vm;
@@ -79,7 +81,6 @@ internal static class ParserHelpers
                 else if (member is ImageLayer layer)
                 {
                     builder.WithLayer(x => BuildLayer(x, layer));
-                    
                 }
                 else
                 {
@@ -122,23 +123,26 @@ internal static class ParserHelpers
             .WithOpacity(group.Opacity)
             .WithVisibility(group.IsVisible)
             .WithOrderInStructure(group.StartLayer);
-            
-        folderBuilder.WithChildren((childrenBuilder =>
+
+        folderBuilder.WithChildren(childrenBuilder =>
             {
                 if (group.Subgroups != null)
                 {
                     foreach (var subGroup in group.Subgroups)
                     {
-                        childrenBuilder.WithFolder((subFolderBuilder =>
+                        childrenBuilder.WithFolder(subFolderBuilder =>
                         {
-                            builtLayers.AddRange(BuildFolder(subFolderBuilder, subGroup,
-                                GatherFolderLayers(subGroup, doc.Layers), doc));
-                        }));
+                            builtLayers.AddRange(BuildFolder(
+                                subFolderBuilder,
+                                subGroup,
+                                GatherFolderLayers(subGroup, doc.Layers),
+                                doc));
+                        });
                     }
                 }
 
                 BuildLayers(layers, childrenBuilder, doc);
-            }));
+            });
 
         return builtLayers;
     }
@@ -173,7 +177,7 @@ internal static class ParserHelpers
             }
         }
     }
-    
+
     /// <summary>
     ///     Gathers all layers which are in the folder. Excludes layers which are in subfolders.
     /// </summary>
@@ -188,7 +192,7 @@ internal static class ParserHelpers
         {
             layers.Add(serializableDocumentLayers[i]);
         }
-        
+
         if(group.Subgroups is { Count: > 0 })
         {
             foreach (var subGroup in group.Subgroups)
@@ -200,33 +204,20 @@ internal static class ParserHelpers
 
         return layers;
     }
-    
+
     /// <summary>
     /// Sorts StructureMemberBuilder by its OrderInStructure property.
     /// </summary>
     /// <param name="builderChildren">Structure to sort</param>
-    private static void SortMembers(List<DocumentViewModelBuilder.StructureMemberBuilder> builderChildren)
+    private static void SortMembersRecursively(List<DocumentViewModelBuilder.StructureMemberBuilder> builderChildren)
     {
-        int previousOrder = -1;
-        int previousIndex = -1;
-
-        for (var index = 0; index < builderChildren.Count; index++)
+        builderChildren.Sort(Comparer<DocumentViewModelBuilder.StructureMemberBuilder>.Create((a, b) => a.OrderInStructure - b.OrderInStructure));
+        
+        foreach (var child in builderChildren)
         {
-            var child = builderChildren[index];
-            if (child is DocumentViewModelBuilder.FolderBuilder folderBuilder)
-            {
-                SortMembers(folderBuilder.Children);
-            }
-
-            int order = child.OrderInStructure;
-            if (order < previousOrder)
-            {
-                builderChildren.Remove(child);
-                builderChildren.Insert(previousIndex, child);
-            }
-
-            previousIndex = builderChildren.IndexOf(child);
-            previousOrder = order;
+            if (child is not DocumentViewModelBuilder.FolderBuilder folderBuilder)
+                continue;
+            SortMembersRecursively(folderBuilder.Children);
         }
     }
 
@@ -241,7 +232,7 @@ internal static class ParserHelpers
         document.Palette.AddRange(palette.Select(x => System.Drawing.Color.FromArgb(x.A, x.R, x.G, x.B)));
         return document;
     }
-    
+
     /*
     public static WpfObservableRangeCollection<Layer> ToLayers(this SerializableDocument document)
     {
