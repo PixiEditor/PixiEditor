@@ -54,6 +54,7 @@ internal partial class DocumentViewModel : NotifyableObject
             RaisePropertyChanged(nameof(FileName));
         }
     }
+    
     public string FileName
     {
         get => fullFilePath is null ? "Unnamed" : Path.GetFileName(fullFilePath);
@@ -103,7 +104,7 @@ internal partial class DocumentViewModel : NotifyableObject
     private int verticalSymmetryAxisX;
     public int VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
 
-    private HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
+    private readonly HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
     public IReadOnlyCollection<StructureMemberViewModel> SoftSelectedStructureMembers => softSelectedStructureMembers;
 
 
