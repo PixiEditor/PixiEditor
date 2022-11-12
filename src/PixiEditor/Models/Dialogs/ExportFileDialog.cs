@@ -18,8 +18,8 @@ internal class ExportFileDialog : CustomDialog
 
     public ExportFileDialog(VecI size)
     {
-        FileHeight = size.X;
-        FileWidth = size.Y;
+        FileWidth = size.X;
+        FileHeight = size.Y;
     }
 
     public int FileWidth
