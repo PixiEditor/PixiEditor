@@ -1,5 +1,5 @@
-﻿using System.Collections.Immutable;
-using System.IO;
+﻿using System.IO;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
@@ -19,6 +19,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.Enums;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
@@ -319,14 +320,49 @@ internal partial class DocumentViewModel : NotifyableObject
         return (output, bounds);
     }
 
-    public Color PickColor(VecI pos, bool fromAllLayers)
+    public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas)
+    {
+        if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
+            includeReference = false;
+        
+        if (includeCanvas && includeReference)
+        {
+            Color canvasColor = PickColorFromCanvas((VecI)pos, scope);
+            Color? referenceColor = PickColorFromReferenceLayer(pos);
+            if (referenceColor is null)
+                return canvasColor;
+            return ColorHelpers.BlendColors((Color)referenceColor, canvasColor);
+        }
+        if (includeCanvas)
+            return PickColorFromCanvas((VecI)pos, scope);
+        if (includeReference)
+            return PickColorFromReferenceLayer(pos) ?? Colors.Transparent;
+        return Colors.Transparent;
+    }
+
+    public Color? PickColorFromReferenceLayer(VecD pos)
+    {
+        WriteableBitmap? bitmap = ReferenceLayerViewModel.ReferenceBitmap; 
+        if (bitmap is null)
+            return null;
+        
+        Matrix matrix = ReferenceLayerViewModel.ReferenceTransformMatrix;
+        matrix.Invert();
+        var transformed = matrix.Transform(new System.Windows.Point(pos.X, pos.Y));
+
+        if (transformed.X < 0 || transformed.Y < 0 || transformed.X >= bitmap.Width || transformed.Y >= bitmap.Height)
+            return null;
+        return bitmap.GetPixel((int)transformed.X, (int)transformed.Y).ToColor();
+    }
+
+    public Color PickColorFromCanvas(VecI pos, DocumentScope scope)
     {
         // there is a tiny chance that the image might get disposed by another thread
         try
         {
             // it might've been a better idea to implement this function asynchronously
             // via a passthrough action to avoid all the try catches
-            if (fromAllLayers)
+            if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
                 return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Internals.Tracker.Document.StructureRoot)

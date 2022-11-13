@@ -5,6 +5,7 @@ using System.Windows.Media;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Views.UserControls;
 
@@ -136,7 +137,7 @@ internal partial class PreviewWindow : UserControl
 
         ColorCursorPosition = newPos;
 
-        BackendColor color = Document.PickColor(new(x, y), true);
+        BackendColor color = Document.PickColor(new(x, y), DocumentScope.AllLayers, false, true);
         ColorCursorColor = Color.FromArgb(color.A, color.R, color.G, color.B);
     }
 }

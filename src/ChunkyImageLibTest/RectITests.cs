@@ -30,7 +30,8 @@ public class RectITests
     public void FromTwoPoints_DiagonalsCombinations_ReturnsStandardizedRects()
     {
         RectI refR = new RectI(3, 4, 8 - 3, 9 - 4);
-        Span<RectI> rects = stackalloc RectI[] {
+        Span<RectI> rects = stackalloc RectI[] 
+        {
             RectI.FromTwoPoints(new VecI(3, 4), new VecI(8, 9)),
             RectI.FromTwoPoints(new VecI(8, 9), new VecI(3, 4)),
             RectI.FromTwoPoints(new VecI(8, 9), new VecI(3, 4)),
@@ -241,7 +242,8 @@ public class RectITests
     public void IntersectsWithInclusive_BasicRects_ReturnsTrue()
     {
         RectI rect = new RectI(960, 540, 1920, 1080);
-        Span<RectI> rects = stackalloc RectI[] {
+        Span<RectI> rects = stackalloc RectI[] 
+        {
             rect.Offset(1920, 1080),
             rect.Offset(-1920, 0).Inflate(-1).Offset(1, 0),
             rect.Offset(0, 1080).Inflate(-1).Offset(0, -1),
@@ -256,7 +258,8 @@ public class RectITests
     public void IntersectsWithInclusive_BasicRects_ReturnsFalse()
     {
         RectI rect = new RectI(960, 540, 1920, 1080);
-        Span<RectI> rects = stackalloc RectI[] {
+        Span<RectI> rects = stackalloc RectI[] 
+        {
             rect.Offset(1921, 1080),
             rect.Offset(-1921, 0).Inflate(-1).Offset(1, 0),
             rect.Offset(0, 1081).Inflate(-1).Offset(0, -1)
@@ -269,7 +272,8 @@ public class RectITests
     public void IntersectsWithExclusive_BasicRects_ReturnsTrue()
     {
         RectI rect = new RectI(960, 540, 1920, 1080);
-        Span<RectI> rects = stackalloc RectI[] {
+        Span<RectI> rects = stackalloc RectI[] 
+        {
             rect.Offset(1920 - 1, 1080 - 1),
             rect.Offset(-1920, 0).Inflate(-1).Offset(2, 0),
             rect.Offset(0, 1080).Inflate(-1).Offset(0, -2),
@@ -284,7 +288,8 @@ public class RectITests
     public void IntersectsWithExclusive_BasicRects_ReturnsFalse()
     {
         RectI rect = new RectI(960, 540, 1920, 1080);
-        Span<RectI> rects = stackalloc RectI[] {
+        Span<RectI> rects = stackalloc RectI[] 
+        {
             rect.Offset(1920, 1080),
             rect.Offset(-1920, 0).Inflate(-1).Offset(1, 0),
             rect.Offset(0, 1080).Inflate(-1).Offset(0, -1),

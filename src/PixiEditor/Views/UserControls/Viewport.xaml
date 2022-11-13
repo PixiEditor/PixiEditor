@@ -147,12 +147,12 @@
                     </ImageBrush>
                 </Border.Background>
                 <Grid>
-                    <Canvas>
+                    <Canvas Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromReferenceLayer, Converter={converters:BoolToVisibilityConverter}}">
                         <Image
                             Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Width}"
                             Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Height}"
                             Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
-                            Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToVisibilityConverter}}"
+                            Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToHiddenVisibilityConverter}}"
                             SizeChanged="OnReferenceImageSizeChanged"
                             RenderOptions.BitmapScalingMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
                             <Image.RenderTransform>
@@ -168,6 +168,7 @@
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
+                        Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromCanvas, Converter={converters:BoolToHiddenVisibilityConverter}}"
                         RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"/>
                     <sym:SymmetryOverlay
                         IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"

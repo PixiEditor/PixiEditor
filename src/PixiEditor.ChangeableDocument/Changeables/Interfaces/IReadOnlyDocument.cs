@@ -4,7 +4,8 @@ using PixiEditor.DrawingApi.Core.Numerics;
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 public interface IReadOnlyDocument
-{    /// <summary>
+{    
+    /// <summary>
     /// The root folder of the document
     /// </summary>
     IReadOnlyFolder StructureRoot { get; }

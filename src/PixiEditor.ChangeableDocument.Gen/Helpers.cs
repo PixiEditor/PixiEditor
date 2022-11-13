@@ -6,7 +6,7 @@ namespace PixiEditor.ChangeableDocument.Gen;
 
 internal static class Helpers
 {
-    private static SymbolDisplayFormat TypeWithGenerics =
+    private static SymbolDisplayFormat typeWithGenerics =
         new SymbolDisplayFormat(genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters | SymbolDisplayGenericsOptions.IncludeTypeConstraints);
     public static string CreateMakeChangeAction(MethodInfo changeConstructorInfo)
     {
@@ -77,8 +77,8 @@ bool PixiEditor.ChangeableDocument.Actions.IStartOrUpdateChangeAction.IsChangeTy
     public static string CreateEndChangeAction(MethodInfo changeConstructorInfo)
     {
         string actionName = "End" + changeConstructorInfo.ContainingClass.Name.Split('_')[0] + "_Action";
-        return $@"
-namespace PixiEditor.ChangeableDocument.Actions.Generated;
+        return 
+$@"namespace PixiEditor.ChangeableDocument.Actions.Generated;
 
 public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IEndChangeAction
 {{
@@ -95,7 +95,7 @@ public record class {actionName} : PixiEditor.ChangeableDocument.Actions.IEndCha
         List<TypeWithName> variables = method.Parameters.Select(static parameter =>
         {
             return new TypeWithName(
-                parameter.Type.ToDisplayString(TypeWithGenerics),
+                parameter.Type.ToDisplayString(typeWithGenerics),
                 parameter.Type.ContainingNamespace.ToDisplayString(),
                 parameter.Name,
                 parameter.NullableAnnotation is NullableAnnotation.Annotated

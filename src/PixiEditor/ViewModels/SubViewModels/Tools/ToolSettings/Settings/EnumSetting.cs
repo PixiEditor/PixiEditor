@@ -31,16 +31,17 @@ internal sealed class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
     /// </summary>
     public override TEnum Value
     {
-        get => (TEnum)(SettingControl.SelectedItem as ComboBoxItem).Tag;
+        get => Enum.GetValues<TEnum>()[SelectedIndex];
         set
         {
-            for (var i = 0; i < SettingControl.Items.Count; i++)
-            {
-                var item = SettingControl.Items[i] as ComboBoxItem;
+            var values = Enum.GetValues<TEnum>();
 
-                if (item.Tag.Equals(value))
+            for (var i = 0; i < values.Length; i++)
+            {
+                if (values[i].Equals(value))
                 {
                     SelectedIndex = i;
+                    break;
                 }
             }
 
@@ -62,7 +63,7 @@ internal sealed class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
     public EnumSetting(string name, string label, TEnum defaultValue)
         : this(name, label)
     {
-        base.Value = defaultValue;
+        Value = defaultValue;
     }
 
     private static ComboBox GenerateDropdown()

@@ -32,4 +32,4 @@ internal abstract class Change : IDisposable
     public abstract OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target);
 
     public virtual void Dispose() { }
-};
+}

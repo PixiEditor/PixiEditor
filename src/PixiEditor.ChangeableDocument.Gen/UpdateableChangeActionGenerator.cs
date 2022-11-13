@@ -9,8 +9,8 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
     private const string AttributesNamespace = "PixiEditor.ChangeableDocument.Actions.Attributes";
     private const string ConstructorAttribute = "GenerateUpdateableChangeActionsAttribute";
     private const string UpdateMethodAttribute = "UpdateChangeMethodAttribute";
-    private static NamespacedType ConstructorAttributeType = new NamespacedType(ConstructorAttribute, AttributesNamespace);
-    private static NamespacedType UpdateMethodAttributeType = new NamespacedType(UpdateMethodAttribute, AttributesNamespace);
+    private static NamespacedType constructorAttributeType = new NamespacedType(ConstructorAttribute, AttributesNamespace);
+    private static NamespacedType updateMethodAttributeType = new NamespacedType(UpdateMethodAttribute, AttributesNamespace);
 
     private static Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>? TransformSyntax
         (GeneratorSyntaxContext context, CancellationToken cancelToken)
@@ -20,7 +20,7 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         // make sure we are actually working with a constructor
         if (context.Node is ConstructorDeclarationSyntax constructor)
         {
-            if (!Helpers.MethodHasAttribute(context, cancelToken, constructor, ConstructorAttributeType))
+            if (!Helpers.MethodHasAttribute(context, cancelToken, constructor, constructorAttributeType))
                 return null;
             containingClass = (ClassDeclarationSyntax)constructor.Parent!;
             constructorSyntax = constructor;
@@ -42,13 +42,15 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         var members = containingClass.Members.Where(node => node is MethodDeclarationSyntax).ToList();
         const string errorMessage = $"Update method isn't marked with {UpdateMethodAttribute}";
         if (!members.Any())
+        {
             return Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>.Error
                 (errorMessage, containingClass.SyntaxTree, containingClass.Span);
+        }
         foreach (var member in members)
         {
             cancelToken.ThrowIfCancellationRequested();
             var method = (MethodDeclarationSyntax)member;
-            bool hasAttr = Helpers.MethodHasAttribute(context, cancelToken, method, UpdateMethodAttributeType);
+            bool hasAttr = Helpers.MethodHasAttribute(context, cancelToken, method, updateMethodAttributeType);
             if (hasAttr)
             {
                 methodSyntax = method;
@@ -73,8 +75,10 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
         (Result<(IMethodSymbol, IMethodSymbol, ClassDeclarationSyntax)>? prevResult, CancellationToken cancelToken)
     {
         if (prevResult!.Value.ErrorText is not null)
+        {
             return Result<(NamedSourceCode, NamedSourceCode)>.Error
                 (prevResult.Value.ErrorText, prevResult.Value.SyntaxTree!, (TextSpan)prevResult.Value.Span!);
+        }
         var (constructor, update, containingClass) = prevResult.Value.Value;
 
         var constructorInfo = Helpers.ExtractMethodInfo(constructor!);
@@ -82,8 +86,10 @@ public class UpdateableChangeActionGenerator : IIncrementalGenerator
 
         var maybeStartUpdateAction = Helpers.CreateStartUpdateChangeAction(constructorInfo, updateInfo, containingClass);
         if (maybeStartUpdateAction.ErrorText is not null)
+        {
             return Result<(NamedSourceCode, NamedSourceCode)>.Error
                 (maybeStartUpdateAction.ErrorText, maybeStartUpdateAction.SyntaxTree!, (TextSpan)maybeStartUpdateAction.Span!);
+        }
 
         var endAction = Helpers.CreateEndChangeAction(constructorInfo);
 
