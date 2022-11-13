@@ -34,10 +34,10 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         UpdateDebugMode(preferences.GetPreference<bool>("IsDebugModeEnabled"));
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"%Temp%\PixiEditor", "Open Temp Directory", "Open Temp Directory")]
-    [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", @"%LocalAppData%\PixiEditor", "Open Local AppData Directory", "Open Local AppData Directory")]
-    [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"%AppData%\PixiEditor", "Open Roaming AppData Directory", "Open Roaming AppData Directory")]
-    [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", @"%LocalAppData%\PixiEditor\crash_logs", "Open Crash Reports Directory", "Open Crash Reports Directory")]
+    [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"%Temp%\PixiEditor", "Open Temp Directory", "Open Temp Directory", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", @"%LocalAppData%\PixiEditor", "Open Local AppData Directory", "Open Local AppData Directory", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"%AppData%\PixiEditor", "Open Roaming AppData Directory", "Open Roaming AppData Directory", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", @"%LocalAppData%\PixiEditor\crash_logs", "Open Crash Reports Directory", "Open Crash Reports Directory", IconPath = "Folder.png")]
     public static void OpenFolder(string path)
     {
         string expandedPath = Environment.ExpandEnvironmentVariables(path);
@@ -50,7 +50,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         ProcessHelpers.ShellExecuteEV(path);
     }
     
-    [Command.Debug("PixiEditor.Debug.DumpAllCommands", "Dump All Commands", "Dumps All Commands to a text file")]
+    [Command.Debug("PixiEditor.Debug.DumpAllCommands", "Dump All Commands", "Dump All Commands to a text file")]
     public void DumpAllCommands()
     {
         SaveFileDialog dialog = new SaveFileDialog();
@@ -130,7 +130,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory")]
+    [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory", IconPath = "Folder.png")]
     public static void OpenInstallLocation()
     {
         ProcessHelpers.ShellExecuteEV(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location));

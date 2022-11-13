@@ -155,6 +155,7 @@
 		<None Remove="Images\Edit.png" />
 		<None Remove="Images\Eye-off.png" />
 		<None Remove="Images\Eye.png" />
+		<None Remove="Images\FlipVertical.png" />
 		<None Remove="Images\Folder-add.png" />
 		<None Remove="Images\Folder.png" />
 		<None Remove="Images\Globe.png" />
@@ -179,6 +180,7 @@
 		<None Remove="Images\SocialMedia\RedditIcon.png" />
 		<None Remove="Images\SocialMedia\WebsiteIcon.png" />
 		<None Remove="Images\SocialMedia\YouTubeIcon.png" />
+		<None Remove="Images\SymmetryHorizontal.png" />
 		<None Remove="Images\Tools\BrightnessImage.png" />
 		<None Remove="Images\Tools\ColorPickerImage.png" />
 		<None Remove="Images\Tools\EllipseImage.png" />
@@ -247,6 +249,7 @@
 		<Resource Include="Images\Edit.png" />
 		<Resource Include="Images\Eye-off.png" />
 		<Resource Include="Images\Eye.png" />
+		<Resource Include="Images\FlipVertical.png" />
 		<Resource Include="Images\Folder-add.png" />
 		<Resource Include="Images\Folder.png" />
 		<Resource Include="Images\Globe.png" />
@@ -269,6 +272,7 @@
 		<Resource Include="Images\SocialMedia\RedditIcon.png" />
 		<Resource Include="Images\SocialMedia\WebsiteIcon.png" />
 		<Resource Include="Images\SocialMedia\YouTubeIcon.png" />
+		<Resource Include="Images\SymmetryHorizontal.png" />
 		<Resource Include="Images\Tools\BrightnessImage.png" />
 		<Resource Include="Images\Tools\EllipseImage.png" />
 		<Resource Include="Images\Tools\ColorPickerImage.png" />

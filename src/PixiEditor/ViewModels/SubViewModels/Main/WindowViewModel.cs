@@ -64,7 +64,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             viewport.CenterViewportTrigger.Execute(this, viewport.Document.SizeBindable);
     }
     
-    [Command.Basic("PixiEditor.Window.FlipHorizontally", "Flip Viewport Horizontally", "Flip Viewport Horizontally", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Window.FlipHorizontally", "Flip Viewport Horizontally", "Flip Viewport Horizontally", CanExecute = "PixiEditor.HasDocument", IconPath = "FlipHorizontal.png")]
     public void FlipViewportHorizontally()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
@@ -73,7 +73,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         }
     }
     
-    [Command.Basic("PixiEditor.Window.FlipVertically", "Flip Viewport Vertically", "Flip Viewport Vertically", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Window.FlipVertically", "Flip Viewport Vertically", "Flip Viewport Vertically", CanExecute = "PixiEditor.HasDocument", IconPath = "FlipVertical.png")]
     public void FlipViewportVertically()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)

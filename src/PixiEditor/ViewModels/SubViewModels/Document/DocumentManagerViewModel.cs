@@ -56,7 +56,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         ActiveDocument?.Operations.ClipCanvas();
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
     public void ToggleVerticalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -64,7 +64,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         ActiveDocument.VerticalSymmetryAxisEnabledBindable ^= true;
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "Toggle horizontal symmetry axis", "Toggle horizontal symmetry axis", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "Toggle horizontal symmetry axis", "Toggle horizontal symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryHorizontal.png")]
     public void ToggleHorizontalSymmetryAxis()
     {
         if (ActiveDocument is null)

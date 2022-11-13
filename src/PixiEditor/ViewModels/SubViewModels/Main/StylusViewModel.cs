@@ -48,7 +48,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         UpdateUseTouchGesture();
     }
 
-    [Command.Basic("PixiEditor.Stylus.TogglePenMode", "Toggle Pen Mode", "Toggle Pen Mode")]
+    [Command.Basic("PixiEditor.Stylus.TogglePenMode", "Toggle Pen Mode", "Toggle Pen Mode", IconPath = "penMode.png")]
     public void TogglePenMode()
     {
         IsPenModeEnabled = !IsPenModeEnabled;

@@ -13,12 +13,12 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
     {
     }
 
-    [Command.Basic("PixiEditor.Links.OpenHyperlink", "Open Hyperlink", "Open a hyperlink")]
-    [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/introduction", "Documentation", "Open Documentation")]
-    [Command.Basic("PixiEditor.Links.OpenWebsite", "https://pixieditor.net", "Website", "Open Website")]
-    [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "Repository", "Open Repository")]
-    [Command.Basic("PixiEditor.Links.OpenLicense", "https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE", "License", "Open License")]
-    [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "https://pixieditor.net/docs/Third-party-licenses", "Third Party Licenses", "Open Third Party Licenses")]
+    [Command.Internal("PixiEditor.Links.OpenHyperlink")]
+    [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/introduction", "Documentation", "Open Documentation", IconPath = "Globe.png")]
+    [Command.Basic("PixiEditor.Links.OpenWebsite", "https://pixieditor.net", "Website", "Open Website", IconPath = "Globe.png")]
+    [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "Repository", "Open Repository", IconPath = "Globe.png")]
+    [Command.Basic("PixiEditor.Links.OpenLicense", "https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE", "License", "Open License", IconPath = "Globe.png")]
+    [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "https://pixieditor.net/docs/Third-party-licenses", "Third Party Licenses", "Open Third Party Licenses", IconPath = "Globe.png")]
     public static void OpenHyperlink(string url)
     {
         ProcessHelpers.ShellExecute(url);
