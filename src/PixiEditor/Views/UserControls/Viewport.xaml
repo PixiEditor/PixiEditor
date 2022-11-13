@@ -8,11 +8,12 @@
     xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
     xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
-    xmlns:to="clr-namespace:PixiEditor.Views.UserControls.Overlays.TransformOverlay"
+    xmlns:transformOverlay="clr-namespace:PixiEditor.Views.UserControls.Overlays.TransformOverlay"
+    xmlns:lineOverlay="clr-namespace:PixiEditor.Views.UserControls.Overlays.LineToolOverlay"
     xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
-    xmlns:ov="clr-namespace:PixiEditor.Views.UserControls.Overlays"
-    xmlns:sym="clr-namespace:PixiEditor.Views.UserControls.Overlays.SymmetryOverlay"
-    xmlns:brush="clr-namespace:PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay"
+    xmlns:overlays="clr-namespace:PixiEditor.Views.UserControls.Overlays"
+    xmlns:symOverlay="clr-namespace:PixiEditor.Views.UserControls.Overlays.SymmetryOverlay"
+    xmlns:brushOverlay="clr-namespace:PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:vm="clr-namespace:PixiEditor.ViewModels"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
@@ -171,7 +172,7 @@
                         Source="{Binding TargetBitmap}"
                         Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromCanvas, Converter={converters:BoolToHiddenVisibilityConverter}}"
                         RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"/>
-                    <sym:SymmetryOverlay
+                    <symOverlay:SymmetryOverlay
                         IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
                         ZoomboxScale="{Binding Zoombox.Scale}"
                         HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"
@@ -181,20 +182,20 @@
                         DragCommand="{cmds:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
                         DragEndCommand="{cmds:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}" 
                         DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}" />
-                    <ov:SelectionOverlay
+                    <overlays:SelectionOverlay
                         ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                         Path="{Binding Document.SelectionPathBindable}"
                         ZoomboxScale="{Binding Zoombox.Scale}" />
-                    <brush:BrushShapeOverlay
+                    <brushOverlay:BrushShapeOverlay
                         IsHitTestVisible="False"
                         Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:InverseBoolToVisibilityConverter}}"
                         ZoomboxScale="{Binding Zoombox.Scale}"
                         MouseEventSource="{Binding Zoombox.Tag.BackgroundGrid, Mode=OneTime}"
                         MouseReference="{Binding Zoombox.Tag.MainImage, Mode=OneTime}"
                         BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={vm:MainVM}}"
-                        BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={vm:MainVM}, FallbackValue={x:Static brush:BrushShape.Hidden}}"
+                        BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={vm:MainVM}, FallbackValue={x:Static brushOverlay:BrushShape.Hidden}}"
                         />
-                    <to:TransformOverlay
+                    <transformOverlay:TransformOverlay
                         Cursor="Arrow"
                         IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
                         HorizontalAlignment="Stretch"
@@ -210,6 +211,11 @@
                         InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
                         ZoomboxScale="{Binding Zoombox.Scale}"
                         ZoomboxAngle="{Binding Zoombox.Angle}"/>
+                    <lineOverlay:LineToolOverlay
+                        Visibility="{Binding Document.LineToolOverlayViewModel.IsEnabled, Converter={converters:BoolToVisibilityConverter}}"
+                        LineStart="{Binding Document.LineToolOverlayViewModel.LineStart, Mode=TwoWay}"
+                        LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
+                        ZoomboxScale="{Binding Zoombox.Scale}"/>
                     <Grid IsHitTestVisible="False" 
                         ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10" 
                         Visibility="{Binding GridLinesVisible, Converter={converters:BoolToVisibilityConverter}, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
@@ -287,9 +293,16 @@
             Margin="5" 
             VerticalAlignment="Bottom" 
             Style="{StaticResource GrayRoundButton}"
-            Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:BoolToVisibilityConverter}, ElementName=vpUc}"
             Command="{cmds:Command PixiEditor.Tools.ApplyTransform}">
             Apply transform
+            <Button.Visibility>
+                <MultiBinding Converter="{converters:BoolOrToVisibilityConverter}">
+                    <MultiBinding.Bindings>
+                        <Binding ElementName="vpUc" Path="Document.TransformViewModel.TransformActive"/>
+                        <Binding ElementName="vpUc" Path="Document.LineToolOverlayViewModel.IsEnabled"/>
+                    </MultiBinding.Bindings>
+                </MultiBinding>
+            </Button.Visibility>
         </Button>
     </Grid>
 </UserControl>

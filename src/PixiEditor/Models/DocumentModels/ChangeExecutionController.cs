@@ -170,4 +170,9 @@ internal class ChangeExecutionController
     }
 
     public void TransformAppliedInlet() => currentSession?.OnTransformApplied();
+
+    public void LineOverlayMovedInlet(VecD start, VecD end)
+    {
+        currentSession?.OnLineOverlayMoved(start, end);
+    }
 }

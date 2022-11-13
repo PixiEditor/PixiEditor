@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Models.Enums;
@@ -9,17 +10,28 @@ using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class LineToolExecutor : ShapeToolExecutor<LineToolViewModel>
+internal class LineToolExecutor : UpdateableChangeExecutor
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
+
+    private VecI startPos;
+    private Color strokeColor;
+    private int strokeWidth;
+    private Guid memberGuid;
+    private bool drawOnMask;
+
+    private VecI curPos;
+    private bool started = false;
+    private bool transforming = false;
+
     public override ExecutionState Start()
     {
         ColorsViewModel? colorsVM = ViewModelMain.Current?.ColorsSubViewModel;
-        toolViewModel = ViewModelMain.Current?.ToolsSubViewModel.GetTool<LineToolViewModel>();
-        BasicToolbar? toolbar = (BasicToolbar?)toolViewModel?.Toolbar;
+        LineToolViewModel? toolViewModel = ViewModelMain.Current?.ToolsSubViewModel.GetTool<LineToolViewModel>();
         StructureMemberViewModel? member = document?.SelectedStructureMember;
-        if (colorsVM is null || toolbar is null || member is null)
+        if (colorsVM is null || toolViewModel is null || member is null)
             return ExecutionState.Error;
+
         drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
@@ -28,34 +40,58 @@ internal class LineToolExecutor : ShapeToolExecutor<LineToolViewModel>
 
         startPos = controller!.LastPixelPosition;
         strokeColor = colorsVM.PrimaryColor;
-        strokeWidth = toolbar.ToolSize;
+        strokeWidth = toolViewModel.ToolSize;
         memberGuid = member.GuidValue;
 
         colorsVM.AddSwatch(strokeColor);
-        DrawShape(startPos, true);
+
         return ExecutionState.Success;
     }
 
-    private void DrawLine(VecI curPos, bool firstDraw)
+    public override void OnPixelPositionChange(VecI pos)
     {
-        RectI rect = firstDraw ? new RectI(curPos, VecI.Zero) : RectI.FromTwoPixels(startPos, curPos);
-        if (rect.Width == 0)
-            rect.Width = 1;
-        if (rect.Height == 0)
-            rect.Height = 1;
-
-        lastRect = rect;
-
+        if (transforming)
+            return;
+        started = true;
+        curPos = pos;
         internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
     }
 
-    protected override void DrawShape(VecI currentPos, bool firstDraw) => DrawLine(currentPos, firstDraw);
-
-    protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners)
+    public override void OnLeftMouseButtonUp()
     {
-        return new DrawLine_Action(memberGuid, (VecI)corners.TopLeft, (VecI)corners.BottomRight.Ceiling(), strokeWidth, strokeColor, StrokeCap.Butt,
-            drawOnMask);
+        if (!started)
+        {
+            onEnded(this);
+            return;
+        }
+        transforming = true;
+        document!.LineToolOverlayViewModel.LineStart = startPos + new VecD(0.5);
+        document!.LineToolOverlayViewModel.LineEnd = curPos + new VecD(0.5);
+        document!.LineToolOverlayViewModel.IsEnabled = true;
     }
 
-    protected override IAction EndDrawAction() => new EndDrawLine_Action();
+    public override void OnLineOverlayMoved(VecD start, VecD end)
+    {
+        if (!transforming)
+            return;
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, (VecI)start, (VecI)end, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
+    }
+
+    public override void OnTransformApplied()
+    {
+        if (!transforming)
+            return;
+
+        document!.LineToolOverlayViewModel.IsEnabled = false;
+        internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
+        onEnded(this);
+    }
+
+    public override void ForceStop()
+    {
+        if (transforming)
+            document!.LineToolOverlayViewModel.IsEnabled = false;
+
+        internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
+    }
 }

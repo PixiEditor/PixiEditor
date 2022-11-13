@@ -46,4 +46,5 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnConvertedKeyUp(Key key) { }
     public virtual void OnTransformMoved(ShapeCorners corners) { }
     public virtual void OnTransformApplied() { }
+    public virtual void OnLineOverlayMoved(VecD start, VecD end) { }
 }

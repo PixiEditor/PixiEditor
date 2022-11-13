@@ -142,6 +142,7 @@ internal partial class DocumentViewModel : NotifyableObject
 
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
+    public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
 
     private DocumentInternalParts Internals { get; }
 
@@ -157,6 +158,9 @@ internal partial class DocumentViewModel : NotifyableObject
 
         TransformViewModel = new();
         TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
+
+        LineToolOverlayViewModel = new();
+        LineToolOverlayViewModel.LineMoved += (_, args) => Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
         foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in Bitmaps)
         {
