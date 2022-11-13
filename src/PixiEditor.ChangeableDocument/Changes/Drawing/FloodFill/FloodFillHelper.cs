@@ -243,12 +243,15 @@ internal static class FloodFillHelper
                 drawingChunks[chunkPos] = chunk;
             }
             var referenceChunk = cache.GetChunk(chunkPos);
+            
+            VecI realSize = new VecI(Math.Min(chunkSize, document.Size.X), Math.Min(chunkSize, document.Size.Y));
 
             // don't call floodfill if the chunk is empty
             if (referenceChunk.IsT1)
             {
                 if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
+                    ProcessEmptySelectionChunk(lines, chunkPos, realSize, imageSizeInChunks);
                     for (int i = 0; i < chunkSize; i++)
                     {
                         if (chunkPos.Y > 0)
@@ -271,6 +274,7 @@ internal static class FloodFillHelper
                 reallyReferenceChunk,
                 chunkSize,
                 chunkPos * chunkSize,
+                realSize,
                 posOnChunk,
                 colorRange, lines);
 
@@ -288,10 +292,53 @@ internal static class FloodFillHelper
                     positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
             }
         }
-        
-        selection = BuildContour(lines);
+
+        if (lines.Count > 0)
+        {
+            selection = BuildContour(lines);
+        }
 
         return selection;
+    }
+
+    private static void ProcessEmptySelectionChunk(List<Line> lines, VecI chunkPos, VecI realSize,
+        VecI imageSizeInChunks)
+    {
+        bool isEdgeChunk = chunkPos.X == 0 || chunkPos.Y == 0 || chunkPos.X == imageSizeInChunks.X - 1 ||
+                           chunkPos.Y == imageSizeInChunks.Y - 1;
+        if (isEdgeChunk)
+        {
+            bool isTopEdge = chunkPos.Y == 0;
+            bool isBottomEdge = chunkPos.Y == imageSizeInChunks.Y - 1;
+            bool isLeftEdge = chunkPos.X == 0;
+            bool isRightEdge = chunkPos.X == imageSizeInChunks.X - 1;
+            
+            int posX = chunkPos.X * realSize.X;
+            int posY = chunkPos.Y * realSize.Y;
+            
+            int endX = posX + realSize.X;
+            int endY = posY + realSize.Y;
+
+            if (isTopEdge)
+            {
+                AddLine(new(new(posX, posY), new(endX, posY)), lines);
+            }
+
+            if (isBottomEdge)
+            {
+                AddLine(new(new(posX, endY), new(endX, endY)), lines);
+            }
+
+            if (isLeftEdge)
+            {
+                AddLine(new(new(posX, posY), new(posX, endY)), lines);
+            }
+            
+            if (isRightEdge)
+            {
+                AddLine(new(new(endX, posY), new(endX, endY)), lines);
+            }
+        }
     }
 
     public static VectorPath BuildContour(List<Line> lines)
@@ -315,7 +362,6 @@ internal static class FloodFillHelper
                 lastPos = nextLine.End;
                 lines.RemoveAt(i);
                 i--;
-                //selection = selection.Op(GetFloodFillSelection(lastPos, membersToFloodFill, document), VectorPathOp.Difference);
                 continue;
             }
             
@@ -343,6 +389,7 @@ internal static class FloodFillHelper
         Chunk referenceChunk,
         int chunkSize,
         VecI chunkOffset,
+        VecI maxSize,
         VecI pos,
         ColorBounds bounds, List<Line> lines)
     {
@@ -358,14 +405,19 @@ internal static class FloodFillHelper
         while (toVisit.Count > 0)
         {
             VecI curPos = toVisit.Pop();
+            VecI clampedPos = new VecI(
+                Math.Clamp(curPos.X, 0, maxSize.X - 1),
+                Math.Clamp(curPos.Y, 0, maxSize.Y - 1));
+            
             int pixelOffset = curPos.X + curPos.Y * chunkSize;
             Half* refPixel = refArray + pixelOffset * 4;
             pixelStates[pixelOffset] = Visited;
 
-            if(curPos.X == 0) AddLine(new Line(new VecI(curPos.X, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y) + chunkOffset), lines);
-            if(curPos.X == chunkSize - 1) AddLine(new Line(new VecI(curPos.X + 1, curPos.Y) + chunkOffset, new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset), lines);
-            if(curPos.Y == 0) AddLine(new Line(new VecI(curPos.X, curPos.Y) + chunkOffset, new VecI(curPos.X + 1, curPos.Y) + chunkOffset), lines);
-            if(curPos.Y == chunkSize - 1) AddLine(new Line(new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y + 1) + chunkOffset), lines);
+            
+            if(curPos.X == 0) AddLine(new Line(new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
+            if(curPos.X == chunkSize - 1) AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset, new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines);
+            if(curPos.Y == 0) AddLine(new Line(new VecI(clampedPos.X, clampedPos.Y) + chunkOffset, new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset), lines);
+            if(curPos.Y == chunkSize - 1) AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines);
 
             // Left
             if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited)
@@ -376,7 +428,7 @@ internal static class FloodFillHelper
                 }
                 else
                 { 
-                    AddLine(new Line(new VecI(curPos.X, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y) + chunkOffset), lines);
+                    AddLine(new Line(new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
                 }
             }
 
@@ -389,7 +441,7 @@ internal static class FloodFillHelper
                 }
                 else
                 {
-                    AddLine(new Line(new VecI(curPos.X + 1, curPos.Y) + chunkOffset, new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset), lines);
+                    AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset, new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines);
                 }
             }
 
@@ -402,7 +454,7 @@ internal static class FloodFillHelper
                 }
                 else
                 {
-                    AddLine(new Line(new VecI(curPos.X + 1, curPos.Y) + chunkOffset, new VecI(curPos.X, curPos.Y) + chunkOffset), lines);
+                    AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
                 }
             }
 
@@ -415,7 +467,7 @@ internal static class FloodFillHelper
                 }
                 else
                 {
-                    AddLine(new Line(new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y + 1) + chunkOffset), lines);
+                    AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines);
                 }
             }
         }
