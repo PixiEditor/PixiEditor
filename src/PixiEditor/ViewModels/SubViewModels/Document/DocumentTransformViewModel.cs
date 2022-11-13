@@ -80,7 +80,7 @@ internal class DocumentTransformViewModel : NotifyableObject
 
     public event EventHandler<ShapeCorners>? TransformMoved;
 
-    private DocumentTransformMode activeTransformMode = DocumentTransformMode.Rotation;
+    private DocumentTransformMode activeTransformMode = DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
     public void HideTransform()
     {
@@ -92,7 +92,7 @@ internal class DocumentTransformViewModel : NotifyableObject
         activeTransformMode = mode;
         CornerFreedom = TransformCornerFreedom.Scale;
         SideFreedom = TransformSideFreedom.Stretch;
-        LockRotation = mode == DocumentTransformMode.NoRotation;
+        LockRotation = mode == DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
         RequestedCorners = initPos;
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
@@ -124,10 +124,26 @@ internal class DocumentTransformViewModel : NotifyableObject
             requestedSideFreedom = TransformSideFreedom.Stretch;
         }
 
-        if (requestedCornerFreedom != TransformCornerFreedom.Free || activeTransformMode == DocumentTransformMode.Freeform)
-            CornerFreedom = requestedCornerFreedom;
-        if (requestedSideFreedom is not (TransformSideFreedom.Free or TransformSideFreedom.Shear) ||
-            activeTransformMode == DocumentTransformMode.Freeform)
-            SideFreedom = requestedSideFreedom;
+        switch (activeTransformMode)
+        {
+            case DocumentTransformMode.Scale_Rotate_Shear_Perspective:
+                CornerFreedom = requestedCornerFreedom;
+                SideFreedom = requestedSideFreedom;
+                break;
+
+            case DocumentTransformMode.Scale_Rotate_Shear_NoPerspective:
+                if (requestedCornerFreedom != TransformCornerFreedom.Free)
+                    CornerFreedom = requestedCornerFreedom;
+                SideFreedom = requestedSideFreedom;
+                break;
+
+            case DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective:
+            case DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective:
+                if (requestedCornerFreedom != TransformCornerFreedom.Free)
+                    CornerFreedom = requestedCornerFreedom;
+                if (requestedSideFreedom is not (TransformSideFreedom.Free or TransformSideFreedom.Shear))
+                    SideFreedom = requestedSideFreedom;
+                break;
+        }
     }
 }

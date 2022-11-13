@@ -3,6 +3,7 @@
 namespace ChunkyImageLib.DataHolders;
 public struct ShapeCorners
 {
+    private const double epsilon = 0.001;
     public ShapeCorners(VecD center, VecD size)
     {
         TopLeft = center - size / 2;
@@ -46,8 +47,32 @@ public struct ShapeCorners
             return topRight == Math.Sign(right.Cross(bottom)) && topRight == Math.Sign(bottom.Cross(left)) && topRight == Math.Sign(left.Cross(top));
         }
     }
+
+    /// <summary>
+    /// Checks if two or more corners are in the same position
+    /// </summary>
+    public bool IsPartiallyDegenerate
+    {
+        get
+        {
+            Span<VecD> lengths = stackalloc[] {
+                TopLeft - TopRight,
+                TopRight - BottomRight,
+                BottomRight - BottomLeft,
+                BottomLeft - TopLeft,
+                TopLeft - BottomRight,
+                TopRight - BottomLeft
+            };
+            foreach (VecD vec in lengths)
+            {
+                if (vec.LengthSquared < epsilon * epsilon)
+                    return true;
+            }
+            return false;
+        }
+    }
     public bool HasNaNOrInfinity => TopLeft.IsNaNOrInfinity() || TopRight.IsNaNOrInfinity() || BottomLeft.IsNaNOrInfinity() || BottomRight.IsNaNOrInfinity();
-    public bool IsRect => Math.Abs((TopLeft - BottomRight).Length - (TopRight - BottomLeft).Length) < 0.001;
+    public bool IsRect => Math.Abs((TopLeft - BottomRight).Length - (TopRight - BottomLeft).Length) < epsilon;
     public VecD RectSize => new((TopLeft - TopRight).Length, (TopLeft - BottomLeft).Length);
     public VecD RectCenter => (TopLeft - BottomRight) / 2 + BottomRight;
     public double RectRotation =>

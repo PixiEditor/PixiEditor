@@ -42,7 +42,30 @@
                         IsThreeState="False" HorizontalAlignment="Center" 
                         IsChecked="{Binding Path=Document.ReferenceLayerViewModel.IsVisibleBindable, Mode=TwoWay, ElementName=uc}"/>
                 </Grid>
-                <StackPanel Name="middleStackPanel" Height="40" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Center">
+                <StackPanel Name="middleStackPanel" Height="40" Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
+                    <Button Cursor="Hand" Grid.Column="1"
+                            Command="{cmds:Command PixiEditor.Layer.ResetReferenceLayerPosition}"
+                            Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={BoolToVisibilityConverter}}" 
+                            Style="{StaticResource ImageButtonStyle}" 
+                            ToolTip="Reset reference layer position"
+                            RenderOptions.BitmapScalingMode="HighQuality"
+                            Margin="3"
+                            Width="20" Height="20" HorizontalAlignment="Right">
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Images/Layout.png"/>
+                        </Button.Background>
+                    </Button>
+                    <Button Cursor="Hand" Grid.Column="1"
+                            Command="{cmds:Command PixiEditor.Layer.TransformReferenceLayer}"
+                            Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={BoolToVisibilityConverter}}" 
+                            Style="{StaticResource ImageButtonStyle}" 
+                            ToolTip="Transform reference layer"
+                            RenderOptions.BitmapScalingMode="HighQuality"
+                            Width="25" Height="25" HorizontalAlignment="Right">
+                        <Button.Background>
+                            <ImageBrush ImageSource="/Images/Tools/MoveImage.png"/>
+                        </Button.Background>
+                    </Button>
                     <Border HorizontalAlignment="Left" 
                             Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NotNullToVisibilityConverter}}" 
                             Width="30" Height="30"
@@ -52,7 +75,7 @@
                         <Image Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap,ElementName=uc}" Stretch="Uniform" Width="26" Height="26"
                            RenderOptions.BitmapScalingMode="HighQuality" IsHitTestVisible="False"/>
                     </Border>
-                    <Image Margin="0 0 5 0" Width="20" Source="/Images/Layer-add.png"  
+                    <Image Margin="30 0 5 0" Width="20" Source="/Images/Layer-add.png"  
                            Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"/>
 
                     <local1:PrependTextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" 
@@ -63,6 +86,7 @@
                             Command="{cmds:Command PixiEditor.Layer.DeleteReferenceLayer}"
                             Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={BoolToVisibilityConverter}}" 
                             Style="{StaticResource ImageButtonStyle}" 
+                            RenderOptions.BitmapScalingMode="HighQuality"
                             Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
                             <ImageBrush ImageSource="/Images/Trash.png"/>

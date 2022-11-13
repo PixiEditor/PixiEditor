@@ -1,8 +1,11 @@
 ﻿using System.Collections.Immutable;
+using System.Windows.Interop;
+using System.Windows.Shapes;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -12,6 +15,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Views.UserControls.TransformOverlay;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -130,6 +134,21 @@ internal class DocumentOperationsModule
     {
         if (Internals.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 || newSize.Y < 1)
             return;
+
+        if (Document.ReferenceLayerViewModel.ReferenceBitmap is not null)
+        {
+            VecI offset = anchor.FindOffsetFor(Document.SizeBindable, newSize);
+            ShapeCorners curShape = Document.ReferenceLayerViewModel.ReferenceShapeBindable;
+            ShapeCorners offsetCorners = new ShapeCorners()
+            {
+                TopLeft = curShape.TopLeft + offset,
+                TopRight = curShape.TopRight + offset,
+                BottomLeft = curShape.BottomLeft + offset,
+                BottomRight = curShape.BottomRight + offset,
+            };
+            Internals.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(offsetCorners), new EndTransformReferenceLayer_Action());
+        }
+
         Internals.ActionAccumulator.AddFinishedActions(new ResizeCanvas_Action(newSize, anchor));
     }
 
@@ -137,6 +156,21 @@ internal class DocumentOperationsModule
     {
         if (Internals.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 || newSize.Y < 1)
             return;
+
+        if (Document.ReferenceLayerViewModel.ReferenceBitmap is not null)
+        {
+            VecD scale = ((VecD)newSize).Divide(Document.SizeBindable);
+            ShapeCorners curShape = Document.ReferenceLayerViewModel.ReferenceShapeBindable;
+            ShapeCorners offsetCorners = new ShapeCorners()
+            {
+                TopLeft = curShape.TopLeft.Multiply(scale),
+                TopRight = curShape.TopRight.Multiply(scale),
+                BottomLeft = curShape.BottomLeft.Multiply(scale),
+                BottomRight = curShape.BottomRight.Multiply(scale),
+            };
+            Internals.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(offsetCorners), new EndTransformReferenceLayer_Action());
+        }
+
         Internals.ActionAccumulator.AddFinishedActions(new ResizeImage_Action(newSize, resampling));
     }
 
@@ -263,11 +297,13 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList()));
     }
 
-    public void ImportReferenceLayer(ImmutableArray<byte> imagePbgra32Bytes, VecI imageSize, ShapeCorners corners)
+    public void ImportReferenceLayer(ImmutableArray<byte> imagePbgra32Bytes, VecI imageSize)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
 
+        RectD referenceImageRect = new RectD(VecD.Zero, Document.SizeBindable).AspectFit(new RectD(VecD.Zero, imageSize));
+        ShapeCorners corners = new ShapeCorners(referenceImageRect);
         Internals.ActionAccumulator.AddFinishedActions(new SetReferenceLayer_Action(corners, imagePbgra32Bytes, imageSize));
     }
 
@@ -277,5 +313,26 @@ internal class DocumentOperationsModule
             return;
 
         Internals.ActionAccumulator.AddFinishedActions(new DeleteReferenceLayer_Action());
+    }
+
+    public void TransformReferenceLayer()
+    {
+        if (Document.ReferenceLayerViewModel.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
+            return;
+        Internals.ChangeController.TryStartExecutor(new TransformReferenceLayerExecutor());
+    }
+
+    public void ResetReferenceLayerPosition()
+    {
+        if (Document.ReferenceLayerViewModel.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
+            return;
+
+        VecD size = new(Document.ReferenceLayerViewModel.ReferenceBitmap.PixelWidth, Document.ReferenceLayerViewModel.ReferenceBitmap.PixelHeight);
+        RectD referenceImageRect = new RectD(VecD.Zero, Document.SizeBindable).AspectFit(new RectD(VecD.Zero, size));
+        ShapeCorners corners = new ShapeCorners(referenceImageRect);
+        Internals.ActionAccumulator.AddFinishedActions(
+            new TransformReferenceLayer_Action(corners),
+            new EndTransformReferenceLayer_Action()
+            );
     }
 }

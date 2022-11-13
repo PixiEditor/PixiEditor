@@ -1,4 +1,4 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root.ReferenceLayerChanges;
 

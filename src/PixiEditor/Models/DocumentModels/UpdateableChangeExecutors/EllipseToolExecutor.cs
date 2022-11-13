@@ -24,7 +24,7 @@ internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
     }
 
     public override ExecutorType Type => ExecutorType.ToolLinked;
-    protected override DocumentTransformMode TransformMode => DocumentTransformMode.NoRotation;
+    protected override DocumentTransformMode TransformMode => DocumentTransformMode.Scale_NoRotate_NoShear_NoPerspective;
     protected override void DrawShape(VecI currentPos, bool firstDraw) => DrawEllipseOrCircle(currentPos, firstDraw);
 
     protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) =>

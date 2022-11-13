@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Enums;
 
-internal static class ResizeAnchorEx
+public static class ResizeAnchorEx
 {
     public static VecI FindOffsetFor(this ResizeAnchor anchor, VecI imageSize, VecI newImageSize)
     {

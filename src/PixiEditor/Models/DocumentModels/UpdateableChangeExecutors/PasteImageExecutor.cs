@@ -35,7 +35,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
 
         ShapeCorners corners = new(new RectD(pos, image.Size));
         internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid, false, drawOnMask));
-        document.TransformViewModel.ShowTransform(DocumentTransformMode.Freeform, true, corners);
+        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners);
 
         return ExecutionState.Success;
     }

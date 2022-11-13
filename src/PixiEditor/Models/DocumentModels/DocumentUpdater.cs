@@ -15,7 +15,6 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using TransformReferenceLayer_ChangeInfo = PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos.TransformReferenceLayer_ChangeInfo;
 
 namespace PixiEditor.Models.DocumentModels;
 #nullable enable

@@ -1,7 +1,8 @@
 ﻿namespace PixiEditor.Models.Enums;
 internal enum DocumentTransformMode
 {
-    NoRotation,
-    Rotation,
-    Freeform
+    Scale_NoRotate_NoShear_NoPerspective,
+    Scale_Rotate_NoShear_NoPerspective,
+    Scale_Rotate_Shear_NoPerspective,
+    Scale_Rotate_Shear_Perspective
 }

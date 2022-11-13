@@ -32,7 +32,7 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
 
         ShapeCorners corners = new(document.SelectionPathBindable.TightBounds);
-        document.TransformViewModel.ShowTransform(DocumentTransformMode.Freeform, true, corners);
+        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners);
         membersToTransform = members.Select(static a => a.GuidValue).ToArray();
         internals!.ActionAccumulator.AddActions(
             new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false));

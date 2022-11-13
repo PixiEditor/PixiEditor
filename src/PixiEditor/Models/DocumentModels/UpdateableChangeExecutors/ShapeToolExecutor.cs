@@ -54,7 +54,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     protected abstract void DrawShape(VecI currentPos, bool firstDraw);
     protected abstract IAction TransformMovedAction(ShapeData data, ShapeCorners corners);
     protected abstract IAction EndDrawAction();
-    protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Rotation;
+    protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
     protected RectI GetSquaredCoordinates(VecI startPos, VecI curPos)
     {

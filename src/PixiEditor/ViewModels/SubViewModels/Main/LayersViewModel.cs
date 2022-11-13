@@ -310,25 +310,10 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         VecI size = new VecI(bitmap.PixelWidth, bitmap.PixelHeight);
 
-        RectD referenceImageRect = new RectD(VecD.Zero, doc.SizeBindable).AspectFit(new RectD(VecD.Zero, size));
-        ShapeCorners corners = new ShapeCorners(referenceImageRect);
-
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(), 
-            size, 
-            corners);
+            size);
     }
-
-    [Command.Basic("PixiEditor.Layer.DeleteReferenceLayer", "Delete reference layer", "Delete reference layer", "PixiEditor.Layer.ReferenceLayerExists")]
-    public void DeleteReferenceLayer()
-    {
-        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is null)
-            return;
-
-        doc.Operations.DeleteReferenceLayer();
-    }
-
     private string OpenReferenceLayerFilePicker()
     {
         var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
@@ -341,4 +326,35 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         return (bool)dialog.ShowDialog() ? dialog.FileName : null;
     }
+
+    [Command.Basic("PixiEditor.Layer.DeleteReferenceLayer", "Delete reference layer", "Delete reference layer", "PixiEditor.Layer.ReferenceLayerExists")]
+    public void DeleteReferenceLayer()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.Operations.DeleteReferenceLayer();
+    }
+
+    [Command.Basic("PixiEditor.Layer.TransformReferenceLayer", "Transform reference layer", "Transform reference layer", "PixiEditor.Layer.ReferenceLayerExists")]
+    public void TransformReferenceLayer()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.Operations.TransformReferenceLayer();
+    }
+
+    [Command.Basic("PixiEditor.Layer.ResetReferenceLayerPosition", "Reset reference layer position", "Reset reference layer position", "PixiEditor.Layer.ReferenceLayerExists")]
+    public void ResetReferenceLayerPosition()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.Operations.ResetReferenceLayerPosition();
+    }
+
 }

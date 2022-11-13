@@ -45,9 +45,22 @@ internal static class TransformUpdateHelper
 
             // find by how much move each corner
             VecD delta = (desiredPos - targetPos).Rotate(-angle);
-            VecD leftNeighDelta = TransferZeros(leftNeighTrans, delta);
-            VecD rightNeighDelta = TransferZeros(rightNeighTrans, delta);
-            
+            VecD leftNeighDelta, rightNeighDelta;
+            if (corners.IsPartiallyDegenerate)
+            {
+                // handle cases where we'd need to scale by infinity
+                leftNeighDelta = TransferZeros(leftNeighTrans, delta);
+                rightNeighDelta = TransferZeros(rightNeighTrans, delta);
+            }
+            else
+            {
+                // handle normal cases
+                VecD desiredTrans = (desiredPos - oppositePos).Rotate(-angle);
+                VecD scaling = desiredTrans.Divide(targetTrans);
+                leftNeighDelta = leftNeighTrans.Multiply(scaling) - leftNeighTrans;
+                rightNeighDelta = rightNeighTrans.Multiply(scaling) - rightNeighTrans;
+            }
+
             // handle cases where the transform overlay is squished into a line or a single point
             bool squishedWithLeft = leftNeighTrans.TaxicabLength < epsilon;
             bool squishedWithRight = rightNeighTrans.TaxicabLength < epsilon;
