@@ -8,10 +8,11 @@
     xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
     xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
-    xmlns:to="clr-namespace:PixiEditor.Views.UserControls.TransformOverlay"
+    xmlns:to="clr-namespace:PixiEditor.Views.UserControls.Overlays.TransformOverlay"
     xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
-    xmlns:sym="clr-namespace:PixiEditor.Views.UserControls.SymmetryOverlay"
-    xmlns:brush="clr-namespace:PixiEditor.Views.UserControls.BrushShapeOverlay"
+    xmlns:ov="clr-namespace:PixiEditor.Views.UserControls.Overlays"
+    xmlns:sym="clr-namespace:PixiEditor.Views.UserControls.Overlays.SymmetryOverlay"
+    xmlns:brush="clr-namespace:PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:vm="clr-namespace:PixiEditor.ViewModels"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
@@ -180,7 +181,7 @@
                         DragCommand="{cmds:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
                         DragEndCommand="{cmds:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}" 
                         DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}" />
-                    <uc:SelectionOverlay
+                    <ov:SelectionOverlay
                         ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                         Path="{Binding Document.SelectionPathBindable}"
                         ZoomboxScale="{Binding Zoombox.Scale}" />

@@ -5,7 +5,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 
 #nullable enable
 
-namespace PixiEditor.Views.UserControls.TransformOverlay;
+namespace PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 internal static class TransformHelper
 {
     public const double AnchorSize = 10;

@@ -4,10 +4,15 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
+using PixiEditor;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Views;
+using PixiEditor.Views.UserControls;
+using PixiEditor.Views.UserControls.Overlays.SymmetryOverlay;
+using PixiEditor.Views.UserControls.SymmetryOverlay;
 
-namespace PixiEditor.Views.UserControls.SymmetryOverlay;
+namespace PixiEditor.Views.UserControls.Overlays.SymmetryOverlay;
 #nullable enable
 internal class SymmetryOverlay : Control
 {
@@ -107,7 +112,7 @@ internal class SymmetryOverlay : Control
     private Pen checkerWhite = new(new SolidColorBrush(Color.FromRgb(100, 100, 100)), 1.0) { DashStyle = new DashStyle(new[] { DashWidth, DashWidth }, DashWidth) };
 
     private double PenThickness => 1.0 / ZoomboxScale;
-    
+
     private int horizontalAxisY;
     private int verticalAxisX;
 
@@ -121,7 +126,7 @@ internal class SymmetryOverlay : Control
         checkerBlack.Thickness = PenThickness;
         checkerWhite.Thickness = PenThickness;
         rulerPen.Thickness = PenThickness;
-        
+
         handleGeometry.Transform = new ScaleTransform(HandleSize / ZoomboxScale, HandleSize / ZoomboxScale);
 
         if (HorizontalAxisVisible)
@@ -138,7 +143,7 @@ internal class SymmetryOverlay : Control
                     DrawHorizontalRuler(drawingContext, true);
                 }
             }
-            
+
             drawingContext.PushTransform(new TranslateTransform(0, horizontalAxisY));
             drawingContext.DrawGeometry(handleFill, borderPen, handleGeometry);
             drawingContext.PushTransform(new RotateTransform(180, ActualWidth / 2, 0));
@@ -162,7 +167,7 @@ internal class SymmetryOverlay : Control
                     DrawVerticalRuler(drawingContext, true);
                 }
             }
-            
+
             drawingContext.PushTransform(new RotateTransform(90));
             drawingContext.PushTransform(new TranslateTransform(0, -verticalAxisX));
             drawingContext.DrawGeometry(handleFill, borderPen, handleGeometry);
@@ -181,18 +186,18 @@ internal class SymmetryOverlay : Control
         double start = upper ? RenderSize.Height : 0;
         bool drawRight = Mouse.GetPosition(this).X > RenderSize.Width / 2;
         double xOffset = drawRight ? RenderSize.Width - RulerOffset * PenThickness * 2 : 0;
-        
+
         drawingContext.DrawLine(rulerPen, new Point(RulerOffset * PenThickness + xOffset, start), new Point(RulerOffset * PenThickness + xOffset, horizontalAxisY));
         drawingContext.DrawLine(rulerPen, new Point((RulerOffset - RulerWidth) * PenThickness + xOffset, start), new Point((RulerOffset + RulerWidth) * PenThickness + xOffset, start));
         drawingContext.DrawLine(rulerPen, new Point((RulerOffset - RulerWidth) * PenThickness + xOffset, horizontalAxisY), new Point((RulerOffset + RulerWidth) * PenThickness + xOffset, horizontalAxisY));
 
-        string text = upper ? $"{start - horizontalAxisY}px ({(start - horizontalAxisY) / RenderSize.Height * 100:F1}%)" : $"{horizontalAxisY}px ({(horizontalAxisY) / RenderSize.Height * 100:F1}%)";
-        
+        string text = upper ? $"{start - horizontalAxisY}px ({(start - horizontalAxisY) / RenderSize.Height * 100:F1}%)" : $"{horizontalAxisY}px ({horizontalAxisY / RenderSize.Height * 100:F1}%)";
+
         var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
             FlowDirection.LeftToRight, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White,
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
-        if (ActualHeight < formattedText.Height * 2.5 || (horizontalAxisY == (int)RenderSize.Height && upper) || (horizontalAxisY == 0 && !upper))
+        if (ActualHeight < formattedText.Height * 2.5 || horizontalAxisY == (int)RenderSize.Height && upper || horizontalAxisY == 0 && !upper)
         {
             return;
         }
@@ -205,7 +210,7 @@ internal class SymmetryOverlay : Control
         {
             textY += RenderSize.Height / 2;
         }
-        
+
         drawingContext.DrawText(formattedText, new Point(RulerOffset * PenThickness - (drawRight ? -1 : 1) + xOffset, textY));
     }
 
@@ -219,13 +224,13 @@ internal class SymmetryOverlay : Control
         drawingContext.DrawLine(rulerPen, new Point(start, (RulerOffset - RulerWidth) * PenThickness + yOffset), new Point(start, (RulerOffset + RulerWidth) * PenThickness + yOffset));
         drawingContext.DrawLine(rulerPen, new Point(verticalAxisX, (RulerOffset - RulerWidth) * PenThickness + yOffset), new Point(verticalAxisX, (RulerOffset + RulerWidth) * PenThickness + yOffset));
 
-        string text = right ? $"{start - verticalAxisX}px ({(start - verticalAxisX) / RenderSize.Width * 100:F1}%)" : $"{verticalAxisX}px ({(verticalAxisX) / RenderSize.Width * 100:F1}%)";
-        
+        string text = right ? $"{start - verticalAxisX}px ({(start - verticalAxisX) / RenderSize.Width * 100:F1}%)" : $"{verticalAxisX}px ({verticalAxisX / RenderSize.Width * 100:F1}%)";
+
         var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
             FlowDirection.LeftToRight, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White,
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
-        if (ActualWidth < formattedText.Width * 2.5 || (verticalAxisX == (int)RenderSize.Width && right) || (verticalAxisX == 0 && !right))
+        if (ActualWidth < formattedText.Width * 2.5 || verticalAxisX == (int)RenderSize.Width && right || verticalAxisX == 0 && !right)
         {
             return;
         }
@@ -238,7 +243,7 @@ internal class SymmetryOverlay : Control
         {
             textX += RenderSize.Width / 2;
         }
-        
+
         drawingContext.DrawText(formattedText, new Point(textX, RulerOffset * PenThickness - (drawBottom ? -0.7 : 0.3 + formattedText.Height) + yOffset));
     }
 
@@ -282,11 +287,11 @@ internal class SymmetryOverlay : Control
 
         if (hoveredDirection == direction)
             return;
-        
+
         hoveredDirection = direction;
         InvalidateVisual();
     }
-    
+
     protected override void OnMouseDown(MouseButtonEventArgs e)
     {
         base.OnMouseDown(e);
@@ -341,7 +346,7 @@ internal class SymmetryOverlay : Control
 
         if (capturedDirection is null)
             return;
-        
+
         ReleaseMouseCapture();
 
         CallSymmetryDragEndCommand((SymmetryAxisDirection)capturedDirection);
@@ -356,7 +361,7 @@ internal class SymmetryOverlay : Control
     protected override void OnMouseMove(MouseEventArgs e)
     {
         base.OnMouseMove(e);
-        
+
         var pos = ToVecD(e.GetPosition(this));
         UpdateHovered(IsTouchingHandle(pos));
 
@@ -370,13 +375,13 @@ internal class SymmetryOverlay : Control
             {
                 horizontalAxisY = (int)(Math.Round(horizontalAxisY / RenderSize.Height * 8) / 8 * RenderSize.Height);
             }
-            
+
             CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, horizontalAxisY);
         }
         else if (capturedDirection == SymmetryAxisDirection.Vertical)
         {
             verticalAxisX = (int)Math.Round(Math.Clamp(pos.X, 0, ActualWidth));
-            
+
             if (Keyboard.IsKeyDown(Key.LeftShift))
             {
                 verticalAxisX = (int)(Math.Round(verticalAxisX / RenderSize.Width * 8) / 8 * RenderSize.Width);

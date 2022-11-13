@@ -2,9 +2,13 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using PixiEditor;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Views;
+using PixiEditor.Views.UserControls;
+using PixiEditor.Views.UserControls.Overlays;
 
-namespace PixiEditor.Views.UserControls;
+namespace PixiEditor.Views.UserControls.Overlays;
 #nullable enable
 internal class SelectionOverlay : Control
 {

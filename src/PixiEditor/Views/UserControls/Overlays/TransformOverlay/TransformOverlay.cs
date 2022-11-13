@@ -5,7 +5,7 @@ using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 
-namespace PixiEditor.Views.UserControls.TransformOverlay;
+namespace PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 #nullable enable
 internal class TransformOverlay : Decorator
 {

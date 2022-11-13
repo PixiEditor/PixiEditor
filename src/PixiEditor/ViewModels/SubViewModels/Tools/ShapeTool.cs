@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
-using PixiEditor.Views.UserControls.BrushShapeOverlay;
+using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools;
 

@@ -1,6 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.Models.Enums;
-using PixiEditor.Views.UserControls.TransformOverlay;
+using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable

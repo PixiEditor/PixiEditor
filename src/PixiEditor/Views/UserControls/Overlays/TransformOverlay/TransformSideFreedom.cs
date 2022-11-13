@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.Views.UserControls.TransformOverlay;
+﻿namespace PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 #nullable enable
 internal enum TransformSideFreedom
 {

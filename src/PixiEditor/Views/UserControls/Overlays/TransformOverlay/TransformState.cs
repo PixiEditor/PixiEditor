@@ -2,7 +2,7 @@
 using PixiEditor.DrawingApi.Core.Numerics;
 
 #nullable enable
-namespace PixiEditor.Views.UserControls.TransformOverlay;
+namespace PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 internal struct TransformState
 {
     public bool OriginWasManuallyDragged { get; set; }

@@ -15,7 +15,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.Views.UserControls.TransformOverlay;
+using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable

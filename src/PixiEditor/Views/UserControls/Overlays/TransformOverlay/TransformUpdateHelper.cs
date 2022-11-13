@@ -1,7 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 
-namespace PixiEditor.Views.UserControls.TransformOverlay;
+namespace PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 #nullable enable
 internal static class TransformUpdateHelper
 {
