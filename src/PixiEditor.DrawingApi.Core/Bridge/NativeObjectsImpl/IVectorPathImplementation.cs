@@ -36,5 +36,6 @@ public interface IVectorPathImplementation
     public void Close(VectorPath vectorPath);
     public VectorPath Simplify(VectorPath vectorPath);
     public string ToSvgPathData(VectorPath vectorPath);
+    public bool Contains(VectorPath vectorPath, float x, float y);
     public void AddPath(VectorPath vectorPath, VectorPath path, AddPathMode mode);
 }

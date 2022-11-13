@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 
@@ -141,7 +142,12 @@ public class VectorPath : NativeObject
     {
         DrawingBackendApi.Current.PathImplementation.AddPath(this, path, mode);
     }
-    
+
+    public bool Contains(float x, float y)
+    {
+        return DrawingBackendApi.Current.PathImplementation.Contains(this, x, y);
+    }
+
     public VectorPath Simplify()
     {
         return DrawingBackendApi.Current.PathImplementation.Simplify(this);

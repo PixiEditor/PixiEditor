@@ -42,6 +42,11 @@ internal class FloodFill_Change : Change
         else
             membersToReference.Add(memberGuid);
         var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color);
+        if (floodFilledChunks.Count == 0)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
 
         foreach (var (chunkPos, chunk) in floodFilledChunks)
         {

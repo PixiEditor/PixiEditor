@@ -35,6 +35,9 @@ internal static class FloodFillHelper
         VecI startingPos,
         Color drawingColor)
     {
+        if (selection is not null && !selection.Contains(startingPos.X + 0.5f, startingPos.Y + 0.5f))
+            return new();
+
         int chunkSize = ChunkResolution.Full.PixelSize();
 
         FloodFillChunkCache cache = CreateCache(membersToFloodFill, document);

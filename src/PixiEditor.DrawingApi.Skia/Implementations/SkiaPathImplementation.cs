@@ -177,5 +177,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             return ManagedInstances[vectorPath.ObjectPointer].ToSvgPathData();
         }
+
+        public bool Contains(VectorPath vectorPath, float x, float y)
+        {
+            return ManagedInstances[vectorPath.ObjectPointer].Contains(x, y);
+        }
     }
 }
