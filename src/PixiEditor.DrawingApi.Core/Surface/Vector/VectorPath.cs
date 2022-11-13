@@ -141,6 +141,11 @@ public class VectorPath : NativeObject
     {
         DrawingBackendApi.Current.PathImplementation.AddPath(this, path, mode);
     }
+    
+    public VectorPath Simplify()
+    {
+        return DrawingBackendApi.Current.PathImplementation.Simplify(this);
+    }
 }
 
 public enum PathDirection

@@ -161,6 +161,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return new VectorPath(skPath.Handle);
         }
 
+        public VectorPath Simplify(VectorPath path)
+        {
+            SKPath skPath = ManagedInstances[path.ObjectPointer].Simplify();
+            ManagedInstances.Add(skPath.Handle, skPath);
+            return new VectorPath(skPath.Handle);
+        }
+
         public void Close(VectorPath vectorPath)
         {
             ManagedInstances[vectorPath.ObjectPointer].Close();

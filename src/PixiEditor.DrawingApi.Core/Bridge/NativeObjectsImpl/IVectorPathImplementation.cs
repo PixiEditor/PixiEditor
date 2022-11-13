@@ -34,6 +34,7 @@ public interface IVectorPathImplementation
     public void AddOval(VectorPath vectorPath, RectI borders);
     public VectorPath Op(VectorPath vectorPath, VectorPath ellipsePath, VectorPathOp pathOp);
     public void Close(VectorPath vectorPath);
+    public VectorPath Simplify(VectorPath vectorPath);
     public string ToSvgPathData(VectorPath vectorPath);
     public void AddPath(VectorPath vectorPath, VectorPath path, AddPathMode mode);
 }

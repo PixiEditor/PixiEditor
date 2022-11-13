@@ -289,12 +289,12 @@ internal static class FloodFillHelper
             }
         }
         
-        selection = BuildContour(lines, membersToFloodFill, document);
+        selection = BuildContour(lines);
 
         return selection;
     }
 
-    private static VectorPath BuildContour(List<Line> lines, HashSet<Guid> membersToFloodFill, IReadOnlyDocument document)
+    public static VectorPath BuildContour(List<Line> lines)
     {
         VectorPath selection = new();
         Line startLine = lines[0];
@@ -377,7 +377,6 @@ internal static class FloodFillHelper
                 else
                 { 
                     AddLine(new Line(new VecI(curPos.X, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y) + chunkOffset), lines);
-                    //AddLine(new Line(new VecI(0, 1), new(0, 0)));
                 }
             }
 
@@ -391,7 +390,6 @@ internal static class FloodFillHelper
                 else
                 {
                     AddLine(new Line(new VecI(curPos.X + 1, curPos.Y) + chunkOffset, new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset), lines);
-                    //AddLine(new Line(new VecI(1, 0), new(1, 1)));
                 }
             }
 
@@ -405,7 +403,6 @@ internal static class FloodFillHelper
                 else
                 {
                     AddLine(new Line(new VecI(curPos.X + 1, curPos.Y) + chunkOffset, new VecI(curPos.X, curPos.Y) + chunkOffset), lines);
-                    //AddLine(new Line(new VecI(1, 1), new(0, 1)));
                 }
             }
 
@@ -419,7 +416,6 @@ internal static class FloodFillHelper
                 else
                 {
                     AddLine(new Line(new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y + 1) + chunkOffset), lines);
-                    //AddLine(new Line(new VecI(0, 0), new(1, 0)));
                 }
             }
         }
@@ -433,7 +429,7 @@ internal static class FloodFillHelper
         lines.Add(line);
     }
 
-    private struct Line
+    public struct Line
     {
         public VecI Start { get; set; }
         public VecI End { get; set; }
