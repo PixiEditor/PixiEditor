@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
@@ -227,10 +228,11 @@ internal static class FloodFillHelper
         Dictionary<VecI, Chunk> drawingChunks = new();
         HashSet<VecI> processedEmptyChunks = new();
         Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
+        List<Line> lines = new();
         positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
         
         VectorPath selection = new();
-        selection.AddRect(new RectI(startingPos, VecI.One));
+        //selection.MoveTo(initPosOnChunk);
         while (positionsToFloodFill.Count > 0)
         {
             var (chunkPos, posOnChunk) = positionsToFloodFill.Pop();
@@ -268,8 +270,9 @@ internal static class FloodFillHelper
             var maybeArray = GetChunkFloodFill(
                 reallyReferenceChunk,
                 chunkSize,
+                chunkPos * chunkSize,
                 posOnChunk,
-                colorRange, ref selection);
+                colorRange, lines);
 
             if (maybeArray is null)
                 continue;
@@ -285,15 +288,63 @@ internal static class FloodFillHelper
                     positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
             }
         }
+        
+        selection = BuildContour(lines, membersToFloodFill, document);
 
         return selection;
+    }
+
+    private static VectorPath BuildContour(List<Line> lines, HashSet<Guid> membersToFloodFill, IReadOnlyDocument document)
+    {
+        VectorPath selection = new();
+        Line startLine = lines[0];
+        selection.MoveTo(startLine.Start);
+        selection.LineTo(startLine.End);
+        VecI lastPos = startLine.End;
+        lines.RemoveAt(0);
+        for (var i = 0; i < lines.Count; i++)
+        {
+            Line nextLine = FindNextLine(lines, lastPos);
+
+            // Inner contour was found
+            if (nextLine == default) 
+            {
+                nextLine = lines[i];
+                selection.MoveTo(nextLine.Start);
+                selection.LineTo(nextLine.End);
+                lastPos = nextLine.End;
+                lines.RemoveAt(i);
+                i--;
+                //selection = selection.Op(GetFloodFillSelection(lastPos, membersToFloodFill, document), VectorPathOp.Difference);
+                continue;
+            }
+            
+            Point nextPoint = nextLine.Start == lastPos ? nextLine.End : nextLine.Start;
+
+            selection.LineTo(nextPoint);
+            lastPos = nextPoint;
+            lines.Remove(nextLine);
+            i--;
+        }
+
+        return selection;
+    }
+
+    private static Line FindNextLine(List<Line> lines, VecI lastPos)
+    {
+        Line nextLine = lines.FirstOrDefault(x => x.Start == lastPos);
+        if(nextLine == default)
+            nextLine = lines.FirstOrDefault(x => x.End == lastPos);
+        
+        return nextLine;
     }
 
     private static unsafe byte[]? GetChunkFloodFill(
         Chunk referenceChunk,
         int chunkSize,
+        VecI chunkOffset,
         VecI pos,
-        ColorBounds bounds, ref VectorPath selection)
+        ColorBounds bounds, List<Line> lines)
     {
 
         byte[] pixelStates = new byte[chunkSize * chunkSize];
@@ -311,18 +362,96 @@ internal static class FloodFillHelper
             Half* refPixel = refArray + pixelOffset * 4;
             pixelStates[pixelOffset] = Visited;
 
-            if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited && bounds.IsWithinBounds(refPixel - 4))
-                toVisit.Push(new(curPos.X - 1, curPos.Y));
-            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] != Visited && bounds.IsWithinBounds(refPixel + 4))
-                toVisit.Push(new(curPos.X + 1, curPos.Y));
-            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] != Visited && bounds.IsWithinBounds(refPixel - 4 * chunkSize))
-                toVisit.Push(new(curPos.X, curPos.Y - 1));
-            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] != Visited && bounds.IsWithinBounds(refPixel + 4 * chunkSize))
-                toVisit.Push(new(curPos.X, curPos.Y + 1));
+            if(curPos.X == 0) AddLine(new Line(new VecI(curPos.X, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y) + chunkOffset), lines);
+            if(curPos.X == chunkSize - 1) AddLine(new Line(new VecI(curPos.X + 1, curPos.Y) + chunkOffset, new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset), lines);
+            if(curPos.Y == 0) AddLine(new Line(new VecI(curPos.X, curPos.Y) + chunkOffset, new VecI(curPos.X + 1, curPos.Y) + chunkOffset), lines);
+            if(curPos.Y == chunkSize - 1) AddLine(new Line(new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y + 1) + chunkOffset), lines);
 
-            selection.AddRect(new RectI(curPos, VecI.One));
+            // Left
+            if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited)
+            {
+                if (bounds.IsWithinBounds(refPixel - 4))
+                {
+                    toVisit.Push(new(curPos.X - 1, curPos.Y));
+                }
+                else
+                { 
+                    AddLine(new Line(new VecI(curPos.X, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y) + chunkOffset), lines);
+                    //AddLine(new Line(new VecI(0, 1), new(0, 0)));
+                }
+            }
+
+            // Right
+            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] != Visited)
+            {
+                if (bounds.IsWithinBounds(refPixel + 4))
+                {
+                    toVisit.Push(new(curPos.X + 1, curPos.Y));
+                }
+                else
+                {
+                    AddLine(new Line(new VecI(curPos.X + 1, curPos.Y) + chunkOffset, new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset), lines);
+                    //AddLine(new Line(new VecI(1, 0), new(1, 1)));
+                }
+            }
+
+            // Top
+            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] != Visited)
+            {
+                if (bounds.IsWithinBounds(refPixel - 4 * chunkSize))
+                {
+                    toVisit.Push(new(curPos.X, curPos.Y - 1));
+                }
+                else
+                {
+                    AddLine(new Line(new VecI(curPos.X + 1, curPos.Y) + chunkOffset, new VecI(curPos.X, curPos.Y) + chunkOffset), lines);
+                    //AddLine(new Line(new VecI(1, 1), new(0, 1)));
+                }
+            }
+
+            //Bottom
+            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] != Visited)
+            {
+                if (bounds.IsWithinBounds(refPixel + 4 * chunkSize))
+                {
+                    toVisit.Push(new(curPos.X, curPos.Y + 1));
+                }
+                else
+                {
+                    AddLine(new Line(new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset, new VecI(curPos.X, curPos.Y + 1) + chunkOffset), lines);
+                    //AddLine(new Line(new VecI(0, 0), new(1, 0)));
+                }
+            }
         }
         
         return pixelStates;
+    }
+
+    private static void AddLine(Line line, List<Line> lines)
+    {
+        if(lines.Contains(line)) return;
+        lines.Add(line);
+    }
+
+    private struct Line
+    {
+        public VecI Start { get; set; }
+        public VecI End { get; set; }
+
+        public Line(VecI start, VecI end)
+        {
+            Start = start;
+            End = end;
+        }
+        
+        public static bool operator ==(Line a, Line b)
+        {
+            return a.Start == b.Start && a.End == b.End;
+        }
+        
+        public static bool operator !=(Line a, Line b)
+        {
+            return !(a == b);
+        }
     }
 }
