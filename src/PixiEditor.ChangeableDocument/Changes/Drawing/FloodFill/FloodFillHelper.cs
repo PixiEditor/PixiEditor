@@ -227,24 +227,17 @@ internal static class FloodFillHelper
         );
         
         ColorBounds colorRange = new(colorToReplace);
-
-        Dictionary<VecI, Chunk> drawingChunks = new();
+        
         HashSet<VecI> processedEmptyChunks = new();
+        HashSet<VecI> processedChunks = new();
         Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
         List<Line> lines = new();
         positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
         
         VectorPath selection = new();
-        //selection.MoveTo(initPosOnChunk);
         while (positionsToFloodFill.Count > 0)
         {
             var (chunkPos, posOnChunk) = positionsToFloodFill.Pop();
-
-            if (!drawingChunks.ContainsKey(chunkPos))
-            {
-                var chunk = Chunk.Create();
-                drawingChunks[chunkPos] = chunk;
-            }
             var referenceChunk = cache.GetChunk(chunkPos);
             
             VecI realSize = new VecI(Math.Min(chunkSize, document.Size.X), Math.Min(chunkSize, document.Size.Y));
@@ -273,6 +266,8 @@ internal static class FloodFillHelper
 
             // use regular flood fill for chunks that have something in them
             var reallyReferenceChunk = referenceChunk.AsT0;
+            if(processedChunks.Contains(chunkPos))
+                continue;
             var maybeArray = GetChunkFloodFill(
                 reallyReferenceChunk,
                 chunkSize,
@@ -281,6 +276,7 @@ internal static class FloodFillHelper
                 posOnChunk,
                 colorRange, lines);
 
+            processedChunks.Add(chunkPos);
             if (maybeArray is null)
                 continue;
             for (int i = 0; i < chunkSize; i++)
@@ -396,7 +392,6 @@ internal static class FloodFillHelper
         VecI pos,
         ColorBounds bounds, List<Line> lines)
     {
-
         byte[] pixelStates = new byte[chunkSize * chunkSize];
 
         using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
@@ -416,66 +411,114 @@ internal static class FloodFillHelper
             Half* refPixel = refArray + pixelOffset * 4;
             pixelStates[pixelOffset] = Visited;
 
-            
-            if(curPos.X == 0) AddLine(new Line(new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
-            if(curPos.X == chunkSize - 1) AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset, new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines);
-            if(curPos.Y == 0) AddLine(new Line(new VecI(clampedPos.X, clampedPos.Y) + chunkOffset, new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset), lines);
-            if(curPos.Y == chunkSize - 1) AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines);
-
-            // Left
-            if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited)
-            {
-                if (bounds.IsWithinBounds(refPixel - 4))
-                {
-                    toVisit.Push(new(curPos.X - 1, curPos.Y));
-                }
-                else
-                { 
-                    AddLine(new Line(new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
-                }
-            }
-
-            // Right
-            if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] != Visited)
-            {
-                if (bounds.IsWithinBounds(refPixel + 4))
-                {
-                    toVisit.Push(new(curPos.X + 1, curPos.Y));
-                }
-                else
-                {
-                    AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset, new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines);
-                }
-            }
-
-            // Top
-            if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] != Visited)
-            {
-                if (bounds.IsWithinBounds(refPixel - 4 * chunkSize))
-                {
-                    toVisit.Push(new(curPos.X, curPos.Y - 1));
-                }
-                else
-                {
-                    AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
-                }
-            }
-
-            //Bottom
-            if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] != Visited)
-            {
-                if (bounds.IsWithinBounds(refPixel + 4 * chunkSize))
-                {
-                    toVisit.Push(new(curPos.X, curPos.Y + 1));
-                }
-                else
-                {
-                    AddLine(new Line(new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset, new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines);
-                }
-            }
+            AddCornerLines(chunkSize, chunkOffset, lines, curPos, clampedPos);
+            AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelStates, pixelOffset, refPixel, toVisit, clampedPos);
         }
         
         return pixelStates;
+    }
+
+    private static unsafe void AddFillContourLines(int chunkSize, VecI chunkOffset, ColorBounds bounds, List<Line> lines,
+        VecI curPos, byte[] pixelStates, int pixelOffset, Half* refPixel, Stack<VecI> toVisit, VecI clampedPos)
+    {
+        // Left
+        if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited)
+        {
+            if (bounds.IsWithinBounds(refPixel - 4))
+            {
+                toVisit.Push(new(curPos.X - 1, curPos.Y));
+            }
+            else
+            {
+                AddLine(
+                    new Line(
+                        new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset,
+                        new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
+            }
+        }
+
+        // Right
+        if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] != Visited)
+        {
+            if (bounds.IsWithinBounds(refPixel + 4))
+            {
+                toVisit.Push(new(curPos.X + 1, curPos.Y));
+            }
+            else
+            {
+                AddLine(
+                    new Line(
+                        new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset,
+                        new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines);
+            }
+        }
+
+        // Top
+        if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] != Visited)
+        {
+            if (bounds.IsWithinBounds(refPixel - 4 * chunkSize))
+            {
+                toVisit.Push(new(curPos.X, curPos.Y - 1));
+            }
+            else
+            {
+                AddLine(
+                    new Line(
+                        new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset,
+                        new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
+            }
+        }
+
+        //Bottom
+        if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] != Visited)
+        {
+            if (bounds.IsWithinBounds(refPixel + 4 * chunkSize))
+            {
+                toVisit.Push(new(curPos.X, curPos.Y + 1));
+            }
+            else
+            {
+                AddLine(
+                    new Line(
+                        new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset,
+                        new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines);
+            }
+        }
+    }
+
+    private static void AddCornerLines(int chunkSize, VecI chunkOffset, List<Line> lines, VecI curPos, VecI clampedPos)
+    {
+        if (curPos.X == 0)
+        {
+            AddLine(
+                new Line(
+                    new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset,
+                    new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
+        }
+
+        if (curPos.X == chunkSize - 1)
+        {
+            AddLine(
+                new Line(
+                    new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset,
+                    new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines);
+        }
+
+        if (curPos.Y == 0)
+        {
+            AddLine(
+                new Line(
+                    new VecI(clampedPos.X, clampedPos.Y) + chunkOffset,
+                    new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset), lines);
+        }
+
+        if (curPos.Y == chunkSize - 1)
+        {
+            AddLine(
+                new Line(
+                    new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset,
+                    new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines);
+        }
     }
 
     private static void AddLine(Line line, List<Line> lines)
