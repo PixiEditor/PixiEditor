@@ -5,6 +5,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
@@ -23,11 +24,12 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     private VecI curPos;
     private bool started = false;
     private bool transforming = false;
+    private LineToolViewModel? toolViewModel;
 
     public override ExecutionState Start()
     {
         ColorsViewModel? colorsVM = ViewModelMain.Current?.ColorsSubViewModel;
-        LineToolViewModel? toolViewModel = ViewModelMain.Current?.ToolsSubViewModel.GetTool<LineToolViewModel>();
+        toolViewModel = ViewModelMain.Current?.ToolsSubViewModel.GetTool<LineToolViewModel>();
         StructureMemberViewModel? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolViewModel is null || member is null)
             return ExecutionState.Error;
@@ -54,7 +56,10 @@ internal class LineToolExecutor : UpdateableChangeExecutor
             return;
         started = true;
         curPos = pos;
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, curPos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
+        VecI targetPos = pos;
+        if (toolViewModel!.Snap)
+            targetPos = ShapeToolExecutor<ShapeTool>.Get45IncrementedPosition(startPos, curPos);
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, targetPos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
     }
 
     public override void OnLeftMouseButtonUp()

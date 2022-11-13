@@ -56,14 +56,42 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     protected abstract IAction EndDrawAction();
     protected virtual DocumentTransformMode TransformMode => DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
-    protected RectI GetSquaredCoordinates(VecI startPos, VecI curPos)
+    public static VecI Get45IncrementedPosition(VecI startPos, VecI curPos)
+    {
+        Span<VecI> positions = stackalloc VecI[]
+        {
+            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
+            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, -1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
+            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 0)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round(),
+            (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(0, 1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round()
+        };
+        VecI max = positions[0];
+        double maxLength = double.MaxValue;
+        foreach (var pos in positions)
+        {
+            double length = (pos - curPos).LengthSquared;
+            if (length < maxLength)
+            {
+                maxLength = length;
+                max = pos;
+            }
+        }
+        return max;
+    }
+
+    public static VecI GetSquaredPosition(VecI startPos, VecI curPos)
     {
         VecI pos1 = (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, 1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round();
         VecI pos2 = (VecI)(((VecD)curPos).ProjectOntoLine(startPos, startPos + new VecD(1, -1)) - new VecD(0.25).Multiply((curPos - startPos).Signs())).Round();
-
         if ((pos1 - curPos).LengthSquared > (pos2 - curPos).LengthSquared)
-            return RectI.FromTwoPixels(startPos, (VecI)pos2);
-        return RectI.FromTwoPixels(startPos, (VecI)pos1);
+            return (VecI)pos2;
+        return (VecI)pos1;
+    }
+
+    public static RectI GetSquaredCoordinates(VecI startPos, VecI curPos)
+    {
+        VecI pos = GetSquaredPosition(startPos, curPos);
+        return RectI.FromTwoPixels(startPos, pos);
     }
 
     public override void OnTransformMoved(ShapeCorners corners)

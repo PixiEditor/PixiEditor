@@ -9,7 +9,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.L)]
 internal class LineToolViewModel : ShapeTool
 {
-    private string defaultActionDisplay = "Click and move to draw a line. Hold Shift to draw an even one.";
+    private string defaultActionDisplay = "Click and move to draw a line. Hold Shift to enable snapping.";
 
     public LineToolViewModel()
     {
@@ -17,17 +17,25 @@ internal class LineToolViewModel : ShapeTool
         Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>();
     }
 
-    public override string Tooltip => $"Draws line on canvas ({Shortcut}). Hold Shift to draw even line.";
+    public override string Tooltip => $"Draws line on canvas ({Shortcut}). Hold Shift to enable snapping.";
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();
 
+    public bool Snap { get; private set; }
+
     public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)
-            ActionDisplay = "Click and move mouse to draw an even line.";
+        {
+            ActionDisplay = "Click and move mouse to draw a line with snapping enabled.";
+            Snap = true;
+        }
         else
+        {
             ActionDisplay = defaultActionDisplay;
+            Snap = false;
+        }
     }
 
     public override void OnLeftMouseButtonDown(VecD pos)
