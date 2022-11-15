@@ -59,6 +59,15 @@ internal class WriteableBitmapUpdater
         return await Task.Run(() => Render(chunkGatherer, updateDelayed)).ConfigureAwait(true);
     }
 
+    /// <summary>
+    /// Don't call this outside ActionAccumulator
+    /// </summary>
+    public List<IRenderInfo> UpdateGatheredChunksSync
+        (AffectedChunkGatherer chunkGatherer, bool updateDelayed)
+    {
+        return Render(chunkGatherer, updateDelayed);
+    }
+
     private Dictionary<ChunkResolution, HashSet<VecI>> FindGlobalChunksToRerender(AffectedChunkGatherer chunkGatherer, bool renderDelayed)
     {
         // add all affected chunks to postponed
