@@ -25,6 +25,8 @@ public class Pixmap : NativeObject
         get => DrawingBackendApi.Current.PixmapImplementation.GetHeight(this);
     }
 
+    public int BytesSize => DrawingBackendApi.Current.PixmapImplementation.GetBytesSize(this);
+
     public override void Dispose()
     {
         DrawingBackendApi.Current.PixmapImplementation.Dispose(ObjectPointer);

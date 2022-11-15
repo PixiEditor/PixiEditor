@@ -9,8 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ComputeSharp" Version="2.0.0-preview2" />
-    <PackageReference Include="ComputeSharp.Core" Version="2.0.0-preview2" />
     <PackageReference Include="OneOf" Version="3.0.223" />
     <PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>

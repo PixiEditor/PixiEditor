@@ -1,21 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
-using PixiEditor;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Views;
-using PixiEditor.Views.UserControls;
-using PixiEditor.Views.UserControls.Overlays;
-using PixiEditor.Views.UserControls.Overlays.LineToolOverlay;
 using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
-using TerraFX.Interop.Windows;
 
 namespace PixiEditor.Views.UserControls.Overlays.LineToolOverlay;
 internal class LineToolOverlay : Control

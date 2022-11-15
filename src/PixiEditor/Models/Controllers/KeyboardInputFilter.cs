@@ -1,6 +1,5 @@
 ﻿using System.Windows.Input;
 using PixiEditor.Models.Events;
-using TerraFX.Interop.Windows;
 
 namespace PixiEditor.Models.Controllers;
 #nullable enable

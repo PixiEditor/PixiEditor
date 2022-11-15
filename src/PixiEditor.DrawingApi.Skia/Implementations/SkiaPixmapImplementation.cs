@@ -8,17 +8,16 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 {
     public class SkiaPixmapImplementation : SkObjectImplementation<SKPixmap>, IPixmapImplementation
     {
-        private readonly SkiaColorSpaceImplementation _colorSpaceImplementation;
-        
+        private readonly SkiaColorSpaceImplementation colorSpaceImplementation;
+
         public SkiaPixmapImplementation(SkiaColorSpaceImplementation colorSpaceImplementation)
         {
-            _colorSpaceImplementation = colorSpaceImplementation;
+            this.colorSpaceImplementation = colorSpaceImplementation;
         }
-        
+
         public void Dispose(IntPtr objectPointer)
         {
             ManagedInstances[objectPointer].Dispose();
-            
             ManagedInstances.Remove(objectPointer);
         }
 
@@ -27,7 +26,8 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return ManagedInstances[objectPointer].GetPixels();
         }
 
-        public Span<T> GetPixelSpan<T>(Pixmap pixmap) where T : unmanaged
+        public Span<T> GetPixelSpan<T>(Pixmap pixmap)
+            where T : unmanaged
         {
             return ManagedInstances[pixmap.ObjectPointer].GetPixelSpan<T>();
         }
@@ -49,10 +49,15 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return ManagedInstances[pixmap.ObjectPointer].Height;
         }
 
+        public int GetBytesSize(Pixmap pixmap)
+        {
+            return ManagedInstances[pixmap.ObjectPointer].BytesSize;
+        }
+
         public Pixmap CreateFrom(SKPixmap pixmap)
         {
             ManagedInstances[pixmap.Handle] = pixmap;
-            return new Pixmap(pixmap.Info.ToImageInfo(_colorSpaceImplementation), pixmap.GetPixels());
+            return new Pixmap(pixmap.Info.ToImageInfo(colorSpaceImplementation), pixmap.GetPixels());
         }
     }
 }

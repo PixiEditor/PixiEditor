@@ -1,8 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
-using ChunkyImageLib.Shaders;
-using ComputeSharp;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace ChunkyImageLib.Operations;
 internal class ReplaceColorOperation : IDrawOperation
@@ -11,7 +10,6 @@ internal class ReplaceColorOperation : IDrawOperation
     private readonly Color newColor;
 
     private readonly ColorBounds oldColorBounds;
-    private readonly HlslColorBounds oldColorBoundsHlsl;
     private readonly ulong newColorBits;
 
     public bool IgnoreEmptyChunks => true;
@@ -21,42 +19,44 @@ internal class ReplaceColorOperation : IDrawOperation
         this.oldColor = oldColor;
         this.newColor = newColor;
         oldColorBounds = new ColorBounds(oldColor);
-        oldColorBoundsHlsl = new HlslColorBounds(new Float4(oldColor.R, oldColor.G, oldColor.B, oldColor.A));
         newColorBits = newColor.ToULong();
     }
 
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)
     {
-        ReplaceColor(oldColorBoundsHlsl, newColor, chunk);
+        ReplaceColor(oldColorBounds, newColorBits, chunk);
     }
 
-    private static void ReplaceColor(HlslColorBounds oldColorBounds, Color newColor, Chunk chunk)
+    private static unsafe void ReplaceColor(ColorBounds oldColorBounds, ulong newColorBits, Chunk chunk)
     {
-        Span<UInt2> span = chunk.Surface.DrawingSurface.PeekPixels().GetPixelSpan<UInt2>();
-        using var texture = GraphicsDevice.GetDefault()
-            .AllocateReadWriteTexture2D<UInt2>(chunk.PixelSize.X, chunk.PixelSize.Y);
+        int maxThreads = Environment.ProcessorCount;
+        VecI imageSize = chunk.PixelSize;
+        int rowsPerThread = imageSize.Y / maxThreads;
 
-        texture.CopyFrom(span);
+        using Pixmap pixmap = chunk.Surface.DrawingSurface.PeekPixels();
+        IntPtr pixels = pixmap.GetPixels();
 
-        UInt2 packedColor = ShaderUtils.PackPixel(newColor);
-        
-        GraphicsDevice.GetDefault().For(texture.Width, texture.Height, 1,  8, 8, 1,
-            new ReplaceColorShader(
-                texture,
-                oldColorBounds,
-                packedColor));
-        texture.CopyTo(span);
+        Half* endOffset = (Half*)(pixels + pixmap.BytesSize);
+        for (Half* i = (Half*)pixels; i < endOffset; i += 4)
+        {
+            if (oldColorBounds.IsWithinBounds(i))
+            {
+                *(ulong*)i = newColorBits;
+            }
+        }
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    HashSet<VecI> IDrawOperation.FindAffectedChunks(VecI imageSize)
     {
         return OperationHelper.FindChunksTouchingRectangle(new RectI(VecI.Zero, imageSize), ChunkyImage.FullChunkSize);
     }
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
     {
-        return new ReplaceColorOperation(oldColor, newColor);
+        return new ReplaceColorOperation(this.oldColor, this.newColor);
     }
 
-    public void Dispose() { }
+    public void Dispose()
+    {
+    }
 }

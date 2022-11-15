@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using ComputeSharp;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace ChunkyImageLib.DataHolders;
@@ -7,12 +6,19 @@ namespace ChunkyImageLib.DataHolders;
 public struct ColorBounds
 {
     public float LowerR { get; set; }
+    
     public float LowerG { get; set; }
+    
     public float LowerB { get; set; }
+    
     public float LowerA { get; set; }
+    
     public float UpperR { get; set; }
+    
     public float UpperG { get; set; }
+    
     public float UpperB { get; set; }
+
     public float UpperA { get; set; }
 
     public ColorBounds(Color color)
@@ -55,21 +61,6 @@ public struct ColorBounds
         if (a < LowerA || a > UpperA)
             return false;
         return true;
-    }
-    
-    public readonly bool IsWithinBounds(Float4 color)
-    {
-        float r = color.R;
-        float g = color.G;
-        float b = color.B;
-        float a = color.A;
-        if (r < LowerR || r > UpperR)
-            return false;
-        if (g < LowerG || g > UpperG)
-            return false;
-        if (b < LowerB || b > UpperB)
-            return false;
-        return !(a < LowerA) && !(a > UpperA);
     }
 }
 
