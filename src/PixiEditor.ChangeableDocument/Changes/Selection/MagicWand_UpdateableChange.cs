@@ -15,7 +15,7 @@ internal class MagicWand_UpdateableChange : Change
     private readonly bool referenceAll;
     private readonly bool drawOnMask;
     private readonly SelectionMode mode;
-    
+
     [GenerateMakeChangeAction]
     public MagicWand_UpdateableChange(Guid memberGuid, VecI point, SelectionMode mode, bool referenceAll, bool drawOnMask)
     {
@@ -50,7 +50,9 @@ internal class MagicWand_UpdateableChange : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        return new None();
+        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath!));
+        toDispose.Dispose();
+        return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
     
     private Selection_ChangeInfo CommonApply(Document target)
@@ -69,5 +71,11 @@ internal class MagicWand_UpdateableChange : Change
         toDispose.Dispose();
 
         return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
+    }
+
+    public override void Dispose()
+    {
+        path.Dispose();
+        originalPath?.Dispose();
     }
 }

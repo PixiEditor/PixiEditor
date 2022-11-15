@@ -152,4 +152,9 @@ public struct VecI : IEquatable<VecI>
     {
         return other.X == X && other.Y == Y;
     }
+
+    public VecD Normalized()
+    {
+        return this / Length;
+    }
 }

@@ -273,6 +273,7 @@ internal static class FloodFillHelper
                 chunkSize,
                 chunkPos * chunkSize,
                 realSize,
+                document.Size,
                 posOnChunk,
                 colorRange, lines);
 
@@ -389,6 +390,7 @@ internal static class FloodFillHelper
         int chunkSize,
         VecI chunkOffset,
         VecI maxSize,
+        VecI documentSize,
         VecI pos,
         ColorBounds bounds, List<Line> lines)
     {
@@ -411,7 +413,7 @@ internal static class FloodFillHelper
             Half* refPixel = refArray + pixelOffset * 4;
             pixelStates[pixelOffset] = Visited;
 
-            AddCornerLines(chunkSize, chunkOffset, lines, curPos, clampedPos);
+            AddCornerLines(documentSize, chunkOffset, lines, curPos, clampedPos);
             AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelStates, pixelOffset, refPixel, toVisit, clampedPos);
         }
         
@@ -486,9 +488,10 @@ internal static class FloodFillHelper
         }
     }
 
-    private static void AddCornerLines(int chunkSize, VecI chunkOffset, List<Line> lines, VecI curPos, VecI clampedPos)
+    private static void AddCornerLines(VecI documentSize, VecI chunkOffset, List<Line> lines, VecI curPos, VecI clampedPos)
     {
-        if (curPos.X == 0)
+        VecI globalPos = curPos + chunkOffset;
+        if (globalPos.X == 0)
         {
             AddLine(
                 new Line(
@@ -496,7 +499,7 @@ internal static class FloodFillHelper
                     new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
         }
 
-        if (curPos.X == chunkSize - 1)
+        if (globalPos.X == documentSize.X - 1)
         {
             AddLine(
                 new Line(
@@ -504,7 +507,7 @@ internal static class FloodFillHelper
                     new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines);
         }
 
-        if (curPos.Y == 0)
+        if (globalPos.Y == 0)
         {
             AddLine(
                 new Line(
@@ -512,7 +515,7 @@ internal static class FloodFillHelper
                     new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset), lines);
         }
 
-        if (curPos.Y == chunkSize - 1)
+        if (globalPos.Y == documentSize.Y - 1)
         {
             AddLine(
                 new Line(
