@@ -346,8 +346,8 @@ internal static class FloodFillHelper
         VectorPath selection = new();
         Line startLine = lines[0];
         selection.MoveTo(startLine.Start);
-        selection.LineTo(startLine.End);
         VecI lastPos = startLine.End;
+        VecI lastDir = startLine.End - startLine.Start;
         lines.RemoveAt(0);
         for (var i = 0; i < lines.Count; i++)
         {
@@ -357,6 +357,7 @@ internal static class FloodFillHelper
             if (nextLine == default) 
             {
                 nextLine = lines[i];
+
                 selection.MoveTo(nextLine.Start);
                 selection.LineTo(nextLine.End);
                 lastPos = nextLine.End;
@@ -365,10 +366,18 @@ internal static class FloodFillHelper
                 continue;
             }
             
-            Point nextPoint = nextLine.Start == lastPos ? nextLine.End : nextLine.Start;
+            VecI nextPoint = nextLine.Start == lastPos ? nextLine.End : nextLine.Start;
+            VecI nextDir = nextPoint - lastPos;
 
-            selection.LineTo(nextPoint);
+            // Draw only if direction changed, sometimes one more line at one of starting edges is added for some reason. I didn't fix it since it doesn't affect the result really
+            // But it's still shouldn't happen, so feel free to fix it
+            if (nextDir.Normalized() != lastDir.Normalized()) 
+            {
+                selection.LineTo(lastPos);
+            }
+            
             lastPos = nextPoint;
+            lastDir = nextDir;
             lines.Remove(nextLine);
             i--;
         }
@@ -534,11 +543,25 @@ internal static class FloodFillHelper
     {
         public VecI Start { get; set; }
         public VecI End { get; set; }
+        
+        public VecD DirectionNormalized => (End - Start).Normalized();
 
         public Line(VecI start, VecI end)
         {
             Start = start;
             End = end;
+        }
+        
+        public Line Extended(VecI point)
+        {
+            VecI start = Start;
+            VecI end = End;
+            if (point.X < Start.X) start.X = point.X;
+            if (point.Y < Start.Y) start.Y = point.Y;
+            if (point.X > End.X) end.X = point.X;
+            if (point.Y > End.Y) end.Y = point.Y;
+            
+            return new Line(start, end);
         }
         
         public static bool operator ==(Line a, Line b)
