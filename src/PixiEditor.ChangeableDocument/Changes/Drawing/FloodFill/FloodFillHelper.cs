@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Collections;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -14,6 +15,11 @@ internal static class FloodFillHelper
 {
     private const byte InSelection = 1;
     private const byte Visited = 2;
+    
+    private static readonly VecI Up = new VecI(0, -1);
+    private static readonly VecI Down = new VecI(0, 1);
+    private static readonly VecI Left = new VecI(-1, 0);
+    private static readonly VecI Right = new VecI(1, 0);
 
     private static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document)
     {
@@ -231,8 +237,9 @@ internal static class FloodFillHelper
         HashSet<VecI> processedEmptyChunks = new();
         HashSet<VecI> processedChunks = new();
         Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
-        List<Line> lines = new();
         positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
+        
+        Lines lines = new();
         
         VectorPath selection = new();
         while (positionsToFloodFill.Count > 0)
@@ -268,6 +275,7 @@ internal static class FloodFillHelper
             var reallyReferenceChunk = referenceChunk.AsT0;
             if(processedChunks.Contains(chunkPos))
                 continue;
+
             var maybeArray = GetChunkFloodFill(
                 reallyReferenceChunk,
                 chunkSize,
@@ -293,7 +301,7 @@ internal static class FloodFillHelper
             }
         }
 
-        if (lines.Count > 0)
+        if (lines.LineDict.Any(x => x.Value.Count > 0))
         {
             selection = BuildContour(lines);
         }
@@ -301,7 +309,7 @@ internal static class FloodFillHelper
         return selection;
     }
 
-    private static void ProcessEmptySelectionChunk(List<Line> lines, VecI chunkPos, VecI realSize,
+    private static void ProcessEmptySelectionChunk(Lines lines, VecI chunkPos, VecI realSize,
         VecI imageSizeInChunks)
     {
         bool isEdgeChunk = chunkPos.X == 0 || chunkPos.Y == 0 || chunkPos.X == imageSizeInChunks.X - 1 ||
@@ -321,31 +329,52 @@ internal static class FloodFillHelper
 
             if (isTopEdge)
             {
-                AddLine(new(new(posX, posY), new(endX, posY)), lines);
+                AddLine(new(new(posX, posY), new(endX, posY)), lines, Right);
             }
 
             if (isBottomEdge)
             {
-                AddLine(new(new(posX, endY), new(endX, endY)), lines);
+                AddLine(new(new(posX, endY), new(endX, endY)), lines, Left);
             }
 
             if (isLeftEdge)
             {
-                AddLine(new(new(posX, posY), new(posX, endY)), lines);
+                AddLine(new(new(posX, posY), new(posX, endY)), lines, Up);
             }
             
             if (isRightEdge)
             {
-                AddLine(new(new(endX, posY), new(endX, endY)), lines);
+                AddLine(new(new(endX, posY), new(endX, endY)), lines, Down);
             }
         }
     }
 
-    public static VectorPath BuildContour(List<Line> lines)
+    public static VectorPath BuildContour(Lines lines)
     {
         VectorPath selection = new();
-        Line startLine = lines[0];
-        selection.MoveTo(startLine.Start);
+
+        VecI startingPoint = lines.LineDict[Up].First().Value.Start;
+        VecI prevPos = startingPoint;
+        selection.MoveTo(prevPos);
+        foreach (var line in lines)
+        {
+            Line nextLine;
+            if (!lines.TryGetLine(prevPos, out nextLine))
+            {
+                nextLine = line;
+                selection.MoveTo(nextLine.Start);
+                selection.LineTo(nextLine.End);
+                prevPos = nextLine.End;
+                lines.RemoveLine(line.Start);
+                continue;
+            }
+            
+            selection.LineTo(nextLine.End);
+            lines.RemoveLine(prevPos);
+            prevPos = nextLine.End;
+        }
+        
+        /*selection.MoveTo(startLine.Start);
         VecI lastPos = startLine.End;
         VecI lastDir = startLine.End - startLine.Start;
         lines.RemoveAt(0);
@@ -380,18 +409,9 @@ internal static class FloodFillHelper
             lastDir = nextDir;
             lines.Remove(nextLine);
             i--;
-        }
+        }*/
 
         return selection;
-    }
-
-    private static Line FindNextLine(List<Line> lines, VecI lastPos)
-    {
-        Line nextLine = lines.FirstOrDefault(x => x.Start == lastPos);
-        if(nextLine == default)
-            nextLine = lines.FirstOrDefault(x => x.End == lastPos);
-        
-        return nextLine;
     }
 
     private static unsafe byte[]? GetChunkFloodFill(
@@ -401,7 +421,7 @@ internal static class FloodFillHelper
         VecI maxSize,
         VecI documentSize,
         VecI pos,
-        ColorBounds bounds, List<Line> lines)
+        ColorBounds bounds, Lines lines)
     {
         byte[] pixelStates = new byte[chunkSize * chunkSize];
 
@@ -429,10 +449,10 @@ internal static class FloodFillHelper
         return pixelStates;
     }
 
-    private static unsafe void AddFillContourLines(int chunkSize, VecI chunkOffset, ColorBounds bounds, List<Line> lines,
+    private static unsafe void AddFillContourLines(int chunkSize, VecI chunkOffset, ColorBounds bounds, Lines lines,
         VecI curPos, byte[] pixelStates, int pixelOffset, Half* refPixel, Stack<VecI> toVisit, VecI clampedPos)
     {
-        // Left
+        // Left pixel
         if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited)
         {
             if (bounds.IsWithinBounds(refPixel - 4))
@@ -444,11 +464,11 @@ internal static class FloodFillHelper
                 AddLine(
                     new Line(
                         new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset,
-                        new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
+                        new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines, Up);
             }
         }
 
-        // Right
+        // Right pixel
         if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] != Visited)
         {
             if (bounds.IsWithinBounds(refPixel + 4))
@@ -460,11 +480,11 @@ internal static class FloodFillHelper
                 AddLine(
                     new Line(
                         new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset,
-                        new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines);
+                        new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines, Down);
             }
         }
 
-        // Top
+        // Top pixel
         if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] != Visited)
         {
             if (bounds.IsWithinBounds(refPixel - 4 * chunkSize))
@@ -476,11 +496,11 @@ internal static class FloodFillHelper
                 AddLine(
                     new Line(
                         new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset,
-                        new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
+                        new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines, Right);
             }
         }
 
-        //Bottom
+        //Bottom pixel
         if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] != Visited)
         {
             if (bounds.IsWithinBounds(refPixel + 4 * chunkSize))
@@ -492,12 +512,12 @@ internal static class FloodFillHelper
                 AddLine(
                     new Line(
                         new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset,
-                        new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines);
+                        new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines, Left);
             }
         }
     }
 
-    private static void AddCornerLines(VecI documentSize, VecI chunkOffset, List<Line> lines, VecI curPos, VecI clampedPos)
+    private static void AddCornerLines(VecI documentSize, VecI chunkOffset, Lines lines, VecI curPos, VecI clampedPos)
     {
         VecI globalPos = curPos + chunkOffset;
         if (globalPos.X == 0)
@@ -505,7 +525,7 @@ internal static class FloodFillHelper
             AddLine(
                 new Line(
                     new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset,
-                    new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines);
+                    new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines, Up);
         }
 
         if (globalPos.X == documentSize.X - 1)
@@ -513,7 +533,7 @@ internal static class FloodFillHelper
             AddLine(
                 new Line(
                     new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset,
-                    new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines);
+                    new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines, Down);
         }
 
         if (globalPos.Y == 0)
@@ -521,7 +541,7 @@ internal static class FloodFillHelper
             AddLine(
                 new Line(
                     new VecI(clampedPos.X, clampedPos.Y) + chunkOffset,
-                    new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset), lines);
+                    new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset), lines, Right);
         }
 
         if (globalPos.Y == documentSize.Y - 1)
@@ -529,22 +549,32 @@ internal static class FloodFillHelper
             AddLine(
                 new Line(
                     new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset,
-                    new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines);
+                    new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines, Left);
         }
     }
 
-    private static void AddLine(Line line, List<Line> lines)
+    private static void AddLine(Line line, Lines lines, VecI direction)
     {
-        if(lines.Contains(line)) return;
-        lines.Add(line);
+        VecI calculatedDir = (VecI)(line.End - line.Start).Normalized();
+        if (calculatedDir == direction)
+        {
+            lines.LineDict[direction][line.Start] = line;
+        }
+        else if(calculatedDir == -direction)
+        {
+            lines.LineDict[direction][line.End] = new Line(line.End, line.Start);
+        }
+        else
+        {
+            throw new Exception(
+                $"Line direction {calculatedDir} is not perpendicular to the direction of the requested line direction {direction}");
+        }
     }
 
     public struct Line
     {
         public VecI Start { get; set; }
         public VecI End { get; set; }
-        
-        public VecD DirectionNormalized => (End - Start).Normalized();
 
         public Line(VecI start, VecI end)
         {
@@ -572,6 +602,69 @@ internal static class FloodFillHelper
         public static bool operator !=(Line a, Line b)
         {
             return !(a == b);
+        }
+    }
+
+    internal class Lines : IEnumerable<Line>
+    {
+        public Dictionary<VecI, Dictionary<VecI, Line>> LineDict { get; set; } = new Dictionary<VecI, Dictionary<VecI, Line>>();
+
+        public Lines()
+        {
+            LineDict[Right] = new Dictionary<VecI, Line>();
+            LineDict[Down] = new Dictionary<VecI, Line>();
+            LineDict[Left] = new Dictionary<VecI, Line>();
+            LineDict[Up] = new Dictionary<VecI, Line>();
+        }
+        
+        public bool TryGetLine(VecI start, out Line line)
+        {
+            foreach (var lineDict in LineDict.Values)
+            {
+                if (lineDict.TryGetValue(start, out line))
+                {
+                    return true;
+                }
+            }
+            
+            line = default;
+            return false;
+        }
+
+        public IEnumerator<Line> GetEnumerator()
+        {
+            foreach (var upLines in LineDict[Up])
+            {
+                yield return upLines.Value;
+            }
+            
+            foreach (var rightLines in LineDict[Right])
+            {
+                yield return rightLines.Value;
+            }
+            
+            foreach (var downLines in LineDict[Down])
+            {
+                yield return downLines.Value;
+            }
+            
+            foreach (var leftLines in LineDict[Left])
+            {
+                yield return leftLines.Value;
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        public void RemoveLine(VecI prevPos)
+        {
+            foreach (var lineDict in LineDict.Values)
+            {
+                lineDict.Remove(prevPos);
+            }
         }
     }
 }

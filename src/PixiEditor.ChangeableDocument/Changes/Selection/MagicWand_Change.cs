@@ -6,7 +6,7 @@ using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 
-internal class MagicWand_UpdateableChange : Change
+internal class MagicWand_Change : Change
 {
     private VectorPath? originalPath;
     private VectorPath path = new() { FillType = PathFillType.EvenOdd };
@@ -17,7 +17,7 @@ internal class MagicWand_UpdateableChange : Change
     private readonly SelectionMode mode;
 
     [GenerateMakeChangeAction]
-    public MagicWand_UpdateableChange(Guid memberGuid, VecI point, SelectionMode mode, bool referenceAll, bool drawOnMask)
+    public MagicWand_Change(Guid memberGuid, VecI point, SelectionMode mode, bool referenceAll, bool drawOnMask)
     {
         path.MoveTo(point);
         this.mode = mode;
