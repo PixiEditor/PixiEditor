@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Threading;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
@@ -13,6 +14,10 @@ namespace PixiEditor.Models.DocumentModels;
 #nullable enable
 internal class ActionAccumulator
 {
+    private const long minMsPerUpdate = 1000 / 60;
+    private Stopwatch updateStopwatch = Stopwatch.StartNew();
+    private long lastUpdateMs = 0;
+
     private bool executing = false;
 
     private List<IAction> queuedActions = new();
@@ -57,6 +62,13 @@ internal class ActionAccumulator
 
         while (queuedActions.Count > 0)
         {
+            // wait to limit update rate
+            long currentMillis = updateStopwatch.ElapsedMilliseconds;
+            long waitDuration = minMsPerUpdate - (currentMillis - lastUpdateMs);
+            if (waitDuration > 0)
+                await Task.Delay((int)waitDuration);
+            lastUpdateMs = updateStopwatch.ElapsedMilliseconds;
+
             // select actions to be processed
             var toExecute = queuedActions;
             queuedActions = new List<IAction>();
