@@ -353,27 +353,34 @@ internal static class FloodFillHelper
     {
         VectorPath selection = new();
 
-        VecI startingPoint = lines.LineDict[Up].First().Value.Start;
+        Line[] remainingLines = lines.ToArray();
+
+        VecI startingPoint = remainingLines[0].Start;
         VecI prevPos = startingPoint;
+        VecI prevDir = remainingLines[0].NormalizedDirection;
+        lines.RemoveLine(remainingLines[0]);
         selection.MoveTo(prevPos);
-        foreach (var line in lines)
+        for (var i = 0; i < remainingLines.Length; i++)
         {
+            var line = remainingLines[i];
             Line nextLine;
-            if (!lines.TryGetLine(prevPos, out nextLine))
+            if (!lines.TryGetLine(prevPos, prevDir, out nextLine))
             {
                 nextLine = line;
                 selection.MoveTo(nextLine.Start);
                 selection.LineTo(nextLine.End);
                 prevPos = nextLine.End;
-                lines.RemoveLine(line.Start);
+                prevDir = nextLine.NormalizedDirection;
+                lines.RemoveLine(nextLine);
                 continue;
             }
-            
+
             selection.LineTo(nextLine.End);
-            lines.RemoveLine(prevPos);
+            lines.RemoveLine(nextLine);
+            prevDir = nextLine.NormalizedDirection;
             prevPos = nextLine.End;
         }
-        
+
         /*selection.MoveTo(startLine.Start);
         VecI lastPos = startLine.End;
         VecI lastDir = startLine.End - startLine.Start;
@@ -575,11 +582,13 @@ internal static class FloodFillHelper
     {
         public VecI Start { get; set; }
         public VecI End { get; set; }
+        public VecI NormalizedDirection { get; }
 
         public Line(VecI start, VecI end)
         {
             Start = start;
             End = end;
+            NormalizedDirection = (VecI)(end - start).Normalized();
         }
         
         public Line Extended(VecI point)
@@ -617,10 +626,14 @@ internal static class FloodFillHelper
             LineDict[Up] = new Dictionary<VecI, Line>();
         }
         
-        public bool TryGetLine(VecI start, out Line line)
+        public bool TryGetLine(VecI start, VecI preferredDir, out Line line)
         {
+            if(LineDict[preferredDir].TryGetValue(start, out line)) return true;
+            
             foreach (var lineDict in LineDict.Values)
             {
+                if(lineDict == LineDict[preferredDir]) continue;
+                
                 if (lineDict.TryGetValue(start, out line))
                 {
                     return true;
@@ -659,11 +672,13 @@ internal static class FloodFillHelper
             return GetEnumerator();
         }
 
-        public void RemoveLine(VecI prevPos)
+        public void RemoveLine(Line line)
         {
             foreach (var lineDict in LineDict.Values)
             {
-                lineDict.Remove(prevPos);
+                VecI dictDir = lineDict == LineDict[Up] ? Up : lineDict == LineDict[Right] ? Right : lineDict == LineDict[Down] ? Down : Left;
+                if(line.NormalizedDirection != dictDir) continue;
+                lineDict.Remove(line.Start);
             }
         }
     }
