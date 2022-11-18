@@ -353,14 +353,15 @@ internal static class FloodFillHelper
     {
         VectorPath selection = new();
 
-        Line[] remainingLines = lines.ToArray();
+        List<Line> remainingLines = lines.ToList(); // I'm not sure how to avoid this yet
 
-        VecI startingPoint = remainingLines[0].Start;
-        VecI prevPos = startingPoint;
-        VecI prevDir = remainingLines[0].NormalizedDirection;
-        lines.RemoveLine(remainingLines[0]);
-        selection.MoveTo(prevPos);
-        for (var i = 0; i < remainingLines.Length; i++)
+        Line startingLine = remainingLines[0];
+        VecI prevPos = startingLine.End;
+        VecI prevDir = startingLine.NormalizedDirection;
+        selection.MoveTo(startingLine.Start);
+        selection.LineTo(startingLine.End);
+        lines.RemoveLine(startingLine);
+        for (var i = 1; i < remainingLines.Count; i++)
         {
             var line = remainingLines[i];
             Line nextLine;
@@ -368,18 +369,28 @@ internal static class FloodFillHelper
             {
                 nextLine = line;
                 selection.MoveTo(nextLine.Start);
-                selection.LineTo(nextLine.End);
+                //selection.LineTo(nextLine.End); // If you find a bug, try uncommenting this line
                 prevPos = nextLine.End;
                 prevDir = nextLine.NormalizedDirection;
                 lines.RemoveLine(nextLine);
+                remainingLines.RemoveAt(i);
+                i--;
                 continue;
             }
 
-            selection.LineTo(nextLine.End);
-            lines.RemoveLine(nextLine);
+            if (prevDir != nextLine.NormalizedDirection)
+            {
+                selection.LineTo(prevPos);
+            }
+
             prevDir = nextLine.NormalizedDirection;
             prevPos = nextLine.End;
+            lines.RemoveLine(nextLine);
+            remainingLines.Remove(nextLine);
+            i--;
         }
+        
+        selection.Close();
 
         /*selection.MoveTo(startLine.Start);
         VecI lastPos = startLine.End;
@@ -563,6 +574,7 @@ internal static class FloodFillHelper
     private static void AddLine(Line line, Lines lines, VecI direction)
     {
         VecI calculatedDir = (VecI)(line.End - line.Start).Normalized();
+
         if (calculatedDir == direction)
         {
             lines.LineDict[direction][line.Start] = line;
@@ -629,10 +641,13 @@ internal static class FloodFillHelper
         public bool TryGetLine(VecI start, VecI preferredDir, out Line line)
         {
             if(LineDict[preferredDir].TryGetValue(start, out line)) return true;
+
+            VecI cachedOppositeDir = -preferredDir;
             
             foreach (var lineDict in LineDict.Values)
             {
-                if(lineDict == LineDict[preferredDir]) continue;
+                // Preferred was already checked, opposite is invalid
+                if(lineDict == LineDict[preferredDir] || lineDict == LineDict[cachedOppositeDir]) continue;
                 
                 if (lineDict.TryGetValue(start, out line))
                 {
