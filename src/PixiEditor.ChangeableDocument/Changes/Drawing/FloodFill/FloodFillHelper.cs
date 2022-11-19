@@ -247,14 +247,12 @@ internal static class FloodFillHelper
             var (chunkPos, posOnChunk) = positionsToFloodFill.Pop();
             var referenceChunk = cache.GetChunk(chunkPos);
             
-            VecI realSize = new VecI(Math.Min(chunkSize, document.Size.X), Math.Min(chunkSize, document.Size.Y));
-
             // don't call floodfill if the chunk is empty
             if (referenceChunk.IsT1)
             {
                 if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
-                    ProcessEmptySelectionChunk(lines, chunkPos, realSize, imageSizeInChunks);
+                    ProcessEmptySelectionChunk(lines, chunkPos, document.Size, imageSizeInChunks, chunkSize);
                     for (int i = 0; i < chunkSize; i++)
                     {
                         if (chunkPos.Y > 0)
@@ -275,12 +273,11 @@ internal static class FloodFillHelper
             var reallyReferenceChunk = referenceChunk.AsT0;
             if(processedChunks.Contains(chunkPos))
                 continue;
-
+            
             var maybeArray = GetChunkFloodFill(
                 reallyReferenceChunk,
                 chunkSize,
                 chunkPos * chunkSize,
-                realSize,
                 document.Size,
                 posOnChunk,
                 colorRange, lines);
@@ -310,7 +307,7 @@ internal static class FloodFillHelper
     }
 
     private static void ProcessEmptySelectionChunk(Lines lines, VecI chunkPos, VecI realSize,
-        VecI imageSizeInChunks)
+        VecI imageSizeInChunks, int chunkSize)
     {
         bool isEdgeChunk = chunkPos.X == 0 || chunkPos.Y == 0 || chunkPos.X == imageSizeInChunks.X - 1 ||
                            chunkPos.Y == imageSizeInChunks.Y - 1;
@@ -320,12 +317,15 @@ internal static class FloodFillHelper
             bool isBottomEdge = chunkPos.Y == imageSizeInChunks.Y - 1;
             bool isLeftEdge = chunkPos.X == 0;
             bool isRightEdge = chunkPos.X == imageSizeInChunks.X - 1;
-            
-            int posX = chunkPos.X * realSize.X;
-            int posY = chunkPos.Y * realSize.Y;
-            
-            int endX = posX + realSize.X;
-            int endY = posY + realSize.Y;
+
+            int posX = chunkPos.X * chunkSize;
+            int posY = chunkPos.Y * chunkSize;
+
+            int endX = posX + chunkSize;
+            int endY = posY + chunkSize;
+
+            endX = Math.Clamp(endX, 0, realSize.X);
+            endY = Math.Clamp(endY, 0, realSize.Y);
 
             if (isTopEdge)
             {
@@ -334,12 +334,12 @@ internal static class FloodFillHelper
 
             if (isBottomEdge)
             {
-                AddLine(new(new(posX, endY), new(endX, endY)), lines, Left);
+                AddLine(new(new(endX, endY), new(posX, endY)), lines, Left);
             }
 
             if (isLeftEdge)
             {
-                AddLine(new(new(posX, posY), new(posX, endY)), lines, Up);
+                AddLine(new(new(posX, endY), new(posX, posY)), lines, Up);
             }
             
             if (isRightEdge)
@@ -391,44 +391,6 @@ internal static class FloodFillHelper
         }
         
         selection.Close();
-
-        /*selection.MoveTo(startLine.Start);
-        VecI lastPos = startLine.End;
-        VecI lastDir = startLine.End - startLine.Start;
-        lines.RemoveAt(0);
-        for (var i = 0; i < lines.Count; i++)
-        {
-            Line nextLine = FindNextLine(lines, lastPos);
-
-            // Inner contour was found
-            if (nextLine == default) 
-            {
-                nextLine = lines[i];
-
-                selection.MoveTo(nextLine.Start);
-                selection.LineTo(nextLine.End);
-                lastPos = nextLine.End;
-                lines.RemoveAt(i);
-                i--;
-                continue;
-            }
-            
-            VecI nextPoint = nextLine.Start == lastPos ? nextLine.End : nextLine.Start;
-            VecI nextDir = nextPoint - lastPos;
-
-            // Draw only if direction changed, sometimes one more line at one of starting edges is added for some reason. I didn't fix it since it doesn't affect the result really
-            // But it's still shouldn't happen, so feel free to fix it
-            if (nextDir.Normalized() != lastDir.Normalized()) 
-            {
-                selection.LineTo(lastPos);
-            }
-            
-            lastPos = nextPoint;
-            lastDir = nextDir;
-            lines.Remove(nextLine);
-            i--;
-        }*/
-
         return selection;
     }
 
@@ -436,7 +398,6 @@ internal static class FloodFillHelper
         Chunk referenceChunk,
         int chunkSize,
         VecI chunkOffset,
-        VecI maxSize,
         VecI documentSize,
         VecI pos,
         ColorBounds bounds, Lines lines)
@@ -453,8 +414,8 @@ internal static class FloodFillHelper
         {
             VecI curPos = toVisit.Pop();
             VecI clampedPos = new VecI(
-                Math.Clamp(curPos.X, 0, maxSize.X - 1),
-                Math.Clamp(curPos.Y, 0, maxSize.Y - 1));
+                Math.Clamp(curPos.X, 0, documentSize.X - 1),
+                Math.Clamp(curPos.Y, 0, documentSize.Y - 1));
             
             int pixelOffset = curPos.X + curPos.Y * chunkSize;
             Half* refPixel = refArray + pixelOffset * 4;
