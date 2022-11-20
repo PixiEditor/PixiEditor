@@ -68,6 +68,7 @@ internal class SelectToolExecutor : UpdateableChangeExecutor
 
     public override void ForceStop()
     {
-        OnLeftMouseButtonUp();
+        IAction action = CreateEndAction(selectShape);
+        internals!.ActionAccumulator.AddFinishedActions(action);
     }
 }

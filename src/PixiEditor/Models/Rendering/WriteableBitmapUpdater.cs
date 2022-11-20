@@ -73,7 +73,7 @@ internal class WriteableBitmapUpdater
         // add all affected chunks to postponed
         foreach (var (_, postponed) in globalPostponedChunks)
         {
-            postponed.UnionWith(chunkGatherer.mainImageChunks);
+            postponed.UnionWith(chunkGatherer.MainImageChunks);
         }
 
         // find all chunks that are on viewports and on delayed viewports
@@ -141,8 +141,8 @@ internal class WriteableBitmapUpdater
     private (Dictionary<Guid, HashSet<VecI>> image, Dictionary<Guid, HashSet<VecI>> mask) FindPreviewChunksToRerender
         (AffectedChunkGatherer chunkGatherer, bool postpone)
     {
-        AddChunks(chunkGatherer.imagePreviewChunks, previewDelayedChunks);
-        AddChunks(chunkGatherer.maskPreviewChunks, maskPreviewDelayedChunks);
+        AddChunks(chunkGatherer.ImagePreviewChunks, previewDelayedChunks);
+        AddChunks(chunkGatherer.MaskPreviewChunks, maskPreviewDelayedChunks);
         if (postpone)
             return (new(), new());
         var result = (previewPostponedChunks: previewDelayedChunks, maskPostponedChunks: maskPreviewDelayedChunks);

@@ -14,7 +14,7 @@ internal sealed class LassoToolExecutor : UpdateableChangeExecutor
     {
         mode = ViewModelMain.Current?.ToolsSubViewModel.GetTool<LassoToolViewModel>()?.SelectMode;
 
-        if (mode == null)
+        if (mode is null)
             return ExecutionState.Error;
         
         AddStartAction(controller!.LastPixelPosition);
@@ -26,13 +26,13 @@ internal sealed class LassoToolExecutor : UpdateableChangeExecutor
 
     public override void OnLeftMouseButtonUp()
     {
-        internals!.ActionAccumulator.AddActions(new EndSelectLasso_Action());
+        internals!.ActionAccumulator.AddFinishedActions(new EndSelectLasso_Action());
         onEnded!(this);
     }
 
     public override void ForceStop()
     {
-        OnLeftMouseButtonUp();
+        internals!.ActionAccumulator.AddFinishedActions(new EndSelectLasso_Action());
     }
 
     private void AddStartAction(VecI pos)

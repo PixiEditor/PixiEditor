@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -81,8 +82,9 @@ internal class ActionAccumulator
                 changes = await internals.Tracker.ProcessActions(toExecute);
 
             // update viewmodels based on changes
+            List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
             bool undoBoundaryPassed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
-            foreach (IChangeInfo? info in changes)
+            foreach (IChangeInfo info in optimizedChanges)
             {
                 internals.Updater.ApplyChangeFromChangeInfo(info);
             }
@@ -109,7 +111,7 @@ internal class ActionAccumulator
             // Also, there is a bug report for this on github https://github.com/dotnet/wpf/issues/5816
 
             // update the contents of the bitmaps
-            var affectedChunks = new AffectedChunkGatherer(internals.Tracker, changes);
+            var affectedChunks = new AffectedChunkGatherer(internals.Tracker, optimizedChanges);
             var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, undoBoundaryPassed);
             
             // lock bitmaps

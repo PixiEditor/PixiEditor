@@ -15,17 +15,17 @@ internal class AffectedChunkGatherer
 {
     private readonly DocumentChangeTracker tracker;
 
-    public HashSet<VecI> mainImageChunks { get; private set; } = new();
-    public Dictionary<Guid, HashSet<VecI>> imagePreviewChunks { get; private set; } = new();
-    public Dictionary<Guid, HashSet<VecI>> maskPreviewChunks { get; private set; } = new();
+    public HashSet<VecI> MainImageChunks { get; private set; } = new();
+    public Dictionary<Guid, HashSet<VecI>> ImagePreviewChunks { get; private set; } = new();
+    public Dictionary<Guid, HashSet<VecI>> MaskPreviewChunks { get; private set; } = new();
 
-    public AffectedChunkGatherer(DocumentChangeTracker tracker, IReadOnlyList<IChangeInfo?> changes)
+    public AffectedChunkGatherer(DocumentChangeTracker tracker, IReadOnlyList<IChangeInfo> changes)
     {
         this.tracker = tracker;
         ProcessChanges(changes);
     }
 
-    private void ProcessChanges(IReadOnlyList<IChangeInfo?> changes)
+    private void ProcessChanges(IReadOnlyList<IChangeInfo> changes)
     {
         foreach (var change in changes)
         {
@@ -144,7 +144,7 @@ internal class AffectedChunkGatherer
 
     private void AddToMainImage(HashSet<VecI> chunks)
     {
-        mainImageChunks.UnionWith(chunks);
+        MainImageChunks.UnionWith(chunks);
     }
 
     private void AddToImagePreviews(Guid memberGuid, HashSet<VecI> chunks, bool ignoreSelf = false)
@@ -155,25 +155,25 @@ internal class AffectedChunkGatherer
         for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
         {
             var member = path[i];
-            if (!imagePreviewChunks.ContainsKey(member.GuidValue))
-                imagePreviewChunks[member.GuidValue] = new HashSet<VecI>(chunks);
+            if (!ImagePreviewChunks.ContainsKey(member.GuidValue))
+                ImagePreviewChunks[member.GuidValue] = new HashSet<VecI>(chunks);
             else
-                imagePreviewChunks[member.GuidValue].UnionWith(chunks);
+                ImagePreviewChunks[member.GuidValue].UnionWith(chunks);
         }
     }
 
     private void AddToMaskPreview(Guid memberGuid, HashSet<VecI> chunks)
     {
-        if (!maskPreviewChunks.ContainsKey(memberGuid))
-            maskPreviewChunks[memberGuid] = new HashSet<VecI>(chunks);
+        if (!MaskPreviewChunks.ContainsKey(memberGuid))
+            MaskPreviewChunks[memberGuid] = new HashSet<VecI>(chunks);
         else
-            maskPreviewChunks[memberGuid].UnionWith(chunks);
+            MaskPreviewChunks[memberGuid].UnionWith(chunks);
     }
 
 
     private void AddWholeCanvasToMainImage()
     {
-        AddAllChunks(mainImageChunks);
+        AddAllChunks(MainImageChunks);
     }
 
     private void AddWholeCanvasToImagePreviews(Guid memberGuid, bool ignoreSelf = false)
@@ -185,17 +185,17 @@ internal class AffectedChunkGatherer
         for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
         {
             var member = path[i];
-            if (!imagePreviewChunks.ContainsKey(member.GuidValue))
-                imagePreviewChunks[member.GuidValue] = new HashSet<VecI>();
-            AddAllChunks(imagePreviewChunks[member.GuidValue]);
+            if (!ImagePreviewChunks.ContainsKey(member.GuidValue))
+                ImagePreviewChunks[member.GuidValue] = new HashSet<VecI>();
+            AddAllChunks(ImagePreviewChunks[member.GuidValue]);
         }
     }
 
     private void AddWholeCanvasToMaskPreview(Guid memberGuid)
     {
-        if (!maskPreviewChunks.ContainsKey(memberGuid))
-            maskPreviewChunks[memberGuid] = new HashSet<VecI>();
-        AddAllChunks(maskPreviewChunks[memberGuid]);
+        if (!MaskPreviewChunks.ContainsKey(memberGuid))
+            MaskPreviewChunks[memberGuid] = new HashSet<VecI>();
+        AddAllChunks(MaskPreviewChunks[memberGuid]);
     }
 
 

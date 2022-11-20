@@ -40,7 +40,7 @@ internal class DocumentUpdater
     /// <summary>
     /// Don't call this outside ActionAccumulator
     /// </summary>
-    public void ApplyChangeFromChangeInfo(IChangeInfo? arbitraryInfo)
+    public void ApplyChangeFromChangeInfo(IChangeInfo arbitraryInfo)
     {
         if (arbitraryInfo is null)
             return;
