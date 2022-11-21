@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Windows.Input;
+using System.Windows.Shapes;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
@@ -59,46 +60,127 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    /// <summary>
-    ///     Generates new Layer and sets it as active one.
-    /// </summary>
-    /// <param name="parameter">CommandParameter.</param>
-    [Command.Basic("PixiEditor.File.New", "New image", "Create new image", Key = Key.N, Modifiers = ModifierKeys.Control)]
-    public void OpenNewFilePopup()
-    {
-        NewFileDialog newFile = new NewFileDialog();
-        if (newFile.ShowDialog())
-        {
-            NewDocument(b => b
-                .WithSize(newFile.Width,newFile.Height)
-                .WithLayer(l => l
-                    .WithName("Base Layer")
-                    .WithSurface(new Surface(new VecI(newFile.Width, newFile.Height)))));
-        }
-    }
-
-    public void OpenHelloTherePopup()
+    private void OpenHelloTherePopup()
     {
         new HelloTherePopup(this).Show();
     }
 
-    public DocumentViewModel NewDocument(Action<DocumentViewModelBuilder> builder)
+    private void Owner_OnStartupEvent(object sender, System.EventArgs e)
     {
-        var doc = DocumentViewModel.Build(builder);
+        List<string> args = StartupArgs.Args;
+        string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
+        if (file != null)
+        {
+            OpenFromPath(file);
+        }
+        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0
+                  || !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
+        {
+            if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
+            {
+                OpenHelloTherePopup();
+            }
+        }
+    }
 
-        doc.MarkAsSaved();
-        Owner.DocumentManagerSubViewModel.Documents.Add(doc);
-        Owner.WindowSubViewModel.CreateNewViewport(doc);
-        Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
+    [Command.Internal("PixiEditor.File.OpenRecent")]
+    public void OpenRecent(object parameter)
+    {
+        string path = (string)parameter;
+        if (!File.Exists(path))
+        {
+            NoticeDialog.Show("The file does not exist", "Failed to open the file");
+            RecentlyOpened.Remove(path);
+            IPreferences.Current.UpdateLocalPreference("RecentlyOpened", RecentlyOpened.Select(x => x.FilePath));
+            return;
+        }
 
-        return doc;
+        OpenFromPath(path);
+    }
+
+    [Command.Basic("PixiEditor.File.Open", "Open", "Open file", Key = Key.O, Modifiers = ModifierKeys.Control)]
+    public void OpenFromOpenFileDialog()
+    {
+        string filter = SupportedFilesHelper.BuildOpenFilter();
+
+        OpenFileDialog dialog = new OpenFileDialog
+        {
+            Filter = filter,
+            FilterIndex = 0
+        };
+
+        if (!(bool)dialog.ShowDialog() || !Importer.IsSupportedFile(dialog.FileName))
+            return;
+
+        OpenFromPath(dialog.FileName);
+    }
+
+    private bool MakeExistingDocumentActiveIfOpened(string path)
+    {
+        foreach (DocumentViewModel document in Owner.DocumentManagerSubViewModel.Documents)
+        {
+            if (document.FullFilePath is not null && System.IO.Path.GetFullPath(document.FullFilePath) == System.IO.Path.GetFullPath(path))
+            {
+                Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
+                return true;
+            }
+        }
+        return false;
     }
 
     /// <summary>
-    ///     Opens file from path.
+    /// Tries to open the passed file if it isn't already open
     /// </summary>
-    /// <param name="path">Path to file.</param>
-    public void OpenFile(string path)
+    /// <param name="path"></param>
+    public void OpenFromPath(string path)
+    {
+        if (MakeExistingDocumentActiveIfOpened(path))
+            return;
+
+        try
+        {
+            if (path.EndsWith(".pixi"))
+            {
+                OpenDotPixi(path);
+            }
+            else
+            {
+                OpenRegularImage(path);
+            }
+        }
+        catch (CorruptedFileException ex)
+        {
+            NoticeDialog.Show(ex.Message, "Failed to open the file");
+        }
+        catch (OldFileFormatException)
+        {
+            NoticeDialog.Show("This .pixi file uses the old format,\n which is no longer supported and can't be opened.", "Old file format");
+        }
+    }
+
+    /// <summary>
+    /// Opens a .pixi file from path, creates a document from it, and adds it to the system
+    /// </summary>
+    private void OpenDotPixi(string path)
+    {
+        DocumentViewModel document = Importer.ImportDocument(path);
+        AddDocumentViewModelToTheSystem(document);
+    }
+
+    /// <summary>
+    /// Opens a .pixi file from path, creates a document from it, and adds it to the system
+    /// </summary>
+    public void OpenRecoveredDotPixi(string? originalPath, byte[] dotPixiBytes)
+    {
+        DocumentViewModel document = Importer.ImportDocument(dotPixiBytes, originalPath);
+        document.MarkAsUnsaved();
+        AddDocumentViewModelToTheSystem(document);
+    }
+
+    /// <summary>
+    /// Opens a regular image file from path, creates a document from it, and adds it to the system.
+    /// </summary>
+    private void OpenRegularImage(string path)
     {
         ImportFileDialog dialog = new ImportFileDialog();
 
@@ -119,118 +201,32 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.File.Open", "Open", "Open file", Key = Key.O, Modifiers = ModifierKeys.Control)]
-    public void Open(string path)
+    [Command.Basic("PixiEditor.File.New", "New image", "Create new image", Key = Key.N, Modifiers = ModifierKeys.Control)]
+    public void CreateFromNewFileDialog()
     {
-        if (path == null)
+        NewFileDialog newFile = new NewFileDialog();
+        if (newFile.ShowDialog())
         {
-            Open();
-            return;
-        }
-
-        try
-        {
-            if (path.EndsWith(".pixi"))
-            {
-                OpenDocument(path);
-            }
-            else
-            {
-                OpenFile(path);
-            }
-        }
-        catch (CorruptedFileException ex)
-        {
-            NoticeDialog.Show(ex.Message, "Failed to open the file");
-        }
-        catch (OldFileFormatException)
-        {
-            NoticeDialog.Show("This .pixi file uses the old format,\n which is no longer supported and can't be opened.", "Old file format");
+            NewDocument(b => b
+                .WithSize(newFile.Width, newFile.Height)
+                .WithLayer(l => l
+                    .WithName("Base Layer")
+                    .WithSurface(new Surface(new VecI(newFile.Width, newFile.Height)))));
         }
     }
 
-    private void Owner_OnStartupEvent(object sender, System.EventArgs e)
+    private DocumentViewModel NewDocument(Action<DocumentViewModelBuilder> builder)
     {
-        List<string> args = StartupArgs.Args;
-        string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
-        if (file != null)
-        {
-            Open(file);
-        }
-        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0
-                  || !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
-        {
-            if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
-            {
-                OpenHelloTherePopup();
-            }
-        }
+        var doc = DocumentViewModel.Build(builder);
+        AddDocumentViewModelToTheSystem(doc);
+        return doc;
     }
 
-    [Command.Internal("PixiEditor.File.OpenRecent")]
-
-    public void OpenRecent(object parameter)
+    private void AddDocumentViewModelToTheSystem(DocumentViewModel doc)
     {
-        string path = (string)parameter;
-
-        foreach (DocumentViewModel document in Owner.DocumentManagerSubViewModel.Documents)
-        {
-            if (document.FullFilePath is not null && document.FullFilePath == path)
-            {
-                Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
-                return;
-            }
-        }
-
-        if (!File.Exists(path))
-        {
-            NoticeDialog.Show("The file does not exist", "Failed to open the file");
-            RecentlyOpened.Remove(path);
-            IPreferences.Current.UpdateLocalPreference("RecentlyOpened", RecentlyOpened.Select(x => x.FilePath));
-            return;
-        }
-
-        Open((string)parameter);
-    }
-
-    public void Open()
-    {
-        string filter = SupportedFilesHelper.BuildOpenFilter();
-
-        OpenFileDialog dialog = new OpenFileDialog
-        {
-            Filter = filter,
-            FilterIndex = 0
-        };
-
-        if ((bool)dialog.ShowDialog())
-        {
-            if (Importer.IsSupportedFile(dialog.FileName))
-            {
-                Open(dialog.FileName);
-
-                if (Owner.DocumentManagerSubViewModel.Documents.Count > 0)
-                {
-                    Owner.WindowSubViewModel.MakeDocumentViewportActive(Owner.DocumentManagerSubViewModel.Documents[^1]);
-                }
-            }
-        }
-    }
-
-    private void OpenDocument(string path)
-    {
-        DocumentViewModel document = Importer.ImportDocument(path);
-        DocumentManagerViewModel manager = Owner.DocumentManagerSubViewModel;
-        if (manager.Documents.Select(x => x.FullFilePath).All(y => y != path))
-        {
-            manager.Documents.Add(document);
-            Owner.WindowSubViewModel.CreateNewViewport(document);
-            Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
-        }
-        else
-        {
-            Owner.WindowSubViewModel.MakeDocumentViewportActive(manager.Documents.First(y => y.FullFilePath == path));
-        }
+        Owner.DocumentManagerSubViewModel.Documents.Add(doc);
+        Owner.WindowSubViewModel.CreateNewViewport(doc);
+        Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
     }
 
     [Command.Basic("PixiEditor.File.Save", false, "Save", "Save image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control, IconPath = "Save.png")]
@@ -257,9 +253,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             success = path != null;
         }
 
-        document.FullFilePath = path;
         if (success)
         {
+            document.FullFilePath = path;
             document.MarkAsSaved();
         }
 

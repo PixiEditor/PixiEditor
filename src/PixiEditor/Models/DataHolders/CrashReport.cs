@@ -3,11 +3,14 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
 using PixiEditor.Helpers;
+using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DataHolders;
 
+#nullable enable
 internal class CrashReport : IDisposable
 {
     public static CrashReport Generate(Exception exception)
@@ -86,32 +89,36 @@ internal class CrashReport : IDisposable
 
     public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
 
-    public List<DocumentViewModel> RecoverDocuments()
+    public List<(string? originalPath, byte[] dotPixiBytes)> RecoverDocuments()
     {
-        return new List<DocumentViewModel>();
-        /*
-        List<Document> documents = new();
+        // Load .pixi files
+        Dictionary<string, byte[]> recoveredDocuments = new();
         foreach (ZipArchiveEntry entry in ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")))
         {
             using Stream stream = entry.Open();
-
-            Document document;
-
-            try
-            {
-                document = PixiParser.Deserialize(stream).ToDocument();
-                document.ChangesSaved = false;
-            }
-            catch
-            {
-                continue;
-            }
-
-            documents.Add(document);
+            using MemoryStream memStream = new();
+            stream.CopyTo(memStream);
+            recoveredDocuments.Add(entry.Name, memStream.ToArray());
         }
 
-        return documents;
-        */
+        ZipArchiveEntry? originalPathsEntry = ZipFile.Entries.Where(entry => entry.FullName == "DocumentInfo.json").FirstOrDefault();
+        if (originalPathsEntry is null)
+            return recoveredDocuments.Select<KeyValuePair<string, byte[]>, (string?, byte[])>(keyValue => (null, keyValue.Value)).ToList();
+
+        // Load original paths
+        Dictionary<string, string?> originalPaths;
+        {
+            using Stream stream = originalPathsEntry.Open();
+            using StreamReader reader = new(stream);
+            string json = reader.ReadToEnd();
+            originalPaths = JsonConvert.DeserializeObject<Dictionary<string, string?>>(json);
+        }
+
+        return (
+            from docKeyValue in recoveredDocuments
+            join pathKeyValue in originalPaths on docKeyValue.Key equals pathKeyValue.Key
+            select (pathKeyValue.Value, docKeyValue.Value)
+            ).ToList();
     }
 
     public void Dispose()
@@ -147,7 +154,6 @@ internal class CrashReport : IDisposable
 
     public void Save()
     {
-        /*
         using FileStream zipStream = new(FilePath, FileMode.Create, FileAccess.Write);
         using ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
 
@@ -156,21 +162,39 @@ internal class CrashReport : IDisposable
             reportStream.Write(Encoding.UTF8.GetBytes(ReportText));
         }
 
-        foreach (Document document in ViewModelMain.Current.BitmapManager.Documents)
+        var vm = ViewModelMain.Current;
+        if (vm is null)
+            return;
+
+        // Write the documents into zip
+        int counter = 0;
+        Dictionary<string, string?> originalPaths = new();
+        foreach (DocumentViewModel document in vm.DocumentManagerSubViewModel.Documents)
         {
             try
             {
-                string documentPath =
-                    $"{(string.IsNullOrWhiteSpace(document.DocumentFilePath) ? "Unsaved" : Path.GetFileNameWithoutExtension(document.DocumentFilePath))}-{document.OpenedUTC}.pixi".Replace(':', '_');
+                string fileName = string.IsNullOrWhiteSpace(document.FullFilePath) ? "Unsaved" : Path.GetFileNameWithoutExtension(document.FullFilePath);
+                string nameInZip = $"{fileName}-{document.OpenedUTC}-{counter}.pixi".Replace(':', '_');
 
                 byte[] serialized = PixiParser.Serialize(document.ToSerializable());
 
-                using Stream documentStream = archive.CreateEntry($"Documents/{documentPath}").Open();
+                using Stream documentStream = archive.CreateEntry($"Documents/{nameInZip}").Open();
                 documentStream.Write(serialized);
+
+                originalPaths.Add(nameInZip, document.FullFilePath);
             }
             catch { }
+            counter++;
         }
-        */
+
+        // Write their original paths into a separate file
+        {
+            using Stream jsonStream = archive.CreateEntry("DocumentInfo.json").Open();
+            using StreamWriter writer = new StreamWriter(jsonStream);
+
+            string originalPathsJson = JsonConvert.SerializeObject(originalPaths, Formatting.Indented);
+            writer.Write(originalPathsJson);
+        }
     }
 
     private void ExtractReport()

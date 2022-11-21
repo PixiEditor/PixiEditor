@@ -25,7 +25,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             if (objectPointer == _srgbPointer) return;
             ManagedInstances[objectPointer].Dispose();
-            ManagedInstances.Remove(objectPointer);
+            ManagedInstances.TryRemove(objectPointer, out _);
         }
     }
 }

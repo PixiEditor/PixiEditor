@@ -173,7 +173,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             ManagedInstances[objectPointer].Dispose();
             
-            ManagedInstances.Remove(objectPointer);
+            ManagedInstances.TryRemove(objectPointer, out _);
         }
     }
 }

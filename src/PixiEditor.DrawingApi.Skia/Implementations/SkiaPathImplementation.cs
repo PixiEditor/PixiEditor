@@ -33,7 +33,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             if (path.IsDisposed) return;
             ManagedInstances[path.ObjectPointer].Dispose();
-            ManagedInstances.Remove(path.ObjectPointer);
+            ManagedInstances.TryRemove(path.ObjectPointer, out _);
         }
 
         public bool IsPathOval(VectorPath path)
@@ -74,14 +74,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public IntPtr Create()
         {
             SKPath path = new SKPath();
-            ManagedInstances.Add(path.Handle, path);
+            ManagedInstances[path.Handle] = path;
             return path.Handle;
         }
 
         public IntPtr Clone(VectorPath other)
         {
             SKPath path = new SKPath(ManagedInstances[other.ObjectPointer]);
-            ManagedInstances.Add(path.Handle, path);
+            ManagedInstances[path.Handle] = path;
             return path.Handle;
         }
 
@@ -157,14 +157,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public VectorPath Op(VectorPath vectorPath, VectorPath ellipsePath, VectorPathOp pathOp)
         {
             SKPath skPath = ManagedInstances[vectorPath.ObjectPointer].Op(ManagedInstances[ellipsePath.ObjectPointer], (SKPathOp)pathOp);
-            ManagedInstances.Add(skPath.Handle, skPath);
+            ManagedInstances[skPath.Handle] = skPath;
             return new VectorPath(skPath.Handle);
         }
 
         public VectorPath Simplify(VectorPath path)
         {
             SKPath skPath = ManagedInstances[path.ObjectPointer].Simplify();
-            ManagedInstances.Add(skPath.Handle, skPath);
+            ManagedInstances[skPath.Handle] = skPath;
             return new VectorPath(skPath.Handle);
         }
 

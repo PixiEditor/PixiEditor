@@ -84,6 +84,29 @@ internal class Importer : NotifyableObject
         }
     }
 
+    public static DocumentViewModel ImportDocument(byte[] file, string? originalFilePath)
+    {
+        try
+        {
+            var doc = PixiParser.Deserialize(file).ToDocument();
+            doc.FullFilePath = originalFilePath;
+            return doc;
+        }
+        catch (InvalidFileException)
+        {
+            try
+            {
+                var doc = DepractedPixiParser.Deserialize(file).ToDocument();
+                doc.FullFilePath = originalFilePath;
+                return doc;
+            }
+            catch (InvalidFileException)
+            {
+                throw new CorruptedFileException();
+            }
+        }
+    }
+
     public static bool IsSupportedFile(string path)
     {
         return SupportedFilesHelper.IsSupportedFile(path);

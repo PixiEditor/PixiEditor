@@ -18,7 +18,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public void Dispose(IntPtr objectPointer)
         {
             ManagedInstances[objectPointer].Dispose();
-            ManagedInstances.Remove(objectPointer);
+            ManagedInstances.TryRemove(objectPointer, out _);
         }
 
         public IntPtr GetPixels(IntPtr objectPointer)

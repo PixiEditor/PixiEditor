@@ -3,14 +3,13 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor;
 
-/// <summary>
-///     Interaction logic for App.xaml.
-/// </summary>
 internal partial class App : Application
 {
     /// <summary>The event mutex name.</summary>
@@ -29,21 +28,20 @@ internal partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        StartupArgs.Args = e.Args.ToList();
+        string arguments = string.Join(' ', e.Args);
+
+        if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
+        {
+            CrashReport report = CrashReport.Parse(groups[2].Value);
+            MainWindow = new CrashReportDialog(report);
+            MainWindow.Show();
+            return;
+        }
+
         if (HandleNewInstance())
         {
-            StartupArgs.Args = e.Args.ToList();
-            string arguments = string.Join(' ', e.Args);
-
-            if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
-            {
-                CrashReport report = CrashReport.Parse(groups[2].Value);
-                MainWindow = new CrashReportDialog(report);
-            }
-            else
-            {
-                MainWindow = new MainWindow();
-            }
-
+            MainWindow = new MainWindow();
             MainWindow.Show();
         }
     }
@@ -99,12 +97,16 @@ internal partial class App : Application
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
     {
         base.OnSessionEnding(e);
-        /*
-        if (ViewModelMain.Current.BitmapManager.Documents.Any(x => !x.ChangesSaved))
+
+        var vm = ViewModelMain.Current;
+        if (vm is null)
+            return;
+
+        if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
         {
             ConfirmationType confirmation = ConfirmationDialog.Show($"{e.ReasonSessionEnding} with unsaved data. Are you sure?", $"{e.ReasonSessionEnding}");
             e.Cancel = confirmation != ConfirmationType.Yes;
-        }*/
+        }
     }
 
     private bool ParseArgument(string pattern, string args, out Group[] groups)

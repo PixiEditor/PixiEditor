@@ -93,14 +93,14 @@ internal partial class HelloTherePopup : Window
     {
         Application.Current.MainWindow.Activate();
         Close();
-        FileViewModel.Open();
+        FileViewModel.OpenFromOpenFileDialog();
     }
 
     private void OpenNewFile(object parameter)
     {
         Application.Current.MainWindow.Activate();
         Close();
-        FileViewModel.OpenNewFilePopup();
+        FileViewModel.CreateFromNewFileDialog();
     }
 
     private void OpenRecent(object parameter)

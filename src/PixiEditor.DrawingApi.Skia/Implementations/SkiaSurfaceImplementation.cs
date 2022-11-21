@@ -68,7 +68,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public void Dispose(DrawingSurface drawingSurface)
         {
             ManagedInstances[drawingSurface.ObjectPointer].Dispose();
-            ManagedInstances.Remove(drawingSurface.ObjectPointer);
+            ManagedInstances.TryRemove(drawingSurface.ObjectPointer, out _);
         }
 
         private DrawingSurface CreateDrawingSurface(SKSurface skSurface)

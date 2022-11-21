@@ -21,7 +21,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             if (!ManagedInstances.ContainsKey(paintObjPointer)) return;
             SKPaint paint = ManagedInstances[paintObjPointer];
             paint.Dispose();
-            ManagedInstances.Remove(paintObjPointer);
+            ManagedInstances.TryRemove(paintObjPointer, out _);
         }
 
         public Paint Clone(IntPtr paintObjPointer)

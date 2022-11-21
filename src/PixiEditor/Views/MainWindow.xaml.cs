@@ -58,21 +58,17 @@ internal partial class MainWindow : Window
         });
     }
 
-    public static MainWindow CreateWithDocuments(IEnumerable<DocumentViewModel> documents)
+    public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
     {
-        /*
         MainWindow window = new();
-        BitmapManager bitmapManager = window.services.GetRequiredService<BitmapManager>();
+        FileViewModel fileVM = window.services.GetRequiredService<FileViewModel>();
 
-        foreach (Document document in documents)
+        foreach (var (path, bytes) in documents)
         {
-            bitmapManager.Documents.Add(document);
+            fileVM.OpenRecoveredDotPixi(path, bytes);
         }
 
-        bitmapManager.ActiveDocument = bitmapManager.Documents.FirstOrDefault();
-
-        return window;*/
-        return null;
+        return window;
     }
 
     /// <summary>Brings main window to foreground.</summary>
@@ -194,7 +190,7 @@ internal partial class MainWindow : Window
             {
                 if (Importer.IsSupportedFile(files[0]))
                 {
-                    DataContext.FileSubViewModel.Open(files[0]);
+                    DataContext.FileSubViewModel.OpenFromPath(files[0]);
                 }
             }
         }

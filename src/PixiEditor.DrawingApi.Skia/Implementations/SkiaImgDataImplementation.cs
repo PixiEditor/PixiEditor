@@ -14,7 +14,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             if (ManagedInstances.ContainsKey(objectPointer))
             {
                 ManagedInstances[objectPointer].Dispose();
-                ManagedInstances.Remove(objectPointer);
+                ManagedInstances.TryRemove(objectPointer, out _);
             }
         }
 

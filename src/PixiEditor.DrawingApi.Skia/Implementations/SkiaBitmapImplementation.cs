@@ -12,7 +12,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             SKBitmap bitmap = ManagedInstances[objectPointer];
             bitmap.Dispose();   
             
-            ManagedInstances.Remove(objectPointer);
+            ManagedInstances.TryRemove(objectPointer, out _);
         }
 
         public Bitmap Decode(ReadOnlySpan<byte> buffer)

@@ -202,6 +202,7 @@ internal partial class DocumentViewModel : NotifyableObject
         AddMembers(viewModel.StructureRoot.GuidValue, builderInstance.Children);
 
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());
+        viewModel.MarkAsSaved();
 
         return viewModel;
 
@@ -268,6 +269,12 @@ internal partial class DocumentViewModel : NotifyableObject
     public void MarkAsSaved()
     {
         lastChangeOnSave = Internals.Tracker.LastChangeGuid;
+        RaisePropertyChanged(nameof(AllChangesSaved));
+    }
+
+    public void MarkAsUnsaved()
+    {
+        lastChangeOnSave = Guid.NewGuid();
         RaisePropertyChanged(nameof(AllChangesSaved));
     }
 

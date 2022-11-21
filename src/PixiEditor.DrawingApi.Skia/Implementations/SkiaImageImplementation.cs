@@ -10,7 +10,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public class SkiaImageImplementation : SkObjectImplementation<SKImage>, IImageImplementation
     {
         private readonly SkObjectImplementation<SKData> _imgImplementation;
-        private SkObjectImplementation<SKSurface> _surfaceImplementation;
+        private SkObjectImplementation<SKSurface>? _surfaceImplementation;
         
         public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation)
         {
@@ -24,7 +24,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         
         public Image Snapshot(DrawingSurface drawingSurface)
         {
-            var surface = _surfaceImplementation[drawingSurface.ObjectPointer];
+            var surface = _surfaceImplementation![drawingSurface.ObjectPointer];
             SKImage snapshot = surface.Snapshot();
             
             ManagedInstances[snapshot.Handle] = snapshot;
@@ -42,7 +42,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public void DisposeImage(Image image)
         {
             ManagedInstances[image.ObjectPointer].Dispose();
-            ManagedInstances.Remove(image.ObjectPointer);
+            ManagedInstances.TryRemove(image.ObjectPointer, out _);
         }
 
         public Image FromEncodedData(string path)
