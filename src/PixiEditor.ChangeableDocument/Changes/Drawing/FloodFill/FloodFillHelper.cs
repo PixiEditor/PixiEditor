@@ -193,11 +193,8 @@ internal static class FloodFillHelper
     {
         if (selection is null)
         {
-            fixed (byte* arr = array)
-            {
-                Unsafe.InitBlockUnaligned(arr, InSelection, (uint)(chunkSize * chunkSize));
-            }
-            return;
+            selection = new VectorPath();
+            selection.AddRect(globalBounds);
         }
 
         RectI localBounds = globalBounds.Offset(-chunkPos * chunkSize).Intersect(new(0, 0, chunkSize, chunkSize));
@@ -499,6 +496,7 @@ internal static class FloodFillHelper
     private static void AddCornerLines(VecI documentSize, VecI chunkOffset, Lines lines, VecI curPos, VecI clampedPos)
     {
         VecI globalPos = curPos + chunkOffset;
+
         if (globalPos.X == 0)
         {
             AddLine(
