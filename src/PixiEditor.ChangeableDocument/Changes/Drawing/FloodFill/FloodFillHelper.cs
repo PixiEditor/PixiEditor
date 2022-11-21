@@ -415,23 +415,24 @@ internal static class FloodFillHelper
                 Math.Clamp(curPos.Y, 0, documentSize.Y - 1));
             
             int pixelOffset = curPos.X + curPos.Y * chunkSize;
+            VecI globalPos = curPos + chunkOffset;
             Half* refPixel = refArray + pixelOffset * 4;
             pixelStates[pixelOffset] = Visited;
 
             AddCornerLines(documentSize, chunkOffset, lines, curPos, clampedPos);
-            AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelStates, pixelOffset, refPixel, toVisit, clampedPos);
+            AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelStates, pixelOffset, refPixel, toVisit, clampedPos, globalPos, documentSize);
         }
         
         return pixelStates;
     }
 
     private static unsafe void AddFillContourLines(int chunkSize, VecI chunkOffset, ColorBounds bounds, Lines lines,
-        VecI curPos, byte[] pixelStates, int pixelOffset, Half* refPixel, Stack<VecI> toVisit, VecI clampedPos)
+        VecI curPos, byte[] pixelStates, int pixelOffset, Half* refPixel, Stack<VecI> toVisit, VecI clampedPos, VecI globalPos, VecI documentSize)
     {
         // Left pixel
         if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited)
         {
-            if (bounds.IsWithinBounds(refPixel - 4))
+            if (bounds.IsWithinBounds(refPixel - 4) && globalPos.X - 1 >= 0)
             {
                 toVisit.Push(new(curPos.X - 1, curPos.Y));
             }
@@ -447,7 +448,7 @@ internal static class FloodFillHelper
         // Right pixel
         if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] != Visited)
         {
-            if (bounds.IsWithinBounds(refPixel + 4))
+            if (bounds.IsWithinBounds(refPixel + 4) && globalPos.X + 1 < documentSize.X)
             {
                 toVisit.Push(new(curPos.X + 1, curPos.Y));
             }
@@ -463,7 +464,7 @@ internal static class FloodFillHelper
         // Top pixel
         if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] != Visited)
         {
-            if (bounds.IsWithinBounds(refPixel - 4 * chunkSize))
+            if (bounds.IsWithinBounds(refPixel - 4 * chunkSize) && globalPos.Y - 1 >= 0)
             {
                 toVisit.Push(new(curPos.X, curPos.Y - 1));
             }
@@ -479,7 +480,7 @@ internal static class FloodFillHelper
         //Bottom pixel
         if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] != Visited)
         {
-            if (bounds.IsWithinBounds(refPixel + 4 * chunkSize))
+            if (bounds.IsWithinBounds(refPixel + 4 * chunkSize) && globalPos.Y + 1 < documentSize.Y)
             {
                 toVisit.Push(new(curPos.X, curPos.Y + 1));
             }
