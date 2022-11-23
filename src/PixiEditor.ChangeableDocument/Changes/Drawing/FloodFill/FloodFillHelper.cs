@@ -216,6 +216,9 @@ internal static class FloodFillHelper
     public static VectorPath GetFloodFillSelection(VecI startingPos, HashSet<Guid> membersToFloodFill,
         IReadOnlyDocument document)
     {
+        if(startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= document.Size.X || startingPos.Y >= document.Size.Y)
+            return new VectorPath();
+        
         int chunkSize = ChunkResolution.Full.PixelSize();
 
         FloodFillChunkCache cache = CreateCache(membersToFloodFill, document);
@@ -224,6 +227,7 @@ internal static class FloodFillHelper
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
         
+
         Color colorToReplace = cache.GetChunk(initChunkPos).Match(
             (Chunk chunk) => chunk.Surface.GetSRGBPixel(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
@@ -243,7 +247,7 @@ internal static class FloodFillHelper
         {
             var (chunkPos, posOnChunk) = positionsToFloodFill.Pop();
             var referenceChunk = cache.GetChunk(chunkPos);
-            
+
             // don't call floodfill if the chunk is empty
             if (referenceChunk.IsT1)
             {
@@ -325,6 +329,7 @@ internal static class FloodFillHelper
 
             endX = Math.Clamp(endX, 0, realSize.X);
             endY = Math.Clamp(endY, 0, realSize.Y);
+            
 
             if (isTopEdge)
             {
@@ -681,13 +686,13 @@ internal static class FloodFillHelper
                 LineDict[-direction].Remove(line.End);
             }
             
-            LineDict[-direction].TryGetValue(line.Start, out cancelingLine);
+            LineDict[direction].TryGetValue(line.Start, out cancelingLine);
             if (cancelingLine != default && cancelingLine.End == line.End)
             {
                 cancelingLineExists = true;
                 LineDict[-direction].Remove(line.Start);
             }
-            
+
             return cancelingLineExists;
         }
     }
