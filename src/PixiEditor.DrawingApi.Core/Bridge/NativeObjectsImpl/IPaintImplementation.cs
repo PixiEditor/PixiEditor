@@ -24,5 +24,8 @@ namespace PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl
         public void SetStrokeCap(Paint paint, StrokeCap value);
         public float GetStrokeWidth(Paint paint);
         public void SetStrokeWidth(Paint paint, float value);
+        public ColorFilter GetColorFilter(Paint paint);
+
+        public void SetColorFilter(Paint paint, ColorFilter value);
     }
 }

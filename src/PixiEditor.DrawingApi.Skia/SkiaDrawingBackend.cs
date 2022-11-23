@@ -18,7 +18,8 @@ namespace PixiEditor.DrawingApi.Skia
         public ISurfaceImplementation SurfaceImplementation { get; }
         public IColorSpaceImplementation ColorSpaceImplementation { get; }
         public IBitmapImplementation BitmapImplementation { get; }
-        
+        public IColorFilterImplementation ColorFilterImplementation { get; set; }
+
         public SkiaDrawingBackend()
         {
             ColorImplementation = new SkiaColorImplementation();
@@ -29,7 +30,10 @@ namespace PixiEditor.DrawingApi.Skia
             SkiaImageImplementation imgImpl = new SkiaImageImplementation(dataImpl);
             ImageImplementation = imgImpl;
             
-            SkiaPaintImplementation paintImpl = new SkiaPaintImplementation();
+            SkiaColorFilterImplementation colorFilterImpl = new SkiaColorFilterImplementation();
+            ColorFilterImplementation = colorFilterImpl;
+            
+            SkiaPaintImplementation paintImpl = new SkiaPaintImplementation(colorFilterImpl);
             PaintImplementation = paintImpl;
             
             SkiaPathImplementation pathImpl = new SkiaPathImplementation();

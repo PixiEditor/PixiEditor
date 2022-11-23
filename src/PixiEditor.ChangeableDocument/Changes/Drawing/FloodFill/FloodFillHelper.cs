@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Debugging;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -11,7 +12,7 @@ using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
-internal static class FloodFillHelper
+public static class FloodFillHelper
 {
     private const byte InSelection = 1;
     private const byte Visited = 2;
@@ -137,7 +138,7 @@ internal static class FloodFillHelper
         }
         return drawingChunks;
     }
-
+    
     private static unsafe byte[]? FloodFillChunk(
         Chunk referenceChunk,
         Chunk drawingChunk,
@@ -212,6 +213,8 @@ internal static class FloodFillHelper
             drawingSurface.Canvas.Flush();
         }
     }
+    
+    private static MagicWandVisualizer visualizer = new MagicWandVisualizer(Path.Combine("Debugging", "MagicWand"));
 
     public static VectorPath GetFloodFillSelection(VecI startingPos, HashSet<Guid> membersToFloodFill,
         IReadOnlyDocument document)
@@ -239,7 +242,7 @@ internal static class FloodFillHelper
         HashSet<VecI> processedChunks = new();
         Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
         positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
-        
+
         Lines lines = new();
         
         VectorPath selection = new();
@@ -305,6 +308,8 @@ internal static class FloodFillHelper
         {
             selection = BuildContour(lines);
         }
+        
+        visualizer.GenerateVisualization(document.Size.X, document.Size.Y, 500, 500);
 
         return selection;
     }
@@ -556,10 +561,13 @@ internal static class FloodFillHelper
         if (calculatedDir == direction)
         {
             lines.LineDict[direction][line.Start] = line;
+            visualizer.Steps.Add(line);
         }
         else if(calculatedDir == -direction)
         {
-            lines.LineDict[direction][line.End] = new Line(line.End, line.Start);
+            Line fixedLine = new Line(line.End, line.Start);
+            lines.LineDict[direction][line.End] = fixedLine;
+            visualizer.Steps.Add(fixedLine);
         }
         else
         {
@@ -570,6 +578,21 @@ internal static class FloodFillHelper
 
     public struct Line
     {
+        public bool Equals(Line other)
+        {
+            return Start.Equals(other.Start) && End.Equals(other.End) && NormalizedDirection.Equals(other.NormalizedDirection);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is Line other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Start, End, NormalizedDirection);
+        }
+
         public VecI Start { get; set; }
         public VecI End { get; set; }
         public VecI NormalizedDirection { get; }
@@ -604,7 +627,7 @@ internal static class FloodFillHelper
         }
     }
 
-    internal class Lines : IEnumerable<Line>
+    public class Lines : IEnumerable<Line>
     {
         public Dictionary<VecI, Dictionary<VecI, Line>> LineDict { get; set; } = new Dictionary<VecI, Dictionary<VecI, Line>>();
 

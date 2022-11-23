@@ -50,6 +50,12 @@ namespace PixiEditor.DrawingApi.Core.Surface.PaintImpl
             get => DrawingBackendApi.Current.PaintImplementation.GetStrokeWidth(this);
             set => DrawingBackendApi.Current.PaintImplementation.SetStrokeWidth(this, value);
         }
+        
+        public ColorFilter ColorFilter 
+        {
+            get => DrawingBackendApi.Current.PaintImplementation.GetColorFilter(this);
+            set => DrawingBackendApi.Current.PaintImplementation.SetColorFilter(this, value);
+        }
 
         public Paint(IntPtr objPtr) : base(objPtr)
         {

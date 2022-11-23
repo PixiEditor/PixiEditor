@@ -9,10 +9,22 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 {
     public class SkiaPaintImplementation : SkObjectImplementation<SKPaint>, IPaintImplementation
     {
+        private readonly SkiaColorFilterImplementation colorFilterImplementation;
+ 
+        public SkiaPaintImplementation(SkiaColorFilterImplementation colorFilterImpl)
+        {
+            colorFilterImplementation = colorFilterImpl;
+        }
+        
         public IntPtr CreatePaint()
         {
             SKPaint skPaint = new SKPaint();
             ManagedInstances[skPaint.Handle] = skPaint;
+            if (skPaint.ColorFilter != null)
+            {
+                colorFilterImplementation.ManagedInstances[skPaint.ColorFilter.Handle] = skPaint.ColorFilter;
+            }
+
             return skPaint.Handle;
         }
 
@@ -20,6 +32,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             if (!ManagedInstances.ContainsKey(paintObjPointer)) return;
             SKPaint paint = ManagedInstances[paintObjPointer];
+
+            if (paint.ColorFilter != null)
+            {
+                paint.ColorFilter.Dispose();
+                colorFilterImplementation.ManagedInstances.TryRemove(paint.ColorFilter.Handle, out _);
+            }
+
             paint.Dispose();
             ManagedInstances.TryRemove(paintObjPointer, out _);
         }
@@ -113,6 +132,18 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
             skPaint.StrokeWidth = value;
+        }
+
+        public ColorFilter GetColorFilter(Paint paint)
+        {
+            SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
+            return new ColorFilter(skPaint.ColorFilter.Handle);
+        }
+
+        public void SetColorFilter(Paint paint, ColorFilter value)
+        {
+            SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
+            skPaint.ColorFilter = colorFilterImplementation[value.ObjectPointer];
         }
     }
 }

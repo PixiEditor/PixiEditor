@@ -17,5 +17,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge
         public IColorSpaceImplementation ColorSpaceImplementation { get; }
         public IImgDataImplementation ImgDataImplementation { get; }
         public IBitmapImplementation BitmapImplementation { get; }
+        public IColorFilterImplementation ColorFilterImplementation { get; set; }
     }
 }
