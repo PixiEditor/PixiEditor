@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using System.Numerics;
-using System.Runtime.CompilerServices;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Debugging;
@@ -16,7 +14,7 @@ public static class FloodFillHelper
 {
     private const byte InSelection = 1;
     private const byte Visited = 2;
-    
+
     private static readonly VecI Up = new VecI(0, -1);
     private static readonly VecI Down = new VecI(0, 1);
     private static readonly VecI Left = new VecI(-1, 0);
@@ -138,7 +136,7 @@ public static class FloodFillHelper
         }
         return drawingChunks;
     }
-    
+
     private static unsafe byte[]? FloodFillChunk(
         Chunk referenceChunk,
         Chunk drawingChunk,
@@ -213,15 +211,15 @@ public static class FloodFillHelper
             drawingSurface.Canvas.Flush();
         }
     }
-    
+
     private static MagicWandVisualizer visualizer = new MagicWandVisualizer(Path.Combine("Debugging", "MagicWand"));
 
     public static VectorPath GetFloodFillSelection(VecI startingPos, HashSet<Guid> membersToFloodFill,
         IReadOnlyDocument document)
     {
-        if(startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= document.Size.X || startingPos.Y >= document.Size.Y)
+        if (startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= document.Size.X || startingPos.Y >= document.Size.Y)
             return new VectorPath();
-        
+
         int chunkSize = ChunkResolution.Full.PixelSize();
 
         FloodFillChunkCache cache = CreateCache(membersToFloodFill, document);
@@ -229,13 +227,13 @@ public static class FloodFillHelper
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();
         VecI initPosOnChunk = startingPos - initChunkPos * chunkSize;
-        
+
 
         Color colorToReplace = cache.GetChunk(initChunkPos).Match(
             (Chunk chunk) => chunk.Surface.GetSRGBPixel(initPosOnChunk),
             static (EmptyChunk _) => Colors.Transparent
         );
-        
+
         ColorBounds colorRange = new(colorToReplace);
 
         HashSet<VecI> processedEmptyChunks = new();
@@ -244,7 +242,7 @@ public static class FloodFillHelper
         positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
 
         Lines lines = new();
-        
+
         VectorPath selection = new();
         while (positionsToFloodFill.Count > 0)
         {
@@ -275,10 +273,10 @@ public static class FloodFillHelper
 
             // use regular flood fill for chunks that have something in them
             var reallyReferenceChunk = referenceChunk.AsT0;
-            
+
             VecI globalPos = chunkPos * chunkSize + posOnChunk;
-            
-            if(processedPositions.Contains(globalPos))
+
+            if (processedPositions.Contains(globalPos))
                 continue;
 
             visualizer.CurrentContext = $"FloodFill_{chunkPos}";
@@ -289,7 +287,7 @@ public static class FloodFillHelper
                 document.Size,
                 posOnChunk,
                 colorRange, lines, processedPositions);
-            
+
             if (maybeArray is null)
                 continue;
             for (int i = 0; i < chunkSize; i++)
@@ -309,7 +307,7 @@ public static class FloodFillHelper
         {
             selection = BuildContour(lines);
         }
-        
+
         visualizer.GenerateVisualization(document.Size.X, document.Size.Y, 500, 500);
 
         return selection;
@@ -320,7 +318,7 @@ public static class FloodFillHelper
     {
         bool isEdgeChunk = chunkPos.X == 0 || chunkPos.Y == 0 || chunkPos.X == imageSizeInChunks.X - 1 ||
                            chunkPos.Y == imageSizeInChunks.Y - 1;
-        
+
         visualizer.CurrentContext = "EmptyChunk";
         if (isEdgeChunk)
         {
@@ -337,7 +335,7 @@ public static class FloodFillHelper
 
             endX = Math.Clamp(endX, 0, realSize.X);
             endY = Math.Clamp(endY, 0, realSize.Y);
-            
+
 
             if (isTopEdge)
             {
@@ -353,7 +351,7 @@ public static class FloodFillHelper
             {
                 AddLine(new(new(posX, endY), new(posX, posY)), lines, Up);
             }
-            
+
             if (isRightEdge)
             {
                 AddLine(new(new(endX, posY), new(endX, endY)), lines, Down);
@@ -361,47 +359,42 @@ public static class FloodFillHelper
         }
     }
 
-    public static VectorPath BuildContour(Lines lines)
+    private static VecI GoStraight(Lines allLines, Line firstLine)
+    {
+        Line previous = default;
+        Line? current = firstLine;
+        while (current != null)
+        {
+            (previous, current) = ((Line)current, allLines.RemoveLineAt(current.Value.End, current.Value.NormalizedDirection));
+        }
+
+        return previous.End;
+    }
+
+    private static void FollowPath(Lines allLines, Line startingLine, VectorPath path)
+    {
+        path.MoveTo(startingLine.Start);
+
+        Line? current = startingLine;
+        while (current != null)
+        {
+            VecI straightPathEnd = GoStraight(allLines, (Line)current);
+            path.LineTo(straightPathEnd);
+            current = allLines.RemoveLineAt(straightPathEnd);
+        }
+    }
+
+    private static VectorPath BuildContour(Lines lines)
     {
         VectorPath selection = new();
 
-        List<Line> remainingLines = lines.ToList(); // I'm not sure how to avoid this yet
-
-        Line startingLine = remainingLines[0];
-        VecI prevPos = startingLine.End;
-        VecI prevDir = startingLine.NormalizedDirection;
-        selection.MoveTo(startingLine.Start);
-        selection.LineTo(startingLine.End);
-        lines.RemoveLine(startingLine);
-        for (var i = 1; i < remainingLines.Count; i++)
+        Line? current = lines.PopLine();
+        while (current != null)
         {
-            var line = remainingLines[i];
-            Line nextLine;
-            if (!lines.TryGetLine(prevPos, prevDir, out nextLine))
-            {
-                nextLine = line;
-                selection.MoveTo(nextLine.Start);
-                prevPos = nextLine.End;
-                prevDir = nextLine.NormalizedDirection;
-                lines.RemoveLine(nextLine);
-                remainingLines.RemoveAt(i);
-                i--;
-                continue;
-            }
-
-            if (prevDir != nextLine.NormalizedDirection)
-            {
-                selection.LineTo(prevPos);
-            }
-
-            prevDir = nextLine.NormalizedDirection;
-            prevPos = nextLine.End;
-            lines.RemoveLine(nextLine);
-            remainingLines.Remove(nextLine);
-            i--;
+            FollowPath(lines, (Line)current, selection);
+            current = lines.PopLine();
         }
-        
-        selection.Close();
+
         return selection;
     }
 
@@ -417,12 +410,12 @@ public static class FloodFillHelper
         {
             return null;
         }
-        
+
         byte[] pixelStates = new byte[chunkSize * chunkSize];
 
         using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
         Half* refArray = (Half*)refPixmap.GetPixels();
-        
+
         Stack<VecI> toVisit = new();
         toVisit.Push(pos);
 
@@ -439,18 +432,18 @@ public static class FloodFillHelper
                 processedPositions.Add(globalPos);
                 continue;
             }
-            
+
             pixelStates[pixelOffset] = Visited;
-            
+
             visualizer.CurrentContext = "AddCornerLines";
             AddCornerLines(documentSize, chunkOffset, lines, curPos, chunkSize, processedPositions);
-            
+
             visualizer.CurrentContext = "AddFillContourLines";
             AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelStates, pixelOffset, refPixel, toVisit, globalPos, documentSize, processedPositions);
-            
+
             processedPositions.Add(globalPos);
         }
-        
+
         return pixelStates;
     }
 
@@ -458,9 +451,9 @@ public static class FloodFillHelper
         VecI curPos, byte[] pixelStates, int pixelOffset, Half* refPixel, Stack<VecI> toVisit, VecI globalPos,
         VecI documentSize, HashSet<VecI> processedPositions)
     {
-        
-        if(processedPositions.Contains(globalPos)) return;
-        
+
+        if (processedPositions.Contains(globalPos)) return;
+
         // Left pixel
         if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited)
         {
@@ -568,9 +561,9 @@ public static class FloodFillHelper
     private static void AddLine(Line line, Lines lines, VecI direction)
     {
         VecI calculatedDir = (VecI)(line.End - line.Start).Normalized();
-        
+
         // if line in opposite direction exists, remove it
-        
+
         if (lines.TryCancelLine(line, direction))
         {
             visualizer.Steps.Add(new Step(line, StepType.CancelLine));
@@ -582,7 +575,7 @@ public static class FloodFillHelper
             lines.LineDict[direction][line.Start] = line;
             visualizer.Steps.Add(new Step(line));
         }
-        else if(calculatedDir == -direction)
+        else if (calculatedDir == -direction)
         {
             Line fixedLine = new Line(line.End, line.Start);
             lines.LineDict[direction][line.End] = fixedLine;
@@ -595,7 +588,7 @@ public static class FloodFillHelper
         }
     }
 
-    public struct Line
+    internal struct Line
     {
         public bool Equals(Line other)
         {
@@ -622,7 +615,7 @@ public static class FloodFillHelper
             End = end;
             NormalizedDirection = (VecI)(end - start).Normalized();
         }
-        
+
         public Line Extended(VecI point)
         {
             VecI start = Start;
@@ -631,22 +624,35 @@ public static class FloodFillHelper
             if (point.Y < Start.Y) start.Y = point.Y;
             if (point.X > End.X) end.X = point.X;
             if (point.Y > End.Y) end.Y = point.Y;
-            
+
             return new Line(start, end);
         }
-        
+
         public static bool operator ==(Line a, Line b)
         {
             return a.Start == b.Start && a.End == b.End;
         }
-        
+
         public static bool operator !=(Line a, Line b)
         {
             return !(a == b);
         }
+
+        public override string ToString()
+        {
+            string dir = (NormalizedDirection.X, NormalizedDirection.Y) switch
+            {
+                ( > 0, _) => "Right",
+                ( < 0, _) => "Left",
+                (_, < 0) => "Up",
+                (_, > 0) => "Down",
+                _ => "Weird dir"
+            };
+            return $"{Start}, {dir}";
+        }
     }
 
-    public class Lines : IEnumerable<Line>
+    internal class Lines : IEnumerable<Line>
     {
         public Dictionary<VecI, Dictionary<VecI, Line>> LineDict { get; set; } = new Dictionary<VecI, Dictionary<VecI, Line>>();
 
@@ -657,26 +663,35 @@ public static class FloodFillHelper
             LineDict[Left] = new Dictionary<VecI, Line>();
             LineDict[Up] = new Dictionary<VecI, Line>();
         }
-        
-        public bool TryGetLine(VecI start, VecI preferredDir, out Line line)
-        {
-            if(LineDict[preferredDir].TryGetValue(start, out line)) return true;
 
-            VecI cachedOppositeDir = -preferredDir;
-            
-            foreach (var lineDict in LineDict.Values)
+        public Line? RemoveLineAt(VecI start)
+        {
+            foreach (var (_, lineDict) in LineDict)
             {
-                // Preferred was already checked, opposite is invalid
-                if(lineDict == LineDict[preferredDir] || lineDict == LineDict[cachedOppositeDir]) continue;
-                
-                if (lineDict.TryGetValue(start, out line))
-                {
-                    return true;
-                }
+                if (lineDict.Remove(start, out Line value))
+                    return value;
             }
-            
-            line = default;
-            return false;
+            return null;
+        }
+
+        public Line? RemoveLineAt(VecI start, VecI direction)
+        {
+            if (LineDict[direction].Remove(start, out Line value))
+                return value;
+            return null;
+        }
+
+        public Line? PopLine()
+        {
+            foreach (var (_, lineDict) in LineDict)
+            {
+                if (lineDict.Count == 0)
+                    continue;
+                var result = lineDict.First();
+                lineDict.Remove(result.Key);
+                return result.Value;
+            }
+            return null;
         }
 
         public IEnumerator<Line> GetEnumerator()
@@ -685,17 +700,17 @@ public static class FloodFillHelper
             {
                 yield return upLines.Value;
             }
-            
+
             foreach (var rightLines in LineDict[Right])
             {
                 yield return rightLines.Value;
             }
-            
+
             foreach (var downLines in LineDict[Down])
             {
                 yield return downLines.Value;
             }
-            
+
             foreach (var leftLines in LineDict[Left])
             {
                 yield return leftLines.Value;
@@ -712,7 +727,7 @@ public static class FloodFillHelper
             foreach (var lineDict in LineDict.Values)
             {
                 VecI dictDir = lineDict == LineDict[Up] ? Up : lineDict == LineDict[Right] ? Right : lineDict == LineDict[Down] ? Down : Left;
-                if(line.NormalizedDirection != dictDir) continue;
+                if (line.NormalizedDirection != dictDir) continue;
                 lineDict.Remove(line.Start);
             }
         }
@@ -720,14 +735,14 @@ public static class FloodFillHelper
         public bool TryCancelLine(Line line, VecI direction)
         {
             bool cancelingLineExists = false;
-            
+
             LineDict[-direction].TryGetValue(line.End, out Line cancelingLine);
             if (cancelingLine != default && cancelingLine.End == line.Start)
             {
                 cancelingLineExists = true;
                 LineDict[-direction].Remove(line.End);
             }
-            
+
             LineDict[direction].TryGetValue(line.Start, out cancelingLine);
             if (cancelingLine != default && cancelingLine.End == line.End)
             {

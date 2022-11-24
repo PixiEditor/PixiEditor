@@ -7,23 +7,23 @@ using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace PixiEditor.ChangeableDocument.Debugging;
 
-public class MagicWandVisualizer
+internal class MagicWandVisualizer
 {
     public string CurrentContext { get; set; } = "";
     public string FilePath { get; }
     private Paint drawingPaint;
     private Paint replacementPaint;
     public List<Step> Steps = new List<Step>();
-    
+
     public MagicWandVisualizer(string filePath)
     {
         drawingPaint = new Paint();
         drawingPaint.BlendMode = BlendMode.Src;
-        
+
         replacementPaint = new Paint();
         replacementPaint.BlendMode = BlendMode.Src;
         replacementPaint.ColorFilter = ColorFilter.CreateBlendMode(Colors.Black, BlendMode.ColorBurn);
-        
+
         FilePath = filePath;
         if (!Directory.Exists(filePath))
         {
@@ -50,17 +50,17 @@ public class MagicWandVisualizer
 
             var scaledStart = new VecI(step.Start.X * (width / originalWidth), step.Start.Y * (height / originalHeight));
             var scaledEnd = new VecI(step.End.X * (width / originalWidth), step.End.Y * (height / originalHeight));
-            
+
             DrawArrow(surface, scaledStart, scaledEnd, 2, step.Type == StepType.Add ? Colors.Green : Colors.Red);
-            
+
             using (FileStream stream = new FileStream(Path.Join(FilePath, $"Frame {i}_{CurrentContext}.png"), FileMode.Create))
             {
                 surface.Snapshot().Encode().SaveTo(stream);
             }
-            
+
             previousImage = surface.Snapshot();
         }
-        
+
         Steps.Clear();
     }
 
@@ -69,26 +69,26 @@ public class MagicWandVisualizer
         drawingPaint.Color = color;
         drawingPaint.StrokeWidth = thickness;
         surface.Canvas.DrawLine(start, end, drawingPaint);
-        
+
         // Draw arrow head
-        
+
         VecI direction = end - start;
         VecI perpendicular = new VecI(-direction.Y, direction.X);
-        
+
         VecI arrowHead1 = end - (VecI)direction.Normalized() * 10 + (VecI)perpendicular.Normalized() * 5;
         VecI arrowHead2 = end - (VecI)direction.Normalized() * 10 - (VecI)perpendicular.Normalized() * 5;
-        
+
         surface.Canvas.DrawLine(end, arrowHead1, drawingPaint);
         surface.Canvas.DrawLine(end, arrowHead2, drawingPaint);
     }
 }
 
-public class Step
+internal class Step
 {
     public VecI Start { get; set; }
     public VecI End { get; set; }
     public StepType Type { get; set; }
-    
+
     public Step(FloodFillHelper.Line line, StepType type = StepType.Add)
     {
         Start = line.Start;
@@ -97,7 +97,7 @@ public class Step
     }
 }
 
-public enum StepType
+internal enum StepType
 {
     Add,
     CancelLine
