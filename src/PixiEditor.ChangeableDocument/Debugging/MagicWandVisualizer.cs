@@ -24,16 +24,16 @@ public class MagicWandVisualizer
         replacementPaint.ColorFilter = ColorFilter.CreateBlendMode(Colors.Black, BlendMode.ColorBurn);
         
         FilePath = filePath;
-        if(!Directory.Exists(filePath))
+        if (!Directory.Exists(filePath))
         {
             Directory.CreateDirectory(filePath);
         }
-        
-        Directory.EnumerateFiles(filePath).ToList().ForEach(File.Delete);
     }
 
     public void GenerateVisualization(int originalHeight, int originalWidth, int width, int height)
     {
+        Directory.EnumerateFiles(FilePath).ToList().ForEach(File.Delete);
+
         DrawingSurface surface = DrawingSurface.Create(new ImageInfo(width, height));
         surface.Canvas.Clear(Colors.White);
         Image previousImage = surface.Snapshot();
