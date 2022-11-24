@@ -18,7 +18,7 @@ internal class MagicWandHelper
 
     private static MagicWandVisualizer visualizer = new MagicWandVisualizer(Path.Combine("Debugging", "MagicWand"));
 
-    public static VectorPath GetFloodFillSelection(VecI startingPos, HashSet<Guid> membersToFloodFill,
+    public static VectorPath DoMagicWandFloodFill(VecI startingPos, HashSet<Guid> membersToFloodFill,
         IReadOnlyDocument document)
     {
         if (startingPos.X < 0 || startingPos.Y < 0 || startingPos.X >= document.Size.X || startingPos.Y >= document.Size.Y)
@@ -58,7 +58,7 @@ internal class MagicWandHelper
             {
                 if (colorToReplace.A == 0 && !processedEmptyChunks.Contains(chunkPos))
                 {
-                    ProcessEmptySelectionChunk(lines, chunkPos, document.Size, imageSizeInChunks, chunkSize);
+                    AddLinesForEmptyChunk(lines, chunkPos, document.Size, imageSizeInChunks, chunkSize);
                     for (int i = 0; i < chunkSize; i++)
                     {
                         if (chunkPos.Y > 0)
@@ -84,7 +84,7 @@ internal class MagicWandHelper
                 continue;
 
             visualizer.CurrentContext = $"FloodFill_{chunkPos}";
-            var maybeArray = GetChunkFloodFill(
+            var maybeArray = AddLinesForChunkViaFloodFill(
                 reallyReferenceChunk,
                 chunkSize,
                 chunkPos * chunkSize,
@@ -107,7 +107,7 @@ internal class MagicWandHelper
             }
         }
 
-        if (lines.LineDict.Any(x => x.Value.Count > 0))
+        if (lines.LineDicts.Any(x => x.Value.Count > 0))
         {
             selection = BuildContour(lines);
         }
@@ -117,49 +117,26 @@ internal class MagicWandHelper
         return selection;
     }
 
-    private static void ProcessEmptySelectionChunk(Lines lines, VecI chunkPos, VecI realSize,
+    private static void AddLinesForEmptyChunk(Lines lines, VecI chunkPos, VecI imageSize,
         VecI imageSizeInChunks, int chunkSize)
     {
-        bool isEdgeChunk = chunkPos.X == 0 || chunkPos.Y == 0 || chunkPos.X == imageSizeInChunks.X - 1 ||
-                           chunkPos.Y == imageSizeInChunks.Y - 1;
-
         visualizer.CurrentContext = "EmptyChunk";
-        if (isEdgeChunk)
+
+        RectI chunkRect = new RectI(chunkPos * chunkSize, new(chunkSize));
+        chunkRect = chunkRect.Intersect(new RectI(VecI.Zero, imageSize));
+        if (chunkRect.IsZeroOrNegativeArea)
+            return;
+
+        for (int i = chunkRect.Left; i < chunkRect.Right; i++)
         {
-            bool isTopEdge = chunkPos.Y == 0;
-            bool isBottomEdge = chunkPos.Y == imageSizeInChunks.Y - 1;
-            bool isLeftEdge = chunkPos.X == 0;
-            bool isRightEdge = chunkPos.X == imageSizeInChunks.X - 1;
+            AddLine(new Line(new(i, chunkRect.Top), new(i + 1, chunkRect.Top)), lines, Right); // Top
+            AddLine(new Line(new(i + 1, chunkRect.Bottom), new(i, chunkRect.Bottom)), lines, Left); // Bottom
+        }
 
-            int posX = chunkPos.X * chunkSize;
-            int posY = chunkPos.Y * chunkSize;
-
-            int endX = posX + chunkSize;
-            int endY = posY + chunkSize;
-
-            endX = Math.Clamp(endX, 0, realSize.X);
-            endY = Math.Clamp(endY, 0, realSize.Y);
-
-
-            if (isTopEdge)
-            {
-                AddLine(new(new(posX, posY), new(endX, posY)), lines, Right);
-            }
-
-            if (isBottomEdge)
-            {
-                AddLine(new(new(endX, endY), new(posX, endY)), lines, Left);
-            }
-
-            if (isLeftEdge)
-            {
-                AddLine(new(new(posX, endY), new(posX, posY)), lines, Up);
-            }
-
-            if (isRightEdge)
-            {
-                AddLine(new(new(endX, posY), new(endX, endY)), lines, Down);
-            }
+        for (int j = chunkRect.Top; j < chunkRect.Bottom; j++)
+        {
+            AddLine(new Line(new(chunkRect.Left, j + 1), new(chunkRect.Left, j)), lines, Up); // Left
+            AddLine(new Line(new(chunkRect.Right, j), new(chunkRect.Right, j + 1)), lines, Down); // Right
         }
     }
 
@@ -202,7 +179,7 @@ internal class MagicWandHelper
         return selection;
     }
 
-    private static unsafe byte[]? GetChunkFloodFill(
+    private static unsafe byte[]? AddLinesForChunkViaFloodFill(
         Chunk referenceChunk,
         int chunkSize,
         VecI chunkOffset,
@@ -239,9 +216,6 @@ internal class MagicWandHelper
 
             pixelStates[pixelOffset] = Visited;
 
-            visualizer.CurrentContext = "AddCornerLines";
-            AddCornerLines(documentSize, chunkOffset, lines, curPos, chunkSize, processedPositions);
-
             visualizer.CurrentContext = "AddFillContourLines";
             AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelStates, pixelOffset, refPixel, toVisit, globalPos, documentSize, processedPositions);
 
@@ -259,106 +233,59 @@ internal class MagicWandHelper
         if (processedPositions.Contains(globalPos)) return;
 
         // Left pixel
-        if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited)
+        bool leftEdgePresent = curPos.X == 0 || globalPos.X == 0 || !bounds.IsWithinBounds(refPixel - 4);
+        if (!leftEdgePresent && pixelStates[pixelOffset - 1] != Visited)
         {
-            if (bounds.IsWithinBounds(refPixel - 4) && globalPos.X - 1 >= 0)
-            {
-                toVisit.Push(new(curPos.X - 1, curPos.Y));
-            }
-            else
-            {
-                AddLine(
-                    new Line(
-                        new VecI(curPos.X, curPos.Y + 1) + chunkOffset,
-                        new VecI(curPos.X, curPos.Y) + chunkOffset), lines, Up);
-            }
+            toVisit.Push(new(curPos.X - 1, curPos.Y));
+        }
+        else if (leftEdgePresent)
+        {
+            AddLine(
+                new Line(
+                    new VecI(curPos.X, curPos.Y + 1) + chunkOffset,
+                    new VecI(curPos.X, curPos.Y) + chunkOffset), lines, Up);
         }
 
         // Right pixel
-        if (curPos.X < chunkSize - 1 && pixelStates[pixelOffset + 1] != Visited)
+        bool rightEdgePresent = globalPos.X == documentSize.X - 1 || curPos.X == chunkSize - 1 || !bounds.IsWithinBounds(refPixel + 4);
+        if (!rightEdgePresent && pixelStates[pixelOffset + 1] != Visited)
         {
-            if (bounds.IsWithinBounds(refPixel + 4) && globalPos.X + 1 < documentSize.X)
-            {
-                toVisit.Push(new(curPos.X + 1, curPos.Y));
-            }
-            else
-            {
-                AddLine(
-                    new Line(
-                        new VecI(curPos.X + 1, curPos.Y) + chunkOffset,
-                        new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset), lines, Down);
-            }
+            toVisit.Push(new(curPos.X + 1, curPos.Y));
+        }
+        else if (rightEdgePresent)
+        {
+            AddLine(
+                new Line(
+                    new VecI(curPos.X + 1, curPos.Y) + chunkOffset,
+                    new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset), lines, Down);
         }
 
         // Top pixel
-        if (curPos.Y > 0 && pixelStates[pixelOffset - chunkSize] != Visited)
+        bool topEdgePresent = curPos.Y == 0 || globalPos.Y == 0 || !bounds.IsWithinBounds(refPixel - 4 * chunkSize);
+        if (!topEdgePresent && pixelStates[pixelOffset - chunkSize] != Visited)
         {
-            if (bounds.IsWithinBounds(refPixel - 4 * chunkSize) && globalPos.Y - 1 >= 0)
-            {
-                toVisit.Push(new(curPos.X, curPos.Y - 1));
-            }
-            else
-            {
-                AddLine(
-                    new Line(
-                        new VecI(curPos.X + 1, curPos.Y) + chunkOffset,
-                        new VecI(curPos.X, curPos.Y) + chunkOffset), lines, Right);
-            }
+            toVisit.Push(new(curPos.X, curPos.Y - 1));
+        }
+        else if (topEdgePresent)
+        {
+            AddLine(
+                new Line(
+                    new VecI(curPos.X, curPos.Y) + chunkOffset,
+                    new VecI(curPos.X + 1, curPos.Y) + chunkOffset), lines, Right);
         }
 
         //Bottom pixel
-        if (curPos.Y < chunkSize - 1 && pixelStates[pixelOffset + chunkSize] != Visited)
+        bool bottomEdgePresent = globalPos.Y == documentSize.Y - 1 || curPos.Y == chunkSize - 1 || !bounds.IsWithinBounds(refPixel + 4 * chunkSize);
+        if (!bottomEdgePresent && pixelStates[pixelOffset + chunkSize] != Visited)
         {
-            if (bounds.IsWithinBounds(refPixel + 4 * chunkSize) && globalPos.Y + 1 < documentSize.Y)
-            {
-                toVisit.Push(new(curPos.X, curPos.Y + 1));
-            }
-            else
-            {
-                AddLine(
-                    new Line(
-                        new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset,
-                        new VecI(curPos.X, curPos.Y + 1) + chunkOffset), lines, Left);
-            }
+            toVisit.Push(new(curPos.X, curPos.Y + 1));
         }
-    }
-
-    private static void AddCornerLines(VecI documentSize, VecI chunkOffset, Lines lines, VecI curPos, int chunkSize, HashSet<VecI> processedPositions)
-    {
-        VecI clampedPos = new(
-            Math.Clamp(curPos.X, 0, documentSize.X - 1),
-            Math.Clamp(curPos.Y, 0, documentSize.Y - 1));
-
-        if (curPos.X == 0)
+        else if (bottomEdgePresent)
         {
             AddLine(
                 new Line(
-                    new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset,
-                    new VecI(clampedPos.X, clampedPos.Y) + chunkOffset), lines, Up);
-        }
-
-        if (curPos.X == chunkSize - 1)
-        {
-            AddLine(
-                new Line(
-                    new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset,
-                    new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset), lines, Down);
-        }
-
-        if (curPos.Y == 0)
-        {
-            AddLine(
-                new Line(
-                    new VecI(clampedPos.X, clampedPos.Y) + chunkOffset,
-                    new VecI(clampedPos.X + 1, clampedPos.Y) + chunkOffset), lines, Right);
-        }
-
-        if (curPos.Y == chunkSize - 1)
-        {
-            AddLine(
-                new Line(
-                    new VecI(clampedPos.X + 1, clampedPos.Y + 1) + chunkOffset,
-                    new VecI(clampedPos.X, clampedPos.Y + 1) + chunkOffset), lines, Left);
+                    new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset,
+                    new VecI(curPos.X, curPos.Y + 1) + chunkOffset), lines, Left);
         }
     }
 
@@ -376,13 +303,13 @@ internal class MagicWandHelper
 
         if (calculatedDir == direction)
         {
-            lines.LineDict[direction][line.Start] = line;
+            lines.LineDicts[direction][line.Start] = line;
             visualizer.Steps.Add(new Step(line));
         }
         else if (calculatedDir == -direction)
         {
             Line fixedLine = new Line(line.End, line.Start);
-            lines.LineDict[direction][line.End] = fixedLine;
+            lines.LineDicts[direction][line.End] = fixedLine;
             visualizer.Steps.Add(new Step(fixedLine));
         }
         else
@@ -406,7 +333,7 @@ internal class MagicWandHelper
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(Start, End, NormalizedDirection);
+            return HashCode.Combine(Start, End);
         }
 
         public VecI Start { get; set; }
@@ -418,18 +345,6 @@ internal class MagicWandHelper
             Start = start;
             End = end;
             NormalizedDirection = (VecI)(end - start).Normalized();
-        }
-
-        public Line Extended(VecI point)
-        {
-            VecI start = Start;
-            VecI end = End;
-            if (point.X < Start.X) start.X = point.X;
-            if (point.Y < Start.Y) start.Y = point.Y;
-            if (point.X > End.X) end.X = point.X;
-            if (point.Y > End.Y) end.Y = point.Y;
-
-            return new Line(start, end);
         }
 
         public static bool operator ==(Line a, Line b)
@@ -458,19 +373,19 @@ internal class MagicWandHelper
 
     internal class Lines : IEnumerable<Line>
     {
-        public Dictionary<VecI, Dictionary<VecI, Line>> LineDict { get; set; } = new Dictionary<VecI, Dictionary<VecI, Line>>();
+        public Dictionary<VecI, Dictionary<VecI, Line>> LineDicts { get; set; } = new Dictionary<VecI, Dictionary<VecI, Line>>();
 
         public Lines()
         {
-            LineDict[Right] = new Dictionary<VecI, Line>();
-            LineDict[Down] = new Dictionary<VecI, Line>();
-            LineDict[Left] = new Dictionary<VecI, Line>();
-            LineDict[Up] = new Dictionary<VecI, Line>();
+            LineDicts[Right] = new Dictionary<VecI, Line>();
+            LineDicts[Down] = new Dictionary<VecI, Line>();
+            LineDicts[Left] = new Dictionary<VecI, Line>();
+            LineDicts[Up] = new Dictionary<VecI, Line>();
         }
 
         public Line? RemoveLineAt(VecI start)
         {
-            foreach (var (_, lineDict) in LineDict)
+            foreach (var (_, lineDict) in LineDicts)
             {
                 if (lineDict.Remove(start, out Line value))
                     return value;
@@ -480,14 +395,14 @@ internal class MagicWandHelper
 
         public Line? RemoveLineAt(VecI start, VecI direction)
         {
-            if (LineDict[direction].Remove(start, out Line value))
+            if (LineDicts[direction].Remove(start, out Line value))
                 return value;
             return null;
         }
 
         public Line? PopLine()
         {
-            foreach (var (_, lineDict) in LineDict)
+            foreach (var (_, lineDict) in LineDicts)
             {
                 if (lineDict.Count == 0)
                     continue;
@@ -498,24 +413,36 @@ internal class MagicWandHelper
             return null;
         }
 
+        public void AddLine(Line line)
+        {
+            // cancel out line
+            if (LineDicts[-line.NormalizedDirection].ContainsKey(line.End))
+            {
+                LineDicts[-line.NormalizedDirection].Remove(line.End);
+                return;
+            }
+
+            LineDicts[line.NormalizedDirection][line.Start] = line;
+        }
+
         public IEnumerator<Line> GetEnumerator()
         {
-            foreach (var upLines in LineDict[Up])
+            foreach (var upLines in LineDicts[Up])
             {
                 yield return upLines.Value;
             }
 
-            foreach (var rightLines in LineDict[Right])
+            foreach (var rightLines in LineDicts[Right])
             {
                 yield return rightLines.Value;
             }
 
-            foreach (var downLines in LineDict[Down])
+            foreach (var downLines in LineDicts[Down])
             {
                 yield return downLines.Value;
             }
 
-            foreach (var leftLines in LineDict[Left])
+            foreach (var leftLines in LineDicts[Left])
             {
                 yield return leftLines.Value;
             }
@@ -526,32 +453,22 @@ internal class MagicWandHelper
             return GetEnumerator();
         }
 
-        public void RemoveLine(Line line)
-        {
-            foreach (var lineDict in LineDict.Values)
-            {
-                VecI dictDir = lineDict == LineDict[Up] ? Up : lineDict == LineDict[Right] ? Right : lineDict == LineDict[Down] ? Down : Left;
-                if (line.NormalizedDirection != dictDir) continue;
-                lineDict.Remove(line.Start);
-            }
-        }
-
         public bool TryCancelLine(Line line, VecI direction)
         {
             bool cancelingLineExists = false;
 
-            LineDict[-direction].TryGetValue(line.End, out Line cancelingLine);
+            LineDicts[-direction].TryGetValue(line.End, out Line cancelingLine);
             if (cancelingLine != default && cancelingLine.End == line.Start)
             {
                 cancelingLineExists = true;
-                LineDict[-direction].Remove(line.End);
+                LineDicts[-direction].Remove(line.End);
             }
 
-            LineDict[direction].TryGetValue(line.Start, out cancelingLine);
+            LineDicts[direction].TryGetValue(line.Start, out cancelingLine);
             if (cancelingLine != default && cancelingLine.End == line.End)
             {
                 cancelingLineExists = true;
-                LineDict[-direction].Remove(line.Start);
+                LineDicts[direction].Remove(line.Start);
             }
 
             return cancelingLineExists;
