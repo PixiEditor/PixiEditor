@@ -64,6 +64,8 @@ public class MagicWandVisualizer
             
             previousImage = surface.Snapshot();
         }
+        
+        Steps.Clear();
     }
 
     private void DrawArrow(DrawingSurface surface, VecI start, VecI end, int thickness, Color color)
