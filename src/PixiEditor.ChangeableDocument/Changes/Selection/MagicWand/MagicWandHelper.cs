@@ -9,7 +9,6 @@ using PixiEditor.DrawingApi.Core.Surface.Vector;
 namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;
 internal class MagicWandHelper
 {
-    private const byte InSelection = 1;
     private const byte Visited = 2;
 
     private static readonly VecI Up = new VecI(0, -1);
@@ -19,19 +18,6 @@ internal class MagicWandHelper
 
     private static MagicWandVisualizer visualizer = new MagicWandVisualizer(Path.Combine("Debugging", "MagicWand"));
 
-    private static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document)
-    {
-        if (membersToFloodFill.Count == 1)
-        {
-            Guid guid = membersToFloodFill.First();
-            var member = document.FindMemberOrThrow(guid);
-            if (member is IReadOnlyFolder folder)
-                return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
-            return new FloodFillChunkCache(((IReadOnlyLayer)member).LayerImage);
-        }
-        return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
-    }
-
     public static VectorPath GetFloodFillSelection(VecI startingPos, HashSet<Guid> membersToFloodFill,
         IReadOnlyDocument document)
     {
@@ -40,7 +26,7 @@ internal class MagicWandHelper
 
         int chunkSize = ChunkResolution.Full.PixelSize();
 
-        FloodFillChunkCache cache = CreateCache(membersToFloodFill, document);
+        FloodFillChunkCache cache = FloodFillHelper.CreateCache(membersToFloodFill, document);
 
         VecI initChunkPos = OperationHelper.GetChunkPos(startingPos, chunkSize);
         VecI imageSizeInChunks = (VecI)(document.Size / (double)chunkSize).Ceiling();

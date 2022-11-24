@@ -18,7 +18,7 @@ public static class FloodFillHelper
     private static readonly VecI Left = new VecI(-1, 0);
     private static readonly VecI Right = new VecI(1, 0);
 
-    private static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document)
+    internal static FloodFillChunkCache CreateCache(HashSet<Guid> membersToFloodFill, IReadOnlyDocument document)
     {
         if (membersToFloodFill.Count == 1)
         {
