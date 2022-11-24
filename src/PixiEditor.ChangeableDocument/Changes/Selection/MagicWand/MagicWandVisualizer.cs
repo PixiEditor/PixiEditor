@@ -1,11 +1,10 @@
-﻿using PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
+﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
-namespace PixiEditor.ChangeableDocument.Debugging;
+namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;
 
 internal class MagicWandVisualizer
 {
@@ -89,7 +88,7 @@ internal class Step
     public VecI End { get; set; }
     public StepType Type { get; set; }
 
-    public Step(FloodFillHelper.Line line, StepType type = StepType.Add)
+    public Step(MagicWandHelper.Line line, StepType type = StepType.Add)
     {
         Start = line.Start;
         End = line.End;

@@ -1,10 +1,9 @@
 ﻿using PixiEditor.ChangeableDocument.Changes.Drawing;
-using PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
-namespace PixiEditor.ChangeableDocument.Changes.Selection;
+namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;
 
 internal class MagicWand_Change : Change
 {
@@ -42,8 +41,8 @@ internal class MagicWand_Change : Change
             target.ForEveryReadonlyMember(member => membersToReference.Add(member.GuidValue));
         else
             membersToReference.Add(memberGuid);
-        path = FloodFillHelper.GetFloodFillSelection(point, membersToReference, target);
-        
+        path = MagicWandHelper.GetFloodFillSelection(point, membersToReference, target);
+
         ignoreInUndo = false;
         return CommonApply(target);
     }
@@ -54,7 +53,7 @@ internal class MagicWand_Change : Change
         toDispose.Dispose();
         return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
     }
-    
+
     private Selection_ChangeInfo CommonApply(Document target)
     {
         var toDispose = target.Selection.SelectionPath;
