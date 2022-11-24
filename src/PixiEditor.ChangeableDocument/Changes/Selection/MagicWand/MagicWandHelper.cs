@@ -107,7 +107,7 @@ internal class MagicWandHelper
             }
         }
 
-        if (lines.LineDicts.Any(x => x.Value.Count > 0))
+        if (lines.Count > 0)
         {
             selection = BuildContour(lines);
         }
@@ -129,14 +129,14 @@ internal class MagicWandHelper
 
         for (int i = chunkRect.Left; i < chunkRect.Right; i++)
         {
-            AddLine(new Line(new(i, chunkRect.Top), new(i + 1, chunkRect.Top)), lines, Right); // Top
-            AddLine(new Line(new(i + 1, chunkRect.Bottom), new(i, chunkRect.Bottom)), lines, Left); // Bottom
+            lines.AddLine(new Line(new(i, chunkRect.Top), new(i + 1, chunkRect.Top))); // Top
+            lines.AddLine(new Line(new(i + 1, chunkRect.Bottom), new(i, chunkRect.Bottom))); // Bottom
         }
 
         for (int j = chunkRect.Top; j < chunkRect.Bottom; j++)
         {
-            AddLine(new Line(new(chunkRect.Left, j + 1), new(chunkRect.Left, j)), lines, Up); // Left
-            AddLine(new Line(new(chunkRect.Right, j), new(chunkRect.Right, j + 1)), lines, Down); // Right
+            lines.AddLine(new Line(new(chunkRect.Left, j + 1), new(chunkRect.Left, j))); // Left
+            lines.AddLine(new Line(new(chunkRect.Right, j), new(chunkRect.Right, j + 1))); // Right
         }
     }
 
@@ -240,10 +240,9 @@ internal class MagicWandHelper
         }
         else if (leftEdgePresent)
         {
-            AddLine(
-                new Line(
-                    new VecI(curPos.X, curPos.Y + 1) + chunkOffset,
-                    new VecI(curPos.X, curPos.Y) + chunkOffset), lines, Up);
+            lines.AddLine(new Line(
+                new VecI(curPos.X, curPos.Y + 1) + chunkOffset,
+                new VecI(curPos.X, curPos.Y) + chunkOffset));
         }
 
         // Right pixel
@@ -254,10 +253,9 @@ internal class MagicWandHelper
         }
         else if (rightEdgePresent)
         {
-            AddLine(
-                new Line(
-                    new VecI(curPos.X + 1, curPos.Y) + chunkOffset,
-                    new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset), lines, Down);
+            lines.AddLine(new Line(
+                new VecI(curPos.X + 1, curPos.Y) + chunkOffset,
+                new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset));
         }
 
         // Top pixel
@@ -268,10 +266,9 @@ internal class MagicWandHelper
         }
         else if (topEdgePresent)
         {
-            AddLine(
-                new Line(
-                    new VecI(curPos.X, curPos.Y) + chunkOffset,
-                    new VecI(curPos.X + 1, curPos.Y) + chunkOffset), lines, Right);
+            lines.AddLine(new Line(
+                new VecI(curPos.X, curPos.Y) + chunkOffset,
+                new VecI(curPos.X + 1, curPos.Y) + chunkOffset));
         }
 
         //Bottom pixel
@@ -282,40 +279,9 @@ internal class MagicWandHelper
         }
         else if (bottomEdgePresent)
         {
-            AddLine(
-                new Line(
-                    new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset,
-                    new VecI(curPos.X, curPos.Y + 1) + chunkOffset), lines, Left);
-        }
-    }
-
-    private static void AddLine(Line line, Lines lines, VecI direction)
-    {
-        VecI calculatedDir = (VecI)(line.End - line.Start).Normalized();
-
-        // if line in opposite direction exists, remove it
-
-        if (lines.TryCancelLine(line, direction))
-        {
-            visualizer.Steps.Add(new Step(line, StepType.CancelLine));
-            return;
-        }
-
-        if (calculatedDir == direction)
-        {
-            lines.LineDicts[direction][line.Start] = line;
-            visualizer.Steps.Add(new Step(line));
-        }
-        else if (calculatedDir == -direction)
-        {
-            Line fixedLine = new Line(line.End, line.Start);
-            lines.LineDicts[direction][line.End] = fixedLine;
-            visualizer.Steps.Add(new Step(fixedLine));
-        }
-        else
-        {
-            throw new Exception(
-                $"Line direction {calculatedDir} is not perpendicular to the direction of the requested line direction {direction}");
+            lines.AddLine(new Line(
+                new VecI(curPos.X + 1, curPos.Y + 1) + chunkOffset,
+                new VecI(curPos.X, curPos.Y + 1) + chunkOffset));
         }
     }
 
@@ -373,7 +339,9 @@ internal class MagicWandHelper
 
     internal class Lines : IEnumerable<Line>
     {
-        public Dictionary<VecI, Dictionary<VecI, Line>> LineDicts { get; set; } = new Dictionary<VecI, Dictionary<VecI, Line>>();
+        private Dictionary<VecI, Dictionary<VecI, Line>> LineDicts { get; set; } = new Dictionary<VecI, Dictionary<VecI, Line>>();
+
+        public int Count => LineDicts.Aggregate(0, (acc, cur) => acc += cur.Value.Count);
 
         public Lines()
         {
@@ -419,10 +387,12 @@ internal class MagicWandHelper
             if (LineDicts[-line.NormalizedDirection].ContainsKey(line.End))
             {
                 LineDicts[-line.NormalizedDirection].Remove(line.End);
+                visualizer.Steps.Add(new Step(line, StepType.CancelLine));
                 return;
             }
 
             LineDicts[line.NormalizedDirection][line.Start] = line;
+            visualizer.Steps.Add(new Step(line));
         }
 
         public IEnumerator<Line> GetEnumerator()
@@ -451,27 +421,6 @@ internal class MagicWandHelper
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
-        }
-
-        public bool TryCancelLine(Line line, VecI direction)
-        {
-            bool cancelingLineExists = false;
-
-            LineDicts[-direction].TryGetValue(line.End, out Line cancelingLine);
-            if (cancelingLine != default && cancelingLine.End == line.Start)
-            {
-                cancelingLineExists = true;
-                LineDicts[-direction].Remove(line.End);
-            }
-
-            LineDicts[direction].TryGetValue(line.Start, out cancelingLine);
-            if (cancelingLine != default && cancelingLine.End == line.End)
-            {
-                cancelingLineExists = true;
-                LineDicts[direction].Remove(line.Start);
-            }
-
-            return cancelingLineExists;
         }
     }
 }
