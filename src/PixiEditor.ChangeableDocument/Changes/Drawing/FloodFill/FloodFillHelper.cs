@@ -281,21 +281,20 @@ public static class FloodFillHelper
             if(processedPositions.Contains(globalPos))
                 continue;
 
+            visualizer.CurrentContext = $"FloodFill_{chunkPos}";
             var maybeArray = GetChunkFloodFill(
                 reallyReferenceChunk,
                 chunkSize,
                 chunkPos * chunkSize,
                 document.Size,
                 posOnChunk,
-                colorRange, lines);
+                colorRange, lines, processedPositions);
             
-
-            processedPositions.Add(globalPos);
             if (maybeArray is null)
                 continue;
             for (int i = 0; i < chunkSize; i++)
             {
-                if (chunkPos.Y > 0 && maybeArray[i] == Visited) // Top
+                if (chunkPos.Y > 0 && maybeArray[i] == Visited) //Top
                     positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
                 if (chunkPos.Y < imageSizeInChunks.Y - 1 && maybeArray[chunkSize * (chunkSize - 1) + i] == Visited) // Bottom
                     positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
@@ -321,6 +320,8 @@ public static class FloodFillHelper
     {
         bool isEdgeChunk = chunkPos.X == 0 || chunkPos.Y == 0 || chunkPos.X == imageSizeInChunks.X - 1 ||
                            chunkPos.Y == imageSizeInChunks.Y - 1;
+        
+        visualizer.CurrentContext = "EmptyChunk";
         if (isEdgeChunk)
         {
             bool isTopEdge = chunkPos.Y == 0;
@@ -400,7 +401,6 @@ public static class FloodFillHelper
             i--;
         }
         
-        selection.MoveTo(startingLine.End);
         selection.Close();
         return selection;
     }
@@ -411,9 +411,13 @@ public static class FloodFillHelper
         VecI chunkOffset,
         VecI documentSize,
         VecI pos,
-        ColorBounds bounds, Lines lines)
+        ColorBounds bounds, Lines lines, HashSet<VecI> processedPositions)
     {
-        if (!bounds.IsWithinBounds(referenceChunk.Surface.GetSRGBPixel(pos))) return null;
+        if (!bounds.IsWithinBounds(referenceChunk.Surface.GetSRGBPixel(pos)))
+        {
+            return null;
+        }
+        
         byte[] pixelStates = new byte[chunkSize * chunkSize];
 
         using var refPixmap = referenceChunk.Surface.DrawingSurface.PeekPixels();
@@ -429,21 +433,34 @@ public static class FloodFillHelper
             int pixelOffset = curPos.X + curPos.Y * chunkSize;
             VecI globalPos = curPos + chunkOffset;
             Half* refPixel = refArray + pixelOffset * 4;
-            
-            if(!bounds.IsWithinBounds(refPixel)) continue;
+
+            if (!bounds.IsWithinBounds(refPixel))
+            {
+                processedPositions.Add(globalPos);
+                continue;
+            }
             
             pixelStates[pixelOffset] = Visited;
             
-            AddCornerLines(documentSize, chunkOffset, lines, curPos, chunkSize);
-            AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelStates, pixelOffset, refPixel, toVisit,  globalPos, documentSize);
+            visualizer.CurrentContext = "AddCornerLines";
+            AddCornerLines(documentSize, chunkOffset, lines, curPos, chunkSize, processedPositions);
+            
+            visualizer.CurrentContext = "AddFillContourLines";
+            AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelStates, pixelOffset, refPixel, toVisit, globalPos, documentSize, processedPositions);
+            
+            processedPositions.Add(globalPos);
         }
         
         return pixelStates;
     }
 
     private static unsafe void AddFillContourLines(int chunkSize, VecI chunkOffset, ColorBounds bounds, Lines lines,
-        VecI curPos, byte[] pixelStates, int pixelOffset, Half* refPixel, Stack<VecI> toVisit, VecI globalPos, VecI documentSize)
+        VecI curPos, byte[] pixelStates, int pixelOffset, Half* refPixel, Stack<VecI> toVisit, VecI globalPos,
+        VecI documentSize, HashSet<VecI> processedPositions)
     {
+        
+        if(processedPositions.Contains(globalPos)) return;
+        
         // Left pixel
         if (curPos.X > 0 && pixelStates[pixelOffset - 1] != Visited)
         {
@@ -509,7 +526,7 @@ public static class FloodFillHelper
         }
     }
 
-    private static void AddCornerLines(VecI documentSize, VecI chunkOffset, Lines lines, VecI curPos, int chunkSize)
+    private static void AddCornerLines(VecI documentSize, VecI chunkOffset, Lines lines, VecI curPos, int chunkSize, HashSet<VecI> processedPositions)
     {
         VecI clampedPos = new(
             Math.Clamp(curPos.X, 0, documentSize.X - 1),
@@ -556,21 +573,20 @@ public static class FloodFillHelper
         
         if (lines.TryCancelLine(line, direction))
         {
+            visualizer.Steps.Add(new Step(line, StepType.CancelLine));
             return;
         }
-        
-        if(lines.LineDict.Any(x => x.Value.ContainsValue(line))) return;
 
         if (calculatedDir == direction)
         {
             lines.LineDict[direction][line.Start] = line;
-            visualizer.Steps.Add(line);
+            visualizer.Steps.Add(new Step(line));
         }
         else if(calculatedDir == -direction)
         {
             Line fixedLine = new Line(line.End, line.Start);
             lines.LineDict[direction][line.End] = fixedLine;
-            visualizer.Steps.Add(fixedLine);
+            visualizer.Steps.Add(new Step(fixedLine));
         }
         else
         {

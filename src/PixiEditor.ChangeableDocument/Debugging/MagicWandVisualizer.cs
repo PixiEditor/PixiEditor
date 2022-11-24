@@ -9,10 +9,11 @@ namespace PixiEditor.ChangeableDocument.Debugging;
 
 public class MagicWandVisualizer
 {
+    public string CurrentContext { get; set; } = "";
     public string FilePath { get; }
     private Paint drawingPaint;
     private Paint replacementPaint;
-    public List<FloodFillHelper.Line> Steps = new List<FloodFillHelper.Line>();
+    public List<Step> Steps = new List<Step>();
     
     public MagicWandVisualizer(string filePath)
     {
@@ -34,30 +35,25 @@ public class MagicWandVisualizer
     {
         Directory.EnumerateFiles(FilePath).ToList().ForEach(File.Delete);
 
-        DrawingSurface surface = DrawingSurface.Create(new ImageInfo(width, height));
-        surface.Canvas.Clear(Colors.White);
-        Image previousImage = surface.Snapshot();
-        VecI scaledStart = new VecI(Steps[0].Start.X * (width / originalWidth), Steps[0].Start.Y * (height / originalHeight));
-        VecI scaledEnd = new VecI(Steps[0].End.X * (width / originalWidth), Steps[0].End.Y * (height / originalHeight));
-        
-        DrawArrow(surface, scaledStart, scaledEnd, 2, Colors.Green);
-        using (FileStream stream = new FileStream(Path.Join(FilePath, "Frame 1.png"), FileMode.Create))
-        {
-            surface.Snapshot().Encode().SaveTo(stream);
-        }
+        Image? previousImage = null;
 
-        for (int i = 1; i < Steps.Count; i++)
+        for (int i = 0; i < Steps.Count; i++)
         {
-            surface = DrawingSurface.Create(new ImageInfo(width, height));
+            Step step = Steps[i];
+            var surface = DrawingSurface.Create(new ImageInfo(width, height));
             surface.Canvas.Clear(Colors.White);
-            surface.Canvas.DrawImage(previousImage, RectD.Create(VecI.Zero, new VecI(previousImage.Width, previousImage.Height)), replacementPaint);
+            if (previousImage != null)
+            {
+                surface.Canvas.DrawImage(previousImage,
+                    RectD.Create(VecI.Zero, new VecI(previousImage.Width, previousImage.Height)), replacementPaint);
+            }
+
+            var scaledStart = new VecI(step.Start.X * (width / originalWidth), step.Start.Y * (height / originalHeight));
+            var scaledEnd = new VecI(step.End.X * (width / originalWidth), step.End.Y * (height / originalHeight));
             
-            scaledStart = new VecI(Steps[i].Start.X * (width / originalWidth), Steps[i].Start.Y * (height / originalHeight));
-            scaledEnd = new VecI(Steps[i].End.X * (width / originalWidth), Steps[i].End.Y * (height / originalHeight));
+            DrawArrow(surface, scaledStart, scaledEnd, 2, step.Type == StepType.Add ? Colors.Green : Colors.Red);
             
-            DrawArrow(surface, scaledStart, scaledEnd, 2, Colors.Green);
-            
-            using (FileStream stream = new FileStream(Path.Join(FilePath, $"Frame {i}.png"), FileMode.Create))
+            using (FileStream stream = new FileStream(Path.Join(FilePath, $"Frame {i}_{CurrentContext}.png"), FileMode.Create))
             {
                 surface.Snapshot().Encode().SaveTo(stream);
             }
@@ -85,4 +81,24 @@ public class MagicWandVisualizer
         surface.Canvas.DrawLine(end, arrowHead1, drawingPaint);
         surface.Canvas.DrawLine(end, arrowHead2, drawingPaint);
     }
+}
+
+public class Step
+{
+    public VecI Start { get; set; }
+    public VecI End { get; set; }
+    public StepType Type { get; set; }
+    
+    public Step(FloodFillHelper.Line line, StepType type = StepType.Add)
+    {
+        Start = line.Start;
+        End = line.End;
+        Type = type;
+    }
+}
+
+public enum StepType
+{
+    Add,
+    CancelLine
 }
