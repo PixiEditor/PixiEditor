@@ -239,7 +239,7 @@ public static class FloodFillHelper
         ColorBounds colorRange = new(colorToReplace);
 
         HashSet<VecI> processedEmptyChunks = new();
-        HashSet<VecI> processedChunks = new();
+        HashSet<VecI> processedPositions = new();
         Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
         positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
 
@@ -275,10 +275,12 @@ public static class FloodFillHelper
 
             // use regular flood fill for chunks that have something in them
             var reallyReferenceChunk = referenceChunk.AsT0;
-            if(processedChunks.Contains(chunkPos))
+            
+            VecI globalPos = chunkPos * chunkSize + posOnChunk;
+            
+            if(processedPositions.Contains(globalPos))
                 continue;
-            
-            
+
             var maybeArray = GetChunkFloodFill(
                 reallyReferenceChunk,
                 chunkSize,
@@ -288,18 +290,18 @@ public static class FloodFillHelper
                 colorRange, lines);
             
 
-            processedChunks.Add(chunkPos);
+            processedPositions.Add(globalPos);
             if (maybeArray is null)
                 continue;
             for (int i = 0; i < chunkSize; i++)
             {
-                if (chunkPos.Y > 0 && maybeArray[i] == Visited)
+                if (chunkPos.Y > 0 && maybeArray[i] == Visited) // Top
                     positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
-                if (chunkPos.Y < imageSizeInChunks.Y - 1 && maybeArray[chunkSize * (chunkSize - 1) + i] == Visited)
+                if (chunkPos.Y < imageSizeInChunks.Y - 1 && maybeArray[chunkSize * (chunkSize - 1) + i] == Visited) // Bottom
                     positionsToFloodFill.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
-                if (chunkPos.X > 0 && maybeArray[i * chunkSize] == Visited)
+                if (chunkPos.X > 0 && maybeArray[i * chunkSize] == Visited) // Left
                     positionsToFloodFill.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
-                if (chunkPos.X < imageSizeInChunks.X - 1 && maybeArray[i * chunkSize + (chunkSize - 1)] == Visited)
+                if (chunkPos.X < imageSizeInChunks.X - 1 && maybeArray[i * chunkSize + (chunkSize - 1)] == Visited) // Right
                     positionsToFloodFill.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
             }
         }
@@ -398,6 +400,7 @@ public static class FloodFillHelper
             i--;
         }
         
+        selection.MoveTo(startingLine.End);
         selection.Close();
         return selection;
     }
