@@ -181,7 +181,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
                 throw new InvalidOperationException("You must first set the width and height of the layer. You can do this by calling WithRect() or setting the Width and Height properties.");
             }
             
-            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Width, Height)));
+            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Math.Max(Width, 1), Math.Max(Height, 1))));
             surface(surfaceBuilder);
             Surface = surfaceBuilder;
             return this;
@@ -226,6 +226,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         
         public SurfaceBuilder WithImage(ReadOnlySpan<byte> buffer, int x, int y)
         {
+            if(buffer.IsEmpty) return this;
+            
             Surface.DrawingSurface.Canvas.DrawBitmap(Bitmap.Decode(buffer), 0, 0);
             return this;
         }
@@ -256,7 +258,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         
         public MaskBuilder WithSurface(int width, int height, Action<SurfaceBuilder> surface)
         {
-            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(width, height)));
+            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Math.Max(width, 1), Math.Max(height, 1))));
             surface(surfaceBuilder);
             Surface = surfaceBuilder;
             return this;

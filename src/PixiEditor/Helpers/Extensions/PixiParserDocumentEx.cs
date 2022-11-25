@@ -28,7 +28,10 @@ internal static class PixiParserDocumentEx
                 }
                 else if (member is ImageLayer layer)
                 {
-                    builder.WithLayer(x => BuildLayer(x, layer));
+                    /*if (layer.Height > 0 && layer.Width > 0)
+                    {*/
+                        builder.WithLayer(x => BuildLayer(x, layer));
+                    //}
                 }
                 else
                 {
@@ -45,13 +48,18 @@ internal static class PixiParserDocumentEx
             .WithChildren(x => BuildChildren(x, folder.Children))
             .WithMask(folder.Mask, (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height, x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
 
-        void BuildLayer(DocumentViewModelBuilder.LayerBuilder builder, ImageLayer layer) => builder
-            .WithName(layer.Name)
-            .WithVisibility(layer.Enabled)
-            .WithOpacity(layer.Opacity)
-            .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)layer.BlendMode)
-            .WithSize(layer.Width, layer.Height)
-            .WithSurface(x => x.WithImage(layer.ImageBytes, layer.OffsetX, layer.OffsetY))
-            .WithMask(layer.Mask, (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height, x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
+        void BuildLayer(DocumentViewModelBuilder.LayerBuilder builder, ImageLayer layer)
+        {
+            builder
+                .WithName(layer.Name)
+                .WithVisibility(layer.Enabled)
+                .WithOpacity(layer.Opacity)
+                .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)layer.BlendMode)
+                .WithSize(layer.Width, layer.Height)
+                .WithSurface(x => x.WithImage(layer.ImageBytes, layer.OffsetX, layer.OffsetY))
+                .WithMask(layer.Mask,
+                    (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height,
+                        x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
+        }
     }
 }

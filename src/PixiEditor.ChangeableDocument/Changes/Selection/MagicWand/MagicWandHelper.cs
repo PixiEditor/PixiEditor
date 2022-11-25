@@ -152,7 +152,7 @@ internal class MagicWandHelper
             var reallyReferenceChunk = referenceChunk.AsT0;
 
             VecI globalPos = chunkPos * chunkSize + posOnChunk;
-            visualizer.CurrentContext = $"FloodFill_{chunkPos}";
+            //visualizer.CurrentContext = $"FloodFill_{chunkPos}";
             var maybeArray = AddLinesForChunkViaFloodFill(
                 reallyReferenceChunk,
                 chunkSize,
@@ -171,14 +171,14 @@ internal class MagicWandHelper
             selection = BuildContour(lines);
         }
 
-        visualizer.GenerateVisualization(document.Size.X, document.Size.Y, 500, 500);
+        //visualizer.GenerateVisualization(document.Size.X, document.Size.Y, 500, 500);
 
         return selection;
     }
 
     private static void AddLinesForEmptyChunk(Lines lines, VecI chunkPos, VecI imageSize, int chunkSize)
     {
-        visualizer.CurrentContext = "EmptyChunk";
+        //visualizer.CurrentContext = "EmptyChunk";
 
         RectI chunkRect = new RectI(chunkPos * chunkSize, new(chunkSize));
         chunkRect = chunkRect.Intersect(new RectI(VecI.Zero, imageSize));
@@ -274,7 +274,7 @@ internal class MagicWandHelper
 
             pixelVisitedStates[pixelOffset] = true;
 
-            visualizer.CurrentContext = "AddFillContourLines";
+            //visualizer.CurrentContext = "AddFillContourLines";
             AddFillContourLines(chunkSize, chunkOffset, bounds, lines, curPos, pixelVisitedStates, pixelOffset, refPixel, toVisit, globalPos, documentSize);
         }
 
@@ -440,12 +440,12 @@ internal class MagicWandHelper
             if (LineDicts[-line.NormalizedDirection].ContainsKey(line.End))
             {
                 LineDicts[-line.NormalizedDirection].Remove(line.End);
-                visualizer.Steps.Add(new Step(line, StepType.CancelLine));
+                //visualizer.Steps.Add(new Step(line, StepType.CancelLine));
                 return;
             }
 
             LineDicts[line.NormalizedDirection][line.Start] = line;
-            visualizer.Steps.Add(new Step(line));
+            //visualizer.Steps.Add(new Step(line));
         }
 
         public IEnumerator<Line> GetEnumerator()
