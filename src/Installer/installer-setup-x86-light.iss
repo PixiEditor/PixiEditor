@@ -367,8 +367,8 @@ Source: "netcorecheck.exe"; Flags: dontcopy noencryption
 Source: "netcorecheck_x64.exe"; Flags: dontcopy noencryption
 #endif
 
-Source: "..\Builds\PixiEditor-{#TargetPlatform}\PixiEditor\PixiEditor.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\Builds\PixiEditor-{#TargetPlatform}\PixiEditor\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\..\Builds\PixiEditor-{#TargetPlatform}\PixiEditor\PixiEditor.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\Builds\PixiEditor-{#TargetPlatform}\PixiEditor\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

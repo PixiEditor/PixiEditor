@@ -20,7 +20,7 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '6.0.100'
+    version: '6.x'
 
 - task: NuGetToolInstaller@1
 
@@ -86,11 +86,11 @@ steps:
   displayName: "Compile installer"
   inputs:
     targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.2.0\tools\ISCC.exe" Installer\installer-setup-x86-light.iss'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.2.1\tools\ISCC.exe" src\Installer\installer-setup-x86-light.iss'
 
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact"
   inputs:
-    targetPath: 'Installer/Assets/PixiEditor-x86-light/'
+    targetPath: 'src/Installer/Assets/PixiEditor-x86-light/'
     artifact: 'PixiEditor-setup-x86.exe'
     publishLocation: 'pipeline'
