@@ -1,4 +1,4 @@
-$assemblyInfoPath = "PixiEditor\Properties\AssemblyInfo.cs"
+$assemblyInfoPath = "src\PixiEditor\Properties\AssemblyInfo.cs"
 
 $contents = [System.IO.File]::ReadAllText($assemblyInfoPath)
 
