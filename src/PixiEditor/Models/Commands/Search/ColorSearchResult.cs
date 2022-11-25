@@ -15,7 +15,7 @@ internal class ColorSearchResult : SearchResult
     public override string Description => $"{color} rgba({color.R}, {color.G}, {color.B}, {color.A})";
 
     //public override bool CanExecute => !requiresDocument || (requiresDocument && ViewModelMain.Current.BitmapManager.ActiveDocument != null);
-    public override bool CanExecute => false;
+    public override bool CanExecute => true;
 
     public override ImageSource Icon => icon;
 

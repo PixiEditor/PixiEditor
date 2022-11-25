@@ -232,6 +232,28 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc!.Operations.DeleteMask(member);
     }
 
+    [Command.Basic("PixiEditor.Layer.ToggleMask", "Toggle mask", "Toggle mask", CanExecute = "PixiEditor.Layer.ActiveLayerHasMask")]
+    public void ToggleMask()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var member = doc?.SelectedStructureMember;
+        if (member is null || !member.HasMaskBindable)
+            return;
+        
+        member.MaskIsVisibleBindable = !member.MaskIsVisibleBindable;
+    }
+
+    [Command.Basic("PixiEditor.Layer.ToggleVisible", "Toggle visibility", "Toggle visibility", CanExecute = "PixiEditor.HasDocument")]
+    public void ToggleVisible()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var member = doc?.SelectedStructureMember;
+        if (member is null)
+            return;
+        
+        member.IsVisibleBindable = !member.IsVisibleBindable;
+    }
+
     [Evaluator.CanExecute("PixiEditor.Layer.HasMemberAbove")]
     public bool HasMemberAbove(object property) => HasSelectedMember(true);
     [Evaluator.CanExecute("PixiEditor.Layer.HasMemberBelow")]

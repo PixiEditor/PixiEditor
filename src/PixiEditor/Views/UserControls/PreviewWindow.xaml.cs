@@ -47,15 +47,6 @@ internal partial class PreviewWindow : UserControl
         set => SetValue(PrimaryColorProperty, value);
     }
 
-    public static readonly DependencyProperty OptionsOpenProperty =
-        DependencyProperty.Register(nameof(OptionsOpen), typeof(bool), typeof(PreviewWindow));
-
-    public bool OptionsOpen
-    {
-        get => (bool)GetValue(OptionsOpenProperty);
-        set => SetValue(OptionsOpenProperty, value);
-    }
-
     public PreviewWindow()
     {
         InitializeComponent();
@@ -102,13 +93,17 @@ internal partial class PreviewWindow : UserControl
 
     private void CopyColorToClipboard()
     {
-        if (ColorCursorColor.A == 255)
+        if ((string)formatButton.ActiveItem.Value == "HEX")
         {
-            Clipboard.SetText(string.Format("#{0:X2}{1:X2}{2:X2}", ColorCursorColor.R, ColorCursorColor.G, ColorCursorColor.B));
+            Clipboard.SetText(ColorCursorColor.A == 255
+                ? $"#{ColorCursorColor.R:X2}{ColorCursorColor.G:X2}{ColorCursorColor.B:X2}"
+                : ColorCursorColor.ToString());
         }
         else
         {
-            Clipboard.SetText(ColorCursorColor.ToString());
+            Clipboard.SetText(ColorCursorColor.A == 255
+                ? $"rgb({ColorCursorColor.R},{ColorCursorColor.G},{ColorCursorColor.B})"
+                : $"rgba({ColorCursorColor.R},{ColorCursorColor.G},{ColorCursorColor.B},{ColorCursorColor.A})");
         }
     }
 

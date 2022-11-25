@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -36,7 +37,10 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Clipboard.PasteColor", "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
     public void PasteColor()
     {
-        Owner.ColorsSubViewModel.PrimaryColor = DrawingApi.Core.ColorsImpl.Color.Parse(Clipboard.GetText().Trim());
+        if (ParseAnyFormat(Clipboard.GetText().Trim(), out var result))
+        {
+            Owner.ColorsSubViewModel.PrimaryColor = result.Value;
+        }
     }
 
     [Command.Basic("PixiEditor.Clipboard.Copy", "Copy", "Copy to clipboard", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = ModifierKeys.Control)]
@@ -55,16 +59,16 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
-    public static bool CanPasteColor() => Regex.IsMatch(Clipboard.GetText().Trim(), "^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$");
+    public static bool CanPasteColor() => ParseAnyFormat(Clipboard.GetText().Trim(), out _);
 
     [Evaluator.Icon("PixiEditor.Clipboard.PasteColorIcon")]
     public static ImageSource GetPasteColorIcon()
     {
         Color color;
 
-        if (CanPasteColor())
+        if (ParseAnyFormat(Clipboard.GetText().Trim(), out var result))
         {
-            color = DrawingApi.Core.ColorsImpl.Color.Parse(Clipboard.GetText().Trim()).ToOpaqueMediaColor();
+            color = result.Value.ToOpaqueMediaColor();
         }
         else
         {
@@ -72,5 +76,33 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         }
 
         return ColorSearchResult.GetIcon(color.ToOpaqueColor());
+    }
+
+    private static bool ParseAnyFormat(string value, [NotNullWhen(true)] out DrawingApi.Core.ColorsImpl.Color? result)
+    {
+        bool hex = Regex.IsMatch(Clipboard.GetText().Trim(), "^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$");
+
+        if (hex)
+        {
+            result = DrawingApi.Core.ColorsImpl.Color.Parse(Clipboard.GetText().Trim());
+            return true;
+        }
+
+        var match = Regex.Match(Clipboard.GetText().Trim(), @"(?:rgba?\(?)? *(?<r>\d{1,3})(?:, *| +)(?<g>\d{1,3})(?:, *| +)(?<b>\d{1,3})(?:(?:, *| +)(?<a>\d{0,3}))?\)?");
+
+        if (!match.Success)
+        {
+            result = null;
+            return false;
+        }
+
+        byte r = byte.Parse(match.Groups["r"].ValueSpan);
+        byte g = byte.Parse(match.Groups["g"].ValueSpan);
+        byte b = byte.Parse(match.Groups["b"].ValueSpan);
+        byte a = match.Groups["a"].Success ? byte.Parse(match.Groups["a"].ValueSpan) : (byte)255;
+
+        result = new DrawingApi.Core.ColorsImpl.Color(r, g, b, a);
+        return true;
+
     }
 }

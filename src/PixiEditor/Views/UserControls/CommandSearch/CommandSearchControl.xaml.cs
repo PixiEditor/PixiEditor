@@ -174,6 +174,16 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         {
             SwitchColor(result.AsT0);
         }
+        else if (e.Key == Key.D && e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+        {
+            SearchTerm = "~/Documents/";
+            textBox.CaretIndex = SearchTerm.Length;
+        }
+        else if (e.Key == Key.P && e.KeyboardDevice.Modifiers == ModifierKeys.Control)
+        {
+            SearchTerm = "~/Pictures/";
+            textBox.CaretIndex = SearchTerm.Length;
+        }
         else
         {
             e.Handled = false;
@@ -187,10 +197,12 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
             if (color.A == 255)
             {
                 SearchTerm = $"rgb({color.R},{color.G},{color.B})";
+                textBox.CaretIndex = 4;
             }
             else
             {
                 SearchTerm = $"rgba({color.R},{color.G},{color.B},{color.A})";
+                textBox.CaretIndex = 5;
             }
         }
         else
@@ -198,10 +210,12 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
             if (color.A == 255)
             {
                 SearchTerm = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
+                textBox.CaretIndex = 1;
             }
             else
             {
                 SearchTerm = $"#{color.R:X2}{color.G:X2}{color.B:X2}{color.A:X2}";
+                textBox.CaretIndex = 1;
             }
         }
     }
@@ -212,7 +226,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
             return;
         if (SelectedResult is null)
         {
-            SelectedResult = Results.First(x => x.CanExecute);
+            SelectedResult = Results.FirstOrDefault(x => x.CanExecute);
             return;
         }
 

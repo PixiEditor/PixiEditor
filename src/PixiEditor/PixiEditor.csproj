@@ -352,6 +352,10 @@
 		<Resource Include="Images\Create-mask.png" />
 		<None Remove="Images\FlipHorizontal.png" />
 		<Resource Include="Images\FlipHorizontal.png" />
+		<None Remove="Images\Commands\PixiEditor\Layer\ToggleMask.png" />
+		<Resource Include="Images\Commands\PixiEditor\Layer\ToggleMask.png" />
+		<None Remove="Images\Commands\PixiEditor\Layer\ToggleVisible.png" />
+		<Resource Include="Images\Commands\PixiEditor\Layer\ToggleVisible.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
