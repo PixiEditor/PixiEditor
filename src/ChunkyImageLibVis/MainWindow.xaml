@@ -1,0 +1,16 @@
+﻿<Window x:Class="ChunkyImageLibVis.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ChunkyImageLibVis"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Canvas PreviewMouseDown="Canvas_MouseDown" PreviewMouseMove="Canvas_MouseMove" PreviewMouseUp="Canvas_MouseUp" x:Name="canvas" Background="Transparent">
+        <Rectangle Canvas.Left="{Binding X1}" Canvas.Top="{Binding Y1}" Width="{Binding RectWidth}" Height="{Binding RectHeight}" Stroke="Black" StrokeThickness="1" Panel.ZIndex="999">
+            <Rectangle.RenderTransform>
+                <RotateTransform CenterX="{Binding HalfRectWidth}" CenterY="{Binding HalfRectHeight}" Angle="{Binding Angle}"/>
+            </Rectangle.RenderTransform>
+        </Rectangle>
+    </Canvas>
+</Window>
