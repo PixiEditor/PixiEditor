@@ -91,6 +91,6 @@ steps:
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact"
   inputs:
-    targetPath: 'Installer/Assets/PixiEditor-x86-light/'
+    targetPath: 'src/Installer/Assets/PixiEditor-x86-light/'
     artifact: 'PixiEditor-setup-x86.exe'
     publishLocation: 'pipeline'
