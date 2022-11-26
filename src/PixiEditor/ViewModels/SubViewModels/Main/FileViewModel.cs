@@ -91,7 +91,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("The file does not exist", "Failed to open the file");
             RecentlyOpened.Remove(path);
-            IPreferences.Current.UpdateLocalPreference("RecentlyOpened", RecentlyOpened.Select(x => x.FilePath));
+            IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
             return;
         }
 
@@ -165,6 +165,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         DocumentViewModel document = Importer.ImportDocument(path);
         AddDocumentViewModelToTheSystem(document);
+
+        RecentlyOpened.Insert(0, document.FullFilePath);
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
     /// <summary>
@@ -246,6 +249,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
             success = Exporter.SaveAsEditableFileWithDialog(document, out path);
+            if (success)
+            {
+                RecentlyOpened.Insert(0, path);
+                IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
+            }
         }
         else
         {
