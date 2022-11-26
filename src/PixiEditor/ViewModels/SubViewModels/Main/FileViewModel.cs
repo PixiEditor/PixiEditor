@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection.Metadata;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using ChunkyImageLib;
@@ -49,7 +50,21 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             HasRecent = true;
         }
 
-        IPreferences.Current.AddCallback("MaxOpenedRecently", UpdateMaxRecentlyOpened);
+        IPreferences.Current.AddCallback(PreferencesConstants.MaxOpenedRecently, UpdateMaxRecentlyOpened);
+    }
+
+    public void AddRecentlyOpened(string path)
+    {
+        if (RecentlyOpened.Contains(path))
+            return;
+        
+        RecentlyOpened.Insert(0, path);
+        int maxCount = IPreferences.Current.GetPreference<int>(PreferencesConstants.MaxOpenedRecently, PreferencesConstants.MaxOpenedRecentlyDefault);
+        while (RecentlyOpened.Count > maxCount)
+        {
+            RecentlyOpened.RemoveAt(RecentlyOpened.Count - 1);
+        }
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
     public void RemoveRecentlyOpened(object parameter)
@@ -165,9 +180,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         DocumentViewModel document = Importer.ImportDocument(path);
         AddDocumentViewModelToTheSystem(document);
-
-        RecentlyOpened.Insert(0, document.FullFilePath);
-        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
+        AddRecentlyOpened(document.FullFilePath);
     }
 
     /// <summary>
@@ -201,6 +214,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     .WithSize(dialog.FileWidth, dialog.FileHeight)
                     .WithSurface(Importer.ImportImage(dialog.FilePath, new VecI(dialog.FileWidth, dialog.FileHeight)))));
             doc.FullFilePath = path;
+            AddRecentlyOpened(path);
         }
     }
 
@@ -251,8 +265,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             success = Exporter.SaveAsEditableFileWithDialog(document, out path);
             if (success)
             {
-                RecentlyOpened.Insert(0, path);
-                IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
+                AddRecentlyOpened(path);
             }
         }
         else
@@ -311,7 +324,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
     {
         IEnumerable<string> paths = IPreferences.Current.GetLocalPreference(nameof(RecentlyOpened), new JArray()).ToObject<string[]>()
-            .Take(IPreferences.Current.GetPreference("MaxOpenedRecently", 8));
+            .Take(IPreferences.Current.GetPreference(PreferencesConstants.MaxOpenedRecently, 8));
 
         List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();
 
