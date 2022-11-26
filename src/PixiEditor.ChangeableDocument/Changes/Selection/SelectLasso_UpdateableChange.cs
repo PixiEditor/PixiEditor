@@ -33,13 +33,13 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
         var toDispose = target.Selection.SelectionPath;
         if (mode == SelectionMode.New)
         {
-            var copy = new VectorPath(path);
+            var copy = path.PointCount > 2 ? new VectorPath(path) : new VectorPath();
             copy.Close();
             target.Selection.SelectionPath = copy;
         }
         else
         {
-            target.Selection.SelectionPath = originalPath!.Op(path, mode.ToVectorPathOp());
+            target.Selection.SelectionPath = path.PointCount > 2 ? originalPath!.Op(path, mode.ToVectorPathOp()) : new VectorPath(originalPath);
         }
         toDispose.Dispose();
 
