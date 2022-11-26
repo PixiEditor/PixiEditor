@@ -39,7 +39,7 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
         }
         else
         {
-            target.Selection.SelectionPath = path.PointCount > 2 ? originalPath!.Op(path, mode.ToVectorPathOp()) : new VectorPath(originalPath);
+            target.Selection.SelectionPath = path.PointCount > 2 ? originalPath!.Op(path, mode.ToVectorPathOp()) : new VectorPath(originalPath!);
         }
         toDispose.Dispose();
 
