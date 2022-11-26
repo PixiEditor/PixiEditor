@@ -28,10 +28,7 @@ internal static class PixiParserDocumentEx
                 }
                 else if (member is ImageLayer layer)
                 {
-                    /*if (layer.Height > 0 && layer.Width > 0)
-                    {*/
-                        builder.WithLayer(x => BuildLayer(x, layer));
-                    //}
+                    builder.WithLayer(x => BuildLayer(x, layer));
                 }
                 else
                 {
@@ -56,10 +53,12 @@ internal static class PixiParserDocumentEx
                 .WithOpacity(layer.Opacity)
                 .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)layer.BlendMode)
                 .WithSize(layer.Width, layer.Height)
-                .WithSurface(x => x.WithImage(layer.ImageBytes, layer.OffsetX, layer.OffsetY))
                 .WithMask(layer.Mask,
                     (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height,
                         x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
+
+            if (layer.Width > 0 && layer.Height > 0)
+                builder.WithSurface(x => x.WithImage(layer.ImageBytes, layer.OffsetX, layer.OffsetY));
         }
     }
 }

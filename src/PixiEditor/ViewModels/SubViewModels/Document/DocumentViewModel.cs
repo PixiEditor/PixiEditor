@@ -216,7 +216,7 @@ internal partial class DocumentViewModel : NotifyableObject
             if (!member.IsVisible)
                 acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.GuidValue));
 
-            if (member is DocumentViewModelBuilder.LayerBuilder layer)
+            if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
             {
                 PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY, false);
             }
