@@ -5,12 +5,8 @@ namespace PixiEditor.ChangeableDocument.Changes.Root;
 
 internal class ClipCanvas_Change : ResizeBasedChangeBase
 {
-
     [GenerateMakeChangeAction]
-    public ClipCanvas_Change()
-    {
-        
-    }
+    public ClipCanvas_Change() { }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {

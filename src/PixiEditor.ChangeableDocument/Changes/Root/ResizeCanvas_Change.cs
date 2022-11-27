@@ -18,7 +18,7 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (target.Size == newSize || newSize.X < 1 || newSize.Y < 1)
+        if (newSize.X < 1 || newSize.Y < 1)
             return false;
         
         return base.InitializeAndValidate(target);
@@ -26,6 +26,12 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
+        if (_originalSize == newSize)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
+
         target.Size = newSize;
         target.VerticalSymmetryAxisX = Math.Clamp(_originalVerAxisX, 0, target.Size.X);
         target.HorizontalSymmetryAxisY = Math.Clamp(_originalHorAxisY, 0, target.Size.Y);
