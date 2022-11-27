@@ -15,7 +15,7 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
         {
             if (member is Layer layer)
             {
-                var layerBounds = layer.LayerImage.FindPreciseBounds();
+                var layerBounds = layer.LayerImage.FindPreciseCommittedBounds();
                 if (layerBounds.HasValue)
                 {
                     bounds ??= layerBounds.Value;
