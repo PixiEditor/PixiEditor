@@ -115,7 +115,7 @@ internal class ActionAccumulator
             var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, undoBoundaryPassed);
             
             // lock bitmaps
-            foreach (var (_, bitmap) in document.Bitmaps)
+            foreach (var (_, bitmap) in document.LazyBitmaps)
             {
                 bitmap.Lock();
             }
@@ -126,7 +126,7 @@ internal class ActionAccumulator
             AddDirtyRects(renderResult);
 
             // unlock bitmaps
-            foreach (var (_, bitmap) in document.Bitmaps)
+            foreach (var (_, bitmap) in document.LazyBitmaps)
             {
                 bitmap.Unlock();
             }
@@ -191,7 +191,7 @@ internal class ActionAccumulator
             {
                 case DirtyRect_RenderInfo info:
                     {
-                        var bitmap = document.Bitmaps[info.Resolution];
+                        var bitmap = document.LazyBitmaps[info.Resolution];
                         RectI finalRect = new RectI(VecI.Zero, new(bitmap.PixelWidth, bitmap.PixelHeight));
 
                         RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);

@@ -269,7 +269,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get
         {
-            return Document?.Bitmaps.TryGetValue(CalculateResolution(), out WriteableBitmap? value) == true ? value : null;
+            return Document?.LazyBitmaps.TryGetValue(CalculateResolution(), out WriteableBitmap? value) == true ? value : null;
         }
     }
 

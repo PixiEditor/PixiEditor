@@ -295,7 +295,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return;
 
-        var bitmap = doc.Bitmaps[ChunkResolution.Full];
+        var bitmap = doc.LazyBitmaps[ChunkResolution.Full];
         if (Exporter.Export(bitmap, new VecI(bitmap.PixelWidth, bitmap.PixelHeight), out string path))
         {
             ProcessHelper.OpenInExplorer(path);

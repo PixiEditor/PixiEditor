@@ -66,7 +66,7 @@ internal class Exporter
 
         if (finalType != FileType.Pixi)
         {
-            var bitmap = document.Bitmaps[ChunkResolution.Full];
+            var bitmap = document.LazyBitmaps[ChunkResolution.Full];
             SaveAs(encodersFactory[finalType](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
         }
         else if (Directory.Exists(Path.GetDirectoryName(path)))

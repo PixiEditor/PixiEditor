@@ -304,7 +304,7 @@ internal class DocumentUpdater
             doc.Surfaces[res] = CreateDrawingSurface(newBitmaps[res]);
         }
 
-        doc.Bitmaps = newBitmaps;
+        doc.LazyBitmaps = newBitmaps;
 
         doc.InternalSetSize(info.Size);
         doc.InternalSetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
@@ -315,7 +315,7 @@ internal class DocumentUpdater
         doc.PreviewBitmap = CreateBitmap(previewSize);
         doc.PreviewSurface = CreateDrawingSurface(doc.PreviewBitmap);
 
-        doc.RaisePropertyChanged(nameof(doc.Bitmaps));
+        doc.RaisePropertyChanged(nameof(doc.LazyBitmaps));
         doc.RaisePropertyChanged(nameof(doc.PreviewBitmap));
 
         UpdateMemberBitmapsRecursively(doc.StructureRoot, previewSize);
