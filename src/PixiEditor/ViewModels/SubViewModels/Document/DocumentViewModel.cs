@@ -278,6 +278,31 @@ internal partial class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(AllChangesSaved));
     }
 
+    public OneOf<Error, Surface> MaybeRenderWholeImage()
+    {
+        try
+        {
+            Surface finalSurface = new Surface(SizeBindable);
+            VecI sizeInChunks = (VecI)((VecD)SizeBindable / ChunkyImage.FullChunkSize).Ceiling();
+            for (int i = 0; i < sizeInChunks.X; i++)
+            {
+                for (int j = 0; j < sizeInChunks.Y; j++)
+                {
+                    var maybeChunk = ChunkRenderer.MergeWholeStructure(new(i, j), ChunkResolution.Full, Internals.Tracker.Document.StructureRoot);
+                    if (maybeChunk.IsT1)
+                        continue;
+                    using Chunk chunk = maybeChunk.AsT0;
+                    finalSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
+                } 
+            }
+            return finalSurface;
+        }
+        catch (ObjectDisposedException)
+        {
+            return new Error();
+        }
+    }
+
     /// <summary>
     /// Takes the selected area and converts it into a surface
     /// </summary>
