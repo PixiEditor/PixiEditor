@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.ComponentModel;
+using System.Windows;
+using System.Windows.Input;
 using System.Windows.Markup;
 using PixiEditor.Helpers;
 
@@ -20,7 +22,7 @@ internal class Command : MarkupExtension
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+        if ((bool)(DesignerProperties.IsInDesignModeProperty.GetMetadata(typeof(DependencyObject)).DefaultValue))
         {
             var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
             return GetICommand(
