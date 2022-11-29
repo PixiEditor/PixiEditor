@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
@@ -54,6 +56,15 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
             return;
         
         ActiveDocument?.Operations.ClipCanvas();
+    }
+    
+    [Command.Basic("PixiEditor.Document.FlipImageHorizontal", "Flip Image Horizontally", "Flip Image Horizontally", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipImageHorizontally()
+    {
+        if (ActiveDocument is null)
+            return;
+        
+        ActiveDocument?.Operations.FlipImage(FlipType.Horizontal);
     }
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]

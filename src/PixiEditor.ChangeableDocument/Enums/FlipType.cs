@@ -1,4 +1,4 @@
-namespace PixiEditor.Models.Enums;
+namespace PixiEditor.ChangeableDocument.Enums;
 
 public enum FlipType
 {
