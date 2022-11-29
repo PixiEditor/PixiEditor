@@ -17,7 +17,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
 {
     private CommandController commandController;
     private ShortcutPopup? shortcutPopup;
-    private ShortcutPopup ShortcutPopup => shortcutPopup ?? (shortcutPopup = new(commandController));
+    private ShortcutPopup ShortcutPopup => shortcutPopup ??= new(commandController);
 
     private AboutPopup? _aboutPopup;
     private AboutPopup AboutPopup => _aboutPopup ??= new();

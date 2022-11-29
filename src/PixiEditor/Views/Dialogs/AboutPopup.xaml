@@ -10,7 +10,7 @@
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         mc:Ignorable="d" WindowStyle="None"
         Title="About" WindowStartupLocation="CenterScreen"
-        Height="490" Width="400" Name="aboutPopup" MinWidth="100" MinHeight="100">
+        Height="510" Width="400" Name="aboutPopup" MinWidth="100" MinHeight="100">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
                         Executed="CommandBinding_Executed_Close" />
@@ -42,9 +42,12 @@
                         <ImageBrush ImageSource="/Images/SocialMedia/Avatars/flabbet.png"/>
                     </Ellipse.Fill>
                 </Ellipse>
-                <Button Content="Krzysztof Krysiński (flabbet)" VerticalAlignment="Center" Style="{StaticResource HyperlinkTextButton}"
-                        Margin="10 0 0 0" FontSize="14"
-                        Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/flabbet"/>
+                <Label Style="{StaticResource SettingsText}" Margin="10 0 0 0" FontSize="14">
+                    <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/flabbet" Style="{StaticResource SettingsLink}">
+                        <Run Text="Krzysztof Krysiński (flabbet)"/>
+                        <Run Text="" FontFamily="{StaticResource Feather}"/>
+                    </Hyperlink>
+                </Label>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="20 5">
                 <Ellipse Width="32" Height="32">
@@ -52,8 +55,12 @@
                         <ImageBrush ImageSource="/Images/SocialMedia/Avatars/Equbuxu.png"/>
                     </Ellipse.Fill>
                 </Ellipse>
-                <Button Content="Egor Mozgovoy (Equbuxu)" Style="{StaticResource HyperlinkTextButton}" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="14"
-                        Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/equbuxu"/>
+                <Label Style="{StaticResource SettingsText}"  Margin="10 0 0 0" FontSize="14">
+                    <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/equbuxu" Style="{StaticResource SettingsLink}">
+                        <Run Text="Egor Mozgovoy (Equbuxu)"/>
+                        <Run Text="" FontFamily="{StaticResource Feather}"/>
+                    </Hyperlink>
+                </Label>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="20 0">
                 <Ellipse Width="32" Height="32">
@@ -61,19 +68,47 @@
                         <ImageBrush ImageSource="/Images/SocialMedia/Avatars/CPK.png"/>
                     </Ellipse.Fill>
                 </Ellipse>
-                <Button Style="{StaticResource HyperlinkTextButton}" Content="Philip Kreuz (CPK)" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="14"
-                        Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/CPKreuz"/>
+                <Label Style="{StaticResource SettingsText}" Margin="10 0 0 0" FontSize="14">
+                    <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/CPKreuz" Style="{StaticResource SettingsLink}">
+                        <Run Text="Phillip Kreuz (CPK)"/>
+                        <Run Text="" FontFamily="{StaticResource Feather}"/>
+                    </Hyperlink>
+                </Label>
             </StackPanel>
             
-            <Button Style="{StaticResource HyperlinkTextButton}" Content="And other awesome contributors" VerticalAlignment="Center" Margin="20 10 0 0" FontSize="14"
-                    Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor/graphs/contributors"/>
+            <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
+                <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor/graphs/contributors"
+                           Style="{StaticResource SettingsLink}">
+                    <Run Text="And other awesome contributors"/>
+                    <Run Text="" FontFamily="{StaticResource Feather}"/>
+                </Hyperlink>
+            </Label>
             
-            <Button Style="{StaticResource HyperlinkTextButton}" Content="License" VerticalAlignment="Center" Margin="10 20 0 0" FontSize="14"
-                    Command="{cmds:Command PixiEditor.Links.OpenLicense}"/>
-            <Button Style="{StaticResource HyperlinkTextButton}" Content="Third Party Licenses" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="14"
-                    Command="{cmds:Command PixiEditor.Links.OpenOtherLicenses}"/>
-            <Button Style="{StaticResource HyperlinkTextButton}" Content="Documentation" VerticalAlignment="Center" Margin="10 0 0 0" FontSize="14"
-                    Command="{cmds:Command PixiEditor.Links.OpenDocumentation}"/>
+            <Separator Margin="0 10 0 0"/>
+            
+            <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
+                <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenLicense}"
+                           Style="{StaticResource SettingsLink}">
+                    <Run Text="License"/>
+                    <Run Text="" FontFamily="{StaticResource Feather}"/>
+                </Hyperlink>
+            </Label>
+            
+            <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
+                <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenOtherLicenses}"
+                           Style="{StaticResource SettingsLink}">
+                    <Run Text="Third Party Licenses"/>
+                    <Run Text="" FontFamily="{StaticResource Feather}"/>
+                </Hyperlink>
+            </Label>
+            
+            <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
+                <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenDocumentation}"
+                           Style="{StaticResource SettingsLink}">
+                    <Run Text="Documentation"/>
+                    <Run Text="" FontFamily="{StaticResource Feather}"/>
+                </Hyperlink>
+            </Label>
             
             <userControls:AlignableWrapPanel DockPanel.Dock="Bottom" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,20,0,15">
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://pixieditor.net"
