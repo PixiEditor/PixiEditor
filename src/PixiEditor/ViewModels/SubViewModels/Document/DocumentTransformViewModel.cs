@@ -48,6 +48,13 @@ internal class DocumentTransformViewModel : NotifyableObject
         set => SetProperty(ref transformActive, value);
     }
 
+    private bool showTransformControls;
+    public bool ShowTransformControls
+    {
+        get => showTransformControls;
+        set => SetProperty(ref showTransformControls, value);
+    }
+
     private bool coverWholeScreen;
     public bool CoverWholeScreen
     {
@@ -85,9 +92,10 @@ internal class DocumentTransformViewModel : NotifyableObject
     public void HideTransform()
     {
         TransformActive = false;
+        ShowTransformControls = false;
     }
 
-    public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos)
+    public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos, bool showApplyButton)
     {
         activeTransformMode = mode;
         CornerFreedom = TransformCornerFreedom.Scale;
@@ -96,6 +104,7 @@ internal class DocumentTransformViewModel : NotifyableObject
         RequestedCorners = initPos;
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
+        ShowTransformControls = showApplyButton;
     }
 
     public void ModifierKeysInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)
