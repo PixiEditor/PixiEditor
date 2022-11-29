@@ -286,7 +286,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         InitializeComponent();
 
-        Binding binding = new Binding { Source = this, Path = new PropertyPath("Document.Bitmaps") };
+        Binding binding = new Binding { Source = this, Path = new PropertyPath($"{nameof(Document)}.{nameof(Document.LazyBitmaps)}") };
         SetBinding(BitmapsProperty, binding);
 
         MainImage!.Loaded += OnImageLoaded;

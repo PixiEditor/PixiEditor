@@ -51,7 +51,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     public FixedViewport()
     {
         InitializeComponent();
-        Binding binding = new Binding { Source = this, Path = new PropertyPath("Document.Bitmaps") };
+        Binding binding = new Binding { Source = this, Path = new PropertyPath($"{nameof(Document)}.{nameof(Document.LazyBitmaps)}") };
         SetBinding(BitmapsProperty, binding);
 
         Loaded += OnLoad;
