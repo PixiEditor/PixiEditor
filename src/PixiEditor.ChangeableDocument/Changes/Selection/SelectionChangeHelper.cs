@@ -6,7 +6,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class SelectionChangeHelper
 {
     public static Selection_ChangeInfo DoSelectionTransform(
-        Document target, VectorPath originalPath, RectI originalPathTightBounds, ShapeCorners to)
+        Document target, VectorPath originalPath, RectD originalPathTightBounds, ShapeCorners to)
     {
         VectorPath newPath = new(originalPath);
 

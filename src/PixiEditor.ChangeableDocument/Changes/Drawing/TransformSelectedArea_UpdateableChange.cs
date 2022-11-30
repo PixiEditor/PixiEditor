@@ -15,9 +15,10 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
 
     private Dictionary<Guid, (Surface surface, VecI pos)>? images;
     private Matrix3X3 globalMatrix;
-    private RectI originalTightBounds;
     private Dictionary<Guid, CommittedChunkStorage>? savedChunks;
 
+    private RectD originalTightBounds;
+    private RectI roundedTightBounds;
     private VectorPath? originalPath;
 
     private bool hasEnqueudImages = false;
@@ -49,13 +50,16 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         }
 
         originalPath = new VectorPath(target.Selection.SelectionPath) { FillType = PathFillType.EvenOdd };
-        RectI bounds = (RectI)originalPath.TightBounds;
+        
+        originalTightBounds = originalPath.TightBounds;
+        roundedTightBounds = (RectI)originalTightBounds.RoundOutwards();
+        //boundsRoundingOffset = bounds.TopLeft - roundedBounds.TopLeft;
 
         images = new();
         foreach (var guid in membersToTransform)
         {
             ChunkyImage image = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask);
-            var extracted = ExtractArea(image, originalPath, bounds);
+            var extracted = ExtractArea(image, originalPath, roundedTightBounds);
             if (extracted.IsT0)
                 continue;
             images.Add(guid, (extracted.AsT1.image, extracted.AsT1.extractedRect.Pos));
@@ -63,7 +67,6 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
 
         if (images.Count == 0)
             return false;
-        originalTightBounds = bounds;
         globalMatrix = OperationHelper.CreateMatrixFromPoints(corners, originalTightBounds.Size);
         return true;
     }
@@ -108,8 +111,8 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         memberImage.CancelChanges();
 
         if (!keepOriginal)
-            memberImage.EnqueueClearPath(originalPath!, originalTightBounds);
-        Matrix3X3 localMatrix = Matrix3X3.CreateTranslation(originalPos.X - originalTightBounds.Left, originalPos.Y - originalTightBounds.Top);
+            memberImage.EnqueueClearPath(originalPath!, roundedTightBounds);
+        Matrix3X3 localMatrix = Matrix3X3.CreateTranslation(originalPos.X - (float)originalTightBounds.Left, originalPos.Y - (float)originalTightBounds.Top);
         localMatrix = localMatrix.PostConcat(globalMatrix);
         memberImage.EnqueueDrawImage(localMatrix, image, RegularPaint, false);
         hasEnqueudImages = true;
