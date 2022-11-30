@@ -10,7 +10,7 @@
 
 // custom setup info
 #define MyAppName "PixiEditor"
-#define MyAppVersion GetFileVersion("..\Builds\PixiEditor-x64-light\PixiEditor\PixiEditor.exe")     ;Not perfect solution, it's enviroment dependend
+#define MyAppVersion GetFileVersion("..\..\Builds\PixiEditor-x64-light\PixiEditor\PixiEditor.exe")     ;Not perfect solution, it's enviroment dependend
 #define MyAppPublisher "PixiEditor"
 #define MyAppURL "https://github.com/PixiEditor/PixiEditor"
 #define MyAppExeName "PixiEditor.exe"

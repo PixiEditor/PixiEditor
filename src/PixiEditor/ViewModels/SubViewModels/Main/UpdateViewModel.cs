@@ -43,7 +43,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             RaisePropertyChanged(nameof(UpdateReadyToInstall));
             if (value)
             {
-                VersionText = $"to install update (current {VersionHelpers.GetCurrentAssemblyVersionString()})"; // Button shows "Restart" before this text
+                VersionText = $"to install update ({UpdateChecker.LatestReleaseInfo.TagName})"; // Button shows "Restart" before this text
             }
         }
     }
@@ -105,7 +105,13 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                     $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe");
 
                 bool updateExeExists = File.Exists(exePath);
-                
+
+                if (updateExeExists && !UpdateChecker.VersionDifferent(UpdateChecker.LatestReleaseInfo.TagName, UpdateChecker.CurrentVersionTag))
+                {
+                    File.Delete(exePath);
+                    updateExeExists = false;
+                }
+
                 string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
 
                 if (updateFileExists || updateExeExists)
