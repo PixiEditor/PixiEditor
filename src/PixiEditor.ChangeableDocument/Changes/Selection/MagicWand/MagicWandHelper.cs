@@ -14,19 +14,19 @@ internal class MagicWandHelper
     private static readonly VecI Left = new VecI(-1, 0);
     private static readonly VecI Right = new VecI(1, 0);
 
-    private static MagicWandVisualizer visualizer = new MagicWandVisualizer(Path.Combine("Debugging", "MagicWand"));
+    //private static MagicWandVisualizer visualizer = new MagicWandVisualizer(Path.Combine("Debugging", "MagicWand"));
 
     private class UnvisitedStack
     {
         private int chunkSize;
-        private readonly VecI imageSizeInChunks;
+        private readonly VecI imageSize;
         private Stack<(VecI chunkPos, VecI posOnChunk)> likelyUnvisited = new();
         private HashSet<VecI> certainlyVisited = new();
 
-        public UnvisitedStack(int chunkSize, VecI imageSizeInChunks)
+        public UnvisitedStack(int chunkSize, VecI imageSize)
         {
             this.chunkSize = chunkSize;
-            this.imageSizeInChunks = imageSizeInChunks;
+            this.imageSize = imageSize;
         }
 
         public void PushAll(VecI chunkPos)
@@ -34,21 +34,27 @@ internal class MagicWandHelper
             VecI chunkOffset = chunkPos * chunkSize;
             for (int i = 0; i < chunkSize; i++)
             {
-                if (chunkPos.Y > 0)
-                    likelyUnvisited.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
-                certainlyVisited.Add(chunkOffset + new VecI(i, 0));
+                // separated into a function to prevent stackalloc stackoverflow
+                PushArrayIteration(i);
+            }
+            void PushArrayIteration(int i)
+            {
+                Span<(VecI, VecI, VecI)> options = stackalloc (VecI, VecI, VecI)[]
+                {
+                    (new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1), new(i, 0)), // Top
+                    (new(chunkPos.X, chunkPos.Y + 1), new(i, 0), new(i, chunkSize - 1)), // Bottom
+                    (new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i), new(0, i)), // Left
+                    (new(chunkPos.X + 1, chunkPos.Y), new(0, i), new(chunkSize - 1, i)) // Right
+                };
 
-                if (chunkPos.Y < imageSizeInChunks.Y - 1)
-                    likelyUnvisited.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
-                certainlyVisited.Add(chunkOffset + new VecI(i, chunkSize - 1));
-
-                if (chunkPos.X > 0)
-                    likelyUnvisited.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
-                certainlyVisited.Add(chunkOffset + new VecI(0, i));
-
-                if (chunkPos.X < imageSizeInChunks.X - 1)
-                    likelyUnvisited.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
-                certainlyVisited.Add(chunkOffset + new VecI(chunkSize - 1, i));
+                foreach (var (otherChunkPos, otherPosInChunk, refPos) in options)
+                {
+                    VecI global = otherChunkPos * chunkSize + otherPosInChunk;
+                    if (global.X < 0 || global.Y < 0 || global.X >= imageSize.X || global.Y >= imageSize.Y)
+                        continue;
+                    likelyUnvisited.Push((otherChunkPos, otherPosInChunk));
+                    certainlyVisited.Add(chunkOffset + refPos);
+                }
             }
         }
 
@@ -62,25 +68,27 @@ internal class MagicWandHelper
             VecI chunkOffset = chunkPos * chunkSize;
             for (int i = 0; i < chunkSize; i++)
             {
-                if (chunkPos.Y > 0 && visitedArray[i]) //Top
-                    likelyUnvisited.Push((new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1)));
-                if (visitedArray[i])
-                    certainlyVisited.Add(chunkOffset + new VecI(i, 0));
+                // separated into a function to prevent stackalloc stackoverflow
+                PushArrayIteration(i);
+            }
+            void PushArrayIteration(int i)
+            {
+                Span<(int, VecI, VecI, VecI)> options = stackalloc (int, VecI, VecI, VecI)[]
+                {
+                    (i, new(chunkPos.X, chunkPos.Y - 1), new(i, chunkSize - 1), new(i, 0)), // Top
+                    (chunkSize * (chunkSize - 1) + i, new(chunkPos.X, chunkPos.Y + 1), new(i, 0), new(i, chunkSize - 1)), // Bottom
+                    (i * chunkSize, new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i), new(0, i)), // Left
+                    (i * chunkSize + (chunkSize - 1), new(chunkPos.X + 1, chunkPos.Y), new(0, i), new(chunkSize - 1, i)) // Right
+                };
 
-                if (chunkPos.Y < imageSizeInChunks.Y - 1 && visitedArray[chunkSize * (chunkSize - 1) + i]) // Bottom
-                    likelyUnvisited.Push((new(chunkPos.X, chunkPos.Y + 1), new(i, 0)));
-                if (visitedArray[chunkSize * (chunkSize - 1) + i])
-                    certainlyVisited.Add(chunkOffset + new VecI(i, chunkSize - 1));
-
-                if (chunkPos.X > 0 && visitedArray[i * chunkSize]) // Left
-                    likelyUnvisited.Push((new(chunkPos.X - 1, chunkPos.Y), new(chunkSize - 1, i)));
-                if (visitedArray[i * chunkSize])
-                    certainlyVisited.Add(chunkOffset + new VecI(0, i));
-
-                if (chunkPos.X < imageSizeInChunks.X - 1 && visitedArray[i * chunkSize + (chunkSize - 1)]) // Right
-                    likelyUnvisited.Push((new(chunkPos.X + 1, chunkPos.Y), new(0, i)));
-                if (visitedArray[i * chunkSize + (chunkSize - 1)])
-                    certainlyVisited.Add(chunkOffset + new VecI(chunkSize - 1, i));
+                foreach (var (refIndex, otherChunkPos, otherPosInChunk, refPos) in options)
+                {
+                    VecI otherGlobal = otherChunkPos * chunkSize + otherPosInChunk;
+                    if (!visitedArray[refIndex] || otherGlobal.X < 0 || otherGlobal.Y < 0 || otherGlobal.X >= imageSize.X || otherGlobal.Y >= imageSize.Y)
+                        continue;
+                    certainlyVisited.Add(chunkOffset + refPos);
+                    likelyUnvisited.Push((otherChunkPos, otherPosInChunk));
+                }
             }
         }
 
@@ -122,7 +130,7 @@ internal class MagicWandHelper
 
         HashSet<VecI> processedEmptyChunks = new();
 
-        UnvisitedStack positionsToFloodFill = new(chunkSize, imageSizeInChunks);
+        UnvisitedStack positionsToFloodFill = new(chunkSize, document.Size);
 
         Lines lines = new();
         VectorPath selection = new();

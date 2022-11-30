@@ -43,7 +43,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
 
     public WriteableBitmap? TargetBitmap
     {
-        get => Document?.Bitmaps.TryGetValue(CalculateResolution(), out WriteableBitmap? value) == true ? value : null;
+        get => Document?.LazyBitmaps.TryGetValue(CalculateResolution(), out WriteableBitmap? value) == true ? value : null;
     }
 
     public Guid GuidValue { get; } = Guid.NewGuid();
@@ -51,7 +51,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     public FixedViewport()
     {
         InitializeComponent();
-        Binding binding = new Binding { Source = this, Path = new PropertyPath("Document.Bitmaps") };
+        Binding binding = new Binding { Source = this, Path = new PropertyPath($"{nameof(Document)}.{nameof(Document.LazyBitmaps)}") };
         SetBinding(BitmapsProperty, binding);
 
         Loaded += OnLoad;

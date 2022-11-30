@@ -18,7 +18,7 @@ internal class ChangeInfoListOptimizer
                 continue;
             if (info is Selection_ChangeInfo && !selectionInfoOccured)
                 selectionInfoOccured = true;
-            else if (selectionInfoOccured)
+            else if (info is Selection_ChangeInfo)
                 continue;
             output.Add(info);
         }

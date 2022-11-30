@@ -40,7 +40,7 @@ internal class BresenhamLineOperation : IDrawOperation
 
     public HashSet<VecI> FindAffectedChunks(VecI imageSize)
     {
-        RectI bounds = RectI.FromTwoPoints(from, to + new VecI(1));
+        RectI bounds = RectI.FromTwoPixels(from, to);
         return OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
     }
 

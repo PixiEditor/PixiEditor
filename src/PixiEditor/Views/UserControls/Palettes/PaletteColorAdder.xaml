@@ -16,7 +16,8 @@
             Style="{StaticResource DefaultColorPickerStyle}" Width="50" Focusable="False" Margin="0 0 10 0"
             ShowAlpha="False"/>
         <Button Name="AddButton" Margin="0" Width="24" Height="24" 
-                Style="{StaticResource ToolButtonStyle}" 
+                Style="{StaticResource ToolButtonStyle}"
+                ToolTip="Add color"
                 Cursor="Hand"  Click="Button_Click">
             <Button.Background>
                 <ImageBrush ImageSource="/Images/Plus-square.png"/>
