@@ -66,13 +66,14 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     {
         if (!started)
         {
-            onEnded(this);
+            onEnded!(this);
             return;
         }
-        transforming = true;
+        
         document!.LineToolOverlayViewModel.LineStart = startPos + new VecD(0.5);
         document!.LineToolOverlayViewModel.LineEnd = curPos + new VecD(0.5);
         document!.LineToolOverlayViewModel.IsEnabled = true;
+        transforming = true;
     }
 
     public override void OnLineOverlayMoved(VecD start, VecD end)
@@ -89,7 +90,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
 
         document!.LineToolOverlayViewModel.IsEnabled = false;
         internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
-        onEnded(this);
+        onEnded!(this);
     }
 
     public override void ForceStop()

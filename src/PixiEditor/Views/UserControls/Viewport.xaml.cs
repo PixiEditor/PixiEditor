@@ -269,7 +269,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get
         {
-            return Document?.Bitmaps.TryGetValue(CalculateResolution(), out WriteableBitmap? value) == true ? value : null;
+            return Document?.LazyBitmaps.TryGetValue(CalculateResolution(), out WriteableBitmap? value) == true ? value : null;
         }
     }
 
@@ -286,7 +286,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         InitializeComponent();
 
-        Binding binding = new Binding { Source = this, Path = new PropertyPath("Document.Bitmaps") };
+        Binding binding = new Binding { Source = this, Path = new PropertyPath($"{nameof(Document)}.{nameof(Document.LazyBitmaps)}") };
         SetBinding(BitmapsProperty, binding);
 
         MainImage!.Loaded += OnImageLoaded;

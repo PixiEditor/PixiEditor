@@ -7,9 +7,6 @@ using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
-/// <summary>
-/// Interaction logic for PaletteColorAdder.xaml
-/// </summary>
 internal partial class PaletteColorAdder : UserControl
 {
     public WpfObservableRangeCollection<BackendColor> Colors

@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Reflection.Metadata;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using ChunkyImageLib;
@@ -49,7 +51,21 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             HasRecent = true;
         }
 
-        IPreferences.Current.AddCallback("MaxOpenedRecently", UpdateMaxRecentlyOpened);
+        IPreferences.Current.AddCallback(PreferencesConstants.MaxOpenedRecently, UpdateMaxRecentlyOpened);
+    }
+
+    public void AddRecentlyOpened(string path)
+    {
+        if (RecentlyOpened.Contains(path))
+            return;
+        
+        RecentlyOpened.Insert(0, path);
+        int maxCount = IPreferences.Current.GetPreference<int>(PreferencesConstants.MaxOpenedRecently, PreferencesConstants.MaxOpenedRecentlyDefault);
+        while (RecentlyOpened.Count > maxCount)
+        {
+            RecentlyOpened.RemoveAt(RecentlyOpened.Count - 1);
+        }
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
     public void RemoveRecentlyOpened(object parameter)
@@ -91,7 +107,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("The file does not exist", "Failed to open the file");
             RecentlyOpened.Remove(path);
-            IPreferences.Current.UpdateLocalPreference("RecentlyOpened", RecentlyOpened.Select(x => x.FilePath));
+            IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
             return;
         }
 
@@ -165,6 +181,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         DocumentViewModel document = Importer.ImportDocument(path);
         AddDocumentViewModelToTheSystem(document);
+        AddRecentlyOpened(document.FullFilePath);
     }
 
     /// <summary>
@@ -198,6 +215,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                     .WithSize(dialog.FileWidth, dialog.FileHeight)
                     .WithSurface(Importer.ImportImage(dialog.FilePath, new VecI(dialog.FileWidth, dialog.FileHeight)))));
             doc.FullFilePath = path;
+            AddRecentlyOpened(path);
         }
     }
 
@@ -241,25 +259,34 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     public bool SaveDocument(DocumentViewModel document, bool asNew)
     {
-        string path = "";
-        bool success = false;
+        string finalPath = null;
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
-            success = Exporter.SaveAsEditableFileWithDialog(document, out path);
+            var result = Exporter.TrySaveWithDialog(document, out string path);
+            if (result == DialogSaveResult.Cancelled)
+                return false;
+            if (result != DialogSaveResult.Success)
+            {
+                ShowSaveError(result);
+                return false;
+            }
+            finalPath = path;
+            AddRecentlyOpened(path);
         }
         else
         {
-            path = Exporter.SaveAsEditableFile(document, document.FullFilePath);
-            success = path != null;
+            var result = Exporter.TrySave(document, document.FullFilePath);
+            if (result != SaveResult.Success)
+            {
+                ShowSaveError((DialogSaveResult)result);
+                return false;
+            }
+            finalPath = document.FullFilePath;
         }
 
-        if (success)
-        {
-            document.FullFilePath = path;
-            document.MarkAsSaved();
-        }
-
-        return success;
+        document.FullFilePath = finalPath;
+        document.MarkAsSaved();
+        return true;
     }
 
     /// <summary>
@@ -269,15 +296,35 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.File.Export", "Export", "Export image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)]
     public void ExportFile()
     {
-        ViewModelMain.Current.ActionDisplay = "";
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
+        ViewModelMain.Current.ActionDisplay = "";
 
-        var bitmap = doc.Bitmaps[ChunkResolution.Full];
-        if (Exporter.Export(bitmap, new VecI(bitmap.PixelWidth, bitmap.PixelHeight), out string path))
+        ExportFileDialog info = new ExportFileDialog(doc.SizeBindable);
+        if (info.ShowDialog())
         {
-            ProcessHelper.OpenInExplorer(path);
+            SaveResult result = Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, out string finalPath, new(info.FileWidth, info.FileHeight));
+            if (result == SaveResult.Success)
+                ProcessHelper.OpenInExplorer(finalPath);
+            else
+                ShowSaveError((DialogSaveResult)result);
+        }
+    }
+
+    private void ShowSaveError(DialogSaveResult result)
+    {
+        switch (result)
+        {
+            case DialogSaveResult.InvalidPath:
+                NoticeDialog.Show("Error", "Couldn't save the file to the specified location");
+                break;
+            case DialogSaveResult.ConcurrencyError:
+                NoticeDialog.Show("Internal error", "An internal error occured while saving. Please try again.");
+                break;
+            case DialogSaveResult.UnknownError:
+                NoticeDialog.Show("Error", "An error occured while saving.");
+                break;
         }
     }
 
@@ -303,7 +350,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
     {
         IEnumerable<string> paths = IPreferences.Current.GetLocalPreference(nameof(RecentlyOpened), new JArray()).ToObject<string[]>()
-            .Take(IPreferences.Current.GetPreference("MaxOpenedRecently", 8));
+            .Take(IPreferences.Current.GetPreference(PreferencesConstants.MaxOpenedRecently, 8));
 
         List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();
 

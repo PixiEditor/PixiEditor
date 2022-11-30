@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Models;
+using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
@@ -38,7 +39,7 @@ internal class FileSettings : SettingsGroup
         }
     }
 
-    private int maxOpenedRecently = GetPreference(nameof(MaxOpenedRecently), 8);
+    private int maxOpenedRecently = GetPreference(PreferencesConstants.MaxOpenedRecently, PreferencesConstants.MaxOpenedRecentlyDefault);
 
     public int MaxOpenedRecently
     {

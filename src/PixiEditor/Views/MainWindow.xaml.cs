@@ -56,6 +56,8 @@ internal partial class MainWindow : Window
         {
             UpdateTaskbarIcon(x ? DataContext?.DocumentManagerSubViewModel.ActiveDocument : null);
         });
+
+        DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
     }
 
     public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
@@ -98,14 +100,13 @@ internal partial class MainWindow : Window
         ((HwndSource)PresentationSource.FromVisual(this)).AddHook(Helpers.WindowSizeHelper.SetMaxSizeHook);
     }
 
-    /*
-    private void BitmapManager_DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
+    private void DocumentChanged(object sender, Models.Events.DocumentChangedEventArgs e)
     {
         if (preferences.GetPreference("ImagePreviewInTaskbar", false))
         {
             UpdateTaskbarIcon(e.NewDocument);
         }
-    }*/
+    }
 
     private void UpdateTaskbarIcon(DocumentViewModel document)
     {

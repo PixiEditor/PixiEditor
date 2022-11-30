@@ -65,7 +65,7 @@ internal class SaveFilePopupViewModel : ViewModelBase
         {
             if (string.IsNullOrEmpty(path.FileName) == false)
             {
-                ChosenFormat = Exporter.ParseImageFormat(Path.GetExtension(path.SafeFileName));
+                ChosenFormat = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(path.SafeFileName));
                 return path.FileName;
             }
         }

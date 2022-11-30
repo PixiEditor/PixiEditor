@@ -120,7 +120,7 @@
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
-            UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
+            UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWay}"
             Scale="{Binding ZoomboxScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"

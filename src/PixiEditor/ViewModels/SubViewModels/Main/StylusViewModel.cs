@@ -56,14 +56,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
 
     private void UpdateUseTouchGesture()
     {
-        if (Owner.ToolsSubViewModel.ActiveTool is not (MoveViewportToolViewModel or ZoomToolViewModel))
-        {
-            UseTouchGestures = IsPenModeEnabled;
-        }
-        else
-        {
-            UseTouchGestures = true;
-        }
+        UseTouchGestures = Owner.ToolsSubViewModel.ActiveTool is MoveViewportToolViewModel or ZoomToolViewModel || IsPenModeEnabled;
     }
 
     [Command.Internal("PixiEditor.Stylus.StylusOutOfRange")]
@@ -75,7 +68,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
     [Command.Internal("PixiEditor.Stylus.StylusSystemGesture")]
     public void StylusSystemGesture(StylusSystemGestureEventArgs e)
     {
-        if (e.SystemGesture == SystemGesture.Drag || e.SystemGesture == SystemGesture.Tap)
+        if (e.SystemGesture is SystemGesture.Drag or SystemGesture.Tap)
         {
             return;
         }

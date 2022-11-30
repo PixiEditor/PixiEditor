@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+		<TargetFramework>net7.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -16,9 +16,9 @@
 		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
 		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
-		<SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
         <ImplicitUsings>true</ImplicitUsings>
         <AssemblyVersion></AssemblyVersion>
+        <LangVersion>11</LangVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">

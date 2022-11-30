@@ -69,8 +69,10 @@ public static class FloodFillHelper
         // once the chunk is filled all places where it spills over to neighboring chunks are saved in the stack
         Stack<(VecI chunkPos, VecI posOnChunk)> positionsToFloodFill = new();
         positionsToFloodFill.Push((initChunkPos, initPosOnChunk));
+        int iter = -1;
         while (positionsToFloodFill.Count > 0)
         {
+            iter++;
             var (chunkPos, posOnChunk) = positionsToFloodFill.Pop();
 
             if (!drawingChunks.ContainsKey(chunkPos))
@@ -116,7 +118,8 @@ public static class FloodFillHelper
                 uLongColor,
                 drawingColor,
                 posOnChunk,
-                colorRange);
+                colorRange,
+                iter != 0);
 
             if (maybeArray is null)
                 continue;
@@ -145,9 +148,12 @@ public static class FloodFillHelper
         ulong colorBits,
         Color color,
         VecI pos,
-        ColorBounds bounds)
+        ColorBounds bounds,
+        bool checkFirstPixel)
     {
         if (referenceChunk.Surface.GetSRGBPixel(pos) == color || drawingChunk.Surface.GetSRGBPixel(pos) == color)
+            return null;
+        if (checkFirstPixel && !bounds.IsWithinBounds(referenceChunk.Surface.GetSRGBPixel(pos)))
             return null;
 
         byte[] pixelStates = new byte[chunkSize * chunkSize];
