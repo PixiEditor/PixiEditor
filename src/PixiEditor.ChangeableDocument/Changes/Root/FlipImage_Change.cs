@@ -11,7 +11,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Root;
 internal sealed class FlipImage_Change : Change
 {
     private readonly FlipType flipType;
-    
+
     [GenerateMakeChangeAction]
     public FlipImage_Change(FlipType flipType)
     {
@@ -24,6 +24,48 @@ internal sealed class FlipImage_Change : Change
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    {
+        var changes = Flip(target);
+        
+        ignoreInUndo = false;
+        return changes;
+    }
+
+    private void FlipImage(ChunkyImage img)
+    {
+        using Paint paint = new()
+        {
+            BlendMode = DrawingApi.Core.Surface.BlendMode.Src
+        };
+        
+        using Surface originalSurface = new(img.LatestSize);
+        img.DrawMostUpToDateRegionOn(
+            new(VecI.Zero, img.LatestSize), 
+            ChunkResolution.Full,
+            originalSurface.DrawingSurface,
+            VecI.Zero);
+
+        using Surface flipped = new Surface(img.LatestSize);
+
+        bool flipX = flipType == FlipType.Horizontal;
+        bool flipY = flipType == FlipType.Vertical;
+        
+        flipped.DrawingSurface.Canvas.Save();
+                flipped.DrawingSurface.Canvas.Scale(flipX ? -1 : 1, flipY ? -1 : 1, flipX ? img.LatestSize.X / 2f : 0,
+            flipY ? img.LatestSize.Y / 2f : 0f);
+        flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
+        flipped.DrawingSurface.Canvas.Restore();
+        
+        img.EnqueueClear();
+        img.EnqueueDrawImage(VecI.Zero, flipped);
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    {
+        return Flip(target);
+    }
+
+    private OneOf<None, IChangeInfo, List<IChangeInfo>> Flip(Document target)
     {
         List<IChangeInfo> changes = new List<IChangeInfo>();
 
@@ -42,51 +84,7 @@ internal sealed class FlipImage_Change : Change
                 member.Mask.CommitChanges();
             }
         });
-        
-        ignoreInUndo = false;
+
         return changes;
-    }
-
-    private void FlipImage(ChunkyImage img)
-    {
-        using Paint paint = new()
-        {
-            BlendMode = DrawingApi.Core.Surface.BlendMode.Src
-        };
-        
-        /*using Surface originalSurface = new(img.LatestSize);
-        img.DrawMostUpToDateRegionOn(
-            new(VecI.Zero, img.LatestSize), 
-            ChunkResolution.Full,
-            originalSurface.DrawingSurface,
-            VecI.Zero);
-
-        using Surface flipped = new Surface(img.LatestSize);
-        
-        flipped.DrawingSurface.Canvas.Save();
-        flipped.DrawingSurface.Canvas.Scale(flipType == FlipType.Horizontal ? -1 : 1, flipType == FlipType.Vertical ? -1 : 1);
-        flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
-        flipped.DrawingSurface.Canvas.Restore();*/
-
-        ChunkyImage copy = img.CloneFromCommitted();
-        using Surface originalSurface = new(img.LatestSize);
-        img.DrawMostUpToDateRegionOn(
-            new(VecI.Zero, img.LatestSize), 
-            ChunkResolution.Full,
-            originalSurface.DrawingSurface,
-            VecI.Zero);
-        
-        img.EnqueueClear();
-        Matrix3X3 matrix = Matrix3X3.Identity;
-
-        matrix.ScaleX = -1f;
-        img.EnqueueDrawImage(matrix, originalSurface, paint);
-
-        //img.EnqueueDrawChunkyImage(VecI.Zero, copy, flipType == FlipType.Horizontal, flipType == FlipType.Vertical);
-    }
-
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
-    {
-        return new None();
     }
 }

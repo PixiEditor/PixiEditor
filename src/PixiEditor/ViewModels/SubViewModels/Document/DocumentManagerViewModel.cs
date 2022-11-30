@@ -66,6 +66,15 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         
         ActiveDocument?.Operations.FlipImage(FlipType.Horizontal);
     }
+    
+    [Command.Basic("PixiEditor.Document.FlipImageVertical", "Flip Image Vertically", "Flip Image Vertically", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipImageVertically()
+    {
+        if (ActiveDocument is null)
+            return;
+        
+        ActiveDocument?.Operations.FlipImage(FlipType.Vertical);
+    }
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
     public void ToggleVerticalSymmetryAxis()
