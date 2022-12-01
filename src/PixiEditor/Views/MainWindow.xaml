@@ -540,16 +540,16 @@
                                             Stylus.IsTouchFeedbackEnabled="False"
                                             Document="{Binding Document}">
                                             <usercontrols:Viewport.ContextMenu>
-                                                <ContextMenu DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                                <ContextMenu DataContext="{Binding PlacementTarget.Document, RelativeSource={RelativeSource Self}}">
                                                     <ContextMenu.Template>
                                                         <ControlTemplate>
-                                                            <Border Height="120" Background="{StaticResource AccentColor}" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
-                                                                <Grid>
+                                                            <Border Background="{StaticResource AccentColor}" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
+                                                                <Grid Height="165">
                                                                     <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="100"/>
                                                                         <ColumnDefinition Width="{Binding Palette, Converter={converters:PaletteItemsToWidthConverter}}"/>
+                                                                        <ColumnDefinition />
                                                                     </Grid.ColumnDefinitions>
-                                                                    <Border BorderThickness="0 0 1 0" BorderBrush="Black">
+                                                                    <Border Grid.Column="1" BorderThickness="0 0 1 0" BorderBrush="Black">
                                                                         <StackPanel Orientation="Vertical" Grid.Column="0">
                                                                             <MenuItem
 																		Header="_Select All"
@@ -567,9 +567,11 @@
                                                                             <MenuItem
 																		Header="_Paste"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Paste" />
+                                                                            <MenuItem Header="Flip _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
+                                                                            <MenuItem Header="Flip _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
                                                                         </StackPanel>
                                                                     </Border>
-                                                                    <ScrollViewer Margin="5" Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                                                                    <ScrollViewer Margin="5" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                                                                         <ItemsControl ItemsSource="{Binding Palette}" AlternationCount="9999">
                                                                             <ItemsControl.ItemsPanel>
                                                                                 <ItemsPanelTemplate>
