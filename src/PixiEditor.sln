@@ -32,11 +32,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.ChangeableDocume
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Zoombox", "PixiEditor.Zoombox\PixiEditor.Zoombox.csproj", "{69DD5830-C682-49FB-B1A5-D2A506EEA06B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.DrawingApi.Core", "PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj", "{5FC5E9C5-F439-43AA-92AF-9B7554D6FA13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.DrawingApi.Core", "PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj", "{5FC5E9C5-F439-43AA-92AF-9B7554D6FA13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.DrawingApi.Skia", "PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj", "{98040E8A-F08E-45F8-956F-6480C8272049}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.DrawingApi.Skia", "PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj", "{98040E8A-F08E-45F8-956F-6480C8272049}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditorGen", "PixiEditorGen\PixiEditorGen.csproj", "{1DC5B4C4-6902-4659-AE7E-17FDA0403DEB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditorGen", "PixiEditorGen\PixiEditorGen.csproj", "{1DC5B4C4-6902-4659-AE7E-17FDA0403DEB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SfmlUi", "SfmlUi\SfmlUi.csproj", "{18FEDB87-AB42-48C9-9FC3-D521855A078B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -488,6 +490,36 @@ Global
 		{1DC5B4C4-6902-4659-AE7E-17FDA0403DEB}.Release|x64.Build.0 = Release|Any CPU
 		{1DC5B4C4-6902-4659-AE7E-17FDA0403DEB}.Release|x86.ActiveCfg = Release|Any CPU
 		{1DC5B4C4-6902-4659-AE7E-17FDA0403DEB}.Release|x86.Build.0 = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Debug|x64.Build.0 = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Debug|x86.Build.0 = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Dev Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Dev Release|Any CPU.Build.0 = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Dev Release|x64.ActiveCfg = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Dev Release|x64.Build.0 = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Dev Release|x86.ActiveCfg = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Dev Release|x86.Build.0 = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX Debug|x64.ActiveCfg = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX Debug|x64.Build.0 = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX Debug|x86.ActiveCfg = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX Debug|x86.Build.0 = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX|Any CPU.ActiveCfg = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX|Any CPU.Build.0 = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX|x64.ActiveCfg = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX|x64.Build.0 = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX|x86.ActiveCfg = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.MSIX|x86.Build.0 = Debug|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Release|x64.ActiveCfg = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Release|x64.Build.0 = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Release|x86.ActiveCfg = Release|Any CPU
+		{18FEDB87-AB42-48C9-9FC3-D521855A078B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
