@@ -289,13 +289,15 @@ internal class DocumentOperationsModule
             return;
         Internals.ActionAccumulator.AddFinishedActions(new ClipCanvas_Action());
     }
-    
-    public void FlipImage(FlipType flipType)
+
+    public void FlipImage(FlipType flipType) => FlipImage(flipType, null);
+
+    public void FlipImage(FlipType flipType, List<Guid> membersToFlip)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType));
+        Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, membersToFlip));
     }
 
     public void CenterContent(IReadOnlyList<Guid> structureMembers)

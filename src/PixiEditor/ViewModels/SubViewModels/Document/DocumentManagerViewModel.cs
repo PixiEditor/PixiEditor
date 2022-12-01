@@ -67,6 +67,15 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         ActiveDocument?.Operations.FlipImage(FlipType.Horizontal);
     }
     
+    [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", "Flip Selected Layers Horizontally", "Flip Selected Layers Horizontally", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipLayersHorizontally()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
+            return;
+        
+        ActiveDocument?.Operations.FlipImage(FlipType.Horizontal, ActiveDocument.GetSelectedMembers());
+    }
+    
     [Command.Basic("PixiEditor.Document.FlipImageVertical", "Flip Image Vertically", "Flip Image Vertically", CanExecute = "PixiEditor.HasDocument")]
     public void FlipImageVertically()
     {
@@ -74,6 +83,15 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
             return;
         
         ActiveDocument?.Operations.FlipImage(FlipType.Vertical);
+    }
+    
+    [Command.Basic("PixiEditor.Document.FlipLayersVertical", "Flip Selected Layers Vertically", "Flip Selected Layers Vertically", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipLayersVertically()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
+            return;
+        
+        ActiveDocument?.Operations.FlipImage(FlipType.Vertical, ActiveDocument.GetSelectedMembers());
     }
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
@@ -152,11 +170,9 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Document.CenterContent", "Center Content", "Center Content", CanExecute = "PixiEditor.HasDocument")]
     public void CenterContent()
     {
-        if(ActiveDocument is null || ActiveDocument.SelectedStructureMember == null)
+        if(ActiveDocument?.SelectedStructureMember == null)
             return;
         
-        List<Guid> layerGuids = new List<Guid>() { ActiveDocument.SelectedStructureMember.GuidValue };
-        layerGuids.AddRange(ActiveDocument.SoftSelectedStructureMembers.Select(x => x.GuidValue));
-        ActiveDocument.Operations.CenterContent(layerGuids);
+        ActiveDocument.Operations.CenterContent(ActiveDocument.GetSelectedMembers());
     }
 }

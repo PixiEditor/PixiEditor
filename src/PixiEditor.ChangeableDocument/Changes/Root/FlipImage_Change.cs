@@ -11,15 +11,28 @@ namespace PixiEditor.ChangeableDocument.Changes.Root;
 internal sealed class FlipImage_Change : Change
 {
     private readonly FlipType flipType;
+    private List<Guid> membersToFlip;
 
     [GenerateMakeChangeAction]
-    public FlipImage_Change(FlipType flipType)
+    public FlipImage_Change(FlipType flipType, List<Guid>? membersToFlip = null)
     {
         this.flipType = flipType;
+        membersToFlip ??= new List<Guid>();
+        this.membersToFlip = membersToFlip;
     }
     
     public override bool InitializeAndValidate(Document target)
     {
+        if (membersToFlip.Count > 0)
+        {
+            membersToFlip = target.ExtractLayers(membersToFlip);
+            
+            foreach (var layer in membersToFlip)
+            {
+                if (!target.HasMember(layer)) return false;
+            }  
+        }
+        
         return true;
     }
 
@@ -37,10 +50,20 @@ internal sealed class FlipImage_Change : Change
         {
             BlendMode = DrawingApi.Core.Surface.BlendMode.Src
         };
-        
+
+        RectI bounds = new RectI(VecI.Zero, img.LatestSize);
+        if (membersToFlip.Count > 0)
+        {
+            var preciseBounds = img.FindPreciseBounds();
+            if (preciseBounds.HasValue)
+            {
+                bounds = preciseBounds.Value;
+            }
+        }
+
         using Surface originalSurface = new(img.LatestSize);
         img.DrawMostUpToDateRegionOn(
-            new(VecI.Zero, img.LatestSize), 
+            new RectI(VecI.Zero, img.LatestSize), 
             ChunkResolution.Full,
             originalSurface.DrawingSurface,
             VecI.Zero);
@@ -51,8 +74,8 @@ internal sealed class FlipImage_Change : Change
         bool flipY = flipType == FlipType.Vertical;
         
         flipped.DrawingSurface.Canvas.Save();
-                flipped.DrawingSurface.Canvas.Scale(flipX ? -1 : 1, flipY ? -1 : 1, flipX ? img.LatestSize.X / 2f : 0,
-            flipY ? img.LatestSize.Y / 2f : 0f);
+                flipped.DrawingSurface.Canvas.Scale(flipX ? -1 : 1, flipY ? -1 : 1, flipX ? bounds.X + bounds.Width / 2f : 0,
+            flipY ? bounds.Y + bounds.Height / 2f : 0f);
         flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
         flipped.DrawingSurface.Canvas.Restore();
         
@@ -71,17 +94,21 @@ internal sealed class FlipImage_Change : Change
 
         target.ForEveryMember(member =>
         {
-            if (member is Layer layer)
+            if (membersToFlip.Count == 0 || membersToFlip.Contains(member.GuidValue))
             {
-                FlipImage(layer.LayerImage);
-                changes.Add(new LayerImageChunks_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedChunks()));
-                layer.LayerImage.CommitChanges();
-            }
+                if (member is Layer layer)
+                {
+                    FlipImage(layer.LayerImage);
+                    changes.Add(
+                        new LayerImageChunks_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedChunks()));
+                    layer.LayerImage.CommitChanges();
+                }
 
-            if (member.Mask is not null)
-            {
-                FlipImage(member.Mask);
-                member.Mask.CommitChanges();
+                if (member.Mask is not null)
+                {
+                    FlipImage(member.Mask);
+                    member.Mask.CommitChanges();
+                }
             }
         });
 

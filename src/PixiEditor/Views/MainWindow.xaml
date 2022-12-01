@@ -256,21 +256,13 @@
                             IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable}"
                             Header="_Vertical Line Symmetry"/>
-                        <!--<Separator/>
-                    <MenuItem Header="_Rotate to right 90&#186;" Command="{Binding DocumentSubViewModel.RotateToRightCommand}">
-                        <MenuItem.CommandParameter>
-                            <sys:Double>90</sys:Double>
-                        </MenuItem.CommandParameter>
-                    </MenuItem>
-                    <MenuItem Header="_Rotate to left 90&#186;" Command="{Binding DocumentSubViewModel.RotateToRightCommand}">
-                        <MenuItem.CommandParameter>
-                            <sys:Double>-90</sys:Double>
-                        </MenuItem.CommandParameter>
-                    </MenuItem>
-                    <Separator/>
-                    <MenuItem Header="_Flip Horizontal" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Horizontal"/>
-                    <MenuItem Header="_Flip Vertical" Command="{Binding DocumentSubViewModel.FlipCommand}" CommandParameter="Vertical"/>
-                -->
+                        <Separator/>
+                        <MenuItem Header="_Rotate">
+                            <MenuItem Header="Flip Image _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
+                            <MenuItem Header="Flip Image _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
+                            <MenuItem Header="Flip Selected Layers _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
+                            <MenuItem Header="Flip Selected Layers _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
+                        </MenuItem>
                     </MenuItem>
                     <MenuItem
                         Header="_View">
