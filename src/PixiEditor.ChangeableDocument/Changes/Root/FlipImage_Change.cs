@@ -54,7 +54,7 @@ internal sealed class FlipImage_Change : Change
         RectI bounds = new RectI(VecI.Zero, img.LatestSize);
         if (membersToFlip.Count > 0)
         {
-            var preciseBounds = img.FindPreciseBounds();
+            var preciseBounds = img.FindPreciseCommittedBounds();
             if (preciseBounds.HasValue)
             {
                 bounds = preciseBounds.Value;
