@@ -300,6 +300,14 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, membersToFlip));
     }
 
+    public void RotateImage(RotationAngle rotation)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+        
+        Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation));
+    }
+
     public void CenterContent(IReadOnlyList<Guid> structureMembers)
     {
         if (Internals.ChangeController.IsChangeActive)

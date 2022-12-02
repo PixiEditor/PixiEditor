@@ -93,6 +93,34 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         
         ActiveDocument?.Operations.FlipImage(FlipType.Vertical, ActiveDocument.GetSelectedMembers());
     }
+    
+    [Command.Basic("PixiEditor.Document.Rotate90Deg", "Rotate Image 90 deg", "Rotate Image 90 deg", CanExecute = "PixiEditor.HasDocument")]
+    public void Rotate90Deg()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
+            return;
+        
+        ActiveDocument?.Operations.RotateImage(RotationAngle.D90);
+    }
+    
+    [Command.Basic("PixiEditor.Document.Rotate180Deg", "Rotate Image 180 deg", "Rotate Image 180 deg", CanExecute = "PixiEditor.HasDocument")]
+    public void Rotate180Deg()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
+            return;
+        
+        ActiveDocument?.Operations.RotateImage(RotationAngle.D180);
+    }
+    
+    [Command.Basic("PixiEditor.Document.Rotate270Deg", "Rotate Image 270 deg", "Rotate Image 270 deg", CanExecute = "PixiEditor.HasDocument")]
+    public void Rotate270Deg()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
+            return;
+        
+        ActiveDocument?.Operations.RotateImage(RotationAngle.D270);
+    }
+
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
     public void ToggleVerticalSymmetryAxis()

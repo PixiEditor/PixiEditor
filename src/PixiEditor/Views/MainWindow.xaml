@@ -262,6 +262,11 @@
                             <MenuItem Header="Flip Image _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
                             <MenuItem Header="Flip Selected Layers _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
                             <MenuItem Header="Flip Selected Layers _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
+                            
+                            <Separator/>
+                            <MenuItem Header="Rotate Image 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
+                            <MenuItem Header="Rotate Image 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180Deg"/>
+                            <MenuItem Header="Rotate Image 270&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270Deg"/>
                         </MenuItem>
                     </MenuItem>
                     <MenuItem
