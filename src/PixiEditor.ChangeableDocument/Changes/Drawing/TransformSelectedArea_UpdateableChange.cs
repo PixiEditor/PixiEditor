@@ -163,6 +163,11 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
             var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, guid, drawOnMask, ref storageCopy);
             infos.Add(DrawingChangeHelper.CreateChunkChangeInfo(guid, chunks, drawOnMask).AsT1);
         }
+
+        (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath!));
+        toDispose.Dispose();
+        infos.Add(new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath)));
+
         savedChunks = null;
         return infos;
     }

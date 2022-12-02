@@ -122,7 +122,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         private int? width;
         private int? height;
         
-        public SurfaceBuilder Surface { get; set; }
+        public SurfaceBuilder? Surface { get; set; }
 
         public int Width
         {
@@ -180,8 +180,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
             {
                 throw new InvalidOperationException("You must first set the width and height of the layer. You can do this by calling WithRect() or setting the Width and Height properties.");
             }
-            
-            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Math.Max(Width, 1), Math.Max(Height, 1))));
+
+            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Width, Height)));
             surface(surfaceBuilder);
             Surface = surfaceBuilder;
             return this;

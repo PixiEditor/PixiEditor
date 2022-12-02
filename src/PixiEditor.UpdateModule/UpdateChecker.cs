@@ -45,6 +45,33 @@ public class UpdateChecker
     {
         return NormalizeVersionString(originalVer) != NormalizeVersionString(newVer);
     }
+    
+    /// <summary>
+    ///     Checks if originalVer is smaller than newVer
+    /// </summary>
+    /// <param name="originalVer">Version on the left side of the equation</param>
+    /// <param name="newVer">Version to compare to</param>
+    /// <returns>True if originalVer is smaller than newVer.</returns>
+    public static bool VersionSmaller(string originalVer, string newVer)
+    {
+        string normalizedOriginal = NormalizeVersionString(originalVer);
+        string normalizedNew = NormalizeVersionString(newVer);
+
+        if (normalizedOriginal == normalizedNew) return false;
+
+        bool parsed = TryParseToFloatVersion(normalizedOriginal, out float orgFloat);
+        if (!parsed) throw new Exception($"Couldn't parse version {originalVer} to float.");
+
+        parsed = TryParseToFloatVersion(normalizedNew, out float newFloat);
+        if (!parsed) throw new Exception($"Couldn't parse version {newVer} to float.");
+
+        return orgFloat < newFloat;
+    }
+
+    private static bool TryParseToFloatVersion(string normalizedString, out float ver)
+    {
+        return float.TryParse(normalizedString.Replace(".", string.Empty).Insert(1, "."), NumberStyles.Any, CultureInfo.InvariantCulture, out ver);
+    }
 
     public async Task<bool> CheckUpdateAvailable()
     {
@@ -65,7 +92,8 @@ public class UpdateChecker
     public async Task<bool> IsUpdateCompatible()
     {
         string[] incompatibleVersions = await GetUpdateIncompatibleVersionsAsync(LatestReleaseInfo.TagName);
-        return IsUpdateCompatible(incompatibleVersions);
+        bool isDowngrading = VersionSmaller(LatestReleaseInfo.TagName, CurrentVersionTag);
+        return IsUpdateCompatible(incompatibleVersions) && !isDowngrading; // Incompatible.json doesn't support backwards compatibility, thus downgrading always means update is not compatble
     }
 
     public async Task<string[]> GetUpdateIncompatibleVersionsAsync(string tag)

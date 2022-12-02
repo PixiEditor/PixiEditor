@@ -25,7 +25,7 @@ internal class FloodFill_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (pos.X < 0 || pos.Y < 0 || pos.X >= target.Size.X || pos.Y >= target.Size.X)
+        if (pos.X < 0 || pos.Y < 0 || pos.X >= target.Size.X || pos.Y >= target.Size.Y)
             return false;
         
         return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);

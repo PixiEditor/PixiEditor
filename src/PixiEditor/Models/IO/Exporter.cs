@@ -6,8 +6,10 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
@@ -15,70 +17,102 @@ using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.IO;
 
+internal enum DialogSaveResult
+{
+    Success = 0,
+    InvalidPath = 1,
+    ConcurrencyError = 2,
+    UnknownError = 3,
+    Cancelled = 4,
+}
+
+internal enum SaveResult
+{
+    Success = 0,
+    InvalidPath = 1,
+    ConcurrencyError = 2,
+    UnknownError = 3,
+}
+
 internal class Exporter
 {
     /// <summary>
-    ///     Saves document as .pixi file that contains all document data.
+    /// Attempts to save file using a SaveFileDialog
     /// </summary>
-    /// <param name="document">Document to save.</param>
-    /// <param name="path">Path where file was saved.</param>
-    public static bool SaveAsEditableFileWithDialog(DocumentViewModel document, out string path)
+    public static DialogSaveResult TrySaveWithDialog(DocumentViewModel document, out string path, VecI? exportSize = null)
     {
+        path = "";
         SaveFileDialog dialog = new SaveFileDialog
         {
             Filter = SupportedFilesHelper.BuildSaveFilter(true),
             FilterIndex = 0,
             DefaultExt = "pixi"
-
         };
-        if ((bool)dialog.ShowDialog())
-        {
-            FileType filetype = SupportedFilesHelper.GetSaveFileTypeFromFilterIndex(true, dialog.FilterIndex);
-            path = SaveAsEditableFile(document, dialog.FileName, filetype);
-            return true;
-        }
 
-        path = string.Empty;
-        return false;
+        bool? result = dialog.ShowDialog();
+        if (result is null || result == false)
+            return DialogSaveResult.Cancelled;
+
+        var fileType = SupportedFilesHelper.GetSaveFileTypeFromFilterIndex(true, dialog.FilterIndex);
+
+        var saveResult = TrySaveUsingDataFromDialog(document, dialog.FileName, fileType, out string fixedPath, exportSize);
+        if (saveResult == SaveResult.Success)
+            path = fixedPath;
+
+        return (DialogSaveResult)saveResult;
     }
 
     /// <summary>
-    /// Saves editable file to chosen path and returns it.
+    /// Takes data as returned by SaveFileDialog and attempts to use it to save the document
     /// </summary>
-    /// <param name="document">Document to be saved.</param>
-    /// <param name="path">Path where to save file.</param>
-    /// <returns>Path.</returns>
-    public static string SaveAsEditableFile(DocumentViewModel document, string path, FileType requestedType = FileType.Unset)
+    public static SaveResult TrySaveUsingDataFromDialog(DocumentViewModel document, string pathFromDialog, FileType fileTypeFromDialog, out string finalPath, VecI? exportSize = null)
     {
-        var typeFromPath = ParseImageFormat(Path.GetExtension(path));
-        FileType finalType = (typeFromPath, requestedType) switch
-        {
-            (FileType.Unset, FileType.Unset) => FileType.Pixi,
-            (var first, FileType.Unset) => first,
-            (FileType.Unset, var second) => second,
-            _ => typeFromPath,
-        };
+        finalPath = FixFileExtension(pathFromDialog, fileTypeFromDialog);
+        var saveResult = TrySave(document, finalPath, exportSize);
+        if (saveResult != SaveResult.Success)
+            finalPath = "";
 
-        if (typeFromPath == FileType.Unset)
-        {
-            path = AppendExtension(path, SupportedFilesHelper.GetFileTypeDialogData(finalType));
-        }
+        return saveResult;
+    }
 
-        if (finalType != FileType.Pixi)
+    private static string FixFileExtension(string pathWithOrWithoutExtension, FileType requestedType)
+    {
+        if (requestedType == FileType.Unset)
+            throw new ArgumentException("A valid filetype is required", nameof(requestedType));
+
+        var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithOrWithoutExtension));
+        if (typeFromPath != FileType.Unset && typeFromPath == requestedType)
+            return pathWithOrWithoutExtension;
+        return AppendExtension(pathWithOrWithoutExtension, SupportedFilesHelper.GetFileTypeDialogData(requestedType));
+    }
+
+    /// <summary>
+    /// Attempts to save the document into the given location, filetype is inferred from path
+    /// </summary>
+    public static SaveResult TrySave(DocumentViewModel document, string pathWithExtension, VecI? exportSize = null)
+    {
+        string directory = Path.GetDirectoryName(pathWithExtension);
+        if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            return SaveResult.InvalidPath;
+
+        var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithExtension));
+
+        if (typeFromPath != FileType.Pixi)
         {
-            var bitmap = document.Bitmaps[ChunkResolution.Full];
-            SaveAs(encodersFactory[finalType](), path, bitmap.PixelWidth, bitmap.PixelHeight, bitmap);
-        }
-        else if (Directory.Exists(Path.GetDirectoryName(path)))
-        {
-            Parser.PixiParser.Serialize(document.ToSerializable(), path);
+            var maybeBitmap = document.MaybeRenderWholeImage();
+            if (maybeBitmap.IsT0)
+                return SaveResult.ConcurrencyError;
+            var bitmap = maybeBitmap.AsT1;
+
+            if (!TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize))
+                return SaveResult.UnknownError;
         }
         else
         {
-            SaveAsEditableFileWithDialog(document, out path);
+            Parser.PixiParser.Serialize(document.ToSerializable(), pathWithExtension);
         }
 
-        return path;
+        return SaveResult.Success;
     }
 
     private static string AppendExtension(string path, FileTypeDialogData data)
@@ -91,11 +125,6 @@ internal class Exporter
         return Path.Combine(Path.GetDirectoryName(path), filename);
     }
 
-    public static FileType ParseImageFormat(string extension)
-    {
-        return SupportedFilesHelper.ParseImageFormat(extension);
-    }
-
     static Dictionary<FileType, Func<BitmapEncoder>> encodersFactory = new Dictionary<FileType, Func<BitmapEncoder>>();
 
     static Exporter()
@@ -106,28 +135,6 @@ internal class Exporter
         encodersFactory[FileType.Gif] = () => new GifBitmapEncoder();
     }
 
-    /// <summary>
-    ///     Creates ExportFileDialog to get width, height and path of file.
-    /// </summary>
-    /// <param name="bitmap">Bitmap to be saved as file.</param>
-    /// <param name="fileDimensions">Size of file.</param>
-    public static bool Export(WriteableBitmap bitmap, VecI fileDimensions, out string path)
-    {
-        ExportFileDialog info = new ExportFileDialog(fileDimensions);
-
-        // If OK on dialog has been clicked
-        if (info.ShowDialog())
-        {
-            if (encodersFactory.ContainsKey(info.ChosenFormat))
-                SaveAs(encodersFactory[info.ChosenFormat](), info.FilePath, info.FileWidth, info.FileHeight, bitmap);
-            
-            path = info.FilePath;
-            return true;
-        }
-
-        path = string.Empty;
-        return false;
-    }
     public static void SaveAsGZippedBytes(string path, Surface surface)
     {
         SaveAsGZippedBytes(path, surface, new RectI(VecI.Zero, surface.Size));
@@ -156,25 +163,26 @@ internal class Exporter
     }
 
     /// <summary>
-    ///     Saves image to PNG file.
+    /// Saves image to PNG file. Messes with the passed bitmap.
     /// </summary>
-    /// <param name="encoder">encoder to do the job.</param>
-    /// <param name="savePath">Save file path.</param>
-    /// <param name="exportWidth">File width.</param>
-    /// <param name="exportHeight">File height.</param>
-    /// <param name="bitmap">Bitmap to save.</param>
-    private static void SaveAs(BitmapEncoder encoder, string savePath, int exportWidth, int exportHeight, WriteableBitmap bitmap)
+    private static bool TrySaveAs(BitmapEncoder encoder, string savePath, Surface bitmap, VecI? exportSize)
     {
         try
         {
-            bitmap = bitmap.Resize(exportWidth, exportHeight, WriteableBitmapExtensions.Interpolation.NearestNeighbor);
+            if (exportSize is not null && exportSize != bitmap.Size)
+                bitmap = bitmap.ResizeNearestNeighbor((VecI)exportSize);
+
+            if (encoder is (JpegBitmapEncoder or BmpBitmapEncoder))
+                bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, DrawingApi.Core.Surface.BlendMode.Multiply);
+
             using var stream = new FileStream(savePath, FileMode.Create);
-            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            encoder.Frames.Add(BitmapFrame.Create(bitmap.ToWriteableBitmap()));
             encoder.Save(stream);
         }
         catch (Exception err)
         {
-            NoticeDialog.Show(err.ToString(), "Error");
+            return false;
         }
+        return true;
     }
 }

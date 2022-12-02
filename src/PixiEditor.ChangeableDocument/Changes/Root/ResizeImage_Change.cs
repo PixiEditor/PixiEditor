@@ -27,7 +27,7 @@ internal class ResizeImage_Change : Change
     
     public override bool InitializeAndValidate(Document target)
     {
-        if (target.Size == newSize || newSize.X < 1 || newSize.Y < 1)
+        if (newSize.X < 1 || newSize.Y < 1)
             return false;
         
         originalSize = target.Size;
@@ -76,6 +76,12 @@ internal class ResizeImage_Change : Change
     
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
+        if (originalSize == newSize)
+        {
+            ignoreInUndo = true;
+            return new None();
+        }
+
         target.Size = newSize;
         target.VerticalSymmetryAxisX = Math.Clamp(originalVerAxisX, 0, target.Size.X);
         target.HorizontalSymmetryAxisY = Math.Clamp(originalHorAxisY, 0, target.Size.Y);

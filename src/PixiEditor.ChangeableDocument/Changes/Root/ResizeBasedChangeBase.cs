@@ -31,6 +31,9 @@ internal abstract class ResizeBasedChangeBase : Change
     
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
+        if (target.Size == _originalSize)
+            return new None();
+
         target.Size = _originalSize;
         target.ForEveryMember((member) =>
         {

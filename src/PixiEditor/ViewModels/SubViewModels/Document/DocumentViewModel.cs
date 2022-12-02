@@ -123,7 +123,7 @@ internal partial class DocumentViewModel : NotifyableObject
     public StructureMemberViewModel? SelectedStructureMember { get; private set; } = null;
 
     public Dictionary<ChunkResolution, DrawingSurface> Surfaces { get; set; } = new();
-    public Dictionary<ChunkResolution, WriteableBitmap> Bitmaps { get; set; } = new()
+    public Dictionary<ChunkResolution, WriteableBitmap> LazyBitmaps { get; set; } = new()
     {
         [ChunkResolution.Full] = new WriteableBitmap(64, 64, 96, 96, PixelFormats.Pbgra32, null),
         [ChunkResolution.Half] = new WriteableBitmap(32, 32, 96, 96, PixelFormats.Pbgra32, null),
@@ -162,7 +162,7 @@ internal partial class DocumentViewModel : NotifyableObject
         LineToolOverlayViewModel = new();
         LineToolOverlayViewModel.LineMoved += (_, args) => Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
-        foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in Bitmaps)
+        foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in LazyBitmaps)
         {
             DrawingSurface? surface = DrawingSurface.Create(
                 new ImageInfo(bitmap.Value.PixelWidth, bitmap.Value.PixelHeight, ColorType.Bgra8888, AlphaType.Premul, ColorSpace.CreateSrgb()),
@@ -216,7 +216,7 @@ internal partial class DocumentViewModel : NotifyableObject
             if (!member.IsVisible)
                 acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.GuidValue));
 
-            if (member is DocumentViewModelBuilder.LayerBuilder layer)
+            if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
             {
                 PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY, false);
             }
@@ -276,6 +276,31 @@ internal partial class DocumentViewModel : NotifyableObject
     {
         lastChangeOnSave = Guid.NewGuid();
         RaisePropertyChanged(nameof(AllChangesSaved));
+    }
+
+    public OneOf<Error, Surface> MaybeRenderWholeImage()
+    {
+        try
+        {
+            Surface finalSurface = new Surface(SizeBindable);
+            VecI sizeInChunks = (VecI)((VecD)SizeBindable / ChunkyImage.FullChunkSize).Ceiling();
+            for (int i = 0; i < sizeInChunks.X; i++)
+            {
+                for (int j = 0; j < sizeInChunks.Y; j++)
+                {
+                    var maybeChunk = ChunkRenderer.MergeWholeStructure(new(i, j), ChunkResolution.Full, Internals.Tracker.Document.StructureRoot);
+                    if (maybeChunk.IsT1)
+                        continue;
+                    using Chunk chunk = maybeChunk.AsT0;
+                    finalSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
+                } 
+            }
+            return finalSurface;
+        }
+        catch (ObjectDisposedException)
+        {
+            return new Error();
+        }
     }
 
     /// <summary>
