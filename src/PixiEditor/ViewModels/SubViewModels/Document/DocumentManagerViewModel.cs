@@ -97,28 +97,28 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Document.Rotate90Deg", "Rotate Image 90 deg", "Rotate Image 90 deg", CanExecute = "PixiEditor.HasDocument")]
     public void Rotate90Deg()
     {
-        if (ActiveDocument?.SelectedStructureMember == null)
+        if (ActiveDocument == null)
             return;
         
-        ActiveDocument?.Operations.RotateImage(RotationAngle.D90);
+        ActiveDocument?.Operations.RotateImage(RotationAngle.D90, ActiveDocument.GetSelectedMembers());
     }
     
     [Command.Basic("PixiEditor.Document.Rotate180Deg", "Rotate Image 180 deg", "Rotate Image 180 deg", CanExecute = "PixiEditor.HasDocument")]
     public void Rotate180Deg()
     {
-        if (ActiveDocument?.SelectedStructureMember == null)
+        if (ActiveDocument == null)
             return;
         
-        ActiveDocument?.Operations.RotateImage(RotationAngle.D180);
+        ActiveDocument?.Operations.RotateImage(RotationAngle.D180, ActiveDocument.GetSelectedMembers());
     }
     
     [Command.Basic("PixiEditor.Document.Rotate270Deg", "Rotate Image 270 deg", "Rotate Image 270 deg", CanExecute = "PixiEditor.HasDocument")]
     public void Rotate270Deg()
     {
-        if (ActiveDocument?.SelectedStructureMember == null)
+        if (ActiveDocument == null)
             return;
         
-        ActiveDocument?.Operations.RotateImage(RotationAngle.D270);
+        ActiveDocument?.Operations.RotateImage(RotationAngle.D270, ActiveDocument.GetSelectedMembers());
     }
 
 
