@@ -258,12 +258,6 @@
                             Header="_Vertical Line Symmetry"/>
                         <Separator/>
                         <MenuItem Header="_Rotation">
-                            <MenuItem Header="Flip Image _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
-                            <MenuItem Header="Flip Image _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
-                            <MenuItem Header="Flip Selected Layers _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
-                            <MenuItem Header="Flip Selected Layers _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
-                            
-                            <Separator/>
                             <MenuItem Header="Rotate Image 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
                             <MenuItem Header="Rotate Image 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180Deg"/>
                             <MenuItem Header="Rotate Image 270&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270Deg"/>
@@ -272,6 +266,12 @@
                             <MenuItem Header="Rotate Selected Layers 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
                             <MenuItem Header="Rotate Selected Layers 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
                             <MenuItem Header="Rotate Selected Layers 270&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
+                        </MenuItem>
+                        <MenuItem Header="_Flipping">
+                            <MenuItem Header="Flip Image _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
+                            <MenuItem Header="Flip Image _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
+                            <MenuItem Header="Flip Selected Layers _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
+                            <MenuItem Header="Flip Selected Layers _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
                         </MenuItem>
                     </MenuItem>
                     <MenuItem
