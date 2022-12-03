@@ -257,7 +257,7 @@
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable}"
                             Header="_Vertical Line Symmetry"/>
                         <Separator/>
-                        <MenuItem Header="_Rotate">
+                        <MenuItem Header="_Rotation">
                             <MenuItem Header="Flip Image _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
                             <MenuItem Header="Flip Image _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
                             <MenuItem Header="Flip Selected Layers _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
@@ -267,6 +267,11 @@
                             <MenuItem Header="Rotate Image 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
                             <MenuItem Header="Rotate Image 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180Deg"/>
                             <MenuItem Header="Rotate Image 270&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270Deg"/>
+                            
+                            <Separator/>
+                            <MenuItem Header="Rotate Selected Layers 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
+                            <MenuItem Header="Rotate Selected Layers 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
+                            <MenuItem Header="Rotate Selected Layers 270&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
                         </MenuItem>
                     </MenuItem>
                     <MenuItem
@@ -549,7 +554,7 @@
                                                     <ContextMenu.Template>
                                                         <ControlTemplate>
                                                             <Border Background="{StaticResource AccentColor}" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
-                                                                <Grid Height="165">
+                                                                <Grid Height="235">
                                                                     <Grid.ColumnDefinitions>
                                                                         <ColumnDefinition Width="{Binding Palette, Converter={converters:PaletteItemsToWidthConverter}}"/>
                                                                         <ColumnDefinition />
@@ -572,8 +577,13 @@
                                                                             <MenuItem
 																		Header="_Paste"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Paste" />
+                                                                            <Separator />
                                                                             <MenuItem Header="Flip _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
                                                                             <MenuItem Header="Flip _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
+                                                                            <Separator />
+                                                                            <MenuItem Header="Rotate Right" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
+                                                                            <MenuItem Header="Rotate 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
+                                                                            <MenuItem Header="Rotate Left" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
                                                                         </StackPanel>
                                                                     </Border>
                                                                     <ScrollViewer Margin="5" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">

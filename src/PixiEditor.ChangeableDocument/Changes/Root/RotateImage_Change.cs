@@ -53,14 +53,10 @@ internal sealed class RotateImage_Change : Change
         return changes;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    private void Resize(ChunkyImage img, Guid memberGuid,
+        Dictionary<Guid, CommittedChunkStorage> deletedChunksDict, List<IChangeInfo>? changes)
     {
-        
-    }
-
-    private void Resize(ChunkyImage img, Guid memberGuid, Dictionary<Guid, CommittedChunkStorage> deletedChunksDict)
-    {
-        RectI bounds = new RectI(VecI.Zero, img.LatestSize);
+        RectI bounds = new RectI(VecI.Zero, img.CommittedSize);
         if (membersToRotate.Count > 0)
         {
             var preciseBounds = img.FindPreciseCommittedBounds();
@@ -69,35 +65,40 @@ internal sealed class RotateImage_Change : Change
                 bounds = preciseBounds.Value;
             }
         }
+
+        int originalWidth = bounds.Width;
+        int originalHeight = bounds.Height;
         
-        int newWidth = rotation == RotationAngle.D180 ? bounds.Size.X : bounds.Size.Y;
-        int newHeight = rotation == RotationAngle.D180 ? bounds.Size.Y : bounds.Size.X;
-        
-        VecI size = new VecI(newWidth, newHeight)''
+        int newWidth = rotation == RotationAngle.D180 ? originalWidth : originalHeight;
+        int newHeight = rotation == RotationAngle.D180 ? originalHeight : originalWidth;
+
+        VecI originalSize = new VecI(originalWidth, originalHeight);
+        VecI newSize = new VecI(newWidth, newHeight);
         
         using Paint paint = new()
         {
             BlendMode = DrawingApi.Core.Surface.BlendMode.Src
         };
         
-        using Surface originalSurface = new(img.LatestSize);
+        using Surface originalSurface = new(originalSize);
         img.DrawMostUpToDateRegionOn(
-            new RectI(VecI.Zero, img.LatestSize), 
+            bounds, 
             ChunkResolution.Full,
             originalSurface.DrawingSurface,
             VecI.Zero);
 
-        using Surface flipped = new Surface(img.LatestSize);
+        using Surface flipped = new Surface(newSize);
 
-        float translationX = size.X;
-        float translationY = size.Y;
-        if (rotation == RotationAngle.D90)
+        float translationX = newSize.X;
+        float translationY = newSize.Y;
+        switch (rotation)
         {
-            translationY = 0;
-        }
-        else if (rotation == RotationAngle.D270)
-        {
-            translationX = 0;
+            case RotationAngle.D90:
+                translationY = 0;
+                break;
+            case RotationAngle.D270:
+                translationX = 0;
+                break;
         }
         
         flipped.DrawingSurface.Canvas.Save();
@@ -106,11 +107,13 @@ internal sealed class RotateImage_Change : Change
         flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
         flipped.DrawingSurface.Canvas.Restore();
         
-        img.EnqueueResize(size);
         img.EnqueueClear();
-        img.EnqueueDrawImage(VecI.Zero, flipped);
+        img.EnqueueDrawImage(bounds.Pos, flipped);
 
-        deletedChunksDict.Add(memberGuid, new CommittedChunkStorage(img, img.FindAffectedChunks()));
+        var affectedChunks = img.FindAffectedChunks();
+        deletedChunksDict.Add(memberGuid, new CommittedChunkStorage(img, affectedChunks));
+        changes?.Add(new LayerImageChunks_ChangeInfo(memberGuid, affectedChunks));
+        img.CommitChanges();
     }
 
     private OneOf<None, IChangeInfo, List<IChangeInfo>> Rotate(Document target)
@@ -131,32 +134,15 @@ internal sealed class RotateImage_Change : Change
         {
             if (guids.Contains(member.GuidValue))
             {
-                int newWidth;
-                int newHeight;
-
                 if (member is Layer layer)
                 {
-                    Resize(layer.LayerImage, layer.GuidValue,
-                            deletedChunks);
-                    changes.Add(
-                            new LayerImageChunks_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedChunks()));
-                    layer.LayerImage.CommitChanges();
+                    Resize(layer.LayerImage, layer.GuidValue, deletedChunks, changes);
                 }
 
                 if (member.Mask is null)
                     return;
 
-                var maskBounds = member.Mask.FindPreciseCommittedBounds();
-                if (maskBounds.HasValue)
-                {
-                    newWidth = rotation == RotationAngle.D180 ? maskBounds.Value.Size.X : maskBounds.Value.Size.Y;
-                    newHeight = rotation == RotationAngle.D180 ? maskBounds.Value.Size.Y : maskBounds.Value.Size.X;
-
-                    Resize(member.Mask, member.GuidValue, new VecI(newWidth, newHeight), VecI.Zero, deletedMaskChunks);
-                    changes.Add(
-                        new LayerImageChunks_ChangeInfo(member.GuidValue, member.Mask.FindAffectedChunks()));
-                    member.Mask.CommitChanges();
-                }
+                Resize(member.Mask, member.GuidValue, deletedMaskChunks, null);
             }
         });
 
@@ -170,8 +156,8 @@ internal sealed class RotateImage_Change : Change
 
         VecI newSize = new VecI(newWidth, newHeight);
 
-        float normalizedSymmX = _originalVerAxisX / Math.Max(target.Size.X, 0.1f);
-        float normalizedSymmY = _originalHorAxisY / Math.Max(target.Size.Y, 0.1f);
+        float normalizedSymmX = originalVerAxisX / Math.Max(target.Size.X, 0.1f);
+        float normalizedSymmY = originalHorAxisY / Math.Max(target.Size.Y, 0.1f);
 
         target.Size = newSize;
         target.VerticalSymmetryAxisX = (int)(newSize.X * normalizedSymmX);
@@ -181,20 +167,81 @@ internal sealed class RotateImage_Change : Change
         {
             if (member is Layer layer)
             {
-                Resize(layer.LayerImage, layer.GuidValue, newSize, VecI.Zero, deletedChunks);
-                layer.LayerImage.CommitChanges();
+                Resize(layer.LayerImage, layer.GuidValue, deletedChunks, null);
             }
 
             if (member.Mask is null)
                 return;
 
-            Resize(member.Mask, member.GuidValue, newSize, VecI.Zero, deletedMaskChunks);
-            member.Mask.CommitChanges();
+            Resize(member.Mask, member.GuidValue, deletedMaskChunks, null);
         });
 
         return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
     }
     
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    {
+        if (membersToRotate.Count == 0)
+        {
+            return RevertRotateWholeImage(target);
+        }
+
+        return RevertRotateMembers(target);
+    }
+
+    private OneOf<None, IChangeInfo, List<IChangeInfo>> RevertRotateWholeImage(Document target)
+    {
+        target.Size = originalSize;
+        RevertRotateMembers(target);
+
+        target.HorizontalSymmetryAxisY = originalHorAxisY;
+        target.VerticalSymmetryAxisX = originalVerAxisX;
+
+        return new Size_ChangeInfo(originalSize, originalVerAxisX, originalHorAxisY);
+    }
+
+    private List<IChangeInfo> RevertRotateMembers(Document target)
+    {
+        List<IChangeInfo> revertChanges = new List<IChangeInfo>();
+        target.ForEveryMember((member) =>
+        {
+            if(membersToRotate.Count > 0 && !membersToRotate.Contains(member.GuidValue)) return;
+            if (member is Layer layer)
+            {
+                layer.LayerImage.EnqueueResize(originalSize);
+                deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
+                revertChanges.Add(new LayerImageChunks_ChangeInfo(layer.GuidValue, layer.LayerImage.FindAffectedChunks()));
+                layer.LayerImage.CommitChanges();
+            }
+
+            if (member.Mask is null)
+                return;
+            member.Mask.EnqueueResize(originalSize);
+            deletedMaskChunks[member.GuidValue].ApplyChunksToImage(member.Mask);
+            revertChanges.Add(new LayerImageChunks_ChangeInfo(member.GuidValue, member.Mask.FindAffectedChunks()));
+            member.Mask.CommitChanges();
+        });
+
+        DisposeDeletedChunks();
+        return revertChanges;
+    }
+
+    private void DisposeDeletedChunks()
+    {
+        foreach (var stored in deletedChunks)
+            stored.Value.Dispose();
+        deletedChunks = new();
+
+        foreach (var stored in deletedMaskChunks)
+            stored.Value.Dispose();
+        deletedMaskChunks = new();
+    }
+
+    public override void Dispose()
+    {
+        DisposeDeletedChunks();
+    }
+
     private float RotationAngleToRadians(RotationAngle rotationAngle)
     {
         return rotationAngle switch

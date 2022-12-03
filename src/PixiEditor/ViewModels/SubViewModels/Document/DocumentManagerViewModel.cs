@@ -97,7 +97,13 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Document.Rotate90Deg", "Rotate Image 90 deg", "Rotate Image 90 deg", CanExecute = "PixiEditor.HasDocument")]
     public void Rotate90Deg()
     {
-        if (ActiveDocument == null)
+        ActiveDocument?.Operations.RotateImage(RotationAngle.D90);
+    }
+    
+    [Command.Basic("PixiEditor.Document.Rotate90DegLayers", "Rotate Selected Layers 90 deg", "Rotate Selected Layers 90 deg", CanExecute = "PixiEditor.HasDocument")]
+    public void Rotate90DegLayers()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
             return;
         
         ActiveDocument?.Operations.RotateImage(RotationAngle.D90, ActiveDocument.GetSelectedMembers());
@@ -106,21 +112,35 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Document.Rotate180Deg", "Rotate Image 180 deg", "Rotate Image 180 deg", CanExecute = "PixiEditor.HasDocument")]
     public void Rotate180Deg()
     {
-        if (ActiveDocument == null)
+        ActiveDocument?.Operations.RotateImage(RotationAngle.D180);
+    }
+    
+    [Command.Basic("PixiEditor.Document.Rotate180DegLayers", "Rotate Selected Layers 180 deg", "Rotate Selected Layers 180 deg", CanExecute = "PixiEditor.HasDocument")]
+    public void Rotate180DegLayers()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
             return;
         
         ActiveDocument?.Operations.RotateImage(RotationAngle.D180, ActiveDocument.GetSelectedMembers());
     }
-    
+
     [Command.Basic("PixiEditor.Document.Rotate270Deg", "Rotate Image 270 deg", "Rotate Image 270 deg", CanExecute = "PixiEditor.HasDocument")]
     public void Rotate270Deg()
     {
         if (ActiveDocument == null)
             return;
         
+        ActiveDocument?.Operations.RotateImage(RotationAngle.D270);
+    }
+    
+    [Command.Basic("PixiEditor.Document.Rotate270DegLayers", "Rotate Selected Layers 270 deg", "Rotate Selected Layers 270 deg", CanExecute = "PixiEditor.HasDocument")]
+    public void Rotate270DegLayers()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
+            return;
+        
         ActiveDocument?.Operations.RotateImage(RotationAngle.D270, ActiveDocument.GetSelectedMembers());
     }
-
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
     public void ToggleVerticalSymmetryAxis()
