@@ -3,6 +3,7 @@ using System.Windows.Interop;
 using System.Windows.Shapes;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
@@ -289,6 +290,26 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new ClipCanvas_Action());
     }
 
+    public void FlipImage(FlipType flipType) => FlipImage(flipType, null);
+
+    public void FlipImage(FlipType flipType, List<Guid> membersToFlip)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+        
+        Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, membersToFlip));
+    }
+
+    public void RotateImage(RotationAngle rotation) => RotateImage(rotation, null);
+
+    public void RotateImage(RotationAngle rotation, List<Guid> membersToRotate)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+        
+        Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation, membersToRotate));
+    }
+    
     public void CenterContent(IReadOnlyList<Guid> structureMembers)
     {
         if (Internals.ChangeController.IsChangeActive)

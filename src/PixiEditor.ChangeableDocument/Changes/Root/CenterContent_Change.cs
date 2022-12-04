@@ -6,25 +6,25 @@ namespace PixiEditor.ChangeableDocument.Changes.Root;
 internal class CenterContent_Change : Change
 {
     private VecI _oldOffset;
-    private List<Guid> _affectedLayers;
+    private List<Guid> affectedLayers;
     private Dictionary<Guid, CommittedChunkStorage>? originalLayerChunks;
 
     [GenerateMakeChangeAction]
     public CenterContent_Change(List<Guid> layers)
     {
-        _affectedLayers = layers;
+        affectedLayers = layers;
     }
     
     public override bool InitializeAndValidate(Document target)
     {
-        if (_affectedLayers.Count == 0)
+        if (affectedLayers.Count == 0)
         {
             return false;
         }
 
-        _affectedLayers = target.ExtractLayers(_affectedLayers);
+        affectedLayers = target.ExtractLayers(affectedLayers);
 
-        foreach (var layer in _affectedLayers)
+        foreach (var layer in affectedLayers)
         {
             if (!target.HasMember(layer)) return false;
         }
@@ -38,7 +38,7 @@ internal class CenterContent_Change : Change
     {
         VecI currentCenter = new VecI(0, 0);
         RectI? currentBounds = null;
-        foreach (var layerGuid in _affectedLayers)
+        foreach (var layerGuid in affectedLayers)
         {
             Layer layer = document.FindMemberOrThrow<Layer>(layerGuid);
             RectI? tightBounds = layer.LayerImage.FindPreciseCommittedBounds();
@@ -64,7 +64,7 @@ internal class CenterContent_Change : Change
         List<IChangeInfo> changes = new List<IChangeInfo>();
         originalLayerChunks = new Dictionary<Guid, CommittedChunkStorage>();
         
-        foreach (var layerGuid in _affectedLayers)
+        foreach (var layerGuid in affectedLayers)
         {
             Layer layer = target.FindMemberOrThrow<Layer>(layerGuid);
             var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, false, shift);
@@ -81,7 +81,7 @@ internal class CenterContent_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         List<IChangeInfo> changes = new List<IChangeInfo>();
-        foreach (var layerGuid in _affectedLayers)
+        foreach (var layerGuid in affectedLayers)
         {
             var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
             CommittedChunkStorage? originalChunks = originalLayerChunks?[layerGuid];

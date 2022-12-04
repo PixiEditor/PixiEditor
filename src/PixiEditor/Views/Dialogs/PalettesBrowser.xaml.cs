@@ -185,6 +185,7 @@ internal partial class PalettesBrowser : Window
     {
         await Dispatcher.InvokeAsync(async () =>
         {
+            SortedResults ??= new WpfObservableRangeCollection<Palette>();
             switch (refreshType)
             {
                 case RefreshType.All:

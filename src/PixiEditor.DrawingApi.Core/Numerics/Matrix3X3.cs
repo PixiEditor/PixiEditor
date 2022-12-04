@@ -12,7 +12,7 @@ namespace PixiEditor.DrawingApi.Core.Numerics;
 /// </remarks>
 public struct Matrix3X3 : IEquatable<Matrix3X3>
 {
-    internal const float DegreesToRadians = 0.017453292f;
+    public const float DegreesToRadians = 0.017453292f;
 
     public static readonly Matrix3X3 Identity = new() { ScaleX = 1f, ScaleY = 1f, Persp2 = 1f };
     

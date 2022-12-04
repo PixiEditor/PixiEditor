@@ -156,7 +156,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 preciseBounds ??= globalChunkBounds;
                 preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
             }
-            preciseBounds = preciseBounds?.Intersect(new RectI(VecI.Zero, CommittedSize));
+            preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, CommittedSize));
 
             return preciseBounds;
         }

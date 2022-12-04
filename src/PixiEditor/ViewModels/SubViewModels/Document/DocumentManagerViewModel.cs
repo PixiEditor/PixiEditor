@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
@@ -54,6 +56,67 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
             return;
         
         ActiveDocument?.Operations.ClipCanvas();
+    }
+    
+    [Command.Basic("PixiEditor.Document.FlipImageHorizontal", "Flip Image Horizontally", "Flip Image Horizontally", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipImageHorizontally()
+    {
+        if (ActiveDocument is null)
+            return;
+        
+        ActiveDocument?.Operations.FlipImage(FlipType.Horizontal);
+    }
+    
+    [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", "Flip Selected Layers Horizontally", "Flip Selected Layers Horizontally", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipLayersHorizontally()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
+            return;
+        
+        ActiveDocument?.Operations.FlipImage(FlipType.Horizontal, ActiveDocument.GetSelectedMembers());
+    }
+    
+    [Command.Basic("PixiEditor.Document.FlipImageVertical", "Flip Image Vertically", "Flip Image Vertically", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipImageVertically()
+    {
+        if (ActiveDocument is null)
+            return;
+        
+        ActiveDocument?.Operations.FlipImage(FlipType.Vertical);
+    }
+    
+    [Command.Basic("PixiEditor.Document.FlipLayersVertical", "Flip Selected Layers Vertically", "Flip Selected Layers Vertically", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipLayersVertically()
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
+            return;
+        
+        ActiveDocument?.Operations.FlipImage(FlipType.Vertical, ActiveDocument.GetSelectedMembers());
+    }
+    
+    [Command.Basic("PixiEditor.Document.Rotate90Deg", "Rotate Image 90 degrees", 
+        "Rotate Image 90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90)]
+    [Command.Basic("PixiEditor.Document.Rotate180Deg", "Rotate Image 180 degrees", 
+        "Rotate Image 180 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180)]
+    [Command.Basic("PixiEditor.Document.Rotate270Deg", "Rotate Image -90 degrees", 
+        "Rotate Image -90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270)]
+    public void RotateImage(RotationAngle angle)
+    {
+        ActiveDocument?.Operations.RotateImage(angle);
+    }
+
+    [Command.Basic("PixiEditor.Document.Rotate90DegLayers", "Rotate Selected Layers 90 degrees", 
+        "Rotate Selected Layers 90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90)]
+    [Command.Basic("PixiEditor.Document.Rotate180DegLayers", "Rotate Selected Layers 180 degrees", 
+        "Rotate Selected Layers 180 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180)]
+    [Command.Basic("PixiEditor.Document.Rotate270DegLayers", "Rotate Selected Layers -90 degrees", 
+        "Rotate Selected Layers -90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270)]
+    public void RotateLayers(RotationAngle angle)
+    {
+        if (ActiveDocument?.SelectedStructureMember == null)
+            return;
+        
+        ActiveDocument?.Operations.RotateImage(angle, ActiveDocument.GetSelectedMembers());
     }
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
@@ -132,11 +195,9 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Document.CenterContent", "Center Content", "Center Content", CanExecute = "PixiEditor.HasDocument")]
     public void CenterContent()
     {
-        if(ActiveDocument is null || ActiveDocument.SelectedStructureMember == null)
+        if(ActiveDocument?.SelectedStructureMember == null)
             return;
         
-        List<Guid> layerGuids = new List<Guid>() { ActiveDocument.SelectedStructureMember.GuidValue };
-        layerGuids.AddRange(ActiveDocument.SoftSelectedStructureMembers.Select(x => x.GuidValue));
-        ActiveDocument.Operations.CenterContent(layerGuids);
+        ActiveDocument.Operations.CenterContent(ActiveDocument.GetSelectedMembers());
     }
 }
