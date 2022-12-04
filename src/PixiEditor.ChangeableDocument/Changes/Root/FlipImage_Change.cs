@@ -74,8 +74,8 @@ internal sealed class FlipImage_Change : Change
         bool flipY = flipType == FlipType.Vertical;
         
         flipped.DrawingSurface.Canvas.Save();
-                flipped.DrawingSurface.Canvas.Scale(flipX ? -1 : 1, flipY ? -1 : 1, flipX ? bounds.X + bounds.Width / 2f : 0,
-            flipY ? bounds.Y + bounds.Height / 2f : 0f);
+                flipped.DrawingSurface.Canvas.Scale(flipX ? -1 : 1, flipY ? -1 : 1, flipX ? bounds.X + (bounds.Width / 2f) : 0,
+            flipY ? bounds.Y + (bounds.Height / 2f) : 0f);
         flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
         flipped.DrawingSurface.Canvas.Restore();
         

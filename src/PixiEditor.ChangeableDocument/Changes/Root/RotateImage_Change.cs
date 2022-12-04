@@ -72,7 +72,7 @@ internal sealed class RotateImage_Change : Change
         int newWidth = rotation == RotationAngle.D180 ? originalWidth : originalHeight;
         int newHeight = rotation == RotationAngle.D180 ? originalHeight : originalWidth;
 
-        VecI originalSize = new VecI(originalWidth, originalHeight);
+        VecI oldSize = new VecI(originalWidth, originalHeight);
         VecI newSize = new VecI(newWidth, newHeight);
         
         using Paint paint = new()
@@ -80,7 +80,7 @@ internal sealed class RotateImage_Change : Change
             BlendMode = DrawingApi.Core.Surface.BlendMode.Src
         };
         
-        using Surface originalSurface = new(originalSize);
+        using Surface originalSurface = new(oldSize);
         img.DrawMostUpToDateRegionOn(
             bounds, 
             ChunkResolution.Full,
@@ -106,7 +106,12 @@ internal sealed class RotateImage_Change : Change
         flipped.DrawingSurface.Canvas.RotateRadians(RotationAngleToRadians(rotation), 0, 0);
         flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
         flipped.DrawingSurface.Canvas.Restore();
-        
+
+        if (membersToRotate.Count == 0) 
+        {
+            img.EnqueueResize(newSize);
+        }
+
         img.EnqueueClear();
         img.EnqueueDrawImage(bounds.Pos, flipped);
 
