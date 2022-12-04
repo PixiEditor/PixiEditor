@@ -581,9 +581,9 @@
                                                                             <MenuItem Header="Flip _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
                                                                             <MenuItem Header="Flip _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
                                                                             <Separator />
-                                                                            <MenuItem Header="Rotate Right" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
+                                                                            <MenuItem Header="Rotate 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
                                                                             <MenuItem Header="Rotate 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
-                                                                            <MenuItem Header="Rotate Left" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
+                                                                            <MenuItem Header="Rotate -90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
                                                                         </StackPanel>
                                                                     </Border>
                                                                     <ScrollViewer Margin="5" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
