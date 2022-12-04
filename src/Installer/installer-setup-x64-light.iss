@@ -4,13 +4,13 @@
 // requires netcorecheck.exe and netcorecheck_x64.exe (see download link below)
 #define UseNetCoreCheck
 #ifdef UseNetCoreCheck
-  ;#define UseDotNet60
-  #define UseDotNet60Desktop
+  ;#define UseDotNet70
+  #define UseDotNet70Desktop
 #endif
 
 // custom setup info
 #define MyAppName "PixiEditor"
-#define MyAppVersion GetFileVersion("..\Builds\PixiEditor-x64-light\PixiEditor\PixiEditor.exe")     ;Not perfect solution, it's enviroment dependend
+#define MyAppVersion GetFileVersion("..\..\Builds\PixiEditor-x64-light\PixiEditor\PixiEditor.exe")     ;Not perfect solution, it's enviroment dependend
 #define MyAppPublisher "PixiEditor"
 #define MyAppURL "https://github.com/PixiEditor/PixiEditor"
 #define MyAppExeName "PixiEditor.exe"
@@ -401,24 +401,24 @@ var
   Version: String;
 begin
 
-#ifdef UseDotNet60
-  // https://dotnet.microsoft.com/download/dotnet/6.0
-  if not IsNetCoreInstalled('Microsoft.NETCore.App 6.0.0') then begin
-    AddDependency('dotnet60' + GetArchitectureSuffix + '.exe',
+#ifdef UseDotNet70
+  // https://dotnet.microsoft.com/download/dotnet/7.0
+  if not IsNetCoreInstalled('Microsoft.NETCore.App 7.0.0') then begin
+    AddDependency('dotnet70' + GetArchitectureSuffix + '.exe',
       '/lcid ' + IntToStr(GetUILanguage) + ' /passive /norestart',
-      '.NET Runtime 6.0' + GetArchitectureTitle,
-      GetString('https://download.visualstudio.microsoft.com/download/pr/34df41d5-c813-4e30-8aa3-3603ce6600c0/976e801af82c7108abbcb736a8bc5c14/dotnet-runtime-6.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/b9cfdb9e-d5cd-4024-b318-00390b729d2f/65690f2440f40654898020cdfffa1050/dotnet-runtime-6.0.0-win-x64.exe'),
+      '.NET Runtime 7.0' + GetArchitectureTitle,
+      GetString('https://download.visualstudio.microsoft.com/download/pr/75c0d7c7-9f30-46fd-9675-a301f0e051f4/ec04d5cc40aa6537a4af21fad6bf8ba9/dotnet-runtime-7.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/87bc5966-97cc-498c-8381-bff4c43aafc6/baca88b989e7d2871e989d33a667d8e9/dotnet-runtime-7.0.0-win-x64.exe'),
       '', False, False, False);
   end;
 #endif
 
-#ifdef UseDotNet60Desktop
-  // https://dotnet.microsoft.com/download/dotnet/6.0
-  if not IsNetCoreInstalled('Microsoft.WindowsDesktop.App 6.0.0') then begin
-    AddDependency('dotnet60desktop' + GetArchitectureSuffix + '.exe',
+#ifdef UseDotNet70Desktop
+  // https://dotnet.microsoft.com/download/dotnet/7.0
+  if not IsNetCoreInstalled('Microsoft.WindowsDesktop.App 7.0.0') then begin
+    AddDependency('dotnet70desktop' + GetArchitectureSuffix + '.exe',
       '/lcid ' + IntToStr(GetUILanguage) + ' /passive /norestart',
-      '.NET Desktop Runtime 6.0' + GetArchitectureTitle,
-      GetString('https://download.visualstudio.microsoft.com/download/pr/a1ca7d0d-ce01-4878-b952-3fa1e6d9a7c6/e386db367490b631b8c013a9fb0f3794/windowsdesktop-runtime-6.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/a865ccae-2219-4184-bcd6-0178dc580589/ba452d37e8396b7a49a9adc0e1a07e87/windowsdesktop-runtime-6.0.0-win-x64.exe'),
+      '.NET Desktop Runtime 7.0' + GetArchitectureTitle,
+      GetString('https://download.visualstudio.microsoft.com/download/pr/d05a833c-2cf9-4d06-89ae-a0f3e10c5c91/c668ff42e23c2f67aa3d80227860585f/windowsdesktop-runtime-7.0.0-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/5b2fbe00-507e-450e-8b52-43ab052aadf2/79d54c3a19ce3fce314f2367cf4e3b21/windowsdesktop-runtime-7.0.0-win-x64.exe'),
       '', False, False, False);
   end;
 #endif

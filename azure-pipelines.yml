@@ -18,12 +18,6 @@ steps:
     restoreSolution: '$(solution)'
 
 - task: DotNetCoreCLI@2
-  inputs:
-    command: 'custom'
-    custom: 'tool'
-    arguments: 'install --global Codecov.Tool'
-
-- task: DotNetCoreCLI@2
   displayName: Build
   inputs:
     command: 'build'
@@ -35,7 +29,7 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
+    arguments: '--configuration $(buildConfiguration)'
 
 #- task: PowerShell@2
 #  inputs:
