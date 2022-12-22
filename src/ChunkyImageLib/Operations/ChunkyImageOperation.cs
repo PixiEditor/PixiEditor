@@ -2,7 +2,7 @@
 using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace ChunkyImageLib.Operations;
-internal class ChunkyImageOperation : IDrawOperation
+internal class ChunkyImageOperation : IMirroredDrawOperation
 {
     private readonly ChunkyImage imageToDraw;
     private readonly VecI targetPos;

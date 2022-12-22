@@ -5,7 +5,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace ChunkyImageLib.Operations;
-internal class BresenhamLineOperation : IDrawOperation
+internal class BresenhamLineOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
     private readonly VecI from;

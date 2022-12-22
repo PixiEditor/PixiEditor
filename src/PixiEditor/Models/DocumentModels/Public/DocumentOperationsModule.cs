@@ -197,6 +197,14 @@ internal class DocumentOperationsModule
             return;
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.GuidValue));
     }
+    
+    public void ApplyMask(StructureMemberViewModel member)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+        
+        Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.GuidValue), new DeleteStructureMemberMask_Action(member.GuidValue));
+    }
 
     public void SetSelectedMember(Guid memberGuid) => Internals.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
 

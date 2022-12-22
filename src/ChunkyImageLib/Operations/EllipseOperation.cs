@@ -6,7 +6,7 @@ using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace ChunkyImageLib.Operations;
-internal class EllipseOperation : IDrawOperation
+internal class EllipseOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
 

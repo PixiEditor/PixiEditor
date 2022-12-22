@@ -4,7 +4,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 
 namespace ChunkyImageLib.Operations;
 
-internal class RectangleOperation : IDrawOperation
+internal class RectangleOperation : IMirroredDrawOperation
 {
     public RectangleOperation(ShapeData rect)
     {
