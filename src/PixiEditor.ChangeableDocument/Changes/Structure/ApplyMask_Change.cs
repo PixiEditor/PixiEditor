@@ -8,8 +8,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Structure;
 internal sealed class ApplyMask_Change : Change
 {
     private Guid structureMemberGuid;
-    private Layer? layer;
-    
+
     private CommittedChunkStorage? savedChunks;
 
     [GenerateMakeChangeAction]
@@ -22,16 +21,13 @@ internal sealed class ApplyMask_Change : Change
     {
         var member = target.FindMember(structureMemberGuid);
         bool isValid = member is not (null or Folder) && member.Mask is not null;
-        if (isValid)
-        {
-            layer = member as Layer;
-        }
-        
+
         return isValid;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
+        var layer = (Layer)target.FindMember(structureMemberGuid)!;
         layer!.LayerImage.EnqueueApplyMask(layer.Mask!);
         ignoreInUndo = false;
         var layerInfo = new LayerImageChunks_ChangeInfo(structureMemberGuid, layer.LayerImage.FindAffectedChunks());
