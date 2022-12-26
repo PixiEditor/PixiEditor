@@ -78,11 +78,19 @@ internal class ExportFileDialog : CustomDialog
     {
         ExportFilePopup popup = new ExportFilePopup(FileWidth, FileHeight);
         popup.ShowDialog();
+
         if (popup.DialogResult == true)
         {
             FileWidth = popup.SaveWidth;
             FileHeight = popup.SaveHeight;
             FilePath = popup.SavePath;
+
+            if (ChosenFormat.ToString() != "pixi")
+            {
+                ExportWarningPopup exportWarningPopup = new ExportWarningPopup();
+                exportWarningPopup.ShowDialog();
+            }
+
             ChosenFormat = popup.SaveFormat;
         }
 
