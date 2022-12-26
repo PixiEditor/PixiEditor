@@ -5,7 +5,7 @@ using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace ChunkyImageLib.Operations;
 
-internal class ImageOperation : IDrawOperation
+internal class ImageOperation : IMirroredDrawOperation
 {
     private Matrix3X3 transformMatrix;
     private ShapeCorners corners;

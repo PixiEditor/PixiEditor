@@ -6,7 +6,7 @@ using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace ChunkyImageLib.Operations;
 
-internal class PixelsOperation : IDrawOperation
+internal class PixelsOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
     private readonly Point[] pixels;

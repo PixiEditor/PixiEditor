@@ -151,6 +151,7 @@
                     IsChecked="{Binding PlacementTarget.Tag.Layer.MaskIsVisibleBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                     IsEnabled="{Binding PlacementTarget.Tag.Layer.HasMaskBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                     Header="Enable mask"/>
+                <MenuItem Header="Apply mask" Command="{cmds:Command PixiEditor.Layer.ApplyMask}"/>
                 <Separator/>
                 <MenuItem Header="Merge selected" Command="{cmds:Command PixiEditor.Layer.MergeSelected}"/>
                 <MenuItem Header="Merge with above" Command="{cmds:Command PixiEditor.Layer.MergeWithAbove}"/>

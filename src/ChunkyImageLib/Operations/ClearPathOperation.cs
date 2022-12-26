@@ -3,7 +3,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace ChunkyImageLib.Operations;
-internal class ClearPathOperation : IDrawOperation
+internal class ClearPathOperation : IMirroredDrawOperation
 {
     private VectorPath path;
     private RectI pathTightBounds;

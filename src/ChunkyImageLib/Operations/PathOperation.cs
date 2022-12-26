@@ -6,7 +6,7 @@ using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace ChunkyImageLib.Operations;
-internal class PathOperation : IDrawOperation
+internal class PathOperation : IMirroredDrawOperation
 {
     private readonly VectorPath path;
 

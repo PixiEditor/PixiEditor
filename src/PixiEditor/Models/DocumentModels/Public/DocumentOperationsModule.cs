@@ -1,12 +1,7 @@
 ﻿using System.Collections.Immutable;
-using System.Windows.Interop;
-using System.Windows.Shapes;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using ChunkyImageLib.Operations;
-using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
-using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -14,9 +9,7 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
-using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
@@ -196,6 +189,14 @@ internal class DocumentOperationsModule
         if (Internals.ChangeController.IsChangeActive)
             return;
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.GuidValue));
+    }
+    
+    public void ApplyMask(StructureMemberViewModel member)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+            return;
+        
+        Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.GuidValue), new DeleteStructureMemberMask_Action(member.GuidValue));
     }
 
     public void SetSelectedMember(Guid memberGuid) => Internals.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
