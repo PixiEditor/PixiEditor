@@ -6,6 +6,7 @@ using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using PixiEditor;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Views;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -64,6 +65,8 @@ internal class BrushShapeOverlay : Control
     private Pen whitePen = new Pen(Brushes.LightGray, 1);
     private Point lastMousePos = new();
 
+    private MouseUpdateController mouseUpdateController;
+
     public BrushShapeOverlay()
     {
         Loaded += ControlLoaded;
@@ -74,14 +77,16 @@ internal class BrushShapeOverlay : Control
     {
         if (MouseEventSource is null)
             return;
-        MouseEventSource.MouseMove -= SourceMouseMove;
+        
+        mouseUpdateController.Dispose();
     }
 
     private void ControlLoaded(object sender, RoutedEventArgs e)
     {
         if (MouseEventSource is null)
             return;
-        MouseEventSource.MouseMove += SourceMouseMove;
+        
+        mouseUpdateController = new MouseUpdateController(MouseEventSource, SourceMouseMove);
     }
 
     private void SourceMouseMove(object sender, MouseEventArgs args)

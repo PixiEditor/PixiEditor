@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -21,12 +22,6 @@ internal partial class LayerControl : UserControl
         set => SetValue(LayerProperty, value);
     }
 
-    public LayerControl()
-    {
-        InitializeComponent();
-        highlightColor = (Brush?)App.Current.Resources["SoftSelectedLayerColor"];
-    }
-
     public static readonly DependencyProperty ControlButtonsVisibleProperty = DependencyProperty.Register(
         nameof(ControlButtonsVisible), typeof(Visibility), typeof(LayerControl), new PropertyMetadata(System.Windows.Visibility.Hidden));
 
@@ -39,6 +34,15 @@ internal partial class LayerControl : UserControl
     public static readonly DependencyProperty LayerColorProperty =
         DependencyProperty.Register(nameof(LayerColor), typeof(string), typeof(LayerControl), new PropertyMetadata("#00000000"));
 
+    public static readonly DependencyProperty ManagerProperty = DependencyProperty.Register(
+        nameof(Manager), typeof(LayersManager), typeof(LayerControl), new PropertyMetadata(default(LayersManager)));
+
+    public LayersManager Manager
+    {
+        get { return (LayersManager)GetValue(ManagerProperty); }
+        set { SetValue(ManagerProperty, value); }
+    }
+    
     public Visibility ControlButtonsVisible
     {
         get { return (Visibility)GetValue(ControlButtonsVisibleProperty); }
@@ -56,6 +60,21 @@ internal partial class LayerControl : UserControl
 
     public static readonly DependencyProperty MoveToFrontCommandProperty = DependencyProperty.Register(
         nameof(MoveToFrontCommand), typeof(RelayCommand), typeof(LayerControl), new PropertyMetadata(default(RelayCommand)));
+
+
+    private MouseUpdateController mouseUpdateController;
+    
+    public LayerControl()
+    {
+        InitializeComponent();
+        Loaded += LayerControl_Loaded;
+        highlightColor = (Brush?)App.Current.Resources["SoftSelectedLayerColor"];
+    }
+
+    private void LayerControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        mouseUpdateController = new MouseUpdateController(this, Manager.LayerControl_MouseMove);
+    }
 
     public RelayCommand MoveToFrontCommand
     {

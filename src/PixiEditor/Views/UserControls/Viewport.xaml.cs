@@ -7,6 +7,7 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Position;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -282,6 +283,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public Guid GuidValue { get; } = Guid.NewGuid();
 
+    private MouseUpdateController mouseUpdateController;
+
     public Viewport()
     {
         InitializeComponent();
@@ -292,6 +295,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         MainImage!.Loaded += OnImageLoaded;
         Loaded += OnLoad;
         Unloaded += OnUnload;
+        
+        mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
 
     public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];

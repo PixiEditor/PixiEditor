@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -20,12 +21,29 @@ internal partial class FolderControl : UserControl
     public static string? FolderControlDataName = typeof(FolderControl).FullName;
     public static string? LayerControlDataName = typeof(LayerControl).FullName;
 
+    public static readonly DependencyProperty ManagerProperty = DependencyProperty.Register(
+        nameof(Manager), typeof(LayersManager), typeof(FolderControl), new PropertyMetadata(default(LayersManager)));
+
+    public LayersManager Manager
+    {
+        get { return (LayersManager)GetValue(ManagerProperty); }
+        set { SetValue(ManagerProperty, value); }
+    }
+
     private readonly Brush? highlightColor;
+    
+    private MouseUpdateController mouseUpdateController;
 
     public FolderControl()
     {
         InitializeComponent();
         highlightColor = (Brush?)App.Current.Resources["SoftSelectedLayerColor"];
+        Loaded += OnLoaded;
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        mouseUpdateController = new MouseUpdateController(this, Manager.FolderControl_MouseMove);
     }
 
     private void Grid_DragEnter(object sender, DragEventArgs e)
