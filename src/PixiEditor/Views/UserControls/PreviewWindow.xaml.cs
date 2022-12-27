@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.Controllers;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Models.Enums;
 
@@ -46,12 +47,15 @@ internal partial class PreviewWindow : UserControl
         get => (Color)GetValue(PrimaryColorProperty);
         set => SetValue(PrimaryColorProperty, value);
     }
+    
+    private MouseUpdateController mouseUpdateController;
 
     public PreviewWindow()
     {
         InitializeComponent();
-
-        imageGrid.MouseMove += ImageGrid_MouseMove;
+        
+        mouseUpdateController = new MouseUpdateController(imageGrid, ImageGrid_MouseMove);
+        
         imageGrid.MouseRightButtonDown += ImageGrid_MouseRightButtonDown;
         imageGrid.MouseEnter += ImageGrid_MouseEnter;
         imageGrid.MouseLeave += ImageGrid_MouseLeave;

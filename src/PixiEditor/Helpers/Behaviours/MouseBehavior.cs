@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
+using PixiEditor.Models.Controllers;
 
 namespace PixiEditor.Helpers.Behaviours
 {
@@ -34,15 +35,17 @@ namespace PixiEditor.Helpers.Behaviours
             get => (FrameworkElement)GetValue(RelativeToProperty);
             set => SetValue(RelativeToProperty, value);
         }
+        
+        private MouseUpdateController mouseUpdateController;
 
         protected override void OnAttached()
         {
-            AssociatedObject.MouseMove += AssociatedObjectOnMouseMove;
+            mouseUpdateController = new MouseUpdateController(AssociatedObject, AssociatedObjectOnMouseMove);
         }
 
         protected override void OnDetaching()
         {
-            AssociatedObject.MouseMove -= AssociatedObjectOnMouseMove;
+            mouseUpdateController.Dispose();
         }
 
         private void AssociatedObjectOnMouseMove(object sender, MouseEventArgs mouseEventArgs)
