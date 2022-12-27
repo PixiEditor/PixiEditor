@@ -85,12 +85,6 @@ internal class ExportFileDialog : CustomDialog
             FileHeight = popup.SaveHeight;
             FilePath = popup.SavePath;
 
-            if (ChosenFormat.ToString() != "pixi")
-            {
-                ExportWarningPopup exportWarningPopup = new ExportWarningPopup();
-                exportWarningPopup.ShowDialog();
-            }
-
             ChosenFormat = popup.SaveFormat;
         }
 
