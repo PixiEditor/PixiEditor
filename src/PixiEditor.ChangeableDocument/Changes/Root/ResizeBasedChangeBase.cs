@@ -19,7 +19,7 @@ internal abstract class ResizeBasedChangeBase : Change
         return true;
     }
     
-    protected void Resize(ChunkyImage img, Guid memberGuid, VecI size, VecI offset, Dictionary<Guid, CommittedChunkStorage> deletedChunksDict)
+    protected virtual void Resize(ChunkyImage img, Guid memberGuid, VecI size, VecI offset, Dictionary<Guid, CommittedChunkStorage> deletedChunksDict)
     {
         img.EnqueueResize(size);
         img.EnqueueClear();

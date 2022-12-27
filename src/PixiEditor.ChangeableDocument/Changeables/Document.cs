@@ -262,7 +262,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         return false;
     }
     
-    public List<Guid> ExtractLayers(List<Guid> members)
+    public List<Guid> ExtractLayers(IList<Guid> members)
     {
         var result = new List<Guid>();
         foreach (var member in members)
@@ -282,7 +282,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         return result;
     }
 
-    private List<Guid> ExtractLayers(Folder folder, List<Guid> list)
+    private void ExtractLayers(Folder folder, List<Guid> list)
     {
         foreach (var member in folder.Children)
         {
@@ -295,6 +295,5 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
                 ExtractLayers(childFolder, list);
             }
         }
-        return list;
     }
 }

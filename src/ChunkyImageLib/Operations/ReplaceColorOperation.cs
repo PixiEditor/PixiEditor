@@ -51,11 +51,6 @@ internal class ReplaceColorOperation : IDrawOperation
         return OperationHelper.FindChunksTouchingRectangle(new RectI(VecI.Zero, imageSize), ChunkyImage.FullChunkSize);
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
-    {
-        return new ReplaceColorOperation(this.oldColor, this.newColor);
-    }
-
     public void Dispose()
     {
     }

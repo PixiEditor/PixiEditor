@@ -2,7 +2,7 @@
 
 namespace ChunkyImageLib.Operations;
 
-internal class ClearRegionOperation : IDrawOperation
+internal class ClearRegionOperation : IMirroredDrawOperation
 {
     private RectI rect;
 

@@ -484,4 +484,11 @@ internal partial class DocumentViewModel : NotifyableObject
     public void InternalAddSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Add(member);
     public void InternalRemoveSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Remove(member);
     #endregion
+
+    public List<Guid> GetSelectedMembers()
+    {
+        List<Guid> layerGuids = new List<Guid>() { SelectedStructureMember.GuidValue };
+        layerGuids.AddRange( SoftSelectedStructureMembers.Select(x => x.GuidValue));
+        return layerGuids;
+    }
 }

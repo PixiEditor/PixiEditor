@@ -156,7 +156,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 preciseBounds ??= globalChunkBounds;
                 preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
             }
-            preciseBounds = preciseBounds?.Intersect(new RectI(VecI.Zero, CommittedSize));
+            preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, CommittedSize));
 
             return preciseBounds;
         }
@@ -538,6 +538,16 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             EnqueueOperation(operation);
         }
     }
+    
+    public void EnqueueApplyMask(ChunkyImage mask)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            ApplyMaskOperation operation = new(mask);
+            EnqueueOperation(operation);
+        }
+    }
 
     /// <param name="customBounds">Bounds used for affected chunks, will be computed from path in O(n) if null is passed</param>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
@@ -655,12 +665,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     {
         List<IDrawOperation> operations = new(4) { operation };
 
-        if (horizontalSymmetryAxis is not null && verticalSymmetryAxis is not null)
-            operations.Add(operation.AsMirrored(verticalSymmetryAxis, horizontalSymmetryAxis));
-        if (horizontalSymmetryAxis is not null)
-            operations.Add(operation.AsMirrored(null, horizontalSymmetryAxis));
-        if (verticalSymmetryAxis is not null)
-            operations.Add(operation.AsMirrored(verticalSymmetryAxis, null));
+        if (operation is IMirroredDrawOperation mirroredOperation)
+        {
+            if (horizontalSymmetryAxis is not null && verticalSymmetryAxis is not null)
+                operations.Add(mirroredOperation.AsMirrored(verticalSymmetryAxis, horizontalSymmetryAxis));
+            if (horizontalSymmetryAxis is not null)
+                operations.Add(mirroredOperation.AsMirrored(null, horizontalSymmetryAxis));
+            if (verticalSymmetryAxis is not null)
+                operations.Add(mirroredOperation.AsMirrored(verticalSymmetryAxis, null));
+        }
 
         foreach (var op in operations)
         {
@@ -854,7 +867,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <returns>
-    /// All chunks that have something in them, including latest (uncommitted) ones
+    ///     All chunks that have something in them, including latest (uncommitted) ones
     /// </returns>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public HashSet<VecI> FindAllChunks()

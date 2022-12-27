@@ -5,7 +5,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace ChunkyImageLib.Operations;
-internal class DrawingSurfaceLineOperation : IDrawOperation
+internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
 
