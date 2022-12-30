@@ -184,7 +184,7 @@
                             Header="_Save As... (.pixi)"
                             cmds:Menu.Command="PixiEditor.File.SaveAsNew" />
                         <MenuItem
-                            Header="_Export (.png, .jpeg, .gif, .bmp)"
+                            Header="_Export (.png, .jpeg, etc.)"
                             cmds:Menu.Command="PixiEditor.File.Export" />
                         <Separator />
                         <MenuItem
