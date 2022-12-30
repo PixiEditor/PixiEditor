@@ -27,7 +27,6 @@
     <Grid 
         x:Name="mainGrid"
         MouseDown="Image_MouseDown"
-        MouseMove="Image_MouseMove"
         MouseUp="Image_MouseUp"
         PreviewMouseDown="Grid_PreviewMouseDown">
         <i:Interaction.Triggers>

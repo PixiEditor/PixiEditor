@@ -46,7 +46,7 @@ internal partial class LayersManager : UserControl
         }
     }
     
-    private void LayerControl_MouseMove(object? sender, System.Windows.Input.MouseEventArgs? e)
+    public void LayerControl_MouseMove(object? sender, System.Windows.Input.MouseEventArgs? e)
     {
         if (e is null)
             return;
@@ -82,8 +82,8 @@ internal partial class LayersManager : UserControl
             }
         }
     }
-    
-    private void FolderControl_MouseMove(object? sender, System.Windows.Input.MouseEventArgs? e)
+
+    public void FolderControl_MouseMove(object? sender, System.Windows.Input.MouseEventArgs? e)
     {
         if (e is null)
             return;

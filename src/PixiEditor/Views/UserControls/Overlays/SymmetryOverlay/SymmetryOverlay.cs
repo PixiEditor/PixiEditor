@@ -7,6 +7,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Views;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Overlays.SymmetryOverlay;
@@ -115,6 +116,18 @@ internal class SymmetryOverlay : Control
 
     private int horizontalAxisY;
     private int verticalAxisX;
+
+    private MouseUpdateController mouseUpdateController;
+
+    public SymmetryOverlay()
+    {
+        Loaded += OnLoaded;
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        mouseUpdateController = new MouseUpdateController(this, MouseMoved);
+    }
 
     protected override void OnRender(DrawingContext drawingContext)
     {
@@ -358,9 +371,9 @@ internal class SymmetryOverlay : Control
         e.Handled = true;
     }
 
-    protected override void OnMouseMove(MouseEventArgs e)
+    protected void MouseMoved(object sender, MouseEventArgs e)
     {
-        base.OnMouseMove(e);
+        /*base.OnMouseMove(e);*/
 
         var pos = ToVecD(e.GetPosition(this));
         UpdateHovered(IsTouchingHandle(pos));
