@@ -13,7 +13,6 @@ internal class SelectionChangeHelper
         var matrix = Matrix3X3.CreateTranslation((float)-originalPathTightBounds.X, (float)-originalPathTightBounds.Y).PostConcat(
             OperationHelper.CreateMatrixFromPoints(to, originalPathTightBounds.Size));
         newPath.Transform(matrix);
-
         var toDispose = target.Selection.SelectionPath;
         target.Selection.SelectionPath = newPath;
         toDispose.Dispose();
