@@ -65,8 +65,6 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
             images.Add(guid, (extracted.AsT1.image, extracted.AsT1.extractedRect.Pos));
         }
 
-        if (images.Count == 0)
-            return false;
         globalMatrix = OperationHelper.CreateMatrixFromPoints(corners, originalTightBounds.Size);
         return true;
     }
