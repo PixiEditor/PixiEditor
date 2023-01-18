@@ -23,7 +23,7 @@ internal partial class DocumentViewModel
     {
         var root = new Folder();
         
-        IReadOnlyDocument doc = Internals.Tracker.Document;
+        var doc = Internals.Tracker.Document;
 
         AddMembers(doc.StructureRoot.Children, doc, root);
 
@@ -31,7 +31,7 @@ internal partial class DocumentViewModel
         {
             Width = Width, Height = Height,
             Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
-            RootFolder = root, PreviewImage = PreviewSurface.Snapshot().Encode().AsSpan().ToArray()
+            RootFolder = root, PreviewImage = (MaybeRenderWholeImage().Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray()
         };
 
         return document;
