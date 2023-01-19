@@ -3,7 +3,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
-
 namespace PixiEditor.Helpers.Behaviours;
 #nullable enable
 internal class SliderUpdateBehavior : Behavior<Slider>
@@ -39,6 +38,15 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     {
         get => (ICommand)GetValue(DragStartedProperty);
         set => SetValue(DragStartedProperty, value);
+    }
+
+    public static readonly DependencyProperty SetOpacityProperty =
+        DependencyProperty.Register(nameof(SetOpacity), typeof(ICommand), typeof(SliderUpdateBehavior), new(null));
+
+    public ICommand SetOpacity
+    {
+        get => (ICommand)GetValue(SetOpacityProperty);
+        set => SetValue(SetOpacityProperty, value);
     }
 
     public static DependencyProperty ValueFromSliderProperty =
@@ -105,6 +113,11 @@ internal class SliderUpdateBehavior : Behavior<Slider>
         {
             if (obj.DragValueChanged is not null && obj.DragValueChanged.CanExecute(e.NewValue))
                 obj.DragValueChanged.Execute(e.NewValue);
+        }
+        else
+        {
+            if (obj.SetOpacity is not null && obj.SetOpacity.CanExecute(e.NewValue))
+                obj.SetOpacity.Execute(e.NewValue);
         }
     }
 

@@ -134,10 +134,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragged")]
-    public void OpacitySliderDragged(object parameter)
+    public void OpacitySliderDragged(double value)
     {
-        if (parameter is not double value)
-            return;
         Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnOpacitySliderDragged((float)value);
     }
 
@@ -145,6 +143,13 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void OpacitySliderDragEnded()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnOpacitySliderDragEnded();
+    }
+
+    [Command.Internal("PixiEditor.Layer.OpacitySliderSet")]
+    public void OpacitySliderSet(double value)
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        document?.Operations.SetMemberOpacity(document.SelectedStructureMember.GuidValue, (float)value);
     }
 
     [Command.Basic("PixiEditor.Layer.DuplicateSelectedLayer", "Duplicate selected layer", "Duplicate selected layer", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer")]
