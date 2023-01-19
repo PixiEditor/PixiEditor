@@ -149,7 +149,11 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void OpacitySliderSet(double value)
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        document?.Operations.SetMemberOpacity(document.SelectedStructureMember.GuidValue, (float)value);
+
+        if (document.SelectedStructureMember != null)
+        {
+            document?.Operations.SetMemberOpacity(document.SelectedStructureMember.GuidValue, (float)value);
+        }
     }
 
     [Command.Basic("PixiEditor.Layer.DuplicateSelectedLayer", "Duplicate selected layer", "Duplicate selected layer", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer")]
