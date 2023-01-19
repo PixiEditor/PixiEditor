@@ -87,7 +87,7 @@ internal static class ClipboardController
     /// <summary>
     /// Gets images from clipboard, supported PNG, Dib and Bitmap.
     /// </summary>
-    private static List<(string? name, Surface image)> GetImagesFromClipboard()
+    public static List<(string? name, Surface image)> GetImagesFromClipboard()
     {
         DataObject data = ClipboardHelper.TryGetDataObject();
         List<(string? name, Surface image)> surfaces = new();

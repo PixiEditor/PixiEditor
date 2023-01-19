@@ -1,4 +1,6 @@
 ﻿using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
@@ -6,7 +8,9 @@ using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
@@ -150,9 +154,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
-        if (document.SelectedStructureMember != null)
+        if (document?.SelectedStructureMember != null)
         {
-            document?.Operations.SetMemberOpacity(document.SelectedStructureMember.GuidValue, (float)value);
+            document.Operations.SetMemberOpacity(document.SelectedStructureMember.GuidValue, (float)value);
         }
     }
 
@@ -323,7 +327,11 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool ReferenceLayerExists() => Owner.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.ReferenceBitmap is not null;
     [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExist")]
     public bool ReferenceLayerDoesntExist() => 
-        Owner.DocumentManagerSubViewModel.ActiveDocument is null ? false : Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
+        Owner.DocumentManagerSubViewModel.ActiveDocument is not null && Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
+
+    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
+    public bool ReferenceLayerDoesntExistAndHasClipboardContent() =>
+        ReferenceLayerDoesntExist() && Owner.ClipboardSubViewModel.CanPaste();
 
     [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "Add reference layer", "Add reference layer", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist")]
     public void ImportReferenceLayer()
@@ -356,6 +364,25 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             pixels.ToImmutableArray(), 
             size);
     }
+
+    [Command.Basic("PixiEditor.Layer.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", IconPath = "Commands/PixiEditor/Clipboard/Paste.png", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
+    public unsafe void PasteReferenceLayer()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        var surface = ClipboardController.GetImagesFromClipboard().First();
+        var bitmap = surface.image.ToWriteableBitmap();
+        
+        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
+        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
+        
+        doc.Operations.ImportReferenceLayer(
+            pixels.ToImmutableArray(),
+            surface.image.Size);
+    }
+    
     private string OpenReferenceLayerFilePicker()
     {
         var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
