@@ -297,7 +297,7 @@
             <Button.Visibility>
                 <MultiBinding Converter="{converters:BoolOrToVisibilityConverter}">
                     <MultiBinding.Bindings>
-                        <Binding ElementName="vpUc" Path="Document.TransformViewModel.TransformActive"/>
+                        <Binding ElementName="vpUc" Path="Document.TransformViewModel.ShowTransformControls"/>
                         <Binding ElementName="vpUc" Path="Document.LineToolOverlayViewModel.IsEnabled"/>
                     </MultiBinding.Bindings>
                 </MultiBinding>

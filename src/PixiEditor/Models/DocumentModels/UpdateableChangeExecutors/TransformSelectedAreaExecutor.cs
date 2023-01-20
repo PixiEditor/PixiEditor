@@ -32,7 +32,7 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
 
         ShapeCorners corners = new(document.SelectionPathBindable.TightBounds);
-        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners);
+        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, Type == ExecutorType.Regular);
         membersToTransform = members.Select(static a => a.GuidValue).ToArray();
         internals!.ActionAccumulator.AddActions(
             new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false));
@@ -47,6 +47,9 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
 
     public override void OnTransformApplied()
     {
+        if (Type == ExecutorType.ToolLinked)
+            return;
+
         internals!.ActionAccumulator.AddActions(new EndTransformSelectedArea_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformViewModel.HideTransform();

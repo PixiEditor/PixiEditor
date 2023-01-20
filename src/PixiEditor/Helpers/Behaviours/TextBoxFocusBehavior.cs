@@ -87,14 +87,7 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
     {
         if (!FocusNext)
         {
-            FrameworkElement parent = (FrameworkElement)AssociatedObject.Parent;
-            while (parent is IInputElement elem && !elem.Focusable)
-            {
-                parent = (FrameworkElement)parent.Parent;
-            }
-
-            DependencyObject scope = FocusManager.GetFocusScope(AssociatedObject);
-            FocusManager.SetFocusedElement(scope, parent);
+            FocusHelper.MoveFocusToParent(AssociatedObject);
         }
         else
         {
