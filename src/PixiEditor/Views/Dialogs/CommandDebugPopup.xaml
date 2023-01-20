@@ -7,7 +7,7 @@
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:command="clr-namespace:PixiEditor.Models.Commands"
-        xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.Commands" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
         WindowStyle="None"
         mc:Ignorable="d"
         x:Name="uc"
@@ -31,6 +31,10 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" Margin="5">
+                <Button Content="Export list" Style="{StaticResource DarkRoundButton}" Command="{cmds:Command PixiEditor.Debug.DumpAllCommands}" Width="100"/>
+            </StackPanel>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
                 <ItemsControl ItemsSource="{Binding Commands, ElementName=uc}" Margin="5,0,0,5">

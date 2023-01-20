@@ -324,6 +324,10 @@
                         Header="_Debug"
                         Visibility="{Binding DebugSubViewModel.UseDebug, Converter={StaticResource BoolToVisibilityConverter}}">
                         <MenuItem
+                            Header="Open Command Debug Window"
+                            cmds:Menu.Command="PixiEditor.Debug.OpenCommandDebugWindow"/>
+                        <Separator/>
+                        <MenuItem
                             Header="Open _Local App Data"
                             cmds:Menu.Command="PixiEditor.Debug.OpenLocalAppDataDirectory" />
                         <MenuItem
@@ -336,7 +340,7 @@
                             Header="Open _Install Location"
                             cmds:Menu.Command="PixiEditor.Debug.OpenInstallDirectory" />
                         <MenuItem
-                            Header="Open Crash Reports Location"
+                            Header="Open Crash _Reports Location"
                             cmds:Menu.Command="PixiEditor.Debug.OpenCrashReportsDirectory" />
                         <Separator />
                         <MenuItem

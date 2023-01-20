@@ -33,53 +33,61 @@ public partial class CommandDebugPopup : Window
 
         foreach (var command in CommandController.Current.Commands)
         {
-            var comments = new TextBlock();
+            var comments = new TextBlock() { TextWrapping = TextWrapping.Wrap };
 
             var image = command.IconEvaluator.CallEvaluate(command, null);
+            var analysis = AnalyzeCommand(command, image, out int issues);
 
-            foreach (var inline in AnalyzeCommand(command, image))
+            foreach (var inline in analysis)
             {
                 comments.Inlines.Add(inline);
             }
 
-            debugCommands.Add(new CommandDebug(command, comments, image));
+            debugCommands.Add(new CommandDebug(command, comments, image, issues));
         }
 
-        Commands = debugCommands;
+        Commands = debugCommands.OrderByDescending(x => x.Issues).ThenBy(x => x.Command.InternalName).ToArray();
 
         InitializeComponent();
-        //ItemsControl.ItemsSource = CommandController.Current.Commands;
     }
 
-    private IEnumerable<Inline> AnalyzeCommand(Command command, ImageSource image)
+    private List<Inline> AnalyzeCommand(Command command, ImageSource image, out int issues)
     {
+        var inlines = new List<Inline>();
+        issues = 0;
+
         if (image == null && command.IconEvaluator == IconEvaluator.Default)
         {
+            var expected = IconEvaluator.GetDefaultPath(command);
+
             if (string.IsNullOrWhiteSpace(command.IconPath))
             {
-                yield return Info("Default evaluator has not found a image (No icon path provided)");
+                Info($"Default evaluator has not found a image (No icon path provided). Expected at '{expected}'\n");
             }
             else
             {
-                yield return Error("Default evaluator has not found a image at icon path!");
+                Error($"Default evaluator has not found a image at icon path! Expected at '{expected}'.\n");
+                issues++;
             }
         }
 
         if (command.IconEvaluator != IconEvaluator.Default)
         {
-            yield return Info("Uses custom icon evaluator");
+            Info($"Uses custom icon evaluator ({command.IconEvaluator.GetType().Name})\n");
         }
 
         if (!string.IsNullOrWhiteSpace(command.IconPath))
         {
-            yield return Info($"Has custom icon path: '{command.IconPath}'");
+            Info($"Has custom icon path: '{command.IconPath}'\n");
         }
 
-        Run Info(string text) => new Run(text) { Foreground = infoBrush };
+        return inlines;
 
-        Run Warning(string text) => new Run(text) { Foreground = warningBrush };
+        void Info(string text) => inlines.Add(new Run(text) { Foreground = infoBrush });
 
-        Run Error(string text) => new Run(text) { Foreground = errorBrush };
+        void Warning(string text) => inlines.Add(new Run(text) { Foreground = warningBrush });
+
+        void Error(string text) => inlines.Add(new Run(text) { Foreground = errorBrush });
     }
 
     internal class CommandDebug
@@ -90,12 +98,14 @@ public partial class CommandDebugPopup : Window
 
         public ImageSource Image { get; }
 
-        public CommandDebug(Command command, TextBlock comments, ImageSource image)
+        public int Issues { get; }
+
+        public CommandDebug(Command command, TextBlock comments, ImageSource image, int issues)
         {
             Command = command;
             Comments = comments;
             Image = image;
+            Issues = issues;
         }
     }
 }
-
