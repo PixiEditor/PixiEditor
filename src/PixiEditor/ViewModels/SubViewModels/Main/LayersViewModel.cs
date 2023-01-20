@@ -20,7 +20,7 @@ using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
-[Command.Group("PixiEditor.Layer", "Image")]
+[Command.Group("PixiEditor.Layer", "Layer")]
 internal class LayersViewModel : SubViewModel<ViewModelMain>
 {
     public LayersViewModel(ViewModelMain owner)
