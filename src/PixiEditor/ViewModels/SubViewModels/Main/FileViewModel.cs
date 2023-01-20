@@ -57,14 +57,21 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     public void AddRecentlyOpened(string path)
     {
         if (RecentlyOpened.Contains(path))
-            return;
-        
-        RecentlyOpened.Insert(0, path);
-        int maxCount = IPreferences.Current.GetPreference<int>(PreferencesConstants.MaxOpenedRecently, PreferencesConstants.MaxOpenedRecentlyDefault);
+        {
+            RecentlyOpened.Move(RecentlyOpened.IndexOf(path), 0);
+        }
+        else
+        {
+            RecentlyOpened.Insert(0, path);
+        }
+
+        int maxCount = IPreferences.Current.GetPreference(PreferencesConstants.MaxOpenedRecently, PreferencesConstants.MaxOpenedRecentlyDefault);
+
         while (RecentlyOpened.Count > maxCount)
         {
             RecentlyOpened.RemoveAt(RecentlyOpened.Count - 1);
         }
+
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
