@@ -9,6 +9,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -135,6 +136,12 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     {
         Owner.FileSubViewModel.RecentlyOpened.Clear();
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, Array.Empty<object>());
+    }
+
+    [Command.Debug("PixiEditor.Debug.OpenCommandDebugWindow", "Open command debug window", "Open command debug window")]
+    public void OpenCommandDebugWindow()
+    {
+        new CommandDebugPopup().Show();
     }
 
     [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory", IconPath = "Folder.png")]
