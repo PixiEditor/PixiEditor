@@ -353,6 +353,10 @@
                             <MenuItem
                                 Header="Editor Data (Local)"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteEditorData" />
+                            <Separator/>
+                            <MenuItem
+                                Header="_Clear recent documents"
+                                cmds:Menu.Command="PixiEditor.Debug.ClearRecentDocument"/>
                         </MenuItem>
                     </MenuItem>
                 </cmds:Menu>

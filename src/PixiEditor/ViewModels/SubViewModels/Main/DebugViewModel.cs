@@ -130,6 +130,13 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    [Command.Debug("PixiEditor.Debug.ClearRecentDocument", "Clear recent documents", "Clear recently opened documents")]
+    public void ClearRecentDocuments()
+    {
+        Owner.FileSubViewModel.RecentlyOpened.Clear();
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, Array.Empty<object>());
+    }
+
     [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory", IconPath = "Folder.png")]
     public static void OpenInstallLocation()
     {
