@@ -108,10 +108,24 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.Icon("PixiEditor.Clipboard.CopyColorIcon")]
-    public ImageSource GetCopyColorIcon(CommandSearchResult result)
+    public ImageSource GetCopyColorIcon(object data)
     {
-        var color = (CopyColor)((Models.Commands.Commands.Command.BasicCommand)result.Command).Parameter;
-
+        if (data is CopyColor color)
+        {
+        }
+        else if (data is Models.Commands.Commands.Command.BasicCommand command)
+        {
+            color = (CopyColor)command.Parameter;
+        }
+        else if (data is CommandSearchResult result)
+        {
+            color = (CopyColor)((Models.Commands.Commands.Command.BasicCommand)result.Command).Parameter;
+        }
+        else
+        {
+            throw new ArgumentException("data must be of type CopyColor, BasicCommand or CommandSearchResult");
+        }
+        
         var targetColor = color switch
         {
             CopyColor.PrimaryHEX or CopyColor.PrimaryRGB => Owner.ColorsSubViewModel.PrimaryColor,

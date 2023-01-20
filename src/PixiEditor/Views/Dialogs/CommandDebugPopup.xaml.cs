@@ -33,10 +33,21 @@ public partial class CommandDebugPopup : Window
 
         foreach (var command in CommandController.Current.Commands)
         {
-            var comments = new TextBlock() { TextWrapping = TextWrapping.Wrap };
+            var comments = new TextBlock { TextWrapping = TextWrapping.Wrap };
 
-            var image = command.IconEvaluator.CallEvaluate(command, null);
-            var analysis = AnalyzeCommand(command, image, out int issues);
+            ImageSource image = null;
+            Exception imageException = null;
+
+            try
+            {
+                image = command.GetIcon();
+            }
+            catch (Exception e)
+            {
+                imageException = e;
+            }
+
+            var analysis = AnalyzeCommand(command, image, imageException, out int issues);
 
             foreach (var inline in analysis)
             {
@@ -51,23 +62,32 @@ public partial class CommandDebugPopup : Window
         InitializeComponent();
     }
 
-    private List<Inline> AnalyzeCommand(Command command, ImageSource image, out int issues)
+    private List<Inline> AnalyzeCommand(Command command, ImageSource? image, Exception? imageException, out int issues)
     {
         var inlines = new List<Inline>();
         issues = 0;
 
-        if (image == null && command.IconEvaluator == IconEvaluator.Default)
+        if (imageException != null)
         {
-            var expected = IconEvaluator.GetDefaultPath(command);
+            Error($"Icon evaluator throws exception\n{imageException}\n");
+            issues++;
+        }
+        else
+        {
+            if (image == null && command.IconEvaluator == IconEvaluator.Default)
+            {
+                var expected = IconEvaluator.GetDefaultPath(command);
 
-            if (string.IsNullOrWhiteSpace(command.IconPath))
-            {
-                Info($"Default evaluator has not found a image (No icon path provided). Expected at '{expected}'\n");
-            }
-            else
-            {
-                Error($"Default evaluator has not found a image at icon path! Expected at '{expected}'.\n");
-                issues++;
+                if (string.IsNullOrWhiteSpace(command.IconPath))
+                {
+                    Info(
+                        $"Default evaluator has not found a image (No icon path provided). Expected at '{expected}'\n");
+                }
+                else
+                {
+                    Error($"Default evaluator has not found a image at icon path! Expected at '{expected}'.\n");
+                    issues++;
+                }
             }
         }
 
