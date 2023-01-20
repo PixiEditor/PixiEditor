@@ -144,35 +144,44 @@ internal partial class PaletteViewer : UserControl
 
     private void Grid_PreviewDragEnter(object sender, DragEventArgs e)
     {
-        if (IsPalFilePresent(e, out _))
+        if (IsSupportedFilePresent(e, out _))
         {
             dragDropGrid.Visibility = Visibility.Visible;
+            ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = "Import palette file";
         }
     }
 
     private void Grid_PreviewDragLeave(object sender, DragEventArgs e)
     {
         dragDropGrid.Visibility = Visibility.Hidden;
+        ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = null;
     }
 
     private async void Grid_Drop(object sender, DragEventArgs e)
     {
-        if (IsPalFilePresent(e, out string filePath))
+        if (!IsSupportedFilePresent(e, out string filePath))
         {
-            await ImportPalette(filePath);
-            dragDropGrid.Visibility = Visibility.Hidden;
+            return;
         }
+
+        await ImportPalette(filePath);
+        dragDropGrid.Visibility = Visibility.Hidden;
     }
 
-    private bool IsPalFilePresent(DragEventArgs e, out string filePath)
+    private bool IsSupportedFilePresent(DragEventArgs e, out string filePath)
     {
         if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            if (files != null && files.Length > 0 && files[0].EndsWith(".pal"))
+            if (files is { Length: > 0 })
             {
-                filePath = files[0];
-                return true;
+                var fileName = files[0];
+                var foundParser = FileParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+                if (foundParser != null)
+                {
+                    filePath = fileName;
+                    return true;
+                }
             }
         }
 
