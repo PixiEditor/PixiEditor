@@ -115,6 +115,8 @@ internal partial class LayersManager : UserControl
 
     private void Grid_Drop(object sender, DragEventArgs e)
     {
+        ViewModelMain.Current.ActionDisplays[nameof(LayersManager)] = null;
+        
         if (ActiveDocument == null)
         {
             return;

@@ -159,6 +159,8 @@ internal partial class PaletteViewer : UserControl
 
     private async void Grid_Drop(object sender, DragEventArgs e)
     {
+        ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = null;
+        
         if (!IsSupportedFilePresent(e, out string filePath))
         {
             return;

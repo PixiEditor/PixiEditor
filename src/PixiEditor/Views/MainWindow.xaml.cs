@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
@@ -185,8 +186,16 @@ internal partial class MainWindow : Window
 
     private void MainWindow_Drop(object sender, DragEventArgs e)
     {
+        DataContext.ActionDisplays[nameof(MainWindow_Drop)] = null;
+        
         if (!e.Data.GetDataPresent(DataFormats.FileDrop))
         {
+            if (!ColorHelper.ParseAnyFormat(e.Data, out var color))
+            {
+                return;
+            }
+
+            DataContext.ColorsSubViewModel.PrimaryColor = color.Value;
             return;
         }
 
@@ -202,7 +211,14 @@ internal partial class MainWindow : Window
     {
         if (!ClipboardController.IsImage((DataObject)e.Data))
         {
+            if (ColorHelper.ParseAnyFormat(e.Data, out _))
+            {
+                DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "Paste as primary color";
+                return;
+            }
+            
             e.Effects = DragDropEffects.None;
+            e.Handled = true;
             return;
         }
 
@@ -211,11 +227,6 @@ internal partial class MainWindow : Window
 
     private void MainWindow_DragLeave(object sender, DragEventArgs e)
     {
-        if (!e.Data.GetDataPresent(DataFormats.FileDrop))
-        {
-            return;
-        }
-
         DataContext.ActionDisplays[nameof(MainWindow_Drop)] = null;
     }
 }
