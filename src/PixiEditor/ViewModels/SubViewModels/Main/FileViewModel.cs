@@ -299,7 +299,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        ViewModelMain.Current.ActionDisplay = "";
 
         ExportFileDialog info = new ExportFileDialog(doc.SizeBindable);
         if (info.ShowDialog())

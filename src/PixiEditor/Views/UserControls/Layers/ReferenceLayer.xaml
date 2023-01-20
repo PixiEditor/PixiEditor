@@ -12,7 +12,8 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" 
              d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" Name="uc">
-    <Border BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="0 2 0 0" MinWidth="60" Focusable="True">
+    <Border BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="0 2 0 0" MinWidth="60"
+            Focusable="True" AllowDrop="True" DragEnter="ReferenceLayer_DragEnter" DragLeave="ReferenceLayer_DragLeave" Drop="ReferenceLayer_Drop">
         <i:Interaction.Behaviors>
             <behaviors:ClearFocusOnClickBehavior/>
         </i:Interaction.Behaviors>

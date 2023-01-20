@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -114,20 +115,58 @@ internal partial class LayersManager : UserControl
 
     private void Grid_Drop(object sender, DragEventArgs e)
     {
+        if (ActiveDocument == null)
+        {
+            return;
+        }
+
         dropBorder.BorderBrush = Brushes.Transparent;
         Guid? droppedGuid = LayerControl.ExtractMemberGuid(e.Data);
-        if (droppedGuid is null || ActiveDocument is null)
-            return;
-        ActiveDocument.Operations.MoveStructureMember((Guid)droppedGuid, ActiveDocument.StructureRoot.Children[0].GuidValue, StructureMemberPlacement.Below);
+
+        if (droppedGuid is not null && ActiveDocument is not null)
+        {
+            ActiveDocument.Operations.MoveStructureMember((Guid)droppedGuid,
+                ActiveDocument.StructureRoot.Children[0].GuidValue, StructureMemberPlacement.Below);
+            e.Handled = true;
+        }
+
+        if (ClipboardController.TryPaste(ActiveDocument, (DataObject)e.Data, true))
+        {
+            e.Handled = true;
+        }
     }
 
     private void Grid_DragEnter(object sender, DragEventArgs e)
     {
+        if (ActiveDocument == null)
+        {
+            return;
+        }
+        
+        var member = LayerControl.ExtractMemberGuid(e.Data);
+
+        if (member == null)
+        {
+            if (!ClipboardController.IsImage((DataObject)e.Data))
+            {
+                return;
+            }
+
+            ViewModelMain.Current.ActionDisplays[nameof(LayersManager)] = "Import as new layer";
+            e.Effects = DragDropEffects.Copy;
+        }
+        else
+        {
+            e.Effects = DragDropEffects.Move;
+        }
+        
         ((Border)sender).BorderBrush = highlightColor;
+        e.Handled = true;
     }
 
     private void Grid_DragLeave(object sender, DragEventArgs e)
     {
+        ViewModelMain.Current.ActionDisplays[nameof(LayersManager)] = null;
         ((Border)sender).BorderBrush = Brushes.Transparent;
     }
 

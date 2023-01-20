@@ -496,7 +496,7 @@
             </StackPanel>
 
             <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
-                <Grid AllowDrop="True" Drop="MainWindow_Drop">
+                <Grid AllowDrop="True" Drop="MainWindow_Drop" DragEnter="MainWindow_DragEnter" DragLeave="MainWindow_DragLeave">
                     <DockingManager 
                         ActiveContent="{Binding WindowSubViewModel.ActiveWindow, Mode=TwoWay}"
                         DocumentsSource="{Binding WindowSubViewModel.Viewports}">
@@ -785,7 +785,7 @@
                 </Grid.ColumnDefinitions>
                 <DockPanel>
                     <TextBlock
-                        Text="{Binding ActionDisplay}"
+                        Text="{Binding ActiveActionDisplay}"
                         Foreground="White"
                         FontSize="15"
                         Margin="10,0,0,0"

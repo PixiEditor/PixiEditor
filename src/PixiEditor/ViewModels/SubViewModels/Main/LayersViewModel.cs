@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
@@ -330,8 +331,20 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument is not null && Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
 
     [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
-    public bool ReferenceLayerDoesntExistAndHasClipboardContent() =>
-        ReferenceLayerDoesntExist() && Owner.ClipboardSubViewModel.CanPaste();
+    public bool ReferenceLayerDoesntExistAndHasClipboardContent(DataObject data)
+    {
+        if (!ReferenceLayerDoesntExist())
+        {
+            return false;
+        }
+        
+        if (data != null)
+        {
+            return Owner.DocumentIsNotNull(null) && ClipboardController.IsImage(data);
+        }
+        
+        return Owner.ClipboardSubViewModel.CanPaste();
+    }
 
     [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "Add reference layer", "Add reference layer", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist")]
     public void ImportReferenceLayer()
@@ -366,13 +379,14 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", IconPath = "Commands/PixiEditor/Clipboard/Paste.png", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
-    public unsafe void PasteReferenceLayer()
+    public unsafe void PasteReferenceLayer(DataObject data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
 
-        var surface = ClipboardController.GetImagesFromClipboard().First();
+        var surface = (data == null ? ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
+        
         var bitmap = surface.image.ToWriteableBitmap();
         
         byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
