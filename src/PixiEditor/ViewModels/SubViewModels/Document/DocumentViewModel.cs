@@ -177,6 +177,10 @@ internal partial class DocumentViewModel : NotifyableObject
         ReferenceLayerViewModel = new(this, Internals);
     }
 
+    /// <summary>
+    /// Creates a new document using the <paramref name="builder"/>
+    /// </summary>
+    /// <returns>The created document</returns>
     public static DocumentViewModel Build(Action<DocumentViewModelBuilder> builder)
     {
         var builderInstance = new DocumentViewModelBuilder();
@@ -278,6 +282,10 @@ internal partial class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(AllChangesSaved));
     }
 
+    /// <summary>
+    /// Tries rendering the whole document
+    /// </summary>
+    /// <returns><see cref="Error"/> if the ChunkyImage was disposed, otherwise a <see cref="Surface"/> of the rendered document</returns>
     public OneOf<Error, Surface> MaybeRenderWholeImage()
     {
         try
@@ -356,6 +364,11 @@ internal partial class DocumentViewModel : NotifyableObject
         return (output, bounds);
     }
 
+    /// <summary>
+    /// Picks the color at <paramref name="pos"/>
+    /// </summary>
+    /// <param name="includeReference">Should the color be picked from the reference layer</param>
+    /// <param name="includeCanvas">Should the color be picked from the canvas</param>
     public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas)
     {
         if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
@@ -485,6 +498,9 @@ internal partial class DocumentViewModel : NotifyableObject
     public void InternalRemoveSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Remove(member);
     #endregion
 
+    /// <summary>
+    /// Returns a list of all selected members (Hard and Soft selected)
+    /// </summary>
     public List<Guid> GetSelectedMembers()
     {
         List<Guid> layerGuids = new List<Guid>() { SelectedStructureMember.GuidValue };
