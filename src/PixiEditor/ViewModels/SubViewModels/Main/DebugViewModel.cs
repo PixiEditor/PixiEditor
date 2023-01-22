@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Windows.Input;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using PixiEditor.Helpers;
@@ -141,7 +142,9 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     [Command.Debug("PixiEditor.Debug.OpenCommandDebugWindow", "Open command debug window", "Open command debug window")]
     public void OpenCommandDebugWindow()
     {
+        Mouse.OverrideCursor = Cursors.Wait;
         new CommandDebugPopup().Show();
+        Mouse.OverrideCursor = null;
     }
 
     [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory", IconPath = "Folder.png")]
