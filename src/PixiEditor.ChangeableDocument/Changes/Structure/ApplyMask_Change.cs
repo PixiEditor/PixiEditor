@@ -30,8 +30,8 @@ internal sealed class ApplyMask_Change : Change
         var layer = (Layer)target.FindMember(structureMemberGuid)!;
         layer!.LayerImage.EnqueueApplyMask(layer.Mask!);
         ignoreInUndo = false;
-        var layerInfo = new LayerImageChunks_ChangeInfo(structureMemberGuid, layer.LayerImage.FindAffectedChunks());
-        savedChunks = new CommittedChunkStorage(layer.LayerImage, layerInfo.Chunks);
+        var layerInfo = new LayerImageArea_ChangeInfo(structureMemberGuid, layer.LayerImage.FindAffectedArea());
+        savedChunks = new CommittedChunkStorage(layer.LayerImage, layerInfo.Area.Chunks);
         
         layer.LayerImage.CommitChanges();
         return layerInfo;
@@ -40,6 +40,6 @@ internal sealed class ApplyMask_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, structureMemberGuid, false, ref savedChunks);
-        return new LayerImageChunks_ChangeInfo(structureMemberGuid, affected);
+        return new LayerImageArea_ChangeInfo(structureMemberGuid, affected);
     }
 }

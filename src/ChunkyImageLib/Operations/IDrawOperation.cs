@@ -7,5 +7,5 @@ internal interface IDrawOperation : IOperation
 {
     bool IgnoreEmptyChunks { get; }
     void DrawOnChunk(Chunk chunk, VecI chunkPos);
-    HashSet<VecI> FindAffectedChunks(VecI imageSize);
+    AffectedArea FindAffectedArea(VecI imageSize);
 }

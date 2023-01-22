@@ -401,7 +401,7 @@ internal partial class DocumentViewModel : NotifyableObject
             if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Internals.Tracker.Document.StructureRoot)
+                return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Internals.Tracker.Document.StructureRoot, new RectI(pos, VecI.One))
                     .Match<Color>(
                         (Chunk chunk) =>
                         {

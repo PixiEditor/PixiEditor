@@ -115,9 +115,9 @@ internal sealed class RotateImage_Change : Change
         img.EnqueueClear();
         img.EnqueueDrawImage(bounds.Pos, flipped);
 
-        var affectedChunks = img.FindAffectedChunks();
-        deletedChunksDict.Add(memberGuid, new CommittedChunkStorage(img, affectedChunks));
-        changes?.Add(new LayerImageChunks_ChangeInfo(memberGuid, affectedChunks));
+        var affArea = img.FindAffectedArea();
+        deletedChunksDict.Add(memberGuid, new CommittedChunkStorage(img, affArea.Chunks));
+        changes?.Add(new LayerImageArea_ChangeInfo(memberGuid, affArea));
         img.CommitChanges();
     }
 
@@ -215,7 +215,7 @@ internal sealed class RotateImage_Change : Change
             {
                 layer.LayerImage.EnqueueResize(originalSize);
                 deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
-                revertChanges.Add(new LayerImageChunks_ChangeInfo(layer.GuidValue, layer.LayerImage.FindAffectedChunks()));
+                revertChanges.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, layer.LayerImage.FindAffectedArea()));
                 layer.LayerImage.CommitChanges();
             }
 
@@ -223,7 +223,7 @@ internal sealed class RotateImage_Change : Change
                 return;
             member.Mask.EnqueueResize(originalSize);
             deletedMaskChunks[member.GuidValue].ApplyChunksToImage(member.Mask);
-            revertChanges.Add(new LayerImageChunks_ChangeInfo(member.GuidValue, member.Mask.FindAffectedChunks()));
+            revertChanges.Add(new LayerImageArea_ChangeInfo(member.GuidValue, member.Mask.FindAffectedArea()));
             member.Mask.CommitChanges();
         });
 

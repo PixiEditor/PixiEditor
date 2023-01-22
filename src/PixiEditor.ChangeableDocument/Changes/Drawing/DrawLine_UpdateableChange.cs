@@ -43,10 +43,10 @@ internal class DrawLine_UpdateableChange : UpdateableChange
         return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
     }
 
-    private HashSet<VecI> CommonApply(Document target)
+    private AffectedArea CommonApply(Document target)
     {
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        var oldAffected = image.FindAffectedChunks();
+        var oldAffected = image.FindAffectedArea();
         image.CancelChanges();
         if (from != to)
         {
@@ -56,14 +56,14 @@ internal class DrawLine_UpdateableChange : UpdateableChange
             else
                 image.EnqueueDrawSkiaLine(from, to, caps, strokeWidth, color, BlendMode.SrcOver);
         }
-        var totalAffected = image.FindAffectedChunks();
+        var totalAffected = image.FindAffectedArea();
         totalAffected.UnionWith(oldAffected);
         return totalAffected;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, CommonApply(target), drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, CommonApply(target), drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -78,18 +78,18 @@ internal class DrawLine_UpdateableChange : UpdateableChange
         var affected = CommonApply(target);
         if (savedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
-        savedChunks = new CommittedChunkStorage(image, image.FindAffectedChunks());
+        savedChunks = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
         image.CommitChanges();
 
         ignoreInUndo = false;
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affected, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull
             (target, memberGuid, drawOnMask, ref savedChunks);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affected, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask);
     }
 
     public override void Dispose()

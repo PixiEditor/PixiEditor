@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
 using OneOf;
@@ -76,7 +77,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
-    private readonly List<(IOperation operation, HashSet<VecI> affectedChunks)> queuedOperations = new();
+    private readonly List<(IOperation operation, AffectedArea affectedArea)> queuedOperations = new();
     private readonly List<ChunkyImage> activeClips = new();
     private BlendMode blendMode = BlendMode.Src;
     private bool lockTransparency = false;
@@ -321,7 +322,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 return true;
             foreach (var operation in queuedOperations)
             {
-                if (operation.affectedChunks.Contains(chunkPos))
+                if (operation.affectedArea.Chunks.Contains(chunkPos))
                     return true;
             }
 
@@ -645,7 +646,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         {
             ThrowIfDisposed();
             ClearOperation operation = new();
-            EnqueueOperation(operation, FindAllChunks());
+            EnqueueOperation(operation, new(FindAllChunks()));
         }
     }
 
@@ -657,7 +658,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             ThrowIfDisposed();
             ResizeOperation operation = new(newSize);
             LatestSize = newSize;
-            EnqueueOperation(operation, FindAllChunksOutsideBounds(newSize));
+            EnqueueOperation(operation, new(FindAllChunksOutsideBounds(newSize)));
         }
     }
 
@@ -677,17 +678,18 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         foreach (var op in operations)
         {
-            var chunks = op.FindAffectedChunks(LatestSize);
-            chunks.RemoveWhere(pos => IsOutsideBounds(pos, LatestSize));
+            var area = op.FindAffectedArea(LatestSize);
+            area.Chunks.RemoveWhere(pos => IsOutsideBounds(pos, LatestSize));
+            area.GlobalArea = area.GlobalArea?.Intersect(new RectI(VecI.Zero, LatestSize));
             if (operation.IgnoreEmptyChunks)
-                chunks.IntersectWith(FindAllChunks());
-            EnqueueOperation(op, chunks);
+                area.Chunks.IntersectWith(FindAllChunks());
+            EnqueueOperation(op, area);
         }
     }
 
-    private void EnqueueOperation(IOperation operation, HashSet<VecI> chunks)
+    private void EnqueueOperation(IOperation operation, AffectedArea area)
     {
-        queuedOperations.Add((operation, chunks));
+        queuedOperations.Add((operation, area));
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
@@ -733,9 +735,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         lock (lockObject)
         {
             ThrowIfDisposed();
-            var affectedChunks = FindAffectedChunks();
+            var affectedArea = FindAffectedArea();
 
-            foreach (var chunk in affectedChunks)
+            foreach (var chunk in affectedArea.Chunks)
             {
                 MaybeCreateAndProcessQueueForChunk(chunk, ChunkResolution.Full);
             }
@@ -876,9 +878,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         {
             ThrowIfDisposed();
             var allChunks = committedChunks[ChunkResolution.Full].Select(chunk => chunk.Key).ToHashSet();
-            foreach (var (_, opChunks) in queuedOperations)
+            foreach (var (_, affArea) in queuedOperations)
             {
-                allChunks.UnionWith(opChunks);
+                allChunks.UnionWith(affArea.Chunks);
             }
 
             return allChunks;
@@ -899,19 +901,25 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// Chunks affected by operations that haven't been committed yet
     /// </returns>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public HashSet<VecI> FindAffectedChunks(int fromOperationIndex = 0)
+    public AffectedArea FindAffectedArea(int fromOperationIndex = 0)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
             var chunks = new HashSet<VecI>();
+            RectI? rect = null;
+            
             for (int i = fromOperationIndex; i < queuedOperations.Count; i++)
             {
-                var (_, opChunks) = queuedOperations[i];
-                chunks.UnionWith(opChunks);
+                var (_, area) = queuedOperations[i];
+                chunks.UnionWith(area.Chunks);
+
+                rect ??= area.GlobalArea;
+                if (area.GlobalArea is not null && rect is not null)
+                    rect = rect.Value.Union(area.GlobalArea.Value);
             }
 
-            return chunks;
+            return new AffectedArea(chunks, rect);
         }
     }
 
@@ -932,8 +940,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         for (int i = 0; i < queuedOperations.Count; i++)
         {
-            var (operation, operChunks) = queuedOperations[i];
-            if (!operChunks.Contains(chunkPos))
+            var (operation, affArea) = queuedOperations[i];
+            if (!affArea.Chunks.Contains(chunkPos))
                 continue;
 
             if (!initialized)
@@ -944,7 +952,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             }
 
             if (chunkData.QueueProgress <= i)
-                chunkData.IsDeleted = ApplyOperationToChunk(operation, combinedRasterClips, targetChunk!, chunkPos, resolution, chunkData);
+                chunkData.IsDeleted = ApplyOperationToChunk(operation, affArea, combinedRasterClips, targetChunk!, chunkPos, resolution, chunkData);
         }
 
         if (initialized)
@@ -999,6 +1007,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     /// </returns>
     private bool ApplyOperationToChunk(
         IOperation operation,
+        AffectedArea operationAffectedArea,
         OneOf<FilledChunk, EmptyChunk, Chunk> combinedRasterClips,
         Chunk targetChunk,
         VecI chunkPos,
@@ -1010,16 +1019,16 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
         if (operation is IDrawOperation chunkOperation)
         {
-            if (combinedRasterClips.IsT1) //Nothing is visible
+            if (combinedRasterClips.IsT1) // Nothing is visible
                 return chunkData.IsDeleted;
 
             if (chunkData.IsDeleted)
                 targetChunk.Surface.DrawingSurface.Canvas.Clear();
 
             // just regular drawing
-            if (combinedRasterClips.IsT0) //Everything is visible as far as raster clips are concerned
+            if (combinedRasterClips.IsT0) // Everything is visible as far as the raster clips are concerned
             {
-                CallDrawWithClip(chunkOperation, targetChunk, resolution, chunkPos);
+                CallDrawWithClip(chunkOperation, operationAffectedArea.GlobalArea, targetChunk, resolution, chunkPos);
                 return false;
             }
 
@@ -1029,7 +1038,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
             using var tempChunk = Chunk.Create(targetChunk.Resolution);
             targetChunk.DrawOnSurface(tempChunk.Surface.DrawingSurface, VecI.Zero, ReplacingPaint);
 
-            CallDrawWithClip(chunkOperation, tempChunk, resolution, chunkPos);
+            CallDrawWithClip(chunkOperation, operationAffectedArea.GlobalArea, tempChunk, resolution, chunkPos);
 
             clip.DrawOnSurface(tempChunk.Surface.DrawingSurface, VecI.Zero, ClippingPaint);
             clip.DrawOnSurface(targetChunk.Surface.DrawingSurface, VecI.Zero, InverseClippingPaint);
@@ -1046,24 +1055,31 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         return chunkData.IsDeleted;
     }
 
-    private void CallDrawWithClip(IDrawOperation operation, Chunk targetChunk, ChunkResolution resolution, VecI chunkPos)
+    private void CallDrawWithClip(IDrawOperation operation, RectI? operationAffectedArea, Chunk targetChunk, ChunkResolution resolution, VecI chunkPos)
     {
+        if (operationAffectedArea is null)
+            return;
+
+        int count = targetChunk.Surface.DrawingSurface.Canvas.Save();
+
+        float scale = (float)resolution.Multiplier();
         if (clippingPath is not null && !clippingPath.IsEmpty)
         {
-            int count = targetChunk.Surface.DrawingSurface.Canvas.Save();
-
             using VectorPath transformedPath = new(clippingPath);
-            float scale = (float)resolution.Multiplier();
             VecD trans = -chunkPos * FullChunkSize * scale;
+            
             transformedPath.Transform(Matrix3X3.CreateScaleTranslation(scale, scale, (float)trans.X, (float)trans.Y));
             targetChunk.Surface.DrawingSurface.Canvas.ClipPath(transformedPath);
-            operation.DrawOnChunk(targetChunk, chunkPos);
-            targetChunk.Surface.DrawingSurface.Canvas.RestoreToCount(count);
         }
-        else
-        {
-            operation.DrawOnChunk(targetChunk, chunkPos);
-        }
+
+        VecD affectedAreaPos = operationAffectedArea.Value.TopLeft;
+        VecD affectedAreaSize = operationAffectedArea.Value.Size;
+        affectedAreaPos = (affectedAreaPos - chunkPos * FullChunkSize) * scale;
+        affectedAreaSize = affectedAreaSize * scale;
+        targetChunk.Surface.DrawingSurface.Canvas.ClipRect(new RectD(affectedAreaPos, affectedAreaSize));
+
+        operation.DrawOnChunk(targetChunk, chunkPos);
+        targetChunk.Surface.DrawingSurface.Canvas.RestoreToCount(count);
     }
 
     /// <summary>

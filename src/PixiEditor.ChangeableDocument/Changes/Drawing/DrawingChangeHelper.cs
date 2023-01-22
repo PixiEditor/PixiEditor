@@ -3,22 +3,22 @@
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal static class DrawingChangeHelper
 {
-    public static HashSet<VecI> ApplyStoredChunksDisposeAndSetToNull(Document target, Guid memberGuid, bool drawOnMask, ref CommittedChunkStorage? storage)
+    public static AffectedArea ApplyStoredChunksDisposeAndSetToNull(Document target, Guid memberGuid, bool drawOnMask, ref CommittedChunkStorage? storage)
     {
         var image = GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         return ApplyStoredChunksDisposeAndSetToNull(image, ref storage);
     }
 
-    public static HashSet<VecI> ApplyStoredChunksDisposeAndSetToNull(ChunkyImage image, ref CommittedChunkStorage? storage)
+    public static AffectedArea ApplyStoredChunksDisposeAndSetToNull(ChunkyImage image, ref CommittedChunkStorage? storage)
     {
         if (storage is null)
             throw new InvalidOperationException("No stored chunks to apply");
         storage.ApplyChunksToImage(image);
-        var chunks = image.FindAffectedChunks();
+        var area = image.FindAffectedArea();
         image.CommitChanges();
         storage.Dispose();
         storage = null;
-        return chunks;
+        return area;
     }
 
     public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask)
@@ -72,10 +72,10 @@ internal static class DrawingChangeHelper
         };
     }
 
-    public static OneOf<None, IChangeInfo, List<IChangeInfo>> CreateChunkChangeInfo(Guid memberGuid, HashSet<VecI> affectedChunks, bool drawOnMask) =>
+    public static OneOf<None, IChangeInfo, List<IChangeInfo>> CreateAreaChangeInfo(Guid memberGuid, AffectedArea affectedArea, bool drawOnMask) =>
         drawOnMask switch
         {
-            false => new LayerImageChunks_ChangeInfo(memberGuid, affectedChunks),
-            true => new MaskChunks_ChangeInfo(memberGuid, affectedChunks),
+            false => new LayerImageArea_ChangeInfo(memberGuid, affectedArea),
+            true => new MaskArea_ChangeInfo(memberGuid, affectedArea),
         };
 }

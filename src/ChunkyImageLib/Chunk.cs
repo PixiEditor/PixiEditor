@@ -94,6 +94,7 @@ public class Chunk : IDisposable
             return;
         returned = true;
         Interlocked.Decrement(ref chunkCounter);
+        Surface.DrawingSurface.Canvas.RestoreToCount(-1);
         ChunkPool.Instance.Push(this);
     }
 }

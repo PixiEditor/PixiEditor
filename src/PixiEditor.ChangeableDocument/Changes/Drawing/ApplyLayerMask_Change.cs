@@ -49,7 +49,7 @@ internal class ApplyLayerMask_Change : Change
         return new List<IChangeInfo>
         {
             new StructureMemberMask_ChangeInfo(layerGuid, false),
-            new LayerImageChunks_ChangeInfo(layerGuid, affectedChunks)
+            new LayerImageArea_ChangeInfo(layerGuid, new AffectedArea(affectedChunks))
         };
     }
 
@@ -63,19 +63,19 @@ internal class ApplyLayerMask_Change : Change
 
         ChunkyImage newMask = new ChunkyImage(target.Size);
         savedMask.ApplyChunksToImage(newMask);
-        var affectedChunksMask = newMask.FindAffectedChunks();
+        var affectedChunksMask = newMask.FindAffectedArea();
         newMask.CommitChanges();
         layer.Mask = newMask;
 
         savedLayer.ApplyChunksToImage(layer.LayerImage);
-        var affectedChunksLayer = layer.LayerImage.FindAffectedChunks();
+        var affectedChunksLayer = layer.LayerImage.FindAffectedArea();
         layer.LayerImage.CommitChanges();
 
         return new List<IChangeInfo>
         {
             new StructureMemberMask_ChangeInfo(layerGuid, true),
-            new LayerImageChunks_ChangeInfo(layerGuid, affectedChunksLayer),
-            new MaskChunks_ChangeInfo(layerGuid, affectedChunksMask)
+            new LayerImageArea_ChangeInfo(layerGuid, affectedChunksLayer),
+            new MaskArea_ChangeInfo(layerGuid, affectedChunksMask)
         };
     }
 

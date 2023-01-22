@@ -93,8 +93,8 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
 
         int changeCount = image.QueueLength;
         DoDrawingIteration(image, incomingPoints!.Count);
-        HashSet<VecI> affChunks = image.FindAffectedChunks(changeCount);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+        var affArea = image.FindAffectedArea(changeCount);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -117,15 +117,15 @@ internal class PixelPerfectPen_UpdateableChange : UpdateableChange
             image.EnqueueDrawPixels(confirmedPixels, color, BlendMode.Src);
         }
 
-        var affChunks = image.FindAffectedChunks();
-        chunkStorage = new CommittedChunkStorage(image, affChunks);
+        var affArea = image.FindAffectedArea();
+        chunkStorage = new CommittedChunkStorage(image, affArea.Chunks);
         image.CommitChanges();
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref chunkStorage);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);
     }
 }

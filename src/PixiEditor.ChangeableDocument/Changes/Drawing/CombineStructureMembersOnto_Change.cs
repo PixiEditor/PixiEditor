@@ -69,19 +69,19 @@ internal class CombineStructureMembersOnto_Change : Change
                 combined.AsT0.Dispose();
             }
         }
-        var affectedChunks = toDrawOn.LayerImage.FindAffectedChunks();
-        originalChunks = new CommittedChunkStorage(toDrawOn.LayerImage, affectedChunks);
+        var affArea = toDrawOn.LayerImage.FindAffectedArea();
+        originalChunks = new CommittedChunkStorage(toDrawOn.LayerImage, affArea.Chunks);
         toDrawOn.LayerImage.CommitChanges();
 
         ignoreInUndo = false;
-        return new LayerImageChunks_ChangeInfo(targetLayer, affectedChunks);
+        return new LayerImageArea_ChangeInfo(targetLayer, affArea);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var toDrawOn = target.FindMemberOrThrow<Layer>(targetLayer);
-        var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.LayerImage, ref originalChunks);
-        return new LayerImageChunks_ChangeInfo(targetLayer, affectedChunks);
+        var affectedArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.LayerImage, ref originalChunks);
+        return new LayerImageArea_ChangeInfo(targetLayer, affectedArea);
     }
 
     public override void Dispose()

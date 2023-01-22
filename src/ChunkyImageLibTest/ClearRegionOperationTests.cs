@@ -15,7 +15,7 @@ public class ClearRegionOperationTests
     {
         ClearRegionOperation operation = new(new(new(chunkSize, chunkSize), new(chunkSize, chunkSize)));
         var expected = new HashSet<VecI>() { new(1, 1) };
-        var actual = operation.FindAffectedChunks(new(chunkSize));
+        var actual = operation.FindAffectedArea(new(chunkSize)).Chunks;
         Assert.Equal(expected, actual);
     }
 
@@ -34,7 +34,7 @@ public class ClearRegionOperationTests
             new(-2, -0), new(-1, -0), new(0, -0), new(1, -0),
             new(-2,  1), new(-1,  1), new(0,  1), new(1,  1),
         };
-        var actual = operation.FindAffectedChunks(new(chunkSize));
+        var actual = operation.FindAffectedArea(new(chunkSize)).Chunks;
         Assert.Equal(expected, actual);
     }
 #pragma warning restore format

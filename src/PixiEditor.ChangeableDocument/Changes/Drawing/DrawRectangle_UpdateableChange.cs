@@ -28,9 +28,9 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         rect = rectangle;
     }
 
-    private HashSet<VecI> UpdateRectangle(Document target, ChunkyImage targetImage)
+    private AffectedArea UpdateRectangle(Document target, ChunkyImage targetImage)
     {
-        var oldAffectedChunks = targetImage.FindAffectedChunks();
+        var oldAffArea = targetImage.FindAffectedArea();
 
         targetImage.CancelChanges();
 
@@ -40,17 +40,17 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
             targetImage.EnqueueDrawRectangle(rect);
         }
 
-        var affectedChunks = targetImage.FindAffectedChunks();
-        affectedChunks.UnionWith(oldAffectedChunks);
+        var affArea = targetImage.FindAffectedArea();
+        affArea.UnionWith(oldAffArea);
 
-        return affectedChunks;
+        return affArea;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        var chunks = UpdateRectangle(target, targetImage);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
+        var area = UpdateRectangle(target, targetImage);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, area, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -62,18 +62,18 @@ internal class DrawRectangle_UpdateableChange : UpdateableChange
         }
 
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        var affectedChunks = UpdateRectangle(target, targetImage);
-        storedChunks = new CommittedChunkStorage(targetImage, affectedChunks);
+        var area = UpdateRectangle(target, targetImage);
+        storedChunks = new CommittedChunkStorage(targetImage, area.Chunks);
         targetImage.CommitChanges();
 
         ignoreInUndo = false;
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, area, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
+        var area = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, area, drawOnMask);
     }
 
     public override void Dispose()
