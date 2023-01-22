@@ -12,7 +12,7 @@
         mc:Ignorable="d"
         x:Name="uc"
         Foreground="White"
-        Title="CommandDebugPopup" Height="450" Width="800">
+        Title="Command Debug" Height="450" Width="800">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" GlassFrameThickness="0.1"
@@ -24,7 +24,9 @@
             <behaviours:ClearFocusOnClickBehavior />
         </b:Interaction.Behaviors>
 
-        <local:DialogTitleBar DockPanel.Dock="Top" />
+        <local:DialogTitleBar DockPanel.Dock="Top"
+                              CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"
+                              TitleText="Command Debug" />
 
         <Grid>
             <Grid.RowDefinitions>
