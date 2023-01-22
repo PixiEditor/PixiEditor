@@ -379,19 +379,18 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Layer.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", IconPath = "Commands/PixiEditor/Clipboard/Paste.png", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
-    public unsafe void PasteReferenceLayer(DataObject data)
+    public void PasteReferenceLayer(DataObject data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is null)
-            return;
 
         var surface = (data == null ? ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
+        using var image = surface.image;
         
         var bitmap = surface.image.ToWriteableBitmap();
-        
+
         byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
         bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
-        
+
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
             surface.image.Size);
