@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib;
+﻿using System.ComponentModel.DataAnnotations;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -187,7 +188,7 @@ internal class AffectedAreasGatherer
 
     private void AddWholeCanvasToMainImage()
     {
-        AddWholeArea(MainImageArea);
+        MainImageArea = AddWholeArea(MainImageArea);
     }
 
     private void AddWholeCanvasToImagePreviews(Guid memberGuid, bool ignoreSelf = false)
@@ -201,7 +202,7 @@ internal class AffectedAreasGatherer
             var member = path[i];
             if (!ImagePreviewAreas.ContainsKey(member.GuidValue))
                 ImagePreviewAreas[member.GuidValue] = new AffectedArea();
-            AddWholeArea(ImagePreviewAreas[member.GuidValue]);
+            ImagePreviewAreas[member.GuidValue] = AddWholeArea(ImagePreviewAreas[member.GuidValue]);
         }
     }
 
@@ -209,7 +210,7 @@ internal class AffectedAreasGatherer
     {
         if (!MaskPreviewAreas.ContainsKey(memberGuid))
             MaskPreviewAreas[memberGuid] = new AffectedArea();
-        AddWholeArea(MaskPreviewAreas[memberGuid]);
+        MaskPreviewAreas[memberGuid] = AddWholeArea(MaskPreviewAreas[memberGuid]);
     }
 
 
@@ -223,7 +224,7 @@ internal class AffectedAreasGatherer
         tracker.Document.ForEveryReadonlyMember((member) => AddWholeCanvasToMaskPreview(member.GuidValue));
     }
 
-    private void AddWholeArea(AffectedArea area)
+    private AffectedArea AddWholeArea(AffectedArea area)
     {
         VecI size = new(
             (int)Math.Ceiling(tracker.Document.Size.X / (float)ChunkyImage.FullChunkSize),
@@ -236,5 +237,6 @@ internal class AffectedAreasGatherer
             }
         }
         area.GlobalArea = new RectI(VecI.Zero, tracker.Document.Size);
+        return area;
     }
 }
