@@ -122,7 +122,6 @@ internal class CanvasUpdater
             foreach (var (res, chunks) in chunksToRerender)
             {
                 affectedAndNonRerenderedChunks[res].UnionWith(chunkGathererAffectedArea.Chunks);
-                nonRerenderedChunksAffectedBeforeLastRerenderDelayed[res].UnionWith(chunkGathererAffectedArea.Chunks);
             }
         }
 
@@ -141,6 +140,7 @@ internal class CanvasUpdater
         foreach (var (res, stored) in affectedAndNonRerenderedChunks)
         {
             HashSet<VecI> storedCopy = new HashSet<VecI>(stored);
+            storedCopy.IntersectWith(chunksToRerender[res]);
             if (storedCopy.Count > 0)
             {
                 updatingStoredChunks = true;
@@ -176,9 +176,13 @@ internal class CanvasUpdater
             foreach (var chunkPos in chunks)
             {
                 RenderChunk(chunkPos, screenSurface, resolution, globalClippingRectangle, globalScaledClippingRectangle);
+                RectI chunkRect = new(chunkPos * chunkSize, new(chunkSize, chunkSize));
+                if (globalScaledClippingRectangle is RectI rect)
+                    chunkRect = chunkRect.Intersect(rect);
+
                 infos.Add(new DirtyRect_RenderInfo(
-                    chunkPos * chunkSize,
-                    new(chunkSize, chunkSize),
+                    chunkRect.Pos,
+                    chunkRect.Size,
                     resolution
                 ));
             }
