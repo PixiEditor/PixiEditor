@@ -62,12 +62,12 @@ internal class CanvasUpdater
 
     private Dictionary<ChunkResolution, HashSet<VecI>> FindChunksVisibleOnViewports(bool onDelayed, bool all)
     {
-        Dictionary<ChunkResolution, HashSet<VecI>> chunks = new() 
-        { 
-            [ChunkResolution.Full] = new(), 
-            [ChunkResolution.Half] = new(), 
-            [ChunkResolution.Quarter] = new(), 
-            [ChunkResolution.Eighth] = new() 
+        Dictionary<ChunkResolution, HashSet<VecI>> chunks = new()
+        {
+            [ChunkResolution.Full] = new(),
+            [ChunkResolution.Half] = new(),
+            [ChunkResolution.Quarter] = new(),
+            [ChunkResolution.Eighth] = new()
         };
         foreach (var (_, viewport) in internals.State.Viewports)
         {
@@ -115,8 +115,17 @@ internal class CanvasUpdater
         return chunksToRerender;
     }
 
-    private void UpdateAffectedNonRerenderedChunks(Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender)
+    private void UpdateAffectedNonRerenderedChunks(Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender, AffectedArea chunkGathererAffectedArea)
     {
+        if (chunkGathererAffectedArea.Chunks.Count > 0)
+        {
+            foreach (var (res, chunks) in chunksToRerender)
+            {
+                affectedAndNonRerenderedChunks[res].UnionWith(chunkGathererAffectedArea.Chunks);
+                nonRerenderedChunksAffectedBeforeLastRerenderDelayed[res].UnionWith(chunkGathererAffectedArea.Chunks);
+            }
+        }
+
         foreach (var (res, chunks) in chunksToRerender)
         {
             affectedAndNonRerenderedChunks[res].ExceptWith(chunks);
@@ -126,16 +135,12 @@ internal class CanvasUpdater
 
     private List<IRenderInfo> Render(AffectedAreasGatherer chunkGatherer, bool rerenderDelayed)
     {
-        if (chunkGatherer.MainImageArea.GlobalArea is null)
-            return new();
-
         Dictionary<ChunkResolution, HashSet<VecI>> chunksToRerender = FindGlobalChunksToRerender(chunkGatherer, rerenderDelayed);
 
         bool updatingStoredChunks = false;
         foreach (var (res, stored) in affectedAndNonRerenderedChunks)
         {
             HashSet<VecI> storedCopy = new HashSet<VecI>(stored);
-            storedCopy.IntersectWith(chunksToRerender[res]);
             if (storedCopy.Count > 0)
             {
                 updatingStoredChunks = true;
@@ -143,8 +148,16 @@ internal class CanvasUpdater
             }
         }
 
-        UpdateAffectedNonRerenderedChunks(chunksToRerender);
+        bool anythingToUpdate = false;
+        foreach (var (_, chunks) in chunksToRerender)
+        {
+            anythingToUpdate |= chunks.Count > 0;
+        }
+        if (!anythingToUpdate)
+            return new();
 
+        UpdateAffectedNonRerenderedChunks(chunksToRerender, chunkGatherer.MainImageArea);
+        
         List<IRenderInfo> infos = new();
         UpdateMainImage(chunksToRerender, updatingStoredChunks ? null : chunkGatherer.MainImageArea.GlobalArea.Value, infos);
         return infos;
@@ -155,10 +168,14 @@ internal class CanvasUpdater
         foreach (var (resolution, chunks) in chunksToRerender)
         {
             int chunkSize = resolution.PixelSize();
+            RectI? globalScaledClippingRectangle = null;
+            if (globalClippingRectangle is not null)
+                globalScaledClippingRectangle = (RectI?)((RectI)globalClippingRectangle).Scale(resolution.Multiplier()).RoundOutwards();
+
             DrawingSurface screenSurface = doc.Surfaces[resolution];
             foreach (var chunkPos in chunks)
             {
-                RenderChunk(chunkPos, screenSurface, resolution, globalClippingRectangle);
+                RenderChunk(chunkPos, screenSurface, resolution, globalClippingRectangle, globalScaledClippingRectangle);
                 infos.Add(new DirtyRect_RenderInfo(
                     chunkPos * chunkSize,
                     new(chunkSize, chunkSize),
@@ -168,12 +185,12 @@ internal class CanvasUpdater
         }
     }
 
-    private void RenderChunk(VecI chunkPos, DrawingSurface screenSurface, ChunkResolution resolution, RectI? globalClippingRectangle)
+    private void RenderChunk(VecI chunkPos, DrawingSurface screenSurface, ChunkResolution resolution, RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
     {
-        if (globalClippingRectangle is not null)
+        if (globalScaledClippingRectangle is not null)
         {
             screenSurface.Canvas.Save();
-            screenSurface.Canvas.ClipRect((RectD)globalClippingRectangle);
+            screenSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
         }
 
         ChunkRenderer.MergeWholeStructure(chunkPos, resolution, internals.Tracker.Document.StructureRoot, globalClippingRectangle).Switch(
@@ -188,7 +205,7 @@ internal class CanvasUpdater
                 screenSurface.Canvas.DrawRect(pos.X, pos.Y, resolution.PixelSize(), resolution.PixelSize(), ClearPaint);
             });
 
-        if (globalClippingRectangle is not null)
+        if (globalScaledClippingRectangle is not null)
             screenSurface.Canvas.Restore();
     }
 }

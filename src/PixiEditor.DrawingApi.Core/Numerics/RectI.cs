@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
@@ -190,6 +191,50 @@ public struct RectI : IEquatable<RectI>
             Right = right + amount,
             Top = top - amount,
             Bottom = bottom + amount,
+        };
+    }
+
+    public readonly RectD Scale(double multiplier)
+    {
+        return new RectD()
+        {
+            Left = left * multiplier,
+            Right = right * multiplier,
+            Top = top * multiplier,
+            Bottom = bottom * multiplier
+        };
+    }
+
+    public readonly RectD Scale(double multiplier, VecD relativeTo)
+    {
+        return new RectD()
+        {
+            Left = (left - relativeTo.X) * multiplier + relativeTo.X,
+            Right = (right - relativeTo.X) * multiplier + relativeTo.X,
+            Top = (top - relativeTo.Y) * multiplier + relativeTo.Y,
+            Bottom = (bottom - relativeTo.Y) * multiplier + relativeTo.Y
+        };
+    }
+
+    public readonly RectI Translate(VecI delta)
+    {
+        return new RectI()
+        {
+            Left = left + delta.X,
+            Right = right + delta.X,
+            Top = top + delta.Y,
+            Bottom = bottom + delta.Y
+        };
+    }
+
+    public readonly RectD Translate(VecD delta)
+    {
+        return new RectD()
+        {
+            Left = left + delta.X,
+            Right = right + delta.X,
+            Top = top + delta.Y,
+            Bottom = bottom + delta.Y
         };
     }
 

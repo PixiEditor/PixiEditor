@@ -12,15 +12,12 @@ public static class ChunkRenderer
 
     private static RectI? TransfromClipRect(RectI? globalClippingRect, ChunkResolution resolution, VecI chunkPos)
     {
-        if (globalClippingRect is null)
+        if (globalClippingRect is not RectI rect)
             return null;
+
         double multiplier = resolution.Multiplier();
         VecI pixelChunkPos = chunkPos * (int)(ChunkyImage.FullChunkSize * multiplier);
-        return new()
-        {
-            TopLeft = (VecI)(globalClippingRect.Value.TopLeft * multiplier).Floor() - pixelChunkPos,
-            BottomRight = (VecI)(globalClippingRect.Value.BottomRight * multiplier).Floor() - pixelChunkPos
-        };
+        return (RectI?)rect.Scale(multiplier).Translate(-pixelChunkPos).RoundOutwards();
     }
 
     public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root, RectI? globalClippingRect = null)
