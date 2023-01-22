@@ -119,7 +119,7 @@ internal class DocumentOperationsModule
 
         foreach (var imageWithName in images)
         {
-            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, imageWithName.name, true);
+            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, imageWithName.name);
             DrawImage(imageWithName.image, new ShapeCorners(new RectD(VecD.Zero, imageWithName.image.Size)), layerGuid, true, false, false);
         }
         Internals.ActionAccumulator.AddFinishedActions();
@@ -131,11 +131,11 @@ internal class DocumentOperationsModule
     /// <param name="type">The type of the member</param>
     /// <param name="name">The name of the member</param>
     /// <returns>The Guid of the new structure member</returns>
-    public Guid? CreateStructureMember(StructureMemberType type, string? name = null)
+    public Guid? CreateStructureMember(StructureMemberType type, string? name = null, bool finish = true)
     {
         if (Internals.ChangeController.IsChangeActive)
             return null;
-        return Internals.StructureHelper.CreateNewStructureMember(type, name, true);
+        return Internals.StructureHelper.CreateNewStructureMember(type, name, finish);
     }
 
     /// <summary>
@@ -359,6 +359,18 @@ internal class DocumentOperationsModule
         if (Document.SelectedStructureMember is null)
             return;
         Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos));
+    }
+
+    /// <summary>
+    /// Starts a image transform and pastes the transformed image on the currently selected layer
+    /// </summary>
+    /// <param name="image">The image to paste</param>
+    /// <param name="startPos">Where the transform should start</param>
+    public void PasteImageWithTransform(Surface image, VecI startPos, Guid memberGuid, bool drawOnMask)
+    {
+        if (Document.SelectedStructureMember is null)
+            return;
+        Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos, memberGuid, drawOnMask));
     }
 
     /// <summary>

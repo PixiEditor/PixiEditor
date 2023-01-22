@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Helpers;
@@ -74,9 +75,19 @@ internal static class ClipboardController
         if (images.Count == 0)
             return false;
 
-        if (images.Count == 1 && !pasteAsNew)
+        if (images.Count == 1)
         {
-            document.Operations.PasteImageWithTransform(images[0].image, VecI.Zero);
+            if (pasteAsNew)
+            {
+                var guid = document.Operations.CreateStructureMember(StructureMemberType.Layer, "New Layer", false).Value;
+                document.Operations.SetSelectedMember(guid);
+                document.Operations.PasteImageWithTransform(images[0].image, VecI.Zero, guid, false);
+            }
+            else
+            {
+                document.Operations.PasteImageWithTransform(images[0].image, VecI.Zero);
+            }
+            
             return true;
         }
 

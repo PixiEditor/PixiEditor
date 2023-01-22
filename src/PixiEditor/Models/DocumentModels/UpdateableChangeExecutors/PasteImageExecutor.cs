@@ -11,7 +11,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
     private readonly Surface image;
     private readonly VecI pos;
     private bool drawOnMask;
-    private Guid memberGuid;
+    private Guid? memberGuid;
 
     public PasteImageExecutor(Surface image, VecI pos)
     {
@@ -19,22 +19,36 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
         this.pos = pos;
     }
 
+    public PasteImageExecutor(Surface image, VecI pos, Guid memberGuid, bool drawOnMask)
+    {
+        this.image = image;
+        this.pos = pos;
+        this.memberGuid = memberGuid;
+        this.drawOnMask = drawOnMask;
+    }
+    
     public override ExecutionState Start()
     {
-        var member = document!.SelectedStructureMember;
+        if (memberGuid == null)
+        {
+            var member = document!.SelectedStructureMember;
 
-        if (member is null)
-            return ExecutionState.Error;
-        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
-        if (drawOnMask && !member.HasMaskBindable)
-            return ExecutionState.Error;
-        if (!drawOnMask && member is not LayerViewModel)
-            return ExecutionState.Error;
-
-        memberGuid = member.GuidValue;
+            if (member is null)
+                return ExecutionState.Error;
+            drawOnMask = member is not LayerViewModel layer || layer.ShouldDrawOnMask;
+            
+            switch (drawOnMask)
+            {
+                case true when !member.HasMaskBindable:
+                case false when member is not LayerViewModel:
+                    return ExecutionState.Error;
+            }
+            
+            memberGuid = member.GuidValue;
+        }
 
         ShapeCorners corners = new(new RectD(pos, image.Size));
-        internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid, false, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask));
         document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, true);
 
         return ExecutionState.Success;
@@ -42,7 +56,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
 
     public override void OnTransformMoved(ShapeCorners corners)
     {
-        internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid, false, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask));
     }
 
     public override void OnTransformApplied()
