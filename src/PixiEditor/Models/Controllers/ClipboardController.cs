@@ -98,7 +98,7 @@ internal static class ClipboardController
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static bool TryPasteFromClipboard(DocumentViewModel document) =>
+    public static bool TryPasteFromClipboard(DocumentViewModel document, bool pasteAsNew = false) =>
         TryPaste(document, ClipboardHelper.TryGetDataObject());
 
     public static List<(string? name, Surface image)> GetImagesFromClipboard() => GetImage(ClipboardHelper.TryGetDataObject());

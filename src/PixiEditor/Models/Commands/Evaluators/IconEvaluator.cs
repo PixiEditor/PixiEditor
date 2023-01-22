@@ -24,6 +24,10 @@ internal class IconEvaluator : Evaluator<ImageSource>
             {
                 path = command.IconPath[1..];
             }
+            else if (command.IconPath.StartsWith('$'))
+            {
+                path = $"Images/Commands/{command.IconPath[1..].Replace('.', '/')}.png";
+            }
             else
             {
                 path = $"Images/{command.IconPath}";

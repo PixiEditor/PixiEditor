@@ -27,14 +27,15 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         doc.Operations.DeleteSelectedPixels(true);
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Paste", "Paste", "Paste from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Control)]
-    public void Paste()
+    [Command.Basic("PixiEditor.Clipboard.Paste", false, "Paste", "Paste from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "Paste as new layer", "Paste from clipboard as new layer", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "$PixiEditor.Clipboard.Paste", Key = Key.V, Modifiers = ModifierKeys.Control)]
+    public void Paste(bool pasteAsNewLayer)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null) 
             return;
-        ClipboardController.TryPasteFromClipboard(Owner.DocumentManagerSubViewModel.ActiveDocument);
+        ClipboardController.TryPasteFromClipboard(Owner.DocumentManagerSubViewModel.ActiveDocument, pasteAsNewLayer);
     }
-
+    
     [Command.Basic("PixiEditor.Clipboard.PasteColor", false, "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
     [Command.Basic("PixiEditor.Clipboard.PasteColorAsSecondary", true, "Paste color as secondary", "Paste color as secondary from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
     public void PasteColor(bool secondary)
