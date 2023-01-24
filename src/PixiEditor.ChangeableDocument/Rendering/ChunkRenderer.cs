@@ -10,7 +10,7 @@ public static class ChunkRenderer
 {
     private static readonly Paint ClippingPaint = new Paint() { BlendMode = BlendMode.DstIn };
 
-    private static RectI? TransfromClipRect(RectI? globalClippingRect, ChunkResolution resolution, VecI chunkPos)
+    private static RectI? TransformClipRect(RectI? globalClippingRect, ChunkResolution resolution, VecI chunkPos)
     {
         if (globalClippingRect is not RectI rect)
             return null;
@@ -25,7 +25,7 @@ public static class ChunkRenderer
         using RenderingContext context = new();
         try
         {
-            RectI? transformedClippingRect = TransfromClipRect(globalClippingRect, resolution, chunkPos);
+            RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
             return MergeFolderContents(context, chunkPos, resolution, root, new All(), transformedClippingRect);
         }
         catch (ObjectDisposedException)
@@ -39,7 +39,7 @@ public static class ChunkRenderer
         using RenderingContext context = new();
         try
         {
-            RectI? transformedClippingRect = TransfromClipRect(globalClippingRect, resolution, chunkPos);
+            RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
             return MergeFolderContents(context, chunkPos, resolution, root, members, transformedClippingRect);
         }
         catch (ObjectDisposedException)
