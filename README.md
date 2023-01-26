@@ -25,20 +25,22 @@ Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we w
 ![](https://user-images.githubusercontent.com/45312141/146670495-ae521a18-a89e-4e94-9317-6838b51407fa.png)
 
 
+### Fast
 
-### Lightweight
-
-The program weighs only 9 MB! Already have .NET 6 installed? Download installer and enjoy saved space.
+PixiEditor is fast, drawing feels smooth on any canvas size, we've developed original chunk-based system and adaptive rendering to maximize pixels processing time.
 
 ### Active development
 
 PixiEditor started in 2018 and it's been actively developed since. We continuously improve code quality to ensure the best experience and performance.
 
 
-
 ## Installation
 
 <a href='//www.microsoft.com/store/apps/9NDDRHS8PBRN?cid=storebadge&ocid=badge'><img src='https://developer.microsoft.com/store/badges/images/English_get-it-from-MS.png' alt='Microsoft Store badge' width="184"/></a>
+
+Wishlist on Steam now!
+
+![wishlist_steam](https://user-images.githubusercontent.com/25402427/214952291-d81a4d79-bb75-44f2-bd24-10d7c3404997.png)
 
 **Or**
 
@@ -52,9 +54,9 @@ Follow these instructions to get PixiEditor working on your machine.
 
 ## Featured content
 
-### PixiEditor 0.1.4 Trailer
+### PixiEditor 1.0 Trailer
 
-[![Trailer](https://img.youtube.com/vi/QKnXBUY0Pqk/0.jpg)](https://www.youtube.com/watch?v=QKnXBUY0Pqk)
+[![Trailer](https://img.youtube.com/vi/UK8HnrAQhCo/0.jpg)](https://www.youtube.com/watch?v=UK8HnrAQhCo)
 
 ### Pixel Art Timelapse - "Bog Landscape" | PixiEditor
 
@@ -81,15 +83,15 @@ Struggling with something? You can find support in a few places:
 
 ### Software Requirements
 
-* .NET 5
+* .NET 7
 
-* Visual Studio
+* latest Visual Studio 2022 (in order to code generators to work)
 
 ### Instructions
 
 1. Clone Repository
 
-2. Open PixiEditor/PixiEditor/PixiEditor.sln in Visual Studio
+2. Open PixiEditor/src/PixiEditor/PixiEditor.sln in Visual Studio
 
 3. Build solution
 
