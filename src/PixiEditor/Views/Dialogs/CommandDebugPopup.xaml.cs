@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
@@ -108,6 +109,16 @@ public partial class CommandDebugPopup : Window
         void Warning(string text) => inlines.Add(new Run(text) { Foreground = warningBrush });
 
         void Error(string text) => inlines.Add(new Run(text) { Foreground = errorBrush });
+    }
+
+    private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        e.CanExecute = true;
+    }
+
+    private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
+    {
+        SystemCommands.CloseWindow(this);
     }
 
     internal class CommandDebug
