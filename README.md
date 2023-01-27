@@ -27,7 +27,7 @@ Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we w
 
 ### Fast
 
-PixiEditor is fast, drawing feels smooth on any canvas size, we've developed original chunk-based system and adaptive rendering to maximize pixels processing time.
+PixiEditor is fast, drawing feels smooth on any canvas size, we've developed original chunk-based system and adaptive rendering to minimize pixels processing time.
 
 ### Active development
 
