@@ -368,8 +368,6 @@ internal class DocumentOperationsModule
     /// <param name="startPos">Where the transform should start</param>
     public void PasteImageWithTransform(Surface image, VecI startPos, Guid memberGuid, bool drawOnMask)
     {
-        if (Document.SelectedStructureMember is null)
-            return;
         Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos, memberGuid, drawOnMask));
     }
 
