@@ -130,7 +130,7 @@ internal class DocumentOperationsModule
     /// </summary>
     /// <param name="type">The type of the member</param>
     /// <param name="name">The name of the member</param>
-    /// <returns>The Guid of the new structure member</returns>
+    /// <returns>The Guid of the new structure member or null if there is already an active change</returns>
     public Guid? CreateStructureMember(StructureMemberType type, string? name = null, bool finish = true)
     {
         if (Internals.ChangeController.IsChangeActive)

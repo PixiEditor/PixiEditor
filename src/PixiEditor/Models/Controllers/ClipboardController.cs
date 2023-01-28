@@ -79,9 +79,15 @@ internal static class ClipboardController
         {
             if (pasteAsNew)
             {
-                var guid = document.Operations.CreateStructureMember(StructureMemberType.Layer, "New Layer", false).Value;
-                document.Operations.SetSelectedMember(guid);
-                document.Operations.PasteImageWithTransform(images[0].image, VecI.Zero, guid, false);
+                var guid = document.Operations.CreateStructureMember(StructureMemberType.Layer, "New Layer", false);
+
+                if (guid == null)
+                {
+                    return false;
+                }
+                
+                document.Operations.SetSelectedMember(guid.Value);
+                document.Operations.PasteImageWithTransform(images[0].image, VecI.Zero, guid.Value, false);
             }
             else
             {
