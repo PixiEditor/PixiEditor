@@ -93,7 +93,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
         var chunks = OperationHelper.FindChunksTouchingEllipse
             (location.Center, location.Width / 2.0, location.Height / 2.0, ChunkyImage.FullChunkSize);
@@ -102,7 +102,7 @@ internal class EllipseOperation : IMirroredDrawOperation
             chunks.ExceptWith(OperationHelper.FindChunksFullyInsideEllipse
                 (location.Center, location.Width / 2.0 - strokeWidth * 2, location.Height / 2.0 - strokeWidth * 2, ChunkyImage.FullChunkSize));
         }
-        return chunks;
+        return new AffectedArea(chunks, location);
     }
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)

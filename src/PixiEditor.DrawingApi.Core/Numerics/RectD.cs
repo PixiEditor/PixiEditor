@@ -206,6 +206,39 @@ public struct RectD : IEquatable<RectD>
         };
     }
 
+    public readonly RectD Scale(double multiplier)
+    {
+        return new RectD()
+        {
+            Left = left * multiplier,
+            Right = right * multiplier,
+            Top = top * multiplier,
+            Bottom = bottom * multiplier
+        };
+    }
+
+    public readonly RectD Scale(double multiplier, VecD relativeTo)
+    {
+        return new RectD()
+        {
+            Left = (left - relativeTo.X) * multiplier + relativeTo.X,
+            Right = (right - relativeTo.X) * multiplier + relativeTo.X,
+            Top = (top - relativeTo.Y) * multiplier + relativeTo.Y,
+            Bottom = (bottom - relativeTo.Y) * multiplier + relativeTo.Y
+        };
+    }
+
+    public readonly RectD Translate(VecD delta)
+    {
+        return new RectD()
+        {
+            Left = left + delta.X,
+            Right = right + delta.X,
+            Top = top + delta.Y,
+            Bottom = bottom + delta.Y
+        };
+    }
+
     /// <summary>
     /// Fits passed rectangle into this rectangle while maintaining aspect ratio
     /// </summary>

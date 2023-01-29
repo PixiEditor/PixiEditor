@@ -38,10 +38,10 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
         RectI bounds = RectI.FromTwoPoints(from, to).Inflate((int)Math.Ceiling(paint.StrokeWidth));
-        return OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize), bounds);
     }
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)

@@ -29,9 +29,9 @@ internal class ClearPathOperation : IMirroredDrawOperation
         chunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return OperationHelper.FindChunksTouchingRectangle(pathTightBounds, ChunkPool.FullChunkSize);
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(pathTightBounds, ChunkPool.FullChunkSize), pathTightBounds);
     }
     public void Dispose()
     {

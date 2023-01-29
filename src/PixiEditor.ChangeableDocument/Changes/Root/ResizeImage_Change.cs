@@ -91,15 +91,15 @@ internal class ResizeImage_Change : Change
             if (member is Layer layer)
             {
                 ScaleChunkyImage(layer.LayerImage);
-                var affected = layer.LayerImage.FindAffectedChunks();
-                savedChunks[layer.GuidValue] = new CommittedChunkStorage(layer.LayerImage, affected);
+                var affected = layer.LayerImage.FindAffectedArea();
+                savedChunks[layer.GuidValue] = new CommittedChunkStorage(layer.LayerImage, affected.Chunks);
                 layer.LayerImage.CommitChanges();
             }
             if (member.Mask is not null)
             {
                 ScaleChunkyImage(member.Mask);
-                var affected = member.Mask.FindAffectedChunks();
-                savedMaskChunks[member.GuidValue] = new CommittedChunkStorage(member.Mask, affected);
+                var affected = member.Mask.FindAffectedArea();
+                savedMaskChunks[member.GuidValue] = new CommittedChunkStorage(member.Mask, affected.Chunks);
                 member.Mask.CommitChanges();
             }
         });

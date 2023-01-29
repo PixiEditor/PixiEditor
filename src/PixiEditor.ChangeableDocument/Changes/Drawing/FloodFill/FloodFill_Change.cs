@@ -52,20 +52,20 @@ internal class FloodFill_Change : Change
         {
             image.EnqueueDrawImage(chunkPos * ChunkyImage.FullChunkSize, chunk.Surface, null, false);
         }
-        var affectedChunks = image.FindAffectedChunks();
-        chunkStorage = new CommittedChunkStorage(image, affectedChunks);
+        var affArea = image.FindAffectedArea();
+        chunkStorage = new CommittedChunkStorage(image, affArea.Chunks);
         image.CommitChanges();
         foreach (var chunk in floodFilledChunks.Values)
             chunk.Dispose();
 
         ignoreInUndo = false;
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref chunkStorage);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
+        var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref chunkStorage);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
     }
 
     public override void Dispose()

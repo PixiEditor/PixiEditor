@@ -102,9 +102,9 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         globalMatrix = OperationHelper.CreateMatrixFromPoints(corners, originalTightBounds.Size);
     }
 
-    private HashSet<VecI> DrawImage(Document doc, Guid memberGuid, Surface image, VecI originalPos, ChunkyImage memberImage)
+    private AffectedArea DrawImage(Document doc, Guid memberGuid, Surface image, VecI originalPos, ChunkyImage memberImage)
     {
-        var prevChunks = memberImage.FindAffectedChunks();
+        var prevAffArea = memberImage.FindAffectedArea();
 
         memberImage.CancelChanges();
 
@@ -115,9 +115,9 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         memberImage.EnqueueDrawImage(localMatrix, image, RegularPaint, false);
         hasEnqueudImages = true;
 
-        var affectedChunks = memberImage.FindAffectedChunks();
-        affectedChunks.UnionWith(prevChunks);
-        return affectedChunks;
+        var affectedArea = memberImage.FindAffectedArea();
+        affectedArea.UnionWith(prevAffArea);
+        return affectedArea;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -130,10 +130,10 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         foreach (var (guid, (image, pos)) in images!)
         {
             ChunkyImage memberImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask);
-            var chunks = DrawImage(target, guid, image, pos, memberImage);
-            savedChunks[guid] = new(memberImage, memberImage.FindAffectedChunks());
+            var area = DrawImage(target, guid, image, pos, memberImage);
+            savedChunks[guid] = new(memberImage, memberImage.FindAffectedArea().Chunks);
             memberImage.CommitChanges();
-            infos.Add(DrawingChangeHelper.CreateChunkChangeInfo(guid, chunks, drawOnMask).AsT1);
+            infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, area, drawOnMask).AsT1);
         }
 
         infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalTightBounds, corners));
@@ -149,7 +149,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         foreach (var (guid, (image, pos)) in images!)
         {
             ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask);
-            infos.Add(DrawingChangeHelper.CreateChunkChangeInfo(guid, DrawImage(target, guid, image, pos, targetImage), drawOnMask).AsT1);
+            infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, DrawImage(target, guid, image, pos, targetImage), drawOnMask).AsT1);
         }
         infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalTightBounds, corners));
         return infos;
@@ -162,7 +162,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         {
             var storageCopy = storage;
             var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, guid, drawOnMask, ref storageCopy);
-            infos.Add(DrawingChangeHelper.CreateChunkChangeInfo(guid, chunks, drawOnMask).AsT1);
+            infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, chunks, drawOnMask).AsT1);
         }
 
         (var toDispose, target.Selection.SelectionPath) = (target.Selection.SelectionPath, new VectorPath(originalPath!));

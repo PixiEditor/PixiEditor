@@ -43,8 +43,10 @@ internal class MagicWandVisualizer
             surface.Canvas.Clear(Colors.White);
             if (previousImage != null)
             {
-                surface.Canvas.DrawImage(previousImage,
-                    RectD.Create(VecI.Zero, new VecI(previousImage.Width, previousImage.Height)), replacementPaint);
+                surface.Canvas.DrawImage(
+                    previousImage,
+                    RectD.Create(VecI.Zero, new VecI(previousImage.Width, previousImage.Height)), 
+                    replacementPaint);
             }
 
             var scaledStart = new VecI(step.Start.X * (width / originalWidth), step.Start.Y * (height / originalHeight));

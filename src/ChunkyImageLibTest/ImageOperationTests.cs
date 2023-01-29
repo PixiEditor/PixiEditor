@@ -13,7 +13,7 @@ public class ImageOperationTests
     {
         using Surface testImage = new Surface((ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize));
         using ImageOperation operation = new((ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize), testImage);
-        var chunks = operation.FindAffectedChunks(new(ChunkyImage.FullChunkSize));
+        var chunks = operation.FindAffectedArea(new(ChunkyImage.FullChunkSize)).Chunks;
         Assert.Equal(new HashSet<VecI>() { new(1, 1) }, chunks);
     }
 }

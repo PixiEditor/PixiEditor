@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace ChunkyImageLib.Operations;
 
@@ -24,9 +25,9 @@ internal class ClearRegionOperation : IMirroredDrawOperation
         chunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return OperationHelper.FindChunksTouchingRectangle(rect, ChunkPool.FullChunkSize);
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(rect, ChunkPool.FullChunkSize), rect);
     }
     public void Dispose() { }
 

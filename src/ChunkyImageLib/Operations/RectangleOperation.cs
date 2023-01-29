@@ -50,12 +50,15 @@ internal class RectangleOperation : IMirroredDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
         if (Math.Abs(Data.Size.X) < 1 || Math.Abs(Data.Size.Y) < 1 || (Data.StrokeColor.A == 0 && Data.FillColor.A == 0))
             return new();
+
+        RectI affRect = (RectI)new ShapeCorners(Data.Center, Data.Size).AsRotated(Data.Angle, Data.Center).AABBBounds.RoundOutwards();
+
         if (Data.FillColor.A != 0 || Math.Abs(Data.Size.X) == 1 || Math.Abs(Data.Size.Y) == 1)
-            return OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle, ChunkPool.FullChunkSize);
+            return new (OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle, ChunkPool.FullChunkSize), affRect);
 
         var chunks = OperationHelper.FindChunksTouchingRectangle(Data.Center, Data.Size.Abs(), Data.Angle, ChunkPool.FullChunkSize);
         chunks.ExceptWith(
@@ -64,7 +67,7 @@ internal class RectangleOperation : IMirroredDrawOperation
                 Data.Size.Abs() - new VecD(Data.StrokeWidth * 2, Data.StrokeWidth * 2),
                 Data.Angle,
                 ChunkPool.FullChunkSize));
-        return chunks;
+        return new (chunks, affRect);
     }
 
     public void Dispose() { }

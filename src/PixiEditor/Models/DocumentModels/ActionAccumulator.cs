@@ -15,24 +15,22 @@ namespace PixiEditor.Models.DocumentModels;
 #nullable enable
 internal class ActionAccumulator
 {
-    private const long minMsPerUpdate = 1000 / 60;
-    private Stopwatch updateStopwatch = Stopwatch.StartNew();
-    private long lastUpdateMs = 0;
-
     private bool executing = false;
 
     private List<IAction> queuedActions = new();
     private DocumentViewModel document;
     private DocumentInternalParts internals;
 
-    private WriteableBitmapUpdater renderer;
+    private CanvasUpdater canvasUpdater;
+    private MemberPreviewUpdater previewUpdater;
 
     public ActionAccumulator(DocumentViewModel doc, DocumentInternalParts internals)
     {
         this.document = doc;
         this.internals = internals;
 
-        renderer = new(doc, internals);
+        canvasUpdater = new(doc, internals);
+        previewUpdater = new(doc, internals);
     }
 
     public void AddFinishedActions(params IAction[] actions)
@@ -63,13 +61,6 @@ internal class ActionAccumulator
 
         while (queuedActions.Count > 0)
         {
-            // wait to limit update rate
-            long currentMillis = updateStopwatch.ElapsedMilliseconds;
-            long waitDuration = minMsPerUpdate - (currentMillis - lastUpdateMs);
-            if (waitDuration > 0)
-                await Task.Delay((int)waitDuration);
-            lastUpdateMs = updateStopwatch.ElapsedMilliseconds;
-
             // select actions to be processed
             var toExecute = queuedActions;
             queuedActions = new List<IAction>();
@@ -111,9 +102,11 @@ internal class ActionAccumulator
             // Also, there is a bug report for this on github https://github.com/dotnet/wpf/issues/5816
 
             // update the contents of the bitmaps
-            var affectedChunks = new AffectedChunkGatherer(internals.Tracker, optimizedChanges);
-            var renderResult = await renderer.UpdateGatheredChunks(affectedChunks, undoBoundaryPassed);
-            
+            var affectedAreas = new AffectedAreasGatherer(internals.Tracker, optimizedChanges);
+            List<IRenderInfo> renderResult = new();
+            renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+            renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+
             // lock bitmaps
             foreach (var (_, bitmap) in document.LazyBitmaps)
             {

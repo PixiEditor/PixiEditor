@@ -46,9 +46,10 @@ internal class ReplaceColorOperation : IDrawOperation
         }
     }
 
-    HashSet<VecI> IDrawOperation.FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return OperationHelper.FindChunksTouchingRectangle(new RectI(VecI.Zero, imageSize), ChunkyImage.FullChunkSize);
+        RectI rect = new(VecI.Zero, imageSize);
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(rect, ChunkyImage.FullChunkSize), rect);
     }
 
     public void Dispose()

@@ -36,9 +36,9 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         this.corners = corners;
     }
 
-    private HashSet<VecI> DrawImage(Document target, ChunkyImage targetImage)
+    private AffectedArea DrawImage(Document target, ChunkyImage targetImage)
     {
-        var prevChunks = targetImage.FindAffectedChunks();
+        var prevAffArea = targetImage.FindAffectedArea();
 
         targetImage.CancelChanges();
         if (!ignoreClipsSymmetriesEtc)
@@ -46,9 +46,9 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         targetImage.EnqueueDrawImage(corners, imageToPaste, RegularPaint, false);
         hasEnqueudImage = true;
 
-        var affectedChunks = targetImage.FindAffectedChunks();
-        affectedChunks.UnionWith(prevChunks);
-        return affectedChunks;
+        var affArea = targetImage.FindAffectedArea();
+        affArea.UnionWith(prevAffArea);
+        return affArea;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -56,23 +56,23 @@ internal class PasteImage_UpdateableChange : UpdateableChange
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
         var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
-        savedChunks = new(targetImage, targetImage.FindAffectedChunks());
+        savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks);
         targetImage.CommitChanges();
         hasEnqueudImage = false;
         ignoreInUndo = false;
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref savedChunks);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);
     }
 
     public override void Dispose()

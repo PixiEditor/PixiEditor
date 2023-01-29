@@ -91,6 +91,18 @@ public struct ShapeCorners
                 (BottomRight - BottomRight.Round()).TaxicabLength < epsilon;
         }
     }
+    public RectD AABBBounds
+    {
+        get
+        {
+            double minX = Math.Min(Math.Min(TopLeft.X, TopRight.X), Math.Min(BottomLeft.X, BottomRight.X));
+            double minY = Math.Min(Math.Min(TopLeft.Y, TopRight.Y), Math.Min(BottomLeft.Y, BottomRight.Y));
+            double maxX = Math.Max(Math.Max(TopLeft.X, TopRight.X), Math.Max(BottomLeft.X, BottomRight.X));
+            double maxY = Math.Max(Math.Max(TopLeft.Y, TopRight.Y), Math.Max(BottomLeft.Y, BottomRight.Y));
+            return RectD.FromTwoPoints(new VecD(minX, minY), new VecD(maxX, maxY));
+        }
+    }
+
     public bool IsPointInside(VecD point)
     {
         var top = TopLeft - TopRight;
@@ -128,5 +140,13 @@ public struct ShapeCorners
         BottomRight = BottomRight.ReflectX(verAxisX),
         TopLeft = TopLeft.ReflectX(verAxisX),
         TopRight = TopRight.ReflectX(verAxisX)
+    };
+
+    public ShapeCorners AsRotated(double angle, VecD around) => new ShapeCorners
+    {
+        BottomLeft = BottomLeft.Rotate(angle, around),
+        BottomRight = BottomRight.Rotate(angle, around),
+        TopLeft = TopLeft.Rotate(angle, around),
+        TopRight = TopRight.Rotate(angle, around)
     };
 }

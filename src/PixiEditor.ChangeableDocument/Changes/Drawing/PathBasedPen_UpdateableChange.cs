@@ -111,11 +111,11 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
             UpdateTempPathFinish();
 
             image.EnqueueDrawPath(tempPath, color, strokeWidth, StrokeCap.Round, BlendMode.Src);
-            var affChunks = image.FindAffectedChunks();
-            storedChunks = new CommittedChunkStorage(image, affChunks);
+            var affArea = image.FindAffectedArea();
+            storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
 
-            return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+            return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
         }
         else
         {
@@ -123,11 +123,11 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, image, memberGuid, drawOnMask);
 
             FastforwardEnqueueDrawPath(image);
-            var affChunks = image.FindAffectedChunks();
-            storedChunks = new CommittedChunkStorage(image, affChunks);
+            var affArea = image.FindAffectedArea();
+            storedChunks = new CommittedChunkStorage(image, affArea.Chunks);
             image.CommitChanges();
 
-            return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+            return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
         }
     }
 
@@ -138,15 +138,15 @@ internal class PathBasedPen_UpdateableChange : UpdateableChange
 
         int opCount = image.QueueLength;
         image.EnqueueDrawPath(tempPath, color, strokeWidth, StrokeCap.Round, BlendMode.Src);
-        var affChunks = image.FindAffectedChunks(opCount);
+        var affArea = image.FindAffectedArea(opCount);
 
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affected, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask);
     }
 
     public override void Dispose()

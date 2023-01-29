@@ -14,7 +14,7 @@ public interface IReadOnlyChunkyImage
     Color GetCommittedPixel(VecI posOnImage);
     Color GetMostUpToDatePixel(VecI posOnImage);
     bool LatestOrCommittedChunkExists(VecI chunkPos);
-    HashSet<VecI> FindAffectedChunks(int fromOperationIndex = 0);
+    AffectedArea FindAffectedArea(int fromOperationIndex = 0);
     HashSet<VecI> FindCommittedChunks();
     HashSet<VecI> FindAllChunks();
 }

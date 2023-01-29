@@ -21,8 +21,14 @@ public static class OperationHelper
     /// <summary>
     /// toModify[x,y].Alpha = Math.Min(toModify[x,y].Alpha, toGetAlphaFrom[x,y].Alpha)
     /// </summary>
-    public unsafe static void ClampAlpha(DrawingSurface toModify, DrawingSurface toGetAlphaFrom)
+    public static unsafe void ClampAlpha(DrawingSurface toModify, DrawingSurface toGetAlphaFrom, RectI? clippingRect = null)
     {
+        if (clippingRect is not null)
+        {
+            ClampAlphaWithClippingRect(toModify, toGetAlphaFrom, (RectI)clippingRect);
+            return;
+        }
+
         using Pixmap map = toModify.PeekPixels();
         using Pixmap refMap = toGetAlphaFrom.PeekPixels();
         long* pixels = (long*)map.GetPixels();
@@ -48,6 +54,44 @@ public static class OperationHelper
                 Half newG = (Half)(g * newA);
                 Half newB = (Half)(b * newA);
                 *offset = (*(ushort*)(&newR)) | ((long)*(ushort*)(&newG)) << 16 | ((long)*(ushort*)(&newB)) << 32 | ((long)*(ushort*)(refAlpha)) << 48;
+            }
+        }
+    }
+
+    private static unsafe void ClampAlphaWithClippingRect(DrawingSurface toModify, DrawingSurface toGetAlphaFrom, RectI clippingRect)
+    {
+        using Pixmap map = toModify.PeekPixels();
+        using Pixmap refMap = toGetAlphaFrom.PeekPixels();
+        long* pixels = (long*)map.GetPixels();
+        long* refPixels = (long*)refMap.GetPixels();
+        int size = map.Width * map.Height;
+        if (map.Width != refMap.Width || map.Height != refMap.Height)
+            throw new ArgumentException("The surfaces must have the same size");
+        RectI workingArea = clippingRect.Intersect(new RectI(0, 0, map.Width, map.Height));
+        if (workingArea.IsZeroOrNegativeArea)
+            return;
+
+        for (int y = workingArea.Top; y < workingArea.Bottom; y++)
+        {
+            for (int x = workingArea.Left; x < workingArea.Right; x++)
+            {
+                int position = x + y * map.Width;
+                long* offset = pixels + position;
+                long* refOffset = refPixels + position;
+                Half* alpha = (Half*)offset + 3;
+                Half* refAlpha = (Half*)refOffset + 3;
+                if (*refAlpha < *alpha)
+                {
+                    float a = (float)(*alpha);
+                    float r = (float)(*((Half*)offset)) / a;
+                    float g = (float)(*((Half*)offset + 1)) / a;
+                    float b = (float)(*((Half*)offset + 2)) / a;
+                    float newA = (float)(*refAlpha);
+                    Half newR = (Half)(r * newA);
+                    Half newG = (Half)(g * newA);
+                    Half newB = (Half)(b * newA);
+                    *offset = (*(ushort*)(&newR)) | ((long)*(ushort*)(&newG)) << 16 | ((long)*(ushort*)(&newB)) << 32 | ((long)*(ushort*)(refAlpha)) << 48;
+                }
             }
         }
     }

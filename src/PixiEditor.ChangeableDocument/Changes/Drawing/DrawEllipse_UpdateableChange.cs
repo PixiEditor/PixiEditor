@@ -35,9 +35,9 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
         return DrawingChangeHelper.IsValidForDrawing(target, memberGuid, drawOnMask);
     }
 
-    private HashSet<VecI> UpdateEllipse(Document target, ChunkyImage targetImage)
+    private AffectedArea UpdateEllipse(Document target, ChunkyImage targetImage)
     {
-        var oldAffectedChunks = targetImage.FindAffectedChunks();
+        var oldAffectedChunks = targetImage.FindAffectedArea();
 
         targetImage.CancelChanges();
 
@@ -47,10 +47,10 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
             targetImage.EnqueueDrawEllipse(location, strokeColor, fillColor, strokeWidth);
         }
 
-        var affectedChunks = targetImage.FindAffectedChunks();
-        affectedChunks.UnionWith(oldAffectedChunks);
+        var affectedArea = targetImage.FindAffectedArea();
+        affectedArea.UnionWith(oldAffectedChunks);
 
-        return affectedChunks;
+        return affectedArea;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -62,24 +62,24 @@ internal class DrawEllipse_UpdateableChange : UpdateableChange
         }
 
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        var chunks = UpdateEllipse(target, image);
-        storedChunks = new CommittedChunkStorage(image, image.FindAffectedChunks());
+        var area = UpdateEllipse(target, image);
+        storedChunks = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
         image.CommitChanges();
         ignoreInUndo = false;
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, area, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-        var chunks = UpdateEllipse(target, image);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, chunks, drawOnMask);
+        var area = UpdateEllipse(target, image);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, area, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
-        var changes = DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
+        var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref storedChunks);
+        var changes = DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
         return changes;
     }
 
