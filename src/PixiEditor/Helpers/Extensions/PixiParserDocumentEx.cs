@@ -42,6 +42,7 @@ internal static class PixiParserDocumentEx
             .WithOpacity(folder.Opacity)
             .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)folder.BlendMode)
             .WithChildren(x => BuildChildren(x, folder.Children))
+            .WithClipToBelow(folder.ClipToMemberBelow)
             .WithMask(folder.Mask, (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height, x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
 
         void BuildLayer(DocumentViewModelBuilder.LayerBuilder builder, ImageLayer layer)
@@ -52,6 +53,7 @@ internal static class PixiParserDocumentEx
                 .WithOpacity(layer.Opacity)
                 .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)layer.BlendMode)
                 .WithSize(layer.Width, layer.Height)
+                .WithClipToBelow(layer.ClipToMemberBelow)
                 .WithMask(layer.Mask,
                     (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height,
                         x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
