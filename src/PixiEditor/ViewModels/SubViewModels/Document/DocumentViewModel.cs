@@ -215,6 +215,8 @@ internal partial class DocumentViewModel : NotifyableObject
 
             if (!member.IsVisible)
                 acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.GuidValue));
+            
+            acc.AddActions(new StructureMemberBlendMode_Action(member.BlendMode, member.GuidValue));
 
             if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
             {

@@ -10,8 +10,7 @@ internal static class PixiParserDocumentEx
     {
         return DocumentViewModel.Build(b =>
         {
-            b
-                .WithSize(document.Width, document.Height)
+            b.WithSize(document.Width, document.Height)
                 .WithPalette(document.Palette, x => new Color(x.R, x.G, x.B, x.A))
                 .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B, x.A));
 
