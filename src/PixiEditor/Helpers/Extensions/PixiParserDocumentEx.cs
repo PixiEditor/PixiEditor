@@ -52,14 +52,16 @@ internal static class PixiParserDocumentEx
                 .WithVisibility(layer.Enabled)
                 .WithOpacity(layer.Opacity)
                 .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)layer.BlendMode)
-                .WithSize(layer.Width, layer.Height)
+                .WithRect(layer.Width, layer.Height, layer.OffsetX, layer.OffsetY)
                 .WithClipToBelow(layer.ClipToMemberBelow)
                 .WithMask(layer.Mask,
                     (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height,
                         x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
 
             if (layer.Width > 0 && layer.Height > 0)
-                builder.WithSurface(x => x.WithImage(layer.ImageBytes, layer.OffsetX, layer.OffsetY));
+            {
+                builder.WithSurface(x => x.WithImage(layer.ImageBytes, 0, 0));
+            }
         }
     }
 }

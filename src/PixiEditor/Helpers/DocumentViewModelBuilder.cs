@@ -240,7 +240,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         {
             if(buffer.IsEmpty) return this;
             
-            Surface.DrawingSurface.Canvas.DrawBitmap(Bitmap.Decode(buffer), 0, 0);
+            Surface.DrawingSurface.Canvas.DrawBitmap(Bitmap.Decode(buffer), x, y);
             return this;
         }
     }
