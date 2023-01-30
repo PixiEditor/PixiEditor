@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj" />
+    <ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
   </ItemGroup>
 
 </Project>
