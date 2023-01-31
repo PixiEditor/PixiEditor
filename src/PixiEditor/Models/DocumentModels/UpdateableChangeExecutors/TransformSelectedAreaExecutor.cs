@@ -45,6 +45,10 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
             new TransformSelectedArea_Action(membersToTransform!, corners, tool!.KeepOriginalImage, false));
     }
 
+    public override void OnMidChangeUndo() => document!.TransformViewModel.Undo();
+
+    public override void OnMidChangeRedo() => document!.TransformViewModel.Redo();
+
     public override void OnTransformApplied()
     {
         if (Type == ExecutorType.ToolLinked)

@@ -45,6 +45,10 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid, false, drawOnMask));
     }
 
+    public override void OnMidChangeUndo() => document!.TransformViewModel.Undo();
+
+    public override void OnMidChangeRedo() => document!.TransformViewModel.Redo();
+
     public override void OnTransformApplied()
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndPasteImage_Action());

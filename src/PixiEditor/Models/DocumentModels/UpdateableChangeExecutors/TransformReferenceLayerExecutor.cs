@@ -25,6 +25,10 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(corners));
     }
 
+    public override void OnMidChangeUndo() => document!.TransformViewModel.Undo();
+
+    public override void OnMidChangeRedo() => document!.TransformViewModel.Redo();
+
     public override void OnTransformApplied()
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndTransformReferenceLayer_Action());

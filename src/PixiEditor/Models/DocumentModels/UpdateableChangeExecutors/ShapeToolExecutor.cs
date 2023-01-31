@@ -114,6 +114,20 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         onEnded?.Invoke(this);
     }
 
+    public override void OnMidChangeUndo()
+    {
+        if (!transforming)
+            return;
+        document!.TransformViewModel.Undo();
+    }
+
+    public override void OnMidChangeRedo()
+    {
+        if (!transforming)
+            return;
+        document!.TransformViewModel.Redo();
+    }
+
     public override void OnPixelPositionChange(VecI pos)
     {
         if (transforming)

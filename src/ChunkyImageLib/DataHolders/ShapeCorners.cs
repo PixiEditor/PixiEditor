@@ -149,4 +149,23 @@ public struct ShapeCorners
         TopLeft = TopLeft.Rotate(angle, around),
         TopRight = TopRight.Rotate(angle, around)
     };
+
+    public static bool operator !=(ShapeCorners left, ShapeCorners right) => !(left == right);
+    public static bool operator == (ShapeCorners left, ShapeCorners right)
+    {
+        return 
+           left.TopLeft == right.TopLeft &&
+           left.TopRight == right.TopRight &&
+           left.BottomLeft == right.BottomLeft &&
+           left.BottomRight == right.BottomRight;
+    }
+
+    public bool AlmostEquals(ShapeCorners other, double epsilon = 0.001)
+    {
+        return
+            TopLeft.AlmostEquals(other.TopLeft, epsilon) &&
+            TopRight.AlmostEquals(other.TopRight, epsilon) &&
+            BottomLeft.AlmostEquals(other.BottomLeft, epsilon) &&
+            BottomRight.AlmostEquals(other.BottomRight, epsilon);
+    }
 }

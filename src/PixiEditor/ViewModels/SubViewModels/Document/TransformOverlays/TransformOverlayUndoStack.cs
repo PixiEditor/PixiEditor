@@ -33,6 +33,8 @@ internal class TransformOverlayUndoStack<TState> where TState : struct
         current = new(state, type);
     }
 
+    public TState? PeekCurrent() => current?.State;
+
     public TState? Undo()
     {
         if (current is null || undoStack.Count == 0)

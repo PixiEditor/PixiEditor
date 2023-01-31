@@ -200,6 +200,7 @@
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:BoolToVisibilityConverter}}"
+                        ActionCompleted="{Binding Document.TransformViewModel.ActionCompletedCommand}"
                         Corners="{Binding Document.TransformViewModel.Corners, Mode=TwoWay}"
                         RequestedCorners="{Binding Document.TransformViewModel.RequestedCorners, Mode=TwoWay}"
                         CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"

@@ -62,6 +62,8 @@ internal class LineToolOverlayViewModel : NotifyableObject
 
     public void Show(VecD lineStart, VecD lineEnd)
     {
+        if (undoStack is not null)
+            return;
         undoStack = new();
         undoStack.AddState((lineStart, lineEnd), TransformOverlayStateType.Initial);
 
@@ -74,7 +76,7 @@ internal class LineToolOverlayViewModel : NotifyableObject
     {
         if (undoStack is null)
             return;
-
+        undoStack = null;
         IsEnabled = false;
     }
 
