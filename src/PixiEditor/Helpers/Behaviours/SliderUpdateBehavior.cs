@@ -63,6 +63,8 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     private bool bindingValueChangedWhileDragging = false;
     private double bindingValueWhileDragging = 0.0;
 
+    private bool skipSetOpacity;
+    
     protected override void OnAttached()
     {
         AssociatedObject.Loaded += AssociatedObject_Loaded;
@@ -109,12 +111,13 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     private static void OnSliderValuePropertyChange(DependencyObject slider, DependencyPropertyChangedEventArgs e)
     {
         SliderUpdateBehavior obj = (SliderUpdateBehavior)slider;
+        
         if (obj.dragging)
         {
             if (obj.DragValueChanged is not null && obj.DragValueChanged.CanExecute(e.NewValue))
                 obj.DragValueChanged.Execute(e.NewValue);
         }
-        else
+        else if (!obj.skipSetOpacity)
         {
             if (obj.SetOpacity is not null && obj.SetOpacity.CanExecute(e.NewValue))
                 obj.SetOpacity.Execute(e.NewValue);
@@ -124,6 +127,7 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     private static void OnBindingValuePropertyChange(DependencyObject slider, DependencyPropertyChangedEventArgs e)
     {
         SliderUpdateBehavior obj = (SliderUpdateBehavior)slider;
+        obj.skipSetOpacity = true;
         if (obj.dragging)
         {
             obj.bindingValueChangedWhileDragging = true;
@@ -131,6 +135,7 @@ internal class SliderUpdateBehavior : Behavior<Slider>
             return;
         }
         obj.ValueFromSlider = (double)e.NewValue;
+        obj.skipSetOpacity = false;
     }
 
     private void Thumb_DragCompleted(object sender, DragCompletedEventArgs e)
