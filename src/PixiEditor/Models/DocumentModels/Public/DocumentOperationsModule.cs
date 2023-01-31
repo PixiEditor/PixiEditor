@@ -210,14 +210,20 @@ internal class DocumentOperationsModule
     public void Undo()
     {
         if (Internals.ChangeController.IsChangeActive)
+        {
+            Internals.ChangeController.MidChangeUndoInlet();
             return;
+        }
         Internals.ActionAccumulator.AddActions(new Undo_Action());
     }
 
     public void Redo()
     {
         if (Internals.ChangeController.IsChangeActive)
+        {
+            Internals.ChangeController.MidChangeRedoInlet();
             return;
+        }
         Internals.ActionAccumulator.AddActions(new Redo_Action());
     }
 

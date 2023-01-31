@@ -22,6 +22,15 @@ internal class LineToolOverlay : Control
         DependencyProperty.Register(nameof(LineEnd), typeof(VecD), typeof(LineToolOverlay),
             new FrameworkPropertyMetadata(VecD.Zero, FrameworkPropertyMetadataOptions.AffectsRender));
 
+    public static readonly DependencyProperty ActionCompletedProperty =
+        DependencyProperty.Register(nameof(ActionCompleted), typeof(ICommand), typeof(LineToolOverlay), new(null));
+
+    public ICommand? ActionCompleted
+    {
+        get => (ICommand)GetValue(ActionCompletedProperty);
+        set => SetValue(ActionCompletedProperty, value);
+    }
+
     public VecD LineEnd
     {
         get => (VecD)GetValue(LineEndProperty);
@@ -48,6 +57,7 @@ internal class LineToolOverlay : Control
 
     private LineToolOverlayAnchor? capturedAnchor = null;
     private bool dragging = false;
+    private bool movedWhileMouseDown = false;
 
     private PathGeometry handleGeometry = new()
     {
@@ -109,6 +119,7 @@ internal class LineToolOverlay : Control
             capturedAnchor = LineToolOverlayAnchor.End;
         else if (TransformHelper.IsWithinTransformHandle(handlePos, pos, ZoomboxScale))
             dragging = true;
+        movedWhileMouseDown = false;
 
         mouseDownPos = pos;
         lineStartOnMouseDown = LineStart;
@@ -119,19 +130,18 @@ internal class LineToolOverlay : Control
 
     protected void MouseMoved(object sender, MouseEventArgs e)
     {
-        /*base.OnMouseMove(e);
-        e.Handled = true;*/
-
         VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
         if (capturedAnchor == LineToolOverlayAnchor.Start)
         {
             LineStart = pos;
+            movedWhileMouseDown = true;
             return;
         }
 
         if (capturedAnchor == LineToolOverlayAnchor.End)
         {
             LineEnd = pos;
+            movedWhileMouseDown = true;
             return;
         }
 
@@ -140,6 +150,7 @@ internal class LineToolOverlay : Control
             var delta = pos - mouseDownPos;
             LineStart = lineStartOnMouseDown + delta;
             LineEnd = lineEndOnMouseDown + delta;
+            movedWhileMouseDown = true;
             return;
         }
     }
@@ -153,6 +164,8 @@ internal class LineToolOverlay : Control
         e.Handled = true;
         capturedAnchor = null;
         dragging = false;
+        if (movedWhileMouseDown && ActionCompleted is not null && ActionCompleted.CanExecute(null))
+            ActionCompleted.Execute(null);
 
         ReleaseMouseCapture();
     }

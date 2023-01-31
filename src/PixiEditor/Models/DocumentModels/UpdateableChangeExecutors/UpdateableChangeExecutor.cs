@@ -47,4 +47,6 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnTransformMoved(ShapeCorners corners) { }
     public virtual void OnTransformApplied() { }
     public virtual void OnLineOverlayMoved(VecD start, VecD end) { }
+    public virtual void OnMidChangeUndo() { }
+    public virtual void OnMidChangeRedo() { }
 }

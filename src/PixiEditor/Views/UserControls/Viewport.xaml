@@ -212,6 +212,7 @@
                         ZoomboxAngle="{Binding Zoombox.Angle}"/>
                     <lineOverlay:LineToolOverlay
                         Visibility="{Binding Document.LineToolOverlayViewModel.IsEnabled, Converter={converters:BoolToVisibilityConverter}}"
+                        ActionCompleted="{Binding Document.LineToolOverlayViewModel.ActionCompletedCommand}"
                         LineStart="{Binding Document.LineToolOverlayViewModel.LineStart, Mode=TwoWay}"
                         LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
                         ZoomboxScale="{Binding Zoombox.Scale}"/>

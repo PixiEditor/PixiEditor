@@ -1,8 +1,13 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor;
 using PixiEditor.Models.Enums;
+using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels;
+using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
-namespace PixiEditor.ViewModels.SubViewModels.Document;
+namespace PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 #nullable enable
 internal class DocumentTransformViewModel : NotifyableObject
 {
