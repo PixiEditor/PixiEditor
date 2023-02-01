@@ -218,7 +218,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta2" />
 		<PackageReference Include="OneOf" Version="3.0.223" />
 		<PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
-		<PackageReference Include="PixiEditor.Parser" Version="3.0.0" />
+		<PackageReference Include="PixiEditor.Parser" Version="3.1.0" />
 		<PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
 		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
 		<PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
