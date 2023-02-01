@@ -148,7 +148,8 @@ internal class DocumentTransformViewModel : NotifyableObject
         if (undoStack is null)
             return false;
 
-        RequestedCorners = Corners.AsTranslated(distance);
+        InternalState = InternalState with { Origin = InternalState.Origin + distance };
+        Corners = Corners.AsTranslated(distance);
         undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Nudge);
         return true;
     }

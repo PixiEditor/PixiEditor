@@ -98,6 +98,8 @@
         <Grid
             Name="mainGrid"
             Margin="5"
+            KeyboardNavigation.DirectionalNavigation="None"
+            KeyboardNavigation.TabNavigation="None"
             Focusable="True">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition
