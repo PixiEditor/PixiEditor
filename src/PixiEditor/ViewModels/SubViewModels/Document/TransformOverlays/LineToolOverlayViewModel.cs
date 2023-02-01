@@ -80,6 +80,16 @@ internal class LineToolOverlayViewModel : NotifyableObject
         IsEnabled = false;
     }
 
+    public bool Nudge(VecD distance)
+    {
+        if (undoStack is null)
+            return false;
+        LineStart = LineStart + distance;
+        LineEnd = LineEnd + distance;
+        undoStack.AddState((lineStart, lineEnd), TransformOverlayStateType.Nudge);
+        return true;
+    }
+
     public bool Undo()
     {
         if (undoStack is null)

@@ -81,6 +81,13 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, (VecI)start, (VecI)end, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
     }
 
+    public override void OnSelectedObjectNudged(VecI distance)
+    {
+        if (!transforming)
+            return;
+        document!.LineToolOverlayViewModel.Nudge(distance);
+    }
+
     public override void OnMidChangeUndo()
     {
         if (!transforming)

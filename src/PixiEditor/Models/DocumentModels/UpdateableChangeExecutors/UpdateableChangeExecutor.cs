@@ -49,4 +49,5 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnLineOverlayMoved(VecD start, VecD end) { }
     public virtual void OnMidChangeUndo() { }
     public virtual void OnMidChangeRedo() { }
+    public virtual void OnSelectedObjectNudged(VecI distance) { }
 }

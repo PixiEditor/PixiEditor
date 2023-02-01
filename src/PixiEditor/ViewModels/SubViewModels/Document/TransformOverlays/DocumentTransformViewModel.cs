@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels;
@@ -139,6 +140,16 @@ internal class DocumentTransformViewModel : NotifyableObject
         if (state is null)
             return false;
         (Corners, InternalState) = state.Value;
+        return true;
+    }
+
+    public bool Nudge(VecD distance)
+    {
+        if (undoStack is null)
+            return false;
+
+        RequestedCorners = Corners.AsTranslated(distance);
+        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Nudge);
         return true;
     }
 

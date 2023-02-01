@@ -178,4 +178,9 @@ internal class ChangeExecutionController
     {
         currentSession?.OnLineOverlayMoved(start, end);
     }
+
+    public void SelectedObjectNudgedInlet(VecI distance)
+    {
+        currentSession?.OnSelectedObjectNudged(distance);
+    }
 }

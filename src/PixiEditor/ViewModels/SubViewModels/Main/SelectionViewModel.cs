@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
@@ -39,5 +40,15 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     public void TransformSelectedArea()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(false);
+    }
+
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectLeft", "Nudge selected object left", "Nudge selected object left", Key = Key.Left, Parameter = new int[] { -1, 0 }, IconPath = "E76B", IconEvaluator = "PixiEditor.FontIcon")]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectRight", "Nudge selected object right", "Nudge selected object right", Key = Key.Right, Parameter = new int[] { 1, 0 }, IconPath = "E76C", IconEvaluator = "PixiEditor.FontIcon")]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectUp", "Nudge selected object up", "Nudge selected object up", Key = Key.Up, Parameter = new int[] { 0, -1 }, IconPath = "E70E", IconEvaluator = "PixiEditor.FontIcon")]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectDown", "Nudge selected object down", "Nudge selected object down", Key = Key.Down, Parameter = new int[] { 0, 1 }, IconPath = "E70D", IconEvaluator = "PixiEditor.FontIcon")]
+    public void NudgeSelectedObject(int[] dist)
+    {
+        VecI distance = new(dist[0], dist[1]);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.NudgeSelectedObject(distance);
     }
 }

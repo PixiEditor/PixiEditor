@@ -2,7 +2,7 @@
 internal enum TransformOverlayStateType
 {
     /// <summary>
-    /// The overlay was properly moved via mouse
+    /// The overlay was moved via mouse
     /// </summary>
     Move,
 

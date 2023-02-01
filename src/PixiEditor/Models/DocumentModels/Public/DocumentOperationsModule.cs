@@ -227,6 +227,14 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddActions(new Redo_Action());
     }
 
+    public void NudgeSelectedObject(VecI distance)
+    {
+        if (Internals.ChangeController.IsChangeActive)
+        {
+            Internals.ChangeController.SelectedObjectNudgedInlet(distance);
+        }    
+    }
+
     public void MoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo, StructureMemberPlacement placement)
     {
         if (Internals.ChangeController.IsChangeActive || memberToMove == memberToMoveIntoOrNextTo)

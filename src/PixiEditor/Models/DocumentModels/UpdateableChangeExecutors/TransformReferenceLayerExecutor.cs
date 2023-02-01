@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -24,6 +25,8 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor
     {
         internals!.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(corners));
     }
+
+    public override void OnSelectedObjectNudged(VecI distance) => document!.TransformViewModel.Nudge(distance);
 
     public override void OnMidChangeUndo() => document!.TransformViewModel.Undo();
 
