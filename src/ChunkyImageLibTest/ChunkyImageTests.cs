@@ -1,30 +1,22 @@
 ﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Skia;
 using Xunit;
 
 namespace ChunkyImageLibTest;
 public class ChunkyImageTests
 {
-    public static Surface ImportImage(string path, VecI size)
+    public ChunkyImageTests()
     {
-        Surface original = Surface.Load(path);
-        if (original.Size != size)
+        try
         {
-            Surface resized = original.ResizeNearestNeighbor(size);
-            original.Dispose();
-            return resized;
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend());
         }
-        return original;
-    }
-
-    [Fact]
-    public void LoadDemo()
-    {
-        var path = @"C:\Users\egor0\Desktop\SpazzS1.png";
-        ImportImage(path, new VecI(5, 5));
+        catch { }
     }
 
     [Fact]

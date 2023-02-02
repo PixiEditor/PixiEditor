@@ -245,7 +245,7 @@ public struct RectI : IEquatable<RectI>
     {
         RectD rectD = (RectD)rect;
         RectD thisD = (RectD)this;
-        RectD aspect = rectD.AspectFit(thisD);
+        RectD aspect = thisD.AspectFit(rectD);
         return new RectI((int)aspect.Left, (int)aspect.Top, (int)aspect.Width, (int)aspect.Height);
     }
 

@@ -2,12 +2,23 @@
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Skia;
 using Xunit;
 
 namespace ChunkyImageLibTest;
 public class ImageOperationTests
 {
+    public ImageOperationTests()
+    {
+        try
+        {
+            DrawingBackendApi.SetupBackend(new SkiaDrawingBackend());
+        }
+        catch { }
+    }
+
     [Fact]
     public void FindAffectedChunks_SingleChunk_ReturnsSingleChunk()
     {
