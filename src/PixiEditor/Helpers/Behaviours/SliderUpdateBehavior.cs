@@ -132,6 +132,7 @@ internal class SliderUpdateBehavior : Behavior<Slider>
         {
             obj.bindingValueChangedWhileDragging = true;
             obj.bindingValueWhileDragging = (double)e.NewValue;
+            obj.skipSetOpacity = false;
             return;
         }
         obj.ValueFromSlider = (double)e.NewValue;
