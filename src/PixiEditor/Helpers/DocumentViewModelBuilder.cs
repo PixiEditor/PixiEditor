@@ -55,6 +55,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public float Opacity { get; set; }
         
         public BlendMode BlendMode { get; set; }
+        
+        public bool ClipToMemberBelow { get; set; }
 
         public bool HasMask => maskBuilder is not null;
 
@@ -115,6 +117,12 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
             GuidValue = guid;
             return this;
         }
+
+        public StructureMemberBuilder WithClipToBelow(bool value)
+        {
+            ClipToMemberBelow = value;
+            return this;
+        }
     }
 
     public class LayerBuilder : StructureMemberBuilder
@@ -147,6 +155,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public new LayerBuilder WithOpacity(float opacity) => base.WithOpacity(opacity) as LayerBuilder;
         
         public new LayerBuilder WithBlendMode(BlendMode blendMode) => base.WithBlendMode(blendMode) as LayerBuilder;
+        
+        public new LayerBuilder WithClipToBelow(bool value) => base.WithClipToBelow(value) as LayerBuilder;
         
         public new LayerBuilder WithMask(Action<MaskBuilder> mask) => base.WithMask(mask) as LayerBuilder;
         
@@ -204,6 +214,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         
         public new FolderBuilder WithGuid(Guid guid) => base.WithGuid(guid) as FolderBuilder;
 
+        public FolderBuilder WithClipToBelow(bool value) => base.WithClipToBelow(value) as FolderBuilder;
+
         public FolderBuilder WithChildren(Action<ChildrenBuilder> children)
         {
             ChildrenBuilder childrenBuilder = new();
@@ -228,7 +240,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         {
             if(buffer.IsEmpty) return this;
             
-            Surface.DrawingSurface.Canvas.DrawBitmap(Bitmap.Decode(buffer), 0, 0);
+            Surface.DrawingSurface.Canvas.DrawBitmap(Bitmap.Decode(buffer), x, y);
             return this;
         }
     }
