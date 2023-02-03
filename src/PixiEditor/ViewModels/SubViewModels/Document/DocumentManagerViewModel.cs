@@ -50,48 +50,20 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     public bool DocumentNotNull() => ActiveDocument != null;
 
     [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument")]
-    public void ClipCanvas()
-    {
-        if (ActiveDocument is null)
-            return;
-        
-        ActiveDocument?.Operations.ClipCanvas();
-    }
-    
-    [Command.Basic("PixiEditor.Document.FlipImageHorizontal", "Flip Image Horizontally", "Flip Image Horizontally", CanExecute = "PixiEditor.HasDocument")]
-    public void FlipImageHorizontally()
-    {
-        if (ActiveDocument is null)
-            return;
-        
-        ActiveDocument?.Operations.FlipImage(FlipType.Horizontal);
-    }
-    
-    [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", "Flip Selected Layers Horizontally", "Flip Selected Layers Horizontally", CanExecute = "PixiEditor.HasDocument")]
-    public void FlipLayersHorizontally()
+    public void ClipCanvas() => ActiveDocument?.Operations.ClipCanvas();
+
+    [Command.Basic("PixiEditor.Document.FlipImageHorizontal", FlipType.Horizontal, "Flip Image Horizontally", "Flip Image Horizontally", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.FlipImageVertical", FlipType.Vertical, "Flip Image Vertically", "Flip Image Vertically", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipImage(FlipType type) => ActiveDocument?.Operations.FlipImage(type);
+
+    [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", FlipType.Horizontal, "Flip Selected Layers Horizontally", "Flip Selected Layers Horizontally", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.FlipLayersVertical", FlipType.Vertical, "Flip Selected Layers Vertically", "Flip Selected Layers Vertically", CanExecute = "PixiEditor.HasDocument")]
+    public void FlipLayers(FlipType type)
     {
         if (ActiveDocument?.SelectedStructureMember == null)
             return;
         
-        ActiveDocument?.Operations.FlipImage(FlipType.Horizontal, ActiveDocument.GetSelectedMembers());
-    }
-    
-    [Command.Basic("PixiEditor.Document.FlipImageVertical", "Flip Image Vertically", "Flip Image Vertically", CanExecute = "PixiEditor.HasDocument")]
-    public void FlipImageVertically()
-    {
-        if (ActiveDocument is null)
-            return;
-        
-        ActiveDocument?.Operations.FlipImage(FlipType.Vertical);
-    }
-    
-    [Command.Basic("PixiEditor.Document.FlipLayersVertical", "Flip Selected Layers Vertically", "Flip Selected Layers Vertically", CanExecute = "PixiEditor.HasDocument")]
-    public void FlipLayersVertically()
-    {
-        if (ActiveDocument?.SelectedStructureMember == null)
-            return;
-        
-        ActiveDocument?.Operations.FlipImage(FlipType.Vertical, ActiveDocument.GetSelectedMembers());
+        ActiveDocument?.Operations.FlipImage(type, ActiveDocument.GetSelectedMembers());
     }
     
     [Command.Basic("PixiEditor.Document.Rotate90Deg", "Rotate Image 90 degrees", 
@@ -100,10 +72,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         "Rotate Image 180 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180)]
     [Command.Basic("PixiEditor.Document.Rotate270Deg", "Rotate Image -90 degrees", 
         "Rotate Image -90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270)]
-    public void RotateImage(RotationAngle angle)
-    {
-        ActiveDocument?.Operations.RotateImage(angle);
-    }
+    public void RotateImage(RotationAngle angle) => ActiveDocument?.Operations.RotateImage(angle);
 
     [Command.Basic("PixiEditor.Document.Rotate90DegLayers", "Rotate Selected Layers 90 degrees", 
         "Rotate Selected Layers 90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90)]

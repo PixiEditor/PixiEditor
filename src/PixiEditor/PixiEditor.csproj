@@ -356,6 +356,18 @@
 		<Resource Include="Images\Commands\PixiEditor\Layer\ToggleMask.png" />
 		<None Remove="Images\Commands\PixiEditor\Layer\ToggleVisible.png" />
 		<Resource Include="Images\Commands\PixiEditor\Layer\ToggleVisible.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\Rotate90Deg.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\Rotate90Deg.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\Rotate180Deg.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\Rotate180Deg.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\Rotate270Deg.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\Rotate270Deg.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\Rotate90DegLayers.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\Rotate90DegLayers.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png" />
+		<None Remove="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
+		<Resource Include="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

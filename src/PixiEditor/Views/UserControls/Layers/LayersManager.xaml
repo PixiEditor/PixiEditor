@@ -128,6 +128,7 @@
                                 DragStarted="{commands:Command PixiEditor.Layer.OpacitySliderDragStarted}"
                                 DragValueChanged="{commands:Command PixiEditor.Layer.OpacitySliderDragged, UseProvided=True}"
                                 DragEnded="{commands:Command PixiEditor.Layer.OpacitySliderDragEnded}"
+                                SetOpacity="{commands:Command PixiEditor.Layer.OpacitySliderSet, UseProvided=True}"
                                 ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value, Mode=TwoWay}" />
                     </i:Interaction.Behaviors>
                 </Slider>

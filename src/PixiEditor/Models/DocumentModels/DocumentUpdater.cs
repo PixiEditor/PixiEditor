@@ -378,12 +378,13 @@ internal class DocumentUpdater
                 ProcessCreateStructureMember(childInfo);
             }
         }
-
+        
         if (doc.SelectedStructureMember is not null)
         {
             doc.SelectedStructureMember.Selection = StructureMemberSelectionType.None;
             doc.SelectedStructureMember.RaisePropertyChanged(nameof(doc.SelectedStructureMember.Selection));
         }
+        
         doc.InternalSetSelectedMember(memberVM);
         memberVM.Selection = StructureMemberSelectionType.Hard;
         doc.RaisePropertyChanged(nameof(doc.SelectedStructureMember));

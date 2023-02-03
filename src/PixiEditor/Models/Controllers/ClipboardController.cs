@@ -7,6 +7,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Helpers;
@@ -68,15 +69,31 @@ internal static class ClipboardController
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static bool TryPasteFromClipboard(DocumentViewModel document)
+    public static bool TryPaste(DocumentViewModel document, DataObject data, bool pasteAsNew = false)
     {
-        List<(string? name, Surface image)> images = GetImagesFromClipboard();
+        List<(string? name, Surface image)> images = GetImage(data);
         if (images.Count == 0)
             return false;
 
         if (images.Count == 1)
         {
-            document.Operations.PasteImageWithTransform(images[0].image, VecI.Zero);
+            if (pasteAsNew)
+            {
+                var guid = document.Operations.CreateStructureMember(StructureMemberType.Layer, "New Layer", false);
+
+                if (guid == null)
+                {
+                    return false;
+                }
+                
+                document.Operations.SetSelectedMember(guid.Value);
+                document.Operations.PasteImageWithTransform(images[0].image, VecI.Zero, guid.Value, false);
+            }
+            else
+            {
+                document.Operations.PasteImageWithTransform(images[0].image, VecI.Zero);
+            }
+            
             return true;
         }
 
@@ -85,11 +102,18 @@ internal static class ClipboardController
     }
 
     /// <summary>
+    ///     Pastes image from clipboard into new layer.
+    /// </summary>
+    public static bool TryPasteFromClipboard(DocumentViewModel document, bool pasteAsNew = false) =>
+        TryPaste(document, ClipboardHelper.TryGetDataObject(), pasteAsNew);
+
+    public static List<(string? name, Surface image)> GetImagesFromClipboard() => GetImage(ClipboardHelper.TryGetDataObject());
+
+    /// <summary>
     /// Gets images from clipboard, supported PNG, Dib and Bitmap.
     /// </summary>
-    private static List<(string? name, Surface image)> GetImagesFromClipboard()
+    public static List<(string? name, Surface image)> GetImage(DataObject? data)
     {
-        DataObject data = ClipboardHelper.TryGetDataObject();
         List<(string? name, Surface image)> surfaces = new();
 
         if (data == null)
@@ -121,15 +145,16 @@ internal static class ClipboardController
         return surfaces;
     }
 
-    public static bool IsImageInClipboard()
+    public static bool IsImageInClipboard() => IsImage(ClipboardHelper.TryGetDataObject());
+    
+    public static bool IsImage(DataObject? dataObject)
     {
-        DataObject dao = ClipboardHelper.TryGetDataObject();
-        if (dao == null)
+        if (dataObject == null)
             return false;
 
         try
         {
-            var files = dao.GetFileDropList();
+            var files = dataObject.GetFileDropList();
             if (files != null)
             {
                 foreach (var file in files)
@@ -146,8 +171,7 @@ internal static class ClipboardController
             return false;
         }
 
-        return dao.GetDataPresent("PNG") || dao.GetDataPresent(DataFormats.Dib) ||
-               dao.GetDataPresent(DataFormats.Bitmap) || dao.GetDataPresent(DataFormats.FileDrop);
+        return HasData(dataObject, "PNG", DataFormats.Dib, DataFormats.Bitmap);
     }
 
     private static BitmapSource FromPNG(DataObject data)
@@ -158,6 +182,8 @@ internal static class ClipboardController
         return decoder.Frames[0];
     }
 
+    private static bool HasData(DataObject dataObject, params string[] formats) => formats.Any(dataObject.GetDataPresent);
+    
     private static bool TryExtractSingleImage(DataObject data, [NotNullWhen(true)] out Surface? result)
     {
         try
@@ -168,7 +194,7 @@ internal static class ClipboardController
             {
                 source = FromPNG(data);
             }
-            else if (data.GetDataPresent(DataFormats.Dib) || data.GetDataPresent(DataFormats.Bitmap))
+            else if (HasData(data, DataFormats.Dib, DataFormats.Bitmap))
             {
                 source = Clipboard.GetImage();
             }

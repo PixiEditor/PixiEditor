@@ -24,6 +24,9 @@ internal class DocumentOperationsModule
         Internals = internals;
     }
 
+    /// <summary>
+    /// Creates a new selection with the size of the document
+    /// </summary>
     public void SelectAll()
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -33,6 +36,9 @@ internal class DocumentOperationsModule
             new EndSelectRectangle_Action());
     }
 
+    /// <summary>
+    /// Clears the current selection
+    /// </summary>
     public void ClearSelection()
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -40,6 +46,10 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new ClearSelection_Action());
     }
 
+    /// <summary>
+    /// Deletes selected pixels
+    /// </summary>
+    /// <param name="clearSelection">Should the selection be cleared</param>
     public void DeleteSelectedPixels(bool clearSelection = false)
     {
         var member = Document.SelectedStructureMember;
@@ -54,6 +64,11 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions();
     }
 
+    /// <summary>
+    /// Sets the opacity of the member with the guid <paramref name="memberGuid"/>
+    /// </summary>
+    /// <param name="memberGuid">The Guid of the member</param>
+    /// <param name="value">A value between 0 and 1</param>
     public void SetMemberOpacity(Guid memberGuid, float value)
     {
         if (Internals.ChangeController.IsChangeActive || value is > 1 or < 0)
@@ -63,10 +78,20 @@ internal class DocumentOperationsModule
             new EndStructureMemberOpacity_Action());
     }
 
+    /// <summary>
+    /// Adds a new viewport or updates a existing one
+    /// </summary>
     public void AddOrUpdateViewport(ViewportInfo info) => Internals.ActionAccumulator.AddActions(new RefreshViewport_PassthroughAction(info));
 
+    /// <summary>
+    /// Deletes the viewport with the <paramref name="viewportGuid"/>
+    /// </summary>
+    /// <param name="viewportGuid">The Guid of the viewport to remove</param>
     public void RemoveViewport(Guid viewportGuid) => Internals.ActionAccumulator.AddActions(new RemoveViewport_PassthroughAction(viewportGuid));
 
+    /// <summary>
+    /// Delete the whole undo stack
+    /// </summary>
     public void ClearUndo()
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -74,6 +99,10 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddActions(new DeleteRecordedChanges_Action());
     }
 
+    /// <summary>
+    /// Pastes the <paramref name="images"/> as new layers
+    /// </summary>
+    /// <param name="images">The images to paste</param>
     public void PasteImagesAsLayers(List<(string? name, Surface image)> images)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -90,19 +119,29 @@ internal class DocumentOperationsModule
 
         foreach (var imageWithName in images)
         {
-            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, imageWithName.name, true);
+            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, imageWithName.name);
             DrawImage(imageWithName.image, new ShapeCorners(new RectD(VecD.Zero, imageWithName.image.Size)), layerGuid, true, false, false);
         }
         Internals.ActionAccumulator.AddFinishedActions();
     }
 
-    public Guid? CreateStructureMember(StructureMemberType type, string? name = null)
+    /// <summary>
+    /// Creates a new structure member of type <paramref name="type"/> with the name <paramref name="name"/>
+    /// </summary>
+    /// <param name="type">The type of the member</param>
+    /// <param name="name">The name of the member</param>
+    /// <returns>The Guid of the new structure member or null if there is already an active change</returns>
+    public Guid? CreateStructureMember(StructureMemberType type, string? name = null, bool finish = true)
     {
         if (Internals.ChangeController.IsChangeActive)
             return null;
-        return Internals.StructureHelper.CreateNewStructureMember(type, name, true);
+        return Internals.StructureHelper.CreateNewStructureMember(type, name, finish);
     }
 
+    /// <summary>
+    /// Duplicates the layer with the <paramref name="guidValue"/>
+    /// </summary>
+    /// <param name="guidValue">The Guid of the layer</param>
     public void DuplicateLayer(Guid guidValue)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -110,6 +149,10 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new DuplicateLayer_Action(guidValue));
     }
 
+    /// <summary>
+    /// Delete the member with the <paramref name="guidValue"/>
+    /// </summary>
+    /// <param name="guidValue">The Guid of the layer</param>
     public void DeleteStructureMember(Guid guidValue)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -117,6 +160,10 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMember_Action(guidValue));
     }
 
+    /// <summary>
+    /// Deletes all members with the <paramref name="guids"/>
+    /// </summary>
+    /// <param name="guids">The Guids of the layers to delete</param>
     public void DeleteStructureMembers(IReadOnlyList<Guid> guids)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -124,6 +171,11 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(guids.Select(static guid => new DeleteStructureMember_Action(guid)).ToArray());
     }
 
+    /// <summary>
+    /// Resizes the canvas (Does not upscale the content of the image)
+    /// </summary>
+    /// <param name="newSize">The size the canvas should be resized to</param>
+    /// <param name="anchor">Where the existing content should be put</param>
     public void ResizeCanvas(VecI newSize, ResizeAnchor anchor)
     {
         if (Internals.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 || newSize.Y < 1)
@@ -146,6 +198,11 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new ResizeCanvas_Action(newSize, anchor));
     }
 
+    /// <summary>
+    /// Resizes the image (Upscales the content of the image)
+    /// </summary>
+    /// <param name="newSize">The size the image should be resized to</param>
+    /// <param name="resampling">The resampling method to use</param>
     public void ResizeImage(VecI newSize, ResamplingMethod resampling)
     {
         if (Internals.ChangeController.IsChangeActive || newSize.X > 9999 || newSize.Y > 9999 || newSize.X < 1 || newSize.Y < 1)
@@ -168,6 +225,11 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new ResizeImage_Action(newSize, resampling));
     }
 
+    /// <summary>
+    /// Replaces all <paramref name="oldColor"/> with <paramref name="newColor"/>
+    /// </summary>
+    /// <param name="oldColor">The color to replace</param>
+    /// <param name="newColor">The new color</param>
     public void ReplaceColor(Color oldColor, Color newColor)
     {
         if (Internals.ChangeController.IsChangeActive || oldColor == newColor)
@@ -175,6 +237,9 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor, newColor));
     }
 
+    /// <summary>
+    /// Creates a new mask on the <paramref name="member"/>
+    /// </summary>
     public void CreateMask(StructureMemberViewModel member)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -184,6 +249,9 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(member.GuidValue));
     }
 
+    /// <summary>
+    /// Deletes the mask of the <paramref name="member"/>
+    /// </summary>
     public void DeleteMask(StructureMemberViewModel member)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -191,6 +259,9 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.GuidValue));
     }
     
+    /// <summary>
+    /// Applies the mask to the image
+    /// </summary>
     public void ApplyMask(StructureMemberViewModel member)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -199,14 +270,32 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.GuidValue), new DeleteStructureMemberMask_Action(member.GuidValue));
     }
 
+    /// <summary>
+    /// Sets the selected structure memeber
+    /// </summary>
+    /// <param name="memberGuid">The Guid of the member to select</param>
     public void SetSelectedMember(Guid memberGuid) => Internals.ActionAccumulator.AddActions(new SetSelectedMember_PassthroughAction(memberGuid));
 
+    /// <summary>
+    /// Adds a member to the soft selection
+    /// </summary>
+    /// <param name="memberGuid">The Guid of the member to add</param>
     public void AddSoftSelectedMember(Guid memberGuid) => Internals.ActionAccumulator.AddActions(new AddSoftSelectedMember_PassthroughAction(memberGuid));
 
+    /// <summary>
+    /// Removes a member from the soft selection
+    /// </summary>
+    /// <param name="memberGuid">The Guid of the member to remove</param>
     public void RemoveSoftSelectedMember(Guid memberGuid) => Internals.ActionAccumulator.AddActions(new RemoveSoftSelectedMember_PassthroughAction(memberGuid));
 
+    /// <summary>
+    /// Clears the soft selection
+    /// </summary>
     public void ClearSoftSelectedMembers() => Internals.ActionAccumulator.AddActions(new ClearSoftSelectedMembers_PassthroughAction());
 
+    /// <summary>
+    /// Undo last change
+    /// </summary>
     public void Undo()
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -214,6 +303,9 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddActions(new Undo_Action());
     }
 
+    /// <summary>
+    /// Redo previously undone change
+    /// </summary>
     public void Redo()
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -221,6 +313,12 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddActions(new Redo_Action());
     }
 
+    /// <summary>
+    /// Moves a member next to or inside another structure member
+    /// </summary>
+    /// <param name="memberToMove">The member to move</param>
+    /// <param name="memberToMoveIntoOrNextTo">The target member</param>
+    /// <param name="placement">Where to place the <paramref name="memberToMove"/></param>
     public void MoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo, StructureMemberPlacement placement)
     {
         if (Internals.ChangeController.IsChangeActive || memberToMove == memberToMoveIntoOrNextTo)
@@ -228,6 +326,9 @@ internal class DocumentOperationsModule
         Internals.StructureHelper.TryMoveStructureMember(memberToMove, memberToMoveIntoOrNextTo, placement);
     }
 
+    /// <summary>
+    /// Merge all structure members with the Guids inside <paramref name="members"/>
+    /// </summary>
     public void MergeStructureMembers(IReadOnlyList<Guid> members)
     {
         if (Internals.ChangeController.IsChangeActive || members.Count < 2)
@@ -248,6 +349,11 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddActions(new ChangeBoundary_Action());
     }
 
+    /// <summary>
+    /// Starts a image transform and pastes the transformed image on the currently selected layer
+    /// </summary>
+    /// <param name="image">The image to paste</param>
+    /// <param name="startPos">Where the transform should start</param>
     public void PasteImageWithTransform(Surface image, VecI startPos)
     {
         if (Document.SelectedStructureMember is null)
@@ -255,6 +361,20 @@ internal class DocumentOperationsModule
         Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos));
     }
 
+    /// <summary>
+    /// Starts a image transform and pastes the transformed image on the currently selected layer
+    /// </summary>
+    /// <param name="image">The image to paste</param>
+    /// <param name="startPos">Where the transform should start</param>
+    public void PasteImageWithTransform(Surface image, VecI startPos, Guid memberGuid, bool drawOnMask)
+    {
+        Internals.ChangeController.TryStartExecutor(new PasteImageExecutor(image, startPos, memberGuid, drawOnMask));
+    }
+
+    /// <summary>
+    /// Starts a transform on the selected area
+    /// </summary>
+    /// <param name="toolLinked">Is this transform started by a tool</param>
     public void TransformSelectedArea(bool toolLinked)
     {
         if (Document.SelectedStructureMember is null ||
@@ -264,6 +384,9 @@ internal class DocumentOperationsModule
         Internals.ChangeController.TryStartExecutor(new TransformSelectedAreaExecutor(toolLinked));
     }
 
+    /// <summary>
+    /// Ties stopping the currently executing tool linked executor
+    /// </summary>
     public void TryStopToolLinkedExecutor()
     {
         if (Internals.ChangeController.GetCurrentExecutorType() == ExecutorType.ToolLinked)
@@ -273,6 +396,15 @@ internal class DocumentOperationsModule
     public void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask) =>
         DrawImage(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, true);
 
+    /// <summary>
+    /// Draws a image on the member with the <paramref name="memberGuid"/>
+    /// </summary>
+    /// <param name="image">The image to draw onto the layer</param>
+    /// <param name="corners">The shape the image should fit into</param>
+    /// <param name="memberGuid">The Guid of the member to paste on</param>
+    /// <param name="ignoreClipSymmetriesEtc">Ignore selection clipping and symmetry (See DrawingChangeHelper.ApplyClipsSymmetriesEtc of UpdateableDocument)</param>
+    /// <param name="drawOnMask">Draw on the mask or on the image</param>
+    /// <param name="finish">Is this a finished action</param>
     private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, bool finish)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -284,6 +416,9 @@ internal class DocumentOperationsModule
             Internals.ActionAccumulator.AddFinishedActions();
     }
 
+    /// <summary>
+    /// Resizes the canvas to fit the content
+    /// </summary>
     public void ClipCanvas()
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -291,8 +426,14 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new ClipCanvas_Action());
     }
 
+    /// <summary>
+    /// Flips the image on the <paramref name="flipType"/> axis
+    /// </summary>
     public void FlipImage(FlipType flipType) => FlipImage(flipType, null);
 
+    /// <summary>
+    /// Flips the members with the Guids of <paramref name="membersToFlip"/> on the <paramref name="flipType"/> axis
+    /// </summary>
     public void FlipImage(FlipType flipType, List<Guid> membersToFlip)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -301,8 +442,16 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, membersToFlip));
     }
 
+    /// <summary>
+    /// Rotates the image
+    /// </summary>
+    /// <param name="rotation">The degrees to rotate the image by</param>
     public void RotateImage(RotationAngle rotation) => RotateImage(rotation, null);
 
+    /// <summary>
+    /// Rotates the members with the Guids of <paramref name="membersToRotate"/>
+    /// </summary>
+    /// <param name="rotation">The degrees to rotate the members by</param>
     public void RotateImage(RotationAngle rotation, List<Guid> membersToRotate)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -311,6 +460,9 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation, membersToRotate));
     }
     
+    /// <summary>
+    /// Puts the content of the image in the middle of the canvas
+    /// </summary>
     public void CenterContent(IReadOnlyList<Guid> structureMembers)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -319,6 +471,10 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList()));
     }
 
+    /// <summary>
+    /// Imports a reference layer from a Pbgra Int32 array
+    /// </summary>
+    /// <param name="imageSize">The size of the image</param>
     public void ImportReferenceLayer(ImmutableArray<byte> imagePbgra32Bytes, VecI imageSize)
     {
         if (Internals.ChangeController.IsChangeActive)
@@ -329,6 +485,9 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new SetReferenceLayer_Action(corners, imagePbgra32Bytes, imageSize));
     }
 
+    /// <summary>
+    /// Deletes the reference layer
+    /// </summary>
     public void DeleteReferenceLayer()
     {
         if (Internals.ChangeController.IsChangeActive || Document.ReferenceLayerViewModel.ReferenceBitmap is null)
@@ -337,6 +496,9 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new DeleteReferenceLayer_Action());
     }
 
+    /// <summary>
+    /// Starts a transform on the reference layer
+    /// </summary>
     public void TransformReferenceLayer()
     {
         if (Document.ReferenceLayerViewModel.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
@@ -344,6 +506,9 @@ internal class DocumentOperationsModule
         Internals.ChangeController.TryStartExecutor(new TransformReferenceLayerExecutor());
     }
 
+    /// <summary>
+    /// Resets the reference layer transform
+    /// </summary>
     public void ResetReferenceLayerPosition()
     {
         if (Document.ReferenceLayerViewModel.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)

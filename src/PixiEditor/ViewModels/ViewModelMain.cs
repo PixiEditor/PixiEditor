@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Collections;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -16,9 +17,6 @@ namespace PixiEditor.ViewModels;
 
 internal class ViewModelMain : ViewModelBase
 {
-    private string actionDisplay;
-    private bool overrideActionDisplay;
-
     public static ViewModelMain Current { get; set; }
 
     public IServiceProvider Services { get; private set; }
@@ -73,39 +71,14 @@ internal class ViewModelMain : ViewModelBase
 
     public IPreferences Preferences { get; set; }
 
-    public string ActionDisplay
-    {
-        get
-        {
-            if (OverrideActionDisplay)
-            {
-                return actionDisplay;
-            }
+    public string ActiveActionDisplay => ActionDisplays.HasActive() ? ActionDisplays.GetActive() : ToolsSubViewModel.ActiveTool?.ActionDisplay;
 
-            return ToolsSubViewModel.ActiveTool?.ActionDisplay;
-        }
-        set
-        {
-            actionDisplay = value;
-        }
-    }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether a custom action display should be used. If false the action display of the selected tool will be used.
-    /// </summary>
-    public bool OverrideActionDisplay
-    {
-        get => overrideActionDisplay;
-        set
-        {
-            SetProperty(ref overrideActionDisplay, value);
-            RaisePropertyChanged(nameof(ActionDisplay));
-        }
-    }
+    public ActionDisplayList ActionDisplays { get; }
 
     public ViewModelMain(IServiceProvider serviceProvider)
     {
         Current = this;
+        ActionDisplays = new ActionDisplayList(() => RaisePropertyChanged(nameof(ActiveActionDisplay)));
     }
 
     public void Setup(IServiceProvider services)
@@ -195,7 +168,7 @@ internal class ViewModelMain : ViewModelBase
 
     private void NotifyToolActionDisplayChanged()
     {
-        if (!OverrideActionDisplay) RaisePropertyChanged(nameof(ActionDisplay));
+        if (!ActionDisplays.Any()) RaisePropertyChanged(nameof(ActiveActionDisplay));
     }
 
     /// <summary>
