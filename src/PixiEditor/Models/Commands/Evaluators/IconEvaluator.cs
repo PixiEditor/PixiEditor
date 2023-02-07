@@ -14,6 +14,40 @@ internal class IconEvaluator : Evaluator<ImageSource>
     public override ImageSource CallEvaluate(Command command, object parameter) =>
         base.CallEvaluate(command, parameter ?? command);
 
+    public static string GetDefaultPath(Command command)
+    {
+        string path;
+
+        if (command.IconPath != null)
+        {
+            if (command.IconPath.StartsWith('@'))
+            {
+                path = command.IconPath[1..];
+            }
+            else if (command.IconPath.StartsWith('$'))
+            {
+                path = $"Images/Commands/{command.IconPath[1..].Replace('.', '/')}.png";
+            }
+            else
+            {
+                path = $"Images/{command.IconPath}";
+            }
+        }
+        else
+        {
+            path = $"Images/Commands/{command.InternalName.Replace('.', '/')}.png";
+        }
+
+        path = path.ToLower();
+
+        if (path.StartsWith("/"))
+        {
+            path = path[1..];
+        }
+
+        return path;
+    }
+
     [DebuggerDisplay("IconEvaluator.Default")]
     private class CommandNameEvaluator : IconEvaluator
     {
@@ -23,30 +57,7 @@ internal class IconEvaluator : Evaluator<ImageSource>
 
         public override ImageSource CallEvaluate(Command command, object parameter)
         {
-            string path;
-
-            if (command.IconPath != null)
-            {
-                if (command.IconPath.StartsWith('@'))
-                {
-                    path = command.IconPath[1..];
-                }
-                else
-                {
-                    path = $"Images/{command.IconPath}";
-                }
-            }
-            else
-            {
-                path = $"Images/Commands/{command.InternalName.Replace('.', '/')}.png";
-            }
-
-            path = path.ToLower();
-
-            if (path.StartsWith("/"))
-            {
-                path = path[1..];
-            }
+            string path = GetDefaultPath(command);
 
             if (resources.Contains(path))
             {

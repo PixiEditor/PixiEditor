@@ -65,7 +65,7 @@ internal partial class PreviewWindow : UserControl
     {
         if (ViewModelMain.Current != null)
         {
-            ViewModelMain.Current.OverrideActionDisplay = false;
+            ViewModelMain.Current.ActionDisplays[nameof(PreviewWindow)] = null;
         }
     }
 
@@ -73,8 +73,7 @@ internal partial class PreviewWindow : UserControl
     {
         if (ViewModelMain.Current != null)
         {
-            ViewModelMain.Current.ActionDisplay = "Right-click to pick color, Shift-right-click to copy color to clipboard";
-            ViewModelMain.Current.OverrideActionDisplay = true;
+            ViewModelMain.Current.ActionDisplays[nameof(PreviewWindow)] = "Right-click to pick color, Shift-right-click to copy color to clipboard";
         }
     }
 

@@ -3,7 +3,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
-
 namespace PixiEditor.Helpers.Behaviours;
 #nullable enable
 internal class SliderUpdateBehavior : Behavior<Slider>
@@ -41,6 +40,15 @@ internal class SliderUpdateBehavior : Behavior<Slider>
         set => SetValue(DragStartedProperty, value);
     }
 
+    public static readonly DependencyProperty SetOpacityProperty =
+        DependencyProperty.Register(nameof(SetOpacity), typeof(ICommand), typeof(SliderUpdateBehavior), new(null));
+
+    public ICommand SetOpacity
+    {
+        get => (ICommand)GetValue(SetOpacityProperty);
+        set => SetValue(SetOpacityProperty, value);
+    }
+
     public static DependencyProperty ValueFromSliderProperty =
         DependencyProperty.Register(nameof(ValueFromSlider), typeof(double), typeof(SliderUpdateBehavior), new(OnSliderValuePropertyChange));
     public double ValueFromSlider
@@ -55,6 +63,8 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     private bool bindingValueChangedWhileDragging = false;
     private double bindingValueWhileDragging = 0.0;
 
+    private bool skipSetOpacity;
+    
     protected override void OnAttached()
     {
         AssociatedObject.Loaded += AssociatedObject_Loaded;
@@ -101,23 +111,32 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     private static void OnSliderValuePropertyChange(DependencyObject slider, DependencyPropertyChangedEventArgs e)
     {
         SliderUpdateBehavior obj = (SliderUpdateBehavior)slider;
+        
         if (obj.dragging)
         {
             if (obj.DragValueChanged is not null && obj.DragValueChanged.CanExecute(e.NewValue))
                 obj.DragValueChanged.Execute(e.NewValue);
+        }
+        else if (!obj.skipSetOpacity)
+        {
+            if (obj.SetOpacity is not null && obj.SetOpacity.CanExecute(e.NewValue))
+                obj.SetOpacity.Execute(e.NewValue);
         }
     }
 
     private static void OnBindingValuePropertyChange(DependencyObject slider, DependencyPropertyChangedEventArgs e)
     {
         SliderUpdateBehavior obj = (SliderUpdateBehavior)slider;
+        obj.skipSetOpacity = true;
         if (obj.dragging)
         {
             obj.bindingValueChangedWhileDragging = true;
             obj.bindingValueWhileDragging = (double)e.NewValue;
+            obj.skipSetOpacity = false;
             return;
         }
         obj.ValueFromSlider = (double)e.NewValue;
+        obj.skipSetOpacity = false;
     }
 
     private void Thumb_DragCompleted(object sender, DragCompletedEventArgs e)

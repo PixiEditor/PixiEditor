@@ -11,7 +11,18 @@ public enum FlipType
 /// </summary>
 public enum RotationAngle
 {
+    /// <summary>
+    /// 90 Degree
+    /// </summary>
     D90,
+    
+    /// <summary>
+    /// 180 Degree
+    /// </summary>
     D180,
+
+    /// <summary>
+    /// -90 Degree
+    /// </summary>
     D270
 }

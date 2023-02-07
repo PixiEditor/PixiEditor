@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Windows.Input;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using PixiEditor.Helpers;
@@ -9,6 +10,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -128,6 +130,21 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
 
             NoticeDialog.Show($"Empty keys: {emptyKeys}\nUnknown Commands: {unknownCommands}", "Result");
         }
+    }
+
+    [Command.Debug("PixiEditor.Debug.ClearRecentDocument", "Clear recent documents", "Clear recently opened documents")]
+    public void ClearRecentDocuments()
+    {
+        Owner.FileSubViewModel.RecentlyOpened.Clear();
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, Array.Empty<object>());
+    }
+
+    [Command.Debug("PixiEditor.Debug.OpenCommandDebugWindow", "Open command debug window", "Open command debug window")]
+    public void OpenCommandDebugWindow()
+    {
+        Mouse.OverrideCursor = Cursors.Wait;
+        new CommandDebugPopup().Show();
+        Mouse.OverrideCursor = null;
     }
 
     [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "Open Installation Directory", "Open Installation Directory", IconPath = "Folder.png")]

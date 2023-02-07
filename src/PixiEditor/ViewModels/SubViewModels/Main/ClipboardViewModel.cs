@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 
@@ -26,20 +27,31 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         doc.Operations.DeleteSelectedPixels(true);
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Paste", "Paste", "Paste from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Control)]
-    public void Paste()
+    [Command.Basic("PixiEditor.Clipboard.Paste", false, "Paste", "Paste from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "Paste as new layer", "Paste from clipboard as new layer", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "$PixiEditor.Clipboard.Paste", Key = Key.V, Modifiers = ModifierKeys.Control)]
+    public void Paste(bool pasteAsNewLayer)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null) 
             return;
-        ClipboardController.TryPasteFromClipboard(Owner.DocumentManagerSubViewModel.ActiveDocument);
+        ClipboardController.TryPasteFromClipboard(Owner.DocumentManagerSubViewModel.ActiveDocument, pasteAsNewLayer);
     }
-
-    [Command.Basic("PixiEditor.Clipboard.PasteColor", "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
-    public void PasteColor()
+    
+    [Command.Basic("PixiEditor.Clipboard.PasteColor", false, "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.PasteColorAsSecondary", true, "Paste color as secondary", "Paste color as secondary from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
+    public void PasteColor(bool secondary)
     {
-        if (ParseAnyFormat(Clipboard.GetText().Trim(), out var result))
+        if (!ColorHelper.ParseAnyFormat(Clipboard.GetText().Trim(), out var result))
+        {
+            return;
+        }
+
+        if (!secondary)
         {
             Owner.ColorsSubViewModel.PrimaryColor = result.Value;
+        }
+        else
+        {
+            Owner.ColorsSubViewModel.SecondaryColor = result.Value;
         }
     }
 
@@ -52,6 +64,31 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         ClipboardController.CopyToClipboard(doc);
     }
 
+    [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsHex", CopyColor.PrimaryHEX, "Copy primary color (HEX)", "Copy primary color as hex code", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsRgb", CopyColor.PrimaryRGB, "Copy primary color (RGB)", "Copy primary color as RGB code", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsHex", CopyColor.SecondaryHEX, "Copy secondary color (HEX)", "Copy secondary color as hex code", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsRgb", CopyColor.SecondardRGB, "Copy secondary color (RGB)", "Copy secondary color as RGB code", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
+    public void CopyColorAsHex(CopyColor color)
+    {
+        var targetColor = color switch
+        {
+            CopyColor.PrimaryHEX or CopyColor.PrimaryRGB => Owner.ColorsSubViewModel.PrimaryColor,
+            _ => Owner.ColorsSubViewModel.SecondaryColor
+        };
+
+        string text = color switch
+        {
+            CopyColor.PrimaryHEX or CopyColor.SecondaryHEX => targetColor.A == 255
+                ? $"#{targetColor.R:X2}{targetColor.G:X2}{targetColor.B:X2}"
+                : targetColor.ToString(),
+            _ => targetColor.A == 255
+                ? $"rgb({targetColor.R},{targetColor.G},{targetColor.B})"
+                : $"rgba({targetColor.R},{targetColor.G},{targetColor.B},{targetColor.A})",
+        };
+
+        Clipboard.SetText(text);
+    }
+
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste")]
     public bool CanPaste()
     {
@@ -59,50 +96,51 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
-    public static bool CanPasteColor() => ParseAnyFormat(Clipboard.GetText().Trim(), out _);
+    public static bool CanPasteColor() => ColorHelper.ParseAnyFormat(Clipboard.GetText().Trim(), out _);
 
     [Evaluator.Icon("PixiEditor.Clipboard.PasteColorIcon")]
     public static ImageSource GetPasteColorIcon()
     {
         Color color;
 
-        if (ParseAnyFormat(Clipboard.GetText().Trim(), out var result))
-        {
-            color = result.Value.ToOpaqueMediaColor();
-        }
-        else
-        {
-            color = Colors.Transparent;
-        }
+        color = ColorHelper.ParseAnyFormat(Clipboard.GetText().Trim(), out var result) ? result.Value.ToOpaqueMediaColor() : Colors.Transparent;
 
         return ColorSearchResult.GetIcon(color.ToOpaqueColor());
     }
 
-    private static bool ParseAnyFormat(string value, [NotNullWhen(true)] out DrawingApi.Core.ColorsImpl.Color? result)
+    [Evaluator.Icon("PixiEditor.Clipboard.CopyColorIcon")]
+    public ImageSource GetCopyColorIcon(object data)
     {
-        bool hex = Regex.IsMatch(Clipboard.GetText().Trim(), "^#?([a-fA-F0-9]{8}|[a-fA-F0-9]{6}|[a-fA-F0-9]{3})$");
-
-        if (hex)
+        if (data is CopyColor color)
         {
-            result = DrawingApi.Core.ColorsImpl.Color.Parse(Clipboard.GetText().Trim());
-            return true;
         }
-
-        var match = Regex.Match(Clipboard.GetText().Trim(), @"(?:rgba?\(?)? *(?<r>\d{1,3})(?:, *| +)(?<g>\d{1,3})(?:, *| +)(?<b>\d{1,3})(?:(?:, *| +)(?<a>\d{0,3}))?\)?");
-
-        if (!match.Success)
+        else if (data is Models.Commands.Commands.Command.BasicCommand command)
         {
-            result = null;
-            return false;
+            color = (CopyColor)command.Parameter;
         }
+        else if (data is CommandSearchResult result)
+        {
+            color = (CopyColor)((Models.Commands.Commands.Command.BasicCommand)result.Command).Parameter;
+        }
+        else
+        {
+            throw new ArgumentException("data must be of type CopyColor, BasicCommand or CommandSearchResult");
+        }
+        
+        var targetColor = color switch
+        {
+            CopyColor.PrimaryHEX or CopyColor.PrimaryRGB => Owner.ColorsSubViewModel.PrimaryColor,
+            _ => Owner.ColorsSubViewModel.SecondaryColor
+        };
 
-        byte r = byte.Parse(match.Groups["r"].ValueSpan);
-        byte g = byte.Parse(match.Groups["g"].ValueSpan);
-        byte b = byte.Parse(match.Groups["b"].ValueSpan);
-        byte a = match.Groups["a"].Success ? byte.Parse(match.Groups["a"].ValueSpan) : (byte)255;
+        return ColorSearchResult.GetIcon(targetColor.ToOpaqueMediaColor().ToOpaqueColor());
+    }
 
-        result = new DrawingApi.Core.ColorsImpl.Color(r, g, b, a);
-        return true;
-
+    public enum CopyColor
+    {
+        PrimaryHEX,
+        PrimaryRGB,
+        SecondaryHEX,
+        SecondardRGB
     }
 }

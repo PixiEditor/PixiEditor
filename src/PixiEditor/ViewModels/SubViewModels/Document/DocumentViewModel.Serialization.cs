@@ -23,7 +23,7 @@ internal partial class DocumentViewModel
     {
         var root = new Folder();
         
-        IReadOnlyDocument doc = Internals.Tracker.Document;
+        var doc = Internals.Tracker.Document;
 
         AddMembers(doc.StructureRoot.Children, doc, root);
 
@@ -31,7 +31,7 @@ internal partial class DocumentViewModel
         {
             Width = Width, Height = Height,
             Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
-            RootFolder = root, PreviewImage = PreviewSurface.Snapshot().Encode().AsSpan().ToArray()
+            RootFolder = root, PreviewImage = (MaybeRenderWholeImage().Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray()
         };
 
         return document;
@@ -64,6 +64,7 @@ internal partial class DocumentViewModel
             BlendMode = (BlendMode)(int)folder.BlendMode,
             Enabled = folder.IsVisible,
             Opacity = folder.Opacity,
+            ClipToMemberBelow = folder.ClipToMemberBelow,
             Mask = GetMask(folder.Mask, folder.MaskIsVisible)
         };
     }
@@ -79,7 +80,8 @@ internal partial class DocumentViewModel
         {
             Width = result?.Size.X ?? 0, Height = result?.Size.Y ?? 0, OffsetX = tightBounds?.X ?? 0, OffsetY = tightBounds?.Y ?? 0,
             Enabled = layer.IsVisible, BlendMode = (BlendMode)(int)layer.BlendMode, ImageBytes = bytes,
-            Name = layer.Name, Opacity = layer.Opacity, Mask = GetMask(layer.Mask, layer.MaskIsVisible)
+            ClipToMemberBelow = layer.ClipToMemberBelow, Name = layer.Name, 
+            Opacity = layer.Opacity, Mask = GetMask(layer.Mask, layer.MaskIsVisible)
         };
 
         return serializable;

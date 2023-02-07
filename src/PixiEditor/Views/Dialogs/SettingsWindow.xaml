@@ -210,7 +210,11 @@
                             Content="Reset all"/>
                 </StackPanel>
                 <TextBox Grid.Row="1" Style="{StaticResource DarkTextBoxStyle}" Margin="0,10"
-                         Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                         Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Behaviors>
+                        <behaviours:GlobalShortcutFocusBehavior/>
+                    </i:Interaction.Behaviors>
+                </TextBox>
 
                 <settingGroups:ShortcutsBinder Grid.Row="2"/>
 

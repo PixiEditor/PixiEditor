@@ -1,12 +1,17 @@
 ﻿using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
@@ -15,7 +20,7 @@ using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
-[Command.Group("PixiEditor.Layer", "Image")]
+[Command.Group("PixiEditor.Layer", "Layer")]
 internal class LayersViewModel : SubViewModel<ViewModelMain>
 {
     public LayersViewModel(ViewModelMain owner)
@@ -134,10 +139,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Layer.OpacitySliderDragged")]
-    public void OpacitySliderDragged(object parameter)
+    public void OpacitySliderDragged(double value)
     {
-        if (parameter is not double value)
-            return;
         Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnOpacitySliderDragged((float)value);
     }
 
@@ -145,6 +148,17 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public void OpacitySliderDragEnded()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnOpacitySliderDragEnded();
+    }
+
+    [Command.Internal("PixiEditor.Layer.OpacitySliderSet")]
+    public void OpacitySliderSet(double value)
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        if (document?.SelectedStructureMember != null)
+        {
+            document.Operations.SetMemberOpacity(document.SelectedStructureMember.GuidValue, (float)value);
+        }
     }
 
     [Command.Basic("PixiEditor.Layer.DuplicateSelectedLayer", "Duplicate selected layer", "Duplicate selected layer", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer")]
@@ -314,7 +328,23 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool ReferenceLayerExists() => Owner.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.ReferenceBitmap is not null;
     [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExist")]
     public bool ReferenceLayerDoesntExist() => 
-        Owner.DocumentManagerSubViewModel.ActiveDocument is null ? false : Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
+        Owner.DocumentManagerSubViewModel.ActiveDocument is not null && Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
+
+    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
+    public bool ReferenceLayerDoesntExistAndHasClipboardContent(DataObject data)
+    {
+        if (!ReferenceLayerDoesntExist())
+        {
+            return false;
+        }
+        
+        if (data != null)
+        {
+            return Owner.DocumentIsNotNull(null) && ClipboardController.IsImage(data);
+        }
+        
+        return Owner.ClipboardSubViewModel.CanPaste();
+    }
 
     [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "Add reference layer", "Add reference layer", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist")]
     public void ImportReferenceLayer()
@@ -347,6 +377,25 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             pixels.ToImmutableArray(), 
             size);
     }
+
+    [Command.Basic("PixiEditor.Layer.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", IconPath = "Commands/PixiEditor/Clipboard/Paste.png", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
+    public void PasteReferenceLayer(DataObject data)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        var surface = (data == null ? ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
+        using var image = surface.image;
+        
+        var bitmap = surface.image.ToWriteableBitmap();
+
+        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
+        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
+
+        doc.Operations.ImportReferenceLayer(
+            pixels.ToImmutableArray(),
+            surface.image.Size);
+    }
+    
     private string OpenReferenceLayerFilePicker()
     {
         var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();

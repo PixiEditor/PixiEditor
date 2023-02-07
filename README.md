@@ -40,7 +40,7 @@ PixiEditor started in 2018 and it's been actively developed since. We continuous
 
 Wishlist on Steam now!
 
-![wishlist_steam](https://user-images.githubusercontent.com/25402427/214952291-d81a4d79-bb75-44f2-bd24-10d7c3404997.png)
+[![wishlist_steam](https://user-images.githubusercontent.com/25402427/214952291-d81a4d79-bb75-44f2-bd24-10d7c3404997.png)](https://store.steampowered.com/app/2218560/PixiEditor__Pixel_Art_Editor?utm_source=GitHub)
 
 **Or**
 
