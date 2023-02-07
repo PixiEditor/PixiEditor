@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <Configurations>Debug;Release;Dev Steam</Configurations>
   </PropertyGroup>
 
 </Project>

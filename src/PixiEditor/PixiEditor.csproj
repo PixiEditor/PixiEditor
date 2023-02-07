@@ -14,11 +14,13 @@
 		<PackageIcon>icon.ico</PackageIcon>
 		<ApplicationIcon>..\icon.ico</ApplicationIcon>
 		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
-		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release</Configurations>
+		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release;Dev Steam</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
         <ImplicitUsings>true</ImplicitUsings>
         <AssemblyVersion></AssemblyVersion>
         <LangVersion>11</LangVersion>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
@@ -51,7 +53,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x86'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE</DefineConstants>
+		<DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
 		<Optimize>True</Optimize>
 	</PropertyGroup>
 
@@ -62,7 +64,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x64'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE</DefineConstants>
+		<DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
 		<Optimize>True</Optimize>
 	</PropertyGroup>
 
@@ -125,6 +127,21 @@
 		<DebugSymbols>true</DebugSymbols>
 		<Optimize>false</Optimize>
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Steam|AnyCPU'">
+	  <DefineConstants>TRACE;RELEASE</DefineConstants>
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Steam|x64'">
+	  <DefineConstants>TRACE;RELEASE</DefineConstants>
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Steam|x86'">
+	  <DefineConstants>TRACE;RELEASE</DefineConstants>
+	  <Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>
