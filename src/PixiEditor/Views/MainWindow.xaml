@@ -98,6 +98,8 @@
         <Grid
             Name="mainGrid"
             Margin="5"
+            KeyboardNavigation.DirectionalNavigation="None"
+            KeyboardNavigation.TabNavigation="None"
             Focusable="True">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition
@@ -178,13 +180,13 @@
                             </MenuItem.ItemTemplate>
                         </MenuItem>
                         <MenuItem
-                            Header="_Save"
+                            Header="_Save (.pixi)"
                             cmds:Menu.Command="PixiEditor.File.Save" />
                         <MenuItem
-                            Header="_Save As..."
+                            Header="_Save As... (.pixi)"
                             cmds:Menu.Command="PixiEditor.File.SaveAsNew" />
                         <MenuItem
-                            Header="_Export"
+                            Header="_Export (.png, .jpeg, etc.)"
                             cmds:Menu.Command="PixiEditor.File.Export" />
                         <Separator />
                         <MenuItem
@@ -324,6 +326,10 @@
                         Header="_Debug"
                         Visibility="{Binding DebugSubViewModel.UseDebug, Converter={StaticResource BoolToVisibilityConverter}}">
                         <MenuItem
+                            Header="Open Command Debug Window"
+                            cmds:Menu.Command="PixiEditor.Debug.OpenCommandDebugWindow"/>
+                        <Separator/>
+                        <MenuItem
                             Header="Open _Local App Data"
                             cmds:Menu.Command="PixiEditor.Debug.OpenLocalAppDataDirectory" />
                         <MenuItem
@@ -336,7 +342,7 @@
                             Header="Open _Install Location"
                             cmds:Menu.Command="PixiEditor.Debug.OpenInstallDirectory" />
                         <MenuItem
-                            Header="Open Crash Reports Location"
+                            Header="Open Crash _Reports Location"
                             cmds:Menu.Command="PixiEditor.Debug.OpenCrashReportsDirectory" />
                         <Separator />
                         <MenuItem
@@ -353,6 +359,10 @@
                             <MenuItem
                                 Header="Editor Data (Local)"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteEditorData" />
+                            <Separator/>
+                            <MenuItem
+                                Header="_Clear recent documents"
+                                cmds:Menu.Command="PixiEditor.Debug.ClearRecentDocument"/>
                         </MenuItem>
                     </MenuItem>
                 </cmds:Menu>
@@ -496,7 +506,7 @@
             </StackPanel>
 
             <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
-                <Grid AllowDrop="True" Drop="MainWindow_Drop">
+                <Grid AllowDrop="True" Drop="MainWindow_Drop" DragEnter="MainWindow_DragEnter" DragLeave="MainWindow_DragLeave">
                     <DockingManager 
                         ActiveContent="{Binding WindowSubViewModel.ActiveWindow, Mode=TwoWay}"
                         DocumentsSource="{Binding WindowSubViewModel.Viewports}">
@@ -785,7 +795,7 @@
                 </Grid.ColumnDefinitions>
                 <DockPanel>
                     <TextBlock
-                        Text="{Binding ActionDisplay}"
+                        Text="{Binding ActiveActionDisplay}"
                         Foreground="White"
                         FontSize="15"
                         Margin="10,0,0,0"

@@ -35,9 +35,9 @@ internal class PixelOperation : IMirroredDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return new HashSet<VecI>() { OperationHelper.GetChunkPos(pixel, ChunkyImage.FullChunkSize) };
+        return new AffectedArea(new HashSet<VecI>() { OperationHelper.GetChunkPos(pixel, ChunkyImage.FullChunkSize) }, new RectI(pixel, VecI.One));
     }
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)

@@ -16,10 +16,10 @@ internal class ApplyMaskOperation : IDrawOperation
     {
         mask = maskToApply;
     }
-    
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return mask.FindCommittedChunks();
+        return new AffectedArea(mask.FindCommittedChunks());
     }
     
     public void DrawOnChunk(Chunk chunk, VecI chunkPos)

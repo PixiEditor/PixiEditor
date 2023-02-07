@@ -13,13 +13,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 internal class RotateViewportToolViewModel : ToolViewModel
 {
     public override BrushShape BrushShape => BrushShape.Hidden;
+    public override bool HideHighlight => true;
+    public override string Tooltip => $"Rotates viewport ({Shortcut})";
 
     public RotateViewportToolViewModel()
     {
         ActionDisplay = "Rotate viewport";
     }
 
-    public override bool HideHighlight => true;
-
-    public override string Tooltip => $"Rotates viewport ({Shortcut})";
+    public override void OnSelected() { }
 }

@@ -60,9 +60,9 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         
         ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, tempSurface, layer.LayerImage);
         
-        var affected = layer.LayerImage.FindAffectedChunks(queueLength);
+        var affected = layer.LayerImage.FindAffectedArea(queueLength);
         
-        return new LayerImageChunks_ChangeInfo(layerGuid, affected);
+        return new LayerImageArea_ChangeInfo(layerGuid, affected);
     }
     
     private static void ChangeBrightness(
@@ -112,18 +112,18 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
             }
         }
 
-        var affChunks = layer.LayerImage.FindAffectedChunks();
-        savedChunks = new CommittedChunkStorage(layer.LayerImage, affChunks);
+        var affArea = layer.LayerImage.FindAffectedArea();
+        savedChunks = new CommittedChunkStorage(layer.LayerImage, affArea.Chunks);
         layer.LayerImage.CommitChanges();
         if (firstApply)
             return new None();
-        return new LayerImageChunks_ChangeInfo(layerGuid, affChunks);
+        return new LayerImageArea_ChangeInfo(layerGuid, affArea);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, layerGuid, false, ref savedChunks);
-        return new LayerImageChunks_ChangeInfo(layerGuid, affected);
+        return new LayerImageArea_ChangeInfo(layerGuid, affected);
     }
 
     public override void Dispose()

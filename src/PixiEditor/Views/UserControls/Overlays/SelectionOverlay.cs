@@ -82,11 +82,18 @@ internal class SelectionOverlay : Control
         if (Path is null)
             return;
 
-        renderPath = new PathGeometry()
+        try
         {
-            FillRule = FillRule.EvenOdd,
-            Figures = (PathFigureCollection?)converter.ConvertFromString(Path.ToSvgPathData()),
-        };
+            renderPath = new PathGeometry()
+            {
+                FillRule = FillRule.EvenOdd,
+                Figures = (PathFigureCollection?)converter.ConvertFromString(Path.ToSvgPathData()),
+            };
+        }
+        catch (FormatException)
+        {
+            return;
+        }
         drawingContext.DrawGeometry(null, whitePen, renderPath);
         drawingContext.DrawGeometry(fillBrush, blackDashedPen, renderPath);
     }

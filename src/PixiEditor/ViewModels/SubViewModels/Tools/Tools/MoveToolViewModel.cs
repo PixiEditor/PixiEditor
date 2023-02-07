@@ -36,9 +36,4 @@ internal class MoveToolViewModel : ToolViewModel
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(true);
     }
-
-    public override void OnDeselected()
-    {
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
-    }
 }

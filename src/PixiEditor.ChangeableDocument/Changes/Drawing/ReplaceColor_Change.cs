@@ -32,11 +32,11 @@ internal class ReplaceColor_Change : Change
             if (member is not Layer layer)
                 return;
             layer.LayerImage.EnqueueReplaceColor(oldColor, newColor);
-            HashSet<VecI>? chunks = layer.LayerImage.FindAffectedChunks();
-            CommittedChunkStorage storage = new(layer.LayerImage, chunks);
+            var affArea = layer.LayerImage.FindAffectedArea();
+            CommittedChunkStorage storage = new(layer.LayerImage, affArea.Chunks);
             savedChunks[layer.GuidValue] = storage;
             layer.LayerImage.CommitChanges();
-            infos.Add(new LayerImageChunks_ChangeInfo(layer.GuidValue, chunks));
+            infos.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, affArea));
         });
         ignoreInUndo = !savedChunks.Any();
         return infos;
@@ -52,8 +52,8 @@ internal class ReplaceColor_Change : Change
             if (member is not Layer layer)
                 return;
             CommittedChunkStorage? storage = savedChunks[member.GuidValue];
-            var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(layer.LayerImage, ref storage);
-            infos.Add(new LayerImageChunks_ChangeInfo(layer.GuidValue, chunks));
+            var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(layer.LayerImage, ref storage);
+            infos.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, affArea));
         });
         savedChunks = null;
         return infos;

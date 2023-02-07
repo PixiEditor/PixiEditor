@@ -55,7 +55,8 @@ public struct ShapeCorners
     {
         get
         {
-            Span<VecD> lengths = stackalloc[] {
+            Span<VecD> lengths = stackalloc[] 
+            {
                 TopLeft - TopRight,
                 TopRight - BottomRight,
                 BottomRight - BottomLeft,
@@ -91,6 +92,18 @@ public struct ShapeCorners
                 (BottomRight - BottomRight.Round()).TaxicabLength < epsilon;
         }
     }
+    public RectD AABBBounds
+    {
+        get
+        {
+            double minX = Math.Min(Math.Min(TopLeft.X, TopRight.X), Math.Min(BottomLeft.X, BottomRight.X));
+            double minY = Math.Min(Math.Min(TopLeft.Y, TopRight.Y), Math.Min(BottomLeft.Y, BottomRight.Y));
+            double maxX = Math.Max(Math.Max(TopLeft.X, TopRight.X), Math.Max(BottomLeft.X, BottomRight.X));
+            double maxY = Math.Max(Math.Max(TopLeft.Y, TopRight.Y), Math.Max(BottomLeft.Y, BottomRight.Y));
+            return RectD.FromTwoPoints(new VecD(minX, minY), new VecD(maxX, maxY));
+        }
+    }
+
     public bool IsPointInside(VecD point)
     {
         var top = TopLeft - TopRight;
@@ -121,7 +134,7 @@ public struct ShapeCorners
         TopLeft = TopLeft.ReflectY(horAxisY),
         TopRight = TopRight.ReflectY(horAxisY)
     };
-    
+
     public ShapeCorners AsMirroredAcrossVerAxis(int verAxisX) => new ShapeCorners
     {
         BottomLeft = BottomLeft.ReflectX(verAxisX),
@@ -129,4 +142,39 @@ public struct ShapeCorners
         TopLeft = TopLeft.ReflectX(verAxisX),
         TopRight = TopRight.ReflectX(verAxisX)
     };
+
+    public ShapeCorners AsRotated(double angle, VecD around) => new ShapeCorners
+    {
+        BottomLeft = BottomLeft.Rotate(angle, around),
+        BottomRight = BottomRight.Rotate(angle, around),
+        TopLeft = TopLeft.Rotate(angle, around),
+        TopRight = TopRight.Rotate(angle, around)
+    };
+
+    public ShapeCorners AsTranslated(VecD delta) => new ShapeCorners
+    {
+        BottomLeft = BottomLeft + delta,
+        BottomRight = BottomRight + delta,
+        TopLeft = TopLeft + delta,
+        TopRight = TopRight + delta
+    };
+
+    public static bool operator !=(ShapeCorners left, ShapeCorners right) => !(left == right);
+    public static bool operator == (ShapeCorners left, ShapeCorners right)
+    {
+        return 
+           left.TopLeft == right.TopLeft &&
+           left.TopRight == right.TopRight &&
+           left.BottomLeft == right.BottomLeft &&
+           left.BottomRight == right.BottomRight;
+    }
+
+    public bool AlmostEquals(ShapeCorners other, double epsilon = 0.001)
+    {
+        return
+            TopLeft.AlmostEquals(other.TopLeft, epsilon) &&
+            TopRight.AlmostEquals(other.TopRight, epsilon) &&
+            BottomLeft.AlmostEquals(other.BottomLeft, epsilon) &&
+            BottomRight.AlmostEquals(other.BottomRight, epsilon);
+    }
 }

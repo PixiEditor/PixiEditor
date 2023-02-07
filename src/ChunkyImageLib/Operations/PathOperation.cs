@@ -35,9 +35,9 @@ internal class PathOperation : IMirroredDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize);
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize), bounds);
     }
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)

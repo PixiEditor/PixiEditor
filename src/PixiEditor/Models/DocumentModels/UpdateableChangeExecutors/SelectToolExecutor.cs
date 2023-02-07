@@ -31,7 +31,7 @@ internal class SelectToolExecutor : UpdateableChangeExecutor
         
         startPos = controller!.LastPixelPosition;
         selectShape = toolViewModel.SelectShape;
-        selectMode = toolViewModel.SelectMode;
+        selectMode = toolViewModel.ResultingSelectionMode;
 
         IAction action = CreateUpdateAction(selectShape, new RectI(startPos, new(0)), selectMode);
         internals!.ActionAccumulator.AddActions(action);

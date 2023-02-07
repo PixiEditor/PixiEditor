@@ -114,6 +114,27 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         onEnded?.Invoke(this);
     }
 
+    public override void OnSelectedObjectNudged(VecI distance)
+    {
+        if (!transforming)
+            return;
+        document!.TransformViewModel.Nudge(distance);
+    }
+
+    public override void OnMidChangeUndo()
+    {
+        if (!transforming)
+            return;
+        document!.TransformViewModel.Undo();
+    }
+
+    public override void OnMidChangeRedo()
+    {
+        if (!transforming)
+            return;
+        document!.TransformViewModel.Redo();
+    }
+
     public override void OnPixelPositionChange(VecI pos)
     {
         if (transforming)
@@ -133,7 +154,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
             return;
         }
         transforming = true;
-        document!.TransformViewModel.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect));
+        document!.TransformViewModel.ShowTransform(TransformMode, false, new ShapeCorners((RectD)lastRect), true);
     }
 
     public override void ForceStop()

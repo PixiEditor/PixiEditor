@@ -10,8 +10,7 @@ internal static class PixiParserDocumentEx
     {
         return DocumentViewModel.Build(b =>
         {
-            b
-                .WithSize(document.Width, document.Height)
+            b.WithSize(document.Width, document.Height)
                 .WithPalette(document.Palette, x => new Color(x.R, x.G, x.B, x.A))
                 .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B, x.A));
 
@@ -43,6 +42,7 @@ internal static class PixiParserDocumentEx
             .WithOpacity(folder.Opacity)
             .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)folder.BlendMode)
             .WithChildren(x => BuildChildren(x, folder.Children))
+            .WithClipToBelow(folder.ClipToMemberBelow)
             .WithMask(folder.Mask, (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height, x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
 
         void BuildLayer(DocumentViewModelBuilder.LayerBuilder builder, ImageLayer layer)
@@ -52,13 +52,16 @@ internal static class PixiParserDocumentEx
                 .WithVisibility(layer.Enabled)
                 .WithOpacity(layer.Opacity)
                 .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)layer.BlendMode)
-                .WithSize(layer.Width, layer.Height)
+                .WithRect(layer.Width, layer.Height, layer.OffsetX, layer.OffsetY)
+                .WithClipToBelow(layer.ClipToMemberBelow)
                 .WithMask(layer.Mask,
                     (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height,
                         x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
 
             if (layer.Width > 0 && layer.Height > 0)
-                builder.WithSurface(x => x.WithImage(layer.ImageBytes, layer.OffsetX, layer.OffsetY));
+            {
+                builder.WithSurface(x => x.WithImage(layer.ImageBytes, 0, 0));
+            }
         }
     }
 }

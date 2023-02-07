@@ -5,7 +5,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class TransformSelectionPath_UpdateableChange : UpdateableChange
 {
     private VectorPath? originalPath;
-    private RectI originalTightBounds;
+    private RectD originalTightBounds;
     private ShapeCorners newCorners;
 
     [GenerateUpdateableChangeActions]
@@ -25,7 +25,7 @@ internal class TransformSelectionPath_UpdateableChange : UpdateableChange
         if (target.Selection.SelectionPath.IsEmpty)
             return false;
         originalPath = new(target.Selection.SelectionPath);
-        originalTightBounds = (RectI)originalPath.TightBounds;
+        originalTightBounds = originalPath.TightBounds;
         return true;
     }
 

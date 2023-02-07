@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib;
+﻿using System.ComponentModel.DataAnnotations;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -11,15 +12,15 @@ using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Models.Rendering;
 #nullable enable
-internal class AffectedChunkGatherer
+internal class AffectedAreasGatherer
 {
     private readonly DocumentChangeTracker tracker;
 
-    public HashSet<VecI> MainImageChunks { get; private set; } = new();
-    public Dictionary<Guid, HashSet<VecI>> ImagePreviewChunks { get; private set; } = new();
-    public Dictionary<Guid, HashSet<VecI>> MaskPreviewChunks { get; private set; } = new();
+    public AffectedArea MainImageArea { get; private set; } = new();
+    public Dictionary<Guid, AffectedArea> ImagePreviewAreas { get; private set; } = new();
+    public Dictionary<Guid, AffectedArea> MaskPreviewAreas { get; private set; } = new();
 
-    public AffectedChunkGatherer(DocumentChangeTracker tracker, IReadOnlyList<IChangeInfo> changes)
+    public AffectedAreasGatherer(DocumentChangeTracker tracker, IReadOnlyList<IChangeInfo> changes)
     {
         this.tracker = tracker;
         ProcessChanges(changes);
@@ -31,18 +32,18 @@ internal class AffectedChunkGatherer
         {
             switch (change)
             {
-                case MaskChunks_ChangeInfo info:
-                    if (info.Chunks is null)
+                case MaskArea_ChangeInfo info:
+                    if (info.Area.Chunks is null)
                         throw new InvalidOperationException("Chunks must not be null");
-                    AddToMainImage(info.Chunks);
-                    AddToImagePreviews(info.GuidValue, info.Chunks, true);
-                    AddToMaskPreview(info.GuidValue, info.Chunks);
+                    AddToMainImage(info.Area);
+                    AddToImagePreviews(info.GuidValue, info.Area, true);
+                    AddToMaskPreview(info.GuidValue, info.Area);
                     break;
-                case LayerImageChunks_ChangeInfo info:
-                    if (info.Chunks is null)
+                case LayerImageArea_ChangeInfo info:
+                    if (info.Area.Chunks is null)
                         throw new InvalidOperationException("Chunks must not be null");
-                    AddToMainImage(info.Chunks);
-                    AddToImagePreviews(info.GuidValue, info.Chunks);
+                    AddToMainImage(info.Area);
+                    AddToImagePreviews(info.GuidValue, info.Area);
                     break;
                 case CreateStructureMember_ChangeInfo info:
                     AddAllToMainImage(info.GuidValue);
@@ -99,7 +100,7 @@ internal class AffectedChunkGatherer
         if (member is IReadOnlyLayer layer)
         {
             var chunks = layer.LayerImage.FindAllChunks();
-            AddToImagePreviews(memberGuid, chunks, ignoreSelf);
+            AddToImagePreviews(memberGuid, new AffectedArea(chunks), ignoreSelf);
         }
         else if (member is IReadOnlyFolder folder)
         {
@@ -117,7 +118,7 @@ internal class AffectedChunkGatherer
             var chunks = layer.LayerImage.FindAllChunks();
             if (layer.Mask is not null && layer.MaskIsVisible && useMask)
                 chunks.IntersectWith(layer.Mask.FindAllChunks());
-            AddToMainImage(chunks);
+            AddToMainImage(new AffectedArea(chunks));
         }
         else
         {
@@ -132,7 +133,7 @@ internal class AffectedChunkGatherer
         if (member.Mask is not null)
         {
             var chunks = member.Mask.FindAllChunks();
-            AddToMaskPreview(memberGuid, chunks);
+            AddToMaskPreview(memberGuid, new AffectedArea(chunks));
         }
         if (member is IReadOnlyFolder folder)
         {
@@ -142,12 +143,14 @@ internal class AffectedChunkGatherer
     }
 
 
-    private void AddToMainImage(HashSet<VecI> chunks)
+    private void AddToMainImage(AffectedArea area)
     {
-        MainImageChunks.UnionWith(chunks);
+        var temp = MainImageArea;
+        temp.UnionWith(area);
+        MainImageArea = temp;
     }
 
-    private void AddToImagePreviews(Guid memberGuid, HashSet<VecI> chunks, bool ignoreSelf = false)
+    private void AddToImagePreviews(Guid memberGuid, AffectedArea area, bool ignoreSelf = false)
     {
         var path = tracker.Document.FindMemberPath(memberGuid);
         if (path.Count < 2)
@@ -155,25 +158,37 @@ internal class AffectedChunkGatherer
         for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
         {
             var member = path[i];
-            if (!ImagePreviewChunks.ContainsKey(member.GuidValue))
-                ImagePreviewChunks[member.GuidValue] = new HashSet<VecI>(chunks);
+            if (!ImagePreviewAreas.ContainsKey(member.GuidValue))
+            {
+                ImagePreviewAreas[member.GuidValue] = new AffectedArea(area);
+            }
             else
-                ImagePreviewChunks[member.GuidValue].UnionWith(chunks);
+            {
+                var temp = ImagePreviewAreas[member.GuidValue];
+                temp.UnionWith(area);
+                ImagePreviewAreas[member.GuidValue] = temp;
+            }
         }
     }
 
-    private void AddToMaskPreview(Guid memberGuid, HashSet<VecI> chunks)
+    private void AddToMaskPreview(Guid memberGuid, AffectedArea area)
     {
-        if (!MaskPreviewChunks.ContainsKey(memberGuid))
-            MaskPreviewChunks[memberGuid] = new HashSet<VecI>(chunks);
+        if (!MaskPreviewAreas.ContainsKey(memberGuid))
+        {
+            MaskPreviewAreas[memberGuid] = new AffectedArea(area);
+        }
         else
-            MaskPreviewChunks[memberGuid].UnionWith(chunks);
+        {
+            var temp = MaskPreviewAreas[memberGuid];
+            temp.UnionWith(area);
+            MaskPreviewAreas[memberGuid] = temp;
+        }
     }
 
 
     private void AddWholeCanvasToMainImage()
     {
-        AddAllChunks(MainImageChunks);
+        MainImageArea = AddWholeArea(MainImageArea);
     }
 
     private void AddWholeCanvasToImagePreviews(Guid memberGuid, bool ignoreSelf = false)
@@ -185,17 +200,17 @@ internal class AffectedChunkGatherer
         for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
         {
             var member = path[i];
-            if (!ImagePreviewChunks.ContainsKey(member.GuidValue))
-                ImagePreviewChunks[member.GuidValue] = new HashSet<VecI>();
-            AddAllChunks(ImagePreviewChunks[member.GuidValue]);
+            if (!ImagePreviewAreas.ContainsKey(member.GuidValue))
+                ImagePreviewAreas[member.GuidValue] = new AffectedArea();
+            ImagePreviewAreas[member.GuidValue] = AddWholeArea(ImagePreviewAreas[member.GuidValue]);
         }
     }
 
     private void AddWholeCanvasToMaskPreview(Guid memberGuid)
     {
-        if (!MaskPreviewChunks.ContainsKey(memberGuid))
-            MaskPreviewChunks[memberGuid] = new HashSet<VecI>();
-        AddAllChunks(MaskPreviewChunks[memberGuid]);
+        if (!MaskPreviewAreas.ContainsKey(memberGuid))
+            MaskPreviewAreas[memberGuid] = new AffectedArea();
+        MaskPreviewAreas[memberGuid] = AddWholeArea(MaskPreviewAreas[memberGuid]);
     }
 
 
@@ -209,7 +224,7 @@ internal class AffectedChunkGatherer
         tracker.Document.ForEveryReadonlyMember((member) => AddWholeCanvasToMaskPreview(member.GuidValue));
     }
 
-    private void AddAllChunks(HashSet<VecI> chunks)
+    private AffectedArea AddWholeArea(AffectedArea area)
     {
         VecI size = new(
             (int)Math.Ceiling(tracker.Document.Size.X / (float)ChunkyImage.FullChunkSize),
@@ -218,8 +233,10 @@ internal class AffectedChunkGatherer
         {
             for (int j = 0; j < size.Y; j++)
             {
-                chunks.Add(new(i, j));
+                area.Chunks.Add(new(i, j));
             }
         }
+        area.GlobalArea = new RectI(VecI.Zero, tracker.Document.Size);
+        return area;
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Helpers;
+using PixiEditor.Helpers.Behaviours;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Views.UserControls;
@@ -90,6 +92,7 @@ internal partial class KeyCombinationBox : UserControl
 
         UpdateText();
         UpdateButton();
+        FocusHelper.MoveFocusToParent((FrameworkElement)sender);
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)

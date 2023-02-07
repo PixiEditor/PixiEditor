@@ -89,6 +89,9 @@ internal class ChangeExecutionController
         return true;
     }
 
+    public void MidChangeUndoInlet() => currentSession?.OnMidChangeUndo();
+    public void MidChangeRedoInlet() => currentSession?.OnMidChangeRedo();
+
     public void ConvertedKeyDownInlet(Key key)
     {
         currentSession?.OnConvertedKeyDown(key);
@@ -174,5 +177,10 @@ internal class ChangeExecutionController
     public void LineOverlayMovedInlet(VecD start, VecD end)
     {
         currentSession?.OnLineOverlayMoved(start, end);
+    }
+
+    public void SelectedObjectNudgedInlet(VecI distance)
+    {
+        currentSession?.OnSelectedObjectNudged(distance);
     }
 }

@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -35,9 +36,20 @@ internal class PixelsOperation : IMirroredDrawOperation
         surf.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return pixels.Select(static pixel => OperationHelper.GetChunkPos(pixel, ChunkyImage.FullChunkSize)).ToHashSet();
+        HashSet<VecI> affectedChunks = new HashSet<VecI>();
+        RectI? affectedArea = null;
+        foreach (var pixel in pixels)
+        {
+            affectedChunks.Add(OperationHelper.GetChunkPos(pixel, ChunkyImage.FullChunkSize));
+            if (affectedArea is null)
+                affectedArea = new RectI(pixel, VecI.One);
+            else
+                affectedArea = affectedArea.Value.Union(new RectI(pixel, VecI.One));
+        }
+
+        return new AffectedArea(affectedChunks, affectedArea);
     }
 
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)

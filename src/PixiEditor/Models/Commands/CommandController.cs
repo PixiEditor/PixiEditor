@@ -115,16 +115,22 @@ internal class CommandController
         LoadCommands(serviceProvider, compiledCommandList, commandGroupsData, commands, template);
         LoadTools(serviceProvider, commandGroupsData, commands, template);
 
+        var miscList = new List<Command>();
+
         foreach (var (groupInternalName, storedCommands) in commands)
         {
             var groupData = commandGroupsData.FirstOrDefault(group => group.internalName == groupInternalName);
-            string groupDisplayName;
-            if (groupData == default)
-                groupDisplayName = "Misc";
-            else
-                groupDisplayName = groupData.displayName;
-            CommandGroups.Add(new(groupDisplayName, storedCommands));
+            if (groupData == default || groupData.internalName == "PixiEditor.Links")
+            {
+                miscList.AddRange(storedCommands);
+                continue;
+            }
+
+            string groupDisplayName = groupData.displayName;
+            CommandGroups.Add(new CommandGroup(groupDisplayName, storedCommands));
         }
+        
+        CommandGroups.Add(new CommandGroup("Misc", miscList));
     }
 
     private void LoadTools(IServiceProvider serviceProvider, List<(string internalName, string displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands,

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -15,7 +16,7 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
 
         ShapeCorners corners = document.ReferenceLayerViewModel.ReferenceShapeBindable;
-        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, true, corners);
+        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, true, corners, true);
         internals!.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(corners));
         return ExecutionState.Success;
     }
@@ -24,6 +25,12 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor
     {
         internals!.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(corners));
     }
+
+    public override void OnSelectedObjectNudged(VecI distance) => document!.TransformViewModel.Nudge(distance);
+
+    public override void OnMidChangeUndo() => document!.TransformViewModel.Undo();
+
+    public override void OnMidChangeRedo() => document!.TransformViewModel.Redo();
 
     public override void OnTransformApplied()
     {

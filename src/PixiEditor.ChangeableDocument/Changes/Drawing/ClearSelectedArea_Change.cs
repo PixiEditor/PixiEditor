@@ -30,17 +30,17 @@ internal class ClearSelectedArea_Change : Change
         RectI intBounds = (RectI)bounds.Intersect(new RectD(0, 0, target.Size.X, target.Size.Y)).RoundOutwards();
 
         image.EnqueueClearPath(target.Selection.SelectionPath, intBounds);
-        var affChunks = image.FindAffectedChunks();
-        savedChunks = new(image, affChunks);
+        var affArea = image.FindAffectedArea();
+        savedChunks = new(image, affArea.Chunks);
         image.CommitChanges();
         ignoreInUndo = false;
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affChunks, drawOnMask);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affectedChunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref savedChunks);
-        return DrawingChangeHelper.CreateChunkChangeInfo(memberGuid, affectedChunks, drawOnMask);
+        var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref savedChunks);
+        return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affArea, drawOnMask);
     }
 
     public override void Dispose()

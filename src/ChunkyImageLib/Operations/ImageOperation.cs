@@ -94,9 +94,9 @@ internal class ImageOperation : IMirroredDrawOperation
         chunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize);
+        return new AffectedArea(OperationHelper.FindChunksTouchingQuadrilateral(corners, ChunkPool.FullChunkSize), (RectI)corners.AABBBounds.RoundOutwards());
     }
 
     public void Dispose()
@@ -109,14 +109,20 @@ internal class ImageOperation : IMirroredDrawOperation
     public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
     {
         if (verAxisX is not null && horAxisY is not null)
+        {
             return new ImageOperation
                 (corners.AsMirroredAcrossVerAxis((int)verAxisX).AsMirroredAcrossHorAxis((int)horAxisY), toPaint, customPaint, imageWasCopied);
+        }
         if (verAxisX is not null)
+        {
             return new ImageOperation
                 (corners.AsMirroredAcrossVerAxis((int)verAxisX), toPaint, customPaint, imageWasCopied);
+        }
         if (horAxisY is not null)
+        {
             return new ImageOperation
                 (corners.AsMirroredAcrossHorAxis((int)horAxisY), toPaint, customPaint, imageWasCopied);
+        }
         return new ImageOperation(corners, toPaint, customPaint, imageWasCopied);
     }
 }

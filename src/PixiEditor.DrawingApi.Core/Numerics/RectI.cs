@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
@@ -193,6 +194,50 @@ public struct RectI : IEquatable<RectI>
         };
     }
 
+    public readonly RectD Scale(double multiplier)
+    {
+        return new RectD()
+        {
+            Left = left * multiplier,
+            Right = right * multiplier,
+            Top = top * multiplier,
+            Bottom = bottom * multiplier
+        };
+    }
+
+    public readonly RectD Scale(double multiplier, VecD relativeTo)
+    {
+        return new RectD()
+        {
+            Left = (left - relativeTo.X) * multiplier + relativeTo.X,
+            Right = (right - relativeTo.X) * multiplier + relativeTo.X,
+            Top = (top - relativeTo.Y) * multiplier + relativeTo.Y,
+            Bottom = (bottom - relativeTo.Y) * multiplier + relativeTo.Y
+        };
+    }
+
+    public readonly RectI Translate(VecI delta)
+    {
+        return new RectI()
+        {
+            Left = left + delta.X,
+            Right = right + delta.X,
+            Top = top + delta.Y,
+            Bottom = bottom + delta.Y
+        };
+    }
+
+    public readonly RectD Translate(VecD delta)
+    {
+        return new RectD()
+        {
+            Left = left + delta.X,
+            Right = right + delta.X,
+            Top = top + delta.Y,
+            Bottom = bottom + delta.Y
+        };
+    }
+
     /// <summary>
     /// Fits passed rectangle into this rectangle while maintaining aspect ratio
     /// </summary>
@@ -200,7 +245,7 @@ public struct RectI : IEquatable<RectI>
     {
         RectD rectD = (RectD)rect;
         RectD thisD = (RectD)this;
-        RectD aspect = rectD.AspectFit(thisD);
+        RectD aspect = thisD.AspectFit(rectD);
         return new RectI((int)aspect.Left, (int)aspect.Top, (int)aspect.Width, (int)aspect.Height);
     }
 

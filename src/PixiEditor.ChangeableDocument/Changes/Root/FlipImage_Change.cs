@@ -74,7 +74,10 @@ internal sealed class FlipImage_Change : Change
         bool flipY = flipType == FlipType.Vertical;
         
         flipped.DrawingSurface.Canvas.Save();
-                flipped.DrawingSurface.Canvas.Scale(flipX ? -1 : 1, flipY ? -1 : 1, flipX ? bounds.X + (bounds.Width / 2f) : 0,
+        flipped.DrawingSurface.Canvas.Scale(
+            flipX ? -1 : 1, 
+            flipY ? -1 : 1, 
+            flipX ? bounds.X + (bounds.Width / 2f) : 0,
             flipY ? bounds.Y + (bounds.Height / 2f) : 0f);
         flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
         flipped.DrawingSurface.Canvas.Restore();
@@ -100,13 +103,15 @@ internal sealed class FlipImage_Change : Change
                 {
                     FlipImage(layer.LayerImage);
                     changes.Add(
-                        new LayerImageChunks_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedChunks()));
+                        new LayerImageArea_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedArea()));
                     layer.LayerImage.CommitChanges();
                 }
 
                 if (member.Mask is not null)
                 {
                     FlipImage(member.Mask);
+                    changes.Add(
+                        new MaskArea_ChangeInfo(member.GuidValue, member.Mask.FindAffectedArea()));
                     member.Mask.CommitChanges();
                 }
             }

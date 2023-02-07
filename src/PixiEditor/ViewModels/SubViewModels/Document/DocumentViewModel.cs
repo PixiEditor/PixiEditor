@@ -20,6 +20,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
+using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
@@ -177,6 +178,10 @@ internal partial class DocumentViewModel : NotifyableObject
         ReferenceLayerViewModel = new(this, Internals);
     }
 
+    /// <summary>
+    /// Creates a new document using the <paramref name="builder"/>
+    /// </summary>
+    /// <returns>The created document</returns>
     public static DocumentViewModel Build(Action<DocumentViewModelBuilder> builder)
     {
         var builderInstance = new DocumentViewModelBuilder();
@@ -215,6 +220,10 @@ internal partial class DocumentViewModel : NotifyableObject
 
             if (!member.IsVisible)
                 acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.GuidValue));
+            
+            acc.AddActions(new StructureMemberBlendMode_Action(member.BlendMode, member.GuidValue));
+            
+            acc.AddActions(new StructureMemberClipToMemberBelow_Action(member.ClipToMemberBelow, member.GuidValue));
 
             if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
             {
@@ -278,6 +287,10 @@ internal partial class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(AllChangesSaved));
     }
 
+    /// <summary>
+    /// Tries rendering the whole document
+    /// </summary>
+    /// <returns><see cref="Error"/> if the ChunkyImage was disposed, otherwise a <see cref="Surface"/> of the rendered document</returns>
     public OneOf<Error, Surface> MaybeRenderWholeImage()
     {
         try
@@ -356,6 +369,11 @@ internal partial class DocumentViewModel : NotifyableObject
         return (output, bounds);
     }
 
+    /// <summary>
+    /// Picks the color at <paramref name="pos"/>
+    /// </summary>
+    /// <param name="includeReference">Should the color be picked from the reference layer</param>
+    /// <param name="includeCanvas">Should the color be picked from the canvas</param>
     public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas)
     {
         if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
@@ -401,7 +419,7 @@ internal partial class DocumentViewModel : NotifyableObject
             if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Internals.Tracker.Document.StructureRoot)
+                return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Internals.Tracker.Document.StructureRoot, new RectI(pos, VecI.One))
                     .Match<Color>(
                         (Chunk chunk) =>
                         {
@@ -485,6 +503,9 @@ internal partial class DocumentViewModel : NotifyableObject
     public void InternalRemoveSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Remove(member);
     #endregion
 
+    /// <summary>
+    /// Returns a list of all selected members (Hard and Soft selected)
+    /// </summary>
     public List<Guid> GetSelectedMembers()
     {
         List<Guid> layerGuids = new List<Guid>() { SelectedStructureMember.GuidValue };

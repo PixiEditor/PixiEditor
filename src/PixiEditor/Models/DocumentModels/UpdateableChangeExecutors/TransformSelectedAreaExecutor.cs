@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -32,7 +33,7 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
 
         ShapeCorners corners = new(document.SelectionPathBindable.TightBounds);
-        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners);
+        document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, Type == ExecutorType.Regular);
         membersToTransform = members.Select(static a => a.GuidValue).ToArray();
         internals!.ActionAccumulator.AddActions(
             new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false));
@@ -45,8 +46,17 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
             new TransformSelectedArea_Action(membersToTransform!, corners, tool!.KeepOriginalImage, false));
     }
 
+    public override void OnSelectedObjectNudged(VecI distance) => document!.TransformViewModel.Nudge(distance);
+
+    public override void OnMidChangeUndo() => document!.TransformViewModel.Undo();
+
+    public override void OnMidChangeRedo() => document!.TransformViewModel.Redo();
+
     public override void OnTransformApplied()
     {
+        if (Type == ExecutorType.ToolLinked)
+            return;
+
         internals!.ActionAccumulator.AddActions(new EndTransformSelectedArea_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformViewModel.HideTransform();

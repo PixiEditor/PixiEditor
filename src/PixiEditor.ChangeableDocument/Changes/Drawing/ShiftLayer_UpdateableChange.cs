@@ -49,12 +49,12 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         List<IChangeInfo> changes = new List<IChangeInfo>();
         foreach (var layerGuid in layerGuids)
         {
-            var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
+            var area = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
             var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
             
-            changes.Add(new LayerImageChunks_ChangeInfo(layerGuid, chunks));
+            changes.Add(new LayerImageArea_ChangeInfo(layerGuid, area));
             
-            originalLayerChunks[layerGuid] = new(image, image.FindAffectedChunks());
+            originalLayerChunks[layerGuid] = new(image, image.FindAffectedArea().Chunks);
             image.CommitChanges();
         }
 
@@ -69,7 +69,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         foreach (var layerGuid in layerGuids)
         {
             var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
-            _tempChanges.Add(new LayerImageChunks_ChangeInfo(layerGuid, chunks));
+            _tempChanges.Add(new LayerImageArea_ChangeInfo(layerGuid, chunks));
         }
         
         return _tempChanges;
@@ -83,7 +83,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
             var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
             CommittedChunkStorage? originalChunks = originalLayerChunks[layerGuid];
             var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
-            changes.Add(new LayerImageChunks_ChangeInfo(layerGuid, affected));
+            changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));
         }
         
         return changes;

@@ -98,7 +98,9 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
                 string dir = AppDomain.CurrentDomain.BaseDirectory;
+                
                 UpdateDownloader.CreateTempDirectory();
+                if(UpdateChecker.LatestReleaseInfo == null) return;
                 bool updateFileExists = File.Exists(
                     Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
                 string exePath = Path.Join(UpdateDownloader.DownloadLocation,

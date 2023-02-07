@@ -5,7 +5,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge
 {
     public static class DrawingBackendApi
     {
-        private static IDrawingBackend _current;
+        private static IDrawingBackend? _current;
 
         public static IDrawingBackend Current
         {

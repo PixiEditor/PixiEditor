@@ -92,9 +92,10 @@ internal class ChunkyImageOperation : IMirroredDrawOperation
         chunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
-    public HashSet<VecI> FindAffectedChunks(VecI imageSize)
+    public AffectedArea FindAffectedArea(VecI imageSize)
     {
-        return OperationHelper.FindChunksTouchingRectangle(new(GetTopLeft(), imageToDraw.CommittedSize), ChunkyImage.FullChunkSize);
+        RectI rect = new(GetTopLeft(), imageToDraw.CommittedSize);
+        return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(rect, ChunkyImage.FullChunkSize), rect);
     }
 
     private VecI GetTopLeft()
