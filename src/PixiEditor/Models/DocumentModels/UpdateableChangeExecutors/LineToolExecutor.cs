@@ -55,11 +55,11 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         if (transforming)
             return;
         started = true;
-        curPos = pos;
-        VecI targetPos = pos;
+
         if (toolViewModel!.Snap)
-            targetPos = ShapeToolExecutor<ShapeTool>.Get45IncrementedPosition(startPos, curPos);
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, targetPos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
+            pos = ShapeToolExecutor<ShapeTool>.Get45IncrementedPosition(startPos, pos);
+        curPos = pos;
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, pos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
     }
 
     public override void OnLeftMouseButtonUp()
@@ -69,10 +69,8 @@ internal class LineToolExecutor : UpdateableChangeExecutor
             onEnded!(this);
             return;
         }
-        
-        document!.LineToolOverlayViewModel.LineStart = startPos + new VecD(0.5);
-        document!.LineToolOverlayViewModel.LineEnd = curPos + new VecD(0.5);
-        document!.LineToolOverlayViewModel.IsEnabled = true;
+
+        document!.LineToolOverlayViewModel.Show(startPos + new VecD(0.5), curPos + new VecD(0.5));
         transforming = true;
     }
 
@@ -83,12 +81,33 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, (VecI)start, (VecI)end, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
     }
 
+    public override void OnSelectedObjectNudged(VecI distance)
+    {
+        if (!transforming)
+            return;
+        document!.LineToolOverlayViewModel.Nudge(distance);
+    }
+
+    public override void OnMidChangeUndo()
+    {
+        if (!transforming)
+            return;
+        document!.LineToolOverlayViewModel.Undo();
+    }
+
+    public override void OnMidChangeRedo()
+    {
+        if (!transforming)
+            return;
+        document!.LineToolOverlayViewModel.Redo();
+    }
+
     public override void OnTransformApplied()
     {
         if (!transforming)
             return;
 
-        document!.LineToolOverlayViewModel.IsEnabled = false;
+        document!.LineToolOverlayViewModel.Hide();
         internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
         onEnded!(this);
     }
@@ -96,7 +115,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     public override void ForceStop()
     {
         if (transforming)
-            document!.LineToolOverlayViewModel.IsEnabled = false;
+            document!.LineToolOverlayViewModel.Hide();
 
         internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
     }

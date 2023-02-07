@@ -224,4 +224,11 @@ public struct VecD : IEquatable<VecD>
     {
         return other.X == X && other.Y == Y;
     }
+
+    public bool AlmostEquals(VecD other, double axisEpsilon = 0.001)
+    {
+        double dX = Math.Abs(X - other.X);
+        double dY = Math.Abs(Y - other.Y);
+        return dX < axisEpsilon && dY < axisEpsilon;
+    }
 }

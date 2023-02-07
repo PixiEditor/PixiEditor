@@ -1,11 +1,21 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
+using PixiEditor;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
+using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels;
+using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
-namespace PixiEditor.ViewModels.SubViewModels.Document;
+namespace PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 #nullable enable
 internal class DocumentTransformViewModel : NotifyableObject
 {
+    private TransformOverlayUndoStack<(ShapeCorners, TransformState)>? undoStack = null;
+
     private TransformState internalState;
     public TransformState InternalState
     {
@@ -85,18 +95,81 @@ internal class DocumentTransformViewModel : NotifyableObject
         }
     }
 
+    private ICommand? actionCompletedCommand = null;
+    public ICommand? ActionCompletedCommand
+    {
+        get => actionCompletedCommand;
+        set => SetProperty(ref actionCompletedCommand, value);
+    }
+
     public event EventHandler<ShapeCorners>? TransformMoved;
 
     private DocumentTransformMode activeTransformMode = DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
+    public DocumentTransformViewModel()
+    {
+        ActionCompletedCommand = new RelayCommand((_) =>
+        {
+            if (undoStack is null)
+                return;
+
+            var lastState = undoStack.PeekCurrent();
+            if (lastState is not null && lastState.Value.Item1.AlmostEquals(Corners) && lastState.Value.Item2.AlmostEquals(InternalState))
+                return;
+
+            undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Move);
+        });
+    }
+
+    public bool Undo()
+    {
+        if (undoStack is null)
+            return false;
+        var state = undoStack.Undo();
+        if (state is null)
+            return false;
+        (Corners, InternalState) = state.Value;
+        return true;
+    }
+
+    public bool Redo()
+    {
+        if (undoStack is null)
+            return false;
+        var state = undoStack.Redo();
+        if (state is null)
+            return false;
+        (Corners, InternalState) = state.Value;
+        return true;
+    }
+
+    public bool Nudge(VecD distance)
+    {
+        if (undoStack is null)
+            return false;
+
+        InternalState = InternalState with { Origin = InternalState.Origin + distance };
+        Corners = Corners.AsTranslated(distance);
+        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Nudge);
+        return true;
+    }
+
     public void HideTransform()
     {
+        if (undoStack is null)
+            return;
+        undoStack = null;
+
         TransformActive = false;
         ShowTransformControls = false;
     }
 
     public void ShowTransform(DocumentTransformMode mode, bool coverWholeScreen, ShapeCorners initPos, bool showApplyButton)
     {
+        if (undoStack is not null)
+            return;
+        undoStack = new();
+
         activeTransformMode = mode;
         CornerFreedom = TransformCornerFreedom.Scale;
         SideFreedom = TransformSideFreedom.Stretch;
@@ -105,6 +178,8 @@ internal class DocumentTransformViewModel : NotifyableObject
         CoverWholeScreen = coverWholeScreen;
         TransformActive = true;
         ShowTransformControls = showApplyButton;
+
+        undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
     }
 
     public void ModifierKeysInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)

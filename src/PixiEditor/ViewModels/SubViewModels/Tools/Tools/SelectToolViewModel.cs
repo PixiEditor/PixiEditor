@@ -12,11 +12,35 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.M)]
 internal class SelectToolViewModel : ToolViewModel
 {
+    private string defaultActionDisplay = "Click and move to select an area. Hold Shift to add to existing selection. Hold Ctrl to subtract from it.";
+
     public SelectToolViewModel()
     {
-        ActionDisplay = "Click and move to select an area.";
+        ActionDisplay = defaultActionDisplay;
         Toolbar = ToolbarFactory.Create<SelectToolViewModel>();
         Cursor = Cursors.Cross;
+    }
+
+    private SelectionMode modifierKeySelectionMode = SelectionMode.New;
+    public SelectionMode ResultingSelectionMode => modifierKeySelectionMode != SelectionMode.New ? modifierKeySelectionMode : SelectMode;
+
+    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    {
+        if (shiftIsDown)
+        {
+            ActionDisplay = "Click and move to add to the current selection.";
+            modifierKeySelectionMode = SelectionMode.Add;
+        }
+        else if (ctrlIsDown)
+        {
+            ActionDisplay = "Click and move to subtract from the current selection.";
+            modifierKeySelectionMode = SelectionMode.Subtract;
+        }
+        else
+        {
+            ActionDisplay = defaultActionDisplay;
+            modifierKeySelectionMode = SelectionMode.New;
+        }
     }
 
     [Settings.Enum("Mode")]

@@ -47,6 +47,16 @@ internal class TransformOverlay : Decorator
         DependencyProperty.Register(nameof(CoverWholeScreen), typeof(bool), typeof(TransformOverlay),
             new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsRender));
 
+
+    public static readonly DependencyProperty ActionCompletedProperty =
+        DependencyProperty.Register(nameof(ActionCompleted), typeof(ICommand), typeof(TransformOverlay), new(null));
+
+    public ICommand? ActionCompleted
+    {
+        get => (ICommand?)GetValue(ActionCompletedProperty);
+        set => SetValue(ActionCompletedProperty, value);
+    }
+
     public bool CoverWholeScreen
     {
         get => (bool)GetValue(ConverWholeScreenProperty);
@@ -428,24 +438,33 @@ internal class TransformOverlay : Decorator
         base.OnMouseUp(e);
         if (e.ChangedButton != MouseButton.Left)
             return;
+
+        bool handled = false;
         if (ReleaseAnchor())
         {
-            e.Handled = true;
+            handled = true;
         }
         else if (isMoving)
         {
             isMoving = false;
-            e.Handled = true;
+            handled = true;
             ReleaseMouseCapture();
         }
         else if (isRotating)
         {
             isRotating = false;
-            e.Handled = true;
+            handled = true;
             ReleaseMouseCapture();
             Cursor = Cursors.Arrow;
             var pos = TransformHelper.ToVecD(e.GetPosition(this));
             UpdateRotationCursor(pos);
+        }
+
+        if (handled)
+        {
+            e.Handled = true;
+            if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
+                ActionCompleted.Execute(null);
         }
     }
 

@@ -55,7 +55,8 @@ public struct ShapeCorners
     {
         get
         {
-            Span<VecD> lengths = stackalloc[] {
+            Span<VecD> lengths = stackalloc[] 
+            {
                 TopLeft - TopRight,
                 TopRight - BottomRight,
                 BottomRight - BottomLeft,
@@ -133,7 +134,7 @@ public struct ShapeCorners
         TopLeft = TopLeft.ReflectY(horAxisY),
         TopRight = TopRight.ReflectY(horAxisY)
     };
-    
+
     public ShapeCorners AsMirroredAcrossVerAxis(int verAxisX) => new ShapeCorners
     {
         BottomLeft = BottomLeft.ReflectX(verAxisX),
@@ -149,4 +150,31 @@ public struct ShapeCorners
         TopLeft = TopLeft.Rotate(angle, around),
         TopRight = TopRight.Rotate(angle, around)
     };
+
+    public ShapeCorners AsTranslated(VecD delta) => new ShapeCorners
+    {
+        BottomLeft = BottomLeft + delta,
+        BottomRight = BottomRight + delta,
+        TopLeft = TopLeft + delta,
+        TopRight = TopRight + delta
+    };
+
+    public static bool operator !=(ShapeCorners left, ShapeCorners right) => !(left == right);
+    public static bool operator == (ShapeCorners left, ShapeCorners right)
+    {
+        return 
+           left.TopLeft == right.TopLeft &&
+           left.TopRight == right.TopRight &&
+           left.BottomLeft == right.BottomLeft &&
+           left.BottomRight == right.BottomRight;
+    }
+
+    public bool AlmostEquals(ShapeCorners other, double epsilon = 0.001)
+    {
+        return
+            TopLeft.AlmostEquals(other.TopLeft, epsilon) &&
+            TopRight.AlmostEquals(other.TopRight, epsilon) &&
+            BottomLeft.AlmostEquals(other.BottomLeft, epsilon) &&
+            BottomRight.AlmostEquals(other.BottomRight, epsilon);
+    }
 }

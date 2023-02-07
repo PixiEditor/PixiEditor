@@ -150,6 +150,7 @@
                 <Grid>
                     <Canvas Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromReferenceLayer, Converter={converters:BoolToVisibilityConverter}}">
                         <Image
+                            Focusable="False"
                             Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Width}"
                             Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Height}"
                             Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
@@ -165,13 +166,14 @@
                         </Image>
                     </Canvas>
                     <Image
-                        Focusable="True"
+                        Focusable="False"
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
                         Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromCanvas, Converter={converters:BoolToHiddenVisibilityConverter}}"
                         RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"/>
                     <symOverlay:SymmetryOverlay
+                        Focusable="False"
                         IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
                         ZoomboxScale="{Binding Zoombox.Scale}"
                         HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"
@@ -182,10 +184,12 @@
                         DragEndCommand="{cmds:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}" 
                         DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}" />
                     <overlays:SelectionOverlay
+                        Focusable="False"
                         ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                         Path="{Binding Document.SelectionPathBindable}"
                         ZoomboxScale="{Binding Zoombox.Scale}" />
                     <brushOverlay:BrushShapeOverlay
+                        Focusable="False"
                         IsHitTestVisible="False"
                         Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:InverseBoolToVisibilityConverter}}"
                         ZoomboxScale="{Binding Zoombox.Scale}"
@@ -195,11 +199,13 @@
                         BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={vm:MainVM}, FallbackValue={x:Static brushOverlay:BrushShape.Hidden}}"
                         />
                     <transformOverlay:TransformOverlay
+                        Focusable="False"
                         Cursor="Arrow"
                         IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Stretch"
                         Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:BoolToVisibilityConverter}}"
+                        ActionCompleted="{Binding Document.TransformViewModel.ActionCompletedCommand}"
                         Corners="{Binding Document.TransformViewModel.Corners, Mode=TwoWay}"
                         RequestedCorners="{Binding Document.TransformViewModel.RequestedCorners, Mode=TwoWay}"
                         CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"
@@ -211,7 +217,9 @@
                         ZoomboxScale="{Binding Zoombox.Scale}"
                         ZoomboxAngle="{Binding Zoombox.Angle}"/>
                     <lineOverlay:LineToolOverlay
+                        Focusable="False"
                         Visibility="{Binding Document.LineToolOverlayViewModel.IsEnabled, Converter={converters:BoolToVisibilityConverter}}"
+                        ActionCompleted="{Binding Document.LineToolOverlayViewModel.ActionCompletedCommand}"
                         LineStart="{Binding Document.LineToolOverlayViewModel.LineStart, Mode=TwoWay}"
                         LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
                         ZoomboxScale="{Binding Zoombox.Scale}"/>

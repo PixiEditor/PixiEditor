@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.DataHolders;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -44,6 +45,12 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
         internals!.ActionAccumulator.AddActions(
             new TransformSelectedArea_Action(membersToTransform!, corners, tool!.KeepOriginalImage, false));
     }
+
+    public override void OnSelectedObjectNudged(VecI distance) => document!.TransformViewModel.Nudge(distance);
+
+    public override void OnMidChangeUndo() => document!.TransformViewModel.Undo();
+
+    public override void OnMidChangeRedo() => document!.TransformViewModel.Redo();
 
     public override void OnTransformApplied()
     {
