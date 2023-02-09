@@ -125,7 +125,7 @@
 
                 <Label Grid.Row="9" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Automatic updates</Label>
 
-                <CheckBox Grid.Row="10" Grid.Column="1" VerticalAlignment="Center"
+                <CheckBox Grid.Row="10" Grid.Column="1" VerticalAlignment="Center" IsEnabled="{Binding Path=ShowUpdateTab}"
                     IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}">Check updates on startup</CheckBox>
 
                 <Label Grid.Row="11" Grid.Column="1" Style="{StaticResource SettingsText}">Update stream</Label>

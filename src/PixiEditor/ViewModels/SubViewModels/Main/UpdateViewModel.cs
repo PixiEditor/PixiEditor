@@ -20,7 +20,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     public UpdateChecker UpdateChecker { get; set; }
 
-    public UpdateChannel[] UpdateChannels { get; } = new UpdateChannel[2];
+    public List<UpdateChannel> UpdateChannels { get; } = new List<UpdateChannel>();
 
     private string versionText;
 
@@ -211,8 +211,19 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private void InitUpdateChecker()
     {
-        UpdateChannels[0] = new UpdateChannel("Release", "PixiEditor", "PixiEditor");
-        UpdateChannels[1] = new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel");
+#if UPDATE
+        UpdateChannels.Add(new UpdateChannel("Release", "PixiEditor", "PixiEditor"));
+        UpdateChannels.Add(new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel"));
+#else
+    #if STEAM
+        string platformName = "Steam";
+    #elif MSIX
+        string platformName = "Microsoft Store";
+    #else
+        string platformName = "Unknown";
+    #endif
+        UpdateChannels.Add(new UpdateChannel($"Handled by {platformName}", "", ""));        
+#endif
 
         string updateChannel = IPreferences.Current.GetPreference<string>("UpdateChannel");
 
