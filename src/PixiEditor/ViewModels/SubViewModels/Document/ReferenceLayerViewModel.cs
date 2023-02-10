@@ -53,6 +53,17 @@ internal class ReferenceLayerViewModel : INotifyPropertyChanged
         }
     }
 
+    private bool isTransforming;
+    public bool IsTransforming
+    {
+        get => isTransforming;
+        set
+        {
+            isTransforming = value;
+            RaisePropertyChanged(nameof(IsTransforming));
+        }
+    }
+
     public ReferenceLayerViewModel(DocumentViewModel doc, DocumentInternalParts internals)
     {
         this.doc = doc;
