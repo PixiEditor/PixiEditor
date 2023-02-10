@@ -41,7 +41,7 @@ public partial class CommandDebugPopup : Window
 
             try
             {
-                image = command.GetIcon();
+                image = command.IconEvaluator.CallEvaluate(command, null);
             }
             catch (Exception e)
             {
