@@ -94,7 +94,7 @@ public partial class CommandDebugPopup : Window
 
         if (command.IconEvaluator != IconEvaluator.Default)
         {
-            Info($"Uses custom icon evaluator ({command.IconEvaluator.GetType().Name})\n");
+            Info($"Uses custom icon evaluator ({command.IconEvaluator.Name})\n");
         }
 
         if (!string.IsNullOrWhiteSpace(command.IconPath))
