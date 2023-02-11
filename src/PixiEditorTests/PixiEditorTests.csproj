@@ -9,7 +9,7 @@
 
     <Platforms>AnyCPU;x64;x86</Platforms>
 
-    <Configurations>Debug;Release;Dev Steam</Configurations>
+    <Configurations>Debug;Release;Steam</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

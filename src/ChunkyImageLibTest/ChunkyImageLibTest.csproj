@@ -6,7 +6,7 @@
 
     <IsPackable>false</IsPackable>
 
-    <Configurations>Debug;Release;Dev Steam</Configurations>
+    <Configurations>Debug;Release;Steam</Configurations>
 
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>

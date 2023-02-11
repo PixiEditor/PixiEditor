@@ -14,7 +14,7 @@
 		<PackageIcon>icon.ico</PackageIcon>
 		<ApplicationIcon>..\icon.ico</ApplicationIcon>
 		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
-		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release;Dev Steam</Configurations>
+		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release;Steam</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
         <ImplicitUsings>true</ImplicitUsings>
         <AssemblyVersion></AssemblyVersion>
@@ -129,18 +129,19 @@
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Steam|AnyCPU'">
-	  <DefineConstants>TRACE;RELEASE</DefineConstants>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x86'">
+	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+	  <Optimize>True</Optimize>
+	  <OutputPath>bin\x86\Steam\</OutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Steam|x64' ">
+	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
 	  <Optimize>True</Optimize>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Steam|x64'">
-	  <DefineConstants>TRACE;RELEASE</DefineConstants>
-	  <Optimize>True</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Steam|x86'">
-	  <DefineConstants>TRACE;RELEASE</DefineConstants>
+	<PropertyGroup Condition=" '$(Configuration)' == 'Steam' ">
+	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
 	  <Optimize>True</Optimize>
 	</PropertyGroup>
 
