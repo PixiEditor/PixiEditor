@@ -222,7 +222,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     #else
         string platformName = "Unknown";
     #endif
-        UpdateChannels.Add(new UpdateChannel($"Handled by {platformName}", "", ""));        
+        UpdateChannels.Add(new UpdateChannel(platformName, "", ""));
 #endif
 
         string updateChannel = IPreferences.Current.GetPreference<string>("UpdateChannel");

@@ -129,10 +129,16 @@
                     IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}">Check updates on startup</CheckBox>
 
                 <Label Grid.Row="11" Grid.Column="1" Style="{StaticResource SettingsText}">Update stream</Label>
-                <ComboBox Grid.Row="11" Grid.Column="2" VerticalAlignment="Center"
-                    Width="110" Height="21.96" HorizontalAlignment="Left"
+                <StackPanel Orientation="Horizontal" Grid.Row="11" Grid.Column="2" VerticalAlignment="Center"
+                            Height="21.96" HorizontalAlignment="Left">
+                <ComboBox Width="110" IsEnabled="{Binding Path=ShowUpdateTab}"
                     ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
                     SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}"/>
+                <Image Cursor="Help" Margin="10 0 0 0" Source="/Images/Commands/PixiEditor/Links/OpenDocumentation.png"
+                       ToolTipService.InitialShowDelay="0"
+                       Visibility="{Binding Path=ShowUpdateTab, Converter={converters:InverseBoolToVisibilityConverter}}"
+                       ToolTip="Update channels can only be changed in standalone version (downloaded from https://pixieditor.net).&#x0a;Steam and Microsoft Store versions handle updates separately."/>
+                </StackPanel>
 
                 <Label Grid.Row="12" Grid.ColumnSpan="2" Style="{StaticResource SettingsHeader}">Debug</Label>
                 <CheckBox Grid.Row="13" Grid.Column="1" VerticalAlignment="Center"

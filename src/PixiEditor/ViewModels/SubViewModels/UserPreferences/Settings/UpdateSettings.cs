@@ -15,13 +15,12 @@ internal class UpdateSettings : SettingsGroup
         }
     }
 
-    private string updateChannelName = GetPreference("UpdateChannel",
+    private string updateChannelName =
 #if UPDATE
-        "Release"
+        GetPreference("UpdateChannel", "Release");
 #else
-                    ViewModelMain.Current?.UpdateSubViewModel?.UpdateChannels?.FirstOrDefault()?.Name ?? "Release"
+        ViewModelMain.Current?.UpdateSubViewModel?.UpdateChannels?.FirstOrDefault()?.Name ?? "Unknown";
 #endif
-        );
 
     public string UpdateChannelName
     {
