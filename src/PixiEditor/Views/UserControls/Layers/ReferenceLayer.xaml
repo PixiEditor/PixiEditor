@@ -89,6 +89,16 @@
                             IsThreeState="False" HorizontalAlignment="Center" 
                             IsChecked="{Binding Path=Document.ReferenceLayerViewModel.IsVisibleBindable, Mode=TwoWay, ElementName=uc}"/>
                     </Grid>
+                    <Button Cursor="Hand" DockPanel.Dock="Left"
+                            Command="{cmds:Command PixiEditor.Layer.ToggleReferenceLayerTopMost}"
+                            Style="{StaticResource ImageButtonStyle}" 
+                            ToolTip="{Binding Document.ReferenceLayerViewModel.IsTopMost, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='Put reference layer above', TrueValue='Put reference layer below'}}"
+                            RenderOptions.BitmapScalingMode="HighQuality"
+                            Width="20" Height="20" HorizontalAlignment="Right">
+                        <Button.Background>
+                            <ImageBrush ImageSource="{Binding Document.ReferenceLayerViewModel.IsTopMost, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='Images/ReferenceLayerBelow.png', TrueValue='Images/ReferenceLayerAbove.png'}}"/>
+                        </Button.Background>
+                    </Button>
                     <Border 
                         HorizontalAlignment="Left" DockPanel.Dock="Left"
                         Width="30" Height="30"
@@ -129,19 +139,9 @@
                             <ImageBrush ImageSource="/Images/Crop.png"/>
                         </Button.Background>
                     </Button>
-                    <Button Cursor="Hand" DockPanel.Dock="Right"
-                            Command="{cmds:Command PixiEditor.Layer.ToggleReferenceLayerTopMost}"
-                            Style="{StaticResource ImageButtonStyle}" 
-                            ToolTip="{Binding Document.ReferenceLayerViewModel.ShowHighest, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='Put reference layer above', TrueValue='Put reference layer below'}}"
-                            RenderOptions.BitmapScalingMode="HighQuality"
-                            Width="20" Height="20" HorizontalAlignment="Right">
-                        <Button.Background>
-                            <ImageBrush ImageSource="{Binding Document.ReferenceLayerViewModel.ShowHighest, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='Images/ReferenceLayerBelow.png', TrueValue='Images/ReferenceLayerAbove.png'}}"/>
-                        </Button.Background>
-                    </Button>
                     <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" HorizontalAlignment="Center"
-                                Margin="0 0 5 0" Foreground="White" 
-                                FontSize="15" VerticalAlignment="Center">Reference</TextBlock>
+                               Margin="0 0 5 0" Foreground="White" 
+                               FontSize="15" VerticalAlignment="Center">Reference</TextBlock>
                 </DockPanel>
             </Grid>
         </DockPanel>
