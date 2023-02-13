@@ -80,7 +80,8 @@ internal partial class DocumentViewModel
         {
             Width = result?.Size.X ?? 0, Height = result?.Size.Y ?? 0, OffsetX = tightBounds?.X ?? 0, OffsetY = tightBounds?.Y ?? 0,
             Enabled = layer.IsVisible, BlendMode = (BlendMode)(int)layer.BlendMode, ImageBytes = bytes,
-            ClipToMemberBelow = layer.ClipToMemberBelow, Name = layer.Name, 
+            ClipToMemberBelow = layer.ClipToMemberBelow, Name = layer.Name,
+            LockAlpha = layer.LockTransparency,
             Opacity = layer.Opacity, Mask = GetMask(layer.Mask, layer.MaskIsVisible)
         };
 
