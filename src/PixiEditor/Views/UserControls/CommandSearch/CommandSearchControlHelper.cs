@@ -103,13 +103,29 @@ internal static class CommandSearchControlHelper
             files = files.Where(x => x.Contains(name, StringComparison.OrdinalIgnoreCase));
         }
 
-        return files
-            .Select(static file => Path.GetFullPath(file))
-            .Select(path => new FileSearchResult(path)
+        var array = files as string[] ?? files.ToArray();
+        
+        if (array.Length != 1)
+        {
+            return array
+                .Select(static file => Path.GetFullPath(file))
+                .Select(path => new FileSearchResult(path)
+                {
+                    SearchTerm = name, Match = Match($".../{Path.GetFileName(path)}", name ?? "")
+                });
+        }
+        else if (array.Length < 1)
+        {
+            return ArraySegment<SearchResult>.Empty;
+        }
+        else
+        {
+            return new[]
             {
-                SearchTerm = name,
-                Match = Match($".../{Path.GetFileName(path)}", name ?? "")
-            });
+                new FileSearchResult(array[0]),
+                new FileSearchResult(array[0], true)
+            };
+        }
     }
 
     private static bool GetDirectory(string path, out string directory, out string file)

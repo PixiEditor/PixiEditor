@@ -53,11 +53,11 @@ internal class Importer : NotifyableObject
         }
         catch (NotSupportedException)
         {
-            throw new CorruptedFileException();
+            throw new CorruptedFileException($"The file type '{Path.GetExtension(path)}' is not supported");
         }
         catch (FileFormatException)
         {
-            throw new CorruptedFileException();
+            throw new CorruptedFileException("The file appears to be corrupted");
         }
     }
 
@@ -77,9 +77,9 @@ internal class Importer : NotifyableObject
                 doc.FullFilePath = path;
                 return doc;
             }
-            catch (InvalidFileException)
+            catch (InvalidFileException e)
             {
-                throw new CorruptedFileException();
+                throw new CorruptedFileException("The given file seems to be corrupted or from a newer version of PixiEditor", e);
             }
         }
     }
@@ -100,10 +100,27 @@ internal class Importer : NotifyableObject
                 doc.FullFilePath = originalFilePath;
                 return doc;
             }
-            catch (InvalidFileException)
+            catch (InvalidFileException e)
             {
-                throw new CorruptedFileException();
+                throw new CorruptedFileException("The given file seems to be corrupted or from a newer version of PixiEditor", e);
             }
+        }
+    }
+
+    public static WriteableBitmap GetPreviewBitmap(string path)
+    {
+        if (!IsSupportedFile(path))
+        {
+            throw new ArgumentException($"The file type '{Path.GetExtension(path)}' is not supported");
+        }
+        
+        try
+        {
+            return Path.GetExtension(path) != ".pixi" ? ImportWriteableBitmap(path) : PixiParser.Deserialize(path).ToDocument().PreviewBitmap;
+        }
+        catch (InvalidFileException)
+        {
+            throw new CorruptedFileException();
         }
     }
 

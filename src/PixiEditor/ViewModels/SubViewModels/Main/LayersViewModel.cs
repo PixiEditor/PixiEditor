@@ -397,6 +397,20 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             surface.image.Size);
     }
     
+    [Command.Internal("PixiEditor.Layer.PasteReferenceLayerFromPath", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist")]
+    public void PasteReferenceLayer(string path)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        var bitmap = Importer.GetPreviewBitmap(path);
+        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
+        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
+
+        doc.Operations.ImportReferenceLayer(
+            pixels.ToImmutableArray(),
+            new VecI(bitmap.PixelWidth, bitmap.PixelHeight));
+    }
+
     private string OpenReferenceLayerFilePicker()
     {
         var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
