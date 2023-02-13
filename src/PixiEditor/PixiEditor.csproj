@@ -334,7 +334,6 @@
 		<None Remove="Images\Commands\PixiEditor\View\ZoomOut.png" />
 		<Resource Include="Images\Commands\PixiEditor\View\ZoomOut.png" />
 		<None Remove="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
 		<None Remove="Fonts\feather.ttf" />
 		<Resource Include="Fonts\feather.ttf" />
 		<None Remove="Images\Load.png" />
@@ -386,6 +385,12 @@
 		<Resource Include="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png" />
 		<None Remove="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
 		<Resource Include="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
+		<None Remove="Images\Crop.png" />
+		<Resource Include="Images\Crop.png" />
+		<None Remove="Images\ReferenceLayerAbove.png" />
+		<Resource Include="Images\ReferenceLayerAbove.png" />
+		<None Remove="Images\ReferenceLayerBelow.png" />
+		<Resource Include="Images\ReferenceLayerBelow.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

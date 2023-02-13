@@ -61,7 +61,25 @@ internal class ReferenceLayerViewModel : INotifyPropertyChanged
         {
             isTransforming = value;
             RaisePropertyChanged(nameof(IsTransforming));
+            RaisePropertyChanged(nameof(ShowHighest));
         }
+    }
+    
+    private bool isTopMost;
+    public bool IsTopMost
+    {
+        get => isTopMost;
+        set
+        {
+            isTopMost = value;
+            RaisePropertyChanged(nameof(IsTopMost));
+            RaisePropertyChanged(nameof(ShowHighest));
+        }
+    }
+    
+    public bool ShowHighest
+    {
+        get => IsTopMost || IsTransforming;
     }
 
     public ReferenceLayerViewModel(DocumentViewModel doc, DocumentInternalParts internals)

@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
@@ -419,7 +420,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.DeleteReferenceLayer();
     }
 
-    [Command.Basic("PixiEditor.Layer.TransformReferenceLayer", "Transform reference layer", "Transform reference layer", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", IconPath = "Tools/MoveImage.png")]
+    [Command.Basic("PixiEditor.Layer.TransformReferenceLayer", "Transform reference layer", "Transform reference layer", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", IconPath = "crop.png")]
     public void TransformReferenceLayer()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -427,6 +428,16 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         doc.Operations.TransformReferenceLayer();
+    }
+
+    [Command.Basic("PixiEditor.Layer.ToggleReferenceLayerTopMost", "Toggle reference layer position", "Toggle reference layer between highest/lowest", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", IconEvaluator = "PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]
+    public void ToggleReferenceLayerTopMost()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.ReferenceLayerViewModel.IsTopMost = !doc.ReferenceLayerViewModel.IsTopMost;
     }
 
     [Command.Basic("PixiEditor.Layer.ResetReferenceLayerPosition", "Reset reference layer position", "Reset reference layer position", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", IconPath = "Layout.png")]
@@ -439,4 +450,13 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.ResetReferenceLayerPosition();
     }
 
+    [Evaluator.Icon("PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]
+    public ImageSource GetAboveEverythingReferenceLayerIcon()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null || doc.ReferenceLayerViewModel.IsTopMost)
+            return new BitmapImage(new Uri("pack://application:,,,/Images/ReferenceLayerBelow.png"));
+
+        return new BitmapImage(new Uri("pack://application:,,,/Images/ReferenceLayerAbove.png"));
+    }
 }

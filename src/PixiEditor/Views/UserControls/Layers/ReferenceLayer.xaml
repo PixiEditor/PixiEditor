@@ -124,14 +124,24 @@
                             Style="{StaticResource ImageButtonStyle}" 
                             ToolTip="Transform reference layer"
                             RenderOptions.BitmapScalingMode="HighQuality"
-                            Width="25" Height="25" HorizontalAlignment="Right">
+                            Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
-                            <ImageBrush ImageSource="/Images/Tools/MoveImage.png"/>
+                            <ImageBrush ImageSource="/Images/Crop.png"/>
+                        </Button.Background>
+                    </Button>
+                    <Button Cursor="Hand" DockPanel.Dock="Right"
+                            Command="{cmds:Command PixiEditor.Layer.ToggleReferenceLayerTopMost}"
+                            Style="{StaticResource ImageButtonStyle}" 
+                            ToolTip="{Binding Document.ReferenceLayerViewModel.ShowHighest, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='Put reference layer above', TrueValue='Put reference layer below'}}"
+                            RenderOptions.BitmapScalingMode="HighQuality"
+                            Width="20" Height="20" HorizontalAlignment="Right">
+                        <Button.Background>
+                            <ImageBrush ImageSource="{Binding Document.ReferenceLayerViewModel.ShowHighest, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='Images/ReferenceLayerAbove.png', TrueValue='Images/ReferenceLayerBelow.png'}}"/>
                         </Button.Background>
                     </Button>
                     <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" HorizontalAlignment="Center"
                                 Margin="0 0 5 0" Foreground="White" 
-                                FontSize="15" VerticalAlignment="Center">Reference Layer</TextBlock>
+                                FontSize="15" VerticalAlignment="Center">Reference</TextBlock>
                 </DockPanel>
             </Grid>
         </DockPanel>

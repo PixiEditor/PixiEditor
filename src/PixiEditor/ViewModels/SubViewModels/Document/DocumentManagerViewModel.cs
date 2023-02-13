@@ -49,7 +49,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.HasDocument")]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument", IconPath = "crop.png")]
     public void ClipCanvas() => ActiveDocument?.Operations.ClipCanvas();
 
     [Command.Basic("PixiEditor.Document.FlipImageHorizontal", FlipType.Horizontal, "Flip Image Horizontally", "Flip Image Horizontally", CanExecute = "PixiEditor.HasDocument")]
