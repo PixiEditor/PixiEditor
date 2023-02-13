@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Immutable;
+using System.IO;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -201,6 +202,12 @@ internal partial class DocumentViewModel : NotifyableObject
             new SymmetryAxisPosition_Action(SymmetryAxisDirection.Vertical, builderInstance.Width / 2),
             new EndSymmetryAxisPosition_Action());
 
+        if (builderInstance.ReferenceLayer is { } refLayer)
+        {
+            acc
+                .AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImagePbgra32Bytes.ToImmutableArray(), refLayer.ImageSize));
+        }
+        
         viewModel.Swatches = new WpfObservableRangeCollection<Color>(builderInstance.Swatches);
         viewModel.Palette = new WpfObservableRangeCollection<Color>(builderInstance.Palette);
 

@@ -8,7 +8,9 @@ using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using BlendMode = PixiEditor.Parser.BlendMode;
@@ -31,10 +33,45 @@ internal partial class DocumentViewModel
         {
             Width = Width, Height = Height,
             Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
-            RootFolder = root, PreviewImage = (MaybeRenderWholeImage().Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray()
+            RootFolder = root, PreviewImage = (MaybeRenderWholeImage().Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
+            ReferenceLayer = GetReferenceLayer(doc)
         };
 
         return document;
+    }
+
+    private static ReferenceLayer GetReferenceLayer(IReadOnlyDocument document)
+    {
+        if (document.ReferenceLayer == null)
+        {
+            return null;
+        }
+
+        var layer = document.ReferenceLayer!;
+
+        var surface = new Surface(new VecI(layer.ImageSize.X, layer.ImageSize.Y));
+        
+        surface.DrawBytes(surface.Size, layer.ImagePbgra32Bytes.ToArray(), ColorType.Bgra8888, AlphaType.Premul);
+
+        var encoder = new PngBitmapEncoder();
+
+        using var stream = new MemoryStream();
+        
+        encoder.Frames.Add(BitmapFrame.Create(surface.ToWriteableBitmap()));
+        encoder.Save(stream);
+
+        stream.Position = 0;
+
+        return new ReferenceLayer
+        {
+            Enabled = layer.IsVisible,
+            Width = (float)layer.Shape.RectSize.X,
+            Height = (float)layer.Shape.RectSize.Y,
+            OffsetX = (float)layer.Shape.TopLeft.X,
+            OffsetY = (float)layer.Shape.TopLeft.Y,
+            Opacity = 1,
+            ImageBytes = stream.ToArray()
+        };
     }
 
     private static void AddMembers(IEnumerable<IReadOnlyStructureMember> members, IReadOnlyDocument document, Folder parent)
