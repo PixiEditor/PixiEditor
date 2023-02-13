@@ -136,7 +136,7 @@
                             RenderOptions.BitmapScalingMode="HighQuality"
                             Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
-                            <ImageBrush ImageSource="{Binding Document.ReferenceLayerViewModel.ShowHighest, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='Images/ReferenceLayerAbove.png', TrueValue='Images/ReferenceLayerBelow.png'}}"/>
+                            <ImageBrush ImageSource="{Binding Document.ReferenceLayerViewModel.ShowHighest, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='Images/ReferenceLayerBelow.png', TrueValue='Images/ReferenceLayerAbove.png'}}"/>
                         </Button.Background>
                     </Button>
                     <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" HorizontalAlignment="Center"
