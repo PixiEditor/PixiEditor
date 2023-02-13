@@ -48,7 +48,7 @@ internal static class CommandSearchControlHelper
         // add matching commands
         newResults.AddRange(
             controller.Commands
-                .Where(x => x.Description.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Description.Replace(" ", "").Contains(query, StringComparison.OrdinalIgnoreCase))
                 .Where(static x => ViewModelMain.Current.DebugSubViewModel.UseDebug ? true : !x.IsDebug)
                 .OrderByDescending(x => x.Description.Contains($" {query} ", StringComparison.OrdinalIgnoreCase))
                 .Take(18)
@@ -103,7 +103,7 @@ internal static class CommandSearchControlHelper
             files = files.Where(x => x.Contains(name, StringComparison.OrdinalIgnoreCase));
         }
 
-        var array = files as string[] ?? files.ToArray();
+        string[] array = files as string[] ?? files.ToArray();
         
         if (array.Length != 1)
         {
@@ -114,18 +114,8 @@ internal static class CommandSearchControlHelper
                     SearchTerm = name, Match = Match($".../{Path.GetFileName(path)}", name ?? "")
                 });
         }
-        else if (array.Length < 1)
-        {
-            return ArraySegment<SearchResult>.Empty;
-        }
-        else
-        {
-            return new[]
-            {
-                new FileSearchResult(array[0]),
-                new FileSearchResult(array[0], true)
-            };
-        }
+
+        return array.Length >= 1 ? new[] { new FileSearchResult(array[0]), new FileSearchResult(array[0], true) } : ArraySegment<SearchResult>.Empty;
     }
 
     private static bool GetDirectory(string path, out string directory, out string file)
