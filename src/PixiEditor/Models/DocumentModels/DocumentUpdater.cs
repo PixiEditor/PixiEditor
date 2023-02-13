@@ -110,6 +110,9 @@ internal class DocumentUpdater
             case ReferenceLayerIsVisible_ChangeInfo info:
                 ProcessReferenceLayerIsVisible(info);
                 break;
+            case ReferenceLayerTopMost_ChangeInfo info:
+                ProcessReferenceLayerTopMost(info);
+                break;
             case SetSelectedMember_PassthroughAction info:
                 ProcessSetSelectedMember(info);
                 break;
@@ -122,6 +125,7 @@ internal class DocumentUpdater
             case ClearSoftSelectedMembers_PassthroughAction info:
                 ProcessClearSoftSelectedMembers(info);
                 break;
+                
         }
     }
 
@@ -145,6 +149,11 @@ internal class DocumentUpdater
         doc.ReferenceLayerViewModel.InternalSetReferenceLayer(info.ImagePbgra32Bytes, info.ImageSize, info.Shape);
     }
     
+    private void ProcessReferenceLayerTopMost(ReferenceLayerTopMost_ChangeInfo info)
+    {
+        doc.ReferenceLayerViewModel.InternalSetReferenceLayerTopMost(info.IsTopMost);
+    }
+
     private void ProcessRemoveSoftSelectedMember(RemoveSoftSelectedMember_PassthroughAction info)
     {
         StructureMemberViewModel? member = doc.StructureHelper.Find(info.GuidValue);
