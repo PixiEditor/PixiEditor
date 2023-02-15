@@ -53,10 +53,11 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.NudgeSelectedObject(distance);
     }
 
-    [Command.Basic("PixiEditor.Selection.NewToMask", SelectionMode.New, "Selection to mask", "Selection to new mask")]
+    [Command.Basic("PixiEditor.Selection.NewToMask", SelectionMode.New, "New mask from selection", "Selection to new mask")]
     [Command.Basic("PixiEditor.Selection.AddToMask", SelectionMode.Add, "Add selection to mask", "Add selection to mask")]
     [Command.Basic("PixiEditor.Selection.SubtractFromMask", SelectionMode.Subtract, "Subtract selection from mask", "Subtract selection from mask")]
     [Command.Basic("PixiEditor.Selection.IntersectSelectionMask", SelectionMode.Intersect, "Intersect selection with mask", "Intersect selection with mask")]
+    [Command.Filter("PixiEditor.Selection.ToMaskMenu", "Selection to mask", "Selection to mask", Key = Key.M, Modifiers = ModifierKeys.Control)]
     public void SelectionToMask(SelectionMode mode)
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.SelectionToMask(mode);

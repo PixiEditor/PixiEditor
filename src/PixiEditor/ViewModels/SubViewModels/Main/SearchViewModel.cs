@@ -7,6 +7,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 internal class SearchViewModel : SubViewModel<ViewModelMain>
 {
     private bool searchWindowOpen;
+    private bool selectAll;
     private string searchTerm;
 
     public bool SearchWindowOpen
@@ -21,6 +22,12 @@ internal class SearchViewModel : SubViewModel<ViewModelMain>
         set => SetProperty(ref searchTerm, value);
     }
 
+    public bool SelectAll
+    {
+        get => selectAll;
+        set => SetProperty(ref selectAll, value);
+    }
+
     public SearchViewModel(ViewModelMain owner) : base(owner)
     { }
 
@@ -30,10 +37,18 @@ internal class SearchViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Search.Toggle", "", "Command Search", "Open the command search window", Key = Key.K, Modifiers = ModifierKeys.Control, CanExecute = "PixiEditor.Search.CanOpenSearchWindow")]
     public void ToggleSearchWindow(string searchTerm)
     {
+        SelectAll = true;
         SearchWindowOpen = !SearchWindowOpen;
         if (SearchWindowOpen)
         {
             SearchTerm = searchTerm;
         }
+    }
+
+    public void OpenSearchWindow(string searchTerm, bool selectAll = true)
+    {
+        SelectAll = selectAll;
+        SearchWindowOpen = true;
+        SearchTerm = searchTerm;
     }
 }

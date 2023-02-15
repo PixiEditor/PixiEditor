@@ -31,6 +31,36 @@ internal static class CommandSearchControlHelper
 
         var controller = CommandController.Current;
 
+        if (query.StartsWith(':') && query.Length > 1)
+        {
+            string searchTerm = query[1..].Replace(" ", "");
+            int index = searchTerm.IndexOf(':');
+
+            string menu;
+            string additional;
+            
+            if (index > 0)
+            {
+                menu = searchTerm[..index];
+                additional = searchTerm[(index + 1)..];
+            }
+            else
+            {
+                menu = searchTerm;
+                additional = string.Empty;
+            }
+
+            var menuCommands = controller.FilterCommands
+                .Where(x => x.Key.Replace(" ", "").Contains(menu, StringComparison.OrdinalIgnoreCase))
+                .SelectMany(x => x.Value);
+
+            newResults.AddRange(menuCommands
+                .Where(x => index == -1 || x.DisplayName.Replace(" ", "").Contains(additional, StringComparison.OrdinalIgnoreCase))
+                .Select(command => new CommandSearchResult(command) { SearchTerm = searchTerm }));
+
+            return (newResults, warnings);
+        }
+        
         // add matching colors
         MaybeParseColor(query).Switch(
             color =>

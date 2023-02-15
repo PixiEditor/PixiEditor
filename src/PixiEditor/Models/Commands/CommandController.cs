@@ -24,6 +24,8 @@ internal class CommandController
 
     public List<CommandGroup> CommandGroups { get; }
 
+    public OneToManyDictionary<string, Command> FilterCommands { get; }
+
     public Dictionary<string, CanExecuteEvaluator> CanExecuteEvaluators { get; }
 
     public Dictionary<string, IconEvaluator> IconEvaluators { get; }
@@ -39,6 +41,7 @@ internal class CommandController
 
         shortcutFile = new(ShortcutsPath, this);
 
+        FilterCommands = new();
         Commands = new();
         CommandGroups = new();
         CanExecuteEvaluators = new();
@@ -211,11 +214,27 @@ internal class CommandController
                                 Parameter = basic.Parameter,
                             });
                     }
+                    else if (attribute is CommandAttribute.FilterAttribute menu)
+                    {
+                        foreach (var menuCommand in commandAttrs.Where(x => x is not CommandAttribute.FilterAttribute))
+                        {
+                            FilterCommands.Add(menu.SearchTerm, Commands[menuCommand.InternalName]);
+                        }
+                        
+                        Commands.Add(new Command.BasicCommand(_ => ViewModelMain.Current.SearchSubViewModel.OpenSearchWindow($":{menu.SearchTerm}:"), CanExecuteEvaluator.AlwaysTrue)
+                        {
+                            InternalName = menu.InternalName,
+                            DisplayName = menu.DisplayName,
+                            Description = string.Empty,
+                            DefaultShortcut = menu.GetShortcut(),
+                            Shortcut = GetShortcut(name, attribute.GetShortcut(), template)
+                        });
+                    }
                 }
             }
         }
         
-        void AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute,
+        TCommand AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute,
             Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
             where TAttr : CommandAttribute.CommandAttribute
             where TCommand : Command
@@ -264,6 +283,8 @@ internal class CommandController
 
             Commands.Add(command);
             AddCommandToCommandsCollection(command, commandGroupsData, commands);
+
+            return command;
         }
     }
 
