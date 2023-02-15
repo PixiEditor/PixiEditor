@@ -48,7 +48,7 @@ internal static class CommandSearchControlHelper
         // add matching commands
         newResults.AddRange(
             controller.Commands
-                .Where(x => x.Description.Replace(" ", "").Contains(query, StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Description.Replace(" ", "").Contains(query.Replace(" ", ""), StringComparison.OrdinalIgnoreCase))
                 .Where(static x => ViewModelMain.Current.DebugSubViewModel.UseDebug ? true : !x.IsDebug)
                 .OrderByDescending(x => x.Description.Contains($" {query} ", StringComparison.OrdinalIgnoreCase))
                 .Take(18)
