@@ -391,6 +391,14 @@
 		<Resource Include="Images\ReferenceLayerAbove.png" />
 		<None Remove="Images\ReferenceLayerBelow.png" />
 		<Resource Include="Images\ReferenceLayerBelow.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\SubtractFromMask.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\SubtractFromMask.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\IntersectSelectionMask.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\IntersectSelectionMask.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\AddToMask.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\AddToMask.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\NewToMask.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\NewToMask.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
