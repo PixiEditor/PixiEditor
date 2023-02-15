@@ -536,4 +536,17 @@ internal class DocumentOperationsModule
             new EndTransformReferenceLayer_Action()
             );
     }
+
+    public void SelectionToMask(SelectionMode mode)
+    {
+        if (Document.SelectedStructureMember is not { } member || Document.SelectionPathBindable.IsEmpty)
+            return;
+
+        if (!Document.SelectedStructureMember.HasMaskBindable)
+        {
+            Internals.ActionAccumulator.AddActions(new CreateStructureMemberMask_Action(member.GuidValue));
+        }
+        
+        Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.GuidValue, mode));
+    }
 }

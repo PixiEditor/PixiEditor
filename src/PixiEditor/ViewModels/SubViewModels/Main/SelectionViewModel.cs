@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 
@@ -50,6 +51,15 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     {
         VecI distance = new(dist[0], dist[1]);
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.NudgeSelectedObject(distance);
+    }
+
+    [Command.Basic("PixiEditor.Selection.NewToMask", SelectionMode.New, "Selection to mask", "Selection to new mask")]
+    [Command.Basic("PixiEditor.Selection.AddToMask", SelectionMode.Add, "Add selection to mask", "Add selection to mask")]
+    [Command.Basic("PixiEditor.Selection.SubtractFromMask", SelectionMode.Subtract, "Subtract selection from mask", "Subtract selection from mask")]
+    [Command.Basic("PixiEditor.Selection.IntersectSelectionMask", SelectionMode.Intersect, "Intersect selection with mask", "Intersect selection with mask")]
+    public void SelectionToMask(SelectionMode mode)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.SelectionToMask(mode);
     }
 
     [Evaluator.CanExecute("PixiEditor.Selection.CanNudgeSelectedObject")]
