@@ -234,7 +234,19 @@ internal class DocumentOperationsModule
     {
         if (Internals.ChangeController.IsChangeActive || oldColor == newColor)
             return;
+        
         Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor, newColor));
+        ReplaceInPalette(oldColor, newColor);
+    }
+
+    private void ReplaceInPalette(Color oldColor, Color newColor)
+    {
+        int indexOfOldColor = Document.Palette.IndexOf(oldColor);
+        if(indexOfOldColor == -1)
+            return;
+        
+        Document.Palette.RemoveAt(indexOfOldColor);
+        Document.Palette.Insert(indexOfOldColor, newColor);
     }
 
     /// <summary>
