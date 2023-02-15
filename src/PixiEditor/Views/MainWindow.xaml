@@ -231,6 +231,9 @@
                         <MenuItem
                             Header="_Deselect"
                             cmds:Menu.Command="PixiEditor.Selection.Clear" />
+                        <MenuItem
+                            Header="_Invert"
+                            cmds:Menu.Command="PixiEditor.Selection.InvertSelection" />
                         <Separator/>
                         <MenuItem Header="Selection _to Mask">
                             <MenuItem
