@@ -154,8 +154,8 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         double proportions = docSize.Y / (double)docSize.X;
         const int prSize = StructureMemberViewModel.PreviewSize;
         return proportions > 1 ?
-            new VecI((int)Math.Round(prSize / proportions), prSize) :
-            new VecI(prSize, (int)Math.Round(prSize * proportions));
+            new VecI(Math.Max((int)Math.Round(prSize / proportions), 1), prSize) :
+            new VecI(prSize, Math.Max((int)Math.Round(prSize * proportions), 1));
     }
 
     public StructureMemberViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid guidValue)
