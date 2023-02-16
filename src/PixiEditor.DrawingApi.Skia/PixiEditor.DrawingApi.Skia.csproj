@@ -8,6 +8,18 @@
         <Platforms>AnyCPU;x64;x86</Platforms>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|AnyCPU'">
+      <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x64'">
+      <Optimize>True</Optimize>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x86'">
+      <Optimize>True</Optimize>
+    </PropertyGroup>
+
     <ItemGroup>
       <PackageReference Include="SkiaSharp" Version="2.80.3" />
     </ItemGroup>
