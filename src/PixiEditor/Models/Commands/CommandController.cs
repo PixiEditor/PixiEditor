@@ -216,16 +216,22 @@ internal class CommandController
                     }
                     else if (attribute is CommandAttribute.FilterAttribute menu)
                     {
+                        bool hasFilter = FilterCommands.ContainsKey(menu.SearchTerm);
+                        
                         foreach (var menuCommand in commandAttrs.Where(x => x is not CommandAttribute.FilterAttribute))
                         {
                             FilterCommands.Add(menu.SearchTerm, Commands[menuCommand.InternalName]);
                         }
+
+                        if (hasFilter)
+                            continue;
                         
                         Commands.Add(new Command.BasicCommand(_ => ViewModelMain.Current.SearchSubViewModel.OpenSearchWindow($":{menu.SearchTerm}:"), CanExecuteEvaluator.AlwaysTrue)
                         {
                             InternalName = menu.InternalName,
                             DisplayName = menu.DisplayName,
                             Description = string.Empty,
+                            IconEvaluator = IconEvaluator.Default,
                             DefaultShortcut = menu.GetShortcut(),
                             Shortcut = GetShortcut(name, attribute.GetShortcut(), template)
                         });

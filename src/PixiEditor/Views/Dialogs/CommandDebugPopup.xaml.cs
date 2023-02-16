@@ -92,7 +92,11 @@ public partial class CommandDebugPopup : Window
             }
         }
 
-        if (command.IconEvaluator != IconEvaluator.Default)
+        if (command.IconEvaluator == null)
+        {
+            Warning("Icon evaluator is null");
+        }
+        else if (command.IconEvaluator != IconEvaluator.Default)
         {
             Info($"Uses custom icon evaluator ({command.IconEvaluator.Name})\n");
         }
