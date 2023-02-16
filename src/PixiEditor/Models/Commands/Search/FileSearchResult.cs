@@ -16,7 +16,7 @@ internal class FileSearchResult : SearchResult
     public override string Description => FilePath;
 
     public override bool CanExecute => !asReferenceLayer ||
-                CommandController.Current.Commands["PixiEditor.Layer.PasteReferenceLayerFromPath"].Methods.CanExecute(FilePath);
+                CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayerFromPath"].Methods.CanExecute(FilePath);
 
     public override ImageSource Icon => icon;
 
@@ -38,10 +38,10 @@ internal class FileSearchResult : SearchResult
         }
         else
         {
-            var command = CommandController.Current.Commands["PixiEditor.Layer.PasteReferenceLayerFromPath"];
+            var command = CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayerFromPath"];
             if (command.Methods.CanExecute(FilePath))
             {
-                CommandController.Current.Commands["PixiEditor.Layer.PasteReferenceLayerFromPath"].Methods
+                CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayerFromPath"].Methods
                     .Execute(FilePath);
             }
         }

@@ -1,23 +1,17 @@
 ﻿using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
@@ -377,38 +371,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(), 
             size);
-    }
-
-    [Command.Basic("PixiEditor.Layer.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", IconPath = "Commands/PixiEditor/Clipboard/Paste.png", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
-    public void PasteReferenceLayer(DataObject data)
-    {
-        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-
-        var surface = (data == null ? ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
-        using var image = surface.image;
-        
-        var bitmap = surface.image.ToWriteableBitmap();
-
-        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
-        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
-
-        doc.Operations.ImportReferenceLayer(
-            pixels.ToImmutableArray(),
-            surface.image.Size);
-    }
-    
-    [Command.Internal("PixiEditor.Layer.PasteReferenceLayerFromPath", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist")]
-    public void PasteReferenceLayer(string path)
-    {
-        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-
-        var bitmap = Importer.GetPreviewBitmap(path);
-        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
-        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
-
-        doc.Operations.ImportReferenceLayer(
-            pixels.ToImmutableArray(),
-            new VecI(bitmap.PixelWidth, bitmap.PixelHeight));
     }
 
     private string OpenReferenceLayerFilePicker()
