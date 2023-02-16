@@ -14,11 +14,13 @@
 		<PackageIcon>icon.ico</PackageIcon>
 		<ApplicationIcon>..\icon.ico</ApplicationIcon>
 		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
-		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release</Configurations>
+		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release;Steam</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
         <ImplicitUsings>true</ImplicitUsings>
         <AssemblyVersion></AssemblyVersion>
         <LangVersion>11</LangVersion>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
@@ -51,7 +53,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x86'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE</DefineConstants>
+		<DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
 		<Optimize>True</Optimize>
 	</PropertyGroup>
 
@@ -62,7 +64,7 @@
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x64'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE</DefineConstants>
+		<DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
 		<Optimize>True</Optimize>
 	</PropertyGroup>
 
@@ -125,6 +127,22 @@
 		<DebugSymbols>true</DebugSymbols>
 		<Optimize>false</Optimize>
 		<DefineConstants>DEBUG;TRACE</DefineConstants>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x86'">
+	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+	  <Optimize>True</Optimize>
+	  <OutputPath>bin\x86\Steam\</OutputPath>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Steam|x64' ">
+	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Steam' ">
+	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+	  <Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -218,7 +236,7 @@
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta2" />
 		<PackageReference Include="OneOf" Version="3.0.223" />
 		<PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
-		<PackageReference Include="PixiEditor.Parser" Version="3.1.0" />
+		<PackageReference Include="PixiEditor.Parser" Version="3.2.0" />
 		<PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
 		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
 		<PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
@@ -316,7 +334,6 @@
 		<None Remove="Images\Commands\PixiEditor\View\ZoomOut.png" />
 		<Resource Include="Images\Commands\PixiEditor\View\ZoomOut.png" />
 		<None Remove="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
-		<Resource Include="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
 		<None Remove="Fonts\feather.ttf" />
 		<Resource Include="Fonts\feather.ttf" />
 		<None Remove="Images\Load.png" />
@@ -368,6 +385,20 @@
 		<Resource Include="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png" />
 		<None Remove="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
 		<Resource Include="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
+		<None Remove="Images\Crop.png" />
+		<Resource Include="Images\Crop.png" />
+		<None Remove="Images\ReferenceLayerAbove.png" />
+		<Resource Include="Images\ReferenceLayerAbove.png" />
+		<None Remove="Images\ReferenceLayerBelow.png" />
+		<Resource Include="Images\ReferenceLayerBelow.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\SubtractFromMask.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\SubtractFromMask.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\IntersectSelectionMask.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\IntersectSelectionMask.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\AddToMask.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\AddToMask.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\NewToMask.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\NewToMask.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

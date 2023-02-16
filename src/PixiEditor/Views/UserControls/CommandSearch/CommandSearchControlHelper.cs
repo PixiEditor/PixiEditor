@@ -31,6 +31,36 @@ internal static class CommandSearchControlHelper
 
         var controller = CommandController.Current;
 
+        if (query.StartsWith(':') && query.Length > 1)
+        {
+            string searchTerm = query[1..].Replace(" ", "");
+            int index = searchTerm.IndexOf(':');
+
+            string menu;
+            string additional;
+            
+            if (index > 0)
+            {
+                menu = searchTerm[..index];
+                additional = searchTerm[(index + 1)..];
+            }
+            else
+            {
+                menu = searchTerm;
+                additional = string.Empty;
+            }
+
+            var menuCommands = controller.FilterCommands
+                .Where(x => x.Key.Replace(" ", "").Contains(menu, StringComparison.OrdinalIgnoreCase))
+                .SelectMany(x => x.Value);
+
+            newResults.AddRange(menuCommands
+                .Where(x => index == -1 || x.DisplayName.Replace(" ", "").Contains(additional, StringComparison.OrdinalIgnoreCase))
+                .Select(command => new CommandSearchResult(command) { SearchTerm = searchTerm }));
+
+            return (newResults, warnings);
+        }
+        
         // add matching colors
         MaybeParseColor(query).Switch(
             color =>
@@ -48,7 +78,7 @@ internal static class CommandSearchControlHelper
         // add matching commands
         newResults.AddRange(
             controller.Commands
-                .Where(x => x.Description.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Description.Replace(" ", "").Contains(query.Replace(" ", ""), StringComparison.OrdinalIgnoreCase))
                 .Where(static x => ViewModelMain.Current.DebugSubViewModel.UseDebug ? true : !x.IsDebug)
                 .OrderByDescending(x => x.Description.Contains($" {query} ", StringComparison.OrdinalIgnoreCase))
                 .Take(18)
@@ -103,13 +133,19 @@ internal static class CommandSearchControlHelper
             files = files.Where(x => x.Contains(name, StringComparison.OrdinalIgnoreCase));
         }
 
-        return files
-            .Select(static file => Path.GetFullPath(file))
-            .Select(path => new FileSearchResult(path)
-            {
-                SearchTerm = name,
-                Match = Match($".../{Path.GetFileName(path)}", name ?? "")
-            });
+        string[] array = files as string[] ?? files.ToArray();
+        
+        if (array.Length != 1)
+        {
+            return array
+                .Select(static file => Path.GetFullPath(file))
+                .Select(path => new FileSearchResult(path)
+                {
+                    SearchTerm = name, Match = Match($".../{Path.GetFileName(path)}", name ?? "")
+                });
+        }
+
+        return array.Length >= 1 ? new[] { new FileSearchResult(array[0]), new FileSearchResult(array[0], true) } : ArraySegment<SearchResult>.Empty;
     }
 
     private static bool GetDirectory(string path, out string directory, out string file)

@@ -70,7 +70,7 @@
                 </Ellipse>
                 <Label Style="{StaticResource SettingsText}" Margin="10 0 0 0" FontSize="14">
                     <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/CPKreuz" Style="{StaticResource SettingsLink}">
-                        <Run Text="Phillip Kreuz (CPK)"/>
+                        <Run Text="Philip Kreuz (CPK)"/>
                         <Run Text="" FontFamily="{StaticResource Feather}"/>
                     </Hyperlink>
                 </Label>

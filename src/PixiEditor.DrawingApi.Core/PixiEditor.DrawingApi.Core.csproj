@@ -5,5 +5,7 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>10</LangVersion>
+        <Configurations>Debug;Release;Steam</Configurations>
+        <Platforms>AnyCPU;x64;x86</Platforms>
     </PropertyGroup>
 </Project>

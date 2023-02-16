@@ -41,7 +41,7 @@ public partial class CommandDebugPopup : Window
 
             try
             {
-                image = command.GetIcon();
+                image = command.IconEvaluator.CallEvaluate(command, null);
             }
             catch (Exception e)
             {
@@ -92,9 +92,13 @@ public partial class CommandDebugPopup : Window
             }
         }
 
-        if (command.IconEvaluator != IconEvaluator.Default)
+        if (command.IconEvaluator == null)
         {
-            Info($"Uses custom icon evaluator ({command.IconEvaluator.GetType().Name})\n");
+            Warning("Icon evaluator is null");
+        }
+        else if (command.IconEvaluator != IconEvaluator.Default)
+        {
+            Info($"Uses custom icon evaluator ({command.IconEvaluator.Name})\n");
         }
 
         if (!string.IsNullOrWhiteSpace(command.IconPath))

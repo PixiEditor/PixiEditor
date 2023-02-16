@@ -1,4 +1,7 @@
-﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+﻿using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -12,7 +15,11 @@ internal static class PixiParserDocumentEx
         {
             b.WithSize(document.Width, document.Height)
                 .WithPalette(document.Palette, x => new Color(x.R, x.G, x.B, x.A))
-                .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B, x.A));
+                .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B, x.A))
+                .WithReferenceLayer(document.ReferenceLayer, (r, builder) => builder
+                    .WithIsVisible(r.Enabled)
+                    .WithRect(new VecD(r.OffsetX, r.OffsetY), new VecD(r.Width, r.Height))
+                    .WithSurface(Surface.Load(r.ImageBytes)));
 
             BuildChildren(b, document.RootFolder.Children);
         });
@@ -54,6 +61,7 @@ internal static class PixiParserDocumentEx
                 .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)layer.BlendMode)
                 .WithRect(layer.Width, layer.Height, layer.OffsetX, layer.OffsetY)
                 .WithClipToBelow(layer.ClipToMemberBelow)
+                .WithLockAlpha(layer.LockAlpha)
                 .WithMask(layer.Mask,
                     (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height,
                         x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));

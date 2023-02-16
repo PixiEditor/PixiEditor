@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using ChunkyImageLib;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -15,6 +17,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
     public List<Color> Swatches { get; set; } = new List<Color>();
     public List<Color> Palette { get; set; } = new List<Color>();
     
+    public ReferenceLayerBuilder ReferenceLayer { get; set; }
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
@@ -42,6 +45,27 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
     public DocumentViewModelBuilder WithPalette<T>(IEnumerable<T> pallet, Func<T, Color> toColor) =>
         WithPalette(pallet.Select(toColor));
 
+    public DocumentViewModelBuilder WithReferenceLayer<T>(T reference, Action<T, ReferenceLayerBuilder> builder)
+    {
+        if (reference != null)
+        {
+            WithReferenceLayer(x => builder(reference, x));
+        }
+
+        return this;
+    }
+    
+    public DocumentViewModelBuilder WithReferenceLayer(Action<ReferenceLayerBuilder> builder)
+    {
+        var reference = new ReferenceLayerBuilder();
+
+        builder(reference);
+
+        ReferenceLayer = reference;
+        
+        return this;
+    }
+    
     public abstract class StructureMemberBuilder
     {
         private MaskBuilder maskBuilder;
@@ -148,6 +172,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         
         public int OffsetY { get; set; }
         
+        public bool LockAlpha { get; set; }
+
         public new LayerBuilder WithName(string name) => base.WithName(name) as LayerBuilder;
         
         public new LayerBuilder WithVisibility(bool visibility) => base.WithVisibility(visibility) as LayerBuilder;
@@ -157,6 +183,12 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public new LayerBuilder WithBlendMode(BlendMode blendMode) => base.WithBlendMode(blendMode) as LayerBuilder;
         
         public new LayerBuilder WithClipToBelow(bool value) => base.WithClipToBelow(value) as LayerBuilder;
+
+        public LayerBuilder WithLockAlpha(bool layerLockAlpha)
+        {
+            LockAlpha = layerLockAlpha;
+            return this;
+        }
         
         public new LayerBuilder WithMask(Action<MaskBuilder> mask) => base.WithMask(mask) as LayerBuilder;
         
@@ -273,6 +305,55 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
             var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Math.Max(width, 1), Math.Max(height, 1))));
             surface(surfaceBuilder);
             Surface = surfaceBuilder;
+            return this;
+        }
+    }
+
+    public class ReferenceLayerBuilder
+    {
+        public bool IsVisible { get; set; }
+        
+        public bool IsTopmost { get; set; }
+        
+        public VecI ImageSize { get; set; }
+        
+        public ShapeCorners Shape { get; set; }
+        
+        public byte[] ImagePbgra32Bytes { get; set; }
+
+        public ReferenceLayerBuilder WithIsVisible(bool isVisible)
+        {
+            IsVisible = isVisible;
+            return this;
+        }
+
+        public ReferenceLayerBuilder WithIsTopmost(bool isTopmost)
+        {
+            IsTopmost = isTopmost;
+            return this;
+        }
+
+        public ReferenceLayerBuilder WithSurface(Surface surface)
+        {
+            var writeableBitmap = surface.ToWriteableBitmap();
+            byte[] bytes = new byte[writeableBitmap.PixelHeight * writeableBitmap.BackBufferStride];
+            Marshal.Copy(surface.ToWriteableBitmap().BackBuffer, bytes, 0, bytes.Length);
+
+            WithImage(surface.Size, bytes);
+            
+            return this;
+        }
+
+        public ReferenceLayerBuilder WithImage(VecI size, byte[] pbgraData)
+        {
+            ImageSize = size;
+            ImagePbgra32Bytes = pbgraData;
+            return this;
+        }
+
+        public ReferenceLayerBuilder WithRect(VecD offset, VecD size)
+        {
+            Shape = new ShapeCorners(new RectD(offset, size));
             return this;
         }
     }

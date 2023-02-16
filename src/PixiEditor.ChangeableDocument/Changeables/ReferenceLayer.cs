@@ -10,6 +10,7 @@ public class ReferenceLayer : IReadOnlyReferenceLayer
     public VecI ImageSize { get; }
     public ShapeCorners Shape { get; set; }
     public bool IsVisible { get; set; } = true;
+    public bool IsTopMost { get; set; }
     
     public ReferenceLayer(ImmutableArray<byte> imagePbgra32Bytes, VecI imageSize, ShapeCorners shape)
     {

@@ -1,11 +1,12 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
+﻿using System.Collections.Immutable;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.IO;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
@@ -36,6 +37,38 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         ClipboardController.TryPasteFromClipboard(Owner.DocumentManagerSubViewModel.ActiveDocument, pasteAsNewLayer);
     }
     
+    [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "Commands/PixiEditor/Clipboard/Paste.png")]
+    public void PasteReferenceLayer(DataObject data)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        var surface = (data == null ? ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
+        using var image = surface.image;
+        
+        var bitmap = surface.image.ToWriteableBitmap();
+
+        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
+        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
+
+        doc.Operations.ImportReferenceLayer(
+            pixels.ToImmutableArray(),
+            surface.image.Size);
+    }
+    
+    [Command.Internal("PixiEditor.Clipboard.PasteReferenceLayerFromPath")]
+    public void PasteReferenceLayer(string path)
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        var bitmap = Importer.GetPreviewBitmap(path);
+        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
+        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
+
+        doc.Operations.ImportReferenceLayer(
+            pixels.ToImmutableArray(),
+            new VecI(bitmap.PixelWidth, bitmap.PixelHeight));
+    }
+
     [Command.Basic("PixiEditor.Clipboard.PasteColor", false, "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
     [Command.Basic("PixiEditor.Clipboard.PasteColorAsSecondary", true, "Paste color as secondary", "Paste color as secondary from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
     public void PasteColor(bool secondary)

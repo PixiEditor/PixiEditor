@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
+    <Configurations>Debug;Release;Steam</Configurations>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

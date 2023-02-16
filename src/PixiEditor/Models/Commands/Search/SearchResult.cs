@@ -51,7 +51,7 @@ internal abstract class SearchResult : NotifyableObject
 
     private IEnumerable<Inline> GetInlines()
     {
-        if (Match == null)
+        if (Match is not { Success: true })
         {
             yield return new Run(Text);
             yield break;

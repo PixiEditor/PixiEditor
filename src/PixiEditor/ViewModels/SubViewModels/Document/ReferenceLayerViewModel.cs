@@ -53,6 +53,34 @@ internal class ReferenceLayerViewModel : INotifyPropertyChanged
         }
     }
 
+    private bool isTransforming;
+    public bool IsTransforming
+    {
+        get => isTransforming;
+        set
+        {
+            isTransforming = value;
+            RaisePropertyChanged(nameof(IsTransforming));
+            RaisePropertyChanged(nameof(ShowHighest));
+        }
+    }
+    
+    private bool isTopMost;
+    public bool IsTopMost
+    {
+        get => isTopMost;
+        set
+        {
+            if (!doc.UpdateableChangeActive)
+                internals.ActionAccumulator.AddFinishedActions(new ReferenceLayerTopMost_Action(value));
+        }
+    }
+    
+    public bool ShowHighest
+    {
+        get => IsTopMost || IsTransforming;
+    }
+
     public ReferenceLayerViewModel(DocumentViewModel doc, DocumentInternalParts internals)
     {
         this.doc = doc;
@@ -71,10 +99,14 @@ internal class ReferenceLayerViewModel : INotifyPropertyChanged
         ReferenceBitmap = WriteableBitmapHelpers.FromPbgra32Array(imagePbgra32Bytes.ToArray(), imageSize);
         referenceShape = shape;
         isVisible = true;
+        isTransforming = false;
+        isTopMost = false;
         RaisePropertyChanged(nameof(ReferenceBitmap));
         RaisePropertyChanged(nameof(ReferenceShapeBindable));
         RaisePropertyChanged(nameof(ReferenceTransformMatrix));
         RaisePropertyChanged(nameof(IsVisibleBindable));
+        RaisePropertyChanged(nameof(IsTransforming));
+        RaisePropertyChanged(nameof(ShowHighest));
     }
 
     public void InternalDeleteReferenceLayer()
@@ -97,6 +129,13 @@ internal class ReferenceLayerViewModel : INotifyPropertyChanged
     {
         this.isVisible = isVisible;
         RaisePropertyChanged(nameof(IsVisibleBindable));
+    }
+
+    public void InternalSetReferenceLayerTopMost(bool isTopMost)
+    {
+        this.isTopMost = isTopMost;
+        RaisePropertyChanged(nameof(IsTopMost));
+        RaisePropertyChanged(nameof(ShowHighest));
     }
 
     #endregion

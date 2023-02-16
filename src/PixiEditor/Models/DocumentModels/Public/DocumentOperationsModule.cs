@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
@@ -535,5 +536,27 @@ internal class DocumentOperationsModule
             new TransformReferenceLayer_Action(corners),
             new EndTransformReferenceLayer_Action()
             );
+    }
+
+    public void SelectionToMask(SelectionMode mode)
+    {
+        if (Document.SelectedStructureMember is not { } member || Document.SelectionPathBindable.IsEmpty)
+            return;
+
+        if (!Document.SelectedStructureMember.HasMaskBindable)
+        {
+            Internals.ActionAccumulator.AddActions(new CreateStructureMemberMask_Action(member.GuidValue));
+        }
+        
+        Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.GuidValue, mode));
+    }
+
+    public void InvertSelection()
+    {
+        var selection = Document.SelectionPathBindable;
+        var inverse = new VectorPath();
+        inverse.AddRect(new RectI(new(0, 0), Document.SizeBindable));
+
+        Internals.ActionAccumulator.AddFinishedActions(new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
     }
 }

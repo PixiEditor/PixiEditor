@@ -8,4 +8,5 @@ public interface IReadOnlyReferenceLayer
     public VecI ImageSize { get; }
     public ShapeCorners Shape { get; }
     public bool IsVisible { get; }
+    public bool IsTopMost { get; }
 }

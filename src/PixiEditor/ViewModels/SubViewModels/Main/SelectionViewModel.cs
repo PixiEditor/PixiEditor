@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
 
@@ -30,10 +31,22 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         doc.Operations.ClearSelection();
     }
 
+    [Command.Basic("PixiEditor.Selection.InvertSelection", "Invert selection", "Invert the selected area", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.I, Modifiers = ModifierKeys.Control)]
+    public void InvertSelection()
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.InvertSelection();
+    }
+
     [Evaluator.CanExecute("PixiEditor.Selection.IsNotEmpty")]
     public bool SelectionIsNotEmpty()
     {
         return !Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectionPathBindable?.IsEmpty ?? false;
+    }
+
+    [Evaluator.CanExecute("PixiEditor.Selection.IsNotEmptyAndHasMask")]
+    public bool SelectionIsNotEmptyAndHasMask()
+    {
+        return SelectionIsNotEmpty() && (Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false);
     }
 
     [Command.Basic("PixiEditor.Selection.TransformArea", "Transform selected area", "Transform selected area", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.T, Modifiers = ModifierKeys.Control)]
@@ -50,6 +63,16 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     {
         VecI distance = new(dist[0], dist[1]);
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.NudgeSelectedObject(distance);
+    }
+
+    [Command.Basic("PixiEditor.Selection.NewToMask", SelectionMode.New, "New mask from selection", "Selection to new mask", CanExecute = "PixiEditor.Selection.IsNotEmpty")]
+    [Command.Basic("PixiEditor.Selection.AddToMask", SelectionMode.Add, "Add selection to mask", "Add selection to mask", CanExecute = "PixiEditor.Selection.IsNotEmpty")]
+    [Command.Basic("PixiEditor.Selection.SubtractFromMask", SelectionMode.Subtract, "Subtract selection from mask", "Subtract selection from mask", CanExecute = "PixiEditor.Selection.IsNotEmptyAndHasMask")]
+    [Command.Basic("PixiEditor.Selection.IntersectSelectionMask", SelectionMode.Intersect, "Intersect selection with mask", "Intersect selection with mask", CanExecute = "PixiEditor.Selection.IsNotEmptyAndHasMask")]
+    [Command.Filter("PixiEditor.Selection.ToMaskMenu", "Selection to mask", "Selection to mask", Key = Key.M, Modifiers = ModifierKeys.Control)]
+    public void SelectionToMask(SelectionMode mode)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.SelectionToMask(mode);
     }
 
     [Evaluator.CanExecute("PixiEditor.Selection.CanNudgeSelectedObject")]

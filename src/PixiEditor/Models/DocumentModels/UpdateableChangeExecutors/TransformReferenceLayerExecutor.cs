@@ -17,6 +17,7 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor
 
         ShapeCorners corners = document.ReferenceLayerViewModel.ReferenceShapeBindable;
         document.TransformViewModel.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_NoPerspective, true, corners, true);
+        document.ReferenceLayerViewModel.IsTransforming = true;
         internals!.ActionAccumulator.AddActions(new TransformReferenceLayer_Action(corners));
         return ExecutionState.Success;
     }
@@ -36,6 +37,7 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndTransformReferenceLayer_Action());
         document!.TransformViewModel.HideTransform();
+        document.ReferenceLayerViewModel.IsTransforming = false;
         onEnded!.Invoke(this);
     }
 
@@ -43,5 +45,6 @@ internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor
     {
         internals!.ActionAccumulator.AddFinishedActions(new EndTransformReferenceLayer_Action());
         document!.TransformViewModel.HideTransform();
+        document.ReferenceLayerViewModel.IsTransforming = false;
     }
 }

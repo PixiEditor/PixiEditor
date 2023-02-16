@@ -6,6 +6,7 @@
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>AnyCPU;x64;x86</Platforms>
+    <Configurations>Debug;Release;Steam</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

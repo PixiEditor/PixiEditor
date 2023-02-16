@@ -39,6 +39,13 @@ internal partial class HelloTherePopup : Window
 
     public bool IsClosing { get; private set; }
 
+    public bool ShowDonateButton => // Steam doesn't allow external donations :(
+#if STEAM
+        false;
+#else
+        true;
+#endif
+
     public HelloTherePopup(FileViewModel fileViewModel)
     {
         DataContext = this;
