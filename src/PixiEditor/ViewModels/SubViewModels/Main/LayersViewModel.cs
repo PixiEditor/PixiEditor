@@ -1,22 +1,17 @@
 ﻿using System.Collections.Immutable;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
@@ -378,24 +373,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             size);
     }
 
-    [Command.Basic("PixiEditor.Layer.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", IconPath = "Commands/PixiEditor/Clipboard/Paste.png", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
-    public void PasteReferenceLayer(DataObject data)
-    {
-        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-
-        var surface = (data == null ? ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
-        using var image = surface.image;
-        
-        var bitmap = surface.image.ToWriteableBitmap();
-
-        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
-        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
-
-        doc.Operations.ImportReferenceLayer(
-            pixels.ToImmutableArray(),
-            surface.image.Size);
-    }
-    
     private string OpenReferenceLayerFilePicker()
     {
         var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
@@ -419,7 +396,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.DeleteReferenceLayer();
     }
 
-    [Command.Basic("PixiEditor.Layer.TransformReferenceLayer", "Transform reference layer", "Transform reference layer", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", IconPath = "Tools/MoveImage.png")]
+    [Command.Basic("PixiEditor.Layer.TransformReferenceLayer", "Transform reference layer", "Transform reference layer", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", IconPath = "crop.png")]
     public void TransformReferenceLayer()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -427,6 +404,16 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         doc.Operations.TransformReferenceLayer();
+    }
+
+    [Command.Basic("PixiEditor.Layer.ToggleReferenceLayerTopMost", "Toggle reference layer position", "Toggle reference layer between highest/lowest", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", IconEvaluator = "PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]
+    public void ToggleReferenceLayerTopMost()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null)
+            return;
+
+        doc.ReferenceLayerViewModel.IsTopMost = !doc.ReferenceLayerViewModel.IsTopMost;
     }
 
     [Command.Basic("PixiEditor.Layer.ResetReferenceLayerPosition", "Reset reference layer position", "Reset reference layer position", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", IconPath = "Layout.png")]
@@ -439,4 +426,13 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.ResetReferenceLayerPosition();
     }
 
+    [Evaluator.Icon("PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]
+    public ImageSource GetAboveEverythingReferenceLayerIcon()
+    {
+        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (doc is null || doc.ReferenceLayerViewModel.IsTopMost)
+            return new BitmapImage(new Uri("pack://application:,,,/Images/ReferenceLayerBelow.png"));
+
+        return new BitmapImage(new Uri("pack://application:,,,/Images/ReferenceLayerAbove.png"));
+    }
 }

@@ -24,6 +24,10 @@ internal class CommandController
 
     public List<CommandGroup> CommandGroups { get; }
 
+    public OneToManyDictionary<string, Command> FilterCommands { get; }
+    
+    public Dictionary<string, string> FilterSearchTerm { get; }
+
     public Dictionary<string, CanExecuteEvaluator> CanExecuteEvaluators { get; }
 
     public Dictionary<string, IconEvaluator> IconEvaluators { get; }
@@ -39,6 +43,8 @@ internal class CommandController
 
         shortcutFile = new(ShortcutsPath, this);
 
+        FilterCommands = new();
+        FilterSearchTerm = new();
         Commands = new();
         CommandGroups = new();
         CanExecuteEvaluators = new();
@@ -211,11 +217,51 @@ internal class CommandController
                                 Parameter = basic.Parameter,
                             });
                     }
+                    else if (attribute is CommandAttribute.FilterAttribute menu)
+                    {
+                        string searchTerm = menu.SearchTerm;
+                        
+                        if (searchTerm == null)
+                        {
+                            searchTerm = FilterSearchTerm[menu.InternalName];
+                        }
+                        else
+                        {
+                            FilterSearchTerm.Add(menu.InternalName, menu.SearchTerm);
+                        }
+
+                        bool hasFilter = FilterCommands.ContainsKey(searchTerm);
+                        
+                        foreach (var menuCommand in commandAttrs.Where(x => x is not CommandAttribute.FilterAttribute))
+                        {
+                            FilterCommands.Add(searchTerm, Commands[menuCommand.InternalName]);
+                        }
+
+                        if (hasFilter)
+                            continue;
+
+                        var command =
+                            new Command.BasicCommand(
+                                _ => ViewModelMain.Current.SearchSubViewModel.OpenSearchWindow($":{searchTerm}:"),
+                                CanExecuteEvaluator.AlwaysTrue)
+                            {
+                                InternalName = menu.InternalName,
+                                DisplayName = menu.DisplayName,
+                                Description = string.Empty,
+                                IconEvaluator = IconEvaluator.Default,
+                                DefaultShortcut = menu.GetShortcut(),
+                                Shortcut = GetShortcut(name, attribute.GetShortcut(), template)
+                            };
+                        
+                        Commands.Add(command);
+
+                        AddCommandToCommandsCollection(command, commandGroupsData, commands);
+                    }
                 }
             }
         }
         
-        void AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute,
+        TCommand AddCommand<TAttr, TCommand>(MethodInfo method, object instance, TAttr attribute,
             Func<bool, string, Action<object>, CanExecuteEvaluator, IconEvaluator, TCommand> commandFactory)
             where TAttr : CommandAttribute.CommandAttribute
             where TCommand : Command
@@ -264,6 +310,8 @@ internal class CommandController
 
             Commands.Add(command);
             AddCommandToCommandsCollection(command, commandGroupsData, commands);
+
+            return command;
         }
     }
 

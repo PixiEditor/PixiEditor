@@ -22,6 +22,15 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         get => (string)GetValue(SearchTermProperty);
         set => SetValue(SearchTermProperty, value);
     }
+    
+    public static readonly DependencyProperty SelectAllProperty =
+        DependencyProperty.Register(nameof(SelectAll), typeof(bool), typeof(CommandSearchControl));
+
+    public bool SelectAll
+    {
+        get => (bool)GetValue(SelectAllProperty);
+        set => SetValue(SelectAllProperty, value);
+    }
 
     private string warnings = "";
     public string Warnings
@@ -89,6 +98,11 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
                     textBox.Focus();
                     UpdateSearchResults();
                     Mouse.Capture(this, CaptureMode.SubTree);
+
+                    if (!SelectAll)
+                    {
+                        textBox.CaretIndex = SearchTerm?.Length ?? 0;
+                    }
                 });
             }
         };

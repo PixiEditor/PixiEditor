@@ -40,7 +40,7 @@ internal abstract partial class Command : NotifyableObject
 
     public event ShortcutChangedEventHandler ShortcutChanged;
 
-    protected abstract object GetParameter();
+    public abstract object GetParameter();
 
     protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute) =>
         Methods = new(this, onExecute, canExecute);

@@ -24,7 +24,7 @@
                  Padding="5"
                  x:Name="textBox">
             <i:Interaction.Behaviors>
-                <behaves:TextBoxFocusBehavior SelectOnMouseClick="True" />
+                <behaves:TextBoxFocusBehavior SelectOnMouseClick="{Binding SelectAll, ElementName=uc, Mode=OneWay}" />
                 <behaves:GlobalShortcutFocusBehavior />
             </i:Interaction.Behaviors>
             <TextBox.Style>

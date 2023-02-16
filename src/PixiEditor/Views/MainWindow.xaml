@@ -231,6 +231,24 @@
                         <MenuItem
                             Header="_Deselect"
                             cmds:Menu.Command="PixiEditor.Selection.Clear" />
+                        <MenuItem
+                            Header="_Invert"
+                            cmds:Menu.Command="PixiEditor.Selection.InvertSelection" />
+                        <Separator/>
+                        <MenuItem Header="Selection _to Mask">
+                            <MenuItem
+                                Header="to _new mask"
+                                cmds:Menu.Command="PixiEditor.Selection.NewToMask" />
+                            <MenuItem
+                                Header="_add to mask"
+                                cmds:Menu.Command="PixiEditor.Selection.AddToMask" />
+                            <MenuItem
+                                Header="_subtract from mask"
+                                cmds:Menu.Command="PixiEditor.Selection.SubtractFromMask" />
+                            <MenuItem
+                                Header="_intersect with mask"
+                                cmds:Menu.Command="PixiEditor.Selection.IntersectSelectionMask" />
+                        </MenuItem>
                     </MenuItem>
                     <MenuItem
                         Header="_Image">

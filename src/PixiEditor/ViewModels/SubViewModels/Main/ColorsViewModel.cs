@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
@@ -79,6 +80,49 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         if (doc is null || colors.oldColor == colors.newColor)
             return;
         doc.Operations.ReplaceColor(colors.oldColor, colors.newColor);
+    }
+
+    [Command.Basic("PixiEditor.Colors.ReplaceSecondaryByPrimaryColor", false, "Replace secondary color by primary", "Replace the secondary color by the primary color", IconEvaluator = "PixiEditor.Colors.ReplaceColorIcon")]
+    [Command.Basic("PixiEditor.Colors.ReplacePrimaryBySecondaryColor", true, "Replace primary color by secondary", "Replace the primary color by the secondary color", IconEvaluator = "PixiEditor.Colors.ReplaceColorIcon")]
+    public void ReplaceColors(bool replacePrimary)
+    {
+        var oldColor = replacePrimary ? PrimaryColor : SecondaryColor;
+        var newColor = replacePrimary ? SecondaryColor : PrimaryColor;
+        
+        ReplaceColors((oldColor, newColor));
+    }
+
+    [Evaluator.Icon("PixiEditor.Colors.ReplaceColorIcon")]
+    public ImageSource ReplaceColorsIcon(object command)
+    {
+        bool replacePrimary = command switch
+        {
+            CommandSearchResult result => (bool)result.Command.GetParameter(),
+            Models.Commands.Commands.Command cmd => (bool)cmd.GetParameter(),
+            _ => false
+        };
+        
+        var oldColor = replacePrimary ? PrimaryColor : SecondaryColor;
+        var newColor = replacePrimary ? SecondaryColor : PrimaryColor;
+        
+        var oldDrawing = new GeometryDrawing { Brush = new SolidColorBrush(oldColor.ToOpaqueMediaColor()), Pen = new(Brushes.Gray, .5) };
+        var oldGeometry = new EllipseGeometry(new Point(5, 5), 5, 5);
+        
+        oldDrawing.Geometry = oldGeometry;
+        
+        var newDrawing = new GeometryDrawing { Brush = new SolidColorBrush(newColor.ToOpaqueMediaColor()), Pen = new(Brushes.White, 1) };
+        var newGeometry = new EllipseGeometry(new Point(10, 10), 6, 6);
+
+        newDrawing.Geometry = newGeometry;
+        
+        return new DrawingImage(new DrawingGroup
+        {
+            Children = new DrawingCollection
+            {
+                oldDrawing,
+                newDrawing
+            }
+        });
     }
 
     private async void OwnerOnStartupEvent(object sender, EventArgs e)

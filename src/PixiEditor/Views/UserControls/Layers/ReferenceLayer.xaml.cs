@@ -26,7 +26,7 @@ internal partial class ReferenceLayer : UserControl
 
     public ReferenceLayer()
     {
-        command = CommandController.Current.Commands["PixiEditor.Layer.PasteReferenceLayer"];
+        command = CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayer"];
         InitializeComponent();
     }
 

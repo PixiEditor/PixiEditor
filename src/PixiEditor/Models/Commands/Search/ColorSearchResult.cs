@@ -8,6 +8,7 @@ internal class ColorSearchResult : SearchResult
     private readonly DrawingApi.Core.ColorsImpl.Color color;
     private string text;
     private bool requiresDocument;
+    private bool isPalettePaste;
     private readonly Action<DrawingApi.Core.ColorsImpl.Color> target;
 
     public override string Text => text;
@@ -15,7 +16,7 @@ internal class ColorSearchResult : SearchResult
     public override string Description => $"{color} rgba({color.R}, {color.G}, {color.B}, {color.A})";
 
     //public override bool CanExecute => !requiresDocument || (requiresDocument && ViewModelMain.Current.BitmapManager.ActiveDocument != null);
-    public override bool CanExecute => true;
+    public override bool CanExecute => !isPalettePaste || ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument != null;
 
     public override ImageSource Icon => icon;
 
@@ -36,9 +37,10 @@ internal class ColorSearchResult : SearchResult
     public static ColorSearchResult PastePalette(DrawingApi.Core.ColorsImpl.Color color, string searchTerm = null)
     {
         //var result = new ColorSearchResult(color, x => ViewModelMain.Current.BitmapManager.ActiveDocument.Palette.Add(x))
-        var result = new ColorSearchResult(color, x => { })
+        var result = new ColorSearchResult(color, x => ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument!.Palette.Add(x))
         {
-            SearchTerm = searchTerm
+            SearchTerm = searchTerm,
+            isPalettePaste = true
         };
         result.text = $"Add color {color} to palette";
         result.requiresDocument = true;

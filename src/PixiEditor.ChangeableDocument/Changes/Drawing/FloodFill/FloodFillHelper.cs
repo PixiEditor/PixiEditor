@@ -189,6 +189,22 @@ public static class FloodFillHelper
         return pixelStates;
     }
 
+    public static Surface FillSelection(IReadOnlyDocument document, VectorPath selection)
+    {
+        Surface surface = new Surface(document.Size);
+
+        var inverse = new VectorPath();
+        inverse.AddRect(new RectI(new(0, 0), document.Size));
+
+        surface.DrawingSurface.Canvas.Clear(new Color(255, 255, 255, 255));
+        surface.DrawingSurface.Canvas.Flush();
+        surface.DrawingSurface.Canvas.ClipPath(inverse.Op(selection, VectorPathOp.Difference));
+        surface.DrawingSurface.Canvas.Clear(new Color(0, 0, 0, 0));
+        surface.DrawingSurface.Canvas.Flush();
+
+        return surface;
+    }
+
     /// <summary>
     /// Use skia to set all pixels in array that are inside selection to InSelection
     /// </summary>
