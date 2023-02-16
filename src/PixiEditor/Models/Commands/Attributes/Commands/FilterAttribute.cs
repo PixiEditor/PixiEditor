@@ -10,5 +10,7 @@ internal partial class Command
         {
             SearchTerm = searchTerm;
         }
+        
+        public FilterAttribute(string internalName) : base(internalName, null, null) { }
     }
 }

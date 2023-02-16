@@ -25,6 +25,8 @@ internal class CommandController
     public List<CommandGroup> CommandGroups { get; }
 
     public OneToManyDictionary<string, Command> FilterCommands { get; }
+    
+    public Dictionary<string, string> FilterSearchTerm { get; }
 
     public Dictionary<string, CanExecuteEvaluator> CanExecuteEvaluators { get; }
 
@@ -42,6 +44,7 @@ internal class CommandController
         shortcutFile = new(ShortcutsPath, this);
 
         FilterCommands = new();
+        FilterSearchTerm = new();
         Commands = new();
         CommandGroups = new();
         CanExecuteEvaluators = new();
@@ -216,17 +219,28 @@ internal class CommandController
                     }
                     else if (attribute is CommandAttribute.FilterAttribute menu)
                     {
-                        bool hasFilter = FilterCommands.ContainsKey(menu.SearchTerm);
+                        string searchTerm = menu.SearchTerm;
+                        
+                        if (searchTerm == null)
+                        {
+                            searchTerm = FilterSearchTerm[menu.InternalName];
+                        }
+                        else
+                        {
+                            FilterSearchTerm.Add(menu.InternalName, menu.SearchTerm);
+                        }
+
+                        bool hasFilter = FilterCommands.ContainsKey(searchTerm);
                         
                         foreach (var menuCommand in commandAttrs.Where(x => x is not CommandAttribute.FilterAttribute))
                         {
-                            FilterCommands.Add(menu.SearchTerm, Commands[menuCommand.InternalName]);
+                            FilterCommands.Add(searchTerm, Commands[menuCommand.InternalName]);
                         }
 
                         if (hasFilter)
                             continue;
                         
-                        Commands.Add(new Command.BasicCommand(_ => ViewModelMain.Current.SearchSubViewModel.OpenSearchWindow($":{menu.SearchTerm}:"), CanExecuteEvaluator.AlwaysTrue)
+                        Commands.Add(new Command.BasicCommand(_ => ViewModelMain.Current.SearchSubViewModel.OpenSearchWindow($":{searchTerm}:"), CanExecuteEvaluator.AlwaysTrue)
                         {
                             InternalName = menu.InternalName,
                             DisplayName = menu.DisplayName,
