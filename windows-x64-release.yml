@@ -20,7 +20,7 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '7.x'
+    version: '7.0.103'
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
