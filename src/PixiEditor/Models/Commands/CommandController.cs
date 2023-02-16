@@ -239,16 +239,23 @@ internal class CommandController
 
                         if (hasFilter)
                             continue;
+
+                        var command =
+                            new Command.BasicCommand(
+                                _ => ViewModelMain.Current.SearchSubViewModel.OpenSearchWindow($":{searchTerm}:"),
+                                CanExecuteEvaluator.AlwaysTrue)
+                            {
+                                InternalName = menu.InternalName,
+                                DisplayName = menu.DisplayName,
+                                Description = string.Empty,
+                                IconEvaluator = IconEvaluator.Default,
+                                DefaultShortcut = menu.GetShortcut(),
+                                Shortcut = GetShortcut(name, attribute.GetShortcut(), template)
+                            };
                         
-                        Commands.Add(new Command.BasicCommand(_ => ViewModelMain.Current.SearchSubViewModel.OpenSearchWindow($":{searchTerm}:"), CanExecuteEvaluator.AlwaysTrue)
-                        {
-                            InternalName = menu.InternalName,
-                            DisplayName = menu.DisplayName,
-                            Description = string.Empty,
-                            IconEvaluator = IconEvaluator.Default,
-                            DefaultShortcut = menu.GetShortcut(),
-                            Shortcut = GetShortcut(name, attribute.GetShortcut(), template)
-                        });
+                        Commands.Add(command);
+
+                        AddCommandToCommandsCollection(command, commandGroupsData, commands);
                     }
                 }
             }

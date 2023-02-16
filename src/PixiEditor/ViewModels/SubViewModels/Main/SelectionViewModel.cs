@@ -31,6 +31,12 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         doc.Operations.ClearSelection();
     }
 
+    [Command.Basic("PixiEditor.Selection.InvertSelection", "Invert selection", "Invert the selected area", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.I, Modifiers = ModifierKeys.Control)]
+    public void InvertSelection()
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.InvertSelection();
+    }
+
     [Evaluator.CanExecute("PixiEditor.Selection.IsNotEmpty")]
     public bool SelectionIsNotEmpty()
     {
@@ -69,12 +75,6 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.SelectionToMask(mode);
     }
 
-    [Command.Basic("PixiEditor.Selection.InvertSelection", "Invert selection", "Invert the selected area", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.I, Modifiers = ModifierKeys.Control)]
-    public void InvertSelection()
-    {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.InvertSelection();
-    }
-    
     [Evaluator.CanExecute("PixiEditor.Selection.CanNudgeSelectedObject")]
     public bool CanNudgeSelectedObject(int[] dist) => Owner.DocumentManagerSubViewModel.ActiveDocument?.UpdateableChangeActive == true;
 }
