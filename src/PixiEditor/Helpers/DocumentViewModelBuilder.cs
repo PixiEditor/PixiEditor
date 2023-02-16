@@ -172,6 +172,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         
         public int OffsetY { get; set; }
         
+        public bool LockAlpha { get; set; }
+
         public new LayerBuilder WithName(string name) => base.WithName(name) as LayerBuilder;
         
         public new LayerBuilder WithVisibility(bool visibility) => base.WithVisibility(visibility) as LayerBuilder;
@@ -181,6 +183,12 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public new LayerBuilder WithBlendMode(BlendMode blendMode) => base.WithBlendMode(blendMode) as LayerBuilder;
         
         public new LayerBuilder WithClipToBelow(bool value) => base.WithClipToBelow(value) as LayerBuilder;
+
+        public LayerBuilder WithLockAlpha(bool layerLockAlpha)
+        {
+            LockAlpha = layerLockAlpha;
+            return this;
+        }
         
         public new LayerBuilder WithMask(Action<MaskBuilder> mask) => base.WithMask(mask) as LayerBuilder;
         

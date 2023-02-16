@@ -232,6 +232,11 @@ internal partial class DocumentViewModel : NotifyableObject
             
             acc.AddActions(new StructureMemberClipToMemberBelow_Action(member.ClipToMemberBelow, member.GuidValue));
 
+            if (member is DocumentViewModelBuilder.LayerBuilder layerBuilder)
+            {
+                acc.AddActions(new LayerLockTransparency_Action(layerBuilder.GuidValue, layerBuilder.LockAlpha));
+            }
+
             if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
             {
                 PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY, false);
