@@ -91,8 +91,14 @@
                         </Grid>
                     </Border>
                     <StackPanel Margin="3,0,5,0">
+                        <controls:EditableTextBlock
+                            x:Name="editableTextBlock"
+                            VerticalAlignment="Center"
+                            d:Text="New Layer" FontSize="14"
+                            Text="{Binding Layer.NameBindable, ElementName=uc, Mode=TwoWay}" />
+                        
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock d:Text="100" Foreground="White">
+                            <TextBlock d:Text="100" Foreground="White" FontSize="11">
                                 <TextBlock.Text>
                                     <Binding ElementName="uc" Path="Layer.OpacityBindable" Converter="{conv:MultiplyConverter}" StringFormat="N0">
                                         <Binding.ConverterParameter>
@@ -101,19 +107,13 @@
                                     </Binding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Foreground="White">%</TextBlock>
-                            <TextBlock 
-                                Margin="5,0,0,0" 
-                                d:Text="Normal" 
-                                Foreground="White"
-                                Text="{Binding Layer.BlendModeBindable, ElementName=uc, Converter={conv:BlendModeToStringConverter}}"/>
+                            <TextBlock Foreground="White" FontSize="11">%</TextBlock>
+                            <TextBlock  FontSize="11"
+                                        Margin="5,0,0,0" 
+                                        d:Text="Normal" 
+                                        Foreground="White"
+                                        Text="{Binding Layer.BlendModeBindable, ElementName=uc, Converter={conv:BlendModeToStringConverter}}"/>
                         </StackPanel>
-                        <controls:EditableTextBlock
-                            x:Name="editableTextBlock"
-                            FontSize="12"
-                            VerticalAlignment="Center"
-                            d:Text="New Layer"
-                            Text="{Binding Layer.NameBindable, ElementName=uc, Mode=TwoWay}" />
                     </StackPanel>
                     <WrapPanel Orientation="Vertical" Margin="0,3,3,3">
                         <Image 
