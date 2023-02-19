@@ -40,17 +40,11 @@ internal partial class ColorReplacer : UserControl
         set { SetValue(ReplaceColorsCommandProperty, value); }
     }
 
-
-
     public static readonly DependencyProperty NewColorProperty =
         DependencyProperty.Register(nameof(NewColor), typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Black));
-
-
-
+    
     public static readonly DependencyProperty HintColorProperty =
         DependencyProperty.Register(nameof(HintColor), typeof(Color), typeof(ColorReplacer), new PropertyMetadata(Colors.Black));
-
-
 
     public bool IsCollapsed
     {
@@ -58,11 +52,8 @@ internal partial class ColorReplacer : UserControl
         set { SetValue(IsCollapsedProperty, value); }
     }
 
-
     public static readonly DependencyProperty IsCollapsedProperty =
         DependencyProperty.Register(nameof(IsCollapsed), typeof(bool), typeof(ColorReplacer), new PropertyMetadata(false));
-
-
 
     private void UIElement_OnDrop(object sender, DragEventArgs e)
     {
@@ -91,6 +82,7 @@ internal partial class ColorReplacer : UserControl
             ReplaceColorsCommand.Execute(pack);
         }
 
-        ColorToReplace = BackendColors.White;
+        ColorToReplace = second;
+        NewColor = first.ToOpaqueMediaColor();
     }
 }

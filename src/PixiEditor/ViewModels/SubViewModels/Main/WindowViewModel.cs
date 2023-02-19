@@ -18,10 +18,6 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     private CommandController commandController;
     private ShortcutPopup? shortcutPopup;
     private ShortcutPopup ShortcutPopup => shortcutPopup ??= new(commandController);
-
-    private AboutPopup? _aboutPopup;
-    private AboutPopup AboutPopup => _aboutPopup ??= new();
-
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
     public ObservableCollection<ViewportWindowViewModel> Viewports { get; } = new();
     public event EventHandler<ViewportWindowViewModel>? ActiveViewportChanged;
@@ -165,8 +161,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Window.OpenAboutWindow", "Open About Window", "Open About Window")]
     public void OpenAboutWindow()
     {
-        AboutPopup.Show();
-        AboutPopup.Activate();
+        new AboutPopup().Show();
     }
 
     [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "Open Navigation Window", "Open Navigation Window")]
