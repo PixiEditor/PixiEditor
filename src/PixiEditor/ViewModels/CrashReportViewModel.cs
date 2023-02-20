@@ -55,7 +55,7 @@ internal class CrashReportViewModel : ViewModelBase
         try
         {
             using HttpClient httpClient = new HttpClient();
-            string url = Encoding.UTF8.GetString(Convert.FromBase64String("aHR0cHM6Ly9kaXNjb3JkLmNvbS9hcGkvd2ViaG9va3MvMTA3Njk1Nzk4MTE4ODU3MTE5Ny8zRzN2bnBDaVY4S2NMQkZVd2NGZjBTU3VDWGEwZl85c1J4QThVcWQ4U0RHdlBTU1JMMVN3U2Q5WVEwQ0dkVlB5c0FwRA=="));
+            string url = BuildConstants.CrashReportWebhookUrl;
             await httpClient.PostAsync(url, formData);
         }
         catch { }
