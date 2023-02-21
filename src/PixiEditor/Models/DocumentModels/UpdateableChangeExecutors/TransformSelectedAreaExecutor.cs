@@ -54,13 +54,15 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
 
     public override void OnTransformApplied()
     {
-        if (Type == ExecutorType.ToolLinked)
-            return;
-
         internals!.ActionAccumulator.AddActions(new EndTransformSelectedArea_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformViewModel.HideTransform();
         onEnded!.Invoke(this);
+
+        if (Type == ExecutorType.ToolLinked)
+        {
+            ViewModelMain.Current!.ToolsSubViewModel.RestorePreviousTool();
+        }
     }
 
     public override void ForceStop()
