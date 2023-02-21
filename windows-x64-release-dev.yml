@@ -12,9 +12,13 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'x64'
-  buildConfiguration: 'Release'
+- group: Release Secrets
+- name: solution 
+  value: '**/*.sln'
+- name: buildPlatform 
+  value: 'x64'
+- name: buildConfiguration
+  value: 'Release'
 
 steps:
 - task: UseDotNet@2
@@ -47,16 +51,13 @@ steps:
   inputs:
     filePath: 'assemblyVerReader.ps1'
 
-- task: DotNetCoreCLI@2
-  displayName: "Build release PixiEditor x64 light"
+- task: PowerShell@2
+  displayName: Publish PixiEditor
   inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: '**/PixiEditor.csproj'
-    arguments: >
-      -o "Builds\PixiEditor-x64-light" --self-contained=false -r "win-x64" -c "Dev Release"
-    zipAfterPublish: false
-    
+    filePath: 'src/PixiEditor.Builder/build.ps1'
+    arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor" --build-configuration "Dev_Release" --runtime "win-x64" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-x64-light\PixiEditor" --crash-report-webhook-url "$(crash-webhook-url)"'
+    workingDirectory: 'src/PixiEditor.Builder'
+
 - task: ArchiveFiles@2
   inputs:
     rootFolderOrFile: 'Builds\PixiEditor-x64-light'
