@@ -1,4 +1,5 @@
 using System.IO;
+using Cake.Common.Build;
 using Cake.Common.Tools.DotNet;
 using Cake.Common.Tools.DotNet.Publish;
 using Cake.Core;
@@ -107,13 +108,20 @@ public sealed class BuildProjectTask : FrostingTask<BuildContext>
         context.Log.Information("Building project...");
         string projectPath = context.PathToProject;
 
-        context.DotNetPublish(projectPath, new DotNetPublishSettings()
+        var settings = new DotNetPublishSettings()
         {
             Configuration = context.BuildConfiguration,
             SelfContained = false,
             Runtime = context.Runtime,
             OutputDirectory = context.OutputDirectory,
-        });
+        };
+
+        if (context.AzurePipelines().IsRunningOnAzurePipelines)
+        {
+            settings.NoBuild = true;
+        }
+
+        context.DotNetPublish(projectPath, settings);
     }
 
     public override void Finally(BuildContext context)

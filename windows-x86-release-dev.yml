@@ -11,9 +11,13 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'x86'
-  buildConfiguration: 'Release'
+- group: Release Secrets
+- name: solution 
+  value: '**/*.sln'
+- name: buildPlatform 
+  value: 'x86'
+- name: buildConfiguration
+  value: 'Release'
 
 steps:
 
@@ -40,7 +44,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: '**/PixiEditor.UpdateInstaller.csproj'
-    arguments: '-o "UpdateInstaller" -r "win-x86" --self-contained=false -p:PublishSingleFile=true -c Release'
+    arguments: '-o "UpdateInstaller" -r "win-x86" --no-build --self-contained=false -p:PublishSingleFile=true -c Release'
     zipAfterPublish: false
 
 
