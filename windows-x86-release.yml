@@ -52,8 +52,8 @@ steps:
 - task: PowerShell@2
   displayName: Publish PixiEditor
   inputs:
-    filePath: '$(solution)/PixiEditor.Builder/build.ps1'
-    arguments: '--project-path "$(solution)/PixiEditor" --build-configuration "Release" --runtime "win-x86" -o "Builds/PixiEditor-x86-light" --crash-report-webhook-url "$(crash-webhook-url)"'
+    filePath: 'src/PixiEditor.Builder/build.ps1'
+    arguments: '--project-path "src/PixiEditor" --build-configuration "Release" --runtime "win-x86" -o "Builds/PixiEditor-x86-light" --crash-report-webhook-url "$(crash-webhook-url)"'
 
 - task: ArchiveFiles@2
   inputs:

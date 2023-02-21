@@ -46,12 +46,12 @@ steps:
   displayName: "Set tag version"
   inputs:
     filePath: 'assemblyVerReader.ps1'
-    
+
 - task: PowerShell@2
   displayName: Publish PixiEditor
   inputs:
-    filePath: '$(solution)/PixiEditor.Builder/build.ps1'
-    arguments: '--project-path "$(solution)/PixiEditor" --build-configuration "Dev_Release" --runtime "win-x64" -o "Builds/PixiEditor-x64-light" --crash-report-webhook-url "$(crash-webhook-url)"'
+    filePath: 'src/PixiEditor.Builder/build.ps1'
+    arguments: '--project-path "src/PixiEditor" --build-configuration "Dev_Release" --runtime "win-x64" -o "Builds/PixiEditor-x64-light" --crash-report-webhook-url "$(crash-webhook-url)"'
     
 - task: ArchiveFiles@2
   inputs:
