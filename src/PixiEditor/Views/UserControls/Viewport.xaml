@@ -294,7 +294,7 @@
                             </Rectangle.Fill>
                         </Rectangle>
                     </Grid>
-                    <Rectangle Stroke="{StaticResource AlmostLightModeAccentColor}" Panel.ZIndex="2" Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToHiddenVisibilityConverter}}">
+                    <Rectangle Stroke="{StaticResource AccentColor}" Opacity=".8" Panel.ZIndex="2" Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToHiddenVisibilityConverter}}">
                         <Rectangle.StrokeThickness>
                             <Binding Converter="{converters:ReciprocalConverter}">
                                 <Binding.Path>Zoombox.Scale</Binding.Path>
@@ -316,7 +316,7 @@
                             </Binding>
                         </Rectangle.Margin>
                     </Rectangle>
-                    <Rectangle Stroke="Black" Panel.ZIndex="2" Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToHiddenVisibilityConverter}}">
+                    <!--<Rectangle Stroke="Black" Panel.ZIndex="2" Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToHiddenVisibilityConverter}}">
                         <Rectangle.StrokeThickness>
                             <Binding Converter="{converters:ReciprocalConverter}">
                                 <Binding.Path>Zoombox.Scale</Binding.Path>
@@ -332,12 +332,12 @@
                                 <Binding.Path>Zoombox.Scale</Binding.Path>
                                 <Binding.ConverterParameter>
                                     <sys:Double>
-                                        -3
+                                        -4
                                     </sys:Double>
                                 </Binding.ConverterParameter>
                             </Binding>
                         </Rectangle.Margin>
-                    </Rectangle>
+                    </Rectangle>-->
                 </Grid>
             </Border>
         </zoombox:Zoombox>
