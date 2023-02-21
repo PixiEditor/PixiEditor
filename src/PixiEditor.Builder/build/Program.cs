@@ -116,11 +116,6 @@ public sealed class BuildProjectTask : FrostingTask<BuildContext>
             OutputDirectory = context.OutputDirectory,
         };
 
-        if (context.AzurePipelines().IsRunningOnAzurePipelines)
-        {
-            settings.NoBuild = true;
-        }
-
         context.DotNetPublish(projectPath, settings);
     }
 
