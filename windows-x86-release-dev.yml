@@ -49,15 +49,11 @@ steps:
   inputs:
     filePath: 'assemblyVerReader.ps1'
 
-- task: DotNetCoreCLI@2
-  displayName: "Build release PixiEditor x86 light"
+- task: PowerShell@2
+  displayName: Publish PixiEditor
   inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: '**/PixiEditor.csproj'
-    arguments: >
-      -o "Builds\PixiEditor-x86-light" --self-contained=false -r "win-x86" -c "Dev Release"
-    zipAfterPublish: false
+    filePath: '$(solution)/PixiEditor.Builder/build.ps1'
+    arguments: '--project-path "$(solution)/PixiEditor" --build-configuration "Dev_Release" --runtime "win-x86" -o "Builds/PixiEditor-x86-light" --crash-report-webhook-url "$(crash-webhook-url)"'
 
 - task: ArchiveFiles@2
   inputs:

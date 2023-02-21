@@ -46,16 +46,12 @@ steps:
   displayName: "Set tag version"
   inputs:
     filePath: 'assemblyVerReader.ps1'
-
-- task: DotNetCoreCLI@2
-  displayName: "Build release PixiEditor x64 light"
+    
+- task: PowerShell@2
+  displayName: Publish PixiEditor
   inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: '**/PixiEditor.csproj'
-    arguments: >
-      -o "Builds\PixiEditor-x64-light" --self-contained=false -r "win-x64" -c "Dev Release"
-    zipAfterPublish: false
+    filePath: '$(solution)/PixiEditor.Builder/build.ps1'
+    arguments: '--project-path "$(solution)/PixiEditor" --build-configuration "Dev_Release" --runtime "win-x64" -o "Builds/PixiEditor-x64-light" --crash-report-webhook-url "$(crash-webhook-url)"'
     
 - task: ArchiveFiles@2
   inputs:

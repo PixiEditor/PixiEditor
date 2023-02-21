@@ -1,13 +1,8 @@
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Cake.Common.IO;
 using Cake.Common.Tools.DotNet;
-using Cake.Common.Tools.DotNet.Build;
+using Cake.Common.Tools.DotNet.Publish;
 using Cake.Core;
 using Cake.Core.Diagnostics;
-using Cake.Core.IO;
 using Cake.Frosting;
 using Path = System.IO.Path;
 
@@ -31,7 +26,11 @@ public class BuildContext : FrostingContext
 
     public string BackedUpConstants { get; set; }
 
-    public Stream ConstantsStream { get; set; }
+    public string BuildConfiguration { get; set; } = "Release";
+
+    public string OutputDirectory { get; set; } = "Builds";
+
+    public string Runtime { get; set; }
 
     public BuildContext(ICakeContext context)
         : base(context)
@@ -46,6 +45,20 @@ public class BuildContext : FrostingContext
         {
             PathToProject = context.Arguments.GetArgument("project-path");
         }
+
+        bool hasCustomConfiguration = context.Arguments.HasArgument("build-configuration");
+        if (hasCustomConfiguration)
+        {
+            BuildConfiguration = context.Arguments.GetArgument("build-configuration");
+        }
+
+        bool hasCustomOutputDirectory = context.Arguments.HasArgument("o");
+        if (hasCustomOutputDirectory)
+        {
+            OutputDirectory = context.Arguments.GetArgument("o");
+        }
+
+        Runtime = context.Arguments.GetArgument("runtime");
     }
 }
 
@@ -94,9 +107,12 @@ public sealed class BuildProjectTask : FrostingTask<BuildContext>
         context.Log.Information("Building project...");
         string projectPath = context.PathToProject;
 
-        context.DotNetBuild(projectPath, new DotNetBuildSettings
+        context.DotNetPublish(projectPath, new DotNetPublishSettings()
         {
-            Configuration = "Release",
+            Configuration = context.BuildConfiguration,
+            SelfContained = false,
+            Runtime = context.Runtime,
+            OutputDirectory = context.OutputDirectory,
         });
     }
 
