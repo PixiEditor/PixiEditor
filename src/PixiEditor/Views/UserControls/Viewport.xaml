@@ -316,28 +316,6 @@
                             </Binding>
                         </Rectangle.Margin>
                     </Rectangle>
-                    <!--<Rectangle Stroke="Black" Panel.ZIndex="2" Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToHiddenVisibilityConverter}}">
-                        <Rectangle.StrokeThickness>
-                            <Binding Converter="{converters:ReciprocalConverter}">
-                                <Binding.Path>Zoombox.Scale</Binding.Path>
-                                <Binding.ConverterParameter>
-                                    <sys:Double>
-                                        1.5
-                                    </sys:Double>
-                                </Binding.ConverterParameter>
-                            </Binding>
-                        </Rectangle.StrokeThickness>
-                        <Rectangle.Margin>
-                            <Binding Converter="{converters:ReciprocalConverter}">
-                                <Binding.Path>Zoombox.Scale</Binding.Path>
-                                <Binding.ConverterParameter>
-                                    <sys:Double>
-                                        -4
-                                    </sys:Double>
-                                </Binding.ConverterParameter>
-                            </Binding>
-                        </Rectangle.Margin>
-                    </Rectangle>-->
                 </Grid>
             </Border>
         </zoombox:Zoombox>
