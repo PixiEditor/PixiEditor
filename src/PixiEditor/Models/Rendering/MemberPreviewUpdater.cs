@@ -13,6 +13,8 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using System.Diagnostics;
+using System.Drawing.Text;
 
 namespace PixiEditor.Models.Rendering;
 internal class MemberPreviewUpdater
@@ -20,6 +22,7 @@ internal class MemberPreviewUpdater
     private readonly DocumentViewModel doc;
     private readonly DocumentInternalParts internals;
 
+    private Dictionary<Guid, RectI> lastTightBounds = new();
     private Dictionary<Guid, AffectedArea> previewDelayedAreas = new();
     private Dictionary<Guid, AffectedArea> maskPreviewDelayedAreas = new();
 
@@ -52,15 +55,21 @@ internal class MemberPreviewUpdater
 
     private List<IRenderInfo> Render(AffectedAreasGatherer chunkGatherer, bool rerenderPreviews)
     {
+        Stopwatch sw = Stopwatch.StartNew();
         List<IRenderInfo> infos = new();
 
         var (imagePreviewChunksToRerender, maskPreviewChunksToRerender) = FindPreviewChunksToRerender(chunkGatherer, !rerenderPreviews);
         var previewSize = StructureMemberViewModel.CalculatePreviewSize(internals.Tracker.Document.Size);
         float scaling = (float)previewSize.X / doc.SizeBindable.X;
         UpdateImagePreviews(imagePreviewChunksToRerender, scaling, infos);
+        if (rerenderPreviews)
+            Trace.WriteLine("image" + (sw.ElapsedTicks * 1000 / (double)Stopwatch.Frequency).ToString());
         UpdateMaskPreviews(maskPreviewChunksToRerender, scaling, infos);
 
-        return infos;
+        if (rerenderPreviews)
+            Trace.WriteLine(sw.ElapsedTicks * 1000 / (double)Stopwatch.Frequency );
+        sw.Stop();
+        return infos;        
     }
 
     private static void AddAreas(Dictionary<Guid, AffectedArea> from, Dictionary<Guid, AffectedArea> to)
@@ -137,6 +146,77 @@ internal class MemberPreviewUpdater
             infos.Add(new CanvasPreviewDirty_RenderInfo());
     }
 
+    private RectI? FindLayerTightBounds(IReadOnlyLayer layer)
+    {
+        // premature optimization here we go
+        RectI? bounds = layer.LayerImage.FindChunkAlignedCommittedBounds();
+        if (bounds is null)
+            return null;
+
+        int biggest = bounds.Value.Size.LongestAxis;
+        ChunkResolution resolution = biggest switch
+        {
+            > 2048 => ChunkResolution.Eighth,
+            > 1024 => ChunkResolution.Quarter,
+            > 512 => ChunkResolution.Half,
+            _ => ChunkResolution.Full,
+        };
+        return layer.LayerImage.FindTightCommittedBounds(resolution);
+    }
+
+    private void UpdateLayerPreviewSurface(IReadOnlyLayer layer, StructureMemberViewModel memberVM, AffectedArea area, float scaling)
+    {
+        RectI? prevTightBounds = null;
+        if (lastTightBounds.TryGetValue(layer.GuidValue, out RectI tightBounds))
+            prevTightBounds = tightBounds;
+
+        RectI? newTightBounds;
+
+        if (prevTightBounds is null)
+        {
+            newTightBounds = FindLayerTightBounds(layer);
+        }
+        else if (prevTightBounds.Value.ContainsExclusive(area.GlobalArea.Value))
+        {
+            // if the affected area is fully inside the previous tight bounds, the tight bounds couldn't possibly have changed
+            newTightBounds = prevTightBounds.Value;
+        }
+        else
+        {
+            newTightBounds = FindLayerTightBounds(layer);
+        }
+
+        if (newTightBounds is null)
+        {
+            memberVM.PreviewSurface.Canvas.Clear();
+            return;
+        }
+
+        if (newTightBounds == prevTightBounds)
+        {
+            memberVM.PreviewSurface.Canvas.Save();
+            memberVM.PreviewSurface.Canvas.Scale(scaling);
+            memberVM.PreviewSurface.Canvas.ClipRect((RectD)area.GlobalArea);
+
+            foreach (var chunk in area.Chunks)
+            {
+                var pos = chunk * ChunkResolution.Full.PixelSize();
+                if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, SmoothReplacingPaint))
+                    memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
+            }
+
+            memberVM.PreviewSurface.Canvas.Restore();
+            return;
+        }
+
+        int biggestAxis = newTightBounds.Value.Size.LongestAxis;
+        RectI targetBounds = (RectI)RectD.FromCenterAndSize(newTightBounds.Value.Center, new(biggestAxis)).RoundOutwards();
+
+        memberVM.PreviewSurface.Canvas.Save();
+        memberVM.PreviewSurface.Canvas.Scale(scaling);
+        memberVM.PreviewSurface.Canvas.Scale()
+    }
+
     private void UpdateMembersImagePreviews(Dictionary<Guid, AffectedArea> imagePreviewChunks, float scaling, List<IRenderInfo> infos)
     {
         foreach (var (guid, area) in imagePreviewChunks)
@@ -148,24 +228,17 @@ internal class MemberPreviewUpdater
                 continue;
             var member = internals.Tracker.Document.FindMemberOrThrow(guid);
 
-            memberVM.PreviewSurface.Canvas.Save();
-            memberVM.PreviewSurface.Canvas.Scale(scaling);
-            memberVM.PreviewSurface.Canvas.ClipRect((RectD)area.GlobalArea);
+            
             if (memberVM is LayerViewModel)
             {
-                var layer = (IReadOnlyLayer)member;
-                foreach (var chunk in area.Chunks)
-                {
-                    var pos = chunk * ChunkResolution.Full.PixelSize();
-                    // the full res chunks are already rendered so drawing them again should be fast
-                    if (!layer.LayerImage.DrawMostUpToDateChunkOn
-                            (chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, SmoothReplacingPaint))
-                        memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
-                }
+                UpdateLayerPreviewSurface((IReadOnlyLayer)member, memberVM, area, scaling);
                 infos.Add(new PreviewDirty_RenderInfo(guid));
             }
             else if (memberVM is FolderViewModel)
             {
+                memberVM.PreviewSurface.Canvas.Save();
+                memberVM.PreviewSurface.Canvas.Scale(scaling);
+                memberVM.PreviewSurface.Canvas.ClipRect((RectD)area.GlobalArea);
                 var folder = (IReadOnlyFolder)member;
                 foreach (var chunk in area.Chunks)
                 {
@@ -183,9 +256,9 @@ internal class MemberPreviewUpdater
                         memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(), ChunkResolution.Full.PixelSize(), ClearPaint);
                     }
                 }
+                memberVM.PreviewSurface.Canvas.Restore();
                 infos.Add(new PreviewDirty_RenderInfo(guid));
             }
-            memberVM.PreviewSurface.Canvas.Restore();
         }
     }
 

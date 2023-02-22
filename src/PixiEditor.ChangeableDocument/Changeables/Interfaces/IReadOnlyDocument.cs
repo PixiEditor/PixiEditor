@@ -46,7 +46,7 @@ public interface IReadOnlyDocument
     void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action);
     
     public Surface? GetLayerImage(Guid layerGuid);
-    public RectI? GetLayerTightBounds(Guid layerGuid);
+    public RectI? GetChunkAlignedLayerBounds(Guid layerGuid);
 
     /// <summary>
     /// Finds the member with the <paramref name="guid"/> or returns null if not found

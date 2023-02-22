@@ -59,7 +59,7 @@ internal sealed class RotateImage_Change : Change
         RectI bounds = new RectI(VecI.Zero, img.CommittedSize);
         if (membersToRotate.Count > 0)
         {
-            var preciseBounds = img.FindPreciseCommittedBounds();
+            var preciseBounds = img.FindTightCommittedBounds();
             if (preciseBounds.HasValue)
             {
                 bounds = preciseBounds.Value;

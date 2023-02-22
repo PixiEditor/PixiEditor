@@ -37,7 +37,7 @@ namespace ChunkyImageLib;
 ///     - BlendMode.Src: default mode, the latest chunks are the same as committed ones but with some or all queued operations applied. 
 ///         This means that operations can work with the existing pixels.
 ///     - Any other blend mode: the latest chunks contain only the things drawn by the queued operations.
-///         They need to be drawn over the committed chunks to obtain the final image. In this case, operations won't have access to the existing pixels.
+///         They need to be drawn over the committed chunks to obtain the final image. In this case, operations won't have access to the existing pixels. 
 /// </summary>
 public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 {
@@ -117,7 +117,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public RectI? FindLatestBounds()
+    public RectI? FindChunkAlignedMostUpToDateBounds()
     {
         lock (lockObject)
         {
@@ -129,7 +129,27 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 rect ??= chunkBounds;
                 rect = rect.Value.Union(chunkBounds);
             }
-            foreach (var (pos, _) in latestChunks[ChunkResolution.Full])
+            foreach (var operation in queuedOperations)
+            {
+                foreach (var pos in operation.affectedArea.Chunks)
+                {
+                    RectI chunkBounds = new RectI(pos * FullChunkSize, new VecI(FullChunkSize));
+                    rect ??= chunkBounds;
+                    rect = rect.Value.Union(chunkBounds);
+                }
+            }
+            return rect;
+        }
+    }
+
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public RectI? FindChunkAlignedCommittedBounds()
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            RectI? rect = null;
+            foreach (var (pos, _) in committedChunks[ChunkResolution.Full])
             {
                 RectI chunkBounds = new RectI(pos * FullChunkSize, new VecI(FullChunkSize));
                 rect ??= chunkBounds;
@@ -140,23 +160,25 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public RectI? FindPreciseCommittedBounds()
+    public RectI? FindTightCommittedBounds(ChunkResolution precision = ChunkResolution.Full)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
 
+            var chunkSize = precision.PixelSize();
             RectI? preciseBounds = null;
-            foreach (var (chunkPos, chunk) in committedChunks[ChunkResolution.Full])
+            foreach (var (chunkPos, chunk) in committedChunks[precision])
             {
                 RectI? chunkPreciseBounds = chunk.FindPreciseBounds();
                 if(chunkPreciseBounds is null) 
                     continue;
-                RectI globalChunkBounds = chunkPreciseBounds.Value.Offset(chunkPos * FullChunkSize);
+                RectI globalChunkBounds = chunkPreciseBounds.Value.Offset(chunkPos * chunkSize);
 
                 preciseBounds ??= globalChunkBounds;
                 preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
             }
+            preciseBounds = (RectI?)preciseBounds?.Scale(precision.InvertedMultiplier()).RoundOutwards();
             preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, CommittedSize));
 
             return preciseBounds;
