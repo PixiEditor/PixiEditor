@@ -7,6 +7,15 @@ namespace PixiEditor.Views.Dialogs;
 public partial class AboutPopup : Window
 {
     public static string VersionText => $"Version: {VersionHelpers.GetCurrentAssemblyVersionString()}";
+
+    public bool DisplayDonationButton
+    {
+#if STEAM
+        get => false;
+#else
+        get => true;
+#endif
+    }
     public AboutPopup()
     {
         InitializeComponent();

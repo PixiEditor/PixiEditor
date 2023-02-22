@@ -127,7 +127,8 @@
                             Style="{StaticResource SocialMediaButton}" Tag="#FF0000" ToolTip="YouTube"
                             Content="/Images/SocialMedia/YouTubeIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://opencollective.com/pixieditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ToolTip="Donate"
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ToolTip="Donate" 
+                            Visibility="{Binding DisplayDonationButton, Converter={BoolToVisibilityConverter}}"
                             Content="/Images/SocialMedia/DonateIcon.png"/>
                 </userControls:AlignableWrapPanel>
         </StackPanel>
