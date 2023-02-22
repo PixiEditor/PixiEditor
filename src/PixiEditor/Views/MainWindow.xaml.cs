@@ -53,6 +53,7 @@ internal partial class MainWindow : Window
 
         DataContext.CloseAction = Close;
         Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+        ContentRendered += MainWindow_ContentRendered;
 
         preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
         {
@@ -60,6 +61,11 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
+    }
+
+    private void MainWindow_ContentRendered(object sender, EventArgs e)
+    {
+        GlobalMouseHook.Instance.Initilize(this);
     }
 
     public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
