@@ -31,6 +31,8 @@ public class BuildContext : FrostingContext
 
     public string OutputDirectory { get; set; } = "Builds";
 
+    public bool SelfContained { get; set; } = false;
+    
     public string Runtime { get; set; }
 
     public BuildContext(ICakeContext context)
@@ -57,6 +59,12 @@ public class BuildContext : FrostingContext
         if (hasCustomOutputDirectory)
         {
             OutputDirectory = context.Arguments.GetArgument("o");
+        }
+        
+        bool hasSelfContained = context.Arguments.HasArgument("self-contained");
+        if (hasSelfContained)
+        {
+            SelfContained = true;
         }
 
         Runtime = context.Arguments.GetArgument("runtime");
@@ -111,7 +119,7 @@ public sealed class BuildProjectTask : FrostingTask<BuildContext>
         var settings = new DotNetPublishSettings()
         {
             Configuration = context.BuildConfiguration,
-            SelfContained = false,
+            SelfContained = context.SelfContained,
             Runtime = context.Runtime,
             OutputDirectory = context.OutputDirectory,
         };
