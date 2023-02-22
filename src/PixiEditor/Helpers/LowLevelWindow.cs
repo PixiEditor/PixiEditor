@@ -86,11 +86,6 @@ internal class LowLevelWindow
     {
         if (!disposed)
         {
-            if (disposing)
-            {
-                // Dispose managed resources
-            }
-
             // Dispose unmanaged resources
             if (WindowHandle != IntPtr.Zero)
             {
