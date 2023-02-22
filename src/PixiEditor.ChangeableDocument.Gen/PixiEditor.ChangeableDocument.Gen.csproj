@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>true</ImplicitUsings>
     <LangVersion>Latest</LangVersion>
-    <Configurations>Debug;Release;Steam</Configurations>
+    <Configurations>Debug;Release;Steam;DevRelease</Configurations>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 

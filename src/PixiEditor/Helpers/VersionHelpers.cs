@@ -28,7 +28,7 @@ internal static class VersionHelpers
         return builder.ToString();
     }
 
-    [Conditional("DEV_RELEASE")]
+    [Conditional("DEVRELEASE")]
     private static void AppendDevBuild(StringBuilder builder, ref bool done)
     {
         done = true;
