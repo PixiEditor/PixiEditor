@@ -43,7 +43,7 @@ public class UpdateChecker
     /// <returns>True if semantic version is higher.</returns>
     public static bool VersionDifferent(string originalVer, string newVer)
     {
-        return NormalizeVersionString(originalVer) != NormalizeVersionString(newVer);
+        return ExtractVersionString(originalVer) != ExtractVersionString(newVer);
     }
     
     /// <summary>
@@ -54,8 +54,8 @@ public class UpdateChecker
     /// <returns>True if originalVer is smaller than newVer.</returns>
     public static bool VersionSmaller(string originalVer, string newVer)
     {
-        string normalizedOriginal = NormalizeVersionString(originalVer);
-        string normalizedNew = NormalizeVersionString(newVer);
+        string normalizedOriginal = ExtractVersionString(originalVer);
+        string normalizedNew = ExtractVersionString(newVer);
 
         if (normalizedOriginal == normalizedNew) return false;
 
@@ -128,8 +128,16 @@ public class UpdateChecker
         return new ReleaseInfo(false);
     }
 
-    private static string NormalizeVersionString(string versionString)
+    private static string ExtractVersionString(string versionString)
     {
-        return versionString[..7];
+        for (int i = 0; i < versionString.Length; i++)
+        {
+            if (!char.IsDigit(versionString[i]) && versionString[i] != '.')
+            {
+                return versionString[..i];
+            }
+        }
+        
+        return versionString;
     }
 }

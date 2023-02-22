@@ -57,7 +57,7 @@ steps:
   displayName: Publish PixiEditor
   inputs:
     filePath: 'src/PixiEditor.Builder/build.ps1'
-    arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor" --build-configuration "Dev_Release" --runtime "win-x86" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-x86-light\PixiEditor" --crash-report-webhook-url "$(crash-webhook-url)"'
+    arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor" --build-configuration "DevRelease" --runtime "win-x86" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-x86-light\PixiEditor" --crash-report-webhook-url "$(crash-webhook-url)"'
     workingDirectory: 'src/PixiEditor.Builder'
 
 - task: ArchiveFiles@2

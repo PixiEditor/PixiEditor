@@ -94,7 +94,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
     private void AskToInstall()
     {
-#if RELEASE || DEV_RELEASE
+#if RELEASE || DEVRELEASE
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
                 string dir = AppDomain.CurrentDomain.BaseDirectory;

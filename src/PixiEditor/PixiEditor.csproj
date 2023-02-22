@@ -14,7 +14,7 @@
 		<PackageIcon>icon.ico</PackageIcon>
 		<ApplicationIcon>..\icon.ico</ApplicationIcon>
 		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
-		<Configurations>Debug;Release;MSIX;MSIX Debug;Dev Release;Steam</Configurations>
+		<Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
         <ImplicitUsings>true</ImplicitUsings>
         <AssemblyVersion></AssemblyVersion>
@@ -40,32 +40,14 @@
 		<DefineConstants>TRACE;UPDATE</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
-		<Optimize>True</Optimize>
-	</PropertyGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DefineConstants>TRACE;UPDATE</DefineConstants>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x86'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
-		<Optimize>True</Optimize>
-	</PropertyGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DefineConstants>TRACE;UPDATE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Dev Release|x64'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
-		<Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
@@ -142,6 +124,24 @@
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Steam' ">
 	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'DevRelease' ">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x64' ">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+	  <Optimize>True</Optimize>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x86' ">
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
 	  <Optimize>True</Optimize>
 	</PropertyGroup>
 
