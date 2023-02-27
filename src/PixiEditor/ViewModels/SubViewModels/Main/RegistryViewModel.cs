@@ -27,14 +27,21 @@ internal class RegistryViewModel : SubViewModel<ViewModelMain>
 
     private void AssociateLospecPalette()
     {
-        if (!ProcessHelper.IsRunningAsAdministrator())
+        try
         {
-            ProcessHelper.RunAsAdmin(Process.GetCurrentProcess().MainModule?.FileName);
-            Application.Current.Shutdown();
+            if (!ProcessHelper.IsRunningAsAdministrator())
+            {
+                ProcessHelper.RunAsAdmin(Process.GetCurrentProcess().MainModule?.FileName);
+                Application.Current.Shutdown();
+            }
+            else
+            {
+                AssociateLospecPaletteInRegistry();
+            }
         }
-        else
+        catch
         {
-            AssociateLospecPaletteInRegistry();
+            NoticeDialog.Show("Failed to associate Lospec Palette protocol", "Error");
         }
     }
 
