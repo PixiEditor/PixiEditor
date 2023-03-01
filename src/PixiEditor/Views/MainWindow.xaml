@@ -25,6 +25,7 @@
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:commandSearch="clr-namespace:PixiEditor.Views.UserControls.CommandSearch"
     xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+    KeyDown="MainWindow_OnKeyDown"
     d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
     mc:Ignorable="d"
     WindowStyle="None"
@@ -149,6 +150,7 @@
                     <MenuItem
                         Header="_File">
                         <MenuItem
+                            
                             Header="_New"
                             cmds:Menu.Command="PixiEditor.File.New" />
                         <MenuItem
@@ -590,7 +592,7 @@
                                                                     <Border Grid.Column="1" BorderThickness="0 0 1 0" BorderBrush="Black">
                                                                         <StackPanel Orientation="Vertical" Grid.Column="0">
                                                                             <MenuItem
-																		Header="_Select All"
+                                                                                Header="_Select All"
 																		cmds:ContextMenu.Command="PixiEditor.Selection.SelectAll" />
                                                                             <MenuItem
 																		Header="_Deselect"
