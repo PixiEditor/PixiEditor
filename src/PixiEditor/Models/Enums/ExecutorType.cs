@@ -8,6 +8,6 @@ internal enum ExecutorType
 
 internal enum ExecutorStartMode
 {
-    OnSelectTool,
+    RightAway,
     OnMouseLeftButtonDown,
 }

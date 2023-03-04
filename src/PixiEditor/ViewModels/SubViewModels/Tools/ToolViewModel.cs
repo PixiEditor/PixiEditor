@@ -53,7 +53,7 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public Toolbar Toolbar { get; set; } = new EmptyToolbar();
 
-    public virtual void ModiferKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
+    public virtual void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
     public virtual void OnLeftMouseButtonDown(VecD pos) { }
     public virtual void OnSelected() 
     {

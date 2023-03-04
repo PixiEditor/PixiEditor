@@ -130,9 +130,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
 
         //update old tool
-        LastActionTool?.ModiferKeyChanged(false, false, false);
+        LastActionTool?.ModifierKeyChanged(false, false, false);
         //update new tool
-        ActiveTool.ModiferKeyChanged(ctrlIsDown, shiftIsDown, altIsDown);
+        ActiveTool.ModifierKeyChanged(ctrlIsDown, shiftIsDown, altIsDown);
         ActiveTool.OnSelected();
 
         tool.IsActive = true;
@@ -225,11 +225,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)
     {
-        ActiveTool?.ModiferKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
+        ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
     }
 
     public void ConvertedKeyUpInlet(FilteredKeyEventArgs args)
     {
-        ActiveTool?.ModiferKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
+        ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
     }
 }
