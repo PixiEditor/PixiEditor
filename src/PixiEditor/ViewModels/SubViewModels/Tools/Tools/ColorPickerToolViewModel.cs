@@ -47,7 +47,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseColorPickerTool();
     }
 
-    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void ModiferKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (ctrlIsDown)
         {

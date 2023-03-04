@@ -18,7 +18,7 @@ internal class EllipseToolViewModel : ShapeTool
     public override string Tooltip => $"Draws an ellipse on canvas ({Shortcut}). Hold Shift to draw a circle.";
     public bool DrawCircle { get; private set; }
 
-    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void ModiferKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)
         {

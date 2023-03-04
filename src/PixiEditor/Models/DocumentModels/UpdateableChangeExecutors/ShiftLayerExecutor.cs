@@ -13,17 +13,28 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
     private VecI startPos;
     private MoveToolViewModel? tool;
 
+    public override ExecutorStartMode StartMode => ExecutorStartMode.OnMouseLeftButtonDown;
+
     public override ExecutionState Start()
     {
         ViewModelMain? vm = ViewModelMain.Current;
         StructureMemberViewModel? member = document!.SelectedStructureMember;
-        if(member != null)
-            _affectedMemberGuids.Add(member.GuidValue);
-        _affectedMemberGuids.AddRange(document!.SoftSelectedStructureMembers.Select(x => x.GuidValue));
+        
         tool = ViewModelMain.Current?.ToolsSubViewModel.GetTool<MoveToolViewModel>();
         if (vm is null || tool is null)
             return ExecutionState.Error;
-        
+
+        if (tool.MoveAllLayers)
+        {
+            _affectedMemberGuids.AddRange(document.StructureHelper.GetAllLayers().Select(x => x.GuidValue));
+        }
+        else
+        {
+            if (member != null)
+                _affectedMemberGuids.Add(member.GuidValue);
+            _affectedMemberGuids.AddRange(document!.SoftSelectedStructureMembers.Select(x => x.GuidValue));
+        }
+
         RemoveDrawOnMaskLayers(_affectedMemberGuids);
         
         startPos = controller!.LastPixelPosition;

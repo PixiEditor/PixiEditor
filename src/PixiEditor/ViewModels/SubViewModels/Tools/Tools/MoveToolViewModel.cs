@@ -11,6 +11,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 internal class MoveToolViewModel : ToolViewModel
 {
     private string defaultActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+    private string transformingActionDisplay = "Click and hold mouse to move pixels in selected layers.";
+    private bool transformingSelectedArea = false;
+
+    public bool MoveAllLayers { get; set; }
 
     public MoveToolViewModel()
     {
@@ -27,9 +31,38 @@ internal class MoveToolViewModel : ToolViewModel
     public override BrushShape BrushShape => BrushShape.Hidden;
     public override bool HideHighlight => true;
 
+    public bool TransformingSelectedArea
+    {
+        get => transformingSelectedArea;
+        set
+        {
+            transformingSelectedArea = value;
+            ActionDisplay = value ? transformingActionDisplay : defaultActionDisplay;
+        }
+    }
+
     public override void OnLeftMouseButtonDown(VecD pos)
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseShiftLayerTool();
+    }
+
+    public override void ModiferKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    {
+        if (TransformingSelectedArea)
+        {
+            return;
+        }
+        
+        if (ctrlIsDown)
+        {
+            ActionDisplay = "Hold mouse to move all layers.";
+            MoveAllLayers = true;
+        }
+        else
+        {
+            ActionDisplay = defaultActionDisplay;
+            MoveAllLayers = false;
+        }
     }
 
     public override void OnSelected()
