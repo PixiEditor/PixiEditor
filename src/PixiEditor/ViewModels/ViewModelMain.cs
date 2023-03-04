@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -71,6 +72,7 @@ internal class ViewModelMain : ViewModelBase
     public RegistryViewModel RegistrySubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
+    public ILocalizationProvider LocalizationProvider { get; set; }
 
     public string ActiveActionDisplay => ActionDisplays.HasActive() ? ActionDisplays.GetActive() : ToolsSubViewModel.ActiveTool?.ActionDisplay;
 
