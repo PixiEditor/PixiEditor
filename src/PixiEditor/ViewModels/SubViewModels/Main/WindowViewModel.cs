@@ -133,11 +133,11 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "Open Settings", "Open Settings Window", Key = Key.OemComma, Modifiers = ModifierKeys.Control)]
-    public static void OpenSettingsWindow(string page)
+    public static void OpenSettingsWindow(int page)
     {
-        if (string.IsNullOrWhiteSpace(page))
+        if (page < 0)
         {
-            page = "General";
+            page = 0;
         }
 
         var settings = new SettingsWindow(page);

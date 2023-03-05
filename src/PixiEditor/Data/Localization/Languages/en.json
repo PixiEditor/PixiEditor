@@ -4,5 +4,8 @@
   "NEW_FILE": "New",
   "RECENT_EMPTY_TEXT": "So much empty space",
   
-  "LANGUAGE": "Language"
+  "LANGUAGE": "Language",
+  "GENERAL": "General",
+  "DISCORD": "Discord",
+  "KEY_BINDINGS": "Key Bindings"
 }

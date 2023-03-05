@@ -16,6 +16,7 @@
         xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:settingGroups="clr-namespace:PixiEditor.Views.Dialogs.SettingGroups"
+        xmlns:localization="clr-namespace:PixiEditor.Localization"
         mc:Ignorable="d"
         Title="Settings" Name="window" 
         Height="688" Width="780"
@@ -49,23 +50,27 @@
 
         <ListBox DockPanel.Dock="Left" x:Name="pages" 
                  Background="Transparent" BorderThickness="0" Width="150" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}"
-                 SelectedItem="{Binding CurrentPage}">
+                 SelectedIndex="{Binding CurrentPage}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Margin="10 5 10 5" FontSize="15" Foreground="White" Text="{Binding}"/>
+                    <TextBlock Margin="10 5 10 5" FontSize="15" Foreground="White" Text="{Binding Path=Value}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
             <ListBox.ItemsSource>
-                <x:Array Type="{x:Type sys:String}">
-                    <sys:String>General</sys:String>
-                    <sys:String>Discord</sys:String>
-                    <sys:String>Keybinds</sys:String>
+                <x:Array Type="{x:Type localization:LocalizedString}">
+                    <localization:LocalizedString Key="GENERAL"/>
+                    <localization:LocalizedString Key="DISCORD"/>
+                    <localization:LocalizedString Key="KEY_BINDINGS"/>
                 </x:Array>
             </ListBox.ItemsSource>
         </ListBox>
         <StackPanel Orientation="Vertical" Background="{StaticResource AccentColor}">
-            <StackPanel Orientation="Vertical" Visibility="{Binding CurrentPage, Converter={converters:EqualityBoolToVisibilityConverter},
-            ConverterParameter='General'}" Margin="15,10" Tag="27">
+            <StackPanel Orientation="Vertical" Margin="15,10" Tag="27">
+                <StackPanel.Visibility>
+                    <Binding Path="CurrentPage" Converter="{converters:EqualityBoolToVisibilityConverter}">
+                        <Binding.ConverterParameter><sys:Int32>0</sys:Int32></Binding.ConverterParameter>
+                    </Binding>
+                </StackPanel.Visibility>
                 <Label Style="{StaticResource SettingsHeader}" views:Translator.Key="LANGUAGE"/>
                 <ComboBox Margin="27 5" Width="200" Height="25" FontSize="12" HorizontalAlignment="Left"
                           ItemsSource="{Binding SettingsSubViewModel.General.AvailableLanguages}"
@@ -174,8 +179,14 @@
                 </Label>
             </StackPanel>
 
-            <StackPanel Visibility="{Binding CurrentPage, Converter={converters:EqualityBoolToVisibilityConverter},
-            ConverterParameter='Discord'}" Margin="15,10">
+            <StackPanel Margin="15,10">
+                <StackPanel.Visibility>
+                    <Binding Path="CurrentPage" Converter="{converters:EqualityBoolToVisibilityConverter}">
+                        <Binding.ConverterParameter>
+                            <sys:Int32>1</sys:Int32>
+                        </Binding.ConverterParameter>
+                    </Binding>
+                </StackPanel.Visibility>
                 <StackPanel Orientation="Vertical">
                     <Label Style="{StaticResource SettingsHeader}">Rich Presence</Label>
                     
@@ -200,8 +211,14 @@
             </StackPanel>
 
             <Grid Height="{Binding ElementName=window, Path=Height, Converter={converters:SubtractConverter}, ConverterParameter=50}"
-                  Visibility="{Binding CurrentPage, Converter={converters:EqualityBoolToVisibilityConverter}, ConverterParameter='Keybinds'}"
                   Margin="10,10,10,50">
+                <Grid.Visibility>
+                    <Binding Path="CurrentPage" Converter="{converters:EqualityBoolToVisibilityConverter}">
+                        <Binding.ConverterParameter>
+                            <sys:Int32>2</sys:Int32>
+                        </Binding.ConverterParameter>
+                    </Binding>
+                </Grid.Visibility>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>

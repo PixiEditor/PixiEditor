@@ -2,13 +2,27 @@
 
 public struct LocalizedString
 {
-    public string Key { get; }
-    public string Value { get; }
+    private string key;
+
+    public string Key
+    {
+        get => key;
+        set
+        {
+            key = value;
+            Value = GetValue(value);
+        }
+    }
+    public string Value { get; private set; }
 
     public LocalizedString(string key)
     {
         Key = key;
-        Value = GetValue(key);
+    }
+
+    public override string ToString()
+    {
+        return Value;
     }
 
     private static string GetValue(string key)

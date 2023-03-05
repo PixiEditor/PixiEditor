@@ -19,7 +19,7 @@ internal class SettingsWindowViewModel : ViewModelBase
 {
     private string searchTerm;
     private int visibleGroups;
-    private string currentPage;
+    private int currentPage;
 
     public bool ShowUpdateTab
     {
@@ -47,7 +47,7 @@ internal class SettingsWindowViewModel : ViewModelBase
         }
     }
 
-    public string CurrentPage
+    public int CurrentPage
     {
         get => currentPage;
         set => SetProperty(ref currentPage, value);
