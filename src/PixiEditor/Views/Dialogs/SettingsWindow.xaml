@@ -67,6 +67,43 @@
             <StackPanel Orientation="Vertical" Visibility="{Binding CurrentPage, Converter={converters:EqualityBoolToVisibilityConverter},
             ConverterParameter='General'}" Margin="15,10" Tag="27">
                 <Label Style="{StaticResource SettingsHeader}" views:Translator.Key="LANGUAGE"/>
+                <ComboBox Margin="27 5" Width="200" Height="25" FontSize="12" HorizontalAlignment="Left"
+                          ItemsSource="{Binding SettingsSubViewModel.General.AvailableLanguages}"
+                          SelectedItem="{Binding SettingsSubViewModel.General.SelectedLanguage, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel.Style>
+                                    <Style TargetType="{x:Type StackPanel}">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="False">
+                                                <Setter Property="Background" Value="Transparent"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <Image VerticalAlignment="Center" Margin="5 0" Source="{Binding IconPath}"/>
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                    <ComboBox.ItemContainerStyle>
+                        <Style TargetType="{x:Type ComboBoxItem}">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                                        <Border Height="25" Margin="5 0" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                                            <ContentPresenter/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
+                </ComboBox>
 
                 <Label Style="{StaticResource SettingsHeader}">Misc</Label>
 

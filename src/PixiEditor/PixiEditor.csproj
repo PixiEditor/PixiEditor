@@ -399,6 +399,10 @@
 		<Resource Include="Images\Commands\PixiEditor\Selection\AddToMask.png" />
 		<None Remove="Images\Commands\PixiEditor\Selection\NewToMask.png" />
 		<Resource Include="Images\Commands\PixiEditor\Selection\NewToMask.png" />
+		<None Remove="Images\LanguageFlags\en.png" />
+		<Resource Include="Images\LanguageFlags\en.png" />
+		<None Remove="Images\LanguageFlags\pl.png" />
+		<Resource Include="Images\LanguageFlags\pl.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
