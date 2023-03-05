@@ -64,18 +64,16 @@
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" Width="150" Margin="10"
-                            views:Translator.Key="OPEN_FILE"
-                            Content="{Binding Path=(views:Translator.Value), RelativeSource={RelativeSource Mode=Self}}"/>
+                            views:Translator.Key="OPEN_FILE"/>
                     <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" Width="150" Margin="10"
-                            views:Translator.Key="NEW_FILE"
-                            Content="{Binding Path=(views:Translator.Value), RelativeSource={RelativeSource Mode=Self}}"/>
+                            views:Translator.Key="NEW_FILE"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">
                     <TextBlock FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
-                               views:Translator.Key="RECENT_FILES"
-                               Text="{Binding Path=(views:Translator.Value), RelativeSource={RelativeSource Self}}"/>
-                    <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center">
+                               views:Translator.Key="RECENT_FILES"/>
+                    <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center"
+                               views:Translator.Key="RECENT_EMPTY_TEXT">
                         <TextBlock.Visibility>
                             <Binding Path="RecentlyOpened.Count"
                                      Converter="{converters:EqualityBoolToVisibilityConverter}">
@@ -84,7 +82,6 @@
                                 </Binding.ConverterParameter>
                             </Binding>
                         </TextBlock.Visibility>
-                        So much empty here
                     </TextBlock>
                     <ItemsControl ItemsSource="{Binding RecentlyOpened}">
                         <ItemsControl.ItemTemplate>

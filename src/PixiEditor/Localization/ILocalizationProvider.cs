@@ -16,4 +16,5 @@ public interface ILocalizationProvider
     /// </summary>
     public void LoadData();
     public void LoadLanguage(LanguageData languageData);
+    public Language DefaultLanguage { get; }
 }

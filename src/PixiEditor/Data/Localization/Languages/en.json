@@ -1,5 +1,8 @@
 ﻿{
   "RECENT_FILES": "Recent Files",
   "OPEN_FILE": "Open",
-  "NEW_FILE": "New"
+  "NEW_FILE": "New",
+  "RECENT_EMPTY_TEXT": "So much empty space",
+  
+  "LANGUAGE": "Language"
 }

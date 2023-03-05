@@ -1,11 +1,13 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
 using PixiEditor.Localization;
 
 namespace PixiEditor.Views;
 
 public class Translator : UIElement
 {
-    private static void CurrentOnOnLanguageChanged(DependencyObject obj, Language newLanguage)
+    private static void OnLanguageChanged(DependencyObject obj, Language newLanguage)
     {
         obj.SetValue(ValueProperty, new LocalizedString(GetKey(obj)).Value);
     }
@@ -20,8 +22,34 @@ public class Translator : UIElement
     {
         if (e.NewValue is string key)
         {
-            d.SetValue(ValueProperty, new LocalizedString(key).Value);
-            ILocalizationProvider.Current.OnLanguageChanged += (lang) => CurrentOnOnLanguageChanged(d, lang);
+            LocalizedString localizedString = new(key);
+            if(d is TextBox textBox)
+            {
+                textBox.SetBinding(TextBox.TextProperty, new Binding()
+                { 
+                    Path = new PropertyPath("(views:Translator.Value)"),
+                    RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
+                });
+            }
+            else if (d is TextBlock textBlock)
+            {
+                textBlock.SetBinding(TextBlock.TextProperty, new Binding()
+                { 
+                    Path = new PropertyPath("(views:Translator.Value)"),
+                    RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
+                });
+            }
+            else if (d is ContentControl contentControl)
+            {
+                contentControl.SetBinding(ContentControl.ContentProperty, new Binding()
+                { 
+                    Path = new PropertyPath("(views:Translator.Value)"),
+                    RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
+                });
+            }
+
+            d.SetValue(ValueProperty, localizedString.Value);
+            ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChanged(d, lang);
         }
     }
 

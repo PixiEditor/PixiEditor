@@ -1,5 +1,8 @@
 ﻿{
   "RECENT_FILES": "Ostatnie pliki",
   "OPEN_FILE": "Otwórz",
-  "NEW_FILE": "Nowy"
+  "NEW_FILE": "Nowy",
+  "RECENT_EMPTY_TEXT": "Ale tu pusto, na co czekasz, stwórz coś!",
+
+  "LANGUAGE": "Język"
 }
