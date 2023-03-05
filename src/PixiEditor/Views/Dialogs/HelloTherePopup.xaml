@@ -9,6 +9,8 @@
         xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:models="clr-namespace:PixiEditor.Models"
+        xmlns:views="clr-namespace:PixiEditor.Views"
         mc:Ignorable="d" ShowInTaskbar="False"
         Title="Hello there!" Height="662" Width="632" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
@@ -61,12 +63,18 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" Width="150" Margin="10">Open</Button>
-                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" Width="150" Margin="10">New</Button>
+                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" Width="150" Margin="10"
+                            views:Translator.Key="OPEN_FILE"
+                            Content="{Binding Path=(views:Translator.Value), RelativeSource={RelativeSource Mode=Self}}"/>
+                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" Width="150" Margin="10"
+                            views:Translator.Key="NEW_FILE"
+                            Content="{Binding Path=(views:Translator.Value), RelativeSource={RelativeSource Mode=Self}}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">
-                    <TextBlock FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center">Recent Files</TextBlock>
+                    <TextBlock FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
+                               views:Translator.Key="RECENT_FILES"
+                               Text="{Binding Path=(views:Translator.Value), RelativeSource={RelativeSource Self}}"/>
                     <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center">
                         <TextBlock.Visibility>
                             <Binding Path="RecentlyOpened.Count"

@@ -23,7 +23,7 @@ internal static class ServiceCollectionHelpers
     public static IServiceCollection AddPixiEditor(this IServiceCollection collection) => collection
         .AddSingleton<ViewModelMain>()
         .AddSingleton<IPreferences, PreferencesSettings>()
-        .AddSingleton<ILocalizationProvider>()
+        .AddSingleton<ILocalizationProvider, LocalizationProvider>()
         // View Models
         .AddSingleton<StylusViewModel>()
         .AddSingleton<WindowViewModel>()

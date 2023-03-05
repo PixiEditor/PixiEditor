@@ -6,6 +6,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
 using PixiEditor.Localization;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
@@ -87,6 +88,9 @@ internal class ViewModelMain : ViewModelBase
     public void Setup(IServiceProvider services)
     {
         Services = services;
+        
+        LocalizationProvider = services.GetRequiredService<ILocalizationProvider>();
+        LocalizationProvider.LoadData();
 
         Preferences = services.GetRequiredService<IPreferences>();
 

@@ -3,7 +3,14 @@
     {
       "name": "English",
       "code": "en",
-      "localeFileName": "en.json"
+      "localeFileName": "en.json",
+      "iconFileName": "en.png"
+    },
+    {
+      "name": "Polish",
+        "code": "pl",
+        "localeFileName": "pl.json",
+        "iconFileName": "pl.png"
     }
   ]
 }
