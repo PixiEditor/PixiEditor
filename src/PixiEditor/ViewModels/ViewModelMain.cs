@@ -88,13 +88,13 @@ internal class ViewModelMain : ViewModelBase
     public void Setup(IServiceProvider services)
     {
         Services = services;
+
+        Preferences = services.GetRequiredService<IPreferences>();
+        Preferences.Init();
         
         LocalizationProvider = services.GetRequiredService<ILocalizationProvider>();
         LocalizationProvider.LoadData();
-
-        Preferences = services.GetRequiredService<IPreferences>();
-
-        Preferences.Init();
+        
         WindowSubViewModel = services.GetService<WindowViewModel>();
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
         SelectionSubViewModel = services.GetService<SelectionViewModel>();

@@ -4,5 +4,6 @@
   "NEW_FILE": "Nowy",
   "RECENT_EMPTY_TEXT": "Ale tu pusto, na co czekasz, stwórz coś!",
 
-  "LANGUAGE": "Język"
+  "LANGUAGE": "Język",
+  "RECENT_FILE_LENGTH_TOOLTIP": "Ile ostatnich plików wyświetlać, domyślnie 8"
 }

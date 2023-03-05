@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Localization;
 
@@ -31,9 +32,23 @@ internal class LocalizationProvider : ILocalizationProvider
         {
             throw new InvalidDataException("Localization data does not contain any languages.");
         }
+
+        DefaultLanguage = LoadLanguageInternal(LocalizationData.Languages[0]);
         
-        LoadLanguage(LocalizationData.Languages[0]);
-        DefaultLanguage = CurrentLanguage;
+        string currentLanguageCode = IPreferences.Current.GetPreference<string>("LanguageCode");
+
+        int languageIndex = 0;
+        
+        for (int i = 0; i < LocalizationData.Languages.Length; i++)
+        {
+            if (LocalizationData.Languages[i].Code == currentLanguageCode)
+            {
+                languageIndex = i;
+                break;
+            }
+        }
+        
+        LoadLanguage(LocalizationData.Languages[languageIndex]);
     }
 
     public void LoadLanguage(LanguageData languageData)

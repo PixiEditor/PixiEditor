@@ -27,6 +27,11 @@ public struct LocalizedString
 
     private static string GetValue(string key)
     {
+        if (string.IsNullOrEmpty(key))
+        {
+            return key;
+        }
+        
         ILocalizationProvider localizationProvider = ILocalizationProvider.Current;
         if (localizationProvider?.LocalizationData == null)
         {

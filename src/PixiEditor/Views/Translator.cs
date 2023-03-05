@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Documents;
 using PixiEditor.Localization;
 
 namespace PixiEditor.Views;
@@ -9,16 +10,45 @@ public class Translator : UIElement
 {
     private static void OnLanguageChanged(DependencyObject obj, Language newLanguage)
     {
-        obj.SetValue(ValueProperty, new LocalizedString(GetKey(obj)).Value);
+        string key = GetKey(obj);
+        if (key != null)
+        {
+            obj.SetValue(ValueProperty, new LocalizedString(GetKey(obj)).Value);
+        }
+        
+        string tooltipKey = GetTooltipKey(obj);
+        if (tooltipKey != null)
+        {
+            obj.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(GetTooltipKey(obj)).Value);
+        }
     }
 
     public static readonly DependencyProperty KeyProperty = DependencyProperty.RegisterAttached(
         "Key",
         typeof(string),
         typeof(Translator),
-        new FrameworkPropertyMetadata(default(string), FrameworkPropertyMetadataOptions.AffectsRender, PropertyChangedCallback));
+        new FrameworkPropertyMetadata(default(string), FrameworkPropertyMetadataOptions.AffectsRender, KeyPropertyChangedCallback));
 
-    private static void PropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    public static readonly DependencyProperty TooltipKeyProperty = DependencyProperty.RegisterAttached(
+        "TooltipKey", typeof(string), typeof(Translator), 
+        new FrameworkPropertyMetadata(default(string), FrameworkPropertyMetadataOptions.AffectsRender, TooltipKeyPropertyChangedCallback));
+
+    private static void TooltipKeyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        d.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(GetTooltipKey(d)).Value);
+    }
+
+    public static void SetTooltipKey(DependencyObject element, string value)
+    {
+        element.SetValue(TooltipKeyProperty, value);
+    }
+
+    public static string GetTooltipKey(DependencyObject element)
+    {
+        return (string)element.GetValue(TooltipKeyProperty);
+    }
+
+    private static void KeyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (e.NewValue is string key)
         {
@@ -34,6 +64,14 @@ public class Translator : UIElement
             else if (d is TextBlock textBlock)
             {
                 textBlock.SetBinding(TextBlock.TextProperty, new Binding()
+                { 
+                    Path = new PropertyPath("(views:Translator.Value)"),
+                    RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
+                });
+            }
+            else if (d is Run run)
+            {
+                run.SetBinding(Run.TextProperty, new Binding()
                 { 
                     Path = new PropertyPath("(views:Translator.Value)"),
                     RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
