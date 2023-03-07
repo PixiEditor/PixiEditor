@@ -24,7 +24,7 @@ internal class SelectToolViewModel : ToolViewModel
     private SelectionMode modifierKeySelectionMode = SelectionMode.New;
     public SelectionMode ResultingSelectionMode => modifierKeySelectionMode != SelectionMode.New ? modifierKeySelectionMode : SelectMode;
 
-    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)
         {

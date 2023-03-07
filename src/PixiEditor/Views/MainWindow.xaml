@@ -25,6 +25,7 @@
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:commandSearch="clr-namespace:PixiEditor.Views.UserControls.CommandSearch"
     xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+    KeyDown="MainWindow_OnKeyDown"
     d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
     mc:Ignorable="d"
     WindowStyle="None"
@@ -146,16 +147,16 @@
                             TargetType="{x:Type MenuItem}"
                             BasedOn="{StaticResource menuItemStyle}" />
                     </Menu.Resources>
-                    <MenuItem
-                        Header="_File">
+                    <MenuItem Focusable="False"
+                              Header="File">
                         <MenuItem
-                            Header="_New"
+                            Header="New"
                             cmds:Menu.Command="PixiEditor.File.New" />
                         <MenuItem
-                            Header="_Open"
+                            Header="Open"
                             cmds:Menu.Command="PixiEditor.File.Open" />
                         <MenuItem
-                            Header="_Recent"
+                            Header="Recent"
                             ItemsSource="{Binding FileSubViewModel.RecentlyOpened}"
                             x:Name="recentItemMenu"
                             IsEnabled="{Binding FileSubViewModel.HasRecent}">
@@ -180,104 +181,104 @@
                             </MenuItem.ItemTemplate>
                         </MenuItem>
                         <MenuItem
-                            Header="_Save (.pixi)"
+                            Header="Save (.pixi)"
                             cmds:Menu.Command="PixiEditor.File.Save" />
                         <MenuItem
-                            Header="_Save As... (.pixi)"
+                            Header="Save As... (.pixi)"
                             cmds:Menu.Command="PixiEditor.File.SaveAsNew" />
                         <MenuItem
-                            Header="_Export (.png, .jpeg, etc.)"
+                            Header="Export (.png, .jpeg, etc.)"
                             cmds:Menu.Command="PixiEditor.File.Export" />
                         <Separator />
                         <MenuItem
-                            Header="_Exit"
+                            Header="Exit"
                             Command="{x:Static SystemCommands.CloseWindowCommand}" />
                     </MenuItem>
-                    <MenuItem
-                        Header="_Edit">
+                    <MenuItem Focusable="False"
+                              Header="Edit">
                         <MenuItem
-                            Header="_Undo"
+                            Header="Undo"
                             cmds:Menu.Command="PixiEditor.Undo.Undo" />
                         <MenuItem
-                            Header="_Redo"
+                            Header="Redo"
                             cmds:Menu.Command="PixiEditor.Undo.Redo" />
                         <Separator />
                         <MenuItem
-                            Header="_Cut"
+                            Header="Cut"
                             cmds:Menu.Command="PixiEditor.Clipboard.Cut" />
                         <MenuItem
-                            Header="_Copy"
+                            Header="Copy"
                             cmds:Menu.Command="PixiEditor.Clipboard.Copy" />
                         <MenuItem
-                            Header="_Paste"
+                            Header="Paste"
                             cmds:Menu.Command="PixiEditor.Clipboard.Paste" />
                         <MenuItem
-                            Header="_Duplicate"
+                            Header="Duplicate"
                             cmds:Menu.Command="PixiEditor.Layer.DuplicateSelectedLayer" />
                         <Separator />
                         <MenuItem
-                            Header="_Delete Selected"
+                            Header="Delete Selected"
                             cmds:Menu.Command="PixiEditor.Document.DeletePixels" />
                         <Separator />
                         <MenuItem
-                            Header="_Settings"
+                            Header="Settings"
                             cmds:Menu.Command="PixiEditor.Window.OpenSettingsWindow" />
                     </MenuItem>
-                    <MenuItem
-                        Header="_Select">
+                    <MenuItem Focusable="False"
+                              Header="Select">
                         <MenuItem
-                            Header="_Select All"
+                            Header="Select All"
                             cmds:Menu.Command="PixiEditor.Selection.SelectAll" />
                         <MenuItem
-                            Header="_Deselect"
+                            Header="Deselect"
                             cmds:Menu.Command="PixiEditor.Selection.Clear" />
                         <MenuItem
-                            Header="_Invert"
+                            Header="Invert"
                             cmds:Menu.Command="PixiEditor.Selection.InvertSelection" />
                         <Separator/>
-                        <MenuItem Header="Selection _to Mask">
+                        <MenuItem Header="Selection to Mask">
                             <MenuItem
-                                Header="to _new mask"
+                                Header="to new mask"
                                 cmds:Menu.Command="PixiEditor.Selection.NewToMask" />
                             <MenuItem
-                                Header="_add to mask"
+                                Header="add to mask"
                                 cmds:Menu.Command="PixiEditor.Selection.AddToMask" />
                             <MenuItem
-                                Header="_subtract from mask"
+                                Header="subtract from mask"
                                 cmds:Menu.Command="PixiEditor.Selection.SubtractFromMask" />
                             <MenuItem
-                                Header="_intersect with mask"
+                                Header="intersect with mask"
                                 cmds:Menu.Command="PixiEditor.Selection.IntersectSelectionMask" />
                         </MenuItem>
                     </MenuItem>
-                    <MenuItem
-                        Header="_Image">
+                    <MenuItem Focusable="False"
+                              Header="Image">
                         <MenuItem
-                            Header="Resize _Image..."
+                            Header="Resize Image..."
                             cmds:Menu.Command="PixiEditor.Document.ResizeDocument" />
                         <MenuItem
-                            Header="Resize _Canvas..."
+                            Header="Resize Canvas..."
                             cmds:Menu.Command="PixiEditor.Document.ResizeCanvas" />
                         <Separator />
                         <MenuItem
-                            Header="Cli_p Canvas"
+                            Header="Clip Canvas"
                             cmds:Menu.Command="PixiEditor.Document.ClipCanvas" />
                         <MenuItem
-                            Header="Cente_r Content"
+                            Header="Center Content"
                             cmds:Menu.Command="PixiEditor.Document.CenterContent" />
                         <Separator />
                         <MenuItem
                             IsCheckable="True"
                             IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.HorizontalSymmetryAxisEnabledBindable}"
-                            Header="_Horizontal Line Symmetry"/>
+                            Header="Horizontal Line Symmetry"/>
                         <MenuItem
                             IsCheckable="True"
                             IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable}"
-                            Header="_Vertical Line Symmetry"/>
+                            Header="Vertical Line Symmetry"/>
                         <Separator/>
-                        <MenuItem Header="_Rotation">
+                        <MenuItem Header="Rotation">
                             <MenuItem Header="Rotate Image 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
                             <MenuItem Header="Rotate Image 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180Deg"/>
                             <MenuItem Header="Rotate Image -90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270Deg"/>
@@ -287,84 +288,84 @@
                             <MenuItem Header="Rotate Selected Layers 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
                             <MenuItem Header="Rotate Selected Layers -90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
                         </MenuItem>
-                        <MenuItem Header="_Flip">
-                            <MenuItem Header="Flip Image _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
-                            <MenuItem Header="Flip Image _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
-                            <MenuItem Header="Flip Selected Layers _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
-                            <MenuItem Header="Flip Selected Layers _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
+                        <MenuItem Header="Flip">
+                            <MenuItem Header="Flip Image Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
+                            <MenuItem Header="Flip Image Vertically" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
+                            <MenuItem Header="Flip Selected Layers Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
+                            <MenuItem Header="Flip Selected Layers Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
                         </MenuItem>
                     </MenuItem>
-                    <MenuItem
-                        Header="_View">
+                    <MenuItem Focusable="False"
+                              Header="View">
                         <MenuItem
                             Header="New window for current image"
                             cmds:Menu.Command="PixiEditor.Window.CreateNewViewport" />
                         <Separator/>
                         <MenuItem
-                            Header="Open _Startup Window"
+                            Header="Open Startup Window"
                             ToolTip="Hello there!"
                             cmds:Menu.Command="PixiEditor.Window.OpenStartupWindow" />
                         <MenuItem
-                            Header="Open _Navigation Window"
+                            Header="Open Navigation Window"
                             cmds:Menu.Command="PixiEditor.Window.OpenNavigationWindow" />
                         <MenuItem
-                            Header="Open Short_cuts Window"
+                            Header="Open Shortcuts Window"
                             cmds:Menu.Command="PixiEditor.Window.OpenShortcutWindow" />
                         <Separator/>
                         <MenuItem
-                            Header="Show _Grid Lines"
+                            Header="Show Grid Lines"
                             IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                             IsCheckable="True"
                             InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}" />
                     </MenuItem>
-                    <MenuItem
-                        Header="_Help">
+                    <MenuItem Focusable="False"
+                              Header="Help">
                         <MenuItem
-                            Header="_Documentation"
+                            Header="Documentation"
                             cmds:Menu.Command="PixiEditor.Links.OpenDocumentation" />
                         <MenuItem
-                            Header="_Website"
+                            Header="Website"
                             cmds:Menu.Command="PixiEditor.Links.OpenWebsite" />
                         <MenuItem
-                            Header="_Repository"
+                            Header="Repository"
                             cmds:Menu.Command="PixiEditor.Links.OpenRepository" />
                         <Separator />
                         <MenuItem
-                            Header="_License"
+                            Header="License"
                             cmds:Menu.Command="PixiEditor.Links.OpenLicense" />
                         <MenuItem
-                            Header="_Third Party Licenses"
+                            Header="Third Party Licenses"
                             cmds:Menu.Command="PixiEditor.Links.OpenOtherLicenses" />
                         <Separator/>
                         <MenuItem
-                            Header="_About"
+                            Header="About"
                             cmds:Menu.Command="PixiEditor.Window.OpenAboutWindow" />
                     </MenuItem>
-                    <MenuItem
-                        Header="_Debug"
-                        Visibility="{Binding DebugSubViewModel.UseDebug, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <MenuItem Focusable="False"
+                              Header="Debug"
+                              Visibility="{Binding DebugSubViewModel.UseDebug, Converter={StaticResource BoolToVisibilityConverter}}">
                         <MenuItem
                             Header="Open Command Debug Window"
                             cmds:Menu.Command="PixiEditor.Debug.OpenCommandDebugWindow"/>
                         <Separator/>
                         <MenuItem
-                            Header="Open _Local App Data"
+                            Header="Open Local App Data"
                             cmds:Menu.Command="PixiEditor.Debug.OpenLocalAppDataDirectory" />
                         <MenuItem
-                            Header="Open _Roaming App Data"
+                            Header="Open Roaming App Data"
                             cmds:Menu.Command="PixiEditor.Debug.OpenRoamingAppDataDirectory" />
                         <MenuItem
-                            Header="Open _Temp App Data"
+                            Header="Open Temp App Data"
                             cmds:Menu.Command="PixiEditor.Debug.OpenTempDirectory" />
                         <MenuItem
-                            Header="Open _Install Location"
+                            Header="Open Install Location"
                             cmds:Menu.Command="PixiEditor.Debug.OpenInstallDirectory" />
                         <MenuItem
-                            Header="Open Crash _Reports Location"
+                            Header="Open Crash Reports Location"
                             cmds:Menu.Command="PixiEditor.Debug.OpenCrashReportsDirectory" />
                         <Separator />
                         <MenuItem
-                            Header="_Crash"
+                            Header="Crash"
                             cmds:Menu.Command="PixiEditor.Debug.Crash" />
                         <MenuItem
                             Header="Delete">
@@ -379,7 +380,7 @@
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteEditorData" />
                             <Separator/>
                             <MenuItem
-                                Header="_Clear recent documents"
+                                Header="Clear recent documents"
                                 cmds:Menu.Command="PixiEditor.Debug.ClearRecentDocument"/>
                         </MenuItem>
                     </MenuItem>
@@ -590,24 +591,24 @@
                                                                     <Border Grid.Column="1" BorderThickness="0 0 1 0" BorderBrush="Black">
                                                                         <StackPanel Orientation="Vertical" Grid.Column="0">
                                                                             <MenuItem
-																		Header="_Select All"
+                                                                                Header="Select All"
 																		cmds:ContextMenu.Command="PixiEditor.Selection.SelectAll" />
                                                                             <MenuItem
-																		Header="_Deselect"
+																		Header="Deselect"
 																		cmds:ContextMenu.Command="PixiEditor.Selection.Clear" />
                                                                             <Separator />
                                                                             <MenuItem
-																		Header="_Cut"
+																		Header="Cut"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Cut" />
                                                                             <MenuItem
-																		Header="_Copy"
+																		Header="Copy"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Copy" />
                                                                             <MenuItem
-																		Header="_Paste"
+																		Header="Paste"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Paste" />
                                                                             <Separator />
-                                                                            <MenuItem Header="Flip _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
-                                                                            <MenuItem Header="Flip _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
+                                                                            <MenuItem Header="Flip Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
+                                                                            <MenuItem Header="Flip Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
                                                                             <Separator />
                                                                             <MenuItem Header="Rotate 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
                                                                             <MenuItem Header="Rotate 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>

@@ -27,6 +27,8 @@ internal class ChangeExecutionController
     private VecD lastPrecisePos;
 
     private UpdateableChangeExecutor? currentSession = null;
+    
+    private UpdateableChangeExecutor? _queuedExecutor = null;
 
     public ChangeExecutionController(DocumentViewModel document, DocumentInternalParts internals)
     {
@@ -44,32 +46,51 @@ internal class ChangeExecutionController
     public bool TryStartExecutor<T>(bool force = false)
         where T : UpdateableChangeExecutor, new()
     {
-        if (currentSession is not null && !force)
+        if (CanStartExecutor(force))
             return false;
         if (force)
             currentSession?.ForceStop();
+        
         T executor = new T();
-        executor.Initialize(document, internals, this, EndExecutor);
-        if (executor.Start() == ExecutionState.Success)
-        {
-            currentSession = executor;
-            return true;
-        }
-        return false;
+        return TryStartExecutorInternal(executor);
     }
 
     public bool TryStartExecutor(UpdateableChangeExecutor brandNewExecutor, bool force = false)
     {
-        if (currentSession is not null && !force)
+        if (CanStartExecutor(force))
             return false;
         if (force)
             currentSession?.ForceStop();
-        brandNewExecutor.Initialize(document, internals, this, EndExecutor);
+        
+        return TryStartExecutorInternal(brandNewExecutor);
+    }
+
+    private bool CanStartExecutor(bool force)
+    {
+        return (currentSession is not null || _queuedExecutor is not null) && !force;
+    }
+
+    private bool TryStartExecutorInternal(UpdateableChangeExecutor executor)
+    {
+        executor.Initialize(document, internals, this, EndExecutor);
+
+        if (executor.StartMode == ExecutorStartMode.OnMouseLeftButtonDown)
+        {
+            _queuedExecutor = executor;
+            return true;
+        }
+
+        return StartExecutor(executor);
+    }
+    
+    private bool StartExecutor(UpdateableChangeExecutor brandNewExecutor)
+    {
         if (brandNewExecutor.Start() == ExecutionState.Success)
         {
             currentSession = brandNewExecutor;
             return true;
         }
+
         return false;
     }
 
@@ -78,6 +99,7 @@ internal class ChangeExecutionController
         if (executor != currentSession)
             throw new InvalidOperationException();
         currentSession = null;
+        _queuedExecutor = null;
     }
 
     public bool TryStopActiveExecutor()
@@ -153,6 +175,11 @@ internal class ChangeExecutionController
         //update internal state
         LeftMouseState = MouseButtonState.Pressed;
 
+        if (_queuedExecutor != null && currentSession == null)
+        {
+            StartExecutor(_queuedExecutor);
+        }
+        
         //call session event
         currentSession?.OnLeftMouseButtonDown(canvasPos);
     }

@@ -9,6 +9,11 @@ namespace PixiEditor.Helpers.Extensions;
 
 internal static class PixiParserDocumentEx
 {
+    public static VecD ToVecD(this Vector2 vec)
+    {
+        return new VecD(vec.X, vec.Y);
+    }
+    
     public static DocumentViewModel ToDocument(this Document document)
     {
         return DocumentViewModel.Build(b =>
@@ -18,7 +23,7 @@ internal static class PixiParserDocumentEx
                 .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B, x.A))
                 .WithReferenceLayer(document.ReferenceLayer, (r, builder) => builder
                     .WithIsVisible(r.Enabled)
-                    .WithRect(new VecD(r.OffsetX, r.OffsetY), new VecD(r.Width, r.Height))
+                    .WithShape(r.Corners)
                     .WithSurface(Surface.Load(r.ImageBytes)));
 
             BuildChildren(b, document.RootFolder.Children);

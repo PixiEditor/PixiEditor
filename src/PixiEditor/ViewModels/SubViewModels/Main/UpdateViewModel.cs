@@ -100,7 +100,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 string dir = AppDomain.CurrentDomain.BaseDirectory;
                 
                 UpdateDownloader.CreateTempDirectory();
-                if(UpdateChecker.LatestReleaseInfo == null) return;
+                if(UpdateChecker.LatestReleaseInfo == null || string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName)) return;
                 bool updateFileExists = File.Exists(
                     Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
                 string exePath = Path.Join(UpdateDownloader.DownloadLocation,
