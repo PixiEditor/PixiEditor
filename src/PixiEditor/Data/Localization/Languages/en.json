@@ -30,5 +30,17 @@
   "ENABLED": "Enabled",
   "SHOW_IMAGE_NAME": "Show image name",
   "SHOW_IMAGE_SIZE": "Show image size",
-  "SHOW_LAYER_COUNT": "Show layer count"
+  "SHOW_LAYER_COUNT": "Show layer count",
+  
+  "ABOUT_ME": "ABOUT ME",
+  "BOT_DESCRIPTION": "Use me to display your .pixi files in Discord.\nStart by sending a file in any appropriate channel",
+  "MEMBER_SINCE": "DISCORD MEMBER SINCE",
+  "DISCORD_PLAYING": "PLAYING A \"GAME\"",
+  "DISCORD_ELAPSED": "00:00 elapsed",
+  
+  "NOTHING_FOUND": "Nothing found",
+  "EXPORT": "Export",
+  "IMPORT": "Import",
+  "SHORTCUT_TEMPLATES": "Shortcut templates",
+  "RESET_ALL": "Reset all"
 }

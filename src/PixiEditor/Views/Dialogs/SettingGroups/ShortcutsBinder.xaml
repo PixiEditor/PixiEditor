@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PixiEditor.Views.Dialogs.SettingGroups"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="400">
@@ -30,7 +31,7 @@
                     <Grid>
                         <TextBlock Foreground="LightGray" HorizontalAlignment="Center" TextAlignment="Center"
                                    Visibility="{Binding VisibleGroups, ConverterParameter=0, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter}}"
-                                   Text="Nothing found"/>
+                                   views:Translator.Key="NOTHING_FOUND"  d:Text="Nothing found."/>
                         <ItemsControl ItemsSource="{Binding Commands}" Foreground="White" Focusable="False">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>

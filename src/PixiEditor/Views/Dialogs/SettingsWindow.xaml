@@ -237,13 +237,13 @@
                         </Style>
                     </StackPanel.Resources>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Export}"
-                            Content="Export"/>
+                            d:Content="Export" views:Translator.Key="EXPORT"/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Import}"
-                            Content="Import"/>
+                            d:Content="Import" views:Translator.Key="IMPORT"/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.OpenTemplatePopup}"
-                            Content="Shortcut Templates"/>
+                            d:Content="Shortcut Templates" views:Translator.Key="SHORTCUT_TEMPLATES"/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Reset}"
-                            Content="Reset all"/>
+                            d:Content="Reset all" views:Translator.Key="RESET_ALL"/>
                 </StackPanel>
                 <TextBox Grid.Row="1" Style="{StaticResource DarkTextBoxStyle}" Margin="0,10"
                          Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
