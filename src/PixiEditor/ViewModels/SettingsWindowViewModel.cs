@@ -228,7 +228,7 @@ internal class SettingsWindowViewModel : ViewModelBase
             var visibleCommands = 0;
             foreach (var command in group.Commands)
             {
-                if (command.Command.DisplayName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+                if (command.Command.DisplayName.Value.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
                 {
                     visibleCommands++;
                     command.Visibility = Visibility.Visible;

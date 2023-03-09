@@ -42,5 +42,43 @@
   "EXPORT": "Export",
   "IMPORT": "Import",
   "SHORTCUT_TEMPLATES": "Shortcut templates",
-  "RESET_ALL": "Reset all"
+  "RESET_ALL": "Reset all",
+  
+  "LAYER_DELETE_SELECTED": "Delete active layer/folder",
+  "LAYER_DELETE_SELECTED_DESCRIPTIVE": "Delete active layer or folder",
+  
+  "LAYER_DELETE_ALL_SELECTED": "Delete all selected layers/folders",
+  "LAYER_DELETE_ALL_SELECTED_DESCRIPTIVE": "Delete all selected layers and/or folders",
+
+  "NEW_FOLDER": "New folder",
+  "CREATE_NEW_FOLDER": "Create new folder",
+  "NEW_LAYER": "New layer",
+  "CREATE_NEW_LAYER": "Create new layer",
+  
+  "DUPLICATE_SELECTED_LAYER": "Duplicate selected layer",
+  
+  "CREATE_MASK": "Create mask",
+  "DELETE_MASK": "Delete mask",
+  "TOGGLE_MASK": "Toggle mask",
+  "APPLY_MASK": "Apply mask",
+  "TOGGLE_VISIBILITY": "Toggle visibility",
+  
+  "MOVE_MEMBER_UP": "Move member upwards",
+  "MOVE_MEMBER_UP_DESCRIPTIVE": "Move selected layer or folder upwards",
+
+  "MOVE_MEMBER_DOWN": "Move member downwards",
+  "MOVE_MEMBER_DOWN_DESCRIPTIVE": "Move selected layer or folder downwards",
+  
+  "MERGE_ALL_SELECTED_LAYERS": "Merge all selected layers",
+  "MERGE_WITH_ABOVE": "Merge selected layer with above",
+  "MERGE_WITH_ABOVE_DESCRIPTIVE": "Merge selected layer with the one above it",
+  "MERGE_WITH_BELOW": "Merge selected layer with below",
+  "MERGE_WITH_BELOW_DESCRIPTIVE": "Merge selected layer with the one below it",
+  
+  "ADD_REFERENCE_LAYER": "Add reference layer",
+  "DELETE_REFERENCE_LAYER": "Delete reference layer",
+  "TRANSFORM_REFERENCE_LAYER": "Transform reference layer",
+  "TOGGLE_REFERENCE_LAYER_POS": "Toggle reference layer position",
+  "TOGGLE_REFERENCE_LAYER_POS_DESCRIPTIVE": "Toggle reference layer between topmost or most below",
+  "RESET_REFERENCE_LAYER_POS": "Reset reference layer position"
 }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Windows.Media;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
 
@@ -18,9 +19,9 @@ internal abstract partial class Command : NotifyableObject
 
     public IconEvaluator IconEvaluator { get; init; }
 
-    public string DisplayName { get; init; }
+    public LocalizedString DisplayName { get; init; }
 
-    public string Description { get; init; }
+    public LocalizedString Description { get; init; }
 
     public CommandMethods Methods { get; init; }
 
