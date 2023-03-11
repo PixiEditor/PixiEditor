@@ -88,7 +88,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_TO_CLIPBOARD", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = ModifierKeys.Control)]
     public void Copy()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -97,10 +97,10 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         ClipboardController.CopyToClipboard(doc);
     }
 
-    [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsHex", CopyColor.PrimaryHEX, "Copy primary color (HEX)", "Copy primary color as hex code", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
-    [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsRgb", CopyColor.PrimaryRGB, "Copy primary color (RGB)", "Copy primary color as RGB code", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
-    [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsHex", CopyColor.SecondaryHEX, "Copy secondary color (HEX)", "Copy secondary color as hex code", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
-    [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsRgb", CopyColor.SecondardRGB, "Copy secondary color (RGB)", "Copy secondary color as RGB code", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsHex", CopyColor.PrimaryHEX, "COPY_COLOR_HEX", "COPY_COLOR_HEX_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsRgb", CopyColor.PrimaryRGB, "COPY_COLOR_RGB", "COPY_COLOR_RGB_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsHex", CopyColor.SecondaryHEX, "COPY_COLOR_SECONDARY_HEX", "COPY_COLOR_SECONDARY_HEX_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsRgb", CopyColor.SecondardRGB, "COPY_COLOR_SECONDARY_RGB", "COPY_COLOR_SECONDARY_RGB_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
     public void CopyColorAsHex(CopyColor color)
     {
         var targetColor = color switch

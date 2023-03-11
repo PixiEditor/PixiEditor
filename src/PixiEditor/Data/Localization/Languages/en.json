@@ -119,5 +119,13 @@
     "PASTE_COLOR_SECONDARY_DESCRIPTIVE": "Paste color from clipboard as secondary color",
 
   "COPY": "Copy",
-  "COPY_TO_CLIPBOARD": "Copy to clipboard",
+  "COPY_DESCRIPTIVE": "Copy to clipboard",
+  "COPY_COLOR_HEX": "Copy primary color (HEX)",
+  "COPY_COLOR_HEX_DESCRIPTIVE": "Copy primary color as HEX code",
+  "COPY_COLOR_RGB": "Copy primary color (RGB)",
+  "COPY_COLOR_RGB_DESCRIPTIVE": "Copy primary color as RGB code",
+  "COPY_COLOR_SECONDARY_HEX": "Copy secondary color (HEX)",
+  "COPY_COLOR_SECONDARY_HEX_DESCRIPTIVE": "Copy secondary color as HEX code",
+  "COPY_COLOR_SECONDARY_RGB": "Copy secondary color (RGB)",
+  "COPY_COLOR_SECONDARY_RGB_DESCRIPTIVE": "Copy secondary color as RGB code"
 }
