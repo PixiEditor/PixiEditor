@@ -80,5 +80,44 @@
   "TRANSFORM_REFERENCE_LAYER": "Transform reference layer",
   "TOGGLE_REFERENCE_LAYER_POS": "Toggle reference layer position",
   "TOGGLE_REFERENCE_LAYER_POS_DESCRIPTIVE": "Toggle reference layer between topmost or most below",
-  "RESET_REFERENCE_LAYER_POS": "Reset reference layer position"
+  "RESET_REFERENCE_LAYER_POS": "Reset reference layer position",
+
+  "CLIP_CANVAS": "Clip Canvas",
+  "FLIP_IMG_VERTICALLY": "Flip Image Vertically",
+  "FLIP_IMG_HORIZONTALLY": "Flip Image Horizontally",
+  "FLIP_LAYERS_VERTICALLY": "Flip Selected Layers Vertically",
+  "FLIP_LAYERS_HORIZONTALLY": "Flip Selected Layers Horizontally",
+
+  "ROT_IMG_90": "Rotate Image 90 degrees",
+  "ROT_IMG_180": "Rotate Image 180 degrees",
+  "ROT_IMG_-90": "Rotate Image -90 degrees",
+  "ROT_LAYERS_90": "Rotate Selected Layers 90 degrees",
+  "ROT_LAYERS_180": "Rotate Selected Layers 180 degrees",
+  "ROT_LAYERS_-90": "Rotate Selected Layers -90 degrees",
+
+  "TOGGLE_VERT_SYMMETRY_AXIS": "Toggle vertical symmetry axis",
+  "TOGGLE_HOR_SYMMETRY_AXIS": "Toggle horizontal symmetry axis",
+
+  "DELETE_PIXELS": "Delete pixels",
+  "DELETE_PIXELS_DESCRIPTIVE": "Delete selected pixels",
+
+  "RESIZE_DOCUMENT": "Resize document",
+  "RESIZE_CANVAS": "Resize canvas",
+  "CENTER_CONTENT": "Center content",
+
+  "CUT": "Cut",
+  "CUT_DESCRIPTIVE": "Cut selected area/layers",
+  "PASTE": "Paste",
+  "PASTE_DESCRIPTIVE": "Paste clipboard contents",
+  "PASTE_AS_NEW_LAYER": "Paste as new layer",
+  "PASTE_AS_NEW_LAYER_DESCRIPTIVE": "Paste from clipboard as new layer",
+  "PASTE_REFERENCE_LAYER": "Paste reference layer",
+  "PASTE_REFERENCE_LAYER_DESCRIPTIVE": "Paste clipboard contents as reference layer",
+  "PASTE_COLOR": "Paste color",
+  "PASTE_COLOR_DESCRIPTIVE": "Paste color from clipboard",
+  "PASTE_COLOR_SECONDARY": "Paste color as secondary",
+    "PASTE_COLOR_SECONDARY_DESCRIPTIVE": "Paste color from clipboard as secondary color",
+
+  "COPY": "Copy",
+  "COPY_TO_CLIPBOARD": "Copy to clipboard",
 }

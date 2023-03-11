@@ -18,7 +18,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Cut", "Cut", "Cut selected area/layer", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = ModifierKeys.Control)]
     public void Cut()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -28,8 +28,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         doc.Operations.DeleteSelectedPixels(true);
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Paste", false, "Paste", "Paste from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Shift)]
-    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "Paste as new layer", "Paste from clipboard as new layer", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "$PixiEditor.Clipboard.Paste", Key = Key.V, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "$PixiEditor.Clipboard.Paste", Key = Key.V, Modifiers = ModifierKeys.Control)]
     public void Paste(bool pasteAsNewLayer)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null) 
@@ -37,7 +37,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         ClipboardController.TryPasteFromClipboard(Owner.DocumentManagerSubViewModel.ActiveDocument, pasteAsNewLayer);
     }
     
-    [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "Commands/PixiEditor/Clipboard/Paste.png")]
+    [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER", "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "Commands/PixiEditor/Clipboard/Paste.png")]
     public void PasteReferenceLayer(DataObject data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -69,8 +69,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
             new VecI(bitmap.PixelWidth, bitmap.PixelHeight));
     }
 
-    [Command.Basic("PixiEditor.Clipboard.PasteColor", false, "Paste color", "Paste color from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
-    [Command.Basic("PixiEditor.Clipboard.PasteColorAsSecondary", true, "Paste color as secondary", "Paste color as secondary from clipboard", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.PasteColor", false, "PASTE_COLOR", "PASTE_COLOR_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
+    [Command.Basic("PixiEditor.Clipboard.PasteColorAsSecondary", true, "PASTE_COLOR_SECONDARY", "PASTE_COLOR_SECONDARY_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
     public void PasteColor(bool secondary)
     {
         if (!ColorHelper.ParseAnyFormat(Clipboard.GetText().Trim(), out var result))
@@ -88,7 +88,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Copy", "Copy", "Copy to clipboard", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_TO_CLIPBOARD", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = ModifierKeys.Control)]
     public void Copy()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
