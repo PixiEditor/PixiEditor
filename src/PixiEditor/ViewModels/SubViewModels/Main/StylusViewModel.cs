@@ -7,7 +7,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Stylus", "Stylus")]
+[Command.Group("PixiEditor.Stylus", "STYLUS")]
 internal class StylusViewModel : SubViewModel<ViewModelMain>
 {
     private bool isPenModeEnabled;

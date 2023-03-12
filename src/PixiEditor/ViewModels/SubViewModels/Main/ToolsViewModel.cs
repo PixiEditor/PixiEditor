@@ -13,7 +13,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
-[Command.Group("PixiEditor.Tools", "Tools")]
+[Command.Group("PixiEditor.Tools", "TOOLS")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>
 {
     public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();

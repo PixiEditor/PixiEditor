@@ -5,7 +5,7 @@ using PixiEditor.Models.Commands.Attributes.Evaluators;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Undo", "Undo")]
+[Command.Group("PixiEditor.Undo", "UNDO")]
 internal class UndoViewModel : SubViewModel<ViewModelMain>
 {
     public UndoViewModel(ViewModelMain owner)

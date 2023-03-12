@@ -5,7 +5,7 @@ using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Links", "Misc")]
+[Command.Group("PixiEditor.Links", "MISC")]
 internal class MiscViewModel : SubViewModel<ViewModelMain>
 {
     public MiscViewModel(ViewModelMain owner)

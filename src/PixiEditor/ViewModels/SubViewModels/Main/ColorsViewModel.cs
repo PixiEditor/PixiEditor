@@ -18,7 +18,7 @@ using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Colors", "Palette Colors")]
+[Command.Group("PixiEditor.Colors", "PALETTE_COLORS")]
 internal class ColorsViewModel : SubViewModel<ViewModelMain>
 {
     public RelayCommand<List<string>> ImportPaletteCommand { get; set; }

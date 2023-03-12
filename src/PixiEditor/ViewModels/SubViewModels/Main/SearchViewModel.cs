@@ -3,7 +3,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Search", "Search")]
+[Command.Group("PixiEditor.Search", "SEARCH")]
 internal class SearchViewModel : SubViewModel<ViewModelMain>
 {
     private bool searchWindowOpen;

@@ -1,4 +1,5 @@
 ﻿{
+  "FILE": "File",
   "RECENT_FILES": "Recent Files",
   "OPEN_FILE": "Open",
   "NEW_FILE": "New",
@@ -43,7 +44,8 @@
   "IMPORT": "Import",
   "SHORTCUT_TEMPLATES": "Shortcut templates",
   "RESET_ALL": "Reset all",
-  
+
+  "LAYER": "Layer",
   "LAYER_DELETE_SELECTED": "Delete active layer/folder",
   "LAYER_DELETE_SELECTED_DESCRIPTIVE": "Delete active layer or folder",
   
@@ -116,8 +118,9 @@
   "PASTE_COLOR": "Paste color",
   "PASTE_COLOR_DESCRIPTIVE": "Paste color from clipboard",
   "PASTE_COLOR_SECONDARY": "Paste color as secondary",
-    "PASTE_COLOR_SECONDARY_DESCRIPTIVE": "Paste color from clipboard as secondary color",
+  "PASTE_COLOR_SECONDARY_DESCRIPTIVE": "Paste color from clipboard as secondary color",
 
+  "CLIPBOARD": "Clipboard",
   "COPY": "Copy",
   "COPY_DESCRIPTIVE": "Copy to clipboard",
   "COPY_COLOR_HEX": "Copy primary color (HEX)",
@@ -127,5 +130,18 @@
   "COPY_COLOR_SECONDARY_HEX": "Copy secondary color (HEX)",
   "COPY_COLOR_SECONDARY_HEX_DESCRIPTIVE": "Copy secondary color as HEX code",
   "COPY_COLOR_SECONDARY_RGB": "Copy secondary color (RGB)",
-  "COPY_COLOR_SECONDARY_RGB_DESCRIPTIVE": "Copy secondary color as RGB code"
+  "COPY_COLOR_SECONDARY_RGB_DESCRIPTIVE": "Copy secondary color as RGB code",
+
+  "PALETTE_COLORS": "Palette Colors",
+
+  "SEARCH": "Search",
+
+  "SELECTION": "Selection",
+
+  "STYLUS": "Stylus",
+
+  "UNDO": "Undo",
+  "REDO": "Redo",
+
+  "WINDOWS": "Windows"
 }

@@ -14,7 +14,7 @@ using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Debug", "Debug")]
+[Command.Group("PixiEditor.Debug", "DEBUG")]
 internal class DebugViewModel : SubViewModel<ViewModelMain>
 {
     public bool IsDebugBuild { get; set; }

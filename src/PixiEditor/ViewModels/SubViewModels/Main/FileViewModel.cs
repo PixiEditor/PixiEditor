@@ -23,7 +23,7 @@ using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.File", "File")]
+[Command.Group("PixiEditor.File", "FILE")]
 internal class FileViewModel : SubViewModel<ViewModelMain>
 {
     private bool hasRecent;

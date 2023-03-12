@@ -5,7 +5,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Selection", "Selection")]
+[Command.Group("PixiEditor.Selection", "SELECTION")]
 internal class SelectionViewModel : SubViewModel<ViewModelMain>
 {
     public SelectionViewModel(ViewModelMain owner)

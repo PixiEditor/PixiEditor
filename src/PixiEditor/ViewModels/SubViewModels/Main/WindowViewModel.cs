@@ -12,7 +12,7 @@ using Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 #nullable enable
-[Command.Group("PixiEditor.Window", "Windows")]
+[Command.Group("PixiEditor.Window", "WINDOWS")]
 internal class WindowViewModel : SubViewModel<ViewModelMain>
 {
     private CommandController commandController;

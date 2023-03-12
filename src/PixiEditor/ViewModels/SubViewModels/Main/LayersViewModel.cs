@@ -15,7 +15,7 @@ using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
-[Command.Group("PixiEditor.Layer", "Layer")]
+[Command.Group("PixiEditor.Layer", "LAYER")]
 internal class LayersViewModel : SubViewModel<ViewModelMain>
 {
     public LayersViewModel(ViewModelMain owner)

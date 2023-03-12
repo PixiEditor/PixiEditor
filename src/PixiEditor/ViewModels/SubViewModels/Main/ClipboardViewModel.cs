@@ -10,7 +10,7 @@ using PixiEditor.Models.IO;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
-[Command.Group("PixiEditor.Clipboard", "Clipboard")]
+[Command.Group("PixiEditor.Clipboard", "CLIPBOARD")]
 internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 {
     public ClipboardViewModel(ViewModelMain owner)
