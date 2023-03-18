@@ -15,8 +15,16 @@ public struct LocalizedString
     }
     public string Value { get; private set; }
 
+    public object[] Parameters { get; set; }
+
     public LocalizedString(string key)
     {
+        Key = key;
+    }
+
+    public LocalizedString(string key, params object[] parameters)
+    {
+        Parameters = parameters;
         Key = key;
     }
 
@@ -25,33 +33,50 @@ public struct LocalizedString
         return Value;
     }
 
-    private static string GetValue(string key)
+    private string GetValue(string localizationKey)
     {
-        if (string.IsNullOrEmpty(key))
+        if (string.IsNullOrEmpty(localizationKey))
         {
-            return key;
+            return localizationKey;
         }
         
         ILocalizationProvider localizationProvider = ILocalizationProvider.Current;
         if (localizationProvider?.LocalizationData == null)
         {
-            return key;
+            return localizationKey;
         }
 
-        if (!localizationProvider.CurrentLanguage.Locale.ContainsKey(key))
+        if (!localizationProvider.CurrentLanguage.Locale.ContainsKey(localizationKey))
         {
             Language defaultLanguage = localizationProvider.DefaultLanguage;
 
-            if (localizationProvider.CurrentLanguage == defaultLanguage || !defaultLanguage.Locale.ContainsKey(key))
+            if (localizationProvider.CurrentLanguage == defaultLanguage || !defaultLanguage.Locale.ContainsKey(localizationKey))
             {
-                return key;
+                return localizationKey;
             }
 
-            return defaultLanguage.Locale[key];
+            return ApplyParameters(defaultLanguage.Locale[localizationKey]);
         }
 
 
-        return ILocalizationProvider.Current.CurrentLanguage.Locale[key];
+        return ApplyParameters(ILocalizationProvider.Current.CurrentLanguage.Locale[localizationKey]);
+    }
+
+    private string ApplyParameters(string value)
+    {
+        if (Parameters == null || Parameters.Length == 0)
+        {
+            return value;
+        }
+
+        try
+        {
+            return string.Format(value, Parameters);
+        }
+        catch (FormatException)
+        {
+            return value;
+        }
     }
 
     public static implicit operator LocalizedString(string key) => new(key);
