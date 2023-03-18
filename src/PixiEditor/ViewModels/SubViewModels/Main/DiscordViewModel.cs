@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using DiscordRPC;
+using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.UserPreferences;
@@ -118,7 +119,9 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         {
             richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
 
-            richPresence.Details = ShowDocumentName ? $"Editing {document.FileName}".Limit(128) : "Editing an image";
+            richPresence.Details = ShowDocumentName
+                ? new LocalizedString("EDITING_IMG_DETAIL", document.FileName.Limit(128))
+                : new LocalizedString("EDITING_IMG");
 
             string state = string.Empty;
 
@@ -135,7 +138,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             if (ShowLayerCount)
             {
                 int count = CountLayers(document.StructureRoot);
-                state += count == 1 ? "1 Layer" : $"{count} Layers";
+                state += count == 1 ? new LocalizedString("ONE_LAYER") : new LocalizedString("LAYERS", count);
             }
 
             richPresence.State = state;
@@ -167,15 +170,15 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
     {
         return new RichPresence
         {
-            Details = "Staring at absolutely",
-            State = "nothing",
+            Details = new LocalizedString("DISCORD_DETAILS"),
+            State = new LocalizedString("DISCORD_STATE"),
 
             Assets = new Assets
             {
                 LargeImageKey = "editorlogo",
-                LargeImageText = "You've discovered PixiEditor's logo",
+                LargeImageText = new LocalizedString("DISCORD_LARGE_IMAGE"),
                 SmallImageKey = "github",
-                SmallImageText = "Download PixiEditor on GitHub (github.com/PixiEditor/PixiEditor)!"
+                SmallImageText = new LocalizedString("DISCORD_SMALL_IMAGE")
             },
             Timestamps = new Timestamps()
             {

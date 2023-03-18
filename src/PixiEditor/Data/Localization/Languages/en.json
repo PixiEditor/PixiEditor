@@ -7,7 +7,17 @@
   
   "LANGUAGE": "Language",
   "GENERAL": "General",
+
   "DISCORD": "Discord",
+  "DISCORD_DETAILS": "Staring at absolutely",
+  "DISCORD_STATE": "nothing",
+  "DISCORD_LARGE_IMAGE": "You've discovered PixiEditor's logo",
+  "DISCORD_SMALL_IMAGE": "Download PixiEditor (pixieditor.net/download)!",
+  "EDITING_IMG": "Editing an image",
+  "EDITING_IMG_DETAIL": "Editing {0}",
+  "ONE_LAYER": "1 layer",
+  "LAYERS": "{0} layers",
+
   "KEY_BINDINGS": "Key Bindings",
   "MISC": "Misc",
   "SHOW_STARTUP_WINDOW": "Show Startup Window",
