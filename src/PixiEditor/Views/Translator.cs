@@ -85,6 +85,14 @@ public class Translator : UIElement
                     RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
                 });
             }
+            else if (d is HeaderedItemsControl menuItem)
+            {
+                menuItem.SetBinding(HeaderedItemsControl.HeaderProperty, new Binding()
+                {
+                    Path = new PropertyPath("(views:Translator.Value)"),
+                    RelativeSource = new RelativeSource(RelativeSourceMode.Self)
+                });
+            }
 
             d.SetValue(ValueProperty, localizedString.Value);
             ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChanged(d, lang);

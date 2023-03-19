@@ -25,6 +25,7 @@
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:commandSearch="clr-namespace:PixiEditor.Views.UserControls.CommandSearch"
     xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+    xmlns:views="clr-namespace:PixiEditor.Views"
     d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
     mc:Ignorable="d"
     WindowStyle="None"
@@ -147,15 +148,15 @@
                             BasedOn="{StaticResource menuItemStyle}" />
                     </Menu.Resources>
                     <MenuItem
-                        Header="_File">
+                        views:Translator.Key="FILE">
                         <MenuItem
-                            Header="_New"
+                            views:Translator.Key="NEW_FILE"
                             cmds:Menu.Command="PixiEditor.File.New" />
                         <MenuItem
-                            Header="_Open"
+                            views:Translator.Key="OPEN"
                             cmds:Menu.Command="PixiEditor.File.Open" />
                         <MenuItem
-                            Header="_Recent"
+                            views:Translator.Key="RECENT"
                             ItemsSource="{Binding FileSubViewModel.RecentlyOpened}"
                             x:Name="recentItemMenu"
                             IsEnabled="{Binding FileSubViewModel.HasRecent}">
@@ -180,78 +181,78 @@
                             </MenuItem.ItemTemplate>
                         </MenuItem>
                         <MenuItem
-                            Header="_Save (.pixi)"
+                            views:Translator.Key="SAVE_PIXI"
                             cmds:Menu.Command="PixiEditor.File.Save" />
                         <MenuItem
-                            Header="_Save As... (.pixi)"
+                            views:Translator.Key="SAVE_AS_PIXI"
                             cmds:Menu.Command="PixiEditor.File.SaveAsNew" />
                         <MenuItem
-                            Header="_Export (.png, .jpeg, etc.)"
+                            views:Translator.Key="EXPORT_IMG"
                             cmds:Menu.Command="PixiEditor.File.Export" />
                         <Separator />
                         <MenuItem
-                            Header="_Exit"
+                            views:Translator.Key="EXIT"
                             Command="{x:Static SystemCommands.CloseWindowCommand}" />
                     </MenuItem>
                     <MenuItem
-                        Header="_Edit">
+                        views:Translator.Key="EDIT">
                         <MenuItem
-                            Header="_Undo"
+                            views:Translator.Key="UNDO"
                             cmds:Menu.Command="PixiEditor.Undo.Undo" />
                         <MenuItem
-                            Header="_Redo"
+                            views:Translator.Key="REDO"
                             cmds:Menu.Command="PixiEditor.Undo.Redo" />
                         <Separator />
                         <MenuItem
-                            Header="_Cut"
+                            views:Translator.Key="CUT"
                             cmds:Menu.Command="PixiEditor.Clipboard.Cut" />
                         <MenuItem
-                            Header="_Copy"
+                            views:Translator.Key="COPY"
                             cmds:Menu.Command="PixiEditor.Clipboard.Copy" />
                         <MenuItem
-                            Header="_Paste"
+                            views:Translator.Key="PASTE"
                             cmds:Menu.Command="PixiEditor.Clipboard.Paste" />
                         <MenuItem
-                            Header="_Duplicate"
+                            views:Translator.Key="DUPLICATE"
                             cmds:Menu.Command="PixiEditor.Layer.DuplicateSelectedLayer" />
                         <Separator />
                         <MenuItem
-                            Header="_Delete Selected"
+                            views:Translator.Key="DELETE_SELECTED_PIXELS"
                             cmds:Menu.Command="PixiEditor.Document.DeletePixels" />
                         <Separator />
                         <MenuItem
-                            Header="_Settings"
+                            views:Translator.Key="SETTINGS"
                             cmds:Menu.Command="PixiEditor.Window.OpenSettingsWindow" />
                     </MenuItem>
                     <MenuItem
-                        Header="_Select">
+                        views:Translator.Key="SELECT">
                         <MenuItem
-                            Header="_Select All"
+                            views:Translator.Key="SELECT_ALL"
                             cmds:Menu.Command="PixiEditor.Selection.SelectAll" />
                         <MenuItem
-                            Header="_Deselect"
+                            views:Translator.Key="DESELECT"
                             cmds:Menu.Command="PixiEditor.Selection.Clear" />
                         <MenuItem
-                            Header="_Invert"
+                            views:Translator.Key="INVERT"
                             cmds:Menu.Command="PixiEditor.Selection.InvertSelection" />
                         <Separator/>
-                        <MenuItem Header="Selection _to Mask">
+                        <MenuItem views:Translator.Key="SELECTION_TO_MASK">
                             <MenuItem
-                                Header="to _new mask"
+                                views:Translator.Key="TO_NEW_MASK"
                                 cmds:Menu.Command="PixiEditor.Selection.NewToMask" />
                             <MenuItem
-                                Header="_add to mask"
+                                views:Translator.Key="ADD_TO_MASK"
                                 cmds:Menu.Command="PixiEditor.Selection.AddToMask" />
                             <MenuItem
-                                Header="_subtract from mask"
+                                views:Translator.Key="SUBTRACT_FROM_MASK"
                                 cmds:Menu.Command="PixiEditor.Selection.SubtractFromMask" />
                             <MenuItem
-                                Header="_intersect with mask"
+                                views:Translator.Key="INTERSECT_WITH_MASK"
                                 cmds:Menu.Command="PixiEditor.Selection.IntersectSelectionMask" />
                         </MenuItem>
                     </MenuItem>
                     <MenuItem
-                        Header="_Image">
+                        views:Translator.Key="IMAGE">
                         <MenuItem
                             Header="Resize _Image..."
                             cmds:Menu.Command="PixiEditor.Document.ResizeDocument" />

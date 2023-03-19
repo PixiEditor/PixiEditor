@@ -1,8 +1,14 @@
 ﻿{
   "FILE": "File",
+  "RECENT": "Recent",
   "RECENT_FILES": "Recent Files",
   "OPEN": "Open",
   "NEW_FILE": "New",
+  "SAVE_PIXI": "Save (.pixi)",
+  "SAVE_AS_PIXI": "Save as... (.pixi)",
+  "EXPORT_IMG": "Export (.png, .jpg, etc.)",
+  "EDIT": "Edit",
+  "EXIT": "Exit",
   "RECENT_EMPTY_TEXT": "So much empty space",
   
   "LANGUAGE": "Language",
@@ -121,6 +127,8 @@
   "LAYER_DELETE_ALL_SELECTED": "Delete all selected layers/folders",
   "LAYER_DELETE_ALL_SELECTED_DESCRIPTIVE": "Delete all selected layers and/or folders",
 
+  "DELETE_SELECTED_PIXELS": "Delete selected pixels",
+
   "NEW_FOLDER": "New folder",
   "CREATE_NEW_FOLDER": "Create new folder",
   "NEW_LAYER": "New layer",
@@ -130,9 +138,11 @@
 
   "SAVE": "Save",
   "SAVE_AS": "Save as...",
+  "IMAGE": "Image",
   "SAVE_IMAGE": "Save image",
   "SAVE_IMAGE_AS": "Save image as new",
 
+  "DUPLICATE": "Duplicate",
   "DUPLICATE_SELECTED_LAYER": "Duplicate selected layer",
   
   "CREATE_MASK": "Create mask",
@@ -250,6 +260,9 @@
   "COMMAND_SEARCH": "Command search",
   "OPEN_COMMAND_SEARCH": "Open command search window",
 
+  "SELECT": "Select",
+  "DESELECT": "Deselect",
+  "INVERT": "Invert",
   "SELECTION": "Selection",
   "SELECT_ALL": "Select all",
   "SELECT_ALL_DESCRIPTIVE": "Select everything",
@@ -267,6 +280,10 @@
   "SUBTRACT_SELECTION_FROM_MASK": "Subtract selection from mask",
   "INTEREST_SELECTION_MASK": "Intersect selection with mask",
   "SELECTION_TO_MASK": "Selection to mask",
+  "TO_NEW_MASK": "to new mask",
+  "ADD_TO_MASK": "add to mask",
+  "SUBTRACT_FROM_MASK": "subtract from mask",
+  "INTERSECT_WITH_MASK": "intersect with mask",
 
   "STYLUS": "Stylus",
   "TOGGLE_PEN_MODE": "Toggle pen mode",
@@ -284,6 +301,7 @@
   "CENTER_ACTIVE_VIEWPORT": "Center active viewport",
   "FLIP_VIEWPORT_HORIZONTALLY": "Flip viewport horizontally",
   "FLIP_VIEWPORT_VERTICALLY": "Flip viewport vertically",
+  "SETTINGS": "Settings",
   "OPEN_SETTINGS": "Open settings",
   "OPEN_SETTINGS_DESCRIPTIVE": "Open settings window",
 
@@ -297,5 +315,10 @@
   "ERROR_SAVE_LOCATION": "Couldn't save the file to the specified location",
   "ERROR_WHILE_SAVING": "An internal error occured while saving. Please try again.",
   "UNKNOWN_ERROR_SAVING": "An error occured while saving.",
-  "FAILED_ASSOCIATE_LOSPEC": "Failed to associate Lospec Palette protocol."
+  "FAILED_ASSOCIATE_LOSPEC": "Failed to associate Lospec Palette protocol.",
+
+  "REDDIT": "Reddit",
+  "GITHUB": "GitHub",
+  "YOUTUBE": "YouTube",
+  "DONATE": "Donate",
 }
