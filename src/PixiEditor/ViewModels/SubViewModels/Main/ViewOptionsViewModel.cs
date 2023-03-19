@@ -18,14 +18,14 @@ internal class ViewOptionsViewModel : SubViewModel<ViewModelMain>
     {
     }
 
-    [Command.Basic("PixiEditor.View.ToggleGrid", "Toggle gridlines", "Toggle gridlines", Key = Key.OemTilde, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.View.ToggleGrid", "TOGGLE_GRIDLINES", "TOGGLE_GRIDLINES", Key = Key.OemTilde, Modifiers = ModifierKeys.Control)]
     public void ToggleGridLines()
     {
         GridLinesEnabled = !GridLinesEnabled;
     }
 
-    [Command.Basic("PixiEditor.View.ZoomIn", 1, "Zoom in", "Zoom in", CanExecute = "PixiEditor.HasDocument", Key = Key.OemPlus)]
-    [Command.Basic("PixiEditor.View.Zoomout", -1, "Zoom out", "Zoom out", CanExecute = "PixiEditor.HasDocument", Key = Key.OemMinus)]
+    [Command.Basic("PixiEditor.View.ZoomIn", 1, "ZOOM_IN", "ZOOM_IN", CanExecute = "PixiEditor.HasDocument", Key = Key.OemPlus)]
+    [Command.Basic("PixiEditor.View.Zoomout", -1, "ZOOM_OUT", "ZOOM_OUT", CanExecute = "PixiEditor.HasDocument", Key = Key.OemMinus)]
     public void ZoomViewport(double zoom)
     {
         ViewportWindowViewModel? viewport = Owner.WindowSubViewModel.ActiveWindow as ViewportWindowViewModel;

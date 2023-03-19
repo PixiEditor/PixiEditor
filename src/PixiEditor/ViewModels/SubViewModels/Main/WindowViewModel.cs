@@ -44,7 +44,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         this.commandController = commandController;
     }
 
-    [Command.Basic("PixiEditor.Window.CreateNewViewport", "New window for current image", "New window for current image", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Window.CreateNewViewport", "NEW_WINDOW_FOR_IMG", "NEW_WINDOW_FOR_IMG", CanExecute = "PixiEditor.HasDocument")]
     public void CreateNewViewport()
     {
         var doc = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
@@ -53,14 +53,14 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         CreateNewViewport(doc);
     }
     
-    [Command.Basic("PixiEditor.Window.CenterActiveViewport", "Center active viewport", "Center active viewport", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Window.CenterActiveViewport", "CENTER_ACTIVE_VIEWPORT", "CENTER_ACTIVE_VIEWPORT", CanExecute = "PixiEditor.HasDocument")]
     public void CenterCurrentViewport()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
             viewport.CenterViewportTrigger.Execute(this, viewport.Document.SizeBindable);
     }
     
-    [Command.Basic("PixiEditor.Window.FlipHorizontally", "Flip Viewport Horizontally", "Flip Viewport Horizontally", CanExecute = "PixiEditor.HasDocument", IconPath = "FlipHorizontal.png")]
+    [Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY", "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument", IconPath = "FlipHorizontal.png")]
     public void FlipViewportHorizontally()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
@@ -69,7 +69,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         }
     }
     
-    [Command.Basic("PixiEditor.Window.FlipVertically", "Flip Viewport Vertically", "Flip Viewport Vertically", CanExecute = "PixiEditor.HasDocument", IconPath = "FlipVertical.png")]
+    [Command.Basic("PixiEditor.Window.FlipVertically", "FLIP_VIEWPORT_VERTICALLY", "FLIP_VIEWPORT_VERTICALLY", CanExecute = "PixiEditor.HasDocument", IconPath = "FlipVertical.png")]
     public void FlipViewportVertically()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
@@ -132,7 +132,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "Open Settings", "Open Settings Window", Key = Key.OemComma, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "OPEN_SETTINGS", "OPEN_SETTINGS_DESCRIPTIVE", Key = Key.OemComma, Modifiers = ModifierKeys.Control)]
     public static void OpenSettingsWindow(int page)
     {
         if (page < 0)
@@ -144,13 +144,13 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         settings.Show();
     }
 
-    [Command.Basic("PixiEditor.Window.OpenStartupWindow", "Open Startup Window", "Open Startup Window")]
+    [Command.Basic("PixiEditor.Window.OpenStartupWindow", "OPEN_STARTUP_WINDOW", "OPEN_STARTUP_WINDOW")]
     public void OpenHelloThereWindow()
     {
         new HelloTherePopup(Owner.FileSubViewModel).Show();
     }
 
-    [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "Open Shortcut Window", "Open Shortcut Window", Key = Key.F1)]
+    [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW", Key = Key.F1)]
     public void ShowShortcutWindow()
     {
         ShortcutPopup.Show();
@@ -158,13 +158,13 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
     
         
-    [Command.Basic("PixiEditor.Window.OpenAboutWindow", "Open About Window", "Open About Window")]
+    [Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW")]
     public void OpenAboutWindow()
     {
         new AboutPopup().Show();
     }
 
-    [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "Open Navigation Window", "Open Navigation Window")]
+    [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "OPEN_NAVIGATION_WINDOW", "OPEN_NAVIGATION_WINDOW")]
     public static void ShowAvalonDockWindow(string id)
     {
         if (MainWindow.Current?.LayoutRoot?.Manager?.Layout == null) return;

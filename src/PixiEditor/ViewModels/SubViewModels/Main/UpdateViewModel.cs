@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using PixiEditor.Helpers;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
@@ -43,7 +44,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             RaisePropertyChanged(nameof(UpdateReadyToInstall));
             if (value)
             {
-                VersionText = $"to install update ({UpdateChecker.LatestReleaseInfo.TagName})"; // Button shows "Restart" before this text
+                VersionText = new LocalizedString("TO_INSTALL_UPDATE", UpdateChecker.LatestReleaseInfo.TagName); // Button shows "Restart" before this text
             }
         }
     }
@@ -75,7 +76,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         if (updateAvailable && updateFileDoesNotExists && updateExeDoesNotExists)
         {
             UpdateReadyToInstall = false;
-            VersionText = "Downloading update...";
+            VersionText = new LocalizedString("DOWNLOADING_UPDATE");
             if (updateCompatible)
             {
                 await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
@@ -119,7 +120,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 if (updateFileExists || updateExeExists)
                 {
                     ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-                    var result = ConfirmationDialog.Show("Update is ready to be installed. Do you want to install it now?", "New update");
+                    var result = ConfirmationDialog.Show("UPDATE_READY", "NEW_UPDATE");
                     if (result == Models.Enums.ConfirmationType.Yes)
                     {
                         if (updateFileExists && File.Exists(updaterPath))
@@ -146,8 +147,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         catch (Win32Exception)
         {
             NoticeDialog.Show(
-                "Couldn't update without administrator rights.",
-                "Insufficient permissions");
+                "COULD_NOT_UPDATE_WITHOUT_ADMIN",
+                "INSUFFICIENT_PERMISSIONS");
         }
     }
 
@@ -182,7 +183,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         }
         catch (Win32Exception)
         {
-            NoticeDialog.Show("Couldn't update without administrator rights.", "Insufficient permissions");
+            NoticeDialog.Show("COULD_NOT_UPDATE_WITHOUT_ADMIN", "INSUFFICIENT_PERMISSIONS");
         }
     }
 
@@ -202,7 +203,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             }
             catch (System.Net.Http.HttpRequestException)
             {
-                NoticeDialog.Show("Could not check if there is an update available", "Update check failed");
+                NoticeDialog.Show("COULD_NOT_CHECK_FOR_UPDATES", "UPDATE_CHECK_FAILED");
             }
 
             AskToInstall();
@@ -229,7 +230,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
 
         string version = VersionHelpers.GetCurrentAssemblyVersionString();
         UpdateChecker = new UpdateChecker(version, GetUpdateChannel(updateChannel));
-        VersionText = $"Version {version}";
+        VersionText = new LocalizedString("VERSION", version);
     }
 
     private UpdateChannel GetUpdateChannel(string channelName)

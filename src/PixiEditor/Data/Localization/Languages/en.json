@@ -1,7 +1,7 @@
 ﻿{
   "FILE": "File",
   "RECENT_FILES": "Recent Files",
-  "OPEN_FILE": "Open",
+  "OPEN": "Open",
   "NEW_FILE": "New",
   "RECENT_EMPTY_TEXT": "So much empty space",
   
@@ -19,7 +19,18 @@
   "LAYERS": "{0} layers",
 
   "KEY_BINDINGS": "Key Bindings",
+
   "MISC": "Misc",
+  "DOCUMENTATION": "Documentation",
+  "WEBSITE": "Website",
+  "OPEN_WEBSITE": "Open website",
+  "REPOSITORY": "Repository",
+  "OPEN_REPOSITORY": "Open repository",
+  "LICENSE": "License",
+  "OPEN_LICENSE": "Open license",
+  "THIRD_PARTY_LICENSES": "Third party licenses",
+  "OPEN_THIRD_PARTY_LICENSES": "Open third party licenses",
+
   "SHOW_STARTUP_WINDOW": "Show Startup Window",
   "SHOW_IMAGE_PREVIEW_TASKBAR": "Show image preview in taskbar",
   "RECENT_FILE_LENGTH": "Recent file list length",
@@ -28,11 +39,23 @@
   "WIDTH": "Width",
   "HEIGHT": "Height",
   "TOOLS": "Tools",
+  "APPLY_TRANSFORM": "Apply transform",
+  "INCREASE_TOOL_SIZE": "Increase tool size",
+  "DECREASE_TOOL_SIZE": "Decrease tool size",
   "ENABLE_SHARED_TOOLBAR": "Enable shared toolbar",
   "AUTOMATIC_UPDATES": "Automatic Updates",
   "CHECK_FOR_UPDATES": "Check updates on startup",
   "UPDATE_STREAM": "Update stream",
-  "UPDATE_CHANNEL_HELP_TOOLTIP": "Update channels can only be changed in standalone version (downloaded from https://pixieditor.net).&#x0a;Steam and Microsoft Store versions handle updates separately.",
+  "TO_INSTALL_UPDATE": "to install update {0}",
+  "UPDATE_CHANNEL_HELP_TOOLTIP": "Update channels can only be changed in standalone version (downloaded from https://pixieditor.net).\nSteam and Microsoft Store versions handle updates separately.",
+  "DOWNLOADING_UPDATE": "Downloading update...",
+  "UPDATE_READY": "Update is ready to be installed. Do you want to install it now?",
+  "NEW_UPDATE": "New update",
+  "COULD_NOT_UPDATE_WITHOUT_ADMIN": "Couldn't update without admin privileges. Please run PixiEditor as administrator.",
+  "INSUFFICIENT_PERMISSIONS": "Insufficient permissions",
+  "UPDATE_CHECK_FAILED": "Update check failed",
+  "COULD_NOT_CHECK_FOR_UPDATES": "Could not check if there is an update available.",
+  "VERSION": "Version {0}",
 
   "DEBUG": "Debug",
   "ENABLE_DEBUG_MODE": "Enable Debug mode",
@@ -65,7 +88,13 @@
   "FILE_NOT_FOUND_PATH_FULL_PATH": "File {0} does not exist\n(Full Path: {1})",
   "ARE_YOU_SURE": "Are you sure?",
   "ARE_YOU_SURE_PATH_FULL_PATH": "Are you sure you want to delete {0}?\nThis data will be lost for all installations.\n(Full Path: {1})",
-  
+
+  "OPEN_FILE": "Open file",
+  "FAILED_TO_OPEN_FILE": "Failed to open the file",
+
+  "OLD_FILE_FORMAT": "Old file format",
+  "OLD_FILE_FORMAT_DESCRIPTION": "This .pixi file uses the old format,\n which is no longer supported and can't be opened.",
+
   "DISCORD_RICH_PRESENCE": "Rich Presence",
   "ENABLED": "Enabled",
   "SHOW_IMAGE_NAME": "Show image name",
@@ -80,6 +109,7 @@
   
   "NOTHING_FOUND": "Nothing found",
   "EXPORT": "Export",
+  "EXPORT_IMAGE": "Export image",
   "IMPORT": "Import",
   "SHORTCUT_TEMPLATES": "Shortcut templates",
   "RESET_ALL": "Reset all",
@@ -95,7 +125,14 @@
   "CREATE_NEW_FOLDER": "Create new folder",
   "NEW_LAYER": "New layer",
   "CREATE_NEW_LAYER": "Create new layer",
-  
+  "NEW_IMAGE": "New image",
+  "CREATE_NEW_IMAGE": "Create new image",
+
+  "SAVE": "Save",
+  "SAVE_AS": "Save as...",
+  "SAVE_IMAGE": "Save image",
+  "SAVE_IMAGE_AS": "Save image as new",
+
   "DUPLICATE_SELECTED_LAYER": "Duplicate selected layer",
   
   "CREATE_MASK": "Create mask",
@@ -193,6 +230,8 @@
   "SELECT_COLOR_9": "Select color 9",
   "SELECT_COLOR_10": "Select color 10",
 
+  "SELECT_TOOL": "Select {0} Tool",
+
   "SELECT_COLOR_1_DESCRIPTIVE": "Select the first color in the palette",
   "SELECT_COLOR_2_DESCRIPTIVE": "Select the second color in the palette",
   "SELECT_COLOR_3_DESCRIPTIVE": "Select the third color in the palette",
@@ -208,13 +247,55 @@
   "SWAP_COLORS_DESCRIPTIVE": "Swap primary and secondary colors",
 
   "SEARCH": "Search",
+  "COMMAND_SEARCH": "Command search",
+  "OPEN_COMMAND_SEARCH": "Open command search window",
 
   "SELECTION": "Selection",
+  "SELECT_ALL": "Select all",
+  "SELECT_ALL_DESCRIPTIVE": "Select everything",
+  "CLEAR_SELECTION": "Clear selection",
+  "INVERT_SELECTION": "Invert selection",
+  "INVERT_SELECTION_DESCRIPTIVE": "Invert the selected area",
+  "TRANSFORM_SELECTED_AREA": "Transform selected area",
+  "NUDGE_SELECTED_LEFT": "Nudge selected object left",
+  "NUDGE_SELECTED_RIGHT": "Nudge selected object right",
+  "NUDGE_SELECTED_UP": "Nudge selected object up",
+  "NUDGE_SELECTED_DOWN": "Nudge selected object down",
+  "MASK_FROM_SELECTION": "New mask from selection",
+  "MASK_FROM_SELECTION_DESCRIPTIVE": "Selection to new mask",
+  "ADD_SELECTION_TO_MASK": "Add selection to mask",
+  "SUBTRACT_SELECTION_FROM_MASK": "Subtract selection from mask",
+  "INTEREST_SELECTION_MASK": "Intersect selection with mask",
+  "SELECTION_TO_MASK": "Selection to mask",
 
   "STYLUS": "Stylus",
+  "TOGGLE_PEN_MODE": "Toggle pen mode",
 
   "UNDO": "Undo",
+  "UNDO_DESCRIPTIVE": "Undo last action",
   "REDO": "Redo",
+  "REDO_DESCRIPTIVE": "Redo last action",
+  "WINDOWS": "Windows",
 
-  "WINDOWS": "Windows"
+  "TOGGLE_GRIDLINES": "Toggle gridlines",
+  "ZOOM_IN": "Zoom in",
+  "ZOOM_OUT": "Zoom out",
+  "NEW_WINDOW_FOR_IMG": "New window for current image",
+  "CENTER_ACTIVE_VIEWPORT": "Center active viewport",
+  "FLIP_VIEWPORT_HORIZONTALLY": "Flip viewport horizontally",
+  "FLIP_VIEWPORT_VERTICALLY": "Flip viewport vertically",
+  "OPEN_SETTINGS": "Open settings",
+  "OPEN_SETTINGS_DESCRIPTIVE": "Open settings window",
+
+  "OPEN_STARTUP_WINDOW": "Open startup window",
+  "OPEN_SHORTCUT_WINDOW": "Open shortcut window",
+  "OPEN_ABOUT_WINDOW": "Open about window",
+  "OPEN_NAVIGATION_WINDOW": "Open navigation window",
+
+  "ERROR": "Error",
+  "INTERNAL_ERROR": "Internal error",
+  "ERROR_SAVE_LOCATION": "Couldn't save the file to the specified location",
+  "ERROR_WHILE_SAVING": "An internal error occured while saving. Please try again.",
+  "UNKNOWN_ERROR_SAVING": "An error occured while saving.",
+  "FAILED_ASSOCIATE_LOSPEC": "Failed to associate Lospec Palette protocol."
 }

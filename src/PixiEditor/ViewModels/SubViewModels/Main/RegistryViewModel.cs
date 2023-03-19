@@ -41,7 +41,7 @@ internal class RegistryViewModel : SubViewModel<ViewModelMain>
         }
         catch
         {
-            NoticeDialog.Show("Failed to associate Lospec Palette protocol", "Error");
+            NoticeDialog.Show("FAILED_ASSOCIATE_LOSPEC", "ERROR");
         }
     }
 
@@ -65,7 +65,7 @@ internal class RegistryViewModel : SubViewModel<ViewModelMain>
         }
         catch
         {
-            NoticeDialog.Show("Failed to associate lospec-palette protocol", "Error");
+            NoticeDialog.Show("FAILED_ASSOCIATE_LOSPEC", "ERROR");
         }
     }
 

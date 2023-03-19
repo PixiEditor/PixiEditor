@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
@@ -155,11 +156,13 @@ internal class CommandController
 
             string internalName = $"PixiEditor.Tools.Select.{type.Name}";
 
+            LocalizedString displayName = new("SELECT_TOOL", toolInstance.DisplayName);
+
             var command = new Command.ToolCommand()
             {
                 InternalName = internalName,
-                DisplayName = $"Select {toolInstance.DisplayName} Tool",
-                Description = $"Select {toolInstance.DisplayName} Tool",
+                DisplayName = displayName,
+                Description = displayName,
                 IconPath = $"@{toolInstance.ImagePath}",
                 IconEvaluator = IconEvaluator.Default,
                 TransientKey = toolAttr.Transient,
