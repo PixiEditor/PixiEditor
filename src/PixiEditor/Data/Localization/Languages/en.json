@@ -14,6 +14,14 @@
   "LANGUAGE": "Language",
   "GENERAL": "General",
 
+  "PERCENTAGE": "Percentage",
+  "ABSOLUTE": "Absolute",
+  "PRESERVE_ASPECT_RATIO": "Preserve aspect ratio",
+  "ANCHOR_POINT": "Anchor point",
+
+  "RESIZE_IMAGE": "Resize image",
+  "RESIZE": "Resize",
+
   "DISCORD": "Discord",
   "DISCORD_DETAILS": "Staring at absolutely",
   "DISCORD_STATE": "nothing",

@@ -36,7 +36,7 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="Create a new image" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+            TitleText="CREATE_NEW_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
 
         <Button DockPanel.Dock="Bottom" Width="70" Margin="0,15,0,15" HorizontalAlignment="Center"
                 IsDefault="True" Content="Create" x:Name="createButton"

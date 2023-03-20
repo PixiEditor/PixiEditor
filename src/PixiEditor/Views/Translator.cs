@@ -53,45 +53,31 @@ public class Translator : UIElement
         if (e.NewValue is string key)
         {
             LocalizedString localizedString = new(key);
+            Binding binding = new()
+            {
+                Path = new PropertyPath("(0)", Translator.ValueProperty),
+                RelativeSource = new RelativeSource(RelativeSourceMode.Self)
+            };
+
             if(d is TextBox textBox)
             {
-                textBox.SetBinding(TextBox.TextProperty, new Binding()
-                { 
-                    Path = new PropertyPath("(views:Translator.Value)"),
-                    RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
-                });
+                textBox.SetBinding(TextBox.TextProperty, binding);
             }
             else if (d is TextBlock textBlock)
             {
-                textBlock.SetBinding(TextBlock.TextProperty, new Binding()
-                { 
-                    Path = new PropertyPath("(views:Translator.Value)"),
-                    RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
-                });
+                textBlock.SetBinding(TextBlock.TextProperty, binding);
             }
             else if (d is Run run)
             {
-                run.SetBinding(Run.TextProperty, new Binding()
-                { 
-                    Path = new PropertyPath("(views:Translator.Value)"),
-                    RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
-                });
+                run.SetBinding(Run.TextProperty, binding);
             }
             else if (d is ContentControl contentControl)
             {
-                contentControl.SetBinding(ContentControl.ContentProperty, new Binding()
-                { 
-                    Path = new PropertyPath("(views:Translator.Value)"),
-                    RelativeSource = new RelativeSource(RelativeSourceMode.Self) 
-                });
+                contentControl.SetBinding(ContentControl.ContentProperty, binding);
             }
             else if (d is HeaderedItemsControl menuItem)
             {
-                menuItem.SetBinding(HeaderedItemsControl.HeaderProperty, new Binding()
-                {
-                    Path = new PropertyPath("(views:Translator.Value)"),
-                    RelativeSource = new RelativeSource(RelativeSourceMode.Self)
-                });
+                menuItem.SetBinding(HeaderedItemsControl.HeaderProperty, binding);
             }
 
             d.SetValue(ValueProperty, localizedString.Value);

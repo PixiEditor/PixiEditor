@@ -33,7 +33,7 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="Resize canvas" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+            TitleText="RESIZE_CANVAS" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
 
         <Button DockPanel.Dock="Bottom" Width="70" HorizontalAlignment="Center" Margin="15"
                 Style="{StaticResource DarkRoundButton}" Content="Resize" Click="Button_Click" IsDefault="True" />
@@ -55,7 +55,7 @@
                                   />
                 <Separator Margin="10,5,10,0" Background="{StaticResource AccentColor}" Height="1" />
                 <DockPanel>
-                    <Label Content="Anchor point:" Foreground="White" Margin="25,5,0,0" HorizontalAlignment="Left"
+                    <Label base:Translator.Key="ANCHOR_POINT" Foreground="White" Margin="25,5,0,0" HorizontalAlignment="Left"
                            FontSize="12" />
                     <userControls:AnchorPointPicker AnchorPoint="{Binding Path=SelectedAnchorPoint, Mode=TwoWay, ElementName=window}"
                                              HorizontalAlignment="Right"
