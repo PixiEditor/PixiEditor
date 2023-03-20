@@ -325,8 +325,11 @@
   "UNKNOWN_ERROR_SAVING": "An error occured while saving.",
   "FAILED_ASSOCIATE_LOSPEC": "Failed to associate Lospec Palette protocol.",
 
+  "PROJECT_MAINTAINERS": "Project Maintainers",
+  "OTHER_AWESOME_CONTRIBUTORS": "And other awesome contributors",
+
   "REDDIT": "Reddit",
   "GITHUB": "GitHub",
   "YOUTUBE": "YouTube",
-  "DONATE": "Donate",
+  "DONATE": "Donate"
 }
