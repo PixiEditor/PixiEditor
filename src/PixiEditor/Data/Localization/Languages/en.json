@@ -72,6 +72,7 @@
   "VERSION": "Version {0}",
 
   "DEBUG": "Debug",
+  "OPEN_COMMAND_DEBUG_WINDOW": "Open command debug window",
   "ENABLE_DEBUG_MODE": "Enable Debug mode",
   "OPEN_CRASH_REPORTS_DIR": "Open crash reports directory",
   "OPEN_TEMP_DIR": "Open temp directory",
@@ -82,8 +83,12 @@
   "DUMP_ALL_COMMANDS_DESCRIPTIVE": "Dump all commands to a text file",
   "CRASH": "Crash",
   "CRASH_APP": "Crash application",
+  "DELETE": "Delete",
+  "USER_PREFS": "User preferences (Roaming)",
   "DELETE_USR_PREFS": "Delete user preferences (Roaming AppData)",
+  "SHORTCUT_FILE": "Shortcut file (Roaming)",
   "DELETE_SHORTCUT_FILE": "Delete shortcut file (Roaming AppData)",
+  "EDITOR_DATA": "Editor data (Local)",
   "DELETE_EDITOR_DATA": "Delete editor data (Local AppData)",
 
   "GENERATE_KEY_BINDINGS_TEMPLATE": "Generate key bindings template",
@@ -114,7 +119,8 @@
   "SHOW_IMAGE_NAME": "Show image name",
   "SHOW_IMAGE_SIZE": "Show image size",
   "SHOW_LAYER_COUNT": "Show layer count",
-  
+
+  "ABOUT": "About",
   "ABOUT_ME": "ABOUT ME",
   "BOT_DESCRIPTION": "Use me to display your .pixi files in Discord.\nStart by sending a file in any appropriate channel",
   "MEMBER_SINCE": "DISCORD MEMBER SINCE",
@@ -179,17 +185,25 @@
   "RESET_REFERENCE_LAYER_POS": "Reset reference layer position",
 
   "CLIP_CANVAS": "Clip Canvas",
+  "FLIP": "Flip",
   "FLIP_IMG_VERTICALLY": "Flip Image Vertically",
   "FLIP_IMG_HORIZONTALLY": "Flip Image Horizontally",
   "FLIP_LAYERS_VERTICALLY": "Flip Selected Layers Vertically",
   "FLIP_LAYERS_HORIZONTALLY": "Flip Selected Layers Horizontally",
 
+  "ROTATION": "Rotation",
   "ROT_IMG_90": "Rotate Image 90 degrees",
+  "ROT_IMG_90_D": "Rotate Image 90°",
   "ROT_IMG_180": "Rotate Image 180 degrees",
+  "ROT_IMG_180_D": "Rotate Image 180°",
   "ROT_IMG_-90": "Rotate Image -90 degrees",
+  "ROT_IMG_-90_D": "Rotate Image -90°",
   "ROT_LAYERS_90": "Rotate Selected Layers 90 degrees",
+  "ROT_LAYERS_90_D": "Rotate Selected Layers 90°",
   "ROT_LAYERS_180": "Rotate Selected Layers 180 degrees",
+  "ROT_LAYERS_180_D": "Rotate Selected Layers 180°",
   "ROT_LAYERS_-90": "Rotate Selected Layers -90 degrees",
+  "ROT_LAYERS_-90_D": "Rotate Selected Layers -90°",
 
   "TOGGLE_VERT_SYMMETRY_AXIS": "Toggle vertical symmetry axis",
   "TOGGLE_HOR_SYMMETRY_AXIS": "Toggle horizontal symmetry axis",
@@ -302,19 +316,22 @@
   "REDO_DESCRIPTIVE": "Redo last action",
   "WINDOWS": "Windows",
 
+  "VIEW": "View",
   "TOGGLE_GRIDLINES": "Toggle gridlines",
   "ZOOM_IN": "Zoom in",
   "ZOOM_OUT": "Zoom out",
   "NEW_WINDOW_FOR_IMG": "New window for current image",
   "CENTER_ACTIVE_VIEWPORT": "Center active viewport",
   "FLIP_VIEWPORT_HORIZONTALLY": "Flip viewport horizontally",
+  "HORIZONTAL_LINE_SYMMETRY": "Horizontal line symmetry",
+  "VERTICAL_LINE_SYMMETRY": "Vertical line symmetry",
   "FLIP_VIEWPORT_VERTICALLY": "Flip viewport vertically",
   "SETTINGS": "Settings",
   "OPEN_SETTINGS": "Open settings",
   "OPEN_SETTINGS_DESCRIPTIVE": "Open settings window",
 
   "OPEN_STARTUP_WINDOW": "Open startup window",
-  "OPEN_SHORTCUT_WINDOW": "Open shortcut window",
+  "OPEN_SHORTCUT_WINDOW": "Open shortcuts window",
   "OPEN_ABOUT_WINDOW": "Open about window",
   "OPEN_NAVIGATION_WINDOW": "Open navigation window",
 
@@ -328,6 +345,7 @@
   "PROJECT_MAINTAINERS": "Project Maintainers",
   "OTHER_AWESOME_CONTRIBUTORS": "And other awesome contributors",
 
+  "HELP": "Help",
   "REDDIT": "Reddit",
   "GITHUB": "GitHub",
   "YOUTUBE": "YouTube",

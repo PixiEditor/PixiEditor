@@ -254,133 +254,134 @@
                     <MenuItem
                         views:Translator.Key="IMAGE">
                         <MenuItem
-                            Header="Resize _Image..."
+                            views:Translator.Key="RESIZE_IMAGE"
                             cmds:Menu.Command="PixiEditor.Document.ResizeDocument" />
                         <MenuItem
-                            Header="Resize _Canvas..."
+                            views:Translator.Key="RESIZE_CANVAS"
                             cmds:Menu.Command="PixiEditor.Document.ResizeCanvas" />
                         <Separator />
                         <MenuItem
-                            Header="Cli_p Canvas"
+                            views:Translator.Key="CLIP_CANVAS"
                             cmds:Menu.Command="PixiEditor.Document.ClipCanvas" />
                         <MenuItem
-                            Header="Cente_r Content"
+                            views:Translator.Key="CENTER_CONTENT"
                             cmds:Menu.Command="PixiEditor.Document.CenterContent" />
                         <Separator />
                         <MenuItem
                             IsCheckable="True"
                             IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.HorizontalSymmetryAxisEnabledBindable}"
-                            Header="_Horizontal Line Symmetry"/>
+                            views:Translator.Key="HORIZONTAL_LINE_SYMMETRY"
+                            />
                         <MenuItem
                             IsCheckable="True"
                             IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable}"
-                            Header="_Vertical Line Symmetry"/>
+                            views:Translator.Key="VERTICAL_LINE_SYMMETRY"/>
                         <Separator/>
-                        <MenuItem Header="_Rotation">
-                            <MenuItem Header="Rotate Image 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
-                            <MenuItem Header="Rotate Image 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180Deg"/>
-                            <MenuItem Header="Rotate Image -90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270Deg"/>
+                        <MenuItem views:Translator.Key="ROTATION">
+                            <MenuItem views:Translator.Key="ROT_IMG_90_D" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
+                            <MenuItem views:Translator.Key="ROT_IMG_180_D" cmds:Menu.Command="PixiEditor.Document.Rotate180Deg"/>
+                            <MenuItem views:Translator.Key="ROT_IMG_-90_D" cmds:Menu.Command="PixiEditor.Document.Rotate270Deg"/>
                             
                             <Separator/>
-                            <MenuItem Header="Rotate Selected Layers 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
-                            <MenuItem Header="Rotate Selected Layers 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
-                            <MenuItem Header="Rotate Selected Layers -90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
+                            <MenuItem views:Translator.Key="ROT_LAYERS_90_D" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
+                            <MenuItem views:Translator.Key="ROT_LAYERS_180_D" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
+                            <MenuItem views:Translator.Key="ROT_LAYERS_-90_D" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
                         </MenuItem>
-                        <MenuItem Header="_Flip">
-                            <MenuItem Header="Flip Image _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
-                            <MenuItem Header="Flip Image _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
-                            <MenuItem Header="Flip Selected Layers _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
-                            <MenuItem Header="Flip Selected Layers _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
+                        <MenuItem views:Translator.Key="FLIP">
+                            <MenuItem views:Translator.Key="FLIP_IMG_HORIZONTALLY" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
+                            <MenuItem views:Translator.Key="FLIP_IMG_VERTICALLY" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
+                            <MenuItem views:Translator.Key="FLIP_LAYERS_HORIZONTALLY" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
+                            <MenuItem views:Translator.Key="FLIP_LAYERS_VERTICALLY" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
                         </MenuItem>
                     </MenuItem>
                     <MenuItem
-                        Header="_View">
+                        views:Translator.Key="VIEW">
                         <MenuItem
-                            Header="New window for current image"
+                            views:Translator.Key="NEW_WINDOW_FOR_IMG"
                             cmds:Menu.Command="PixiEditor.Window.CreateNewViewport" />
                         <Separator/>
                         <MenuItem
-                            Header="Open _Startup Window"
+                            views:Translator.Key="OPEN_STARTUP_WINDOW"
                             ToolTip="Hello there!"
                             cmds:Menu.Command="PixiEditor.Window.OpenStartupWindow" />
                         <MenuItem
-                            Header="Open _Navigation Window"
+                            views:Translator.Key="OPEN_NAVIGATION_WINDOW"
                             cmds:Menu.Command="PixiEditor.Window.OpenNavigationWindow" />
                         <MenuItem
-                            Header="Open Short_cuts Window"
+                            views:Translator.Key="OPEN_SHORTCUT_WINDOW"
                             cmds:Menu.Command="PixiEditor.Window.OpenShortcutWindow" />
                         <Separator/>
                         <MenuItem
-                            Header="Show _Grid Lines"
+                            views:Translator.Key="TOGGLE_GRIDLINES"
                             IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                             IsCheckable="True"
                             InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}" />
                     </MenuItem>
                     <MenuItem
-                        Header="_Help">
+                        views:Translator.Key="HELP">
                         <MenuItem
-                            Header="_Documentation"
+                            views:Translator.Key="DOCUMENTATION"
                             cmds:Menu.Command="PixiEditor.Links.OpenDocumentation" />
                         <MenuItem
-                            Header="_Website"
+                            views:Translator.Key="WEBSITE"
                             cmds:Menu.Command="PixiEditor.Links.OpenWebsite" />
                         <MenuItem
-                            Header="_Repository"
+                            views:Translator.Key="REPOSITORY"
                             cmds:Menu.Command="PixiEditor.Links.OpenRepository" />
                         <Separator />
                         <MenuItem
-                            Header="_License"
+                            views:Translator.Key="LICENSE"
                             cmds:Menu.Command="PixiEditor.Links.OpenLicense" />
                         <MenuItem
-                            Header="_Third Party Licenses"
+                            views:Translator.Key="THIRD_PARTY_LICENSES"
                             cmds:Menu.Command="PixiEditor.Links.OpenOtherLicenses" />
                         <Separator/>
                         <MenuItem
-                            Header="_About"
+                            views:Translator.Key="ABOUT"
                             cmds:Menu.Command="PixiEditor.Window.OpenAboutWindow" />
                     </MenuItem>
                     <MenuItem
-                        Header="_Debug"
+                        views:Translator.Key="DEBUG"
                         Visibility="{Binding DebugSubViewModel.UseDebug, Converter={StaticResource BoolToVisibilityConverter}}">
                         <MenuItem
-                            Header="Open Command Debug Window"
+                            views:Translator.Key="OPEN_COMMAND_DEBUG_WINDOW"
                             cmds:Menu.Command="PixiEditor.Debug.OpenCommandDebugWindow"/>
                         <Separator/>
                         <MenuItem
-                            Header="Open _Local App Data"
+                            views:Translator.Key="OPEN_LOCAL_APPDATA_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenLocalAppDataDirectory" />
                         <MenuItem
-                            Header="Open _Roaming App Data"
+                            views:Translator.Key="OPEN_ROAMING_APPDATA_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenRoamingAppDataDirectory" />
                         <MenuItem
-                            Header="Open _Temp App Data"
+                            views:Translator.Key="OPEN_TEMP_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenTempDirectory" />
                         <MenuItem
-                            Header="Open _Install Location"
+                            views:Translator.Key="OPEN_INSTALLATION_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenInstallDirectory" />
                         <MenuItem
-                            Header="Open Crash _Reports Location"
+                            views:Translator.Key="OPEN_CRASH_REPORTS_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenCrashReportsDirectory" />
                         <Separator />
                         <MenuItem
-                            Header="_Crash"
+                            views:Translator.Key="CRASH"
                             cmds:Menu.Command="PixiEditor.Debug.Crash" />
                         <MenuItem
-                            Header="Delete">
+                            views:Translator.Key="DELETE">
                             <MenuItem
-                                Header="User Preferences (Roaming)"
+                                views:Translator.Key="USER_PREFS"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteUserPreferences" />
                             <MenuItem
-                                Header="Shortcut File (Roaming)"
+                                views:Translator.Key="SHORTCUT_FILE"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteShortcutFile" />
                             <MenuItem
-                                Header="Editor Data (Local)"
+                                views:Translator.Key="EDITOR_DATA"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteEditorData" />
                             <Separator/>
                             <MenuItem
-                                Header="_Clear recent documents"
+                                views:Translator.Key="CLEAR_RECENT_DOCUMENTS"
                                 cmds:Menu.Command="PixiEditor.Debug.ClearRecentDocument"/>
                         </MenuItem>
                     </MenuItem>
