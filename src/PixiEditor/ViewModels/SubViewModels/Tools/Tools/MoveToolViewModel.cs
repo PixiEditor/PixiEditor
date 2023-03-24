@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -10,7 +11,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.V)]
 internal class MoveToolViewModel : ToolViewModel
 {
-    private string defaultActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+    private string defaultActionDisplay = new LocalizedString("MOVE_TOOL_ACTION_DISPLAY");
 
     public MoveToolViewModel()
     {
@@ -19,9 +20,9 @@ internal class MoveToolViewModel : ToolViewModel
         Cursor = Cursors.Arrow;
     }
 
-    public override string Tooltip => $"Moves selected pixels ({Shortcut}). Hold Ctrl to move all layers.";
+    public override LocalizedString Tooltip => new LocalizedString("MOVE_TOOL_TOOLTIP", Shortcut);
 
-    [Settings.Bool("Keep original image")]
+    [Settings.Bool("KEEP_ORIGINAL_IMAGE_SETTING")]
     public bool KeepOriginalImage => GetValue<bool>();
     
     public override BrushShape BrushShape => BrushShape.Hidden;

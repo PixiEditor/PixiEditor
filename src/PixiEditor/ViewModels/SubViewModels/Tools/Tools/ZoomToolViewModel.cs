@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
@@ -14,7 +15,7 @@ internal class ZoomToolViewModel : ToolViewModel
         set => SetProperty(ref zoomOutOnClick, value);
     }
 
-    private string defaultActionDisplay = "Click and move to zoom. Click to zoom in, hold ctrl and click to zoom out.";
+    private string defaultActionDisplay = new LocalizedString("ZOOM_TOOL_ACTION_DISPLAY_DEFAULT");
 
     public override BrushShape BrushShape => BrushShape.Hidden;
 
@@ -25,13 +26,13 @@ internal class ZoomToolViewModel : ToolViewModel
 
     public override bool HideHighlight => true;
 
-    public override string Tooltip => $"Zooms viewport ({Shortcut}). Click to zoom in, hold alt and click to zoom out.";
+    public override LocalizedString Tooltip => new LocalizedString("ZOOM_TOOL_TOOLTIP", Shortcut);
 
     public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (ctrlIsDown)
         {
-            ActionDisplay = "Click and move to zoom. Click to zoom out, release ctrl and click to zoom in.";
+            ActionDisplay = new LocalizedString("ZOOM_TOOL_ACTION_DISPLAY_CTRL");
             ZoomOutOnClick = true;
         }
         else

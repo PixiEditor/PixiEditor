@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
@@ -13,7 +14,7 @@ internal class FloodFillToolViewModel : ToolViewModel
 
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    public override string Tooltip => $"Fills area with color. ({Shortcut})";
+    public override LocalizedString Tooltip => new LocalizedString("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);
 
     public bool ConsiderAllLayers { get; private set; }
 

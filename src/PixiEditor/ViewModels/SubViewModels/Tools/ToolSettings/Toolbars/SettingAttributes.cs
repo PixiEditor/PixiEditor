@@ -10,9 +10,9 @@ public static class Settings
     /// </summary>
     public class BoolAttribute : SettingsAttribute
     {
-        public BoolAttribute(string label) : base(label) { }
+        public BoolAttribute(string labelKey) : base(labelKey) { }
 
-        public BoolAttribute(string label, object defaultValue) : base(label, defaultValue) { }
+        public BoolAttribute(string labelKey, object defaultValue) : base(labelKey, defaultValue) { }
     }
 
     /// <summary>
@@ -20,9 +20,9 @@ public static class Settings
     /// </summary>
     public class EnumAttribute : SettingsAttribute
     {
-        public EnumAttribute(string label) : base(label) { }
+        public EnumAttribute(string labelKey) : base(labelKey) { }
 
-        public EnumAttribute(string label, object defaultValue) : base(label, defaultValue) { }
+        public EnumAttribute(string labelKey, object defaultValue) : base(labelKey, defaultValue) { }
     }
 
     /// <summary>
@@ -30,11 +30,11 @@ public static class Settings
     /// </summary>
     public class ColorAttribute : SettingsAttribute
     {
-        public ColorAttribute(string label) : base(label) { }
+        public ColorAttribute(string labelKey) : base(labelKey) { }
 
-        public ColorAttribute(string label, byte r, byte g, byte b) : base(label, new Color(r, g, b)) { }
+        public ColorAttribute(string labelKey, byte r, byte g, byte b) : base(labelKey, new Color(r, g, b)) { }
         
-        public ColorAttribute(string label, byte r, byte g, byte b, byte a) : base(label, new Color(r, g, b, a)) { }
+        public ColorAttribute(string labelKey, byte r, byte g, byte b, byte a) : base(labelKey, new Color(r, g, b, a)) { }
     }
 
     /// <summary>
@@ -42,9 +42,9 @@ public static class Settings
     /// </summary>
     public class FloatAttribute : SettingsAttribute
     {
-        public FloatAttribute(string label) : base(label) { }
+        public FloatAttribute(string labelKey) : base(labelKey) { }
 
-        public FloatAttribute(string label, float defaultValue) : base(label, defaultValue) { }
+        public FloatAttribute(string labelKey, float defaultValue) : base(labelKey, defaultValue) { }
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public static class Settings
     /// </summary>
     public class SizeAttribute : SettingsAttribute
     {
-        public SizeAttribute(string label) : base(label) { }
+        public SizeAttribute(string labelKey) : base(labelKey) { }
     }
 
     /// <summary>
@@ -67,18 +67,18 @@ public static class Settings
 
         public SettingsAttribute() { }
         
-        public SettingsAttribute(string label)
+        public SettingsAttribute(string labelKey)
         {
-            Label = label;
+            LabelKey = labelKey;
         }
 
-        public SettingsAttribute(string label, object defaultValue)
+        public SettingsAttribute(string labelKey, object defaultValue)
         {
-            Label = label;
+            LabelKey = labelKey;
             DefaultValue = defaultValue;
         }
         
-        public readonly string Label;
+        public readonly string LabelKey;
 
         public readonly object DefaultValue;
     }

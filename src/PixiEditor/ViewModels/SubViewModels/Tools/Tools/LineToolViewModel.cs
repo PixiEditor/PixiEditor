@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
@@ -17,7 +18,7 @@ internal class LineToolViewModel : ShapeTool
         Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>();
     }
 
-    public override string Tooltip => $"Draws line on canvas ({Shortcut}). Hold Shift to enable snapping.";
+    public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();

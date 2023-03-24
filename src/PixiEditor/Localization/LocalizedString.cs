@@ -24,12 +24,19 @@ public struct LocalizedString
     public LocalizedString(string key)
     {
         Key = key;
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
     }
 
     public LocalizedString(string key, params object[] parameters)
     {
         Parameters = parameters;
         Key = key;
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged(Language lang)
+    {
+        Value = GetValue(Key);
     }
 
     public override string ToString()

@@ -2,6 +2,7 @@
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -12,7 +13,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.M)]
 internal class SelectToolViewModel : ToolViewModel
 {
-    private string defaultActionDisplay = "Click and move to select an area. Hold Shift to add to existing selection. Hold Ctrl to subtract from it.";
+    private string defaultActionDisplay = new LocalizedString("SELECT_TOOL_ACTION_DISPLAY_DEFAULT");
 
     public SelectToolViewModel()
     {
@@ -28,12 +29,12 @@ internal class SelectToolViewModel : ToolViewModel
     {
         if (shiftIsDown)
         {
-            ActionDisplay = "Click and move to add to the current selection.";
+            ActionDisplay = new LocalizedString("SELECT_TOOL_ACTION_DISPLAY_SHIFT");
             modifierKeySelectionMode = SelectionMode.Add;
         }
         else if (ctrlIsDown)
         {
-            ActionDisplay = "Click and move to subtract from the current selection.";
+            ActionDisplay = new LocalizedString("SELECT_TOOL_ACTION_DISPLAY_ALT");
             modifierKeySelectionMode = SelectionMode.Subtract;
         }
         else
@@ -43,15 +44,15 @@ internal class SelectToolViewModel : ToolViewModel
         }
     }
 
-    [Settings.Enum("Mode")]
+    [Settings.Enum("MODE_LABEL")]
     public SelectionMode SelectMode => GetValue<SelectionMode>();
 
-    [Settings.Enum("Shape")]
+    [Settings.Enum("SHAPE_LABEL")]
     public SelectionShape SelectShape => GetValue<SelectionShape>();
     
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    public override string Tooltip => $"Selects area. ({Shortcut})";
+    public override LocalizedString Tooltip => new LocalizedString("SELECT_TOOL_TOOLTIP", Shortcut);
 
     public override void OnLeftMouseButtonDown(VecD pos)
     {

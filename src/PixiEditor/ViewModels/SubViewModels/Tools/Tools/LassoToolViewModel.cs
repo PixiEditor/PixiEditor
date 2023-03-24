@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -40,11 +41,11 @@ internal class LassoToolViewModel : ToolViewModel
         }
     }
 
-    public override string Tooltip => $"Lasso. ({Shortcut})";
+    public override LocalizedString Tooltip => new LocalizedString("LASSO_TOOL_TOOLTIP", Shortcut);
     
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    [Settings.Enum("Mode")]
+    [Settings.Enum("MODE_LABEL")]
     public SelectionMode SelectMode => GetValue<SelectionMode>();
     
     public override void OnLeftMouseButtonDown(VecD pos)

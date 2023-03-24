@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -25,7 +26,7 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public virtual bool HideHighlight { get; }
 
-    public abstract string Tooltip { get; }
+    public abstract LocalizedString Tooltip { get; }
 
     private string actionDisplay = string.Empty;
     public string ActionDisplay

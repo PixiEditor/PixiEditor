@@ -412,7 +412,7 @@
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                     <Grid Margin="5,0" VerticalAlignment="Center">
-                        <TextBlock Foreground="White">Search...</TextBlock>
+                        <TextBlock Foreground="White" views:Translator.Key="SEARCH"/>
                         <TextBlock Text="{cmds:ShortcutBinding PixiEditor.Search.Toggle}"
                                    HorizontalAlignment="Right"
                                    Foreground="White"/>

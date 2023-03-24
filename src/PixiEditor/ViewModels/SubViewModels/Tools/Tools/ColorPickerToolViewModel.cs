@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -17,7 +18,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
 
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    public override string Tooltip => $"Picks the primary color from the canvas. ({Shortcut})";
+    public override LocalizedString Tooltip => new("COLOR_PICKER_TOOLTIP", Shortcut);
 
     private bool pickFromCanvas = true;
     public bool PickFromCanvas
@@ -33,7 +34,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
         private set => SetProperty(ref pickFromReferenceLayer, value);
     }
 
-    [Settings.Enum("Scope", DocumentScope.AllLayers)]
+    [Settings.Enum("SCOPE_LABEL", DocumentScope.AllLayers)]
     public DocumentScope Mode => GetValue<DocumentScope>();
 
     public ColorPickerToolViewModel()
