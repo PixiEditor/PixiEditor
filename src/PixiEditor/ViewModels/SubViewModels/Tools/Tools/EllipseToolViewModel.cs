@@ -9,7 +9,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.C)]
 internal class EllipseToolViewModel : ShapeTool
 {
-    private string defaultActionDisplay = "Click and move mouse to draw an ellipse. Hold Shift to draw a circle.";
+    private LocalizedString defaultActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT";
+    public override string ToolNameLocalizationKey => "ELLIPSE_TOOL";
 
     public EllipseToolViewModel()
     {
@@ -23,7 +24,7 @@ internal class EllipseToolViewModel : ShapeTool
     {
         if (shiftIsDown)
         {
-            ActionDisplay = "Click and move mouse to draw a circle.";
+            ActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_SHIFT";
             DrawCircle = true;
         }
         else

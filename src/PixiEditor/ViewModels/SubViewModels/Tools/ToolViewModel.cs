@@ -18,7 +18,8 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public virtual string ToolName => GetType().Name.Replace("Tool", string.Empty).Replace("ViewModel", string.Empty);
 
-    public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
+    public abstract string ToolNameLocalizationKey { get; }
+    public virtual LocalizedString DisplayName => new LocalizedString(ToolNameLocalizationKey);
 
     public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
 
@@ -28,8 +29,8 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public abstract LocalizedString Tooltip { get; }
 
-    private string actionDisplay = string.Empty;
-    public string ActionDisplay
+    private LocalizedString actionDisplay = string.Empty;
+    public LocalizedString ActionDisplay
     {
         get => actionDisplay;
         set

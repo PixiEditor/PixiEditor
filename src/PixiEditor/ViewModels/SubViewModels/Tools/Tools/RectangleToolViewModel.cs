@@ -15,6 +15,7 @@ internal class RectangleToolViewModel : ShapeTool
         ActionDisplay = defaultActionDisplay;
     }
 
+    public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
 
     public bool Filled { get; set; } = false;

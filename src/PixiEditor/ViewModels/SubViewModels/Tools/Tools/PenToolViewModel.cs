@@ -13,6 +13,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
     [Command.Tool(Key = Key.B)]
     internal class PenToolViewModel : ShapeTool
     {
+        public override string ToolNameLocalizationKey => "PEN_TOOL";
         public override BrushShape BrushShape => BrushShape.Circle;
         public PenToolViewModel()
         {

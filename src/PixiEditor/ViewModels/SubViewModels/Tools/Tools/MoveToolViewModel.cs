@@ -13,6 +13,8 @@ internal class MoveToolViewModel : ToolViewModel
 {
     private string defaultActionDisplay = new LocalizedString("MOVE_TOOL_ACTION_DISPLAY");
 
+    public override string ToolNameLocalizationKey => "MOVE_TOOL";
+
     public MoveToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
@@ -24,7 +26,7 @@ internal class MoveToolViewModel : ToolViewModel
 
     [Settings.Bool("KEEP_ORIGINAL_IMAGE_SETTING")]
     public bool KeepOriginalImage => GetValue<bool>();
-    
+
     public override BrushShape BrushShape => BrushShape.Hidden;
     public override bool HideHighlight => true;
 

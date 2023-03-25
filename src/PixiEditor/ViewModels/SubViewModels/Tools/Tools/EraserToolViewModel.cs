@@ -13,13 +13,14 @@ internal class EraserToolViewModel : ToolViewModel
 {
     public EraserToolViewModel()
     {
-        ActionDisplay = "Draw to remove color from a pixel.";
+        ActionDisplay = "ERASER_TOOL_ACTION_DISPLAY";
         Toolbar = ToolbarFactory.Create<EraserToolViewModel, BasicToolbar>();
     }
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();
 
+    public override string ToolNameLocalizationKey => "ERASER_TOOL";
     public override BrushShape BrushShape => BrushShape.Circle;
 
     public override LocalizedString Tooltip => new LocalizedString("ERASER_TOOL_TOOLTIP", Shortcut);

@@ -10,7 +10,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.L)]
 internal class LineToolViewModel : ShapeTool
 {
-    private string defaultActionDisplay = "Click and move to draw a line. Hold Shift to enable snapping.";
+    private LocalizedString defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public LineToolViewModel()
     {
@@ -18,6 +18,7 @@ internal class LineToolViewModel : ShapeTool
         Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>();
     }
 
+    public override string ToolNameLocalizationKey => "LINE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
     [Settings.Inherited]
@@ -29,7 +30,7 @@ internal class LineToolViewModel : ShapeTool
     {
         if (shiftIsDown)
         {
-            ActionDisplay = "Click and move mouse to draw a line with snapping enabled.";
+            ActionDisplay = "LINE_TOOL_ACTION_DISPLAY_SHIFT";
             Snap = true;
         }
         else

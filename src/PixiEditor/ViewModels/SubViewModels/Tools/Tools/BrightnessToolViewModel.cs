@@ -13,7 +13,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.U)]
 internal class BrightnessToolViewModel : ToolViewModel
 {
-    private readonly string defaultActionDisplay = "Draw on pixels to make them brighter. Hold Ctrl to darken.";
+    private readonly LocalizedString defaultActionDisplay = "BRIGHTNESS_TOOL_ACTION_DISPLAY_DEFAULT";
+    public override string ToolNameLocalizationKey => "BRIGHTNESS_TOOL";
 
     public BrightnessToolViewModel()
     {
@@ -45,7 +46,7 @@ internal class BrightnessToolViewModel : ToolViewModel
         }
         else
         {
-            ActionDisplay = "Draw on pixels to make them darker. Release Ctrl to brighten.";
+            ActionDisplay = "BRIGHTNESS_TOOL_ACTION_DISPLAY_CTRL";
             Darken = true;
         }
     }

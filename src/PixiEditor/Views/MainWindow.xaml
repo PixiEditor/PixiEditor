@@ -428,7 +428,7 @@
                     <Button
                         Style="{StaticResource MinimizeButtonStyle}"
                         WindowChrome.IsHitTestVisibleInChrome="True"
-                        ToolTip="Minimize"
+                        views:Translator.TooltipKey="MINIMIZE"
                         Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
                     <Button
                         x:Name="RestoreButton"
@@ -436,18 +436,18 @@
                         Style="{StaticResource RestoreButtonStyle}"
                         Command="{x:Static SystemCommands.RestoreWindowCommand}"
                         WindowChrome.IsHitTestVisibleInChrome="True"
-                        ToolTip="Restore" />
+                        views:Translator.TooltipKey="RESTORE" />
                     <Button
                         x:Name="MaximizeButton"
                         Visibility="Collapsed"
                         Style="{StaticResource MaximizeButtonStyle}"
                         Command="{x:Static SystemCommands.MaximizeWindowCommand}"
                         WindowChrome.IsHitTestVisibleInChrome="True"
-                        ToolTip="Maximize" />
+                        views:Translator.TooltipKey="MAXIMIZE" />
                     <Button
                         Style="{StaticResource CloseButtonStyle}"
                         WindowChrome.IsHitTestVisibleInChrome="True"
-                        ToolTip="Close"
+                        views:Translator.TooltipKey="CLOSE"
                         Command="{x:Static SystemCommands.CloseWindowCommand}" />
                 </StackPanel>
             </DockPanel>
@@ -460,18 +460,18 @@
                 <Button
                     Margin="1,0,0,0"
                     Command="{cmds:Command PixiEditor.Undo.Undo}"
-                    ToolTip="Undo"
+                    views:Translator.TooltipKey="UNDO"
                     Style="{StaticResource ToolSettingsGlyphButton}" 
 					Content="&#xE7A7;"/>
                 <Button 
 				Command="{cmds:Command PixiEditor.Undo.Redo}" 
-				ToolTip="Redo"
+				views:Translator.TooltipKey="REDO"
                 Style="{StaticResource ToolSettingsGlyphButton}" 
 				Content="&#xE7A6;"/>
                 <ToggleButton 
 				Width="30" 
 				BorderThickness="0"
-				ToolTip="Pen Mode" 
+				views:Translator.TooltipKey="PEN_MODE"
 				Focusable="False"
                 IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
                     <ToggleButton.Style>

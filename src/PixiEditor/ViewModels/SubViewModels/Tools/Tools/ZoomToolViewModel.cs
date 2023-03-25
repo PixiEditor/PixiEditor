@@ -17,6 +17,7 @@ internal class ZoomToolViewModel : ToolViewModel
 
     private string defaultActionDisplay = new LocalizedString("ZOOM_TOOL_ACTION_DISPLAY_DEFAULT");
 
+    public override string ToolNameLocalizationKey => "ZOOM_TOOL";
     public override BrushShape BrushShape => BrushShape.Hidden;
 
     public ZoomToolViewModel()

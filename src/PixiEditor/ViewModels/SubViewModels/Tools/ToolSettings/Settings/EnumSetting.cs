@@ -94,7 +94,7 @@ internal sealed class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
         {
             var item = new ComboBoxItem
             {
-                Content = value.GetDescription(),
+                Content = new LocalizedString(value.GetDescription().ToUpper()),
                 Tag = value
             };
 

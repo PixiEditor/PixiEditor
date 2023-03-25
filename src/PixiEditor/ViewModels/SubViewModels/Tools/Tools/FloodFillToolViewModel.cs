@@ -10,8 +10,9 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.G)]
 internal class FloodFillToolViewModel : ToolViewModel
 {
-    private readonly string defaultActionDisplay = "Press on an area to fill it. Hold down Ctrl to consider all layers.";
+    private readonly LocalizedString defaultActionDisplay = "FLOOD_FILL_TOOL_ACTION_DISPLAY_DEFAULT";
 
+    public override string ToolNameLocalizationKey => "FLOOD_FILL_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
     public override LocalizedString Tooltip => new LocalizedString("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);
@@ -28,7 +29,7 @@ internal class FloodFillToolViewModel : ToolViewModel
         if (ctrlIsDown)
         {
             ConsiderAllLayers = true;
-            ActionDisplay = "Press on an area to fill it. Release Ctrl to only consider the current layers.";
+            ActionDisplay = "FLOOD_FILL_TOOL_ACTION_DISPLAY_CTRL";
         }
         else
         {

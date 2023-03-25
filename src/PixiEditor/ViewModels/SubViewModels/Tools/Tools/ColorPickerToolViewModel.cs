@@ -12,10 +12,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.O, Transient = Key.LeftAlt)]
 internal class ColorPickerToolViewModel : ToolViewModel
 {
-    private readonly string defaultActionDisplay = "Click to pick colors. Hold Ctrl to hide the canvas. Hold Shift to hide the reference layer";
+    private readonly LocalizedString defaultActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_DEFAULT";
 
     public override bool HideHighlight => true;
 
+    public override string ToolNameLocalizationKey => "COLOR_PICKER_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
     public override LocalizedString Tooltip => new("COLOR_PICKER_TOOLTIP", Shortcut);
@@ -54,13 +55,13 @@ internal class ColorPickerToolViewModel : ToolViewModel
         {
             PickFromCanvas = false;
             PickFromReferenceLayer = true;
-            ActionDisplay = "Click to pick colors from the reference layer.";
+            ActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_CTRL";
         }
         else if (shiftIsDown)
         {
             PickFromCanvas = true;
             PickFromReferenceLayer = false;
-            ActionDisplay = "Click to pick colors from the canvas.";
+            ActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_SHIFT";
             return;
         }
         else

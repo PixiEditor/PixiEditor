@@ -14,6 +14,7 @@ internal class MagicWandToolViewModel : ToolViewModel
 {
     public override LocalizedString Tooltip => new LocalizedString("MAGIC_WAND_TOOL_TOOLTIP", Shortcut);
 
+    public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
     [Settings.Enum("MODE_LABEL")]
@@ -25,7 +26,7 @@ internal class MagicWandToolViewModel : ToolViewModel
     public MagicWandToolViewModel()
     {
         Toolbar = ToolbarFactory.Create<MagicWandToolViewModel>();
-        ActionDisplay = "Click to flood the selection.";
+        ActionDisplay = "MAGIC_WAND_ACTION_DISPLAY";
     }
     
     public override void OnLeftMouseButtonDown(VecD pos)
