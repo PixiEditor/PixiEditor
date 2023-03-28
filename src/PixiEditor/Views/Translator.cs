@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using AvalonDock.Layout;
 using PixiEditor.Localization;
 
 namespace PixiEditor.Views;
@@ -78,6 +79,10 @@ public class Translator : UIElement
             else if (d is HeaderedItemsControl menuItem)
             {
                 menuItem.SetBinding(HeaderedItemsControl.HeaderProperty, binding);
+            }
+            else if (d is LayoutContent layoutContent)
+            {
+                layoutContent.SetValue(LayoutContent.TitleProperty, localizedString.Value);
             }
 
             d.SetValue(ValueProperty, localizedString.Value);

@@ -592,28 +592,28 @@
                                                                     <Border Grid.Column="1" BorderThickness="0 0 1 0" BorderBrush="Black">
                                                                         <StackPanel Orientation="Vertical" Grid.Column="0">
                                                                             <MenuItem
-																		Header="_Select All"
+																		views:Translator.Key="SELECT_ALL"
 																		cmds:ContextMenu.Command="PixiEditor.Selection.SelectAll" />
                                                                             <MenuItem
-																		Header="_Deselect"
+                                                                                views:Translator.Key="DESELECT"
 																		cmds:ContextMenu.Command="PixiEditor.Selection.Clear" />
                                                                             <Separator />
                                                                             <MenuItem
-																		Header="_Cut"
+                                                                                views:Translator.Key="CUT"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Cut" />
                                                                             <MenuItem
-																		Header="_Copy"
+                                                                                views:Translator.Key="COPY"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Copy" />
                                                                             <MenuItem
-																		Header="_Paste"
+                                                                                views:Translator.Key="PASTE"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Paste" />
                                                                             <Separator />
-                                                                            <MenuItem Header="Flip _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
-                                                                            <MenuItem Header="Flip _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
+                                                                            <MenuItem views:Translator.Key="FLIP_LAYERS_HORIZONTALLY" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
+                                                                            <MenuItem views:Translator.Key="FLIP_LAYERS_VERTICALLY" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
                                                                             <Separator />
-                                                                            <MenuItem Header="Rotate 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
-                                                                            <MenuItem Header="Rotate 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
-                                                                            <MenuItem Header="Rotate -90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
+                                                                            <MenuItem views:Translator.Key="ROT_LAYERS_90_D" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
+                                                                            <MenuItem views:Translator.Key="ROT_LAYERS_180_D" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
+                                                                            <MenuItem views:Translator.Key="ROT_LAYERS_-90_D" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
                                                                         </StackPanel>
                                                                     </Border>
                                                                     <ScrollViewer Margin="5" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -626,7 +626,9 @@
                                                                             </ItemsControl.ItemsPanel>
                                                                             <ItemsControl.ItemTemplate>
                                                                                 <DataTemplate>
-                                                                                    <palettes:PaletteColor Cursor="Hand" CornerRadius="0" ToolTip="Click to select as main color." Width="22" Height="22" Color="{Binding}">
+                                                                                    <palettes:PaletteColor Cursor="Hand" CornerRadius="0"
+                                                                                        views:Translator.TooltipKey="CLICK_SELECT_PRIMARY"
+                                                                                        Width="22" Height="22" Color="{Binding}">
                                                                                         <b:Interaction.Triggers>
                                                                                             <b:EventTrigger EventName="MouseLeftButtonUp">
                                                                                                 <b:InvokeCommandAction
@@ -656,7 +658,7 @@
                                 <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="290">
 
                                     <LayoutAnchorablePane x:Name="colorPane">
-                                        <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
+                                        <LayoutAnchorable ContentId="colorPicker" views:Translator.Key="COLOR_PICKER_TITLE" CanHide="False"
                                                       CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
                                             <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}"
@@ -667,7 +669,7 @@
                                                 </b:Interaction.Behaviors>
                                             </usercontrols:SmallColorPicker>
                                         </LayoutAnchorable>
-                                        <LayoutAnchorable ContentId="colorSliders" Title="Color Sliders" CanHide="False"
+                                        <LayoutAnchorable ContentId="colorSliders" views:Translator.Key="COLOR_SLIDERS_TITLE" CanHide="False"
                                                       CanClose="False" CanAutoHide="False" x:Name="colorSlidersPanel"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
                                             <colorpicker:ColorSliders Style="{StaticResource DefaultColorPickerStyle}" 
@@ -677,7 +679,7 @@
                                                 </b:Interaction.Behaviors>
                                             </colorpicker:ColorSliders>
                                         </LayoutAnchorable>
-                                        <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
+                                        <avalondock:LayoutAnchorable ContentId="palette" views:Translator.Key="PALETTE_TITLE" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False" x:Name="paletteAnchorable"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
                                             <Grid>
@@ -701,7 +703,7 @@
                                         </avalondock:LayoutAnchorable>
                                         <avalondock:LayoutAnchorable
 										ContentId="swatches"
-										Title="Swatches"
+										views:Translator.Key="SWATCHES_TITLE"
 										CanHide="False"
 										CanClose="False"
 										CanAutoHide="False"
@@ -715,7 +717,7 @@
                                     <LayoutAnchorablePane>
                                         <LayoutAnchorable
                                             ContentId="layers"
-                                            Title="Layers"
+                                            views:Translator.Key="LAYERS_TITLE"
                                             CanHide="False"
                                             CanClose="False"
                                             CanAutoHide="False"
@@ -728,7 +730,7 @@
                                     <LayoutAnchorablePane>
                                         <LayoutAnchorable
                                             ContentId="navigation"
-                                            Title="Navigation"
+                                            views:Translator.Key="NAVIGATION_TITLE"
                                             CanHide="True"
                                             CanAutoHide="False"
                                             CanDockAsTabbedDocument="False"
@@ -842,9 +844,7 @@
                         Visibility="{Binding UpdateSubViewModel.UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Hidden}"
                         FontSize="14"
                         Height="20"
-                        Command="{cmds:Command PixiEditor.Restart}">
-                        Restart
-                    </Button>
+                        Command="{cmds:Command PixiEditor.Restart}" views:Translator.Key="RESTART"/>
                     <TextBlock
                         VerticalAlignment="Center"
                         Padding="10"

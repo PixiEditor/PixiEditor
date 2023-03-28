@@ -358,6 +358,8 @@
   "SWAP_COLORS": "Swap colors",
   "SWAP_COLORS_DESCRIPTIVE": "Swap primary and secondary colors",
 
+  "CLICK_SELECT_PRIMARY": "Click to select as main color.",
+
   "SEARCH": "Search",
   "COMMAND_SEARCH": "Command search",
   "OPEN_COMMAND_SEARCH": "Open command search window",
@@ -415,6 +417,15 @@
   "OPEN_SHORTCUT_WINDOW": "Open shortcuts window",
   "OPEN_ABOUT_WINDOW": "Open about window",
   "OPEN_NAVIGATION_WINDOW": "Open navigation window",
+
+  "COLOR_PICKER_TITLE": "Color Picker",
+  "COLOR_SLIDERS_TITLE": "Color Sliders",
+  "PALETTE_TITLE": "Palette",
+  "SWATCHES_TITLE": "Swatches",
+  "LAYERS_TITLE": "Layers",
+  "NAVIGATION_TITLE": "Navigation",
+
+  "RESTART": "Restart",
 
   "ERROR": "Error",
   "INTERNAL_ERROR": "Internal error",
