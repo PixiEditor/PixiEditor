@@ -4,6 +4,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using AvalonDock.Layout;
 using PixiEditor.Localization;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Views;
 

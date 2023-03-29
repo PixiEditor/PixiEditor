@@ -427,6 +427,32 @@
 
   "RESTART": "Restart",
 
+  "SORT_BY": "Sort by",
+  "NAME": "Name",
+  "COLORS": "Colors",
+  "DEFAULT": "Default",
+  "ALPHABETICAL": "Alphabetical",
+  "COLOR_COUNT": "Color count",
+
+  "ANY": "Any",
+  "MAX": "Max",
+  "MIN": "Min",
+  "EXACT": "Exact",
+
+  "ASCENDING": "Ascending",
+  "DESCENDING": "Descending",
+
+  "FAVORITES": "Favorites",
+  "ADD_FROM_CURRENT_PALETTE": "Add from current palette",
+  "OPEN_PALETTES_DIR_TOOLTIP": "Open palettes directory in explorer",
+  "BROWSE_ON_LOSPEC_TOOLTIP": "Browse palettes on Lospec",
+  "IMPORT_FROM_FILE_TOOLTIP": "Import from file",
+
+  "COULD_NOT_LOAD_PALETTE": "Couldn't fetch palettes",
+  "NO_PALETTES_FOUND": "No palettes found.",
+  "LOSPEC_LINK_TEXT": "I heard you can find some here: lospec.com/palette-list",
+  "PALETTE_BROWSER": "Palette Browser",
+
   "ERROR": "Error",
   "INTERNAL_ERROR": "Internal error",
   "ERROR_SAVE_LOCATION": "Couldn't save the file to the specified location",

@@ -7,6 +7,7 @@ using System.Windows.Navigation;
 using Microsoft.Win32;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Helpers;
+using PixiEditor.Localization;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
@@ -124,7 +125,7 @@ internal partial class PalettesBrowser : Window
 
     public RelayCommand<Palette> ToggleFavouriteCommand { get; set; }
 
-    public string SortingType { get; set; } = "Default";
+    public int SortingIndex { get; set; } = 0;
     public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
 
     private FilteringSettings filteringSettings;
@@ -134,7 +135,7 @@ internal partial class PalettesBrowser : Window
 
     private char[] separators = new char[] { ' ', ',' };
 
-    private SortingType InternalSortingType => (SortingType)Enum.Parse(typeof(SortingType), SortingType.Replace(" ", ""));
+    private SortingType InternalSortingType => (SortingType)SortingIndex;
     public WpfObservableRangeCollection<Color> CurrentEditingPalette { get; set; }
     public static PalettesBrowser Instance { get; internal set; }
 
@@ -151,6 +152,7 @@ internal partial class PalettesBrowser : Window
     public PalettesBrowser()
     {
         InitializeComponent();
+        Title = new LocalizedString("PALETTE_BROWSER");
         Instance = this;
         DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette);
         ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
@@ -388,22 +390,25 @@ internal partial class PalettesBrowser : Window
 
     private void SortingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem { Content: string value })
+        if (e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem)
         {
-            SortingType = value;
+            var comboBox = (ComboBox)sender;
+            SortingIndex = comboBox.SelectedIndex;
             Sort();
-            scrollViewer.ScrollToHome();
+            scrollViewer?.ScrollToHome();
         }
     }
 
     private async void ColorsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem { Content: string value })
+        if (e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem)
         {
-            ColorsNumberMode = Enum.Parse<ColorsNumberMode>(value);
+            var comboBox = (ComboBox)sender;
+            ColorsNumberMode = (ColorsNumberMode)comboBox.SelectedIndex;
             Filtering.ColorsNumberMode = ColorsNumberMode;
             await UpdatePaletteList();
-            scrollViewer.ScrollToHome();
+
+            scrollViewer?.ScrollToHome();
         }
     }
 
