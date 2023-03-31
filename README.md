@@ -38,9 +38,9 @@ PixiEditor started in 2018 and it's been actively developed since. We continuous
 
 <a href='//www.microsoft.com/store/apps/9NDDRHS8PBRN?cid=storebadge&ocid=badge'><img src='https://developer.microsoft.com/store/badges/images/English_get-it-from-MS.png' alt='Microsoft Store badge' width="184"/></a>
 
-Wishlist on Steam now!
+Get it on Steam now!
 
-[![wishlist_steam](https://user-images.githubusercontent.com/25402427/214952291-d81a4d79-bb75-44f2-bd24-10d7c3404997.png)](https://store.steampowered.com/app/2218560/PixiEditor__Pixel_Art_Editor?utm_source=GitHub)
+[![Get PixiEditor on Steam](https://user-images.githubusercontent.com/121322/228988640-32fe5bd3-9dd0-4f3b-a8f2-f744bd9b50b5.png)](https://store.steampowered.com/app/2218560/PixiEditor__Pixel_Art_Editor?utm_source=GitHub)
 
 **Or**
 
