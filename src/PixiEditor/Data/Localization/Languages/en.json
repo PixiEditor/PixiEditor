@@ -180,6 +180,8 @@
   "INTERSECT": "Intersect",
   "RECTANGLE": "Rectangle",
   "CIRCLE": "Circle",
+  "ALL LAYERS": "All Layers",
+  "SINGLE LAYER": "Single Layer",
 
   "PATH_DOES_NOT_EXIST": "{0} does not exist.",
   "LOCATION_DOES_NOT_EXIST": "Location does not exist.",

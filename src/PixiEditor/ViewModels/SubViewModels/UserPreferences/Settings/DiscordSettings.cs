@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
+﻿using PixiEditor.Localization;
+
+namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
 internal class DiscordSettings : SettingsGroup
 {
@@ -57,7 +59,7 @@ internal class DiscordSettings : SettingsGroup
     {
         get
         {
-            return ShowDocumentName ? $"Editing coolPixelArt.pixi" : "Editing an image";
+            return ShowDocumentName ? new LocalizedString("EDITING_IMG_DETAIL", "coolPixelArt.pixi") : new LocalizedString("EDITING_IMG");
         }
     }
 
@@ -79,7 +81,7 @@ internal class DiscordSettings : SettingsGroup
 
             if (ShowLayerCount)
             {
-                state += "2 Layers";
+                state += new LocalizedString("LAYERS", "2");
             }
 
             return state;

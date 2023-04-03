@@ -10,7 +10,7 @@ public struct LocalizedString
         set
         {
             key = value;
-            #if DEBUG
+            #if DEBUG_LOCALIZATION
             Value = key;
             #else
             Value = GetValue(value);
