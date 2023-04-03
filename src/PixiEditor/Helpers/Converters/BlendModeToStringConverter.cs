@@ -9,7 +9,7 @@ internal class BlendModeToStringConverter : SingleInstanceConverter<BlendModeToS
     {
         if (value is not BlendMode mode)
             return "<null>";
-        return mode.EnglishName();
+        return mode.LocalizedName();
     }
 
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

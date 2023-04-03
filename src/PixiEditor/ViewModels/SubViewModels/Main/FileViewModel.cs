@@ -11,6 +11,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -235,7 +236,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             NewDocument(b => b
                 .WithSize(newFile.Width, newFile.Height)
                 .WithLayer(l => l
-                    .WithName("Base Layer")
+                    .WithName(new LocalizedString("BASE_LAYER_NAME"))
                     .WithSurface(new Surface(new VecI(newFile.Width, newFile.Height)))));
         }
     }

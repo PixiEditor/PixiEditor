@@ -63,10 +63,10 @@
                                                 <RotateTransform Angle="180" CenterX="11.5" CenterY="11.5"/>
                                             </Setter.Value>
                                         </Setter>
-                                        <Setter Property="ToolTip" Value="Ascending"/>
+                                        <Setter Property="views:Translator.TooltipKey" Value="ASCENDING"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsChecked, ElementName=toggleBtn}" Value="false">
-                                        <Setter Property="ToolTip" Value="Descending"/>
+                                        <Setter Property="views:Translator.TooltipKey" Value="DESCENDING"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>

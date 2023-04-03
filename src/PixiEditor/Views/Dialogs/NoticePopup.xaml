@@ -8,6 +8,7 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:views="clr-namespace:PixiEditor.Views"
         mc:Ignorable="d" WindowStyle="None"
         d:Title="Notice" Height="180" Width="400" MinHeight="180" MinWidth="400"
         WindowStartupLocation="CenterScreen"
@@ -27,7 +28,7 @@
             TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
 
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
-            <Button Width="70" IsDefault="True" Click="OkButton_Close" Style="{StaticResource DarkRoundButton}" Content="Close"/>
+            <Button Width="70" IsDefault="True" Click="OkButton_Close" Style="{StaticResource DarkRoundButton}" views:Translator.Key="CLOSE"/>
         </StackPanel>
 
         <TextBlock 

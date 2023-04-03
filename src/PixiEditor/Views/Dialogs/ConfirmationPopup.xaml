@@ -8,6 +8,7 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:views="clr-namespace:PixiEditor.Views"
         mc:Ignorable="d" d:Title="Unsaved changes"
         Name="popup" WindowStartupLocation="CenterScreen" 
         Height="180" Width="400" MinHeight="180" MinWidth="400"
@@ -42,7 +43,7 @@
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Margin="10,0,10,0" Width="70" Style="{StaticResource DarkRoundButton}" Content="Cancel"
+            <Button Margin="10,0,10,0" Width="70" Style="{StaticResource DarkRoundButton}" views:Translator.Key="CANCEL"
                     Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
         </StackPanel>
 

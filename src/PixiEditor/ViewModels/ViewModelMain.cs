@@ -211,8 +211,8 @@ internal class ViewModelMain : ViewModelBase
 
     public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
     {
-        const string ConfirmationDialogTitle = "Unsaved changes";
-        const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
+        const string ConfirmationDialogTitle = "UNSAVED_CHANGES";
+        const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
 
         ConfirmationType result = ConfirmationType.No;
         if (!document.AllChangesSaved)

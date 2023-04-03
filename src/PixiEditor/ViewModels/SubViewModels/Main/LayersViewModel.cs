@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
@@ -359,7 +360,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         }
         catch (Exception e)
         {
-            NoticeDialog.Show("Error while importing the image", "Error");
+            NoticeDialog.Show("ERROR_IMPORTING_IMAGE", "ERROR");
             return;
         }
 
@@ -378,7 +379,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
         OpenFileDialog dialog = new OpenFileDialog
         {
-            Title = "Reference layer path",
+            Title = new LocalizedString("REFERENCE_LAYER_PATH"),
             CheckPathExists = true,
             Filter = imagesFilter
         };

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Localization;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels;
 
@@ -18,7 +19,7 @@ internal partial class ExportFilePopup : Window
 
     private int imageWidth;
     private int imageHeight;
-    public string SizeHint => $"If you want to share the image, try {GetBestPercentage()}% for the best clarity";
+    public string SizeHint => new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
 
     private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
     {

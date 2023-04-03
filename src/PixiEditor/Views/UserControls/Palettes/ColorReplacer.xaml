@@ -10,6 +10,7 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
+             xmlns:views="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d" Name="uc"
              d:DesignHeight="50" d:DesignWidth="300">
     <Border BorderBrush="{StaticResource DarkerAccentColor}" 
@@ -30,7 +31,7 @@
                     <local:PaletteColor Color="{Binding ElementName=uc, Path=ColorToReplace}"
                             Height="35" 
                             Width="35" 
-                            ToolTip="Right click on palette color and choose 'Replace' or drop it here."
+                            views:Translator.TooltipKey="REPLACER_TOOLTIP"
                             AllowDrop="True" Drop="UIElement_OnDrop"/>
                     <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0"/>
                     <colorPicker:PortableColorPicker 
@@ -40,9 +41,9 @@
                         Height="37"
                         Style="{StaticResource DefaultColorPickerStyle}"
                         Width="37" Focusable="False" Margin="0 0 10 0"
-                        ToolTip="Click to choose the color"
+                        views:Translator.TooltipKey="CLICK_TO_CHOOSE_COLOR"
                         ShowAlpha="False"/>
-                    <Button Click="ReplaceButton_OnClick" ToolTip="Replace color"
+                    <Button Click="ReplaceButton_OnClick" views:Translator.TooltipKey="REPLACE_COLOR"
                             Style="{StaticResource ToolButtonStyle}" Cursor="Hand" Height="20" Width="20">
                         <Button.Background>
                             <ImageBrush ImageSource="/Images/Replace.png"/>

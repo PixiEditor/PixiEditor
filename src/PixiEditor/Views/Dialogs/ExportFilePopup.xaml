@@ -29,10 +29,10 @@
 
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="Export image" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+            TitleText="EXPORT_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
         <Button DockPanel.Dock="Bottom" Width="70" HorizontalAlignment="Center" IsDefault="True"
-                    Margin="15" Style="{StaticResource DarkRoundButton}" Content="Export" Command="{Binding OkCommand}"
+                    Margin="15" Style="{StaticResource DarkRoundButton}" local:Translator.Key="EXPORT" Command="{Binding OkCommand}"
                     CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
 
         <Grid HorizontalAlignment="Center" Margin="0,30,0,0" Background="{StaticResource MainColor}"

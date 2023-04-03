@@ -8,6 +8,7 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+             xmlns:views="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="300" Name="paletteControl">
     <DockPanel>
@@ -29,19 +30,19 @@
                                             Colors="{Binding ElementName=paletteControl, Path=Colors}"/>
                     <StackPanel Margin="0, 0, 5, 0" HorizontalAlignment="Right" Width="85" VerticalAlignment="Center" Orientation="Horizontal">
                         <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" Click="BrowsePalettes_Click"
-                Cursor="Hand" Height="24" Width="24" ToolTip="Browse Palettes">
+                Cursor="Hand" Height="24" Width="24" views:Translator.TooltipKey="BROWSE_PALETTES">
                             <Button.Background>
                                 <ImageBrush ImageSource="/Images/Database.png"/>
                             </Button.Background>
                         </Button>
                         <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" 
-                Cursor="Hand" Height="24" Width="24"  ToolTip="Load Palette" Click="ImportPalette_OnClick">
+                Cursor="Hand" Height="24" Width="24" views:Translator.TooltipKey="LOAD_PALETTE" Click="ImportPalette_OnClick">
                             <Button.Background>
                                 <ImageBrush ImageSource="/Images/Folder.png"/>
                             </Button.Background>
                         </Button>
                         <Button Height="24" Width="24" Margin="0" Style="{StaticResource ToolButtonStyle}" 
-                Cursor="Hand" ToolTip="Save Palette" Click="SavePalette_OnClick">
+                Cursor="Hand" views:Translator.TooltipKey="SAVE_PALETTE" Click="SavePalette_OnClick">
                             <Button.Background>
                                 <ImageBrush ImageSource="/Images/Save.png"/>
                             </Button.Background>
@@ -74,7 +75,9 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <palettes:PaletteColor Cursor="Hand" ToolTip="Click to select as main color. Drag and drop onto another palette color to swap them." AllowDrop="True" Color="{Binding}" 
+                            <palettes:PaletteColor Cursor="Hand"
+                                                   views:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
+                                                   AllowDrop="True" Color="{Binding}"
                                                Margin="2.5"
                                             Drop="PaletteColor_Drop"
                                             AssociatedKey="{Binding Path=(ItemsControl.AlternationIndex), 

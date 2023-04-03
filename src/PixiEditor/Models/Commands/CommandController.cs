@@ -112,7 +112,7 @@ internal class CommandController
             File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true);
             shortcutFile = new ShortcutFile(ShortcutsPath, this);
             template = shortcutFile.LoadTemplate();
-            NoticeDialog.Show("Shortcuts file was corrupted, resetting to default.", "Corrupted shortcuts file");
+            NoticeDialog.Show("SHORTCUTS_CORRUPTED", "SHORTCUTS_CORRUPTED_TITLE");
         }
         var compiledCommandList = new CommandNameList();
         List<(string internalName, string displayName)> commandGroupsData = FindCommandGroups(compiledCommandList.Groups);

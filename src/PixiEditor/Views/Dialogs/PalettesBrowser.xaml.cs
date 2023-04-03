@@ -24,10 +24,10 @@ internal partial class PalettesBrowser : Window
 {
     private const int ItemsPerLoad = 10;
 
-    private readonly string[] stopItTexts = new[]
+    private readonly LocalizedString[] stopItTexts = new[]
     {
-        "That's enough. Tidy up your file names.",
-        "Can you stop copying these names please?", "No, really, stop it.", "Don't you have anything better to do?"
+        new LocalizedString("STOP_IT_TEXT1"),
+        new LocalizedString("STOP_IT_TEXT2")
     };
 
     public PaletteList PaletteList
@@ -280,7 +280,7 @@ internal partial class PalettesBrowser : Window
         string filePath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, palette.FileName);
         if (File.Exists(filePath))
         {
-            if (ConfirmationDialog.Show("Are you sure you want to delete this palette? This cannot be undone.", "Warning!") == ConfirmationType.Yes)
+            if (ConfirmationDialog.Show("DELETE_PALETTE_CONFIRMATION", "WARNING") == ConfirmationType.Yes)
             {
                 _ = LocalPalettesFetcher.DeletePalette(palette.FileName);
                 RemoveFavouritePalette(palette);
@@ -487,7 +487,7 @@ internal partial class PalettesBrowser : Window
         if (CurrentEditingPalette?.Count == 0)
             return;
 
-        string finalFileName = LocalPalettesFetcher.GetNonExistingName("Unnamed Palette.pal", true);
+        string finalFileName = LocalPalettesFetcher.GetNonExistingName($"{new LocalizedString("UNNAMED_PALETTE").Value}.pal", true);
         await LocalPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
     }
 
@@ -506,7 +506,7 @@ internal partial class PalettesBrowser : Window
 
         if (newPath.Length > 250)
         {
-            NoticeDialog.Show(stopItTexts[Random.Shared.Next(stopItTexts.Length - 1)], "The name is too long.");
+            NoticeDialog.Show(stopItTexts[Random.Shared.Next(stopItTexts.Length - 1)], "NAME_IS_TOO_LONG");
             return;
         }
 

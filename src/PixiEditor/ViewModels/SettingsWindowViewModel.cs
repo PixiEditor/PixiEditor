@@ -68,10 +68,10 @@ internal class SettingsWindowViewModel : ViewModelBase
     [Command.Internal("PixiEditor.Shortcuts.Reset")]
     public static void ResetCommand()
     {
-        var dialog = new OptionsDialog<string>("Are you sure?", "Are you sure you want to reset all shortcuts to their default value?")
+        var dialog = new OptionsDialog<string>("ARE_YOU_SURE", "WARNING_RESET_SHORTCUTS_DEFAULT")
         {
-            { "Yes", x => CommandController.Current.ResetShortcuts() },
-            "Cancel"
+            { new LocalizedString("YES"), x => CommandController.Current.ResetShortcuts() },
+            new LocalizedString("CANCEL")
         }.ShowDialog();
     }
 
@@ -110,14 +110,14 @@ internal class SettingsWindowViewModel : ViewModelBase
             }
             catch (Exception e)
             {
-                NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
+                NoticeDialog.Show("SHORTCUTS_FILE_INCORRECT_FORMAT", "INVALID_FILE");
                 return;
             }
             
             CommandController.Current.ResetShortcuts();
             CommandController.Current.Import(shortcuts, false);
             File.Copy(dialog.FileName, CommandController.ShortcutsPath, true);
-            NoticeDialog.Show("Shortcuts were imported successfully", "Success");
+            NoticeDialog.Show("SHORTCUTS_IMPORTED_SUCCESS", "SUCCESS");
         }
         // Sometimes, focus was brought back to the last edited shortcut
         Keyboard.ClearFocus();
@@ -130,7 +130,7 @@ internal class SettingsWindowViewModel : ViewModelBase
             shortcuts = ShortcutFile.LoadTemplate(dialog.FileName)?.Shortcuts.ToList();
             if (shortcuts is null)
             {
-                NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
+                NoticeDialog.Show("SHORTCUTS_FILE_INCORRECT_FORMAT", "INVALID_FILE");
                 return false;
             }
         }
@@ -140,7 +140,7 @@ internal class SettingsWindowViewModel : ViewModelBase
                 x.CustomShortcutExtensions.Contains(Path.GetExtension(dialog.FileName), StringComparer.OrdinalIgnoreCase));
             if (provider is null)
             {
-                NoticeDialog.Show("This file format is unsupported.", "Invalid file");
+                NoticeDialog.Show("UNSUPPORTED_FILE_FORMAT", "INVALID_FILE");
                 return false;
             }
 
