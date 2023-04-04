@@ -10,18 +10,21 @@ namespace PixiEditor.Views;
 
 public class Translator : UIElement
 {
-    private static void OnLanguageChanged(DependencyObject obj, Language newLanguage)
+    private static void OnLanguageChangedKey(DependencyObject obj, Language newLanguage)
     {
         string key = GetKey(obj);
         if (key != null)
         {
-            obj.SetValue(ValueProperty, new LocalizedString(GetKey(obj)).Value);
+            obj.SetValue(ValueProperty, new LocalizedString(key).Value);
         }
-        
-        string tooltipKey = GetTooltipKey(obj);
+    }
+
+    private static void OnLanguageChangedTooltipKey(DependencyObject element, Language lang)
+    {
+        string tooltipKey = GetTooltipKey(element);
         if (tooltipKey != null)
         {
-            obj.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(GetTooltipKey(obj)).Value);
+            element.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(tooltipKey).Value);
         }
     }
 
@@ -38,6 +41,7 @@ public class Translator : UIElement
     private static void TooltipKeyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         d.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(GetTooltipKey(d)).Value);
+        ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedTooltipKey(d, lang);
     }
 
     public static void SetTooltipKey(DependencyObject element, string value)
@@ -87,7 +91,7 @@ public class Translator : UIElement
             }
 
             d.SetValue(ValueProperty, localizedString.Value);
-            ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChanged(d, lang);
+            ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedKey(d, lang);
         }
     }
 

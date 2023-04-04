@@ -18,7 +18,6 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
         public PenToolViewModel()
         {
             Cursor = Cursors.Pen;
-            ActionDisplay = "PEN_TOOL_TOOLTIP";
             Toolbar = ToolbarFactory.Create<PenToolViewModel, BasicToolbar>();
         }
 
@@ -29,6 +28,11 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
 
         [Settings.Bool("PIXEL_PERFECT_SETTING")]
         public bool PixelPerfectEnabled => GetValue<bool>();
+
+        public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+        {
+            ActionDisplay = new LocalizedString("PEN_TOOL_TOOLTIP", Shortcut);
+        }
 
         public override void OnLeftMouseButtonDown(VecD pos)
         {

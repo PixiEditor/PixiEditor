@@ -68,7 +68,7 @@ internal class SettingsWindowViewModel : ViewModelBase
     [Command.Internal("PixiEditor.Shortcuts.Reset")]
     public static void ResetCommand()
     {
-        var dialog = new OptionsDialog<string>("ARE_YOU_SURE", "WARNING_RESET_SHORTCUTS_DEFAULT")
+        var dialog = new OptionsDialog<string>("ARE_YOU_SURE", new LocalizedString("WARNING_RESET_SHORTCUTS_DEFAULT"))
         {
             { new LocalizedString("YES"), x => CommandController.Current.ResetShortcuts() },
             new LocalizedString("CANCEL")

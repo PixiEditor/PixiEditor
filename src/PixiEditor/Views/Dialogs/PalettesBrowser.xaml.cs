@@ -27,7 +27,9 @@ internal partial class PalettesBrowser : Window
     private readonly LocalizedString[] stopItTexts = new[]
     {
         new LocalizedString("STOP_IT_TEXT1"),
-        new LocalizedString("STOP_IT_TEXT2")
+        new LocalizedString("STOP_IT_TEXT2"),
+        new LocalizedString("STOP_IT_TEXT3"),
+        new LocalizedString("STOP_IT_TEXT4"),
     };
 
     public PaletteList PaletteList

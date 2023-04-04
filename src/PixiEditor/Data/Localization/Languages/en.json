@@ -28,10 +28,6 @@
   "RESIZE": "Resize",
 
   "DISCORD": "Discord",
-  "DISCORD_DETAILS": "Staring at absolutely",
-  "DISCORD_STATE": "nothing",
-  "DISCORD_LARGE_IMAGE": "You've discovered PixiEditor's logo",
-  "DISCORD_SMALL_IMAGE": "Download PixiEditor (pixieditor.net/download)!",
   "EDITING_IMG": "Editing an image",
   "EDITING_IMG_DETAIL": "Editing {0}",
   "ONE_LAYER": "1 layer",
@@ -203,11 +199,6 @@
   "SHOW_LAYER_COUNT": "Show layer count",
 
   "ABOUT": "About",
-  "ABOUT_ME": "ABOUT ME",
-  "BOT_DESCRIPTION": "Use me to display your .pixi files in Discord.\nStart by sending a file in any appropriate channel",
-  "MEMBER_SINCE": "DISCORD MEMBER SINCE",
-  "DISCORD_PLAYING": "PLAYING A \"GAME\"",
-  "DISCORD_ELAPSED": "00:00 elapsed",
 
   "MINIMIZE": "Minimize",
   "RESTORE": "Restore",
@@ -449,7 +440,7 @@
   "LIGHTEN_BLEND_MODE": "Lighten",
   "SCREEN_BLEND_MODE": "Screen",
   "COLOR_DODGE_BLEND_MODE": "Color dodge",
-  "LINEAR_DOGE_BLEND_MODE": "Linear dodge (Add)",
+  "LINEAR_DODGE_BLEND_MODE": "Linear dodge (Add)",
   "OVERLAY_BLEND_MODE": "Overlay",
   "SOFT_LIGHT_BLEND_MODE": "Soft light",
   "HARD_LIGHT_BLEND_MODE": "Hard light",
@@ -480,7 +471,9 @@
 
   "NAME_IS_TOO_LONG": "The name is too long",
   "STOP_IT_TEXT1": "That's enough. Tidy up your file names.",
-  "STOP_IT_TEXT2": "Can you stop copying these names please?\", \"No, really, stop it.\", \"Don't you have anything better to do?",
+  "STOP_IT_TEXT2": "Can you stop copying these names please?",
+  "STOP_IT_TEXT3": "No, really, stop it.",
+  "STOP_IT_TEXT4": "Don't you have anything better to do?",
 
   "REPLACER_TOOLTIP": "Right click on palette color and choose 'Replace' or drop it here.",
   "CLICK_TO_CHOOSE_COLOR": "Click to choose the color",
@@ -532,6 +525,8 @@
   "IMPORT_FROM_TEMPLATE": "Import from template",
   "SHORTCUTS_IMPORTED_SUCCESS": "Shortcuts were imported successfully.",
   "WARNING_RESET_SHORTCUTS_DEFAULT": "Are you sure you want to reset all shortcuts to their default value?",
+  "PRESS_ANY_KEY": "Press any key",
+  "NONE_SHORTCUT": "None",
 
   "SUCCESS": "Success",
   "ERROR": "Error",
@@ -553,7 +548,7 @@
   "REPLACE": "Replace",
   "SWAP": "Swap",
   "SHORTCUT_ALREADY_ASSIGNED_SWAP": "This shortcut is already assigned to '{0}'\nDo you want to replace the existing shortcut or swap the two?",
-  "SHORTCUT_ALREADY_ASSIGNED_OVERWRITE": "This shortcut is already assigned to '{oldCommand.DisplayName}'\nDo you want to replace the existing shortcut?",
+  "SHORTCUT_ALREADY_ASSIGNED_OVERWRITE": "This shortcut is already assigned to '{0}'\nDo you want to replace the existing shortcut?",
 
   "UNSAVED_CHANGES": "Unsaved changes",
   "DOCUMENT_MODIFIED_SAVE": "The document has been modified. Do you want to save changes?",

@@ -59,7 +59,7 @@ internal class DiscordSettings : SettingsGroup
     {
         get
         {
-            return ShowDocumentName ? new LocalizedString("EDITING_IMG_DETAIL", "coolPixelArt.pixi") : new LocalizedString("EDITING_IMG");
+            return ShowDocumentName ? $"Editing coolPixelArt.pixi" : "Editing an image";
         }
     }
 
@@ -81,7 +81,7 @@ internal class DiscordSettings : SettingsGroup
 
             if (ShowLayerCount)
             {
-                state += new LocalizedString("LAYERS", "2");
+                state += $"2 Layers";
             }
 
             return state;

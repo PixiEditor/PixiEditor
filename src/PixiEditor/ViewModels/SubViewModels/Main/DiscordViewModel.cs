@@ -120,8 +120,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
 
             richPresence.Details = ShowDocumentName
-                ? new LocalizedString("EDITING_IMG_DETAIL", document.FileName.Limit(128))
-                : new LocalizedString("EDITING_IMG");
+                ? $"Editing {document.FileName.Limit(128)}" : "Editing an image";
 
             string state = string.Empty;
 
@@ -170,15 +169,15 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
     {
         return new RichPresence
         {
-            Details = new LocalizedString("DISCORD_DETAILS"),
-            State = new LocalizedString("DISCORD_STATE"),
+            Details = "Staring at absolutely",
+            State = "nothing",
 
             Assets = new Assets
             {
                 LargeImageKey = "editorlogo",
-                LargeImageText = new LocalizedString("DISCORD_LARGE_IMAGE"),
+                LargeImageText = "You've discovered PixiEditor's logo",
                 SmallImageKey = "github",
-                SmallImageText = new LocalizedString("DISCORD_SMALL_IMAGE")
+                SmallImageText = "Download PixiEditor (pixieditor.net/download)!"
             },
             Timestamps = new Timestamps()
             {
