@@ -570,5 +570,17 @@
   "REDDIT": "Reddit",
   "GITHUB": "GitHub",
   "YOUTUBE": "YouTube",
-  "DONATE": "Donate"
+  "DONATE": "Donate",
+  
+  "OPEN_LOCALIZATION_DEBUG_WINDOW": "Open Localization Debug Window",
+  "API_KEY": "API Key",
+  "LOCALIZATION_VIEW_TYPE": "Localization View Type",
+  "LOAD_LANGUAGE_FROM_FILE": "Load language from file",
+  
+  "NOT_LOGGED_IN": "Not logged in",
+  "POE_EDITOR_ERROR": "POEditor Error: {0} {1}",
+  "HTTP_ERROR_MESSAGE": "HTTP Error: {0} {1}",
+  "LOGGED_IN": "Logged in",
+  "SYNCED_SUCCESSFULLY": "Synced successfully",
+  "EXCEPTION_ERROR": "Exception: {0}"
 }

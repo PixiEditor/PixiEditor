@@ -10,6 +10,7 @@ using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs;
 
@@ -27,6 +28,20 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     {
         get => useDebug;
         set => SetProperty(ref useDebug, value);
+    }
+
+    private LocalizationKeyShowMode localizationKeyShowMode;
+
+    public LocalizationKeyShowMode LocalizationKeyShowMode
+    {
+        get => localizationKeyShowMode;
+        set
+        {
+            if (SetProperty(ref localizationKeyShowMode, value))
+            {
+                Owner.LocalizationProvider.ReloadLanguage();
+            }
+        }
     }
 
     public DebugViewModel(ViewModelMain owner, IPreferences preferences)
@@ -146,6 +161,24 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         Mouse.OverrideCursor = Cursors.Wait;
         new CommandDebugPopup().Show();
         Mouse.OverrideCursor = null;
+    }
+
+    [Command.Debug("PixiEditor.Debug.OpenLocalizationDebugWindow", "OPEN_LOCALIZATION_DEBUG_WINDOW", "OPEN_LOCALIZATION_DEBUG_WINDOW")]
+    public void OpenLocalizationDebugWindow()
+    {
+        new LocalizationDebugWindow().Show();
+    }
+
+    [Command.Internal("PixiEditor.Debug.SetLanguageFromFilePicker")]
+    public void SetLanguageFromFilePicker()
+    {
+        var file = new OpenFileDialog { Filter = "key-value json (*.json)|*.json" };
+
+        if (file.ShowDialog().GetValueOrDefault())
+        {
+            Owner.LocalizationProvider.LoadDebugKeys(
+                JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file.FileName)));
+        }
     }
 
     [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "OPEN_INSTALLATION_DIR", "OPEN_INSTALLATION_DIR", IconPath = "Folder.png")]

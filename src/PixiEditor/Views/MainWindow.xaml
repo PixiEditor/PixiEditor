@@ -357,6 +357,9 @@
                         <MenuItem
                             views:Translator.Key="OPEN_COMMAND_DEBUG_WINDOW"
                             cmds:Menu.Command="PixiEditor.Debug.OpenCommandDebugWindow"/>
+                        <MenuItem
+                            views:Translator.Key="OPEN_LOCALIZATION_DEBUG_WINDOW"
+                            cmds:Menu.Command="PixiEditor.Debug.OpenLocalizationDebugWindow"/>
                         <Separator/>
                         <MenuItem
                             views:Translator.Key="OPEN_LOCAL_APPDATA_DIR"

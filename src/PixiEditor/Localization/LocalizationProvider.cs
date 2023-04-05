@@ -5,10 +5,13 @@ namespace PixiEditor.Localization;
 
 internal class LocalizationProvider : ILocalizationProvider
 {
+    private Language debugLanguage;
     public string LocalizationDataPath { get; } = Path.Combine("Data", "Localization", "LocalizationData.json");
     public LocalizationData LocalizationData { get; private set; }
     public Language CurrentLanguage { get; set; }
     public event Action<Language> OnLanguageChanged;
+    public void ReloadLanguage() => OnLanguageChanged?.Invoke(CurrentLanguage);
+
     public Language DefaultLanguage { get; private set; }
 
     public void LoadData()
@@ -71,6 +74,20 @@ internal class LocalizationProvider : ILocalizationProvider
         {
             OnLanguageChanged?.Invoke(CurrentLanguage);
         }
+    }
+
+    public void LoadDebugKeys(Dictionary<string, string> languageKeys)
+    {
+        debugLanguage = new Language(
+            new LanguageData
+        {
+            Code = "debug",
+            Name = "Debug"
+        }, languageKeys);
+
+        CurrentLanguage = debugLanguage;
+        
+        OnLanguageChanged?.Invoke(debugLanguage);
     }
 
     private Language LoadLanguageInternal(LanguageData languageData)

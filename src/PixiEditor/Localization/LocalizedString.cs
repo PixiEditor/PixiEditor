@@ -1,4 +1,7 @@
-﻿namespace PixiEditor.Localization;
+﻿using System.Text;
+using PixiEditor.Models.Enums;
+
+namespace PixiEditor.Localization;
 
 public struct LocalizedString
 {
@@ -13,7 +16,12 @@ public struct LocalizedString
             #if DEBUG_LOCALIZATION
             Value = key;
             #else
-            Value = GetValue(value);
+            Value = ViewModelMain.Current.DebugSubViewModel?.LocalizationKeyShowMode switch
+            {
+                LocalizationKeyShowMode.Key => Key,
+                LocalizationKeyShowMode.ValueKey => $"{GetValue(value)} ({Key})",
+                _ => GetValue(value)
+            };
             #endif
         }
     }
