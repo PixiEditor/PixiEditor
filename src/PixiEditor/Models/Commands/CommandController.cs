@@ -137,7 +137,7 @@ internal class CommandController
             CommandGroups.Add(new CommandGroup(groupDisplayName, storedCommands));
         }
         
-        CommandGroups.Add(new CommandGroup("Misc", miscList));
+        CommandGroups.Add(new CommandGroup(new LocalizedString("MISC"), miscList));
     }
 
     private void LoadTools(IServiceProvider serviceProvider, List<(string internalName, string displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands,

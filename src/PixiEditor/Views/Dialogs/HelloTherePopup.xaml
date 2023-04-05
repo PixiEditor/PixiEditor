@@ -72,7 +72,7 @@
                 <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">
                     <TextBlock FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
                                views:Translator.Key="RECENT_FILES"/>
-                    <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center"
+                    <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center" 
                                views:Translator.Key="RECENT_EMPTY_TEXT">
                         <TextBlock.Visibility>
                             <Binding Path="RecentlyOpened.Count"

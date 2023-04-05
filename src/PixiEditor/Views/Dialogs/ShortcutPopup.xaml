@@ -11,6 +11,7 @@
         xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:commands1="clr-namespace:PixiEditor.Models.Commands.Commands"
+        xmlns:views="clr-namespace:PixiEditor.Views"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         SizeToContent="Height"
@@ -84,9 +85,11 @@
         <DockPanel Grid.Row="3">
             <TextBlock FontSize="14" Margin="10" Foreground="LightGray" HorizontalAlignment="Left" DockPanel.Dock="Bottom">
                 <Hyperlink Style="{StaticResource SettingsLink}"
-                            Command="{cmds:Command PixiEditor.Window.OpenSettingsWindow, UseProvided=True}"
-                            CommandParameter="Keybinds">
-                    <Run Text="Edit"/>
+                            Command="{cmds:Command PixiEditor.Window.OpenSettingsWindow, UseProvided=True}">
+                    <Hyperlink.CommandParameter>
+                        <s:Int32>2</s:Int32>
+                    </Hyperlink.CommandParameter>
+                    <Run views:Translator.Key="EDIT"/>
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </TextBlock>

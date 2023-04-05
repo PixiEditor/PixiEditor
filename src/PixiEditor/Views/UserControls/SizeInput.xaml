@@ -42,8 +42,7 @@
                      x:Name="textBox"
                      Text="{Binding Size, ElementName=uc, Converter={converters:ToolSizeToIntConverter}}"
                      d:Text="22"
-                     MaxLength = "6"
-                     >
+                     MaxLength = "6">
                 <i:Interaction.Behaviors>
                     <behaviors:GlobalShortcutFocusBehavior/>
                     <behaviors:TextBoxFocusBehavior 

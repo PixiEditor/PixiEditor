@@ -32,7 +32,7 @@
             <Grid Height="60" HorizontalAlignment="Center" DockPanel.Dock="Top"
                   Visibility="{Binding SizeUnitSelectionVisibility, ElementName=uc}">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="120"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -84,7 +84,7 @@
 
             <Grid Height="90" HorizontalAlignment="Center" DockPanel.Dock="Top">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="60"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>

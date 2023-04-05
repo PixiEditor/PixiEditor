@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using PixiEditor.Localization;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -10,12 +11,22 @@ internal class BoolToValueConverter : MarkupConverter
     
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is bool boolean && boolean)
+        if (value is bool and true)
         {
-            return TrueValue;
+            return GetValue(TrueValue);
         }
 
-        return FalseValue;
+        return GetValue(FalseValue);
+    }
+
+    private object GetValue(object value)
+    {
+        if (value is string s && s.StartsWith("localized:"))
+        {
+            return new LocalizedString(s.Split("localized:")[1]);
+        }
+
+        return value;
     }
 
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

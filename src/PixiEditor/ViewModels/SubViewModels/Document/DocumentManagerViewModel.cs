@@ -11,7 +11,7 @@ using PixiEditor.Views.UserControls.SymmetryOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
-[Command.Group("PixiEditor.Document", "Image")]
+[Command.Group("PixiEditor.Document", "IMAGE")]
 internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 {
     public ObservableCollection<DocumentViewModel> Documents { get; } = new ObservableCollection<DocumentViewModel>();
