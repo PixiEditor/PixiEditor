@@ -38,7 +38,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type commands:CommandGroup}">
                                     <StackPanel Margin="0,0,0,20" Visibility="{Binding Visibility}">
-                                        <TextBlock Text="{Binding DisplayName}" FontSize="22" FontWeight="SemiBold"/>
+                                        <TextBlock views:Translator.Key="{Binding DisplayName.Key}" FontSize="22" FontWeight="SemiBold"/>
                                         <ItemsControl ItemsSource="{Binding Commands}" Focusable="False">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate DataType="{x:Type commands1:Command}">

@@ -505,8 +505,9 @@
                 </ToggleButton>
                 <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
                 <Label Style="{StaticResource BaseLabel}" FontSize="12"
-                   VerticalAlignment="Center" Content="{Binding ToolsSubViewModel.ActiveTool.DisplayName}"
-                   ToolTip="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}"/>
+                   VerticalAlignment="Center" views:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
+                   views:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}"
+                   />
                 <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -518,7 +519,7 @@
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0">
                                 <Label
                                 Visibility="{Binding HasLabel, Converter={StaticResource BoolToVisibilityConverter}}"
-                                Foreground="White" Content="{Binding Label}" />
+                                Foreground="White" views:Translator.Key="{Binding Label.Key}" />
                                 <ContentControl Content="{Binding SettingControl}" />
                             </StackPanel>
                         </DataTemplate>

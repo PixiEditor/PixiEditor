@@ -48,21 +48,14 @@
         <dial:DialogTitleBar DockPanel.Dock="Top"
             TitleText="SETTINGS" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
-        <ListBox DockPanel.Dock="Left" x:Name="pages" 
+        <ListBox DockPanel.Dock="Left" x:Name="pages" ItemsSource="{Binding Pages}"
                  Background="Transparent" BorderThickness="0" Width="150" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}"
                  SelectedIndex="{Binding CurrentPage}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Margin="10 5 10 5" FontSize="15" Foreground="White" Text="{Binding Path=Value}"/>
+                    <TextBlock Margin="10 5 10 5" FontSize="15" Foreground="White" Text="{Binding Path=Name.Value}"/>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-            <ListBox.ItemsSource>
-                <x:Array Type="{x:Type localization:LocalizedString}">
-                    <localization:LocalizedString Key="GENERAL"/>
-                    <localization:LocalizedString Key="DISCORD"/>
-                    <localization:LocalizedString Key="KEY_BINDINGS"/>
-                </x:Array>
-            </ListBox.ItemsSource>
         </ListBox>
         <StackPanel Orientation="Vertical" Background="{StaticResource AccentColor}">
             <StackPanel Orientation="Vertical" Margin="15,10" Tag="27">

@@ -35,13 +35,12 @@
         <dial:DialogTitleBar DockPanel.Dock="Top"
             TitleText="RESIZE_CANVAS" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
 
-        <Button DockPanel.Dock="Bottom" Width="70" HorizontalAlignment="Center" Margin="15"
+        <Button DockPanel.Dock="Bottom" Padding="5 0" HorizontalAlignment="Center" Margin="15"
                 Style="{StaticResource DarkRoundButton}" local:Translator.Key="RESIZE" Click="Button_Click" IsDefault="True" />
 
         <Border HorizontalAlignment="Center" Margin="0,30,0,0" Background="{StaticResource MainColor}"
                  VerticalAlignment="Top" Grid.Row="1" Width="250" Height="290" CornerRadius="10">
-            <StackPanel
-                >
+            <StackPanel>
                 <userControls:SizePicker Margin="0,8,0,0" 
                                   Width="240"
                                   Height="170"

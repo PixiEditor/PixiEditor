@@ -15,6 +15,26 @@ using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels;
 
+internal class SettingsPage : NotifyableObject
+{
+    private LocalizedString name;
+
+    public LocalizedString Name
+    {
+        get => name;
+        set => SetProperty(ref name, value);
+    }
+
+    public SettingsPage(string nameKey)
+    {
+        Name = new LocalizedString(nameKey);
+    }
+
+    public void UpdateName()
+    {
+        Name = new LocalizedString(Name.Key);
+    }
+}
 internal class SettingsWindowViewModel : ViewModelBase
 {
     private string searchTerm;
@@ -62,6 +82,7 @@ internal class SettingsWindowViewModel : ViewModelBase
     public SettingsViewModel SettingsSubViewModel { get; set; }
 
     public List<GroupSearchResult> Commands { get; }
+    public ObservableCollection<SettingsPage> Pages { get; }
 
     private static List<ICustomShortcutFormat> _customShortcutFormats;
 
@@ -189,11 +210,34 @@ internal class SettingsWindowViewModel : ViewModelBase
 
     public SettingsWindowViewModel()
     {
+        Pages = new ObservableCollection<SettingsPage>
+        {
+            new SettingsPage("GENERAL"),
+            new SettingsPage("DISCORD"),
+            new SettingsPage("KEY_BINDINGS"),
+        };
+
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
         Commands = new(CommandController.Current.CommandGroups.Select(x => new GroupSearchResult(x)));
         UpdateSearchResults();
         SettingsSubViewModel = new SettingsViewModel(this);
         PreferencesSettings.Current.AddCallback("IsDebugModeEnabled", _ => UpdateSearchResults());
         VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
+    }
+
+    private void UpdatePages()
+    {
+        foreach (var page in Pages)
+        {
+            page.UpdateName();
+        }
+
+        RaisePropertyChanged(nameof(Pages));
+    }
+
+    private void OnLanguageChanged(Language obj)
+    {
+        UpdatePages();
     }
 
     public void UpdateSearchResults()

@@ -10,7 +10,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
                     <Border x:Name="Border" Padding="15,7" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
-                        <ContentPresenter Content="{TemplateBinding Content}"/>
+                        <ContentPresenter/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
