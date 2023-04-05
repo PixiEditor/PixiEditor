@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Localization;
 
 namespace PixiEditor.Helpers.Converters;
 internal class BlendModeToStringConverter : SingleInstanceConverter<BlendModeToStringConverter>
@@ -9,7 +10,7 @@ internal class BlendModeToStringConverter : SingleInstanceConverter<BlendModeToS
     {
         if (value is not BlendMode mode)
             return "<null>";
-        return mode.LocalizedName();
+        return new LocalizedString(mode.LocalizedKeys()).Value;
     }
 
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

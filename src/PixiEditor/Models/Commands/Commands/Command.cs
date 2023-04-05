@@ -19,9 +19,9 @@ internal abstract partial class Command : NotifyableObject
 
     public IconEvaluator IconEvaluator { get; init; }
 
-    public LocalizedString DisplayName { get; init; }
+    public LocalizedString DisplayName { get; set; }
 
-    public LocalizedString Description { get; init; }
+    public LocalizedString Description { get; set; }
 
     public CommandMethods Methods { get; init; }
 
@@ -43,8 +43,20 @@ internal abstract partial class Command : NotifyableObject
 
     public abstract object GetParameter();
 
-    protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute) =>
+    protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute)
+    {
         Methods = new(this, onExecute, canExecute);
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged(Language obj)
+    {
+        DisplayName = new LocalizedString(DisplayName.Key);
+        Description = new LocalizedString(Description.Key);
+
+        RaisePropertyChanged(nameof(DisplayName));
+        RaisePropertyChanged(nameof(Description));
+    }
 
     public void Execute() => Methods.Execute(GetParameter());
 

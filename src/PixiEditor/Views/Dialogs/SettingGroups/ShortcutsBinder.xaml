@@ -7,6 +7,8 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
+             xmlns:commands1="clr-namespace:PixiEditor.Models.Commands.Commands"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="400">
     <ScrollViewer x:Name="commandScroll" FocusVisualStyle="{x:Null}">
@@ -34,12 +36,12 @@
                                    views:Translator.Key="NOTHING_FOUND"  d:Text="Nothing found."/>
                         <ItemsControl ItemsSource="{Binding Commands}" Foreground="White" Focusable="False">
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate>
+                                <DataTemplate DataType="{x:Type commands:CommandGroup}">
                                     <StackPanel Margin="0,0,0,20" Visibility="{Binding Visibility}">
                                         <TextBlock Text="{Binding DisplayName}" FontSize="22" FontWeight="SemiBold"/>
                                         <ItemsControl ItemsSource="{Binding Commands}" Focusable="False">
                                             <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
+                                                <DataTemplate DataType="{x:Type commands1:Command}">
                                                     <Grid Margin="0,5,5,0" Visibility="{Binding Visibility}">
                                                         <TextBlock Text="{Binding Command.DisplayName}" ToolTip="{Binding Command.Description}"/>
                                                         <userControls:ShortcutBox Width="120" Command="{Binding Command}" HorizontalAlignment="Right" Focusable="False"/>

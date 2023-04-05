@@ -71,9 +71,9 @@ internal class CommandController
         }
     }
 
-    private static List<(string internalName, string displayName)> FindCommandGroups(IEnumerable<Type> typesToSearchForAttributes)
+    private static List<(string internalName, LocalizedString displayName)> FindCommandGroups(IEnumerable<Type> typesToSearchForAttributes)
     {
-        List<(string internalName, string displayName)> result = new();
+        List<(string internalName, LocalizedString displayName)> result = new();
 
         foreach (var type in typesToSearchForAttributes)
         {
@@ -115,7 +115,7 @@ internal class CommandController
             NoticeDialog.Show("SHORTCUTS_CORRUPTED", "SHORTCUTS_CORRUPTED_TITLE");
         }
         var compiledCommandList = new CommandNameList();
-        List<(string internalName, string displayName)> commandGroupsData = FindCommandGroups(compiledCommandList.Groups);
+        List<(string internalName, LocalizedString displayName)> commandGroupsData = FindCommandGroups(compiledCommandList.Groups);
         OneToManyDictionary<string, Command> commands = new(); // internal name of the corr. group -> command in that group
 
         LoadEvaluators(serviceProvider, compiledCommandList);
@@ -133,14 +133,14 @@ internal class CommandController
                 continue;
             }
 
-            string groupDisplayName = groupData.displayName;
+            LocalizedString groupDisplayName = groupData.displayName;
             CommandGroups.Add(new CommandGroup(groupDisplayName, storedCommands));
         }
         
-        CommandGroups.Add(new CommandGroup(new LocalizedString("MISC"), miscList));
+        CommandGroups.Add(new CommandGroup("MISC", miscList));
     }
 
-    private void LoadTools(IServiceProvider serviceProvider, List<(string internalName, string displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands,
+    private void LoadTools(IServiceProvider serviceProvider, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands,
         ShortcutsTemplate template)
     {
         foreach (var toolInstance in serviceProvider.GetServices<ToolViewModel>())
@@ -156,7 +156,7 @@ internal class CommandController
 
             string internalName = $"PixiEditor.Tools.Select.{type.Name}";
 
-            LocalizedString displayName = new("SELECT_TOOL", toolInstance.DisplayName);
+            LocalizedString displayName = new("SELECT_TOOL", toolInstance.DisplayName.Value);
 
             var command = new Command.ToolCommand()
             {
@@ -181,7 +181,7 @@ internal class CommandController
             .FirstOrDefault(x => x.Commands.Contains(internalName), new Shortcut(defaultShortcut, (List<string>)null))
             .KeyCombination;
 
-    private void AddCommandToCommandsCollection(Command command, List<(string internalName, string displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands)
+    private void AddCommandToCommandsCollection(Command command, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands)
     {
         (string internalName, string displayName) group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.internalName));
         if (group == default)
@@ -190,7 +190,7 @@ internal class CommandController
             commands.Add(group.internalName, command);
     }
 
-    private void LoadCommands(IServiceProvider serviceProvider, CommandNameList compiledCommandList, List<(string internalName, string displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands, ShortcutsTemplate template)
+    private void LoadCommands(IServiceProvider serviceProvider, CommandNameList compiledCommandList, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands, ShortcutsTemplate template)
     {
         foreach (var type in compiledCommandList.Commands)
         {

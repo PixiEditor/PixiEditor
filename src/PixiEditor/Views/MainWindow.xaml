@@ -26,6 +26,7 @@
     xmlns:commandSearch="clr-namespace:PixiEditor.Views.UserControls.CommandSearch"
     xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
     xmlns:views="clr-namespace:PixiEditor.Views"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
     d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
     mc:Ignorable="d"
     WindowStyle="None"
@@ -662,7 +663,7 @@
                                                       CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
                                             <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}"
-                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}" 
+                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}"
                                                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker">
                                                 <b:Interaction.Behaviors>
                                                     <behaviours:GlobalShortcutFocusBehavior/>
@@ -769,7 +770,8 @@
                                     Style="{StaticResource ToolButtonStyle}"
                                     Command="{cmds:Command PixiEditor.Tools.SelectTool, UseProvided=True}"
                                     CommandParameter="{Binding}"
-                                    ToolTip="{Binding Tooltip}">
+                                    views:Translator.TooltipLocalizedString="{Binding Tooltip}"
+                                    views:Translator.TooltipKey="{Binding Tooltip.Key}">
                                     <Button.Background>
                                         <ImageBrush
                                             RenderOptions.BitmapScalingMode="Fant"

@@ -247,7 +247,7 @@ internal class SettingsWindowViewModel : ViewModelBase
     {
         private Visibility visibility;
 
-        public string DisplayName { get; set; }
+        public LocalizedString DisplayName { get; set; }
 
         public List<CommandSearchResult> Commands { get; set; }
 

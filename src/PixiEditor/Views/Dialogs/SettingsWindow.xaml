@@ -46,7 +46,7 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="Settings" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+            TitleText="SETTINGS" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
         <ListBox DockPanel.Dock="Left" x:Name="pages" 
                  Background="Transparent" BorderThickness="0" Width="150" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}"
