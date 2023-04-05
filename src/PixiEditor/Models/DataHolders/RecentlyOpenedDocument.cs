@@ -41,6 +41,10 @@ internal class RecentlyOpenedDocument : NotifyableObject
     {
         get
         {
+            if (!File.Exists(FilePath))
+            {
+                return "? (Not found)";
+            }
             if (Corrupt)
             {
                 return "? (Corrupt)";
@@ -71,6 +75,11 @@ internal class RecentlyOpenedDocument : NotifyableObject
 
     private WriteableBitmap LoadPreviewBitmap()
     {
+        if (!File.Exists(FilePath))
+        {
+            return null;
+        }
+        
         if (FileExtension == ".pixi")
         {
             SerializableDocument serializableDocument;

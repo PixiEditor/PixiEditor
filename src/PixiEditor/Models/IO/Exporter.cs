@@ -104,6 +104,11 @@ internal class Exporter
                 return SaveResult.ConcurrencyError;
             var bitmap = maybeBitmap.AsT1;
 
+            if (!encodersFactory.ContainsKey(typeFromPath))
+            {
+                return SaveResult.UnknownError;
+            }
+            
             if (!TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize))
                 return SaveResult.UnknownError;
         }

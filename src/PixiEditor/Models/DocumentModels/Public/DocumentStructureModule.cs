@@ -68,6 +68,36 @@ internal class DocumentStructureModule
             list.Add(doc.StructureRoot);
         return list;
     }
+    
+    /// <summary>
+    ///     Returns all layers in the document.
+    /// </summary>
+    /// <returns>List of LayerViewModels. Empty if no layers found.</returns>
+    public List<LayerViewModel> GetAllLayers()
+    {
+        List<LayerViewModel> layers = new List<LayerViewModel>();
+        foreach (StructureMemberViewModel? member in doc.StructureRoot.Children)
+        {
+            if (member is LayerViewModel layer)
+                layers.Add(layer);
+            else if (member is FolderViewModel folder)
+                layers.AddRange(GetAllLayers(folder, layers));
+        }
+        
+        return layers;
+    }
+    
+    private List<LayerViewModel> GetAllLayers(FolderViewModel folder, List<LayerViewModel> layers)
+    {
+        foreach (StructureMemberViewModel? member in folder.Children)
+        {
+            if (member is LayerViewModel layer)
+                layers.Add(layer);
+            else if (member is FolderViewModel innerFolder)
+                layers.AddRange(GetAllLayers(innerFolder, layers));
+        }
+        return layers;
+    }
 
     private bool FillPath(FolderViewModel folder, Guid guid, List<StructureMemberViewModel> toFill)
     {

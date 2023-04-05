@@ -37,7 +37,7 @@ internal class BrightnessToolViewModel : ToolViewModel
     
     public bool Darken { get; private set; } = false;
 
-    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (!ctrlIsDown)
         {

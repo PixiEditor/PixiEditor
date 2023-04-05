@@ -2,6 +2,7 @@
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.Parser;
 using PixiEditor.Parser.Collections.Deprecated;
 using PixiEditor.Parser.Deprecated;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -10,6 +11,10 @@ namespace PixiEditor.Helpers.Extensions;
 
 internal static class SerializableDocumentEx
 {
+    public static Vector2 ToVector2(this VecD serializableVector2)
+    {
+        return new Vector2 { X = serializableVector2.X, Y = serializableVector2.Y };
+    }
     public static Image ToImage(this SerializableLayer serializableLayer)
     {
         if (serializableLayer.PngBytes == null)

@@ -5,6 +5,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.Parser;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.Helpers;
@@ -351,9 +352,16 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
             return this;
         }
 
-        public ReferenceLayerBuilder WithRect(VecD offset, VecD size)
+        public ReferenceLayerBuilder WithShape(Corners rect)
         {
-            Shape = new ShapeCorners(new RectD(offset, size));
+            Shape = new ShapeCorners
+            {
+                TopLeft = rect.TopLeft.ToVecD(), 
+                TopRight = rect.TopRight.ToVecD(), 
+                BottomLeft = rect.BottomLeft.ToVecD(), 
+                BottomRight = rect.BottomRight.ToVecD()
+            };
+            
             return this;
         }
     }

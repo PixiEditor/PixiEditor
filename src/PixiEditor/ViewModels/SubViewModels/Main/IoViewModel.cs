@@ -157,8 +157,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             if (activeDocument == null)
                 return;
 
-            activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
             Owner.ToolsSubViewModel.LeftMouseButtonDownInlet(args.PositionOnCanvas);
+            activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
         }
     }
 

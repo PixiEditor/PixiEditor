@@ -27,6 +27,7 @@
     xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
     xmlns:views="clr-namespace:PixiEditor.Views"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    KeyDown="MainWindow_OnKeyDown"
     d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
     mc:Ignorable="d"
     WindowStyle="None"
@@ -149,7 +150,8 @@
                             BasedOn="{StaticResource menuItemStyle}" />
                     </Menu.Resources>
                     <MenuItem
-                        views:Translator.Key="FILE">
+                        views:Translator.Key="FILE"
+                        Focusable="False">
                         <MenuItem
                             views:Translator.Key="NEW_FILE"
                             cmds:Menu.Command="PixiEditor.File.New" />
@@ -182,6 +184,7 @@
                             </MenuItem.ItemTemplate>
                         </MenuItem>
                         <MenuItem
+                            Focusable="False"
                             views:Translator.Key="SAVE_PIXI"
                             cmds:Menu.Command="PixiEditor.File.Save" />
                         <MenuItem
@@ -196,6 +199,7 @@
                             Command="{x:Static SystemCommands.CloseWindowCommand}" />
                     </MenuItem>
                     <MenuItem
+                        Focusable="False"
                         views:Translator.Key="EDIT">
                         <MenuItem
                             views:Translator.Key="UNDO"
@@ -226,6 +230,7 @@
                             cmds:Menu.Command="PixiEditor.Window.OpenSettingsWindow" />
                     </MenuItem>
                     <MenuItem
+                        Focusable="False"
                         views:Translator.Key="SELECT">
                         <MenuItem
                             views:Translator.Key="SELECT_ALL"
@@ -253,6 +258,7 @@
                         </MenuItem>
                     </MenuItem>
                     <MenuItem
+                        Focusable="False"
                         views:Translator.Key="IMAGE">
                         <MenuItem
                             views:Translator.Key="RESIZE_IMAGE"
@@ -298,6 +304,7 @@
                         </MenuItem>
                     </MenuItem>
                     <MenuItem
+                        Focusable="False"
                         views:Translator.Key="VIEW">
                         <MenuItem
                             views:Translator.Key="NEW_WINDOW_FOR_IMG"
@@ -321,6 +328,7 @@
                             InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}" />
                     </MenuItem>
                     <MenuItem
+                        Focusable="False"
                         views:Translator.Key="HELP">
                         <MenuItem
                             views:Translator.Key="DOCUMENTATION"

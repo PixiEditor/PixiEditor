@@ -11,7 +11,6 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
 {
     private Guid[]? membersToTransform;
     private MoveToolViewModel? tool;
-
     public override ExecutorType Type { get; }
 
     public TransformSelectedAreaExecutor(bool toolLinked)
@@ -25,10 +24,13 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
         if (tool is null || document!.SelectedStructureMember is null || document!.SelectionPathBindable.IsEmpty)
             return ExecutionState.Error;
 
-        var members = document.SoftSelectedStructureMembers
+        tool.TransformingSelectedArea = true;
+        List<StructureMemberViewModel> members = new();
+        
+        members = document.SoftSelectedStructureMembers
             .Append(document.SelectedStructureMember)
-            .Where(static m => m is LayerViewModel);
-
+            .Where(static m => m is LayerViewModel).ToList();
+        
         if (!members.Any())
             return ExecutionState.Error;
 
@@ -54,6 +56,11 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
 
     public override void OnTransformApplied()
     {
+        if (tool is not null)
+        {
+            tool.TransformingSelectedArea = false;
+        }
+        
         internals!.ActionAccumulator.AddActions(new EndTransformSelectedArea_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformViewModel.HideTransform();
@@ -67,6 +74,11 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
 
     public override void ForceStop()
     {
+        if (tool is not null)
+        {
+            tool.TransformingSelectedArea = false;
+        }
+        
         internals!.ActionAccumulator.AddActions(new EndTransformSelectedArea_Action());
         internals!.ActionAccumulator.AddFinishedActions();
         document!.TransformViewModel.HideTransform();

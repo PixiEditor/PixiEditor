@@ -24,7 +24,7 @@ internal class FloodFillToolViewModel : ToolViewModel
         ActionDisplay = defaultActionDisplay;
     }
 
-    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (ctrlIsDown)
         {

@@ -29,7 +29,7 @@ internal class ZoomToolViewModel : ToolViewModel
 
     public override LocalizedString Tooltip => new LocalizedString("ZOOM_TOOL_TOOLTIP", Shortcut);
 
-    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (ctrlIsDown)
         {

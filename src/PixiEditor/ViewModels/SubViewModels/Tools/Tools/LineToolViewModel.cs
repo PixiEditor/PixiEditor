@@ -26,7 +26,7 @@ internal class LineToolViewModel : ShapeTool
 
     public bool Snap { get; private set; }
 
-    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)
         {

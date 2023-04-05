@@ -69,8 +69,14 @@ internal partial class App : Application
                                 if (mainWindow != null)
                                 {
                                     mainWindow.BringToForeground();
-                                    StartupArgs.Args = File.ReadAllText(passedArgsFile).Split(' ').ToList();
-                                    File.Delete(passedArgsFile);
+                                    List<string> args = new List<string>();
+                                    if (File.Exists(passedArgsFile))
+                                    {
+                                        args = File.ReadAllText(passedArgsFile).Split(' ').ToList();
+                                        File.Delete(passedArgsFile);
+                                    }
+                                    
+                                    StartupArgs.Args = args;
                                     StartupArgs.Args.Add("--openedInExisting");
                                     mainWindow.DataContext.OnStartupCommand.Execute(null);
                                 }

@@ -12,8 +12,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 internal class MoveToolViewModel : ToolViewModel
 {
     private string defaultActionDisplay = new LocalizedString("MOVE_TOOL_ACTION_DISPLAY");
-
     public override string ToolNameLocalizationKey => "MOVE_TOOL";
+    
+    private string transformingActionDisplay = new LocalizedString("MOVE_TOOL_ACTION_DISPLAY_TRANSFORMING")
+    private bool transformingSelectedArea = false;
+
+    public bool MoveAllLayers { get; set; }
 
     public MoveToolViewModel()
     {
@@ -30,9 +34,38 @@ internal class MoveToolViewModel : ToolViewModel
     public override BrushShape BrushShape => BrushShape.Hidden;
     public override bool HideHighlight => true;
 
+    public bool TransformingSelectedArea
+    {
+        get => transformingSelectedArea;
+        set
+        {
+            transformingSelectedArea = value;
+            ActionDisplay = value ? transformingActionDisplay : defaultActionDisplay;
+        }
+    }
+
     public override void OnLeftMouseButtonDown(VecD pos)
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseShiftLayerTool();
+    }
+
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    {
+        if (TransformingSelectedArea)
+        {
+            return;
+        }
+        
+        if (ctrlIsDown)
+        {
+            ActionDisplay = nwe LocalizedString("MOVE_TOOL_ACTION_DISPLAY_CTRL")
+            MoveAllLayers = true;
+        }
+        else
+        {
+            ActionDisplay = defaultActionDisplay;
+            MoveAllLayers = false;
+        }
     }
 
     public override void OnSelected()
