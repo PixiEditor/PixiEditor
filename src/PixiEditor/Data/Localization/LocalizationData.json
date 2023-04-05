@@ -11,6 +11,42 @@
         "code": "pl",
         "localeFileName": "pl.json",
         "iconFileName": "pl.png"
+    },
+    {
+        "name": "Deutsch",
+        "code": "de",
+        "localeFileName": "de.json",
+        "iconFileName": "de.png"
+    },
+    {
+        "name": "Español",
+        "code": "es",
+        "localeFileName": "es.json",
+        "iconFileName": "es.png"
+    },
+    {
+        "name": "Русский",
+        "code": "ru",
+        "localeFileName": "ru.json",
+        "iconFileName": "ru.png"
+    },
+    {
+      "name": "Українська",
+      "code": "ua",
+      "localeFileName": "ua.json",
+      "iconFileName": "ua.png"
+    },
+    {
+        "name": "عربي",
+        "code": "ar",
+        "localeFileName": "ar.json",
+        "iconFileName": "ar.png"
+    },
+    {
+        "name": "Čeština",
+        "code": "cz",
+        "localeFileName": "cz.json",
+        "iconFileName": "cz.png"
     }
   ]
 }
