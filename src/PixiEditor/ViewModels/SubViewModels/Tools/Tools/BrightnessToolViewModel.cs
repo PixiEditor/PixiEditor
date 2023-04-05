@@ -13,7 +13,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.U)]
 internal class BrightnessToolViewModel : ToolViewModel
 {
-    private readonly LocalizedString defaultActionDisplay = "BRIGHTNESS_TOOL_ACTION_DISPLAY_DEFAULT";
+    private readonly string defaultActionDisplay = "BRIGHTNESS_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "BRIGHTNESS_TOOL";
 
     public BrightnessToolViewModel()

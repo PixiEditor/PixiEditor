@@ -10,7 +10,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.L)]
 internal class LineToolViewModel : ShapeTool
 {
-    private LocalizedString defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
+    private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public LineToolViewModel()
     {

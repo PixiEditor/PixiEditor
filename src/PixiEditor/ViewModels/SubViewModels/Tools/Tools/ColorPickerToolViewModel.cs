@@ -12,7 +12,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.O, Transient = Key.LeftAlt)]
 internal class ColorPickerToolViewModel : ToolViewModel
 {
-    private readonly LocalizedString defaultActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_DEFAULT";
+    private readonly string defaultActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_DEFAULT";
 
     public override bool HideHighlight => true;
 

@@ -11,7 +11,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.ToolAttribute(Key = Key.Q)]
 internal class LassoToolViewModel : ToolViewModel
 {
-    private LocalizedString defaultActionDisplay = "LASSO_TOOL_ACTION_DISPLAY_DEFAULT";
+    private string defaultActionDisplay = "LASSO_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public LassoToolViewModel()
     {

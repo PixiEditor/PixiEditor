@@ -9,7 +9,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.R)]
 internal class RectangleToolViewModel : ShapeTool
 {
-    private string defaultActionDisplay = new LocalizedString("RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT");
+    private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
     public RectangleToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
@@ -25,7 +25,7 @@ internal class RectangleToolViewModel : ShapeTool
         if (shiftIsDown)
         {
             DrawSquare = true;
-            ActionDisplay = new LocalizedString("RECTANGLE_TOOL_ACTION_DISPLAY_SHIFT");
+            ActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_SHIFT";
         }
         else
         {

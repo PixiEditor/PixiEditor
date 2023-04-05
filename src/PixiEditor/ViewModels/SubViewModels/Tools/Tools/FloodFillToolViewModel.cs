@@ -10,7 +10,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.G)]
 internal class FloodFillToolViewModel : ToolViewModel
 {
-    private readonly LocalizedString defaultActionDisplay = "FLOOD_FILL_TOOL_ACTION_DISPLAY_DEFAULT";
+    private readonly string defaultActionDisplay = "FLOOD_FILL_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public override string ToolNameLocalizationKey => "FLOOD_FILL_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;

@@ -55,6 +55,16 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public Toolbar Toolbar { get; set; } = new EmptyToolbar();
 
+    internal ToolViewModel()
+    {
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged(Language obj)
+    {
+        ActionDisplay = new LocalizedString(ActionDisplay.Key);
+    }
+
     public virtual void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
     public virtual void OnLeftMouseButtonDown(VecD pos) { }
     public virtual void OnSelected() 

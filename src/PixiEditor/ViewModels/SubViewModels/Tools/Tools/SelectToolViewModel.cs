@@ -13,7 +13,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.M)]
 internal class SelectToolViewModel : ToolViewModel
 {
-    private string defaultActionDisplay = new LocalizedString("SELECT_TOOL_ACTION_DISPLAY_DEFAULT");
+    private string defaultActionDisplay = "SELECT_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "SELECT_TOOL_NAME";
     public SelectToolViewModel()
     {

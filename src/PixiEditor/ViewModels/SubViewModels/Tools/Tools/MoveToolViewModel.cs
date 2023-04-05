@@ -11,10 +11,10 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.V)]
 internal class MoveToolViewModel : ToolViewModel
 {
-    private string defaultActionDisplay = new LocalizedString("MOVE_TOOL_ACTION_DISPLAY");
+    private string defaultActionDisplay = "MOVE_TOOL_ACTION_DISPLAY";
     public override string ToolNameLocalizationKey => "MOVE_TOOL";
 
-    private string transformingActionDisplay = new LocalizedString("MOVE_TOOL_ACTION_DISPLAY_TRANSFORMING");
+    private string transformingActionDisplay = "MOVE_TOOL_ACTION_DISPLAY_TRANSFORMING";
     private bool transformingSelectedArea = false;
 
     public bool MoveAllLayers { get; set; }

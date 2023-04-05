@@ -9,7 +9,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.C)]
 internal class EllipseToolViewModel : ShapeTool
 {
-    private LocalizedString defaultActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT";
+    private string defaultActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "ELLIPSE_TOOL";
 
     public EllipseToolViewModel()

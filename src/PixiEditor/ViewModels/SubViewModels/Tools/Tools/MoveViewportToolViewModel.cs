@@ -16,8 +16,10 @@ internal class MoveViewportToolViewModel : ToolViewModel
     public MoveViewportToolViewModel()
     {
         Cursor = Cursors.SizeAll;
-        ActionDisplay = new LocalizedString("MOVE_VIEWPORT_ACTION_DISPLAY");
     }
 
-    public override void OnSelected() { }
+    public override void OnSelected()
+    {
+        ActionDisplay = new LocalizedString("MOVE_VIEWPORT_ACTION_DISPLAY");
+    }
 }
