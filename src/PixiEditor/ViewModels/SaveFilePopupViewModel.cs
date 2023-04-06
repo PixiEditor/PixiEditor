@@ -66,12 +66,14 @@ internal class SaveFilePopupViewModel : ViewModelBase
         {
             if (string.IsNullOrEmpty(path.FileName) == false)
             {
-                ChosenFormat = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(path.SafeFileName));
+                ChosenFormat = SupportedFilesHelper.GetSaveFileTypeFromFilterIndex(false, path.FilterIndex);
                 if (ChosenFormat == FileType.Unset)
                 {
-                    ChosenFormat = FileType.Png;
-                    path.FileName += ".png";
+                    return null;
                 }
+
+                path.FileName = SupportedFilesHelper.FixFileExtension(path.FileName, ChosenFormat);
+
                 return path.FileName;
             }
         }
