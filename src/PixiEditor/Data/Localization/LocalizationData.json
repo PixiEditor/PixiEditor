@@ -1,4 +1,5 @@
 ﻿{
+  "$schema": "./LocalizationDataSchema.json",
   "Languages": [
     {
       "name": "English",
