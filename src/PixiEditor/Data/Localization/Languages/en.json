@@ -576,6 +576,8 @@
   "API_KEY": "API Key",
   "LOCALIZATION_VIEW_TYPE": "Localization View Type",
   "LOAD_LANGUAGE_FROM_FILE": "Load language from file",
+  "LOG_IN": "Log in",
+  "SYNC": "Sync",
   
   "NOT_LOGGED_IN": "Not logged in",
   "POE_EDITOR_ERROR": "POEditor Error: {0} {1}",

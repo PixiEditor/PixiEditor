@@ -53,22 +53,22 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="120"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="120"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock views:Translator.Key="API_KEY" Margin="0,0,5,0"></TextBlock>
                 <TextBox Grid.Column="1" Style="{StaticResource DarkTextBoxStyle}" TextChanged="ApiKeyChanged" Text="{Binding DataContext.ApiKey, ElementName=popup}"></TextBox>
-                <Button Style="{StaticResource DarkRoundButton}" Margin="5,0,0,0" Grid.Column="2" Content="Log in" Command="{Binding DataContext.LoadApiKeyCommand, ElementName=popup}"/>
+                <Button Style="{StaticResource DarkRoundButton}" Margin="5,0,0,0" Grid.Column="2" views:Translator.Key="LOG_IN" Command="{Binding DataContext.LoadApiKeyCommand, ElementName=popup}"/>
             </Grid>
             <Grid Visibility="{Binding DataContext.LoggedIn, ElementName=popup, Converter={BoolToVisibilityConverter}}" Margin="0,5,0,0" Height="25">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="120"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="120"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock views:Translator.Key="LANGUAGE" Margin="0,0,5,0"/>
                 <ComboBox Grid.Column="1" ItemsSource="{Binding DataContext.LanguageCodes, ElementName=popup}" SelectedItem="{Binding DataContext.SelectedLanguage, ElementName=popup}"
                           SelectedValue="{Binding DataContext.SelectedLanguage, ElementName=popup}"/>
-                <Button Grid.Column="2" Style="{StaticResource DarkRoundButton}" Content="Sync" Command="{Binding DataContext.SyncLanguageCommand, ElementName=popup}" Margin="5,0,0,0"/>
+                <Button Grid.Column="2" Style="{StaticResource DarkRoundButton}" views:Translator.Key="SYNC" Command="{Binding DataContext.SyncLanguageCommand, ElementName=popup}" Margin="5,0,0,0"/>
             </Grid>
             <TextBlock Text="{Binding DataContext.StatusMessage, ElementName=popup}"/>
         </StackPanel>

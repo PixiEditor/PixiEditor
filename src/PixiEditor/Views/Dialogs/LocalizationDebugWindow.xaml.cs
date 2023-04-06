@@ -25,7 +25,7 @@ public partial class LocalizationDebugWindow : Window
     private void ApiKeyChanged(object sender, TextChangedEventArgs e)
     {
         dataContext.LoggedIn = false;
-        dataContext.StatusMessage = "Not logged in";
+        dataContext.StatusMessage = "NOT_LOGGED_IN";
     }
 
     private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
@@ -40,6 +40,8 @@ public partial class LocalizationDebugWindow : Window
 
     private class LocalizationDataContext : NotifyableObject
     {
+        private const int ProjectId = 400351;
+
         private readonly LocalizationDebugWindow window;
         private string apiKey;
         private bool loggedIn;
@@ -90,7 +92,7 @@ public partial class LocalizationDebugWindow : Window
             apiKey = PreferencesSettings.Current.GetLocalPreference<string>("POEditor_API_Key");
             LoadApiKeyCommand = new RelayCommand(LoadApiKey, _ => !string.IsNullOrWhiteSpace(apiKey));
             SyncLanguageCommand =
-                new RelayCommand(SyncLanguage, _ => loggedIn && !string.IsNullOrWhiteSpace(SelectedLanguage) && SelectedLanguage != "Select your language");
+                new RelayCommand(SyncLanguage, _ => loggedIn && !string.IsNullOrWhiteSpace(SelectedLanguage));
         }
 
         private void LoadApiKey(object parameter)
@@ -109,19 +111,21 @@ public partial class LocalizationDebugWindow : Window
                         LoggedIn = result.success;
                         StatusMessage = result.message;
 
-                        if (result.languages != null)
+                        if (result.languages == null)
                         {
-                            foreach (string code in result.languages)
-                            {
-                                LanguageCodes.Add(code);
-                            }
+                            return;
                         }
 
-                        if (LoggedIn)
+                        foreach (string code in result.languages)
                         {
-                            SelectedLanguage = "Select your language";
+                            LanguageCodes.Add(code);
                         }
                     });
+                }
+                catch (Exception e)
+                {
+                    LoggedIn = false;
+                    StatusMessage = new LocalizedString("EXCEPTION_ERROR", e.Message);
                 }
                 finally
                 {
@@ -133,7 +137,7 @@ public partial class LocalizationDebugWindow : Window
         private void SyncLanguage(object parameter)
         {
             Mouse.OverrideCursor = Cursors.Wait;
-            
+
             Task.Run(async () =>
             {
                 try
@@ -146,6 +150,10 @@ public partial class LocalizationDebugWindow : Window
                         DebugViewModel.Owner.LocalizationProvider.LoadDebugKeys(result.response);
                     });
                 }
+                catch (Exception e)
+                {
+                    StatusMessage = new LocalizedString("EXCEPTION_ERROR", e.Message);
+                }
                 finally
                 {
                     window.Dispatcher.Invoke(() => Mouse.OverrideCursor = null);
@@ -153,133 +161,110 @@ public partial class LocalizationDebugWindow : Window
             });
         }
 
-        private static async Task<(bool success, LocalizedString message, string[] languages)> CheckProjectByIdAsync(string key)
+        private static async Task<(bool success, LocalizedString message, string[] languages)>
+            CheckProjectByIdAsync(string key)
         {
-            try
+            using HttpClient client = new HttpClient();
+
+            // --- Check if user is part of project ---
+            var response = await PostAsync(client, "https://api.poeditor.com/v2/projects/list", key);
+            var rootError = await ParseResponseAsync(response);
+
+            if (rootError.IsT1)
             {
-                using HttpClient httpClient = new HttpClient();
-
-                // --- Check if user is part of project ---
-                var response = await httpClient.PostAsync("https://api.poeditor.com/v2/projects/list",
-                    new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("api_token", key) }));
-
-                // Failed with an HTTP error code, according to API docs this should not be possible
-                if (!response.IsSuccessStatusCode)
-                {
-                    return (false, new LocalizedString("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode), null);
-                }
-
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-                JObject root = JObject.Parse(jsonResponse);
-
-                var rsp = root["response"];
-                var rspCode = rsp["code"].Value<string>();
-
-                // Failed with an error code from the POEditor API, alongside a message
-                if (rspCode != "200")
-                {
-                    return (false, new LocalizedString("POE_EDITOR_ERROR", rspCode, rsp["message"].Value<string>()), null);
-                }
-
-                var projects = (JArray)root["result"]["projects"];
-
-                // Check if user is part of project
-                if (!projects.Any(x => x["id"].Value<int>() == 400351))
-                {
-                    return (false, new LocalizedString("LOGGED_IN_NO_PROJECT_ACCESS"), null);
-                }
-
-                // --- Fetch languages ---
-                response = await httpClient.PostAsync("https://api.poeditor.com/v2/languages/list",
-                    new FormUrlEncodedContent(new[]
-                    {
-                        new KeyValuePair<string, string>("api_token", key),
-                        new KeyValuePair<string, string>("id", "400351")
-                    }));
-
-                // Failed with an HTTP error code, according to API docs this should not be possible
-                if (!response.IsSuccessStatusCode)
-                {
-                    return (false, new LocalizedString("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode), null);
-                }
-
-                jsonResponse = await response.Content.ReadAsStringAsync();
-                root = JObject.Parse(jsonResponse);
-
-                rsp = root["response"];
-                rspCode = rsp["code"].Value<string>();
-
-                // Failed with an error code from the POEditor API, alongside a message
-                if (rspCode != "200")
-                {
-                    return (false, new LocalizedString("POE_EDITOR_ERROR", rspCode, rsp["message"].Value<string>()), null);
-                }
-
-                var languages = ((JArray)root["result"]["languages"]).Select(x => x["code"].Value<string>());
-
-                return (true, new LocalizedString("LOGGED_IN"), languages.ToArray());
+                return Error(rootError.AsT1);
             }
-            catch (Exception e)
+
+            var projects = (JArray)rootError.AsT0["result"]["projects"];
+
+            // Check if user is part of project
+            if (!projects.Any(x => x["id"].Value<int>() == ProjectId))
             {
-                return (false, new LocalizedString("EXCEPTION_ERROR", e.Message), null);
+                return Error("LOGGED_IN_NO_PROJECT_ACCESS");
             }
+
+            response = await PostAsync(client, "https://api.poeditor.com/v2/languages/list", key, ("id", ProjectId.ToString()));
+            rootError = await ParseResponseAsync(response);
+
+            if (rootError.IsT1)
+            {
+                return Error(rootError.AsT1);
+            }
+
+            var languages = ((JArray)rootError.AsT0["result"]["languages"]).Select(x => x["code"].Value<string>());
+
+            return (true, new LocalizedString("LOGGED_IN"), languages.ToArray());
+
+            (bool success, LocalizedString message, string[] languages) Error(LocalizedString message) =>
+                (false, message, null);
         }
 
-        private static async Task<(LocalizedString status, Dictionary<string, string> response)> DownloadLanguage(string key,
+        private static async Task<(LocalizedString status, Dictionary<string, string> response)> DownloadLanguage(
+            string key,
             string language)
         {
-            try
+            using var client = new HttpClient();
+
+            // Get Url to key_value_json in language
+            var response = await PostAsync(
+                client,
+                "https://api.poeditor.com/v2/projects/export",
+                key,
+                ("id", ProjectId.ToString()), ("type", "key_value_json"), ("language", language));
+
+            var rootError = await ParseResponseAsync(response);
+
+            if (rootError.IsT1)
             {
-                using HttpClient httpClient = new HttpClient();
-
-                var response = await httpClient.PostAsync(
-                    "https://api.poeditor.com/v2/projects/export",
-                    new FormUrlEncodedContent(new[]
-                    {
-                        new KeyValuePair<string, string>("api_token", key),
-                        new KeyValuePair<string, string>("id", "400351"),
-                        new KeyValuePair<string, string>("type", "key_value_json"),
-                        new KeyValuePair<string, string>("language", language)
-                    }));
-
-
-                // Failed with an HTTP error code, according to API docs this should not be possible
-                if (!response.IsSuccessStatusCode)
-                {
-                    return (new LocalizedString("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode), null);
-                }
-
-                string jsonResponse = await response.Content.ReadAsStringAsync();
-                JObject root = JObject.Parse(jsonResponse);
-
-                var rsp = root["response"];
-                var rspCode = rsp["code"].Value<string>();
-
-                // Failed with an error code from the POEditor API, alongside a message
-                if (rspCode != "200")
-                {
-                    return (new LocalizedString("POE_EDITOR_ERROR", rspCode, rsp["message"].Value<string>()), null);
-                }
-
-                var url = root["result"]["url"].Value<string>();
-
-                response = await httpClient.GetAsync(url);
-
-                // Failed with an HTTP error code, according to API docs this should not be possible
-                if (!response.IsSuccessStatusCode)
-                {
-                    return (new LocalizedString("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode), null);
-                }
-
-                var responseJson = await response.Content.ReadAsStringAsync();
-                var keys = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseJson);
-
-                return (new LocalizedString("SYNCED_SUCCESSFULLY"), keys);
+                return Error(rootError.AsT1);
             }
-            catch (Exception e)
+
+            response = await client.GetAsync(rootError.AsT0["result"]["url"].Value<string>());
+
+            // Failed with an HTTP error code, according to API docs this should not be possible
+            if (!response.IsSuccessStatusCode)
             {
-                return (new LocalizedString("EXCEPTION_ERROR", e.Message), null);
+                return Error(new LocalizedString("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode));
             }
+
+            string responseJson = await response.Content.ReadAsStringAsync();
+            var keys = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseJson);
+
+            return (new LocalizedString("SYNCED_SUCCESSFULLY"), keys);
+
+            (LocalizedString, Dictionary<string, string>) Error(LocalizedString message) => (message, null);
+        }
+
+        private static async Task<OneOf<JObject, LocalizedString>> ParseResponseAsync(HttpResponseMessage response)
+        {
+            // Failed with an HTTP error code, according to API docs this should not be possible
+            if (!response.IsSuccessStatusCode)
+            {
+                return new LocalizedString("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode);
+            }
+
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            var root = JObject.Parse(jsonResponse);
+
+            var rsp = root["response"];
+            string rspCode = rsp["code"].Value<string>();
+
+            // Failed with an error code from the POEditor API, alongside a message
+            if (rspCode != "200")
+            {
+                return new LocalizedString("POE_EDITOR_ERROR", rspCode, rsp["message"].Value<string>());
+            }
+
+            return root;
+        }
+
+        private static Task<HttpResponseMessage> PostAsync(HttpClient client, string requestUri, string apiKey,
+            params (string key, string value)[] body)
+        {
+            var bodyKeys = new List<KeyValuePair<string, string>>(
+                body.Select(x => new KeyValuePair<string, string>(x.key, x.value))) { new("api_token", apiKey) };
+
+            return client.PostAsync(requestUri, new FormUrlEncodedContent(bodyKeys));
         }
     }
 }
