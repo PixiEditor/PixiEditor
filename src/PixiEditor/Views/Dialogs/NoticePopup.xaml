@@ -9,10 +9,12 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" WindowStyle="None"
         d:Title="Notice" Height="180" Width="400" MinHeight="180" MinWidth="400"
         WindowStartupLocation="CenterScreen"
-        x:Name="popup">
+        x:Name="popup"
+        FlowDirection="{helpers:Localization FlowDirection}">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"

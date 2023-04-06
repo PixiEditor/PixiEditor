@@ -573,6 +573,7 @@
   "DONATE": "Donate",
   
   "OPEN_LOCALIZATION_DEBUG_WINDOW": "Open Localization Debug Window",
+  "FORCE_OTHER_FLOW_DIRECTION": "Force other flow direction",
   "API_KEY": "API Key",
   "LOCALIZATION_VIEW_TYPE": "Localization View Type",
   "LOAD_LANGUAGE_FROM_FILE": "Load language from file",

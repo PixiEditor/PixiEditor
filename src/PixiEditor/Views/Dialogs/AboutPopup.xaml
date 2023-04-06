@@ -9,9 +9,11 @@
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" WindowStyle="None"
         Title="About" WindowStartupLocation="CenterScreen"
-        Height="510" Width="400" Name="aboutPopup" MinWidth="100" MinHeight="100">
+        Height="510" Width="400" Name="aboutPopup" MinWidth="100" MinHeight="100"
+        FlowDirection="{helpers:Localization FlowDirection}">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
                         Executed="CommandBinding_Executed_Close" />

@@ -9,6 +9,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors" xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         ShowInTaskbar="False"
         DataContext="{DynamicResource NewFileMenuViewModel}" 
@@ -16,7 +17,8 @@
         WindowStartupLocation="CenterScreen" 
         MinHeight="250" MinWidth="300" Height="250" Width="300" 
         Name="newFilePopup" 
-        BorderBrush="Black" BorderThickness="1">
+        BorderBrush="Black" BorderThickness="1"
+        FlowDirection="{helpers:Localization FlowDirection}">
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel" />
     </Window.Resources>

@@ -27,6 +27,7 @@
     xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
     xmlns:views="clr-namespace:PixiEditor.Views"
     xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:helpers="clr-namespace:PixiEditor.Helpers"
     KeyDown="MainWindow_OnKeyDown"
     d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
     mc:Ignorable="d"
@@ -38,7 +39,8 @@
     Width="1600"
     Background="{StaticResource MainColor}"
     WindowStartupLocation="CenterScreen"
-    WindowState="Maximized">
+    WindowState="Maximized"
+    FlowDirection="{helpers:Localization FlowDirection}">
     <WindowChrome.WindowChrome>
         <WindowChrome
             CaptionHeight="35"

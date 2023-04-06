@@ -9,6 +9,7 @@ public class LanguageData
     // https://icons8.com/icon/set/flags/color
     public string IconFileName { get; set; }
     public string IconPath => $"pack://application:,,,/PixiEditor;component/Images/LanguageFlags/{IconFileName}";
+    public bool RightToLeft { get; set; }
     
     public override string ToString()
     {

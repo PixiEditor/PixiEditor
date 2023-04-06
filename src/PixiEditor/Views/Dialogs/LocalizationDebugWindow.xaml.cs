@@ -147,7 +147,7 @@ public partial class LocalizationDebugWindow : Window
                     window.Dispatcher.Invoke(() =>
                     {
                         StatusMessage = result.Message;
-                        DebugViewModel.Owner.LocalizationProvider.LoadDebugKeys(result.Output);
+                        DebugViewModel.Owner.LocalizationProvider.LoadDebugKeys(result.Output, IsRightToLeft(SelectedLanguage));
                     });
                 }
                 catch (Exception e)
@@ -160,6 +160,8 @@ public partial class LocalizationDebugWindow : Window
                 }
             });
         }
+
+        private static bool IsRightToLeft(string language) => language is "ar" or "he" or "ku" or "fa" or "ur";
 
         private static async Task<Result<string[]>>
             CheckProjectByIdAsync(string key)

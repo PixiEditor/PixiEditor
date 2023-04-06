@@ -9,9 +9,11 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
         Title="SaveFilePopup" WindowStyle="None" Height="330" Width="310" MinHeight="330" MinWidth="310"
-        WindowStartupLocation="CenterScreen" Name="saveFilePopup">
+        WindowStartupLocation="CenterScreen" Name="saveFilePopup"
+        FlowDirection="{helpers:Localization FlowDirection}">
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />

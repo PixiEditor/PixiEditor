@@ -15,8 +15,9 @@
         mc:Ignorable="d"
         Foreground="White"
         Title="LocalizationDebugWindow" 
-        MinHeight="210" MinWidth="480"
-        Height="240" Width="500">
+        MinHeight="240" MinWidth="480"
+        Height="250" Width="500"
+        FlowDirection="{helpers:Localization FlowDirection}">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
@@ -42,9 +43,13 @@
 
         <StackPanel Grid.Row="1" Margin="5">
             <StackPanel Orientation="Horizontal" Height="25">
-                <TextBlock views:Translator.Key="LOCALIZATION_VIEW_TYPE" Margin="0,0,5,0"></TextBlock>
+                <TextBlock views:Translator.Key="LOCALIZATION_VIEW_TYPE" Margin="0,0,5,0" MinWidth="160"/>
                 <ComboBox SelectedItem="{Binding DataContext.DebugViewModel.LocalizationKeyShowMode, ElementName=popup}"
                           ItemsSource="{helpers:Enum {x:Type enums:LocalizationKeyShowMode}}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Height="25" Margin="0,5,0,0">
+                <TextBlock views:Translator.Key="FORCE_OTHER_FLOW_DIRECTION" Margin="0,0,5,0" MinWidth="160"/>
+                <CheckBox IsChecked="{Binding DataContext.DebugViewModel.ForceOtherFlowDirection, ElementName=popup}" />
             </StackPanel>
             <Button views:Translator.Key="LOAD_LANGUAGE_FROM_FILE" Command="{xaml:Command PixiEditor.Debug.SetLanguageFromFilePicker}"
                     Style="{StaticResource DarkRoundButton}" Margin="0,5,0,0"/>

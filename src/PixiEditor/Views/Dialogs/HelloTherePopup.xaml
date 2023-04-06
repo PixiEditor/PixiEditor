@@ -11,10 +11,12 @@
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:models="clr-namespace:PixiEditor.Models"
         xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" ShowInTaskbar="False"
         Title="Hello there!" Height="662" Width="632" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
-        WindowStyle="None" WindowStartupLocation="CenterScreen">
+        WindowStyle="None" WindowStartupLocation="CenterScreen"
+        FlowDirection="{helpers:Localization FlowDirection}">
 
     <Window.Resources>
         <Style TargetType="TextBlock">

@@ -13,7 +13,9 @@
         Height="305" Width="310" MinHeight="305" MinWidth="310"
         xmlns:base="clr-namespace:PixiEditor.Views"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
-        WindowStyle="None">
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        WindowStyle="None"
+        FlowDirection="{helpers:Localization FlowDirection}">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" GlassFrameThickness="0.1"

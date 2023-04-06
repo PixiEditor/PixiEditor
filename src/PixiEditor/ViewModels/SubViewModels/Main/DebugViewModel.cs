@@ -44,6 +44,20 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    private bool forceOtherFlowDirection;
+    
+    public bool ForceOtherFlowDirection
+    {
+        get => forceOtherFlowDirection;
+        set
+        {
+            if (SetProperty(ref forceOtherFlowDirection, value))
+            {
+                Owner.LocalizationProvider.ReloadLanguage();
+            }
+        }
+    }
+
     public DebugViewModel(ViewModelMain owner, IPreferences preferences)
         : base(owner)
     {
@@ -177,7 +191,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         if (file.ShowDialog().GetValueOrDefault())
         {
             Owner.LocalizationProvider.LoadDebugKeys(
-                JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file.FileName)));
+                JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file.FileName)), false);
         }
     }
 

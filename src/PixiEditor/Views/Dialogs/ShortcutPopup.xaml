@@ -12,12 +12,14 @@
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:commands1="clr-namespace:PixiEditor.Models.Commands.Commands"
         xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         SizeToContent="Height"
         Title="ShortcutPopup" WindowStyle="None"
         MinHeight="780" MinWidth="620" Topmost="{Binding IsTopmost}"
         Width="950" MaxHeight="1000"
+        FlowDirection="{helpers:Localization FlowDirection}"
         KeyDown="ShortcutPopup_OnKeyDown">
     <Window.Resources>
         <BoolToVisibilityConverter x:Key="BoolToVisibility"/>

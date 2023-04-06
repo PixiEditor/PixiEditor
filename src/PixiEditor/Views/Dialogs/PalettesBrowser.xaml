@@ -12,13 +12,15 @@
     xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
     xmlns:PixiEditor="clr-namespace:PixiEditor"
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+    xmlns:helpers="clr-namespace:PixiEditor.Helpers"
     x:Class="PixiEditor.Views.Dialogs.PalettesBrowser"
     mc:Ignorable="d"
     WindowStartupLocation="CenterScreen" 
     MinWidth="200" 
     Height="600" Width="850" 
     WindowStyle="None"
-    x:Name="palettesBrowser">
+    x:Name="palettesBrowser"
+    FlowDirection="{helpers:Localization FlowDirection}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>

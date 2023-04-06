@@ -76,14 +76,14 @@ internal class LocalizationProvider : ILocalizationProvider
         }
     }
 
-    public void LoadDebugKeys(Dictionary<string, string> languageKeys)
+    public void LoadDebugKeys(Dictionary<string, string> languageKeys, bool rightToLeft)
     {
         debugLanguage = new Language(
             new LanguageData
         {
             Code = "debug",
             Name = "Debug"
-        }, languageKeys);
+        }, languageKeys, rightToLeft);
 
         CurrentLanguage = debugLanguage;
         
@@ -109,6 +109,6 @@ internal class LocalizationProvider : ILocalizationProvider
             throw new InvalidDataException("Locale is null.");
         }
 
-        return new(languageData, locale);
+        return new(languageData, locale, languageData.RightToLeft);
     }
 }

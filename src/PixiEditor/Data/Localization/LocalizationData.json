@@ -8,27 +8,27 @@
     },
     {
       "name": "Polski",
-        "code": "pl",
-        "localeFileName": "pl.json",
-        "iconFileName": "pl.png"
+      "code": "pl",
+      "localeFileName": "pl.json",
+      "iconFileName": "pl.png"
     },
     {
-        "name": "Deutsch",
-        "code": "de",
-        "localeFileName": "de.json",
-        "iconFileName": "de.png"
+      "name": "Deutsch",
+      "code": "de",
+      "localeFileName": "de.json",
+      "iconFileName": "de.png"
     },
     {
-        "name": "Español",
-        "code": "es",
-        "localeFileName": "es.json",
-        "iconFileName": "es.png"
+      "name": "Español",
+      "code": "es",
+      "localeFileName": "es.json",
+      "iconFileName": "es.png"
     },
     {
-        "name": "Русский",
-        "code": "ru",
-        "localeFileName": "ru.json",
-        "iconFileName": "ru.png"
+      "name": "Русский",
+      "code": "ru",
+      "localeFileName": "ru.json",
+      "iconFileName": "ru.png"
     },
     {
       "name": "Українська",
@@ -37,16 +37,17 @@
       "iconFileName": "ua.png"
     },
     {
-        "name": "عربي",
-        "code": "ar",
-        "localeFileName": "ar.json",
-        "iconFileName": "ar.png"
+      "name": "عربي",
+      "code": "ar",
+      "localeFileName": "ar.json",
+      "iconFileName": "ar.png",
+      "rightToLeft": true
     },
     {
-        "name": "Čeština",
-        "code": "cz",
-        "localeFileName": "cz.json",
-        "iconFileName": "cz.png"
+      "name": "Čeština",
+      "code": "cz",
+      "localeFileName": "cz.json",
+      "iconFileName": "cz.png"
     }
   ]
 }
