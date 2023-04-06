@@ -108,15 +108,15 @@ public partial class LocalizationDebugWindow : Window
 
                     window.Dispatcher.Invoke(() =>
                     {
-                        LoggedIn = result.success;
-                        StatusMessage = result.message;
+                        LoggedIn = result.IsSuccess;
+                        StatusMessage = result.Message;
 
-                        if (result.languages == null)
+                        if (!result.IsSuccess)
                         {
                             return;
                         }
 
-                        foreach (string code in result.languages)
+                        foreach (string code in result.Output)
                         {
                             LanguageCodes.Add(code);
                         }
@@ -146,8 +146,8 @@ public partial class LocalizationDebugWindow : Window
 
                     window.Dispatcher.Invoke(() =>
                     {
-                        StatusMessage = result.status;
-                        DebugViewModel.Owner.LocalizationProvider.LoadDebugKeys(result.response);
+                        StatusMessage = result.Message;
+                        DebugViewModel.Owner.LocalizationProvider.LoadDebugKeys(result.Output);
                     });
                 }
                 catch (Exception e)
@@ -161,21 +161,21 @@ public partial class LocalizationDebugWindow : Window
             });
         }
 
-        private static async Task<(bool success, LocalizedString message, string[] languages)>
+        private static async Task<Result<string[]>>
             CheckProjectByIdAsync(string key)
         {
             using HttpClient client = new HttpClient();
 
             // --- Check if user is part of project ---
             var response = await PostAsync(client, "https://api.poeditor.com/v2/projects/list", key);
-            var rootError = await ParseResponseAsync(response);
+            var result = await ParseResponseAsync(response);
 
-            if (rootError.IsT1)
+            if (!result.IsSuccess)
             {
-                return Error(rootError.AsT1);
+                return result.As<string[]>();
             }
 
-            var projects = (JArray)rootError.AsT0["result"]["projects"];
+            var projects = (JArray)result.Output["result"]["projects"];
 
             // Check if user is part of project
             if (!projects.Any(x => x["id"].Value<int>() == ProjectId))
@@ -184,22 +184,21 @@ public partial class LocalizationDebugWindow : Window
             }
 
             response = await PostAsync(client, "https://api.poeditor.com/v2/languages/list", key, ("id", ProjectId.ToString()));
-            rootError = await ParseResponseAsync(response);
+            result = await ParseResponseAsync(response);
 
-            if (rootError.IsT1)
+            if (!result.IsSuccess)
             {
-                return Error(rootError.AsT1);
+                return result.As<string[]>();
             }
 
-            var languages = ((JArray)rootError.AsT0["result"]["languages"]).Select(x => x["code"].Value<string>());
+            var languages = ((JArray)result.Output["result"]["languages"]).Select(x => x["code"].Value<string>());
 
-            return (true, new LocalizedString("LOGGED_IN"), languages.ToArray());
+            return Result.Success(new LocalizedString("LOGGED_IN"), languages.ToArray());
 
-            (bool success, LocalizedString message, string[] languages) Error(LocalizedString message) =>
-                (false, message, null);
+            Result<string[]> Error(LocalizedString message) => Result.Error<string[]>(message);
         }
 
-        private static async Task<(LocalizedString status, Dictionary<string, string> response)> DownloadLanguage(
+        private static async Task<Result<Dictionary<string, string>>> DownloadLanguage(
             string key,
             string language)
         {
@@ -212,14 +211,14 @@ public partial class LocalizationDebugWindow : Window
                 key,
                 ("id", ProjectId.ToString()), ("type", "key_value_json"), ("language", language));
 
-            var rootError = await ParseResponseAsync(response);
+            var result = await ParseResponseAsync(response);
 
-            if (rootError.IsT1)
+            if (!result.IsSuccess)
             {
-                return Error(rootError.AsT1);
+                return result.As<Dictionary<string, string>>();
             }
 
-            response = await client.GetAsync(rootError.AsT0["result"]["url"].Value<string>());
+            response = await client.GetAsync(result.Output["result"]["url"].Value<string>());
 
             // Failed with an HTTP error code, according to API docs this should not be possible
             if (!response.IsSuccessStatusCode)
@@ -230,17 +229,17 @@ public partial class LocalizationDebugWindow : Window
             string responseJson = await response.Content.ReadAsStringAsync();
             var keys = JsonConvert.DeserializeObject<Dictionary<string, string>>(responseJson);
 
-            return (new LocalizedString("SYNCED_SUCCESSFULLY"), keys);
+            return Result.Success("SYNCED_SUCCESSFULLY", keys);
 
-            (LocalizedString, Dictionary<string, string>) Error(LocalizedString message) => (message, null);
+            Result<Dictionary<string, string>> Error(LocalizedString message) => Result.Error<Dictionary<string, string>>(message);
         }
 
-        private static async Task<OneOf<JObject, LocalizedString>> ParseResponseAsync(HttpResponseMessage response)
+        private static async Task<Result<JObject>> ParseResponseAsync(HttpResponseMessage response)
         {
             // Failed with an HTTP error code, according to API docs this should not be possible
             if (!response.IsSuccessStatusCode)
             {
-                return new LocalizedString("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode);
+                return Error("HTTP_ERROR_MESSAGE", (int)response.StatusCode, response.StatusCode);
             }
 
             string jsonResponse = await response.Content.ReadAsStringAsync();
@@ -252,10 +251,12 @@ public partial class LocalizationDebugWindow : Window
             // Failed with an error code from the POEditor API, alongside a message
             if (rspCode != "200")
             {
-                return new LocalizedString("POE_EDITOR_ERROR", rspCode, rsp["message"].Value<string>());
+                return Error("POE_EDITOR_ERROR", rspCode, rsp["message"].Value<string>());
             }
 
-            return root;
+            return Result.Success(root);
+            
+            Result<JObject> Error(string key, params object[] param) => Result.Error<JObject>(new LocalizedString(key, param));
         }
 
         private static Task<HttpResponseMessage> PostAsync(HttpClient client, string requestUri, string apiKey,
@@ -265,6 +266,28 @@ public partial class LocalizationDebugWindow : Window
                 body.Select(x => new KeyValuePair<string, string>(x.key, x.value))) { new("api_token", apiKey) };
 
             return client.PostAsync(requestUri, new FormUrlEncodedContent(bodyKeys));
+        }
+
+        private struct Result
+        {
+            public static Result<T> Error<T>(LocalizedString message) => new(false, message, default);
+
+            public static Result<T> Success<T>(LocalizedString message, T output) => new(true, message, output);
+            
+            public static Result<T> Success<T>(T output) => new(true, null, output);
+        }
+
+        private record struct Result<T>(bool IsSuccess, LocalizedString Message, T Output)
+        {
+            public Result<TOther> As<TOther>()
+            {
+                if (IsSuccess)
+                {
+                    throw new ArgumentException("Result can't be a success");
+                }
+
+                return new Result<TOther>(false, Message, default);
+            }
         }
     }
 }
