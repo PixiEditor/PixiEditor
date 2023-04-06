@@ -42,6 +42,8 @@ internal partial class KeyCombinationBox : UserControl
 
         UpdateText();
         UpdateButton();
+
+        ViewModelMain.Current.LocalizationProvider.OnLanguageChanged += _ => UpdateText();
     }
 
     private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)

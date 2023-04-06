@@ -111,7 +111,7 @@
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate DataType="{x:Type ModifierKeys}">
                                                                 <Border Style="{StaticResource KeyBorder}">
-                                                                    <TextBlock Text="{Binding BindsDirectlyToSource=True, Converter={converters:KeyToStringConverter}}" Style="{StaticResource KeyBorderText}"/>
+                                                                    <TextBlock views:Translator.LocalizedString="{Binding BindsDirectlyToSource=True, Converter={converters:KeyToStringConverter}}" Style="{StaticResource KeyBorderText}"/>
                                                                 </Border>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>

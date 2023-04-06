@@ -536,6 +536,9 @@
   "WARNING_RESET_SHORTCUTS_DEFAULT": "Are you sure you want to reset all shortcuts to their default value?",
   "PRESS_ANY_KEY": "Press any key",
   "NONE_SHORTCUT": "None",
+  "CTRL_KEY": "Ctrl",
+  "SHIFT_KEY": "Shift",
+  "ALT_KEY": "Alt",
 
   "SUCCESS": "Success",
   "ERROR": "Error",

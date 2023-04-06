@@ -16,6 +16,12 @@ public class Translator : UIElement
         typeof(Translator),
         new FrameworkPropertyMetadata(default(string), FrameworkPropertyMetadataOptions.AffectsRender, KeyPropertyChangedCallback));
 
+    public static readonly DependencyProperty LocalizedStringProperty = DependencyProperty.RegisterAttached(
+        "LocalizedString",
+        typeof(LocalizedString),
+        typeof(Translator),
+        new FrameworkPropertyMetadata(default(LocalizedString), FrameworkPropertyMetadataOptions.AffectsRender, LocalizedStringPropertyChangedCallback));
+
     public static readonly DependencyProperty TooltipKeyProperty = DependencyProperty.RegisterAttached(
         "TooltipKey", typeof(string), typeof(Translator), 
         new FrameworkPropertyMetadata(default(string), FrameworkPropertyMetadataOptions.AffectsRender, TooltipKeyPropertyChangedCallback));
@@ -90,6 +96,11 @@ public class Translator : UIElement
         }
     }
 
+    private static void LocalizedStringPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        d.SetValue(KeyProperty, ((LocalizedString)e.NewValue).Key);
+    }
+
     private static void UpdateKey(DependencyObject d, string key)
     {
         LocalizedString localizedString = new(key);
@@ -137,6 +148,16 @@ public class Translator : UIElement
         return (string)element.GetValue(KeyProperty);
     }
 
+    public static void SetLocalizedString(DependencyObject element, LocalizedString value)
+    {
+        element.SetValue(LocalizedStringProperty, value);
+    }
+
+    public static string GetLocalizedString(DependencyObject element)
+    {
+        return (string)element.GetValue(LocalizedStringProperty);
+    }
+    
     public static string GetValue(DependencyObject element)
     {
         return (string)element.GetValue(ValueProperty);

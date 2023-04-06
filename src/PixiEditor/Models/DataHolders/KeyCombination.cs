@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Windows.Input;
+using PixiEditor.Localization;
 
 namespace PixiEditor.Models.DataHolders;
 
@@ -18,13 +19,15 @@ public record struct KeyCombination(Key Key, ModifierKeys Modifiers)
     {
         StringBuilder builder = new();
 
-        foreach (ModifierKeys modifier in Modifiers.GetFlags().OrderByDescending(x => x != ModifierKeys.Alt))
+        foreach (var modifier in Modifiers.GetFlags().OrderByDescending(x => x != ModifierKeys.Alt))
         {
             if (modifier == ModifierKeys.None) continue;
 
             string key = modifier switch
             {
-                ModifierKeys.Control => "Ctrl",
+                ModifierKeys.Control => new LocalizedString("CTRL_KEY"),
+                ModifierKeys.Shift => new LocalizedString("SHIFT_KEY"),
+                ModifierKeys.Alt => new LocalizedString("ALT_KEY"),
                 _ => modifier.ToString()
             };
 
