@@ -272,7 +272,7 @@
 		<Resource Include="Images\Folder.png" />
 		<Resource Include="Images\Globe.png" />
 		<Resource Include="Images\hard-drive.png" />
-		<Resource Include="Images\LanguageFlags\ua.png" />
+		<Resource Include="Images\LanguageFlags\uk.png" />
 		<Resource Include="Images\Layer-add.png" />
 		<Resource Include="Images\Lock-alpha.png" />
 		<Resource Include="Images\Merge-downwards.png" />
@@ -407,13 +407,14 @@
 		<None Remove="Images\LanguageFlags\ar.png" />
 		<Resource Include="Images\LanguageFlags\ar.png" />
 		<None Remove="Images\LanguageFlags\cz.png" />
-		<Resource Include="Images\LanguageFlags\cz.png" />
 		<None Remove="Images\LanguageFlags\de.png" />
 		<Resource Include="Images\LanguageFlags\de.png" />
 		<None Remove="Images\LanguageFlags\es.png" />
 		<Resource Include="Images\LanguageFlags\es.png" />
 		<None Remove="Images\LanguageFlags\ru.png" />
 		<Resource Include="Images\LanguageFlags\ru.png" />
+		<None Remove="Images\LanguageFlags\cs.png" />
+		<Resource Include="Images\LanguageFlags\cs.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

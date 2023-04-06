@@ -33,9 +33,9 @@
     },
     {
       "name": "Українська",
-      "code": "ua",
-      "localeFileName": "ua.json",
-      "iconFileName": "ua.png"
+      "code": "uk",
+      "localeFileName": "uk.json",
+      "iconFileName": "uk.png"
     },
     {
       "name": "عربي",
@@ -46,9 +46,9 @@
     },
     {
       "name": "Čeština",
-      "code": "cz",
-      "localeFileName": "cz.json",
-      "iconFileName": "cz.png"
+      "code": "cs",
+      "localeFileName": "cs.json",
+      "iconFileName": "cs.png"
     }
   ]
 }
