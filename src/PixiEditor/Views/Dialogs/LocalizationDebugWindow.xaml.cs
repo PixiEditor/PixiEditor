@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
 using System.Windows;
@@ -46,7 +47,7 @@ public partial class LocalizationDebugWindow : Window
         private string apiKey;
         private bool loggedIn;
         private LocalizedString statusMessage = "NOT_LOGGED_IN";
-        private string selectedLanguage;
+        private PoeLanguage selectedLanguage;
 
         public DebugViewModel DebugViewModel { get; } = ViewModelMain.Current.DebugSubViewModel;
 
@@ -74,13 +75,13 @@ public partial class LocalizationDebugWindow : Window
             set => SetProperty(ref statusMessage, value);
         }
 
-        public string SelectedLanguage
+        public PoeLanguage SelectedLanguage
         {
             get => selectedLanguage;
             set => SetProperty(ref selectedLanguage, value);
         }
 
-        public ObservableCollection<string> LanguageCodes { get; } = new();
+        public ObservableCollection<PoeLanguage> LanguageCodes { get; } = new();
 
         public RelayCommand LoadApiKeyCommand { get; }
 
@@ -92,7 +93,7 @@ public partial class LocalizationDebugWindow : Window
             apiKey = PreferencesSettings.Current.GetLocalPreference<string>("POEditor_API_Key");
             LoadApiKeyCommand = new RelayCommand(LoadApiKey, _ => !string.IsNullOrWhiteSpace(apiKey));
             SyncLanguageCommand =
-                new RelayCommand(SyncLanguage, _ => loggedIn && !string.IsNullOrWhiteSpace(SelectedLanguage));
+                new RelayCommand(SyncLanguage, _ => loggedIn && SelectedLanguage != null);
         }
 
         private void LoadApiKey(object parameter)
@@ -116,10 +117,14 @@ public partial class LocalizationDebugWindow : Window
                             return;
                         }
 
-                        foreach (string code in result.Output)
+                        foreach (var language in result.Output
+                                     .OrderByDescending(x => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == x.Code || CultureInfo.InstalledUICulture.TwoLetterISOLanguageName == x.Code)
+                                     .ThenByDescending(x => x.UpdateSortable))
                         {
-                            LanguageCodes.Add(code);
+                            LanguageCodes.Add(language);
                         }
+
+                        SelectedLanguage = LanguageCodes.FirstOrDefault();
                     });
                 }
                 catch (Exception e)
@@ -142,12 +147,12 @@ public partial class LocalizationDebugWindow : Window
             {
                 try
                 {
-                    var result = await DownloadLanguage(ApiKey, SelectedLanguage);
+                    var result = await DownloadLanguage(ApiKey, SelectedLanguage.Code);
 
                     window.Dispatcher.Invoke(() =>
                     {
                         StatusMessage = result.Message;
-                        DebugViewModel.Owner.LocalizationProvider.LoadDebugKeys(result.Output, IsRightToLeft(SelectedLanguage));
+                        DebugViewModel.Owner.LocalizationProvider.LoadDebugKeys(result.Output, SelectedLanguage.IsRightToLeft);
                     });
                 }
                 catch (Exception e)
@@ -161,9 +166,7 @@ public partial class LocalizationDebugWindow : Window
             });
         }
 
-        private static bool IsRightToLeft(string language) => language is "ar" or "he" or "ku" or "fa" or "ur";
-
-        private static async Task<Result<string[]>>
+        private static async Task<Result<PoeLanguage[]>>
             CheckProjectByIdAsync(string key)
         {
             using HttpClient client = new HttpClient();
@@ -174,7 +177,7 @@ public partial class LocalizationDebugWindow : Window
 
             if (!result.IsSuccess)
             {
-                return result.As<string[]>();
+                return result.As<PoeLanguage[]>();
             }
 
             var projects = (JArray)result.Output["result"]["projects"];
@@ -190,14 +193,14 @@ public partial class LocalizationDebugWindow : Window
 
             if (!result.IsSuccess)
             {
-                return result.As<string[]>();
+                return result.As<PoeLanguage[]>();
             }
 
-            var languages = ((JArray)result.Output["result"]["languages"]).Select(x => x["code"].Value<string>());
+            var languages = result.Output["result"]["languages"].ToObject<PoeLanguage[]>();
 
-            return Result.Success(new LocalizedString("LOGGED_IN"), languages.ToArray());
+            return Result.Success(new LocalizedString("LOGGED_IN"), languages);
 
-            Result<string[]> Error(LocalizedString message) => Result.Error<string[]>(message);
+            Result<PoeLanguage[]> Error(LocalizedString message) => Result.Error<PoeLanguage[]>(message);
         }
 
         private static async Task<Result<Dictionary<string, string>>> DownloadLanguage(
@@ -290,6 +293,21 @@ public partial class LocalizationDebugWindow : Window
 
                 return new Result<TOther>(false, Message, default);
             }
+        }
+
+        public class PoeLanguage
+        {
+            public string Name { get; set; }
+
+            public string Code { get; set; }
+
+            public string Updated { get; set; }
+
+            public DateTimeOffset UpdateSortable => string.IsNullOrWhiteSpace(Updated) ? DateTimeOffset.MinValue : DateTimeOffset.Parse(Updated);
+
+            public bool IsRightToLeft => Code is "ar" or "he" or "ku" or "fa" or "ur";
+
+            public override string ToString() => $"{Name} ({Code})";
         }
     }
 }
