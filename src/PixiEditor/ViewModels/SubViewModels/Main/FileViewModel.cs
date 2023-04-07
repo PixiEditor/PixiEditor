@@ -323,13 +323,19 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         switch (result)
         {
             case DialogSaveResult.InvalidPath:
-                NoticeDialog.Show("Error", "Couldn't save the file to the specified location");
+                NoticeDialog.Show(title: "Error", message: "Couldn't save the file to the specified location");
                 break;
             case DialogSaveResult.ConcurrencyError:
-                NoticeDialog.Show("Internal error", "An internal error occured while saving. Please try again.");
+                NoticeDialog.Show(title: "Internal error", message: "An internal error occured while saving. Please try again.");
+                break;
+            case DialogSaveResult.SecurityError:
+                NoticeDialog.Show(title: "Security error", message: "No rights to write to the specified location.");
+                break;
+            case DialogSaveResult.IoError:
+                NoticeDialog.Show(title: "IO error", message: "Error while writing to disk.");
                 break;
             case DialogSaveResult.UnknownError:
-                NoticeDialog.Show("Error", "An error occured while saving.");
+                NoticeDialog.Show(title: "Error", message: "An error occured while saving.");
                 break;
         }
     }
