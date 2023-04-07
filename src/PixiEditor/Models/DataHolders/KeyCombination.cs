@@ -13,9 +13,9 @@ public record struct KeyCombination(Key Key, ModifierKeys Modifiers)
 {
     public static KeyCombination None => new(Key.None, ModifierKeys.None);
 
-    public override string ToString() => ToString(CultureInfo.CurrentCulture);
+    public override string ToString() => ToString(false);
 
-    public string ToString(CultureInfo culture)
+    private string ToString(bool forceInvariant)
     {
         StringBuilder builder = new();
 
@@ -36,11 +36,11 @@ public record struct KeyCombination(Key Key, ModifierKeys Modifiers)
 
         if (Key != Key.None)
         {
-            builder.Append(InputKeyHelpers.GetKeyboardKey(Key, culture));
+            builder.Append(InputKeyHelpers.GetKeyboardKey(Key, forceInvariant));
         }
 
         return builder.ToString();
     }
 
-    private string GetDebuggerDisplay() => ToString(CultureInfo.InvariantCulture);
+    private string GetDebuggerDisplay() => ToString(true);
 }

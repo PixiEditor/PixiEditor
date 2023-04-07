@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Evaluators;
@@ -47,6 +48,7 @@ internal abstract partial class Command : NotifyableObject
     {
         Methods = new(this, onExecute, canExecute);
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+        InputLanguageManager.Current.InputLanguageChanged += (_, _) => RaisePropertyChanged(nameof(Shortcut));
     }
 
     private void OnLanguageChanged(Language obj)
