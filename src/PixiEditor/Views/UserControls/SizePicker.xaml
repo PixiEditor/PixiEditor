@@ -23,7 +23,6 @@
             <Setter Property="BehaveLikeSmallEmbeddedField" Value="False"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Margin" Value="10,0,0,0"/>
-            <Setter Property="Width" Value="80"/>
             <Setter Property="Height" Value="25"/>
         </Style>
     </UserControl.Resources>
@@ -54,13 +53,14 @@
                                               }" local:Translator.Key="PERCENTAGE"/>
                 <userControls:SizeInput Grid.Column="1" Grid.Row="0" 
                                      VerticalAlignment="Center"
+                                     HorizontalAlignment="Right"
                                      x:Name="PercentageSizePicker"
                                      IsEnabled="{Binding EditingEnabled, ElementName=uc}"
                                      Size="{Binding Path=ChosenPercentageSize, ElementName=uc, Mode=TwoWay}"
                                      Unit="Percentage"
                                      Margin="-10,0,0,0"
                                      MaxSize="999900"
-                                     Width="80">
+                                     Width="{Binding ActualWidth, ElementName=WidthPicker}">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="LostFocus">
                             <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=PercentageLostFocusCommand}"/>
@@ -96,11 +96,9 @@
                 <TextBlock Grid.Column="0" Grid.Row="0" Foreground="Snow" local:Translator.Key="WIDTH" VerticalAlignment="Center" HorizontalAlignment="Left" />
                 <userControls:SizeInput Grid.Column="1" Grid.Row="0"
                              x:Name="WidthPicker"
-                             Width="80"
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
                              Size="{Binding Path=ChosenWidth, ElementName=uc, Mode=TwoWay}"
-                             Margin="50,0,0,0"
-                             >
+                             Margin="50,0,0,0">
                     <i:Interaction.Triggers>
                         <i:EventTrigger EventName="LostFocus">
                             <i:InvokeCommandAction Command="{Binding ElementName=uc, Path=WidthLostFocusCommand}"/>

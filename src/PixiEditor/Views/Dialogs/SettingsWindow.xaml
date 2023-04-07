@@ -130,14 +130,14 @@
                     <Label Style="{StaticResource SettingsText}" d:Content="Width" views:Translator.Key="WIDTH"/>
                     <usercontrols:SizeInput Margin="10 0 0 0" 
                                  Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}" 
-                                 Width="70" Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
+                                 Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="27 5">
                     <Label Style="{StaticResource SettingsText}" d:Content="Height" views:Translator.Key="HEIGHT"/> 
                     <usercontrols:SizeInput Margin="7 0 0 0"
                                  Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" 
-                                 Width="70" Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
+                                 Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
                 </StackPanel>
 
                 <Label Style="{StaticResource SettingsHeader}" d:Content="Tools" views:Translator.Key="TOOLS"/>

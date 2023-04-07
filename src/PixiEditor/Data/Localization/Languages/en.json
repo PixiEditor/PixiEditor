@@ -588,5 +588,7 @@
   "HTTP_ERROR_MESSAGE": "HTTP Error: {0} {1}",
   "LOGGED_IN": "Logged in",
   "SYNCED_SUCCESSFULLY": "Synced successfully",
-  "EXCEPTION_ERROR": "Exception: {0}"
+  "EXCEPTION_ERROR": "Exception: {0}",
+  
+  "PIXEL_UNIT": "px"
 }
