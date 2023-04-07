@@ -368,6 +368,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         foreach (string path in paths)
         {
+            if (!File.Exists(path))
+                continue;
             documents.Add(new RecentlyOpenedDocument(path));
         }
 
