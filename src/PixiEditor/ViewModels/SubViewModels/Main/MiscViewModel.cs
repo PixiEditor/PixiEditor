@@ -26,9 +26,10 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
         {
             ProcessHelpers.ShellExecute(url);
         }
-        catch
+        catch (Exception e)
         {
             NoticeDialog.Show(title: "Error", message: $"Couldn't open the address {url} in your default browser");
+            _ = CrashHelper.SendExceptionInfoToWebhook(e);
         }
     }
 }
