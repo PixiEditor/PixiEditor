@@ -36,6 +36,27 @@ internal class SupportedFilesHelper
         return allFileTypeDialogsData.Where(i => i.FileType == type).Single();
     }
 
+    public static string FixFileExtension(string pathWithOrWithoutExtension, FileType requestedType)
+    {
+        if (requestedType == FileType.Unset)
+            throw new ArgumentException("A valid filetype is required", nameof(requestedType));
+
+        var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithOrWithoutExtension));
+        if (typeFromPath != FileType.Unset && typeFromPath == requestedType)
+            return pathWithOrWithoutExtension;
+        return AppendExtension(pathWithOrWithoutExtension, SupportedFilesHelper.GetFileTypeDialogData(requestedType));
+    }
+
+    public static string AppendExtension(string path, FileTypeDialogData data)
+    {
+        string ext = data.Extensions.First();
+        string filename = Path.GetFileName(path);
+        if (filename.Length + ext.Length > 255)
+            filename = filename.Substring(0, 255 - ext.Length);
+        filename += ext;
+        return Path.Combine(Path.GetDirectoryName(path), filename);
+    }
+
     public static bool IsSupportedFile(string path)
     {
         var ext = Path.GetExtension(path.ToLower());
