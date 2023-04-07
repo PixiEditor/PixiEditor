@@ -192,7 +192,8 @@
                             Focusable="False"
                             ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                             Path="{Binding Document.SelectionPathBindable}"
-                            ZoomboxScale="{Binding Zoombox.Scale}" />
+                            ZoomboxScale="{Binding Zoombox.Scale}"
+                            FlowDirection="LeftToRight" />
                         <brushOverlay:BrushShapeOverlay
                             Focusable="False"
                             IsHitTestVisible="False"
@@ -201,7 +202,8 @@
                             MouseEventSource="{Binding Zoombox.Tag.BackgroundGrid, Mode=OneTime}"
                             MouseReference="{Binding Zoombox.Tag.MainImage, Mode=OneTime}"
                             BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={vm:MainVM}}"
-                            BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={vm:MainVM}, FallbackValue={x:Static brushOverlay:BrushShape.Hidden}}" />
+                            BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={vm:MainVM}, FallbackValue={x:Static brushOverlay:BrushShape.Hidden}}"
+                            FlowDirection="LeftToRight"/>
                         <transformOverlay:TransformOverlay
                             Focusable="False"
                             Cursor="Arrow"
@@ -226,7 +228,8 @@
                             ActionCompleted="{Binding Document.LineToolOverlayViewModel.ActionCompletedCommand}"
                             LineStart="{Binding Document.LineToolOverlayViewModel.LineStart, Mode=TwoWay}"
                             LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
-                            ZoomboxScale="{Binding Zoombox.Scale}" />
+                            ZoomboxScale="{Binding Zoombox.Scale}"
+                            FlowDirection="LeftToRight"/>
                     </Grid>
                     <Grid IsHitTestVisible="False" 
                         ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10" 

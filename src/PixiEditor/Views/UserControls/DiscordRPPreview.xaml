@@ -9,7 +9,8 @@
              xmlns:views="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d" 
              d:DesignWidth="300"
-             x:Name="uc">
+             x:Name="uc"
+             FlowDirection="LeftToRight">
     <Grid>
         <Border CornerRadius="5" Background="#292b2f" x:Name="OutsideBorder">
             <Grid>

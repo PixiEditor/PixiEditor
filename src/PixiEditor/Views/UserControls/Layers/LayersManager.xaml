@@ -29,7 +29,8 @@
                     DockPanel.Dock="Left"
                     Height="24" Width="24" Cursor="Hand" vws:Translator.TooltipKey="NEW_LAYER"
                     HorizontalAlignment="Stretch" Margin="0,0,5,0"
-                    Style="{StaticResource ToolButtonStyle}">
+                    Style="{StaticResource ToolButtonStyle}"
+                    FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Layer-add.png"/>
                     </Button.Background>
@@ -39,7 +40,8 @@
                     Height="24" Width="24" vws:Translator.TooltipKey="NEW_FOLDER" Cursor="Hand"
                     DockPanel.Dock="Left"
                     HorizontalAlignment="Stretch"  Margin="0,0,5,0"
-                    Style="{StaticResource ToolButtonStyle}">
+                    Style="{StaticResource ToolButtonStyle}"
+                    FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Folder-add.png"/>
                     </Button.Background>
@@ -49,7 +51,8 @@
                     Cursor="Hand"
                     HorizontalAlignment="Stretch" Margin="0,0,5,0"
                     DockPanel.Dock="Left"
-                    Style="{StaticResource ToolButtonStyle}">
+                    Style="{StaticResource ToolButtonStyle}"
+                    FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Trash.png"/>
                     </Button.Background>
@@ -58,7 +61,8 @@
                     Command="{commands:Command PixiEditor.Layer.MergeWithBelow}" Height="24" Width="24" vws:Translator.TooltipKey="MERGE_WITH_BELOW" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
-                    Style="{StaticResource ToolButtonStyle}">
+                    Style="{StaticResource ToolButtonStyle}"
+                    FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Merge-downwards.png"/>
                     </Button.Background>
@@ -68,7 +72,8 @@
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
                     Style="{StaticResource ToolButtonStyle}"
-                    Command="{commands:Command PixiEditor.Layer.CreateMask}">
+                    Command="{commands:Command PixiEditor.Layer.CreateMask}"
+                    FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Create-mask.png"/>
                     </Button.Background>
@@ -78,7 +83,8 @@
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
                     Style="{StaticResource ToolButtonStyle}"
-                    Command="{commands:Command PixiEditor.Layer.ToggleLockTransparency}">
+                    Command="{commands:Command PixiEditor.Layer.ToggleLockTransparency}"
+                    FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Lock-alpha.png"/>
                     </Button.Background>

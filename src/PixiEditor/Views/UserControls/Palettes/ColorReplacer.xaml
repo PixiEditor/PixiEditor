@@ -11,6 +11,7 @@
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              xmlns:views="clr-namespace:PixiEditor.Views"
+             xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              mc:Ignorable="d" Name="uc"
              d:DesignHeight="50" d:DesignWidth="300">
     <Border BorderBrush="{StaticResource DarkerAccentColor}" 
@@ -33,7 +34,7 @@
                             Width="35" 
                             views:Translator.TooltipKey="REPLACER_TOOLTIP"
                             AllowDrop="True" Drop="UIElement_OnDrop"/>
-                    <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0"/>
+                    <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0" FlowDirection="{helpers:Localization FlowDirection}"/>
                     <colorPicker:PortableColorPicker 
                         UseHintColor="True"
                         SelectedColor="{Binding ElementName=uc, Path=NewColor, Mode=TwoWay}"
