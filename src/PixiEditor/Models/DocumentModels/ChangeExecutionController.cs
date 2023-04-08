@@ -15,9 +15,6 @@ internal class ChangeExecutionController
     public ShapeCorners LastTransformState { get; private set; }
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
-    public float LastOpacityValue = 1f;
-    public int LastHorizontalSymmetryAxisPosition { get; private set; }
-    public int LastVerticalSymmetryAxisPosition { get; private set; }
     public bool IsChangeActive => currentSession is not null;
 
     private readonly DocumentViewModel document;
@@ -148,7 +145,6 @@ internal class ChangeExecutionController
     public void OpacitySliderDragStartedInlet() => currentSession?.OnOpacitySliderDragStarted();
     public void OpacitySliderDraggedInlet(float newValue)
     {
-        LastOpacityValue = newValue;
         currentSession?.OnOpacitySliderDragged(newValue);
     }
     public void OpacitySliderDragEndedInlet() => currentSession?.OnOpacitySliderDragEnded();
@@ -156,15 +152,6 @@ internal class ChangeExecutionController
     public void SymmetryDragStartedInlet(SymmetryAxisDirection dir) => currentSession?.OnSymmetryDragStarted(dir);
     public void SymmetryDraggedInlet(SymmetryAxisDragInfo info)
     {
-        switch (info.Direction)
-        {
-            case SymmetryAxisDirection.Horizontal:
-                LastHorizontalSymmetryAxisPosition = info.NewPosition;
-                break;
-            case SymmetryAxisDirection.Vertical:
-                LastVerticalSymmetryAxisPosition = info.NewPosition;
-                break;
-        }
         currentSession?.OnSymmetryDragged(info);
     }
 

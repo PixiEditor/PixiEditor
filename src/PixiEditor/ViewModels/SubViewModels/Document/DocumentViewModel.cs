@@ -102,11 +102,11 @@ internal partial class DocumentViewModel : NotifyableObject
     public int Height => size.Y;
     public VecI SizeBindable => size;
 
-    private int horizontalSymmetryAxisY;
-    public int HorizontalSymmetryAxisYBindable => horizontalSymmetryAxisY;
+    private double horizontalSymmetryAxisY;
+    public double HorizontalSymmetryAxisYBindable => horizontalSymmetryAxisY;
 
-    private int verticalSymmetryAxisX;
-    public int VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
+    private double verticalSymmetryAxisX;
+    public double VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
 
     private readonly HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
     public IReadOnlyCollection<StructureMemberViewModel> SoftSelectedStructureMembers => softSelectedStructureMembers;
@@ -197,9 +197,9 @@ internal partial class DocumentViewModel : NotifyableObject
         viewModel.Internals.ChangeController.SymmetryDraggedInlet(new SymmetryAxisDragInfo(SymmetryAxisDirection.Vertical, builderInstance.Width / 2));
 
         acc.AddActions(
-            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Horizontal, builderInstance.Height / 2),
+            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Horizontal, (double)builderInstance.Height / 2),
             new EndSymmetryAxisPosition_Action(),
-            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Vertical, builderInstance.Width / 2),
+            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Vertical, (double)builderInstance.Width / 2),
             new EndSymmetryAxisPosition_Action());
 
         if (builderInstance.ReferenceLayer is { } refLayer)
@@ -476,13 +476,13 @@ internal partial class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(HorizontalSymmetryAxisEnabledBindable));
     }
 
-    public void InternalSetVerticalSymmetryAxisX(int verticalSymmetryAxisX)
+    public void InternalSetVerticalSymmetryAxisX(double verticalSymmetryAxisX)
     {
         this.verticalSymmetryAxisX = verticalSymmetryAxisX;
         RaisePropertyChanged(nameof(VerticalSymmetryAxisXBindable));
     }
 
-    public void InternalSetHorizontalSymmetryAxisY(int horizontalSymmetryAxisY)
+    public void InternalSetHorizontalSymmetryAxisY(double horizontalSymmetryAxisY)
     {
         this.horizontalSymmetryAxisY = horizontalSymmetryAxisY;
         RaisePropertyChanged(nameof(HorizontalSymmetryAxisYBindable));

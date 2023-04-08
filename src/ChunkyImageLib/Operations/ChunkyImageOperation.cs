@@ -108,13 +108,13 @@ internal class ChunkyImageOperation : IMirroredDrawOperation
         return topLeft;
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
         var newPos = targetPos;
         if (verAxisX is not null)
-            newPos = newPos.ReflectX((int)verAxisX);
+            newPos = (VecI)newPos.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
-            newPos = newPos.ReflectY((int)horAxisY);
+            newPos = (VecI)newPos.ReflectY((double)horAxisY).Round();
         return new ChunkyImageOperation(imageToDraw, newPos, mirrorHorizontal ^ (verAxisX is not null), mirrorVertical ^ (horAxisY is not null));
     }
 

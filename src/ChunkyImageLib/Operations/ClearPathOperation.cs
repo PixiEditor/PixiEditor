@@ -38,17 +38,17 @@ internal class ClearPathOperation : IMirroredDrawOperation
         path.Dispose();
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
-        var matrix = Matrix3X3.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, verAxisX ?? 0, horAxisY ?? 0);
+        var matrix = Matrix3X3.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, (float?)verAxisX ?? 0, (float?)horAxisY ?? 0);
         using var copy = new VectorPath(path);
         copy.Transform(matrix);
 
         var newRect = pathTightBounds;
         if (verAxisX is not null)
-            newRect = newRect.ReflectX((int)verAxisX);
+            newRect = (RectI)newRect.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
-            newRect = newRect.ReflectY((int)horAxisY);
+            newRect = (RectI)newRect.ReflectY((double)horAxisY).Round();
         return new ClearPathOperation(copy, newRect);
     }
 }
