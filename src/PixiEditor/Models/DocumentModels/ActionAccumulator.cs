@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
+using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Rendering;
 using PixiEditor.Models.Rendering.RenderInfos;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -75,6 +76,7 @@ internal class ActionAccumulator
             // update viewmodels based on changes
             List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
             bool undoBoundaryPassed = toExecute.Any(static action => action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+            bool viewportRefreshRequest = toExecute.Any(static action => action is RefreshViewport_PassthroughAction);
             foreach (IChangeInfo info in optimizedChanges)
             {
                 internals.Updater.ApplyChangeFromChangeInfo(info);
@@ -104,7 +106,7 @@ internal class ActionAccumulator
             // update the contents of the bitmaps
             var affectedAreas = new AffectedAreasGatherer(internals.Tracker, optimizedChanges);
             List<IRenderInfo> renderResult = new();
-            renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
+            renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
             renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
 
             // lock bitmaps
