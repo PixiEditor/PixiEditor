@@ -39,6 +39,7 @@ public record struct KeyCombination(Key Key, ModifierKeys Modifiers)
             builder.Append(InputKeyHelpers.GetKeyboardKey(Key, forceInvariant));
         }
 
+        builder.Append('‎'); // left-to-right marker ensures WPF does not reverse the string when using punctuations as key
         return builder.ToString();
     }
 
