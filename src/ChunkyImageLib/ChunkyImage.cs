@@ -607,6 +607,17 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
+    public void EnqueueDrawPixel(VecI pos, PixelProcessor pixelProcessor, BlendMode blendMode)
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            PixelOperation operation = new(pos, pixelProcessor, blendMode);
+            EnqueueOperation(operation);
+        }
+    }
+
+    /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueDrawChunkyImage(VecI pos, ChunkyImage image, bool flipHor = false, bool flipVer = false)
     {
         lock (lockObject)
