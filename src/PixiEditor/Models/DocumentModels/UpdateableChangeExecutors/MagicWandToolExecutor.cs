@@ -11,28 +11,25 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
 {
     private bool considerAllLayers;
     private bool drawOnMask;
-    private Guid memberGuid;
+    private List<Guid> memberGuids;
     private SelectionMode mode;
 
     public override ExecutionState Start()
     {
         var magicWand = ViewModelMain.Current?.ToolsSubViewModel.GetTool<MagicWandToolViewModel>();
-        var member = document!.SelectedStructureMember;
+        var members = document!.ExtractSelectedLayers(true);
 
-        if (magicWand is null || member is null)
-            return ExecutionState.Error;
-        drawOnMask = member is not LayerViewModel layer || layer.ShouldDrawOnMask;
-        if (drawOnMask && !member.HasMaskBindable)
-            return ExecutionState.Error;
-        if (!drawOnMask && member is not LayerViewModel)
+        if (magicWand is null || members.Count == 0)
             return ExecutionState.Error;
 
         mode = magicWand.SelectMode;
-        memberGuid = member.GuidValue;
+        memberGuids = members;
         considerAllLayers = magicWand.DocumentScope == DocumentScope.AllLayers;
+        if (considerAllLayers)
+            memberGuids = document!.StructureHelper.GetAllLayers().Select(x => x.GuidValue).ToList();
         var pos = controller!.LastPixelPosition;
 
-        internals!.ActionAccumulator.AddActions(new MagicWand_Action(memberGuid, pos, mode, considerAllLayers, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new MagicWand_Action(memberGuids, pos, mode, considerAllLayers));
 
         return ExecutionState.Success;
     }
