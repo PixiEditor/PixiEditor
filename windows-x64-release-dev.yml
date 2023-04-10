@@ -24,7 +24,8 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '7.0.4'
+    version: '7.0.202'
+    
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
