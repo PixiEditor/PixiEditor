@@ -2,4 +2,4 @@
 
 namespace PixiEditor.Views.UserControls.SymmetryOverlay;
 #nullable enable
-internal record class SymmetryAxisDragInfo(SymmetryAxisDirection Direction, int NewPosition);
+internal record class SymmetryAxisDragInfo(SymmetryAxisDirection Direction, double NewPosition);

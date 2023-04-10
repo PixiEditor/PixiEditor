@@ -18,10 +18,10 @@ internal class SymmetryExecutor : UpdateableChangeExecutor
             !document.VerticalSymmetryAxisEnabledBindable && dir == SymmetryAxisDirection.Vertical)
             return ExecutionState.Error;
 
-        int lastPos = dir switch
+        double lastPos = dir switch
         {
-            SymmetryAxisDirection.Horizontal => controller.LastHorizontalSymmetryAxisPosition,
-            SymmetryAxisDirection.Vertical => controller.LastVerticalSymmetryAxisPosition,
+            SymmetryAxisDirection.Horizontal => document.HorizontalSymmetryAxisYBindable,
+            SymmetryAxisDirection.Vertical => document.VerticalSymmetryAxisXBindable,
             _ => throw new NotImplementedException(),
         };
         internals.ActionAccumulator.AddActions(new SymmetryAxisPosition_Action(dir, lastPos));

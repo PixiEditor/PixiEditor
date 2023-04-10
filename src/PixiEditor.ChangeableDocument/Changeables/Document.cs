@@ -26,8 +26,8 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     public VecI Size { get; set; } = DefaultSize;
     public bool HorizontalSymmetryAxisEnabled { get; set; }
     public bool VerticalSymmetryAxisEnabled { get; set; }
-    public int HorizontalSymmetryAxisY { get; set; }
-    public int VerticalSymmetryAxisX { get; set; }
+    public double HorizontalSymmetryAxisY { get; set; }
+    public double VerticalSymmetryAxisX { get; set; }
 
     public void Dispose()
     {

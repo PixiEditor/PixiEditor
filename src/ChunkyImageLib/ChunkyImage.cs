@@ -82,8 +82,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     private BlendMode blendMode = BlendMode.Src;
     private bool lockTransparency = false;
     private VectorPath? clippingPath;
-    private int? horizontalSymmetryAxis = null;
-    private int? verticalSymmetryAxis = null;
+    private double? horizontalSymmetryAxis = null;
+    private double? verticalSymmetryAxis = null;
 
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> committedChunks;
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> latestChunks;
@@ -429,7 +429,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void SetHorizontalAxisOfSymmetry(int position)
+    public void SetHorizontalAxisOfSymmetry(double position)
     {
         lock (lockObject)
         {
@@ -441,7 +441,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void SetVerticalAxisOfSymmetry(int position)
+    public void SetVerticalAxisOfSymmetry(double position)
     {
         lock (lockObject)
         {

@@ -62,11 +62,11 @@ internal class PixelOperation : IMirroredDrawOperation
         return new AffectedArea(new HashSet<VecI>() { OperationHelper.GetChunkPos(pixel, ChunkyImage.FullChunkSize) }, new RectI(pixel, VecI.One));
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
         RectI pixelRect = new RectI(pixel, new VecI(1, 1));
         if (verAxisX is not null)
-            pixelRect = pixelRect.ReflectX((int)verAxisX);
+            pixelRect = (RectI)pixelRect.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
             pixelRect = pixelRect.ReflectY((int)horAxisY);
         if (_colorProcessor != null)

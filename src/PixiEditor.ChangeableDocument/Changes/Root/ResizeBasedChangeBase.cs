@@ -6,8 +6,8 @@ namespace PixiEditor.ChangeableDocument.Changes.Root;
 internal abstract class ResizeBasedChangeBase : Change
 {
     protected VecI _originalSize;
-    protected int _originalHorAxisY;
-    protected int _originalVerAxisX;
+    protected double _originalHorAxisY;
+    protected double _originalVerAxisX;
     protected Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     protected Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
     

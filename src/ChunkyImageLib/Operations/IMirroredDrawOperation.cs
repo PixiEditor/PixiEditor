@@ -2,5 +2,5 @@
 
 internal interface IMirroredDrawOperation : IDrawOperation
 {
-    IDrawOperation AsMirrored(int? verAxisX, int? horAxisY);
+    IDrawOperation AsMirrored(double? verAxisX, double? horAxisY);
 }
