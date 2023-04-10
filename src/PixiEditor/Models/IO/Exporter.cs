@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.IO.Compression;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
@@ -22,8 +24,10 @@ internal enum DialogSaveResult
     Success = 0,
     InvalidPath = 1,
     ConcurrencyError = 2,
-    UnknownError = 3,
-    Cancelled = 4,
+    SecurityError = 3,
+    IoError = 4,
+    UnknownError = 5,
+    Cancelled = 6,
 }
 
 internal enum SaveResult
@@ -31,7 +35,9 @@ internal enum SaveResult
     Success = 0,
     InvalidPath = 1,
     ConcurrencyError = 2,
-    UnknownError = 3,
+    SecurityError = 3,
+    IoError = 4,
+    UnknownError = 5,
 }
 
 internal class Exporter
@@ -97,9 +103,8 @@ internal class Exporter
             {
                 return SaveResult.UnknownError;
             }
-            
-            if (!TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize))
-                return SaveResult.UnknownError;
+
+            return TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize);
         }
         else
         {
@@ -149,7 +154,7 @@ internal class Exporter
     /// <summary>
     /// Saves image to PNG file. Messes with the passed bitmap.
     /// </summary>
-    private static bool TrySaveAs(BitmapEncoder encoder, string savePath, Surface bitmap, VecI? exportSize)
+    private static SaveResult TrySaveAs(BitmapEncoder encoder, string savePath, Surface bitmap, VecI? exportSize)
     {
         try
         {
@@ -163,10 +168,18 @@ internal class Exporter
             encoder.Frames.Add(BitmapFrame.Create(bitmap.ToWriteableBitmap()));
             encoder.Save(stream);
         }
-        catch (Exception err)
+        catch (SecurityException)
         {
-            return false;
+            return SaveResult.SecurityError;
         }
-        return true;
+        catch (IOException)
+        {
+            return SaveResult.IoError;
+        }
+        catch
+        {
+            return SaveResult.UnknownError;
+        }
+        return SaveResult.Success;
     }
 }
