@@ -11,16 +11,14 @@ internal class MagicWand_Change : Change
     private VectorPath path = new() { FillType = PathFillType.EvenOdd };
     private VecI point;
     private readonly List<Guid> memberGuids;
-    private readonly bool drawOnMask;
     private readonly SelectionMode mode;
 
     [GenerateMakeChangeAction]
-    public MagicWand_Change(List<Guid> memberGuids, VecI point, SelectionMode mode, bool drawOnMask)
+    public MagicWand_Change(List<Guid> memberGuids, VecI point, SelectionMode mode)
     {
         path.MoveTo(point);
         this.mode = mode;
         this.memberGuids = memberGuids;
-        this.drawOnMask = drawOnMask;
         this.point = point;
     }
 

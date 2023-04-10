@@ -29,7 +29,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
             memberGuids = document!.StructureHelper.GetAllLayers().Select(x => x.GuidValue).ToList();
         var pos = controller!.LastPixelPosition;
 
-        internals!.ActionAccumulator.AddActions(new MagicWand_Action(memberGuids, pos, mode, considerAllLayers));
+        internals!.ActionAccumulator.AddActions(new MagicWand_Action(memberGuids, pos, mode));
 
         return ExecutionState.Success;
     }
