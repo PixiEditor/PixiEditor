@@ -68,7 +68,7 @@ internal class PixelOperation : IMirroredDrawOperation
         if (verAxisX is not null)
             pixelRect = (RectI)pixelRect.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
-            pixelRect = pixelRect.ReflectY((int)horAxisY);
+            pixelRect = (RectI)pixelRect.ReflectY((double)horAxisY);
         if (_colorProcessor != null)
         {
             return new PixelOperation(pixelRect.Pos, _colorProcessor, blendMode);
