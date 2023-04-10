@@ -40,17 +40,17 @@ internal class PathOperation : IMirroredDrawOperation
         return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize), bounds);
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
-        var matrix = Matrix3X3.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, verAxisX ?? 0, horAxisY ?? 0);
+        var matrix = Matrix3X3.CreateScale(verAxisX is not null ? -1 : 1, horAxisY is not null ? -1 : 1, (float?)verAxisX ?? 0, (float?)horAxisY ?? 0);
         using var copy = new VectorPath(path);
         copy.Transform(matrix);
 
         RectI newBounds = bounds;
         if (verAxisX is not null)
-            newBounds = newBounds.ReflectX((int)verAxisX);
+            newBounds = (RectI)newBounds.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
-            newBounds = newBounds.ReflectY((int)horAxisY);
+            newBounds = (RectI)newBounds.ReflectY((double)horAxisY).Round();
         return new PathOperation(copy, paint.Color, paint.StrokeWidth, paint.StrokeCap, paint.BlendMode, newBounds);
     }
 

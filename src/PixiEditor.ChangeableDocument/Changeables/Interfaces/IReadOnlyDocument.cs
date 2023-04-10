@@ -33,12 +33,12 @@ public interface IReadOnlyDocument
     /// <summary>
     /// The position of the horizontal symmetry axis (Mirrors top and bottom)
     /// </summary>
-    int HorizontalSymmetryAxisY { get; }
+    double HorizontalSymmetryAxisY { get; }
 
     /// <summary>
     /// The position of the vertical symmetry axis (Mirrors left and right)
     /// </summary>
-    int VerticalSymmetryAxisX { get; }
+    double VerticalSymmetryAxisX { get; }
 
     /// <summary>
     /// Performs the specified action on each readonly member of the document

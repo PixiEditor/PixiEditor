@@ -53,6 +53,20 @@ public struct VecI : IEquatable<VecI>
     {
         return new(X, 2 * lineY - Y);
     }
+    /// <summary>
+    /// Reflects the vector across a vertical line with the specified x position
+    /// </summary>
+    public VecD ReflectX(double lineX)
+    {
+        return new(2 * lineX - X, Y);
+    }
+    /// <summary>
+    /// Reflects the vector across a horizontal line with the specified y position
+    /// </summary>
+    public VecD ReflectY(double lineY)
+    {
+        return new(X, 2 * lineY - Y);
+    }
     public static VecI operator +(VecI a, VecI b)
     {
         return new VecI(a.X + b.X, a.Y + b.Y);

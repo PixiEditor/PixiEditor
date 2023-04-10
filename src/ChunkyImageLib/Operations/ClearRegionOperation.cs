@@ -31,13 +31,13 @@ internal class ClearRegionOperation : IMirroredDrawOperation
     }
     public void Dispose() { }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
         var newRect = rect;
         if (verAxisX is not null)
-            newRect = newRect.ReflectX((int)verAxisX);
+            newRect = (RectI)newRect.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
-            newRect = newRect.ReflectY((int)horAxisY);
+            newRect = (RectI)newRect.ReflectY((double)horAxisY).Round();
         return new ClearRegionOperation(newRect);
     }
 }
