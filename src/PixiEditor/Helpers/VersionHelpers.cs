@@ -10,37 +10,31 @@ internal static class VersionHelpers
 
     public static string GetCurrentAssemblyVersion(Func<Version, string> toString) => toString(GetCurrentAssemblyVersion());
 
-    public static string GetCurrentAssemblyVersionString()
+    public static string GetCurrentAssemblyVersionString(bool moreSpecific = false)
     {
         StringBuilder builder = new(GetCurrentAssemblyVersion().ToString());
 
-        bool isDone = false;
-
-        AppendDevBuild(builder, ref isDone);
-
-        if (isDone)
-        {
-            return builder.ToString();
-        }
-
-        AppendDebugBuild(builder, ref isDone);
-
-        return builder.ToString();
-    }
-
-    [Conditional("DEVRELEASE")]
-    private static void AppendDevBuild(StringBuilder builder, ref bool done)
-    {
-        done = true;
-
+#if DEVRELEASE
         builder.Append(" Dev Build");
-    }
-
-    [Conditional("DEBUG")]
-    private static void AppendDebugBuild(StringBuilder builder, ref bool done)
-    {
-        done = true;
-
+        return builder.ToString();
+#elif MSIX_DEBUG
+        builder.Append(" MSIX Debug Build");
+        return builder.ToString();
+#elif DEBUG
         builder.Append(" Debug Build");
+        return builder.ToString();
+#endif
+
+        if (!moreSpecific)
+            return builder.ToString();
+
+#if STEAM
+        builder.Append(" Steam Build");
+#elif MSIX
+        builder.Append(" MSIX Build");
+#elif RELEASE
+        builder.Append(" Release Build");
+#endif
+        return builder.ToString();
     }
 }

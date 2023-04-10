@@ -88,9 +88,14 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
             
             for (VecI pos = new VecI(left.X, y); pos.X <= right.X; pos.X++)
             {
-                Color pixel = tempSurface.GetSRGBPixel(pos);
-                Color newColor = ColorHelper.ChangeColorBrightness(pixel, correctionFactor);
-                layerImage.EnqueueDrawPixel(pos + offset, newColor, BlendMode.Src);
+                layerImage.EnqueueDrawPixel(
+                    pos + offset,
+                    (pixel) =>
+                    {
+                        Color newColor = ColorHelper.ChangeColorBrightness(pixel, correctionFactor);
+                        return ColorHelper.ChangeColorBrightness(newColor, correctionFactor);
+                    },
+                    BlendMode.Src);
             }
         }
     }
