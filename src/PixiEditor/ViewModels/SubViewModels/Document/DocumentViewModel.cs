@@ -520,8 +520,54 @@ internal partial class DocumentViewModel : NotifyableObject
     /// </summary>
     public List<Guid> GetSelectedMembers()
     {
-        List<Guid> layerGuids = new List<Guid>() { SelectedStructureMember.GuidValue };
-        layerGuids.AddRange( SoftSelectedStructureMembers.Select(x => x.GuidValue));
+        List<Guid> layerGuids = new List<Guid>();
+        if (SelectedStructureMember is not null)
+            layerGuids.Add(SelectedStructureMember.GuidValue);
+
+        layerGuids.AddRange(SoftSelectedStructureMembers.Select(x => x.GuidValue));
         return layerGuids;
+    }
+
+    public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false)
+    {
+        var result = new List<Guid>();
+        List<Guid> selectedMembers = GetSelectedMembers();
+        foreach (var member in selectedMembers)
+        {
+            var foundMember = StructureHelper.Find(member);
+            if (foundMember != null)
+            {
+                if (foundMember is LayerViewModel layer && selectedMembers.Contains(foundMember.GuidValue) && !result.Contains(layer.GuidValue))
+                {
+                    result.Add(layer.GuidValue);
+                }
+                else if (foundMember is FolderViewModel folder && selectedMembers.Contains(foundMember.GuidValue))
+                {
+                    if (includeFoldersWithMask && folder.HasMaskBindable && !result.Contains(folder.GuidValue))
+                        result.Add(folder.GuidValue);
+                    ExtractSelectedLayers(folder, result, includeFoldersWithMask);
+                }
+            }
+        }
+        return result;
+    }
+
+    private void ExtractSelectedLayers(FolderViewModel folder, List<Guid> list,
+        bool includeFoldersWithMask)
+    {
+        foreach (var member in folder.Children)
+        {
+            if (member is LayerViewModel layer && !list.Contains(layer.GuidValue))
+            {
+                list.Add(layer.GuidValue);
+            }
+            else if (member is FolderViewModel childFolder)
+            {
+                if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.GuidValue))
+                    list.Add(childFolder.GuidValue);
+
+                ExtractSelectedLayers(childFolder, list, includeFoldersWithMask);
+            }
+        }
     }
 }
