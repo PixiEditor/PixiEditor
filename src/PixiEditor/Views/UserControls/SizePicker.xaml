@@ -48,7 +48,8 @@
                              IsChecked="{Binding Path=SelectedUnit,  
                                               ElementName=uc, 
                                               Converter={converters:EnumBooleanConverter}, 
-                                              ConverterParameter=Percentage
+                                              ConverterParameter=Percentage,
+                                              Mode=TwoWay
                                               }" local:Translator.Key="PERCENTAGE"/>
                 <userControls:SizeInput Grid.Row="0" 
                                      VerticalAlignment="Center"
@@ -77,7 +78,8 @@
                              VerticalAlignment="Center"
                              IsChecked="{Binding Path=SelectedUnit,  
                                               ElementName=uc, 
-                                              Converter={converters:EnumBooleanConverter}, 
+                                              Converter={converters:EnumBooleanConverter},
+                                              Mode=TwoWay,
                                               ConverterParameter=Pixel}" local:Translator.Key="ABSOLUTE"/>
 
             </Grid>

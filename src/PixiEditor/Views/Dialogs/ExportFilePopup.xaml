@@ -24,7 +24,7 @@
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
-
+    
     <DockPanel Background="{StaticResource AccentColor}" Focusable="True">
         <i:Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior/>
@@ -52,8 +52,11 @@
                                              ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
                                              ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
             <TextBlock Grid.Row="1" Foreground="Snow" Margin="5,0,5,10" TextWrapping="Wrap" VerticalAlignment="Bottom" TextAlignment="Center" 
-                       Width="200"
-                       d:Text="If you want to share the image, try 400% for the best clarity" Text="{Binding SizeHint, ElementName=saveFilePopup}"/>
+                       Width="200">
+                <Hyperlink Command="{Binding SetBestPercentageCommand, ElementName=saveFilePopup}">
+                    <Run Text="{Binding SizeHint, Mode=OneTime, ElementName=saveFilePopup}" d:Text="If you want to share the image, try 400% for the best clarity" />
+                </Hyperlink>
+            </TextBlock>
             </Grid>
         </Border>
 
