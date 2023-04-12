@@ -65,9 +65,9 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" Width="150" Margin="10"
+                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" MinWidth="150" Margin="10"
                             views:Translator.Key="OPEN_FILE"/>
-                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" Width="150" Margin="10"
+                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" MinWidth="150" Margin="10"
                             views:Translator.Key="NEW_FILE"/>
                 </StackPanel>
 
@@ -92,6 +92,7 @@
                                     <StackPanel Margin="8,5,8,0">
                                         <Button Margin="0,10,0,0" HorizontalAlignment="Center"
                                                 Width="100" Height="100"
+                                                Padding="0"
                                                 Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
                                                 CommandParameter="{Binding FilePath}"
                                                 Style="{StaticResource DarkRoundButton}"

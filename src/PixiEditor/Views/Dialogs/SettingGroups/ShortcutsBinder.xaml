@@ -11,6 +11,7 @@
              xmlns:commands1="clr-namespace:PixiEditor.Models.Commands.Commands"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="400">
+    <Grid>
     <ScrollViewer x:Name="commandScroll" FocusVisualStyle="{x:Null}">
                     <ScrollViewer.Template>
                         <ControlTemplate TargetType="{x:Type ScrollViewer}">
@@ -55,4 +56,15 @@
                         </ItemsControl>
                     </Grid>
                 </ScrollViewer>
+        <Grid Height="10" VerticalAlignment="Top"
+              Visibility="{Binding VerticalOffset, ElementName=commandScroll, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter Invert=True}, ConverterParameter=0}"
+              Margin="-10,0">
+            <Grid.Background>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                    <GradientStop Color="#22000000" Offset="0"/>
+                    <GradientStop Color="#00000000" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Grid.Background>
+        </Grid>
+        </Grid>
 </UserControl>

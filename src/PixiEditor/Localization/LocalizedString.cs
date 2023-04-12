@@ -20,6 +20,7 @@ public struct LocalizedString
             {
                 LocalizationKeyShowMode.Key => Key,
                 LocalizationKeyShowMode.ValueKey => $"{GetValue(value)} ({Key})",
+                LocalizationKeyShowMode.LALALA => $"#~{GetLongString(GetValue(value).Count(x => x == ' ') + 1)}{Math.Abs(Key.GetHashCode()).ToString()[..2]}~#",
                 _ => GetValue(value)
             };
             #endif
@@ -73,6 +74,8 @@ public struct LocalizedString
 
         return ApplyParameters(ILocalizationProvider.Current.CurrentLanguage.Locale[localizationKey]);
     }
+
+    private string GetLongString(int length) => string.Join(' ', Enumerable.Repeat("LaLaLaLaLa", length));
 
     private string ApplyParameters(string value)
     {

@@ -15,7 +15,8 @@
         DataContext="{DynamicResource NewFileMenuViewModel}" 
         WindowStyle="None" 
         WindowStartupLocation="CenterScreen" 
-        MinHeight="250" MinWidth="300" Height="250" Width="300" 
+        MinHeight="250" Height="250"
+        SizeToContent="Width"
         Name="newFilePopup" 
         BorderBrush="Black" BorderThickness="1"
         FlowDirection="{helpers:Localization FlowDirection}">
@@ -40,13 +41,13 @@
         <dial:DialogTitleBar DockPanel.Dock="Top"
             TitleText="CREATE_NEW_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
 
-        <Button DockPanel.Dock="Bottom" Width="70" Margin="0,15,0,15" HorizontalAlignment="Center"
+        <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
                 IsDefault="True" local:Translator.Key="CREATE" x:Name="createButton"
                 Style="{StaticResource DarkRoundButton}" 
                 Command="{Binding OkCommand}"
                 CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
 
-        <userControls:SizePicker HorizontalAlignment="Center" Width="230" Height="125" Margin="0,30,0,0"
+        <userControls:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="15,30,15,0"
                               PreserveAspectRatio="False"
                               ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=newFilePopup}"
                               ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=newFilePopup}" 

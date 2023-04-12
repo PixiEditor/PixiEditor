@@ -51,7 +51,7 @@
             TitleText="SETTINGS" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
         <ListBox DockPanel.Dock="Left" x:Name="pages" ItemsSource="{Binding Pages}"
-                 Background="Transparent" BorderThickness="0" Width="150" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}"
+                 Background="Transparent" BorderThickness="0" Width="180" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}"
                  SelectedIndex="{Binding CurrentPage}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
@@ -224,7 +224,7 @@
                     <StackPanel.Resources>
                         <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}">
                             <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                            <Setter Property="Width" Value="115"/>
+                            <Setter Property="MinWidth" Value="115"/>
                             <Setter Property="Height" Value="Auto"/>
                             <Setter Property="Margin" Value="5,0"/>
                             <Setter Property="FontSize" Value="12"/>
@@ -248,17 +248,6 @@
                 </TextBox>
 
                 <settingGroups:ShortcutsBinder Grid.Row="2"/>
-
-                <Grid Grid.Row="2" Height="10" VerticalAlignment="Top"
-                      Visibility="{Binding VerticalOffset, ElementName=commandScroll, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter Invert=True}, ConverterParameter=0}"
-                      Margin="-10,0">
-                    <Grid.Background>
-                        <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
-                            <GradientStop Color="#22000000" Offset="0"/>
-                            <GradientStop Color="#00000000" Offset="1.0"/>
-                        </LinearGradientBrush>
-                    </Grid.Background>
-                </Grid>
             </Grid>
         </StackPanel>
     </DockPanel>

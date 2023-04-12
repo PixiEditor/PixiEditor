@@ -15,5 +15,10 @@ internal enum LocalizationKeyShowMode
     /// <summary>
     /// Shows just the key e.g. OPEN
     /// </summary>
-    Key
+    Key,
+    
+    /// <summary>
+    /// Shows a long string ensuring responsive layout
+    /// </summary>
+    LALALA,
 }
