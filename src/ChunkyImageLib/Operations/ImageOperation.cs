@@ -106,22 +106,22 @@ internal class ImageOperation : IMirroredDrawOperation
         customPaint?.Dispose();
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
         if (verAxisX is not null && horAxisY is not null)
         {
             return new ImageOperation
-                (corners.AsMirroredAcrossVerAxis((int)verAxisX).AsMirroredAcrossHorAxis((int)horAxisY), toPaint, customPaint, imageWasCopied);
+                (corners.AsMirroredAcrossVerAxis((double)verAxisX).AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
         }
         if (verAxisX is not null)
         {
             return new ImageOperation
-                (corners.AsMirroredAcrossVerAxis((int)verAxisX), toPaint, customPaint, imageWasCopied);
+                (corners.AsMirroredAcrossVerAxis((double)verAxisX), toPaint, customPaint, imageWasCopied);
         }
         if (horAxisY is not null)
         {
             return new ImageOperation
-                (corners.AsMirroredAcrossHorAxis((int)horAxisY), toPaint, customPaint, imageWasCopied);
+                (corners.AsMirroredAcrossHorAxis((double)horAxisY), toPaint, customPaint, imageWasCopied);
         }
         return new ImageOperation(corners, toPaint, customPaint, imageWasCopied);
     }

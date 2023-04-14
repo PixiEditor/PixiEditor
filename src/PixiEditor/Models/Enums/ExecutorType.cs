@@ -5,3 +5,9 @@ internal enum ExecutorType
     Regular,
     ToolLinked,
 }
+
+internal enum ExecutorStartMode
+{
+    RightAway,
+    OnMouseLeftButtonDown,
+}

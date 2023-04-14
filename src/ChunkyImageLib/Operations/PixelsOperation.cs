@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -52,11 +53,11 @@ internal class PixelsOperation : IMirroredDrawOperation
         return new AffectedArea(affectedChunks, affectedArea);
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
         var arr = pixels.Select(pixel => new VecI(
-            verAxisX is not null ? 2 * (int)verAxisX - (int)pixel.X - 1 : (int)pixel.X,
-            horAxisY is not null ? 2 * (int)horAxisY - (int)pixel.Y - 1 : (int)pixel.Y
+            verAxisX is not null ? (int)Math.Round(2 * (double)verAxisX - (int)pixel.X - 1) : (int)pixel.X,
+            horAxisY is not null ? (int)Math.Round(2 * (double)horAxisY - (int)pixel.Y - 1) : (int)pixel.Y
         ));
         return new PixelsOperation(arr, color, blendMode);
     }

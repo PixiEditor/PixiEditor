@@ -105,13 +105,13 @@ internal class EllipseOperation : IMirroredDrawOperation
         return new AffectedArea(chunks, location);
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
         RectI newLocation = location;
         if (verAxisX is not null)
-            newLocation = newLocation.ReflectX((int)verAxisX);
+            newLocation = (RectI)newLocation.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
-            newLocation = newLocation.ReflectY((int)horAxisY);
+            newLocation = (RectI)newLocation.ReflectY((double)horAxisY).Round();
         return new EllipseOperation(newLocation, strokeColor, fillColor, strokeWidth, paint);
     }
 

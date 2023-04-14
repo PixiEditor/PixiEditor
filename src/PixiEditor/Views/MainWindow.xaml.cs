@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
@@ -234,5 +235,13 @@ internal partial class MainWindow : Window
     private void MainWindow_DragLeave(object sender, DragEventArgs e)
     {
         DataContext.ActionDisplays[nameof(MainWindow_Drop)] = null;
+    }
+
+    private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.System) // Disables alt menu item navigation, I hope it won't break anything else.
+        {
+            e.Handled = true;
+        }
     }
 }

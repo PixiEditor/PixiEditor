@@ -40,25 +40,7 @@ internal class CrashReportViewModel : ViewModelBase
         AttachDebuggerCommand = new(AttachDebugger);
 
         if (!IsDebugBuild)
-            SendReportTextToWebhook(report);
-    }
-
-    private async void SendReportTextToWebhook(CrashReport report)
-    {
-        byte[] bytes = Encoding.UTF8.GetBytes(report.ReportText);
-        string filename = Path.GetFileNameWithoutExtension(report.FilePath) + ".txt";
-
-        MultipartFormDataContent formData = new MultipartFormDataContent
-        {
-            { new ByteArrayContent(bytes, 0, bytes.Length), "crash-report", filename }
-        };
-        try
-        {
-            using HttpClient httpClient = new HttpClient();
-            string url = BuildConstants.CrashReportWebhookUrl;
-            await httpClient.PostAsync(url, formData);
-        }
-        catch { }
+            _ = CrashHelper.SendReportTextToWebhook(report);
     }
 
     public void RecoverDocuments(object args)

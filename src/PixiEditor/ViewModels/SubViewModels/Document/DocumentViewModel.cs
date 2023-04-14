@@ -102,11 +102,11 @@ internal partial class DocumentViewModel : NotifyableObject
     public int Height => size.Y;
     public VecI SizeBindable => size;
 
-    private int horizontalSymmetryAxisY;
-    public int HorizontalSymmetryAxisYBindable => horizontalSymmetryAxisY;
+    private double horizontalSymmetryAxisY;
+    public double HorizontalSymmetryAxisYBindable => horizontalSymmetryAxisY;
 
-    private int verticalSymmetryAxisX;
-    public int VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
+    private double verticalSymmetryAxisX;
+    public double VerticalSymmetryAxisXBindable => verticalSymmetryAxisX;
 
     private readonly HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
     public IReadOnlyCollection<StructureMemberViewModel> SoftSelectedStructureMembers => softSelectedStructureMembers;
@@ -197,9 +197,9 @@ internal partial class DocumentViewModel : NotifyableObject
         viewModel.Internals.ChangeController.SymmetryDraggedInlet(new SymmetryAxisDragInfo(SymmetryAxisDirection.Vertical, builderInstance.Width / 2));
 
         acc.AddActions(
-            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Horizontal, builderInstance.Height / 2),
+            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Horizontal, (double)builderInstance.Height / 2),
             new EndSymmetryAxisPosition_Action(),
-            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Vertical, builderInstance.Width / 2),
+            new SymmetryAxisPosition_Action(SymmetryAxisDirection.Vertical, (double)builderInstance.Width / 2),
             new EndSymmetryAxisPosition_Action());
 
         if (builderInstance.ReferenceLayer is { } refLayer)
@@ -476,13 +476,13 @@ internal partial class DocumentViewModel : NotifyableObject
         RaisePropertyChanged(nameof(HorizontalSymmetryAxisEnabledBindable));
     }
 
-    public void InternalSetVerticalSymmetryAxisX(int verticalSymmetryAxisX)
+    public void InternalSetVerticalSymmetryAxisX(double verticalSymmetryAxisX)
     {
         this.verticalSymmetryAxisX = verticalSymmetryAxisX;
         RaisePropertyChanged(nameof(VerticalSymmetryAxisXBindable));
     }
 
-    public void InternalSetHorizontalSymmetryAxisY(int horizontalSymmetryAxisY)
+    public void InternalSetHorizontalSymmetryAxisY(double horizontalSymmetryAxisY)
     {
         this.horizontalSymmetryAxisY = horizontalSymmetryAxisY;
         RaisePropertyChanged(nameof(HorizontalSymmetryAxisYBindable));
@@ -520,8 +520,54 @@ internal partial class DocumentViewModel : NotifyableObject
     /// </summary>
     public List<Guid> GetSelectedMembers()
     {
-        List<Guid> layerGuids = new List<Guid>() { SelectedStructureMember.GuidValue };
-        layerGuids.AddRange( SoftSelectedStructureMembers.Select(x => x.GuidValue));
+        List<Guid> layerGuids = new List<Guid>();
+        if (SelectedStructureMember is not null)
+            layerGuids.Add(SelectedStructureMember.GuidValue);
+
+        layerGuids.AddRange(SoftSelectedStructureMembers.Select(x => x.GuidValue));
         return layerGuids;
+    }
+
+    public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false)
+    {
+        var result = new List<Guid>();
+        List<Guid> selectedMembers = GetSelectedMembers();
+        foreach (var member in selectedMembers)
+        {
+            var foundMember = StructureHelper.Find(member);
+            if (foundMember != null)
+            {
+                if (foundMember is LayerViewModel layer && selectedMembers.Contains(foundMember.GuidValue) && !result.Contains(layer.GuidValue))
+                {
+                    result.Add(layer.GuidValue);
+                }
+                else if (foundMember is FolderViewModel folder && selectedMembers.Contains(foundMember.GuidValue))
+                {
+                    if (includeFoldersWithMask && folder.HasMaskBindable && !result.Contains(folder.GuidValue))
+                        result.Add(folder.GuidValue);
+                    ExtractSelectedLayers(folder, result, includeFoldersWithMask);
+                }
+            }
+        }
+        return result;
+    }
+
+    private void ExtractSelectedLayers(FolderViewModel folder, List<Guid> list,
+        bool includeFoldersWithMask)
+    {
+        foreach (var member in folder.Children)
+        {
+            if (member is LayerViewModel layer && !list.Contains(layer.GuidValue))
+            {
+                list.Add(layer.GuidValue);
+            }
+            else if (member is FolderViewModel childFolder)
+            {
+                if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.GuidValue))
+                    list.Add(childFolder.GuidValue);
+
+                ExtractSelectedLayers(childFolder, list, includeFoldersWithMask);
+            }
+        }
     }
 }

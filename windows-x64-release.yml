@@ -16,7 +16,7 @@ variables:
 - name: solution 
   value: '**/*.sln'
 - name: buildPlatform 
-  value: 'x64'
+  value: 'win-x64'
 - name: buildConfiguration
   value: 'Release'
 
@@ -24,18 +24,19 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '7.0.103'
+    version: '7.0.104'
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
 
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
+  displayName: "Build PixiEditor Solution"
   inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'build'
+    projects: 'src/PixiEditor'
+    arguments: '-r "$(buildPlatform)" -c $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: "Build release PixiEditor.UpdateInstaller"
@@ -43,7 +44,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: '**/PixiEditor.UpdateInstaller.csproj'
-    arguments: '-o "UpdateInstaller" -r "win-x64" --self-contained=false -p:PublishSingleFile=true -c Release'
+    arguments: '-o "UpdateInstaller" -r "$(buildPlatform)" --self-contained=false -p:PublishSingleFile=true -c $(buildConfiguration)'
     zipAfterPublish: false
 
 - task: PowerShell@2
@@ -55,7 +56,7 @@ steps:
   displayName: Publish PixiEditor
   inputs:
     filePath: 'src/PixiEditor.Builder/build.ps1'
-    arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor" --build-configuration "Release" --runtime "win-x64" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-x64-light\PixiEditor" --crash-report-webhook-url "$(crash-webhook-url)"'
+    arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor" --build-configuration "$(buildConfiguration)" --runtime "$(buildPlatform)" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-x64-light\PixiEditor" --crash-report-webhook-url "$(crash-webhook-url)"'
     workingDirectory: 'src/PixiEditor.Builder'
 
 - task: ArchiveFiles@2

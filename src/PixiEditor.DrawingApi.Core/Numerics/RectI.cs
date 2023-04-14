@@ -149,6 +149,16 @@ public struct RectI : IEquatable<RectI>
         };
     }
 
+    public readonly RectD ReflectX(double verLineX)
+    {
+        return RectD.FromTwoPoints(Pos.ReflectX(verLineX), (Pos + Size).ReflectX(verLineX));
+    }
+
+    public readonly RectD ReflectY(double horLineY)
+    {
+        return RectD.FromTwoPoints(Pos.ReflectY(horLineY), (Pos + Size).ReflectY(horLineY));
+    }
+
     public readonly RectI ReflectX(int verLineX)
     {
         return RectI.FromTwoPoints(Pos.ReflectX(verLineX), (Pos + Size).ReflectX(verLineX));

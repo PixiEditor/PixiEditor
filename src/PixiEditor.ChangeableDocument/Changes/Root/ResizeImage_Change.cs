@@ -12,8 +12,8 @@ internal class ResizeImage_Change : Change
     private readonly VecI newSize;
     private readonly ResamplingMethod method;
     private VecI originalSize;
-    private int originalHorAxisY;
-    private int originalVerAxisX;
+    private double originalHorAxisY;
+    private double originalVerAxisX;
     
     private Dictionary<Guid, CommittedChunkStorage> savedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> savedMaskChunks = new();

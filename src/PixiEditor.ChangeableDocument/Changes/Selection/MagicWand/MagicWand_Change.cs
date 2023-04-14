@@ -10,19 +10,15 @@ internal class MagicWand_Change : Change
     private VectorPath? originalPath;
     private VectorPath path = new() { FillType = PathFillType.EvenOdd };
     private VecI point;
-    private readonly Guid memberGuid;
-    private readonly bool referenceAll;
-    private readonly bool drawOnMask;
+    private readonly List<Guid> memberGuids;
     private readonly SelectionMode mode;
 
     [GenerateMakeChangeAction]
-    public MagicWand_Change(Guid memberGuid, VecI point, SelectionMode mode, bool referenceAll, bool drawOnMask)
+    public MagicWand_Change(List<Guid> memberGuids, VecI point, SelectionMode mode)
     {
         path.MoveTo(point);
         this.mode = mode;
-        this.memberGuid = memberGuid;
-        this.referenceAll = referenceAll;
-        this.drawOnMask = drawOnMask;
+        this.memberGuids = memberGuids;
         this.point = point;
     }
 
@@ -34,13 +30,14 @@ internal class MagicWand_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
-
         HashSet<Guid> membersToReference = new();
-        if (referenceAll)
-            target.ForEveryReadonlyMember(member => membersToReference.Add(member.GuidValue));
-        else
-            membersToReference.Add(memberGuid);
+
+        target.ForEveryReadonlyMember(member =>
+        {
+            if (memberGuids.Contains(member.GuidValue))
+                membersToReference.Add(member.GuidValue);
+        });
+
         path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, target);
 
         ignoreInUndo = false;
