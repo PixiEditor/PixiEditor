@@ -554,6 +554,7 @@
   "SHORTCUTS_CORRUPTED": "Shortcuts file was corrupted, resetting to default.",
   "FAILED_DOWNLOAD_PALETTE": "Failed to download palette",
   "COULD_NOT_SAVE_PALETTE": "There was an error while saving the palette.",
+  "NO_COLORS_TO_SAVE": "There are no colors to save.",
   "FILE_INCORRECT_FORMAT": "The file was not in a correct format",
   "INVALID_FILE": "Invalid file",
   "SHORTCUTS_FILE_INCORRECT_FORMAT": "Shortcuts file was not in a correct format",
