@@ -21,27 +21,35 @@ internal class RegistryViewModel : SubViewModel<ViewModelMain>
         if (!LospecPaletteIsAssociated())
         {
             // Associate lospec-palette URL protocol
-            AssociateLospecPalette();
+            RegistryHelpers.TryAssociate(AssociateLospecPaletteInRegistry, "FAILED_ASSOCIATE_LOSPEC");
         }
+
+#if STEAM // Only associate .pixi file if it's a steam version, other versions handle it during installation
+        if(!PixiFileIsAssociated())
+        {
+            RegistryHelpers.TryAssociate(AssociatePixiFileInRegistry, "FAILED_ASSOCIATE_PIXI");
+        }
+#endif
     }
 
-    private void AssociateLospecPalette()
+    private bool PixiFileIsAssociated()
+    {
+        // Check if HKEY_CLASSES_ROOT\.pixi is present
+        return RegistryHelpers.IsKeyPresentInRoot(".pixi");
+    }
+
+    private void AssociatePixiFileInRegistry()
     {
         try
         {
-            if (!ProcessHelper.IsRunningAsAdministrator())
-            {
-                ProcessHelper.RunAsAdmin(Process.GetCurrentProcess().MainModule?.FileName);
-                Application.Current.Shutdown();
-            }
-            else
-            {
-                AssociateLospecPaletteInRegistry();
-            }
+            using RegistryKey key = Registry.ClassesRoot.CreateSubKey(".pixi");
+            key.SetValue("", "PixiEditor");
+
+            using RegistryKey shellKey = key.CreateSubKey("OpenWithProgids");
         }
         catch
         {
-            NoticeDialog.Show("FAILED_ASSOCIATE_LOSPEC", "ERROR");
+            NoticeDialog.Show("FAILED_ASSOCIATE_PIXI", "ERROR");
         }
     }
 
@@ -65,15 +73,13 @@ internal class RegistryViewModel : SubViewModel<ViewModelMain>
         }
         catch
         {
-            NoticeDialog.Show("FAILED_ASSOCIATE_LOSPEC", "ERROR");
+            NoticeDialog.Show("Failed to associate lospec-palette protocol", "Error");
         }
     }
 
     private bool LospecPaletteIsAssociated()
     {
         // Check if HKEY_CLASSES_ROOT\lospec-palette is present
-
-        RegistryKey lospecPaletteKey = Registry.ClassesRoot.OpenSubKey("lospec-palette", RegistryRights.ReadKey);
-        return lospecPaletteKey != null;
+        return RegistryHelpers.IsKeyPresentInRoot("lospec-palette");
     }
 }

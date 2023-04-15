@@ -549,6 +549,7 @@
   "ERROR_WHILE_SAVING": "An internal error occured while saving. Please try again.",
   "UNKNOWN_ERROR_SAVING": "An error occured while saving.",
   "FAILED_ASSOCIATE_LOSPEC": "Failed to associate Lospec Palette protocol.",
+  "FAILED_ASSOCIATE_PIXI": "Failed to associate .pixi file with PixiEditor.",
   "SHORTCUTS_CORRUPTED_TITLE": "Corrupted shortcuts file",
   "SHORTCUTS_CORRUPTED": "Shortcuts file was corrupted, resetting to default.",
   "FAILED_DOWNLOAD_PALETTE": "Failed to download palette",
