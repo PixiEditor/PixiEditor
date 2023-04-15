@@ -139,6 +139,11 @@ internal partial class PaletteViewer : UserControl
         {
             string fileName = saveFileDialog.FileName;
             var foundParser = FileParsers.First(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+            if (Colors == null || Colors.Count == 0)
+            {
+                NoticeDialog.Show("NO_COLORS_TO_SAVE", "ERROR");
+                return;
+            }
             bool saved = await foundParser.Save(fileName, new PaletteFileData(Colors.ToArray()));
             if (!saved)
             {

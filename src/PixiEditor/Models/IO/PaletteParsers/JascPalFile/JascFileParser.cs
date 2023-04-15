@@ -14,10 +14,7 @@ internal class JascFileParser : PaletteFileParser
 
     private static async Task<PaletteFileData> ParseFile(string path)
     {
-        using var stream = File.OpenText(path);
-
-        string fileContent = await stream.ReadToEndAsync();
-        string[] lines = fileContent.Split('\n');
+        string[] lines = await ReadTextLines(path);
         string name = Path.GetFileNameWithoutExtension(path);
         string fileType = lines[0];
         string magicBytes = lines[1];

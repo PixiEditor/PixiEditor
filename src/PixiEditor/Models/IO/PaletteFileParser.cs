@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Models.IO;
+﻿using System.IO;
+
+namespace PixiEditor.Models.IO;
 
 internal abstract class PaletteFileParser
 {
@@ -6,4 +8,12 @@ internal abstract class PaletteFileParser
     public abstract Task<bool> Save(string path, PaletteFileData data);
     public abstract string FileName { get; }
     public abstract string[] SupportedFileExtensions { get; }
+
+    protected static async Task<string[]> ReadTextLines(string path)
+    {
+        using var stream = File.OpenText(path);
+        string fileContent = await stream.ReadToEndAsync();
+        string[] lines = fileContent.Split('\n');
+        return lines;
+    }
 }

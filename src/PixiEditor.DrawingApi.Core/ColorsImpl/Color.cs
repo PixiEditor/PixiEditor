@@ -208,5 +208,10 @@ namespace PixiEditor.DrawingApi.Core.ColorsImpl
           return false;
       }
     }
+
+    public string? ToHex()
+    {
+        return this == Empty ? null : $"{this._colorValue:X8}";
+    }
   }
 }
