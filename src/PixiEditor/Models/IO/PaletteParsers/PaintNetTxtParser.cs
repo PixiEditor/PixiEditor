@@ -43,7 +43,7 @@ internal class PaintNetTxtParser : PaletteFileParser
             byte r = byte.Parse(colorLine.Substring(2, 2), NumberStyles.HexNumber);
             byte g = byte.Parse(colorLine.Substring(4, 2), NumberStyles.HexNumber);
             byte b = byte.Parse(colorLine.Substring(6, 2), NumberStyles.HexNumber);
-            var color = new Color(r, g, b, a);
+            var color = new Color(r, g, b, 255); // alpha is ignored in PixiEditor
             if(colors.Contains(color)) continue;
 
             colors.Add(color);

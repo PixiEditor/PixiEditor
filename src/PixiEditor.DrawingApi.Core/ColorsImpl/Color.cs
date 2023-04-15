@@ -209,6 +209,10 @@ namespace PixiEditor.DrawingApi.Core.ColorsImpl
       }
     }
 
+    /// <summary>
+    ///     Returns hex string representation of the color.
+    /// </summary>
+    /// <returns>Color string in format: AARRGGBB</returns>
     public string? ToHex()
     {
         return this == Empty ? null : $"{this._colorValue:X8}";
