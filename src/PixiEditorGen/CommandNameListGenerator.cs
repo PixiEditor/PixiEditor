@@ -16,62 +16,48 @@ public class CommandNameListGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var commandList = CreateSyntaxProvider(context, Commands).Where(x => !x.IsNone);
-        var evaluatorList = CreateSyntaxProvider(context, Evaluators).Where(x => !x.IsNone);
-        var groupList = CreateGroupSyntaxProvider(context).Where(x => x != null);
+        var commandList = CreateSyntaxProvider<Command>(context, Commands).Where(x => x != null);
+        var evaluatorList = CreateSyntaxProvider<Command>(context, Evaluators).Where(x => x != null);
+        var groupList = CreateSyntaxProvider<Group>(context, Groups).Where(x => x != null);
 
-        context.RegisterSourceOutput(commandList.Collect(), AddCommands);
-        context.RegisterSourceOutput(evaluatorList.Collect(), AddEvaluators);
-        context.RegisterSourceOutput(groupList.Collect(), AddGroups);
+        context.RegisterSourceOutput(commandList.Collect(), (context, commands) => AddSource(context, commands, "Commands"));
+        context.RegisterSourceOutput(evaluatorList.Collect(), (context, evaluators) => AddSource(context, evaluators, "Evaluators"));
+        context.RegisterSourceOutput(groupList.Collect(), AddGroupsSource);
     }
 
-    private IncrementalValuesProvider<Command> CreateSyntaxProvider(IncrementalGeneratorInitializationContext context, string className)
+    private IncrementalValuesProvider<T?> CreateSyntaxProvider<T>(IncrementalGeneratorInitializationContext context, string className) where T : CommandMember<T>
     {
         return context.SyntaxProvider.CreateSyntaxProvider(
             (x, token) =>
             {
-                return x is MethodDeclarationSyntax method && method.AttributeLists.Count > 0;
+
+                if (typeof(T) == typeof(Command))
+                {
+                    return x is MethodDeclarationSyntax method && method.AttributeLists.Count > 0;
+                }
+                else
+                {
+                    return x is TypeDeclarationSyntax type && type.AttributeLists.Count > 0;
+                }
             }, (context, cancelToken) =>
             {
-                var method = (MethodDeclarationSyntax)context.Node;
+                var member = (MemberDeclarationSyntax)context.Node;
 
-                if (!HasCommandAttribute(method, context, cancelToken, className))
-                    return Command.None;
+                if (!HasCommandAttribute(member, context, cancelToken, className))
+                    return null;
 
-                var symbol = context.SemanticModel.GetDeclaredSymbol(method, cancelToken);
+                var symbol = context.SemanticModel.GetDeclaredSymbol(member, cancelToken);
 
-                if (symbol is IMethodSymbol methodSymbol)
+                if (symbol is IMethodSymbol methodSymbol && typeof(T) == typeof(Command))
                 {
                     if (methodSymbol.ReceiverType == null)
-                        return Command.None;
+                        return null;
 
-                    return new Command(methodSymbol);
+                    return (T)(object)new Command(methodSymbol);
                 }
-                else
+                else if (symbol is ITypeSymbol typeSymbol && typeof(T) == typeof(Group))
                 {
-                    return Command.None;
-                }
-            });
-    }
-
-    private IncrementalValuesProvider<string?> CreateGroupSyntaxProvider(IncrementalGeneratorInitializationContext context)
-    {
-        return context.SyntaxProvider.CreateSyntaxProvider(
-            (x, token) =>
-            {
-                return x is TypeDeclarationSyntax type && type.AttributeLists.Count > 0;
-            }, static (context, cancelToken) =>
-            {
-                var method = (TypeDeclarationSyntax)context.Node;
-
-                if (!HasCommandAttribute(method, context, cancelToken, Groups))
-                    return null;
-
-                var symbol = context.SemanticModel.GetDeclaredSymbol(method, cancelToken);
-
-                if (symbol is ITypeSymbol methodSymbol)
-                {
-                    return methodSymbol.ToDisplayString();
+                    return (T)(object)new Group(typeSymbol);
                 }
                 else
                 {
@@ -80,7 +66,7 @@ public class CommandNameListGenerator : IIncrementalGenerator
             });
     }
 
-    private void AddCommands(SourceProductionContext context, ImmutableArray<Command> methodNames)
+    private void AddSource(SourceProductionContext context, ImmutableArray<Command> methodNames, string name)
     {
         List<string> createdClasses = new List<string>();
         SyntaxList<StatementSyntax> statements = new SyntaxList<StatementSyntax>();
@@ -89,96 +75,58 @@ public class CommandNameListGenerator : IIncrementalGenerator
         {
             if (!createdClasses.Contains(methodName.OwnerTypeName))
             {
-                statements = statements.Add(SyntaxFactory.ParseStatement($"Commands.Add(typeof({methodName.OwnerTypeName}), new());"));
+                statements = statements.Add(SyntaxFactory.ParseStatement($"{name}.Add(typeof({methodName.OwnerTypeName}), new());"));
                 createdClasses.Add(methodName.OwnerTypeName);
             }
 
             var parameters = string.Join(",", methodName.ParameterTypeNames);
+            string paramString = parameters.Length > 0 ? $"new Type[] {{ {parameters} }}" : "Array.Empty<Type>()";
 
-            bool hasParameters = parameters.Length > 0;
-            string paramString = hasParameters ? $"new Type[] {{ {parameters} }}" : "Array.Empty<Type>()";
-
-            statements = statements.Add(SyntaxFactory.ParseStatement($"Commands[typeof({methodName.OwnerTypeName})].Add((\"{methodName.MethodName}\", {paramString}));"));
+            statements = statements.Add(SyntaxFactory.ParseStatement($"{name}[typeof({methodName.OwnerTypeName})].Add((\"{methodName.MethodName}\", {paramString}));"));
         }
 
+        // partial void Add$name$()
         var method = SyntaxFactory
-            .MethodDeclaration(SyntaxFactory.ParseTypeName("void"), "AddCommands")
+            .MethodDeclaration(SyntaxFactory.ParseTypeName("void"), $"Add{name}")
             .AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword))
             .WithBody(SyntaxFactory.Block(statements));
 
+        // internal partial class CommandNameList
         var cDecl = SyntaxFactory
             .ClassDeclaration("CommandNameList")
             .AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword))
             .AddMembers(method);
 
+        // namespace PixiEditor.Models.Commands
         var nspace = SyntaxFactory
             .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
             .AddMembers(cDecl);
 
-        context.AddSource("CommandNameList+Commands", nspace.NormalizeWhitespace().ToFullString());
+        context.AddSource($"CommandNameList+{name}", nspace.NormalizeWhitespace().ToFullString());
     }
 
-    private void AddEvaluators(SourceProductionContext context, ImmutableArray<Command> methodNames)
+    private void AddGroupsSource(SourceProductionContext context, ImmutableArray<Group> groups)
     {
-        List<string> createdClasses = new List<string>();
         SyntaxList<StatementSyntax> statements = new SyntaxList<StatementSyntax>();
 
-        foreach (var methodName in methodNames)
+        foreach (var group in groups)
         {
-            if (!createdClasses.Contains(methodName.OwnerTypeName))
-            {
-                statements = statements.Add(SyntaxFactory.ParseStatement($"Evaluators.Add(typeof({methodName.OwnerTypeName}), new());"));
-                createdClasses.Add(methodName.OwnerTypeName);
-            }
-
-            if (methodName.ParameterTypeNames == null || !methodName.ParameterTypeNames.Any())
-            {
-                statements = statements.Add(SyntaxFactory.ParseStatement($"Evaluators[typeof({methodName.OwnerTypeName})].Add((\"{methodName.MethodName}\", Array.Empty<Type>()));"));
-            }
-            else
-            {
-                var parameters = string.Join(",", methodName.ParameterTypeNames);
-                string paramString = parameters.Length > 0 ? $"new Type[] {{ {parameters} }}" : "Array.Empty<Type>()";
-                statements = statements.Add(SyntaxFactory.ParseStatement($"Evaluators[typeof({methodName.OwnerTypeName})].Add((\"{methodName.MethodName}\", {paramString}));"));
-            }
+            statements = statements.Add(SyntaxFactory.ParseStatement($"Groups.Add(typeof({group.OwnerTypeName}));"));
         }
 
+        // partial void AddGroups()
         var method = SyntaxFactory
-            .MethodDeclaration(SyntaxFactory.ParseTypeName("void"), "AddEvaluators")
+            .MethodDeclaration(SyntaxFactory.ParseTypeName("void"), "AddGroups")
             .AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword))
             .WithBody(SyntaxFactory.Block(statements));
 
+        // internal partial class CommandNameList
         var cDecl = SyntaxFactory
             .ClassDeclaration("CommandNameList")
             .AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword))
             .AddMembers(method);
 
-        var nspace = SyntaxFactory
-            .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
-            .AddMembers(cDecl);
-
-        context.AddSource("CommandNameList+Evaluators", nspace.NormalizeWhitespace().ToFullString());
-    }
-
-    private void AddGroups(SourceProductionContext context, ImmutableArray<string?> typeNames)
-    {
-        SyntaxList<StatementSyntax> statements = new SyntaxList<StatementSyntax>();
-
-        foreach (var name in typeNames)
-        {
-            statements = statements.Add(SyntaxFactory.ParseStatement($"Groups.Add(typeof({name}));"));
-        }
-
-        var method = SyntaxFactory
-        .MethodDeclaration(SyntaxFactory.ParseTypeName("void"), "AddGroups")
-            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword))
-            .WithBody(SyntaxFactory.Block(statements));
-
-        var cDecl = SyntaxFactory
-            .ClassDeclaration("CommandNameList")
-            .AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword))
-            .AddMembers(method);
-
+        // namespace PixiEditor.Models.Commands
         var nspace = SyntaxFactory
             .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
             .AddMembers(cDecl);
@@ -206,23 +154,32 @@ public class CommandNameListGenerator : IIncrementalGenerator
         return false;
     }
 
-    readonly struct Command
+    class CommandMember<TSelf> where TSelf : CommandMember<TSelf>
     {
         public string OwnerTypeName { get; }
 
+        public CommandMember(string ownerTypeName)
+        {
+            OwnerTypeName = ownerTypeName;
+        }
+    }
+
+    class Command : CommandMember<Command>
+    {
         public string MethodName { get; }
 
         public string[] ParameterTypeNames { get; }
 
-        public Command(IMethodSymbol symbol)
+        public Command(IMethodSymbol symbol) : base(symbol.ContainingType.ToDisplayString())
         {
-            OwnerTypeName = symbol.ContainingType.ToDisplayString();
             MethodName = symbol.Name;
             ParameterTypeNames = symbol.Parameters.Select(x => $"typeof({x.Type.ToDisplayString()})").ToArray();
         }
+    }
 
-        public bool IsNone => OwnerTypeName == null;
-
-        public static Command None => default;
+    class Group : CommandMember<Group>
+    {
+        public Group(ITypeSymbol symbol) : base(symbol.ToDisplayString())
+        { }
     }
 }
