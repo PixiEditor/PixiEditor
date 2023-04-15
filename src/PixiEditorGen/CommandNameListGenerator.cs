@@ -30,7 +30,6 @@ public class CommandNameListGenerator : IIncrementalGenerator
         return context.SyntaxProvider.CreateSyntaxProvider(
             (x, token) =>
             {
-
                 if (typeof(T) == typeof(Command))
                 {
                     return x is MethodDeclarationSyntax method && method.AttributeLists.Count > 0;
