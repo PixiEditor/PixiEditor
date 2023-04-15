@@ -115,8 +115,6 @@ public class CommandNameListGenerator : IIncrementalGenerator
             .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
             .AddMembers(cDecl);
 
-        File.WriteAllText(@"C:\Users\phili\Documents\Cmds.txt", nspace.NormalizeWhitespace().ToFullString());
-
         context.AddSource("CommandNameList+Commands", nspace.NormalizeWhitespace().ToFullString());
     }
 
@@ -159,8 +157,6 @@ public class CommandNameListGenerator : IIncrementalGenerator
             .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
             .AddMembers(cDecl);
 
-        File.WriteAllText(@"C:\Users\phili\Documents\Evals.txt", nspace.NormalizeWhitespace().ToFullString());
-
         context.AddSource("CommandNameList+Evaluators", nspace.NormalizeWhitespace().ToFullString());
     }
 
@@ -186,8 +182,6 @@ public class CommandNameListGenerator : IIncrementalGenerator
         var nspace = SyntaxFactory
             .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
             .AddMembers(cDecl);
-
-        File.WriteAllText(@"C:\Users\phili\Documents\Groups.txt", nspace.NormalizeWhitespace().ToFullString());
 
         context.AddSource("CommandNameList+Groups", nspace.NormalizeWhitespace().ToFullString());
     }
