@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Exceptions;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
@@ -50,9 +51,9 @@ internal partial class ImportShortcutTemplatePopup : Window
         {
             CommandController.Current.Import(defaults.GetInstalledShortcuts().Shortcuts);
         }
-        catch
+        catch (RecoverableException e)
         {
-            NoticeDialog.Show($"The file was not in a correct format", "Error");
+            NoticeDialog.Show(title: "Error", message: e.Message);
             return;
         }
 

@@ -59,6 +59,10 @@ internal class Importer : NotifyableObject
         {
             throw new CorruptedFileException("The file appears to be corrupted");
         }
+        catch (Exception e)
+        {
+            throw new RecoverableException("Error while importing the bitmap", e);
+        }
     }
 
     public static DocumentViewModel ImportDocument(string path)
@@ -111,17 +115,9 @@ internal class Importer : NotifyableObject
     {
         if (!IsSupportedFile(path))
         {
-            throw new ArgumentException($"The file type '{Path.GetExtension(path)}' is not supported");
+            throw new InvalidFileFormatException($"The file type '{Path.GetExtension(path)}' is not supported");
         }
-        
-        try
-        {
-            return Path.GetExtension(path) != ".pixi" ? ImportWriteableBitmap(path) : PixiParser.Deserialize(path).ToDocument().PreviewBitmap;
-        }
-        catch (InvalidFileException)
-        {
-            throw new CorruptedFileException();
-        }
+        return Path.GetExtension(path) != ".pixi" ? ImportWriteableBitmap(path) : PixiParser.Deserialize(path).ToDocument().PreviewBitmap;
     }
 
     public static bool IsSupportedFile(string path)

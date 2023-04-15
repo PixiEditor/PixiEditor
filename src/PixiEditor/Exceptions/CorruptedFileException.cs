@@ -1,7 +1,9 @@
-﻿namespace PixiEditor.Exceptions;
+﻿using System.IO;
+
+namespace PixiEditor.Exceptions;
 
 [Serializable]
-internal class CorruptedFileException : Exception
+internal class CorruptedFileException : RecoverableException
 {
     public CorruptedFileException()
         : base("The file you've chosen might be corrupted.")

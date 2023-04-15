@@ -3,6 +3,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Media.Imaging;
 
@@ -79,11 +80,7 @@ internal class ImportFilePopupViewModel : ViewModelBase
                 ImportHeight = bitmap.PixelHeight;
                 ImportWidth = bitmap.PixelWidth;
             }
-            catch (NotSupportedException)
-            {
-                throw new CorruptedFileException();
-            }
-            catch (FileFormatException)
+            catch (Exception e) when (e is NotSupportedException or FileFormatException or COMException)
             {
                 throw new CorruptedFileException();
             }

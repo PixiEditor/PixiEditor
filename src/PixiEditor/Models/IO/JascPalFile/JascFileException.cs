@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.Models.IO.JascPalFile;
+﻿using PixiEditor.Exceptions;
 
-internal class JascFileException : Exception
+namespace PixiEditor.Models.IO.JascPalFile;
+
+internal class JascFileException : RecoverableException
 {
     public JascFileException(string message) : base(message)
     {
