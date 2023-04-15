@@ -83,7 +83,7 @@ Struggling with something? You can find support in a few places:
 
 ### Software Requirements
 
-* .NET 7.0.104 (7.0.202 is broken! Make sure to use 7.0.104)
+* .NET 7
 
 ### Instructions
 
