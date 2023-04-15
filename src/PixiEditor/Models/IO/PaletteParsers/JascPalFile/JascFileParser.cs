@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 
-namespace PixiEditor.Models.IO.JascPalFile;
+namespace PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 
 /// <summary>
 ///     This class is responsible for parsing JASC-PAL files. Which holds the color palette data.
@@ -60,11 +60,11 @@ internal class JascFileParser : PaletteFileParser
         }
         catch
         {
-            return new PaletteFileData("Corrupted", Array.Empty<Color>()) { IsCorrupted = true };
+            return PaletteFileData.Corrupted;
         }
     }
 
-    public override async Task Save(string path, PaletteFileData data) => await SaveFile(path, data);
+    public override async Task<bool> Save(string path, PaletteFileData data) => await SaveFile(path, data);
 
     private static bool ValidateFile(string fileType, string magicBytes)
     {

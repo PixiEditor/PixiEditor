@@ -2,7 +2,7 @@
 using CLSEncoderDecoder;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 
-namespace PixiEditor.Models.IO.ClsFile;
+namespace PixiEditor.Models.IO.PaletteParsers;
 
 internal class ClsFileParser : PaletteFileParser
 {

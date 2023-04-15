@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataProviders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Views.Dialogs;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
@@ -138,7 +139,11 @@ internal partial class PaletteViewer : UserControl
         {
             string fileName = saveFileDialog.FileName;
             var foundParser = FileParsers.First(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
-            await foundParser.Save(fileName, new PaletteFileData(Colors.ToArray()));
+            bool saved = await foundParser.Save(fileName, new PaletteFileData(Colors.ToArray()));
+            if (!saved)
+            {
+                NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
+            }
         }
     }
 
