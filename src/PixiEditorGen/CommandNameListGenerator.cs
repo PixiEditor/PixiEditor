@@ -1,5 +1,6 @@
-﻿using System.Text;
+﻿using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace PixiEditorGen;
@@ -19,95 +20,9 @@ public class CommandNameListGenerator : IIncrementalGenerator
         var evaluatorList = CreateSyntaxProvider(context, Evaluators).Where(x => !x.IsNone);
         var groupList = CreateGroupSyntaxProvider(context).Where(x => x != null);
 
-        context.RegisterSourceOutput(commandList.Collect(), static (context, methodNames) =>
-        {
-            var code = new StringBuilder(
-                """
-                namespace PixiEditor.Models.Commands;
-
-                internal partial class CommandNameList {
-                    partial void AddCommands() {
-                """);
-
-            List<string> createdClasses = new List<string>();
-
-            foreach (var method in methodNames)
-            {
-                if (!createdClasses.Contains(method.OwnerTypeName))
-                {
-                    code.AppendLine($"      Commands.Add(typeof({method.OwnerTypeName}), new());");
-                    createdClasses.Add(method.OwnerTypeName);
-                }
-
-                var parameters = string.Join(",", method.ParameterTypeNames);
-
-                bool hasParameters = parameters.Length > 0;
-                string paramString = hasParameters ? $"new Type[] {{ {parameters} }}" : "Array.Empty<Type>()";
-
-                code.AppendLine($"      Commands[typeof({method.OwnerTypeName})].Add((\"{method.MethodName}\", {paramString}));");
-            }
-
-            code.Append("   }\n}");
-
-            context.AddSource("CommandNameList+Commands", code.ToString());
-        });
-
-        context.RegisterSourceOutput(evaluatorList.Collect(), static (context, methodNames) =>
-        {
-            var code = new StringBuilder(
-                """
-                namespace PixiEditor.Models.Commands;
-
-                internal partial class CommandNameList {
-                    partial void AddEvaluators() {
-                """);
-
-            List<string> createdClasses = new List<string>();
-
-            foreach (var method in methodNames)
-            {
-                if (!createdClasses.Contains(method.OwnerTypeName))
-                {
-                    code.AppendLine($"      Evaluators.Add(typeof({method.OwnerTypeName}), new());");
-                    createdClasses.Add(method.OwnerTypeName);
-                }
-
-                if (method.ParameterTypeNames == null || !method.ParameterTypeNames.Any())
-                {
-                    code.AppendLine($"      Evaluators[typeof({method.OwnerTypeName})].Add((\"{method.MethodName}\", Array.Empty<Type>()));");
-                }
-                else
-                {
-                    var parameters = string.Join(",", method.ParameterTypeNames);
-                    string paramString = parameters.Length > 0 ? $"new Type[] {{ {parameters} }}" : "Array.Empty<Type>()";
-                    code.AppendLine($"      Evaluators[typeof({method.OwnerTypeName})].Add((\"{method.MethodName}\", {paramString}));");
-                }
-            }
-
-            code.Append("   }\n}");
-
-            File.WriteAllText(@"C:\Users\phili\Documents\Evals.txt", code.ToString());
-
-            context.AddSource("CommandNameList+Evaluators", code.ToString());
-        });
-
-        context.RegisterSourceOutput(groupList.Collect(), static (context, typeNames) =>
-        {
-            var code = new StringBuilder(
-                @"namespace PixiEditor.Models.Commands;
-
-internal partial class CommandNameList {
-    partial void AddGroups() {");
-
-            foreach (var name in typeNames)
-            {
-                code.AppendLine($"      Groups.Add(typeof({name}));");
-            }
-
-            code.Append("   }\n}");
-
-            context.AddSource("CommandNameList+Groups", code.ToString());
-        });
+        context.RegisterSourceOutput(commandList.Collect(), AddCommands);
+        context.RegisterSourceOutput(evaluatorList.Collect(), AddEvaluators);
+        context.RegisterSourceOutput(groupList.Collect(), AddGroups);
     }
 
     private IncrementalValuesProvider<Command> CreateSyntaxProvider(IncrementalGeneratorInitializationContext context, string className)
@@ -163,6 +78,118 @@ internal partial class CommandNameList {
                     return null;
                 }
             });
+    }
+
+    private void AddCommands(SourceProductionContext context, ImmutableArray<Command> methodNames)
+    {
+        List<string> createdClasses = new List<string>();
+        SyntaxList<StatementSyntax> statements = new SyntaxList<StatementSyntax>();
+
+        foreach (var methodName in methodNames)
+        {
+            if (!createdClasses.Contains(methodName.OwnerTypeName))
+            {
+                statements = statements.Add(SyntaxFactory.ParseStatement($"Commands.Add(typeof({methodName.OwnerTypeName}), new());"));
+                createdClasses.Add(methodName.OwnerTypeName);
+            }
+
+            var parameters = string.Join(",", methodName.ParameterTypeNames);
+
+            bool hasParameters = parameters.Length > 0;
+            string paramString = hasParameters ? $"new Type[] {{ {parameters} }}" : "Array.Empty<Type>()";
+
+            statements = statements.Add(SyntaxFactory.ParseStatement($"Commands[typeof({methodName.OwnerTypeName})].Add((\"{methodName.MethodName}\", {paramString}));"));
+        }
+
+        var method = SyntaxFactory
+            .MethodDeclaration(SyntaxFactory.ParseTypeName("void"), "AddCommands")
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword))
+            .WithBody(SyntaxFactory.Block(statements));
+
+        var cDecl = SyntaxFactory
+            .ClassDeclaration("CommandNameList")
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword))
+            .AddMembers(method);
+
+        var nspace = SyntaxFactory
+            .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
+            .AddMembers(cDecl);
+
+        File.WriteAllText(@"C:\Users\phili\Documents\Cmds.txt", nspace.NormalizeWhitespace().ToFullString());
+
+        context.AddSource("CommandNameList+Commands", nspace.NormalizeWhitespace().ToFullString());
+    }
+
+    private void AddEvaluators(SourceProductionContext context, ImmutableArray<Command> methodNames)
+    {
+        List<string> createdClasses = new List<string>();
+        SyntaxList<StatementSyntax> statements = new SyntaxList<StatementSyntax>();
+
+        foreach (var methodName in methodNames)
+        {
+            if (!createdClasses.Contains(methodName.OwnerTypeName))
+            {
+                statements = statements.Add(SyntaxFactory.ParseStatement($"Evaluators.Add(typeof({methodName.OwnerTypeName}), new());"));
+                createdClasses.Add(methodName.OwnerTypeName);
+            }
+
+            if (methodName.ParameterTypeNames == null || !methodName.ParameterTypeNames.Any())
+            {
+                statements = statements.Add(SyntaxFactory.ParseStatement($"Evaluators[typeof({methodName.OwnerTypeName})].Add((\"{methodName.MethodName}\", Array.Empty<Type>()));"));
+            }
+            else
+            {
+                var parameters = string.Join(",", methodName.ParameterTypeNames);
+                string paramString = parameters.Length > 0 ? $"new Type[] {{ {parameters} }}" : "Array.Empty<Type>()";
+                statements = statements.Add(SyntaxFactory.ParseStatement($"Evaluators[typeof({methodName.OwnerTypeName})].Add((\"{methodName.MethodName}\", {paramString}));"));
+            }
+        }
+
+        var method = SyntaxFactory
+            .MethodDeclaration(SyntaxFactory.ParseTypeName("void"), "AddEvaluators")
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword))
+            .WithBody(SyntaxFactory.Block(statements));
+
+        var cDecl = SyntaxFactory
+            .ClassDeclaration("CommandNameList")
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword))
+            .AddMembers(method);
+
+        var nspace = SyntaxFactory
+            .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
+            .AddMembers(cDecl);
+
+        File.WriteAllText(@"C:\Users\phili\Documents\Evals.txt", nspace.NormalizeWhitespace().ToFullString());
+
+        context.AddSource("CommandNameList+Evaluators", nspace.NormalizeWhitespace().ToFullString());
+    }
+
+    private void AddGroups(SourceProductionContext context, ImmutableArray<string?> typeNames)
+    {
+        SyntaxList<StatementSyntax> statements = new SyntaxList<StatementSyntax>();
+
+        foreach (var name in typeNames)
+        {
+            statements = statements.Add(SyntaxFactory.ParseStatement($"Groups.Add(typeof({name}));"));
+        }
+
+        var method = SyntaxFactory
+        .MethodDeclaration(SyntaxFactory.ParseTypeName("void"), "AddGroups")
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword))
+            .WithBody(SyntaxFactory.Block(statements));
+
+        var cDecl = SyntaxFactory
+            .ClassDeclaration("CommandNameList")
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.InternalKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword))
+            .AddMembers(method);
+
+        var nspace = SyntaxFactory
+            .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
+            .AddMembers(cDecl);
+
+        File.WriteAllText(@"C:\Users\phili\Documents\Groups.txt", nspace.NormalizeWhitespace().ToFullString());
+
+        context.AddSource("CommandNameList+Groups", nspace.NormalizeWhitespace().ToFullString());
     }
 
     private static bool HasCommandAttribute(MemberDeclarationSyntax declaration, GeneratorSyntaxContext context, CancellationToken token, string commandAttributeStart)
