@@ -72,7 +72,7 @@ steps:
 - task: PublishPipelineArtifact@1
   displayName: "Publish zip artifact"
   inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)\PixiEditor.$(TagVersion).x86.zip'
+    targetPath: '$(System.DefaultWorkingDirectory)\PixiEditor.x86.zip'
     artifact: 'PixiEditor.$(TagVersion).x86.zip'
     publishLocation: 'pipeline'
 
@@ -95,4 +95,20 @@ steps:
   inputs:
     targetPath: 'src/Installer/Assets/PixiEditor-x86-light/'
     artifact: 'PixiEditor-setup-x86.exe'
+    publishLocation: 'pipeline'
+
+- task: ArchiveFiles@2
+  displayName: "Create zipped installer"
+  inputs:
+    rootFolderOrFile: 'src/Installer/Assets/PixiEditor-x86-light/PixiEditor-setup-x86.exe'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/PixiEditor-$(TagVersion)-setup86.zip'
+    replaceExistingArchive: true
+
+- task: PublishPipelineArtifact@1
+  displayName: "Publish installer zip artifact"
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)/PixiEditor-$(TagVersion)-setup86.zip'
+    artifact: 'PixiEditor-$(TagVersion)-setup86.zip'
     publishLocation: 'pipeline'
