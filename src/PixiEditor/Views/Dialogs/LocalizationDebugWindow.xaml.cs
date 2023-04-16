@@ -303,7 +303,7 @@ public partial class LocalizationDebugWindow : Window
 
             public string Updated { get; set; }
 
-            public DateTimeOffset UpdateSortable => string.IsNullOrWhiteSpace(Updated) ? DateTimeOffset.MinValue : DateTimeOffset.Parse(Updated);
+            public DateTimeOffset UpdateSortable => string.IsNullOrWhiteSpace(Updated) ? DateTimeOffset.MinValue : DateTimeOffset.Parse(Updated, CultureInfo.InvariantCulture);
 
             public bool IsRightToLeft => Code is "ar" or "he" or "ku" or "fa" or "ur";
 
