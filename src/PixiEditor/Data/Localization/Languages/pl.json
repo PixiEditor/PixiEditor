@@ -237,7 +237,7 @@
   "MASK_FROM_SELECTION_DESCRIPTIVE": "Zrób nową maskę z zaznaczenia",
   "ADD_SELECTION_TO_MASK": "Dodaj zaznaczenie do maski",
   "SUBTRACT_SELECTION_FROM_MASK": "Odejmij zaznaczenie z maski",
-  "INTEREST_SELECTION_MASK": "Wykonaj intersekcję zaznaczenia z maską",
+  "INTERSECT_SELECTION_MASK": "Wykonaj intersekcję zaznaczenia z maską",
   "SELECTION_TO_MASK": "Zaznaczenie do maski",
   "TO_NEW_MASK": "do nowej maski",
   "ADD_TO_MASK": "dodaj do maski",

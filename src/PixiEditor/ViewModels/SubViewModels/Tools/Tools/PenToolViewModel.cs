@@ -31,7 +31,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
 
         public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
-            ActionDisplay = new LocalizedString("PEN_TOOL_TOOLTIP", Shortcut);
+            ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY", Shortcut);
         }
 
         public override void OnLeftMouseButtonDown(VecD pos)

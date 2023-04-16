@@ -395,7 +395,7 @@
   "MASK_FROM_SELECTION_DESCRIPTIVE": "Selection to new mask",
   "ADD_SELECTION_TO_MASK": "Add selection to mask",
   "SUBTRACT_SELECTION_FROM_MASK": "Subtract selection from mask",
-  "INTEREST_SELECTION_MASK": "Intersect selection with mask",
+  "INTERSECT_SELECTION_MASK": "Intersect selection with mask",
   "SELECTION_TO_MASK": "Selection to mask",
   "TO_NEW_MASK": "to new mask",
   "ADD_TO_MASK": "add to mask",
@@ -519,6 +519,7 @@
   "MOVE_DOWNWARDS": "Move downwards",
   "MERGE_SELECTED": "Merge selected",
   "LOCK_TRANSPARENCY": "Lock transparency",
+  "RENAME": "Rename",
 
   "COULD_NOT_LOAD_PALETTE": "Couldn't fetch palettes",
   "NO_PALETTES_FOUND": "No palettes found.",

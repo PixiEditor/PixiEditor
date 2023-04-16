@@ -68,7 +68,7 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Selection.NewToMask", SelectionMode.New, "MASK_FROM_SELECTION", "MASK_FROM_SELECTION_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty")]
     [Command.Basic("PixiEditor.Selection.AddToMask", SelectionMode.Add, "ADD_SELECTION_TO_MASK", "ADD_SELECTION_TO_MASK", CanExecute = "PixiEditor.Selection.IsNotEmpty")]
     [Command.Basic("PixiEditor.Selection.SubtractFromMask", SelectionMode.Subtract, "SUBTRACT_SELECTION_FROM_MASK", "SUBTRACT_SELECTION_FROM_MASK", CanExecute = "PixiEditor.Selection.IsNotEmptyAndHasMask")]
-    [Command.Basic("PixiEditor.Selection.IntersectSelectionMask", SelectionMode.Intersect, "INTEREST_SELECTION_MASK", "INTEREST_SELECTION_MASK", CanExecute = "PixiEditor.Selection.IsNotEmptyAndHasMask")]
+    [Command.Basic("PixiEditor.Selection.IntersectSelectionMask", SelectionMode.Intersect, "INTERSECT_SELECTION_MASK", "INTERSECT_SELECTION_MASK", CanExecute = "PixiEditor.Selection.IsNotEmptyAndHasMask")]
     [Command.Filter("PixiEditor.Selection.ToMaskMenu", "SELECTION_TO_MASK", "SELECTION_TO_MASK", Key = Key.M, Modifiers = ModifierKeys.Control)]
     public void SelectionToMask(SelectionMode mode)
     {
