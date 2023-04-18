@@ -330,8 +330,7 @@
             Margin="5" 
             VerticalAlignment="Bottom" 
             Style="{StaticResource GrayRoundButton}"
-            Command="{cmds:Command PixiEditor.Tools.ApplyTransform}">
-            Apply transform
+            Command="{cmds:Command PixiEditor.Tools.ApplyTransform}" views:Translator.Key="APPLY_TRANSFORM">
             <Button.Visibility>
                 <MultiBinding Converter="{converters:BoolOrToVisibilityConverter}">
                     <MultiBinding.Bindings>
