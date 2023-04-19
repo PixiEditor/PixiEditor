@@ -330,10 +330,10 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 NoticeDialog.Show("INTERNAL_ERROR", "ERROR_WHILE_SAVING");
                 break;
             case DialogSaveResult.SecurityError:
-                NoticeDialog.Show(title: "Security error", message: "No rights to write to the specified location.");
+                NoticeDialog.Show(title: "SECURITY_ERROR", message: "SECURITY_ERROR_MSG");
                 break;
             case DialogSaveResult.IoError:
-                NoticeDialog.Show(title: "IO error", message: "Error while writing to disk.");
+                NoticeDialog.Show(title: "IO_ERROR", message: "IO_ERROR_MSG");
                 break;
             case DialogSaveResult.UnknownError:
                 NoticeDialog.Show("ERROR", "UNKNOWN_ERROR_SAVING");

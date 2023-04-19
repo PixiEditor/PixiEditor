@@ -549,6 +549,11 @@
   "ERROR_SAVE_LOCATION": "Couldn't save the file to the specified location",
   "ERROR_WHILE_SAVING": "An internal error occured while saving. Please try again.",
   "UNKNOWN_ERROR_SAVING": "An error occured while saving.",
+  "SECURITY_ERROR": "Security error",
+  "SECURITY_ERROR_MSG": "No rights to write to the specified location.",
+  "IO_ERROR": "IO error",
+  "IO_ERROR_MSG": "Error while writing to disk.",
+
   "FAILED_ASSOCIATE_LOSPEC": "Failed to associate Lospec Palette protocol.",
   "FAILED_ASSOCIATE_PIXI": "Failed to associate .pixi file with PixiEditor.",
   "SHORTCUTS_CORRUPTED_TITLE": "Corrupted shortcuts file",

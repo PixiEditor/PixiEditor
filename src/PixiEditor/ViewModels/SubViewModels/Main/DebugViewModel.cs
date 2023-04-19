@@ -66,8 +66,6 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         UpdateDebugMode(preferences.GetPreference<bool>("IsDebugModeEnabled"));
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"%Temp%\PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR", IconPath = "Folder.png")]
-    [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"%AppData%\PixiEditor", "OPEN_ROAMING_APPDATA_DIR", "OPEN_ROAMING_APPDATA_DIR", IconPath = "Folder.png")]
     public static void OpenFolder(string path)
     {
         if (!Directory.Exists(path))
@@ -88,14 +86,14 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"PixiEditor", "Open Roaming AppData Directory", "Open Roaming AppData Directory", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"%AppData%\PixiEditor", "OPEN_ROAMING_APPDATA_DIR", "OPEN_ROAMING_APPDATA_DIR", IconPath = "Folder.png")]
     public static void OpenAppDataFolder(string subDirectory)
     {
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), subDirectory);
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"PixiEditor", "Open Temp Directory", "Open Temp Directory", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"%Temp%\PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR", IconPath = "Folder.png")]
     public static void OpenTempFolder(string subDirectory)
     {
         var path = Path.Combine(Path.GetTempPath(), subDirectory);
