@@ -156,7 +156,7 @@ internal class CommandController
 
             string internalName = $"PixiEditor.Tools.Select.{type.Name}";
 
-            LocalizedString displayName = new("SELECT_TOOL", toolInstance.DisplayName.Value);
+            LocalizedString displayName = new("SELECT_TOOL", toolInstance.DisplayName);
 
             var command = new Command.ToolCommand()
             {

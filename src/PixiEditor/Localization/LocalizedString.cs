@@ -86,7 +86,20 @@ public struct LocalizedString
 
         try
         {
-            return string.Format(value, Parameters);
+            var executedParameters = new object[Parameters.Length];
+            for (var i = 0; i < Parameters.Length; i++)
+            {
+                var parameter = Parameters[i];
+                object objToExecute = parameter;
+                if (parameter is LocalizedString str)
+                {
+                    objToExecute = new LocalizedString(str.Key, str.Parameters).Value;
+                }
+
+                executedParameters[i] = objToExecute;
+            }
+
+            return string.Format(value, executedParameters);
         }
         catch (FormatException)
         {

@@ -53,8 +53,8 @@ internal abstract partial class Command : NotifyableObject
 
     private void OnLanguageChanged(Language obj)
     {
-        DisplayName = new LocalizedString(DisplayName.Key);
-        Description = new LocalizedString(Description.Key);
+        DisplayName = new LocalizedString(DisplayName.Key, DisplayName.Parameters);
+        Description = new LocalizedString(Description.Key, Description.Parameters);
 
         RaisePropertyChanged(nameof(DisplayName));
         RaisePropertyChanged(nameof(Description));
