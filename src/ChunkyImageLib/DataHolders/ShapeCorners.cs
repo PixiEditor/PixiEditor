@@ -127,7 +127,7 @@ public struct ShapeCorners
         return crossTop == crossRight && crossTop == crossLeft && crossTop == crossBottom;
     }
 
-    public ShapeCorners AsMirroredAcrossHorAxis(int horAxisY) => new ShapeCorners
+    public ShapeCorners AsMirroredAcrossHorAxis(double horAxisY) => new ShapeCorners
     {
         BottomLeft = BottomLeft.ReflectY(horAxisY),
         BottomRight = BottomRight.ReflectY(horAxisY),
@@ -135,7 +135,7 @@ public struct ShapeCorners
         TopRight = TopRight.ReflectY(horAxisY)
     };
 
-    public ShapeCorners AsMirroredAcrossVerAxis(int verAxisX) => new ShapeCorners
+    public ShapeCorners AsMirroredAcrossVerAxis(double verAxisX) => new ShapeCorners
     {
         BottomLeft = BottomLeft.ReflectX(verAxisX),
         BottomRight = BottomRight.ReflectX(verAxisX),

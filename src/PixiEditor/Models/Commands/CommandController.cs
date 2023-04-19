@@ -285,15 +285,31 @@ internal class CommandController
 
             var parameters = method?.GetParameters();
 
-            Action<object> action;
+            async void ActionOnException(Task faultedTask)
+            {
+                // since this method is "async void" and not "async Task", the runtime will propagate exceptions out if it
+                // (instead of putting them into the returned task and forgetting about them)
+                await faultedTask; // this instantly throws the exception from the already faulted task
+            }
 
+            Action<object> action;
             if (parameters is not { Length: 1 })
             {
-                action = x => method.Invoke(instance, null);
+                action = x =>
+                {
+                    object result = method.Invoke(instance, null);
+                    if (result is Task task)
+                        task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
+                };
             }
             else
             {
-                action = x => method.Invoke(instance, new[] { x });
+                action = x =>
+                {
+                    object result = method.Invoke(instance, new[] { x });
+                    if (result is Task task)
+                        task.ContinueWith(ActionOnException, TaskContinuationOptions.OnlyOnFaulted);
+                };
             }
 
             string name = attribute.InternalName;

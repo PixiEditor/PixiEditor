@@ -67,21 +67,41 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"%Temp%\PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR", IconPath = "Folder.png")]
-    [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", @"%LocalAppData%\PixiEditor", "OPEN_LOCAL_APPDATA_DIR", "OPEN_LOCAL_APPDATA_DIR", IconPath = "Folder.png")]
     [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"%AppData%\PixiEditor", "OPEN_ROAMING_APPDATA_DIR", "OPEN_ROAMING_APPDATA_DIR", IconPath = "Folder.png")]
-    [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", @"%LocalAppData%\PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR", "OPEN_CRASH_REPORTS_DIR", IconPath = "Folder.png")]
     public static void OpenFolder(string path)
     {
-        string expandedPath = Environment.ExpandEnvironmentVariables(path);
-        if (!Directory.Exists(expandedPath))
+        if (!Directory.Exists(path))
         {
-            NoticeDialog.Show(new LocalizedString("PATH_DOES_NOT_EXIST", expandedPath), "LOCATION_DOES_NOT_EXIST");
+            NoticeDialog.Show(new LocalizedString("PATH_DOES_NOT_EXIST", path), "LOCATION_DOES_NOT_EXIST");
             return;
         }
 
         ProcessHelpers.ShellExecuteEV(path);
     }
     
+
+    [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", @"%LocalAppData%\PixiEditor", "OPEN_LOCAL_APPDATA_DIR", "OPEN_LOCAL_APPDATA_DIR", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", @"%LocalAppData%\PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR", "OPEN_CRASH_REPORTS_DIR", IconPath = "Folder.png")]
+    public static void OpenLocalAppDataFolder(string subDirectory)
+    {
+        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), subDirectory);
+        OpenFolder(path);
+    }
+
+    [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"PixiEditor", "Open Roaming AppData Directory", "Open Roaming AppData Directory", IconPath = "Folder.png")]
+    public static void OpenAppDataFolder(string subDirectory)
+    {
+        var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), subDirectory);
+        OpenFolder(path);
+    }
+
+    [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"PixiEditor", "Open Temp Directory", "Open Temp Directory", IconPath = "Folder.png")]
+    public static void OpenTempFolder(string subDirectory)
+    {
+        var path = Path.Combine(Path.GetTempPath(), subDirectory);
+        OpenFolder(path);
+    }
+
     [Command.Debug("PixiEditor.Debug.DumpAllCommands", "DUMP_ALL_COMMANDS", "DUMP_ALL_COMMANDS_DESCRIPTIVE")]
     public void DumpAllCommands()
     {

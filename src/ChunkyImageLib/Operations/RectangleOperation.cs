@@ -72,14 +72,14 @@ internal class RectangleOperation : IMirroredDrawOperation
 
     public void Dispose() { }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
         if (verAxisX is not null && horAxisY is not null)
-            return new RectangleOperation(Data.AsMirroredAcrossHorAxis((int)horAxisY).AsMirroredAcrossVerAxis((int)verAxisX));
+            return new RectangleOperation(Data.AsMirroredAcrossHorAxis((double)horAxisY).AsMirroredAcrossVerAxis((double)verAxisX));
         else if (verAxisX is not null)
-            return new RectangleOperation(Data.AsMirroredAcrossVerAxis((int)verAxisX));
+            return new RectangleOperation(Data.AsMirroredAcrossVerAxis((double)verAxisX));
         else if (horAxisY is not null)
-            return new RectangleOperation(Data.AsMirroredAcrossHorAxis((int)horAxisY));
+            return new RectangleOperation(Data.AsMirroredAcrossHorAxis((double)horAxisY));
         return new RectangleOperation(Data);
     }
 }

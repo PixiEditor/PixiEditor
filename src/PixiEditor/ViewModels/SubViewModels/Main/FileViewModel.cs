@@ -329,6 +329,12 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             case DialogSaveResult.ConcurrencyError:
                 NoticeDialog.Show("INTERNAL_ERROR", "ERROR_WHILE_SAVING");
                 break;
+            case DialogSaveResult.SecurityError:
+                NoticeDialog.Show(title: "Security error", message: "No rights to write to the specified location.");
+                break;
+            case DialogSaveResult.IoError:
+                NoticeDialog.Show(title: "IO error", message: "Error while writing to disk.");
+                break;
             case DialogSaveResult.UnknownError:
                 NoticeDialog.Show("ERROR", "UNKNOWN_ERROR_SAVING");
                 break;
@@ -363,6 +369,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         foreach (string path in paths)
         {
+            if (!File.Exists(path))
+                continue;
             documents.Add(new RecentlyOpenedDocument(path));
         }
 

@@ -260,6 +260,17 @@ public struct RectD : IEquatable<RectD>
         }
     }
 
+    public readonly RectD Round()
+    {
+        return new RectD()
+        {
+            Left = Math.Round(left),
+            Right = Math.Round(right),
+            Top = Math.Round(top),
+            Bottom = Math.Round(bottom)
+        };
+    }
+
     public readonly RectD RoundOutwards()
     {
         return new RectD()

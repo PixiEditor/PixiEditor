@@ -19,7 +19,7 @@ internal class CrashReport : IDisposable
         DateTime currentTime = DateTime.Now;
 
         builder
-            .AppendLine($"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString()} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss}\n")
+            .AppendLine($"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString(moreSpecific: true)} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss}\n")
             .AppendLine("-----System Information----")
             .AppendLine("General:")
             .AppendLine($"  OS: {Environment.OSVersion.VersionString}")

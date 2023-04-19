@@ -85,8 +85,6 @@ Struggling with something? You can find support in a few places:
 
 * .NET 7
 
-* latest Visual Studio 2022 (in order to code generators to work)
-
 ### Instructions
 
 1. Clone Repository

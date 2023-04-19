@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.IO.Compression;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
@@ -22,8 +24,10 @@ internal enum DialogSaveResult
     Success = 0,
     InvalidPath = 1,
     ConcurrencyError = 2,
-    UnknownError = 3,
-    Cancelled = 4,
+    SecurityError = 3,
+    IoError = 4,
+    UnknownError = 5,
+    Cancelled = 6,
 }
 
 internal enum SaveResult
@@ -31,7 +35,9 @@ internal enum SaveResult
     Success = 0,
     InvalidPath = 1,
     ConcurrencyError = 2,
-    UnknownError = 3,
+    SecurityError = 3,
+    IoError = 4,
+    UnknownError = 5,
 }
 
 internal class Exporter
@@ -67,23 +73,12 @@ internal class Exporter
     /// </summary>
     public static SaveResult TrySaveUsingDataFromDialog(DocumentViewModel document, string pathFromDialog, FileType fileTypeFromDialog, out string finalPath, VecI? exportSize = null)
     {
-        finalPath = FixFileExtension(pathFromDialog, fileTypeFromDialog);
+        finalPath = SupportedFilesHelper.FixFileExtension(pathFromDialog, fileTypeFromDialog);
         var saveResult = TrySave(document, finalPath, exportSize);
         if (saveResult != SaveResult.Success)
             finalPath = "";
 
         return saveResult;
-    }
-
-    private static string FixFileExtension(string pathWithOrWithoutExtension, FileType requestedType)
-    {
-        if (requestedType == FileType.Unset)
-            throw new ArgumentException("A valid filetype is required", nameof(requestedType));
-
-        var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithOrWithoutExtension));
-        if (typeFromPath != FileType.Unset && typeFromPath == requestedType)
-            return pathWithOrWithoutExtension;
-        return AppendExtension(pathWithOrWithoutExtension, SupportedFilesHelper.GetFileTypeDialogData(requestedType));
     }
 
     /// <summary>
@@ -108,9 +103,8 @@ internal class Exporter
             {
                 return SaveResult.UnknownError;
             }
-            
-            if (!TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize))
-                return SaveResult.UnknownError;
+
+            return TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize);
         }
         else
         {
@@ -118,16 +112,6 @@ internal class Exporter
         }
 
         return SaveResult.Success;
-    }
-
-    private static string AppendExtension(string path, FileTypeDialogData data)
-    {
-        string ext = data.Extensions.First();
-        string filename = Path.GetFileName(path);
-        if (filename.Length + ext.Length > 255)
-            filename = filename.Substring(0, 255 - ext.Length);
-        filename += ext;
-        return Path.Combine(Path.GetDirectoryName(path), filename);
     }
 
     static Dictionary<FileType, Func<BitmapEncoder>> encodersFactory = new Dictionary<FileType, Func<BitmapEncoder>>();
@@ -170,7 +154,7 @@ internal class Exporter
     /// <summary>
     /// Saves image to PNG file. Messes with the passed bitmap.
     /// </summary>
-    private static bool TrySaveAs(BitmapEncoder encoder, string savePath, Surface bitmap, VecI? exportSize)
+    private static SaveResult TrySaveAs(BitmapEncoder encoder, string savePath, Surface bitmap, VecI? exportSize)
     {
         try
         {
@@ -184,10 +168,18 @@ internal class Exporter
             encoder.Frames.Add(BitmapFrame.Create(bitmap.ToWriteableBitmap()));
             encoder.Save(stream);
         }
-        catch (Exception err)
+        catch (SecurityException)
         {
-            return false;
+            return SaveResult.SecurityError;
         }
-        return true;
+        catch (IOException)
+        {
+            return SaveResult.IoError;
+        }
+        catch
+        {
+            return SaveResult.UnknownError;
+        }
+        return SaveResult.Success;
     }
 }

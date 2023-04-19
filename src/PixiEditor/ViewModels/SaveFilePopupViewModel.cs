@@ -59,13 +59,21 @@ internal class SaveFilePopupViewModel : ViewModelBase
             Title = "Export path",
             CheckPathExists = true,
             Filter = SupportedFilesHelper.BuildSaveFilter(false),
-            FilterIndex = 0
+            FilterIndex = 0,
+            AddExtension = true
         };
         if (path.ShowDialog() == true)
         {
             if (string.IsNullOrEmpty(path.FileName) == false)
             {
-                ChosenFormat = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(path.SafeFileName));
+                ChosenFormat = SupportedFilesHelper.GetSaveFileTypeFromFilterIndex(false, path.FilterIndex);
+                if (ChosenFormat == FileType.Unset)
+                {
+                    return null;
+                }
+
+                path.FileName = SupportedFilesHelper.FixFileExtension(path.FileName, ChosenFormat);
+
                 return path.FileName;
             }
         }
