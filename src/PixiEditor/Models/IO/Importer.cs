@@ -61,12 +61,17 @@ internal class Importer : NotifyableObject
         }
     }
 
-    public static DocumentViewModel ImportDocument(string path)
+    public static DocumentViewModel ImportDocument(string path, bool associatePath = true)
     {
         try
         {
             var doc = PixiParser.Deserialize(path).ToDocument();
-            doc.FullFilePath = path;
+            
+            if (associatePath)
+            {
+                doc.FullFilePath = path;
+            }
+
             return doc;
         }
         catch (InvalidFileException)
@@ -74,7 +79,12 @@ internal class Importer : NotifyableObject
             try
             {
                 var doc = DepractedPixiParser.Deserialize(path).ToDocument();
-                doc.FullFilePath = path;
+                
+                if (associatePath)
+                {
+                    doc.FullFilePath = path;
+                }
+
                 return doc;
             }
             catch (InvalidFileException e)

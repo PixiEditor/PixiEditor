@@ -13,6 +13,7 @@ using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
+using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.Controllers;
@@ -132,8 +133,19 @@ internal static class ClipboardController
                     continue;
                 try
                 {
-                    Surface imported = Surface.Load(path);
-                    string filename = Path.GetFileName(path);
+                    Surface imported;
+                    
+                    if (Path.GetExtension(path) == ".pixi")
+                    {
+                        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                        imported = Surface.Load(PixiParser.ReadPreview(stream));
+                    }
+                    else
+                    {
+                        imported = Surface.Load(path);
+                    }
+
+                    string filename = Path.GetFullPath(path);
                     surfaces.Add((filename, imported));
                 }
                 catch
@@ -145,6 +157,7 @@ internal static class ClipboardController
         return surfaces;
     }
 
+    [Evaluator.CanExecute("PixiEditor.Clipboard.HasImageInClipboard")]
     public static bool IsImageInClipboard() => IsImage(ClipboardHelper.TryGetDataObject());
     
     public static bool IsImage(DataObject? dataObject)

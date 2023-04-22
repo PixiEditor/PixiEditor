@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.IO;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Undo;
@@ -120,7 +121,7 @@ internal class DocumentOperationsModule
 
         foreach (var imageWithName in images)
         {
-            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, imageWithName.name);
+            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, Path.GetFileName(imageWithName.name));
             DrawImage(imageWithName.image, new ShapeCorners(new RectD(VecD.Zero, imageWithName.image.Size)), layerGuid, true, false, false);
         }
         Internals.ActionAccumulator.AddFinishedActions();

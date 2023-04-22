@@ -55,6 +55,10 @@ internal class ImportFileDialog : CustomDialog
         {
             FilePath = FilePath
         };
+
+        if (FileWidth != 0) popup.ImportWidth = FileWidth;
+        if (FileHeight != 0) popup.ImportHeight = FileHeight;
+        
         popup.ShowDialog();
         if (popup.DialogResult == true)
         {
