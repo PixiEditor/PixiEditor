@@ -29,7 +29,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Clipboard.Paste", false, "Paste", "Paste from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Shift)]
-    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "Paste as new layer", "Paste from clipboard as new layer", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "$PixiEditor.Clipboard.Paste", Key = Key.V, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "Paste as new layer", "Paste from clipboard as new layer", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Control)]
     public void Paste(bool pasteAsNewLayer)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null) 
@@ -37,7 +37,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         ClipboardController.TryPasteFromClipboard(Owner.DocumentManagerSubViewModel.ActiveDocument, pasteAsNewLayer);
     }
     
-    [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "Commands/PixiEditor/Clipboard/Paste.png")]
+    [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "Paste reference layer", "Paste reference layer from clipboard", CanExecute = "PixiEditor.Clipboard.CanPaste")]
     public void PasteReferenceLayer(DataObject data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

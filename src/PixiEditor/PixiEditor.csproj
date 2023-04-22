@@ -399,6 +399,12 @@
 		<Resource Include="Images\Commands\PixiEditor\Selection\AddToMask.png" />
 		<None Remove="Images\Commands\PixiEditor\Selection\NewToMask.png" />
 		<Resource Include="Images\Commands\PixiEditor\Selection\NewToMask.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
+		<None Remove="Images\Commands\PixiEditor\File\OpenFileFromClipboard.png" />
+		<Resource Include="Images\Commands\PixiEditor\File\OpenFileFromClipboard.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
