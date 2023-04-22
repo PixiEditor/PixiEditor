@@ -386,7 +386,8 @@ internal partial class DocumentViewModel : NotifyableObject
     /// </summary>
     /// <param name="includeReference">Should the color be picked from the reference layer</param>
     /// <param name="includeCanvas">Should the color be picked from the canvas</param>
-    public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas)
+    /// <param name="referenceTopmost">Is the reference layer topmost. (Only affects the result is includeReference and includeCanvas are set.)</param>
+    public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas, bool referenceTopmost = false)
     {
         if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
             includeReference = false;
@@ -394,10 +395,20 @@ internal partial class DocumentViewModel : NotifyableObject
         if (includeCanvas && includeReference)
         {
             Color canvasColor = PickColorFromCanvas((VecI)pos, scope);
-            Color? referenceColor = PickColorFromReferenceLayer(pos);
-            if (referenceColor is null)
+            Color? potentialReferenceColor = PickColorFromReferenceLayer(pos);
+            if (potentialReferenceColor is not { } referenceColor)
                 return canvasColor;
-            return ColorHelpers.BlendColors((Color)referenceColor, canvasColor);
+
+            if (!referenceTopmost)
+            {
+                return ColorHelpers.BlendColors(referenceColor, canvasColor);
+            }
+
+            byte referenceAlpha = canvasColor.A == 0 ? referenceColor.A : (byte)(referenceColor.A * 0.6f);
+            
+            referenceColor = new Color(referenceColor.R, referenceColor.G, referenceColor.B, referenceAlpha);
+            return ColorHelpers.BlendColors(canvasColor, referenceColor);
+
         }
         if (includeCanvas)
             return PickColorFromCanvas((VecI)pos, scope);

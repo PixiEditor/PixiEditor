@@ -68,5 +68,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
             PickFromReferenceLayer = true;
             ActionDisplay = defaultActionDisplay;
         }
+        
+        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel.RaiseShowHighestChanged();
     }
 }

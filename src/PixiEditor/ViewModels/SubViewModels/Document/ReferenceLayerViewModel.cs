@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -78,7 +79,7 @@ internal class ReferenceLayerViewModel : INotifyPropertyChanged
     
     public bool ShowHighest
     {
-        get => IsTopMost || IsTransforming;
+        get => (IsTopMost || IsTransforming) && !IsColorPickerSelected();
     }
 
     public ReferenceLayerViewModel(DocumentViewModel doc, DocumentInternalParts internals)
@@ -87,6 +88,18 @@ internal class ReferenceLayerViewModel : INotifyPropertyChanged
         this.internals = internals;
     }
 
+    private bool IsColorPickerSelected()
+    {
+        var viewModel = ViewModelMain.Current.ToolsSubViewModel;
+        
+        if (viewModel.ActiveTool is ColorPickerToolViewModel colorPicker)
+        {
+            return colorPicker.PickFromReferenceLayer && !colorPicker.PickFromCanvas;
+        }
+
+        return false;
+    }
+    
     private void RaisePropertyChanged(string name)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -94,6 +107,8 @@ internal class ReferenceLayerViewModel : INotifyPropertyChanged
     
     #region Internal methods
 
+    public void RaiseShowHighestChanged() => RaisePropertyChanged(nameof(ShowHighest));
+    
     public void InternalSetReferenceLayer(ImmutableArray<byte> imagePbgra32Bytes, VecI imageSize, ShapeCorners shape)
     {
         ReferenceBitmap = WriteableBitmapHelpers.FromPbgra32Array(imagePbgra32Bytes.ToArray(), imageSize);
