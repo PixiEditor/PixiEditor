@@ -98,7 +98,7 @@ internal sealed class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
                 Tag = value
             };
 
-            Translator.SetKey(item, value.GetDescription().ToUpper());
+            Translator.SetKey(item, value.GetDescription());
 
             comboBox.Items.Add(item);
         }

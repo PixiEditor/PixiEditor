@@ -174,8 +174,8 @@
   "INTERSECT": "Intersect",
   "RECTANGLE": "Rectangle",
   "CIRCLE": "Circle",
-  "ALL LAYERS": "All Layers",
-  "SINGLE LAYER": "Single Layer",
+  "ALL_LAYERS": "All Layers",
+  "SINGLE_LAYER": "Single Layer",
 
   "PATH_DOES_NOT_EXIST": "{0} does not exist.",
   "LOCATION_DOES_NOT_EXIST": "Location does not exist.",
@@ -271,7 +271,6 @@
   "PUT_REFERENCE_LAYER_BELOW": "Put reference layer below",
 
   "CLIP_CANVAS": "Clip Canvas",
-  "CLIP_LAYER_BELOW": "Clip with layer below",
   "FLIP": "Flip",
   "FLIP_IMG_VERTICALLY": "Flip Image Vertically",
   "FLIP_IMG_HORIZONTALLY": "Flip Image Horizontally",
@@ -480,6 +479,8 @@
   "STOP_IT_TEXT3": "No, really, stop it.",
   "STOP_IT_TEXT4": "Don't you have anything better to do?",
 
+  "CHOOSE": "Choose",
+  "REMOVE": "Remove",
   "REPLACER_TOOLTIP": "Right click on palette color and choose 'Replace' or drop it here.",
   "CLICK_TO_CHOOSE_COLOR": "Click to choose the color",
   "REPLACE_COLOR": "Replace color",

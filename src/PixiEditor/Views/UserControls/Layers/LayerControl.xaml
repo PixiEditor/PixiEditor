@@ -136,7 +136,7 @@
                 <MenuItem 
                     IsCheckable="True" 
                     IsChecked="{Binding PlacementTarget.Tag.Layer.ClipToMemberBelowEnabledBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                    views:Translator.Key="CLIP_LAYER_BELOW"/>
+                    views:Translator.Key="CLIP_TO_BELOW"/>
                 <MenuItem 
                     IsCheckable="True" 
                     IsChecked="{Binding PlacementTarget.Tag.Layer.LockTransparencyBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 

@@ -91,12 +91,12 @@
                                 </b:Interaction.Triggers>
                                 <palettes:PaletteColor.ContextMenu>
                                     <ContextMenu>
-                                        <MenuItem Header="Choose" Foreground="White" Click="MenuItem_OnClick"
+                                        <MenuItem views:Translator.Key="CHOOSE" Foreground="White" Click="MenuItem_OnClick"
                                               CommandParameter="{Binding}"/>
-                                        <MenuItem Header="Remove" Foreground="White"
-                                                      Click="RemoveColorMenuItem_OnClick"
-                                                      CommandParameter="{Binding}" />
-                                        <MenuItem Header="Replace" Foreground="White"
+                                        <MenuItem views:Translator.Key="REMOVE" Foreground="White"
+                                                  Click="RemoveColorMenuItem_OnClick"
+                                                  CommandParameter="{Binding}" />
+                                        <MenuItem views:Translator.Key="REPLACE" Foreground="White"
                                                       CommandParameter="{Binding}"
                                                       Click="ReplaceColor_OnClick"/>
                                     </ContextMenu>
