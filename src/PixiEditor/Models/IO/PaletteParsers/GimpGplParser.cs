@@ -46,9 +46,19 @@ internal class GimpGplParser : PaletteFileParser
                 }
             }
 
-            var r = byte.Parse(colorParts[0]);
-            var g = byte.Parse(colorParts[1]);
-            var b = byte.Parse(colorParts[2]);
+            if(colorParts.Length < 3) continue;
+
+            bool parsed = false;
+
+            parsed = byte.TryParse(colorParts[0], out byte r);
+            if(!parsed) continue;
+
+            parsed = byte.TryParse(colorParts[1], out byte g);
+            if(!parsed) continue;
+
+            parsed = byte.TryParse(colorParts[2], out byte b);
+            if(!parsed) continue;
+
             var color = new Color(r, g, b, 255); // alpha is ignored in PixiEditor
             if (colors.Contains(color)) continue;
 

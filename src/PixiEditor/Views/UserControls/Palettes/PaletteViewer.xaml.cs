@@ -176,6 +176,7 @@ internal partial class PaletteViewer : UserControl
             return;
         }
 
+        e.Handled = true;
         await ImportPalette(filePath);
         dragDropGrid.Visibility = Visibility.Hidden;
     }
