@@ -250,7 +250,7 @@ internal class CommandController
                             {
                                 InternalName = menu.InternalName,
                                 DisplayName = menu.DisplayName,
-                                Description = string.Empty,
+                                Description = menu.DisplayName,
                                 IconEvaluator = IconEvaluator.Default,
                                 DefaultShortcut = menu.GetShortcut(),
                                 Shortcut = GetShortcut(name, attribute.GetShortcut(), template)

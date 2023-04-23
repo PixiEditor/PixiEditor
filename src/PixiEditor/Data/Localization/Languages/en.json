@@ -28,10 +28,6 @@
   "RESIZE": "Resize",
 
   "DISCORD": "Discord",
-  "EDITING_IMG": "Editing an image",
-  "EDITING_IMG_DETAIL": "Editing {0}",
-  "ONE_LAYER": "1 layer",
-  "LAYERS": "{0} layers",
 
   "KEY_BINDINGS": "Key Bindings",
 
@@ -184,7 +180,6 @@
   "PATH_DOES_NOT_EXIST": "{0} does not exist.",
   "LOCATION_DOES_NOT_EXIST": "Location does not exist.",
   "FILE_NOT_FOUND": "File not found.",
-  "FILE_NOT_FOUND_PATH_FULL_PATH": "File {0} does not exist\n(Full Path: {1})",
   "ARE_YOU_SURE": "Are you sure?",
   "ARE_YOU_SURE_PATH_FULL_PATH": "Are you sure you want to delete {0}?\nThis data will be lost for all installations.\n(Full Path: {1})",
 
@@ -333,6 +328,7 @@
   "COPY_COLOR_SECONDARY_RGB_DESCRIPTIVE": "Copy secondary color as RGB code",
 
   "PALETTE_COLORS": "Palette Colors",
+  "DROP_PALETTE": "Drop palette here",
   "REPLACE_SECONDARY_BY_PRIMARY": "Replace secondary color by primary",
   "REPLACE_SECONDARY_BY_PRIMARY_DESCRIPTIVE": "Replace the secondary color by the primary color",
   "REPLACE_PRIMARY_BY_SECONDARY": "Replace primary color by secondary",

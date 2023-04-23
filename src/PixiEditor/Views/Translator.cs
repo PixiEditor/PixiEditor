@@ -103,7 +103,8 @@ public class Translator : UIElement
 
     private static void UpdateKey(DependencyObject d, string key)
     {
-        LocalizedString localizedString = new(key);
+        var parameters = GetLocalizedString(d).Parameters;
+        LocalizedString localizedString = new(key, parameters);
         Binding binding = new()
         {
             Path = new PropertyPath("(0)", ValueProperty),
@@ -153,9 +154,9 @@ public class Translator : UIElement
         element.SetValue(LocalizedStringProperty, value);
     }
 
-    public static string GetLocalizedString(DependencyObject element)
+    public static LocalizedString GetLocalizedString(DependencyObject element)
     {
-        return (string)element.GetValue(LocalizedStringProperty);
+        return (LocalizedString)element.GetValue(LocalizedStringProperty);
     }
     
     public static string GetValue(DependencyObject element)

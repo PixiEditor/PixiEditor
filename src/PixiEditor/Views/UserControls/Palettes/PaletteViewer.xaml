@@ -52,7 +52,7 @@
             </StackPanel>
             <Separator Grid.Row="1" Margin="0, 0, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
             <Grid Visibility="Hidden" Background="{StaticResource AccentColor}" Opacity="0.7" Grid.Row="2" Name="dragDropGrid">
-                <TextBlock Text="Drop palette here" Foreground="White" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock TextWrapping="Wrap" views:Translator.Key="DROP_PALETTE" Foreground="White" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
                 <ItemsControl ItemsSource="{Binding Colors, ElementName=paletteControl}" AlternationCount="9999">

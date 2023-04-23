@@ -137,7 +137,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             if (ShowLayerCount)
             {
                 int count = CountLayers(document.StructureRoot);
-                state += count == 1 ? new LocalizedString("ONE_LAYER") : new LocalizedString("LAYERS", count);
+                state += count == 1 ? "1 layer" : $"{count} layers";
             }
 
             richPresence.State = state;
