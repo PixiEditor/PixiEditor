@@ -8,6 +8,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Views.Dialogs;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
@@ -239,6 +240,14 @@ internal partial class PaletteViewer : UserControl
         if (SelectColorCommand.CanExecute(origin.CommandParameter))
         {
             SelectColorCommand.Execute(origin.CommandParameter);
+        }
+    }
+
+    private void DiscardPalette_OnClick(object sender, RoutedEventArgs e)
+    {
+        if(ConfirmationDialog.Show("DISCARD_PALETTE_CONFIRMATION", "DISCARD_PALETTE") == ConfirmationType.Yes)
+        {
+            Colors.Clear();
         }
     }
 }
