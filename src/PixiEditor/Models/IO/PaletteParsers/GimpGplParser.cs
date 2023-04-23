@@ -31,19 +31,14 @@ internal class GimpGplParser : PaletteFileParser
         if(lines.Length == 0) return PaletteFileData.Corrupted;
 
         List<Color> colors = new();
+        char[] separators = new[] { '\t', ' ' };
         foreach (var colorLine in lines)
         {
-            var colorParts = colorLine.Split('\t', StringSplitOptions.RemoveEmptyEntries);
+            var colorParts = colorLine.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
             if (colorParts.Length < 3)
             {
-                if (colorLine.Contains(' '))
-                {
-                    colorParts = colorLine.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                }
-                else
-                {
-                    continue;
-                }
+                continue;
             }
 
             if(colorParts.Length < 3) continue;
