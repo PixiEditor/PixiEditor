@@ -774,36 +774,38 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ItemsControl
-                        ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button
-                                    BorderBrush="White"
-                                    BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
-                                    Style="{StaticResource ToolButtonStyle}"
-                                    Command="{cmds:Command PixiEditor.Tools.SelectTool, UseProvided=True}"
-                                    CommandParameter="{Binding}"
-                                    views:Translator.TooltipLocalizedString="{Binding Tooltip}"
-                                    views:Translator.TooltipKey="{Binding Tooltip.Key}">
-                                    <Button.Background>
-                                        <ImageBrush
-                                            RenderOptions.BitmapScalingMode="Fant"
-                                            ImageSource="{Binding ImagePath}"
-                                            Stretch="Uniform" />
-                                    </Button.Background>
-                                    <Button.Resources>
-                                        <Style
-                                            TargetType="Border">
-                                            <Setter
-                                                Property="CornerRadius"
-                                                Value="2.5" />
-                                        </Style>
-                                    </Button.Resources>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl
+                            ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button
+                                        BorderBrush="White"
+                                        BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
+                                        Style="{StaticResource ToolButtonStyle}"
+                                        Command="{cmds:Command PixiEditor.Tools.SelectTool, UseProvided=True}"
+                                        CommandParameter="{Binding}"
+                                        views:Translator.TooltipLocalizedString="{Binding Tooltip}"
+                                        views:Translator.TooltipKey="{Binding Tooltip.Key}">
+                                        <Button.Background>
+                                            <ImageBrush
+                                                RenderOptions.BitmapScalingMode="Fant"
+                                                ImageSource="{Binding ImagePath}"
+                                                Stretch="Uniform" />
+                                        </Button.Background>
+                                        <Button.Resources>
+                                            <Style
+                                                TargetType="Border">
+                                                <Setter
+                                                    Property="CornerRadius"
+                                                    Value="2.5" />
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                     <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:BackendColorToMediaColorConverter}}"
                             BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
                             Grid.Row="1" Height="30"/>

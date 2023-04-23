@@ -17,6 +17,10 @@ internal class BasicToolbar : Toolbar
         var setting = new SizeSetting(nameof(ToolSize), "TOOL_SIZE_LABEL");
         setting.ValueChanged += (_, _) => RaisePropertyChanged(nameof(ToolSize));
         Settings.Add(setting);
+    }
 
+    public override void OnLoadedSettings()
+    {
+        RaisePropertyChanged(nameof(ToolSize));
     }
 }
