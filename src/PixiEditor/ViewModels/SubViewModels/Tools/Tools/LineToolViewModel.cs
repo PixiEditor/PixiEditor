@@ -14,7 +14,7 @@ internal class LineToolViewModel : ShapeTool
     public LineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>();
+        Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>(this);
     }
 
     public override string Tooltip => $"Draws line on canvas ({Shortcut}). Hold Shift to enable snapping.";

@@ -60,6 +60,9 @@ internal abstract class ToolViewModel : NotifyableObject
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
     }
 
+    public virtual void OnDeselecting()
+    { }
+
     protected T GetValue<T>([CallerMemberName] string name = null)
     {
         var setting = Toolbar.GetSetting(name);

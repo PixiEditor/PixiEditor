@@ -26,7 +26,7 @@ internal abstract class Setting<T> : Setting
     {
     }
 
-    public event EventHandler<SettingValueChangedEventArgs<T>> ValueChanged;
+    public new event EventHandler<SettingValueChangedEventArgs<T>> ValueChanged;
 
     public new virtual T Value
     {
@@ -50,12 +50,27 @@ internal abstract class Setting<T> : Setting
 
 internal abstract class Setting : NotifyableObject
 {
+    private object _value;
+    
     protected Setting(string name)
     {
         Name = name;
     }
 
-    public object Value { get; set; }
+    public event EventHandler<SettingValueChangedEventArgs<object>> ValueChanged;
+
+    public object Value
+    {
+        get => _value;
+        set
+        {
+            var old = _value;
+            if (SetProperty(ref _value, value))
+            {
+                ValueChanged?.Invoke(this, new SettingValueChangedEventArgs<object>(old, value));
+            }
+        }
+    }
 
     public string Name { get; }
 

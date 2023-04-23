@@ -17,7 +17,7 @@ internal class SelectToolViewModel : ToolViewModel
     public SelectToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<SelectToolViewModel>();
+        Toolbar = ToolbarFactory.Create(this);
         Cursor = Cursors.Cross;
     }
 

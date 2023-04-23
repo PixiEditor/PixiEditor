@@ -39,7 +39,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
     public ColorPickerToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<ColorPickerToolViewModel, EmptyToolbar>();
+        Toolbar = ToolbarFactory.Create<ColorPickerToolViewModel, EmptyToolbar>(this);
     }
 
     public override void OnLeftMouseButtonDown(VecD pos)

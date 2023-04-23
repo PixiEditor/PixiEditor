@@ -106,6 +106,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
+        ActiveTool?.OnDeselecting();
+
         if (!tool.Toolbar.SettingsGenerated)
             tool.Toolbar.GenerateSettings();
 
@@ -157,8 +159,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         SetActiveTool(tool.GetType(), false);
     }
 
-    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "Increase Tool Size", "Increase Tool Size", Key = Key.OemCloseBrackets)]
-    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "Decrease Tool Size", "Decrease Tool Size", Key = Key.OemOpenBrackets)]
+    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "Increase Tool Size", "Increase Tool Size", CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemCloseBrackets)]
+    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "Decrease Tool Size", "Decrease Tool Size", CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemOpenBrackets)]
     public void ChangeToolSize(int increment)
     {
         if (ActiveTool?.Toolbar is not BasicToolbar toolbar)
@@ -168,6 +170,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             toolbar.ToolSize = newSize;
     }
 
+    [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize")]
+    public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool is PenToolViewModel { PixelPerfectEnabled: false };
+    
     public void SetActiveTool(Type toolType, bool transient)
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))

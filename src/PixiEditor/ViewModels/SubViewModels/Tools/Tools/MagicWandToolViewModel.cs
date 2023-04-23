@@ -23,7 +23,7 @@ internal class MagicWandToolViewModel : ToolViewModel
     
     public MagicWandToolViewModel()
     {
-        Toolbar = ToolbarFactory.Create<MagicWandToolViewModel>();
+        Toolbar = ToolbarFactory.Create(this);
         ActionDisplay = "Click to flood the selection.";
     }
     

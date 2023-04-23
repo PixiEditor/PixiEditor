@@ -17,7 +17,7 @@ internal class BrightnessToolViewModel : ToolViewModel
     public BrightnessToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<BrightnessToolViewModel, BasicToolbar>();
+        Toolbar = ToolbarFactory.Create<BrightnessToolViewModel, BasicToolbar>(this);
     }
 
     public override string Tooltip => $"Makes pixels brighter or darker ({Shortcut}). Hold Ctrl to make pixels darker.";

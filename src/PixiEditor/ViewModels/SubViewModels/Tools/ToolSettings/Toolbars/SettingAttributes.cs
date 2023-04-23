@@ -64,6 +64,8 @@ public static class Settings
     public abstract class SettingsAttribute : Attribute
     {
         public string Name { get; set; }
+        
+        public string Notify { get; set; }
 
         public SettingsAttribute() { }
         

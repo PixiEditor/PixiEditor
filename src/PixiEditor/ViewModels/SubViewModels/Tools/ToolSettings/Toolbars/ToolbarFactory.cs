@@ -6,14 +6,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 internal static class ToolbarFactory
 {
-    public static Toolbar Create<T>() where T : ToolViewModel => Create<T, EmptyToolbar>();
+    public static Toolbar Create<T>(T tool) where T : ToolViewModel => Create<T, EmptyToolbar>(tool);
 
-    public static TToolbar Create<T, TToolbar>() where T : ToolViewModel where TToolbar : Toolbar, new()
+    public static TToolbar Create<T, TToolbar>(T tool) where T : ToolViewModel where TToolbar : Toolbar, new()
     {
-        var tool = typeof(T);
+        var toolType = typeof(T);
         var toolbar = new TToolbar();
 
-        foreach (var property in tool.GetProperties())
+        foreach (var property in toolType.GetProperties())
         {
             var attribute = property.GetCustomAttribute<Settings.SettingsAttribute>();
 
@@ -36,6 +36,11 @@ internal static class ToolbarFactory
                     throw new InvalidCastException($"Inherited setting '{name}' does not match property type '{property.PropertyType}' (Tool: {typeof(T).FullName})");
                 }
 
+                if (attribute.Notify != null)
+                {
+                    AddValueChangedHandler(toolType, tool, inherited, attribute);
+                }
+
                 continue;
             }
             
@@ -56,10 +61,30 @@ internal static class ToolbarFactory
                 throw new InvalidCastException($"Setting '{name}' does not match property type '{property.PropertyType}' (Tool: {typeof(T).FullName})");
             }
 
+            if (attribute.Notify != null)
+            {
+                AddValueChangedHandler(toolType, tool, setting, attribute);
+            }
+
             toolbar.Settings.Add(setting);
         }
 
         return toolbar;
+    }
+
+    private static void AddValueChangedHandler<T>(Type toolType, T tool, Setting setting, Settings.SettingsAttribute attribute) where T : ToolViewModel
+    {
+        if (attribute.Notify != null)
+        {
+            var method = toolType.GetMethod(attribute.Notify, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static, Array.Empty<Type>());
+
+            if (method is null)
+            {
+                throw new NullReferenceException($"No method found with the name '{attribute.Notify}' that does not have any parameters");
+            }
+
+            setting.ValueChanged += (_, _) => method.Invoke(tool, null);
+        }
     }
 
     private static Setting GetEnumSetting(Type enumType, string name, Settings.SettingsAttribute attribute)

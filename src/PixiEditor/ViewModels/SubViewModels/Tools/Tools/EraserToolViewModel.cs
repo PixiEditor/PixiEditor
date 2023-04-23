@@ -13,7 +13,7 @@ internal class EraserToolViewModel : ToolViewModel
     public EraserToolViewModel()
     {
         ActionDisplay = "Draw to remove color from a pixel.";
-        Toolbar = ToolbarFactory.Create<EraserToolViewModel, BasicToolbar>();
+        Toolbar = ToolbarFactory.Create<EraserToolViewModel, BasicToolbar>(this);
     }
 
     [Settings.Inherited]
