@@ -34,6 +34,6 @@ internal class PixiPaletteParser : PaletteFileParser
 
     public override Task<bool> Save(string path, PaletteFileData data)
     {
-        throw new NotImplementedException("Saving palette to .pixi directly is not supported.");
+        throw new SavingNotSupportedException("Saving palette as .pixi directly is not supported.");
     }
 }
