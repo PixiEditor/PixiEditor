@@ -66,6 +66,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<PaletteFileParser, PaintNetTxtParser>()
         .AddSingleton<PaletteFileParser, HexPaletteParser>()
         .AddSingleton<PaletteFileParser, GimpGplParser>()
+        .AddSingleton<PaletteFileParser, PixiPaletteParser>()
         // Palette data sources
         .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();
 }

@@ -132,7 +132,7 @@ internal partial class PaletteViewer : UserControl
     {
         SaveFileDialog saveFileDialog = new SaveFileDialog
         {
-            Filter = PaletteHelpers.GetFilter(FileParsers, false)
+            Filter = PaletteHelpers.GetFilter(FileParsers.Where(x => x.CanSave).ToList(), false)
         };
 
         if (saveFileDialog.ShowDialog() == true)

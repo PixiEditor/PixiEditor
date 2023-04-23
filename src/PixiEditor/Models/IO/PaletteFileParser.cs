@@ -9,6 +9,8 @@ internal abstract class PaletteFileParser
     public abstract string FileName { get; }
     public abstract string[] SupportedFileExtensions { get; }
 
+    public virtual bool CanSave => true;
+
     protected static async Task<string[]> ReadTextLines(string path)
     {
         using var stream = File.OpenText(path);
