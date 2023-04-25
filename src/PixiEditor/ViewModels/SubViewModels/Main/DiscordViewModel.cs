@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using DiscordRPC;
+using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.UserPreferences;
@@ -118,7 +119,8 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         {
             richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
 
-            richPresence.Details = ShowDocumentName ? $"Editing {document.FileName}".Limit(128) : "Editing an image";
+            richPresence.Details = ShowDocumentName
+                ? $"Editing {document.FileName.Limit(128)}" : "Editing an image";
 
             string state = string.Empty;
 
@@ -135,7 +137,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
             if (ShowLayerCount)
             {
                 int count = CountLayers(document.StructureRoot);
-                state += count == 1 ? "1 Layer" : $"{count} Layers";
+                state += count == 1 ? "1 layer" : $"{count} layers";
             }
 
             richPresence.State = state;
@@ -175,7 +177,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
                 LargeImageKey = "editorlogo",
                 LargeImageText = "You've discovered PixiEditor's logo",
                 SmallImageKey = "github",
-                SmallImageText = "Download PixiEditor on GitHub (github.com/PixiEditor/PixiEditor)!"
+                SmallImageText = "Download PixiEditor (pixieditor.net/download)!"
             },
             Timestamps = new Timestamps()
             {

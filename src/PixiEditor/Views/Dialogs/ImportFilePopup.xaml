@@ -10,13 +10,15 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours" 
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
         Title="ImportFilePopup" ShowInTaskbar="False" 
         MinHeight="250" MinWidth="300" Height="250" Width="300" 
         WindowStyle="None" 
         WindowStartupLocation="CenterScreen" 
         Name="importFilePopup"
-        DataContext="{DynamicResource ImportFilePopupViewModel}">
+        DataContext="{DynamicResource ImportFilePopupViewModel}"
+        FlowDirection="{helpers:Localization FlowDirection}">
     <Window.Resources>
         <vm:ImportFilePopupViewModel x:Key="ImportFilePopupViewModel" />
     </Window.Resources>

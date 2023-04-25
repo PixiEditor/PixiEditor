@@ -4,7 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands;
+using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
@@ -71,6 +73,7 @@ internal class ViewModelMain : ViewModelBase
     public RegistryViewModel RegistrySubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
+    public ILocalizationProvider LocalizationProvider { get; set; }
 
     public string ActiveActionDisplay => ActionDisplays.HasActive() ? ActionDisplays.GetActive() : ToolsSubViewModel.ActiveTool?.ActionDisplay;
 
@@ -87,8 +90,11 @@ internal class ViewModelMain : ViewModelBase
         Services = services;
 
         Preferences = services.GetRequiredService<IPreferences>();
-
         Preferences.Init();
+        
+        LocalizationProvider = services.GetRequiredService<ILocalizationProvider>();
+        LocalizationProvider.LoadData();
+        
         WindowSubViewModel = services.GetService<WindowViewModel>();
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
@@ -205,8 +211,8 @@ internal class ViewModelMain : ViewModelBase
 
     public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
     {
-        const string ConfirmationDialogTitle = "Unsaved changes";
-        const string ConfirmationDialogMessage = "The document has been modified. Do you want to save changes?";
+        const string ConfirmationDialogTitle = "UNSAVED_CHANGES";
+        const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
 
         ConfirmationType result = ConfirmationType.No;
         if (!document.AllChangesSaved)

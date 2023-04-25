@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Localization;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -34,7 +35,7 @@ internal class DocumentStructureHelper
             Guid guid = Guid.NewGuid();
             //put member on top
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, guid, doc.StructureRoot.Children.Count, type));
-            name ??= GetUniqueName(type == StructureMemberType.Layer ? "New Layer" : "New Folder", doc.StructureRoot);
+            name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), doc.StructureRoot);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
@@ -45,7 +46,7 @@ internal class DocumentStructureHelper
             Guid guid = Guid.NewGuid();
             //put member inside folder on top
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.GuidValue, guid, folder.Children.Count, type));
-            name ??= GetUniqueName(type == StructureMemberType.Layer ? "New Layer" : "New Folder", folder);
+            name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), folder);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
@@ -60,7 +61,7 @@ internal class DocumentStructureHelper
                 throw new InvalidOperationException("Couldn't find a path to the selected member");
             FolderViewModel parent = (FolderViewModel)path[1];
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.GuidValue, guid, parent.Children.IndexOf(layer) + 1, type));
-            name ??= GetUniqueName(type == StructureMemberType.Layer ? "New Layer" : "New Folder", parent);
+            name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), parent);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();

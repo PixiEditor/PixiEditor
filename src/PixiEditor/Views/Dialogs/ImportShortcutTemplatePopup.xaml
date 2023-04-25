@@ -7,13 +7,15 @@
         xmlns:diag="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         Title="Import from template" Foreground="White"
         WindowStartupLocation="CenterOwner"
         MinWidth="580"
         SizeToContent="WidthAndHeight" WindowStyle="None"
         Background="{StaticResource AccentColor}"
-        x:Name="window">
+        x:Name="window"
+        FlowDirection="{helpers:Localization FlowDirection}">
 
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
@@ -31,7 +33,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <diag:DialogTitleBar DockPanel.Dock="Top"
-                             TitleText="Import from template" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+                             TitleText="IMPORT_FROM_TEMPLATE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Templates, ElementName=window}"
                       Margin="10,10,10,5">
             <ItemsControl.ItemsPanel>

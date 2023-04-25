@@ -7,6 +7,7 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Palettes" 
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors" 
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:views="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d"  Name="compactPaletteViewer"
              d:DesignHeight="900" d:DesignWidth="30">
     <Grid Background="{StaticResource AccentColor}">
@@ -31,7 +32,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <local:PaletteColor ToolTip="Click to select as main color. Drag and drop onto another palette color to swap them."
+                        <local:PaletteColor views:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
                                             Cursor="Hand"
                                             Color="{Binding}" Width="20" Height="20" CornerRadius="0">
                             <b:Interaction.Triggers>

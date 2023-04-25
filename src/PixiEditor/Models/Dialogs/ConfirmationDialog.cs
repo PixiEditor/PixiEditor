@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Enums;
+﻿using PixiEditor.Localization;
+using PixiEditor.Models.Enums;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
@@ -6,7 +7,7 @@ namespace PixiEditor.Models.Dialogs;
 
 internal static class ConfirmationDialog
 {
-    public static ConfirmationType Show(string message, string title)
+    public static ConfirmationType Show(LocalizedString message, LocalizedString title)
     {
         ConfirmationPopup popup = new ConfirmationPopup
         {

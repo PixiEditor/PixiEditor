@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -11,13 +12,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.O, Transient = Key.LeftAlt)]
 internal class ColorPickerToolViewModel : ToolViewModel
 {
-    private readonly string defaultActionDisplay = "Click to pick colors. Hold Ctrl to hide the canvas. Hold Shift to hide the reference layer";
+    private readonly string defaultActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_DEFAULT";
 
     public override bool HideHighlight => true;
 
+    public override string ToolNameLocalizationKey => "COLOR_PICKER_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    public override string Tooltip => $"Picks the primary color from the canvas. ({Shortcut})";
+    public override LocalizedString Tooltip => new("COLOR_PICKER_TOOLTIP", Shortcut);
 
     private bool pickFromCanvas = true;
     public bool PickFromCanvas
@@ -33,7 +35,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
         private set => SetProperty(ref pickFromReferenceLayer, value);
     }
 
-    [Settings.Enum("Scope", DocumentScope.AllLayers)]
+    [Settings.Enum("SCOPE_LABEL", DocumentScope.AllLayers)]
     public DocumentScope Mode => GetValue<DocumentScope>();
 
     public ColorPickerToolViewModel()
@@ -53,13 +55,13 @@ internal class ColorPickerToolViewModel : ToolViewModel
         {
             PickFromCanvas = false;
             PickFromReferenceLayer = true;
-            ActionDisplay = "Click to pick colors from the reference layer.";
+            ActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_CTRL";
         }
         else if (shiftIsDown)
         {
             PickFromCanvas = true;
             PickFromReferenceLayer = false;
-            ActionDisplay = "Click to pick colors from the canvas.";
+            ActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_SHIFT";
             return;
         }
         else

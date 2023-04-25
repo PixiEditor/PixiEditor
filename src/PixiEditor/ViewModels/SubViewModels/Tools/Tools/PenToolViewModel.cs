@@ -2,6 +2,7 @@
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -12,21 +13,26 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
     [Command.Tool(Key = Key.B)]
     internal class PenToolViewModel : ShapeTool
     {
+        public override string ToolNameLocalizationKey => "PEN_TOOL";
         public override BrushShape BrushShape => BrushShape.Circle;
         public PenToolViewModel()
         {
             Cursor = Cursors.Pen;
-            ActionDisplay = "Click and move to draw.";
             Toolbar = ToolbarFactory.Create<PenToolViewModel, BasicToolbar>();
         }
 
-        public override string Tooltip => $"Pen. ({Shortcut})";
+        public override LocalizedString Tooltip => new LocalizedString("PEN_TOOL_TOOLTIP", Shortcut);
 
         [Settings.Inherited]
         public int ToolSize => GetValue<int>();
 
-        [Settings.Bool("Pixel perfect")]
+        [Settings.Bool("PIXEL_PERFECT_SETTING")]
         public bool PixelPerfectEnabled => GetValue<bool>();
+
+        public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+        {
+            ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY", Shortcut);
+        }
 
         public override void OnLeftMouseButtonDown(VecD pos)
         {

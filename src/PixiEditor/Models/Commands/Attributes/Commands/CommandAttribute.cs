@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using PixiEditor.Localization;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands.Attributes.Commands;
@@ -10,9 +11,9 @@ internal partial class Command
     {
         public string InternalName { get; }
 
-        public string DisplayName { get; }
+        public LocalizedString DisplayName { get; }
 
-        public string Description { get; }
+        public LocalizedString Description { get; }
 
         public string CanExecute { get; set; }
 

@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Helpers;
+using PixiEditor.Localization;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels;
 
@@ -14,11 +16,20 @@ internal partial class ExportFilePopup : Window
     public static readonly DependencyProperty SaveWidthProperty =
         DependencyProperty.Register(nameof(SaveWidth), typeof(int), typeof(ExportFilePopup), new PropertyMetadata(32));
 
+    public static readonly DependencyProperty SetBestPercentageCommandProperty =
+        DependencyProperty.Register(nameof(SetBestPercentageCommand), typeof(RelayCommand), typeof(ExportFilePopup));
+
     private readonly SaveFilePopupViewModel dataContext = new SaveFilePopupViewModel();
+
+    public RelayCommand SetBestPercentageCommand
+    {
+        get => (RelayCommand)GetValue(SetBestPercentageCommandProperty);
+        set => SetValue(SetBestPercentageCommandProperty, value);
+    }
 
     private int imageWidth;
     private int imageHeight;
-    public string SizeHint => $"If you want to share the image, try {GetBestPercentage()}% for the best clarity";
+    public string SizeHint => new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
 
     private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
     {
@@ -42,6 +53,8 @@ internal partial class ExportFilePopup : Window
 
         SaveWidth = imageWidth;
         SaveHeight = imageHeight;
+
+        SetBestPercentageCommand = new RelayCommand(SetBestPercentage);
     }
 
     private int GetBestPercentage()
@@ -53,6 +66,13 @@ internal partial class ExportFilePopup : Window
                 return i * 100;
         }
         return 100;
+    }
+
+    private void SetBestPercentage(object parameter)
+    {
+        sizePicker.ChosenPercentageSize = GetBestPercentage();
+        sizePicker.PercentageRb.IsChecked = true;
+        sizePicker.PercentageLostFocus(null);
     }
 
     public int SaveWidth

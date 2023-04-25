@@ -10,6 +10,7 @@
              xmlns:local1="clr-namespace:PixiEditor.Views.UserControls" 
              xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:views="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d" 
              d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" Name="uc">
     <Border BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="0 2 0 0" MinWidth="60"
@@ -70,7 +71,7 @@
 
                             <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" 
                                         Margin="0 0 5 0" Foreground="White" 
-                                        FontSize="15" VerticalAlignment="Center">Add Reference Layer</TextBlock>
+                                        FontSize="15" VerticalAlignment="Center" views:Translator.Key="ADD_REFERENCE_LAYER"/>
                         </StackPanel>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseUp">
@@ -92,7 +93,7 @@
                     <Button Cursor="Hand" DockPanel.Dock="Left"
                             Command="{cmds:Command PixiEditor.Layer.ToggleReferenceLayerTopMost}"
                             Style="{StaticResource ImageButtonStyle}" 
-                            ToolTip="{Binding Document.ReferenceLayerViewModel.IsTopMost, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='Put reference layer above', TrueValue='Put reference layer below'}}"
+                            ToolTip="{Binding Document.ReferenceLayerViewModel.IsTopMost, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='localized:PUT_REFERENCE_LAYER_ABOVE', TrueValue='localized:PUT_REFERENCE_LAYER_BELOW'}}"
                             RenderOptions.BitmapScalingMode="HighQuality"
                             Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
@@ -122,7 +123,7 @@
                     <Button Cursor="Hand" DockPanel.Dock="Right"
                             Command="{cmds:Command PixiEditor.Layer.ResetReferenceLayerPosition}"
                             Style="{StaticResource ImageButtonStyle}" 
-                            ToolTip="Reset reference layer position"
+                            views:Translator.TooltipKey="RESET_REFERENCE_LAYER_POS"
                             RenderOptions.BitmapScalingMode="HighQuality"
                             Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
@@ -132,7 +133,7 @@
                     <Button Cursor="Hand" DockPanel.Dock="Right"
                             Command="{cmds:Command PixiEditor.Layer.TransformReferenceLayer}"
                             Style="{StaticResource ImageButtonStyle}" 
-                            ToolTip="Transform reference layer"
+                            views:Translator.TooltipKey="TRANSFORM_REFERENCE_LAYER"
                             RenderOptions.BitmapScalingMode="HighQuality"
                             Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
@@ -141,7 +142,7 @@
                     </Button>
                     <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" HorizontalAlignment="Center"
                                Margin="0 0 5 0" Foreground="White" 
-                               FontSize="15" VerticalAlignment="Center">Reference</TextBlock>
+                               FontSize="15" VerticalAlignment="Center" views:Translator.Key="REFERENCE"/>
                 </DockPanel>
             </Grid>
         </DockPanel>

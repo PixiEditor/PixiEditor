@@ -160,10 +160,33 @@ internal class Win32
         uint wFlags);
 
     [DllImport("user32.dll")]
+    public static extern nint GetKeyboardLayout(
+        uint idThread);
+
+    [DllImport("user32.dll")]
+    public static extern bool GetKeyboardLayoutNameW(
+        [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 4)]
+        StringBuilder klid);
+    
+    [DllImport("user32.dll")]
+    public static extern int ToUnicodeEx(
+        uint wVirtKey,
+        uint wScanCode,
+        byte[] lpKeyState,
+        [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 4)]
+        StringBuilder pwszBuff,
+        int cchBuff,
+        uint wFlags,
+        nint dwhkl);
+
+    [DllImport("user32.dll")]
     public static extern bool GetKeyboardState(byte[] lpKeyState);
 
     [DllImport("user32.dll")]
-    public static extern uint MapVirtualKeyExW(uint uCode, MapType uMapType, int hkl);
+    public static extern uint MapVirtualKeyExW(uint uCode, MapType uMapType, nint hkl);
+    
+    [DllImport("user32.dll")]
+    public static extern IntPtr LoadKeyboardLayoutA(string pwszKLID, uint Flags);
 
     [DllImport(
         "user32.dll",
