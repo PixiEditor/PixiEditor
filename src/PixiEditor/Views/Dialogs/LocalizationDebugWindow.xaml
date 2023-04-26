@@ -1,0 +1,81 @@
+<Window x:Class="PixiEditor.Views.Dialogs.LocalizationDebugWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+        x:Name="popup"
+        mc:Ignorable="d"
+        Foreground="White"
+        Title="LocalizationDebugWindow" 
+        MinHeight="240" MinWidth="480"
+        Height="250" Width="500"
+        FlowDirection="{helpers:Localization FlowDirection}">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
+
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
+                        Executed="CommandBinding_Executed_Close" />
+    </Window.CommandBindings>
+
+    <Grid Background="{StaticResource AccentColor}" Focusable="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        
+        <b:Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior/>
+        </b:Interaction.Behaviors>
+
+        <local:DialogTitleBar TitleText="Localization Debug Window" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+
+        <StackPanel Grid.Row="1" Margin="5">
+            <StackPanel Orientation="Horizontal" Height="25">
+                <TextBlock views:Translator.Key="LOCALIZATION_VIEW_TYPE" Margin="0,0,5,0" MinWidth="160"/>
+                <ComboBox SelectedItem="{Binding DataContext.DebugViewModel.LocalizationKeyShowMode, ElementName=popup}"
+                          ItemsSource="{helpers:Enum {x:Type enums:LocalizationKeyShowMode}}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Height="25" Margin="0,5,0,0">
+                <TextBlock views:Translator.Key="FORCE_OTHER_FLOW_DIRECTION" Margin="0,0,5,0" MinWidth="160"/>
+                <CheckBox IsChecked="{Binding DataContext.DebugViewModel.ForceOtherFlowDirection, ElementName=popup}" />
+            </StackPanel>
+            <Button views:Translator.Key="LOAD_LANGUAGE_FROM_FILE" Command="{xaml:Command PixiEditor.Debug.SetLanguageFromFilePicker}"
+                    Style="{StaticResource DarkRoundButton}" Margin="0,5,0,0"/>
+            <TextBlock Text="POEditor" FontWeight="Bold" FontSize="22" Margin="0,10,0,0"/>
+            <Grid Height="25">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock views:Translator.Key="API_KEY" Margin="0,0,5,0"></TextBlock>
+                <TextBox Grid.Column="1" Style="{StaticResource DarkTextBoxStyle}" TextChanged="ApiKeyChanged" Text="{Binding DataContext.ApiKey, ElementName=popup}"></TextBox>
+                <Button Style="{StaticResource DarkRoundButton}" Margin="5,0,0,0" Grid.Column="2" views:Translator.Key="LOG_IN" Command="{Binding DataContext.LoadApiKeyCommand, ElementName=popup}"/>
+            </Grid>
+            <Grid Visibility="{Binding DataContext.LoggedIn, ElementName=popup, Converter={BoolToVisibilityConverter}}" Margin="0,5,0,0" Height="25">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="120"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="120"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock views:Translator.Key="LANGUAGE" Margin="0,0,5,0"/>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding DataContext.LanguageCodes, ElementName=popup}" SelectedItem="{Binding DataContext.SelectedLanguage, ElementName=popup}"
+                          SelectedValue="{Binding DataContext.SelectedLanguage, ElementName=popup}"/>
+                <Button Grid.Column="2" Style="{StaticResource DarkRoundButton}" views:Translator.Key="SYNC" Command="{Binding DataContext.SyncLanguageCommand, ElementName=popup}" Margin="5,0,0,0"/>
+            </Grid>
+            <TextBlock Text="{Binding DataContext.StatusMessage, ElementName=popup}"/>
+        </StackPanel>
+    </Grid>
+</Window>

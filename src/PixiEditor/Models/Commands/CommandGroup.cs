@@ -1,16 +1,24 @@
 ﻿using System.Collections;
+using System.ComponentModel;
 using System.Windows.Input;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands;
 
-internal class CommandGroup : IEnumerable<Command>
+internal class CommandGroup : NotifyableObject
 {
     private readonly Command[] commands;
     private readonly Command[] visibleCommands;
 
-    public string DisplayName { get; set; }
+    private LocalizedString displayName;
+
+    public LocalizedString DisplayName
+    {
+        get => displayName;
+        set => SetProperty(ref displayName, value);
+    }
 
     public bool HasAssignedShortcuts { get; set; }
 
@@ -18,17 +26,24 @@ internal class CommandGroup : IEnumerable<Command>
 
     public IEnumerable<Command> VisibleCommands => visibleCommands;
 
-    public CommandGroup(string displayName, IEnumerable<Command> commands)
+    public CommandGroup(LocalizedString displayName, IEnumerable<Command> commands)
     {
         DisplayName = displayName;
         this.commands = commands.ToArray();
-        visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.DisplayName)).ToArray();
+        visibleCommands = commands.Where(x => !string.IsNullOrEmpty(x.DisplayName.Value)).ToArray();
 
         foreach (var command in commands)
         {
             HasAssignedShortcuts |= command.Shortcut.Key != Key.None;
             command.ShortcutChanged += Command_ShortcutChanged;
         }
+
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged(Language obj)
+    {
+        DisplayName = new LocalizedString(DisplayName.Key);
     }
 
     private void Command_ShortcutChanged(Command cmd, ShortcutChangedEventArgs args)
@@ -50,6 +65,4 @@ internal class CommandGroup : IEnumerable<Command>
     }
 
     public IEnumerator<Command> GetEnumerator() => Commands.GetEnumerator();
-
-    IEnumerator IEnumerable.GetEnumerator() => Commands.GetEnumerator();
 }

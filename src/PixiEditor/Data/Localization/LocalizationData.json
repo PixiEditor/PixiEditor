@@ -1,0 +1,54 @@
+﻿{
+  "$schema": "./LocalizationDataSchema.json",
+  "Languages": [
+    {
+      "name": "English",
+      "code": "en",
+      "localeFileName": "en.json",
+      "iconFileName": "en.png"
+    },
+    {
+      "name": "Polski",
+      "code": "pl",
+      "localeFileName": "pl.json",
+      "iconFileName": "pl.png"
+    },
+    {
+      "name": "Deutsch",
+      "code": "de",
+      "localeFileName": "de.json",
+      "iconFileName": "de.png"
+    },
+    {
+      "name": "Español",
+      "code": "es",
+      "localeFileName": "es.json",
+      "iconFileName": "es.png"
+    },
+    {
+      "name": "Русский",
+      "code": "ru",
+      "localeFileName": "ru.json",
+      "iconFileName": "ru.png"
+    },
+    {
+      "name": "Українська",
+      "code": "uk",
+      "localeFileName": "uk.json",
+      "iconFileName": "uk.png"
+    },
+    {
+      "name": "عربي",
+      "code": "ar",
+      "localeFileName": "ar.json",
+      "iconFileName": "ar.png",
+      "rightToLeft": true
+    },
+    {
+      "name": "Čeština",
+      "code": "cs",
+      "localeFileName": "cs.json",
+      "iconFileName": "cs.png"
+    }
+  ]
+}

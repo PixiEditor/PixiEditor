@@ -11,6 +11,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -23,7 +24,7 @@ using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.File", "File")]
+[Command.Group("PixiEditor.File", "FILE")]
 internal class FileViewModel : SubViewModel<ViewModelMain>
 {
     private bool hasRecent;
@@ -112,7 +113,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         string path = (string)parameter;
         if (!File.Exists(path))
         {
-            NoticeDialog.Show("The file does not exist", "Failed to open the file");
+            NoticeDialog.Show("FILE_NOT_FOUND", "FAILED_TO_OPEN_FILE");
             RecentlyOpened.Remove(path);
             IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
             return;
@@ -121,7 +122,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         OpenFromPath(path);
     }
 
-    [Command.Basic("PixiEditor.File.Open", "Open", "Open file", Key = Key.O, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.File.Open", "OPEN", "OPEN_FILE", Key = Key.O, Modifiers = ModifierKeys.Control)]
     public void OpenFromOpenFileDialog()
     {
         string filter = SupportedFilesHelper.BuildOpenFilter();
@@ -173,11 +174,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         catch (CorruptedFileException ex)
         {
-            NoticeDialog.Show(ex.Message, "Failed to open the file");
+            NoticeDialog.Show(ex.Message, "FAILED_TO_OPEN_FILE");
         }
         catch (OldFileFormatException)
         {
-            NoticeDialog.Show("This .pixi file uses the old format,\n which is no longer supported and can't be opened.", "Old file format");
+            NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
         }
     }
 
@@ -226,7 +227,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.File.New", "New image", "Create new image", Key = Key.N, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = ModifierKeys.Control)]
     public void CreateFromNewFileDialog()
     {
         NewFileDialog newFile = new NewFileDialog();
@@ -235,7 +236,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             NewDocument(b => b
                 .WithSize(newFile.Width, newFile.Height)
                 .WithLayer(l => l
-                    .WithName("Base Layer")
+                    .WithName(new LocalizedString("BASE_LAYER_NAME"))
                     .WithSurface(new Surface(new VecI(newFile.Width, newFile.Height)))));
         }
     }
@@ -254,8 +255,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
     }
 
-    [Command.Basic("PixiEditor.File.Save", false, "Save", "Save image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control, IconPath = "Save.png")]
-    [Command.Basic("PixiEditor.File.SaveAsNew", true, "Save as...", "Save image as new", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Shift, IconPath = "Save.png")]
+    [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control, IconPath = "Save.png")]
+    [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Shift, IconPath = "Save.png")]
     public bool SaveActiveDocument(bool asNew)
     {
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -300,7 +301,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     ///     Generates export dialog or saves directly if save data is known.
     /// </summary>
     /// <param name="parameter">CommandProperty.</param>
-    [Command.Basic("PixiEditor.File.Export", "Export", "Export image", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)]
     public void ExportFile()
     {
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -323,19 +324,19 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         switch (result)
         {
             case DialogSaveResult.InvalidPath:
-                NoticeDialog.Show(title: "Error", message: "Couldn't save the file to the specified location");
+                NoticeDialog.Show("ERROR", "ERROR_SAVE_LOCATION");
                 break;
             case DialogSaveResult.ConcurrencyError:
-                NoticeDialog.Show(title: "Internal error", message: "An internal error occured while saving. Please try again.");
+                NoticeDialog.Show("INTERNAL_ERROR", "ERROR_WHILE_SAVING");
                 break;
             case DialogSaveResult.SecurityError:
-                NoticeDialog.Show(title: "Security error", message: "No rights to write to the specified location.");
+                NoticeDialog.Show(title: "SECURITY_ERROR", message: "SECURITY_ERROR_MSG");
                 break;
             case DialogSaveResult.IoError:
-                NoticeDialog.Show(title: "IO error", message: "Error while writing to disk.");
+                NoticeDialog.Show(title: "IO_ERROR", message: "IO_ERROR_MSG");
                 break;
             case DialogSaveResult.UnknownError:
-                NoticeDialog.Show(title: "Error", message: "An error occured while saving.");
+                NoticeDialog.Show("ERROR", "UNKNOWN_ERROR_SAVING");
                 break;
         }
     }

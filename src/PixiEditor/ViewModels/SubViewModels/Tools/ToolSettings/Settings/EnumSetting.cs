@@ -3,6 +3,8 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Localization;
+using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
@@ -93,9 +95,10 @@ internal sealed class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
         {
             var item = new ComboBoxItem
             {
-                Content = value.GetDescription(),
                 Tag = value
             };
+
+            Translator.SetKey(item, value.GetDescription());
 
             comboBox.Items.Add(item);
         }

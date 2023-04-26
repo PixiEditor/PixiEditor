@@ -9,7 +9,7 @@ namespace PixiEditor.Views.Dialogs;
 /// </summary>
 internal partial class SettingsWindow : Window
 {
-    public SettingsWindow(string page = "General")
+    public SettingsWindow(int page = 0)
     {
         InitializeComponent();
         var viewModel = DataContext as SettingsWindowViewModel;

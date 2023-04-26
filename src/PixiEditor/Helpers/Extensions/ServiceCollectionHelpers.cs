@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataProviders;
@@ -17,11 +18,12 @@ namespace PixiEditor.Helpers.Extensions;
 internal static class ServiceCollectionHelpers
 {
     /// <summary>
-    /// Add's all the services required to fully run PixiEditor's MainWindow
+    /// Adds all the services required to fully run PixiEditor's MainWindow
     /// </summary>
     public static IServiceCollection AddPixiEditor(this IServiceCollection collection) => collection
         .AddSingleton<ViewModelMain>()
         .AddSingleton<IPreferences, PreferencesSettings>()
+        .AddSingleton<ILocalizationProvider, LocalizationProvider>()
         // View Models
         .AddSingleton<StylusViewModel>()
         .AddSingleton<WindowViewModel>()

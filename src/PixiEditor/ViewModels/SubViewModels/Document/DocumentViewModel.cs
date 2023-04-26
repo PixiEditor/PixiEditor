@@ -16,6 +16,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Helpers;
+using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
@@ -61,7 +62,7 @@ internal partial class DocumentViewModel : NotifyableObject
     
     public string FileName
     {
-        get => fullFilePath is null ? "Unnamed" : Path.GetFileName(fullFilePath);
+        get => fullFilePath is null ? new LocalizedString("UNNAMED") : Path.GetFileName(fullFilePath);
     }
 
     private Guid? lastChangeOnSave = null;

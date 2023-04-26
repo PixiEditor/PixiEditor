@@ -8,9 +8,12 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+        xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" WindowStyle="None"
         Title="About" WindowStartupLocation="CenterScreen"
-        Height="510" Width="400" Name="aboutPopup" MinWidth="100" MinHeight="100">
+        Height="510" Width="400" Name="aboutPopup" MinWidth="100" MinHeight="100"
+        FlowDirection="{helpers:Localization FlowDirection}">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
                         Executed="CommandBinding_Executed_Close" />
@@ -34,10 +37,10 @@
                 <Image Source="../../Images/PixiEditorLogo.png" Height="40" VerticalAlignment="Center"/>
                 <TextBlock FontSize="40" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0">PixiEditor</TextBlock>
             </StackPanel>
-            <TextBlock Foreground="White" HorizontalAlignment="Center" FontSize="20" FontWeight="Medium" Text="{Binding VersionText}"/>
-            <Label Content="Project Maintainers" Style="{StaticResource Header2}" Margin="10 20 0 5"/>
+            <TextBlock Foreground="White" HorizontalAlignment="Center" FontSize="20" FontWeight="Medium" views:Translator.LocalizedString="{Binding VersionText}"/>
+            <Label views:Translator.Key="PROJECT_MAINTAINERS" Style="{StaticResource Header2}" Margin="10 20 0 5"/>
             <StackPanel Orientation="Horizontal" Margin="20 0">
-                <Ellipse Width="32" Height="32">
+                <Ellipse Width="32" Height="32" FlowDirection="LeftToRight">
                     <Ellipse.Fill>
                         <ImageBrush ImageSource="/Images/SocialMedia/Avatars/flabbet.png"/>
                     </Ellipse.Fill>
@@ -50,7 +53,7 @@
                 </Label>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="20 5">
-                <Ellipse Width="32" Height="32">
+                <Ellipse Width="32" Height="32" FlowDirection="LeftToRight">
                     <Ellipse.Fill>
                         <ImageBrush ImageSource="/Images/SocialMedia/Avatars/Equbuxu.png"/>
                     </Ellipse.Fill>
@@ -63,7 +66,7 @@
                 </Label>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Margin="20 0">
-                <Ellipse Width="32" Height="32">
+                <Ellipse Width="32" Height="32" FlowDirection="LeftToRight">
                     <Ellipse.Fill>
                         <ImageBrush ImageSource="/Images/SocialMedia/Avatars/CPK.png"/>
                     </Ellipse.Fill>
@@ -79,7 +82,7 @@
             <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
                 <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor/graphs/contributors"
                            Style="{StaticResource SettingsLink}">
-                    <Run Text="And other awesome contributors"/>
+                    <Run views:Translator.Key="OTHER_AWESOME_CONTRIBUTORS" />
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </Label>
@@ -89,7 +92,7 @@
             <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
                 <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenLicense}"
                            Style="{StaticResource SettingsLink}">
-                    <Run Text="License"/>
+                    <Run views:Translator.Key="LICENSE"/>
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </Label>
@@ -97,7 +100,7 @@
             <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
                 <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenOtherLicenses}"
                            Style="{StaticResource SettingsLink}">
-                    <Run Text="Third Party Licenses"/>
+                    <Run views:Translator.Key="THIRD_PARTY_LICENSES"/>
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </Label>
@@ -105,29 +108,29 @@
             <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
                 <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenDocumentation}"
                            Style="{StaticResource SettingsLink}">
-                    <Run Text="Documentation"/>
+                    <Run views:Translator.Key="DOCUMENTATION" />
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </Label>
             
             <userControls:AlignableWrapPanel DockPanel.Dock="Bottom" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,20,0,15">
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://pixieditor.net"
-                            Style="{StaticResource SocialMediaButton}" Tag="#e3002d" ToolTip="Website"
+                            Style="{StaticResource SocialMediaButton}" Tag="#e3002d" views:Translator.TooltipKey="WEBSITE"
                             Content="/Images/SocialMedia/WebsiteIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://discord.gg/tzkQFDkqQS"
-                            Style="{StaticResource SocialMediaButton}" Tag="#7289DA" ToolTip="Discord"
+                            Style="{StaticResource SocialMediaButton}" Tag="#7289DA" views:Translator.TooltipKey="DISCORD"
                             Content="/Images/SocialMedia/DiscordIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://reddit.com/r/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" ToolTip="Reddit"
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" views:Translator.TooltipKey="REDDIT"
                             Content="/Images/SocialMedia/RedditIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="Black" ToolTip="GitHub"
+                            Style="{StaticResource SocialMediaButton}" Tag="Black" views:Translator.TooltipKey="GITHUB"
                             Content="/Images/SocialMedia/GithubIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ" 
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" ToolTip="YouTube"
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" views:Translator.TooltipKey="YOUTUBE"
                             Content="/Images/SocialMedia/YouTubeIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://opencollective.com/pixieditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ToolTip="Donate" 
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" views:Translator.TooltipKey="DONATE"
                             Visibility="{Binding DisplayDonationButton, Converter={BoolToVisibilityConverter}}"
                             Content="/Images/SocialMedia/DonateIcon.png"/>
                 </userControls:AlignableWrapPanel>

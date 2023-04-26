@@ -13,8 +13,8 @@ internal partial class Command
         /// Create's a basic command which uses null as a paramter
         /// </summary>
         /// <param name="internalName">The internal name of the command</param>
-        /// <param name="displayName">A short description which is displayed in the the top menu, e.g. "Save as..."</param>
-        /// <param name="descriptiveName">A description which is displayed in the search bar, e.g. "Save image as new". Leave empty to hide it from the search bar</param>
+        /// <param name="displayName">A short description which is displayed in the the top menu, e.g. "Save as...". Accepts localized key</param>
+        /// <param name="descriptiveName">A description which is displayed in the search bar, e.g. "Save image as new". Leave empty to hide it from the search bar. Accepts localized key</param>
         public BasicAttribute(string internalName, string displayName, string descriptiveName)
             : this(internalName, null, displayName, descriptiveName)
         {
@@ -25,8 +25,8 @@ internal partial class Command
         /// </summary>
         /// <param name="internalName">The internal name of the command</param>
         /// <param name="parameter">The parameter that will be passed to the first argument of the method</param>
-        /// <param name="displayName">A short description which is displayed in the the top menu, e.g. "Save as..."</param>
-        /// <param name="description">A description which is displayed in the search bar, e.g. "Save image as new". Leave empty to hide it from the search bar</param>
+        /// <param name="displayName">A short description which is displayed in the the top menu, e.g. "Save as...". Accepts localized key</param>
+        /// <param name="description">A description which is displayed in the search bar, e.g. "Save image as new". Leave empty to hide it from the search bar. Accepts localized key</param>
         public BasicAttribute(string internalName, object parameter, string displayName, string description)
             : base(internalName, displayName, description)
         {

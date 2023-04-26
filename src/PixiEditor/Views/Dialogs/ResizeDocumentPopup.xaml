@@ -13,7 +13,9 @@
         Height="305" Width="310" MinHeight="305" MinWidth="310"
         xmlns:base="clr-namespace:PixiEditor.Views"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
-        WindowStyle="None">
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        WindowStyle="None"
+        FlowDirection="{helpers:Localization FlowDirection}">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32" GlassFrameThickness="0.1"
@@ -31,10 +33,10 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="Resize image" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+            TitleText="RESIZE_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
-        <Button DockPanel.Dock="Bottom" Width="70" HorizontalAlignment="Center" Margin="15"
-                Style="{StaticResource DarkRoundButton}" Content="Resize" Click="Button_Click" IsDefault="True" />
+        <Button DockPanel.Dock="Bottom" Padding="5 0" HorizontalAlignment="Center" Margin="15"
+                Style="{StaticResource DarkRoundButton}" local:Translator.Key="RESIZE" Click="Button_Click" IsDefault="True" />
 
         <userControls:SizePicker HorizontalAlignment="Center" Width="240" Height="180" Margin="0,30,0,0"
             x:Name="sizePicker"
