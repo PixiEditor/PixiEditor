@@ -57,31 +57,35 @@ internal class BlendModeComboBox : ComboBox
     {
         var items = new List<UIElement>() 
         {
-            new ComboBoxItem() { Content = BlendMode.Normal.EnglishName(), Tag = BlendMode.Normal },
+            new ComboBoxItem() { Content = BlendMode.Normal.LocalizedKeys(), Tag = BlendMode.Normal },
             new Separator(),
-            new ComboBoxItem() { Content = BlendMode.Darken.EnglishName(), Tag = BlendMode.Darken },
-            new ComboBoxItem() { Content = BlendMode.Multiply.EnglishName(), Tag = BlendMode.Multiply },
-            new ComboBoxItem() { Content = BlendMode.ColorBurn.EnglishName(), Tag = BlendMode.ColorBurn },
+            new ComboBoxItem() { Content = BlendMode.Darken.LocalizedKeys(), Tag = BlendMode.Darken },
+            new ComboBoxItem() { Content = BlendMode.Multiply.LocalizedKeys(), Tag = BlendMode.Multiply },
+            new ComboBoxItem() { Content = BlendMode.ColorBurn.LocalizedKeys(), Tag = BlendMode.ColorBurn },
             new Separator(),
-            new ComboBoxItem() { Content = BlendMode.Lighten.EnglishName(), Tag = BlendMode.Lighten },
-            new ComboBoxItem() { Content = BlendMode.Screen.EnglishName(), Tag = BlendMode.Screen },
-            new ComboBoxItem() { Content = BlendMode.ColorDodge.EnglishName(), Tag = BlendMode.ColorDodge },
-            new ComboBoxItem() { Content = BlendMode.LinearDodge.EnglishName(), Tag = BlendMode.LinearDodge },
+            new ComboBoxItem() { Content = BlendMode.Lighten.LocalizedKeys(), Tag = BlendMode.Lighten },
+            new ComboBoxItem() { Content = BlendMode.Screen.LocalizedKeys(), Tag = BlendMode.Screen },
+            new ComboBoxItem() { Content = BlendMode.ColorDodge.LocalizedKeys(), Tag = BlendMode.ColorDodge },
+            new ComboBoxItem() { Content = BlendMode.LinearDodge.LocalizedKeys(), Tag = BlendMode.LinearDodge },
             new Separator(),
-            new ComboBoxItem() { Content = BlendMode.Overlay.EnglishName(), Tag = BlendMode.Overlay },
-            new ComboBoxItem() { Content = BlendMode.SoftLight.EnglishName(), Tag = BlendMode.SoftLight },
-            new ComboBoxItem() { Content = BlendMode.HardLight.EnglishName(), Tag = BlendMode.HardLight },
+            new ComboBoxItem() { Content = BlendMode.Overlay.LocalizedKeys(), Tag = BlendMode.Overlay },
+            new ComboBoxItem() { Content = BlendMode.SoftLight.LocalizedKeys(), Tag = BlendMode.SoftLight },
+            new ComboBoxItem() { Content = BlendMode.HardLight.LocalizedKeys(), Tag = BlendMode.HardLight },
             new Separator(),
-            new ComboBoxItem() { Content = BlendMode.Difference.EnglishName(), Tag = BlendMode.Difference },
-            new ComboBoxItem() { Content = BlendMode.Exclusion.EnglishName(), Tag = BlendMode.Exclusion },
+            new ComboBoxItem() { Content = BlendMode.Difference.LocalizedKeys(), Tag = BlendMode.Difference },
+            new ComboBoxItem() { Content = BlendMode.Exclusion.LocalizedKeys(), Tag = BlendMode.Exclusion },
             new Separator(),
-            new ComboBoxItem() { Content = BlendMode.Hue.EnglishName(), Tag = BlendMode.Hue },
-            new ComboBoxItem() { Content = BlendMode.Saturation.EnglishName(), Tag = BlendMode.Saturation },
-            new ComboBoxItem() { Content = BlendMode.Luminosity.EnglishName(), Tag = BlendMode.Luminosity },
-            new ComboBoxItem() { Content = BlendMode.Color.EnglishName(), Tag = BlendMode.Color }
+            new ComboBoxItem() { Content = BlendMode.Hue.LocalizedKeys(), Tag = BlendMode.Hue },
+            new ComboBoxItem() { Content = BlendMode.Saturation.LocalizedKeys(), Tag = BlendMode.Saturation },
+            new ComboBoxItem() { Content = BlendMode.Luminosity.LocalizedKeys(), Tag = BlendMode.Luminosity },
+            new ComboBoxItem() { Content = BlendMode.Color.LocalizedKeys(), Tag = BlendMode.Color }
         };
         foreach (var item in items)
         {
+            if (item is ComboBoxItem)
+            {
+                Translator.SetKey((ComboBoxItem)item, ((ComboBoxItem)item).Content.ToString());
+            }
             Items.Add(item);
         }
         SelectedIndex = 0;

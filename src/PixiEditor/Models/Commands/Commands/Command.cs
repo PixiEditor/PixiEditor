@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
+using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
 
@@ -18,9 +20,9 @@ internal abstract partial class Command : NotifyableObject
 
     public IconEvaluator IconEvaluator { get; init; }
 
-    public string DisplayName { get; init; }
+    public LocalizedString DisplayName { get; set; }
 
-    public string Description { get; init; }
+    public LocalizedString Description { get; set; }
 
     public CommandMethods Methods { get; init; }
 
@@ -42,8 +44,21 @@ internal abstract partial class Command : NotifyableObject
 
     public abstract object GetParameter();
 
-    protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute) =>
+    protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute)
+    {
         Methods = new(this, onExecute, canExecute);
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+        InputLanguageManager.Current.InputLanguageChanged += (_, _) => RaisePropertyChanged(nameof(Shortcut));
+    }
+
+    private void OnLanguageChanged(Language obj)
+    {
+        DisplayName = new LocalizedString(DisplayName.Key, DisplayName.Parameters);
+        Description = new LocalizedString(Description.Key, Description.Parameters);
+
+        RaisePropertyChanged(nameof(DisplayName));
+        RaisePropertyChanged(nameof(Description));
+    }
 
     public void Execute() => Methods.Execute(GetParameter());
 

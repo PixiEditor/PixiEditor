@@ -1,8 +1,16 @@
-﻿namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
+﻿using System.Globalization;
+using PixiEditor.Localization;
+using PixiEditor.Models.UserPreferences;
+
+namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
 internal class GeneralSettings : SettingsGroup
 {
     private bool imagePreviewInTaskbar = GetPreference(nameof(ImagePreviewInTaskbar), false);
+    private LanguageData selectedLanguage = ILocalizationProvider.Current.CurrentLanguage.LanguageData;
+    private List<LanguageData> availableLanguages = ILocalizationProvider.Current.LocalizationData.Languages
+        .OrderByDescending(x => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == x.Code || CultureInfo.InstalledUICulture.TwoLetterISOLanguageName == x.Code)
+        .ThenBy(x => x.Name).ToList();
 
     public bool ImagePreviewInTaskbar
     {
@@ -15,5 +23,24 @@ internal class GeneralSettings : SettingsGroup
     {
         get => isDebugModeEnabled;
         set => RaiseAndUpdatePreference(ref isDebugModeEnabled, value);
+    }
+    
+    public List<LanguageData> AvailableLanguages
+    {
+        get => availableLanguages;
+        set => SetProperty(ref availableLanguages, value);
+    }
+
+    public LanguageData SelectedLanguage
+    {
+        get => selectedLanguage;
+        set
+        {
+            if (SetProperty(ref selectedLanguage, value))
+            {
+                ILocalizationProvider.Current.LoadLanguage(value);
+                IPreferences.Current.UpdatePreference("LanguageCode", value.Code);
+            }
+        }
     }
 }

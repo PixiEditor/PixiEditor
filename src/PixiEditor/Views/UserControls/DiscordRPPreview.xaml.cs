@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using PixiEditor.Localization;
 
 namespace PixiEditor.Views.UserControls;
 
@@ -9,7 +10,7 @@ namespace PixiEditor.Views.UserControls;
 internal partial class DiscordRPPreview : UserControl
 {
     public static readonly DependencyProperty StateProperty =
-        DependencyProperty.Register(nameof(State), typeof(string), typeof(DiscordRPPreview), new PropertyMetadata("nothing"));
+        DependencyProperty.Register(nameof(State), typeof(string), typeof(DiscordRPPreview), new PropertyMetadata("16x16, 2 Layers"));
 
     public string State
     {
@@ -18,7 +19,7 @@ internal partial class DiscordRPPreview : UserControl
     }
 
     public static readonly DependencyProperty DetailProperty =
-        DependencyProperty.Register(nameof(Detail), typeof(string), typeof(DiscordRPPreview), new PropertyMetadata("Staring at absolutely"));
+        DependencyProperty.Register(nameof(Detail), typeof(string), typeof(DiscordRPPreview), new PropertyMetadata("Editing an image"));
 
     public string Detail
     {

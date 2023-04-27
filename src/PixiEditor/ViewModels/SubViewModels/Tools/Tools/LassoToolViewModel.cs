@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -10,7 +11,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.ToolAttribute(Key = Key.Q)]
 internal class LassoToolViewModel : ToolViewModel
 {
-    private string defaultActionDisplay = "Click and move to select pixels inside of the lasso. Hold Shift to add to existing selection. Hold Ctrl to subtract from it.";
+    private string defaultActionDisplay = "LASSO_TOOL_ACTION_DISPLAY_DEFAULT";
 
     public LassoToolViewModel()
     {
@@ -25,12 +26,12 @@ internal class LassoToolViewModel : ToolViewModel
     {
         if (shiftIsDown)
         {
-            ActionDisplay = "Click and move to add pixels inside of the lasso to the selection.";
+            ActionDisplay = "LASSO_TOOL_ACTION_DISPLAY_SHIFT";
             modifierKeySelectionMode = SelectionMode.Add;
         }
         else if (ctrlIsDown)
         {
-            ActionDisplay = "Click and move to subtract pixels inside of the lasso from the selection.";
+            ActionDisplay = "LASSO_TOOL_ACTION_DISPLAY_CTRL";
             modifierKeySelectionMode = SelectionMode.Subtract;
         }
         else
@@ -40,11 +41,12 @@ internal class LassoToolViewModel : ToolViewModel
         }
     }
 
-    public override string Tooltip => $"Lasso. ({Shortcut})";
-    
+    public override LocalizedString Tooltip => new LocalizedString("LASSO_TOOL_TOOLTIP", Shortcut);
+
+    public override string ToolNameLocalizationKey => "LASSO_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    [Settings.Enum("Mode")]
+    [Settings.Enum("MODE_LABEL")]
     public SelectionMode SelectMode => GetValue<SelectionMode>();
     
     public override void OnLeftMouseButtonDown(VecD pos)

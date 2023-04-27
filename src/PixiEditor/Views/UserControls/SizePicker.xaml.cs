@@ -106,7 +106,7 @@ internal partial class SizePicker : UserControl
     private void WidthLostFocus(object param) => OnSizeUpdate(true);
     private void HeightLostFocus(object param) => OnSizeUpdate(false);
 
-    private void PercentageLostFocus(object param)
+    public void PercentageLostFocus(object param)
     {
         if (!initSize.HasValue)
             return;

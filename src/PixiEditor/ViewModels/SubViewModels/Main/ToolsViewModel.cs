@@ -13,7 +13,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
-[Command.Group("PixiEditor.Tools", "Tools")]
+[Command.Group("PixiEditor.Tools", "TOOLS")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>
 {
     public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();
@@ -83,7 +83,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         SetActiveTool(typeof(T), transient);
     }
 
-    [Command.Basic("PixiEditor.Tools.ApplyTransform", "Apply transform", "", Key = Key.Enter)]
+    [Command.Basic("PixiEditor.Tools.ApplyTransform", "APPLY_TRANSFORM", "", Key = Key.Enter)]
     public void ApplyTransform()
     {
         DocumentViewModel? doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -159,8 +159,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         SetActiveTool(tool.GetType(), false);
     }
 
-    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "Increase Tool Size", "Increase Tool Size", CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemCloseBrackets)]
-    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "Decrease Tool Size", "Decrease Tool Size", CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemOpenBrackets)]
+    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE", CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemCloseBrackets)]
+    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "DECREASE_TOOL_SIZE", "DECREASE_TOOL_SIZE", CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemOpenBrackets)]
     public void ChangeToolSize(int increment)
     {
         if (ActiveTool?.Toolbar is not BasicToolbar toolbar)

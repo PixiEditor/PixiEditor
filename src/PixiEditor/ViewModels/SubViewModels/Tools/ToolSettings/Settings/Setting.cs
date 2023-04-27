@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using PixiEditor.Localization;
 
 #pragma warning disable SA1402 // File may only contain a single type, Justification: "Same class with generic value"
 
@@ -74,7 +75,7 @@ internal abstract class Setting : NotifyableObject
 
     public string Name { get; }
 
-    public string Label { get; set; }
+    public LocalizedString Label { get; set; }
 
     public bool HasLabel => !string.IsNullOrEmpty(Label);
 

@@ -1,5 +1,14 @@
-﻿namespace PixiEditor.ChangeableDocument.Enums;
+﻿using System.ComponentModel;
+
+namespace PixiEditor.ChangeableDocument.Enums;
 public enum SelectionMode
 {
-    New, Add, Subtract, Intersect
+    [Description("NEW")]
+    New,
+    [Description("ADD")]
+    Add,
+    [Description("SUBTRACT")]
+    Subtract,
+    [Description("INTERSECT")]
+    Intersect
 }

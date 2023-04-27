@@ -1,10 +1,12 @@
-﻿namespace PixiEditor.Models.Commands.Attributes.Commands;
+﻿using PixiEditor.Localization;
+
+namespace PixiEditor.Models.Commands.Attributes.Commands;
 
 internal partial class Command
 {
     public class FilterAttribute : CommandAttribute
     {
-        public string SearchTerm { get; }
+        public LocalizedString SearchTerm { get; }
         
         public FilterAttribute(string internalName, string displayName, string searchTerm) : base(internalName, displayName, string.Empty)
         {

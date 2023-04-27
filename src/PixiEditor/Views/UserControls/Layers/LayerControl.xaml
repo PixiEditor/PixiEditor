@@ -12,6 +12,7 @@
              xmlns:helpers="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:views="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d" 
              Focusable="True"
              d:DesignHeight="35" d:DesignWidth="250" Name="uc"
@@ -129,33 +130,33 @@
         </Grid>
         <Border.ContextMenu>
             <ContextMenu>
-                <MenuItem Header="Duplicate" Command="{cmds:Command PixiEditor.Layer.DuplicateSelectedLayer}"/>
-                <MenuItem Header="Delete" Command="{cmds:Command PixiEditor.Layer.DeleteAllSelected}"/>
-                <MenuItem Header="Rename" Click="RenameMenuItem_Click"/>
+                <MenuItem views:Translator.Key="DUPLICATE" Command="{cmds:Command PixiEditor.Layer.DuplicateSelectedLayer}"/>
+                <MenuItem views:Translator.Key="DELETE" Command="{cmds:Command PixiEditor.Layer.DeleteAllSelected}"/>
+                <MenuItem views:Translator.Key="RENAME" Click="RenameMenuItem_Click"/>
                 <MenuItem 
                     IsCheckable="True" 
                     IsChecked="{Binding PlacementTarget.Tag.Layer.ClipToMemberBelowEnabledBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                    Header="Clip to layer below"/>
+                    views:Translator.Key="CLIP_TO_BELOW"/>
                 <MenuItem 
                     IsCheckable="True" 
                     IsChecked="{Binding PlacementTarget.Tag.Layer.LockTransparencyBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                    Header="Lock transparency"/>
+                    views:Translator.Key="LOCK_TRANSPARENCY"/>
                 <Separator/>
-                <MenuItem Header="Move upwards" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberUpwards}"/>
-                <MenuItem Header="Move downwards" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberDownwards}"/>
+                <MenuItem views:Translator.Key="MOVE_UPWARDS" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberUpwards}"/>
+                <MenuItem views:Translator.Key="MOVE_DOWNWARDS" Command="{cmds:Command PixiEditor.Layer.MoveSelectedMemberDownwards}"/>
                 <Separator/>
-                <MenuItem Header="Create mask" Command="{cmds:Command PixiEditor.Layer.CreateMask}"/>
-                <MenuItem Header="Delete mask" Command="{cmds:Command PixiEditor.Layer.DeleteMask}"/>
+                <MenuItem views:Translator.Key="CREATE_MASK" Command="{cmds:Command PixiEditor.Layer.CreateMask}"/>
+                <MenuItem views:Translator.Key="DELETE_MASK" Command="{cmds:Command PixiEditor.Layer.DeleteMask}"/>
                 <MenuItem 
                     IsCheckable="True" 
                     IsChecked="{Binding PlacementTarget.Tag.Layer.MaskIsVisibleBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
                     IsEnabled="{Binding PlacementTarget.Tag.Layer.HasMaskBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                    Header="Enable mask"/>
-                <MenuItem Header="Apply mask" Command="{cmds:Command PixiEditor.Layer.ApplyMask}"/>
+                    views:Translator.Key="ENABLE_MASK"/>
+                <MenuItem views:Translator.Key="APPLY_MASK" Command="{cmds:Command PixiEditor.Layer.ApplyMask}"/>
                 <Separator/>
-                <MenuItem Header="Merge selected" Command="{cmds:Command PixiEditor.Layer.MergeSelected}"/>
-                <MenuItem Header="Merge with above" Command="{cmds:Command PixiEditor.Layer.MergeWithAbove}"/>
-                <MenuItem Header="Merge with below" Command="{cmds:Command PixiEditor.Layer.MergeWithBelow}"/>
+                <MenuItem views:Translator.Key="MERGE_SELECTED" Command="{cmds:Command PixiEditor.Layer.MergeSelected}"/>
+                <MenuItem views:Translator.Key="MERGE_WITH_ABOVE" Command="{cmds:Command PixiEditor.Layer.MergeWithAbove}"/>
+                <MenuItem views:Translator.Key="MERGE_WITH_BELOW" Command="{cmds:Command PixiEditor.Layer.MergeWithBelow}"/>
             </ContextMenu>
         </Border.ContextMenu>
     </Border>

@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Models.Enums;
 using System;
+using PixiEditor.Localization;
 
 namespace PixiEditor.Helpers.Converters;
 
@@ -16,7 +17,7 @@ internal class EnumToStringConverter : SingleInstanceConverter<EnumToStringConve
                 if (valueCasted == SizeUnit.Percentage)
                     return "%";
 
-                return "px";
+                return "PIXEL_UNIT";
             }
             return Enum.GetName((value.GetType()), value);
         }

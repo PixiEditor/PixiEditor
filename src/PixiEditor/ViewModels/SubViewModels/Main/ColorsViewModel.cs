@@ -3,6 +3,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -18,7 +19,7 @@ using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Colors", "Palette Colors")]
+[Command.Group("PixiEditor.Colors", "PALETTE_COLORS")]
 internal class ColorsViewModel : SubViewModel<ViewModelMain>
 {
     public RelayCommand<List<string>> ImportPaletteCommand { get; set; }
@@ -82,8 +83,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         doc.Operations.ReplaceColor(colors.oldColor, colors.newColor);
     }
 
-    [Command.Basic("PixiEditor.Colors.ReplaceSecondaryByPrimaryColor", false, "Replace secondary color by primary", "Replace the secondary color by the primary color", IconEvaluator = "PixiEditor.Colors.ReplaceColorIcon")]
-    [Command.Basic("PixiEditor.Colors.ReplacePrimaryBySecondaryColor", true, "Replace primary color by secondary", "Replace the primary color by the secondary color", IconEvaluator = "PixiEditor.Colors.ReplaceColorIcon")]
+    [Command.Basic("PixiEditor.Colors.ReplaceSecondaryByPrimaryColor", false, "REPLACE_SECONDARY_BY_PRIMARY", "REPLACE_SECONDARY_BY_PRIMARY", IconEvaluator = "PixiEditor.Colors.ReplaceColorIcon")]
+    [Command.Basic("PixiEditor.Colors.ReplacePrimaryBySecondaryColor", true, "REPLACE_PRIMARY_BY_SECONDARY", "REPLACE_PRIMARY_BY_SECONDARY_DESCRIPTIVE", IconEvaluator = "PixiEditor.Colors.ReplaceColorIcon")]
     public void ReplaceColors(bool replacePrimary)
     {
         var oldColor = replacePrimary ? PrimaryColor : SecondaryColor;
@@ -130,7 +131,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         await ImportLospecPalette();
     }
 
-    [Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "Open Palette Browser", "Open Palette Browser", CanExecute = "PixiEditor.HasDocument", IconPath = "Globe.png")]
+    [Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER", CanExecute = "PixiEditor.HasDocument", IconPath = "Globe.png")]
     public void OpenPalettesBrowser() 
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -155,7 +156,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
                 if (LocalPalettesFetcher.PaletteExists(palette.Name))
                 {
                     var consent = ConfirmationDialog.Show(
-                        $"Palette '{palette.Name}' already exists, do you want to overwrite it?", "Palette exists");
+                        new LocalizedString("OVERWRITE_PALETTE_CONSENT", palette.Name),
+                        new LocalizedString("PALETTE_EXISTS"));
                     if (consent == ConfirmationType.No)
                     {
                         palette.Name = LocalPalettesFetcher.GetNonExistingName(palette.Name);
@@ -210,14 +212,14 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return;
 
-        if (ConfirmationDialog.Show("Replace current palette with selected one?", "Replace current palette") == ConfirmationType.Yes)
+        if (ConfirmationDialog.Show(new LocalizedString("REPLACE_PALETTE_CONSENT"), new LocalizedString("REPLACE_PALETTE")) == ConfirmationType.Yes)
         {
             if (doc.Palette is null)
             {
                 doc.Palette = new WpfObservableRangeCollection<DrawingApi.Core.ColorsImpl.Color>();
             }
 
-            doc.Palette.ReplaceRange(palette.Select(x => Color.Parse(x)));
+            doc.Palette.ReplaceRange(palette.Select(Color.Parse));
         }
     }
 
@@ -263,16 +265,16 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         return ColorSearchResult.GetIcon(color);
     }
 
-    [Command.Basic("PixiEditor.Colors.SelectFirstPaletteColor", "Select color 1", "Select the first color in the palette", Key = Key.D1, Parameter = 0, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.FirstPaletteColorIcon")]
-    [Command.Basic("PixiEditor.Colors.SelectSecondPaletteColor", "Select color 2", "Select the second color in the palette", Key = Key.D2, Parameter = 1, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.SecondPaletteColorIcon")]
-    [Command.Basic("PixiEditor.Colors.SelectThirdPaletteColor", "Select color 3", "Select the third color in the palette", Key = Key.D3, Parameter = 2, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.ThirdPaletteColorIcon")]
-    [Command.Basic("PixiEditor.Colors.SelectFourthPaletteColor", "Select color 4", "Select the fourth color in the palette", Key = Key.D4, Parameter = 3, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.FourthPaletteColorIcon")]
-    [Command.Basic("PixiEditor.Colors.SelectFifthPaletteColor", "Select color 5", "Select the fifth color in the palette", Key = Key.D5, Parameter = 4, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.FifthPaletteColorIcon")]
-    [Command.Basic("PixiEditor.Colors.SelectSixthPaletteColor", "Select color 6", "Select the sixth color in the palette", Key = Key.D6, Parameter = 5, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.SixthPaletteColorIcon")]
-    [Command.Basic("PixiEditor.Colors.SelectSeventhPaletteColor", "Select color 7", "Select the seventh color in the palette", Key = Key.D7, Parameter = 6, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.SeventhPaletteColorIcon")]
-    [Command.Basic("PixiEditor.Colors.SelectEighthPaletteColor", "Select color 8", "Select the eighth color in the palette", Key = Key.D8, Parameter = 7, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.EighthPaletteColorIcon")]
-    [Command.Basic("PixiEditor.Colors.SelectNinthPaletteColor", "Select color 9", "Select the ninth color in the palette", Key = Key.D9, Parameter = 8, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.NinthPaletteColorIcon")]
-    [Command.Basic("PixiEditor.Colors.SelectTenthPaletteColor", "Select color 10", "Select the tenth color in the palette", Key = Key.D0, Parameter = 9, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.TenthPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectFirstPaletteColor", "SELECT_COLOR_1", "SELECT_COLOR_1_DESCRIPTIVE", Key = Key.D1, Parameter = 0, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.FirstPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectSecondPaletteColor", "SELECT_COLOR_2", "SELECT_COLOR_2_DESCRIPTIVE", Key = Key.D2, Parameter = 1, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.SecondPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectThirdPaletteColor", "SELECT_COLOR_3", "SELECT_COLOR_3_DESCRIPTIVE", Key = Key.D3, Parameter = 2, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.ThirdPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectFourthPaletteColor", "SELECT_COLOR_4", "SELECT_COLOR_4_DESCRIPTIVE", Key = Key.D4, Parameter = 3, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.FourthPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectFifthPaletteColor", "SELECT_COLOR_5", "SELECT_COLOR_5_DESCRIPTIVE", Key = Key.D5, Parameter = 4, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.FifthPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectSixthPaletteColor", "SELECT_COLOR_6", "SELECT_COLOR_6_DESCRIPTIVE", Key = Key.D6, Parameter = 5, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.SixthPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectSeventhPaletteColor", "SELECT_COLOR_7", "SELECT_COLOR_7_DESCRIPTIVE", Key = Key.D7, Parameter = 6, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.SeventhPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectEighthPaletteColor", "SELECT_COLOR_8", "SELECT_COLOR_8_DESCRIPTIVE", Key = Key.D8, Parameter = 7, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.EighthPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectNinthPaletteColor", "SELECT_COLOR_9", "SELECT_COLOR_9_DESCRIPTIVE", Key = Key.D9, Parameter = 8, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.NinthPaletteColorIcon")]
+    [Command.Basic("PixiEditor.Colors.SelectTenthPaletteColor", "SELECT_COLOR_10", "SELECT_COLOR_10_DESCRIPTIVE", Key = Key.D0, Parameter = 9, CanExecute = "PixiEditor.Colors.CanSelectPaletteColor", IconEvaluator = "PixiEditor.Colors.TenthPaletteColorIcon")]
     public void SelectPaletteColor(int index)
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -282,7 +284,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.Colors.Swap", "Swap colors", "Swap primary and secondary colors", Key = Key.X)]
+    [Command.Basic("PixiEditor.Colors.Swap", "SWAP_COLORS", "SWAP_COLORS_DESCRIPTIVE", Key = Key.X)]
     public void SwapColors(object parameter)
     {
         (PrimaryColor, SecondaryColor) = (SecondaryColor, PrimaryColor);

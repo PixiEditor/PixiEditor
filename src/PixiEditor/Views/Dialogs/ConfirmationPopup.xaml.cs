@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using PixiEditor.Helpers;
+using PixiEditor.Localization;
 
 namespace PixiEditor.Views.Dialogs;
 
@@ -16,7 +17,7 @@ internal partial class ConfirmationPopup : Window
         DependencyProperty.Register(nameof(Body), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata(""));
 
     public static readonly DependencyProperty FirstOptionTextProperty = DependencyProperty.Register(
-        nameof(FirstOptionText), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata("Yes"));
+        nameof(FirstOptionText), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata(new LocalizedString("YES").Value));
 
     public string FirstOptionText
     {
@@ -25,7 +26,7 @@ internal partial class ConfirmationPopup : Window
     }
 
     public static readonly DependencyProperty SecondOptionTextProperty = DependencyProperty.Register(
-        nameof(SecondOptionText), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata("No"));
+        nameof(SecondOptionText), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata(new LocalizedString("NO").Value));
 
     public string SecondOptionText
     {

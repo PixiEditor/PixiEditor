@@ -1,11 +1,12 @@
-﻿using PixiEditor.Models.Enums;
+﻿using PixiEditor.Localization;
+using PixiEditor.Models.Enums;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;
 
 internal static class OptionDialog
 {
-    public static OptionResult Show(string message, string title, string option1Text, string option2Text)
+    public static OptionResult Show(LocalizedString message, LocalizedString title, LocalizedString option1Text, LocalizedString option2Text)
     {
         ConfirmationPopup popup = new ConfirmationPopup
         {

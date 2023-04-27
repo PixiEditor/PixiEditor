@@ -44,14 +44,14 @@ internal static class ToolbarFactory
                 continue;
             }
             
-            var label = attribute.Label ?? name;
+            var label = attribute.LabelKey ?? name;
 
             var setting = attribute switch
             {
                 Settings.BoolAttribute => new BoolSetting(name, (bool)(attribute.DefaultValue ?? false), label),
                 Settings.ColorAttribute => new ColorSetting(name, ((Color)(attribute.DefaultValue ?? Colors.White)).ToColor(), label),
                 Settings.EnumAttribute => GetEnumSetting(property.PropertyType, name, attribute),
-                Settings.FloatAttribute => new FloatSetting(name, (float)(attribute.DefaultValue ?? 0f), attribute.Label),
+                Settings.FloatAttribute => new FloatSetting(name, (float)(attribute.DefaultValue ?? 0f), attribute.LabelKey),
                 Settings.SizeAttribute => new SizeSetting(name, label),
                 _ => throw new NotImplementedException($"SettingsAttribute of type '{attribute.GetType().FullName}' has not been implemented")
             };
@@ -92,6 +92,6 @@ internal static class ToolbarFactory
         return (Setting)typeof(EnumSetting<>)
             .MakeGenericType(enumType)
             .GetConstructor(new[] { typeof(string), typeof(string), enumType })!
-            .Invoke(new[] { name, attribute.Label ?? name, attribute.DefaultValue });
+            .Invoke(new[] { name, attribute.LabelKey ?? name, attribute.DefaultValue });
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Models.Commands.Attributes.Commands;
+﻿using PixiEditor.Localization;
+
+namespace PixiEditor.Models.Commands.Attributes.Commands;
 
 internal partial class Command
 {
@@ -7,7 +9,7 @@ internal partial class Command
     {
         public string InternalName { get; }
 
-        public string DisplayName { get; }
+        public LocalizedString DisplayName { get; }
 
         /// <summary>
         /// Groups all commands that start with the name <paramref name="internalName"/>

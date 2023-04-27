@@ -7,7 +7,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Stylus", "Stylus")]
+[Command.Group("PixiEditor.Stylus", "STYLUS")]
 internal class StylusViewModel : SubViewModel<ViewModelMain>
 {
     private bool isPenModeEnabled;
@@ -48,7 +48,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         UpdateUseTouchGesture();
     }
 
-    [Command.Basic("PixiEditor.Stylus.TogglePenMode", "Toggle Pen Mode", "Toggle Pen Mode", IconPath = "penMode.png")]
+    [Command.Basic("PixiEditor.Stylus.TogglePenMode", "TOGGLE_PEN_MODE", "TOGGLE_PEN_MODE", IconPath = "penMode.png")]
     public void TogglePenMode()
     {
         IsPenModeEnabled = !IsPenModeEnabled;
