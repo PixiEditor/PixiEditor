@@ -1,8 +1,8 @@
 ﻿using ChunkyImageLib;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Models.IO;
 using PixiEditor.Parser;
+using PixiEditor.Parser.Deprecated;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Helpers.Extensions;
@@ -76,5 +76,48 @@ internal static class PixiParserDocumentEx
                 builder.WithSurface(x => x.WithImage(layer.ImageBytes, 0, 0));
             }
         }
+    }
+    
+    public static SKBitmap RenderOldDocument(this SerializableDocument document)
+    {
+        SKImageInfo info = new(document.Width, document.Height, SKColorType.RgbaF32, SKAlphaType.Unpremul, SKColorSpace.CreateSrgb());
+        using SKSurface surface = SKSurface.Create(info);
+        SKCanvas canvas = surface.Canvas;
+        using SKPaint paint = new();
+
+        foreach (var layer in document)
+        {
+            if (layer.PngBytes == null || layer.PngBytes.Length == 0)
+            {
+                continue;
+            }
+
+            bool visible = document.Layers.GetFinalLayerVisibilty(layer);
+
+            if (!visible)
+            {
+                continue;
+            }
+
+            double opacity = document.Layers.GetFinalLayerOpacity(layer);
+
+            if (opacity == 0)
+            {
+                continue;
+            }
+
+            using SKColorFilter filter = SKColorFilter.CreateBlendMode(SKColors.White.WithAlpha((byte)(opacity * 255)), SKBlendMode.DstIn);
+            paint.ColorFilter = filter;
+
+            using var image = SKImage.FromEncodedData(layer.PngBytes);
+            
+            canvas.DrawImage(image, layer.OffsetX, layer.OffsetY, paint);
+        }
+
+        SKBitmap bitmap = new(info);
+
+        surface.ReadPixels(info, bitmap.GetPixels(), info.RowBytes, 0, 0);
+
+        return bitmap;
     }
 }
