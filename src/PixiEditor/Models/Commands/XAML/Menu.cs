@@ -35,7 +35,23 @@ internal class Menu : System.Windows.Controls.Menu
 
         var command = CommandController.Current.Commands[value];
 
+        var icon = new Image 
+        { 
+            Source = command.GetIcon(), 
+            Width = 20, Height = 20,
+            Opacity = command.CanExecute() ? 1 : 0.75
+        };
+        
+        icon.IsVisibleChanged += (_, v) =>
+        {
+            if ((bool)v.NewValue)
+            {
+                icon.Opacity = command.CanExecute() ? 1 : 0.75;
+            }
+        };
+
         item.Command = Command.GetICommand(command, false);
+        item.Icon = icon;
         item.SetBinding(MenuItem.InputGestureTextProperty, ShortcutBinding.GetBinding(command));
     }
 
