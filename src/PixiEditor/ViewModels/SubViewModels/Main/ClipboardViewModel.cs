@@ -53,6 +53,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
             surface.image.Size);
+
+        Application.Current.MainWindow!.Activate();
     }
     
     [Command.Internal("PixiEditor.Clipboard.PasteReferenceLayerFromPath")]
@@ -123,9 +125,9 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste")]
-    public bool CanPaste()
+    public bool CanPaste(object parameter)
     {
-        return Owner.DocumentIsNotNull(null) && ClipboardController.IsImageInClipboard();
+        return Owner.DocumentIsNotNull(null) && parameter is DataObject data ? ClipboardController.IsImage(data) : ClipboardController.IsImageInClipboard();
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
