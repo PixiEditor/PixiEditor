@@ -38,7 +38,7 @@ internal class Menu : System.Windows.Controls.Menu
         var icon = new Image 
         { 
             Source = command.GetIcon(), 
-            Width = 20, Height = 20,
+            Width = 21, Height = 21,
             Opacity = command.CanExecute() ? 1 : 0.75
         };
         
