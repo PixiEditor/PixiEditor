@@ -206,6 +206,7 @@ internal partial class MainWindow : Window
             return;
         }
 
+        Activate();
         string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
         
         if (files is { Length: > 0 } && Importer.IsSupportedFile(files[0]))
