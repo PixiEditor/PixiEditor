@@ -180,8 +180,19 @@
                             <MenuItem.ItemTemplate>
                                 <DataTemplate
                                     DataType="{x:Type dataHolders:RecentlyOpenedDocument}">
-                                    <TextBlock
-                                        Text="{Binding FilePath}" />
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        
+                                        <TextBlock Text="{Binding FilePath}"/>
+                                        <TextBlock Grid.Column="1" Margin="20,0,0,0" VerticalAlignment="Center">
+                                            <Hyperlink Foreground="#FFF" FontFamily="{StaticResource Feather}"
+                                                       Command="{cmds:Command Name=PixiEditor.File.RemoveRecent, UseProvided=True}"
+                                                       CommandParameter="{Binding FilePath}"></Hyperlink>
+                                        </TextBlock>
+                                    </Grid>
                                 </DataTemplate>
                             </MenuItem.ItemTemplate>
                         </MenuItem>

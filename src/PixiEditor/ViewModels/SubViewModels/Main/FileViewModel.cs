@@ -76,12 +76,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
-    public void RemoveRecentlyOpened(object parameter)
+    [Command.Internal("PixiEditor.File.RemoveRecent")]
+    public void RemoveRecentlyOpened(string path)
     {
-        if (RecentlyOpened.Contains((string)parameter))
+        if (!RecentlyOpened.Contains(path))
         {
-            RecentlyOpened.Remove((string)parameter);
+            return;
         }
+
+        RecentlyOpened.Remove(path);
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
     private void OpenHelloTherePopup()
