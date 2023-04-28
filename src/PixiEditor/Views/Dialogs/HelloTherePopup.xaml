@@ -188,24 +188,35 @@
                                                         </Grid.Style>
                                                         <TextBlock x:Name="extension" VerticalAlignment="Top" Text="{Binding FileExtension}" FontSize="15" TextAlignment="Center"/>
                                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-                                                            <Button Margin="0,0,0,5" Height="25" Width="25"
-                                                                    Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
+                                                            <StackPanel.Resources>
+                                                                <Style TargetType="Button" BasedOn="{StaticResource BaseDarkButton}">
+                                                                    <Setter Property="Margin" Value="0,0,0,5"/>
+                                                                    <Setter Property="Width" Value="25"/>
+                                                                    <Setter Property="Height" Value="25"/>
+                                                                    <Setter Property="MinWidth" Value="25"/>
+                                                                    <Setter Property="MinHeight" Value="25"/>
+                                                                    
+                                                                    <Style.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="False">
+                                                                            <Setter Property="Background" Value="Transparent"/>
+                                                                        </Trigger>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#70FFFFFF"/>
+                                                                        </Trigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </StackPanel.Resources>
+                                                            <Button Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
                                                                     CommandParameter="{Binding FilePath}"
                                                                     ToolTip="Open in File Explorer">
-                                                                <TextBlock Text="&#xEC50;" FontFamily="Segoe MDL2 Assets"
+                                                                <TextBlock Text="&#xEC50;" FontFamily="{DynamicResource NativeIconFont}"
                                                                            TextAlignment="Center" FontSize="18"/>
-                                                                <Button.Style>
-                                                                    <Style TargetType="Button" BasedOn="{StaticResource BaseDarkButton}">
-                                                                        <Style.Triggers>
-                                                                            <Trigger Property="IsMouseOver" Value="False">
-                                                                                <Setter Property="Background" Value="Transparent"/>
-                                                                            </Trigger>
-                                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                                <Setter Property="Background" Value="#70FFFFFF"/>
-                                                                            </Trigger>
-                                                                        </Style.Triggers>
-                                                                    </Style>
-                                                                </Button.Style>
+                                                            </Button>
+                                                            <Button Command="{cmds:Command Name=PixiEditor.File.RemoveRecent, UseProvided=True}"
+                                                                    CommandParameter="{Binding FilePath}"
+                                                                    ToolTip="Remove from list">
+                                                                <TextBlock Text="" FontFamily="{StaticResource Feather}"
+                                                                           TextAlignment="Center" FontSize="20"/>
                                                             </Button>
                                                         </StackPanel>
                                                     </Grid>
