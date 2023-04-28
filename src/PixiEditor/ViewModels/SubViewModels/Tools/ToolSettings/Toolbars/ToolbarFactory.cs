@@ -74,7 +74,6 @@ internal static class ToolbarFactory
         }
     }
 
-
     private static void AddValueChangedHandler<T>(Type toolType, T tool, Setting setting,
         Settings.SettingsAttribute attribute) where T : ToolViewModel
     {
