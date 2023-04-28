@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Media;
 using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -40,11 +41,25 @@ internal partial class App : Application
             return;
         }
 
-        if (HandleNewInstance())
+        if (!HandleNewInstance())
         {
-            MainWindow = new MainWindow();
-            MainWindow.Show();
+            return;
         }
+
+        AddNativeAssets();
+        
+        MainWindow = new MainWindow();
+        MainWindow.Show();
+
+    }
+
+    private void AddNativeAssets()
+    {
+        var iconFont = OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)
+            ? "Segoe Fluent Icons"
+            : "Segoe MDL2 Assets";
+        
+        Resources.Add("NativeIconFont", new FontFamily(iconFont));
     }
 
     private bool HandleNewInstance()
