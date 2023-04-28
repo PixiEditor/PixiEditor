@@ -222,7 +222,7 @@ internal partial class MainWindow : Window
         {
             if (ColorHelper.ParseAnyFormat(e.Data, out _))
             {
-                DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "Paste as primary color";
+                DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "PASTE_AS_PRIMARY_COLOR";
                 e.Effects = DragDropEffects.Copy;
                 return;
             }
@@ -232,7 +232,7 @@ internal partial class MainWindow : Window
             return;
         }
 
-        DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "Import as new file";
+        DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "IMPORT_AS_NEW_FILE";
     }
 
     private void MainWindow_DragLeave(object sender, DragEventArgs e)

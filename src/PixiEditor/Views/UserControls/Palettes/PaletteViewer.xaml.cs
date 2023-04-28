@@ -147,12 +147,12 @@ internal partial class PaletteViewer : UserControl
         if (IsSupportedFilePresent(e, out _))
         {
             dragDropGrid.Visibility = Visibility.Visible;
-            ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = "Import palette file";
+            ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = "IMPORT_PALETTE_FILE";
         }
         else if (ColorHelper.ParseAnyFormatList(e.Data, out var list))
         {
             e.Effects = DragDropEffects.Copy;
-            ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = list.Count > 1 ? "Import colors into palette" : "Import color into palette";
+            ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = list.Count > 1 ? "IMPORT_MULTIPLE_PALETTE_COLORS" : "IMPORT_SINGLE_PALETTE_COLOR";
             e.Handled = true;
         }
     }

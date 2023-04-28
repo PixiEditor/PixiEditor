@@ -154,7 +154,7 @@ internal partial class LayersManager : UserControl
                 return;
             }
 
-            ViewModelMain.Current.ActionDisplays[nameof(LayersManager)] = "Import as new layer";
+            ViewModelMain.Current.ActionDisplays[nameof(LayersManager)] = "IMPORT_AS_NEW_LAYER";
             e.Effects = DragDropEffects.Copy;
         }
         else
