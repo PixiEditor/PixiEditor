@@ -75,5 +75,4 @@ public class ColorHelper
 
         return result.Count > 0;
     }
-
 }

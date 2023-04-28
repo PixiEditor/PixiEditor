@@ -50,7 +50,6 @@ internal partial class App : Application
         
         MainWindow = new MainWindow();
         MainWindow.Show();
-
     }
 
     private void AddNativeAssets()

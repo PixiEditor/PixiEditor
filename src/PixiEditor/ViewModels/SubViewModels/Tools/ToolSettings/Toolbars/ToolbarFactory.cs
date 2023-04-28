@@ -16,71 +16,78 @@ internal static class ToolbarFactory
         foreach (var property in toolType.GetProperties())
         {
             var attribute = property.GetCustomAttribute<Settings.SettingsAttribute>();
+            if (attribute == null) continue;
 
-            if (attribute == null)
-                continue;
-            
             var name = attribute.Name ?? property.Name;
+            var label = attribute.LabelKey ?? name;
 
             if (attribute is Settings.InheritedAttribute)
             {
-                var inherited = toolbar.GetSetting(name);
-                
-                if (inherited == null)
-                {
-                    throw new NullReferenceException($"There's no inherited setting '{name}' on inherited toolbar of type '{typeof(TToolbar).FullName}' (Tool: {typeof(T).FullName})");
-                }
-
-                if (inherited.GetSettingType() != property.PropertyType)
-                {
-                    throw new InvalidCastException($"Inherited setting '{name}' does not match property type '{property.PropertyType}' (Tool: {typeof(T).FullName})");
-                }
-
-                if (attribute.Notify != null)
-                {
-                    AddValueChangedHandler(toolType, tool, inherited, attribute);
-                }
-
-                continue;
+                ProcessInheritedSetting(toolType, tool, toolbar, property, attribute, name);
             }
-            
-            var label = attribute.LabelKey ?? name;
-
-            var setting = attribute switch
+            else
             {
-                Settings.BoolAttribute => new BoolSetting(name, (bool)(attribute.DefaultValue ?? false), label),
-                Settings.ColorAttribute => new ColorSetting(name, ((Color)(attribute.DefaultValue ?? Colors.White)).ToColor(), label),
-                Settings.EnumAttribute => GetEnumSetting(property.PropertyType, name, attribute),
-                Settings.FloatAttribute => new FloatSetting(name, (float)(attribute.DefaultValue ?? 0f), attribute.LabelKey),
-                Settings.SizeAttribute => new SizeSetting(name, label),
-                _ => throw new NotImplementedException($"SettingsAttribute of type '{attribute.GetType().FullName}' has not been implemented")
-            };
-            
-            if (setting.GetSettingType() != property.PropertyType)
-            {
-                throw new InvalidCastException($"Setting '{name}' does not match property type '{property.PropertyType}' (Tool: {typeof(T).FullName})");
+                var setting = CreateSetting(property.PropertyType, name, attribute, label);
+                AddValueChangedHandlerIfRequired(toolType, tool, setting, attribute);
+                toolbar.Settings.Add(setting);
             }
-
-            if (attribute.Notify != null)
-            {
-                AddValueChangedHandler(toolType, tool, setting, attribute);
-            }
-
-            toolbar.Settings.Add(setting);
         }
 
         return toolbar;
     }
 
-    private static void AddValueChangedHandler<T>(Type toolType, T tool, Setting setting, Settings.SettingsAttribute attribute) where T : ToolViewModel
+    private static void ProcessInheritedSetting(Type toolType, ToolViewModel tool, Toolbar toolbar,
+        PropertyInfo property, Settings.SettingsAttribute attribute, string name)
+    {
+        var inherited = toolbar.GetSetting(name);
+        if (inherited == null || inherited.GetSettingType() != property.PropertyType)
+        {
+            throw new InvalidOperationException(
+                $"Inherited setting '{name}' does not match property type '{property.PropertyType}' (Tool: {toolType.FullName})");
+        }
+
+        AddValueChangedHandlerIfRequired(toolType, tool, inherited, attribute);
+    }
+
+    private static Setting CreateSetting(Type propertyType, string name, Settings.SettingsAttribute attribute,
+        string label)
+    {
+        return attribute switch
+        {
+            Settings.BoolAttribute => new BoolSetting(name, (bool)(attribute.DefaultValue ?? false), label),
+            Settings.ColorAttribute => new ColorSetting(name,
+                ((Color)(attribute.DefaultValue ?? Colors.White)).ToColor(), label),
+            Settings.EnumAttribute => GetEnumSetting(propertyType, name, attribute),
+            Settings.FloatAttribute => new FloatSetting(name, (float)(attribute.DefaultValue ?? 0f), label),
+            Settings.SizeAttribute => new SizeSetting(name, label),
+            _ => throw new NotImplementedException(
+                $"SettingsAttribute of type '{attribute.GetType().FullName}' has not been implemented")
+        };
+    }
+
+    private static void AddValueChangedHandlerIfRequired(Type toolType, ToolViewModel tool, Setting setting,
+        Settings.SettingsAttribute attribute)
     {
         if (attribute.Notify != null)
         {
-            var method = toolType.GetMethod(attribute.Notify, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static, Array.Empty<Type>());
+            AddValueChangedHandler(toolType, tool, setting, attribute);
+        }
+    }
+
+
+    private static void AddValueChangedHandler<T>(Type toolType, T tool, Setting setting,
+        Settings.SettingsAttribute attribute) where T : ToolViewModel
+    {
+        if (attribute.Notify != null)
+        {
+            var method = toolType.GetMethod(attribute.Notify,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static,
+                Array.Empty<Type>());
 
             if (method is null)
             {
-                throw new NullReferenceException($"No method found with the name '{attribute.Notify}' that does not have any parameters");
+                throw new NullReferenceException(
+                    $"No method found with the name '{attribute.Notify}' that does not have any parameters");
             }
 
             setting.ValueChanged += (_, _) => method.Invoke(tool, null);
