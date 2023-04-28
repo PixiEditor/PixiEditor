@@ -202,6 +202,7 @@ internal partial class MainWindow : Window
                 return;
             }
 
+            e.Effects = DragDropEffects.Copy;
             DataContext.ColorsSubViewModel.PrimaryColor = color.Value;
             return;
         }
@@ -222,6 +223,7 @@ internal partial class MainWindow : Window
             if (ColorHelper.ParseAnyFormat(e.Data, out _))
             {
                 DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "Paste as primary color";
+                e.Effects = DragDropEffects.Copy;
                 return;
             }
             
