@@ -421,6 +421,14 @@
 		<Resource Include="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
 		<None Remove="Images\Commands\PixiEditor\File\OpenFileFromClipboard.png" />
 		<Resource Include="Images\Commands\PixiEditor\File\OpenFileFromClipboard.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenShortcutWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenShortcutWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenAboutWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenAboutWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\Layer\DuplicateSelectedLayer.png" />
+		<Resource Include="Images\Commands\PixiEditor\Layer\DuplicateSelectedLayer.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

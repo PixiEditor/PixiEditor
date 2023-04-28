@@ -209,7 +209,11 @@
                         <Separator />
                         <MenuItem
                             views:Translator.Key="EXIT"
-                            Command="{x:Static SystemCommands.CloseWindowCommand}" />
+                            Command="{x:Static SystemCommands.CloseWindowCommand}">
+                            <MenuItem.Icon>
+                                <TextBlock Text="&#xE106;" FontFamily="{DynamicResource NativeIconFont}" FontSize="20"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
                     </MenuItem>
                     <MenuItem
                         Focusable="False"
