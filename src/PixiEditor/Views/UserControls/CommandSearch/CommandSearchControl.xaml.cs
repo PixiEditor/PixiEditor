@@ -60,6 +60,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
             if (value is not null)
                 value.IsSelected = true;
             selectedResult = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedResult)));
         }
     }
 

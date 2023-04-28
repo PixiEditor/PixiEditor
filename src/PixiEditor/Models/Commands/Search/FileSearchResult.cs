@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using PixiEditor.Helpers.Converters;
 
@@ -13,7 +15,7 @@ internal class FileSearchResult : SearchResult
 
     public override string Text => asReferenceLayer ? $"As reference: ...\\{Path.GetFileName(FilePath)}" : $"...\\{Path.GetFileName(FilePath)}";
 
-    public override string Description => FilePath;
+    public override FrameworkElement Description => new TextBlock { Text = FilePath, FontSize = 16 };
 
     public override bool CanExecute => !asReferenceLayer ||
                 CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayerFromPath"].Methods.CanExecute(FilePath);
