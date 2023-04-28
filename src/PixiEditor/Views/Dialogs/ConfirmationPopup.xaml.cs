@@ -17,20 +17,20 @@ internal partial class ConfirmationPopup : Window
         DependencyProperty.Register(nameof(Body), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata(""));
 
     public static readonly DependencyProperty FirstOptionTextProperty = DependencyProperty.Register(
-        nameof(FirstOptionText), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata(new LocalizedString("YES").Value));
+        nameof(FirstOptionText), typeof(LocalizedString), typeof(ConfirmationPopup), new PropertyMetadata(new LocalizedString("YES")));
 
-    public string FirstOptionText
+    public LocalizedString FirstOptionText
     {
-        get { return (string)GetValue(FirstOptionTextProperty); }
+        get { return (LocalizedString)GetValue(FirstOptionTextProperty); }
         set { SetValue(FirstOptionTextProperty, value); }
     }
 
     public static readonly DependencyProperty SecondOptionTextProperty = DependencyProperty.Register(
-        nameof(SecondOptionText), typeof(string), typeof(ConfirmationPopup), new PropertyMetadata(new LocalizedString("NO").Value));
+        nameof(SecondOptionText), typeof(LocalizedString), typeof(ConfirmationPopup), new PropertyMetadata(new LocalizedString("NO")));
 
-    public string SecondOptionText
+    public LocalizedString SecondOptionText
     {
-        get { return (string)GetValue(SecondOptionTextProperty); }
+        get { return (LocalizedString)GetValue(SecondOptionTextProperty); }
         set { SetValue(SecondOptionTextProperty, value); }
     }
     
