@@ -2,8 +2,8 @@
 
 namespace PixiEditor.Localization;
 
-[DebuggerDisplay("{Languages.Length} Language(s)")]
+[DebuggerDisplay("{Languages.Count} Language(s)")]
 public class LocalizationData
 {
-    public LanguageData[] Languages { get; set; }
+    public List<LanguageData> Languages { get; set; }
 }

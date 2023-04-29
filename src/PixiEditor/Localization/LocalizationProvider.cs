@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
 using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Localization;
@@ -9,6 +10,8 @@ internal class LocalizationProvider : ILocalizationProvider
     public string LocalizationDataPath { get; } = Path.Combine("Data", "Localization", "LocalizationData.json");
     public LocalizationData LocalizationData { get; private set; }
     public Language CurrentLanguage { get; set; }
+    public LanguageData SelectedLanguage { get; private set; }
+    public LanguageData FollowSystem { get; } = new() { Name = "Follow system", Code = "system" };
     public event Action<Language> OnLanguageChanged;
     public void ReloadLanguage() => OnLanguageChanged?.Invoke(CurrentLanguage);
 
@@ -31,27 +34,18 @@ internal class LocalizationProvider : ILocalizationProvider
             throw new InvalidDataException("Localization data is null.");
         }
         
-        if (LocalizationData.Languages is null || LocalizationData.Languages.Length == 0)
+        if (LocalizationData.Languages is null || LocalizationData.Languages.Count == 0)
         {
             throw new InvalidDataException("Localization data does not contain any languages.");
         }
 
+        LocalizationData.Languages.Add(FollowSystem);
+        
         DefaultLanguage = LoadLanguageInternal(LocalizationData.Languages[0]);
         
         string currentLanguageCode = IPreferences.Current.GetPreference<string>("LanguageCode");
 
-        int languageIndex = 0;
-        
-        for (int i = 0; i < LocalizationData.Languages.Length; i++)
-        {
-            if (LocalizationData.Languages[i].Code == currentLanguageCode)
-            {
-                languageIndex = i;
-                break;
-            }
-        }
-        
-        LoadLanguage(LocalizationData.Languages[languageIndex]);
+        LoadLanguage(LocalizationData.Languages.FirstOrDefault(x => x.Code == currentLanguageCode, FollowSystem));
     }
 
     public void LoadLanguage(LanguageData languageData)
@@ -67,7 +61,15 @@ internal class LocalizationProvider : ILocalizationProvider
         }
         
         bool firstLoad = CurrentLanguage is null;
+        
+        SelectedLanguage = languageData;
 
+        if (languageData.Code == FollowSystem.Code)
+        {
+            string osLanguage = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+            languageData = LocalizationData.Languages.FirstOrDefault(x => x.Code == osLanguage, LocalizationData.Languages[0]);
+        }
+        
         CurrentLanguage = LoadLanguageInternal(languageData);
 
         if (!firstLoad)
