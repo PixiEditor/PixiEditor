@@ -22,8 +22,7 @@ Want to create beautiful pixel art for your games? PixiEditor can help you! Our 
 
 Have you ever used Photoshop or Gimp? Reinventing the wheel is unnecessary, we wanted users to get familiar with the tool quickly and with ease. 
 
-![](https://user-images.githubusercontent.com/45312141/235350925-c408951f-cc00-4bf6-ae5d-f3e389027285.png)
-
+![](https://user-images.githubusercontent.com/45312141/235351211-e00bcaea-9c63-4ecd-a2ee-e4fb2b2c9651.png)
 
 ### Fast
 
