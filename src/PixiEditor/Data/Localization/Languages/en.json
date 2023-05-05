@@ -426,6 +426,8 @@
     "BROWSE_PALETTES": "Browse palettes",
     "LOAD_PALETTE": "Load palette",
     "SAVE_PALETTE": "Save palette",
+    "DISCARD_PALETTE": "Discard palette",
+    "DISCARD_PALETTE_CONFIRMATION": "Are you sure you want to discard current palette? This cannot be undone.",
     "FAVORITES": "Favorites",
     "ADD_FROM_CURRENT_PALETTE": "Add from current palette",
     "OPEN_PALETTES_DIR_TOOLTIP": "Open palettes directory in explorer",

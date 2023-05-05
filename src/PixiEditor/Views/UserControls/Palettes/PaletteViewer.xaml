@@ -41,14 +41,16 @@
                                 <ImageBrush ImageSource="/Images/Folder.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Height="24" Width="24" Margin="0, 0, 2.5, 0" Style="{StaticResource ToolButtonStyle}" 
-                Cursor="Hand" views:Translator.TooltipKey="SAVE_PALETTE" Click="SavePalette_OnClick">
+                        <Button Height="24" Width="24" Margin="0, 0, 2.5, 0" Style="{StaticResource ToolButtonStyle}"
+                                IsEnabled="{Binding ElementName=paletteControl, Path=Colors.Count}"
+                                Cursor="Hand" views:Translator.TooltipKey="SAVE_PALETTE" Click="SavePalette_OnClick">
                             <Button.Background>
                                 <ImageBrush ImageSource="/Images/Save.png"/>
                             </Button.Background>
                         </Button>
                         <Button Height="24" Width="24" Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}"
-                                Cursor="Hand" ToolTip="Discard Palette" Click="DiscardPalette_OnClick">
+                                IsEnabled="{Binding ElementName=paletteControl, Path=Colors.Count}"
+                                Cursor="Hand" views:Translator.TooltipKey="DISCARD_PALETTE" Click="DiscardPalette_OnClick">
                             <Button.Background>
                                 <ImageBrush ImageSource="/Images/Trash.png"/>
                             </Button.Background>
