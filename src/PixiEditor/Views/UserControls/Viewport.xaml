@@ -20,6 +20,7 @@
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:tools ="clr-namespace:PixiEditor.ViewModels.SubViewModels.Tools.Tools"
     xmlns:views="clr-namespace:PixiEditor.Views"
+    xmlns:subviews="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -152,7 +153,7 @@
                         Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromReferenceLayer, Converter={converters:BoolToVisibilityConverter}}"
                         ZIndex="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToIntConverter}}"
                         IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}"
-                        Opacity="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToValueConverter FalseValue=1.0, TrueValue=0.6}}">
+                        Opacity="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToValueConverter FalseValue=1.0, TrueValue={x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}}}">
                         <Image
                             Focusable="False"
                             Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Width}"

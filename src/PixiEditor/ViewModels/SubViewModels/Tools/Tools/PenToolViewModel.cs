@@ -52,7 +52,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
             if (e.NewTool == this && PixelPerfectEnabled)
             {
                 var toolbar = (BasicToolbar)Toolbar;
-                var setting = (SizeSetting)toolbar.Settings[0];
+                var setting = (SizeSetting)toolbar.Settings.First(x => x.Name == "ToolSize");
                 setting.Value = 1;
             }
             

@@ -143,7 +143,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         OpenFromPath(dialog.FileName);
     }
 
-    [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "Open from clipboard", "Open from clipboard", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard")]
+    [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD", "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard")]
     public void OpenFromClipboard()
     {
         var images = ClipboardController.GetImagesFromClipboard();

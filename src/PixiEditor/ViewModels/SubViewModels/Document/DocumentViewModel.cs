@@ -405,7 +405,7 @@ internal partial class DocumentViewModel : NotifyableObject
                 return ColorHelpers.BlendColors(referenceColor, canvasColor);
             }
 
-            byte referenceAlpha = canvasColor.A == 0 ? referenceColor.A : (byte)(referenceColor.A * 0.6f);
+            byte referenceAlpha = canvasColor.A == 0 ? referenceColor.A : (byte)(referenceColor.A * ReferenceLayerViewModel.TopMostOpacity);
             
             referenceColor = new Color(referenceColor.R, referenceColor.G, referenceColor.B, referenceAlpha);
             return ColorHelpers.BlendColors(canvasColor, referenceColor);

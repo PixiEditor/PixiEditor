@@ -590,6 +590,9 @@
   "IMPORT_AS_REFERENCE_LAYER": "Import as reference layer",
   "NAVIGATOR_PICK_ACTION_DISPLAY": "Right-click to pick color, Shift-right-click to copy color to clipboard",
   
+  "OPEN_FILE_FROM_CLIPBOARD": "Open from clipboard",
+  "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE": "Open from clipboard",
+  
   "OPEN_LOCALIZATION_DEBUG_WINDOW": "Open Localization Debug Window",
   "FORCE_OTHER_FLOW_DIRECTION": "Force other flow direction",
   "API_KEY": "API Key",

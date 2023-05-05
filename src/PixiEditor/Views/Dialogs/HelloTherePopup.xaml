@@ -209,7 +209,7 @@
                                                             <Button Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
                                                                     CommandParameter="{Binding FilePath}"
                                                                     ToolTip="Open in File Explorer">
-                                                                <TextBlock Text="&#xEC50;" FontFamily="{DynamicResource NativeIconFont}"
+                                                                <TextBlock Text="&#xEC50;" FontFamily="Segoe MDL2 Assets"
                                                                            TextAlignment="Center" FontSize="18"/>
                                                             </Button>
                                                             <Button Command="{cmds:Command Name=PixiEditor.File.RemoveRecent, UseProvided=True}"

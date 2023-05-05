@@ -46,7 +46,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Grid x:Name="LayoutRoot" Background="Transparent" Width="44" Height="35">
-                        <TextBlock x:Name="txt" Text="{TemplateBinding Content}" FontFamily="{DynamicResource NativeIconFont}"
+                        <TextBlock x:Name="txt" Text="{TemplateBinding Content}" FontFamily="Segoe MDL2 Assets"
                                    Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    RenderOptions.ClearTypeHint="Auto" TextOptions.TextRenderingMode="Aliased"
                                    TextOptions.TextFormattingMode="Display" />
