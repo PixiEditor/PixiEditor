@@ -175,7 +175,7 @@
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
-                        Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromCanvas, Converter={converters:BoolToHiddenVisibilityConverter}}"
+                        Opacity="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay, Converter={converters:BoolToValueConverter FalseValue=1.0, TrueValue=0.1}}"
                         RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"/>
                     <Grid ZIndex="5">
                         <symOverlay:SymmetryOverlay

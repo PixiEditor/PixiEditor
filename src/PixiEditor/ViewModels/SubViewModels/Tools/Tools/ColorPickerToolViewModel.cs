@@ -24,16 +24,30 @@ internal class ColorPickerToolViewModel : ToolViewModel
     private bool pickFromCanvas = true;
     public bool PickFromCanvas
     {
-        get => pickFromCanvas; 
-        private set => SetProperty(ref pickFromCanvas, value);
+        get => pickFromCanvas;
+        private set
+        {
+            if (SetProperty(ref pickFromCanvas, value))
+            {
+                RaisePropertyChanged(nameof(PickOnlyFromReferenceLayer));
+            }
+        }
     }
     
     private bool pickFromReferenceLayer = true;
     public bool PickFromReferenceLayer
     {
-        get => pickFromReferenceLayer; 
-        private set => SetProperty(ref pickFromReferenceLayer, value);
+        get => pickFromReferenceLayer;
+        private set
+        {
+            if (SetProperty(ref pickFromReferenceLayer, value))
+            {
+                RaisePropertyChanged(nameof(PickOnlyFromReferenceLayer));
+            }
+        }
     }
+
+    public bool PickOnlyFromReferenceLayer => !pickFromCanvas && pickFromReferenceLayer;
 
     [Settings.Enum("SCOPE_LABEL", DocumentScope.AllLayers)]
     public DocumentScope Mode => GetValue<DocumentScope>();
