@@ -665,6 +665,12 @@
                                                                                                     Command="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
                                                                                                     CommandParameter="{Binding}" />
                                                                                             </b:EventTrigger>
+                                                                                            <b:EventTrigger EventName="MouseLeftButtonUp">
+                                                                                                <b:InvokeCommandAction
+                                                                                                    Command="{cmds:Command PixiEditor.CloseContextMenu, UseProvided=True}"
+                                                                                                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,
+                                                                                                     AncestorType={x:Type ContextMenu}}}" />
+                                                                                            </b:EventTrigger>
                                                                                         </b:Interaction.Triggers>
                                                                                     </palettes:PaletteColor>
                                                                                 </DataTemplate>

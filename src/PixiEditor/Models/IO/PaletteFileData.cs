@@ -7,6 +7,7 @@ internal class PaletteFileData
     public string Title { get; set; }
     public Color[] Colors { get; set; }
     public bool IsCorrupted { get; set; } = false;
+    public static PaletteFileData Corrupted => new ("Corrupted", Array.Empty<Color>()) { IsCorrupted = true };
 
     public PaletteFileData(Color[] colors)
     {
