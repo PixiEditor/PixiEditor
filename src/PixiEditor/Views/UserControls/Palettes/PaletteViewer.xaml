@@ -28,7 +28,7 @@
                                             Swatches="{Binding ElementName=paletteControl, Path=Swatches}"
                                             HintColor="{Binding ElementName=paletteControl, Path=HintColor}"
                                             Colors="{Binding ElementName=paletteControl, Path=Colors}"/>
-                    <StackPanel Margin="0, 0, 5, 0" HorizontalAlignment="Right" Width="85" VerticalAlignment="Center" Orientation="Horizontal">
+                    <StackPanel Margin="0, 0, 5, 0" HorizontalAlignment="Right" Width="110" VerticalAlignment="Center" Orientation="Horizontal">
                         <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" Click="BrowsePalettes_Click"
                 Cursor="Hand" Height="24" Width="24" views:Translator.TooltipKey="BROWSE_PALETTES">
                             <Button.Background>
@@ -41,10 +41,18 @@
                                 <ImageBrush ImageSource="/Images/Folder.png"/>
                             </Button.Background>
                         </Button>
-                        <Button Height="24" Width="24" Margin="0" Style="{StaticResource ToolButtonStyle}" 
-                Cursor="Hand" views:Translator.TooltipKey="SAVE_PALETTE" Click="SavePalette_OnClick">
+                        <Button Height="24" Width="24" Margin="0, 0, 2.5, 0" Style="{StaticResource ToolButtonStyle}"
+                                IsEnabled="{Binding ElementName=paletteControl, Path=Colors.Count}"
+                                Cursor="Hand" views:Translator.TooltipKey="SAVE_PALETTE" Click="SavePalette_OnClick">
                             <Button.Background>
                                 <ImageBrush ImageSource="/Images/Save.png"/>
+                            </Button.Background>
+                        </Button>
+                        <Button Height="24" Width="24" Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}"
+                                IsEnabled="{Binding ElementName=paletteControl, Path=Colors.Count}"
+                                Cursor="Hand" views:Translator.TooltipKey="DISCARD_PALETTE" Click="DiscardPalette_OnClick">
+                            <Button.Background>
+                                <ImageBrush ImageSource="/Images/Trash.png"/>
                             </Button.Background>
                         </Button>
                     </StackPanel>
