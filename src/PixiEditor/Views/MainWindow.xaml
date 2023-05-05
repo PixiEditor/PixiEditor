@@ -295,13 +295,22 @@
                             IsCheckable="True"
                             IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.HorizontalSymmetryAxisEnabledBindable}"
-                            views:Translator.Key="HORIZONTAL_LINE_SYMMETRY"
-                            />
+                            views:Translator.Key="HORIZONTAL_LINE_SYMMETRY">
+                            <MenuItem.Icon>
+                                <Image Source="../Images/SymmetryHorizontal.png"
+                                       Width="{x:Static cmds:Menu.IconDimensions}" Height="{x:Static cmds:Menu.IconDimensions}"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <MenuItem
                             IsCheckable="True"
                             IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable}"
-                            views:Translator.Key="VERTICAL_LINE_SYMMETRY"/>
+                            views:Translator.Key="VERTICAL_LINE_SYMMETRY">
+                            <MenuItem.Icon>
+                                <Image Source="../Images/SymmetryVertical.png"
+                                       Width="{x:Static cmds:Menu.IconDimensions}" Height="{x:Static cmds:Menu.IconDimensions}"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
                         <Separator/>
                         <MenuItem views:Translator.Key="ROTATION">
                             <MenuItem views:Translator.Key="ROT_IMG_90_D" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
@@ -342,7 +351,12 @@
                             views:Translator.Key="TOGGLE_GRIDLINES"
                             IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                             IsCheckable="True"
-                            InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}" />
+                            InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}">
+                            <MenuItem.Icon>
+                                <Image Source="../Images/Commands/PixiEditor/View/ToggleGrid.png"
+                                       Width="{x:Static cmds:Menu.IconDimensions}" Height="{x:Static cmds:Menu.IconDimensions}"/>
+                            </MenuItem.Icon>
+                        </MenuItem>
                     </MenuItem>
                     <MenuItem
                         Focusable="False"

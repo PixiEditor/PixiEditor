@@ -16,6 +16,8 @@ internal class Menu : System.Windows.Controls.Menu
             new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, CommandChanged)
         );
 
+    public const double IconDimensions = 21;
+    
     public static string GetCommand(UIElement target) => (string)target.GetValue(CommandNameProperty);
 
     public static void SetCommand(UIElement target, string value) => target.SetValue(CommandNameProperty, value);
@@ -38,7 +40,7 @@ internal class Menu : System.Windows.Controls.Menu
         var icon = new Image 
         { 
             Source = command.GetIcon(), 
-            Width = 21, Height = 21,
+            Width = IconDimensions, Height = IconDimensions,
             Opacity = command.CanExecute() ? 1 : 0.75
         };
         
