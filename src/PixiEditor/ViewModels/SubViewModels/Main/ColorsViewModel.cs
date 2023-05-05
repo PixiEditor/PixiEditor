@@ -4,7 +4,7 @@ using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
 using PixiEditor.Localization;
-using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
@@ -16,6 +16,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Views.Dialogs;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
+using Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -317,6 +318,12 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     public void SelectColor(Color color)
     {
         PrimaryColor = color;
+    }
+
+    [Command.Internal("PixiEditor.CloseContextMenu")]
+    public void CloseContextMenu(System.Windows.Controls.ContextMenu menu)
+    {
+        menu.IsOpen = false;
     }
 
     public void SetupPaletteParsers(IServiceProvider services)
