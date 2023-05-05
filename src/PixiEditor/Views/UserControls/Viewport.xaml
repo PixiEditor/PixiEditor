@@ -188,7 +188,8 @@
                             VerticalAxisX="{Binding Document.VerticalSymmetryAxisXBindable, Mode=OneWay}"
                             DragCommand="{cmds:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
                             DragEndCommand="{cmds:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
-                            DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}" />
+                            DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
+                            FlowDirection="LeftToRight" />
                         <overlays:SelectionOverlay
                             Focusable="False"
                             ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
