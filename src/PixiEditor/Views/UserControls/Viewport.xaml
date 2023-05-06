@@ -150,10 +150,8 @@
                 </Border.Background>
                 <Grid>
                     <Canvas
-                        Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromReferenceLayer, Converter={converters:BoolToVisibilityConverter}}"
                         ZIndex="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToIntConverter}}"
-                        IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}"
-                        Opacity="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToValueConverter FalseValue=1.0, TrueValue={x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}}}">
+                        IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}">
                         <Image
                             Focusable="False"
                             Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Width}"
@@ -168,15 +166,93 @@
                                         Matrix="{Binding Document.ReferenceLayerViewModel.ReferenceTransformMatrix}" />
                                 </TransformGroup>
                             </Image.RenderTransform>
+                            <Image.Style>
+                                <Style>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Document.ReferenceLayerViewModel.ShowHighest, Mode=OneWay}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation 
+                                                            Storyboard.TargetProperty="(Button.Opacity)" 
+                                                            From="1" To="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" Duration="0:0:0.1" /> 
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation 
+                                                            Storyboard.TargetProperty="(Button.Opacity)" 
+                                                            From="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" To="1" Duration="0:0:0.1" /> 
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
                         </Image>
+                        <Canvas.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromReferenceLayer, Mode=OneWay}" Value="False">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Storyboard.TargetProperty="(Button.Opacity)" 
+                                                        From="1" To="0" Duration="0:0:0.1" /> 
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Storyboard.TargetProperty="(Button.Opacity)" 
+                                                        From="0" To="1" Duration="0:0:0.1" /> 
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Canvas.Style>
                     </Canvas>
                     <Image
                         Focusable="False"
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
-                        Opacity="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay, Converter={converters:BoolToValueConverter FalseValue=1.0, TrueValue=0.1}}"
-                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"/>
+                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
+                        <Image.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Storyboard.TargetProperty="(Button.Opacity)" 
+                                                        From="1" To="0" Duration="0:0:0.1" /> 
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Storyboard.TargetProperty="(Button.Opacity)" 
+                                                        From="0" To="1" Duration="0:0:0.1" /> 
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
                     <Grid ZIndex="5">
                         <symOverlay:SymmetryOverlay
                             Focusable="False"

@@ -19,7 +19,7 @@ internal class ReferenceLayerViewModel : INotifyPropertyChanged
     private readonly DocumentInternalParts internals;
     public event PropertyChangedEventHandler PropertyChanged;
 
-    public const float TopMostOpacity = 0.6f;
+    public const double TopMostOpacity = 0.6;
     
     public WriteableBitmap? ReferenceBitmap { get; private set; }
 
