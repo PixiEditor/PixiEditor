@@ -171,7 +171,7 @@ internal class SettingsWindowViewModel : ViewModelBase
             }
             catch (RecoverableException e)
             {
-                NoticeDialog.Show(title: "Error", message: e.Message);
+                NoticeDialog.Show(title: "ERROR", message: e.DisplayMessage);
                 return false;
             }
         }

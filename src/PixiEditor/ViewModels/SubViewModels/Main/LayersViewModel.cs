@@ -361,7 +361,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         }
         catch (RecoverableException e)
         {
-            NoticeDialog.Show("ERROR_IMPORTING_IMAGE", "ERROR");
+            NoticeDialog.Show(title: "ERROR", message: e.DisplayMessage);
             return;
         }
 

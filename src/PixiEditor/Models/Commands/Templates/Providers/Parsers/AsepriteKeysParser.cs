@@ -31,12 +31,12 @@ public class AsepriteKeysParser : KeysParser
     {
         if (!File.Exists(path))
         {
-            throw new MissingFileException("File not found", path);
+            throw new MissingFileException("FILE_NOT_FOUND", $"File {path} not found");
         }
 
         if (Path.GetExtension(path) != ".aseprite-keys")
         {
-            throw new InvalidFileFormatException("File is not aseprite-keys file", path);
+            throw new InvalidFileTypeException("FILE_FORMAT_NOT_ASEPRITE_KEYS", $"File {path} is not an aseprite-keys file");
         }
         
         return LoadAndParse(path, applyDefaults);
@@ -52,11 +52,11 @@ public class AsepriteKeysParser : KeysParser
         }
         catch (Exception e) when (e is DirectoryNotFoundException or FileNotFoundException or PathTooLongException)
         {
-            throw new MissingFileException("File not found", e);
+            throw new MissingFileException("FILE_NOT_FOUND", e);
         }
         catch (Exception e)
         {
-            throw new RecoverableException("Error while reading the file", e);
+            throw new RecoverableException("FAILED_TO_OPEN_FILE", e);
         }
         
         List<KeyDefinition> keyDefinitions = new List<KeyDefinition>(); // DefaultShortcut is actually mapped shortcut.
@@ -68,9 +68,10 @@ public class AsepriteKeysParser : KeysParser
         {
             return ShortcutsTemplate.FromKeyDefinitions(keyDefinitions);
         }
+        catch (RecoverableException) { throw; }
         catch (Exception e)
         {
-            throw new InvalidFileFormatException("The file contains an invalid shortcut", e);
+            throw new CorruptedFileException("FILE_HAS_INVALID_SHORTCUT", e);
         }
     }
 

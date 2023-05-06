@@ -54,7 +54,7 @@ internal partial class ImportShortcutTemplatePopup : Window
         }
         catch (RecoverableException e)
         {
-            NoticeDialog.Show($"FILE_INCORRECT_FORMAT", "ERROR");
+            NoticeDialog.Show(e.DisplayMessage, "ERROR");
             return;
         }
 

@@ -1,29 +1,23 @@
 ﻿using System.IO;
+using System.Runtime.Serialization;
+using PixiEditor.Localization;
 
 namespace PixiEditor.Exceptions;
 
 [Serializable]
 internal class CorruptedFileException : RecoverableException
 {
-    public CorruptedFileException()
-        : base("The file you've chosen might be corrupted.")
-    {
-    }
+    public CorruptedFileException() : base("FAILED_TO_OPEN_FILE") { }
 
-    public CorruptedFileException(string message)
-        : base(message)
-    {
-    }
+    public CorruptedFileException(Exception innerException) : base("FAILED_TO_OPEN_FILE", innerException) { }
 
-    public CorruptedFileException(string message, Exception inner)
-        : base(message, inner)
-    {
-    }
+    public CorruptedFileException(LocalizedString displayMessage) : base(displayMessage) { }
 
-    protected CorruptedFileException(
-        System.Runtime.Serialization.SerializationInfo info,
-        System.Runtime.Serialization.StreamingContext context)
-        : base(info, context)
-    {
-    }
+    public CorruptedFileException(LocalizedString displayMessage, Exception innerException) : base(displayMessage, innerException) { }
+
+    public CorruptedFileException(LocalizedString displayMessage, string exceptionMessage) : base(displayMessage, exceptionMessage) { }
+
+    public CorruptedFileException(LocalizedString displayMessage, string exceptionMessage, Exception innerException) : base(displayMessage, exceptionMessage, innerException) { }
+
+    protected CorruptedFileException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }

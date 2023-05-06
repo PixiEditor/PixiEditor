@@ -5,27 +5,17 @@ namespace PixiEditor.Exceptions;
 
 internal class MissingFileException : RecoverableException
 {
-    public string FilePath { get; set; }
+    public MissingFileException() : base("FILE_NOT_FOUND") { }
 
-    public MissingFileException() { }
+    public MissingFileException(Exception innerException) : base("FILE_NOT_FOUND", innerException) { }
 
-    public MissingFileException(string message) : base(message) { }
+    public MissingFileException(LocalizedString displayMessage) : base(displayMessage) { }
 
-    public MissingFileException(string message, Exception innerException) : base(message, innerException) { }
+    public MissingFileException(LocalizedString displayMessage, Exception innerException) : base(displayMessage, innerException) { }
 
-    public MissingFileException(string message, LocalizedString displayMessage) : base(message, displayMessage) { }
+    public MissingFileException(LocalizedString displayMessage, string exceptionMessage) : base(displayMessage, exceptionMessage) { }
 
-    public MissingFileException(string message, LocalizedString displayMessage, Exception innerException) : base(message, displayMessage, innerException) { }
+    public MissingFileException(LocalizedString displayMessage, string exceptionMessage, Exception innerException) : base(displayMessage, exceptionMessage, innerException) { }
 
     protected MissingFileException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
-    public MissingFileException(string message, string filePath) : base(message)
-    {
-        FilePath = filePath;
-    }
-
-    public MissingFileException(string message, LocalizedString displayMessage, string filePath) : base(message, displayMessage)
-    {
-        FilePath = filePath;
-    }
 }

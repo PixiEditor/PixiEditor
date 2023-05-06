@@ -10,6 +10,7 @@ using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Exceptions;
 using PixiEditor.Helpers;
+using PixiEditor.Localization;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
@@ -51,17 +52,17 @@ internal class Importer : NotifyableObject
 
             return BitmapFactory.ConvertToPbgra32Format(bitmap);
         }
-        catch (NotSupportedException)
+        catch (NotSupportedException e)
         {
-            throw new CorruptedFileException($"The file type '{Path.GetExtension(path)}' is not supported");
+            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)), e);
         }
-        catch (FileFormatException)
+        catch (FileFormatException e)
         {
-            throw new CorruptedFileException("The file appears to be corrupted");
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
         }
         catch (Exception e)
         {
-            throw new RecoverableException("Error while importing the bitmap", e);
+            throw new RecoverableException("ERROR_IMPORTING_IMAGE", e);
         }
     }
 
@@ -83,7 +84,7 @@ internal class Importer : NotifyableObject
             }
             catch (InvalidFileException e)
             {
-                throw new CorruptedFileException("The given file seems to be corrupted or from a newer version of PixiEditor", e);
+                throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
             }
         }
     }
@@ -106,7 +107,7 @@ internal class Importer : NotifyableObject
             }
             catch (InvalidFileException e)
             {
-                throw new CorruptedFileException("The given file seems to be corrupted or from a newer version of PixiEditor", e);
+                throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
             }
         }
     }
@@ -115,7 +116,7 @@ internal class Importer : NotifyableObject
     {
         if (!IsSupportedFile(path))
         {
-            throw new InvalidFileFormatException($"The file type '{Path.GetExtension(path)}' is not supported");
+            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)));
         }
         return Path.GetExtension(path) != ".pixi" ? ImportWriteableBitmap(path) : PixiParser.Deserialize(path).ToDocument().PreviewBitmap;
     }

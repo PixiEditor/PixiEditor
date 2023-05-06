@@ -7,21 +7,30 @@ public class RecoverableException : Exception
 {
     public LocalizedString DisplayMessage { get; set; }
 
-    public RecoverableException() { }
+    public RecoverableException() 
+    {
+        DisplayMessage = "INTERNAL_ERROR";
+    }
 
-    public RecoverableException(string message) : base(message) { }
+    public RecoverableException(LocalizedString displayMessage) 
+    {
+        DisplayMessage = displayMessage;
+    }
 
-    public RecoverableException(string message, Exception innerException) : base(message, innerException) { }
+    public RecoverableException(LocalizedString displayMessage, Exception innerException) : base(null, innerException) 
+    {
+        DisplayMessage = displayMessage;
+    }
+
+    public RecoverableException(LocalizedString displayMessage, string exceptionMessage) : base(exceptionMessage)
+    {
+        DisplayMessage = displayMessage;
+    }
+
+    public RecoverableException(LocalizedString displayMessage, string exceptionMessage, Exception innerException) : base(exceptionMessage, innerException)
+    {
+        DisplayMessage = displayMessage;
+    }
 
     protected RecoverableException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
-    public RecoverableException(string message, LocalizedString displayMessage) : base(message)
-    {
-        DisplayMessage = displayMessage;
-    }
-
-    public RecoverableException(string message, LocalizedString displayMessage, Exception innerException) : base(message, innerException)
-    {
-        DisplayMessage = displayMessage;
-    }
 }

@@ -80,9 +80,13 @@ internal class ImportFilePopupViewModel : ViewModelBase
                 ImportHeight = bitmap.PixelHeight;
                 ImportWidth = bitmap.PixelWidth;
             }
-            catch (Exception e) when (e is NotSupportedException or FileFormatException or COMException)
+            catch (Exception e) when (e is NotSupportedException or FileFormatException)
             {
-                throw new CorruptedFileException();
+                throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
+            }
+            catch (COMException e)
+            {
+                throw new RecoverableException("INTERNAL_ERROR", e);
             }
         }
     }

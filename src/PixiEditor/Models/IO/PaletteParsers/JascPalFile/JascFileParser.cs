@@ -31,7 +31,7 @@ internal class JascFileParser : PaletteFileParser
             return new PaletteFileData(name, colors);
         }
 
-        throw new JascFileException("Invalid JASC-PAL file.");
+        throw new JascFileException("FAILED_TO_OPEN_FILE", "Invalid JASC-PAL file.");
     }
 
     public static async Task<bool> SaveFile(string path, PaletteFileData data)

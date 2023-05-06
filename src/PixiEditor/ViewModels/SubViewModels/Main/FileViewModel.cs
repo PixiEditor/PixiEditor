@@ -172,9 +172,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 OpenRegularImage(path);
             }
         }
-        catch (CorruptedFileException ex)
+        catch (RecoverableException ex)
         {
-            NoticeDialog.Show(ex.Message, "FAILED_TO_OPEN_FILE");
+            NoticeDialog.Show(ex.DisplayMessage, "ERROR");
         }
         catch (OldFileFormatException)
         {
