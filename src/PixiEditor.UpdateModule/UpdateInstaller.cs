@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Threading;
 
 namespace PixiEditor.UpdateModule;
 
@@ -67,6 +68,7 @@ public class UpdateInstaller
             string targetFileName = Path.GetFileName(file);
             File.Copy(file, Path.Join(destinationDir, targetFileName), true);
             Progress += fileCopiedVal;
+            Thread.Sleep(1000);
         }
     }
 }

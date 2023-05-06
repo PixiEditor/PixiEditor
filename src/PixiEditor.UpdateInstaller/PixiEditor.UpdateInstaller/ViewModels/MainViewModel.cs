@@ -1,14 +1,15 @@
 ﻿using System;
 using System.IO;
 using PixiEditor.UpdateModule;
+using ReactiveUI;
 
-namespace PixiEditor.UpdateInstaller;
+namespace PixiEditor.UpdateInstaller.New.ViewModels;
 
-public class ViewModelMain : ViewModelBase
+public class MainViewModel : ViewModelBase
 {
     private float progressValue;
 
-    public ViewModelMain()
+    public MainViewModel()
     {
         Current = this;
 
@@ -20,7 +21,7 @@ public class ViewModelMain : ViewModelBase
         UpdateDirectory = updateDirectory;
     }
 
-    public ViewModelMain Current { get; private set; }
+    public MainViewModel Current { get; private set; }
 
     public UpdateModule.UpdateInstaller Installer { get; set; }
 
@@ -29,11 +30,7 @@ public class ViewModelMain : ViewModelBase
     public float ProgressValue
     {
         get => progressValue;
-        set
-        {
-            progressValue = value;
-            RaisePropertyChanged(nameof(ProgressValue));
-        }
+        set => this.RaiseAndSetIfChanged(ref this.progressValue, value);
     }
 
     public void InstallUpdate()
@@ -52,7 +49,7 @@ public class ViewModelMain : ViewModelBase
         }
     }
 
-    private void Installer_ProgressChanged(object sender, UpdateProgressChangedEventArgs e)
+    private void Installer_ProgressChanged(object? sender, UpdateProgressChangedEventArgs e)
     {
         ProgressValue = e.Progress;
     }
