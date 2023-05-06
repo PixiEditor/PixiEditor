@@ -1,0 +1,54 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "Languages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The localized name of the language"
+          },
+          "code": {
+            "type": "string",
+            "description": "The code associated with the language",
+            "minLength": 2
+          },
+          "localeFileName": {
+            "type": "string",
+            "description": "The name of the key-value json file found in Data/Localization/Languages",
+            "pattern": ".*\\.json",
+            "format": "uri",
+            "default": ".json"
+          },
+          "iconFileName": {
+            "type": "string",
+            "description": "The name of the png icon for the language found in Images/LanguageFlags",
+            "pattern": ".*\\.png",
+            "format": "uri",
+            "default": ".png"
+          },
+          "rightToLeft": {
+            "type": "boolean",
+            "description": "Does the language use RTL Layout",
+            "default": true
+          }
+        },
+        "required": [
+          "name",
+          "code",
+          "localeFileName",
+          "iconFileName"
+        ]
+      }
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "Languages"
+  ]
+}

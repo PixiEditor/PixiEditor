@@ -78,5 +78,11 @@ internal abstract class Toolbar : NotifyableObject
                 Settings.First(x => x.Name == SharedSettings[i].Name).Value = SharedSettings[i].Value;
             }
         }
+
+        OnLoadedSettings();
+    }
+
+    public virtual void OnLoadedSettings()
+    {
     }
 }

@@ -227,14 +227,14 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="CLSEncoderDecoder" Version="1.0.0" />
-		<PackageReference Include="Dirkster.AvalonDock" Version="4.70.3" />
+		<PackageReference Include="Dirkster.AvalonDock" Version="4.72.0" />
 		<PackageReference Include="ByteSize" Version="2.1.1" />
-		<PackageReference Include="DiscordRichPresence" Version="1.1.1.14" />
-		<PackageReference Include="Hardware.Info" Version="10.1.0" />
-		<PackageReference Include="MessagePack" Version="2.4.35" />
+		<PackageReference Include="DiscordRichPresence" Version="1.1.3.18" />
+		<PackageReference Include="Hardware.Info" Version="11.0.0" />
+		<PackageReference Include="MessagePack" Version="2.5.108" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta2" />
-		<PackageReference Include="OneOf" Version="3.0.223" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="OneOf" Version="3.0.243" />
 		<PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
 		<PackageReference Include="PixiEditor.Parser" Version="3.3.0" />
 		<PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
@@ -272,6 +272,7 @@
 		<Resource Include="Images\Folder.png" />
 		<Resource Include="Images\Globe.png" />
 		<Resource Include="Images\hard-drive.png" />
+		<Resource Include="Images\LanguageFlags\uk.png" />
 		<Resource Include="Images\Layer-add.png" />
 		<Resource Include="Images\Lock-alpha.png" />
 		<Resource Include="Images\Merge-downwards.png" />
@@ -399,6 +400,21 @@
 		<Resource Include="Images\Commands\PixiEditor\Selection\AddToMask.png" />
 		<None Remove="Images\Commands\PixiEditor\Selection\NewToMask.png" />
 		<Resource Include="Images\Commands\PixiEditor\Selection\NewToMask.png" />
+		<None Remove="Images\LanguageFlags\en.png" />
+		<Resource Include="Images\LanguageFlags\en.png" />
+		<None Remove="Images\LanguageFlags\pl.png" />
+		<Resource Include="Images\LanguageFlags\pl.png" />
+		<None Remove="Images\LanguageFlags\ar.png" />
+		<Resource Include="Images\LanguageFlags\ar.png" />
+		<None Remove="Images\LanguageFlags\cz.png" />
+		<None Remove="Images\LanguageFlags\de.png" />
+		<Resource Include="Images\LanguageFlags\de.png" />
+		<None Remove="Images\LanguageFlags\es.png" />
+		<Resource Include="Images\LanguageFlags\es.png" />
+		<None Remove="Images\LanguageFlags\ru.png" />
+		<Resource Include="Images\LanguageFlags\ru.png" />
+		<None Remove="Images\LanguageFlags\cs.png" />
+		<Resource Include="Images\LanguageFlags\cs.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
@@ -444,6 +460,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\ShortcutActionMaps\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Localization\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Localization\Languages\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

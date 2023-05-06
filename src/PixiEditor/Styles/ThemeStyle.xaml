@@ -22,6 +22,8 @@
         <Setter Property="Foreground" Value="White" />
         <Setter Property="Focusable" Value="False" />
         <Setter Property="FontSize" Value="15" />
+        <Setter Property="MinWidth" Value="70"/>
+        <Setter Property="Padding" Value="10,0"/>
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
@@ -131,7 +133,8 @@
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Focusable" Value="False" />
         <Setter Property="Height" Value="28"/>
-        <Setter Property="Width" Value="70"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -165,7 +168,8 @@
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Focusable" Value="False" />
         <Setter Property="Height" Value="28"/>
-        <Setter Property="Width" Value="70"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
@@ -281,6 +285,7 @@
         <Setter Property="FontSize" Value="18"/>
         <Setter Property="Height" Value="50"/>
         <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="MinWidth" Value="0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -311,6 +316,7 @@
         <Setter Property="TextBlock.FontFamily" Value="Segoe MDL2 Assets"/>
         <Setter Property="TextBlock.FontSize" Value="15"/>
         <Setter Property="Width" Value="30"/>
+        <Setter Property="MinWidth" Value="0"/>
 
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="True">

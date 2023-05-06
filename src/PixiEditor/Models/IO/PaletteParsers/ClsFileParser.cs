@@ -2,7 +2,7 @@
 using CLSEncoderDecoder;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 
-namespace PixiEditor.Models.IO.ClsFile;
+namespace PixiEditor.Models.IO.PaletteParsers;
 
 internal class ClsFileParser : PaletteFileParser
 {
@@ -21,7 +21,7 @@ internal class ClsFileParser : PaletteFileParser
             }
             catch
             {
-                return new PaletteFileData("Corrupted", Array.Empty<Color>()) { IsCorrupted = true };
+                return PaletteFileData.Corrupted;
             }
 
             PaletteFileData data = new(

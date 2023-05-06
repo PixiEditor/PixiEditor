@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using System.Collections.ObjectModel;
+using System.IO;
 using System.Text;
-using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.ViewModels.SubViewModels.UserPreferences;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Models.UserPreferences;
@@ -15,11 +16,31 @@ using PixiEditor.Exceptions;
 
 namespace PixiEditor.ViewModels;
 
+internal class SettingsPage : NotifyableObject
+{
+    private LocalizedString name;
+
+    public LocalizedString Name
+    {
+        get => name;
+        set => SetProperty(ref name, value);
+    }
+
+    public SettingsPage(string nameKey)
+    {
+        Name = new LocalizedString(nameKey);
+    }
+
+    public void UpdateName()
+    {
+        Name = new LocalizedString(Name.Key);
+    }
+}
 internal class SettingsWindowViewModel : ViewModelBase
 {
     private string searchTerm;
     private int visibleGroups;
-    private string currentPage;
+    private int currentPage;
 
     public bool ShowUpdateTab
     {
@@ -47,7 +68,7 @@ internal class SettingsWindowViewModel : ViewModelBase
         }
     }
 
-    public string CurrentPage
+    public int CurrentPage
     {
         get => currentPage;
         set => SetProperty(ref currentPage, value);
@@ -62,16 +83,17 @@ internal class SettingsWindowViewModel : ViewModelBase
     public SettingsViewModel SettingsSubViewModel { get; set; }
 
     public List<GroupSearchResult> Commands { get; }
+    public ObservableCollection<SettingsPage> Pages { get; }
 
     private static List<ICustomShortcutFormat> _customShortcutFormats;
 
     [Command.Internal("PixiEditor.Shortcuts.Reset")]
     public static void ResetCommand()
     {
-        var dialog = new OptionsDialog<string>("Are you sure?", "Are you sure you want to reset all shortcuts to their default value?")
+        var dialog = new OptionsDialog<string>("ARE_YOU_SURE", new LocalizedString("WARNING_RESET_SHORTCUTS_DEFAULT"))
         {
-            { "Yes", x => CommandController.Current.ResetShortcuts() },
-            "Cancel"
+            { new LocalizedString("YES"), x => CommandController.Current.ResetShortcuts() },
+            new LocalizedString("CANCEL")
         }.ShowDialog();
     }
 
@@ -107,7 +129,7 @@ internal class SettingsWindowViewModel : ViewModelBase
             CommandController.Current.ResetShortcuts();
             CommandController.Current.Import(shortcuts, false);
             File.Copy(dialog.FileName, CommandController.ShortcutsPath, true);
-            NoticeDialog.Show("Shortcuts were imported successfully", "Success");
+            NoticeDialog.Show("SHORTCUTS_IMPORTED_SUCCESS", "SUCCESS");
         }
         // Sometimes, focus was brought back to the last edited shortcut
         Keyboard.ClearFocus();
@@ -129,7 +151,7 @@ internal class SettingsWindowViewModel : ViewModelBase
 
             if (shortcuts is null)
             {
-                NoticeDialog.Show("Shortcuts file was not in a valid format", "Invalid file");
+                NoticeDialog.Show("SHORTCUTS_FILE_INCORRECT_FORMAT", "INVALID_FILE");
                 return false;
             }
         }
@@ -139,7 +161,7 @@ internal class SettingsWindowViewModel : ViewModelBase
                 x.CustomShortcutExtensions.Contains(Path.GetExtension(dialog.FileName), StringComparer.OrdinalIgnoreCase));
             if (provider is null)
             {
-                NoticeDialog.Show("This file format is unsupported.", "Invalid file");
+                NoticeDialog.Show("UNSUPPORTED_FILE_FORMAT", "INVALID_FILE");
                 return false;
             }
 
@@ -196,11 +218,34 @@ internal class SettingsWindowViewModel : ViewModelBase
 
     public SettingsWindowViewModel()
     {
+        Pages = new ObservableCollection<SettingsPage>
+        {
+            new SettingsPage("GENERAL"),
+            new SettingsPage("DISCORD"),
+            new SettingsPage("KEY_BINDINGS"),
+        };
+
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
         Commands = new(CommandController.Current.CommandGroups.Select(x => new GroupSearchResult(x)));
         UpdateSearchResults();
         SettingsSubViewModel = new SettingsViewModel(this);
         PreferencesSettings.Current.AddCallback("IsDebugModeEnabled", _ => UpdateSearchResults());
         VisibleGroups = Commands.Count(x => x.Visibility == Visibility.Visible);
+    }
+
+    private void UpdatePages()
+    {
+        foreach (var page in Pages)
+        {
+            page.UpdateName();
+        }
+
+        RaisePropertyChanged(nameof(Pages));
+    }
+
+    private void OnLanguageChanged(Language obj)
+    {
+        UpdatePages();
     }
 
     public void UpdateSearchResults()
@@ -235,7 +280,7 @@ internal class SettingsWindowViewModel : ViewModelBase
             var visibleCommands = 0;
             foreach (var command in group.Commands)
             {
-                if (command.Command.DisplayName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
+                if (command.Command.DisplayName.Value.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
                 {
                     visibleCommands++;
                     command.Visibility = Visibility.Visible;
@@ -254,7 +299,7 @@ internal class SettingsWindowViewModel : ViewModelBase
     {
         private Visibility visibility;
 
-        public string DisplayName { get; set; }
+        public LocalizedString DisplayName { get; set; }
 
         public List<CommandSearchResult> Commands { get; set; }
 

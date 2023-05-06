@@ -55,7 +55,7 @@ internal static class CommandSearchControlHelper
                 .SelectMany(x => x.Value);
 
             newResults.AddRange(menuCommands
-                .Where(x => index == -1 || x.DisplayName.Replace(" ", "").Contains(additional, StringComparison.OrdinalIgnoreCase))
+                .Where(x => index == -1 || x.DisplayName.Value.Replace(" ", "").Contains(additional, StringComparison.OrdinalIgnoreCase))
                 .Select(command => new CommandSearchResult(command) { SearchTerm = searchTerm }));
 
             return (newResults, warnings);
@@ -78,9 +78,9 @@ internal static class CommandSearchControlHelper
         // add matching commands
         newResults.AddRange(
             controller.Commands
-                .Where(x => x.Description.Replace(" ", "").Contains(query.Replace(" ", ""), StringComparison.OrdinalIgnoreCase))
+                .Where(x => x.Description.Value.Replace(" ", "").Contains(query.Replace(" ", ""), StringComparison.OrdinalIgnoreCase))
                 .Where(static x => ViewModelMain.Current.DebugSubViewModel.UseDebug ? true : !x.IsDebug)
-                .OrderByDescending(x => x.Description.Contains($" {query} ", StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(x => x.Description.Value.Contains($" {query} ", StringComparison.OrdinalIgnoreCase))
                 .Take(18)
                 .Select(command => new CommandSearchResult(command)
                 {

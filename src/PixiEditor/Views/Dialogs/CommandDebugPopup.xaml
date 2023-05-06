@@ -8,11 +8,13 @@
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:command="clr-namespace:PixiEditor.Models.Commands"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML" xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls" xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         WindowStyle="None"
         mc:Ignorable="d"
         x:Name="uc"
         Foreground="White"
-        Title="Command Debug" Height="450" Width="800">
+        Title="Command Debug" Height="450" Width="800"
+        FlowDirection="{helpers:Localization FlowDirection}">
 
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"

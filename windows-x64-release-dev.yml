@@ -5,7 +5,6 @@
 
 trigger:
 - development
-
 pr: none
 
 pool:
@@ -15,27 +14,34 @@ variables:
 - group: Release Secrets
 - name: solution 
   value: '**/*.sln'
+- name: archNumber
+  value: '64'
+- name: architecture
+  value: 'x$(archNumber)'
 - name: buildPlatform 
-  value: 'x64'
+  value: 'win-$(architecture)'
 - name: buildConfiguration
-  value: 'Release'
+  value: 'DevRelease'
 
 steps:
+
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '7.0.103'
+    version: '7.0.203'
+
 - task: NuGetToolInstaller@1
 
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
 
-- task: VSBuild@1
+- task: DotNetCoreCLI@2
+  displayName: "Build PixiEditor Solution"
   inputs:
-    solution: '$(solution)'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
+    command: 'build'
+    projects: 'src/PixiEditor'
+    arguments: '-r "$(buildPlatform)" -c $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
   displayName: "Build release PixiEditor.UpdateInstaller"
@@ -43,8 +49,9 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: '**/PixiEditor.UpdateInstaller.csproj'
-    arguments: '-o "UpdateInstaller" -r "win-x64" --self-contained=false -p:PublishSingleFile=true -c Release'
+    arguments: '-o "UpdateInstaller" -r "$(buildPlatform)" --self-contained=false -p:PublishSingleFile=true -c $(buildConfiguration)'
     zipAfterPublish: false
+
 
 - task: PowerShell@2
   displayName: "Set tag version"
@@ -55,22 +62,22 @@ steps:
   displayName: Publish PixiEditor
   inputs:
     filePath: 'src/PixiEditor.Builder/build.ps1'
-    arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor" --build-configuration "DevRelease" --runtime "win-x64" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-x64-light\PixiEditor" --crash-report-webhook-url "$(crash-webhook-url)"'
+    arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor" --build-configuration "$(buildConfiguration)" --runtime "$(buildPlatform)" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-$(architecture)-light\PixiEditor" --crash-report-webhook-url "$(crash-webhook-url)"'
     workingDirectory: 'src/PixiEditor.Builder'
 
 - task: ArchiveFiles@2
   inputs:
-    rootFolderOrFile: 'Builds\PixiEditor-x64-light'
+    rootFolderOrFile: 'Builds\PixiEditor-$(architecture)-light'
     includeRootFolder: false
     archiveType: 'zip'
-    archiveFile: 'PixiEditor.$(TagVersion).x64.zip'
+    archiveFile: 'PixiEditor.$(TagVersion).$(architecture).zip'
     replaceExistingArchive: true
 
 - task: PublishPipelineArtifact@1
   displayName: "Publish zip artifact"
   inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)\PixiEditor.$(TagVersion).x64.zip'
-    artifact: 'PixiEditor.$(TagVersion).x64.zip'
+    targetPath: '$(System.DefaultWorkingDirectory)\PixiEditor.$(TagVersion).$(architecture).zip'
+    artifact: 'PixiEditor.$(TagVersion).$(architecture).zip'
     publishLocation: 'pipeline'
 
 - task: CopyFiles@2
@@ -78,18 +85,34 @@ steps:
   inputs:
     SourceFolder: 'UpdateInstaller'
     Contents: '**'
-    TargetFolder: 'Builds/PixiEditor-x64-light/PixiEditor'
+    TargetFolder: 'Builds/PixiEditor-$(architecture)-light/PixiEditor'
     flattenFolders: true
 
 - task: PowerShell@2
   displayName: "Compile installer"
   inputs:
     targetType: 'inline'
-    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.2.1\tools\ISCC.exe" src\Installer\installer-setup-x64-light.iss'
+    script: '& "$env:userprofile\.nuget\packages\tools.innosetup\6.2.1\tools\ISCC.exe" src\Installer\installer-setup-$(architecture)-light.iss'
 
 - task: PublishPipelineArtifact@1
   displayName: "Publish artifact"
   inputs:
-    targetPath: 'src/Installer/Assets/PixiEditor-x64-light/'
-    artifact: 'PixiEditor-setup-x64.exe'
+    targetPath: 'src/Installer/Assets/PixiEditor-$(architecture)-light/'
+    artifact: 'PixiEditor-setup-$(architecture).exe'
+    publishLocation: 'pipeline'
+
+- task: ArchiveFiles@2
+  displayName: "Create zipped installer"
+  inputs:
+    rootFolderOrFile: 'src/Installer/Assets/PixiEditor-$(architecture)-light'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/PixiEditor-$(TagVersion)-setup$(archNumber).zip'
+    replaceExistingArchive: true
+
+- task: PublishPipelineArtifact@1
+  displayName: "Publish installer zip artifact"
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)/PixiEditor-$(TagVersion)-setup$(archNumber).zip'
+    artifact: 'PixiEditor-$(TagVersion)-setup$(archNumber).zip'
     publishLocation: 'pipeline'

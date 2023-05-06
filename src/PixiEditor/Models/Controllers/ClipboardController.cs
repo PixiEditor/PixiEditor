@@ -38,7 +38,7 @@ internal static class ClipboardController
             return;
         if (surface.IsT1)
         {
-            NoticeDialog.Show("Selected area is empty", "Nothing to copy");
+            NoticeDialog.Show("SELECTED_AREA_EMPTY", "NOTHING_TO_COPY");
             return;
         }
         var (actuallySurface, _) = surface.AsT2;

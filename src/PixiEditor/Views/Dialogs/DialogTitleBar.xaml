@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
+             xmlns:views="clr-namespace:PixiEditor.Views"
              mc:Ignorable="d"
              x:Name="uc"
              Height="35" d:DesignWidth="300">
@@ -15,7 +16,7 @@
         </Grid.ColumnDefinitions>
         <TextBlock 
             TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
-            Text="{Binding ElementName=uc, Path=TitleText}"
+            views:Translator.Key="{Binding ElementName=uc, Path=TitleText}"
             Foreground="White" 
             FontSize="15" 
             Margin="5,0,0,0" 

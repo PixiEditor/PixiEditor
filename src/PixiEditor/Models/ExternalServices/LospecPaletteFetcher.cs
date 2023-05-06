@@ -33,7 +33,7 @@ internal static class LospecPaletteFetcher
         }
         catch (HttpRequestException)
         {
-            NoticeDialog.Show("Failed to download palette.", "Error");
+            NoticeDialog.Show("FAILED_DOWNLOAD_PALETTE", "ERROR");
             return null;
         }
 

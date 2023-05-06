@@ -4,6 +4,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using Microsoft.Xaml.Behaviors;
 using PixiEditor.Helpers.Behaviours;
+using PixiEditor.Localization;
 using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;

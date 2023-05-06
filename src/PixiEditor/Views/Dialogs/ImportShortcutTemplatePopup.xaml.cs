@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Exceptions;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
@@ -53,14 +54,14 @@ internal partial class ImportShortcutTemplatePopup : Window
         }
         catch (RecoverableException e)
         {
-            NoticeDialog.Show(title: "Error", message: e.Message);
+            NoticeDialog.Show($"FILE_INCORRECT_FORMAT", "ERROR");
             return;
         }
 
         Success(provider);
     }
 
-    private static void Success(ShortcutProvider provider) => NoticeDialog.Show($"Shortcuts from {provider.Name} were imported successfully", "Success");
+    private static void Success(ShortcutProvider provider) => NoticeDialog.Show(new LocalizedString("SHORTCUTS_IMPORTED", provider.Name), "SUCCESS");
 
     private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
     {
@@ -93,10 +94,10 @@ internal partial class ImportShortcutTemplatePopup : Window
         if (provider.ProvidesFromInstallation && provider.HasInstallationPresent)
         {
             var result = OptionDialog.Show(
-                $"We've detected, that you have {provider.Name} installed. Do you want to import shortcuts from it?",
-                "Import from installation",
-                "Import from installation",
-                "Use defaults");
+                new LocalizedString("SHORTCUT_PROVIDER_DETECTED", provider.Name),
+                "IMPORT_FROM_INSTALLATION",
+                "IMPORT_INSTALLATION_OPTION1",
+                "IMPORT_INSTALLATION_OPTION2");
 
             if (result == OptionResult.Option1)
             {

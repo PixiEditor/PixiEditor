@@ -1,6 +1,7 @@
 ﻿using PixiEditor.Exceptions;
 
-namespace PixiEditor.Models.IO.JascPalFile;
+namespace PixiEditor.Models.IO.PaletteParsers.JascPalFile;
+
 
 internal class JascFileException : RecoverableException
 {

@@ -10,7 +10,7 @@ internal class BasicShapeToolbar : BasicToolbar
 
     public BasicShapeToolbar()
     {
-        Settings.Add(new BoolSetting(nameof(Fill), "Fill shape: "));
-        Settings.Add(new ColorSetting(nameof(FillColor), "Fill color"));
+        Settings.Add(new BoolSetting(nameof(Fill), "FILL_SHAPE_LABEL"));
+        Settings.Add(new ColorSetting(nameof(FillColor), "FILL_COLOR_LABEL"));
     }
 }

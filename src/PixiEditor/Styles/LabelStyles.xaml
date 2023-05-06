@@ -11,6 +11,7 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="FontWeight" Value="DemiBold"/>
+        <Setter Property="Margin" Value="5 10"/>
     </Style>
 
     <Style x:Key="SettingsLink" TargetType="Hyperlink" BasedOn="{StaticResource {x:Type Hyperlink}}">

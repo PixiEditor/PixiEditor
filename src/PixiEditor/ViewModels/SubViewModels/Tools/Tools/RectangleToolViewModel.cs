@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -8,13 +9,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.R)]
 internal class RectangleToolViewModel : ShapeTool
 {
-    private string defaultActionDisplay = "Click and move to draw a rectangle. Hold Shift to draw a square.";
+    private string defaultActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_DEFAULT";
     public RectangleToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
     }
 
-    public override string Tooltip => $"Draws rectangle on canvas ({Shortcut}). Hold Shift to draw a square.";
+    public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
+    public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
 
     public bool Filled { get; set; } = false;
     public bool DrawSquare { get; private set; } = false;
@@ -23,7 +25,7 @@ internal class RectangleToolViewModel : ShapeTool
         if (shiftIsDown)
         {
             DrawSquare = true;
-            ActionDisplay = "Click and move to draw a square.";
+            ActionDisplay = "RECTANGLE_TOOL_ACTION_DISPLAY_SHIFT";
         }
         else
         {

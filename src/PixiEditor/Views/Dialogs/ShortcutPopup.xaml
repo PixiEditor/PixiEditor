@@ -11,12 +11,15 @@
         xmlns:usercontrols="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:commands1="clr-namespace:PixiEditor.Models.Commands.Commands"
+        xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         SizeToContent="Height"
         Title="ShortcutPopup" WindowStyle="None"
         MinHeight="780" MinWidth="620" Topmost="{Binding IsTopmost}"
         Width="950" MaxHeight="1000"
+        FlowDirection="{helpers:Localization FlowDirection}"
         KeyDown="ShortcutPopup_OnKeyDown">
     <Window.Resources>
         <BoolToVisibilityConverter x:Key="BoolToVisibility"/>
@@ -84,9 +87,11 @@
         <DockPanel Grid.Row="3">
             <TextBlock FontSize="14" Margin="10" Foreground="LightGray" HorizontalAlignment="Left" DockPanel.Dock="Bottom">
                 <Hyperlink Style="{StaticResource SettingsLink}"
-                            Command="{cmds:Command PixiEditor.Window.OpenSettingsWindow, UseProvided=True}"
-                            CommandParameter="Keybinds">
-                    <Run Text="Edit"/>
+                            Command="{cmds:Command PixiEditor.Window.OpenSettingsWindow, UseProvided=True}">
+                    <Hyperlink.CommandParameter>
+                        <s:Int32>2</s:Int32>
+                    </Hyperlink.CommandParameter>
+                    <Run views:Translator.Key="EDIT"/>
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </TextBlock>
@@ -106,7 +111,7 @@
                                                         <ItemsControl.ItemTemplate>
                                                             <DataTemplate DataType="{x:Type ModifierKeys}">
                                                                 <Border Style="{StaticResource KeyBorder}">
-                                                                    <TextBlock Text="{Binding BindsDirectlyToSource=True, Converter={converters:KeyToStringConverter}}" Style="{StaticResource KeyBorderText}"/>
+                                                                    <TextBlock views:Translator.LocalizedString="{Binding BindsDirectlyToSource=True, Converter={converters:KeyToStringConverter}}" Style="{StaticResource KeyBorderText}"/>
                                                                 </Border>
                                                             </DataTemplate>
                                                         </ItemsControl.ItemTemplate>

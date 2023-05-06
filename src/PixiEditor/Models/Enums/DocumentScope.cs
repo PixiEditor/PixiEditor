@@ -4,8 +4,8 @@ namespace PixiEditor.Models.Enums;
 
 public enum DocumentScope
 {
-    [Description("Single Layer")]
+    [Description("SINGLE_LAYER")]
     SingleLayer,
-    [Description("All Layers")]
+    [Description("ALL_LAYERS")]
     AllLayers
 }
