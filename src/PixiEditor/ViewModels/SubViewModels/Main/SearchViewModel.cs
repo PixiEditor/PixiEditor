@@ -3,7 +3,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
-[Command.Group("PixiEditor.Search", "Search")]
+[Command.Group("PixiEditor.Search", "SEARCH")]
 internal class SearchViewModel : SubViewModel<ViewModelMain>
 {
     private bool searchWindowOpen;
@@ -34,7 +34,7 @@ internal class SearchViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Search.CanOpenSearchWindow")]
     public bool CanToggleSeachWindow() => !ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Busy ?? true;
 
-    [Command.Basic("PixiEditor.Search.Toggle", "", "Command Search", "Open the command search window", Key = Key.K, Modifiers = ModifierKeys.Control, CanExecute = "PixiEditor.Search.CanOpenSearchWindow")]
+    [Command.Basic("PixiEditor.Search.Toggle", "", "COMMAND_SEARCH", "OPEN_COMMAND_SEARCH", Key = Key.K, Modifiers = ModifierKeys.Control, CanExecute = "PixiEditor.Search.CanOpenSearchWindow")]
     public void ToggleSearchWindow(string searchTerm)
     {
         SelectAll = true;

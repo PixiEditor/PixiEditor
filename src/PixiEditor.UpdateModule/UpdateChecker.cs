@@ -43,7 +43,7 @@ public class UpdateChecker
     /// <returns>True if semantic version is higher.</returns>
     public static bool VersionDifferent(string originalVer, string newVer)
     {
-        return NormalizeVersionString(originalVer) != NormalizeVersionString(newVer);
+        return ExtractVersionString(originalVer) != ExtractVersionString(newVer);
     }
     
     /// <summary>
@@ -54,8 +54,8 @@ public class UpdateChecker
     /// <returns>True if originalVer is smaller than newVer.</returns>
     public static bool VersionSmaller(string originalVer, string newVer)
     {
-        string normalizedOriginal = NormalizeVersionString(originalVer);
-        string normalizedNew = NormalizeVersionString(newVer);
+        string normalizedOriginal = ExtractVersionString(originalVer);
+        string normalizedNew = ExtractVersionString(newVer);
 
         if (normalizedOriginal == normalizedNew) return false;
 
@@ -81,12 +81,15 @@ public class UpdateChecker
 
     public bool CheckUpdateAvailable(ReleaseInfo latestRelease)
     {
+        if (latestRelease == null || string.IsNullOrEmpty(latestRelease.TagName)) return false;
+        if (CurrentVersionTag == null) return false;
+        
         return latestRelease.WasDataFetchSuccessful && VersionDifferent(CurrentVersionTag, latestRelease.TagName);
     }
 
     public bool IsUpdateCompatible(string[] incompatibleVersions)
     {
-        return !incompatibleVersions.Select(x => x.Trim()).Contains(CurrentVersionTag[..7].Trim());
+        return !incompatibleVersions.Select(x => x.Trim()).Contains(ExtractVersionString(CurrentVersionTag));
     }
 
     public async Task<bool> IsUpdateCompatible()
@@ -128,8 +131,18 @@ public class UpdateChecker
         return new ReleaseInfo(false);
     }
 
-    private static string NormalizeVersionString(string versionString)
+    private static string ExtractVersionString(string versionString)
     {
-        return versionString[..7];
+        if (string.IsNullOrEmpty(versionString)) return string.Empty;
+        
+        for (int i = 0; i < versionString.Length; i++)
+        {
+            if (!char.IsDigit(versionString[i]) && versionString[i] != '.')
+            {
+                return versionString[..i];
+            }
+        }
+        
+        return versionString;
     }
 }

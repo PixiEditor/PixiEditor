@@ -3,7 +3,9 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Platforms>AnyCPU;x64;x86</Platforms>
-    <Configurations>Debug;Release;Steam</Configurations>
+    <Configurations>Debug;Release;Steam;DevRelease</Configurations>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|AnyCPU'">

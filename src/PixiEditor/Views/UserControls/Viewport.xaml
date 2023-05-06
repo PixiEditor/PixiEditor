@@ -47,7 +47,7 @@
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
-        <views:TogglableFlyout Margin="5" IconPath="/Images/Settings.png" ToolTip="Viewport settings"
+        <views:TogglableFlyout Margin="5" IconPath="/Images/Settings.png" views:Translator.TooltipKey="VIEWPORT_SETTINGS"
                                Panel.ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <views:TogglableFlyout.Child>
                 <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="#C8202020" Panel.ZIndex="2">
@@ -57,7 +57,7 @@
                        Text="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, 
              Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
                        Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16"/>
-            <Button Width="32" Height="32" ToolTip="Reset viewport"
+            <Button Width="32" Height="32" views:Translator.TooltipKey="RESET_VIEWPORT"
                     Style="{StaticResource OverlayButton}"
                     Click="ResetViewportClicked"
                     Cursor="Hand">
@@ -68,7 +68,7 @@
         </StackPanel>
             <Separator/>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <ToggleButton Width="32" Height="32" ToolTip="Toggle vertical symmetry"
+                <ToggleButton Width="32" Height="32" views:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
                         Style="{StaticResource OverlayToggleButton}"
                         IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                         Cursor="Hand">
@@ -76,7 +76,7 @@
                         <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png"/>
                     </ToggleButton.Content>
                 </ToggleButton>
-                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ToolTip="Toggle horizontal symmetry"
+                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" views:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
                               Style="{StaticResource OverlayToggleButton}"
                               IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
@@ -91,7 +91,7 @@
             </StackPanel>
             <Separator/>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <ToggleButton Width="32" Height="32" ToolTip="Flip Horizontally"
+                <ToggleButton Width="32" Height="32" views:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
                               Style="{StaticResource OverlayToggleButton}"
                               IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
@@ -99,7 +99,7 @@
                         <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png"/>
                     </ToggleButton.Content>
                 </ToggleButton>
-                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ToolTip="Flip Vertically"
+                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" views:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
                               Style="{StaticResource OverlayToggleButton}"
                               IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
@@ -192,7 +192,8 @@
                             Focusable="False"
                             ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                             Path="{Binding Document.SelectionPathBindable}"
-                            ZoomboxScale="{Binding Zoombox.Scale}" />
+                            ZoomboxScale="{Binding Zoombox.Scale}"
+                            FlowDirection="LeftToRight" />
                         <brushOverlay:BrushShapeOverlay
                             Focusable="False"
                             IsHitTestVisible="False"
@@ -201,7 +202,8 @@
                             MouseEventSource="{Binding Zoombox.Tag.BackgroundGrid, Mode=OneTime}"
                             MouseReference="{Binding Zoombox.Tag.MainImage, Mode=OneTime}"
                             BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={vm:MainVM}}"
-                            BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={vm:MainVM}, FallbackValue={x:Static brushOverlay:BrushShape.Hidden}}" />
+                            BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={vm:MainVM}, FallbackValue={x:Static brushOverlay:BrushShape.Hidden}}"
+                            FlowDirection="LeftToRight"/>
                         <transformOverlay:TransformOverlay
                             Focusable="False"
                             Cursor="Arrow"
@@ -226,7 +228,8 @@
                             ActionCompleted="{Binding Document.LineToolOverlayViewModel.ActionCompletedCommand}"
                             LineStart="{Binding Document.LineToolOverlayViewModel.LineStart, Mode=TwoWay}"
                             LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
-                            ZoomboxScale="{Binding Zoombox.Scale}" />
+                            ZoomboxScale="{Binding Zoombox.Scale}"
+                            FlowDirection="LeftToRight"/>
                     </Grid>
                     <Grid IsHitTestVisible="False" 
                         ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10" 
@@ -294,6 +297,28 @@
                             </Rectangle.Fill>
                         </Rectangle>
                     </Grid>
+                    <Rectangle Stroke="{StaticResource AccentColor}" Opacity=".8" Panel.ZIndex="2" Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToHiddenVisibilityConverter}}">
+                        <Rectangle.StrokeThickness>
+                            <Binding Converter="{converters:ReciprocalConverter}">
+                                <Binding.Path>Zoombox.Scale</Binding.Path>
+                                <Binding.ConverterParameter>
+                                    <sys:Double>
+                                        3
+                                    </sys:Double>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </Rectangle.StrokeThickness>
+                        <Rectangle.Margin>
+                            <Binding Converter="{converters:ReciprocalConverter}">
+                                <Binding.Path>Zoombox.Scale</Binding.Path>
+                                <Binding.ConverterParameter>
+                                    <sys:Double>
+                                        -3
+                                    </sys:Double>
+                                </Binding.ConverterParameter>
+                            </Binding>
+                        </Rectangle.Margin>
+                    </Rectangle>
                 </Grid>
             </Border>
         </zoombox:Zoombox>
@@ -305,8 +330,7 @@
             Margin="5" 
             VerticalAlignment="Bottom" 
             Style="{StaticResource GrayRoundButton}"
-            Command="{cmds:Command PixiEditor.Tools.ApplyTransform}">
-            Apply transform
+            Command="{cmds:Command PixiEditor.Tools.ApplyTransform}" views:Translator.Key="APPLY_TRANSFORM">
             <Button.Visibility>
                 <MultiBinding Converter="{converters:BoolOrToVisibilityConverter}">
                     <MultiBinding.Bindings>

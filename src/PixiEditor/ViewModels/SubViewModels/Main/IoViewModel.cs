@@ -32,7 +32,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         MouseMoveCommand = new RelayCommand(mouseFilter.MouseMoveInlet);
         MouseUpCommand = new RelayCommand(mouseFilter.MouseUpInlet);
         PreviewMouseMiddleButtonCommand = new RelayCommand(OnPreviewMiddleMouseButton);
-        GlobalMouseHook.OnMouseUp += mouseFilter.MouseUpInlet;
+        GlobalMouseHook.Instance.OnMouseUp += mouseFilter.MouseUpInlet;
 
         InputManager.Current.PreProcessInput += Current_PreProcessInput;
 
@@ -157,8 +157,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             if (activeDocument == null)
                 return;
 
-            activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
             Owner.ToolsSubViewModel.LeftMouseButtonDownInlet(args.PositionOnCanvas);
+            activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
         }
     }
 

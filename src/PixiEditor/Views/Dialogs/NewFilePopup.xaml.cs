@@ -23,6 +23,7 @@ internal partial class NewFilePopup : Window
 
     private void OnDialogShown(object sender, RoutedEventArgs e)
     {
+        MinWidth = Width;
         sizePicker.FocusWidthPicker();
     }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Data;
 
@@ -28,6 +29,11 @@ internal class ToolSizeToIntConverter
             return null;
         }
 
-        return int.Parse(match.Groups[0].ValueSpan);
+        if (int.TryParse(match.Groups[0].ValueSpan.ToString().Normalize(NormalizationForm.FormKC), out int result))
+        {
+            return result;
+        }
+
+        return null;
     }
 }

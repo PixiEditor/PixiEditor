@@ -14,8 +14,8 @@ internal sealed class RotateImage_Change : Change
     private List<Guid> membersToRotate;
     
     private VecI originalSize;
-    private int originalHorAxisY;
-    private int originalVerAxisX;
+    private double originalHorAxisY;
+    private double originalVerAxisX;
     private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
 
@@ -161,12 +161,12 @@ internal sealed class RotateImage_Change : Change
 
         VecI newSize = new VecI(newWidth, newHeight);
 
-        float normalizedSymmX = originalVerAxisX / Math.Max(target.Size.X, 0.1f);
-        float normalizedSymmY = originalHorAxisY / Math.Max(target.Size.Y, 0.1f);
+        double normalizedSymmX = originalVerAxisX / Math.Max(target.Size.X, 0.1f);
+        double normalizedSymmY = originalHorAxisY / Math.Max(target.Size.Y, 0.1f);
 
         target.Size = newSize;
-        target.VerticalSymmetryAxisX = (int)(newSize.X * normalizedSymmX);
-        target.HorizontalSymmetryAxisY = (int)(newSize.Y * normalizedSymmY);
+        target.VerticalSymmetryAxisX = Math.Round(newSize.X * normalizedSymmX * 2) / 2;
+        target.HorizontalSymmetryAxisY = Math.Round(newSize.Y * normalizedSymmY * 2) / 2;
 
         target.ForEveryMember((member) =>
         {

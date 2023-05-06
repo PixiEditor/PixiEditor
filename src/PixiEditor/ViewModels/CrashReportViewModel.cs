@@ -1,4 +1,7 @@
 ﻿using System.Diagnostics;
+using System.IO;
+using System.Net.Http;
+using System.Text;
 using System.Windows;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
@@ -35,6 +38,9 @@ internal class CrashReportViewModel : ViewModelBase
         OpenSendCrashReportCommand = new((_) => new SendCrashReportWindow(CrashReport).Show());
         RecoverDocumentsCommand = new(RecoverDocuments, (_) => hasRecoveredDocuments);
         AttachDebuggerCommand = new(AttachDebugger);
+
+        if (!IsDebugBuild)
+            _ = CrashHelper.SendReportTextToWebhook(report);
     }
 
     public void RecoverDocuments(object args)

@@ -69,6 +69,13 @@ internal partial class DocumentViewModel
             Height = (float)layer.Shape.RectSize.Y,
             OffsetX = (float)layer.Shape.TopLeft.X,
             OffsetY = (float)layer.Shape.TopLeft.Y,
+            Corners = new Corners
+            {
+                TopLeft = layer.Shape.TopLeft.ToVector2(), 
+                TopRight = layer.Shape.TopRight.ToVector2(), 
+                BottomLeft = layer.Shape.BottomLeft.ToVector2(), 
+                BottomRight = layer.Shape.BottomRight.ToVector2()
+            },
             Opacity = 1,
             ImageBytes = stream.ToArray()
         };

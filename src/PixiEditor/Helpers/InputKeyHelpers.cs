@@ -7,35 +7,43 @@ namespace PixiEditor.Helpers;
 
 internal static class InputKeyHelpers
 {
+    const string Russian = "00000419";
+    const string Ukrainian = "00000422";
+    const string UkrainianEnhanced = "00020422";
+    const string Arabic1 = "00000401";
+    const string Arabic2 = "00010401";
+    const string Arabic3 = "00020401";
+    private const string InvariantLayoutCode = "00000409"; // Also known as the US Layout
+
+    private static nint? invariantLayout;
+    
     /// <summary>
     /// Returns the charcter of the <paramref name="key"/> mapped to the users keyboard layout
     /// </summary>
-    public static string GetKeyboardKey(Key key) => GetKeyboardKey(key, CultureInfo.CurrentCulture);
-
-    public static string GetKeyboardKey(Key key, CultureInfo culture) => key switch
+    public static string GetKeyboardKey(Key key, bool forceInvariant = false) => key switch
     {
-        >= Key.NumPad0 and <= Key.Divide => $"Num {GetMappedKey(key, culture)}",
+        >= Key.NumPad0 and <= Key.Divide => $"Num {GetMappedKey(key, forceInvariant)}",
         Key.Space => nameof(Key.Space),
         Key.Tab => nameof(Key.Tab),
         Key.Return => "Enter",
         Key.Back => "Backspace",
         Key.Escape => "Esc",
-        _ => GetMappedKey(key, culture),
+        _ => GetMappedKey(key, forceInvariant),
     };
 
-    private static string GetMappedKey(Key key, CultureInfo culture)
+    private static string GetMappedKey(Key key, bool forceInvariant)
     {
         int virtualKey = KeyInterop.VirtualKeyFromKey(key);
         byte[] keyboardState = new byte[256];
 
-        uint scanCode = MapVirtualKeyExW((uint)virtualKey, MapType.MAPVK_VK_TO_VSC, culture.KeyboardLayoutId);
-        StringBuilder stringBuilder = new(3);
+        nint targetLayout = GetLayoutHkl(forceInvariant);
+        
+        uint scanCode = Win32.MapVirtualKeyExW((uint)virtualKey, Win32.MapType.MAPVK_VK_TO_VSC, targetLayout);
+        
+        StringBuilder stringBuilder = new(5);
+        int result = Win32.ToUnicodeEx((uint)virtualKey, scanCode, keyboardState, stringBuilder, stringBuilder.Capacity, 0, targetLayout);
 
-        int result = ToUnicode((uint)virtualKey, scanCode, keyboardState, stringBuilder, stringBuilder.Capacity, 0);
-
-        string stringResult;
-
-        stringResult = result switch
+        string stringResult = result switch
         {
             0 => key.ToString(),
             -1 => stringBuilder.ToString().ToUpper(),
@@ -45,42 +53,25 @@ internal static class InputKeyHelpers
         return stringResult;
     }
 
-    private enum MapType : uint
+    private static nint GetLayoutHkl(bool forceInvariant = false)
     {
-        /// <summary>
-        /// The uCode parameter is a virtual-key code and is translated into a scan code. If it is a virtual-key code that does not distinguish between left- and right-hand keys, the left-hand scan code is returned. If there is no translation, the function returns 0.
-        /// </summary>
-        MAPVK_VK_TO_VSC = 0x0,
+        if (forceInvariant)
+        {
+            invariantLayout ??= Win32.LoadKeyboardLayoutA(InvariantLayoutCode, 1);
+            return invariantLayout.Value;
+        }
+        
+        var builder = new StringBuilder(8);
+        bool success = Win32.GetKeyboardLayoutNameW(builder);
 
-        /// <summary>
-        /// The uCode parameter is a scan code and is translated into a virtual-key code that does not distinguish between left- and right-hand keys. If there is no translation, the function returns 0.
-        /// </summary>
-        MAPVK_VSC_TO_VK = 0x1,
+        // Fallback to US layout for certain layouts. Do not prepend a 0x and make sure the string is 8 chars long
+        // Layouts can be found here https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/windows-language-pack-default-values?view=windows-11
+        if (!success || builder.ToString() is not (Russian or Ukrainian or UkrainianEnhanced or Arabic1 or Arabic2 or Arabic3))
+        {
+            return Win32.GetKeyboardLayout(0);
+        }
 
-        /// <summary>
-        /// The uCode parameter is a virtual-key code and is translated into an unshifted character value in the low order word of the return value. Dead keys (diacritics) are indicated by setting the top bit of the return value. If there is no translation, the function returns 0.
-        /// </summary>
-        MAPVK_VK_TO_CHAR = 0x2,
-
-        /// <summary>
-        /// The uCode parameter is a scan code and is translated into a virtual-key code that distinguishes between left- and right-hand keys. If there is no translation, the function returns 0.
-        /// </summary>
-        MAPVK_VSC_TO_VK_EX = 0x3,
+        invariantLayout ??= Win32.LoadKeyboardLayoutA(InvariantLayoutCode, 1);
+        return invariantLayout.Value;
     }
-
-    [DllImport("user32.dll")]
-    private static extern int ToUnicode(
-        uint wVirtKey,
-        uint wScanCode,
-        byte[] lpKeyState,
-        [Out, MarshalAs(UnmanagedType.LPWStr, SizeParamIndex = 4)]
-        StringBuilder pwszBuff,
-        int cchBuff,
-        uint wFlags);
-
-    [DllImport("user32.dll")]
-    private static extern bool GetKeyboardState(byte[] lpKeyState);
-
-    [DllImport("user32.dll")]
-    private static extern uint MapVirtualKeyExW(uint uCode, MapType uMapType, int hkl);
 }

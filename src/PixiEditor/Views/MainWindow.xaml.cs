@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
@@ -53,6 +54,7 @@ internal partial class MainWindow : Window
 
         DataContext.CloseAction = Close;
         Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+        ContentRendered += MainWindow_ContentRendered;
 
         preferences.AddCallback<bool>("ImagePreviewInTaskbar", x =>
         {
@@ -60,6 +62,11 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
+    }
+
+    private void MainWindow_ContentRendered(object sender, EventArgs e)
+    {
+        GlobalMouseHook.Instance.Initilize(this);
     }
 
     public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
@@ -228,5 +235,13 @@ internal partial class MainWindow : Window
     private void MainWindow_DragLeave(object sender, DragEventArgs e)
     {
         DataContext.ActionDisplays[nameof(MainWindow_Drop)] = null;
+    }
+
+    private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.System) // Disables alt menu item navigation, I hope it won't break anything else.
+        {
+            e.Handled = true;
+        }
     }
 }

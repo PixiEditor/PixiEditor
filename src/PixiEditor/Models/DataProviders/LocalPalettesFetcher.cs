@@ -3,7 +3,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.IO.JascPalFile;
+using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Models.DataProviders;

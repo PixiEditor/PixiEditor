@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.DataHolders;
@@ -53,21 +54,21 @@ internal class ShortcutBox : ContentControl
                 var oldShortcut = Command.Shortcut;
                 bool enableSwap = oldShortcut is not { Key: Key.None, Modifiers: ModifierKeys.None };
 
-                string text = enableSwap ?
-                    $"This shortcut is already assigned to '{oldCommand.DisplayName}'\nDo you want to replace the existing shortcut or swap the two?" :
-                    $"This shortcut is already assigned to '{oldCommand.DisplayName}'\nDo you want to replace the existing shortcut?";
-                OptionsDialog<string> dialog = new("Already assigned", text);
+                LocalizedString text = enableSwap ?
+                    new LocalizedString("SHORTCUT_ALREADY_ASSIGNED_SWAP", oldCommand.DisplayName) :
+                    new LocalizedString("SHORTCUT_ALREADY_ASSIGNED_OVERWRITE", oldCommand.DisplayName);
+                OptionsDialog<string> dialog = new("ALREADY_ASSIGNED", text);
 
-                dialog.Add("Replace", x => controller.ReplaceShortcut(Command, e));
+                dialog.Add(new LocalizedString("REPLACE"), x => controller.ReplaceShortcut(Command, e));
                 if (enableSwap)
                 {
-                    dialog.Add("Swap", x =>
+                    dialog.Add(new LocalizedString("SWAP"), x =>
                     {
                         controller.ReplaceShortcut(Command, e);
                         controller.ReplaceShortcut(oldCommand, oldShortcut);
                     });
                 }
-                dialog.Add("Cancel", x => box.KeyCombination = Command.Shortcut);
+                dialog.Add(new LocalizedString("CANCEL"), x => box.KeyCombination = Command.Shortcut);
 
                 dialog.ShowDialog();
                 changingCombination = false;

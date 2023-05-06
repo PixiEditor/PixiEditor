@@ -44,19 +44,19 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
         return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize), bounds);
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
         VecI newFrom = from;
         VecI newTo = to;
         if (verAxisX is not null)
         {
-            newFrom = newFrom.ReflectX((int)verAxisX);
-            newTo = newTo.ReflectX((int)verAxisX);
+            newFrom = (VecI)newFrom.ReflectX((double)verAxisX).Round();
+            newTo = (VecI)newTo.ReflectX((double)verAxisX).Round();
         }
         if (horAxisY is not null)
         {
-            newFrom = newFrom.ReflectY((int)horAxisY);
-            newTo = newTo.ReflectY((int)horAxisY);
+            newFrom = (VecI)newFrom.ReflectY((double)horAxisY).Round();
+            newTo = (VecI)newTo.ReflectY((double)horAxisY).Round();
         }
         return new DrawingSurfaceLineOperation(newFrom, newTo, paint.StrokeCap, paint.StrokeWidth, paint.Color, paint.BlendMode);
     }

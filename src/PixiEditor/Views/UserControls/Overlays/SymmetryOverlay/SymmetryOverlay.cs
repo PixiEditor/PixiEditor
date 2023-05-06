@@ -18,22 +18,22 @@ namespace PixiEditor.Views.UserControls.Overlays.SymmetryOverlay;
 internal class SymmetryOverlay : Control
 {
     public static readonly DependencyProperty HorizontalAxisYProperty =
-        DependencyProperty.Register(nameof(HorizontalAxisY), typeof(int), typeof(SymmetryOverlay),
-            new(0, OnPositionUpdate));
+        DependencyProperty.Register(nameof(HorizontalAxisY), typeof(double), typeof(SymmetryOverlay),
+            new(0.0, OnPositionUpdate));
 
-    public int HorizontalAxisY
+    public double HorizontalAxisY
     {
-        get => (int)GetValue(HorizontalAxisYProperty);
+        get => (double)GetValue(HorizontalAxisYProperty);
         set => SetValue(HorizontalAxisYProperty, value);
     }
 
     public static readonly DependencyProperty VerticalAxisXProperty =
-        DependencyProperty.Register(nameof(VerticalAxisX), typeof(int), typeof(SymmetryOverlay),
-            new(0, OnPositionUpdate));
+        DependencyProperty.Register(nameof(VerticalAxisX), typeof(double), typeof(SymmetryOverlay),
+            new(0.0, OnPositionUpdate));
 
-    public int VerticalAxisX
+    public double VerticalAxisX
     {
-        get => (int)GetValue(VerticalAxisXProperty);
+        get => (double)GetValue(VerticalAxisXProperty);
         set => SetValue(VerticalAxisXProperty, value);
     }
 
@@ -114,8 +114,8 @@ internal class SymmetryOverlay : Control
 
     private double PenThickness => 1.0 / ZoomboxScale;
 
-    private int horizontalAxisY;
-    private int verticalAxisX;
+    private double horizontalAxisY;
+    private double verticalAxisX;
 
     private MouseUpdateController mouseUpdateController;
 
@@ -334,7 +334,7 @@ internal class SymmetryOverlay : Control
         UpdateHovered(null);
     }
 
-    private void CallSymmetryDragCommand(SymmetryAxisDirection direction, int position)
+    private void CallSymmetryDragCommand(SymmetryAxisDirection direction, double position)
     {
         SymmetryAxisDragInfo dragInfo = new(direction, position);
         if (DragCommand is not null && DragCommand.CanExecute(dragInfo))
@@ -373,8 +373,6 @@ internal class SymmetryOverlay : Control
 
     protected void MouseMoved(object sender, MouseEventArgs e)
     {
-        /*base.OnMouseMove(e);*/
-
         var pos = ToVecD(e.GetPosition(this));
         UpdateHovered(IsTouchingHandle(pos));
 
@@ -382,22 +380,25 @@ internal class SymmetryOverlay : Control
             return;
         if (capturedDirection == SymmetryAxisDirection.Horizontal)
         {
-            horizontalAxisY = (int)Math.Round(Math.Clamp(pos.Y, 0, ActualHeight));
+            horizontalAxisY = Math.Round(Math.Clamp(pos.Y, 0, ActualHeight) * 2) / 2;
 
             if (Keyboard.IsKeyDown(Key.LeftShift))
             {
-                horizontalAxisY = (int)(Math.Round(horizontalAxisY / RenderSize.Height * 8) / 8 * RenderSize.Height);
+                double temp = Math.Round(horizontalAxisY / RenderSize.Height * 8) / 8 * RenderSize.Height;
+                horizontalAxisY = Math.Round(temp * 2) / 2;
             }
 
             CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, horizontalAxisY);
         }
         else if (capturedDirection == SymmetryAxisDirection.Vertical)
         {
-            verticalAxisX = (int)Math.Round(Math.Clamp(pos.X, 0, ActualWidth));
+            verticalAxisX = Math.Round(Math.Clamp(pos.X, 0, ActualWidth) * 2) / 2;
 
             if (Keyboard.IsKeyDown(Key.LeftShift))
             {
-                verticalAxisX = (int)(Math.Round(verticalAxisX / RenderSize.Width * 8) / 8 * RenderSize.Width);
+
+                double temp = Math.Round(verticalAxisX / RenderSize.Width * 8) / 8 * RenderSize.Width;
+                verticalAxisX = Math.Round(temp * 2) / 2;
             }
 
             CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, verticalAxisX);

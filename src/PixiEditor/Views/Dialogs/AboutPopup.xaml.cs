@@ -1,12 +1,23 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Helpers;
+using PixiEditor.Localization;
 
 namespace PixiEditor.Views.Dialogs;
 
 public partial class AboutPopup : Window
 {
-    public static string VersionText => $"Version: {VersionHelpers.GetCurrentAssemblyVersionString()}";
+    public static LocalizedString VersionText =>
+        new LocalizedString("VERSION", VersionHelpers.GetCurrentAssemblyVersionString());
+
+    public bool DisplayDonationButton
+    {
+#if STEAM
+        get => false;
+#else
+        get => true;
+#endif
+    }
     public AboutPopup()
     {
         InitializeComponent();

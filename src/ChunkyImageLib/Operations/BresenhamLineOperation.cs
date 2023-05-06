@@ -44,19 +44,19 @@ internal class BresenhamLineOperation : IMirroredDrawOperation
         return new AffectedArea(OperationHelper.FindChunksTouchingRectangle(bounds, ChunkyImage.FullChunkSize), bounds);
     }
 
-    public IDrawOperation AsMirrored(int? verAxisX, int? horAxisY)
+    public IDrawOperation AsMirrored(double? verAxisX, double? horAxisY)
     {
         RectI newFrom = new RectI(from, new VecI(1));
         RectI newTo = new RectI(to, new VecI(1));
         if (verAxisX is not null)
         {
-            newFrom = newFrom.ReflectX((int)verAxisX);
-            newTo = newTo.ReflectX((int)verAxisX);
+            newFrom = (RectI)newFrom.ReflectX((double)verAxisX).Round();
+            newTo = (RectI)newTo.ReflectX((double)verAxisX).Round();
         }
         if (horAxisY is not null)
         {
-            newFrom = newFrom.ReflectY((int)horAxisY);
-            newTo = newTo.ReflectY((int)horAxisY);
+            newFrom = (RectI)newFrom.ReflectY((double)horAxisY).Round();
+            newTo = (RectI)newTo.ReflectY((double)horAxisY).Round();
         }
         return new BresenhamLineOperation(newFrom.Pos, newTo.Pos, color, blendMode);
     }

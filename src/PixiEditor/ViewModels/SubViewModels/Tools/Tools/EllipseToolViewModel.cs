@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -8,21 +9,22 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.C)]
 internal class EllipseToolViewModel : ShapeTool
 {
-    private string defaultActionDisplay = "Click and move mouse to draw an ellipse. Hold Shift to draw a circle.";
+    private string defaultActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT";
+    public override string ToolNameLocalizationKey => "ELLIPSE_TOOL";
 
     public EllipseToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
     }
 
-    public override string Tooltip => $"Draws an ellipse on canvas ({Shortcut}). Hold Shift to draw a circle.";
+    public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
     public bool DrawCircle { get; private set; }
 
-    public override void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)
         {
-            ActionDisplay = "Click and move mouse to draw a circle.";
+            ActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_SHIFT";
             DrawCircle = true;
         }
         else

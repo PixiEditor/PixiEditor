@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
+using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
@@ -68,8 +69,14 @@ internal partial class App : Application
                                 if (mainWindow != null)
                                 {
                                     mainWindow.BringToForeground();
-                                    StartupArgs.Args = File.ReadAllText(passedArgsFile).Split(' ').ToList();
-                                    File.Delete(passedArgsFile);
+                                    List<string> args = new List<string>();
+                                    if (File.Exists(passedArgsFile))
+                                    {
+                                        args = File.ReadAllText(passedArgsFile).Split(' ').ToList();
+                                        File.Delete(passedArgsFile);
+                                    }
+                                    
+                                    StartupArgs.Args = args;
                                     StartupArgs.Args.Add("--openedInExisting");
                                     mainWindow.DataContext.OnStartupCommand.Execute(null);
                                 }
@@ -104,7 +111,9 @@ internal partial class App : Application
 
         if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
         {
-            ConfirmationType confirmation = ConfirmationDialog.Show($"{e.ReasonSessionEnding} with unsaved data. Are you sure?", $"{e.ReasonSessionEnding}");
+            ConfirmationType confirmation = ConfirmationDialog.Show(
+                new LocalizedString("SESSION_UNSAVED_DATA", e.ReasonSessionEnding),
+                $"{e.ReasonSessionEnding}");
             e.Cancel = confirmation != ConfirmationType.Yes;
         }
     }

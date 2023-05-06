@@ -11,7 +11,7 @@ using PixiEditor.Views.UserControls.SymmetryOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;
 #nullable enable
-[Command.Group("PixiEditor.Document", "Image")]
+[Command.Group("PixiEditor.Document", "IMAGE")]
 internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
 {
     public ObservableCollection<DocumentViewModel> Documents { get; } = new ObservableCollection<DocumentViewModel>();
@@ -49,15 +49,15 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.HasDocument")]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    [Command.Basic("PixiEditor.Document.ClipCanvas", "Clip Canvas", "Clip Canvas", CanExecute = "PixiEditor.HasDocument", IconPath = "crop.png")]
+    [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS", CanExecute = "PixiEditor.HasDocument", IconPath = "crop.png")]
     public void ClipCanvas() => ActiveDocument?.Operations.ClipCanvas();
 
-    [Command.Basic("PixiEditor.Document.FlipImageHorizontal", FlipType.Horizontal, "Flip Image Horizontally", "Flip Image Horizontally", CanExecute = "PixiEditor.HasDocument")]
-    [Command.Basic("PixiEditor.Document.FlipImageVertical", FlipType.Vertical, "Flip Image Vertically", "Flip Image Vertically", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.FlipImageHorizontal", FlipType.Horizontal, "FLIP_IMG_HORIZONTALLY", "FLIP_IMG_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.FlipImageVertical", FlipType.Vertical, "FLIP_IMG_VERTICALLY", "FLIP_IMG_VERTICALLY", CanExecute = "PixiEditor.HasDocument")]
     public void FlipImage(FlipType type) => ActiveDocument?.Operations.FlipImage(type);
 
-    [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", FlipType.Horizontal, "Flip Selected Layers Horizontally", "Flip Selected Layers Horizontally", CanExecute = "PixiEditor.HasDocument")]
-    [Command.Basic("PixiEditor.Document.FlipLayersVertical", FlipType.Vertical, "Flip Selected Layers Vertically", "Flip Selected Layers Vertically", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", FlipType.Horizontal, "FLIP_LAYERS_HORIZONTALLY", "FLIP_LAYERS_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.FlipLayersVertical", FlipType.Vertical, "FLIP_LAYERS_VERTICALLY", "FLIP_LAYERS_VERTICALLY", CanExecute = "PixiEditor.HasDocument")]
     public void FlipLayers(FlipType type)
     {
         if (ActiveDocument?.SelectedStructureMember == null)
@@ -66,20 +66,20 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         ActiveDocument?.Operations.FlipImage(type, ActiveDocument.GetSelectedMembers());
     }
     
-    [Command.Basic("PixiEditor.Document.Rotate90Deg", "Rotate Image 90 degrees", 
-        "Rotate Image 90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90)]
-    [Command.Basic("PixiEditor.Document.Rotate180Deg", "Rotate Image 180 degrees", 
-        "Rotate Image 180 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180)]
-    [Command.Basic("PixiEditor.Document.Rotate270Deg", "Rotate Image -90 degrees", 
-        "Rotate Image -90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270)]
+    [Command.Basic("PixiEditor.Document.Rotate90Deg", "ROT_IMG_90",
+        "ROT_IMG_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90)]
+    [Command.Basic("PixiEditor.Document.Rotate180Deg", "ROT_IMG_180",
+        "ROT_IMG_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180)]
+    [Command.Basic("PixiEditor.Document.Rotate270Deg", "ROT_IMG_-90",
+        "ROT_IMG_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270)]
     public void RotateImage(RotationAngle angle) => ActiveDocument?.Operations.RotateImage(angle);
 
-    [Command.Basic("PixiEditor.Document.Rotate90DegLayers", "Rotate Selected Layers 90 degrees", 
-        "Rotate Selected Layers 90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90)]
-    [Command.Basic("PixiEditor.Document.Rotate180DegLayers", "Rotate Selected Layers 180 degrees", 
-        "Rotate Selected Layers 180 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180)]
-    [Command.Basic("PixiEditor.Document.Rotate270DegLayers", "Rotate Selected Layers -90 degrees", 
-        "Rotate Selected Layers -90 degrees", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270)]
+    [Command.Basic("PixiEditor.Document.Rotate90DegLayers", "ROT_LAYERS_90",
+        "ROT_LAYERS_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90)]
+    [Command.Basic("PixiEditor.Document.Rotate180DegLayers", "ROT_LAYERS_180",
+        "ROT_LAYERS_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180)]
+    [Command.Basic("PixiEditor.Document.Rotate270DegLayers", "ROT_LAYERS_-90",
+        "ROT_LAYERS_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270)]
     public void RotateLayers(RotationAngle angle)
     {
         if (ActiveDocument?.SelectedStructureMember == null)
@@ -88,7 +88,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         ActiveDocument?.Operations.RotateImage(angle, ActiveDocument.GetSelectedMembers());
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "Toggle vertical symmetry axis", "Toggle vertical symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
+    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS", "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
     public void ToggleVerticalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -96,7 +96,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         ActiveDocument.VerticalSymmetryAxisEnabledBindable ^= true;
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "Toggle horizontal symmetry axis", "Toggle horizontal symmetry axis", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryHorizontal.png")]
+    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS", "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryHorizontal.png")]
     public void ToggleHorizontalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -129,15 +129,15 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         ActiveDocument.EventInlet.OnSymmetryDragEnded(dir);
     }
 
-    [Command.Basic("PixiEditor.Document.DeletePixels", "Delete pixels", "Delete selected pixels", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png")]
+    [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png")]
     public void DeletePixels()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteSelectedPixels();
     }
 
 
-    [Command.Basic("PixiEditor.Document.ResizeDocument", false, "Resize Document", "Resize Document", CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
-    [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "Resize Canvas", "Resize Canvas", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.Document.ResizeDocument", false, "RESIZE_DOCUMENT", "RESIZE_DOCUMENT", CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "RESIZE_CANVAS", "RESIZE_CANVAS", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
     public void OpenResizePopup(bool canvas)
     {
         DocumentViewModel? doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -161,7 +161,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.Document.CenterContent", "Center Content", "Center Content", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.CenterContent", "CENTER_CONTENT", "CENTER_CONTENT", CanExecute = "PixiEditor.HasDocument")]
     public void CenterContent()
     {
         if(ActiveDocument?.SelectedStructureMember == null)

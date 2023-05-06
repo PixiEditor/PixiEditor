@@ -1,4 +1,7 @@
 ﻿using System.Globalization;
+using System.IO;
+using System.Net.Http;
+using System.Runtime.CompilerServices;
 using System.Text;
 using ByteSizeLib;
 using Hardware.Info;
@@ -96,5 +99,36 @@ internal class CrashHelper
                 innerException = innerException.InnerException;
             }
         }
+    }
+
+    public static async Task SendExceptionInfoToWebhook(Exception e, [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
+    {
+        if (ViewModelMain.Current.DebugSubViewModel.IsDebugBuild)
+            return;
+        await SendReportTextToWebhook(CrashReport.Generate(e), $"{filePath}; Method {memberName}");
+    }
+
+    public static async Task SendReportTextToWebhook(CrashReport report, string catchLocation = null)
+    {
+        string reportText = report.ReportText;
+        if (catchLocation is not null)
+        {
+            reportText = $"The report was generated from an exception caught in {catchLocation}.\r\n{reportText}";
+        }
+
+        byte[] bytes = Encoding.UTF8.GetBytes(reportText);
+        string filename = Path.GetFileNameWithoutExtension(report.FilePath) + ".txt";
+
+        MultipartFormDataContent formData = new MultipartFormDataContent
+        {
+            { new ByteArrayContent(bytes, 0, bytes.Length), "crash-report", filename }
+        };
+        try
+        {
+            using HttpClient httpClient = new HttpClient();
+            string url = BuildConstants.CrashReportWebhookUrl;
+            await httpClient.PostAsync(url, formData);
+        }
+        catch { }
     }
 }

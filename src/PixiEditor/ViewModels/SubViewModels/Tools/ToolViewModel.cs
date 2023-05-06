@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -17,7 +18,8 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public virtual string ToolName => GetType().Name.Replace("Tool", string.Empty).Replace("ViewModel", string.Empty);
 
-    public virtual string DisplayName => ToolName.AddSpacesBeforeUppercaseLetters();
+    public abstract string ToolNameLocalizationKey { get; }
+    public virtual LocalizedString DisplayName => new LocalizedString(ToolNameLocalizationKey);
 
     public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
 
@@ -25,10 +27,10 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public virtual bool HideHighlight { get; }
 
-    public abstract string Tooltip { get; }
+    public abstract LocalizedString Tooltip { get; }
 
-    private string actionDisplay = string.Empty;
-    public string ActionDisplay
+    private LocalizedString actionDisplay = string.Empty;
+    public LocalizedString ActionDisplay
     {
         get => actionDisplay;
         set
@@ -53,7 +55,17 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public Toolbar Toolbar { get; set; } = new EmptyToolbar();
 
-    public virtual void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
+    internal ToolViewModel()
+    {
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+    }
+
+    private void OnLanguageChanged(Language obj)
+    {
+        ActionDisplay = new LocalizedString(ActionDisplay.Key);
+    }
+
+    public virtual void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
     public virtual void OnLeftMouseButtonDown(VecD pos) { }
     public virtual void OnSelected() 
     {

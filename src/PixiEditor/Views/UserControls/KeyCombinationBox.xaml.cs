@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
+using PixiEditor.Localization;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Views.UserControls;
@@ -41,6 +42,9 @@ internal partial class KeyCombinationBox : UserControl
 
         UpdateText();
         UpdateButton();
+
+        ViewModelMain.Current.LocalizationProvider.OnLanguageChanged += _ => UpdateText();
+        InputLanguageManager.Current.InputLanguageChanged += (_, _) => UpdateText();
     }
 
     private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -81,7 +85,7 @@ internal partial class KeyCombinationBox : UserControl
     private void TextBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
     {
         currentCombination = new();
-        textBox.Text = "Press any key";
+        textBox.Text = new LocalizedString("PRESS_ANY_KEY");
         UpdateButton();
     }
 
@@ -113,7 +117,7 @@ internal partial class KeyCombinationBox : UserControl
         }
     }
 
-    private void UpdateText() => textBox.Text = currentCombination != default ? currentCombination.ToString() : "None";
+    private void UpdateText() => textBox.Text = currentCombination != default ? currentCombination.ToString() : new LocalizedString("NONE_SHORTCUT");
 
     private void UpdateButton()
     {

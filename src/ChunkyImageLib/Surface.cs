@@ -22,9 +22,7 @@ public class Surface : IDisposable
     public Surface(VecI size)
     {
         if (size.X < 1 || size.Y < 1)
-            throw new ArgumentException("Width and height must be >1");
-        if (size.X > 10000 || size.Y > 10000)
-            throw new ArgumentException("Width and height must be <=10000");
+            throw new ArgumentException("Width and height must be >=1");
 
         Size = size;
 

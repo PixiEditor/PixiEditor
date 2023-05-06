@@ -13,7 +13,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
-[Command.Group("PixiEditor.Tools", "Tools")]
+[Command.Group("PixiEditor.Tools", "TOOLS")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>
 {
     public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();
@@ -83,7 +83,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         SetActiveTool(typeof(T), transient);
     }
 
-    [Command.Basic("PixiEditor.Tools.ApplyTransform", "Apply transform", "", Key = Key.Enter)]
+    [Command.Basic("PixiEditor.Tools.ApplyTransform", "APPLY_TRANSFORM", "", Key = Key.Enter)]
     public void ApplyTransform()
     {
         DocumentViewModel? doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -130,9 +130,9 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             SelectedToolChanged?.Invoke(this, new SelectedToolEventArgs(LastActionTool, ActiveTool));
 
         //update old tool
-        LastActionTool?.UpdateActionDisplay(false, false, false);
+        LastActionTool?.ModifierKeyChanged(false, false, false);
         //update new tool
-        ActiveTool.UpdateActionDisplay(ctrlIsDown, shiftIsDown, altIsDown);
+        ActiveTool.ModifierKeyChanged(ctrlIsDown, shiftIsDown, altIsDown);
         ActiveTool.OnSelected();
 
         tool.IsActive = true;
@@ -157,8 +157,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         SetActiveTool(tool.GetType(), false);
     }
 
-    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "Increase Tool Size", "Increase Tool Size", Key = Key.OemCloseBrackets)]
-    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "Decrease Tool Size", "Decrease Tool Size", Key = Key.OemOpenBrackets)]
+    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE", Key = Key.OemCloseBrackets)]
+    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "DECREASE_TOOL_SIZE", "DECREASE_TOOL_SIZE", Key = Key.OemOpenBrackets)]
     public void ChangeToolSize(int increment)
     {
         if (ActiveTool?.Toolbar is not BasicToolbar toolbar)
@@ -225,11 +225,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)
     {
-        ActiveTool?.UpdateActionDisplay(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
+        ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
     }
 
     public void ConvertedKeyUpInlet(FilteredKeyEventArgs args)
     {
-        ActiveTool?.UpdateActionDisplay(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
+        ActiveTool?.ModifierKeyChanged(args.IsCtrlDown, args.IsShiftDown, args.IsAltDown);
     }
 }

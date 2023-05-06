@@ -25,6 +25,10 @@
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:commandSearch="clr-namespace:PixiEditor.Views.UserControls.CommandSearch"
     xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+    xmlns:views="clr-namespace:PixiEditor.Views"
+    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+    xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+    KeyDown="MainWindow_OnKeyDown"
     d:DataContext="{d:DesignInstance Type=vm:ViewModelMain}"
     mc:Ignorable="d"
     WindowStyle="None"
@@ -35,7 +39,8 @@
     Width="1600"
     Background="{StaticResource MainColor}"
     WindowStartupLocation="CenterScreen"
-    WindowState="Maximized">
+    WindowState="Maximized"
+    FlowDirection="{helpers:Localization FlowDirection}">
     <WindowChrome.WindowChrome>
         <WindowChrome
             CaptionHeight="35"
@@ -147,15 +152,16 @@
                             BasedOn="{StaticResource menuItemStyle}" />
                     </Menu.Resources>
                     <MenuItem
-                        Header="_File">
+                        views:Translator.Key="FILE"
+                        Focusable="False">
                         <MenuItem
-                            Header="_New"
+                            views:Translator.Key="NEW_FILE"
                             cmds:Menu.Command="PixiEditor.File.New" />
                         <MenuItem
-                            Header="_Open"
+                            views:Translator.Key="OPEN"
                             cmds:Menu.Command="PixiEditor.File.Open" />
                         <MenuItem
-                            Header="_Recent"
+                            views:Translator.Key="RECENT"
                             ItemsSource="{Binding FileSubViewModel.RecentlyOpened}"
                             x:Name="recentItemMenu"
                             IsEnabled="{Binding FileSubViewModel.HasRecent}">
@@ -180,206 +186,216 @@
                             </MenuItem.ItemTemplate>
                         </MenuItem>
                         <MenuItem
-                            Header="_Save (.pixi)"
+                            Focusable="False"
+                            views:Translator.Key="SAVE_PIXI"
                             cmds:Menu.Command="PixiEditor.File.Save" />
                         <MenuItem
-                            Header="_Save As... (.pixi)"
+                            views:Translator.Key="SAVE_AS_PIXI"
                             cmds:Menu.Command="PixiEditor.File.SaveAsNew" />
                         <MenuItem
-                            Header="_Export (.png, .jpeg, etc.)"
+                            views:Translator.Key="EXPORT_IMG"
                             cmds:Menu.Command="PixiEditor.File.Export" />
                         <Separator />
                         <MenuItem
-                            Header="_Exit"
+                            views:Translator.Key="EXIT"
                             Command="{x:Static SystemCommands.CloseWindowCommand}" />
                     </MenuItem>
                     <MenuItem
-                        Header="_Edit">
+                        Focusable="False"
+                        views:Translator.Key="EDIT">
                         <MenuItem
-                            Header="_Undo"
+                            views:Translator.Key="UNDO"
                             cmds:Menu.Command="PixiEditor.Undo.Undo" />
                         <MenuItem
-                            Header="_Redo"
+                            views:Translator.Key="REDO"
                             cmds:Menu.Command="PixiEditor.Undo.Redo" />
                         <Separator />
                         <MenuItem
-                            Header="_Cut"
+                            views:Translator.Key="CUT"
                             cmds:Menu.Command="PixiEditor.Clipboard.Cut" />
                         <MenuItem
-                            Header="_Copy"
+                            views:Translator.Key="COPY"
                             cmds:Menu.Command="PixiEditor.Clipboard.Copy" />
                         <MenuItem
-                            Header="_Paste"
+                            views:Translator.Key="PASTE"
                             cmds:Menu.Command="PixiEditor.Clipboard.Paste" />
                         <MenuItem
-                            Header="_Duplicate"
+                            views:Translator.Key="DUPLICATE"
                             cmds:Menu.Command="PixiEditor.Layer.DuplicateSelectedLayer" />
                         <Separator />
                         <MenuItem
-                            Header="_Delete Selected"
+                            views:Translator.Key="DELETE_SELECTED_PIXELS"
                             cmds:Menu.Command="PixiEditor.Document.DeletePixels" />
                         <Separator />
                         <MenuItem
-                            Header="_Settings"
+                            views:Translator.Key="SETTINGS"
                             cmds:Menu.Command="PixiEditor.Window.OpenSettingsWindow" />
                     </MenuItem>
                     <MenuItem
-                        Header="_Select">
+                        Focusable="False"
+                        views:Translator.Key="SELECT">
                         <MenuItem
-                            Header="_Select All"
+                            views:Translator.Key="SELECT_ALL"
                             cmds:Menu.Command="PixiEditor.Selection.SelectAll" />
                         <MenuItem
-                            Header="_Deselect"
+                            views:Translator.Key="DESELECT"
                             cmds:Menu.Command="PixiEditor.Selection.Clear" />
                         <MenuItem
-                            Header="_Invert"
+                            views:Translator.Key="INVERT"
                             cmds:Menu.Command="PixiEditor.Selection.InvertSelection" />
                         <Separator/>
-                        <MenuItem Header="Selection _to Mask">
+                        <MenuItem views:Translator.Key="SELECTION_TO_MASK">
                             <MenuItem
-                                Header="to _new mask"
+                                views:Translator.Key="TO_NEW_MASK"
                                 cmds:Menu.Command="PixiEditor.Selection.NewToMask" />
                             <MenuItem
-                                Header="_add to mask"
+                                views:Translator.Key="ADD_TO_MASK"
                                 cmds:Menu.Command="PixiEditor.Selection.AddToMask" />
                             <MenuItem
-                                Header="_subtract from mask"
+                                views:Translator.Key="SUBTRACT_FROM_MASK"
                                 cmds:Menu.Command="PixiEditor.Selection.SubtractFromMask" />
                             <MenuItem
-                                Header="_intersect with mask"
+                                views:Translator.Key="INTERSECT_WITH_MASK"
                                 cmds:Menu.Command="PixiEditor.Selection.IntersectSelectionMask" />
                         </MenuItem>
                     </MenuItem>
                     <MenuItem
-                        Header="_Image">
+                        Focusable="False"
+                        views:Translator.Key="IMAGE">
                         <MenuItem
-                            Header="Resize _Image..."
+                            views:Translator.Key="RESIZE_IMAGE"
                             cmds:Menu.Command="PixiEditor.Document.ResizeDocument" />
                         <MenuItem
-                            Header="Resize _Canvas..."
+                            views:Translator.Key="RESIZE_CANVAS"
                             cmds:Menu.Command="PixiEditor.Document.ResizeCanvas" />
                         <Separator />
                         <MenuItem
-                            Header="Cli_p Canvas"
+                            views:Translator.Key="CLIP_CANVAS"
                             cmds:Menu.Command="PixiEditor.Document.ClipCanvas" />
                         <MenuItem
-                            Header="Cente_r Content"
+                            views:Translator.Key="CENTER_CONTENT"
                             cmds:Menu.Command="PixiEditor.Document.CenterContent" />
                         <Separator />
                         <MenuItem
                             IsCheckable="True"
                             IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.HorizontalSymmetryAxisEnabledBindable}"
-                            Header="_Horizontal Line Symmetry"/>
+                            views:Translator.Key="HORIZONTAL_LINE_SYMMETRY"
+                            />
                         <MenuItem
                             IsCheckable="True"
                             IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
                             IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable}"
-                            Header="_Vertical Line Symmetry"/>
+                            views:Translator.Key="VERTICAL_LINE_SYMMETRY"/>
                         <Separator/>
-                        <MenuItem Header="_Rotation">
-                            <MenuItem Header="Rotate Image 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
-                            <MenuItem Header="Rotate Image 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180Deg"/>
-                            <MenuItem Header="Rotate Image -90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270Deg"/>
+                        <MenuItem views:Translator.Key="ROTATION">
+                            <MenuItem views:Translator.Key="ROT_IMG_90_D" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
+                            <MenuItem views:Translator.Key="ROT_IMG_180_D" cmds:Menu.Command="PixiEditor.Document.Rotate180Deg"/>
+                            <MenuItem views:Translator.Key="ROT_IMG_-90_D" cmds:Menu.Command="PixiEditor.Document.Rotate270Deg"/>
                             
                             <Separator/>
-                            <MenuItem Header="Rotate Selected Layers 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
-                            <MenuItem Header="Rotate Selected Layers 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
-                            <MenuItem Header="Rotate Selected Layers -90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
+                            <MenuItem views:Translator.Key="ROT_LAYERS_90_D" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
+                            <MenuItem views:Translator.Key="ROT_LAYERS_180_D" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
+                            <MenuItem views:Translator.Key="ROT_LAYERS_-90_D" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
                         </MenuItem>
-                        <MenuItem Header="_Flip">
-                            <MenuItem Header="Flip Image _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
-                            <MenuItem Header="Flip Image _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
-                            <MenuItem Header="Flip Selected Layers _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
-                            <MenuItem Header="Flip Selected Layers _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
+                        <MenuItem views:Translator.Key="FLIP">
+                            <MenuItem views:Translator.Key="FLIP_IMG_HORIZONTALLY" cmds:Menu.Command="PixiEditor.Document.FlipImageHorizontal"/>
+                            <MenuItem views:Translator.Key="FLIP_IMG_VERTICALLY" cmds:Menu.Command="PixiEditor.Document.FlipImageVertical"/>
+                            <MenuItem views:Translator.Key="FLIP_LAYERS_HORIZONTALLY" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
+                            <MenuItem views:Translator.Key="FLIP_LAYERS_VERTICALLY" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
                         </MenuItem>
                     </MenuItem>
                     <MenuItem
-                        Header="_View">
+                        Focusable="False"
+                        views:Translator.Key="VIEW">
                         <MenuItem
-                            Header="New window for current image"
+                            views:Translator.Key="NEW_WINDOW_FOR_IMG"
                             cmds:Menu.Command="PixiEditor.Window.CreateNewViewport" />
                         <Separator/>
                         <MenuItem
-                            Header="Open _Startup Window"
+                            views:Translator.Key="OPEN_STARTUP_WINDOW"
                             ToolTip="Hello there!"
                             cmds:Menu.Command="PixiEditor.Window.OpenStartupWindow" />
                         <MenuItem
-                            Header="Open _Navigation Window"
+                            views:Translator.Key="OPEN_NAVIGATION_WINDOW"
                             cmds:Menu.Command="PixiEditor.Window.OpenNavigationWindow" />
                         <MenuItem
-                            Header="Open Short_cuts Window"
+                            views:Translator.Key="OPEN_SHORTCUT_WINDOW"
                             cmds:Menu.Command="PixiEditor.Window.OpenShortcutWindow" />
                         <Separator/>
                         <MenuItem
-                            Header="Show _Grid Lines"
+                            views:Translator.Key="TOGGLE_GRIDLINES"
                             IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
                             IsCheckable="True"
                             InputGestureText="{cmds:ShortcutBinding PixiEditor.View.ToggleGrid}" />
                     </MenuItem>
                     <MenuItem
-                        Header="_Help">
+                        Focusable="False"
+                        views:Translator.Key="HELP">
                         <MenuItem
-                            Header="_Documentation"
+                            views:Translator.Key="DOCUMENTATION"
                             cmds:Menu.Command="PixiEditor.Links.OpenDocumentation" />
                         <MenuItem
-                            Header="_Website"
+                            views:Translator.Key="WEBSITE"
                             cmds:Menu.Command="PixiEditor.Links.OpenWebsite" />
                         <MenuItem
-                            Header="_Repository"
+                            views:Translator.Key="REPOSITORY"
                             cmds:Menu.Command="PixiEditor.Links.OpenRepository" />
                         <Separator />
                         <MenuItem
-                            Header="_License"
+                            views:Translator.Key="LICENSE"
                             cmds:Menu.Command="PixiEditor.Links.OpenLicense" />
                         <MenuItem
-                            Header="_Third Party Licenses"
+                            views:Translator.Key="THIRD_PARTY_LICENSES"
                             cmds:Menu.Command="PixiEditor.Links.OpenOtherLicenses" />
                         <Separator/>
                         <MenuItem
-                            Header="_About"
+                            views:Translator.Key="ABOUT"
                             cmds:Menu.Command="PixiEditor.Window.OpenAboutWindow" />
                     </MenuItem>
                     <MenuItem
-                        Header="_Debug"
+                        views:Translator.Key="DEBUG"
                         Visibility="{Binding DebugSubViewModel.UseDebug, Converter={StaticResource BoolToVisibilityConverter}}">
                         <MenuItem
-                            Header="Open Command Debug Window"
+                            views:Translator.Key="OPEN_COMMAND_DEBUG_WINDOW"
                             cmds:Menu.Command="PixiEditor.Debug.OpenCommandDebugWindow"/>
+                        <MenuItem
+                            views:Translator.Key="OPEN_LOCALIZATION_DEBUG_WINDOW"
+                            cmds:Menu.Command="PixiEditor.Debug.OpenLocalizationDebugWindow"/>
                         <Separator/>
                         <MenuItem
-                            Header="Open _Local App Data"
+                            views:Translator.Key="OPEN_LOCAL_APPDATA_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenLocalAppDataDirectory" />
                         <MenuItem
-                            Header="Open _Roaming App Data"
+                            views:Translator.Key="OPEN_ROAMING_APPDATA_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenRoamingAppDataDirectory" />
                         <MenuItem
-                            Header="Open _Temp App Data"
+                            views:Translator.Key="OPEN_TEMP_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenTempDirectory" />
                         <MenuItem
-                            Header="Open _Install Location"
+                            views:Translator.Key="OPEN_INSTALLATION_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenInstallDirectory" />
                         <MenuItem
-                            Header="Open Crash _Reports Location"
+                            views:Translator.Key="OPEN_CRASH_REPORTS_DIR"
                             cmds:Menu.Command="PixiEditor.Debug.OpenCrashReportsDirectory" />
                         <Separator />
                         <MenuItem
-                            Header="_Crash"
+                            views:Translator.Key="CRASH"
                             cmds:Menu.Command="PixiEditor.Debug.Crash" />
                         <MenuItem
-                            Header="Delete">
+                            views:Translator.Key="DELETE">
                             <MenuItem
-                                Header="User Preferences (Roaming)"
+                                views:Translator.Key="USER_PREFS"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteUserPreferences" />
                             <MenuItem
-                                Header="Shortcut File (Roaming)"
+                                views:Translator.Key="SHORTCUT_FILE"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteShortcutFile" />
                             <MenuItem
-                                Header="Editor Data (Local)"
+                                views:Translator.Key="EDITOR_DATA"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteEditorData" />
                             <Separator/>
                             <MenuItem
-                                Header="_Clear recent documents"
+                                views:Translator.Key="CLEAR_RECENT_DOCUMENTS"
                                 cmds:Menu.Command="PixiEditor.Debug.ClearRecentDocument"/>
                         </MenuItem>
                     </MenuItem>
@@ -410,7 +426,7 @@
                         </b:EventTrigger>
                     </b:Interaction.Triggers>
                     <Grid Margin="5,0" VerticalAlignment="Center">
-                        <TextBlock Foreground="White">Search...</TextBlock>
+                        <TextBlock Foreground="White" views:Translator.Key="SEARCH"/>
                         <TextBlock Text="{cmds:ShortcutBinding PixiEditor.Search.Toggle}"
                                    HorizontalAlignment="Right"
                                    Foreground="White"/>
@@ -426,7 +442,7 @@
                     <Button
                         Style="{StaticResource MinimizeButtonStyle}"
                         WindowChrome.IsHitTestVisibleInChrome="True"
-                        ToolTip="Minimize"
+                        views:Translator.TooltipKey="MINIMIZE"
                         Command="{x:Static SystemCommands.MinimizeWindowCommand}" />
                     <Button
                         x:Name="RestoreButton"
@@ -434,18 +450,18 @@
                         Style="{StaticResource RestoreButtonStyle}"
                         Command="{x:Static SystemCommands.RestoreWindowCommand}"
                         WindowChrome.IsHitTestVisibleInChrome="True"
-                        ToolTip="Restore" />
+                        views:Translator.TooltipKey="RESTORE" />
                     <Button
                         x:Name="MaximizeButton"
                         Visibility="Collapsed"
                         Style="{StaticResource MaximizeButtonStyle}"
                         Command="{x:Static SystemCommands.MaximizeWindowCommand}"
                         WindowChrome.IsHitTestVisibleInChrome="True"
-                        ToolTip="Maximize" />
+                        views:Translator.TooltipKey="MAXIMIZE" />
                     <Button
                         Style="{StaticResource CloseButtonStyle}"
                         WindowChrome.IsHitTestVisibleInChrome="True"
-                        ToolTip="Close"
+                        views:Translator.TooltipKey="CLOSE"
                         Command="{x:Static SystemCommands.CloseWindowCommand}" />
                 </StackPanel>
             </DockPanel>
@@ -458,18 +474,18 @@
                 <Button
                     Margin="1,0,0,0"
                     Command="{cmds:Command PixiEditor.Undo.Undo}"
-                    ToolTip="Undo"
+                    views:Translator.TooltipKey="UNDO"
                     Style="{StaticResource ToolSettingsGlyphButton}" 
 					Content="&#xE7A7;"/>
                 <Button 
 				Command="{cmds:Command PixiEditor.Undo.Redo}" 
-				ToolTip="Redo"
+				views:Translator.TooltipKey="REDO"
                 Style="{StaticResource ToolSettingsGlyphButton}" 
 				Content="&#xE7A6;"/>
                 <ToggleButton 
 				Width="30" 
 				BorderThickness="0"
-				ToolTip="Pen Mode" 
+				views:Translator.TooltipKey="PEN_MODE"
 				Focusable="False"
                 IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
                     <ToggleButton.Style>
@@ -502,8 +518,9 @@
                 </ToggleButton>
                 <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
                 <Label Style="{StaticResource BaseLabel}" FontSize="12"
-                   VerticalAlignment="Center" Content="{Binding ToolsSubViewModel.ActiveTool.DisplayName}"
-                   ToolTip="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}"/>
+                   VerticalAlignment="Center" views:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
+                   views:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}"
+                   />
                 <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ActiveTool.Toolbar.Settings}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -515,7 +532,7 @@
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0">
                                 <Label
                                 Visibility="{Binding HasLabel, Converter={StaticResource BoolToVisibilityConverter}}"
-                                Foreground="White" Content="{Binding Label}" />
+                                Foreground="White" views:Translator.Key="{Binding Label.Key}" />
                                 <ContentControl Content="{Binding SettingControl}" />
                             </StackPanel>
                         </DataTemplate>
@@ -590,28 +607,28 @@
                                                                     <Border Grid.Column="1" BorderThickness="0 0 1 0" BorderBrush="Black">
                                                                         <StackPanel Orientation="Vertical" Grid.Column="0">
                                                                             <MenuItem
-																		Header="_Select All"
+																		views:Translator.Key="SELECT_ALL"
 																		cmds:ContextMenu.Command="PixiEditor.Selection.SelectAll" />
                                                                             <MenuItem
-																		Header="_Deselect"
+                                                                                views:Translator.Key="DESELECT"
 																		cmds:ContextMenu.Command="PixiEditor.Selection.Clear" />
                                                                             <Separator />
                                                                             <MenuItem
-																		Header="_Cut"
+                                                                                views:Translator.Key="CUT"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Cut" />
                                                                             <MenuItem
-																		Header="_Copy"
+                                                                                views:Translator.Key="COPY"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Copy" />
                                                                             <MenuItem
-																		Header="_Paste"
+                                                                                views:Translator.Key="PASTE"
 																		cmds:ContextMenu.Command="PixiEditor.Clipboard.Paste" />
                                                                             <Separator />
-                                                                            <MenuItem Header="Flip _Horizontally" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
-                                                                            <MenuItem Header="Flip _Vertically" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
+                                                                            <MenuItem views:Translator.Key="FLIP_LAYERS_HORIZONTALLY" cmds:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
+                                                                            <MenuItem views:Translator.Key="FLIP_LAYERS_VERTICALLY" cmds:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
                                                                             <Separator />
-                                                                            <MenuItem Header="Rotate 90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
-                                                                            <MenuItem Header="Rotate 180&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
-                                                                            <MenuItem Header="Rotate -90&#186;" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
+                                                                            <MenuItem views:Translator.Key="ROT_LAYERS_90_D" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
+                                                                            <MenuItem views:Translator.Key="ROT_LAYERS_180_D" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
+                                                                            <MenuItem views:Translator.Key="ROT_LAYERS_-90_D" cmds:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
                                                                         </StackPanel>
                                                                     </Border>
                                                                     <ScrollViewer Margin="5" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -624,12 +641,20 @@
                                                                             </ItemsControl.ItemsPanel>
                                                                             <ItemsControl.ItemTemplate>
                                                                                 <DataTemplate>
-                                                                                    <palettes:PaletteColor Cursor="Hand" CornerRadius="0" ToolTip="Click to select as main color." Width="22" Height="22" Color="{Binding}">
+                                                                                    <palettes:PaletteColor Cursor="Hand" CornerRadius="0"
+                                                                                        views:Translator.TooltipKey="CLICK_SELECT_PRIMARY"
+                                                                                        Width="22" Height="22" Color="{Binding}">
                                                                                         <b:Interaction.Triggers>
                                                                                             <b:EventTrigger EventName="MouseLeftButtonUp">
                                                                                                 <b:InvokeCommandAction
                                                                                                     Command="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
                                                                                                     CommandParameter="{Binding}" />
+                                                                                            </b:EventTrigger>
+                                                                                            <b:EventTrigger EventName="MouseLeftButtonUp">
+                                                                                                <b:InvokeCommandAction
+                                                                                                    Command="{cmds:Command PixiEditor.CloseContextMenu, UseProvided=True}"
+                                                                                                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,
+                                                                                                     AncestorType={x:Type ContextMenu}}}" />
                                                                                             </b:EventTrigger>
                                                                                         </b:Interaction.Triggers>
                                                                                     </palettes:PaletteColor>
@@ -654,18 +679,18 @@
                                 <LayoutAnchorablePaneGroup Orientation="Vertical" DockWidth="290">
 
                                     <LayoutAnchorablePane x:Name="colorPane">
-                                        <LayoutAnchorable ContentId="colorPicker" Title="Color Picker" CanHide="False"
+                                        <LayoutAnchorable ContentId="colorPicker" views:Translator.Key="COLOR_PICKER_TITLE" CanHide="False"
                                                       CanClose="False" CanAutoHide="False" x:Name="colorPickerPanel"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
                                             <usercontrols:SmallColorPicker SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}"
-                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}" 
+                                                                         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={StaticResource BackendColorToMediaColorConverter}}"
                                                                          Style="{StaticResource DefaultColorPickerStyle}" x:Name="mainColorPicker">
                                                 <b:Interaction.Behaviors>
                                                     <behaviours:GlobalShortcutFocusBehavior/>
                                                 </b:Interaction.Behaviors>
                                             </usercontrols:SmallColorPicker>
                                         </LayoutAnchorable>
-                                        <LayoutAnchorable ContentId="colorSliders" Title="Color Sliders" CanHide="False"
+                                        <LayoutAnchorable ContentId="colorSliders" views:Translator.Key="COLOR_SLIDERS_TITLE" CanHide="False"
                                                       CanClose="False" CanAutoHide="False" x:Name="colorSlidersPanel"
                                                       CanDockAsTabbedDocument="False" CanFloat="True">
                                             <colorpicker:ColorSliders Style="{StaticResource DefaultColorPickerStyle}" 
@@ -675,7 +700,7 @@
                                                 </b:Interaction.Behaviors>
                                             </colorpicker:ColorSliders>
                                         </LayoutAnchorable>
-                                        <avalondock:LayoutAnchorable ContentId="palette" Title="Palette" CanHide="False"
+                                        <avalondock:LayoutAnchorable ContentId="palette" views:Translator.Key="PALETTE_TITLE" CanHide="False"
                                                                  CanClose="False" CanAutoHide="False" x:Name="paletteAnchorable"
                                                                  CanDockAsTabbedDocument="False" CanFloat="True">
                                             <Grid>
@@ -699,7 +724,7 @@
                                         </avalondock:LayoutAnchorable>
                                         <avalondock:LayoutAnchorable
 										ContentId="swatches"
-										Title="Swatches"
+										views:Translator.Key="SWATCHES_TITLE"
 										CanHide="False"
 										CanClose="False"
 										CanAutoHide="False"
@@ -713,7 +738,7 @@
                                     <LayoutAnchorablePane>
                                         <LayoutAnchorable
                                             ContentId="layers"
-                                            Title="Layers"
+                                            views:Translator.Key="LAYERS_TITLE"
                                             CanHide="False"
                                             CanClose="False"
                                             CanAutoHide="False"
@@ -726,7 +751,7 @@
                                     <LayoutAnchorablePane>
                                         <LayoutAnchorable
                                             ContentId="navigation"
-                                            Title="Navigation"
+                                            views:Translator.Key="NAVIGATION_TITLE"
                                             CanHide="True"
                                             CanAutoHide="False"
                                             CanDockAsTabbedDocument="False"
@@ -755,35 +780,38 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <ItemsControl
-                        ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button
-                                    BorderBrush="White"
-                                    BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
-                                    Style="{StaticResource ToolButtonStyle}"
-                                    Command="{cmds:Command PixiEditor.Tools.SelectTool, UseProvided=True}"
-                                    CommandParameter="{Binding}"
-                                    ToolTip="{Binding Tooltip}">
-                                    <Button.Background>
-                                        <ImageBrush
-                                            RenderOptions.BitmapScalingMode="Fant"
-                                            ImageSource="{Binding ImagePath}"
-                                            Stretch="Uniform" />
-                                    </Button.Background>
-                                    <Button.Resources>
-                                        <Style
-                                            TargetType="Border">
-                                            <Setter
-                                                Property="CornerRadius"
-                                                Value="2.5" />
-                                        </Style>
-                                    </Button.Resources>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl
+                            ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button
+                                        BorderBrush="White"
+                                        BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
+                                        Style="{StaticResource ToolButtonStyle}"
+                                        Command="{cmds:Command PixiEditor.Tools.SelectTool, UseProvided=True}"
+                                        CommandParameter="{Binding}"
+                                        views:Translator.TooltipLocalizedString="{Binding Tooltip}"
+                                        views:Translator.TooltipKey="{Binding Tooltip.Key}">
+                                        <Button.Background>
+                                            <ImageBrush
+                                                RenderOptions.BitmapScalingMode="Fant"
+                                                ImageSource="{Binding ImagePath}"
+                                                Stretch="Uniform" />
+                                        </Button.Background>
+                                        <Button.Resources>
+                                            <Style
+                                                TargetType="Border">
+                                                <Setter
+                                                    Property="CornerRadius"
+                                                    Value="2.5" />
+                                            </Style>
+                                        </Button.Resources>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                     <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:BackendColorToMediaColorConverter}}"
                             BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
                             Grid.Row="1" Height="30"/>
@@ -840,9 +868,7 @@
                         Visibility="{Binding UpdateSubViewModel.UpdateReadyToInstall, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Hidden}"
                         FontSize="14"
                         Height="20"
-                        Command="{cmds:Command PixiEditor.Restart}">
-                        Restart
-                    </Button>
+                        Command="{cmds:Command PixiEditor.Restart}" views:Translator.Key="RESTART"/>
                     <TextBlock
                         VerticalAlignment="Center"
                         Padding="10"

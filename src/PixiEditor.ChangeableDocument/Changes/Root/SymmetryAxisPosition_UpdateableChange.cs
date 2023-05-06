@@ -5,18 +5,18 @@ namespace PixiEditor.ChangeableDocument.Changes.Root;
 internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
 {
     private readonly SymmetryAxisDirection direction;
-    private int newPos;
-    private int originalPos;
+    private double newPos;
+    private double originalPos;
 
     [GenerateUpdateableChangeActions]
-    public SymmetryAxisPosition_UpdateableChange(SymmetryAxisDirection direction, int pos)
+    public SymmetryAxisPosition_UpdateableChange(SymmetryAxisDirection direction, double pos)
     {
         this.direction = direction;
         newPos = pos;
     }
 
     [UpdateChangeMethod]
-    public void Update(int pos)
+    public void Update(double pos)
     {
         newPos = pos;
     }
@@ -32,7 +32,7 @@ internal class SymmetryAxisPosition_UpdateableChange : UpdateableChange
         return true;
     }
 
-    private void SetPosition(Document target, int position)
+    private void SetPosition(Document target, double position)
     {
         if (direction == SymmetryAxisDirection.Horizontal)
             target.HorizontalSymmetryAxisY = position;

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Windows.Controls;
 using System.Windows.Media;
+using PixiEditor.Localization;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;
@@ -15,7 +16,7 @@ internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
 
     public T Result { get; private set; }
 
-    public OptionsDialog(string title, object content)
+    public OptionsDialog(LocalizedString title, object content)
     {
         Title = title;
 

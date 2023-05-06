@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -10,7 +11,13 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 [Command.Tool(Key = Key.V)]
 internal class MoveToolViewModel : ToolViewModel
 {
-    private string defaultActionDisplay = "Hold mouse to move selected pixels. Hold Ctrl to move all layers.";
+    private string defaultActionDisplay = "MOVE_TOOL_ACTION_DISPLAY";
+    public override string ToolNameLocalizationKey => "MOVE_TOOL";
+
+    private string transformingActionDisplay = "MOVE_TOOL_ACTION_DISPLAY_TRANSFORMING";
+    private bool transformingSelectedArea = false;
+
+    public bool MoveAllLayers { get; set; }
 
     public MoveToolViewModel()
     {
@@ -19,17 +26,46 @@ internal class MoveToolViewModel : ToolViewModel
         Cursor = Cursors.Arrow;
     }
 
-    public override string Tooltip => $"Moves selected pixels ({Shortcut}). Hold Ctrl to move all layers.";
+    public override LocalizedString Tooltip => new LocalizedString("MOVE_TOOL_TOOLTIP", Shortcut);
 
-    [Settings.Bool("Keep original image")]
+    [Settings.Bool("KEEP_ORIGINAL_IMAGE_SETTING")]
     public bool KeepOriginalImage => GetValue<bool>();
-    
+
     public override BrushShape BrushShape => BrushShape.Hidden;
     public override bool HideHighlight => true;
+
+    public bool TransformingSelectedArea
+    {
+        get => transformingSelectedArea;
+        set
+        {
+            transformingSelectedArea = value;
+            ActionDisplay = value ? transformingActionDisplay : defaultActionDisplay;
+        }
+    }
 
     public override void OnLeftMouseButtonDown(VecD pos)
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseShiftLayerTool();
+    }
+
+    public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
+    {
+        if (TransformingSelectedArea)
+        {
+            return;
+        }
+        
+        if (ctrlIsDown)
+        {
+            ActionDisplay = new LocalizedString("MOVE_TOOL_ACTION_DISPLAY_CTRL");
+            MoveAllLayers = true;
+        }
+        else
+        {
+            ActionDisplay = defaultActionDisplay;
+            MoveAllLayers = false;
+        }
     }
 
     public override void OnSelected()
