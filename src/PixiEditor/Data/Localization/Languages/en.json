@@ -524,5 +524,8 @@
     "ALL_LAYERS": "All Layers",
     "SINGLE_LAYER": "Single Layer",
     "CHOOSE": "Choose",
-    "REMOVE": "Remove"
+    "REMOVE": "Remove",
+    "FILE_FORMAT_NOT_ASEPRITE_KEYS": "File is not a \".aseprite-keys\" file",
+    "FILE_HAS_INVALID_SHORTCUT": "The file contains an invalid shortcut",
+    "FILE_EXTENSION_NOT_SUPPORTED": "The file type '{0}' is not supported"
 }
