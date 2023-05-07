@@ -87,7 +87,7 @@ steps:
     publishLocation: 'pipeline'
 
 - task: PowerShell@2
-displayName: "Rename update installer"
+  displayName: "Rename update installer"
   inputs:
     targetType: 'inline'
     script: 'Rename-Item UpdateInstaller/PixiEditor.UpdateInstaller.exe PixiEditor.UpdateInstaller-new.exe'
