@@ -1,4 +1,7 @@
-﻿namespace PixiEditor.Localization;
+﻿using System.Globalization;
+using Newtonsoft.Json;
+
+namespace PixiEditor.Localization;
 
 public class LanguageData
 {
@@ -10,6 +13,12 @@ public class LanguageData
     public string IconFileName { get; set; }
     public string IconPath => $"pack://application:,,,/PixiEditor;component/Images/LanguageFlags/{IconFileName}";
     public bool RightToLeft { get; set; }
+    
+    [JsonIgnore]
+    public DateTimeOffset LastUpdated => LastUpdatedString == null ? DateTimeOffset.MinValue : DateTimeOffset.Parse(LastUpdatedString, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
+    
+    [JsonProperty(nameof(LastUpdated))]
+    private string LastUpdatedString { get; set; }
     
     public override string ToString()
     {
