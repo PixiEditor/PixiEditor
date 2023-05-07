@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
 using System.IO;
+using System.Reflection;
 using Newtonsoft.Json;
+using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Localization;
@@ -8,7 +10,7 @@ namespace PixiEditor.Localization;
 internal class LocalizationProvider : ILocalizationProvider
 {
     private Language debugLanguage;
-    public string LocalizationDataPath { get; } = Path.Combine("Data", "Localization", "LocalizationData.json");
+    public string LocalizationDataPath { get; } = Path.Combine(Paths.DataFullPath, "Localization", "LocalizationData.json");
     public LocalizationData LocalizationData { get; private set; }
     public Language CurrentLanguage { get; set; }
     public LanguageData SelectedLanguage { get; private set; }
@@ -95,7 +97,7 @@ internal class LocalizationProvider : ILocalizationProvider
 
     private Language LoadLanguageInternal(LanguageData languageData)
     {
-        string localePath = Path.Combine("Data", "Localization", "Languages", languageData.LocaleFileName);
+        string localePath = Path.Combine(Paths.DataFullPath, "Localization", "Languages", languageData.LocaleFileName);
 
         if (!File.Exists(localePath))
         {
