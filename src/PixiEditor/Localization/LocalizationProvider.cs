@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.IO;
+using Newtonsoft.Json;
 using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Localization;
@@ -27,7 +28,7 @@ internal class LocalizationProvider : ILocalizationProvider
         }
         
         using StreamReader reader = new(LocalizationDataPath);
-        LocalizationData = serializer.Deserialize<LocalizationData>(new Newtonsoft.Json.JsonTextReader(reader));
+        LocalizationData = serializer.Deserialize<LocalizationData>(new JsonTextReader(reader) { Culture = CultureInfo.InvariantCulture, DateTimeZoneHandling = DateTimeZoneHandling.Utc });
             
         if (LocalizationData is null)
         {

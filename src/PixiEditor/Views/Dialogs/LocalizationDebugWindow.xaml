@@ -71,8 +71,25 @@
                     <ColumnDefinition Width="120"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock views:Translator.Key="LANGUAGE" Margin="0,0,5,0"/>
-                <ComboBox Grid.Column="1" ItemsSource="{Binding DataContext.LanguageCodes, ElementName=popup}" SelectedItem="{Binding DataContext.SelectedLanguage, ElementName=popup}"
-                          SelectedValue="{Binding DataContext.SelectedLanguage, ElementName=popup}"/>
+                <ComboBox Grid.Column="1" ItemsSource="{Binding DataContext.LanguageCodes, ElementName=popup}" SelectedItem="{Binding DataContext.SelectedLanguage, ElementName=popup}">
+                    <ComboBox.ItemContainerStyle>
+                        <Style TargetType="ComboBoxItem">
+                            <Setter Property="ContentTemplate">
+                                <Setter.Value>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Ellipse Width="10" Height="10" 
+                                                     VerticalAlignment="Center" 
+                                                     Fill="{Binding Comparison}"
+                                                     Margin="0,0,5,0"/>
+                                            <TextBlock Text="{Binding}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ComboBox.ItemContainerStyle>
+                </ComboBox>
                 <Button Grid.Column="2" Style="{StaticResource DarkRoundButton}" views:Translator.Key="SYNC" Command="{Binding DataContext.SyncLanguageCommand, ElementName=popup}" Margin="5,0,0,0"/>
             </Grid>
             <TextBlock Text="{Binding DataContext.StatusMessage, ElementName=popup}"/>
