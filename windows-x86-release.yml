@@ -56,7 +56,7 @@ steps:
   displayName: "Rename update installer"
   inputs:
     targetType: 'inline'
-    script: 'Rename-Item UpdateInstaller/PixiEditor.UpdateInstaller PixiEditor.UpdateInstaller-new'
+    script: 'Rename-Item UpdateInstaller/PixiEditor.UpdateInstaller/PixiEditor.UpdateInstaller.exe PixiEditor.UpdateInstaller-new.exe'
 
 - task: PowerShell@2
   displayName: "Set tag version"
