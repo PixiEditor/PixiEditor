@@ -264,6 +264,7 @@
     "ERROR_SAVE_LOCATION": "Couldn't save the file to the specified location",
     "ERROR_WHILE_SAVING": "An internal error occured while saving. Please try again.",
     "UNKNOWN_ERROR_SAVING": "An error occured while saving.",
+    "ERROR_READING_FILE": "Error while reading the file",
     "FAILED_ASSOCIATE_LOSPEC": "Failed to associate Lospec Palette protocol.",
     "REDDIT": "Reddit",
     "GITHUB": "GitHub",
@@ -524,5 +525,8 @@
     "ALL_LAYERS": "All Layers",
     "SINGLE_LAYER": "Single Layer",
     "CHOOSE": "Choose",
-    "REMOVE": "Remove"
+    "REMOVE": "Remove",
+    "FILE_FORMAT_NOT_ASEPRITE_KEYS": "File is not a \".aseprite-keys\" file",
+    "FILE_HAS_INVALID_SHORTCUT": "The file contains an invalid shortcut",
+    "FILE_EXTENSION_NOT_SUPPORTED": "The file type '{0}' is not supported"
 }

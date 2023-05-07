@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Exceptions;
 using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
@@ -358,9 +359,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         {
             bitmap = Importer.ImportWriteableBitmap(path);
         }
-        catch (Exception e)
+        catch (RecoverableException e)
         {
-            NoticeDialog.Show("ERROR_IMPORTING_IMAGE", "ERROR");
+            NoticeDialog.Show(title: "ERROR", message: e.DisplayMessage);
             return;
         }
 
