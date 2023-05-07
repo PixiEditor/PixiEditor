@@ -16,6 +16,8 @@
 		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
 		<Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
+
         <ImplicitUsings>true</ImplicitUsings>
         <AssemblyVersion></AssemblyVersion>
         <LangVersion>11</LangVersion>
