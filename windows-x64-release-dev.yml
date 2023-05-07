@@ -65,21 +65,6 @@ steps:
     arguments: '--project-path "$(System.DefaultWorkingDirectory)\src\PixiEditor" --build-configuration "$(buildConfiguration)" --runtime "$(buildPlatform)" -o "$(System.DefaultWorkingDirectory)\Builds\PixiEditor-$(architecture)-light\PixiEditor" --crash-report-webhook-url "$(crash-webhook-url)"'
     workingDirectory: 'src/PixiEditor.Builder'
 
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: 'Builds\PixiEditor-$(architecture)-light'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: 'PixiEditor.$(TagVersion).$(architecture).zip'
-    replaceExistingArchive: true
-
-- task: PublishPipelineArtifact@1
-  displayName: "Publish zip artifact"
-  inputs:
-    targetPath: '$(System.DefaultWorkingDirectory)\PixiEditor.$(TagVersion).$(architecture).zip'
-    artifact: 'PixiEditor.$(TagVersion).$(architecture).zip'
-    publishLocation: 'pipeline'
-
 - task: CopyFiles@2
   displayName: "Copy updater to PixiEditor target dir"
   inputs:
@@ -99,6 +84,27 @@ steps:
   inputs:
     targetPath: 'src/Installer/Assets/PixiEditor-$(architecture)-light/'
     artifact: 'PixiEditor-setup-$(architecture).exe'
+    publishLocation: 'pipeline'
+
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: 'Rename-Item PixiEditor.UpdateInstaller.exe PixiEditor.UpdateInstaller-new.exe'
+    workingDirectory: 'UpdateInstaller'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: 'Builds\PixiEditor-$(architecture)-light'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: 'PixiEditor.$(TagVersion).$(architecture).zip'
+    replaceExistingArchive: true
+
+- task: PublishPipelineArtifact@1
+  displayName: "Publish zip artifact"
+  inputs:
+    targetPath: '$(System.DefaultWorkingDirectory)\PixiEditor.$(TagVersion).$(architecture).zip'
+    artifact: 'PixiEditor.$(TagVersion).$(architecture).zip'
     publishLocation: 'pipeline'
 
 - task: ArchiveFiles@2

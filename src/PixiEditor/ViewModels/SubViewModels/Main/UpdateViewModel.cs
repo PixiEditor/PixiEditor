@@ -99,7 +99,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
             {
                 string dir = AppDomain.CurrentDomain.BaseDirectory;
-                
+                CheckForNewUpdater(dir);
+
                 UpdateDownloader.CreateTempDirectory();
                 if(UpdateChecker.LatestReleaseInfo == null || string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName)) return;
                 bool updateFileExists = File.Exists(
@@ -135,6 +136,21 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 }
             }
 #endif
+    }
+
+    private void CheckForNewUpdater(string dir)
+    {
+        var newUpdaterFile = Path.Join(dir, "PixiEditor.UpdateInstaller-new.exe");
+        if (File.Exists(newUpdaterFile))
+        {
+            string oldUpdaterFile = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+            if (File.Exists(oldUpdaterFile))
+            {
+                File.Delete(oldUpdaterFile);
+            }
+
+            File.Move(newUpdaterFile, oldUpdaterFile);
+        }
     }
 
     private static void InstallHeadless(string updaterPath)
