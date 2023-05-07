@@ -26,6 +26,12 @@
       "iconFileName": "es.png"
     },
     {
+      "name": "中文",
+      "code": "zh",
+      "localeFileName": "zh.json",
+      "iconFileName": "zh.png"
+    },
+    {
       "name": "Русский",
       "code": "ru",
       "localeFileName": "ru.json",
