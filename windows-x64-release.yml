@@ -52,6 +52,11 @@ steps:
     arguments: '-o "UpdateInstaller" -r "$(buildPlatform)" --self-contained=false -p:PublishSingleFile=true -c $(buildConfiguration)'
     zipAfterPublish: false
 
+- task: PowerShell@2
+  displayName: "Rename update installer"
+  inputs:
+    targetType: 'inline'
+    script: 'Rename-Item UpdateInstaller/PixiEditor.UpdateInstaller PixiEditor.UpdateInstaller-new'
 
 - task: PowerShell@2
   displayName: "Set tag version"
@@ -85,12 +90,6 @@ steps:
     targetPath: 'src/Installer/Assets/PixiEditor-$(architecture)-light/'
     artifact: 'PixiEditor-setup-$(architecture).exe'
     publishLocation: 'pipeline'
-
-- task: PowerShell@2
-  displayName: "Rename update installer"
-  inputs:
-    targetType: 'inline'
-    script: 'Rename-Item UpdateInstaller/PixiEditor.UpdateInstaller PixiEditor.UpdateInstaller-new'
 
 - task: ArchiveFiles@2
   inputs:
