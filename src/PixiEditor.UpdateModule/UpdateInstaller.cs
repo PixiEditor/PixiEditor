@@ -46,9 +46,8 @@ public class UpdateInstaller
         ZipFile.ExtractToDirectory(ArchiveFileName, UpdateFilesPath, true);
         Progress = 25; // 25% for unzip
         string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
-        string[] files = Directory.GetFiles(dirWithFiles);
-        CopyFilesToDestination(files);
-        DeleteArchive();
+        CopyFilesToDestination(dirWithFiles);
+        //DeleteArchive();
         Progress = 100;
     }
 
@@ -58,15 +57,48 @@ public class UpdateInstaller
         Directory.Delete(UpdateFilesPath, true);
     }
 
-    private void CopyFilesToDestination(string[] files)
+    private void CopyFilesToDestination(string sourceDirectory)
     {
-        float fileCopiedVal = 74f / files.Length; // 74% is reserved for copying
-        string destinationDir = TargetDirectory;
+        int totalFiles = Directory.GetFiles(UpdateFilesPath, "*", SearchOption.AllDirectories).Length;
+
+        string[] files = Directory.GetFiles(sourceDirectory);
+        float fileCopiedVal = 74f / totalFiles; // 74% is reserved for copying
+
         foreach (string file in files)
         {
             string targetFileName = Path.GetFileName(file);
-            File.Copy(file, Path.Join(destinationDir, targetFileName), true);
+            File.Copy(file, Path.Join(TargetDirectory, targetFileName), true);
             Progress += fileCopiedVal;
+        }
+
+        CopySubDirectories(sourceDirectory, TargetDirectory, fileCopiedVal);
+    }
+
+    private void CopySubDirectories(string originDirectory, string targetDirectory, float percentPerFile)
+    {
+        string[] subDirs = Directory.GetDirectories(originDirectory);
+        if(subDirs.Length == 0) return;
+
+        foreach (string subDir in subDirs)
+        {
+            string targetDirPath = Path.Join(targetDirectory, Path.GetFileName(subDir));
+
+            CopySubDirectories(subDir, targetDirPath, percentPerFile);
+
+            string[] files = Directory.GetFiles(subDir);
+
+            if (!Directory.Exists(targetDirPath))
+            {
+                Directory.CreateDirectory(targetDirPath);
+            }
+
+            foreach (string file in files)
+            {
+                string targetFileName = Path.GetFileName(file);
+                File.Copy(file, Path.Join(targetDirPath, targetFileName), true);
+            }
+
+            Progress += percentPerFile;
         }
     }
 }
