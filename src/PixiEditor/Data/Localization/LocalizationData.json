@@ -5,25 +5,35 @@
       "name": "English",
       "code": "en",
       "localeFileName": "en.json",
-      "iconFileName": "en.png"
+      "iconFileName": "en.png",
+      "lastUpdated": "2023-05-07 13:31:45"
     },
     {
       "name": "Polski",
       "code": "pl",
       "localeFileName": "pl.json",
-      "iconFileName": "pl.png"
+      "iconFileName": "pl.png",
+      "lastUpdated": "2023-05-07 11:38:51"
     },
     {
       "name": "Deutsch",
       "code": "de",
       "localeFileName": "de.json",
-      "iconFileName": "de.png"
+      "iconFileName": "de.png",
+      "lastUpdated": "2023-05-07 13:14:57"
     },
     {
       "name": "Español",
       "code": "es",
       "localeFileName": "es.json",
       "iconFileName": "es.png"
+    },
+    {
+      "name": "中文",
+      "code": "zh",
+      "localeFileName": "zh.json",
+      "iconFileName": "zh.png",
+      "lastUpdated": "2023-05-07 12:53:26"
     },
     {
       "name": "Русский",
@@ -35,14 +45,16 @@
       "name": "Українська",
       "code": "uk",
       "localeFileName": "uk.json",
-      "iconFileName": "uk.png"
+      "iconFileName": "uk.png",
+      "lastUpdated": "2023-05-07 13:47:49"
     },
     {
       "name": "عربي",
       "code": "ar",
       "localeFileName": "ar.json",
       "iconFileName": "ar.png",
-      "rightToLeft": true
+      "rightToLeft": true,
+      "lastUpdated": "2023-05-07 12:13:35"
     },
     {
       "name": "Čeština",

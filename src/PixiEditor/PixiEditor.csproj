@@ -429,6 +429,8 @@
 		<Resource Include="Images\Commands\PixiEditor\Layer\DuplicateSelectedLayer.png" />
 		<None Remove="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
 		<Resource Include="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
+		<None Remove="Images\LanguageFlags\zh.png" />
+		<Resource Include="Images\LanguageFlags\zh.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

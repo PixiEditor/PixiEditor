@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Helpers;
@@ -121,6 +122,10 @@ public partial class LocalizationDebugWindow : Window
                                      .OrderByDescending(x => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == x.Code || CultureInfo.InstalledUICulture.TwoLetterISOLanguageName == x.Code)
                                      .ThenByDescending(x => x.UpdateSortable))
                         {
+                            language.LocalEquivalent = ILocalizationProvider.Current.LocalizationData.Languages
+                                .OrderByDescending(x => language.Code == x.Code)
+                                .FirstOrDefault(x => language.Code.StartsWith(x.Code));
+                            
                             LanguageCodes.Add(language);
                         }
 
@@ -297,17 +302,35 @@ public partial class LocalizationDebugWindow : Window
 
         public class PoeLanguage
         {
+            private static readonly SolidColorBrush LocalOlder = new(Colors.Red);
+            private static readonly SolidColorBrush LocalMin = new(Colors.Orange);
+            private static readonly SolidColorBrush Equal = new(Colors.Lime);
+            private static readonly SolidColorBrush LocalNewer = new(Colors.DodgerBlue);
+            private static readonly SolidColorBrush LocalMissing = new(Colors.Gray);
+            
             public string Name { get; set; }
 
             public string Code { get; set; }
 
             public string Updated { get; set; }
 
-            public DateTimeOffset UpdateSortable => string.IsNullOrWhiteSpace(Updated) ? DateTimeOffset.MinValue : DateTimeOffset.Parse(Updated, CultureInfo.InvariantCulture);
+            public DateTimeOffset UpdateSortable => string.IsNullOrWhiteSpace(Updated) ? DateTimeOffset.MinValue : DateTimeOffset.Parse(Updated, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal);
 
             public bool IsRightToLeft => Code is "ar" or "he" or "ku" or "fa" or "ur";
 
-            public override string ToString() => $"{Name} ({Code})";
+            public LanguageData LocalEquivalent { get; set; }
+
+            public SolidColorBrush Comparison => (l: LocalEquivalent?.LastUpdated, r: UpdateSortable) switch
+            {
+                (null, _) => LocalMissing,
+                { l.Ticks: 0 } => LocalMin,
+                { l: var l, r: var r } when r > l.Value => LocalOlder,
+                { l: var l, r: var r } when r == l.Value => Equal,
+                { l: var l, r: var r } when r < l.Value => LocalNewer,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            
+            public override string ToString() => $"{Name} ({Code}) {UpdateSortable.ToString(CultureInfo.InvariantCulture)}";
         }
     }
 }

@@ -34,6 +34,11 @@
             "type": "boolean",
             "description": "Does the language use RTL Layout",
             "default": true
+          },
+          "lastUpdated": {
+            "type": "string",
+            "description": "Date Time offset. Use format '07.05.2023 12:13:35 +00:00'",
+            "format": "date-time"
           }
         },
         "required": [
