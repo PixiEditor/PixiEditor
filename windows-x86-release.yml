@@ -90,7 +90,7 @@ steps:
   displayName: "Rename update installer"
   inputs:
     targetType: 'inline'
-    script: 'Rename-Item UpdateInstaller/PixiEditor.UpdateInstaller.exe PixiEditor.UpdateInstaller-new.exe'
+    script: 'tree;Rename-Item UpdateInstaller/PixiEditor.UpdateInstaller.exe PixiEditor.UpdateInstaller-new.exe'
 
 - task: ArchiveFiles@2
   inputs:
