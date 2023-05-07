@@ -47,7 +47,7 @@ public class UpdateInstaller
         Progress = 25; // 25% for unzip
         string dirWithFiles = Directory.GetDirectories(UpdateFilesPath)[0];
         CopyFilesToDestination(dirWithFiles);
-        //DeleteArchive();
+        DeleteArchive();
         Progress = 100;
     }
 
