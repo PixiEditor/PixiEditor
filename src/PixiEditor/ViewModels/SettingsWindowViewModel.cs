@@ -145,7 +145,7 @@ internal class SettingsWindowViewModel : ViewModelBase
             }
             catch (Exception)
             {
-                NoticeDialog.Show(title: "Error", message: "Error while reading the file");
+                NoticeDialog.Show(title: "ERROR", message: "ERROR_READING_FILE");
                 return false;
             }
 
