@@ -15,7 +15,7 @@ internal class LineToolViewModel : ShapeTool
     public LineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>();
+        Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>(this);
     }
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";

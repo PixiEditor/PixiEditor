@@ -27,13 +27,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type MenuItem}">
-                    <Border x:Name="Border" Padding="2.5"
+                    <Border x:Name="Border" Padding="2.5,1,2.5,1"
                             Background="Transparent"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="0">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition x:Name="Col0" MinWidth="17" Width="Auto"
+                                <ColumnDefinition x:Name="Col0" Width="Auto" MinWidth="5"
                                                   SharedSizeGroup="MenuItemIconColumnGroup" />
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="MenuTextColumnGroup" />
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="MenuItemIGTColumnGroup" />

@@ -1,4 +1,7 @@
-﻿using System.Windows.Media;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
 
 namespace PixiEditor.Models.Commands.Search;
 
@@ -13,7 +16,11 @@ internal class ColorSearchResult : SearchResult
 
     public override string Text => text;
 
-    public override string Description => $"{color} rgba({color.R}, {color.G}, {color.B}, {color.A})";
+    public override FrameworkElement Description => new TextBlock(new Run($"{color} rgba({color.R}, {color.G}, {color.B}, {color.A})"))
+    {
+        FontSize = 16,
+        TextDecorations = GetDecoration(new Pen(new SolidColorBrush(color.ToOpaqueMediaColor()), 1))
+    };
 
     //public override bool CanExecute => !requiresDocument || (requiresDocument && ViewModelMain.Current.BitmapManager.ActiveDocument != null);
     public override bool CanExecute => !isPalettePaste || ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument != null;
@@ -55,4 +62,9 @@ internal class ColorSearchResult : SearchResult
         drawing.Geometry = geometry;
         return new DrawingImage(drawing);
     }
+    
+    private static TextDecorationCollection GetDecoration(Pen pen) => new()
+    {
+        new TextDecoration(TextDecorationLocation.Underline, pen, 0, TextDecorationUnit.Pixel, TextDecorationUnit.Pixel)
+    };
 }

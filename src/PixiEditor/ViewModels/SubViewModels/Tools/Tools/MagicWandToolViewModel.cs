@@ -25,7 +25,7 @@ internal class MagicWandToolViewModel : ToolViewModel
     
     public MagicWandToolViewModel()
     {
-        Toolbar = ToolbarFactory.Create<MagicWandToolViewModel>();
+        Toolbar = ToolbarFactory.Create(this);
         ActionDisplay = "MAGIC_WAND_ACTION_DISPLAY";
     }
     

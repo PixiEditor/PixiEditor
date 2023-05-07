@@ -15,7 +15,7 @@ internal class LassoToolViewModel : ToolViewModel
 
     public LassoToolViewModel()
     {
-        Toolbar = ToolbarFactory.Create<LassoToolViewModel>();
+        Toolbar = ToolbarFactory.Create(this);
         ActionDisplay = defaultActionDisplay;
     }
 

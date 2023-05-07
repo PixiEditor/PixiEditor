@@ -6,13 +6,14 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using ChunkyImageLib;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
+using PixiEditor.Parser;
+using PixiEditor.Parser.Deprecated;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.Controllers;
@@ -132,8 +133,39 @@ internal static class ClipboardController
                     continue;
                 try
                 {
-                    Surface imported = Surface.Load(path);
-                    string filename = Path.GetFileName(path);
+                    Surface imported;
+                    
+                    if (Path.GetExtension(path) == ".pixi")
+                    {
+                        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
+                        
+                        try
+                        {
+                            imported = Surface.Load(PixiParser.Deserialize(path).PreviewImage);
+                        }
+                        catch (InvalidFileException e)
+                        {
+                            // Check if it could be a old file
+                            if (!e.Message.StartsWith("Header"))
+                            {
+                                throw;
+                            }
+                            
+                            stream.Position = 0;
+                            using var bitmap = DepractedPixiParser.Deserialize(stream).RenderOldDocument();
+                            var size = new VecI(bitmap.Width, bitmap.Height);
+                            imported = new Surface(size);
+                            imported.DrawBytes(size, bitmap.Bytes, ColorType.RgbaF32, AlphaType.Premul);
+                            
+                            System.Diagnostics.Debug.Write(imported.ToString());
+                        }
+                    }
+                    else
+                    {
+                        imported = Surface.Load(path);
+                    }
+
+                    string filename = Path.GetFullPath(path);
                     surfaces.Add((filename, imported));
                 }
                 catch
@@ -145,6 +177,7 @@ internal static class ClipboardController
         return surfaces;
     }
 
+    [Evaluator.CanExecute("PixiEditor.Clipboard.HasImageInClipboard")]
     public static bool IsImageInClipboard() => IsImage(ClipboardHelper.TryGetDataObject());
     
     public static bool IsImage(DataObject? dataObject)

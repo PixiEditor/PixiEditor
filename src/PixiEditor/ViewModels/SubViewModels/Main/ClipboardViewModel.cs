@@ -29,7 +29,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Shift)]
-    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "$PixiEditor.Clipboard.Paste", Key = Key.V, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Control)]
     public void Paste(bool pasteAsNewLayer)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null) 
@@ -37,7 +37,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         ClipboardController.TryPasteFromClipboard(Owner.DocumentManagerSubViewModel.ActiveDocument, pasteAsNewLayer);
     }
     
-    [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER", "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", IconPath = "Commands/PixiEditor/Clipboard/Paste.png")]
+    [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER", "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste")]
     public void PasteReferenceLayer(DataObject data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -53,6 +53,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
             surface.image.Size);
+
+        Application.Current.MainWindow!.Activate();
     }
     
     [Command.Internal("PixiEditor.Clipboard.PasteReferenceLayerFromPath")]
@@ -123,9 +125,9 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste")]
-    public bool CanPaste()
+    public bool CanPaste(object parameter)
     {
-        return Owner.DocumentIsNotNull(null) && ClipboardController.IsImageInClipboard();
+        return Owner.DocumentIsNotNull(null) && parameter is DataObject data ? ClipboardController.IsImage(data) : ClipboardController.IsImageInClipboard();
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]

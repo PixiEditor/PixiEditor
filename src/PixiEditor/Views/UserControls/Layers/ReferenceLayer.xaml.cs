@@ -37,7 +37,7 @@ internal partial class ReferenceLayer : UserControl
             return;
         }
 
-        ViewModelMain.Current.ActionDisplays[nameof(ReferenceLayer_Drop)] = "Import as reference layer";
+        ViewModelMain.Current.ActionDisplays[nameof(ReferenceLayer_Drop)] = "IMPORT_AS_REFERENCE_LAYER";
         e.Handled = true;
     }
 

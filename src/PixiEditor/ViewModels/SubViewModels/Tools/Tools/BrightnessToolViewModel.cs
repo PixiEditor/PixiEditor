@@ -19,7 +19,7 @@ internal class BrightnessToolViewModel : ToolViewModel
     public BrightnessToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<BrightnessToolViewModel, BasicToolbar>();
+        Toolbar = ToolbarFactory.Create<BrightnessToolViewModel, BasicToolbar>(this);
     }
 
     public override LocalizedString Tooltip => new LocalizedString("BRIGHTNESS_TOOL_TOOLTIP", Shortcut);

@@ -22,7 +22,7 @@ internal class MoveToolViewModel : ToolViewModel
     public MoveToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<MoveToolViewModel>();
+        Toolbar = ToolbarFactory.Create(this);
         Cursor = Cursors.Arrow;
     }
 

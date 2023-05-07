@@ -19,7 +19,7 @@ internal partial class ImportFilePopup : Window
     public int ImportHeight
     {
         get => dc.ImportHeight;
-        set => dc.ImportWidth = value;
+        set => dc.ImportHeight = value;
     }
 
 

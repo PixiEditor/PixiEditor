@@ -134,8 +134,8 @@
             </Grid>
         </Border>
         <Border Grid.Row="2" BorderThickness="1" BorderBrush="{StaticResource BrighterAccentColor}"
-                CornerRadius="0,0,5,5" Background="{StaticResource AccentColor}">
-            <TextBlock Margin="5" FontSize="16" Text="{Binding SelectedResult.Description, ElementName=uc, FallbackValue=''}" />
+                CornerRadius="0,0,5,5" Background="{StaticResource AccentColor}" Padding="3">
+            <ContentPresenter Content="{Binding SelectedResult.Description, Mode=OneWay, ElementName=uc}"/>
         </Border>
     </Grid>
 </UserControl>

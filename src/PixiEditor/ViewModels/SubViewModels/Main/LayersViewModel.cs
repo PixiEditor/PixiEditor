@@ -327,22 +327,6 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool ReferenceLayerDoesntExist() => 
         Owner.DocumentManagerSubViewModel.ActiveDocument is not null && Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
 
-    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
-    public bool ReferenceLayerDoesntExistAndHasClipboardContent(DataObject data)
-    {
-        if (!ReferenceLayerDoesntExist())
-        {
-            return false;
-        }
-        
-        if (data != null)
-        {
-            return Owner.DocumentIsNotNull(null) && ClipboardController.IsImage(data);
-        }
-        
-        return Owner.ClipboardSubViewModel.CanPaste();
-    }
-
     [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "ADD_REFERENCE_LAYER", "ADD_REFERENCE_LAYER", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist")]
     public void ImportReferenceLayer()
     {

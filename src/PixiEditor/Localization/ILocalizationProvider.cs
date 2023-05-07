@@ -9,6 +9,8 @@ public interface ILocalizationProvider
     public string LocalizationDataPath { get; }
     public LocalizationData LocalizationData { get; }
     public Language CurrentLanguage { get; set; }
+    public LanguageData SelectedLanguage { get; }
+    public LanguageData FollowSystem { get; }
     public event Action<Language> OnLanguageChanged;
 
     /// <summary>
