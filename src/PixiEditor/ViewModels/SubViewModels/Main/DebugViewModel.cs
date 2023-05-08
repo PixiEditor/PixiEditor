@@ -13,6 +13,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs.DebugDialogs;
+using PixiEditor.Views.Dialogs.DebugDialogs.Localization;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 

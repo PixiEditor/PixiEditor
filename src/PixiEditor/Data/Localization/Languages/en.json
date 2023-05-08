@@ -540,5 +540,14 @@
     "REMOVE": "Remove",
     "FILE_FORMAT_NOT_ASEPRITE_KEYS": "File is not a \".aseprite-keys\" file",
     "FILE_HAS_INVALID_SHORTCUT": "The file contains an invalid shortcut",
-    "FILE_EXTENSION_NOT_SUPPORTED": "The file type '{0}' is not supported"
+    "FILE_EXTENSION_NOT_SUPPORTED": "The file type '{0}' is not supported",
+  "OPEN_LOCALIZATION_DATA": "Do you want to open the LocalizationData.json?\nThe updated date has been put in the clipboard.\nNote that changes wont be applied until a restart",
+  "DOWNLOADING_LANGUAGE_FAILED": "Downloading language failed.\nAPI Key might have been overused.",
+  "LOCALIZATION_DATA_NOT_FOUND": "Localization data path not found",
+  "APPLY": "Apply",
+  "UPDATE_SOURCE": "Update source",
+  "COPY_TO_CLIPBOARD": "Copy to clipboard",
+  "LANGUAGE_FILE_NOT_FOUND": "Language file not found.\nLooking for {0}",
+  "PROJECT_ROOT_NOT_FOUND": "PixiEditor Project root not found.\nLooking for PixiEditor.csproj",
+  "LOCALIZATION_FOLDER_NOT_FOUND": "Localization folder not found.\nLooking for /Data/Localization"
 }
