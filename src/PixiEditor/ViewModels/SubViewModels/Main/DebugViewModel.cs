@@ -1,18 +1,18 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using PixiEditor.Helpers;
 using PixiEditor.Localization;
-using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.UserPreferences;
-using PixiEditor.Views.Dialogs;
+using PixiEditor.Views.Dialogs.DebugDialogs;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -198,7 +198,9 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     [Command.Debug("PixiEditor.Debug.OpenLocalizationDebugWindow", "OPEN_LOCALIZATION_DEBUG_WINDOW", "OPEN_LOCALIZATION_DEBUG_WINDOW")]
     public void OpenLocalizationDebugWindow()
     {
-        new LocalizationDebugWindow().Show();
+        var window = Application.Current.Windows.OfType<LocalizationDebugWindow>().FirstOrDefault(new LocalizationDebugWindow());
+        window.Show();
+        window.Activate();
     }
 
     [Command.Internal("PixiEditor.Debug.SetLanguageFromFilePicker")]

@@ -1,31 +1,38 @@
 ﻿using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Net;
 using System.Net.Http;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Helpers;
 using PixiEditor.Localization;
 using PixiEditor.Models.UserPreferences;
 
-namespace PixiEditor.Views.Dialogs;
+namespace PixiEditor.Views.Dialogs.DebugDialogs;
 
 public partial class LocalizationDebugWindow : Window
 {
-    private LocalizationDataContext dataContext;
+    private static LocalizationDataContext dataContext;
+    private bool passedStartup;
 
     public LocalizationDebugWindow()
     {
         InitializeComponent();
-        DataContext = dataContext = new LocalizationDataContext(this);
+        DataContext = (dataContext ??= new LocalizationDataContext(this));
     }
 
     private void ApiKeyChanged(object sender, TextChangedEventArgs e)
     {
+        if (!passedStartup)
+        {
+            passedStartup = true;
+            return;
+        }
+        
         dataContext.LoggedIn = false;
         dataContext.StatusMessage = "NOT_LOGGED_IN";
     }
@@ -44,7 +51,7 @@ public partial class LocalizationDebugWindow : Window
     {
         private const int ProjectId = 400351;
 
-        private readonly LocalizationDebugWindow window;
+        private Dispatcher dispatcher;
         private string apiKey;
         private bool loggedIn;
         private LocalizedString statusMessage = "NOT_LOGGED_IN";
@@ -90,7 +97,7 @@ public partial class LocalizationDebugWindow : Window
 
         public LocalizationDataContext(LocalizationDebugWindow window)
         {
-            this.window = window;
+            dispatcher = Application.Current.Dispatcher;
             apiKey = PreferencesSettings.Current.GetLocalPreference<string>("POEditor_API_Key");
             LoadApiKeyCommand = new RelayCommand(LoadApiKey, _ => !string.IsNullOrWhiteSpace(apiKey));
             SyncLanguageCommand =
@@ -108,7 +115,7 @@ public partial class LocalizationDebugWindow : Window
                 {
                     var result = await CheckProjectByIdAsync(ApiKey);
 
-                    window.Dispatcher.Invoke(() =>
+                    dispatcher.Invoke(() =>
                     {
                         LoggedIn = result.IsSuccess;
                         StatusMessage = result.Message;
@@ -139,7 +146,7 @@ public partial class LocalizationDebugWindow : Window
                 }
                 finally
                 {
-                    window.Dispatcher.Invoke(() => Mouse.OverrideCursor = null);
+                    dispatcher.Invoke(() => Mouse.OverrideCursor = null);
                 }
             });
         }
@@ -154,7 +161,7 @@ public partial class LocalizationDebugWindow : Window
                 {
                     var result = await DownloadLanguage(ApiKey, SelectedLanguage.Code);
 
-                    window.Dispatcher.Invoke(() =>
+                    dispatcher.Invoke(() =>
                     {
                         StatusMessage = result.Message;
                         DebugViewModel.Owner.LocalizationProvider.LoadDebugKeys(result.Output, SelectedLanguage.IsRightToLeft);
@@ -166,7 +173,7 @@ public partial class LocalizationDebugWindow : Window
                 }
                 finally
                 {
-                    window.Dispatcher.Invoke(() => Mouse.OverrideCursor = null);
+                    dispatcher.Invoke(() => Mouse.OverrideCursor = null);
                 }
             });
         }
