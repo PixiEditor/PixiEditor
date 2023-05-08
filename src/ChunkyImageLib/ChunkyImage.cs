@@ -160,25 +160,40 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public RectI? FindTightCommittedBounds(ChunkResolution precision = ChunkResolution.Full)
+    public RectI? FindTightCommittedBounds(ChunkResolution requestedResolution = ChunkResolution.Full)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
 
-            var chunkSize = precision.PixelSize();
-            RectI? preciseBounds = null;
-            foreach (var (chunkPos, chunk) in committedChunks[precision])
-            {
-                RectI? chunkPreciseBounds = chunk.FindPreciseBounds();
-                if(chunkPreciseBounds is null) 
-                    continue;
-                RectI globalChunkBounds = chunkPreciseBounds.Value.Offset(chunkPos * chunkSize);
+            var chunkSize = requestedResolution.PixelSize();
+            var multiplier = requestedResolution.Multiplier();
 
-                preciseBounds ??= globalChunkBounds;
-                preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
+            RectI? preciseBounds = null;
+            foreach (var (chunkPos, fullResChunk) in committedChunks[ChunkResolution.Full])
+            {
+                if (committedChunks[requestedResolution].TryGetValue(chunkPos, out Chunk? requestedResChunk))
+                {
+                    RectI? chunkPreciseBounds = requestedResChunk.FindPreciseBounds();
+                    if (chunkPreciseBounds is null)
+                        continue;
+                    RectI globalChunkBounds = chunkPreciseBounds.Value.Offset(chunkPos * chunkSize);
+
+                    preciseBounds ??= globalChunkBounds;
+                    preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
+                }
+                else
+                {
+                    RectI? chunkPreciseBounds = fullResChunk.FindPreciseBounds();
+                    if (chunkPreciseBounds is null)
+                        continue;
+                    RectI globalChunkBounds = (RectI)chunkPreciseBounds.Value.Scale(multiplier).Offset(chunkPos * chunkSize).RoundOutwards();
+
+                    preciseBounds ??= globalChunkBounds;
+                    preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
+                }
             }
-            preciseBounds = (RectI?)preciseBounds?.Scale(precision.InvertedMultiplier()).RoundOutwards();
+            preciseBounds = (RectI?)preciseBounds?.Scale(requestedResolution.InvertedMultiplier()).RoundOutwards();
             preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, CommittedSize));
 
             return preciseBounds;

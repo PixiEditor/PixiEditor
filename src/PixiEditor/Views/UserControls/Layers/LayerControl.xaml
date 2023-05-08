@@ -57,33 +57,39 @@
                         Visibility="{Binding Layer.ClipToMemberBelowEnabledBindable, ElementName=uc, Converter={conv:BoolToVisibilityConverter}}"
                         Background="{StaticResource PixiRed}" Width="3" Margin="1,1,2,1" CornerRadius="1"/>
                     <Border 
-                        Width="30" Height="30" 
+                        Width="32" Height="32" 
                         BorderThickness="1"
-                        Background="{StaticResource MainColor}"
+                        RenderOptions.BitmapScalingMode="NearestNeighbor"
                         MouseDown="LayerMouseDown">
+                        <Border.Background>
+                            <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" Viewport="0, 0, 0.20, 0.20"/>
+                        </Border.Background>
                         <Border.BorderBrush>
                             <MultiBinding Converter="{StaticResource LayerBorderConverter}">
                                 <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask"/>
                                 <Binding ElementName="uc" Path="Layer.HasMaskBindable"/>
                             </MultiBinding>
                         </Border.BorderBrush>
-                        <Image Source="{Binding Layer.PreviewBitmap,ElementName=uc}" Stretch="Uniform" Width="20" Height="20"
+                        <Image Source="{Binding Layer.PreviewBitmap,ElementName=uc}" Stretch="Uniform" Width="30" Height="30"
                            RenderOptions.BitmapScalingMode="NearestNeighbor" IsHitTestVisible="False"/>
                     </Border>
                     <Border 
-                        Width="30" Height="30" 
+                        Width="32" Height="32" 
                         BorderThickness="1" 
-                        Background="{StaticResource MainColor}"
                         Margin="3,0,0,0"
+                        RenderOptions.BitmapScalingMode="NearestNeighbor"
                         Visibility="{Binding Layer.HasMaskBindable, ElementName=uc, Converter={conv:BoolToVisibilityConverter}}"
                         MouseDown="MaskMouseDown">
+                        <Border.Background>
+                            <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" Viewport="0, 0, 0.20, 0.20"/>
+                        </Border.Background>
                         <Border.BorderBrush>
                             <MultiBinding Converter="{StaticResource MaskBorderConverter}">
                                 <Binding ElementName="uc" Path="Layer.ShouldDrawOnMask"/>
                             </MultiBinding>
                         </Border.BorderBrush>
                         <Grid IsHitTestVisible="False">
-                            <Image Source="{Binding Layer.MaskPreviewBitmap,ElementName=uc}" Stretch="Uniform" Width="20" Height="20"
+                            <Image Source="{Binding Layer.MaskPreviewBitmap,ElementName=uc}" Stretch="Uniform" Width="30" Height="30"
                            RenderOptions.BitmapScalingMode="NearestNeighbor" IsHitTestVisible="False"/>
                             <Path 
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z" 
