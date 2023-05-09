@@ -83,16 +83,18 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type ComboBoxItem}">
-                                        <Border Height="25" Margin="0" Padding="5,0">
+                                        <Border Height="25" Margin="0" Padding="5,0" BorderThickness="0,1">
                                             <ContentPresenter/>
                                             <Border.Style>
                                                 <Style TargetType="{x:Type Border}">
                                                     <Style.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="False">
                                                             <Setter Property="Background" Value="Transparent"/>
+                                                            <Setter Property="BorderBrush" Value="Transparent"/>
                                                         </Trigger>
                                                         <Trigger Property="IsMouseOver" Value="True">
                                                             <Setter Property="Background" Value="{StaticResource MainColor}"/>
+                                                            <Setter Property="BorderBrush" Value="{StaticResource AlmostLightModeAccentColor}"/>
                                                         </Trigger>
                                                     </Style.Triggers>
                                                 </Style>

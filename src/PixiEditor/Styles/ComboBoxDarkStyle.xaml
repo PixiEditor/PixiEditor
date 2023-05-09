@@ -191,9 +191,21 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBoxItem">
-                    <Border Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0">
+                    <Border Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0,1">
                         <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Stretch"
                                           VerticalAlignment="Center" Margin="4,2"/>
+                        
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="BorderBrush" Value="{StaticResource AlmostLightModeAccentColor}" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+
+                        </Border.Style>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
