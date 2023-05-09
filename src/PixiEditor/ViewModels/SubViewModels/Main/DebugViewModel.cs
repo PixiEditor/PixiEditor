@@ -20,7 +20,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 [Command.Group("PixiEditor.Debug", "DEBUG")]
 internal class DebugViewModel : SubViewModel<ViewModelMain>
 {
-    public bool IsDebugBuild { get; set; }
+    public static bool IsDebugBuild { get; set; }
 
     public bool IsDebugModeEnabled { get; set; }
 
@@ -247,7 +247,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Conditional("DEBUG")]
-    private void SetDebug() => IsDebugBuild = true;
+    private static void SetDebug() => IsDebugBuild = true;
 
     private void UpdateDebugMode(bool setting)
     {

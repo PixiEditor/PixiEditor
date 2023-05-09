@@ -13,12 +13,13 @@
         xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:globalization="clr-namespace:System.Globalization;assembly=System.Runtime"
+        xmlns:main="clr-namespace:PixiEditor.ViewModels.SubViewModels.Main"
         x:Name="popup"
         mc:Ignorable="d"
         Foreground="White"
         Title="LocalizationDebugWindow"
-        MinHeight="240" MinWidth="480"
-        Height="350" Width="500"
+        MinHeight="240" MinWidth="465"
+        Height="350" Width="465"
         FlowDirection="{helpers:Localization FlowDirection}"
         d:DataContext="{d:DesignInstance local:LocalizationDataContext}">
 
@@ -178,11 +179,11 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
-                                <ColumnDefinition Width="5" />
-                                <ColumnDefinition />
+                                <ColumnDefinition Width="{Binding Source={x:Static main:DebugViewModel.IsDebugBuild}, Converter={converters:BoolToValueConverter FalseValue=Auto, TrueValue=*}}" />
                             </Grid.ColumnDefinitions>
                             <Button views:Translator.Key="APPLY" Command="{Binding ApplyLanguageCommand}" />
-                            <Button Grid.Column="2"  views:Translator.Key="UPDATE_SOURCE" Command="{Binding UpdateSourceCommand}"/>
+                            <Button Grid.Column="1" Margin="5,0,0,0"  views:Translator.Key="UPDATE_SOURCE" Command="{Binding UpdateSourceCommand}"
+                                    Visibility="{Binding Source={x:Static main:DebugViewModel.IsDebugBuild}, Converter={BoolToVisibilityConverter}}"/>
                         </Grid>
                     </StackPanel>
                 </Border>
