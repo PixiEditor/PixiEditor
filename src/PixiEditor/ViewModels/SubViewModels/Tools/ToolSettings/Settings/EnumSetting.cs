@@ -72,7 +72,8 @@ internal sealed class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
     {
         var combobox = new ComboBox
         {
-            VerticalAlignment = VerticalAlignment.Center
+            VerticalAlignment = VerticalAlignment.Center,
+            MinWidth = 85
         };
 
         GenerateItems(combobox);
