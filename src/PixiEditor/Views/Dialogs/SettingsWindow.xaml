@@ -73,18 +73,6 @@
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <StackPanel.Style>
-                                    <Style TargetType="{x:Type StackPanel}">
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
-                                            </Trigger>
-                                            <Trigger Property="IsMouseOver" Value="False">
-                                                <Setter Property="Background" Value="Transparent"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
                                 <Image VerticalAlignment="Center" Margin="5 0" Source="{Binding IconPath}"/>
                                 <TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
                             </StackPanel>
@@ -95,8 +83,20 @@
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="{x:Type ComboBoxItem}">
-                                        <Border Height="25" Margin="5 0" Background="Transparent" BorderBrush="Transparent" BorderThickness="1">
+                                        <Border Height="25" Margin="0" Padding="5,0">
                                             <ContentPresenter/>
+                                            <Border.Style>
+                                                <Style TargetType="{x:Type Border}">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="False">
+                                                            <Setter Property="Background" Value="Transparent"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="Background" Value="{StaticResource MainColor}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
                                         </Border>
                                     </ControlTemplate>
                                 </Setter.Value>

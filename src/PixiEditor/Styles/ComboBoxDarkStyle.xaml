@@ -11,7 +11,7 @@
     <SolidColorBrush x:Key="ComboBox.Static.Editable.Border" Color="#2F2F37" />
     <SolidColorBrush x:Key="ComboBox.Static.Editable.Button.Background" Color="Transparent" />
     <SolidColorBrush x:Key="ComboBox.Static.Editable.Button.Border" Color="Transparent" />
-    <SolidColorBrush x:Key="ComboBox.MouseOver.Background" Color="#333333" />
+    <SolidColorBrush x:Key="ComboBox.MouseOver.Background" Color="White" />
     <SolidColorBrush x:Key="ComboBox.MouseOver.Border" Color="#FF0000" />
     <SolidColorBrush x:Key="ComboBox.MouseOver.Glyph" Color="#007ACC" />
     <SolidColorBrush x:Key="ComboBox.MouseOver.Editable.Background" Color="#333333" />
@@ -42,12 +42,21 @@
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
                     <Border x:Name="templateRoot" Background="{StaticResource AccentColor}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="5"
                             BorderBrush="{StaticResource ComboBox.Static.Border}" SnapsToDevicePixels="true">
                         <Path x:Name="arrow"
                             Data="M 0 3 L 3 6 L 6 3 L 6 0 L 3 3 L 0 0 L 0 3 Z"
                             Fill="{StaticResource BrighterAccentColor}" HorizontalAlignment="Right" Margin="5"
                             VerticalAlignment="Center" />
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}}" Value="true">
+                                        <Setter Property="CornerRadius" Value="5,5,0,0"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                     </Border>
                     <ControlTemplate.Triggers>
                         <MultiDataTrigger>
@@ -103,10 +112,10 @@
             <Popup x:Name="PART_Popup" AllowsTransparency="true" Grid.ColumnSpan="2"
                    IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="1" Placement="Bottom">
-                <theme:SystemDropShadowChrome x:Name="shadow" Color="Transparent" CornerRadius="5"
+                <theme:SystemDropShadowChrome x:Name="shadow" Color="Transparent" CornerRadius="0,0,5,5"
                                               MinWidth="{Binding ActualWidth, ElementName=templateRoot}"
                                               MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                    <Border x:Name="dropDownBorder" CornerRadius="5"
+                    <Border x:Name="dropDownBorder" CornerRadius="0,0,5,5"
                             Background="{StaticResource DarkerAccentColor}" BorderThickness="1"
                             BorderBrush="{StaticResource BrighterAccentColor}">
                         <ScrollViewer x:Name="DropDownScrollViewer" Margin="1">
