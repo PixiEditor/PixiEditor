@@ -135,7 +135,7 @@
                                 </Style>
                             </ComboBox.ItemContainerStyle>
                         </ComboBox>
-                        <TextBlock Text="Select a language" Visibility="{Binding SelectedItem, ElementName=LanguageComboBox, Converter={converters:NullToVisibilityConverter}}"
+                        <TextBlock views:Translator.Key="SELECT_A_LANGUAGE" Visibility="{Binding SelectedItem, ElementName=LanguageComboBox, Converter={converters:NullToVisibilityConverter}}"
                                    Margin="5,0,0,0" VerticalAlignment="Center"
                                    IsHitTestVisible="False">
                         </TextBlock>
@@ -157,7 +157,7 @@
                             </TextBlock>
                             <TextBlock Grid.Column="1">
                                 <Run Text="{Binding SelectedLanguage.Percentage, Mode=OneWay, StringFormat='\{0\}%'}"/>
-                                <Run Text="Done"/>
+                                <Run views:Translator.Key="DONE"/>
                             </TextBlock>
                         </Grid>
                         <Grid Margin="0,0,0,5">
@@ -167,7 +167,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Border Background="{Binding SelectedLanguage.StatusBrush}" CornerRadius="2" />
-                            <TextBlock Grid.Column="1" Text="{Binding SelectedLanguage.StatusText}" Margin="5,0" />
+                            <TextBlock Grid.Column="1" views:Translator.LocalizedString="{Binding SelectedLanguage.StatusText}" Margin="5,0" />
                             <TextBlock Grid.Column="2" views:Translator.TooltipKey="COPY_TO_CLIPBOARD">
                                 <Hyperlink Command="{Binding CopySelectedUpdatedCommand}">
                                     <Run

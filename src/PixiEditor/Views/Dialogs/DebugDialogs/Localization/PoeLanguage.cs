@@ -43,12 +43,12 @@ public class PoeLanguage
             _ => throw new ArgumentOutOfRangeException()
         };
 
-        public string StatusText => Status switch
+        public LocalizedString StatusText => Status switch
         {
-            LanguageStatus.LocalMissing or LanguageStatus.LocalMin => "Source missing/unset",
-            LanguageStatus.LocalOlder => "Source older",
-            LanguageStatus.Equal => "Source up to date",
-            LanguageStatus.LocalNewer => "Source newer"
+            LanguageStatus.LocalMissing or LanguageStatus.LocalMin => new LocalizedString("SOURCE_UNSET_OR_MISSING"),
+            LanguageStatus.LocalOlder => new LocalizedString("SOURCE_NEWER"),
+            LanguageStatus.Equal => new LocalizedString("SOURCE_UP_TO_DATE"),
+            LanguageStatus.LocalNewer => new LocalizedString("SOURCE_OLDER")
         };
 
         private LanguageStatus Status => (l: LocalEquivalent?.LastUpdated, r: UpdatedUTC) switch

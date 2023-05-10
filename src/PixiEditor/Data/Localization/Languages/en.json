@@ -549,5 +549,11 @@
   "COPY_TO_CLIPBOARD": "Copy to clipboard",
   "LANGUAGE_FILE_NOT_FOUND": "Language file not found.\nLooking for {0}",
   "PROJECT_ROOT_NOT_FOUND": "PixiEditor Project root not found.\nLooking for PixiEditor.csproj",
-  "LOCALIZATION_FOLDER_NOT_FOUND": "Localization folder not found.\nLooking for /Data/Localization"
+  "LOCALIZATION_FOLDER_NOT_FOUND": "Localization folder not found.\nLooking for /Data/Localization",
+  "SELECT_A_LANGUAGE": "Select a language",
+  "DONE": "Done",
+  "SOURCE_UNSET_OR_MISSING": "Source missing/unset",
+  "SOURCE_NEWER": "Source newer",
+  "SOURCE_UP_TO_DATE": "Source is up to date",
+  "SOURCE_OLDER": "Cloud newer"
 }
