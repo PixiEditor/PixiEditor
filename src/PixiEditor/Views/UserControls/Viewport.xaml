@@ -159,7 +159,8 @@
                             Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
                             Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToHiddenVisibilityConverter}}"
                             SizeChanged="OnReferenceImageSizeChanged"
-                            RenderOptions.BitmapScalingMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
+                            RenderOptions.BitmapScalingMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}"
+                            FlowDirection="LeftToRight">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <MatrixTransform
@@ -225,7 +226,8 @@
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
-                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
+                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"
+                        FlowDirection="LeftToRight">
                         <Image.Style>
                             <Style>
                                 <Style.Triggers>

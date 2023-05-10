@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -7,9 +6,8 @@ using System.Windows.Media;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
-using PixiEditor.Models.DataHolders;
 
-namespace PixiEditor.Views.Dialogs;
+namespace PixiEditor.Views.Dialogs.DebugDialogs;
 
 public partial class CommandDebugPopup : Window
 {

@@ -103,7 +103,7 @@ internal class CrashHelper
 
     public static async Task SendExceptionInfoToWebhook(Exception e, [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
     {
-        if (ViewModelMain.Current.DebugSubViewModel.IsDebugBuild)
+        if (DebugViewModel.IsDebugBuild)
             return;
         await SendReportTextToWebhook(CrashReport.Generate(e), $"{filePath}; Method {memberName}");
     }
