@@ -33,7 +33,7 @@
 
         <local:DialogTitleBar DockPanel.Dock="Top"
                               CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"
-                              TitleText="Command Debug" />
+                              TitleKey="Command Debug" />
 
         <Grid>
             <Grid.RowDefinitions>

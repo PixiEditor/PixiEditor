@@ -33,7 +33,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <diag:DialogTitleBar DockPanel.Dock="Top"
-                             TitleText="IMPORT_FROM_TEMPLATE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+                             TitleKey="IMPORT_FROM_TEMPLATE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Templates, ElementName=window}"
                       Margin="10,10,10,5">
             <ItemsControl.ItemsPanel>

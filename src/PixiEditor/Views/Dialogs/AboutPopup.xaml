@@ -30,7 +30,7 @@
         </b:Interaction.Behaviors>
 
         <local:DialogTitleBar DockPanel.Dock="Top"
-                             TitleText="{Binding ElementName=aboutPopup, Path=Title}" 
+                             TitleKey="{Binding ElementName=aboutPopup, Path=Title}" 
                              CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <StackPanel DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">

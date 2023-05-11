@@ -32,7 +32,7 @@
 
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="EXPORT_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+            TitleKey="EXPORT_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" IsDefault="True"
                     Margin="15" Style="{StaticResource DarkRoundButton}" local:Translator.Key="EXPORT" Command="{Binding OkCommand}"

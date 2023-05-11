@@ -26,7 +26,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <local:DialogTitleBar TitleText="{Binding Title, ElementName=popup}" CloseCommand="{Binding CancelCommand, ElementName=popup}"/>
+        <local:DialogTitleBar TitleKey="{Binding Title, ElementName=popup}" CloseCommand="{Binding CancelCommand, ElementName=popup}"/>
 
         <ContentPresenter Content="{Binding PopupContent, ElementName=popup}"
                           Grid.Row="1" Margin="15"/>

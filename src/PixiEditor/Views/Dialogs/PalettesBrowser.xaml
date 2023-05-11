@@ -41,7 +41,7 @@
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
 
-        <dialogs:DialogTitleBar TitleText="PALETTE_BROWSER" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+        <dialogs:DialogTitleBar TitleKey="PALETTE_BROWSER" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="1">
             <StackPanel HorizontalAlignment="Left" Margin="10" Orientation="Horizontal" VerticalAlignment="Center">

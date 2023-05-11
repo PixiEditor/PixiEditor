@@ -38,7 +38,7 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="Import image" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+            TitleKey="Import image" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <Button DockPanel.Dock="Bottom" Width="70" HorizontalAlignment="Center" IsDefault="True"
                     Margin="15" Style="{StaticResource DarkRoundButton}" Content="Import" Command="{Binding OkCommand}"
                     CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" />
