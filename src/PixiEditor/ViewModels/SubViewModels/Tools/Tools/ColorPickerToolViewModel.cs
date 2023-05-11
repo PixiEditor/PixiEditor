@@ -80,7 +80,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
 
     private void ReferenceLayerChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(ReferenceLayerViewModel.ReferenceBitmap))
+        if (e.PropertyName is nameof(ReferenceLayerViewModel.ReferenceBitmap) or nameof(ReferenceLayerViewModel.ReferenceShapeBindable))
         {
             UpdateActionDisplay();
         }
@@ -96,9 +96,17 @@ internal class ColorPickerToolViewModel : ToolViewModel
     
     private void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown)
     {
-        var referenceLayer = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.ReferenceLayerViewModel;
+        var document = ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument;
+
+        if (document == null)
+        {
+            return;
+        }
+
+        var documentBounds = new RectD(default, document.SizeBindable);
+        var referenceLayer = document.ReferenceLayerViewModel;
         
-        if (referenceLayer?.ReferenceBitmap == null)
+        if (referenceLayer.ReferenceBitmap == null || !referenceLayer.ReferenceShapeBindable.Intersects(documentBounds))
         {
             PickFromCanvas = true;
             PickFromReferenceLayer = true;
