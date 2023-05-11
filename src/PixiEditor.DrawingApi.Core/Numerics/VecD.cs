@@ -135,7 +135,7 @@ public struct VecD : IEquatable<VecD>
         return (X * other.Y) - (Y * other.X);
     }
 
-    public double Dot(VecD other) => X * other.X + Y * other.Y;
+    public double Dot(VecD other) => (X * other.X) + (Y * other.Y);
     
     public VecD Multiply(VecD other)
     {

@@ -222,5 +222,4 @@ public struct ShapeCorners
         // All projections overlap, so the shapes intersect
         return true;
     }
-
 }
