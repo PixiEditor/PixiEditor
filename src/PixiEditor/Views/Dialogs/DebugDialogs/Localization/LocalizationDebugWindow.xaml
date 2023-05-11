@@ -47,7 +47,7 @@
             <behaviours:ClearFocusOnClickBehavior />
         </b:Interaction.Behaviors>
 
-        <dialogs:DialogTitleBar TitleText="Localization Debug Window"
+        <dialogs:DialogTitleBar TitleText="LOCALIZATION_DEBUG_WINDOW_TITLE"
                                 CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
 
         <StackPanel Grid.Row="1" Margin="5">

@@ -555,5 +555,6 @@
   "SOURCE_UNSET_OR_MISSING": "Source missing/unset",
   "SOURCE_NEWER": "Source newer",
   "SOURCE_UP_TO_DATE": "Source is up to date",
-  "SOURCE_OLDER": "Cloud newer"
+  "SOURCE_OLDER": "Cloud newer",
+  "LOCALIZATION_DEBUG_WINDOW_TITLE": "Localization Debug Window"
 }
