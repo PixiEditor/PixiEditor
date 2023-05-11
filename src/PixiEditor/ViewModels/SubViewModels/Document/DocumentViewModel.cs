@@ -16,6 +16,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Helpers;
+using PixiEditor.Helpers.Collections;
 using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -122,6 +123,7 @@ internal partial class DocumentViewModel : NotifyableObject
     public DocumentToolsModule Tools { get; }
     public DocumentOperationsModule Operations { get; }
     public DocumentEventsModule EventInlet { get; }
+    public ActionDisplayList ActionDisplays { get; } = new(() => ViewModelMain.Current.NotifyToolActionDisplayChanged());
 
     public StructureMemberViewModel? SelectedStructureMember { get; private set; } = null;
 
@@ -159,7 +161,7 @@ internal partial class DocumentViewModel : NotifyableObject
 
         StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
 
-        TransformViewModel = new();
+        TransformViewModel = new(this);
         TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
 
         LineToolOverlayViewModel = new();

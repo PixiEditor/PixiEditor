@@ -6,6 +6,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
@@ -68,14 +69,24 @@ internal class ColorPickerToolViewModel : ToolViewModel
         if (e.OldDocument != null)
         {
             e.OldDocument.ReferenceLayerViewModel.PropertyChanged -= ReferenceLayerChanged;
+            e.OldDocument.TransformViewModel.PropertyChanged -= TransformViewModelOnPropertyChanged;
         }
 
         if (e.NewDocument != null)
         {
             e.NewDocument.ReferenceLayerViewModel.PropertyChanged += ReferenceLayerChanged;
+            e.NewDocument.TransformViewModel.PropertyChanged += TransformViewModelOnPropertyChanged;
         }
 
         UpdateActionDisplay();
+    }
+
+    private void TransformViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(DocumentTransformViewModel.TransformActive))
+        {
+            UpdateActionDisplay();
+        }
     }
 
     private void ReferenceLayerChanged(object sender, PropertyChangedEventArgs e)
@@ -106,7 +117,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
         var documentBounds = new RectD(default, document.SizeBindable);
         var referenceLayer = document.ReferenceLayerViewModel;
         
-        if (referenceLayer.ReferenceBitmap == null || !referenceLayer.ReferenceShapeBindable.Intersects(documentBounds))
+        if (referenceLayer.ReferenceBitmap == null || document.TransformViewModel.TransformActive || !referenceLayer.ReferenceShapeBindable.Intersects(documentBounds))
         {
             PickFromCanvas = true;
             PickFromReferenceLayer = true;

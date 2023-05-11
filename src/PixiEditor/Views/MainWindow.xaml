@@ -870,7 +870,7 @@
                 </Grid.ColumnDefinitions>
                 <DockPanel>
                     <TextBlock
-                        Text="{Binding ActiveActionDisplay}"
+                        views:Translator.LocalizedString="{Binding ActiveActionDisplay}"
                         Foreground="White"
                         FontSize="15"
                         Margin="10,0,0,0"
