@@ -19,7 +19,8 @@
         SizeToContent="Width"
         Name="newFilePopup" 
         BorderBrush="Black" BorderThickness="1"
-        FlowDirection="{helpers:Localization FlowDirection}">
+        FlowDirection="{helpers:Localization FlowDirection}"
+        local:Translator.Key="CREATE_NEW_IMAGE">
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel" />
     </Window.Resources>

@@ -19,14 +19,15 @@
         xmlns:localization="clr-namespace:PixiEditor.Localization"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
-        Title="Settings" Name="window" 
+        Name="window" 
         Height="688" Width="780"
         MinHeight="500" MinWidth="665"
         WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
         WindowStartupLocation="CenterScreen"
         BorderBrush="Black" BorderThickness="1"
         Background="{StaticResource AccentColor}"
-        FlowDirection="{helpers:Localization FlowDirection}">
+        FlowDirection="{helpers:Localization FlowDirection}"
+        views:Translator.Key="SETTINGS">
     <Window.Resources>
         <viewmodels:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>

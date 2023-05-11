@@ -13,7 +13,8 @@
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" 
         x:Name="window"
-        Title="ResizeCanvasPopup" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
+        local:Translator.Key="RESIZE_CANVAS"
         Height="420" Width="320" MinHeight="420" MinWidth="320" 
         WindowStyle="None"
         FlowDirection="{helpers:Localization FlowDirection}">

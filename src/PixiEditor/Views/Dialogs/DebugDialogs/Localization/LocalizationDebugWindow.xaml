@@ -17,7 +17,7 @@
         x:Name="popup"
         mc:Ignorable="d"
         Foreground="White"
-        Title="LocalizationDebugWindow"
+        views:Translator.Key="LOCALIZATION_DEBUG_WINDOW_TITLE"
         MinHeight="240" MinWidth="465"
         Height="350" Width="465"
         FlowDirection="{helpers:Localization FlowDirection}"

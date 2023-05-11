@@ -556,5 +556,7 @@
   "SOURCE_NEWER": "Source newer",
   "SOURCE_UP_TO_DATE": "Source is up to date",
   "SOURCE_OLDER": "Cloud newer",
-  "LOCALIZATION_DEBUG_WINDOW_TITLE": "Localization Debug Window"
+  "LOCALIZATION_DEBUG_WINDOW_TITLE": "Localization Debug Window",
+  "COMMAND_DEBUG_WINDOW_TITLE": "Command Debug Window",
+  "SHORTCUTS_TITLE": "Shortcuts"
 }

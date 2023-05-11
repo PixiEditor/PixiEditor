@@ -20,7 +20,8 @@
     Height="600" Width="850" 
     WindowStyle="None"
     x:Name="palettesBrowser"
-    FlowDirection="{helpers:Localization FlowDirection}">
+    FlowDirection="{helpers:Localization FlowDirection}"
+    views:Translator.Key="PALETTE_BROWSER">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>

@@ -11,7 +11,8 @@
         xmlns:views="clr-namespace:PixiEditor.Views"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" WindowStyle="None"
-        Title="About" WindowStartupLocation="CenterScreen"
+        views:Translator.Key="ABOUT"
+        WindowStartupLocation="CenterScreen"
         Height="510" Width="400" Name="aboutPopup" MinWidth="100" MinHeight="100"
         FlowDirection="{helpers:Localization FlowDirection}">
     <Window.CommandBindings>
@@ -30,7 +31,7 @@
         </b:Interaction.Behaviors>
 
         <local:DialogTitleBar DockPanel.Dock="Top"
-                             TitleKey="{Binding ElementName=aboutPopup, Path=Title}" 
+                             TitleKey="ABOUT" 
                              CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <StackPanel DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
