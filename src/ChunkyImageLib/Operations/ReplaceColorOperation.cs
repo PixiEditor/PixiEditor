@@ -22,9 +22,9 @@ internal class ReplaceColorOperation : IDrawOperation
         newColorBits = newColor.ToULong();
     }
 
-    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
     {
-        ReplaceColor(oldColorBounds, newColorBits, chunk);
+        ReplaceColor(oldColorBounds, newColorBits, targetChunk);
     }
 
     private static unsafe void ReplaceColor(ColorBounds oldColorBounds, ulong newColorBits, Chunk chunk)

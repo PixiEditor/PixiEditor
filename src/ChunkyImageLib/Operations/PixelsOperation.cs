@@ -24,14 +24,14 @@ internal class PixelsOperation : IMirroredDrawOperation
         paint = new Paint() { BlendMode = blendMode };
     }
 
-    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
     {
         // a hacky way to make the lines look slightly better on non full res chunks
-        paint.Color = new Color(color.R, color.G, color.B, (byte)(color.A * chunk.Resolution.Multiplier()));
+        paint.Color = new Color(color.R, color.G, color.B, (byte)(color.A * targetChunk.Resolution.Multiplier()));
 
-        DrawingSurface surf = chunk.Surface.DrawingSurface;
+        DrawingSurface surf = targetChunk.Surface.DrawingSurface;
         surf.Canvas.Save();
-        surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
+        surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
         surf.Canvas.DrawPoints(PointMode.Points, pixels, paint);
         surf.Canvas.Restore();

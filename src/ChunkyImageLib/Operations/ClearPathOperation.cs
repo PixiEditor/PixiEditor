@@ -16,17 +16,17 @@ internal class ClearPathOperation : IMirroredDrawOperation
         this.pathTightBounds = (pathTightBounds ?? (RectI)path.TightBounds);
     }
 
-    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
     {
-        chunk.Surface.DrawingSurface.Canvas.Save();
+        targetChunk.Surface.DrawingSurface.Canvas.Save();
 
         using VectorPath transformedPath = new(path);
-        float scale = (float)chunk.Resolution.Multiplier();
+        float scale = (float)targetChunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkyImage.FullChunkSize * scale;
         transformedPath.Transform(Matrix3X3.CreateScaleTranslation(scale, scale, (float)trans.X, (float)trans.Y));
-        chunk.Surface.DrawingSurface.Canvas.ClipPath(transformedPath);
-        chunk.Surface.DrawingSurface.Canvas.Clear();
-        chunk.Surface.DrawingSurface.Canvas.Restore();
+        targetChunk.Surface.DrawingSurface.Canvas.ClipPath(transformedPath);
+        targetChunk.Surface.DrawingSurface.Canvas.Clear();
+        targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)

@@ -14,8 +14,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
     private readonly List<VecI> positions = new();
     private bool ignoreUpdate = false;
     private readonly bool repeat;
-    
-    private Surface tempSurface;
+
     private List<VecI> ellipseLines;
     
     private CommittedChunkStorage? savedChunks;
@@ -29,7 +28,6 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         this.repeat = repeat;
 
         ellipseLines = EllipseHelper.SplitEllipseIntoLines((EllipseHelper.GenerateEllipseFromRect(new RectI(0, 0, strokeWidth, strokeWidth))));
-        tempSurface = new Surface(new VecI(strokeWidth, strokeWidth));
     }
 
     [UpdateChangeMethod]
@@ -58,7 +56,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
 
         int queueLength = layer.LayerImage.QueueLength;
         
-        ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, tempSurface, layer.LayerImage);
+        ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, layer.LayerImage);
         
         var affected = layer.LayerImage.FindAffectedArea(queueLength);
         
@@ -66,20 +64,9 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
     }
     
     private static void ChangeBrightness(
-        List<VecI> circleLines, int circleDiameter, VecI offset, float correctionFactor, bool repeat, Surface tempSurface, ChunkyImage layerImage)
+        List<VecI> circleLines, int circleDiameter, VecI offset, float correctionFactor, bool repeat, ChunkyImage layerImage)
     {
-        tempSurface.DrawingSurface.Canvas.Clear();
-        if (repeat)
-        {
-            layerImage.DrawMostUpToDateRegionOn
-                (new RectI(offset, new(circleDiameter, circleDiameter)), ChunkResolution.Full, tempSurface.DrawingSurface, new VecI(0));
-        }
-        else
-        {
-            layerImage.DrawCommittedRegionOn
-                (new RectI(offset, new(circleDiameter, circleDiameter)), ChunkResolution.Full, tempSurface.DrawingSurface, new VecI(0));
-        }
-        
+
         for (var i = 0; i < circleLines.Count - 1; i++)
         {
             VecI left = circleLines[i];
@@ -90,9 +77,9 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
             {
                 layerImage.EnqueueDrawPixel(
                     pos + offset,
-                    (pixel) =>
+                    (commitedColor, upToDateColor) =>
                     {
-                        Color newColor = ColorHelper.ChangeColorBrightness(pixel, correctionFactor);
+                        Color newColor = ColorHelper.ChangeColorBrightness(repeat ? upToDateColor : commitedColor, correctionFactor);
                         return ColorHelper.ChangeColorBrightness(newColor, correctionFactor);
                     },
                     BlendMode.Src);
@@ -113,7 +100,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
             DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, layer.LayerImage, layerGuid, false);
             foreach (VecI pos in positions)
             {
-                ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, tempSurface, layer.LayerImage);
+                ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, layer.LayerImage);
             }
         }
 
@@ -129,10 +116,5 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
     {
         var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, layerGuid, false, ref savedChunks);
         return new LayerImageArea_ChangeInfo(layerGuid, affected);
-    }
-
-    public override void Dispose()
-    {
-        tempSurface.Dispose();
     }
 }

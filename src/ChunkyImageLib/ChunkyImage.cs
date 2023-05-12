@@ -1089,7 +1089,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         affectedAreaSize = affectedAreaSize * scale;
         targetChunk.Surface.DrawingSurface.Canvas.ClipRect(new RectD(affectedAreaPos, affectedAreaSize));
 
-        operation.DrawOnChunk(targetChunk, chunkPos);
+        operation.DrawOnChunk(targetChunk, chunkPos, this);
         targetChunk.Surface.DrawingSurface.Canvas.RestoreToCount(count);
     }
 
