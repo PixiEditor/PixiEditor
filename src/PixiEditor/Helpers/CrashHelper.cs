@@ -3,9 +3,11 @@ using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Windows.Input;
 using ByteSizeLib;
 using Hardware.Info;
 using PixiEditor.Models.DataHolders;
+using Mouse = System.Windows.Input.Mouse;
 
 namespace PixiEditor.Helpers;
 
@@ -15,7 +17,16 @@ internal class CrashHelper
 
     public static void SaveCrashInfo(Exception exception)
     {
-        CrashReport report = CrashReport.Generate(exception);
+        try
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+        }
+        catch (Exception e)
+        {
+            exception = new AggregateException(exception, e);
+        }
+        
+        var report = CrashReport.Generate(exception);
         report.TrySave();
         report.RestartToCrashReport();
     }
