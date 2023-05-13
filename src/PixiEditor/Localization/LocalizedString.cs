@@ -16,7 +16,7 @@ public struct LocalizedString
             #if DEBUG_LOCALIZATION
             Value = key;
             #else
-            Value = ViewModelMain.Current.DebugSubViewModel?.LocalizationKeyShowMode switch
+            Value = ViewModelMain.Current?.DebugSubViewModel?.LocalizationKeyShowMode switch
             {
                 LocalizationKeyShowMode.Key => Key,
                 LocalizationKeyShowMode.ValueKey => $"{GetValue(value)} ({Key})",

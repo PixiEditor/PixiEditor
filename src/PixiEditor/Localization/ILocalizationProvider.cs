@@ -4,7 +4,7 @@ namespace PixiEditor.Localization;
 
 public interface ILocalizationProvider
 {
-    public static ILocalizationProvider Current => ViewModelMain.Current.LocalizationProvider;
+    public static ILocalizationProvider Current => ViewModelMain.Current?.LocalizationProvider;
     
     public string LocalizationDataPath { get; }
     public LocalizationData LocalizationData { get; }

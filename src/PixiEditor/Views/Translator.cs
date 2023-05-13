@@ -56,6 +56,12 @@ public class Translator : UIElement
     private static void TooltipKeyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         d.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(GetTooltipKey(d)).Value);
+
+        if (ILocalizationProvider.Current == null)
+        {
+            return;
+        }
+        
         ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedTooltipKey(d, lang);
     }
 
@@ -92,6 +98,12 @@ public class Translator : UIElement
         if (e.NewValue is string key)
         {
             UpdateKey(d, key);
+            
+            if (ILocalizationProvider.Current == null)
+            {
+                return;
+            }
+
             ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedKey(d, lang);
         }
     }
