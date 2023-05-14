@@ -62,7 +62,7 @@ internal class DocumentTransformViewModel : NotifyableObject
 
             if (value)
             {
-                document.ActionDisplays[nameof(DocumentTransformViewModel)] = new LocalizedString($"TRANSFORM_ACTION_DISPLAY_{activeTransformMode.ToString().ToUpper()}");
+                document.ActionDisplays[nameof(DocumentTransformViewModel)] = new LocalizedString($"TRANSFORM_ACTION_DISPLAY_{activeTransformMode.GetDescription()}");
             }
             else
             {
