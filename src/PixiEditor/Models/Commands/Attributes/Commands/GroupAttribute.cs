@@ -1,4 +1,4 @@
-﻿using PixiEditor.Localization;
+﻿using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Models.Commands.Attributes.Commands;
 

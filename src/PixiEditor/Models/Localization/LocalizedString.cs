@@ -1,7 +1,6 @@
-﻿using System.Text;
-using PixiEditor.Models.Enums;
+﻿using PixiEditor.Models.Enums;
 
-namespace PixiEditor.Localization;
+namespace PixiEditor.Models.Localization;
 
 public struct LocalizedString
 {

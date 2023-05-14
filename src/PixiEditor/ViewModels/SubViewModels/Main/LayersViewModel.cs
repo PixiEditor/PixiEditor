@@ -7,12 +7,12 @@ using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Exceptions;
-using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;

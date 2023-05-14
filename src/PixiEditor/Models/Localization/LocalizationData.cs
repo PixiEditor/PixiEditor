@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace PixiEditor.Localization;
+namespace PixiEditor.Models.Localization;
 
 [DebuggerDisplay("{Languages.Count} Language(s)")]
 public class LocalizationData

@@ -1,11 +1,10 @@
 ﻿using System.Globalization;
 using System.IO;
-using System.Reflection;
 using Newtonsoft.Json;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 
-namespace PixiEditor.Localization;
+namespace PixiEditor.Models.Localization;
 
 internal class LocalizationProvider : ILocalizationProvider
 {

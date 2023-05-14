@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.ComponentModel;
 using System.Windows.Input;
-using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Models.Commands;
 

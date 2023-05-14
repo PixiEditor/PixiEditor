@@ -2,11 +2,11 @@
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
-using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Localization;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 

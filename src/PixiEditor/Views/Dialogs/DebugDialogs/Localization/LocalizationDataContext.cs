@@ -11,8 +11,8 @@ using System.Windows.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Localization;
 using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Views.Dialogs.DebugDialogs.Localization;

@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using PixiEditor.Localization;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Helpers.Collections;
 

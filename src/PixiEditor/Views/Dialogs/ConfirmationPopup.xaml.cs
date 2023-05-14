@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Views.Dialogs;
 

@@ -1,6 +1,4 @@
-﻿using PixiEditor.Localization;
-
-namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
+﻿namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
 internal class DiscordSettings : SettingsGroup
 {

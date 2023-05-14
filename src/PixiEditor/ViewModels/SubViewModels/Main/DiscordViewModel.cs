@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using DiscordRPC;
-using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.UserPreferences;

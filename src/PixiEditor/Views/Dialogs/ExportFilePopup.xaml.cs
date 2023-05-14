@@ -1,8 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels;
 
 namespace PixiEditor.Views.Dialogs;

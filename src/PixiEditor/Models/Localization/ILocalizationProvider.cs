@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace PixiEditor.Localization;
+﻿namespace PixiEditor.Models.Localization;
 
 public interface ILocalizationProvider
 {

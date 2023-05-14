@@ -3,8 +3,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Behaviours;
-using PixiEditor.Localization;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Views.UserControls;
 

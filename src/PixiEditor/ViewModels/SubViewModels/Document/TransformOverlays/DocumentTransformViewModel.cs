@@ -2,8 +2,8 @@
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Localization;
 using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;

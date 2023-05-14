@@ -11,6 +11,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views;
@@ -34,6 +35,7 @@ internal partial class MainWindow : Window
         Current = this;
 
         services = new ServiceCollection()
+            .AddPlatform()
             .AddPixiEditor()
             .BuildServiceProvider();
 

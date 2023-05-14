@@ -1,4 +1,4 @@
-﻿using PixiEditor.Localization;
+﻿using PixiEditor.Models.Localization;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;

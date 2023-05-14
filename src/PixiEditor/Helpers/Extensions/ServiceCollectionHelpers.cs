@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.PaletteParsers;
 using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
+using PixiEditor.Models.Localization;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.Document;

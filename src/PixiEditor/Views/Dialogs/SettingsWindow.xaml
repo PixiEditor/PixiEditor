@@ -16,7 +16,6 @@
         xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:settingGroups="clr-namespace:PixiEditor.Views.Dialogs.SettingGroups"
-        xmlns:localization="clr-namespace:PixiEditor.Localization"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d"
         Name="window" 

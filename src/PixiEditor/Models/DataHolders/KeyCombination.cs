@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Text;
 using System.Windows.Input;
-using PixiEditor.Localization;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Models.DataHolders;
 

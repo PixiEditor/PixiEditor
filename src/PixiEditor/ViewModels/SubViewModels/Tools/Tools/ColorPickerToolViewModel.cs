@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Windows.Input;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;

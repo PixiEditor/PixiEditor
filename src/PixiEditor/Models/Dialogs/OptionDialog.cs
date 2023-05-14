@@ -1,5 +1,5 @@
-﻿using PixiEditor.Localization;
-using PixiEditor.Models.Enums;
+﻿using PixiEditor.Models.Enums;
+using PixiEditor.Models.Localization;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;

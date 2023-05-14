@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using PixiEditor.Localization;
+using PixiEditor.Models.Localization;
 using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;

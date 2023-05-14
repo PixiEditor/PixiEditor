@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Localization;
 
 namespace PixiEditor.Helpers.Extensions;
 internal static class BlendModeEx
