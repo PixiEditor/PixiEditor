@@ -2,6 +2,8 @@
 
 public sealed class MicrosoftStorePlatform : IPlatform
 {
+    public string Name => "Microsoft Store";
+
     public bool PerformHandshake()
     {
         return true;

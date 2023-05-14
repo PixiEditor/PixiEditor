@@ -4,6 +4,8 @@ namespace PixiEditor.Platform.Steam;
 
 public class SteamPlatform : IPlatform
 {
+    public string Name => "Steam";
+
     public bool PerformHandshake()
     {
         try

@@ -11,6 +11,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Localization;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.Platform;
 using PixiEditor.UpdateModule;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
@@ -216,13 +217,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         UpdateChannels.Add(new UpdateChannel("Release", "PixiEditor", "PixiEditor"));
         UpdateChannels.Add(new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel"));
 #else
-    #if STEAM
-        string platformName = "Steam";
-    #elif MSIX
-        string platformName = "Microsoft Store";
-    #else
-        string platformName = "Unknown";
-    #endif
+        string platformName = IPlatform.Current.Name;
         UpdateChannels.Add(new UpdateChannel(platformName, "", ""));
 #endif
 
