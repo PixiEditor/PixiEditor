@@ -56,6 +56,12 @@ public class Translator : UIElement
     private static void TooltipKeyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         d.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(GetTooltipKey(d)).Value);
+
+        if (ILocalizationProvider.Current == null)
+        {
+            return;
+        }
+        
         ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedTooltipKey(d, lang);
     }
 
@@ -92,6 +98,12 @@ public class Translator : UIElement
         if (e.NewValue is string key)
         {
             UpdateKey(d, key);
+            
+            if (ILocalizationProvider.Current == null)
+            {
+                return;
+            }
+
             ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedKey(d, lang);
         }
     }
@@ -123,6 +135,16 @@ public class Translator : UIElement
         {
             run.SetBinding(Run.TextProperty, binding);
         }
+        else if (d is Window window)
+        {
+            window.SetBinding(Window.TitleProperty, binding);
+        }
+        #if DEBUG
+        else if (d is DialogTitleBar)
+        {
+            throw new ArgumentException($"Use {nameof(DialogTitleBar)}.{nameof(DialogTitleBar.TitleKey)} to set the localization key for the title");
+        }
+        #endif
         else if (d is ContentControl contentControl)
         {
             contentControl.SetBinding(ContentControl.ContentProperty, binding);
@@ -135,6 +157,12 @@ public class Translator : UIElement
         {
             layoutContent.SetValue(LayoutContent.TitleProperty, localizedString.Value);
         }
+        #if DEBUG
+        else
+        {
+            throw new ArgumentException($"'{d.GetType().Name}' does not support {nameof(Translator)}.Key");
+        }
+        #endif
 
         d.SetValue(ValueProperty, localizedString.Value);
     }

@@ -75,7 +75,24 @@ internal class ViewModelMain : ViewModelBase
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
-    public string ActiveActionDisplay => ActionDisplays.HasActive() ? ActionDisplays.GetActive() : ToolsSubViewModel.ActiveTool?.ActionDisplay;
+    public LocalizedString ActiveActionDisplay
+    {
+        get
+        {
+            if (ActionDisplays.HasActive())
+            {
+                return ActionDisplays.GetActive();
+            }
+
+            var documentDisplay = DocumentManagerSubViewModel.ActiveDocument?.ActionDisplays;
+            if (documentDisplay != null && documentDisplay.HasActive())
+            {
+                return documentDisplay.GetActive();
+            }
+
+            return ToolsSubViewModel.ActiveTool?.ActionDisplay ?? default;
+        }
+    }
 
     public ActionDisplayList ActionDisplays { get; }
 
@@ -173,7 +190,7 @@ internal class ViewModelMain : ViewModelBase
         }
     }
 
-    private void NotifyToolActionDisplayChanged()
+    public void NotifyToolActionDisplayChanged()
     {
         if (!ActionDisplays.Any()) RaisePropertyChanged(nameof(ActiveActionDisplay));
     }
@@ -260,6 +277,7 @@ internal class ViewModelMain : ViewModelBase
 
     private void OnActiveDocumentChanged(object sender, DocumentChangedEventArgs e)
     {
+        NotifyToolActionDisplayChanged();
         if (e.OldDocument is not null)
             e.OldDocument.SizeChanged -= ActiveDocument_DocumentSizeChanged;
         if (e.NewDocument is not null)

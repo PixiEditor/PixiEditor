@@ -19,7 +19,8 @@
         SizeToContent="Width"
         Name="newFilePopup" 
         BorderBrush="Black" BorderThickness="1"
-        FlowDirection="{helpers:Localization FlowDirection}">
+        FlowDirection="{helpers:Localization FlowDirection}"
+        local:Translator.Key="CREATE_NEW_IMAGE">
     <Window.Resources>
         <vm:NewFileMenuViewModel x:Key="NewFileMenuViewModel" />
     </Window.Resources>
@@ -39,7 +40,7 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="CREATE_NEW_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+            TitleKey="CREATE_NEW_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
 
         <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
                 IsDefault="True" local:Translator.Key="CREATE" x:Name="createButton"

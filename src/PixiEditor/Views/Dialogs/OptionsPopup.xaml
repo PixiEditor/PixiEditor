@@ -7,12 +7,14 @@
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:views="clr-namespace:PixiEditor.Views"
         mc:Ignorable="d"
         WindowStartupLocation="CenterScreen"
         SizeToContent="WidthAndHeight"
         x:Name="popup"
         Background="{StaticResource AccentColor}" Foreground="White"
-        FlowDirection="{helpers:Localization FlowDirection}">
+        FlowDirection="{helpers:Localization FlowDirection}"
+        views:Translator.Key="{Binding Title, ElementName=popup}">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
@@ -26,7 +28,7 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <local:DialogTitleBar TitleText="{Binding Title, ElementName=popup}" CloseCommand="{Binding CancelCommand, ElementName=popup}"/>
+        <local:DialogTitleBar TitleKey="{Binding Title, ElementName=popup}" CloseCommand="{Binding CancelCommand, ElementName=popup}"/>
 
         <ContentPresenter Content="{Binding PopupContent, ElementName=popup}"
                           Grid.Row="1" Margin="15"/>

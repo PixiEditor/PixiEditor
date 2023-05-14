@@ -11,7 +11,8 @@
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         mc:Ignorable="d" BorderBrush="Black" BorderThickness="1"
-        Title="SaveFilePopup" WindowStyle="None" MinHeight="330" MinWidth="310" Width="310"
+        WindowStyle="None" MinHeight="330" MinWidth="310" Width="310"
+        local:Translator.Key="EXPORT_IMAGE"
         SizeToContent="Height"
         WindowStartupLocation="CenterScreen" Name="saveFilePopup"
         FlowDirection="{helpers:Localization FlowDirection}">
@@ -32,7 +33,7 @@
 
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="EXPORT_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+            TitleKey="EXPORT_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" IsDefault="True"
                     Margin="15" Style="{StaticResource DarkRoundButton}" local:Translator.Key="EXPORT" Command="{Binding OkCommand}"

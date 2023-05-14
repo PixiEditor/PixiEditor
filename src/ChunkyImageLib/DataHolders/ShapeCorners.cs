@@ -1,6 +1,9 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using System.Diagnostics;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace ChunkyImageLib.DataHolders;
+
+[DebuggerDisplay("TL: {TopLeft}, TR: {TopRight}, BL: {BottomLeft}, BR: {BottomRight}")]
 public struct ShapeCorners
 {
     private const double epsilon = 0.001;
@@ -176,5 +179,47 @@ public struct ShapeCorners
             TopRight.AlmostEquals(other.TopRight, epsilon) &&
             BottomLeft.AlmostEquals(other.BottomLeft, epsilon) &&
             BottomRight.AlmostEquals(other.BottomRight, epsilon);
+    }
+    
+    public bool Intersects(RectD rect)
+    {
+        // Get all corners
+        VecD[] corners1 = { TopLeft, TopRight, BottomRight, BottomLeft };
+        VecD[] corners2 = { rect.TopLeft, rect.TopRight, rect.BottomRight, rect.BottomLeft };
+
+        // For each pair of corners
+        for (int i = 0; i < 4; i++)
+        {
+            VecD axis = corners1[i] - corners1[(i + 1) % 4]; // Create an edge
+            axis = new VecD(-axis.Y, axis.X); // Get perpendicular axis
+
+            // Project corners of first shape onto axis
+            double min1 = double.MaxValue, max1 = double.MinValue;
+            foreach (VecD corner in corners1)
+            {
+                double projection = corner.Dot(axis);
+                min1 = Math.Min(min1, projection);
+                max1 = Math.Max(max1, projection);
+            }
+
+            // Project corners of second shape onto axis
+            double min2 = double.MaxValue, max2 = double.MinValue;
+            foreach (VecD corner in corners2)
+            {
+                double projection = corner.Dot(axis);
+                min2 = Math.Min(min2, projection);
+                max2 = Math.Max(max2, projection);
+            }
+
+            // Check for overlap
+            if (max1 < min2 || max2 < min1)
+            {
+                // The projections do not overlap, so the shapes do not intersect
+                return false;
+            }
+        }
+
+        // All projections overlap, so the shapes intersect
+        return true;
     }
 }

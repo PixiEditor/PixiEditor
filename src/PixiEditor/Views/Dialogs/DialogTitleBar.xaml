@@ -16,7 +16,7 @@
         </Grid.ColumnDefinitions>
         <TextBlock 
             TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
-            views:Translator.Key="{Binding ElementName=uc, Path=TitleText}"
+            views:Translator.Key="{Binding ElementName=uc, Path=TitleKey}"
             Foreground="White" 
             FontSize="15" 
             Margin="5,0,0,0" 

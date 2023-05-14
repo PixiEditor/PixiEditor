@@ -14,6 +14,7 @@
         Name="popup" WindowStartupLocation="CenterScreen" 
         Height="180" Width="400" MinHeight="180" MinWidth="400"
         WindowStyle="None"
+        views:Translator.Key="{Binding ElementName=popup, Path=Title}"
         FlowDirection="{helpers:Localization FlowDirection}"
         d:DataContext="{d:DesignInstance dial:ConfirmationPopup}">
 
@@ -28,7 +29,7 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
+            TitleKey="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
 
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center"
                     Margin="0,0,10,15">

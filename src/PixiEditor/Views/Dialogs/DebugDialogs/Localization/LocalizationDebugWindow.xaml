@@ -17,7 +17,7 @@
         x:Name="popup"
         mc:Ignorable="d"
         Foreground="White"
-        Title="LocalizationDebugWindow"
+        views:Translator.Key="LOCALIZATION_DEBUG_WINDOW_TITLE"
         MinHeight="240" MinWidth="465"
         Height="350" Width="465"
         FlowDirection="{helpers:Localization FlowDirection}"
@@ -47,7 +47,7 @@
             <behaviours:ClearFocusOnClickBehavior />
         </b:Interaction.Behaviors>
 
-        <dialogs:DialogTitleBar TitleText="Localization Debug Window"
+        <dialogs:DialogTitleBar TitleKey="LOCALIZATION_DEBUG_WINDOW_TITLE"
                                 CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
 
         <StackPanel Grid.Row="1" Margin="5">

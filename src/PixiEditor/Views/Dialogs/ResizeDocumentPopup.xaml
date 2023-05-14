@@ -9,7 +9,8 @@
         xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         mc:Ignorable="d" x:Name="window"
-        Title="ResizeDocumentPopup" ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
+        local:Translator.Key="RESIZE_IMAGE"
         Height="305" Width="310" MinHeight="305" MinWidth="310"
         xmlns:base="clr-namespace:PixiEditor.Views"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
@@ -33,7 +34,7 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="RESIZE_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+            TitleKey="RESIZE_IMAGE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
         <Button DockPanel.Dock="Bottom" Padding="5 0" HorizontalAlignment="Center" Margin="15"
                 Style="{StaticResource DarkRoundButton}" local:Translator.Key="RESIZE" Click="Button_Click" IsDefault="True" />

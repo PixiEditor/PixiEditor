@@ -54,7 +54,7 @@ internal class Menu : System.Windows.Controls.Menu
 
         item.Command = Command.GetICommand(command, false);
         item.Icon = icon;
-        item.SetBinding(MenuItem.InputGestureTextProperty, ShortcutBinding.GetBinding(command));
+        item.SetBinding(MenuItem.InputGestureTextProperty, ShortcutBinding.GetBinding(command, null));
     }
 
     private static void HandleDesignMode(MenuItem item, string name)

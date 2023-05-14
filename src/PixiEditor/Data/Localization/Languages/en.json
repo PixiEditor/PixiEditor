@@ -304,8 +304,8 @@
     "BRIGHTNESS_TOOL_ACTION_DISPLAY_CTRL": "Draw on pixels to make them darker. Release Ctrl to brighten.",
     "COLOR_PICKER_TOOLTIP": "Picks the primary color from the canvas. ({0})",
     "COLOR_PICKER_ACTION_DISPLAY_DEFAULT": "Click to pick colors. Hold Ctrl to hide the canvas. Hold Shift to hide the reference layer",
-    "COLOR_PICKER_ACTION_DISPLAY_CTRL": "Click to pick colors from the reference layer.",
-    "COLOR_PICKER_ACTION_DISPLAY_SHIFT": "Click to pick colors from the canvas.",
+    "COLOR_PICKER_ACTION_DISPLAY_REFERENCE_ONLY": "Click to pick colors from the reference layer.",
+    "COLOR_PICKER_ACTION_DISPLAY_CANVAS_ONLY": "Click to pick colors from the canvas.",
     "ELLIPSE_TOOL_TOOLTIP": "Draws an ellipse on canvas ({0}). Hold Shift to draw a circle.",
     "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT": "Click and move mouse to draw an ellipse. Hold Shift to draw a circle.",
     "ELLIPSE_TOOL_ACTION_DISPLAY_SHIFT": "Click and move mouse to draw a circle.",
@@ -555,5 +555,12 @@
   "SOURCE_UNSET_OR_MISSING": "Source missing/unset",
   "SOURCE_NEWER": "Source newer",
   "SOURCE_UP_TO_DATE": "Source is up to date",
-  "SOURCE_OLDER": "Cloud newer"
+  "SOURCE_OLDER": "Cloud newer",
+  "LOCALIZATION_DEBUG_WINDOW_TITLE": "Localization Debug Window",
+  "COMMAND_DEBUG_WINDOW_TITLE": "Command Debug Window",
+  "SHORTCUTS_TITLE": "Shortcuts",
+  "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_SHEAR_PERSPECTIVE": "Drag handles to scale transform. Hold Ctrl and drag a handle to move the handle freely. Hold Shift to scale proportionally. Hold Alt and drag a side handle to shear. Drag outside handles to rotate.",
+  "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_SHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally. Hold Alt and drag a side handle to shear. Drag outside handles to rotate.",
+  "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_NOSHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally. Drag outside handles to rotate.",
+  "TRANSFORM_ACTION_DISPLAY_SCALE_NOROTATE_NOSHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally."
 }

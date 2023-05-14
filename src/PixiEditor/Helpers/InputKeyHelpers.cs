@@ -25,7 +25,7 @@ internal static class InputKeyHelpers
         >= Key.NumPad0 and <= Key.Divide => $"Num {GetMappedKey(key, forceInvariant)}",
         Key.Space => nameof(Key.Space),
         Key.Tab => nameof(Key.Tab),
-        Key.Return => "Enter",
+        Key.Return => "↵",
         Key.Back => "Backspace",
         Key.Escape => "Esc",
         _ => GetMappedKey(key, forceInvariant),

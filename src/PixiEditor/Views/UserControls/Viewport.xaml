@@ -404,13 +404,13 @@
         </zoombox:Zoombox>
         <Button 
             Panel.ZIndex="99999"
-            DockPanel.Dock="Bottom" 
-            Width="140" 
-            Height="28" 
-            Margin="5" 
+            DockPanel.Dock="Bottom"
+            Margin="5"
+            Padding="8,5,5,5"
             VerticalAlignment="Bottom" 
+            HorizontalAlignment="Center"
             Style="{StaticResource GrayRoundButton}"
-            Command="{cmds:Command PixiEditor.Tools.ApplyTransform}" views:Translator.Key="APPLY_TRANSFORM">
+            Command="{cmds:Command PixiEditor.Tools.ApplyTransform}">
             <Button.Visibility>
                 <MultiBinding Converter="{converters:BoolOrToVisibilityConverter}">
                     <MultiBinding.Bindings>
@@ -419,6 +419,12 @@
                     </MultiBinding.Bindings>
                 </MultiBinding>
             </Button.Visibility>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock views:Translator.Key="APPLY_TRANSFORM" VerticalAlignment="Center" Margin="0,0,5,0" />
+                <Border Padding="10,3" CornerRadius="5" Background="{StaticResource AccentColor}" Visibility="{cmds:ShortcutBinding PixiEditor.Tools.ApplyTransform, Converter={converters:NotNullToVisibilityConverter}}">
+                    <TextBlock Text="{cmds:ShortcutBinding PixiEditor.Tools.ApplyTransform}" />
+                </Border>
+            </StackPanel>
         </Button>
     </Grid>
 </UserControl>
