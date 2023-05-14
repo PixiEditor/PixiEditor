@@ -52,7 +52,45 @@ internal class MemberPreviewUpdater
         AddAreasToAccumulator(chunkGatherer);
         if (!rerenderPreviews)
             return new List<IRenderInfo>();
-        
+
+        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> changedMainPreviewBounds = null;
+        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> changedMaskPreviewBounds = null;
+        await Task.Run(() =>
+        {
+            changedMainPreviewBounds = FindChangedTightBounds(false);
+            changedMaskPreviewBounds = FindChangedTightBounds(true);
+        }).ConfigureAwait(true);
+
+        RecreatePreviewBitmaps(changedMainPreviewBounds!, changedMaskPreviewBounds!);
+        var renderInfos = await Task.Run(() => Render(changedMainPreviewBounds, changedMaskPreviewBounds)).ConfigureAwait(true);
+
+        CleanupUnusedTightBounds();
+
+        foreach (var a in changedMainPreviewBounds)
+        {
+            if (a.Value is not null)
+                lastMainPreviewTightBounds[a.Key] = a.Value.Value.tightBounds;
+        }
+
+        foreach (var a in changedMaskPreviewBounds)
+        {
+            if (a.Value is not null)
+                lastMaskPreviewTightBounds[a.Key] = a.Value.Value.tightBounds;
+        }
+
+        return renderInfos;
+    }
+
+    /// <summary>
+    /// Don't call this outside ActionAccumulator
+    /// </summary>
+    public List<IRenderInfo> UpdateGatheredChunksSync
+        (AffectedAreasGatherer chunkGatherer, bool rerenderPreviews)
+    {
+        AddAreasToAccumulator(chunkGatherer);
+        if (!rerenderPreviews)
+            return new List<IRenderInfo>();
+
         var changedMainPreviewBounds = FindChangedTightBounds(false);
         var changedMaskPreviewBounds = FindChangedTightBounds(true);
 
@@ -74,17 +112,7 @@ internal class MemberPreviewUpdater
         }
 
         return renderInfos;
-        //return await Task.Run(() => Render(chunkGatherer, rerenderPreviews)).ConfigureAwait(true);
     }
-
-    /// <summary>
-    /// Don't call this outside ActionAccumulator
-    /// </summary>
-    /*public List<IRenderInfo> UpdateGatheredChunksSync
-        (AffectedAreasGatherer chunkGatherer, bool rerenderPreviews)
-    {
-        return Render(chunkGatherer, rerenderPreviews);
-    }*/
 
     /// <summary>
     /// Cleans up <see cref="lastMainPreviewTightBounds"/> and <see cref="lastMaskPreviewTightBounds"/> to get rid of tight bounds that belonged to now deleted layers
@@ -352,7 +380,8 @@ internal class MemberPreviewUpdater
         if (cumulative.GlobalArea is null)
             return;
 
-        float scaling = (float)doc.PreviewBitmap.PixelWidth / doc.SizeBindable.X;
+        var previewSize = StructureMemberViewModel.CalculatePreviewSize(internals.Tracker.Document.Size);
+        float scaling = (float)previewSize.X / doc.SizeBindable.X;
 
         bool somethingChanged = false;
         foreach (var chunkPos in cumulative.Chunks)
@@ -421,7 +450,8 @@ internal class MemberPreviewUpdater
 
             var member = internals.Tracker.Document.FindMemberOrThrow(guid);
 
-            float scaling = (float)memberVM.PreviewBitmap.PixelWidth / tightBounds.Value.Width;
+            var previewSize = StructureMemberViewModel.CalculatePreviewSize(tightBounds.Value.Size);
+            float scaling = (float)previewSize.X / tightBounds.Value.Width;
             VecI position = tightBounds.Value.Pos;
 
             if (memberVM is LayerViewModel)
@@ -523,7 +553,8 @@ internal class MemberPreviewUpdater
             if (tightBounds is null)
                 tightBounds = lastMainPreviewTightBounds[guid];
 
-            float scaling = (float)memberVM.MaskPreviewBitmap.PixelWidth / tightBounds.Value.Width;
+            var previewSize = StructureMemberViewModel.CalculatePreviewSize(tightBounds.Value.Size);
+            float scaling = (float)previewSize.X / tightBounds.Value.Width;
             VecI position = tightBounds.Value.Pos;
 
             var member = internals.Tracker.Document.FindMemberOrThrow(guid);
