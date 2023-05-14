@@ -146,30 +146,6 @@
 	  <Optimize>True</Optimize>
 	</PropertyGroup>
   
-  <ItemGroup Condition="'$(Configuration)' == 'DevRelease'">
-    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
-    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(Configuration)' == 'Steam'">
-    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
-  </ItemGroup>
-  
-  <ItemGroup Condition="'$(Configuration)' == 'MSIX Debug'">
-    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'MSIX'">
-    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
-  </ItemGroup>
-  
 	<ItemGroup>
 		<Compile Remove="Styles\AvalonDock\Images\**" />
 		<EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
@@ -479,6 +455,31 @@
 			<HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.Skia.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'DevRelease'">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Steam'">
+    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'MSIX Debug'">
+    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'MSIX'">
+    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
+  </ItemGroup>
+  
 	<ItemGroup>
 		<Compile Update="Properties\Settings.Designer.cs">
 			<DesignTimeSharedInput>True</DesignTimeSharedInput>

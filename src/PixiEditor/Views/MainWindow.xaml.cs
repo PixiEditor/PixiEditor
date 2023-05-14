@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -21,7 +22,7 @@ internal partial class MainWindow : Window
     private static WriteableBitmap pixiEditorLogo;
 
     private readonly IPreferences preferences;
-
+    private readonly IPlatform platform;
     private readonly IServiceProvider services;
 
     public static MainWindow Current { get; private set; }
@@ -34,6 +35,8 @@ internal partial class MainWindow : Window
     {
         Current = this;
 
+        IPlatform.RegisterPlatform(GetActivePlatform());
+
         services = new ServiceCollection()
             .AddPlatform()
             .AddPixiEditor()
@@ -43,7 +46,10 @@ internal partial class MainWindow : Window
         DrawingBackendApi.SetupBackend(skiaDrawingBackend);
 
         preferences = services.GetRequiredService<IPreferences>();
+        platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModelMain>();
+
+        platform.PerformHandshake();
         DataContext.Setup(services);
 
         InitializeComponent();
@@ -64,6 +70,17 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
+    }
+
+    private IPlatform GetActivePlatform()
+    {
+#if STEAM
+        return new PixiEditor.Platform.Steam.SteamPlatform();
+#elif MSIX || MSIX_DEBUG
+        return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();
+#else
+        return new PixiEditor.Platform.Standalone.StandalonePlatform();
+#endif
     }
 
     private void MainWindow_ContentRendered(object sender, EventArgs e)

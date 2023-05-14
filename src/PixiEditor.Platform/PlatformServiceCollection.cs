@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace PixiEditor.Platform;
 
@@ -6,7 +7,7 @@ public static class PlatformServiceCollection
 {
     public static IServiceCollection AddPlatform(this IServiceCollection services)
     {
-        if (IPlatform.Current == null)
+        if(IPlatform.Current == null)
             throw new InvalidOperationException("No platform was found");
 
         services.AddSingleton(IPlatform.Current);

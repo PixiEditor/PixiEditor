@@ -2,7 +2,17 @@
 
 public interface IPlatform
 {
-    public static IPlatform Current { get; }
+    public static IPlatform Current { get; private set; }
     public bool PerformHandshake();
     public IAdditionalContentProvider? AdditionalContentProvider { get; }
+
+    public static void RegisterPlatform(IPlatform platform)
+    {
+        if (Current != null)
+        {
+            throw new InvalidOperationException("Platform already initialized.");
+        }
+
+        Current = platform;
+    }
 }

@@ -10,4 +10,29 @@
       <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Steamworks.NET" Version="20.1.0" />
+    </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'x86'">
+    <None Update="steam_api.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'AnyCPU'">
+    <None Update="steam_api.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="steam_api64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Platform)' == 'x64'">
+    <None Update="steam_api64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

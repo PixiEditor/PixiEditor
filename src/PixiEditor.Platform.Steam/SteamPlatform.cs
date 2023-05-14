@@ -1,13 +1,21 @@
-﻿namespace PixiEditor.Platform.Steam;
+﻿using Steamworks;
+
+namespace PixiEditor.Platform.Steam;
 
 public class SteamPlatform : IPlatform
 {
     public bool PerformHandshake()
     {
-        return true;
+        try
+        {
+            SteamAPI.Init();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public IAdditionalContentProvider? AdditionalContentProvider { get; } = new SteamAdditionalContentProvider();
-
-    public static IPlatform Current { get; } = new SteamPlatform();
 }
