@@ -8,6 +8,7 @@ using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.Models.Localization;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Main;
 using PixiEditor.ViewModels.SubViewModels.Tools;
@@ -41,6 +42,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
         .AddSingleton<DebugViewModel>()
         .AddSingleton<SearchViewModel>()
+        .AddSingleton<AdditionalContentViewModel>()
         // Controllers
         .AddSingleton<ShortcutController>()
         .AddSingleton<CommandController>()

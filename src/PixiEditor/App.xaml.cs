@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
+using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
@@ -47,9 +48,14 @@ internal partial class App : Application
         }
 
         AddNativeAssets();
-        
+
+        ExtensionLoader loader = new ExtensionLoader();
+        loader.LoadExtensions();
+
         MainWindow = new MainWindow();
         MainWindow.Show();
+
+        loader.InitializeExtensions();
     }
 
     private void AddNativeAssets()

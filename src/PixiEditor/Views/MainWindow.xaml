@@ -468,6 +468,9 @@
                     Margin="0,-5,-5,0"
                     HorizontalAlignment="Right"
                     WindowChrome.IsHitTestVisibleInChrome="True">
+                    <Image Source="../Images/Star-filled.png" Width="24"
+                           Visibility="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable,
+                           Converter={converters:BoolToVisibilityConverter}}"/>
                     <Button
                         Style="{StaticResource MinimizeButtonStyle}"
                         WindowChrome.IsHitTestVisibleInChrome="True"

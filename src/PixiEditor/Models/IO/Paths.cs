@@ -5,4 +5,5 @@ namespace PixiEditor.Models.IO;
 public static class Paths
 {
     public static string DataFullPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Data");
+    public static string ExtensionsFullPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Extensions");
 }

@@ -13,6 +13,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Localization;
 using PixiEditor.Models.UserPreferences;
+using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 
@@ -71,6 +72,8 @@ internal class ViewModelMain : ViewModelBase
     public SearchViewModel SearchSubViewModel { get; set; }
 
     public RegistryViewModel RegistrySubViewModel { get; set; }
+
+    public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -139,6 +142,8 @@ internal class ViewModelMain : ViewModelBase
 
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
+
+        AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
 
         MiscSubViewModel = services.GetService<MiscViewModel>();
 
