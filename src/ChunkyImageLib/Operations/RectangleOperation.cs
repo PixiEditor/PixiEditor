@@ -15,7 +15,7 @@ internal class RectangleOperation : IMirroredDrawOperation
 
     public bool IgnoreEmptyChunks => false;
 
-    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         var skiaSurf = targetChunk.Surface.DrawingSurface;
 

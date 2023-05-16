@@ -25,7 +25,7 @@ internal class BresenhamLineOperation : IMirroredDrawOperation
         points = BresenhamLineHelper.GetBresenhamLine(from, to);
     }
 
-    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         // a hacky way to make the lines look slightly better on non full res chunks
         paint.Color = new Color(color.R, color.G, color.B, (byte)(color.A * targetChunk.Resolution.Multiplier()));

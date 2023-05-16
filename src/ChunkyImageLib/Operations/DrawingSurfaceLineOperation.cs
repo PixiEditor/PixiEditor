@@ -27,7 +27,7 @@ internal class DrawingSurfaceLineOperation : IMirroredDrawOperation
         this.to = to;
     }
 
-    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         paint.IsAntiAliased = targetChunk.Resolution != ChunkResolution.Full;
         var surf = targetChunk.Surface.DrawingSurface;

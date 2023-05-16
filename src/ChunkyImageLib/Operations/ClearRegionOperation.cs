@@ -14,7 +14,7 @@ internal class ClearRegionOperation : IMirroredDrawOperation
         this.rect = rect;
     }
 
-    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         VecI convPos = OperationHelper.ConvertForResolution(rect.Pos, targetChunk.Resolution);
         VecI convSize = OperationHelper.ConvertForResolution(rect.Size, targetChunk.Resolution);

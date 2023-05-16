@@ -16,7 +16,7 @@ internal class ClearPathOperation : IMirroredDrawOperation
         this.pathTightBounds = (pathTightBounds ?? (RectI)path.TightBounds);
     }
 
-    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         targetChunk.Surface.DrawingSurface.Canvas.Save();
 

@@ -19,7 +19,7 @@ internal class ChunkyImageOperation : IMirroredDrawOperation
         this.mirrorVertical = mirrorVertical;
     }
 
-    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         targetChunk.Surface.DrawingSurface.Canvas.Save();
         {

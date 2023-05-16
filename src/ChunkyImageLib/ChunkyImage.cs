@@ -612,7 +612,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         lock (lockObject)
         {
             ThrowIfDisposed();
-            PixelOperation operation = new(pos, pixelProcessor, blendMode);
+            PixelOperation operation = new(pos, pixelProcessor, GetCommittedPixel, blendMode);
             EnqueueOperation(operation);
         }
     }
@@ -1089,7 +1089,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         affectedAreaSize = affectedAreaSize * scale;
         targetChunk.Surface.DrawingSurface.Canvas.ClipRect(new RectD(affectedAreaPos, affectedAreaSize));
 
-        operation.DrawOnChunk(targetChunk, chunkPos, this);
+        operation.DrawOnChunk(targetChunk, chunkPos);
         targetChunk.Surface.DrawingSurface.Canvas.RestoreToCount(count);
     }
 

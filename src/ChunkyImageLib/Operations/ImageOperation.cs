@@ -79,7 +79,7 @@ internal class ImageOperation : IMirroredDrawOperation
 
 
 
-    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         //customPaint.FilterQuality = chunk.Resolution != ChunkResolution.Full;
         float scaleMult = (float)targetChunk.Resolution.Multiplier();

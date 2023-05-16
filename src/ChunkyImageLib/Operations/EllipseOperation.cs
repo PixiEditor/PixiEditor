@@ -53,7 +53,7 @@ internal class EllipseOperation : IMirroredDrawOperation
         }
     }
 
-    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         if (!init)
             Init();

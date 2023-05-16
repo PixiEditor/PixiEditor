@@ -24,7 +24,7 @@ internal class PathOperation : IMirroredDrawOperation
         bounds = floatBounds.Inflate((int)Math.Ceiling(strokeWidth) + 1);
     }
 
-    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos, ChunkyImage caller)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         paint.IsAntiAliased = targetChunk.Resolution != ChunkResolution.Full;
         var surf = targetChunk.Surface.DrawingSurface;
