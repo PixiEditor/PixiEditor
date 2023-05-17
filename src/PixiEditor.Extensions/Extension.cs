@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Metadata;
 
 namespace PixiEditor.Extensions;
@@ -8,13 +9,8 @@ namespace PixiEditor.Extensions;
 /// </summary>
 public abstract class Extension
 {
+    public ExtensionServices Api { get; private set; }
     public ExtensionMetadata Metadata { get; private set; }
-
-    public Action<string, string> NoticeDialogImpl { get; set; }
-    public void NoticeDialog(string message, string title)
-    {
-        NoticeDialogImpl?.Invoke(message, title);
-    }
 
     public void ProvideMetadata(ExtensionMetadata metadata)
     {
@@ -26,8 +22,9 @@ public abstract class Extension
         Metadata = metadata;
     }
 
-    public void Load()
+    public void Load(ExtensionServices api)
     {
+        Api = api;
         OnLoaded();
     }
 

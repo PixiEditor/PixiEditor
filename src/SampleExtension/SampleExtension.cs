@@ -10,6 +10,8 @@ public class SampleExtension : Extension
 
     protected override void OnInitialized()
     {
-        NoticeDialog($"Hello from {Metadata.DisplayName}", "SampleExtension");
+        var popup = Api.WindowProvider.CreatePopupWindow("Hello World!",
+            "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\">Hello World!</TextBlock>");
+        popup.ShowDialog();
     }
 }

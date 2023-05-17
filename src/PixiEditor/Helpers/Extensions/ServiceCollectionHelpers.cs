@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions;
+using PixiEditor.Extensions.Windowing;
+using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataProviders;
@@ -73,4 +76,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<PaletteFileParser, PixiPaletteParser>()
         // Palette data sources
         .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();
+
+    public static IServiceCollection AddExtensionServices(this IServiceCollection collection) =>
+        collection.AddSingleton<IWindowProvider, WindowProvider>();
 }

@@ -2,6 +2,8 @@
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
+using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -49,7 +51,8 @@ internal partial class App : Application
 
         AddNativeAssets();
 
-        ExtensionLoader loader = new ExtensionLoader();
+        var services = new ServiceCollection().AddExtensionServices().BuildServiceProvider();
+        ExtensionLoader loader = new ExtensionLoader(new ExtensionServices(services));
         loader.LoadExtensions();
 
         MainWindow = new MainWindow();

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Windows;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Metadata;
@@ -12,9 +13,11 @@ namespace PixiEditor.Models.AppExtensions;
 
 internal class ExtensionLoader
 {
+    public ExtensionServices Api { get; }
     private List<Extension> LoadedExtensions { get; } = new();
-    public ExtensionLoader()
+    public ExtensionLoader(ExtensionServices pixiEditorApi)
     {
+        Api = pixiEditorApi;
         ValidateExtensionFolder();
     }
 
@@ -48,8 +51,7 @@ internal class ExtensionLoader
             var metadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
             ValidateMetadata(metadata);
             var extension = LoadExtensionEntry(Path.GetDirectoryName(packageJsonPath), metadata);
-            extension.NoticeDialogImpl = (string message, string title) => NoticeDialog.Show(message, title);
-            extension.Load(/*TODO: Inject api*/);
+            extension.Load(Api);
             LoadedExtensions.Add(extension);
         }
         catch (JsonException)
