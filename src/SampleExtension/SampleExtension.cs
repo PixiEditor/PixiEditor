@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions;
+﻿using System.Windows.Controls;
+using PixiEditor.Extensions;
 
 namespace SampleExtension;
 
@@ -10,8 +11,7 @@ public class SampleExtension : Extension
 
     protected override void OnInitialized()
     {
-        var popup = Api.WindowProvider.CreatePopupWindow("Hello World!",
-            "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\">Hello World!</TextBlock>");
+        var popup = Api.WindowProvider.CreatePopupWindow("Hello World!", new TextBlock { Text = "Hello World!" });
         popup.ShowDialog();
     }
 }

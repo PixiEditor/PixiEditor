@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.Extensions.Windowing;
+﻿using System.Windows.Controls;
+
+namespace PixiEditor.Extensions.Windowing;
 
 public interface IWindowProvider
 {
-    public PopupWindow CreatePopupWindow(string title, string bodyXaml);
+    public PopupWindow CreatePopupWindow(string title, object body);
 }

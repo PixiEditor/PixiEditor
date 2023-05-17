@@ -7,14 +7,8 @@ namespace PixiEditor.Models.AppExtensions.Services;
 
 public class WindowProvider : IWindowProvider
 {
-    public PopupWindow CreatePopupWindow(string title, string bodyXaml)
+    public PopupWindow CreatePopupWindow(string title, object body)
     {
-        object body = null;
-        if(bodyXaml is not null)
-        {
-            body = XamlReader.Parse(bodyXaml);
-        }
-
         return new PopupWindow(new BasicPopup { Title = title, Body = body });
     }
 }
