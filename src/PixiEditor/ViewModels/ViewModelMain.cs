@@ -75,6 +75,8 @@ internal class ViewModelMain : ViewModelBase
 
     public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
 
+    public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
+
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
@@ -154,6 +156,8 @@ internal class ViewModelMain : ViewModelBase
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
+
+        ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
     }

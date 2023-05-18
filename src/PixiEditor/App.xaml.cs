@@ -51,14 +51,8 @@ internal partial class App : Application
 
         AddNativeAssets();
 
-        var services = new ServiceCollection().AddExtensionServices().BuildServiceProvider();
-        ExtensionLoader loader = new ExtensionLoader(new ExtensionServices(services));
-        loader.LoadExtensions();
-
         MainWindow = new MainWindow();
         MainWindow.Show();
-
-        loader.InitializeExtensions();
     }
 
     private void AddNativeAssets()

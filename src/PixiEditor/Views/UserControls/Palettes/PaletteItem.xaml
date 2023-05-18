@@ -46,7 +46,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Fill="{Binding}" ToolTip="{Binding}" Width="30" Height="30"/>
+                    <Rectangle Fill="{Binding Hex}" ToolTip="{Binding}" Width="30" Height="30"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

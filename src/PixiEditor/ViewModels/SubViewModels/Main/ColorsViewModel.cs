@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Models.Controllers;
@@ -23,7 +24,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 [Command.Group("PixiEditor.Colors", "PALETTE_COLORS")]
 internal class ColorsViewModel : SubViewModel<ViewModelMain>
 {
-    public RelayCommand<List<string>> ImportPaletteCommand { get; set; }
+    public RelayCommand<List<PaletteColor>> ImportPaletteCommand { get; set; }
 
     public WpfObservableRangeCollection<PaletteFileParser> PaletteParsers { get; private set; }
     public WpfObservableRangeCollection<PaletteListDataSource> PaletteDataSources { get; private set; }
@@ -65,7 +66,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     public ColorsViewModel(ViewModelMain owner)
         : base(owner)
     {
-        ImportPaletteCommand = new RelayCommand<List<string>>(ImportPalette, CanImportPalette);
+        ImportPaletteCommand = new RelayCommand<List<PaletteColor>>(ImportPalette, CanImportPalette);
         Owner.OnStartupEvent += OwnerOnStartupEvent;
     }
 
@@ -185,7 +186,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
 
         await LocalPaletteFetcher.SavePalette(
             palette.FileName,
-            palette.Colors.Select(Color.Parse).ToArray());
+            palette.Colors.Select(x => new Color(x.R, x.G, x.B)).ToArray());
 
         await browser.UpdatePaletteList();
         if (browser.SortedResults.Any(x => x.FileName == palette.FileName))
@@ -201,13 +202,13 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Colors.CanImportPalette")]
-    public bool CanImportPalette(List<string> paletteColors)
+    public bool CanImportPalette(List<PaletteColor> paletteColors)
     {
         return paletteColors is not null && Owner.DocumentIsNotNull(paletteColors) && paletteColors.Count > 0;
     }
 
     [Command.Internal("PixiEditor.Colors.ImportPalette", CanExecute = "PixiEditor.Colors.CanImportPalette")]
-    public void ImportPalette(List<string> palette)
+    public void ImportPalette(List<PaletteColor> palette)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -220,7 +221,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
                 doc.Palette = new WpfObservableRangeCollection<DrawingApi.Core.ColorsImpl.Color>();
             }
 
-            doc.Palette.ReplaceRange(palette.Select(Color.Parse));
+            doc.Palette.ReplaceRange(palette.Select(x => new Color(x.R, x.G, x.B)));
         }
     }
 

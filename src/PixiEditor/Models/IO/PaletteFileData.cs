@@ -1,4 +1,5 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.Models.IO;
 
@@ -32,13 +33,15 @@ internal class PaletteFileData
         Colors = colors;
     }
 
-    public string[] GetHexColors()
+    public PaletteColor[] GetPaletteColors()
     {
-        string[] colors = new string[Colors.Length];
+        PaletteColor[] colors = new PaletteColor[Colors.Length];
         for (int i = 0; i < Colors.Length; i++)
         {
-            colors[i] = Colors[i].ToString();
+            Color color = Colors[i];
+            colors[i] = new PaletteColor(color.R, color.G, color.B);
         }
+
         return colors;
     }
 }

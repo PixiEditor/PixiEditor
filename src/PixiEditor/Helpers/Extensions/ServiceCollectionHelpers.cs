@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Windowing;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.Commands;
@@ -46,6 +47,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<DebugViewModel>()
         .AddSingleton<SearchViewModel>()
         .AddSingleton<AdditionalContentViewModel>()
+        .AddSingleton<ExtensionsViewModel>()
         // Controllers
         .AddSingleton<ShortcutController>()
         .AddSingleton<CommandController>()
@@ -77,6 +79,7 @@ internal static class ServiceCollectionHelpers
         // Palette data sources
         .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();
 
-    public static IServiceCollection AddExtensionServices(this IServiceCollection collection) =>
-        collection.AddSingleton<IWindowProvider, WindowProvider>();
+    public static IServiceCollection AddExtensionServices(this IServiceCollection collection, List<PaletteListDataSource> paletteDataSources) =>
+        collection.AddSingleton<IWindowProvider, WindowProvider>()
+            .AddSingleton<IPaletteProvider, PaletteProvider>(provider => new PaletteProvider(paletteDataSources));
 }

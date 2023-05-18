@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Navigation;
 using Microsoft.Win32;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
@@ -279,7 +280,7 @@ internal partial class PalettesBrowser : Window
     {
         if (palette == null) return;
 
-        string filePath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, palette.FileName);
+        string filePath = Path.Join(Paths.PathToPalettesFolder, palette.FileName);
         if (File.Exists(filePath))
         {
             if (ConfirmationDialog.Show("DELETE_PALETTE_CONFIRMATION", "WARNING") == ConfirmationType.Yes)
@@ -416,7 +417,7 @@ internal partial class PalettesBrowser : Window
 
     private bool CanToggleFavourite(Palette palette)
     {
-        return palette != null && palette.Colors.Count > 0;
+        return palette is { Colors.Count: > 0 };
     }
 
     private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
@@ -473,11 +474,11 @@ internal partial class PalettesBrowser : Window
 
     private void OpenFolder_OnClick(object sender, RoutedEventArgs e)
     {
-        if (Directory.Exists(LocalPalettesFetcher.PathToPalettesFolder))
+        if (Directory.Exists(Paths.PathToPalettesFolder))
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = LocalPalettesFetcher.PathToPalettesFolder,
+                FileName = Paths.PathToPalettesFolder,
                 UseShellExecute = true,
                 Verb = "open"
             });
@@ -504,7 +505,7 @@ internal partial class PalettesBrowser : Window
         string oldFileName = $"{e.OldText}.pal";
 
         string finalNewName = LocalPalettesFetcher.GetNonExistingName($"{Palette.ReplaceInvalidChars(e.NewText)}.pal", true);
-        string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalNewName);
+        string newPath = Path.Join(Paths.PathToPalettesFolder, finalNewName);
 
         if (newPath.Length > 250)
         {
