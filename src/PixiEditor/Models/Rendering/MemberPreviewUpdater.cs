@@ -258,7 +258,7 @@ internal class MemberPreviewUpdater
         if (targetLastCollection.TryGetValue(member.GuidValue, out RectI tightBounds))
             prevTightBounds = tightBounds;
 
-        if (prevTightBounds is not null && currentlyAffectedArea.GlobalArea is not null && prevTightBounds.Value.ContainsInclusive(currentlyAffectedArea.GlobalArea.Value))
+        if (prevTightBounds is not null && currentlyAffectedArea.GlobalArea is not null && prevTightBounds.Value.ContainsExclusive(currentlyAffectedArea.GlobalArea.Value))
         {
             // if the affected area is fully inside the previous tight bounds, the tight bounds couldn't possibly have changed
             return prevTightBounds.Value;
