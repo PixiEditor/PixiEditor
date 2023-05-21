@@ -1,8 +1,9 @@
 ﻿using System.IO;
+using PixiEditor.Models.IO;
 
-namespace PixiEditor.Models.IO;
+namespace PixiEditor.Extensions.Palettes.Parsers;
 
-internal abstract class PaletteFileParser
+public abstract class PaletteFileParser
 {
     public abstract Task<PaletteFileData> Parse(string path);
     public abstract Task<bool> Save(string path, PaletteFileData data);

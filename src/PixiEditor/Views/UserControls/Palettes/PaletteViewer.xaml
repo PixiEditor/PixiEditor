@@ -83,7 +83,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <palettes:PaletteColor Cursor="Hand"
+                            <palettes:PaletteColorControl Cursor="Hand"
                                                    views:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
                                                    AllowDrop="True" Color="{Binding}"
                                                Margin="2.5"
@@ -97,7 +97,7 @@
                                     CommandParameter="{Binding}" />
                                     </b:EventTrigger>
                                 </b:Interaction.Triggers>
-                                <palettes:PaletteColor.ContextMenu>
+                                <palettes:PaletteColorControl.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem views:Translator.Key="CHOOSE" Foreground="White" Click="MenuItem_OnClick"
                                               CommandParameter="{Binding}"/>
@@ -108,8 +108,8 @@
                                                       CommandParameter="{Binding}"
                                                       Click="ReplaceColor_OnClick"/>
                                     </ContextMenu>
-                                </palettes:PaletteColor.ContextMenu>
-                            </palettes:PaletteColor>
+                                </palettes:PaletteColorControl.ContextMenu>
+                            </palettes:PaletteColorControl>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

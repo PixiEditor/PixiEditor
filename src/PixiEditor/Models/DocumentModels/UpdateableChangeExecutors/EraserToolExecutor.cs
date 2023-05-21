@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -34,7 +35,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
         color = vm.ColorsSubViewModel.PrimaryColor;
         toolSize = toolbar.ToolSize;
 
-        vm.ColorsSubViewModel.AddSwatch(color);
+        vm.ColorsSubViewModel.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = new LineBasedPen_Action(guidValue, DrawingApi.Core.ColorsImpl.Colors.Transparent, controller!.LastPixelPosition, toolSize, true,
             drawOnMask);
         internals!.ActionAccumulator.AddActions(action);

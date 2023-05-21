@@ -29,6 +29,8 @@ internal class Palette : NotifyableObject, IPalette
 
     public bool IsFavourite { get; set; }
 
+    public bool IsFromSupporterPack { get; }
+
     public Palette(string name, List<PaletteColor> colors, string? fileName)
     {
         Name = name;

@@ -673,7 +673,7 @@
                                                                             </ItemsControl.ItemsPanel>
                                                                             <ItemsControl.ItemTemplate>
                                                                                 <DataTemplate>
-                                                                                    <palettes:PaletteColor Cursor="Hand" CornerRadius="0"
+                                                                                    <palettes:PaletteColorControl Cursor="Hand" CornerRadius="0"
                                                                                         views:Translator.TooltipKey="CLICK_SELECT_PRIMARY"
                                                                                         Width="22" Height="22" Color="{Binding}">
                                                                                         <b:Interaction.Triggers>
@@ -689,7 +689,7 @@
                                                                                                      AncestorType={x:Type ContextMenu}}}" />
                                                                                             </b:EventTrigger>
                                                                                         </b:Interaction.Triggers>
-                                                                                    </palettes:PaletteColor>
+                                                                                    </palettes:PaletteColorControl>
                                                                                 </DataTemplate>
                                                                             </ItemsControl.ItemTemplate>
                                                                         </ItemsControl>

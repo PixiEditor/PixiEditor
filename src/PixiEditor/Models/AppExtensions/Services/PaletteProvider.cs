@@ -20,7 +20,7 @@ internal sealed class PaletteProvider : IPaletteProvider
         foreach (PaletteListDataSource dataSource in dataSources)
         {
             var palettes = await dataSource.FetchPaletteList(startIndex, items, filtering);
-            allPalettes.AddRange(palettes.Palettes);
+            allPalettes.AddRange(palettes);
         }
 
         return allPalettes;
@@ -51,7 +51,7 @@ internal sealed class PaletteProvider : IPaletteProvider
 
         await localPalettesFetcher.SavePalette(
             finalName,
-            palette.Colors.Select(x => new Color(x.R, x.G, x.B)).ToArray());
+            palette.Colors.ToArray());
 
         return true;
     }

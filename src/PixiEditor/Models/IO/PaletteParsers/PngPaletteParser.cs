@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
@@ -30,7 +32,7 @@ internal class PngPaletteParser : PaletteFileParser
 
             BitmapFrame frame = decoder.Frames[0];
 
-            Color[] colors = ExtractFromBitmap(frame);
+            PaletteColor[] colors = ExtractFromBitmap(frame);
 
             PaletteFileData data = new(
                 Path.GetFileNameWithoutExtension(path), colors);
@@ -39,7 +41,7 @@ internal class PngPaletteParser : PaletteFileParser
         });
     }
 
-    private Color[] ExtractFromBitmap(BitmapFrame frame)
+    private PaletteColor[] ExtractFromBitmap(BitmapFrame frame)
     {
         if (frame.Palette is not null && frame.Palette.Colors.Count > 0)
         {
@@ -49,14 +51,14 @@ internal class PngPaletteParser : PaletteFileParser
         return ExtractFromBitmapSource(frame);
     }
 
-    private Color[] ExtractFromBitmapSource(BitmapFrame frame)
+    private PaletteColor[] ExtractFromBitmapSource(BitmapFrame frame)
     {
         if (frame.PixelWidth == 0 || frame.PixelHeight == 0)
         {
-            return Array.Empty<Color>();
+            return Array.Empty<PaletteColor>();
         }
 
-        List<Color> colors = new();
+        List<PaletteColor> colors = new();
 
         byte[] pixels = new byte[frame.PixelWidth * frame.PixelHeight * 4];
         frame.CopyPixels(pixels, frame.PixelWidth * 4, 0);
@@ -73,19 +75,19 @@ internal class PngPaletteParser : PaletteFileParser
         return colors.ToArray();
     }
 
-    private Color GetColorFromBytes(byte[] pixels, int i)
+    private PaletteColor GetColorFromBytes(byte[] pixels, int i)
     {
-        return new Color(pixels[i * 4 + 2], pixels[i * 4 + 1], pixels[i * 4]);
+        return new PaletteColor(pixels[i * 4 + 2], pixels[i * 4 + 1], pixels[i * 4]);
     }
 
-    private Color[] ExtractFromBitmapPalette(BitmapPalette palette)
+    private PaletteColor[] ExtractFromBitmapPalette(BitmapPalette palette)
     {
         if (palette.Colors == null || palette.Colors.Count == 0)
         {
-            return Array.Empty<Color>();
+            return Array.Empty<PaletteColor>();
         }
 
-        return palette.Colors.Select(color => color.ToColor()).ToArray();
+        return palette.Colors.Select(color => new PaletteColor(color.R, color.G, color.B)).ToArray();
     }
 
     public override async Task<bool> Save(string path, PaletteFileData data)
@@ -109,8 +111,8 @@ internal class PngPaletteParser : PaletteFileParser
             bitmap.Lock();
             for (int i = 0; i < data.Colors.Length; i++)
             {
-                Color color = data.Colors[i];
-                bitmap.SetPixel(i, 0, color.ToOpaqueMediaColor());
+                PaletteColor color = data.Colors[i];
+                bitmap.SetPixel(i, 0, new System.Windows.Media.Color { R = color.R, G = color.G, B = color.B, A = 255 });
             }
 
             bitmap.Unlock();

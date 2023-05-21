@@ -2,11 +2,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using Microsoft.Win32;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
@@ -18,6 +20,7 @@ using PixiEditor.Models.Localization;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Palettes;
+using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
 
 namespace PixiEditor.Views.Dialogs;
 
@@ -139,7 +142,7 @@ internal partial class PalettesBrowser : Window
     private char[] separators = new char[] { ' ', ',' };
 
     private SortingType InternalSortingType => (SortingType)SortingIndex;
-    public WpfObservableRangeCollection<Color> CurrentEditingPalette { get; set; }
+    public WpfObservableRangeCollection<PaletteColor> CurrentEditingPalette { get; set; }
     public static PalettesBrowser Instance { get; internal set; }
 
     private LocalPalettesFetcher LocalPalettesFetcher
@@ -152,6 +155,8 @@ internal partial class PalettesBrowser : Window
 
     private LocalPalettesFetcher localPalettesFetcher;
 
+    private double _lastScrolledOffset = -1;
+
     public PalettesBrowser()
     {
         InitializeComponent();
@@ -161,8 +166,8 @@ internal partial class PalettesBrowser : Window
         ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
         Loaded += async (_, _) =>
         {
-            LocalPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
             await LocalPalettesFetcher.RefreshCacheAll();
+            LocalPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
         };
         Closed += (_, _) =>
         {
@@ -171,7 +176,7 @@ internal partial class PalettesBrowser : Window
         };
     }
 
-    public static PalettesBrowser Open(WpfObservableRangeCollection<PaletteListDataSource> dataSources, ICommand importPaletteCommand, WpfObservableRangeCollection<Color> currentEditingPalette)
+    public static PalettesBrowser Open(WpfObservableRangeCollection<PaletteListDataSource> dataSources, ICommand importPaletteCommand, WpfObservableRangeCollection<PaletteColor> currentEditingPalette)
     {
         if (Instance != null) return Instance;
         PalettesBrowser browser = new PalettesBrowser
@@ -263,13 +268,13 @@ internal partial class PalettesBrowser : Window
         palette.IsFavourite = !palette.IsFavourite;
         var favouritePalettes = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes, new List<string>());
 
-        if (palette.IsFavourite)
+        if (palette.IsFavourite && !favouritePalettes.Contains(palette.Name))
         {
             favouritePalettes.Add(palette.Name);
         }
         else
         {
-            favouritePalettes.Remove(palette.Name);
+            favouritePalettes.RemoveAll(x => x == palette.Name);
         }
 
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favouritePalettes);
@@ -335,8 +340,8 @@ internal partial class PalettesBrowser : Window
     public async Task UpdatePaletteList()
     {
         IsFetching = true;
+        _lastScrolledOffset = -1;
         PaletteList?.Palettes?.Clear();
-
         for (int i = 0; i < PaletteListDataSources.Count; i++)
         {
             PaletteList src = await FetchPaletteList(i, Filtering);
@@ -360,7 +365,17 @@ internal partial class PalettesBrowser : Window
     {
         int startIndex = PaletteList != null ? PaletteList.Palettes.Count : 0;
         var src = await PaletteListDataSources[index].FetchPaletteList(startIndex, ItemsPerLoad, filtering);
-        return src;
+        WpfObservableRangeCollection<Palette> palettes = new WpfObservableRangeCollection<Palette>();
+        if (src != null)
+        {
+            foreach (var pal in src)
+            {
+                palettes.Add(new Palette(pal.Name, pal.Colors, pal.FileName) { IsFavourite = pal.IsFavourite});
+            }
+        }
+
+        PaletteList list = new PaletteList { Palettes = palettes, FetchedCorrectly = src != null };
+        return list;
     }
 
     private static async void OnNameFilterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -375,7 +390,7 @@ internal partial class PalettesBrowser : Window
     {
         if (PaletteList?.Palettes == null) return;
         var viewer = (ScrollViewer)sender;
-        if (viewer.VerticalOffset == viewer.ScrollableHeight)
+        if (viewer.VerticalOffset == viewer.ScrollableHeight && _lastScrolledOffset != viewer.VerticalOffset)
         {
             IsFetching = true;
             var newPalettes = await FetchPaletteList(0, Filtering);
@@ -388,6 +403,8 @@ internal partial class PalettesBrowser : Window
             PaletteList.Palettes.AddRange(newPalettes.Palettes);
             Sort();
             IsFetching = false;
+
+            _lastScrolledOffset = viewer.VerticalOffset;
         }
     }
 

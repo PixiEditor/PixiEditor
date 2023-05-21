@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataProviders;
@@ -11,7 +13,6 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Views.Dialogs;
-using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
@@ -20,18 +21,18 @@ namespace PixiEditor.Views.UserControls.Palettes;
 /// </summary>
 internal partial class PaletteViewer : UserControl
 {
-    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<BackendColor>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<BackendColor>)));
+    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<PaletteColorControl>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<PaletteColorControl>)));
 
-    public WpfObservableRangeCollection<BackendColor> Swatches
+    public WpfObservableRangeCollection<PaletteColor> Swatches
     {
-        get => (WpfObservableRangeCollection<BackendColor>)GetValue(SwatchesProperty);
+        get => (WpfObservableRangeCollection<PaletteColor>)GetValue(SwatchesProperty);
         set => SetValue(SwatchesProperty, value);
     }
-    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<BackendColor>), typeof(PaletteViewer));
+    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<PaletteColorControl>), typeof(PaletteViewer));
 
-    public WpfObservableRangeCollection<BackendColor> Colors
+    public WpfObservableRangeCollection<PaletteColor> Colors
     {
-        get { return (WpfObservableRangeCollection<BackendColor>)GetValue(ColorsProperty); }
+        get { return (WpfObservableRangeCollection<PaletteColor>)GetValue(ColorsProperty); }
         set { SetValue(ColorsProperty, value); }
     }
 
@@ -40,7 +41,6 @@ internal partial class PaletteViewer : UserControl
         get { return (Color)GetValue(HintColorProperty); }
         set { SetValue(HintColorProperty, value); }
     }
-
 
     public static readonly DependencyProperty HintColorProperty =
         DependencyProperty.Register(nameof(HintColor), typeof(Color), typeof(PaletteViewer), new PropertyMetadata(System.Windows.Media.Colors.Transparent));
@@ -101,10 +101,10 @@ internal partial class PaletteViewer : UserControl
     private void RemoveColorMenuItem_OnClick(object sender, RoutedEventArgs e)
     {
         MenuItem menuItem = (MenuItem)sender;
-        BackendColor color = (BackendColor)menuItem.CommandParameter;
-        if (Colors.Contains(color))
+        PaletteColor colorControl = (PaletteColor)menuItem.CommandParameter;
+        if (Colors.Contains(colorControl))
         {
-            Colors.Remove(color);
+            Colors.Remove(colorControl);
         }
     }
 
@@ -184,9 +184,11 @@ internal partial class PaletteViewer : UserControl
             {
                 return;
             }
+
+            List<PaletteColor> paletteColors = colors.Select(x => new PaletteColor(x.R, x.G, x.B)).ToList();
             
             e.Effects = DragDropEffects.Copy;
-            Colors.AddRange(colors.Where(x => !Colors.Contains(x)).ToList());
+            Colors.AddRange(paletteColors.Where(x => !Colors.Contains(new PaletteColor(x.R, x.G, x.B))).ToList());
             e.Handled = true;
             return;
         }
@@ -219,17 +221,21 @@ internal partial class PaletteViewer : UserControl
 
     private void PaletteColor_Drop(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(PaletteColor.PaletteColorDaoFormat))
+        if (e.Data.GetDataPresent(PaletteColorControl.PaletteColorDaoFormat))
         {
-            string data = (string)e.Data.GetData(PaletteColor.PaletteColorDaoFormat);
-            BackendColor color = BackendColor.Parse(data);
-            if (Colors.Contains(color))
+            string data = (string)e.Data.GetData(PaletteColorControl.PaletteColorDaoFormat);
+
+            PaletteColor paletteColor = PaletteColor.Parse(data);
+            if (Colors.Contains(paletteColor))
             {
-                PaletteColor paletteColor = sender as PaletteColor;
-                int currIndex = Colors.IndexOf(color);
-                int newIndex = Colors.IndexOf(paletteColor.Color);
-                Colors.RemoveAt(currIndex);
-                Colors.Insert(newIndex, color);
+                PaletteColorControl paletteColorControl = sender as PaletteColorControl;
+                int currIndex = Colors.IndexOf(paletteColor);
+                if (paletteColorControl != null)
+                {
+                    int newIndex = Colors.IndexOf(paletteColorControl.Color);
+                    Colors.RemoveAt(currIndex);
+                    Colors.Insert(newIndex, paletteColor);
+                }
             }
         }
     }
@@ -243,7 +249,7 @@ internal partial class PaletteViewer : UserControl
     private void ReplaceColor_OnClick(object sender, RoutedEventArgs e)
     {
         MenuItem menuItem = (MenuItem)sender;
-        BackendColor color = (BackendColor)menuItem.CommandParameter;
+        PaletteColor color = (PaletteColor)menuItem.CommandParameter;
         Replacer.ColorToReplace = color;
         Replacer.VisibilityCheckbox.IsChecked = false;
     }

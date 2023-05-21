@@ -15,6 +15,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
 using PixiEditor.Models.Controllers;
@@ -142,8 +143,8 @@ internal partial class DocumentViewModel : NotifyableObject
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
 
-    public WpfObservableRangeCollection<Color> Swatches { get; set; } = new WpfObservableRangeCollection<Color>();
-    public WpfObservableRangeCollection<Color> Palette { get; set; } = new WpfObservableRangeCollection<Color>();
+    public WpfObservableRangeCollection<PaletteColor> Swatches { get; set; } = new WpfObservableRangeCollection<PaletteColor>();
+    public WpfObservableRangeCollection<PaletteColor> Palette { get; set; } = new WpfObservableRangeCollection<PaletteColor>();
 
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
@@ -211,8 +212,8 @@ internal partial class DocumentViewModel : NotifyableObject
                 .AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImagePbgra32Bytes.ToImmutableArray(), refLayer.ImageSize));
         }
         
-        viewModel.Swatches = new WpfObservableRangeCollection<Color>(builderInstance.Swatches);
-        viewModel.Palette = new WpfObservableRangeCollection<Color>(builderInstance.Palette);
+        viewModel.Swatches = new WpfObservableRangeCollection<PaletteColor>(builderInstance.Swatches);
+        viewModel.Palette = new WpfObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
         AddMembers(viewModel.StructureRoot.GuidValue, builderInstance.Children);
 

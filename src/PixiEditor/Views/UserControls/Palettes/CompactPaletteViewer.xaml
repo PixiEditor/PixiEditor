@@ -32,7 +32,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <local:PaletteColor views:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
+                        <local:PaletteColorControl views:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
                                             Cursor="Hand"
                                             Color="{Binding}" Width="20" Height="20" CornerRadius="0">
                             <b:Interaction.Triggers>
@@ -42,7 +42,7 @@
                                     CommandParameter="{Binding}" />
                                 </b:EventTrigger>
                             </b:Interaction.Triggers>
-                        </local:PaletteColor>
+                        </local:PaletteColorControl>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

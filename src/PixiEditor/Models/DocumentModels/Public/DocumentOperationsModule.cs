@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
@@ -232,16 +233,16 @@ internal class DocumentOperationsModule
     /// </summary>
     /// <param name="oldColor">The color to replace</param>
     /// <param name="newColor">The new color</param>
-    public void ReplaceColor(Color oldColor, Color newColor)
+    public void ReplaceColor(PaletteColor oldColor, PaletteColor newColor)
     {
         if (Internals.ChangeController.IsChangeActive || oldColor == newColor)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor, newColor));
+        Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor.ToColor(), newColor.ToColor()));
         ReplaceInPalette(oldColor, newColor);
     }
 
-    private void ReplaceInPalette(Color oldColor, Color newColor)
+    private void ReplaceInPalette(PaletteColor oldColor, PaletteColor newColor)
     {
         int indexOfOldColor = Document.Palette.IndexOf(oldColor);
         if(indexOfOldColor == -1)

@@ -2,6 +2,7 @@
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections.Deprecated;
 using PixiEditor.Parser.Deprecated;
@@ -32,8 +33,8 @@ internal static class SerializableDocumentEx
         {
             builder
                 .WithSize(serializableDocument.Width, serializableDocument.Height)
-                .WithPalette(serializableDocument.Palette.Select(x => new Color(x.R, x.G, x.B, x.A)).ToList())
-                .WithSwatches(serializableDocument.Swatches.Select(x => new Color(x.R, x.G, x.B, x.A)).ToList());
+                .WithPalette(serializableDocument.Palette.Select(x => new PaletteColor(x.R, x.G, x.B)).ToList())
+                .WithSwatches(serializableDocument.Swatches.Select(x => new PaletteColor(x.R, x.G, x.B)).ToList());
 
             if (serializableDocument.Groups != null)
             {

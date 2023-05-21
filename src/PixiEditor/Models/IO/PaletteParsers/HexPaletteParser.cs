@@ -2,6 +2,8 @@
 using System.IO;
 using System.Text;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 
@@ -26,7 +28,7 @@ internal class HexPaletteParser : PaletteFileParser
         var lines = await ReadTextLines(path);
         string name = Path.GetFileNameWithoutExtension(path);
 
-        List<Color> colors = new();
+        List<PaletteColor> colors = new();
         foreach (var colorLine in lines)
         {
             if (colorLine.Length < 6)
@@ -35,7 +37,7 @@ internal class HexPaletteParser : PaletteFileParser
             byte r = byte.Parse(colorLine.Substring(0, 2), NumberStyles.HexNumber);
             byte g = byte.Parse(colorLine.Substring(2, 2), NumberStyles.HexNumber);
             byte b = byte.Parse(colorLine.Substring(4, 2), NumberStyles.HexNumber);
-            var color = new Color(r, g, b, 255); // alpha is ignored in PixiEditor
+            var color = new PaletteColor(r, g, b); // alpha is ignored in PixiEditor
             if (colors.Contains(color)) continue;
 
             colors.Add(color);

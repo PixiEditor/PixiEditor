@@ -29,7 +29,7 @@
                     <Grid Visibility="{Binding ElementName=VisibilityCheckbox, Path=IsChecked, Converter={InverseBoolToVisibilityConverter}}"  Background="Transparent"/>
                 </Grid>
                 <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <local:PaletteColor Color="{Binding ElementName=uc, Path=ColorToReplace}"
+                    <local:PaletteColorControl Color="{Binding ElementName=uc, Path=ColorToReplace}"
                             Height="35" 
                             Width="35" 
                             views:Translator.TooltipKey="REPLACER_TOOLTIP"

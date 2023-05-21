@@ -2,21 +2,21 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
-internal partial class PaletteColor : UserControl
+internal partial class PaletteColorControl : UserControl
 {
     public const string PaletteColorDaoFormat = "PixiEditor.PaletteColor";
 
-    public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(nameof(Color), typeof(Color), typeof(PaletteColor), new PropertyMetadata(default(Color)));
+    public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(nameof(Color), typeof(PaletteColor), typeof(PaletteColorControl), new PropertyMetadata(default(PaletteColor)));
 
-    public Color Color
+    public PaletteColor Color
     {
-        get { return (Color)GetValue(ColorProperty); }
+        get { return (PaletteColor)GetValue(ColorProperty); }
         set { SetValue(ColorProperty, value); }
     }
-
 
     public int? AssociatedKey
     {
@@ -24,9 +24,8 @@ internal partial class PaletteColor : UserControl
         set { SetValue(AssociatedKeyProperty, value); }
     }
 
-
     public static readonly DependencyProperty AssociatedKeyProperty =
-        DependencyProperty.Register(nameof(AssociatedKey), typeof(int?), typeof(PaletteColor), new PropertyMetadata(null));
+        DependencyProperty.Register(nameof(AssociatedKey), typeof(int?), typeof(PaletteColorControl), new PropertyMetadata(null));
 
     public CornerRadius CornerRadius
     {
@@ -36,26 +35,26 @@ internal partial class PaletteColor : UserControl
 
 
     public static readonly DependencyProperty CornerRadiusProperty =
-        DependencyProperty.Register(nameof(CornerRadius), typeof(CornerRadius), typeof(PaletteColor), new PropertyMetadata(new CornerRadius(5f)));
+        DependencyProperty.Register(nameof(CornerRadius), typeof(CornerRadius), typeof(PaletteColorControl), new PropertyMetadata(new CornerRadius(5f)));
 
     private Point clickPoint;
 
-    public PaletteColor()
+    public PaletteColorControl()
     {
         InitializeComponent();
     }
 
     private void PaletteColor_OnMouseMove(object sender, MouseEventArgs e)
     {
-        PaletteColor color = sender as PaletteColor;
-        if (color != null && e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
+        PaletteColorControl colorControl = sender as PaletteColorControl;
+        if (colorControl != null && e.LeftButton == MouseButtonState.Pressed && IsMouseCaptured)
         {
             var movedDistance = (clickPoint - e.GetPosition(this)).Length;
             if (movedDistance > 10)
             {
                 DataObject data = new DataObject();
-                data.SetData(PaletteColor.PaletteColorDaoFormat, color.Color.ToString());
-                DragDrop.DoDragDrop(color, data, DragDropEffects.Move);
+                data.SetData(PaletteColorControl.PaletteColorDaoFormat, colorControl.Color.ToString());
+                DragDrop.DoDragDrop(colorControl, data, DragDropEffects.Move);
                 e.Handled = true;
             }
         }

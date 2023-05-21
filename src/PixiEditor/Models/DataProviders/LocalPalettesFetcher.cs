@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.IO;
@@ -37,22 +38,20 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, updated =>
         {
             cachedFavoritePalettes = (List<string>)updated;
+            cachedPalettes.ForEach(x => x.IsFavourite = cachedFavoritePalettes.Contains(x.Name));
         });
     }
 
-    public override async Task<PaletteList> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
+    public override async Task<List<IPalette>> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
     {
         if (cachedPalettes == null)
         {
             await RefreshCacheAll();
         }
 
-        PaletteList result = new PaletteList
-        {
-            Palettes = new WpfObservableRangeCollection<Palette>()
-        };
+        var filteredPalettes = cachedPalettes.Where(filtering.Filter).OrderByDescending(x => x.IsFavourite).ToArray();
 
-        var filteredPalettes = cachedPalettes.Where(filtering.Filter).ToArray();
+        List<IPalette> result = new List<IPalette>();
 
         if (startIndex >= filteredPalettes.Length) return result;
 
@@ -60,10 +59,9 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         {
             if (startIndex + i >= filteredPalettes.Length) break;
             Palette palette = filteredPalettes[startIndex + i];
-            result.Palettes.Add(palette);
+            result.Add(palette);
         }
 
-        result.FetchedCorrectly = true;
         return result;
     }
 
@@ -102,7 +100,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         return newName;
     }
 
-    public async Task SavePalette(string fileName, Color[] colors)
+    public async Task SavePalette(string fileName, PaletteColor[] colors)
     {
         watcher.EnableRaisingEvents = false;
         string path = Path.Join(Paths.PathToPalettesFolder, fileName);
