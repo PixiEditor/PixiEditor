@@ -385,10 +385,18 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 
 [Registry]
 
-Root: HKCR; Subkey: ".pixi";                             ValueData: "{#MyAppName}";          Flags: uninsdeletevalue; ValueType: string;  ValueName: ""
+// add PixiEditor into registry
 Root: HKCR; Subkey: "{#MyAppName}";                     ValueData: "Program {#MyAppName}";  Flags: uninsdeletekey;   ValueType: string;  ValueName: ""
-Root: HKCR; Subkey: "{#MyAppName}\DefaultIcon";             ValueData: "{app}\{#MyAppExeName},0";               ValueType: string;  ValueName: ""
+Root: HKCR; Subkey: "{#MyAppName}\DefaultIcon";         ValueData: "{app}\{#MyAppExeName},0";               ValueType: string;  ValueName: ""
 Root: HKCR; Subkey: "{#MyAppName}\shell\open\command";  ValueData: """{app}\{#MyAppExeName}"" ""%1""";  ValueType: string;  ValueName: ""
+
+// associate the added PixiEditor progid with various file formats
+Root: HKCR; Subkey: ".pixi";                             ValueData: "";          Flags: uninsdeletevalue; ValueType: string;  ValueName: "{#MyAppName}"
+Root: HKCR; Subkey: ".png\OpenWithProgids";              ValueData: "";          Flags: uninsdeletevalue; ValueType: string;  ValueName: "{#MyAppName}"
+Root: HKCR; Subkey: ".jpg\OpenWithProgids";              ValueData: "";          Flags: uninsdeletevalue; ValueType: string;  ValueName: "{#MyAppName}"
+Root: HKCR; Subkey: ".jpeg\OpenWithProgids";             ValueData: "";          Flags: uninsdeletevalue; ValueType: string;  ValueName: "{#MyAppName}"
+Root: HKCR; Subkey: ".bmp\OpenWithProgids";              ValueData: "";          Flags: uninsdeletevalue; ValueType: string;  ValueName: "{#MyAppName}"
+Root: HKCR; Subkey: ".gif\OpenWithProgids";              ValueData: "";          Flags: uninsdeletevalue; ValueType: string;  ValueName: "{#MyAppName}"
 
 // lospec-palette URL protocol association
 Root: HKCR; Subkey: "lospec-palette";                   ValueData: "{#MyAppName}";  Flags: uninsdeletevalue; ValueType: string;  ValueName: ""
