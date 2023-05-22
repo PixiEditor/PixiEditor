@@ -21,14 +21,14 @@ namespace PixiEditor.Views.UserControls.Palettes;
 /// </summary>
 internal partial class PaletteViewer : UserControl
 {
-    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<PaletteColorControl>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<PaletteColorControl>)));
+    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<PaletteColor>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<PaletteColorControl>)));
 
     public WpfObservableRangeCollection<PaletteColor> Swatches
     {
         get => (WpfObservableRangeCollection<PaletteColor>)GetValue(SwatchesProperty);
         set => SetValue(SwatchesProperty, value);
     }
-    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<PaletteColorControl>), typeof(PaletteViewer));
+    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<PaletteColor>), typeof(PaletteViewer));
 
     public WpfObservableRangeCollection<PaletteColor> Colors
     {

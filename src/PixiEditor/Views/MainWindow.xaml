@@ -58,7 +58,7 @@
                 x:Key="NotNullToBoolConverter" />
             <converters:DoubleToIntConverter
                 x:Key="DoubleToIntConverter" />
-            <converters:BackendColorToMediaColorConverter
+            <converters:GenericColorToMediaColorConverter
                 x:Key="BackendColorToMediaColorConverter" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary
@@ -746,7 +746,7 @@
                                                     Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}"
                                                     Swatches="{Binding DocumentManagerSubViewModel.ActiveDocument.Swatches}"
                                                     SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
-                                                    HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,Converter={converters:BackendColorToMediaColorConverter}}"
+                                                    HintColor="{Binding Path=ColorsSubViewModel.PrimaryColor,Converter={converters:GenericColorToMediaColorConverter}}"
                                                     DataSources="{Binding ColorsSubViewModel.PaletteDataSources}"
                                                     FileParsers="{Binding ColorsSubViewModel.PaletteParsers}"
                                                     Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}, ConverterParameter=Hidden}"
@@ -844,7 +844,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                    <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:BackendColorToMediaColorConverter}}"
+                    <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
                             BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
                             Grid.Row="1" Height="30"/>
                 </Grid>

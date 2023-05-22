@@ -323,9 +323,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Colors.SelectColor")]
-    public void SelectColor(Color color)
+    public void SelectColor(PaletteColor color)
     {
-        PrimaryColor = color;
+        PrimaryColor = color.ToColor();
     }
 
     [Command.Internal("PixiEditor.CloseContextMenu")]

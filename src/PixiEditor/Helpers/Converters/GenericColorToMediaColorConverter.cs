@@ -5,21 +5,19 @@ using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Helpers.Converters;
 
-internal class BackendColorToMediaColorConverter : SingleInstanceConverter<BackendColorToMediaColorConverter>
+internal class GenericColorToMediaColorConverter : SingleInstanceConverter<GenericColorToMediaColorConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        BackendColor backendColor = default;
-        if (value is BackendColor)
+        Color color = default;
+        if (value is BackendColor backendColor)
         {
-            backendColor = (BackendColor)value;
+            color = backendColor.ToColor();
         }
         else if (value is PaletteColor paletteColor)
         {
-            backendColor = paletteColor.ToColor();
+            color = paletteColor.ToMediaColor();
         }
-
-        var color = Color.FromArgb(backendColor.A, backendColor.R, backendColor.G, backendColor.B);
 
         if (targetType == typeof(Brush))
         {

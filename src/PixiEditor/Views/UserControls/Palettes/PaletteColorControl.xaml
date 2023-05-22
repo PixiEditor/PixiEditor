@@ -13,7 +13,7 @@
              MouseMove="PaletteColor_OnMouseMove"
              MouseUp="PaletteColor_OnMouseUp">
     <UserControl.Resources>
-        <converters:BackendColorToMediaColorConverter x:Key="BackendColorToMediaColorConverter" />
+        <converters:GenericColorToMediaColorConverter x:Key="GenericColorToMediaColorConverter" />
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </UserControl.Resources>
     <UserControl.Style>
@@ -34,7 +34,7 @@
         </Border>
         <Border CornerRadius="{Binding ElementName=uc, Path=CornerRadius}" BorderThickness="0 0 0 0.1" BorderBrush="White">
             <Border.Background>
-                <SolidColorBrush Color="{Binding Color, Converter={StaticResource BackendColorToMediaColorConverter}, ElementName=uc}" />
+                <SolidColorBrush Color="{Binding Color, Converter={StaticResource GenericColorToMediaColorConverter}, ElementName=uc}" />
             </Border.Background>
         </Border>
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Margin="0 0 0 -1"
