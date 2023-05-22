@@ -1,8 +1,6 @@
-﻿using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
-using PixiEditor.Models.IO;
+﻿using PixiEditor.Extensions.Palettes.Parsers;
 
-namespace PixiEditor.Models.DataProviders;
+namespace PixiEditor.Extensions.Palettes;
 
 public abstract class PaletteListDataSource
 {

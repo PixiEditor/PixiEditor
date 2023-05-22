@@ -18,4 +18,10 @@ public interface IPaletteProvider
     /// <param name="overwrite">If true and palette with the same name exists, it will be overwritten. If false and palette with the same name exists, it will not be added.</param>
     /// <returns>True if adding palette was successful.</returns>
     public Task<bool> AddPalette(IPalette palette, bool overwrite = false);
+
+    /// <summary>
+    ///     Registers a palette list data source. This means that the provider will use the data source to fetch palettes.
+    /// </summary>
+    /// <param name="dataSource">Data source to register.</param>
+    public void RegisterDataSource(PaletteListDataSource dataSource);
 }

@@ -134,7 +134,7 @@ internal class ViewModelMain : ViewModelBase
         UndoSubViewModel = services.GetService<UndoViewModel>();
         ViewportSubViewModel = services.GetService<ViewOptionsViewModel>();
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
-        ColorsSubViewModel?.SetupPaletteParsers(services);
+        ColorsSubViewModel?.SetupPaletteProviders(services);
 
         ToolsSubViewModel?.SetupTools(services);
 

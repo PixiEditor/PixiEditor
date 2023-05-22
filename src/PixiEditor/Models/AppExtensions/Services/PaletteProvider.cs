@@ -1,5 +1,7 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
 
@@ -7,11 +9,13 @@ namespace PixiEditor.Models.AppExtensions.Services;
 
 internal sealed class PaletteProvider : IPaletteProvider
 {
-    private List<PaletteListDataSource> dataSources;
+    public WpfObservableRangeCollection<PaletteFileParser> AvailableParsers { get; set; }
+    public WpfObservableRangeCollection<PaletteListDataSource> DataSources => dataSources;
+    private readonly WpfObservableRangeCollection<PaletteListDataSource> dataSources;
 
-    public PaletteProvider(List<PaletteListDataSource> dataSources)
+    public PaletteProvider()
     {
-        this.dataSources = dataSources;
+        dataSources = new WpfObservableRangeCollection<PaletteListDataSource>();
     }
 
     public async Task<List<IPalette>> FetchPalettes(int startIndex, int items, FilteringSettings filtering)
@@ -54,5 +58,15 @@ internal sealed class PaletteProvider : IPaletteProvider
             palette.Colors.ToArray());
 
         return true;
+    }
+
+    public void RegisterDataSource(PaletteListDataSource dataSource)
+    {
+        if(dataSources.Contains(dataSource)) return;
+
+        dataSources.Add(dataSource);
+
+        dataSource.AvailableParsers = AvailableParsers.ToList();
+        dataSource.Initialize();
     }
 }

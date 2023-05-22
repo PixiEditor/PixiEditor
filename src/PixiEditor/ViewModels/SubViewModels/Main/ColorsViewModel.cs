@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
+using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -26,12 +27,16 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 internal class ColorsViewModel : SubViewModel<ViewModelMain>
 {
     public RelayCommand<List<PaletteColor>> ImportPaletteCommand { get; set; }
+    private PaletteProvider paletteProvider;
 
-    public WpfObservableRangeCollection<PaletteFileParser> PaletteParsers { get; private set; }
-    public WpfObservableRangeCollection<PaletteListDataSource> PaletteDataSources { get; private set; }
+    public PaletteProvider PaletteProvider
+    {
+        get => paletteProvider;
+        set => this.SetProperty(ref paletteProvider, value);
+    }
 
     public LocalPalettesFetcher LocalPaletteFetcher => _localPaletteFetcher ??=
-        (LocalPalettesFetcher)PaletteDataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
+        (LocalPalettesFetcher)PaletteProvider.DataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
 
     private Color primaryColor = Colors.Black;
     private LocalPalettesFetcher _localPaletteFetcher;
@@ -139,7 +144,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is not null)
-            PalettesBrowser.Open(PaletteDataSources, ImportPaletteCommand, doc.Palette);
+            PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand, doc.Palette);
     } 
 
     private async Task ImportLospecPalette()
@@ -149,7 +154,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
 
         if (lospecPaletteArg != null)
         {
-            var browser = PalettesBrowser.Open(PaletteDataSources, ImportPaletteCommand,
+            var browser = PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand,
                 new WpfObservableRangeCollection<PaletteColor>());
 
             browser.IsFetching = true;
@@ -334,16 +339,16 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         menu.IsOpen = false;
     }
 
-    public void SetupPaletteParsers(IServiceProvider services)
+    public void SetupPaletteProviders(IServiceProvider services)
     {
-        PaletteParsers = new WpfObservableRangeCollection<PaletteFileParser>(services.GetServices<PaletteFileParser>());
-        PaletteDataSources = new WpfObservableRangeCollection<PaletteListDataSource>(services.GetServices<PaletteListDataSource>());
-        var parsers = PaletteParsers.ToList();
+        PaletteProvider = (PaletteProvider)services.GetService<IPaletteProvider>();
+        PaletteProvider.AvailableParsers =
+            new WpfObservableRangeCollection<PaletteFileParser>(services.GetServices<PaletteFileParser>());
+        var dataSources = services.GetServices<PaletteListDataSource>();
 
-        foreach (var dataSource in PaletteDataSources)
+        foreach (var dataSource in dataSources)
         {
-            dataSource.AvailableParsers = parsers;
-            dataSource.Initialize();
+            PaletteProvider.RegisterDataSource(dataSource);
         }
     }
 }

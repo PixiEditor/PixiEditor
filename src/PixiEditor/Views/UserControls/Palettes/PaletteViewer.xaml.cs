@@ -7,6 +7,7 @@ using Microsoft.Win32;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
+using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Dialogs;
@@ -69,19 +70,17 @@ internal partial class PaletteViewer : UserControl
         set { SetValue(ImportPaletteCommandProperty, value); }
     }
 
-
     public static readonly DependencyProperty ImportPaletteCommandProperty =
         DependencyProperty.Register(nameof(ImportPaletteCommand), typeof(ICommand), typeof(PaletteViewer));
 
-    public WpfObservableRangeCollection<PaletteListDataSource> DataSources
+    public static readonly DependencyProperty PaletteProviderProperty = DependencyProperty.Register(
+        nameof(PaletteProvider), typeof(PaletteProvider), typeof(PaletteViewer), new PropertyMetadata(default(PaletteProvider)));
+
+    public PaletteProvider PaletteProvider
     {
-        get { return (WpfObservableRangeCollection<PaletteListDataSource>)GetValue(DataSourcesProperty); }
-        set { SetValue(DataSourcesProperty, value); }
+        get { return (PaletteProvider)GetValue(PaletteProviderProperty); }
+        set { SetValue(PaletteProviderProperty, value); }
     }
-
-
-    public static readonly DependencyProperty DataSourcesProperty =
-        DependencyProperty.Register(nameof(DataSources), typeof(WpfObservableRangeCollection<PaletteListDataSource>), typeof(PaletteViewer), new PropertyMetadata(new WpfObservableRangeCollection<PaletteListDataSource>()));
 
     public WpfObservableRangeCollection<PaletteFileParser> FileParsers
     {
@@ -242,7 +241,7 @@ internal partial class PaletteViewer : UserControl
 
     private async void BrowsePalettes_Click(object sender, RoutedEventArgs e)
     {
-        var browser = PalettesBrowser.Open(DataSources, ImportPaletteCommand, Colors);
+        var browser = PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand, Colors);
         await browser.UpdatePaletteList();
     }
 

@@ -80,7 +80,7 @@ internal static class ServiceCollectionHelpers
         // Palette data sources
         .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();
 
-    public static IServiceCollection AddExtensionServices(this IServiceCollection collection, List<PaletteListDataSource> paletteDataSources) =>
+    public static IServiceCollection AddExtensionServices(this IServiceCollection collection) =>
         collection.AddSingleton<IWindowProvider, WindowProvider>()
-            .AddSingleton<IPaletteProvider, PaletteProvider>(provider => new PaletteProvider(paletteDataSources));
+            .AddSingleton<IPaletteProvider, PaletteProvider>();
 }

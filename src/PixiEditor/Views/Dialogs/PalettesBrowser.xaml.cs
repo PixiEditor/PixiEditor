@@ -10,6 +10,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
+using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
@@ -81,15 +82,6 @@ internal partial class PalettesBrowser : Window
     public static readonly DependencyProperty ColorsNumberProperty =
         DependencyProperty.Register(nameof(ColorsNumber), typeof(int), typeof(PalettesBrowser),
             new PropertyMetadata(8, ColorsNumberChanged));
-
-    public WpfObservableRangeCollection<PaletteListDataSource> PaletteListDataSources
-    {
-        get => (WpfObservableRangeCollection<PaletteListDataSource>)GetValue(PaletteListDataSourcesProperty);
-        set => SetValue(PaletteListDataSourcesProperty, value);
-    }
-
-    public static readonly DependencyProperty PaletteListDataSourcesProperty =
-        DependencyProperty.Register(nameof(PaletteListDataSources), typeof(WpfObservableRangeCollection<PaletteListDataSource>), typeof(PalettesBrowser), new PropertyMetadata(new WpfObservableRangeCollection<PaletteListDataSource>()));
     public bool SortAscending
     {
         get => (bool)GetValue(SortAscendingProperty);
@@ -129,6 +121,14 @@ internal partial class PalettesBrowser : Window
         set => SetValue(ShowOnlyFavouritesProperty, value);
     }
 
+    public static readonly DependencyProperty PaletteProviderProperty = DependencyProperty.Register(
+        nameof(PaletteProvider), typeof(PaletteProvider), typeof(PalettesBrowser), new PropertyMetadata(default(PaletteProvider)));
+
+    public PaletteProvider PaletteProvider
+    {
+        get { return (PaletteProvider)GetValue(PaletteProviderProperty); }
+        set { SetValue(PaletteProviderProperty, value); }
+    }
     public RelayCommand<Palette> ToggleFavouriteCommand { get; set; }
 
     public int SortingIndex { get; set; } = 0;
@@ -149,7 +149,7 @@ internal partial class PalettesBrowser : Window
     {
         get
         {
-            return localPalettesFetcher ??= (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
+            return localPalettesFetcher ??= (LocalPalettesFetcher)PaletteProvider.DataSources.First(x => x is LocalPalettesFetcher);
         }
     }
 
@@ -157,8 +157,9 @@ internal partial class PalettesBrowser : Window
 
     private double _lastScrolledOffset = -1;
 
-    public PalettesBrowser()
+    public PalettesBrowser(PaletteProvider provider)
     {
+        PaletteProvider = provider;
         InitializeComponent();
         Title = new LocalizedString("PALETTE_BROWSER");
         Instance = this;
@@ -176,14 +177,13 @@ internal partial class PalettesBrowser : Window
         };
     }
 
-    public static PalettesBrowser Open(WpfObservableRangeCollection<PaletteListDataSource> dataSources, ICommand importPaletteCommand, WpfObservableRangeCollection<PaletteColor> currentEditingPalette)
+    public static PalettesBrowser Open(PaletteProvider provider, ICommand importPaletteCommand, WpfObservableRangeCollection<PaletteColor> currentEditingPalette)
     {
         if (Instance != null) return Instance;
-        PalettesBrowser browser = new PalettesBrowser
+        PalettesBrowser browser = new PalettesBrowser(provider)
         {
             Owner = Application.Current.MainWindow,
             ImportPaletteCommand = importPaletteCommand,
-            PaletteListDataSources = dataSources,
             CurrentEditingPalette = currentEditingPalette
         };
 
@@ -342,7 +342,7 @@ internal partial class PalettesBrowser : Window
         IsFetching = true;
         _lastScrolledOffset = -1;
         PaletteList?.Palettes?.Clear();
-        for (int i = 0; i < PaletteListDataSources.Count; i++)
+        for (int i = 0; i < PaletteProvider.DataSources.Count; i++)
         {
             PaletteList src = await FetchPaletteList(i, Filtering);
             if (!src.FetchedCorrectly) continue;
@@ -364,7 +364,7 @@ internal partial class PalettesBrowser : Window
     private async Task<PaletteList> FetchPaletteList(int index, FilteringSettings filtering)
     {
         int startIndex = PaletteList != null ? PaletteList.Palettes.Count : 0;
-        var src = await PaletteListDataSources[index].FetchPaletteList(startIndex, ItemsPerLoad, filtering);
+        var src = await PaletteProvider.FetchPalettes(index, startIndex, filtering);
         WpfObservableRangeCollection<Palette> palettes = new WpfObservableRangeCollection<Palette>();
         if (src != null)
         {
@@ -559,7 +559,7 @@ internal partial class PalettesBrowser : Window
 
     private async void ImportFromFile_OnClick(object sender, RoutedEventArgs e)
     {
-        var parsers = ViewModelMain.Current.ColorsSubViewModel.PaletteParsers;
+        var parsers = PaletteProvider.AvailableParsers;
         OpenFileDialog openFileDialog = new OpenFileDialog
         {
             Filter = PaletteHelpers.GetFilter(parsers, true)

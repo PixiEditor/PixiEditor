@@ -6,12 +6,11 @@ namespace PixiEditor.Extensions;
 
 public class ExtensionServices
 {
-    public ServiceProvider Services { get; private set; }
-
+    public IServiceProvider Services { get; private set; }
     public IWindowProvider WindowProvider => Services.GetRequiredService<IWindowProvider>();
     public IPaletteProvider PaletteProvider => Services.GetRequiredService<IPaletteProvider>();
 
-    public ExtensionServices(ServiceProvider services)
+    public ExtensionServices(IServiceProvider services)
     {
         Services = services;
     }

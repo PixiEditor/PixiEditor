@@ -40,6 +40,7 @@ internal partial class MainWindow : Window
         services = new ServiceCollection()
             .AddPlatform()
             .AddPixiEditor()
+            .AddExtensionServices()
             .BuildServiceProvider();
 
         SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
