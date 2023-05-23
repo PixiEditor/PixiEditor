@@ -119,6 +119,29 @@ internal class PreferencesSettings : IPreferences
         AddCallback(name, new Action<object>(o => action((T)o)));
     }
 
+    public void RemoveCallback(string name, Action<object> action)
+    {
+        if (action == null)
+        {
+            throw new ArgumentNullException(nameof(action));
+        }
+
+        if (Callbacks.TryGetValue(name, out var callback))
+        {
+            callback.Remove(action);
+        }
+    }
+
+    public void RemoveCallback<T>(string name, Action<T> action)
+    {
+        if (action == null)
+        {
+            throw new ArgumentNullException(nameof(action));
+        }
+
+        RemoveCallback(name, new Action<object>(o => action((T)o)));
+    }
+
 #nullable enable
 
     public T? GetPreference<T>(string name)

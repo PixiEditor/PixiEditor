@@ -26,6 +26,9 @@ internal interface IPreferences
     /// <param name="action">The action that will be executed when the setting changes</param>
     public void AddCallback<T>(string name, Action<T> action);
 
+    public void RemoveCallback(string name, Action<object> action);
+    public void RemoveCallback<T>(string name, Action<T> action);
+
     /// <summary>
     /// Initializes the preferences.
     /// </summary>

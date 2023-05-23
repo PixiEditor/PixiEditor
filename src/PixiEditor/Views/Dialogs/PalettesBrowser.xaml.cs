@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -27,7 +28,7 @@ namespace PixiEditor.Views.Dialogs;
 
 internal partial class PalettesBrowser : Window
 {
-    private const int ItemsPerLoad = 10;
+    private const int ItemsPerLoad = 25;
 
     private readonly LocalizedString[] stopItTexts = new[]
     {
@@ -137,7 +138,8 @@ internal partial class PalettesBrowser : Window
     private FilteringSettings filteringSettings;
 
     public FilteringSettings Filtering => filteringSettings ??=
-        new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter, ShowOnlyFavourites);
+        new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter, ShowOnlyFavourites,
+            IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes));
 
     private char[] separators = new char[] { ' ', ',' };
 
@@ -175,6 +177,14 @@ internal partial class PalettesBrowser : Window
             Instance = null;
             LocalPalettesFetcher.CacheUpdated -= LocalCacheRefreshed;
         };
+
+        IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
+    }
+
+    private void OnFavouritePalettesChanged(object obj)
+    {
+        Filtering.Favourites =
+            IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
     }
 
     public static PalettesBrowser Open(PaletteProvider provider, ICommand importPaletteCommand, WpfObservableRangeCollection<PaletteColor> currentEditingPalette)
@@ -281,6 +291,12 @@ internal partial class PalettesBrowser : Window
         await UpdatePaletteList();
     }
 
+    private bool IsPaletteFavourite(string name)
+    {
+        var favouritePalettes = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes, new List<string>());
+        return favouritePalettes.Contains(name);
+    }
+
     private void DeletePalette(Palette palette)
     {
         if (palette == null) return;
@@ -342,18 +358,14 @@ internal partial class PalettesBrowser : Window
         IsFetching = true;
         _lastScrolledOffset = -1;
         PaletteList?.Palettes?.Clear();
-        for (int i = 0; i < PaletteProvider.DataSources.Count; i++)
+        PaletteList src = await FetchPaletteList(Filtering);
+        if (PaletteList == null)
         {
-            PaletteList src = await FetchPaletteList(i, Filtering);
-            if (!src.FetchedCorrectly) continue;
-            if (PaletteList == null)
-            {
-                PaletteList = src;
-            }
-            else
-            {
-                PaletteList.Palettes?.AddRange(src.Palettes);
-            }
+            PaletteList = src;
+        }
+        else
+        {
+            PaletteList.Palettes?.AddRange(src.Palettes);
         }
 
         Sort();
@@ -361,16 +373,16 @@ internal partial class PalettesBrowser : Window
         IsFetching = false;
     }
 
-    private async Task<PaletteList> FetchPaletteList(int index, FilteringSettings filtering)
+    private async Task<PaletteList> FetchPaletteList(FilteringSettings filtering)
     {
         int startIndex = PaletteList != null ? PaletteList.Palettes.Count : 0;
-        var src = await PaletteProvider.FetchPalettes(index, startIndex, filtering);
+        var src = await PaletteProvider.FetchPalettes(startIndex, ItemsPerLoad, filtering);
         WpfObservableRangeCollection<Palette> palettes = new WpfObservableRangeCollection<Palette>();
         if (src != null)
         {
             foreach (var pal in src)
             {
-                palettes.Add(new Palette(pal.Name, pal.Colors, pal.FileName) { IsFavourite = pal.IsFavourite});
+                palettes.Add(new Palette(pal.Name, pal.Colors, pal.FileName) { IsFavourite = IsPaletteFavourite(pal.Name) });
             }
         }
 
@@ -393,7 +405,7 @@ internal partial class PalettesBrowser : Window
         if (viewer.VerticalOffset == viewer.ScrollableHeight && _lastScrolledOffset != viewer.VerticalOffset)
         {
             IsFetching = true;
-            var newPalettes = await FetchPaletteList(0, Filtering);
+            var newPalettes = await FetchPaletteList(Filtering);
             if (newPalettes is not { FetchedCorrectly: true } || newPalettes.Palettes == null)
             {
                 IsFetching = false;
@@ -421,7 +433,7 @@ internal partial class PalettesBrowser : Window
 
     private async void ColorsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem)
+        if (Instance != null && e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem)
         {
             var comboBox = (ComboBox)sender;
             ColorsNumberMode = (ColorsNumberMode)comboBox.SelectedIndex;
@@ -587,5 +599,12 @@ internal partial class PalettesBrowser : Window
     private void Hyperlink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
     {
         ProcessHelpers.ShellExecute(e.Uri.ToString());
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        base.OnClosing(e);
+
+        IPreferences.Current.RemoveCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
     }
 }
