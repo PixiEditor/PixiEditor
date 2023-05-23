@@ -75,6 +75,14 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.SelectionToMask(mode);
     }
 
+    [Command.Basic("PixiEditor.Selection.CropToSelection", "CROP_TO_SELECTION", "CROP_TO_SELECTION", CanExecute = "PixiEditor.Selection.IsNotEmpty")]
+    public void CropToSelection()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        
+        document!.Operations.CropToSelection();
+    }
+
     [Evaluator.CanExecute("PixiEditor.Selection.CanNudgeSelectedObject")]
     public bool CanNudgeSelectedObject(int[] dist) => Owner.DocumentManagerSubViewModel.ActiveDocument?.UpdateableChangeActive == true;
 }

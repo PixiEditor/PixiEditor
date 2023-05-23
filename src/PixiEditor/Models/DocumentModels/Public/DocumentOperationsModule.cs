@@ -564,6 +564,25 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.GuidValue, mode));
     }
 
+    public void CropToSelection(bool clearSelection = true)
+    {
+        if (Document.SelectionPathBindable.IsEmpty)
+            return;
+
+        var bounds = Document.SelectionPathBindable.TightBounds;
+        
+        Internals.ActionAccumulator.AddActions(new Crop_Action((RectI)bounds));
+
+        if (clearSelection)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new ClearSelection_Action());
+        }
+        else
+        {
+            Internals.ActionAccumulator.AddFinishedActions();
+        }
+    }
+    
     public void InvertSelection()
     {
         var selection = Document.SelectionPathBindable;
