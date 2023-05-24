@@ -53,16 +53,16 @@ internal class EllipseOperation : IMirroredDrawOperation
         }
     }
 
-    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         if (!init)
             Init();
-        var surf = chunk.Surface.DrawingSurface;
+        var surf = targetChunk.Surface.DrawingSurface;
         surf.Canvas.Save();
-        surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
+        surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
 
-        paint.IsAntiAliased = chunk.Resolution != ChunkResolution.Full;
+        paint.IsAntiAliased = targetChunk.Resolution != ChunkResolution.Full;
 
         if (strokeWidth == 1)
         {

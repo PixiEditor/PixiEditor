@@ -50,7 +50,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     private bool shiftIsDown;
     private bool ctrlIsDown;
     private bool altIsDown;
-    
+
     private ToolViewModel _preTransientTool;
 
 
@@ -97,7 +97,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     {
         SetActiveTool(tool, false);
     }
-    
+
     public void SetActiveTool(ToolViewModel tool, bool transient)
     {
         if (ActiveTool == tool)
@@ -122,7 +122,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
         LastActionTool = ActiveTool;
         ActiveTool = tool;
-        
+
         if (shareToolbar)
         {
             ActiveTool.Toolbar.LoadSharedSettings();
@@ -171,8 +171,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize")]
-    public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool is PenToolViewModel { PixelPerfectEnabled: false };
-    
+    public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool.Toolbar is BasicToolbar
+                                       && Owner.ToolsSubViewModel.ActiveTool is not PenToolViewModel
+                                       {
+                                           PixelPerfectEnabled: true
+                                       };
+
     public void SetActiveTool(Type toolType, bool transient)
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))

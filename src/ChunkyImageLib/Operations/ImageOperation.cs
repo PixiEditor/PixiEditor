@@ -79,19 +79,19 @@ internal class ImageOperation : IMirroredDrawOperation
 
 
 
-    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         //customPaint.FilterQuality = chunk.Resolution != ChunkResolution.Full;
-        float scaleMult = (float)chunk.Resolution.Multiplier();
+        float scaleMult = (float)targetChunk.Resolution.Multiplier();
         VecD trans = -chunkPos * ChunkPool.FullChunkSize;
 
         var scaleTrans = Matrix3X3.CreateScaleTranslation(scaleMult, scaleMult, (float)trans.X * scaleMult, (float)trans.Y * scaleMult);
         var finalMatrix = Matrix3X3.Concat(scaleTrans, transformMatrix);
 
-        chunk.Surface.DrawingSurface.Canvas.Save();
-        chunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
-        chunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
-        chunk.Surface.DrawingSurface.Canvas.Restore();
+        targetChunk.Surface.DrawingSurface.Canvas.Save();
+        targetChunk.Surface.DrawingSurface.Canvas.SetMatrix(finalMatrix);
+        targetChunk.Surface.DrawingSurface.Canvas.DrawSurface(toPaint.DrawingSurface, 0, 0, customPaint);
+        targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
 
     public AffectedArea FindAffectedArea(VecI imageSize)

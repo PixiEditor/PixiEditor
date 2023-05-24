@@ -612,7 +612,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         lock (lockObject)
         {
             ThrowIfDisposed();
-            PixelOperation operation = new(pos, pixelProcessor, blendMode);
+            PixelOperation operation = new(pos, pixelProcessor, GetCommittedPixel, blendMode);
             EnqueueOperation(operation);
         }
     }
