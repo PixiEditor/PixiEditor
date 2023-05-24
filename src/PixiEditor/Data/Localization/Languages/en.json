@@ -563,5 +563,6 @@
   "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_SHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally. Hold Alt and drag a side handle to shear. Drag outside handles to rotate.",
   "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_NOSHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally. Drag outside handles to rotate.",
   "TRANSFORM_ACTION_DISPLAY_SCALE_NOROTATE_NOSHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally.",
-  "CROP_TO_SELECTION": "Crop to selection"
+  "CROP_TO_SELECTION": "Crop to selection",
+  "CROP_TO_SELECTION_DESCRIPTIVE": "Crop image to selection"
 }

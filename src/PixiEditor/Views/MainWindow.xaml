@@ -258,6 +258,9 @@
                         <MenuItem
                             views:Translator.Key="INVERT"
                             cmds:Menu.Command="PixiEditor.Selection.InvertSelection" />
+                        <MenuItem
+                            views:Translator.Key="CROP_TO_SELECTION"
+                            cmds:Menu.Command="PixiEditor.Selection.CropToSelection" />
                         <Separator/>
                         <MenuItem views:Translator.Key="SELECTION_TO_MASK">
                             <MenuItem
