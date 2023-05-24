@@ -361,7 +361,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     ///     Generates export dialog or saves directly if save data is known.
     /// </summary>
     /// <param name="parameter">CommandProperty.</param>
-    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = ModifierKeys.Control)]
     public void ExportFile()
     {
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
