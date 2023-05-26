@@ -12,10 +12,10 @@ public class EnumExtension : MarkupExtension
         EnumType = enumType ?? throw new ArgumentNullException(nameof(enumType));
     }
 
-    public Type EnumType
+    private Type EnumType
     {
-        get { return _enumType; }
-        private set
+        get => _enumType;
+        init
         {
             if (_enumType == value)
                 return;
