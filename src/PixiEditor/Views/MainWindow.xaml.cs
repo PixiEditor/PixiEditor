@@ -9,9 +9,11 @@ using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels.Tools;
 
 namespace PixiEditor.Views;
 
@@ -243,6 +245,15 @@ internal partial class MainWindow : Window
     private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.System) // Disables alt menu item navigation, I hope it won't break anything else.
+        {
+            e.Handled = true;
+        }
+    }
+
+    private void Viewport_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        if (DataContext.ToolsSubViewModel.RightClickMode != RightClickMode.ContextMenu &&
+            DataContext.ToolsSubViewModel.ActiveTool is ShapeTool)
         {
             e.Handled = true;
         }

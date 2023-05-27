@@ -564,5 +564,9 @@
   "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_NOSHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally. Drag outside handles to rotate.",
   "TRANSFORM_ACTION_DISPLAY_SCALE_NOROTATE_NOSHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally.",
   "CROP_TO_SELECTION": "Crop to selection",
-  "CROP_TO_SELECTION_DESCRIPTIVE": "Crop image to selection"
+  "CROP_TO_SELECTION_DESCRIPTIVE": "Crop image to selection",
+  "SHOW_CONTEXT_MENU": "Show context menu",
+  "ERASE": "Erase",
+  "USE_SECONDARY_COLOR": "Use secondary color",
+  "RIGHT_CLICK_MODE": "Right click mode"
 }

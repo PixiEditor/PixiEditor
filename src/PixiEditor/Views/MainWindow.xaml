@@ -623,6 +623,7 @@
                                             StylusOutOfRangeCommand="{cmds:Command PixiEditor.Stylus.StylusOutOfRange, UseProvided=True}"
                                             FlipX="{Binding FlipX, Mode=TwoWay}"
                                             FlipY="{Binding FlipY, Mode=TwoWay}"
+                                            ContextMenuOpening="Viewport_OnContextMenuOpening"
                                             Stylus.IsTapFeedbackEnabled="False" 
                                             Stylus.IsTouchFeedbackEnabled="False"
                                             Document="{Binding Document}">

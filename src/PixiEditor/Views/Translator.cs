@@ -22,6 +22,12 @@ public class Translator : UIElement
         typeof(Translator),
         new FrameworkPropertyMetadata(default(LocalizedString), FrameworkPropertyMetadataOptions.AffectsRender, LocalizedStringPropertyChangedCallback));
 
+    public static readonly DependencyProperty EnumProperty = DependencyProperty.RegisterAttached(
+        "Enum",
+        typeof(object),
+        typeof(Translator),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, EnumPropertyChangedCallback));
+
     public static readonly DependencyProperty TooltipKeyProperty = DependencyProperty.RegisterAttached(
         "TooltipKey", typeof(string), typeof(Translator), 
         new FrameworkPropertyMetadata(default(string), FrameworkPropertyMetadataOptions.AffectsRender, TooltipKeyPropertyChangedCallback));
@@ -51,8 +57,7 @@ public class Translator : UIElement
 
         dependencyObject.SetValue(FrameworkElement.ToolTipProperty, newLocalizedString.Value);
     }
-
-
+    
     private static void TooltipKeyPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         d.SetValue(FrameworkElement.ToolTipProperty, new LocalizedString(GetTooltipKey(d)).Value);
@@ -111,6 +116,17 @@ public class Translator : UIElement
     private static void LocalizedStringPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         d.SetValue(KeyProperty, ((LocalizedString)e.NewValue).Key);
+    }
+
+    private static void EnumPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.NewValue == null)
+        {
+            d.SetValue(KeyProperty, null);
+            return;
+        }
+        
+        d.SetValue(KeyProperty, EnumHelpers.GetDescription(e.NewValue));
     }
 
     private static void UpdateKey(DependencyObject d, string key)
@@ -180,6 +196,11 @@ public class Translator : UIElement
     public static void SetLocalizedString(DependencyObject element, LocalizedString value)
     {
         element.SetValue(LocalizedStringProperty, value);
+    }
+
+    public static void SetEnum(DependencyObject element, object value)
+    {
+        element.SetValue(EnumProperty, value);
     }
 
     public static LocalizedString GetLocalizedString(DependencyObject element)

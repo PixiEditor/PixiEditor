@@ -6,7 +6,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PixiEditor.Views.Dialogs" 
         xmlns:sys="clr-namespace:System;assembly=System.Runtime"
-        xmlns:viewmodels="clr-namespace:PixiEditor.ViewModels" 
+        xmlns:vm="clr-namespace:PixiEditor.ViewModels" 
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
         xmlns:views="clr-namespace:PixiEditor.Views" 
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors" 
@@ -18,6 +18,7 @@
         xmlns:settingGroups="clr-namespace:PixiEditor.Views.Dialogs.SettingGroups"
         xmlns:localization="clr-namespace:PixiEditor.Localization"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
         mc:Ignorable="d"
         Name="window" 
         Height="688" Width="780"
@@ -29,7 +30,7 @@
         FlowDirection="{helpers:Localization FlowDirection}"
         views:Translator.Key="SETTINGS">
     <Window.Resources>
-        <viewmodels:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
+        <vm:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
 
@@ -144,6 +145,14 @@
                 </StackPanel>
 
                 <Label Style="{StaticResource SettingsHeader}" d:Content="Tools" views:Translator.Key="TOOLS"/>
+                
+                <StackPanel Margin="27 0" Orientation="Horizontal">
+                    <Label Style="{StaticResource SettingsText}"
+                           views:Translator.Key="RIGHT_CLICK_MODE"/>
+                    <ComboBox SelectedItem="{Binding RightClickMode, Source={vm:MainVM ToolsSubViewModel}, Mode=TwoWay}"
+                              ItemsSource="{helpers:Enum enums:RightClickMode}"
+                              Width="160" Style="{StaticResource TranslatedEnum}"/>
+                </StackPanel>
 
                 <CheckBox VerticalAlignment="Center" Margin="27 5"
                     IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}" d:Content="Enable shared toolbar" views:Translator.Key="ENABLE_SHARED_TOOLBAR"/>

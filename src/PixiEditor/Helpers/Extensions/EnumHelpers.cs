@@ -27,4 +27,26 @@ internal static class EnumHelpers
 
         return description;
     }
+    
+    public static string GetDescription(object enumValue)
+    {
+        if (!enumValue.GetType().IsEnum)
+        {
+            throw new ArgumentException("enumValue must be a enum", nameof(enumValue));
+        }
+        
+        var description = enumValue.ToString();
+        var fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
+
+        if (fieldInfo != null)
+        {
+            var attrs = fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), true);
+            if (attrs != null && attrs.Length > 0)
+            {
+                description = ((DescriptionAttribute)attrs[0]).Description;
+            }
+        }
+
+        return description;
+    }
 }
