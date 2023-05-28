@@ -159,22 +159,28 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
     }
 
+    /// <summary>
+    /// Finds the precise bounds in <paramref name="suggestedResolution"/>. If there are no chunks rendered for that resolution, full res chunks are used instead.
+    /// </summary>
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public RectI? FindTightCommittedBounds(ChunkResolution requestedResolution = ChunkResolution.Full)
+    public RectI? FindTightCommittedBounds(ChunkResolution suggestedResolution = ChunkResolution.Full)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
 
-            var chunkSize = requestedResolution.PixelSize();
-            var multiplier = requestedResolution.Multiplier();
+            var chunkSize = suggestedResolution.PixelSize();
+            var multiplier = suggestedResolution.Multiplier();
+            RectI scaledCommittedSize = (RectI)(new RectD(VecI.Zero, CommittedSize * multiplier)).RoundOutwards();
 
             RectI? preciseBounds = null;
             foreach (var (chunkPos, fullResChunk) in committedChunks[ChunkResolution.Full])
             {
-                if (committedChunks[requestedResolution].TryGetValue(chunkPos, out Chunk? requestedResChunk))
+                if (committedChunks[suggestedResolution].TryGetValue(chunkPos, out Chunk? requestedResChunk))
                 {
-                    RectI? chunkPreciseBounds = requestedResChunk.FindPreciseBounds();
+                    RectI visibleArea = new RectI(chunkPos * chunkSize, new VecI(chunkSize)).Intersect(scaledCommittedSize).Translate(-chunkPos * chunkSize);
+
+                    RectI? chunkPreciseBounds = requestedResChunk.FindPreciseBounds(visibleArea);
                     if (chunkPreciseBounds is null)
                         continue;
                     RectI globalChunkBounds = chunkPreciseBounds.Value.Offset(chunkPos * chunkSize);
@@ -184,7 +190,9 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                 }
                 else
                 {
-                    RectI? chunkPreciseBounds = fullResChunk.FindPreciseBounds();
+                    RectI visibleArea = new RectI(chunkPos * FullChunkSize, new VecI(FullChunkSize)).Intersect(new RectI(VecI.Zero, CommittedSize)).Translate(-chunkPos * FullChunkSize);
+
+                    RectI? chunkPreciseBounds = fullResChunk.FindPreciseBounds(visibleArea);
                     if (chunkPreciseBounds is null)
                         continue;
                     RectI globalChunkBounds = (RectI)chunkPreciseBounds.Value.Scale(multiplier).Offset(chunkPos * chunkSize).RoundOutwards();
@@ -193,7 +201,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
                     preciseBounds = preciseBounds.Value.Union(globalChunkBounds);
                 }
             }
-            preciseBounds = (RectI?)preciseBounds?.Scale(requestedResolution.InvertedMultiplier()).RoundOutwards();
+            preciseBounds = (RectI?)preciseBounds?.Scale(suggestedResolution.InvertedMultiplier()).RoundOutwards();
             preciseBounds = preciseBounds?.Intersect(new RectI(preciseBounds.Value.Pos, CommittedSize));
 
             return preciseBounds;

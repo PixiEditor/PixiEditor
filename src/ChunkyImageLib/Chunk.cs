@@ -61,15 +61,21 @@ public class Chunk : IDisposable
         surface.Canvas.DrawSurface(Surface.DrawingSurface, pos.X, pos.Y, paint);
     }
     
-    public unsafe RectI? FindPreciseBounds()
+    public unsafe RectI? FindPreciseBounds(RectI? passedSearchRegion = null)
     {
         RectI? bounds = null;
-        if(returned) return bounds;
+        if (returned) 
+            return bounds;
+
+        if (passedSearchRegion is not null && !new RectI(VecI.Zero, Surface.Size).ContainsInclusive(passedSearchRegion.Value))
+            throw new ArgumentException("Passed search region lies outside of the chunk's surface", nameof(passedSearchRegion));
+
+        RectI searchRegion = passedSearchRegion ?? new RectI(VecI.Zero, Surface.Size);
         
         ulong* ptr = (ulong*)Surface.PixelBuffer;
-        for (int y = 0; y < Surface.Size.Y; y++)
+        for (int y = searchRegion.Top; y < searchRegion.Bottom; y++)
         {
-            for (int x = 0; x < Surface.Size.X; x++)
+            for (int x = searchRegion.Left; x < searchRegion.Right; x++)
             {
                 int i = y * Surface.Size.X + x;
                 // ptr[i] actually contains 4 16-bit floats. We only care about the first one which is alpha.

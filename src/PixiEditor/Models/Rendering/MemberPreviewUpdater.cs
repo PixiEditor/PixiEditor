@@ -53,8 +53,8 @@ internal class MemberPreviewUpdater
         if (!rerenderPreviews)
             return new List<IRenderInfo>();
 
-        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> changedMainPreviewBounds = null;
-        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> changedMaskPreviewBounds = null;
+        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?>? changedMainPreviewBounds = null;
+        Dictionary<Guid, (VecI previewSize, RectI tightBounds)?>? changedMaskPreviewBounds = null;
         await Task.Run(() =>
         {
             changedMainPreviewBounds = FindChangedTightBounds(false);
@@ -62,7 +62,7 @@ internal class MemberPreviewUpdater
         }).ConfigureAwait(true);
 
         RecreatePreviewBitmaps(changedMainPreviewBounds!, changedMaskPreviewBounds!);
-        var renderInfos = await Task.Run(() => Render(changedMainPreviewBounds, changedMaskPreviewBounds)).ConfigureAwait(true);
+        var renderInfos = await Task.Run(() => Render(changedMainPreviewBounds!, changedMaskPreviewBounds)).ConfigureAwait(true);
 
         CleanupUnusedTightBounds();
 
@@ -70,12 +70,16 @@ internal class MemberPreviewUpdater
         {
             if (a.Value is not null)
                 lastMainPreviewTightBounds[a.Key] = a.Value.Value.tightBounds;
+            else
+                lastMainPreviewTightBounds.Remove(a.Key);
         }
 
         foreach (var a in changedMaskPreviewBounds)
         {
             if (a.Value is not null)
                 lastMaskPreviewTightBounds[a.Key] = a.Value.Value.tightBounds;
+            else
+                lastMaskPreviewTightBounds.Remove(a.Key);
         }
 
         return renderInfos;
