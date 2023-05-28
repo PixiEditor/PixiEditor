@@ -6,4 +6,5 @@ public interface IPalette
     public List<PaletteColor> Colors { get; }
     public bool IsFavourite { get; }
     public string FileName { get; set; }
+    public PaletteListDataSource Source { get; }
 }

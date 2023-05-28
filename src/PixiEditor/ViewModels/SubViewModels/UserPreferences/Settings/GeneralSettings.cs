@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Localization;
 using PixiEditor.Models.UserPreferences;
 

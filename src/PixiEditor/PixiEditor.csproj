@@ -433,7 +433,6 @@
 		<None Remove="Images\LanguageFlags\zh.png" />
 		<Resource Include="Images\LanguageFlags\zh.png" />
 		<None Remove="Images\SupperterPack.png" />
-		<Resource Include="Images\SupperterPack.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

@@ -27,9 +27,6 @@
             <Separator Background="{StaticResource MainColor}" />
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
-                    <Image Margin="0 5 5 0"
-                           Source="/Images/SupperterPack.png" Width="24"
-                           DockPanel.Dock="Right" HorizontalAlignment="Right"/>
                     <userControls:EditableTextBlock x:Name="titleTextBlock" OnSubmit="EditableTextBlock_OnSubmit"
                                                     Text="{Binding Palette.Name, ElementName=paletteItem, Mode=TwoWay}"
                                                     FontSize="20" MaxChars="50"/>
@@ -42,9 +39,9 @@
                 <!--<Image Margin="0 5 5 0"
                        Source="/Images/SupperterPack.png" Width="24"
                        DockPanel.Dock="Right" HorizontalAlignment="Right"/>-->
-                <!--<userControls:Chip OutlineColor="Gold" Margin="0 5 5 0"
-                                   Text="{Binding ElementName=paletteItem, Path=Palette.BundleName}"
-                                   DockPanel.Dock="Right" HorizontalAlignment="Right"/>-->
+                <userControls:Chip Margin="0 5 5 0"
+                                   views:Translator.Key="{Binding ElementName=paletteItem, Path=Palette.Source.Name.Key}"
+                                   DockPanel.Dock="Right" HorizontalAlignment="Right"/>
             </DockPanel>
             <TextBlock Margin="0 5 0 0">
             </TextBlock>

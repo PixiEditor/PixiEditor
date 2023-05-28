@@ -4,10 +4,13 @@ namespace SampleExtension;
 
 public class TestPaletteDataSource : PaletteListDataSource
 {
-    private List<ExtensionPalette> palettes = new()
+    private List<ExtensionPalette> palettes = new();
+
+    public TestPaletteDataSource()
     {
-        new ExtensionPalette("Test Palette", new List<PaletteColor> { PaletteColor.Black, PaletteColor.White, })
-    };
+        palettes.Add(new ExtensionPalette("Test Palette", new List<PaletteColor> { PaletteColor.Black, PaletteColor.White, }, this));
+    }
+
     public override Task<List<IPalette>> FetchPaletteList(int startIndex, int items, FilteringSettings filtering)
     {
         if(startIndex >= palettes.Count) return Task.FromResult(new List<IPalette>());

@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using AvalonDock.Layout;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Localization;
 using PixiEditor.Views.Dialogs;
 

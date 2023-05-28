@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Enums;
+﻿using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Models.Localization;
 

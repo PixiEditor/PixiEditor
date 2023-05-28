@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Windows;
+using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.Models.Localization;
 

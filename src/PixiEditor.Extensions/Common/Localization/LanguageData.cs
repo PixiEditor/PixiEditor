@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
-using Newtonsoft.Json;
 
-namespace PixiEditor.Models.Localization;
+namespace PixiEditor.Extensions.Common.Localization;
 
 public class LanguageData
 {

@@ -7,6 +7,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Localization;
 using PixiEditor.Views;

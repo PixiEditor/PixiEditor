@@ -312,12 +312,12 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         return result;
     }
 
-    private static Palette CreatePalette(PaletteFileData fileData, string file, bool isFavourite)
+    private Palette CreatePalette(PaletteFileData fileData, string file, bool isFavourite)
     {
         var palette = new Palette(
             fileData.Title,
             new List<PaletteColor>(fileData.GetPaletteColors()),
-            Path.GetFileName(file))
+            Path.GetFileName(file), this)
         {
             IsFavourite = isFavourite
         };

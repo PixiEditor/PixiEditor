@@ -1,9 +1,11 @@
 ﻿using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Extensions.Palettes;
 
 public abstract class PaletteListDataSource
 {
+    public LocalizedString Name { get; set; }
     public virtual void Initialize() { }
 
     /// <summary>

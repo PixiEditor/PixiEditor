@@ -29,13 +29,14 @@ internal class Palette : NotifyableObject, IPalette
 
     public bool IsFavourite { get; set; }
 
-    public bool IsFromSupporterPack { get; }
+    public PaletteListDataSource Source { get; }
 
-    public Palette(string name, List<PaletteColor> colors, string? fileName)
+    public Palette(string name, List<PaletteColor> colors, string? fileName, PaletteListDataSource source)
     {
         Name = name;
         Colors = colors;
         FileName = fileName;
+        Source = source;
     }
 
     public static string? ReplaceInvalidChars(string? filename)

@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.IO;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 
@@ -18,6 +19,11 @@ internal class LocalizationProvider : ILocalizationProvider
     public void ReloadLanguage() => OnLanguageChanged?.Invoke(CurrentLanguage);
 
     public Language DefaultLanguage { get; private set; }
+
+    public LocalizationProvider()
+    {
+        ILocalizationProvider.SetAsCurrent(this);
+    }
 
     public void LoadData()
     {

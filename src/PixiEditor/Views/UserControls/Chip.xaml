@@ -9,7 +9,7 @@
              d:DesignHeight="30" d:DesignWidth="60">
     <Border VerticalAlignment="Center" Background="{StaticResource GlyphBrush}" BorderThickness="1"
             BorderBrush="{Binding ElementName=chip, Path=OutlineColor}"
-            Padding="10 5" CornerRadius="2.5">
+            Padding="5 2.5" CornerRadius="2.5">
         <TextBlock Text="{Binding ElementName=chip, Path=Text}" Foreground="White"/>
     </Border>
 </UserControl>

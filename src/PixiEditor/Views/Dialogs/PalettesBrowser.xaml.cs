@@ -382,7 +382,7 @@ internal partial class PalettesBrowser : Window
         {
             foreach (var pal in src)
             {
-                palettes.Add(new Palette(pal.Name, pal.Colors, pal.FileName) { IsFavourite = IsPaletteFavourite(pal.Name) });
+                palettes.Add(new Palette(pal.Name, pal.Colors, pal.FileName, pal.Source) { IsFavourite = IsPaletteFavourite(pal.Name) });
             }
         }
 

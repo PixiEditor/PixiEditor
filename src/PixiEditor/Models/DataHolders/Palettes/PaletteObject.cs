@@ -20,6 +20,6 @@ internal class PaletteObject
             colors.Add(new PaletteColor(parsedColor.R, parsedColor.G, parsedColor.B));
         }
 
-        return new(Name, colors, null);
+        return new(Name, colors, null, null);
     }
 }
