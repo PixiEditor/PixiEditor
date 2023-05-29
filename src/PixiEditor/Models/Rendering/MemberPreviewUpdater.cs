@@ -23,6 +23,8 @@ using ChunkyImageLib.Operations;
 namespace PixiEditor.Models.Rendering;
 internal class MemberPreviewUpdater
 {
+    private const float smoothingThreshold = 1.5f;
+
     private readonly DocumentViewModel doc;
     private readonly DocumentInternalParts internals;
 
@@ -32,10 +34,9 @@ internal class MemberPreviewUpdater
     private Dictionary<Guid, AffectedArea> mainPreviewAreasAccumulator = new();
     private Dictionary<Guid, AffectedArea> maskPreviewAreasAccumulator = new();
 
-    private const float smoothingThreshold = 1.5f;
     private static readonly Paint SmoothReplacingPaint = new() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.Medium, IsAntiAliased = true };
     private static readonly Paint ReplacingPaint = new() { BlendMode = BlendMode.Src };
-    private static readonly Paint ClearPaint = new() { BlendMode = BlendMode.Src, Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent };
+    private static readonly Paint ClearPaint = new() { BlendMode = BlendMode.Src, Color = DrawingApi.Core.ColorsImpl.Colors.Transparent };
 
     public MemberPreviewUpdater(DocumentViewModel doc, DocumentInternalParts internals)
     {
@@ -175,6 +176,12 @@ internal class MemberPreviewUpdater
             if (member is null)
                 continue;
 
+            if (forMasks && member.Mask is null)
+            {
+                newPreviewBitmapSizes.Add(guid, null);
+                continue;
+            }
+
             RectI? tightBounds = GetOrFindMemberTightBounds(member, area, forMasks);
             RectI? maybeLastBounds = targetLastBounds.TryGetValue(guid, out RectI lastBounds) ? lastBounds : null;
             if (tightBounds == maybeLastBounds)
@@ -214,7 +221,7 @@ internal class MemberPreviewUpdater
             {
                 if (member.PreviewBitmap is not null && member.PreviewBitmap.PixelWidth == newSize.Value.previewSize.X && member.PreviewBitmap.PixelHeight == newSize.Value.previewSize.Y)
                 {
-                    member.PreviewSurface.Canvas.Clear();
+                    member.PreviewSurface!.Canvas.Clear();
                 }
                 else
                 {
@@ -272,6 +279,7 @@ internal class MemberPreviewUpdater
         {
             IReadOnlyLayer layer => FindLayerTightBounds(layer, forMask),
             IReadOnlyFolder folder => FindFolderTightBounds(folder, forMask),
+            _ => throw new ArgumentOutOfRangeException()
         };
     }
 
@@ -283,7 +291,7 @@ internal class MemberPreviewUpdater
         if (layer.Mask is null && forMask)
             throw new InvalidOperationException();
 
-        IReadOnlyChunkyImage targetImage = forMask ? layer.Mask : layer.LayerImage;
+        IReadOnlyChunkyImage targetImage = forMask ? layer.Mask! : layer.LayerImage;
         return FindImageTightBounds(targetImage);
     }
 

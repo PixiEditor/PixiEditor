@@ -138,8 +138,8 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public StructureMemberSelectionType Selection { get; set; }
 
     public const int PreviewSize = 48;
-    public WriteableBitmap PreviewBitmap { get; set; }
-    public DrawingSurface PreviewSurface { get; set; }
+    public WriteableBitmap? PreviewBitmap { get; set; }
+    public DrawingSurface? PreviewSurface { get; set; }
 
     public WriteableBitmap? MaskPreviewBitmap { get; set; }
     public DrawingSurface? MaskPreviewSurface { get; set; }
