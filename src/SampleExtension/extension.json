@@ -9,6 +9,11 @@
         "name": "English",
         "code": "en",
         "localeFileName": "Localization/en.json"
+      },
+      {
+        "name": "PixiLang",
+        "code": "px",
+        "localeFileName": "Localization/pixiLang.json"
       }
     ]
   },
