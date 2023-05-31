@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Windows;
-using PixiEditor.Extensions.Common.Localization;
 
-namespace PixiEditor.Models.Localization;
+namespace PixiEditor.Extensions.Common.Localization;
 
 [DebuggerDisplay("{LanguageData.Name}, strings: {Locale.Count}")]
 public class Language
 {
+    public static bool FlipFlowDirection { get; set; } = false;
+
     private FlowDirection flowDirection;
     
     public LanguageData LanguageData { get; }
@@ -16,7 +17,7 @@ public class Language
     {
         get
         {
-            if (ViewModelMain.Current.DebugSubViewModel.ForceOtherFlowDirection)
+            if (FlipFlowDirection)
             {
                 return flowDirection switch
                 {

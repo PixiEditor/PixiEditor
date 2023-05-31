@@ -2,6 +2,7 @@
 using System.Security.AccessControl;
 using System.Windows;
 using Microsoft.Win32;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Localization;
 

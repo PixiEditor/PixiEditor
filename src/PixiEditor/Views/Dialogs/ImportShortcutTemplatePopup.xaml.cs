@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Exceptions;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;

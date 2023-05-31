@@ -2,6 +2,7 @@
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Localization;

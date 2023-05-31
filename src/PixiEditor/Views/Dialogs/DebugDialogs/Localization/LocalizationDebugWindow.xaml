@@ -14,6 +14,7 @@
         xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:globalization="clr-namespace:System.Globalization;assembly=System.Runtime"
         xmlns:main="clr-namespace:PixiEditor.ViewModels.SubViewModels.Main"
+        xmlns:localization="clr-namespace:PixiEditor.Extensions.Common.Localization;assembly=PixiEditor.Extensions"
         x:Name="popup"
         mc:Ignorable="d"
         Foreground="White"
@@ -55,7 +56,7 @@
                 <TextBlock views:Translator.Key="LOCALIZATION_VIEW_TYPE" Margin="0,0,5,0" MinWidth="160" />
                 <ComboBox
                     SelectedItem="{Binding DebugViewModel.LocalizationKeyShowMode}"
-                    ItemsSource="{helpers:Enum {x:Type enums:LocalizationKeyShowMode}}" />
+                    ItemsSource="{helpers:Enum {x:Type localization:LocalizationKeyShowMode}}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Height="25" Margin="0,5,0,0">
                 <TextBlock views:Translator.Key="FORCE_OTHER_FLOW_DIRECTION" Margin="0,0,5,0" MinWidth="160" />

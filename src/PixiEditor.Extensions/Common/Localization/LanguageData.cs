@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Newtonsoft.Json;
 
 namespace PixiEditor.Extensions.Common.Localization;
 

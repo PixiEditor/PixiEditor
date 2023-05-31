@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Helpers.Collections;

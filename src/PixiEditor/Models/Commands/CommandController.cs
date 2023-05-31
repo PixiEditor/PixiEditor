@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;

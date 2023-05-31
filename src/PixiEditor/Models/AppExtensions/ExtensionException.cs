@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Exceptions;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Models.AppExtensions;

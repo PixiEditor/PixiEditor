@@ -1,6 +1,6 @@
-﻿namespace PixiEditor.Models.Enums;
+﻿namespace PixiEditor.Extensions.Common.Localization;
 
-internal enum LocalizationKeyShowMode
+public enum LocalizationKeyShowMode
 {
     /// <summary>
     /// Shows just the value e.g. Open

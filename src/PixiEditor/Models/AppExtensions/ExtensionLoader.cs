@@ -4,6 +4,7 @@ using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;

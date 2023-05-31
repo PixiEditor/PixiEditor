@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;

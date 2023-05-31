@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.Palettes.Parsers;
+﻿using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Extensions.Palettes;

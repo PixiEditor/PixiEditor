@@ -1,10 +1,8 @@
-﻿using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Enums;
-
-namespace PixiEditor.Models.Localization;
+﻿namespace PixiEditor.Extensions.Common.Localization;
 
 public struct LocalizedString
 {
+    public static LocalizationKeyShowMode? OverridenKeyFlowMode { get; set; } = null;
     private string key;
 
     public string Key
@@ -16,7 +14,7 @@ public struct LocalizedString
             #if DEBUG_LOCALIZATION
             Value = key;
             #else
-            Value = ViewModelMain.Current?.DebugSubViewModel?.LocalizationKeyShowMode switch
+            Value = OverridenKeyFlowMode switch
             {
                 LocalizationKeyShowMode.Key => Key,
                 LocalizationKeyShowMode.ValueKey => $"{GetValue(value)} ({Key})",
