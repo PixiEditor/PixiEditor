@@ -117,7 +117,7 @@ internal partial class DocumentViewModel
     {
         var result = document.GetLayerImage(layer.GuidValue);
 
-        var tightBounds = document.GetLayerTightBounds(layer.GuidValue);
+        var tightBounds = document.GetChunkAlignedLayerBounds(layer.GuidValue);
         using var data = result?.DrawingSurface.Snapshot().Encode();
         byte[] bytes = data?.AsSpan().ToArray();
         var serializable = new ImageLayer
@@ -137,7 +137,7 @@ internal partial class DocumentViewModel
         if (mask == null) 
             return null;
         
-        var maskBound = mask.FindLatestBounds();
+        var maskBound = mask.FindChunkAlignedMostUpToDateBounds();
 
         if (maskBound == null)
         {
