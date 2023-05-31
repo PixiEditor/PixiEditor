@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Helpers;
+using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
@@ -24,6 +25,7 @@ internal partial class MainWindow : Window
     private readonly IPreferences preferences;
     private readonly IPlatform platform;
     private readonly IServiceProvider services;
+    private static ExtensionLoader extLoader;
 
     public static MainWindow Current { get; private set; }
 
@@ -31,15 +33,16 @@ internal partial class MainWindow : Window
 
     public event Action OnDataContextInitialized;
 
-    public MainWindow()
+    public MainWindow(ExtensionLoader extensionLoader)
     {
+        extLoader = extensionLoader;
         Current = this;
 
         IPlatform.RegisterPlatform(GetActivePlatform());
 
         services = new ServiceCollection()
             .AddPlatform()
-            .AddPixiEditor()
+            .AddPixiEditor(extensionLoader)
             .AddExtensionServices()
             .BuildServiceProvider();
 
@@ -91,7 +94,7 @@ internal partial class MainWindow : Window
 
     public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
     {
-        MainWindow window = new();
+        MainWindow window = new(extLoader);
         FileViewModel fileVM = window.services.GetRequiredService<FileViewModel>();
 
         foreach (var (path, bytes) in documents)

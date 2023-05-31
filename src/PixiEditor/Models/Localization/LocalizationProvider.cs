@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
 using System.IO;
 using Newtonsoft.Json;
+using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.UserPreferences;
 
@@ -17,11 +19,13 @@ internal class LocalizationProvider : ILocalizationProvider
     public LanguageData FollowSystem { get; } = new() { Name = "Follow system", Code = "system" };
     public event Action<Language> OnLanguageChanged;
     public void ReloadLanguage() => OnLanguageChanged?.Invoke(CurrentLanguage);
-
     public Language DefaultLanguage { get; private set; }
 
-    public LocalizationProvider()
+    private ExtensionLoader extensionLoader;
+
+    public LocalizationProvider(ExtensionLoader extensionLoader)
     {
+        this.extensionLoader = extensionLoader;
         ILocalizationProvider.SetAsCurrent(this);
     }
 
@@ -36,12 +40,14 @@ internal class LocalizationProvider : ILocalizationProvider
         
         using StreamReader reader = new(LocalizationDataPath);
         LocalizationData = serializer.Deserialize<LocalizationData>(new JsonTextReader(reader) { Culture = CultureInfo.InvariantCulture, DateTimeZoneHandling = DateTimeZoneHandling.Utc });
-            
+
         if (LocalizationData is null)
         {
             throw new InvalidDataException("Localization data is null.");
         }
-        
+
+        LoadExtensionLocalizationData(LocalizationData);
+
         if (LocalizationData.Languages is null || LocalizationData.Languages.Count == 0)
         {
             throw new InvalidDataException("Localization data does not contain any languages.");
@@ -54,6 +60,29 @@ internal class LocalizationProvider : ILocalizationProvider
         string currentLanguageCode = IPreferences.Current.GetPreference<string>("LanguageCode");
 
         LoadLanguage(LocalizationData.Languages.FirstOrDefault(x => x.Code == currentLanguageCode, FollowSystem));
+    }
+
+    private void LoadExtensionLocalizationData(LocalizationData localizationData)
+    {
+        if(localizationData is null)
+        {
+            throw new InvalidDataException(nameof(localizationData));
+        }
+
+        if (extensionLoader?.LoadedExtensions is null)
+        {
+            return;
+        }
+
+        foreach (Extension extension in extensionLoader.LoadedExtensions)
+        {
+            if (extension.Metadata.Localization is null)
+            {
+                continue;
+            }
+
+            localizationData.MergeWith(extension.Metadata.Localization.Languages, Path.GetDirectoryName(extension.Assembly.Location));
+        }
     }
 
     public void LoadLanguage(LanguageData languageData)
@@ -102,17 +131,31 @@ internal class LocalizationProvider : ILocalizationProvider
 
     private Language LoadLanguageInternal(LanguageData languageData)
     {
-        string localePath = Path.Combine(Paths.DataFullPath, "Localization", "Languages", languageData.LocaleFileName);
+        string mainLocalePath = GetLocalePath(languageData);
 
-        if (!File.Exists(localePath))
+        if (!File.Exists(mainLocalePath))
         {
-            throw new FileNotFoundException("Locale file not found.", localePath);
+            throw new FileNotFoundException("Locale file not found.", mainLocalePath);
         }
 
-        Newtonsoft.Json.JsonSerializer serializer = new();
-        using StreamReader reader = new(localePath);
-        Dictionary<string, string> locale =
-            serializer.Deserialize<Dictionary<string, string>>(new Newtonsoft.Json.JsonTextReader(reader));
+        Dictionary<string, string> locale = new Dictionary<string, string>();
+
+        languageData.AdditionalLocalePaths ??= new List<string>();
+        int localesCount = 1 + languageData.AdditionalLocalePaths.Count;
+
+        string[] allLocalePaths = new string[localesCount];
+        allLocalePaths[0] = mainLocalePath;
+        languageData.AdditionalLocalePaths.CopyTo(allLocalePaths, 1);
+
+        foreach (string localePath in allLocalePaths)
+        {
+            if (!File.Exists(localePath))
+            {
+                continue;
+            }
+
+            locale.AddRangeOverride(ReadLocaleFile(localePath));
+        }
 
         if (locale is null)
         {
@@ -120,5 +163,22 @@ internal class LocalizationProvider : ILocalizationProvider
         }
 
         return new(languageData, locale, languageData.RightToLeft);
+    }
+
+    private IDictionary<string, string> ReadLocaleFile(string localePath)
+    {
+        JsonSerializer serializer = new();
+        using StreamReader reader = new(localePath);
+        return serializer.Deserialize<Dictionary<string, string>>(new JsonTextReader(reader));
+    }
+
+    private string GetLocalePath(LanguageData languageData)
+    {
+        if (languageData.CustomLocaleAssemblyPath is not null)
+        {
+            return Path.Combine(languageData.CustomLocaleAssemblyPath, languageData.LocaleFileName);
+        }
+
+        return Path.Combine(Paths.DataFullPath, "Localization", "Languages", languageData.LocaleFileName);
     }
 }

@@ -52,7 +52,10 @@ internal partial class App : Application
 
         AddNativeAssets();
 
-        MainWindow = new MainWindow();
+        ExtensionLoader extensionLoader = new ExtensionLoader();
+        extensionLoader.LoadExtensions();
+
+        MainWindow = new MainWindow(extensionLoader);
         MainWindow.Show();
     }
 

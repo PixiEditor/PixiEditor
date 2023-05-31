@@ -4,6 +4,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Extensions.Windowing;
+using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
@@ -27,10 +28,10 @@ internal static class ServiceCollectionHelpers
     /// <summary>
     /// Adds all the services required to fully run PixiEditor's MainWindow
     /// </summary>
-    public static IServiceCollection AddPixiEditor(this IServiceCollection collection) => collection
+    public static IServiceCollection AddPixiEditor(this IServiceCollection collection, ExtensionLoader extensionLoader) => collection
         .AddSingleton<ViewModelMain>()
         .AddSingleton<IPreferences, PreferencesSettings>()
-        .AddSingleton<ILocalizationProvider, LocalizationProvider>()
+        .AddSingleton<ILocalizationProvider, LocalizationProvider>(x => new LocalizationProvider(extensionLoader))
         // View Models
         .AddSingleton<StylusViewModel>()
         .AddSingleton<WindowViewModel>()
@@ -49,7 +50,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<DebugViewModel>()
         .AddSingleton<SearchViewModel>()
         .AddSingleton<AdditionalContentViewModel>()
-        .AddSingleton<ExtensionsViewModel>()
+        .AddSingleton(x => new ExtensionsViewModel(x.GetService<ViewModelMain>(), extensionLoader))
         // Controllers
         .AddSingleton<ShortcutController>()
         .AddSingleton<CommandController>()

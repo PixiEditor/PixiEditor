@@ -32,3 +32,10 @@ public class MissingMetadataException : ExtensionException
     }
 }
 
+public class ForbiddenUniqueNameExtension : ExtensionException
+{
+    public ForbiddenUniqueNameExtension() : base(new LocalizedString("ERROR_FORBIDDEN_UNIQUE_NAME"))
+    {
+    }
+}
+

@@ -124,7 +124,11 @@ public class Translator : UIElement
             RelativeSource = new RelativeSource(RelativeSourceMode.Self)
         };
 
-        if (d is TextBox textBox)
+        if (d is ICustomTranslatorElement customTranslatorElement)
+        {
+            customTranslatorElement.SetTranslationBinding(customTranslatorElement.GetDependencyProperty(), binding);
+        }
+        else if (d is TextBox textBox)
         {
             textBox.SetBinding(TextBox.TextProperty, binding);
         }

@@ -11,6 +11,7 @@ public abstract class Extension
 {
     public ExtensionServices Api { get; private set; }
     public ExtensionMetadata Metadata { get; private set; }
+    public Assembly Assembly => GetType().Assembly;
 
     public void ProvideMetadata(ExtensionMetadata metadata)
     {
@@ -22,19 +23,20 @@ public abstract class Extension
         Metadata = metadata;
     }
 
-    public void Load(ExtensionServices api)
+    public void Load()
     {
-        Api = api;
         OnLoaded();
     }
 
-    public void Initialize()
+    public void Initialize(ExtensionServices api)
     {
+        Api = api;
         OnInitialized();
     }
 
     /// <summary>
-    ///     Called right after the extension is loaded. Not all extensions are initialized at this point.
+    ///     Called right after the extension is loaded. Not all extensions are initialized at this point. PixiEditor API at this point is not available.
+    ///     Use this method to load resources, patch language files, etc.
     /// </summary>
     protected virtual void OnLoaded()
     {

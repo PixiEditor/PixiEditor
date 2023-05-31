@@ -6,7 +6,7 @@ public class TestPaletteDataSource : PaletteListDataSource
 {
     private List<ExtensionPalette> palettes = new();
 
-    public TestPaletteDataSource()
+    public TestPaletteDataSource() : base("SE:DATA_SOURCE_NAME") // SE: prefix (Sample Extension:) helps to avoid key collisions with other extensions
     {
         palettes.Add(new ExtensionPalette("Test Palette", new List<PaletteColor> { PaletteColor.Black, PaletteColor.White, }, this));
     }

@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Models.DataHolders;
@@ -21,6 +22,10 @@ internal class LocalPalettesFetcher : PaletteListDataSource
     private List<string> cachedFavoritePalettes;
 
     private FileSystemWatcher watcher;
+
+    public LocalPalettesFetcher() : base("LOCAL_PALETTE_SOURCE_NAME")
+    {
+    }
 
     public override void Initialize()
     {

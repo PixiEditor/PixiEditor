@@ -18,4 +18,9 @@
       </Content>
     </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Localization\**">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>

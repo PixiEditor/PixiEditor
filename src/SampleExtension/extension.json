@@ -3,6 +3,15 @@
   "uniqueName": "PixiEditor.Samples.SampleExtension",
   "description": "Sample extension for PixiEditor",
   "version": "1.0.0",
+  "localization": {
+    "Languages": [
+      {
+        "name": "English",
+        "code": "en",
+        "localeFileName": "Localization/en.json"
+      }
+    ]
+  },
   "author": {
     "name": "PixiEditor",
     "email": "info@pixieditor.net",

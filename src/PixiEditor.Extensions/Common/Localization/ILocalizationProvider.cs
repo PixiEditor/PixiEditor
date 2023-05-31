@@ -1,6 +1,4 @@
-﻿using PixiEditor.Models.Localization;
-
-namespace PixiEditor.Extensions.Common.Localization;
+﻿namespace PixiEditor.Extensions.Common.Localization;
 
 public interface ILocalizationProvider
 {

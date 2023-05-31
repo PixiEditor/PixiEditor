@@ -1,12 +1,13 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Media;
 using PixiEditor.Platform;
 using Brush = System.Drawing.Brush;
 
 namespace PixiEditor.Views.UserControls;
 
-internal partial class Chip : UserControl
+internal partial class Chip : UserControl, ICustomTranslatorElement
 {
     public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
         nameof(Text), typeof(string), typeof(Chip), new PropertyMetadata(default(string)));
@@ -28,6 +29,16 @@ internal partial class Chip : UserControl
     public Chip()
     {
         InitializeComponent();
+    }
+
+    void ICustomTranslatorElement.SetTranslationBinding(DependencyProperty dependencyProperty, Binding binding)
+    {
+        SetBinding(dependencyProperty, binding);
+    }
+
+    DependencyProperty ICustomTranslatorElement.GetDependencyProperty()
+    {
+        return TextProperty;
     }
 }
 

@@ -11,7 +11,13 @@ public class LanguageData
     
     // https://icons8.com/icon/set/flags/color
     public string IconFileName { get; set; }
-    public string IconPath => $"pack://application:,,,/PixiEditor;component/Images/LanguageFlags/{IconFileName}";
+    public string IconPath = $"pack://application:,,,/PixiEditor;component/Images/LanguageFlags/";
+
+    [JsonIgnore]
+    public List<string> AdditionalLocalePaths { get; set; }
+
+    [JsonIgnore]
+    public string IconFullPath => $"{IconPath}{IconFileName}";
     public bool RightToLeft { get; set; }
     
     [JsonIgnore]
@@ -19,6 +25,9 @@ public class LanguageData
     
     [JsonProperty(nameof(LastUpdated))]
     private string LastUpdatedString { get; set; }
+
+    [JsonIgnore]
+    public string? CustomLocaleAssemblyPath { get; set; }
     
     public override string ToString()
     {

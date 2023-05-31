@@ -9,17 +9,14 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
 {
     public ExtensionLoader ExtensionLoader { get; }
-    public ExtensionsViewModel(ViewModelMain owner) : base(owner)
+    public ExtensionsViewModel(ViewModelMain owner, ExtensionLoader loader) : base(owner)
     {
-        ExtensionLoader loader = new ExtensionLoader(new ExtensionServices(owner.Services));
-        loader.LoadExtensions();
-
         ExtensionLoader = loader;
         Owner.OnStartupEvent += Owner_OnStartupEvent;
     }
 
     private void Owner_OnStartupEvent(object sender, EventArgs e)
     {
-        ExtensionLoader.InitializeExtensions();
+        ExtensionLoader.InitializeExtensions(new ExtensionServices(Owner.Services));
     }
 }

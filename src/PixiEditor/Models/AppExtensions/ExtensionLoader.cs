@@ -1,24 +1,21 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Windows;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Metadata;
-using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Localization;
+using PixiEditor.Platform;
 
 namespace PixiEditor.Models.AppExtensions;
 
 internal class ExtensionLoader
 {
-    public ExtensionServices Api { get; }
-    private List<Extension> LoadedExtensions { get; } = new();
-    public ExtensionLoader(ExtensionServices pixiEditorApi)
+    public List<Extension> LoadedExtensions { get; } = new();
+
+    public ExtensionLoader()
     {
-        Api = pixiEditorApi;
         ValidateExtensionFolder();
     }
 
@@ -36,11 +33,11 @@ internal class ExtensionLoader
         }
     }
 
-    public void InitializeExtensions()
+    public void InitializeExtensions(ExtensionServices pixiEditorApi)
     {
         foreach (var extension in LoadedExtensions)
         {
-            extension.Initialize();
+            extension.Initialize(pixiEditorApi);
         }
     }
 
@@ -52,7 +49,7 @@ internal class ExtensionLoader
             var metadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
             ValidateMetadata(metadata);
             var extension = LoadExtensionEntry(Path.GetDirectoryName(packageJsonPath), metadata);
-            extension.Load(Api);
+            extension.Load();
             LoadedExtensions.Add(extension);
         }
         catch (JsonException)
@@ -75,6 +72,14 @@ internal class ExtensionLoader
         {
             throw new MissingMetadataException("Description");
         }
+
+        if (metadata.UniqueName.StartsWith("pixieditor".Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            if(!IsOfficialAssemblyLegit(metadata.UniqueName))
+            {
+                throw new ForbiddenUniqueNameExtension();
+            }
+        }
         // TODO: Validate if unique name is unique
 
         if (string.IsNullOrEmpty(metadata.DisplayName))
@@ -86,6 +91,11 @@ internal class ExtensionLoader
         {
             throw new MissingMetadataException("Version");
         }
+    }
+
+    private bool IsOfficialAssemblyLegit(string metadataUniqueName)
+    {
+        return true; //TODO: Perform assembly secret number check
     }
 
     private Extension LoadExtensionEntry(string assemblyFolder, ExtensionMetadata metadata)

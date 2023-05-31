@@ -73,7 +73,7 @@
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Image VerticalAlignment="Center" Margin="5 0" Source="{Binding IconPath}"/>
+                                <Image VerticalAlignment="Center" Margin="5 0" Source="{Binding IconFullPath}"/>
                                 <TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
                             </StackPanel>
                         </DataTemplate>
