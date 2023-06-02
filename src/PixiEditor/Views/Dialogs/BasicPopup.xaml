@@ -12,7 +12,7 @@
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d"
         WindowStyle="None"
-        d:Title="Notice" Height="250" Width="350"
+        d:Title="Notice"
         WindowStartupLocation="CenterScreen"
         x:Name="popup"
         ui:Translator.Key="{Binding ElementName=popup, Path=Title}"
@@ -31,6 +31,6 @@
         <local:DialogTitleBar DockPanel.Dock="Top"
                              TitleKey="{Binding ElementName=popup, Path=Title}"
                              CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
-        <ContentPresenter DockPanel.Dock="Bottom" Content="{Binding ElementName=popup, Path=DataContext.Body}"/>
+        <ContentPresenter Name="ContentBody" DockPanel.Dock="Bottom" Content="{Binding ElementName=popup, Path=DataContext.Body}"/>
 </DockPanel>
 </Window>

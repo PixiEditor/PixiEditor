@@ -81,17 +81,7 @@ internal partial class PaletteViewer : UserControl
         get { return (PaletteProvider)GetValue(PaletteProviderProperty); }
         set { SetValue(PaletteProviderProperty, value); }
     }
-
-    public WpfObservableRangeCollection<PaletteFileParser> FileParsers
-    {
-        get { return (WpfObservableRangeCollection<PaletteFileParser>)GetValue(FileParsersProperty); }
-        set { SetValue(FileParsersProperty, value); }
-    }
-
-
-    public static readonly DependencyProperty FileParsersProperty =
-        DependencyProperty.Register(nameof(FileParsers), typeof(WpfObservableRangeCollection<PaletteFileParser>), typeof(PaletteViewer), new PropertyMetadata(new WpfObservableRangeCollection<PaletteFileParser>()));
-
+    
     public PaletteViewer()
     {
         InitializeComponent();
@@ -111,7 +101,7 @@ internal partial class PaletteViewer : UserControl
     {
         OpenFileDialog openFileDialog = new OpenFileDialog
         {
-            Filter = PaletteHelpers.GetFilter(FileParsers, true),
+            Filter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers, true),
         };
         if (openFileDialog.ShowDialog() == true)
         {
@@ -121,7 +111,7 @@ internal partial class PaletteViewer : UserControl
 
     private async Task ImportPalette(string fileName)
     {
-        var parser = FileParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+        var parser = PaletteProvider.AvailableParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
         var data = await parser.Parse(fileName);
         if (data.IsCorrupted || data.Colors.Length == 0) return;
         Colors.Clear();
@@ -132,13 +122,13 @@ internal partial class PaletteViewer : UserControl
     {
         SaveFileDialog saveFileDialog = new SaveFileDialog
         {
-            Filter = PaletteHelpers.GetFilter(FileParsers.Where(x => x.CanSave).ToList(), false)
+            Filter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList(), false)
         };
 
         if (saveFileDialog.ShowDialog() == true)
         {
             string fileName = saveFileDialog.FileName;
-            var foundParser = FileParsers.First(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+            var foundParser = PaletteProvider.AvailableParsers.First(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
             if (Colors == null || Colors.Count == 0)
             {
                 NoticeDialog.Show("NO_COLORS_TO_SAVE", "ERROR");
@@ -205,7 +195,7 @@ internal partial class PaletteViewer : UserControl
             if (files is { Length: > 0 })
             {
                 var fileName = files[0];
-                var foundParser = FileParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+                var foundParser = PaletteProvider.AvailableParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
                 if (foundParser != null)
                 {
                     filePath = fileName;

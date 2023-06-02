@@ -18,4 +18,14 @@ public class PopupWindow : IPopupWindow
     public void Show() => _underlyingWindow.Show();
 
     public bool? ShowDialog() => _underlyingWindow.ShowDialog();
+    public double Width
+    {
+        get => _underlyingWindow.Width;
+        set => _underlyingWindow.Width = value;
+    }
+    public double Height
+    {
+        get => _underlyingWindow.Height;
+        set => _underlyingWindow.Height = value;
+    }
 }
