@@ -22,9 +22,9 @@ internal class ApplyMaskOperation : IDrawOperation
         return new AffectedArea(mask.FindCommittedChunks());
     }
     
-    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        mask.DrawCommittedChunkOn(chunkPos, chunk.Resolution, chunk.Surface.DrawingSurface, VecI.Zero, clippingPaint);
+        mask.DrawCommittedChunkOn(chunkPos, targetChunk.Resolution, targetChunk.Surface.DrawingSurface, VecI.Zero, clippingPaint);
     }
 
     public void Dispose()

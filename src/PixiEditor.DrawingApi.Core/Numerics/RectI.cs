@@ -271,6 +271,18 @@ public struct RectI : IEquatable<RectI>
         return x > left && x < right && y > top && y < bottom;
     }
 
+    public readonly bool ContainsInclusive(RectI rect)
+    {
+        return ContainsInclusive(rect.TopLeft) && ContainsInclusive(rect.BottomRight);
+    }
+
+
+    public readonly bool ContainsExclusive(RectI rect)
+    {
+        return ContainsExclusive(rect.TopLeft) && ContainsExclusive(rect.BottomRight);
+    }
+
+
     public readonly bool ContainsPixel(VecI pixelTopLeft) => ContainsPixel(pixelTopLeft.X, pixelTopLeft.Y);
     public readonly bool ContainsPixel(int pixelTopLeftX, int pixelTopLeftY)
     {

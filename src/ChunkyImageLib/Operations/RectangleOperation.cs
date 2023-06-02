@@ -15,11 +15,11 @@ internal class RectangleOperation : IMirroredDrawOperation
 
     public bool IgnoreEmptyChunks => false;
 
-    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
-        var skiaSurf = chunk.Surface.DrawingSurface;
+        var skiaSurf = targetChunk.Surface.DrawingSurface;
 
-        var surf = chunk.Surface.DrawingSurface;
+        var surf = targetChunk.Surface.DrawingSurface;
 
         var rect = RectD.FromCenterAndSize(Data.Center, Data.Size.Abs());
         var innerRect = rect.Inflate(-Data.StrokeWidth);
@@ -27,7 +27,7 @@ internal class RectangleOperation : IMirroredDrawOperation
             innerRect = RectD.Empty;
 
         surf.Canvas.Save();
-        surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
+        surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
         skiaSurf.Canvas.RotateRadians((float)Data.Angle, (float)rect.Center.X, (float)rect.Center.Y);
 

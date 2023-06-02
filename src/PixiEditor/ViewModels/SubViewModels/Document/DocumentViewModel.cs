@@ -353,7 +353,7 @@ internal partial class DocumentViewModel : NotifyableObject
         RectI? memberImageBounds;
         try
         {
-            memberImageBounds = layer.LayerImage.FindLatestBounds();
+            memberImageBounds = layer.LayerImage.FindChunkAlignedMostUpToDateBounds();
         }
         catch (ObjectDisposedException)
         {
