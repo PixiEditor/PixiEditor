@@ -12,6 +12,7 @@
         xmlns:models="clr-namespace:PixiEditor.Models"
         xmlns:views="clr-namespace:PixiEditor.Views"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d" ShowInTaskbar="False"
         Title="Hello there!" Height="662" Width="632" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
@@ -66,16 +67,16 @@
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" MinWidth="150" Margin="10"
-                            views:Translator.Key="OPEN_FILE"/>
+                            ui:Translator.Key="OPEN_FILE"/>
                     <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" MinWidth="150" Margin="10"
-                            views:Translator.Key="NEW_FILE"/>
+                            ui:Translator.Key="NEW_FILE"/>
                 </StackPanel>
 
                 <StackPanel Grid.Row="2" HorizontalAlignment="Center" Margin="0,30,0,0">
                     <TextBlock FontSize="23" FontWeight="SemiBold" HorizontalAlignment="Center"
-                               views:Translator.Key="RECENT_FILES"/>
+                               ui:Translator.Key="RECENT_FILES"/>
                     <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center" 
-                               views:Translator.Key="RECENT_EMPTY_TEXT">
+                               ui:Translator.Key="RECENT_EMPTY_TEXT">
                         <TextBlock.Visibility>
                             <Binding Path="RecentlyOpened.Count"
                                      Converter="{converters:EqualityBoolToVisibilityConverter}">
@@ -241,26 +242,26 @@
 
                 <uc:AlignableWrapPanel Grid.Row="3" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,5,0,15">
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://pixieditor.net"
-                            views:Translator.TooltipKey="WEBSITE"
+                            ui:Translator.TooltipKey="WEBSITE"
                             Style="{StaticResource SocialMediaButton}" Tag="#e3002d"
                             Content="/Images/SocialMedia/WebsiteIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://discord.gg/tzkQFDkqQS"
-                            Style="{StaticResource SocialMediaButton}" Tag="#7289DA" views:Translator.TooltipKey="DISCORD"
+                            Style="{StaticResource SocialMediaButton}" Tag="#7289DA" ui:Translator.TooltipKey="DISCORD"
                             Content="/Images/SocialMedia/DiscordIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://reddit.com/r/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" views:Translator.TooltipKey="REDDIT"
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
                             Content="/Images/SocialMedia/RedditIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="Black" views:Translator.TooltipKey="GITHUB"
+                            Style="{StaticResource SocialMediaButton}" Tag="Black" ui:Translator.TooltipKey="GITHUB"
                             Content="/Images/SocialMedia/GithubIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" views:Translator.TooltipKey="YOUTUBE"
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
                             Content="/Images/SocialMedia/YouTubeIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                             Visibility="{Binding ShowDonateButton,
                             Converter={BoolToVisibilityConverter}}"
                             CommandParameter="https://opencollective.com/pixieditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" views:Translator.TooltipKey="DONATE"
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
                             Content="/Images/SocialMedia/DonateIcon.png"/>
                 </uc:AlignableWrapPanel>
             </Grid>

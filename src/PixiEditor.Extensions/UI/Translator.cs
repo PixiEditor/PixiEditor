@@ -2,15 +2,15 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using AvalonDock.Layout;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Models.Localization;
-using PixiEditor.Views.Dialogs;
+using PixiEditor.Views;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Extensions.UI;
 
 public class Translator : UIElement
 {
+    public static List<ExternalProperty> ExternalProperties { get; } = new();
+
     public static readonly DependencyProperty KeyProperty = DependencyProperty.RegisterAttached(
         "Key",
         typeof(string),
@@ -124,9 +124,22 @@ public class Translator : UIElement
             RelativeSource = new RelativeSource(RelativeSourceMode.Self)
         };
 
+        ExternalProperty externalProperty = ExternalProperties.FirstOrDefault(x => x.PropertyType.IsAssignableFrom(d.GetType()));
+
         if (d is ICustomTranslatorElement customTranslatorElement)
         {
             customTranslatorElement.SetTranslationBinding(customTranslatorElement.GetDependencyProperty(), binding);
+        }
+        else if (externalProperty != null)
+        {
+            if (externalProperty.SetTranslationBinding != null)
+            {
+                externalProperty.SetTranslationBinding(d, binding);
+            }
+            else
+            {
+                externalProperty.SetTranslation(d, localizedString);
+            }
         }
         else if (d is TextBox textBox)
         {
@@ -144,12 +157,6 @@ public class Translator : UIElement
         {
             window.SetBinding(Window.TitleProperty, binding);
         }
-        #if DEBUG
-        else if (d is DialogTitleBar)
-        {
-            throw new ArgumentException($"Use {nameof(DialogTitleBar)}.{nameof(DialogTitleBar.TitleKey)} to set the localization key for the title");
-        }
-        #endif
         else if (d is ContentControl contentControl)
         {
             contentControl.SetBinding(ContentControl.ContentProperty, binding);
@@ -158,11 +165,7 @@ public class Translator : UIElement
         {
             menuItem.SetBinding(HeaderedItemsControl.HeaderProperty, binding);
         }
-        else if (d is LayoutContent layoutContent)
-        {
-            layoutContent.SetValue(LayoutContent.TitleProperty, localizedString.Value);
-        }
-        #if DEBUG
+#if DEBUG
         else
         {
             throw new ArgumentException($"'{d.GetType().Name}' does not support {nameof(Translator)}.Key");

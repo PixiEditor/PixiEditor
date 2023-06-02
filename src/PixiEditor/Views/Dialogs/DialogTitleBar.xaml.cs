@@ -1,10 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace PixiEditor.Views.Dialogs;
 
-internal partial class DialogTitleBar : UserControl
+internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
 {
     public static readonly DependencyProperty TitleKeyProperty =
         DependencyProperty.Register(nameof(TitleKey), typeof(string), typeof(DialogTitleBar), new PropertyMetadata(""));
@@ -30,5 +31,15 @@ internal partial class DialogTitleBar : UserControl
     public DialogTitleBar()
     {
         InitializeComponent();
+    }
+
+    void ICustomTranslatorElement.SetTranslationBinding(DependencyProperty dependencyProperty, Binding binding)
+    {
+        SetBinding(dependencyProperty, binding);
+    }
+
+    DependencyProperty ICustomTranslatorElement.GetDependencyProperty()
+    {
+        return TitleKeyProperty;
     }
 }

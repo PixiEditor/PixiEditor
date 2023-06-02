@@ -5,9 +5,12 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using AvalonDock.Layout;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
@@ -49,6 +52,8 @@ internal partial class MainWindow : Window
         SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
         DrawingBackendApi.SetupBackend(skiaDrawingBackend);
 
+        SetupTranslator();
+
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModelMain>();
@@ -74,6 +79,16 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
+    }
+
+    private void SetupTranslator()
+    {
+        Translator.ExternalProperties.Add(new ExternalProperty<LayoutContent>(TranslateLayoutContent));
+    }
+
+    private void TranslateLayoutContent(DependencyObject d, LocalizedString value)
+    {
+        ((LayoutContent)d).SetValue(LayoutContent.TitleProperty, value.Value);
     }
 
     private IPlatform GetActivePlatform()

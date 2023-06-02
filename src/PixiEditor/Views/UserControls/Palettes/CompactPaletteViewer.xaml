@@ -8,6 +8,7 @@
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors" 
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:views="clr-namespace:PixiEditor.Views"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d"  Name="compactPaletteViewer"
              d:DesignHeight="900" d:DesignWidth="30">
     <Grid Background="{StaticResource AccentColor}">
@@ -32,7 +33,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <local:PaletteColorControl views:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
+                        <local:PaletteColorControl ui:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
                                             Cursor="Hand"
                                             Color="{Binding}" Width="20" Height="20" CornerRadius="0">
                             <b:Interaction.Triggers>

@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Reflection;
 using System.Windows;
+using AvalonDock.Layout;
 using Newtonsoft.Json;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;

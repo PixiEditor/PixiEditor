@@ -9,12 +9,13 @@
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d"
         WindowStyle="None"
         d:Title="Notice" Height="250" Width="350"
         WindowStartupLocation="CenterScreen"
         x:Name="popup"
-        views:Translator.Key="{Binding ElementName=popup, Path=Title}"
+        ui:Translator.Key="{Binding ElementName=popup, Path=Title}"
         FlowDirection="{helpers:Localization FlowDirection}">
 
     <WindowChrome.WindowChrome>

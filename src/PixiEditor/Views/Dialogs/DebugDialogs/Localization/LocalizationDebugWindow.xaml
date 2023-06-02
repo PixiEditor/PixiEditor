@@ -15,10 +15,11 @@
         xmlns:globalization="clr-namespace:System.Globalization;assembly=System.Runtime"
         xmlns:main="clr-namespace:PixiEditor.ViewModels.SubViewModels.Main"
         xmlns:localization="clr-namespace:PixiEditor.Extensions.Common.Localization;assembly=PixiEditor.Extensions"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         x:Name="popup"
         mc:Ignorable="d"
         Foreground="White"
-        views:Translator.Key="LOCALIZATION_DEBUG_WINDOW_TITLE"
+        ui:Translator.Key="LOCALIZATION_DEBUG_WINDOW_TITLE"
         MinHeight="240" MinWidth="465"
         Height="350" Width="465"
         FlowDirection="{helpers:Localization FlowDirection}"
@@ -53,16 +54,16 @@
 
         <StackPanel Grid.Row="1" Margin="5">
             <StackPanel Orientation="Horizontal" Height="25">
-                <TextBlock views:Translator.Key="LOCALIZATION_VIEW_TYPE" Margin="0,0,5,0" MinWidth="160" />
+                <TextBlock ui:Translator.Key="LOCALIZATION_VIEW_TYPE" Margin="0,0,5,0" MinWidth="160" />
                 <ComboBox
                     SelectedItem="{Binding DebugViewModel.LocalizationKeyShowMode}"
                     ItemsSource="{helpers:Enum {x:Type localization:LocalizationKeyShowMode}}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Height="25" Margin="0,5,0,0">
-                <TextBlock views:Translator.Key="FORCE_OTHER_FLOW_DIRECTION" Margin="0,0,5,0" MinWidth="160" />
+                <TextBlock ui:Translator.Key="FORCE_OTHER_FLOW_DIRECTION" Margin="0,0,5,0" MinWidth="160" />
                 <CheckBox IsChecked="{Binding DebugViewModel.ForceOtherFlowDirection}" />
             </StackPanel>
-            <Button views:Translator.Key="LOAD_LANGUAGE_FROM_FILE"
+            <Button ui:Translator.Key="LOAD_LANGUAGE_FROM_FILE"
                     Command="{xaml:Command PixiEditor.Debug.SetLanguageFromFilePicker}"
                     Style="{StaticResource DarkRoundButton}" Margin="0,5,0,0" />
             <TextBlock Text="POEditor" FontWeight="Bold" FontSize="22" Margin="0,10,0,0" />
@@ -72,12 +73,12 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="120" />
                 </Grid.ColumnDefinitions>
-                <TextBlock views:Translator.Key="API_KEY" Margin="0,0,5,0"></TextBlock>
+                <TextBlock ui:Translator.Key="API_KEY" Margin="0,0,5,0"></TextBlock>
                 <TextBox Grid.Column="1" Style="{StaticResource DarkTextBoxStyle}" TextChanged="ApiKeyChanged"
                          Text="{Binding ApiKey}">
                 </TextBox>
                 <Button Margin="5,0,0,0" Grid.Column="2"
-                        views:Translator.Key="LOG_IN"
+                        ui:Translator.Key="LOG_IN"
                         Command="{Binding LoadApiKeyCommand}" />
             </Grid>
             <StackPanel
@@ -87,7 +88,7 @@
                         <ColumnDefinition Width="120" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <TextBlock views:Translator.Key="LANGUAGE" Margin="0,0,5,0" />
+                    <TextBlock ui:Translator.Key="LANGUAGE" Margin="0,0,5,0" />
                     <Grid Grid.Column="1">
                         <ComboBox ItemsSource="{Binding LanguageCodes}"
                                   SelectedItem="{Binding SelectedLanguage}"
@@ -136,7 +137,7 @@
                                 </Style>
                             </ComboBox.ItemContainerStyle>
                         </ComboBox>
-                        <TextBlock views:Translator.Key="SELECT_A_LANGUAGE" Visibility="{Binding SelectedItem, ElementName=LanguageComboBox, Converter={converters:NullToVisibilityConverter}}"
+                        <TextBlock ui:Translator.Key="SELECT_A_LANGUAGE" Visibility="{Binding SelectedItem, ElementName=LanguageComboBox, Converter={converters:NullToVisibilityConverter}}"
                                    Margin="5,0,0,0" VerticalAlignment="Center"
                                    IsHitTestVisible="False">
                         </TextBlock>
@@ -158,7 +159,7 @@
                             </TextBlock>
                             <TextBlock Grid.Column="1">
                                 <Run Text="{Binding SelectedLanguage.Percentage, Mode=OneWay, StringFormat='\{0\}%'}"/>
-                                <Run views:Translator.Key="DONE"/>
+                                <Run ui:Translator.Key="DONE"/>
                             </TextBlock>
                         </Grid>
                         <Grid Margin="0,0,0,5">
@@ -168,8 +169,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Border Background="{Binding SelectedLanguage.StatusBrush}" CornerRadius="2" />
-                            <TextBlock Grid.Column="1" views:Translator.LocalizedString="{Binding SelectedLanguage.StatusText}" Margin="5,0" />
-                            <TextBlock Grid.Column="2" views:Translator.TooltipKey="COPY_TO_CLIPBOARD">
+                            <TextBlock Grid.Column="1" ui:Translator.LocalizedString="{Binding SelectedLanguage.StatusText}" Margin="5,0" />
+                            <TextBlock Grid.Column="2" ui:Translator.TooltipKey="COPY_TO_CLIPBOARD">
                                 <Hyperlink Command="{Binding CopySelectedUpdatedCommand}">
                                     <Run
                                         Text="{Binding SelectedLanguage.UpdatedLocal, Mode=OneWay, StringFormat='g', ConverterCulture={x:Static globalization:CultureInfo.CurrentCulture}}" />
@@ -182,8 +183,8 @@
                                 <ColumnDefinition />
                                 <ColumnDefinition Width="{Binding Source={x:Static main:DebugViewModel.IsDebugBuild}, Converter={converters:BoolToValueConverter FalseValue=Auto, TrueValue=*}}" />
                             </Grid.ColumnDefinitions>
-                            <Button views:Translator.Key="APPLY" Command="{Binding ApplyLanguageCommand}" />
-                            <Button Grid.Column="1" Margin="5,0,0,0"  views:Translator.Key="UPDATE_SOURCE" Command="{Binding UpdateSourceCommand}"
+                            <Button ui:Translator.Key="APPLY" Command="{Binding ApplyLanguageCommand}" />
+                            <Button Grid.Column="1" Margin="5,0,0,0"  ui:Translator.Key="UPDATE_SOURCE" Command="{Binding UpdateSourceCommand}"
                                     Visibility="{Binding Source={x:Static main:DebugViewModel.IsDebugBuild}, Converter={BoolToVisibilityConverter}}"/>
                         </Grid>
                     </StackPanel>

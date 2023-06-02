@@ -7,6 +7,7 @@
              xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:controls="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d"
              d:DesignHeight="200" 
              d:DesignWidth="800" 
@@ -40,7 +41,7 @@
                        Source="/Images/SupperterPack.png" Width="24"
                        DockPanel.Dock="Right" HorizontalAlignment="Right"/>-->
                 <userControls:Chip Margin="0 5 5 0"
-                                   views:Translator.Key="{Binding ElementName=paletteItem, Path=Palette.Source.Name.Key}"
+                                   ui:Translator.Key="{Binding ElementName=paletteItem, Path=Palette.Source.Name.Key}"
                                    DockPanel.Dock="Right" HorizontalAlignment="Right"/>
             </DockPanel>
             <TextBlock Margin="0 5 0 0">
@@ -73,7 +74,7 @@
                     </Style>
                 </Border.Style>
                 <Button
-                    views:Translator.TooltipKey="USE_IN_CURRENT_IMAGE" Cursor="Hand"
+                    ui:Translator.TooltipKey="USE_IN_CURRENT_IMAGE" Cursor="Hand"
                     Style="{StaticResource ToolButtonStyle}"
                     Margin="0 3 0 0" Width="24" Height="24"
                     CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}"
@@ -100,7 +101,7 @@
                 <Button
                     Command="{Binding ElementName=paletteItem, Path=ToggleFavouriteCommand}"
                     CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
-                    views:Translator.TooltipKey="ADD_TO_FAVORITES">
+                    ui:Translator.TooltipKey="ADD_TO_FAVORITES">
                     <Button.Style>
                         <Style BasedOn="{StaticResource ImageButtonStyle}" TargetType="Button">
                             <Style.Triggers>
@@ -139,7 +140,7 @@
                 </Border.Style>
                 <Button Command="{Binding DeletePaletteCommand, ElementName=paletteItem}"
                         CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
-                views:Translator.TooltipKey="DELETE" Width="24" Height="24" Margin="0"
+                ui:Translator.TooltipKey="DELETE" Width="24" Height="24" Margin="0"
                 Style="{StaticResource ToolButtonStyle}" Cursor="Hand">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Trash.png"/>
