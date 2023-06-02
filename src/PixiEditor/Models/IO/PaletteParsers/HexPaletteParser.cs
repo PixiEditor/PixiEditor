@@ -49,7 +49,7 @@ internal class HexPaletteParser : PaletteFileParser
         StringBuilder sb = new();
         foreach (var color in data.Colors)
         {
-            string hex = $"{color.R:X}{color.G:X}{color.B:X}";
+            string hex = $"{color.R:X2}{color.G:X2}{color.B:X2}";
             sb.AppendLine(hex);
         }
 
