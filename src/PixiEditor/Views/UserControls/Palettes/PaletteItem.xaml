@@ -125,20 +125,26 @@
                 </Button>
             </Border>
             <Border Width="28" Height="28" CornerRadius="2.5"
-                    Margin="5 0 0 0" Padding="2">
+                    Margin="5 0 0 0" Padding="2" Name="deleteBorder">
                 <Border.Style>
                     <Style TargetType="Border">
                         <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="Red"/>
-                            </Trigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding Path=IsEnabled, ElementName=deleteButton}" Value="True"/>
+                                    <Condition Binding="{Binding Path=IsMouseOver, ElementName=deleteBorder}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <MultiDataTrigger.Setters>
+                                    <Setter Property="Background" Value="Red"/>
+                                </MultiDataTrigger.Setters>
+                            </MultiDataTrigger>
                             <Trigger Property="IsMouseOver" Value="False">
                                 <Setter Property="Background" Value="Transparent"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <Button Command="{Binding DeletePaletteCommand, ElementName=paletteItem}"
+                <Button Name="deleteButton" Command="{Binding DeletePaletteCommand, ElementName=paletteItem}"
                         CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
                 ui:Translator.TooltipKey="DELETE" Width="24" Height="24" Margin="0"
                 Style="{StaticResource ToolButtonStyle}" Cursor="Hand">

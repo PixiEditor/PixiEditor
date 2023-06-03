@@ -166,7 +166,7 @@ internal partial class PalettesBrowser : Window
         InitializeComponent();
         Title = new LocalizedString("PALETTE_BROWSER");
         Instance = this;
-        DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette);
+        DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette, CanDeletePalette);
         ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
         Loaded += async (_, _) =>
         {
@@ -180,6 +180,11 @@ internal partial class PalettesBrowser : Window
         };
 
         IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
+    }
+
+    private bool CanDeletePalette(Palette palette)
+    {
+        return palette != null && palette.Source.GetType() == typeof(LocalPalettesFetcher);
     }
 
     private void OnFavouritePalettesChanged(object obj)
