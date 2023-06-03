@@ -9,11 +9,12 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
-using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.Localization;
+using PixiEditor.Models.Preferences;
 
 namespace PixiEditor.ViewModels;
 

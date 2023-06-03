@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Extensions.Windowing;
@@ -13,7 +14,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.PaletteParsers;
 using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.Models.Localization;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Models.Preferences;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.SubViewModels.Document;

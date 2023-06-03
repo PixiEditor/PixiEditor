@@ -6,13 +6,13 @@ using System.Windows.Input;
 using Microsoft.Win32;
 using Newtonsoft.Json;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Localization;
-using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs.DebugDialogs;
 using PixiEditor.Views.Dialogs.DebugDialogs.Localization;
 

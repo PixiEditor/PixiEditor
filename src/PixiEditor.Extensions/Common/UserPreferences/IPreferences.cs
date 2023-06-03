@@ -1,10 +1,8 @@
-﻿using PixiEditor.ViewModels;
+﻿namespace PixiEditor.Extensions.Common.UserPreferences;
 
-namespace PixiEditor.Models.UserPreferences;
-
-internal interface IPreferences
+public interface IPreferences
 {
-    public static IPreferences Current => ViewModelMain.Current.Preferences;
+    public static IPreferences Current { get; private set; }
 
     /// <summary>
     /// Saves the preferences to be stored permanently.
@@ -88,4 +86,9 @@ internal interface IPreferences
     /// <param name="name">The name of the setting</param>
     /// <returns>The editor setting or the <paramref name="fallbackValue"/> if it has not been set yet</returns>
     public T? GetLocalPreference<T>(string name, T? fallbackValue);
+
+    protected static void SetAsCurrent(IPreferences provider)
+    {
+        Current = provider;
+    }
 }

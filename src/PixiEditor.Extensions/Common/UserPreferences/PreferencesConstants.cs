@@ -1,6 +1,6 @@
-﻿namespace PixiEditor.Models.UserPreferences;
+﻿namespace PixiEditor.Extensions.Common.UserPreferences;
 
-internal static class PreferencesConstants
+public static class PreferencesConstants
 {
     public const string FavouritePalettes = "FavouritePalettes";
     public const string RecentlyOpened = "RecentlyOpened";

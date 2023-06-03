@@ -1,5 +1,5 @@
-﻿using PixiEditor.Models;
-using PixiEditor.Models.UserPreferences;
+﻿using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Models;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 

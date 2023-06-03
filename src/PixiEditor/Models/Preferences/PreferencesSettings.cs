@@ -2,9 +2,9 @@
 using System.IO;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using PixiEditor.ViewModels;
+using PixiEditor.Extensions.Common.UserPreferences;
 
-namespace PixiEditor.Models.UserPreferences;
+namespace PixiEditor.Models.Preferences;
 
 [DebuggerDisplay("{Preferences.Count + LocalPreferences.Count} Preference(s)")]
 internal class PreferencesSettings : IPreferences
@@ -23,6 +23,7 @@ internal class PreferencesSettings : IPreferences
 
     public void Init()
     {
+        IPreferences.SetAsCurrent(this);
         Init(PathToRoamingUserPreferences, PathToLocalPreferences);
     }
 

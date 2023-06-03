@@ -567,5 +567,7 @@
   "ERROR_FORBIDDEN_UNIQUE_NAME": "Extension unique name cannot start with 'pixieditor'.",
   "ERROR_MISSING_METADATA": "Extension metadata key '{0}' is missing.",
   "ERROR_NO_CLASS_ENTRY": "Extension class entry is missing on path '{0}'.",
-  "ERROR_NO_ENTRY_ASSEMBLY": "Extension entry assembly is missing on path '{0}'."
+  "ERROR_NO_ENTRY_ASSEMBLY": "Extension entry assembly is missing on path '{0}'.",
+
+  "AWESOME_SUPPORTER": "Awesome Supporter"
 }

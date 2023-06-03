@@ -12,5 +12,9 @@ internal class AdditionalContentViewModel : ViewModelBase
     }
 
     public bool IsSupporterPackAvailable =>
+#if DEBUG
+        true;
+#else
         AdditionalContentProvider != null && AdditionalContentProvider.IsContentAvailable(AdditionalContentProduct.SupporterPack);
+#endif
 }
