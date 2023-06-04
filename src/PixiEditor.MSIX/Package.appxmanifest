@@ -50,6 +50,11 @@
           <uap:FileTypeAssociation Name="pixieditor.pixifile">
             <uap:SupportedFileTypes>
               <uap:FileType>.pixi</uap:FileType>
+              <uap:FileType>.png</uap:FileType>
+              <uap:FileType>.jpg</uap:FileType>
+              <uap:FileType>.jpeg</uap:FileType>
+              <uap:FileType>.bmp</uap:FileType>
+              <uap:FileType>.gif</uap:FileType>
             </uap:SupportedFileTypes>
             <uap:DisplayName>PixiEditor</uap:DisplayName>
             <uap:InfoTip>A file used to save art made in PixiEditor</uap:InfoTip>
