@@ -469,9 +469,13 @@
                     Margin="0,-5,-5,0"
                     HorizontalAlignment="Right"
                     WindowChrome.IsHitTestVisibleInChrome="True">
-                    <usercontrols:Chip ui1:Translator.Key="AWESOME_SUPPORTER" OutlineColor="Gold"
-                                       Visibility="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable,
-                           Converter={converters:BoolToVisibilityConverter}}"/>
+                    <Border BorderThickness="1" BorderBrush="{StaticResource PixiRed}"
+                            Padding="5 0" CornerRadius="5" Height="25"
+                            Visibility="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable,
+                           Converter={converters:BoolToVisibilityConverter}}">
+                        <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"
+                                   ui1:Translator.Key="AWESOME_SUPPORTER" />
+                    </Border>
                     <Button
                         Style="{StaticResource MinimizeButtonStyle}"
                         WindowChrome.IsHitTestVisibleInChrome="True"
