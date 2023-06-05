@@ -2,6 +2,8 @@
 
 public class PopupWindow : IPopupWindow
 {
+    public string UniqueId => _underlyingWindow.UniqueId;
+
     private IPopupWindow _underlyingWindow;
 
     public PopupWindow(IPopupWindow basicPopup)
@@ -16,6 +18,7 @@ public class PopupWindow : IPopupWindow
     }
 
     public void Show() => _underlyingWindow.Show();
+    public void Close() => _underlyingWindow.Close();
 
     public bool? ShowDialog() => _underlyingWindow.ShowDialog();
     public double Width

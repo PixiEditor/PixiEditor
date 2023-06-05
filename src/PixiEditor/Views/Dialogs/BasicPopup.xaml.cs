@@ -6,6 +6,8 @@ namespace PixiEditor.Views.Dialogs;
 
 internal partial class BasicPopup : Window, IPopupWindow
 {
+    public string UniqueId => "PixiEditor.EmptyPopup";
+
     public RelayCommand CancelCommand { get; set; }
 
     public static readonly DependencyProperty BodyProperty = DependencyProperty.Register(

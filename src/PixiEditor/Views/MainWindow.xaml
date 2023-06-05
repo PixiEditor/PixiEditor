@@ -747,7 +747,7 @@
                                                     Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}" 
                                                     Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=ActualWidth, Converter={converters:PaletteViewerWidthToVisibilityConverter}}"/>
                                                 <palettes:PaletteViewer 
-                                                    IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={converters:NotNullToBoolConverter}}" 
+                                                    IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={converters:NotNullToBoolConverter}}"
                                                     Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}"
                                                     Swatches="{Binding DocumentManagerSubViewModel.ActiveDocument.Swatches}"
                                                     SelectColorCommand="{cmds:Command PixiEditor.Colors.SelectColor, UseProvided=True}"

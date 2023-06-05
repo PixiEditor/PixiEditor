@@ -97,7 +97,8 @@
                           IsChecked="{Binding ShowOnlyFavourites, ElementName=palettesBrowser}" ui:Translator.Key="FAVORITES"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
-                <Button ui:Translator.TooltipKey="ADD_FROM_CURRENT_PALETTE" Click="AddFromPalette_OnClick" Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
+                <Button ui:Translator.TooltipKey="ADD_FROM_CURRENT_PALETTE" Command="{Binding ElementName=palettesBrowser, Path=AddFromPaletteCommand}" Cursor="Hand" Margin="10 0"
+                        Style="{StaticResource ToolButtonStyle}" Width="24" Height="24">
                     <Image Source="/Images/Plus-square.png"/>
                 </Button>
                 <Button Cursor="Hand" Click="OpenFolder_OnClick" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24"

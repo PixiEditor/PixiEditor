@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
       <UseWPF>true</UseWPF>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-      <Version>0.0.3</Version>
+      <Version>0.0.5</Version>
       <Title>PixiEditor Extensions</Title>
       <Authors>PixiEditor Organization</Authors>
       <Copyright>PixiEditor Organization</Copyright>

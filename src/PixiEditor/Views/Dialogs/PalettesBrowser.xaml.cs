@@ -8,10 +8,12 @@ using System.Windows.Input;
 using System.Windows.Navigation;
 using Microsoft.Win32;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Extensions.Windowing;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
@@ -27,8 +29,11 @@ using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
 
 namespace PixiEditor.Views.Dialogs;
 
-internal partial class PalettesBrowser : Window
+internal partial class PalettesBrowser : Window, IPopupWindow
 {
+    public static string UniqueId => "PixiEditor.BrowserPalette";
+    string IPopupWindow.UniqueId => UniqueId;
+
     private const int ItemsPerLoad = 25;
 
     private readonly LocalizedString[] stopItTexts = new[]
@@ -64,6 +69,15 @@ internal partial class PalettesBrowser : Window
     {
         get => (ICommand)GetValue(DeletePaletteCommandProperty);
         set => SetValue(DeletePaletteCommandProperty, value);
+    }
+
+    public static readonly DependencyProperty AddFromPaletteCommandProperty = DependencyProperty.Register(
+        nameof(AddFromPaletteCommand), typeof(ICommand), typeof(PalettesBrowser), new PropertyMetadata(default(ICommand)));
+
+    public ICommand AddFromPaletteCommand
+    {
+        get { return (ICommand)GetValue(AddFromPaletteCommandProperty); }
+        set { SetValue(AddFromPaletteCommandProperty, value); }
     }
 
     public bool IsFetching
@@ -168,9 +182,10 @@ internal partial class PalettesBrowser : Window
         Instance = this;
         DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette, CanDeletePalette);
         ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
+        AddFromPaletteCommand = new RelayCommand(AddFromCurrentPalette, CanAddFromPalette);
         Loaded += async (_, _) =>
         {
-            await LocalPalettesFetcher.RefreshCacheAll();
+            await UpdatePaletteList();
             LocalPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
         };
         Closed += (_, _) =>
@@ -180,6 +195,11 @@ internal partial class PalettesBrowser : Window
         };
 
         IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
+    }
+
+    private bool CanAddFromPalette(object param)
+    {
+        return CurrentEditingPalette != null;
     }
 
     private bool CanDeletePalette(Palette palette)
@@ -520,7 +540,7 @@ internal partial class PalettesBrowser : Window
         }
     }
 
-    private async void AddFromPalette_OnClick(object sender, RoutedEventArgs e)
+    private async void AddFromCurrentPalette(object param)
     {
         if (CurrentEditingPalette?.Count == 0)
             return;
