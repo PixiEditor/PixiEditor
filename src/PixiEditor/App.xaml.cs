@@ -42,10 +42,12 @@ internal partial class App : Application
             return;
         }
 
+        #if !STEAM
         if (!HandleNewInstance())
         {
             return;
         }
+        #endif
 
         AddNativeAssets();
         
