@@ -347,6 +347,9 @@
                         <MenuItem
                             ui1:Translator.Key="OPEN_SHORTCUT_WINDOW"
                             cmds:Menu.Command="PixiEditor.Window.OpenShortcutWindow" />
+                        <MenuItem
+                            ui1:Translator.Key="OPEN_PALETTE_BROWSER"
+                            cmds:Menu.Command="PixiEditor.Window.OpenPalettesBrowserWindow" />
                         <Separator/>
                         <MenuItem
                             ui1:Translator.Key="TOGGLE_GRIDLINES"
