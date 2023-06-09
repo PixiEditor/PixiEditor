@@ -1,6 +1,6 @@
 {
   "displayName": "Sample Extension 1",
-  "uniqueName": "PixiEditor.Samples.SampleExtension",
+  "uniqueName": "yourCompany.Samples.SampleExtension",
   "description": "Sample extension for PixiEditor",
   "version": "1.0.0",
   "localization": {

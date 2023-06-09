@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows;
-using AvalonDock.Layout;
 using Newtonsoft.Json;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
@@ -13,11 +13,13 @@ namespace PixiEditor.Models.AppExtensions;
 
 internal class ExtensionLoader
 {
+    private readonly Dictionary<string, OfficialExtensionData> _officialExtensionsKeys = new Dictionary<string, OfficialExtensionData>();
     public List<Extension> LoadedExtensions { get; } = new();
 
     public ExtensionLoader()
     {
         ValidateExtensionFolder();
+        _officialExtensionsKeys.Add("pixieditor.supporterpack", new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
     }
 
     public void LoadExtensions()
@@ -48,8 +50,19 @@ internal class ExtensionLoader
         try
         {
             var metadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
-            ValidateMetadata(metadata);
-            var extension = LoadExtensionEntry(Path.GetDirectoryName(packageJsonPath), metadata);
+            string directory = Path.GetDirectoryName(packageJsonPath);
+            Assembly entry = GetEntryAssembly(directory, out Type extensionType);
+            if (entry is null)
+            {
+                throw new NoEntryAssemblyException(directory);
+            }
+
+            if (!ValidateMetadata(metadata, entry))
+            {
+                return;
+            }
+
+            var extension = LoadExtensionEntry(entry, extensionType, metadata);
             extension.Load();
             LoadedExtensions.Add(extension);
         }
@@ -67,18 +80,33 @@ internal class ExtensionLoader
         }
     }
 
-    private void ValidateMetadata(ExtensionMetadata metadata)
+    private Assembly? GetEntryAssembly(string assemblyFolder, out Type extensionType)
+    {
+        string[] dlls = Directory.GetFiles(assemblyFolder, "*.dll");
+        Assembly? entryAssembly = GetEntryAssembly(dlls, out extensionType);
+
+        return entryAssembly;
+    }
+
+    private bool ValidateMetadata(ExtensionMetadata metadata, Assembly assembly)
     {
         if (string.IsNullOrEmpty(metadata.UniqueName))
         {
             throw new MissingMetadataException("Description");
         }
 
-        if (metadata.UniqueName.StartsWith("pixieditor".Trim(), StringComparison.OrdinalIgnoreCase))
+        string fixedUniqueName = metadata.UniqueName.ToLower().Trim();
+
+        if (fixedUniqueName.StartsWith("pixieditor".Trim(), StringComparison.OrdinalIgnoreCase))
         {
-            if(!IsOfficialAssemblyLegit(metadata.UniqueName))
+            if(!IsOfficialAssemblyLegit(fixedUniqueName, assembly))
             {
                 throw new ForbiddenUniqueNameExtension();
+            }
+
+            if (!IsAdditionalContentInstalled(fixedUniqueName))
+            {
+                return false;
             }
         }
         // TODO: Validate if unique name is unique
@@ -92,22 +120,52 @@ internal class ExtensionLoader
         {
             throw new MissingMetadataException("Version");
         }
+
+        return true;
     }
 
-    private bool IsOfficialAssemblyLegit(string metadataUniqueName)
+    private bool IsAdditionalContentInstalled(string fixedUniqueName)
     {
-        return true; //TODO: Perform assembly secret number check
+        if (!_officialExtensionsKeys.ContainsKey(fixedUniqueName)) return false;
+        AdditionalContentProduct? product = _officialExtensionsKeys[fixedUniqueName].Product;
+
+        if (product == null) return true;
+
+        return IPlatform.Current.AdditionalContentProvider?.IsContentAvailable(product.Value) ?? false;
     }
 
-    private Extension LoadExtensionEntry(string assemblyFolder, ExtensionMetadata metadata)
+    private bool IsOfficialAssemblyLegit(string metadataUniqueName, Assembly assembly)
     {
-        string[] dlls = Directory.GetFiles(assemblyFolder, "*.dll");
-        Assembly? entryAssembly = GetEntryAssembly(dlls, out Type extensionType);
-        if (entryAssembly is null)
-        {
-            throw new NoEntryAssemblyException(assemblyFolder);
-        }
+        if (assembly == null) return false; // All official extensions must have a valid assembly
+        if (!_officialExtensionsKeys.ContainsKey(metadataUniqueName)) return false;
+        bool wasVerified = false;
+        bool verified = StrongNameSignatureVerificationEx(assembly.Location, true, ref wasVerified);
+        if (!verified || !wasVerified) return false;
 
+        byte[]? assemblyPublicKey = assembly.GetName().GetPublicKey();
+        if (assemblyPublicKey == null) return false;
+
+        return PublicKeysMatch(assemblyPublicKey, _officialExtensionsKeys[metadataUniqueName].PublicKeyName);
+    }
+
+    private bool PublicKeysMatch(byte[] assemblyPublicKey, string pathToPublicKey)
+    {
+        Assembly currentAssembly = Assembly.GetExecutingAssembly();
+        using Stream? stream = currentAssembly.GetManifestResourceStream($"{currentAssembly.GetName().Name}.OfficialExtensions.{pathToPublicKey}");
+        if (stream == null) return false;
+
+        using MemoryStream memoryStream = new MemoryStream();
+        stream.CopyTo(memoryStream);
+        byte[] publicKey = memoryStream.ToArray();
+
+        return assemblyPublicKey.SequenceEqual(publicKey);
+    }
+
+    [DllImport("mscoree.dll", CharSet=CharSet.Unicode)]
+    static extern bool StrongNameSignatureVerificationEx(string wszFilePath, bool fForceVerification, ref bool pfWasVerified);
+
+    private Extension LoadExtensionEntry(Assembly entryAssembly, Type extensionType, ExtensionMetadata metadata)
+    {
         var extension = (Extension)Activator.CreateInstance(extensionType);
         if (extension is null)
         {
@@ -147,5 +205,18 @@ internal class ExtensionLoader
         {
             Directory.CreateDirectory(Paths.ExtensionsFullPath);
         }
+    }
+}
+
+internal struct OfficialExtensionData
+{
+    public string PublicKeyName { get; }
+    public AdditionalContentProduct? Product { get; }
+    public string? PurchaseLink { get; }
+
+    public OfficialExtensionData(string publicKeyName, AdditionalContentProduct product, string? purchaseLink = null)
+    {
+        PublicKeyName = publicKeyName;
+        Product = product;
     }
 }

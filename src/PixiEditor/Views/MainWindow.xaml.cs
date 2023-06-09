@@ -41,8 +41,6 @@ internal partial class MainWindow : Window
         extLoader = extensionLoader;
         Current = this;
 
-        IPlatform.RegisterPlatform(GetActivePlatform());
-
         services = new ServiceCollection()
             .AddPlatform()
             .AddPixiEditor(extensionLoader)
@@ -89,17 +87,6 @@ internal partial class MainWindow : Window
     private void TranslateLayoutContent(DependencyObject d, LocalizedString value)
     {
         ((LayoutContent)d).SetValue(LayoutContent.TitleProperty, value.Value);
-    }
-
-    private IPlatform GetActivePlatform()
-    {
-#if STEAM
-        return new PixiEditor.Platform.Steam.SteamPlatform();
-#elif MSIX || MSIX_DEBUG
-        return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();
-#else
-        return new PixiEditor.Platform.Standalone.StandalonePlatform();
-#endif
     }
 
     private void MainWindow_ContentRendered(object sender, EventArgs e)

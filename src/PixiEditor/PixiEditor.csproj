@@ -149,6 +149,7 @@
 	<ItemGroup>
 		<Compile Remove="Styles\AvalonDock\Images\**" />
 		<EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
+		<EmbeddedResource Include="OfficialExtensions\supporter-pack.snk" />
 		<None Remove="Styles\AvalonDock\Images\**" />
 		<Page Remove="Styles\AvalonDock\Images\**" />
 	</ItemGroup>
@@ -436,6 +437,7 @@
 		<Resource Include="Images\LanguageFlags\hu.png" />
 		<None Remove="Images\LanguageFlags\pt-br.png" />
 		<Resource Include="Images\LanguageFlags\pt-br.png" />
+		<None Remove="OfficialExtensions\supporter-pack.snk" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

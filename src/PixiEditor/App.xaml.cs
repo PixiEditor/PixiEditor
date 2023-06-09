@@ -11,6 +11,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Localization;
+using PixiEditor.Platform;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
@@ -52,11 +53,24 @@ internal partial class App : Application
 
         AddNativeAssets();
 
+        IPlatform.RegisterPlatform(GetActivePlatform());
+
         ExtensionLoader extensionLoader = new ExtensionLoader();
         extensionLoader.LoadExtensions();
 
         MainWindow = new MainWindow(extensionLoader);
         MainWindow.Show();
+    }
+
+    private IPlatform GetActivePlatform()
+    {
+#if STEAM
+        return new PixiEditor.Platform.Steam.SteamPlatform();
+#elif MSIX || MSIX_DEBUG
+        return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();
+#else
+        return new PixiEditor.Platform.Standalone.StandalonePlatform();
+#endif
     }
 
     private void AddNativeAssets()

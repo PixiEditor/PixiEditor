@@ -39,3 +39,10 @@ public class ForbiddenUniqueNameExtension : ExtensionException
     }
 }
 
+public class MissingAdditionalContentException : ExtensionException
+{
+    public MissingAdditionalContentException(string productLink) : base(new LocalizedString("ERROR_MISSING_ADDITIONAL_CONTENT", productLink))
+    {
+    }
+}
+
