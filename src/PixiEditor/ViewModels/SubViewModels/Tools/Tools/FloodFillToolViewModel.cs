@@ -15,7 +15,9 @@ internal class FloodFillToolViewModel : ToolViewModel
     public override string ToolNameLocalizationKey => "FLOOD_FILL_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    public override LocalizedString Tooltip => new LocalizedString("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);
+    public override LocalizedString Tooltip => new("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);
+
+    public override bool UsesColor => true;
 
     public bool ConsiderAllLayers { get; private set; }
 

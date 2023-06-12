@@ -29,6 +29,16 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public abstract LocalizedString Tooltip { get; }
 
+    /// <summary>
+    /// Determines if secondary color should be used if right click mode is set to secondary color
+    /// </summary>
+    public virtual bool UsesColor => false;
+
+    /// <summary>
+    /// Determines if PixiEditor should switch to the Eraser when right click mode is set to erase
+    /// </summary>
+    public virtual bool IsErasable => false;
+
     private LocalizedString actionDisplay = string.Empty;
     public LocalizedString ActionDisplay
     {

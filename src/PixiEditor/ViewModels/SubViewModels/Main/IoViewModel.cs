@@ -175,36 +175,35 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         var tools = Owner.ToolsSubViewModel;
 
-        if (tools.ActiveTool is not ShapeTool || tools.RightClickMode == RightClickMode.ContextMenu)
+        switch (tools.RightClickMode)
         {
-            return false;
-        }
-
-        if (tools.RightClickMode == RightClickMode.Erase)
-        {
-            var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
-            hadSharedToolbar = tools.EnableSharedToolbar;
-            if (currentToolSize != null)
+            case RightClickMode.Erase when tools.ActiveTool.IsErasable:
             {
-                tools.EnableSharedToolbar = false;
-                var toolSize = tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize");
-                previousEraseSize = (int)toolSize.Value;
-                toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true } ? 1 : currentToolSize.Value;
-            }
-            else
-            {
-                previousEraseSize = null;
-            }
+                var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
+                hadSharedToolbar = tools.EnableSharedToolbar;
+                if (currentToolSize != null)
+                {
+                    tools.EnableSharedToolbar = false;
+                    var toolSize = tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize");
+                    previousEraseSize = (int)toolSize.Value;
+                    toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true } ? 1 : currentToolSize.Value;
+                }
+                else
+                {
+                    previousEraseSize = null;
+                }
 
-            tools.SetActiveTool<EraserToolViewModel>(true);
+                tools.SetActiveTool<EraserToolViewModel>(true);
+                return true;
+            }
+            case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
+                Owner.ColorsSubViewModel.SwapColors(null);
+                hadSwapped = true;
+                return true;
+            case RightClickMode.ContextMenu:
+            default:
+                return false;
         }
-        else if (tools.RightClickMode == RightClickMode.SecondaryColor)
-        {
-            Owner.ColorsSubViewModel.SwapColors(null);
-            hadSwapped = true;
-        }
-
-        return true;
     }
 
     private void OnPreviewMiddleMouseButton(object sender)
