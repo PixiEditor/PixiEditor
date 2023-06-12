@@ -252,8 +252,7 @@ internal partial class MainWindow : Window
 
     private void Viewport_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
     {
-        if (DataContext.ToolsSubViewModel.RightClickMode != RightClickMode.ContextMenu &&
-            DataContext.ToolsSubViewModel.ActiveTool is ShapeTool)
+        if (DataContext.ToolsSubViewModel.RightClickMode != RightClickMode.ContextMenu)
         {
             e.Handled = true;
         }
