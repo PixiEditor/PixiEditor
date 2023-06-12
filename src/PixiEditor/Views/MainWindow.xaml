@@ -810,7 +810,7 @@
                 <Grid Cursor="Arrow">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="30"/>
                     </Grid.RowDefinitions>
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -845,9 +845,19 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                    <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:BackendColorToMediaColorConverter}}"
-                            BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
-                            Grid.Row="1" Height="30"/>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="0.4*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:BackendColorToMediaColorConverter}}"
+                                BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
+                                Grid.ColumnSpan="2"/>
+                        <Border Background="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={converters:BackendColorToMediaColorConverter}}"
+                                Margin="0,1,1,1" CornerRadius="0,0,5,0"
+                                Grid.Column="1"/>
+                    </Grid>
                 </Grid>
             </Border>
 
