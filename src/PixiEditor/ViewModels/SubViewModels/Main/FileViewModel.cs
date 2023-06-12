@@ -148,15 +148,15 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         var images = ClipboardController.GetImagesFromClipboard();
 
-        foreach (var (name, image) in images)
+        foreach (var dataImage in images)
         {
-            if (name == null)
+            if (File.Exists(dataImage.name))
             {
-                OpenRegularImage(image, null);
+                OpenRegularImage(dataImage.image, null);
                 continue;
             }
             
-            OpenFromPath(name, false);
+            OpenFromPath(dataImage.name, false);
         }
     }
 
