@@ -149,7 +149,7 @@
                 <StackPanel Margin="27 0" Orientation="Horizontal">
                     <Label Style="{StaticResource SettingsText}"
                            views:Translator.Key="RIGHT_CLICK_MODE"/>
-                    <ComboBox SelectedItem="{Binding RightClickMode, Source={vm:MainVM ToolsSubViewModel}, Mode=TwoWay}"
+                    <ComboBox SelectedItem="{Binding RightClickMode, Source={vm:MainVM ToolsSVM}, Mode=TwoWay}"
                               ItemsSource="{helpers:Enum enums:RightClickMode}"
                               Width="160" Style="{StaticResource TranslatedEnum}"/>
                 </StackPanel>

@@ -25,7 +25,7 @@ public class MainVmEnumGenerator : IIncrementalGenerator
     private void AddEnum(SourceProductionContext context, List<PropertyDeclarationSyntax> properties)
     {
         var enumDeclaration = SyntaxFactory.EnumDeclaration("MainVmEnum")
-            .AddMembers(properties.Select(property => property.Identifier.ValueText).Select(SyntaxFactory.EnumMemberDeclaration).ToArray());
+            .AddMembers(properties.Select(property => property.Identifier.ValueText.Replace("SubViewModel", "SVM").Replace("ViewModel", "VM")).Select(SyntaxFactory.EnumMemberDeclaration).ToArray());
         
         var namespaceDeclaration = SyntaxFactory
             .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.ViewModels"))

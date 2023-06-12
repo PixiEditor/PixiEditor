@@ -19,7 +19,7 @@ internal class MainVM : MarkupExtension
         
         foreach (var value in Enum.GetValues<MainVmEnum>())
         {
-            subVms.Add(value, type.GetProperty(value.ToString())?.GetValue(vm));
+            subVms.Add(value, type.GetProperty(value.ToString().Replace("SVM", "SubViewModel").Replace("VM", "ViewModel"))?.GetValue(vm));
         }
     }
     
