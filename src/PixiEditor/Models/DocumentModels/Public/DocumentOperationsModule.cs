@@ -566,11 +566,10 @@ internal class DocumentOperationsModule
 
     public void CropToSelection(bool clearSelection = true)
     {
-        if (Document.SelectionPathBindable.IsEmpty)
+        var bounds = Document.SelectionPathBindable.TightBounds;
+        if (Document.SelectionPathBindable.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0)
             return;
 
-        var bounds = Document.SelectionPathBindable.TightBounds;
-        
         Internals.ActionAccumulator.AddActions(new Crop_Action((RectI)bounds));
 
         if (clearSelection)
