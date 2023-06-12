@@ -4,6 +4,10 @@ public sealed class StandaloneAdditionalContentProvider : IAdditionalContentProv
 {
     public bool IsContentAvailable(AdditionalContentProduct product)
     {
+#if DEBUG
+        return true;
+#else
         return false;
+#endif
     }
 }

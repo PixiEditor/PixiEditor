@@ -438,12 +438,18 @@ internal partial class PalettesBrowser : Window, IPopupWindow
                 return;
             }
 
-            PaletteList.Palettes.AddRange(newPalettes.Palettes);
+            PaletteList.Palettes.AddRange(newPalettes.Palettes.Where(x => !PaletteEquals(x, PaletteList.Palettes)));
             Sort();
             IsFetching = false;
 
             _lastScrolledOffset = viewer.VerticalOffset;
         }
+    }
+
+    private bool PaletteEquals(Palette palette, WpfObservableRangeCollection<Palette> paletteListPalettes)
+    {
+        return paletteListPalettes.Any(x => x.Name == palette.Name && x.Source == palette.Source && x.Colors.Count == palette.Colors.Count
+        && x.Colors.SequenceEqual(palette.Colors));
     }
 
     private void SortingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -488,6 +494,8 @@ internal partial class PalettesBrowser : Window, IPopupWindow
     private void Sort(bool descending)
     {
         if (PaletteList?.Palettes == null) return;
+
+        SortedResults?.Clear();
 
         IOrderedEnumerable<Palette> sorted = null;
         if (!descending)
