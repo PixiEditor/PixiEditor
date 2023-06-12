@@ -222,8 +222,11 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseUp(object? sender, MouseButton button)
     {
-        if (drawingWithRight == null || (button == MouseButton.Left && drawingWithRight.Value) ||
-            (button == MouseButton.Right && !drawingWithRight.Value))
+        bool toLeftRightClick = drawingWithRight == null ||
+                                (button == MouseButton.Left && drawingWithRight.Value) ||
+                                (button == MouseButton.Right && !drawingWithRight.Value);
+        
+        if (toLeftRightClick && button != MouseButton.Middle)
             return;
 
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
