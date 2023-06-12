@@ -86,6 +86,12 @@ internal static class ClipboardController
         if (images.Count == 1)
         {
             var dataImage = images[0];
+            var position = dataImage.position;
+
+            if (document.SizeBindable.X < position.X || document.SizeBindable.Y < position.Y)
+            {
+                position = VecI.Zero;
+            }
             
             if (pasteAsNew)
             {
@@ -97,11 +103,11 @@ internal static class ClipboardController
                 }
                 
                 document.Operations.SetSelectedMember(guid.Value);
-                document.Operations.PasteImageWithTransform(dataImage.image, dataImage.position, guid.Value, false);
+                document.Operations.PasteImageWithTransform(dataImage.image, position, guid.Value, false);
             }
             else
             {
-                document.Operations.PasteImageWithTransform(dataImage.image, dataImage.position);
+                document.Operations.PasteImageWithTransform(dataImage.image, position);
             }
             
             return true;
