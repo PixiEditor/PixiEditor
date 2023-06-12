@@ -227,24 +227,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     private void OpenRegularImage(string path, bool associatePath)
     {
-        ImportFileDialog dialog = new ImportFileDialog();
+        var image = Importer.ImportImage(path, VecI.NegativeOne);
 
-        if (path != null && File.Exists(path))
-        {
-            dialog.FilePath = path;
-        }
-
-        if (!dialog.ShowDialog())
-        {
-            return;
-        }
-
-        DocumentViewModel doc = NewDocument(b => b
-            .WithSize(dialog.FileWidth, dialog.FileHeight)
+        var doc = NewDocument(b => b
+            .WithSize(image.Size)
             .WithLayer(l => l
                 .WithName("Image")
-                .WithSize(dialog.FileWidth, dialog.FileHeight)
-                .WithSurface(Importer.ImportImage(dialog.FilePath, new VecI(dialog.FileWidth, dialog.FileHeight)))));
+                .WithSize(image.Size)
+                .WithSurface(image)));
 
         if (associatePath)
         {
@@ -259,23 +249,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     private void OpenRegularImage(Surface surface, string path)
     {
-        ImportFileDialog dialog = new ImportFileDialog( );
-
-        dialog.FileWidth = surface.Size.X;
-        dialog.FileHeight = surface.Size.Y;
-        
-        if (!dialog.ShowDialog())
-        {
-            return;
-        }
-
-        surface.ResizeNearestNeighbor(new VecI(dialog.FileWidth, dialog.FileHeight));
-            
         DocumentViewModel doc = NewDocument(b => b
-            .WithSize(dialog.FileWidth, dialog.FileHeight)
+            .WithSize(surface.Size)
             .WithLayer(l => l
                 .WithName("Image")
-                .WithSize(dialog.FileWidth, dialog.FileHeight)
+                .WithSize(surface.Size)
                 .WithSurface(surface)));
 
         if (path == null)

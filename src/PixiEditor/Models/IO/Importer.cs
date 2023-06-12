@@ -30,13 +30,14 @@ internal class Importer : NotifyableObject
     public static Surface ImportImage(string path, VecI size)
     {
         Surface original = Surface.Load(path);
-        if (original.Size != size)
+        if (original.Size == size || size == VecI.NegativeOne)
         {
-            Surface resized = original.ResizeNearestNeighbor(size);
-            original.Dispose();
-            return resized;
+            return original;
         }
-        return original;
+
+        Surface resized = original.ResizeNearestNeighbor(size);
+        original.Dispose();
+        return resized;
     }
 
     public static WriteableBitmap ImportWriteableBitmap(string path)
