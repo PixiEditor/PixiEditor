@@ -221,7 +221,11 @@ internal class AffectedAreasGatherer
 
     private void AddWholeCanvasToEveryMaskPreview()
     {
-        tracker.Document.ForEveryReadonlyMember((member) => AddWholeCanvasToMaskPreview(member.GuidValue));
+        tracker.Document.ForEveryReadonlyMember((member) => 
+        {
+            if (member.Mask is not null)
+                AddWholeCanvasToMaskPreview(member.GuidValue);
+        });
     }
 
     private AffectedArea AddWholeArea(AffectedArea area)

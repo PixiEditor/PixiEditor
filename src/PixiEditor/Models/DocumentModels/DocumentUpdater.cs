@@ -249,16 +249,7 @@ internal class DocumentUpdater
     private void ProcessStructureMemberMask(StructureMemberMask_ChangeInfo info)
     {
         StructureMemberViewModel? memberVm = doc.StructureHelper.FindOrThrow(info.GuidValue);
-        memberVm.MaskPreviewSurface?.Dispose();
-        memberVm.MaskPreviewSurface = null;
-        memberVm.MaskPreviewBitmap = null;
 
-        if (info.HasMask)
-        {
-            VecI size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
-            memberVm.MaskPreviewBitmap = CreateBitmap(size);
-            memberVm.MaskPreviewSurface = CreateDrawingSurface(memberVm.MaskPreviewBitmap);
-        }
         memberVm.InternalSetHasMask(info.HasMask);
         memberVm.RaisePropertyChanged(nameof(memberVm.MaskPreviewBitmap));
         if (!info.HasMask && memberVm is LayerViewModel layer)
@@ -275,32 +266,6 @@ internal class DocumentUpdater
         helper.State.Viewports.Remove(info.GuidValue);
     }
 
-    private void UpdateMemberBitmapsRecursively(FolderViewModel folder, VecI newSize)
-    {
-        foreach (StructureMemberViewModel? member in folder.Children)
-        {
-            member.PreviewSurface.Dispose();
-            member.PreviewBitmap = CreateBitmap(newSize);
-            member.PreviewSurface = CreateDrawingSurface(member.PreviewBitmap);
-            member.RaisePropertyChanged(nameof(member.PreviewBitmap));
-
-            member.MaskPreviewSurface?.Dispose();
-            member.MaskPreviewSurface = null;
-            member.MaskPreviewBitmap = null;
-            if (member.HasMaskBindable)
-            {
-                member.MaskPreviewBitmap = CreateBitmap(newSize);
-                member.MaskPreviewSurface = CreateDrawingSurface(member.MaskPreviewBitmap);
-            }
-            member.RaisePropertyChanged(nameof(member.MaskPreviewBitmap));
-
-            if (member is FolderViewModel innerFolder)
-            {
-                UpdateMemberBitmapsRecursively(innerFolder, newSize);
-            }
-        }
-    }
-
     private void ProcessSize(Size_ChangeInfo info)
     {
         VecI oldSize = doc.SizeBindable;
@@ -309,8 +274,8 @@ internal class DocumentUpdater
         foreach ((ChunkResolution res, DrawingSurface surf) in doc.Surfaces)
         {
             surf.Dispose();
-            newBitmaps[res] = CreateBitmap((VecI)(info.Size * res.Multiplier()));
-            doc.Surfaces[res] = CreateDrawingSurface(newBitmaps[res]);
+            newBitmaps[res] = StructureMemberViewModel.CreateBitmap((VecI)(info.Size * res.Multiplier()));
+            doc.Surfaces[res] = StructureMemberViewModel.CreateDrawingSurface(newBitmaps[res]);
         }
 
         doc.LazyBitmaps = newBitmaps;
@@ -319,30 +284,15 @@ internal class DocumentUpdater
         doc.InternalSetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
         doc.InternalSetHorizontalSymmetryAxisY(info.HorizontalSymmetryAxisY);
 
-        VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(info.Size);
+        VecI documentPreviewSize = StructureMemberViewModel.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
-        doc.PreviewBitmap = CreateBitmap(previewSize);
-        doc.PreviewSurface = CreateDrawingSurface(doc.PreviewBitmap);
+        doc.PreviewBitmap = StructureMemberViewModel.CreateBitmap(documentPreviewSize);
+        doc.PreviewSurface = StructureMemberViewModel.CreateDrawingSurface(doc.PreviewBitmap);
 
         doc.RaisePropertyChanged(nameof(doc.LazyBitmaps));
         doc.RaisePropertyChanged(nameof(doc.PreviewBitmap));
 
-        UpdateMemberBitmapsRecursively(doc.StructureRoot, previewSize);
-
         doc.InternalRaiseSizeChanged(new(doc, oldSize, info.Size));
-    }
-
-    private WriteableBitmap CreateBitmap(VecI size)
-    {
-        return new WriteableBitmap(Math.Max(size.X, 1), Math.Max(size.Y, 1), 96, 96, PixelFormats.Pbgra32, null);
-    }
-
-    private DrawingSurface CreateDrawingSurface(WriteableBitmap bitmap)
-    {
-        return DrawingSurface.Create(
-            new ImageInfo(bitmap.PixelWidth, bitmap.PixelHeight, ColorType.Bgra8888, AlphaType.Premul, ColorSpace.CreateSrgb()),
-            bitmap.BackBuffer,
-            bitmap.BackBufferStride);
     }
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)
@@ -370,13 +320,6 @@ internal class DocumentUpdater
         memberVM.InternalSetHasMask(info.HasMask);
         memberVM.InternalSetMaskIsVisible(info.MaskIsVisible);
         memberVM.InternalSetBlendMode(info.BlendMode);
-
-        if (info.HasMask)
-        {
-            VecI size = StructureMemberViewModel.CalculatePreviewSize(doc.SizeBindable);
-            memberVM.MaskPreviewBitmap = CreateBitmap(size);
-            memberVM.MaskPreviewSurface = CreateDrawingSurface(memberVM.MaskPreviewBitmap);
-        }
 
         parentFolderVM.Children.Insert(info.Index, memberVM);
 

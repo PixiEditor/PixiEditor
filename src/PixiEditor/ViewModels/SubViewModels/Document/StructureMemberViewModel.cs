@@ -138,8 +138,8 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
     public StructureMemberSelectionType Selection { get; set; }
 
     public const int PreviewSize = 48;
-    public WriteableBitmap PreviewBitmap { get; set; }
-    public DrawingSurface PreviewSurface { get; set; }
+    public WriteableBitmap? PreviewBitmap { get; set; }
+    public DrawingSurface? PreviewSurface { get; set; }
 
     public WriteableBitmap? MaskPreviewBitmap { get; set; }
     public DrawingSurface? MaskPreviewSurface { get; set; }
@@ -149,13 +149,29 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 
-    public static VecI CalculatePreviewSize(VecI docSize)
+    /// <summary>
+    /// Calculates the size of a scaled-down preview for a given size of layer tight bounds.
+    /// </summary>
+    public static VecI CalculatePreviewSize(VecI tightBoundsSize)
     {
-        double proportions = docSize.Y / (double)docSize.X;
+        double proportions = tightBoundsSize.Y / (double)tightBoundsSize.X;
         const int prSize = StructureMemberViewModel.PreviewSize;
         return proportions > 1 ?
             new VecI(Math.Max((int)Math.Round(prSize / proportions), 1), prSize) :
             new VecI(prSize, Math.Max((int)Math.Round(prSize * proportions), 1));
+    }
+
+    public static WriteableBitmap CreateBitmap(VecI size)
+    {
+        return new WriteableBitmap(Math.Max(size.X, 1), Math.Max(size.Y, 1), 96, 96, PixelFormats.Pbgra32, null);
+    }
+
+    public static DrawingSurface CreateDrawingSurface(WriteableBitmap bitmap)
+    {
+        return DrawingSurface.Create(
+            new ImageInfo(bitmap.PixelWidth, bitmap.PixelHeight, ColorType.Bgra8888, AlphaType.Premul, ColorSpace.CreateSrgb()),
+            bitmap.BackBuffer,
+            bitmap.BackBufferStride);
     }
 
     public StructureMemberViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid guidValue)
@@ -165,7 +181,7 @@ internal abstract class StructureMemberViewModel : INotifyPropertyChanged
 
         this.guidValue = guidValue;
         VecI previewSize = CalculatePreviewSize(doc.SizeBindable);
-        PreviewBitmap = new WriteableBitmap(previewSize.X, previewSize.Y, 96, 96, PixelFormats.Pbgra32, null);
-        PreviewSurface = DrawingSurface.Create(new ImageInfo(previewSize.X, previewSize.Y, ColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
+        PreviewBitmap = null;
+        PreviewSurface = null;
     }
 }

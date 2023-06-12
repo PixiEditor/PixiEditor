@@ -446,6 +446,10 @@
 		<Resource Include="Images\LanguageFlags\zh.png" />
 		<None Remove="Images\Commands\PixiEditor\Selection\CropToSelection.png" />
 		<Resource Include="Images\Commands\PixiEditor\Selection\CropToSelection.png" />
+		<None Remove="Images\LanguageFlags\hu.png" />
+		<Resource Include="Images\LanguageFlags\hu.png" />
+		<None Remove="Images\LanguageFlags\pt-br.png" />
+		<Resource Include="Images\LanguageFlags\pt-br.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

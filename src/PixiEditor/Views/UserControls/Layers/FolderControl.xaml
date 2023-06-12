@@ -60,8 +60,11 @@
                         Visibility="{Binding Folder.ClipToMemberBelowEnabledBindable, ElementName=folderControl, Converter={converters:BoolToVisibilityConverter}}"
                         Background="{StaticResource PixiRed}" Width="3" Margin="1,1,2,1" CornerRadius="1"/>
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
-                        <Border Width="30" Height="30" BorderThickness="1" BorderBrush="Black" Background="{StaticResource MainColor}">
-                            <Image Source="{Binding Folder.PreviewBitmap, ElementName=folderControl}" Stretch="Uniform" Width="20" Height="20">
+                        <Border Width="32" Height="32" BorderThickness="1" BorderBrush="Black" RenderOptions.BitmapScalingMode="NearestNeighbor">
+                            <Border.Background>
+                                <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" Viewport="0, 0, 0.20, 0.20"/>
+                            </Border.Background>
+                            <Image Source="{Binding Folder.PreviewBitmap, ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30">
                                 <RenderOptions.BitmapScalingMode>
                                     <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
                                         <Binding Path="Folder.PreviewBitmap.PixelWidth" ElementName="folderControl"/>
@@ -71,15 +74,18 @@
                             </Image>
                         </Border>
                         <Border 
-                            Width="30" Height="30" 
-                            BorderThickness="1" 
-                            Background="{StaticResource MainColor}"
+                            Width="32" Height="32" 
+                            BorderThickness="1"
                             Margin="3,0,0,0"
+                            RenderOptions.BitmapScalingMode="NearestNeighbor"
                             Visibility="{Binding Folder.HasMaskBindable, ElementName=folderControl, Converter={converters:BoolToVisibilityConverter}}"
                             BorderBrush="White">
+                            <Border.Background>
+                                <ImageBrush ImageSource="/Images/CheckerTile.png" TileMode="Tile" Viewport="0, 0, 0.20, 0.20"/>
+                            </Border.Background>
                             <Grid IsHitTestVisible="False">
-                                <Image Source="{Binding Folder.MaskPreviewBitmap,ElementName=folderControl}" Stretch="Uniform" Width="20" Height="20"
-                           RenderOptions.BitmapScalingMode="NearestNeighbor" IsHitTestVisible="False"/>
+                                <Image Source="{Binding Folder.MaskPreviewBitmap,ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30"
+                                    RenderOptions.BitmapScalingMode="NearestNeighbor" IsHitTestVisible="False"/>
                                 <Path 
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z" 
                                 Fill="{StaticResource PixiRed}" HorizontalAlignment="Center" VerticalAlignment="Center"

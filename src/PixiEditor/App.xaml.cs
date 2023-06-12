@@ -2,6 +2,7 @@
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -41,10 +42,12 @@ internal partial class App : Application
             return;
         }
 
+        #if !STEAM
         if (!HandleNewInstance())
         {
             return;
         }
+        #endif
 
         AddNativeAssets();
         
@@ -69,6 +72,9 @@ internal partial class App : Application
 
         GC.KeepAlive(_mutex);
 
+        if (Current?.Dispatcher == null)
+            return true;
+
         if (isOwned)
         {
             var thread = new Thread(
@@ -86,7 +92,7 @@ internal partial class App : Application
                                     List<string> args = new List<string>();
                                     if (File.Exists(passedArgsFile))
                                     {
-                                        args = File.ReadAllText(passedArgsFile).Split(' ').ToList();
+                                        args = CommandLineHelpers.SplitCommandLine(File.ReadAllText(passedArgsFile)).ToList();
                                         File.Delete(passedArgsFile);
                                     }
                                     
@@ -107,12 +113,31 @@ internal partial class App : Application
         }
 
         // Notify other instance so it could bring itself to foreground.
-        File.WriteAllText(passedArgsFile, string.Join(' ', Environment.GetCommandLineArgs()));
+        File.WriteAllText(passedArgsFile, string.Join(' ', WrapSpaces(Environment.GetCommandLineArgs())));
         _eventWaitHandle.Set();
 
         // Terminate this instance.
         Shutdown();
         return false;
+    }
+
+    private string?[] WrapSpaces(string[] args)
+    {
+        string?[] wrappedArgs = new string?[args.Length];
+        for (int i = 0; i < args.Length; i++)
+        {
+            string arg = args[i];
+            if (arg.Contains(' '))
+            {
+                wrappedArgs[i] = $"\"{arg}\"";
+            }
+            else
+            {
+                wrappedArgs[i] = arg;
+            }
+        }
+
+        return wrappedArgs;
     }
 
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
