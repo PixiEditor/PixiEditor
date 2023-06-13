@@ -209,6 +209,7 @@
 		<None Remove="Images\SocialMedia\DonateIcon.png" />
 		<None Remove="Images\SocialMedia\GitHubIcon.png" />
 		<None Remove="Images\SocialMedia\RedditIcon.png" />
+		<None Remove="Images\SocialMedia\SteamIcon.png" />
 		<None Remove="Images\SocialMedia\WebsiteIcon.png" />
 		<None Remove="Images\SocialMedia\YouTubeIcon.png" />
 		<None Remove="Images\SymmetryHorizontal.png" />
@@ -302,6 +303,7 @@
 		<Resource Include="Images\SocialMedia\DonateIcon.png" />
 		<Resource Include="Images\SocialMedia\GitHubIcon.png" />
 		<Resource Include="Images\SocialMedia\RedditIcon.png" />
+		<Resource Include="Images\SocialMedia\SteamIcon.png" />
 		<Resource Include="Images\SocialMedia\WebsiteIcon.png" />
 		<Resource Include="Images\SocialMedia\YouTubeIcon.png" />
 		<Resource Include="Images\SymmetryHorizontal.png" />

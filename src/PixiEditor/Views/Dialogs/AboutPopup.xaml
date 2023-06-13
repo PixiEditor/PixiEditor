@@ -13,7 +13,9 @@
         mc:Ignorable="d" WindowStyle="None"
         views:Translator.Key="ABOUT"
         WindowStartupLocation="CenterScreen"
-        Height="510" Width="400" Name="aboutPopup" MinWidth="100" MinHeight="100"
+        Name="aboutPopup"
+        Width="440" Height="510"
+        MaxWidth="440" MaxHeight="510"
         FlowDirection="{helpers:Localization FlowDirection}">
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
@@ -22,7 +24,7 @@
     
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
-                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+                      ResizeBorderThickness="0" />
     </WindowChrome.WindowChrome>
 
     <DockPanel Background="{StaticResource AccentColor}" Focusable="True">
@@ -74,7 +76,7 @@
                 </Ellipse>
                 <Label Style="{StaticResource SettingsText}" Margin="10 0 0 0" FontSize="14">
                     <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/CPKreuz" Style="{StaticResource SettingsLink}">
-                        <Run Text="Philip Kreuz (CPK)"/>
+                        <Run Text="Philip Kreuz (cpk)"/>
                         <Run Text="" FontFamily="{StaticResource Feather}"/>
                     </Hyperlink>
                 </Label>
@@ -124,6 +126,9 @@
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://reddit.com/r/PixiEditor"
                             Style="{StaticResource SocialMediaButton}" Tag="#FF4500" views:Translator.TooltipKey="REDDIT"
                             Content="/Images/SocialMedia/RedditIcon.png"/>
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://store.steampowered.com/app/2218560"
+                            Style="{StaticResource SocialMediaButton}" Tag="#00adee" views:Translator.TooltipKey="STEAM"
+                            Content="/Images/SocialMedia/SteamIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
                             Style="{StaticResource SocialMediaButton}" Tag="Black" views:Translator.TooltipKey="GITHUB"
                             Content="/Images/SocialMedia/GithubIcon.png"/>
