@@ -69,6 +69,11 @@ public struct VecI : IEquatable<VecI>
         return new(X, 2 * lineY - Y);
     }
 
+    public VecI KeepInside(RectI rect)
+    {
+        return new VecI(Math.Clamp(X, rect.Left, rect.Right), Math.Clamp(Y, rect.Top, rect.Bottom));
+    }
+
     public byte[] ToByteArray()
     {
         var data = new byte[sizeof(int) * 2];

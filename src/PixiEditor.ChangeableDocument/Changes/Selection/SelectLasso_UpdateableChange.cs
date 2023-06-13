@@ -5,6 +5,8 @@ using PixiEditor.DrawingApi.Core.Surface.Vector;
 namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class SelectLasso_UpdateableChange : UpdateableChange
 {
+    private RectI constraint;
+    private VecI initialPoint;
     private VectorPath? originalPath;
     private VectorPath path = new() { FillType = PathFillType.EvenOdd };
     private readonly SelectionMode mode;
@@ -12,18 +14,20 @@ internal class SelectLasso_UpdateableChange : UpdateableChange
     [GenerateUpdateableChangeActions]
     public SelectLasso_UpdateableChange(VecI point, SelectionMode mode)
     {
-        path.MoveTo(point);
+        initialPoint = point;
         this.mode = mode;
     }
 
     [UpdateChangeMethod]
     public void Update(VecI point)
     {
-        path.LineTo(point);
+        path.LineTo(point.KeepInside(constraint));
     }
 
     public override bool InitializeAndValidate(Document target)
     {
+        constraint = new RectI(VecI.Zero, target.Size);
+        path.MoveTo(initialPoint.KeepInside(constraint));
         originalPath = new VectorPath(target.Selection.SelectionPath);
         return true;
     }
