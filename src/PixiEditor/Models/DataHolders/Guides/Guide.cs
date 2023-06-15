@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Media;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -27,6 +28,7 @@ namespace PixiEditor.Models.DataHolders.Guides
                 if (SetProperty(ref name, value))
                 {
                     InvalidateVisual();
+                    RaisePropertyChanged(nameof(DisplayName));
                 }
             }
         }
@@ -66,6 +68,14 @@ namespace PixiEditor.Models.DataHolders.Guides
                 }
             }
         }
+
+        public abstract Control SettingsControl { get; }
+
+        public abstract string TypeNameKey { get; }
+
+        public virtual string IconPath => $"/Images/Guides/{GetType().Name}.png";
+
+        public string DisplayName => !string.IsNullOrWhiteSpace(Name) ? Name : TypeNameKey;
 
         protected IReadOnlyCollection<GuideRenderer> Renderers => renderers;
 

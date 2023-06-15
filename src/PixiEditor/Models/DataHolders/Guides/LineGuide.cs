@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using Hardware.Info;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -55,9 +56,14 @@ namespace PixiEditor.Models.DataHolders.Guides
             }
         }
 
+        public override string TypeNameKey => "LINE_GUIDE";
+
+        public override Control SettingsControl { get; }
+
         public LineGuide(DocumentViewModel document) : base(document)
         {
             Color = Colors.CadetBlue;
+            SettingsControl = new LineGuideSettings(this);
         }
 
         public override void Draw(DrawingContext context, GuideRenderer renderer)

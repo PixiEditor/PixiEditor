@@ -191,6 +191,7 @@
 		<None Remove="Images\Folder-add.png" />
 		<None Remove="Images\Folder.png" />
 		<None Remove="Images\Globe.png" />
+		<None Remove="Images\Guides\LineGuide.png" />
 		<None Remove="Images\hard-drive.png" />
 		<None Remove="Images\Layer-add.png" />
 		<None Remove="Images\Lock-alpha.png" />
@@ -287,6 +288,7 @@
 		<Resource Include="Images\Folder-add.png" />
 		<Resource Include="Images\Folder.png" />
 		<Resource Include="Images\Globe.png" />
+		<Resource Include="Images\Guides\LineGuide.png" />
 		<Resource Include="Images\hard-drive.png" />
 		<Resource Include="Images\LanguageFlags\uk.png" />
 		<Resource Include="Images\Layer-add.png" />

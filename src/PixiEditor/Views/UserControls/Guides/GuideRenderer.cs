@@ -50,12 +50,12 @@ namespace PixiEditor.Views.UserControls.Guides
 
             if (e.OldValue is Guide oldGuide)
             {
-                oldGuide.AttachRenderer(renderer);
+                oldGuide.DetachRenderer(renderer);
             }
 
             if (e.NewValue is Guide newGuide)
             {
-                newGuide.DetachRenderer(renderer);
+                newGuide.AttachRenderer(renderer);
             }
         }
     }

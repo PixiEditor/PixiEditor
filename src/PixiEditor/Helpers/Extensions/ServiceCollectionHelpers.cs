@@ -41,6 +41,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
         .AddSingleton<DebugViewModel>()
         .AddSingleton<SearchViewModel>()
+        .AddSingleton<GuidesViewModel>()
         // Controllers
         .AddSingleton<ShortcutController>()
         .AddSingleton<CommandController>()

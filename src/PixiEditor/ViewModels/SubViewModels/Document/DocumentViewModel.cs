@@ -182,11 +182,6 @@ internal partial class DocumentViewModel : NotifyableObject
         PreviewSurface = DrawingSurface.Create(new ImageInfo(previewSize.X, previewSize.Y, ColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
 
         ReferenceLayerViewModel = new(this, Internals);
-        Guides.Add(new LineGuide(this)
-        {
-            Position = new VecD(16, 16),
-            Rotation = Math.PI / 4
-        });
     }
 
     /// <summary>
