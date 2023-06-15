@@ -20,6 +20,7 @@ using PixiEditor.Helpers.Collections;
 using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Guides;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
@@ -113,6 +114,7 @@ internal partial class DocumentViewModel : NotifyableObject
     private readonly HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
     public IReadOnlyCollection<StructureMemberViewModel> SoftSelectedStructureMembers => softSelectedStructureMembers;
 
+    public WpfObservableRangeCollection<Guide> Guides { get; } = new();
 
     public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
@@ -180,6 +182,11 @@ internal partial class DocumentViewModel : NotifyableObject
         PreviewSurface = DrawingSurface.Create(new ImageInfo(previewSize.X, previewSize.Y, ColorType.Bgra8888), PreviewBitmap.BackBuffer, PreviewBitmap.BackBufferStride);
 
         ReferenceLayerViewModel = new(this, Internals);
+        Guides.Add(new LineGuide(this)
+        {
+            Position = new VecD(16, 16),
+            Rotation = Math.PI / 4
+        });
     }
 
     /// <summary>

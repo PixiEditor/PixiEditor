@@ -20,7 +20,7 @@
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:tools ="clr-namespace:PixiEditor.ViewModels.SubViewModels.Tools.Tools"
     xmlns:views="clr-namespace:PixiEditor.Views"
-    xmlns:subviews="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
+    xmlns:subviews="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document" xmlns:guides="clr-namespace:PixiEditor.Views.UserControls.Guides"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -256,6 +256,13 @@
                         </Image.Style>
                     </Image>
                     <Grid ZIndex="5">
+                        <ItemsControl ItemsSource="{Binding Document.Guides}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <guides:GuideRenderer Guide="{Binding}" ZoomboxScale="{Binding Zoombox.Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=uc:Viewport}}"></guides:GuideRenderer>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                         <symOverlay:SymmetryOverlay
                             Focusable="False"
                             IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
