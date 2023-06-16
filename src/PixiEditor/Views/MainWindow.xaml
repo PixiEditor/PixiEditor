@@ -477,7 +477,7 @@
                             Visibility="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable,
                            Converter={converters:BoolToVisibilityConverter}}">
                         <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="White"
-                                   ui1:Translator.Key="AWESOME_SUPPORTER" />
+                                   ui1:Translator.Key="PSP:AWESOME_SUPPORTER" />
                     </Border>
                     <Button
                         Style="{StaticResource MinimizeButtonStyle}"
