@@ -15,7 +15,7 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Links.OpenHyperlink")]
-    [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/introduction", "DOCUMENTATION", "Open Documentation", IconPath = "Globe.png")]
+    [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/introduction", "DOCUMENTATION", "OPEN_DOCUMENTATION", IconPath = "Globe.png")]
     [Command.Basic("PixiEditor.Links.OpenWebsite", "https://pixieditor.net", "WEBSITE", "OPEN_WEBSITE", IconPath = "Globe.png")]
     [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "REPOSITORY", "OPEN_REPOSITORY", IconPath = "Globe.png")]
     [Command.Basic("PixiEditor.Links.OpenLicense", "https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE", "LICENSE", "OPEN_LICENSE", IconPath = "Globe.png")]
