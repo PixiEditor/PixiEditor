@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.DataHolders.Guides;
 using PixiEditor.Views.Dialogs.Guides;
+using Direction = PixiEditor.Models.DataHolders.Guides.DirectionalGuide.Direction;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -26,17 +27,36 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
 
         guideManager.Show();
         guideManager.Activate();
+        guideManager.SelectGuide(openAt);
     }
 
-    [Command.Basic("PixiEditor.Guides.AddLineGuide", "ADD_LINE_GUIDE", "ADD_LINE_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Guides.AddLineGuide", "ADD_LINE_GUIDE", "ADD_LINE_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/LineGuide.png")]
     public void AddLineGuide()
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
+        var position = document.SizeBindable / 2;
         var guide = new LineGuide(document)
         {
-            Position = document.SizeBindable / 2,
-            Rotation = Math.PI / 4
+            X = position.X,
+            Y = position.Y,
+            Rotation = 45
+        };
+
+        document.Guides.Add(guide);
+        OpenGuideManager(^0);
+    }
+
+    [Command.Basic("PixiEditor.Guides.AddVerticalGuide", Direction.Vertical, "ADD_VERTICAL_GUIDE", "ADD_VERTICAL_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/VerticalGuide.png")]
+    [Command.Basic("PixiEditor.Guides.AddHorizontalGuide", Direction.Horizontal, "ADD_HORIZONTAL_GUIDE", "ADD_HORIZONTAL_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/HorizontalGuide.png")]
+    public void AddDirectionalGuide(Direction direction)
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        var documentSize = direction == Direction.Vertical ? document.SizeBindable.X : document.SizeBindable.Y;
+        var guide = new DirectionalGuide(document, direction)
+        {
+            Offset = documentSize / 2
         };
 
         document.Guides.Add(guide);

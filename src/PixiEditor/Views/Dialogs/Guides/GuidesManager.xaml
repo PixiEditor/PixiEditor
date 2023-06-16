@@ -39,15 +39,20 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <Border Margin="20" Background="{StaticResource DarkerAccentColor}" CornerRadius="5" BorderThickness="1" BorderBrush="{StaticResource MainColor}">
+            <Border Margin="20" Background="{StaticResource DarkerAccentColor}" 
+                    CornerRadius="5" BorderThickness="1" BorderBrush="{StaticResource MainColor}"
+                    MouseLeftButtonDown="Border_MouseLeftButtonDown">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition/>
-                        <RowDefinition Height="25"/>
+                        <RowDefinition Height="30"/>
                     </Grid.RowDefinitions>
 
-                    <ListView ItemsSource="{Binding ActiveDocument.Guides, Source={vm:MainVM DocumentManagerSVM}}" Margin="0,5"
-                              Background="Transparent" BorderThickness="0" x:Name="guideList">
+                    <ListView ItemsSource="{Binding ActiveDocument.Guides, Source={vm:MainVM DocumentManagerSVM}}"
+                              Margin="0,5"
+                              SelectionChanged="GuideSelectionChanged"
+                              Background="Transparent" BorderThickness="0" x:Name="guideList"
+                              SelectionMode="Single">
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
                                 <Setter Property="BorderBrush" Value="Transparent" />
@@ -94,7 +99,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <Image Source="{Binding IconPath}"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding DisplayName}" Margin="5,0,0,0"/>
+                                    <TextBlock Grid.Column="1" views:Translator.LocalizedString="{Binding DisplayName, Mode=OneWay}" Margin="5,0,0,0"/>
                                     <StackPanel Grid.Column="2"></StackPanel>
                                 </Grid>
                             </DataTemplate>
@@ -103,9 +108,60 @@
 
                     <Border Grid.Row="1" BorderThickness="0,1,0,0" BorderBrush="{StaticResource MainColor}">
                         <DockPanel>
-                            <Button DockPanel.Dock="Left" Width="25"
-                                    Background="Transparent" Foreground="White"
-                                    Command="{cmds:Command PixiEditor.Guides.AddLineGuide}">LG</Button>
+                            <DockPanel.Resources>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Setter Property="Width" Value="30"/>
+                                    <Setter Property="Padding" Value="5"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                                        Padding="{TemplateBinding Padding}"
+                                                        CornerRadius="{TemplateBinding Tag}">
+
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#15FFFFFF"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DockPanel.Resources>
+
+                            <Button DockPanel.Dock="Left"
+                                    Command="{cmds:Command PixiEditor.Guides.AddLineGuide}" Tag="0,0,0,4.5"
+                                    views:Translator.TooltipKey="LINE_GUIDE">
+                                <Image Source="/Images/Guides/LineGuide.png"/>
+                            </Button>
+                            <Button DockPanel.Dock="Left"
+                                    Command="{cmds:Command PixiEditor.Guides.AddVerticalGuide}"
+                                    views:Translator.TooltipKey="VERTICAL_GUIDE">
+                                <Image Source="/Images/Guides/VerticalGuide.png"/>
+                            </Button>
+                            <Button DockPanel.Dock="Left"
+                                    Command="{cmds:Command PixiEditor.Guides.AddHorizontalGuide}"
+                                    views:Translator.TooltipKey="HORIZONTAL_GUIDE">
+                                <Image Source="/Images/Guides/HorizontalGuide.png"/>
+                            </Button>
+                            <Button DockPanel.Dock="Right"  Tag="0,0,4.5,0"
+                                    views:Translator.TooltipKey="SAVE_GUIDES">
+                                <Image Source="/Images/Guides/Book.png"/>
+                            </Button>
+                            <Button DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                    views:Translator.TooltipKey="OPEN_SAVED_GUIDES">
+                                <Image Source="/Images/Save.png"/>
+                            </Button>
                         </DockPanel>
                     </Border>
                 </Grid>

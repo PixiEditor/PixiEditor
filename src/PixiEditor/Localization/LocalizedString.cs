@@ -28,7 +28,11 @@ public struct LocalizedString
     }
     public string Value { get; private set; }
 
+    public bool IsStatic { get; private set; }
+
     public object[] Parameters { get; set; }
+
+    public LocalizedString() { }
 
     public LocalizedString(string key)
     {
@@ -39,6 +43,14 @@ public struct LocalizedString
     {
         Parameters = parameters;
         Key = key;
+    }
+
+    public static LocalizedString Static(string value)
+    {
+        var localized = new LocalizedString();
+        localized.IsStatic = true;
+        localized.Value = value;
+        return localized;
     }
 
     public override string ToString()
@@ -75,7 +87,15 @@ public struct LocalizedString
         return ApplyParameters(ILocalizationProvider.Current.CurrentLanguage.Locale[localizationKey]);
     }
 
-    private string GetLongString(int length) => string.Join(' ', Enumerable.Repeat("LaLaLaLaLa", length));
+    private string GetLongString(int length)
+    {
+        if (IsStatic)
+        {
+            return Key;
+        }
+
+        return string.Join(' ', Enumerable.Repeat("LaLaLaLaLa", length));
+    }
 
     private string ApplyParameters(string value)
     {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Guides;
@@ -57,7 +58,7 @@ namespace PixiEditor.Models.DataHolders.Guides
             }
         }
 
-        public bool ShowEditable
+        public bool IsEditing
         {
             get => showEditable;
             set
@@ -75,7 +76,7 @@ namespace PixiEditor.Models.DataHolders.Guides
 
         public virtual string IconPath => $"/Images/Guides/{GetType().Name}.png";
 
-        public string DisplayName => !string.IsNullOrWhiteSpace(Name) ? Name : TypeNameKey;
+        public LocalizedString DisplayName => !string.IsNullOrWhiteSpace(Name) ? LocalizedString.Static(Name) : TypeNameKey;
 
         protected IReadOnlyCollection<GuideRenderer> Renderers => renderers;
 

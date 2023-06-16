@@ -569,5 +569,20 @@
   "USE_SECONDARY_COLOR": "Use secondary color",
   "RIGHT_CLICK_MODE": "Right click mode",
   "ADD_PRIMARY_COLOR_TO_PALETTE": "Add primary color to palette",
-  "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Add primary color to current palette"
+  "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Add primary color to current palette",
+  "COLOR": "Color",
+  "GUIDES_MANAGER_TITLE": "Guides Manager",
+  "SAVE_GUIDES": "Save guides",
+  "OPEN_SAVED_BOOK": "Open saved guides",
+  "OPEN_GUIDES_MANAGER": "Open guides manager",
+  "OPEN_GUIDES_MANAGER_DESCRIPTIVE": "Open guides manager",
+  "LINE_GUIDE": "Line guide",
+  "VERTICAL_GUIDE": "Vertical guide",
+  "HORIZONTAL_GUIDE": "Horizontal guide",
+  "ADD_LINE_GUIDE": "Add line guide",
+  "ADD_LINE_GUIDE_DESCRIPTIVE": "Add line guide",
+  "ADD_VERTICAL_GUIDE": "Add vertical guide",
+  "ADD_VERTICAL_GUIDE_DESCRIPTIVE": "Add vertical guide",
+  "ADD_HORIZONTAL_GUIDE": "Add horizontal guide",
+  "ADD_HORIZONTAL_GUIDE_DESCRIPTIVE": "Add horizontal guide"
 }

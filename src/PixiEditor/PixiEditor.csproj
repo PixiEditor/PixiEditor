@@ -169,6 +169,7 @@
 		<None Remove="Images\Add-reference.png" />
 		<None Remove="Images\AnchorDot.png" />
 		<None Remove="Images\Arrow-right.png" />
+		<None Remove="Images\book.png" />
 		<None Remove="Images\Check-square.png" />
 		<None Remove="Images\CheckerTile.png" />
 		<None Remove="Images\ChevronDown.png" />
@@ -191,7 +192,9 @@
 		<None Remove="Images\Folder-add.png" />
 		<None Remove="Images\Folder.png" />
 		<None Remove="Images\Globe.png" />
+		<None Remove="Images\Guides\HorizontalGuide.png" />
 		<None Remove="Images\Guides\LineGuide.png" />
+		<None Remove="Images\Guides\VerticalGuide.png" />
 		<None Remove="Images\hard-drive.png" />
 		<None Remove="Images\Layer-add.png" />
 		<None Remove="Images\Lock-alpha.png" />
@@ -265,6 +268,7 @@
 		<Resource Include="Images\Add-reference.png" />
 		<Resource Include="Images\AnchorDot.png" />
 		<Resource Include="Images\Arrow-right.png" />
+		<Resource Include="Images\Guides\Book.png" />
 		<Resource Include="Images\Check-square.png" />
 		<Resource Include="Images\CheckerTile.png" />
 		<Resource Include="Images\ChevronDown.png" />
@@ -288,7 +292,9 @@
 		<Resource Include="Images\Folder-add.png" />
 		<Resource Include="Images\Folder.png" />
 		<Resource Include="Images\Globe.png" />
+		<Resource Include="Images\Guides\HorizontalGuide.png" />
 		<Resource Include="Images\Guides\LineGuide.png" />
+		<Resource Include="Images\Guides\VerticalGuide.png" />
 		<Resource Include="Images\hard-drive.png" />
 		<Resource Include="Images\LanguageFlags\uk.png" />
 		<Resource Include="Images\Layer-add.png" />
