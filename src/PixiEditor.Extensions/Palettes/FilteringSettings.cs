@@ -29,7 +29,7 @@ public sealed class FilteringSettings
             return false;
         }
 
-        result = (ShowOnlyFavourites && Favourites.Contains(palette.Name)) || !ShowOnlyFavourites;
+        result = (ShowOnlyFavourites && Favourites != null && Favourites.Contains(palette.Name)) || !ShowOnlyFavourites;
 
         if (!result)
         {

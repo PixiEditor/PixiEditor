@@ -154,7 +154,7 @@ internal partial class PalettesBrowser : Window, IPopupWindow
 
     public FilteringSettings Filtering => filteringSettings ??=
         new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter, ShowOnlyFavourites,
-            IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes));
+            IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes, new List<string>()));
 
     private char[] separators = new char[] { ' ', ',' };
 
