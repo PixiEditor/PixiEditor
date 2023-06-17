@@ -58,6 +58,8 @@
                                 <Setter Property="BorderBrush" Value="Transparent" />
                                 <Setter Property="Background" Value="Transparent"/>
                                 <Setter Property="Foreground" Value="White"/>
+                                <EventSetter Event="MouseEnter" Handler="ListViewItem_MouseEnter"/>
+                                <EventSetter Event="MouseLeave" Handler="ListViewItem_MouseLeave"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListViewItem">

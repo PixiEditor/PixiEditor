@@ -18,7 +18,7 @@ namespace PixiEditor.Models.DataHolders.Guides
         private string name;
         private bool alwaysShowName;
         private bool showExtended;
-        private bool showEditable;
+        private bool isEditing;
         private List<GuideRenderer> renderers = new();
 
         public string Name
@@ -60,10 +60,10 @@ namespace PixiEditor.Models.DataHolders.Guides
 
         public bool IsEditing
         {
-            get => showEditable;
+            get => isEditing;
             set
             {
-                if (SetProperty(ref showEditable, value))
+                if (SetProperty(ref isEditing, value))
                 {
                     InvalidateVisual();
                 }

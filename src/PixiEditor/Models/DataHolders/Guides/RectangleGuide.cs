@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.UserControls.Guides;
 
@@ -96,7 +97,7 @@ internal class RectangleGuide : Guide
     {
         bool skipDraw = false;
 
-        var mod = IsEditing ? 3 : 1;
+        var mod = IsEditing ? 3 : (ShowExtended ? 2 : 1);
 
         var pen = new Pen(new SolidColorBrush(color), renderer.ScreenUnit * 1.5d * mod);
         context.DrawRectangle(null, pen, new(Left, Top, Width, Height));
@@ -120,12 +121,13 @@ internal class RectangleGuide : Guide
         }
 
         var renderer = (GuideRenderer)sender;
-        var closestPoint = GetPoint(e.GetPosition(renderer));
+        var closestPoint = GetPoint(e.GetPosition(renderer), renderer.ScreenUnit);
 
         renderer.Cursor = closestPoint switch
         {
             GrabbedPoint.TopLeft or GrabbedPoint.BottomRight => Cursors.SizeNWSE,
-            GrabbedPoint.TopRight or GrabbedPoint.BottomLeft => Cursors.SizeNESW
+            GrabbedPoint.TopRight or GrabbedPoint.BottomLeft => Cursors.SizeNESW,
+            _ => null
         };
     }
 
@@ -145,7 +147,7 @@ internal class RectangleGuide : Guide
         e.Handled = true;
         var renderer = (GuideRenderer)sender;
         Mouse.Capture(renderer);
-        grabbedPoint = GetPoint(e.GetPosition(renderer));
+        grabbedPoint = GetPoint(e.GetPosition(renderer), renderer.ScreenUnit);
     }
 
     private void Renderer_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -161,37 +163,112 @@ internal class RectangleGuide : Guide
 
         if (grabbedPoint == null)
         {
-            var closestPoint = GetPoint(mousePos);
+            var closestPoint = GetPoint(mousePos, renderer.ScreenUnit);
 
             renderer.Cursor = closestPoint switch
             {
                 GrabbedPoint.TopLeft or GrabbedPoint.BottomRight => Cursors.SizeNWSE,
-                GrabbedPoint.TopRight or GrabbedPoint.BottomLeft => Cursors.SizeNESW
+                GrabbedPoint.TopRight or GrabbedPoint.BottomLeft => Cursors.SizeNESW,
+                _ => null
             };
             return;
         }
 
         var size = Document.SizeBindable;
 
+        var newLeft = Left;
+        var newTop = Top;
+        var newWidth = Width;
+        var newHeight = Height;
+
+        GetNewDimensions(mousePos, ref newLeft, ref newTop, ref newWidth, ref newHeight);
+        if (EnsureSafeDimensions(ref newLeft, ref newTop, ref newWidth, ref newHeight))
+        {
+            return;
+        }
+
+        Left = newLeft;
+        Top = newTop;
+        Width = newWidth;
+        Height = newHeight;
+    }
+
+    private void GetNewDimensions(Point mousePos, ref double newLeft, ref double newTop, ref double newWidth, ref double newHeight)
+    {
         switch (grabbedPoint)
         {
             case GrabbedPoint.TopLeft:
-                Left = RoundMod(mousePos.X);
-                Top = RoundMod(mousePos.Y);
+                newWidth = RoundMod(Width + Left - mousePos.X);
+                newHeight = RoundMod(Height + Top - mousePos.Y);
+                newLeft = RoundMod(mousePos.X);
+                newTop = RoundMod(mousePos.Y);
                 break;
             case GrabbedPoint.TopRight:
-                Width = RoundMod(size.X - mousePos.X - Left);
-                Top = RoundMod(mousePos.Y);
+                newWidth = RoundMod(mousePos.X - Left);
+                newHeight = RoundMod(Height + Top - mousePos.Y);
+                newTop = RoundMod(mousePos.Y);
                 break;
             case GrabbedPoint.BottomRight:
-                Width = RoundMod(size.X - mousePos.X - Left);
-                Height = RoundMod(size.Y - mousePos.Y - Top);
+                newWidth = RoundMod(mousePos.X - Left);
+                newHeight = RoundMod(mousePos.Y - Top);
                 break;
             case GrabbedPoint.BottomLeft:
-                Left = RoundMod(mousePos.X);
-                Height = RoundMod(size.Y - mousePos.Y - Top);
+                newWidth = RoundMod(Width + Left - mousePos.X);
+                newLeft = RoundMod(mousePos.X);
+                newHeight = RoundMod(mousePos.Y - Top);
                 break;
         }
+    }
+
+    private bool EnsureSafeDimensions(ref double newLeft, ref double newTop, ref double newWidth, ref double newHeight)
+    {
+        if (newWidth < 0 && newHeight < 0)
+        {
+            newWidth = 0;
+            newHeight = 0;
+
+            grabbedPoint = grabbedPoint switch
+            {
+                GrabbedPoint.TopLeft => GrabbedPoint.BottomRight,
+                GrabbedPoint.BottomRight => GrabbedPoint.TopLeft,
+                GrabbedPoint.TopRight => GrabbedPoint.BottomLeft,
+                GrabbedPoint.BottomLeft => GrabbedPoint.TopRight
+            };
+
+            return true;
+        }
+
+        if (newWidth < 0)
+        {
+            newWidth = 0;
+
+            grabbedPoint = grabbedPoint switch
+            {
+                GrabbedPoint.TopLeft => GrabbedPoint.TopRight,
+                GrabbedPoint.BottomLeft => GrabbedPoint.BottomRight,
+                GrabbedPoint.TopRight => GrabbedPoint.TopLeft,
+                GrabbedPoint.BottomRight => GrabbedPoint.BottomLeft
+            };
+
+            return true;
+        }
+
+        if (newHeight < 0)
+        {
+            newHeight = 0;
+
+            grabbedPoint = grabbedPoint switch
+            {
+                GrabbedPoint.TopLeft => GrabbedPoint.BottomLeft,
+                GrabbedPoint.TopRight => GrabbedPoint.BottomRight,
+                GrabbedPoint.BottomLeft => GrabbedPoint.TopLeft,
+                GrabbedPoint.BottomRight => GrabbedPoint.TopRight
+            };
+
+            return true;
+        }
+
+        return false;
     }
 
     private void Renderer_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -207,14 +284,14 @@ internal class RectangleGuide : Guide
         Mouse.Capture(null);
     }
 
-    private GrabbedPoint GetPoint(Point mouse)
+    private GrabbedPoint? GetPoint(Point mouse, double screenUnit)
     {
         var size = Document.SizeBindable;
 
         var topLeft = new Point(Left, Top);
-        var topRight = new Point(size.X - left, Top);
-        var bottomRight = new Point(size.X - left, size.Y - top);
-        var bottomLeft = new Point(Left, size.Y - top);
+        var topRight = new Point(Left + Width, Top);
+        var bottomRight = new Point(Left + Width, Top + Height);
+        var bottomLeft = new Point(Left, Top + Height);
 
         double value = double.PositiveInfinity;
         int index = -1;
@@ -228,6 +305,11 @@ internal class RectangleGuide : Guide
                 value = length;
                 index = i;
             }
+        }
+
+        if (value > screenUnit * 20)
+        {
+            return null;
         }
 
         return (GrabbedPoint)index;

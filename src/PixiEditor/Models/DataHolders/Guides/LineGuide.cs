@@ -101,10 +101,10 @@ namespace PixiEditor.Models.DataHolders.Guides
 
             if (ShowExtended || IsEditing)
             {
-                var scale = IsEditing ? 2 : 1;
+                var scale = IsEditing ? 3 : 1.5;
                 var pen = new Pen(brush, penThickness * 2 * scale);
                 context.DrawLine(pen, points.Item1, points.Item2);
-                context.DrawEllipse(Brushes.Aqua, null, new Point(X, Y), penThickness * 3 * scale, penThickness * 3 * scale);
+                context.DrawEllipse(Brushes.Aqua, null, new Point(X, Y), penThickness * 2 * scale, penThickness * 2 * scale);
             }
             else
             {

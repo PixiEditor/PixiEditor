@@ -69,7 +69,8 @@ internal class DirectionalGuide : Guide
 
     public override void Draw(DrawingContext context, GuideRenderer renderer)
     {
-        var pen = new Pen(new SolidColorBrush(Color), renderer.ScreenUnit * (IsEditing ? 3 : 1.5d));
+        var mod = IsEditing ? 4.5 : (ShowExtended ? 3 : 1.5);
+        var pen = new Pen(new SolidColorBrush(Color), renderer.ScreenUnit * mod);
 
         var pointA = IsVertical ? new Point(Offset, 0) : new Point(0, Offset);
         var pointB = IsVertical ? new Point(Offset, Document.SizeBindable.Y) : new Point(Document.SizeBindable.X, Offset);

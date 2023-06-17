@@ -114,4 +114,20 @@ public partial class GuidesManager : Window
     }
 
     private bool IsSupportedKey(Key key) => key == Key.Delete || key == Key.Up || key == Key.Down;
+
+    private void ListViewItem_MouseEnter(object sender, MouseEventArgs e)
+    {
+        var listItem = (ListViewItem)sender;
+        var guide = (Guide)listItem.DataContext;
+
+        guide.ShowExtended = true;
+    }
+
+    private void ListViewItem_MouseLeave(object sender, MouseEventArgs e)
+    {
+        var listItem = (ListViewItem)sender;
+        var guide = (Guide)listItem.DataContext;
+
+        guide.ShowExtended = false;
+    }
 }

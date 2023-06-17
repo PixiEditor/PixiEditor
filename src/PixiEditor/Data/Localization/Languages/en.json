@@ -579,10 +579,13 @@
   "LINE_GUIDE": "Line guide",
   "VERTICAL_GUIDE": "Vertical guide",
   "HORIZONTAL_GUIDE": "Horizontal guide",
+  "RECTANGLE_GUIDE": "Rectangle Guide",
   "ADD_LINE_GUIDE": "Add line guide",
   "ADD_LINE_GUIDE_DESCRIPTIVE": "Add line guide",
   "ADD_VERTICAL_GUIDE": "Add vertical guide",
   "ADD_VERTICAL_GUIDE_DESCRIPTIVE": "Add vertical guide",
   "ADD_HORIZONTAL_GUIDE": "Add horizontal guide",
-  "ADD_HORIZONTAL_GUIDE_DESCRIPTIVE": "Add horizontal guide"
+  "ADD_HORIZONTAL_GUIDE_DESCRIPTIVE": "Add horizontal guide",
+  "ADD_RECTANGLE_GUIDE": "Add rectangle guide",
+  "ADD_RECTANGLE_GUIDE_DESCRIPTIVE": "Add rectangle guide"
 }

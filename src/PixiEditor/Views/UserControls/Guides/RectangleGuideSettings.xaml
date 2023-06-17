@@ -66,11 +66,11 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="position"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock views:Translator.Key="RIGHT" Margin="0,0,10,0" TextAlignment="Right"/>
-            <uc:NumberInput Margin="0,0,10,0" Grid.Column="1" Value="{Binding Right, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
+            <TextBlock views:Translator.Key="Width" Margin="0,0,10,0" TextAlignment="Right"/>
+            <uc:NumberInput Margin="0,0,10,0" Grid.Column="1" Value="{Binding Width, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
 
-            <TextBlock Grid.Column="2" views:Translator.Key="BOTTOM" Margin="0,0,10,0"/>
-            <uc:NumberInput Grid.Column="3" Value="{Binding Bottom, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="2" views:Translator.Key="Height" Margin="0,0,10,0"/>
+            <uc:NumberInput Grid.Column="3" Value="{Binding Height, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
         </Grid>
     </StackPanel>
 </UserControl>
