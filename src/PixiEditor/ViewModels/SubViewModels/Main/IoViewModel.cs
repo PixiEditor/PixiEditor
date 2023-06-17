@@ -167,7 +167,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             return;
 
         drawingWithRight = args.Button == MouseButton.Right;
-        Owner.ToolsSubViewModel.LeftMouseButtonDownInlet(args.PositionOnCanvas);
+        Owner.ToolsSubViewModel.UseToolEventInlet(args.PositionOnCanvas, args.Button);
         activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
     }
 
@@ -196,6 +196,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 tools.SetActiveTool<EraserToolViewModel>(true);
                 return true;
             }
+            case RightClickMode.SecondaryColor when tools.ActiveTool is BrightnessToolViewModel:
+                return true;
             case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
                 Owner.ColorsSubViewModel.SwapColors(null);
                 hadSwapped = true;

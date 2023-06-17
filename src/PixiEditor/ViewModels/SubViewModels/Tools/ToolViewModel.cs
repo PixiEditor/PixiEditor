@@ -44,6 +44,11 @@ internal abstract class ToolViewModel : NotifyableObject
     /// </summary>
     public virtual bool AlwaysShowContextMenu => false;
 
+    /// <summary>
+    /// The mouse button that is being used with the tool
+    /// </summary>
+    public MouseButton UsedWith { get; set; }
+
     private LocalizedString actionDisplay = string.Empty;
     public LocalizedString ActionDisplay
     {
@@ -81,7 +86,7 @@ internal abstract class ToolViewModel : NotifyableObject
     }
 
     public virtual void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
-    public virtual void OnLeftMouseButtonDown(VecD pos) { }
+    public virtual void UseTool(VecD pos) { }
     public virtual void OnSelected() 
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();

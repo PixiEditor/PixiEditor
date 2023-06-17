@@ -259,9 +259,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         ShortcutController.UnblockShortcutExecution("ShortcutDown");
     }
 
-    public void LeftMouseButtonDownInlet(VecD canvasPos)
+    public void UseToolEventInlet(VecD canvasPos, MouseButton button)
     {
-        ActiveTool?.OnLeftMouseButtonDown(canvasPos);
+        if (ActiveTool == null) return;
+
+        ActiveTool.UsedWith = button;
+        ActiveTool.UseTool(canvasPos);
     }
 
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)

@@ -56,7 +56,7 @@ internal class SelectToolViewModel : ToolViewModel
 
     public override LocalizedString Tooltip => new LocalizedString("SELECT_TOOL_TOOLTIP", Shortcut);
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseSelectTool();
     }

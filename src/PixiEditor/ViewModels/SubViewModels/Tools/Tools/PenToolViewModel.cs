@@ -42,7 +42,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
             ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY", Shortcut);
         }
 
-        public override void OnLeftMouseButtonDown(VecD pos)
+        public override void UseTool(VecD pos)
         {
             ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UsePenTool();
         }
