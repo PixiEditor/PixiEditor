@@ -39,6 +39,11 @@ internal abstract class ToolViewModel : NotifyableObject
     /// </summary>
     public virtual bool IsErasable => false;
 
+    /// <summary>
+    /// Determines if PixiEditor should show the context menu on the canvas when right click mode is set to secondary color or erase
+    /// </summary>
+    public virtual bool AlwaysShowContextMenu => false;
+
     private LocalizedString actionDisplay = string.Empty;
     public LocalizedString ActionDisplay
     {

@@ -15,6 +15,8 @@ internal class SelectToolViewModel : ToolViewModel
 {
     private string defaultActionDisplay = "SELECT_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "SELECT_TOOL_NAME";
+    public override bool AlwaysShowContextMenu => true;
+
     public SelectToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;

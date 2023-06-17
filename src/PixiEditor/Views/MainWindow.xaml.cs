@@ -252,7 +252,8 @@ internal partial class MainWindow : Window
 
     private void Viewport_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
     {
-        if (DataContext.ToolsSubViewModel.RightClickMode != RightClickMode.ContextMenu)
+        if (DataContext.ToolsSubViewModel.RightClickMode != RightClickMode.ContextMenu &&
+            !DataContext.ToolsSubViewModel.ActiveTool.AlwaysShowContextMenu)
         {
             e.Handled = true;
         }

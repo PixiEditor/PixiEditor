@@ -19,6 +19,8 @@ internal class LassoToolViewModel : ToolViewModel
         ActionDisplay = defaultActionDisplay;
     }
 
+    public override bool AlwaysShowContextMenu => true;
+
     private SelectionMode modifierKeySelectionMode = SelectionMode.New;
     public SelectionMode ResultingSelectionMode => modifierKeySelectionMode != SelectionMode.New ? modifierKeySelectionMode : SelectMode;
 
