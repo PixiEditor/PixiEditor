@@ -62,4 +62,22 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
         document.Guides.Add(guide);
         OpenGuideManager(^0);
     }
+
+    [Command.Basic("PixiEditor.Guides.AddRectangleGuide", "ADD_RECTANGLE_GUIDE", "ADD_RECTANGLE_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/RectangleGuide.png")]
+    public void AddRectangleGuide()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        var margin = document.SizeBindable * 0.25;
+        var guide = new RectangleGuide(document)
+        {
+            Left = margin.X,
+            Top = margin.Y,
+            Height = margin.X,
+            Width = margin.Y
+        };
+
+        document.Guides.Add(guide);
+        OpenGuideManager(^0);
+    }
 }

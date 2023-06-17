@@ -194,6 +194,7 @@
 		<None Remove="Images\Globe.png" />
 		<None Remove="Images\Guides\HorizontalGuide.png" />
 		<None Remove="Images\Guides\LineGuide.png" />
+		<None Remove="Images\Guides\RectangleGuide.png" />
 		<None Remove="Images\Guides\VerticalGuide.png" />
 		<None Remove="Images\hard-drive.png" />
 		<None Remove="Images\Layer-add.png" />
@@ -294,6 +295,7 @@
 		<Resource Include="Images\Globe.png" />
 		<Resource Include="Images\Guides\HorizontalGuide.png" />
 		<Resource Include="Images\Guides\LineGuide.png" />
+		<Resource Include="Images\Guides\RectangleGuide.png" />
 		<Resource Include="Images\Guides\VerticalGuide.png" />
 		<Resource Include="Images\hard-drive.png" />
 		<Resource Include="Images\LanguageFlags\uk.png" />

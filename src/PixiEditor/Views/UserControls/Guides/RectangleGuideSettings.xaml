@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="PixiEditor.Views.UserControls.Guides.LineGuideSettings"
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.Guides.RectangleGuideSettings"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -9,15 +9,15 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
              mc:Ignorable="d"
-             Foreground="White"
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             Foreground="White">
     <StackPanel Grid.IsSharedSizeScope="true">
         <StackPanel.Resources>
             <Style TargetType="Grid" x:Key="Child">
                 <Setter Property="Margin" Value="0,0,0,10"/>
             </Style>
         </StackPanel.Resources>
-        
+
         <Grid Style="{StaticResource Child}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" SharedSizeGroup="width" MinWidth="70"/>
@@ -49,23 +49,28 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" SharedSizeGroup="width"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="position"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Text="X" Margin="0,0,10,0" TextAlignment="Right"/>
-            <uc:NumberInput Margin="0,0,10,0" Grid.Column="1" Value="{Binding X, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
+            <TextBlock views:Translator.Key="LEFT" Margin="0,0,10,0" TextAlignment="Right"/>
+            <uc:NumberInput Margin="0,0,10,0" Grid.Column="1" Value="{Binding Left, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
 
-            <TextBlock Grid.Column="2" Text="Y" Margin="0,0,10,0"/>
-            <uc:NumberInput Grid.Column="3" Value="{Binding Y, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="2" views:Translator.Key="TOP" Margin="0,0,10,0"/>
+            <uc:NumberInput Grid.Column="3" Value="{Binding Top, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
         </Grid>
-        
-        <Grid>
+
+        <Grid Style="{StaticResource Child}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" SharedSizeGroup="width"/>
-                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto" SharedSizeGroup="position"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock views:Translator.Key="ROTATION" Margin="0,0,10,0" TextAlignment="Right"/>
-            <uc:NumberInput Grid.Column="1" Value="{Binding Rotation, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
+            <TextBlock views:Translator.Key="RIGHT" Margin="0,0,10,0" TextAlignment="Right"/>
+            <uc:NumberInput Margin="0,0,10,0" Grid.Column="1" Value="{Binding Right, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
+
+            <TextBlock Grid.Column="2" views:Translator.Key="BOTTOM" Margin="0,0,10,0"/>
+            <uc:NumberInput Grid.Column="3" Value="{Binding Bottom, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
         </Grid>
     </StackPanel>
 </UserControl>

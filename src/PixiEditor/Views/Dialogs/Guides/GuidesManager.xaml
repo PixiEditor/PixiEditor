@@ -154,6 +154,12 @@
                                     views:Translator.TooltipKey="HORIZONTAL_GUIDE">
                                 <Image Source="/Images/Guides/HorizontalGuide.png"/>
                             </Button>
+                            <Button DockPanel.Dock="Left"
+                                    Command="{cmds:Command PixiEditor.Guides.AddRectangleGuide}"
+                                    views:Translator.TooltipKey="RECTANGLE_GUIDE">
+                                <Image Source="/Images/Guides/RectangleGuide.png"/>
+                            </Button>
+                            
                             <Button DockPanel.Dock="Right"  Tag="0,0,4.5,0"
                                     views:Translator.TooltipKey="SAVE_GUIDES">
                                 <Image Source="/Images/Guides/Book.png"/>
