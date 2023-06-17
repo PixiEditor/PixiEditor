@@ -15,8 +15,6 @@ internal class MagicWandToolViewModel : ToolViewModel
     public override LocalizedString Tooltip => new LocalizedString("MAGIC_WAND_TOOL_TOOLTIP", Shortcut);
 
     public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
-    public override bool AlwaysShowContextMenu => true;
-
     public override BrushShape BrushShape => BrushShape.Pixel;
 
     [Settings.Enum("MODE_LABEL")]

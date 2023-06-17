@@ -252,8 +252,12 @@ internal partial class MainWindow : Window
 
     private void Viewport_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
     {
-        if (DataContext.ToolsSubViewModel.RightClickMode != RightClickMode.ContextMenu &&
-            !DataContext.ToolsSubViewModel.ActiveTool.AlwaysShowContextMenu)
+        var tools = DataContext.ToolsSubViewModel;
+        var useContextMenu = DataContext.ToolsSubViewModel.RightClickMode == RightClickMode.ContextMenu;
+        var usesErase = tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool.IsErasable;
+        var usesSecondaryColor = tools.RightClickMode == RightClickMode.SecondaryColor && tools.ActiveTool.UsesColor;
+
+        if (!useContextMenu && (usesErase || usesSecondaryColor))
         {
             e.Handled = true;
         }
