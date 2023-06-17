@@ -16,41 +16,14 @@ internal class RegistryViewModel : SubViewModel<ViewModelMain>
 
     private void OwnerOnStartupEvent(object sender, EventArgs e)
     {
+#if !STEAM // Something is wrong with Steam version of PixiEditor, so we disable this feature for now. Steam will have native association soon.
         // Check if lospec-palette is associated in registry
-
         if (!LospecPaletteIsAssociated())
         {
             // Associate lospec-palette URL protocol
             RegistryHelpers.TryAssociate(AssociateLospecPaletteInRegistry, "FAILED_ASSOCIATE_LOSPEC");
         }
-
-#if STEAM // Only associate .pixi file if it's a steam version, other versions handle it during installation
-        if(!PixiFileIsAssociated())
-        {
-            RegistryHelpers.TryAssociate(AssociatePixiFileInRegistry, "FAILED_ASSOCIATE_PIXI");
-        }
 #endif
-    }
-
-    private bool PixiFileIsAssociated()
-    {
-        // Check if HKEY_CLASSES_ROOT\.pixi is present
-        return RegistryHelpers.IsKeyPresentInRoot(".pixi");
-    }
-
-    private void AssociatePixiFileInRegistry()
-    {
-        try
-        {
-            using RegistryKey key = Registry.ClassesRoot.CreateSubKey(".pixi");
-            key.SetValue("", "PixiEditor");
-
-            using RegistryKey shellKey = key.CreateSubKey("OpenWithProgids");
-        }
-        catch
-        {
-            NoticeDialog.Show("FAILED_ASSOCIATE_PIXI", "ERROR");
-        }
     }
 
     private void AssociateLospecPaletteInRegistry()
