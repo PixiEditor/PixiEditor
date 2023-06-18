@@ -177,6 +177,11 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         switch (tools.RightClickMode)
         {
+            case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
+            case RightClickMode.Erase when tools.ActiveTool is ColorPickerToolViewModel:
+                Owner.ColorsSubViewModel.SwapColors(null);
+                hadSwapped = true;
+                return true;
             case RightClickMode.Erase when tools.ActiveTool.IsErasable:
             {
                 var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
@@ -197,10 +202,6 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 return true;
             }
             case RightClickMode.SecondaryColor when tools.ActiveTool is BrightnessToolViewModel:
-                return true;
-            case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
-                Owner.ColorsSubViewModel.SwapColors(null);
-                hadSwapped = true;
                 return true;
             case RightClickMode.ContextMenu:
             default:
@@ -246,6 +247,15 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         switch (button)
         {
             case MouseButton.Middle:
+                tools.RestorePreviousTool();
+                break;
+            case MouseButton.Right when hadSwapped && 
+                 (tools.RightClickMode == RightClickMode.SecondaryColor || 
+                  (tools.ActiveTool is ColorPickerToolViewModel && tools.RightClickMode == RightClickMode.Erase)
+                 ):
+
+                Owner.ColorsSubViewModel.SwapColors(null);
+                break;
             case MouseButton.Right when tools.RightClickMode == RightClickMode.Erase:
                 tools.EnableSharedToolbar = hadSharedToolbar;
                 if (previousEraseSize != null)
@@ -253,9 +263,6 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                     tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize").Value = previousEraseSize.Value;
                 }
                 tools.RestorePreviousTool();
-                break;
-            case MouseButton.Right when hadSwapped && tools.RightClickMode == RightClickMode.SecondaryColor:
-                Owner.ColorsSubViewModel.SwapColors(null);
                 break;
         }
 

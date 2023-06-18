@@ -20,6 +20,8 @@ internal class EraserToolViewModel : ToolViewModel
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();
 
+    public override bool IsErasable => true;
+
     public override string ToolNameLocalizationKey => "ERASER_TOOL";
     public override BrushShape BrushShape => BrushShape.Circle;
 
