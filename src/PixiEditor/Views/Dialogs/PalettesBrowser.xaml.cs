@@ -147,17 +147,6 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         set { SetValue(PaletteProviderProperty, value); }
     }
     public RelayCommand<Palette> ToggleFavouriteCommand { get; set; }
-
-    public static readonly DependencyProperty ShowBuyTextProperty = DependencyProperty.Register(
-        nameof(ShowBuyText), typeof(bool), typeof(PalettesBrowser),
-        new PropertyMetadata(!IPreferences.Current.GetPreference(PreferencesConstants.HideBuySupporterPackText, false)));
-
-    public bool ShowBuyText
-    {
-        get { return (bool)GetValue(ShowBuyTextProperty); }
-        set { SetValue(ShowBuyTextProperty, value); }
-    }
-
     public int SortingIndex { get; set; } = 0;
     public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
 
@@ -191,18 +180,6 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         InitializeComponent();
         Title = new LocalizedString("PALETTE_BROWSER");
         Instance = this;
-        if (IPlatform.Current?.AdditionalContentProvider != null)
-        {
-            ShowBuyText =
-                IPlatform.Current.AdditionalContentProvider.PlatformHasContent(AdditionalContentProduct.SupporterPack) &&
-                !IPlatform.Current.AdditionalContentProvider.IsContentInstalled(AdditionalContentProduct
-                    .SupporterPack) &&
-                !IPreferences.Current.GetPreference(PreferencesConstants.HideBuySupporterPackText, false);
-        }
-        else
-        {
-            ShowBuyText = false;
-        }
 
         DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette, CanDeletePalette);
         ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
@@ -676,11 +653,5 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         base.OnClosing(e);
 
         IPreferences.Current.RemoveCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
-    }
-
-    private void HideBuyText_OnClick(object sender, RoutedEventArgs e)
-    {
-        IPreferences.Current.UpdatePreference(PreferencesConstants.HideBuySupporterPackText, true);
-        ShowBuyText = false;
     }
 }

@@ -7,5 +7,4 @@ public static class PreferencesConstants
 
     public const string MaxOpenedRecently = "MaxOpenedRecently";
     public const int MaxOpenedRecentlyDefault = 8;
-    public const string HideBuySupporterPackText = "HideBuySupporterPackText";
 }

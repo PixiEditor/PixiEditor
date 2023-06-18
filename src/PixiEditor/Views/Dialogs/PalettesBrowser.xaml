@@ -141,23 +141,8 @@
                 <Image Width="128" Height="128" Source="/Images/Search.png"/>
             </StackPanel>
             <ScrollViewer x:Name="scrollViewer" Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
-                <StackPanel Orientation="Vertical">
-                    <Border Visibility="{Binding ElementName=palettesBrowser, Path=ShowBuyText, Converter={converters:BoolToVisibilityConverter}}"
-                            Margin="0 0 0 5" Padding="5" Background="{StaticResource MainColor}" CornerRadius="5">
-                        <DockPanel>
-                            <TextBlock FontSize="14" VerticalAlignment="Center" DockPanel.Dock="Left" ui:Translator.Key="PALETTE_BROWSER_BUY_TEXT" Foreground="White"/>
-                            <Button Cursor="Hand" Margin="5 0" DockPanel.Dock="Right" HorizontalAlignment="Right" Content="&#x2715;"
-                                    Click="HideBuyText_OnClick"
-                                    Style="{StaticResource ImageButtonStyle}" VerticalAlignment="Center"
-                                    Padding="0" Background="Transparent" Foreground="White" BorderThickness="0" FontSize="18"/>
-                            <Button DockPanel.Dock="Right" Margin="10 0" HorizontalAlignment="Left" ui:Translator.Key="BUY_NOW"
-                                    Background="{StaticResource AccentRed}"
-                                    Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/"
-                                    Style="{StaticResource DarkRoundButton}"/>
-                        </DockPanel>
-                    </Border>
-                    <ItemsControl x:Name="itemsControl" ItemsSource="{Binding SortedResults, ElementName=palettesBrowser}"
-                                  Visibility="{Binding PaletteList.FetchedCorrectly, Converter={StaticResource BoolToVisibilityConverter}, ElementName=palettesBrowser}">
+                <ItemsControl x:Name="itemsControl" ItemsSource="{Binding SortedResults, ElementName=palettesBrowser}"
+                              Visibility="{Binding PaletteList.FetchedCorrectly, Converter={StaticResource BoolToVisibilityConverter}, ElementName=palettesBrowser}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <local:PaletteItem Palette="{Binding}"
@@ -168,7 +153,6 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                </StackPanel>
             </ScrollViewer>
             <Image gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" HorizontalAlignment="Center" VerticalAlignment="Center"
                    Visibility="{Binding IsFetching, Converter={StaticResource BoolToVisibilityConverter}, ElementName=palettesBrowser}"
