@@ -21,7 +21,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     private int? previousEraseSize;
     private bool hadSharedToolbar;
     private bool? drawingWithRight;
-    
+    private bool startedWithEraser;
+
     public RelayCommand MouseMoveCommand { get; set; }
     public RelayCommand MouseDownCommand { get; set; }
     public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
@@ -175,6 +176,8 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     {
         var tools = Owner.ToolsSubViewModel;
 
+        startedWithEraser = tools.ActiveTool is EraserToolViewModel;
+
         switch (tools.RightClickMode)
         {
             case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
@@ -257,6 +260,11 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 Owner.ColorsSubViewModel.SwapColors(null);
                 break;
             case MouseButton.Right when tools.RightClickMode == RightClickMode.Erase:
+                if (startedWithEraser)
+                {
+                    break;
+                }
+
                 tools.EnableSharedToolbar = hadSharedToolbar;
                 if (previousEraseSize != null)
                 {
