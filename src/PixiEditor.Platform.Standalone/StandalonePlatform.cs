@@ -2,6 +2,7 @@
 
 public sealed class StandalonePlatform : IPlatform
 {
+    public string Id { get; } = "standalone";
     public string Name => "Standalone";
 
     public bool PerformHandshake()

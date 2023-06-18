@@ -13,10 +13,11 @@
         xmlns:views="clr-namespace:PixiEditor.Views"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        xmlns:newsFeed="clr-namespace:PixiEditor.Views.UserControls.NewsFeed"
         mc:Ignorable="d" ShowInTaskbar="False"
         Title="Hello there!" Height="662" Width="832" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
-        WindowStyle="None" WindowStartupLocation="CenterScreen"
+        WindowStyle="None" WindowStartupLocation="CenterScreen" Loaded="HelloTherePopup_OnLoaded"
         FlowDirection="{helpers:Localization FlowDirection}">
 
     <Window.Resources>
@@ -43,7 +44,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
         <DockPanel Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource MainColor}">
@@ -281,8 +282,12 @@
             <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource MainColor}">
                 <StackPanel Orientation="Vertical">
                     <TextBlock HorizontalAlignment="Center" Text="News" FontSize="18"/>
-                    <ItemsControl>
-
+                    <ItemsControl ItemsSource="{Binding Path=News}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <newsFeed:NewsItem News="{Binding Path=.}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </StackPanel>
             </Border>

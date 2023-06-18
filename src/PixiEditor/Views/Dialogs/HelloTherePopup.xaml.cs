@@ -1,10 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Services.NewsFeed;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.Dialogs;
@@ -22,6 +24,8 @@ internal partial class HelloTherePopup : Window
     public static readonly DependencyProperty RecentlyOpenedEmptyProperty =
         DependencyProperty.Register(nameof(RecentlyOpenedEmpty), typeof(bool), typeof(HelloTherePopup));
 
+    public WpfObservableRangeCollection<News> News { get; set; } = new WpfObservableRangeCollection<News>();
+
     public static string VersionText =>
         $"v{VersionHelpers.GetCurrentAssemblyVersionString()}";
 
@@ -38,6 +42,8 @@ internal partial class HelloTherePopup : Window
     public RelayCommand OpenInExplorerCommand { get; set; }
 
     public bool IsClosing { get; private set; }
+
+    private NewsProvider NewsProvider { get; set; }
 
     public bool ShowDonateButton => // Steam doesn't allow external donations :(
 #if STEAM
@@ -60,23 +66,25 @@ internal partial class HelloTherePopup : Window
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
         RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
+        NewsProvider = new NewsProvider();
+
         Closing += (_, _) => { IsClosing = true; };
 
         InitializeComponent();
 
         if (RecentlyOpenedEmpty)
         {
-            Width = 600;
+            Width = 700;
             Height = 500;
         }
         else if (RecentlyOpened.Count < 4)
         {
-            Width = 645;
+            Width = 745;
             Height = 500;
         }
         else if (RecentlyOpened.Count < 7)
         {
-            Width = 675;
+            Width = 775;
             Height = 670;
         }
     }
@@ -124,4 +132,14 @@ internal partial class HelloTherePopup : Window
     }
 
     private bool CanOpenInExplorer(object parameter) => File.Exists((string)parameter);
+
+    private async void HelloTherePopup_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        var news = await NewsProvider.FetchNewsAsync();
+        if (news is not null)
+        {
+            News.Clear();
+            News.AddRange(news);
+        }
+    }
 }
