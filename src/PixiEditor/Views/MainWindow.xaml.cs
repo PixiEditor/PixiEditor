@@ -56,7 +56,6 @@ internal partial class MainWindow : Window
         platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModelMain>();
 
-        platform.PerformHandshake();
         DataContext.Setup(services);
 
         InitializeComponent();

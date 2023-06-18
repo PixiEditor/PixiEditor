@@ -53,13 +53,20 @@ internal partial class App : Application
 
         AddNativeAssets();
 
-        IPlatform.RegisterPlatform(GetActivePlatform());
+        InitPlatform();
 
         ExtensionLoader extensionLoader = new ExtensionLoader();
         extensionLoader.LoadExtensions();
 
         MainWindow = new MainWindow(extensionLoader);
         MainWindow.Show();
+    }
+
+    private void InitPlatform()
+    {
+        var platform = GetActivePlatform();
+        IPlatform.RegisterPlatform(platform);
+        platform.PerformHandshake();
     }
 
     private IPlatform GetActivePlatform()
