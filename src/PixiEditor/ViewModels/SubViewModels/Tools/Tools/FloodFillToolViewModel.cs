@@ -19,6 +19,8 @@ internal class FloodFillToolViewModel : ToolViewModel
 
     public override bool UsesColor => true;
 
+    public override bool IsErasable => true;
+
     public bool ConsiderAllLayers { get; private set; }
 
     public FloodFillToolViewModel()
