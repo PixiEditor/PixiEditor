@@ -9,11 +9,16 @@ public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
         { AdditionalContentProduct.SupporterPack, new AppId_t(2435860) }
     };
 
-    public bool IsContentAvailable(AdditionalContentProduct product)
+    public bool IsContentInstalled(AdditionalContentProduct product)
     {
-        if(!productIds.ContainsKey(product)) return false;
+        if(!PlatformHasContent(product)) return false;
 
         AppId_t appId = productIds[product];
         return SteamApps.BIsDlcInstalled(appId);
+    }
+
+    public bool PlatformHasContent(AdditionalContentProduct product)
+    {
+        return productIds.ContainsKey(product);
     }
 }

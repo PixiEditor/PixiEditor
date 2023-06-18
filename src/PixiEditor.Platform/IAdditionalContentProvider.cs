@@ -7,5 +7,6 @@ public enum AdditionalContentProduct
 
 public interface IAdditionalContentProvider
 {
-    public bool IsContentAvailable(AdditionalContentProduct product);
+    public bool IsContentInstalled(AdditionalContentProduct product);
+    public bool PlatformHasContent(AdditionalContentProduct product);
 }

@@ -263,6 +263,12 @@
                             CommandParameter="https://opencollective.com/pixieditor"
                             Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
                             Content="/Images/SocialMedia/DonateIcon.png"/>
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                            Visibility="{Binding ShowDonateButton,
+                            Converter={InverseBoolToVisibilityConverter}}"
+                            CommandParameter="https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/"
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.TooltipKey="BUY_SUPPORTER_PACK"
+                            Content="/Images/SocialMedia/DonateIcon.png"/>
                 </uc:AlignableWrapPanel>
             </Grid>
         </ScrollViewer>

@@ -2,8 +2,23 @@
 
 public sealed class MSAdditionalContentProvider : IAdditionalContentProvider
 {
-    public bool IsContentAvailable(AdditionalContentProduct product)
+    public bool IsContentInstalled(AdditionalContentProduct product)
     {
-        return true;
+        if(!PlatformHasContent(product)) return false;
+
+        return product switch
+        {
+            AdditionalContentProduct.SupporterPack => false,
+            _ => false
+        };
+    }
+
+    public bool PlatformHasContent(AdditionalContentProduct product)
+    {
+        return product switch
+        {
+            AdditionalContentProduct.SupporterPack => false,
+            _ => false
+        };
     }
 }

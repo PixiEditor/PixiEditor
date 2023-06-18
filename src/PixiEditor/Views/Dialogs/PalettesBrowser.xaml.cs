@@ -23,6 +23,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Localization;
+using PixiEditor.Platform;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Palettes;
 using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
@@ -147,6 +148,16 @@ internal partial class PalettesBrowser : Window, IPopupWindow
     }
     public RelayCommand<Palette> ToggleFavouriteCommand { get; set; }
 
+    public static readonly DependencyProperty ShowBuyTextProperty = DependencyProperty.Register(
+        nameof(ShowBuyText), typeof(bool), typeof(PalettesBrowser),
+        new PropertyMetadata(!IPreferences.Current.GetPreference(PreferencesConstants.HideBuySupporterPackText, false)));
+
+    public bool ShowBuyText
+    {
+        get { return (bool)GetValue(ShowBuyTextProperty); }
+        set { SetValue(ShowBuyTextProperty, value); }
+    }
+
     public int SortingIndex { get; set; } = 0;
     public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
 
@@ -180,6 +191,19 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         InitializeComponent();
         Title = new LocalizedString("PALETTE_BROWSER");
         Instance = this;
+        if (IPlatform.Current?.AdditionalContentProvider != null)
+        {
+            ShowBuyText =
+                IPlatform.Current.AdditionalContentProvider.PlatformHasContent(AdditionalContentProduct.SupporterPack) &&
+                !IPlatform.Current.AdditionalContentProvider.IsContentInstalled(AdditionalContentProduct
+                    .SupporterPack) &&
+                !IPreferences.Current.GetPreference(PreferencesConstants.HideBuySupporterPackText, false);
+        }
+        else
+        {
+            ShowBuyText = false;
+        }
+
         DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette, CanDeletePalette);
         ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
         AddFromPaletteCommand = new RelayCommand(AddFromCurrentPalette, CanAddFromPalette);
@@ -391,12 +415,24 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         }
         else
         {
-            PaletteList.Palettes?.AddRange(src.Palettes);
+            AddToPaletteList(src.Palettes);
         }
 
         Sort();
 
         IsFetching = false;
+    }
+
+    private void AddToPaletteList(WpfObservableRangeCollection<Palette> srcPalettes)
+    {
+        if (srcPalettes == null)
+            return;
+
+        foreach (var pal in srcPalettes)
+        {
+            if(PaletteEquals(pal, PaletteList.Palettes)) continue;
+            PaletteList.Palettes.Add(pal);
+        }
     }
 
     private async Task<PaletteList> FetchPaletteList(FilteringSettings filtering)
@@ -438,7 +474,7 @@ internal partial class PalettesBrowser : Window, IPopupWindow
                 return;
             }
 
-            PaletteList.Palettes.AddRange(newPalettes.Palettes.Where(x => !PaletteEquals(x, PaletteList.Palettes)));
+            AddToPaletteList(newPalettes.Palettes);
             Sort();
             IsFetching = false;
 
@@ -640,5 +676,11 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         base.OnClosing(e);
 
         IPreferences.Current.RemoveCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
+    }
+
+    private void HideBuyText_OnClick(object sender, RoutedEventArgs e)
+    {
+        IPreferences.Current.UpdatePreference(PreferencesConstants.HideBuySupporterPackText, true);
+        ShowBuyText = false;
     }
 }

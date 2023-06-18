@@ -68,15 +68,15 @@ internal class ExtensionLoader
         }
         catch (JsonException)
         {
-            MessageBox.Show(new LocalizedString("ERROR_INVALID_PACKAGE", packageJsonPath), "ERROR");
+            //MessageBox.Show(new LocalizedString("ERROR_INVALID_PACKAGE", packageJsonPath), "ERROR");
         }
         catch (ExtensionException ex)
         {
-            MessageBox.Show(ex.DisplayMessage, "ERROR");
+            //MessageBox.Show(ex.DisplayMessage, "ERROR");
         }
         catch (Exception ex)
         {
-            MessageBox.Show(new LocalizedString("ERROR_LOADING_PACKAGE", packageJsonPath), "ERROR");
+            //MessageBox.Show(new LocalizedString("ERROR_LOADING_PACKAGE", packageJsonPath), "ERROR");
         }
     }
 
@@ -131,7 +131,7 @@ internal class ExtensionLoader
 
         if (product == null) return true;
 
-        return IPlatform.Current.AdditionalContentProvider?.IsContentAvailable(product.Value) ?? false;
+        return IPlatform.Current.AdditionalContentProvider?.IsContentInstalled(product.Value) ?? false;
     }
 
     private bool IsOfficialAssemblyLegit(string metadataUniqueName, Assembly assembly)
