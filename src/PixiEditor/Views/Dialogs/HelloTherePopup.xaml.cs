@@ -66,17 +66,17 @@ internal partial class HelloTherePopup : Window
 
         if (RecentlyOpenedEmpty)
         {
-            Width = 400;
+            Width = 600;
             Height = 500;
         }
         else if (RecentlyOpened.Count < 4)
         {
-            Width = 445;
+            Width = 645;
             Height = 500;
         }
         else if (RecentlyOpened.Count < 7)
         {
-            Width = 475;
+            Width = 675;
             Height = 670;
         }
     }

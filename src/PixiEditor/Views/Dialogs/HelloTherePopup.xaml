@@ -14,7 +14,7 @@
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d" ShowInTaskbar="False"
-        Title="Hello there!" Height="662" Width="632" MinHeight="500" MinWidth="500"
+        Title="Hello there!" Height="662" Width="832" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
         WindowStyle="None" WindowStartupLocation="CenterScreen"
         FlowDirection="{helpers:Localization FlowDirection}">
@@ -41,14 +41,18 @@
             <RowDefinition Height="35" />
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="200"/>
+        </Grid.ColumnDefinitions>
 
-        <DockPanel Grid.Row="0" Background="{StaticResource MainColor}">
+        <DockPanel Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource MainColor}">
             <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
                     WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
                     Command="{x:Static SystemCommands.CloseWindowCommand}" />
         </DockPanel>
 
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="3,0">
+        <ScrollViewer Grid.Column="0" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="3,0">
             <Grid Grid.Row="1" Margin="0,30,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="90"/>
@@ -271,6 +275,17 @@
                             Content="/Images/SocialMedia/DonateIcon.png"/>
                 </uc:AlignableWrapPanel>
             </Grid>
+        </ScrollViewer>
+
+        <ScrollViewer Grid.Row="1" Grid.Column="1">
+            <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource MainColor}">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock HorizontalAlignment="Center" Text="News" FontSize="18"/>
+                    <ItemsControl>
+
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
         </ScrollViewer>
     </Grid>
 </Window>
