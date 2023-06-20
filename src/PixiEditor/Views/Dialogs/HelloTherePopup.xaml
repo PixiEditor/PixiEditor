@@ -285,7 +285,7 @@
                     <ItemsControl ItemsSource="{Binding Path=News}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <newsFeed:NewsItem News="{Binding Path=.}"/>
+                                <newsFeed:NewsItem Margin="5" News="{Binding Path=.}"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

@@ -17,7 +17,14 @@ internal class NewsProvider
         if (response.StatusCode == HttpStatusCode.OK)
         {
             string content = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<List<News>>(content);
+            var list = JsonConvert.DeserializeObject<List<News>>(content);
+            list.Add(new News(){ Title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, " +
+                                         "nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec", Date = DateTime.Now,
+                ShortDescription = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec" ,
+                CustomIconUrl = "https://raw.githubusercontent.com/PixiEditor/PixiEditor/master/src/PixiEditor/Images/SocialMedia/WebsiteIcon.png"
+            });
+
+            return list;
         }
 
         return null;

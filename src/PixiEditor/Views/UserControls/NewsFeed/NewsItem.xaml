@@ -5,10 +5,24 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.NewsFeed"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              mc:Ignorable="d" Name="newsItem"
              d:DesignHeight="300" d:DesignWidth="300">
-    <StackPanel Orientation="Vertical">
-        <TextBlock Foreground="White" FontSize="14" Text="{Binding ElementName=newsItem, Path=News.Title}"/>
-        <TextBlock Foreground="White" FontSize="12" Text="{Binding ElementName=newsItem, Path=News.ShortDescription}"/>
-    </StackPanel>
+    <Border Background="{StaticResource MainColor}" Padding="5" CornerRadius="5">
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal">
+                <Image Margin="0 0 5 0" Width="25" Source="{Binding ElementName=newsItem, Path=News.CustomIconUrl}"/>
+                <Label VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Center">
+                    <Hyperlink
+                               Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                               CommandParameter="{Binding ElementName=newsItem, Path=News.Url}"
+                               Style="{StaticResource SettingsLink}">
+                        <Run Text="{Binding ElementName=newsItem, Path=News.Title}"/>
+                        <Run Text="" FontFamily="{StaticResource Feather}"/>
+                    </Hyperlink>
+                </Label>
+            </StackPanel>
+            <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="White" FontSize="12" Text="{Binding ElementName=newsItem, Path=News.ShortDescription}"/>
+        </StackPanel>
+    </Border>
 </UserControl>

@@ -16,4 +16,5 @@ internal record News
     public NewsType NewsType { get; set; }
     public string Url { get; set; }
     public DateTime Date { get; set; }
+    public string CustomIconUrl { get; set; }
 }
