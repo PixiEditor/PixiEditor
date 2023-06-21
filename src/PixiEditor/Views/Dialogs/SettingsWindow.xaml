@@ -115,10 +115,14 @@
                           IsChecked="{Binding SettingsSubViewModel.File.ShowStartupWindow}"/>
 
                 <CheckBox Margin="27 10"
+                          VerticalAlignment="Center" ui:Translator.Key="HIDE_NEWS_PANEL" d:Content="Hide news in startup window"
+                          IsChecked="{Binding SettingsSubViewModel.File.HideNewsPanel}"/>
+
+                <CheckBox Margin="27 0"
                           VerticalAlignment="Center" d:Content="Show image preview in taskbar" ui:Translator.Key="SHOW_IMAGE_PREVIEW_TASKBAR"
                           IsChecked="{Binding SettingsSubViewModel.General.ImagePreviewInTaskbar}"/>
 
-                <StackPanel Margin="27 0" Orientation="Horizontal">
+                <StackPanel Margin="27 10 27 0" Orientation="Horizontal">
                 <Label Style="{StaticResource SettingsText}"
                        ui:Translator.Key="RECENT_FILE_LENGTH"
                        ui:Translator.TooltipKey="RECENT_FILE_LENGTH_TOOLTIP"/>

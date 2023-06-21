@@ -27,6 +27,20 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="LinkTextBlock" TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+        <Setter Property="Foreground" Value="LightGray"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="TextDecorations" Value="Underline"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter Property="TextDecorations" Value="None"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="SettingsText" TargetType="Label" BasedOn="{StaticResource BaseLabel}">
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Padding" Value="0"/>

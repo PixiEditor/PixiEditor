@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.DataHolders;
@@ -52,6 +53,8 @@ internal partial class HelloTherePopup : Window
         true;
 #endif
 
+    private bool _newsHidden = false;
+
     public HelloTherePopup(FileViewModel fileViewModel)
     {
         DataContext = this;
@@ -66,25 +69,35 @@ internal partial class HelloTherePopup : Window
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
         RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
+        _newsHidden = IPreferences.Current.GetPreference<bool>(PreferencesConstants.HideNewsPanel);
+
         NewsProvider = new NewsProvider();
 
         Closing += (_, _) => { IsClosing = true; };
 
         InitializeComponent();
 
+        int newsWidth = 200;
+
+        if (_newsHidden)
+        {
+            newsColumn.Width = new GridLength(0);
+            newsWidth = 0;
+        }
+
         if (RecentlyOpenedEmpty)
         {
-            Width = 700;
+            Width = 500 + newsWidth;
             Height = 500;
         }
         else if (RecentlyOpened.Count < 4)
         {
-            Width = 745;
+            Width = 545 + newsWidth;
             Height = 500;
         }
         else if (RecentlyOpened.Count < 7)
         {
-            Width = 775;
+            Width = 575 + newsWidth;
             Height = 670;
         }
     }
@@ -135,11 +148,20 @@ internal partial class HelloTherePopup : Window
 
     private async void HelloTherePopup_OnLoaded(object sender, RoutedEventArgs e)
     {
-        var news = await NewsProvider.FetchNewsAsync();
-        if (news is not null)
+        if(_newsHidden) return;
+
+        try
         {
-            News.Clear();
-            News.AddRange(news);
+            var news = await NewsProvider.FetchNewsAsync();
+            if (news is not null)
+            {
+                News.Clear();
+                News.AddRange(news);
+            }
+        }
+        catch
+        {
+            // TODO: Display error message
         }
     }
 }

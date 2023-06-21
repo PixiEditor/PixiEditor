@@ -572,5 +572,6 @@
 
   "BUY_NOW": "Buy Now",
   "BUY_SUPPORTER_PACK": "Buy Supporter Pack",
-  "PALETTE_BROWSER_BUY_TEXT": "Buy Supporter Pack and get 21 beautiful palettes!"
+  "PALETTE_BROWSER_BUY_TEXT": "Buy Supporter Pack and get 21 beautiful palettes!",
+  "HIDE_NEWS_PANEL": "Hide News panel in startup window"
 }

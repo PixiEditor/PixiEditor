@@ -6,23 +6,32 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls.NewsFeed"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" Name="newsItem"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Border Background="{StaticResource MainColor}" Padding="5" CornerRadius="5">
+    <Border Background="{StaticResource MainColor}" Padding="8" CornerRadius="5">
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
-                <Image Margin="0 0 5 0" Width="25" Source="{Binding ElementName=newsItem, Path=News.CustomIconUrl}"/>
+                <Image Margin="0 0 5 0" Width="25"
+                       Source="{Binding ElementName=newsItem, Path=News.ResolvedIconUrl}"/>
                 <Label VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Center">
                     <Hyperlink
                                Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                                CommandParameter="{Binding ElementName=newsItem, Path=News.Url}"
                                Style="{StaticResource SettingsLink}">
-                        <Run Text="{Binding ElementName=newsItem, Path=News.Title}"/>
+                        <TextBlock Width="200" TextTrimming="CharacterEllipsis" MaxHeight="50"
+                                   ToolTip="{Binding ElementName=newsItem, Path=News.Title}"
+                                   Style="{StaticResource LinkTextBlock}" TextWrapping="Wrap"
+                                   Text="{Binding ElementName=newsItem, Path=News.Title}"/>
                         <Run Text="" FontFamily="{StaticResource Feather}"/>
                     </Hyperlink>
                 </Label>
             </StackPanel>
-            <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" Foreground="White" FontSize="12" Text="{Binding ElementName=newsItem, Path=News.ShortDescription}"/>
+            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="White" FontSize="12"
+                       Text="{Binding ElementName=newsItem, Path=News.ShortDescription}"
+                       MaxHeight="50" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Margin="0 2.5" HorizontalAlignment="Right" FontSize="12" Foreground="LightGray"
+                       Text="{Binding ElementName=newsItem, Path=News.Date, StringFormat=d}"/>
         </StackPanel>
     </Border>
 </UserControl>

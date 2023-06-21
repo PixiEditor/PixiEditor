@@ -278,6 +278,7 @@
 		<Resource Include="Images\Layer-add.png" />
 		<Resource Include="Images\Lock-alpha.png" />
 		<Resource Include="Images\Merge-downwards.png" />
+		<Resource Include="Images\News\Article.png" />
 		<Resource Include="Images\penMode.png" />
 		<Resource Include="Images\PixiBotLogo.png" />
 		<Resource Include="Images\PixiEditorLogo.png" />
@@ -438,6 +439,14 @@
 		<None Remove="Images\LanguageFlags\pt-br.png" />
 		<Resource Include="Images\LanguageFlags\pt-br.png" />
 		<None Remove="OfficialExtensions\supporter-pack.snk" />
+		<None Remove="Images\News\YouTube.png" />
+		<Resource Include="Images\News\YouTube.png" />
+		<None Remove="Images\News\Misc.png" />
+		<Resource Include="Images\News\Misc.png" />
+		<None Remove="Images\News\NewVersion.png" />
+		<Resource Include="Images\News\NewVersion.png" />
+		<None Remove="Images\News\OfficialAnnouncement.png" />
+		<Resource Include="Images\News\OfficialAnnouncement.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
