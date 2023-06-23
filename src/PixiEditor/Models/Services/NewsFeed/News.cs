@@ -20,13 +20,12 @@ internal enum NewsType
 internal record News
 {
     public string Title { get; set; }
-    public string ShortDescription { get; set; }
-
-    public NewsType NewsType { get; set; }
+    public NewsType NewsType { get; set; } = NewsType.Misc;
     public string Url { get; set; }
     public DateTime Date { get; set; }
-    public string CustomIconUrl { get; set; }
+
+    public string CoverImageUrl { get; set; }
 
     [JsonIgnore]
-    public string ResolvedIconUrl => CustomIconUrl ?? $"/Images/News/{NewsType.GetDescription()}";
+    public string ResolvedIconUrl => $"/Images/News/{NewsType.GetDescription()}";
 }

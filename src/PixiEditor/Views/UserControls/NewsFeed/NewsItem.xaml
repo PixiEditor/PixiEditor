@@ -9,9 +9,18 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d" Name="newsItem"
              d:DesignHeight="300" d:DesignWidth="300">
-    <Border Background="{StaticResource MainColor}" Padding="8" CornerRadius="5">
+    <Border Background="{StaticResource MainColor}" CornerRadius="5">
         <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Horizontal">
+            <Grid>
+                <Border Background="White" Name="Mask" CornerRadius="8 8 0 0"/>
+                <StackPanel>
+                    <Image Margin="-1" Source="{Binding ElementName=newsItem, Path=News.CoverImageUrl}"/>
+                    <StackPanel.OpacityMask>
+                        <VisualBrush Visual="{Binding ElementName=Mask}" />
+                    </StackPanel.OpacityMask>
+                </StackPanel>
+            </Grid>
+            <StackPanel Margin="8 0" Orientation="Horizontal">
                 <Image Margin="0 0 5 0" Width="25"
                        Source="{Binding ElementName=newsItem, Path=News.ResolvedIconUrl}"/>
                 <Label VerticalAlignment="Center" Foreground="White" FontSize="14" HorizontalAlignment="Center">
@@ -27,10 +36,10 @@
                     </Hyperlink>
                 </Label>
             </StackPanel>
-            <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="White" FontSize="12"
+            <!--<TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="White" FontSize="12"
                        Text="{Binding ElementName=newsItem, Path=News.ShortDescription}"
-                       MaxHeight="50" TextTrimming="CharacterEllipsis"/>
-            <TextBlock Margin="0 2.5" HorizontalAlignment="Right" FontSize="12" Foreground="LightGray"
+                       MaxHeight="50" TextTrimming="CharacterEllipsis"/>-->
+            <TextBlock Margin="8 2.5" HorizontalAlignment="Right" FontSize="12" Foreground="LightGray"
                        Text="{Binding ElementName=newsItem, Path=News.Date, StringFormat=d}"/>
         </StackPanel>
     </Border>

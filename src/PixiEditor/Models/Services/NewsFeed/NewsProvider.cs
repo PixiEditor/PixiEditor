@@ -20,9 +20,8 @@ internal class NewsProvider
             Title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, " +
                     "nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
             Date = DateTime.Now,
-            ShortDescription =
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
-            NewsType = NewsType.BlogPost
+            NewsType = NewsType.BlogPost,
+            CoverImageUrl = "https://clan.cloudflare.steamstatic.com/images/43538089/5f2b5ebdc3ceb5ffb9b9449e706edc397dc74e2b_400x225.png"
         };
 
         allNews.Add(test);
@@ -31,9 +30,8 @@ internal class NewsProvider
             Title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, " +
                     "nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
             Date = DateTime.Now,
-            ShortDescription =
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
-            NewsType = NewsType.Misc
+            NewsType = NewsType.Misc,
+            CoverImageUrl = "https://clan.cloudflare.steamstatic.com/images/43538089/1059f4aa3724c973dad343e403b4da129c4e19f4_400x225.png"
         };
 
         allNews.Add(test1);
@@ -42,8 +40,6 @@ internal class NewsProvider
             Title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, " +
                     "nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
             Date = DateTime.Now,
-            ShortDescription =
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
             NewsType = NewsType.YtVideo
         };
         allNews.Add(test2);
@@ -53,8 +49,6 @@ internal class NewsProvider
             Title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, " +
                     "nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
             Date = DateTime.Now,
-            ShortDescription =
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
             NewsType = NewsType.OfficialAnnouncement
         };
         allNews.Add(test3);
@@ -63,8 +57,6 @@ internal class NewsProvider
             Title = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, " +
                     "nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
             Date = DateTime.Now,
-            ShortDescription =
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod, nisl eget ultricies ultrices, nisl nisl ultricies nisl, nec",
             NewsType = NewsType.NewVersion
         };
 
