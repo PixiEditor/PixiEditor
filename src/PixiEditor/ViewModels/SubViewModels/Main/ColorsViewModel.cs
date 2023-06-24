@@ -320,6 +320,17 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         PrimaryColor = color;
     }
 
+    [Command.Basic("PixIEditor.Colors.AddPrimaryToPalettes", "ADD_PRIMARY_COLOR_TO_PALETTE", "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "CopyAdd.png")]
+    public void AddPrimaryColorToPalette()
+    {
+        var palette = Owner.DocumentManagerSubViewModel.ActiveDocument.Palette;
+
+        if (!palette.Contains(PrimaryColor))
+        {
+            palette.Add(PrimaryColor);
+        }
+    }
+
     [Command.Internal("PixiEditor.CloseContextMenu")]
     public void CloseContextMenu(System.Windows.Controls.ContextMenu menu)
     {

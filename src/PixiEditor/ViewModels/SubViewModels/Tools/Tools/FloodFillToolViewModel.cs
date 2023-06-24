@@ -15,7 +15,11 @@ internal class FloodFillToolViewModel : ToolViewModel
     public override string ToolNameLocalizationKey => "FLOOD_FILL_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    public override LocalizedString Tooltip => new LocalizedString("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);
+    public override LocalizedString Tooltip => new("FLOOD_FILL_TOOL_TOOLTIP", Shortcut);
+
+    public override bool UsesColor => true;
+
+    public override bool IsErasable => true;
 
     public bool ConsiderAllLayers { get; private set; }
 
@@ -38,7 +42,7 @@ internal class FloodFillToolViewModel : ToolViewModel
         }
     }
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseFloodFillTool();
     }

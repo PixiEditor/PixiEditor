@@ -166,6 +166,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Remove="Images\Add-reference.png" />
 		<None Remove="Images\AnchorDot.png" />
 		<None Remove="Images\Arrow-right.png" />
 		<None Remove="Images\Check-square.png" />
@@ -209,6 +210,7 @@
 		<None Remove="Images\SocialMedia\DonateIcon.png" />
 		<None Remove="Images\SocialMedia\GitHubIcon.png" />
 		<None Remove="Images\SocialMedia\RedditIcon.png" />
+		<None Remove="Images\SocialMedia\SteamIcon.png" />
 		<None Remove="Images\SocialMedia\WebsiteIcon.png" />
 		<None Remove="Images\SocialMedia\YouTubeIcon.png" />
 		<None Remove="Images\SymmetryHorizontal.png" />
@@ -259,6 +261,7 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
+		<Resource Include="Images\Add-reference.png" />
 		<Resource Include="Images\AnchorDot.png" />
 		<Resource Include="Images\Arrow-right.png" />
 		<Resource Include="Images\Check-square.png" />
@@ -302,6 +305,7 @@
 		<Resource Include="Images\SocialMedia\DonateIcon.png" />
 		<Resource Include="Images\SocialMedia\GitHubIcon.png" />
 		<Resource Include="Images\SocialMedia\RedditIcon.png" />
+		<Resource Include="Images\SocialMedia\SteamIcon.png" />
 		<Resource Include="Images\SocialMedia\WebsiteIcon.png" />
 		<Resource Include="Images\SocialMedia\YouTubeIcon.png" />
 		<Resource Include="Images\SymmetryHorizontal.png" />
@@ -444,6 +448,8 @@
 		<Resource Include="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
 		<None Remove="Images\LanguageFlags\zh.png" />
 		<Resource Include="Images\LanguageFlags\zh.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\CropToSelection.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\CropToSelection.png" />
 		<None Remove="Images\LanguageFlags\hu.png" />
 		<Resource Include="Images\LanguageFlags\hu.png" />
 		<None Remove="Images\LanguageFlags\pt-br.png" />

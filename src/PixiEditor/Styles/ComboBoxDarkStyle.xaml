@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
                     xmlns:controls="clr-namespace:PixiEditor.Views.UserControls"
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:views="clr-namespace:PixiEditor.Views">
 
     <SolidColorBrush x:Key="ComboBox.Static.Background" Color="#252525" />
     <SolidColorBrush x:Key="ComboBox.Static.Border" Color="#2F2F37" />
@@ -194,22 +195,17 @@
                     <Border Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0,1">
                         <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Stretch"
                                           VerticalAlignment="Center" Margin="4,2"/>
-                        
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="BorderBrush" Value="Transparent" />
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="BorderBrush" Value="{StaticResource AlmostLightModeAccentColor}" />
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-
-                        </Border.Style>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsHighlighted" Value="True">
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" TargetName="Bd" Value="{StaticResource MainColor}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource MainColor}" />
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource AlmostLightModeAccentColor}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground" Value="{StaticResource MainColor}" />
@@ -234,5 +230,47 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+    
+    <Style TargetType="ComboBox" x:Key="TranslatedEnum">
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock views:Translator.Enum="{Binding}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ComboBoxItem}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                                <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0,1">
+                                    <TextBlock views:Translator.Enum="{Binding}" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="False">
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" TargetName="Bd" Value="{StaticResource MainColor}" />
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" TargetName="Bd" Value="{StaticResource MainColor}" />
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource AlmostLightModeAccentColor}" />
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="{StaticResource MainColor}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Template" Value="{DynamicResource DarkComboBox}" />
     </Style>
 </ResourceDictionary>

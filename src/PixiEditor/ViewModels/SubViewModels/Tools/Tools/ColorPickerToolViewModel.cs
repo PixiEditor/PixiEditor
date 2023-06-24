@@ -21,6 +21,8 @@ internal class ColorPickerToolViewModel : ToolViewModel
     
     public override bool HideHighlight => true;
 
+    public override bool UsesColor => true;
+
     public override string ToolNameLocalizationKey => "COLOR_PICKER_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
@@ -148,7 +150,7 @@ internal class ColorPickerToolViewModel : ToolViewModel
         referenceLayer.RaiseShowHighestChanged();
     }
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseColorPickerTool();
     }

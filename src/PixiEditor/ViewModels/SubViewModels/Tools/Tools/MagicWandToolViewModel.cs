@@ -29,7 +29,7 @@ internal class MagicWandToolViewModel : ToolViewModel
         ActionDisplay = "MAGIC_WAND_ACTION_DISPLAY";
     }
     
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseMagicWandTool();
     }

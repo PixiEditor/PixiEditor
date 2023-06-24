@@ -1,8 +1,9 @@
 ﻿using System.Windows;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Helpers;
 
-class ClipboardHelper
+internal static class ClipboardHelper
 {
     public static bool TrySetDataObject(DataObject obj, bool copy)
     {
@@ -41,4 +42,8 @@ class ClipboardHelper
             return false;
         }
     }
+    
+    public static VecI GetVecI(this DataObject data, string format) => VecI.FromBytes((byte[])data.GetData(format));
+
+    public static void SetVecI(this DataObject data, string format, VecI value) => data.SetData(format, value.ToByteArray());
 }

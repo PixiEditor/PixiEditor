@@ -16,10 +16,11 @@ internal class CrashReport : IDisposable
     public static CrashReport Generate(Exception exception)
     {
         StringBuilder builder = new();
-        DateTime currentTime = DateTime.Now;
+        DateTimeOffset currentTime = DateTimeOffset.Now;
 
         builder
-            .AppendLine($"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString(moreSpecific: true)} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss}\n")
+            .AppendLine($"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString(moreSpecific: true)} x{IntPtr.Size * 8} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss} {currentTime:zzz}")
+            .AppendLine($"Report: {Guid.NewGuid()}\n")
             .AppendLine("-----System Information----")
             .AppendLine("General:")
             .AppendLine($"  OS: {Environment.OSVersion.VersionString}")

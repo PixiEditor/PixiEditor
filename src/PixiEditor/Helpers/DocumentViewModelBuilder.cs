@@ -27,6 +27,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
         return this;
     }
+
+    public DocumentViewModelBuilder WithSize(VecI size) => WithSize(size.X, size.Y);
     
     public DocumentViewModelBuilder WithSwatches(IEnumerable<Color> swatches)
     {
@@ -207,6 +209,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
             Height = height;
             return this;
         }
+
+        public LayerBuilder WithSize(VecI size) => WithSize(size.X, size.Y);
         
         public LayerBuilder WithRect(int width, int height, int offsetX, int offsetY)
         {

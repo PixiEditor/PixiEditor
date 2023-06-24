@@ -93,8 +93,14 @@
                             </Grid>
                         </Border>
                         <StackPanel Orientation="Vertical"  Margin="3,0,5,0">
+                            <userControls1:EditableTextBlock
+                                x:Name="editableTextBlock"
+                                d:Text="New Folder" FontSize="14"
+                                VerticalAlignment="Center"
+                                Text="{Binding Folder.NameBindable, ElementName=folderControl, Mode=TwoWay}" />
+                            
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock d:Text="100" Foreground="White">
+                                <TextBlock d:Text="100" Foreground="White" FontSize="11">
                                     <TextBlock.Text>
                                         <Binding ElementName="folderControl" Path="Folder.OpacityBindable" Converter="{converters:MultiplyConverter}" StringFormat="N0">
                                             <Binding.ConverterParameter>
@@ -103,19 +109,14 @@
                                         </Binding>
                                     </TextBlock.Text>
                                 </TextBlock>
-                                <TextBlock Foreground="White">%</TextBlock>
+                                <TextBlock Foreground="White" FontSize="11">%</TextBlock>
                                 <TextBlock 
                                 Margin="5,0,0,0" 
                                 d:Text="Normal" 
-                                Foreground="White" 
+                                Foreground="White"
+                                FontSize="11"
                                 Text="{Binding Folder.BlendModeBindable, ElementName=folderControl, Converter={converters:BlendModeToStringConverter}}"/>
                             </StackPanel>
-                            <userControls1:EditableTextBlock
-                            x:Name="editableTextBlock"
-                            d:Text="New Folder"
-                            FontSize="12"
-                            VerticalAlignment="Center"
-                            Text="{Binding Folder.NameBindable, ElementName=folderControl, Mode=TwoWay}" />
                         </StackPanel>
                     </StackPanel>
                     <Image Source="/Images/Folder.png" Height="20" Margin="0,0,10,0" HorizontalAlignment="Right"/>

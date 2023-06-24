@@ -176,6 +176,12 @@ internal class PreferencesSettings : IPreferences
         if (!dict.ContainsKey(name)) return fallbackValue;
         var preference = dict[name];
         if (typeof(T) == preference.GetType()) return (T)preference;
+
+        if (typeof(T).IsEnum)
+        {
+            return (T)Enum.Parse(typeof(T), preference.ToString());
+        }
+        
         if (preference.GetType() == typeof(JArray))
         {
             return ((JArray)preference).ToObject<T>();

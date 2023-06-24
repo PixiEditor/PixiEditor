@@ -148,15 +148,15 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         var images = ClipboardController.GetImagesFromClipboard();
 
-        foreach (var (name, image) in images)
+        foreach (var dataImage in images)
         {
-            if (name == null)
+            if (File.Exists(dataImage.name))
             {
-                OpenRegularImage(image, null);
+                OpenRegularImage(dataImage.image, null);
                 continue;
             }
             
-            OpenFromPath(name, false);
+            OpenFromPath(dataImage.name, false);
         }
     }
 
@@ -227,24 +227,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     private void OpenRegularImage(string path, bool associatePath)
     {
-        ImportFileDialog dialog = new ImportFileDialog();
+        var image = Importer.ImportImage(path, VecI.NegativeOne);
 
-        if (path != null && File.Exists(path))
-        {
-            dialog.FilePath = path;
-        }
-
-        if (!dialog.ShowDialog())
-        {
-            return;
-        }
-
-        DocumentViewModel doc = NewDocument(b => b
-            .WithSize(dialog.FileWidth, dialog.FileHeight)
+        var doc = NewDocument(b => b
+            .WithSize(image.Size)
             .WithLayer(l => l
                 .WithName("Image")
-                .WithSize(dialog.FileWidth, dialog.FileHeight)
-                .WithSurface(Importer.ImportImage(dialog.FilePath, new VecI(dialog.FileWidth, dialog.FileHeight)))));
+                .WithSize(image.Size)
+                .WithSurface(image)));
 
         if (associatePath)
         {
@@ -259,23 +249,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     private void OpenRegularImage(Surface surface, string path)
     {
-        ImportFileDialog dialog = new ImportFileDialog( );
-
-        dialog.FileWidth = surface.Size.X;
-        dialog.FileHeight = surface.Size.Y;
-        
-        if (!dialog.ShowDialog())
-        {
-            return;
-        }
-
-        surface.ResizeNearestNeighbor(new VecI(dialog.FileWidth, dialog.FileHeight));
-            
         DocumentViewModel doc = NewDocument(b => b
-            .WithSize(dialog.FileWidth, dialog.FileHeight)
+            .WithSize(surface.Size)
             .WithLayer(l => l
                 .WithName("Image")
-                .WithSize(dialog.FileWidth, dialog.FileHeight)
+                .WithSize(surface.Size)
                 .WithSurface(surface)));
 
         if (path == null)
@@ -361,7 +339,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     ///     Generates export dialog or saves directly if save data is known.
     /// </summary>
     /// <param name="parameter">CommandProperty.</param>
-    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = ModifierKeys.Control)]
     public void ExportFile()
     {
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

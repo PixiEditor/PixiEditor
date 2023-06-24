@@ -16,6 +16,7 @@ public struct VecI : IEquatable<VecI>
 
     public static VecI Zero { get; } = new(0, 0);
     public static VecI One { get; } = new(1, 1);
+    public static VecI NegativeOne { get; } = new(-1, -1);
 
     public VecI(int x, int y)
     {
@@ -67,6 +68,30 @@ public struct VecI : IEquatable<VecI>
     {
         return new(X, 2 * lineY - Y);
     }
+
+    public VecI KeepInside(RectI rect)
+    {
+        return new VecI(Math.Clamp(X, rect.Left, rect.Right), Math.Clamp(Y, rect.Top, rect.Bottom));
+    }
+
+    public byte[] ToByteArray()
+    {
+        var data = new byte[sizeof(int) * 2];
+
+        BitConverter.TryWriteBytes(data, X);
+        BitConverter.TryWriteBytes(data.AsSpan(4), Y);
+
+        return data;
+    }
+
+    public static VecI FromBytes(ReadOnlySpan<byte> value)
+    {
+        var x = BitConverter.ToInt32(value);
+        var y = BitConverter.ToInt32(value[4..]);
+
+        return new VecI(x, y);
+    }
+    
     public static VecI operator +(VecI a, VecI b)
     {
         return new VecI(a.X + b.X, a.Y + b.Y);
