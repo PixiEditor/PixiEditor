@@ -576,7 +576,7 @@
   "PALETTE_BROWSER_BUY_TEXT": "Buy Supporter Pack and get 21 beautiful palettes!",
 
   "NEWS": "News",
-  "HIDE_NEWS_PANEL": "Hide News panel in startup window",
+  "DISABLE_NEWS_PANEL": "Disable News panel in startup window",
   "FAILED_FETCH_NEWS": "Failed to fetch news",
   
   "CROP_TO_SELECTION": "Crop to selection",

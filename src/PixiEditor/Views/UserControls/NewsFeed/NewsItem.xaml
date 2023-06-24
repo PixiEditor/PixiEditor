@@ -8,6 +8,7 @@
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:gl="clr-namespace:System.Globalization;assembly=System.Runtime"
              mc:Ignorable="d" Name="newsItem"
              d:DesignHeight="300" d:DesignWidth="300">
     <Border Background="{StaticResource MainColor}" CornerRadius="5">
@@ -16,7 +17,7 @@
                 <Border Background="White" Name="Mask" CornerRadius="8 8 0 0"/>
                 <StackPanel>
                     <Image Cursor="Hand" Margin="-1" Source="{Binding ElementName=newsItem, Path=News.CoverImageUrl}"
-                           MouseDown="CoverImageClicked"/>
+                           MouseDown="CoverImageClicked" Name="coverImage"/>
                     <StackPanel.OpacityMask>
                         <VisualBrush Visual="{Binding ElementName=Mask}" />
                     </StackPanel.OpacityMask>
@@ -40,12 +41,13 @@
             </StackPanel>
             <Grid>
                 <Border Visibility="{Binding ElementName=newsItem, Path=News.IsNew, Converter={converters:BoolToVisibilityConverter}}"
-                        Margin="0 2.5" Background="{StaticResource AccentRed}" HorizontalAlignment="Left"
-                        Padding="5 2.5" CornerRadius="0 5 0 0">
+                        Margin="2.5 2.5" Background="{StaticResource AccentRed}" HorizontalAlignment="Left"
+                        Padding="5 2.5" CornerRadius="5">
                     <TextBlock Text="New!" Foreground="White" FontSize="12" FontStyle="Italic"/>
                 </Border>
                 <TextBlock Margin="8 5" HorizontalAlignment="Right" FontSize="12" Foreground="LightGray"
-                           Text="{Binding ElementName=newsItem, Path=News.Date, StringFormat=d}"/>
+                           Text="{Binding ElementName=newsItem, Path=News.Date, StringFormat=d,
+                           ConverterCulture={x:Static gl:CultureInfo.CurrentCulture}}"/>
             </Grid>
         </StackPanel>
     </Border>
