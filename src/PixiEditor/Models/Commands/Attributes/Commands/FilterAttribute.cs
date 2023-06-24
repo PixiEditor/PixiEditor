@@ -8,11 +8,11 @@ internal partial class Command
     {
         public LocalizedString SearchTerm { get; }
         
-        public FilterAttribute(string internalName, string displayName, string searchTerm) : base(internalName, displayName, string.Empty)
+        public FilterAttribute([InternalName] string internalName, string displayName, string searchTerm) : base(internalName, displayName, string.Empty)
         {
             SearchTerm = searchTerm;
         }
         
-        public FilterAttribute(string internalName) : base(internalName, null, null) { }
+        public FilterAttribute([InternalName] string internalName) : base(internalName, null, null) { }
     }
 }
