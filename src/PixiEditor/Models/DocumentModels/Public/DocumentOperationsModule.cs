@@ -8,6 +8,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
@@ -106,7 +107,7 @@ internal class DocumentOperationsModule
     /// Pastes the <paramref name="images"/> as new layers
     /// </summary>
     /// <param name="images">The images to paste</param>
-    public void PasteImagesAsLayers(List<(string? name, Surface image)> images)
+    public void PasteImagesAsLayers(List<ClipboardController.DataImage> images)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
@@ -114,7 +115,7 @@ internal class DocumentOperationsModule
         RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
         foreach (var imageWithName in images)
         {
-            maxSize = maxSize.Union(new RectI(VecI.Zero, imageWithName.image.Size));
+            maxSize = maxSize.Union(new RectI(imageWithName.position, imageWithName.image.Size));
         }
 
         if (maxSize.Size != Document.SizeBindable)
@@ -123,7 +124,7 @@ internal class DocumentOperationsModule
         foreach (var imageWithName in images)
         {
             var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, Path.GetFileName(imageWithName.name));
-            DrawImage(imageWithName.image, new ShapeCorners(new RectD(VecD.Zero, imageWithName.image.Size)), layerGuid, true, false, false);
+            DrawImage(imageWithName.image, new ShapeCorners(new RectD(imageWithName.position, imageWithName.image.Size)), layerGuid, true, false, false);
         }
         Internals.ActionAccumulator.AddFinishedActions();
     }
@@ -565,6 +566,24 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.GuidValue, mode));
     }
 
+    public void CropToSelection(bool clearSelection = true)
+    {
+        var bounds = Document.SelectionPathBindable.TightBounds;
+        if (Document.SelectionPathBindable.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0)
+            return;
+
+        Internals.ActionAccumulator.AddActions(new Crop_Action((RectI)bounds));
+
+        if (clearSelection)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new ClearSelection_Action());
+        }
+        else
+        {
+            Internals.ActionAccumulator.AddFinishedActions();
+        }
+    }
+    
     public void InvertSelection()
     {
         var selection = Document.SelectionPathBindable;

@@ -33,10 +33,11 @@ internal class SelectRectangle_UpdateableChange : UpdateableChange
         using var rectPath = new VectorPath() { FillType = PathFillType.EvenOdd };
         if (!rect.IsZeroArea)
         {
-            rectPath.MoveTo(rect.TopLeft);
-            rectPath.LineTo(rect.TopRight);
-            rectPath.LineTo(rect.BottomRight);
-            rectPath.LineTo(rect.BottomLeft);
+            var constrained = rect.Intersect(new RectI(VecI.Zero, target.Size));
+            rectPath.MoveTo(constrained.TopLeft);
+            rectPath.LineTo(constrained.TopRight);
+            rectPath.LineTo(constrained.BottomRight);
+            rectPath.LineTo(constrained.BottomLeft);
             rectPath.Close();
         }
 

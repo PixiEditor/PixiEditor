@@ -15,7 +15,7 @@ internal partial class Command
         /// <summary>
         /// Groups all commands that start with the name <paramref name="internalName"/>
         /// </summary>
-        public GroupAttribute(string internalName, string displayName)
+        public GroupAttribute([InternalName] string internalName, string displayName)
         {
             InternalName = internalName;
             DisplayName = displayName;

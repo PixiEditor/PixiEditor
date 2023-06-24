@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,11 +15,15 @@ public class CommandNameListGenerator : IIncrementalGenerator
 
     private const string Groups = "PixiEditor.Models.Commands.Attributes.Commands.Command.GroupAttribute";
 
+    private const string InternalNameAttribute = "PixiEditor.Models.Commands.Attributes.InternalNameAttribute";
+
+    private static DiagnosticDescriptor commandDuplicate = new("Pixi01", "Command/Evaluator duplicate", "{0} with name '{1}' is defined multiple times", "PixiEditor.Commands", DiagnosticSeverity.Error, true);
+    
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var commandList = CreateSyntaxProvider<Command>(context, Commands).Where(x => x != null);
-        var evaluatorList = CreateSyntaxProvider<Command>(context, Evaluators).Where(x => x != null);
-        var groupList = CreateSyntaxProvider<Group>(context, Groups).Where(x => x != null);
+        var commandList = CreateSyntaxProvider<CommandMethod>(context, Commands).Where(x => x != null);
+        var evaluatorList = CreateSyntaxProvider<CommandMethod>(context, Evaluators).Where(x => x != null);
+        var groupList = CreateSyntaxProvider<GroupType>(context, Groups).Where(x => x != null);
 
         context.RegisterSourceOutput(commandList.Collect(), (context, commands) => AddSource(context, commands, "Commands"));
         context.RegisterSourceOutput(evaluatorList.Collect(), (context, evaluators) => AddSource(context, evaluators, "Evaluators"));
@@ -30,7 +35,7 @@ public class CommandNameListGenerator : IIncrementalGenerator
         return context.SyntaxProvider.CreateSyntaxProvider(
             (x, token) =>
             {
-                if (typeof(T) == typeof(Command))
+                if (typeof(T) == typeof(CommandMethod))
                 {
                     return x is MethodDeclarationSyntax method && method.AttributeLists.Count > 0;
                 }
@@ -42,21 +47,22 @@ public class CommandNameListGenerator : IIncrementalGenerator
             {
                 var member = (MemberDeclarationSyntax)context.Node;
 
-                if (!HasCommandAttribute(member, context, cancelToken, className))
+                var attributes = GetCommandAttributes(member, context, cancelToken, className);
+                if (attributes.Count == 0)
                     return null;
 
                 var symbol = context.SemanticModel.GetDeclaredSymbol(member, cancelToken);
 
-                if (symbol is IMethodSymbol methodSymbol && typeof(T) == typeof(Command))
+                if (symbol is IMethodSymbol methodSymbol && typeof(T) == typeof(CommandMethod))
                 {
                     if (methodSymbol.ReceiverType == null)
                         return null;
 
-                    return (T)(object)new Command(methodSymbol);
+                    return (T)(object)new CommandMethod(attributes, methodSymbol);
                 }
-                else if (symbol is ITypeSymbol typeSymbol && typeof(T) == typeof(Group))
+                else if (symbol is ITypeSymbol typeSymbol && typeof(T) == typeof(GroupType))
                 {
-                    return (T)(object)new Group(typeSymbol);
+                    return (T)(object)new GroupType(typeSymbol);
                 }
                 else
                 {
@@ -65,10 +71,13 @@ public class CommandNameListGenerator : IIncrementalGenerator
             });
     }
 
-    private void AddSource(SourceProductionContext context, ImmutableArray<Command> methodNames, string name)
+    private void AddSource(SourceProductionContext context, ImmutableArray<CommandMethod> methodNames, string name)
     {
-        List<string> createdClasses = new List<string>();
-        SyntaxList<StatementSyntax> statements = new SyntaxList<StatementSyntax>();
+        if (ReportDuplicateDefinitions(context, methodNames, name))
+            return;
+        
+        var createdClasses = new List<string>();
+        var statements = new SyntaxList<StatementSyntax>();
 
         foreach (var methodName in methodNames)
         {
@@ -104,7 +113,26 @@ public class CommandNameListGenerator : IIncrementalGenerator
         context.AddSource($"CommandNameList+{name}", nspace.NormalizeWhitespace().ToFullString());
     }
 
-    private void AddGroupsSource(SourceProductionContext context, ImmutableArray<Group> groups)
+    private bool ReportDuplicateDefinitions(SourceProductionContext context, ImmutableArray<CommandMethod> methodNames, string name)
+    {
+        var hasDuplicate = false;
+        var allAttributes = methodNames.SelectMany(x => x.Attributes).ToArray();
+        
+        foreach (var attribute in allAttributes)
+        {
+            if (!allAttributes.Any(x => x != attribute && x.InternalName == attribute.InternalName))
+            {
+                continue;
+            }
+
+            context.ReportDiagnostic(Diagnostic.Create(commandDuplicate, attribute.InternalNameArgument?.GetLocation(), name.TrimEnd('s'), attribute.InternalName));
+            hasDuplicate = true;
+        }
+
+        return hasDuplicate;
+    }
+
+    private void AddGroupsSource(SourceProductionContext context, ImmutableArray<GroupType> groups)
     {
         SyntaxList<StatementSyntax> statements = new SyntaxList<StatementSyntax>();
 
@@ -133,24 +161,48 @@ public class CommandNameListGenerator : IIncrementalGenerator
         context.AddSource("CommandNameList+Groups", nspace.NormalizeWhitespace().ToFullString());
     }
 
-    private static bool HasCommandAttribute(MemberDeclarationSyntax declaration, GeneratorSyntaxContext context, CancellationToken token, string commandAttributeStart)
+    private static List<CommandAttribute> GetCommandAttributes(MemberDeclarationSyntax declaration, GeneratorSyntaxContext context, CancellationToken token, string commandAttributeStart)
     {
-        foreach (var attrList in declaration.AttributeLists)
+        var list = new List<CommandAttribute>();
+        
+        foreach (var attribute in declaration.AttributeLists.SelectMany(attrList => attrList.Attributes))
         {
-            foreach (var attribute in attrList.Attributes)
-            {
-                token.ThrowIfCancellationRequested();
-                var symbol = context.SemanticModel.GetSymbolInfo(attribute, token);
-                if (symbol.Symbol is not IMethodSymbol methodSymbol)
-                    continue;
-                if (!methodSymbol.ContainingType.ToDisplayString()
+            token.ThrowIfCancellationRequested();
+            var symbol = context.SemanticModel.GetSymbolInfo(attribute, token);
+            if (symbol.Symbol is not IMethodSymbol methodSymbol)
+                continue;
+            if (!methodSymbol.ContainingType.ToDisplayString()
                     .StartsWith(commandAttributeStart))
-                    continue;
-                return true;
+                continue;
+
+            var target = -1;
+                
+            for (var i = 0; i < methodSymbol.Parameters.Length; i++)
+            {
+                var parameter = methodSymbol.Parameters[i];
+                if (parameter.GetAttributes().Any(x => x.AttributeClass?.ToDisplayString() == InternalNameAttribute))
+                {
+                    target = i;
+                    break;
+                }
+            }
+
+            if (target != -1)
+            {
+                var argument = attribute.ArgumentList?.Arguments[target];
+
+                if (argument?.Expression is LiteralExpressionSyntax literal)
+                {
+                    list.Add(new CommandAttribute(argument, literal.Token.ValueText));
+                }
+                else
+                {
+                    list.Add(new CommandAttribute(argument, null));
+                }
             }
         }
 
-        return false;
+        return list;
     }
 
     class CommandMember<TSelf> where TSelf : CommandMember<TSelf>
@@ -163,22 +215,38 @@ public class CommandNameListGenerator : IIncrementalGenerator
         }
     }
 
-    class Command : CommandMember<Command>
+    class CommandMethod : CommandMember<CommandMethod>
     {
         public string MethodName { get; }
 
         public string[] ParameterTypeNames { get; }
+        
+        public List<CommandAttribute> Attributes { get; }
 
-        public Command(IMethodSymbol symbol) : base(symbol.ContainingType.ToDisplayString())
+        public CommandMethod(List<CommandAttribute> attributes, IMethodSymbol symbol) : base(symbol.ContainingType.ToDisplayString())
         {
+            Attributes = attributes;
             MethodName = symbol.Name;
             ParameterTypeNames = symbol.Parameters.Select(x => $"typeof({x.Type.ToDisplayString()})").ToArray();
         }
     }
 
-    class Group : CommandMember<Group>
+    class CommandAttribute
     {
-        public Group(ITypeSymbol symbol) : base(symbol.ToDisplayString())
+        public string? InternalName { get; }
+
+        public AttributeArgumentSyntax? InternalNameArgument { get; }
+        
+        public CommandAttribute(AttributeArgumentSyntax? internalNameArgument, string? internalName)
+        {
+            InternalNameArgument = internalNameArgument;
+            InternalName = internalName;
+        }
+    }
+
+    class GroupType : CommandMember<GroupType>
+    {
+        public GroupType(ITypeSymbol symbol) : base(symbol.ToDisplayString())
         { }
     }
 }

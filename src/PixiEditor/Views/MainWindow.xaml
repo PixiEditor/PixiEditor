@@ -259,6 +259,9 @@
                         <MenuItem
                             ui1:Translator.Key="INVERT"
                             cmds:Menu.Command="PixiEditor.Selection.InvertSelection" />
+                        <MenuItem
+                            views:Translator.Key="CROP_TO_SELECTION"
+                            cmds:Menu.Command="PixiEditor.Selection.CropToSelection" />
                         <Separator/>
                         <MenuItem ui1:Translator.Key="SELECTION_TO_MASK">
                             <MenuItem
@@ -631,6 +634,7 @@
                                             StylusOutOfRangeCommand="{cmds:Command PixiEditor.Stylus.StylusOutOfRange, UseProvided=True}"
                                             FlipX="{Binding FlipX, Mode=TwoWay}"
                                             FlipY="{Binding FlipY, Mode=TwoWay}"
+                                            ContextMenuOpening="Viewport_OnContextMenuOpening"
                                             Stylus.IsTapFeedbackEnabled="False" 
                                             Stylus.IsTouchFeedbackEnabled="False"
                                             Document="{Binding Document}">
@@ -816,7 +820,7 @@
                 <Grid Cursor="Arrow">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="30"/>
                     </Grid.RowDefinitions>
 
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -851,9 +855,19 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                    <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
-                            BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
-                            Grid.Row="1" Height="30"/>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="0.4*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
+                                BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
+                                Grid.ColumnSpan="2"/>
+                        <Border Background="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
+                                Margin="0,1,1,1" CornerRadius="0,0,5,0"
+                                Grid.Column="1"/>
+                    </Grid>
                 </Grid>
             </Border>
 

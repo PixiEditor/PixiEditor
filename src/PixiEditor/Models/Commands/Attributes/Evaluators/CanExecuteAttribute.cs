@@ -7,12 +7,12 @@ internal partial class Evaluator
     {
         public string[] NamesOfRequiredCanExecuteEvaluators { get; }
 
-        public CanExecuteAttribute(string name) : base(name)
+        public CanExecuteAttribute([InternalName] string name) : base(name)
         {
             NamesOfRequiredCanExecuteEvaluators = Array.Empty<string>();
         }
 
-        public CanExecuteAttribute(string name, params string[] requires) : base(name)
+        public CanExecuteAttribute([InternalName] string name, params string[] requires) : base(name)
         {
             NamesOfRequiredCanExecuteEvaluators = requires;
         }

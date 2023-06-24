@@ -1,4 +1,5 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.Windows.Input;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -27,7 +28,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
         guidValue = member.GuidValue;
         repeat = tool.BrightnessMode == BrightnessMode.Repeat;
         toolSize = tool.ToolSize;
-        correctionFactor = tool.Darken ? -tool.CorrectionFactor : tool.CorrectionFactor;
+        correctionFactor = tool.Darken || tool.UsedWith == MouseButton.Right ? -tool.CorrectionFactor : tool.CorrectionFactor;
 
         ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat);
         internals!.ActionAccumulator.AddActions(action);

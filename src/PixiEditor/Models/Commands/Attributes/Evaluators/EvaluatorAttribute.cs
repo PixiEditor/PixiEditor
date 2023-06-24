@@ -7,7 +7,7 @@ internal static partial class Evaluator
     {
         public string Name { get; }
 
-        public EvaluatorAttribute(string name)
+        public EvaluatorAttribute([InternalName] string name)
         {
             Name = name;
         }

@@ -19,63 +19,63 @@
             <ColumnDefinition Width="26" />
             <ColumnDefinition Width="26" />
         </Grid.ColumnDefinitions>
-        <ToggleButton IsChecked="True" Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
-                      Style="{DynamicResource AnchorPointToggleButtonStyle}" ui:Translator.TooltipKey="TOP_LEFT" Grid.Row="0"
+        <ToggleButton IsChecked="True" Checked="ToggleButton_Checked" PreviewMouseLeftButtonDown="ToggleButton_Click" Margin="0.25"
+                      Style="{DynamicResource AnchorPointToggleButtonStyle}" views:Translator.TooltipKey="TOP_LEFT" Grid.Row="0"
                       Grid.Column="0" BorderBrush="Black">
             <ToggleButton.Background>
                 <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
-                      Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="0" ui:Translator.TooltipKey="TOP_CENTER"
+        <ToggleButton Checked="ToggleButton_Checked" PreviewMouseLeftButtonDown="ToggleButton_Click" Margin="0.25"
+                      Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="0" views:Translator.TooltipKey="TOP_CENTER"
                       Grid.Column="1" BorderBrush="Black">
             <ToggleButton.Background>
                 <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
-                      Style="{DynamicResource AnchorPointToggleButtonStyle}" ui:Translator.TooltipKey="TOP_RIGHT" Grid.Row="0"
+        <ToggleButton Checked="ToggleButton_Checked" PreviewMouseLeftButtonDown="ToggleButton_Click" Margin="0.25"
+                      Style="{DynamicResource AnchorPointToggleButtonStyle}" views:Translator.TooltipKey="TOP_RIGHT" Grid.Row="0"
                       Grid.Column="2" BorderBrush="Black">
             <ToggleButton.Background>
                 <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
-                      Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="1" ui:Translator.TooltipKey="MIDDLE_LEFT"
+        <ToggleButton Checked="ToggleButton_Checked" PreviewMouseLeftButtonDown="ToggleButton_Click" Margin="0.25"
+                      Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="1" views:Translator.TooltipKey="MIDDLE_LEFT"
                       Grid.Column="0" BorderBrush="Black">
             <ToggleButton.Background>
                 <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
+        <ToggleButton Checked="ToggleButton_Checked" PreviewMouseLeftButtonDown="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="1" Grid.Column="1"
                       ui:Translator.TooltipKey="MIDDLE_CENTER" BorderBrush="Black">
             <ToggleButton.Background>
                 <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
+        <ToggleButton Checked="ToggleButton_Checked" PreviewMouseLeftButtonDown="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="1" Grid.Column="2"
                       ui:Translator.TooltipKey="MIDDLE_RIGHT" BorderBrush="Black">
             <ToggleButton.Background>
                 <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
+        <ToggleButton Checked="ToggleButton_Checked" PreviewMouseLeftButtonDown="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="2" Grid.Column="0"
                       ui:Translator.TooltipKey="BOTTOM_LEFT" BorderBrush="Black">
             <ToggleButton.Background>
                 <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
+        <ToggleButton Checked="ToggleButton_Checked" PreviewMouseLeftButtonDown="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="2" Grid.Column="1"
                       ui:Translator.TooltipKey="BOTTOM_CENTER" BorderBrush="Black">
             <ToggleButton.Background>
                 <ImageBrush ImageSource="../../Images/AnchorDot.png" />
             </ToggleButton.Background>
         </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" Click="ToggleButton_Click" Margin="0.25"
+        <ToggleButton Checked="ToggleButton_Checked" PreviewMouseLeftButtonDown="ToggleButton_Click" Margin="0.25"
                       Style="{DynamicResource AnchorPointToggleButtonStyle}" Grid.Row="2" Grid.Column="2"
                       ui:Translator.TooltipKey="BOTTOM_RIGHT" BorderBrush="Black">
             <ToggleButton.Background>

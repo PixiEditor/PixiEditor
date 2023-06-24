@@ -23,6 +23,8 @@ internal class BrightnessToolViewModel : ToolViewModel
         Toolbar = ToolbarFactory.Create<BrightnessToolViewModel, BasicToolbar>(this);
     }
 
+    public override bool IsErasable => true;
+
     public override LocalizedString Tooltip => new LocalizedString("BRIGHTNESS_TOOL_TOOLTIP", Shortcut);
 
     public override BrushShape BrushShape => BrushShape.Circle;
@@ -52,7 +54,7 @@ internal class BrightnessToolViewModel : ToolViewModel
         }
     }
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrightnessTool();
     }

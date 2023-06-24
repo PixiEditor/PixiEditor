@@ -1,12 +1,12 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
@@ -17,6 +17,12 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
 internal class IoViewModel : SubViewModel<ViewModelMain>
 {
+    private bool hadSwapped;
+    private int? previousEraseSize;
+    private bool hadSharedToolbar;
+    private bool? drawingWithRight;
+    private bool startedWithEraser;
+
     public RelayCommand MouseMoveCommand { get; set; }
     public RelayCommand MouseDownCommand { get; set; }
     public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
@@ -150,18 +156,67 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseDown(object? sender, MouseOnCanvasEventArgs args)
     {
-        if (args.Button == MouseButton.Left)
-        {
-            DocumentManagerViewModel docManager = Owner.DocumentManagerSubViewModel;
-            DocumentViewModel? activeDocument = docManager.ActiveDocument;
-            if (activeDocument == null)
-                return;
+        if (drawingWithRight != null || args.Button is not (MouseButton.Left or MouseButton.Right))
+            return;
 
-            Owner.ToolsSubViewModel.LeftMouseButtonDownInlet(args.PositionOnCanvas);
-            activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
+        if (args.Button == MouseButton.Right && !HandleRightMouseDown())
+            return;
+
+        var docManager = Owner.DocumentManagerSubViewModel;
+        var activeDocument = docManager.ActiveDocument;
+        if (activeDocument == null)
+            return;
+
+        drawingWithRight = args.Button == MouseButton.Right;
+        Owner.ToolsSubViewModel.UseToolEventInlet(args.PositionOnCanvas, args.Button);
+        activeDocument.EventInlet.OnCanvasLeftMouseButtonDown(args.PositionOnCanvas);
+    }
+
+    private bool HandleRightMouseDown()
+    {
+        var tools = Owner.ToolsSubViewModel;
+
+        startedWithEraser = tools.ActiveTool is EraserToolViewModel;
+
+        switch (tools.RightClickMode)
+        {
+            case RightClickMode.SecondaryColor when tools.ActiveTool.UsesColor:
+            case RightClickMode.Erase when tools.ActiveTool is ColorPickerToolViewModel:
+                Owner.ColorsSubViewModel.SwapColors(null);
+                hadSwapped = true;
+                return true;
+            case RightClickMode.Erase when tools.ActiveTool.IsErasable:
+            {
+                HandleRightMouseEraseDown(tools);
+                return true;
+            }
+            case RightClickMode.SecondaryColor when tools.ActiveTool is BrightnessToolViewModel:
+                return true;
+            case RightClickMode.ContextMenu:
+            default:
+                return false;
         }
     }
 
+    private void HandleRightMouseEraseDown(ToolsViewModel tools)
+    {
+        var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
+        hadSharedToolbar = tools.EnableSharedToolbar;
+        if (currentToolSize != null)
+        {
+            tools.EnableSharedToolbar = false;
+            var toolSize = tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize");
+            previousEraseSize = (int)toolSize.Value;
+            toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true } ? 1 : currentToolSize.Value;
+        }
+        else
+        {
+            previousEraseSize = null;
+        }
+
+        tools.SetActiveTool<EraserToolViewModel>(true);
+    }
+    
     private void OnPreviewMiddleMouseButton(object sender)
     {
         Owner.ToolsSubViewModel.SetActiveTool<MoveViewportToolViewModel>(true);
@@ -177,15 +232,63 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
     private void OnMouseUp(object? sender, MouseButton button)
     {
+        bool toLeftRightClick = drawingWithRight == null ||
+                                (button == MouseButton.Left && drawingWithRight.Value) ||
+                                (button == MouseButton.Right && !drawingWithRight.Value);
+        
+        if (toLeftRightClick && button != MouseButton.Middle)
+            return;
+
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
             return;
-        if (button == MouseButton.Left)
+        var tools = Owner.ToolsSubViewModel;
+
+        var rightCanUp = (button == MouseButton.Right && tools.RightClickMode == RightClickMode.Erase || tools.RightClickMode == RightClickMode.SecondaryColor);
+        
+        if (button == MouseButton.Left || rightCanUp)
         {
             Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.OnCanvasLeftMouseButtonUp();
         }
-        else if (button == MouseButton.Middle)
+        
+        drawingWithRight = null;
+
+        HandleRightMouseUp(button, tools);
+        
+        hadSwapped = false;
+    }
+
+    private void HandleRightMouseUp(MouseButton button, ToolsViewModel tools)
+    {
+        switch (button)
         {
-            Owner.ToolsSubViewModel.RestorePreviousTool();
+            case MouseButton.Middle:
+                tools.RestorePreviousTool();
+                break;
+            case MouseButton.Right when hadSwapped && 
+                                        (tools.RightClickMode == RightClickMode.SecondaryColor || 
+                                         tools is { ActiveTool: ColorPickerToolViewModel, RightClickMode: RightClickMode.Erase }
+                                        ):
+
+                Owner.ColorsSubViewModel.SwapColors(null);
+                break;
+            case MouseButton.Right when tools.RightClickMode == RightClickMode.Erase:
+                HandleRightMouseEraseUp(tools);
+                break;
         }
+    }
+
+    private void HandleRightMouseEraseUp(ToolsViewModel tools)
+    {
+        if (startedWithEraser)
+        {
+            return;
+        }
+
+        tools.EnableSharedToolbar = hadSharedToolbar;
+        if (previousEraseSize != null)
+        {
+            tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize").Value = previousEraseSize.Value;
+        }
+        tools.RestorePreviousTool();
     }
 }

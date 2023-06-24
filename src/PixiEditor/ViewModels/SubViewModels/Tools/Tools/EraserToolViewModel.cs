@@ -21,12 +21,14 @@ internal class EraserToolViewModel : ToolViewModel
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();
 
+    public override bool IsErasable => true;
+
     public override string ToolNameLocalizationKey => "ERASER_TOOL";
     public override BrushShape BrushShape => BrushShape.Circle;
 
     public override LocalizedString Tooltip => new LocalizedString("ERASER_TOOL_TOOLTIP", Shortcut);
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseEraserTool();
     }

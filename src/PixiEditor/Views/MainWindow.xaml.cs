@@ -15,9 +15,12 @@ using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Views;
 
@@ -267,6 +270,29 @@ internal partial class MainWindow : Window
     private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.System) // Disables alt menu item navigation, I hope it won't break anything else.
+        {
+            e.Handled = true;
+        }
+    }
+
+    private void Viewport_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        var tools = DataContext.ToolsSubViewModel;
+
+        var superSpecialBrightnessTool = tools.RightClickMode == RightClickMode.SecondaryColor && tools.ActiveTool is BrightnessToolViewModel;
+        var superSpecialColorPicker = tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool is ColorPickerToolViewModel;
+
+        if (superSpecialBrightnessTool || superSpecialColorPicker)
+        {
+            e.Handled = true;
+            return;
+        }
+
+        var useContextMenu = DataContext.ToolsSubViewModel.RightClickMode == RightClickMode.ContextMenu;
+        var usesErase = tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool.IsErasable;
+        var usesSecondaryColor = tools.RightClickMode == RightClickMode.SecondaryColor && tools.ActiveTool.UsesColor;
+
+        if (!useContextMenu && (usesErase || usesSecondaryColor))
         {
             e.Handled = true;
         }

@@ -67,7 +67,7 @@
                     Panel.ZIndex="5">
                     <Grid Cursor="Hand" Visibility="{Binding ElementName=visibilityCheckbox, Path=IsChecked, Converter={InverseBoolToVisibilityConverter}}" Background="Transparent">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" DockPanel.Dock="Left">
-                            <Image Margin="5 0 5 0" Width="20" Source="/Images/Layer-add.png"
+                            <Image Margin="5 0 5 0" Width="20" Source="/Images/Add-reference.png"
                                Visibility="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"/>
 
                             <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" 
