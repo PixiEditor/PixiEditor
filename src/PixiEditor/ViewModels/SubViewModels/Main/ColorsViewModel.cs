@@ -339,9 +339,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     {
         var palette = Owner.DocumentManagerSubViewModel.ActiveDocument.Palette;
 
-        if (!palette.Contains(PrimaryColor))
+        if (!palette.Contains(PrimaryColor.ToPaletteColor()))
         {
-            palette.Add(PrimaryColor);
+            palette.Add(PrimaryColor.ToPaletteColor());
         }
     }
 

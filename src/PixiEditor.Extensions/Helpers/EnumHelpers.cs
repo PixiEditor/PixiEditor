@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
 
-namespace PixiEditor.Helpers.Extensions;
+namespace PixiEditor.Extensions.Helpers;
 
-internal static class EnumHelpers
+public static class EnumHelpers
 {
     public static IEnumerable<T> GetFlags<T>(this T e)
         where T : Enum

@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Helpers;
 using PixiEditor.Views;
 
 namespace PixiEditor.Extensions.UI;

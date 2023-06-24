@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.Helpers;
 
 namespace PixiEditor.Models.Services.NewsFeed;
 

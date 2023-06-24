@@ -128,7 +128,7 @@
                             Style="{StaticResource SocialMediaButton}" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
                             Content="/Images/SocialMedia/RedditIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://store.steampowered.com/app/2218560"
-                            Style="{StaticResource SocialMediaButton}" Tag="#00adee" views:Translator.TooltipKey="STEAM"
+                            Style="{StaticResource SocialMediaButton}" Tag="#00adee" ui:Translator.TooltipKey="STEAM"
                             Content="/Images/SocialMedia/SteamIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
                             Style="{StaticResource SocialMediaButton}" Tag="Black" ui:Translator.TooltipKey="GITHUB"
