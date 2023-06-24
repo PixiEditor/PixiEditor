@@ -28,6 +28,15 @@ internal partial class HelloTherePopup : Window
     public static readonly DependencyProperty IsFetchingNewsProperty = DependencyProperty.Register(
         nameof(IsFetchingNews), typeof(bool), typeof(HelloTherePopup), new PropertyMetadata(default(bool)));
 
+    public static readonly DependencyProperty NewsPanelCollapsedProperty = DependencyProperty.Register(
+        nameof(NewsPanelCollapsed), typeof(bool), typeof(HelloTherePopup),
+        new PropertyMetadata(false, NewsPanelCollapsedChangedCallback));
+
+    public bool NewsPanelCollapsed
+    {
+        get { return (bool)GetValue(NewsPanelCollapsedProperty); }
+        set { SetValue(NewsPanelCollapsedProperty, value); }
+    }
     public bool IsFetchingNews
     {
         get { return (bool)GetValue(IsFetchingNewsProperty); }
@@ -64,6 +73,8 @@ internal partial class HelloTherePopup : Window
 
     private NewsProvider NewsProvider { get; set; }
 
+    public bool NewsDisabled => _newsDisabled;
+
     public bool ShowDonateButton => // Steam doesn't allow external donations :(
 #if STEAM
         false;
@@ -71,7 +82,7 @@ internal partial class HelloTherePopup : Window
         true;
 #endif
 
-    private bool _newsHidden = false;
+    private bool _newsDisabled = false;
 
     public HelloTherePopup(FileViewModel fileViewModel)
     {
@@ -87,7 +98,7 @@ internal partial class HelloTherePopup : Window
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
         RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
-        _newsHidden = IPreferences.Current.GetPreference<bool>(PreferencesConstants.HideNewsPanel);
+        _newsDisabled = IPreferences.Current.GetPreference<bool>(PreferencesConstants.DisableNewsPanel);
 
         NewsProvider = new NewsProvider();
 
@@ -95,9 +106,12 @@ internal partial class HelloTherePopup : Window
 
         InitializeComponent();
 
-        int newsWidth = 200;
 
-        if (_newsHidden)
+        int newsWidth = 300;
+
+        NewsPanelCollapsed = IPreferences.Current.GetPreference<bool>(PreferencesConstants.NewsPanelCollapsed);
+
+        if (_newsDisabled || NewsPanelCollapsed)
         {
             newsColumn.Width = new GridLength(0);
             newsWidth = 0;
@@ -118,6 +132,27 @@ internal partial class HelloTherePopup : Window
             Width = 575 + newsWidth;
             Height = 670;
         }
+    }
+
+    private static void NewsPanelCollapsedChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        HelloTherePopup helloTherePopup = (HelloTherePopup)d;
+
+        if(helloTherePopup._newsDisabled || e.NewValue is not bool newValue)
+            return;
+
+        if (newValue)
+        {
+            helloTherePopup.Width -= 300;
+            helloTherePopup.newsColumn.Width = new GridLength(0);
+        }
+        else
+        {
+            helloTherePopup.Width += 300;
+            helloTherePopup.newsColumn.Width = new GridLength(300);
+        }
+
+        IPreferences.Current.UpdatePreference(PreferencesConstants.NewsPanelCollapsed, newValue);
     }
 
     private void RecentlyOpened_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -166,7 +201,7 @@ internal partial class HelloTherePopup : Window
 
     private async void HelloTherePopup_OnLoaded(object sender, RoutedEventArgs e)
     {
-        if(_newsHidden) return;
+        if(_newsDisabled) return;
 
         try
         {
@@ -177,6 +212,10 @@ internal partial class HelloTherePopup : Window
                 IsFetchingNews = false;
                 News.Clear();
                 News.AddRange(news);
+                if (NewsPanelCollapsed && News.Any(x => x.IsNew))
+                {
+                    NewsPanelCollapsed = false;
+                }
             }
             else
             {

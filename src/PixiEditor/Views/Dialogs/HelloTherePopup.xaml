@@ -16,7 +16,7 @@
         xmlns:newsFeed="clr-namespace:PixiEditor.Views.UserControls.NewsFeed"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d" ShowInTaskbar="False"
-        Title="Hello there!" Height="662" Width="832" MinHeight="500" MinWidth="500"
+        Title="Hello there!" Height="662" Width="982" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
         WindowStyle="None" WindowStartupLocation="CenterScreen" Loaded="HelloTherePopup_OnLoaded"
         FlowDirection="{helpers:Localization FlowDirection}">
@@ -63,7 +63,40 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <StackPanel HorizontalAlignment="Center">
+                <Grid Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <CheckBox Visibility="{Binding NewsDisabled, Converter={converters:InverseBoolToVisibilityConverter}}"
+                              Width="40" Height="40" IsChecked="{Binding NewsPanelCollapsed}">
+                    <CheckBox.Template>
+                        <ControlTemplate TargetType="{x:Type CheckBox}">
+                            <StackPanel Orientation="Horizontal" Focusable="False">
+                                <StackPanel.Background>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <Ellipse Fill="{StaticResource MainColor}" Width="20" Height="20"/>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </StackPanel.Background>
+                                <Image Focusable="False" Cursor="Hand" x:Name="checkboxImage" Source="/Images/Chevron-right.png">
+                                    <Image.RenderTransform>
+                                        <RotateTransform Angle="180" CenterX="19" CenterY="20"/>
+                                    </Image.RenderTransform>
+                                </Image>
+                                <ContentPresenter Focusable="False"/>
+                            </StackPanel>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="checkboxImage" Property="RenderTransform">
+                                        <Setter.Value>
+                                            <RotateTransform Angle="0" CenterX="1" CenterY="0"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </CheckBox.Template>
+                </CheckBox>
+                </Grid>
+                <StackPanel Grid.Row="0" HorizontalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <Image Source="../../Images/PixiEditorLogo.png" Height="40" VerticalAlignment="Center"/>
                         <TextBlock FontSize="40" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0">PixiEditor</TextBlock>
@@ -282,7 +315,8 @@
             </Grid>
         </ScrollViewer>
 
-        <ScrollViewer Grid.Row="1" Grid.Column="1">
+        <ScrollViewer Grid.Row="1" Grid.Column="1"
+                      Visibility="{Binding NewsPanelCollapsed, Converter={converters:InverseBoolToVisibilityConverter}}">
             <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource MainColor}">
                 <Grid>
                     <Image gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" HorizontalAlignment="Center" VerticalAlignment="Center"

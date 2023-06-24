@@ -38,11 +38,15 @@
                     </Hyperlink>
                 </Label>
             </StackPanel>
-            <!--<TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Foreground="White" FontSize="12"
-                       Text="{Binding ElementName=newsItem, Path=News.ShortDescription}"
-                       MaxHeight="50" TextTrimming="CharacterEllipsis"/>-->
-            <TextBlock Margin="8 2.5" HorizontalAlignment="Right" FontSize="12" Foreground="LightGray"
-                       Text="{Binding ElementName=newsItem, Path=News.Date, StringFormat=d}"/>
+            <Grid>
+                <Border Visibility="{Binding ElementName=newsItem, Path=News.IsNew, Converter={converters:BoolToVisibilityConverter}}"
+                        Margin="0 2.5" Background="{StaticResource AccentRed}" HorizontalAlignment="Left"
+                        Padding="5 2.5" CornerRadius="0 5 0 0">
+                    <TextBlock Text="New!" Foreground="White" FontSize="12" FontStyle="Italic"/>
+                </Border>
+                <TextBlock Margin="8 5" HorizontalAlignment="Right" FontSize="12" Foreground="LightGray"
+                           Text="{Binding ElementName=newsItem, Path=News.Date, StringFormat=d}"/>
+            </Grid>
         </StackPanel>
     </Border>
 </UserControl>

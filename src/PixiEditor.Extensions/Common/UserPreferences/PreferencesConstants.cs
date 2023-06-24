@@ -7,5 +7,7 @@ public static class PreferencesConstants
 
     public const string MaxOpenedRecently = "MaxOpenedRecently";
     public const int MaxOpenedRecentlyDefault = 8;
-    public const string HideNewsPanel = "HideNewsPanel";
+    public const string DisableNewsPanel = "DisableNewsPanel";
+    public const string LastCheckedNewsIds = "LastCheckedNewsIds";
+    public const string NewsPanelCollapsed = "NewsPanelCollapsed";
 }

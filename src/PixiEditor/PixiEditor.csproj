@@ -453,6 +453,8 @@
 		<Resource Include="Images\News\NewVersion.png" />
 		<None Remove="Images\News\OfficialAnnouncement.png" />
 		<Resource Include="Images\News\OfficialAnnouncement.png" />
+		<None Remove="Images\Chevron-right.png" />
+		<Resource Include="Images\Chevron-right.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">

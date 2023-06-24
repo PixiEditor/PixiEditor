@@ -47,7 +47,7 @@ internal class FileSettings : SettingsGroup
         set => RaiseAndUpdatePreference(ref maxOpenedRecently, value);
     }
 
-    private bool hideNewsPanel = GetPreference(PreferencesConstants.HideNewsPanel, false);
+    private bool hideNewsPanel = GetPreference(PreferencesConstants.DisableNewsPanel, false);
 
     public bool HideNewsPanel
     {

@@ -1,4 +1,7 @@
 ﻿using System.ComponentModel;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using Newtonsoft.Json;
 using PixiEditor.Extensions.Helpers;
 
@@ -20,12 +23,23 @@ internal enum NewsType
 
 internal record News
 {
-    public string Title { get; set; }
-    public NewsType NewsType { get; set; } = NewsType.Misc;
-    public string Url { get; set; }
-    public DateTime Date { get; set; }
-    public string CoverImageUrl { get; set; }
+    public string Title { get; init; } = string.Empty;
+    public NewsType NewsType { get; init; } = NewsType.Misc;
+    public string Url { get; init; }
+    public DateTime Date { get; init; }
+    public string CoverImageUrl { get; init; } = string.Empty;
 
     [JsonIgnore]
     public string ResolvedIconUrl => $"/Images/News/{NewsType.GetDescription()}";
+
+    [JsonIgnore]
+    public bool IsNew { get; set; } = false;
+
+    public int GetIdentifyingNumber()
+    {
+        MD5 md5Hasher = MD5.Create();
+        string data = Title + Url + Date.ToString(CultureInfo.InvariantCulture) + CoverImageUrl;
+        var hashed = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(data));
+        return BitConverter.ToInt32(hashed, 0);
+    }
 }
