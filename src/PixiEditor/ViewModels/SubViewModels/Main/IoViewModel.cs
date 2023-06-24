@@ -187,21 +187,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
                 return true;
             case RightClickMode.Erase when tools.ActiveTool.IsErasable:
             {
-                var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
-                hadSharedToolbar = tools.EnableSharedToolbar;
-                if (currentToolSize != null)
-                {
-                    tools.EnableSharedToolbar = false;
-                    var toolSize = tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize");
-                    previousEraseSize = (int)toolSize.Value;
-                    toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true } ? 1 : currentToolSize.Value;
-                }
-                else
-                {
-                    previousEraseSize = null;
-                }
-
-                tools.SetActiveTool<EraserToolViewModel>(true);
+                HandleRightMouseEraseDown(tools);
                 return true;
             }
             case RightClickMode.SecondaryColor when tools.ActiveTool is BrightnessToolViewModel:
@@ -212,6 +198,25 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
     }
 
+    private void HandleRightMouseEraseDown(ToolsViewModel tools)
+    {
+        var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
+        hadSharedToolbar = tools.EnableSharedToolbar;
+        if (currentToolSize != null)
+        {
+            tools.EnableSharedToolbar = false;
+            var toolSize = tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize");
+            previousEraseSize = (int)toolSize.Value;
+            toolSize.Value = tools.ActiveTool is PenToolViewModel { PixelPerfectEnabled: true } ? 1 : currentToolSize.Value;
+        }
+        else
+        {
+            previousEraseSize = null;
+        }
+
+        tools.SetActiveTool<EraserToolViewModel>(true);
+    }
+    
     private void OnPreviewMiddleMouseButton(object sender)
     {
         Owner.ToolsSubViewModel.SetActiveTool<MoveViewportToolViewModel>(true);
@@ -247,33 +252,43 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         
         drawingWithRight = null;
 
+        HandleRightMouseUp(button, tools);
+        
+        hadSwapped = false;
+    }
+
+    private void HandleRightMouseUp(MouseButton button, ToolsViewModel tools)
+    {
         switch (button)
         {
             case MouseButton.Middle:
                 tools.RestorePreviousTool();
                 break;
             case MouseButton.Right when hadSwapped && 
-                 (tools.RightClickMode == RightClickMode.SecondaryColor || 
-                  (tools.ActiveTool is ColorPickerToolViewModel && tools.RightClickMode == RightClickMode.Erase)
-                 ):
+                                        (tools.RightClickMode == RightClickMode.SecondaryColor || 
+                                         tools is { ActiveTool: ColorPickerToolViewModel, RightClickMode: RightClickMode.Erase }
+                                        ):
 
                 Owner.ColorsSubViewModel.SwapColors(null);
                 break;
             case MouseButton.Right when tools.RightClickMode == RightClickMode.Erase:
-                if (startedWithEraser)
-                {
-                    break;
-                }
-
-                tools.EnableSharedToolbar = hadSharedToolbar;
-                if (previousEraseSize != null)
-                {
-                    tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize").Value = previousEraseSize.Value;
-                }
-                tools.RestorePreviousTool();
+                HandleRightMouseEraseUp(tools);
                 break;
         }
+    }
 
-        hadSwapped = false;
+    private void HandleRightMouseEraseUp(ToolsViewModel tools)
+    {
+        if (startedWithEraser)
+        {
+            return;
+        }
+
+        tools.EnableSharedToolbar = hadSharedToolbar;
+        if (previousEraseSize != null)
+        {
+            tools.GetTool<EraserToolViewModel>().Toolbar.Settings.First(x => x.Name == "ToolSize").Value = previousEraseSize.Value;
+        }
+        tools.RestorePreviousTool();
     }
 }
