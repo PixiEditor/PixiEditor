@@ -25,6 +25,24 @@ internal partial class HelloTherePopup : Window
     public static readonly DependencyProperty RecentlyOpenedEmptyProperty =
         DependencyProperty.Register(nameof(RecentlyOpenedEmpty), typeof(bool), typeof(HelloTherePopup));
 
+    public static readonly DependencyProperty IsFetchingNewsProperty = DependencyProperty.Register(
+        nameof(IsFetchingNews), typeof(bool), typeof(HelloTherePopup), new PropertyMetadata(default(bool)));
+
+    public bool IsFetchingNews
+    {
+        get { return (bool)GetValue(IsFetchingNewsProperty); }
+        set { SetValue(IsFetchingNewsProperty, value); }
+    }
+
+    public static readonly DependencyProperty FailedFetchingNewsProperty = DependencyProperty.Register(
+        nameof(FailedFetchingNews), typeof(bool), typeof(HelloTherePopup), new PropertyMetadata(false));
+
+    public bool FailedFetchingNews
+    {
+        get { return (bool)GetValue(FailedFetchingNewsProperty); }
+        set { SetValue(FailedFetchingNewsProperty, value); }
+    }
+
     public WpfObservableRangeCollection<News> News { get; set; } = new WpfObservableRangeCollection<News>();
 
     public static string VersionText =>
@@ -152,16 +170,24 @@ internal partial class HelloTherePopup : Window
 
         try
         {
+            IsFetchingNews = true;
             var news = await NewsProvider.FetchNewsAsync();
             if (news is not null)
             {
+                IsFetchingNews = false;
                 News.Clear();
                 News.AddRange(news);
+            }
+            else
+            {
+                IsFetchingNews = false;
+                FailedFetchingNews = true;
             }
         }
         catch
         {
-            // TODO: Display error message
+            IsFetchingNews = false;
+            FailedFetchingNews = true;
         }
     }
 }

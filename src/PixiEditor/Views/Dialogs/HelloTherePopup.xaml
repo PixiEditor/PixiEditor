@@ -14,6 +14,7 @@
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         xmlns:newsFeed="clr-namespace:PixiEditor.Views.UserControls.NewsFeed"
+        xmlns:gif="http://wpfanimatedgif.codeplex.com"
         mc:Ignorable="d" ShowInTaskbar="False"
         Title="Hello there!" Height="662" Width="832" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
@@ -280,16 +281,24 @@
 
         <ScrollViewer Grid.Row="1" Grid.Column="1">
             <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource MainColor}">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock HorizontalAlignment="Center" Text="News" FontSize="18"/>
-                    <ItemsControl ItemsSource="{Binding Path=News}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <newsFeed:NewsItem Margin="5" News="{Binding Path=.}"/>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
+                <Grid>
+                    <Image gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Visibility="{Binding IsFetchingNews, Converter={converters:BoolToVisibilityConverter}}"
+                           Height="50" gif:ImageBehavior.AnimationSpeedRatio="1.5"/>
+                    <TextBlock ui:Translator.Key="FAILED_FETCH_NEWS" Foreground="White" FontSize="20"
+                               VerticalAlignment="Center" TextAlignment="Center"
+                               Visibility="{Binding Path=FailedFetchingNews, Converter={converters:BoolToVisibilityConverter}}"/>
+                    <StackPanel Orientation="Vertical" Visibility="{Binding IsFetchingNews, Converter={converters:InverseBoolToVisibilityConverter}}">
+                        <TextBlock HorizontalAlignment="Center" ui:Translator.Key="NEWS" FontSize="18"/>
+                        <ItemsControl ItemsSource="{Binding Path=News}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <newsFeed:NewsItem Margin="5" News="{Binding Path=.}"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
             </Border>
         </ScrollViewer>
     </Grid>

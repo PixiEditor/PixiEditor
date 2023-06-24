@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using PixiEditor.Models.Services.NewsFeed;
 
 namespace PixiEditor.Views.UserControls.NewsFeed;
@@ -17,6 +18,11 @@ internal partial class NewsItem : UserControl
     public NewsItem()
     {
         InitializeComponent();
+    }
+
+    private void CoverImageClicked(object sender, MouseButtonEventArgs e)
+    {
+        MiscViewModel.OpenHyperlink(News.Url);
     }
 }
 

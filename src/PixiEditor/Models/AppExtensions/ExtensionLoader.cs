@@ -6,6 +6,8 @@ using Newtonsoft.Json;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Metadata;
+using PixiEditor.Helpers;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 
@@ -38,9 +40,16 @@ internal class ExtensionLoader
 
     public void InitializeExtensions(ExtensionServices pixiEditorApi)
     {
-        foreach (var extension in LoadedExtensions)
+        try
         {
-            extension.Initialize(pixiEditorApi);
+            foreach (var extension in LoadedExtensions)
+            {
+                extension.Initialize(pixiEditorApi);
+            }
+        }
+        catch (Exception ex)
+        {
+            Task.Run(async () => await CrashHelper.SendExceptionInfoToWebhook(ex));
         }
     }
 
@@ -77,6 +86,7 @@ internal class ExtensionLoader
         catch (Exception ex)
         {
             //MessageBox.Show(new LocalizedString("ERROR_LOADING_PACKAGE", packageJsonPath), "ERROR");
+            Task.Run(async () => await CrashHelper.SendExceptionInfoToWebhook(ex));
         }
     }
 
