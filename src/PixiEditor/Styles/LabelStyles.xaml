@@ -19,7 +19,7 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Foreground" Value="White"/>
-                <Setter Property="TextDecorations" Value="Underline"/>
+                <Setter Property="TextDecorations" Value="None"/>
             </Trigger>
             <Trigger Property="IsMouseOver" Value="False">
                 <Setter Property="TextDecorations" Value="None"/>
@@ -33,7 +33,7 @@
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Foreground" Value="White"/>
-                <Setter Property="TextDecorations" Value="Underline"/>
+                <Setter Property="TextDecorations" Value="None"/>
             </Trigger>
             <Trigger Property="IsMouseOver" Value="False">
                 <Setter Property="TextDecorations" Value="None"/>
