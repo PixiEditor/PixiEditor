@@ -203,7 +203,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize")]
-    public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool.Toolbar is BasicToolbar
+    public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool?.Toolbar is BasicToolbar
                                        && Owner.ToolsSubViewModel.ActiveTool is not PenToolViewModel
                                        {
                                            PixelPerfectEnabled: true

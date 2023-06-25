@@ -570,7 +570,7 @@
   "ERROR_NO_CLASS_ENTRY": "Extension class entry is missing on path '{0}'.",
   "ERROR_NO_ENTRY_ASSEMBLY": "Extension entry assembly is missing on path '{0}'.",
   "ERROR_MISSING_ADDITIONAL_CONTENT": "Your current setup doesn't allow loading this extension. Perhaps you don't own it or don't have it installed. You can purchase it here '{0}'.",
-  
+
   "BUY_SUPPORTER_PACK": "Buy Supporter Pack",
 
   "NEWS": "News",
