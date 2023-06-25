@@ -131,4 +131,9 @@ public partial class GuidesManager : Window
             guide.ShowExtended = false;
         }
     }
+
+    private void ListViewItem_DoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        Width = Math.Abs(Width - 250) < 10 ? 630 : 250;
+    }
 }

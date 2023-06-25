@@ -10,7 +10,7 @@
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d"
         ui:Translator.Key="GUIDES_MANAGER_TITLE"
-        Width="800" Height="450"
+        Width="500" Height="450"
         MinWidth="250" MinHeight="450"
         Background="{StaticResource AccentColor}"
         Foreground="White">
@@ -88,6 +88,9 @@
                                 <Setter Property="Foreground" Value="White"/>
                                 <EventSetter Event="MouseEnter" Handler="ListViewItem_MouseEnter"/>
                                 <EventSetter Event="MouseLeave" Handler="ListViewItem_MouseLeave"/>
+                                
+                                <EventSetter Event="MouseDoubleClick" Handler="ListViewItem_DoubleClick"></EventSetter>
+                                
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListViewItem">
