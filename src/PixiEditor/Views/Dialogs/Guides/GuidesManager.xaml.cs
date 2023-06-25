@@ -42,7 +42,7 @@ public partial class GuidesManager : Window
     public void SelectGuide(Index guideIndex)
     {
         var guides = (WpfObservableRangeCollection<Guide>)guideList.ItemsSource;
-        guideList.SelectedIndex = guideIndex.GetOffset(ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument.Guides.Count);
+        guideList.SelectedIndex = guideIndex.GetOffset(guides.Count);
     }
 
     private void GuideSelectionChanged(object sender, SelectionChangedEventArgs e)

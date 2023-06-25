@@ -46,7 +46,7 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
         };
 
         document.Guides.Add(guide);
-        OpenGuideManager(^0);
+        OpenGuideManager(^1);
     }
 
     [Command.Basic("PixiEditor.Guides.AddVerticalGuide", Direction.Vertical, "ADD_VERTICAL_GUIDE", "ADD_VERTICAL_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/VerticalGuide.png")]
@@ -63,7 +63,7 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
         };
 
         document.Guides.Add(guide);
-        OpenGuideManager(^0);
+        OpenGuideManager(^1);
     }
 
     [Command.Basic("PixiEditor.Guides.AddRectangleGuide", "ADD_RECTANGLE_GUIDE", "ADD_RECTANGLE_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/RectangleGuide.png")]
@@ -82,7 +82,7 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
         };
 
         document.Guides.Add(guide);
-        OpenGuideManager(^0);
+        OpenGuideManager(^1);
     }
 
     [Command.Basic("PixiEditor.Guides.AddGridGuide", "ADD_GRID_GUIDE", "ADD_GRID_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/GridGuide.png")]
@@ -100,7 +100,7 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
         };
         
         document.Guides.Add(guide);
-        OpenGuideManager(^0);
+        OpenGuideManager(^1);
     }
 
     [Command.Internal("PixiEditor.Guides.RemoveGuide", CanExecute = "PixiEditor.HasDocument")]
