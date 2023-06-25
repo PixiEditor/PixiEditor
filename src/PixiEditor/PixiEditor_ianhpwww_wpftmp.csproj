@@ -1,0 +1,693 @@
+<Project>
+  <PropertyGroup>
+    <AssemblyName>PixiEditor</AssemblyName>
+    <IntermediateOutputPath>obj\Debug\</IntermediateOutputPath>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <MSBuildProjectExtensionsPath>C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\</MSBuildProjectExtensionsPath>
+    <_TargetAssemblyProjectName>PixiEditor</_TargetAssemblyProjectName>
+  </PropertyGroup>
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <AssemblyName>PixiEditor</AssemblyName>
+    <RootNamespace>PixiEditor</RootNamespace>
+    <RepositoryUrl>https://github.com/PixiEditor/PixiEditor</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>icon.ico</PackageIcon>
+    <ApplicationIcon>..\icon.ico</ApplicationIcon>
+    <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
+    <Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease</Configurations>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
+    <ImplicitUsings>true</ImplicitUsings>
+    <AssemblyVersion>
+    </AssemblyVersion>
+    <LangVersion>11</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE</DefineConstants>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <WarningLevel>0</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x86'">
+    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\x86\Steam\</OutputPath>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Steam|x64' ">
+    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+    <Optimize>True</Optimize>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Steam' ">
+    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'DevRelease' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+    <Optimize>True</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x64' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x86' ">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+    <PlatformTarget>x86</PlatformTarget>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Styles\AvalonDock\Images\**" />
+    <EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
+    <EmbeddedResource Include="OfficialExtensions\supporter-pack.snk" />
+    <None Remove="Styles\AvalonDock\Images\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Images\Add-reference.png" />
+    <None Remove="Images\AnchorDot.png" />
+    <None Remove="Images\Arrow-right.png" />
+    <None Remove="Images\book.png" />
+    <None Remove="Images\Check-square.png" />
+    <None Remove="Images\CheckerTile.png" />
+    <None Remove="Images\ChevronDown.png" />
+    <None Remove="Images\Commands\PixiEditor\Clipboard\Copy.png" />
+    <None Remove="Images\Commands\PixiEditor\Clipboard\Cut.png" />
+    <None Remove="Images\Commands\PixiEditor\Clipboard\Paste.png" />
+    <None Remove="Images\Commands\PixiEditor\Colors\Swap.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\CenterContent.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
+    <None Remove="Images\ChevronsDown.png" />
+    <None Remove="Images\CopyAdd.png" />
+    <None Remove="Images\Database.png" />
+    <None Remove="Images\DiagonalRed.png" />
+    <None Remove="Images\Download.png" />
+    <None Remove="Images\Edit.png" />
+    <None Remove="Images\Eye-off.png" />
+    <None Remove="Images\Eye.png" />
+    <None Remove="Images\FlipVertical.png" />
+    <None Remove="Images\Folder-add.png" />
+    <None Remove="Images\Folder.png" />
+    <None Remove="Images\Globe.png" />
+    <None Remove="Images\Guides\HorizontalGuide.png" />
+    <None Remove="Images\Guides\LineGuide.png" />
+    <None Remove="Images\Guides\RectangleGuide.png" />
+    <None Remove="Images\Guides\VerticalGuide.png" />
+    <None Remove="Images\hard-drive.png" />
+    <None Remove="Images\Layer-add.png" />
+    <None Remove="Images\Lock-alpha.png" />
+    <None Remove="Images\Merge-downwards.png" />
+    <None Remove="Images\MoveImage.png" />
+    <None Remove="Images\MoveViewportImage.png" />
+    <None Remove="Images\penMode.png" />
+    <None Remove="Images\PixiBotLogo.png" />
+    <None Remove="Images\PixiEditorLogo.png" />
+    <None Remove="Images\PixiParserLogo.png" />
+    <None Remove="Images\Placeholder.png" />
+    <None Remove="Images\Processing.gif" />
+    <None Remove="Images\Replace.png" />
+    <None Remove="Images\Search.png" />
+    <None Remove="Images\SelectImage.png" />
+    <None Remove="Images\SocialMedia\DiscordIcon.png" />
+    <None Remove="Images\SocialMedia\DonateIcon.png" />
+    <None Remove="Images\SocialMedia\GitHubIcon.png" />
+    <None Remove="Images\SocialMedia\RedditIcon.png" />
+    <None Remove="Images\SocialMedia\SteamIcon.png" />
+    <None Remove="Images\SocialMedia\WebsiteIcon.png" />
+    <None Remove="Images\SocialMedia\YouTubeIcon.png" />
+    <None Remove="Images\SymmetryHorizontal.png" />
+    <None Remove="Images\Tools\BrightnessImage.png" />
+    <None Remove="Images\Tools\ColorPickerImage.png" />
+    <None Remove="Images\Tools\EllipseImage.png" />
+    <None Remove="Images\Tools\EraserImage.png" />
+    <None Remove="Images\Tools\FloodFillImage.png" />
+    <None Remove="Images\Tools\LineImage.png" />
+    <None Remove="Images\Tools\MagicWandImage.png" />
+    <None Remove="Images\Tools\MoveImage.png" />
+    <None Remove="Images\Tools\MoveViewportImage.png" />
+    <None Remove="Images\Tools\PenImage.png" />
+    <None Remove="Images\Tools\RectangleImage.png" />
+    <None Remove="Images\Tools\RotateViewportImage.png" />
+    <None Remove="Images\Tools\SelectImage.png" />
+    <None Remove="Images\Tools\ZoomImage.png" />
+    <None Remove="Images\Trash.png" />
+    <None Remove="Images\UnknownFile.png" />
+    <None Remove="Images\ZoomImage.png" />
+    <None Include="..\icon.ico">
+      <Pack>True</Pack>
+      <PackagePath>
+      </PackagePath>
+    </None>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>
+      </PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CLSEncoderDecoder" Version="1.0.0" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.72.0" />
+    <PackageReference Include="ByteSize" Version="2.1.1" />
+    <PackageReference Include="DiscordRichPresence" Version="1.1.3.18" />
+    <PackageReference Include="Hardware.Info" Version="11.0.0" />
+    <PackageReference Include="MessagePack" Version="2.5.108" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="OneOf" Version="3.0.243" />
+    <PackageReference Include="PixiEditor.ColorPicker" Version="3.3.1" />
+    <PackageReference Include="PixiEditor.Parser" Version="3.3.0" />
+    <PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+    <PackageReference Include="WpfAnimatedGif" Version="2.0.2" />
+    <PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.435">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Images\Commands\PixiEditor\Window\OpenSettingsWindow.png" />
+    <None Remove="Images\Commands\PixiEditor\Window\OpenStartupWindow.png" />
+    <None Remove="Images\Commands\PixiEditor\Window\OpenNavigationWindow.png" />
+    <None Remove="Images\Commands\PixiEditor\File\New.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\NewDocument.png" />
+    <None Remove="Images\Commands\PixiEditor\Selection\Clear.png" />
+    <None Remove="Images\Commands\PixiEditor\Selection\SelectAll.png" />
+    <None Remove="Images\Commands\PixiEditor\Search\Toggle.png" />
+    <None Remove="Images\Commands\PixiEditor\Links\OpenDocumentation.png" />
+    <None Remove="Images\Commands\PixiEditor\Links\OpenRepository.png" />
+    <None Remove="Images\Commands\PixiEditor\File\Export.png" />
+    <None Remove="Images\Commands\PixiEditor\View\ToggleGrid.png" />
+    <None Remove="Images\Commands\PixiEditor\View\ZoomIn.png" />
+    <None Remove="Images\Commands\PixiEditor\View\ZoomOut.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\ClipCanvas.png" />
+    <None Remove="Fonts\feather.ttf" />
+    <None Remove="Images\Load.png" />
+    <None Remove="Images\Plus-square.png" />
+    <None Remove="Images\Save.png" />
+    <None Remove="Images\Star.png" />
+    <None Remove="Images\Star-filled.png" />
+    <None Remove="Images\Shuffle.png" />
+    <None Remove="Images\Layout.png" />
+    <None Remove="Images\SymmetryVertical.png" />
+    <None Remove="Images\Settings.png" />
+    <None Remove="Images\Tools\LassoImage.png" />
+    <None Remove="Images\TemplateLogos\Aseprite.png" />
+    <None Remove="Images\TemplateLogos\Aseprite-Hover.png" />
+    <None Remove="Images\SocialMedia\flabbet.png" />
+    <None Remove="Images\SocialMedia\Avatars\Equbuxu.png" />
+    <None Remove="Images\SocialMedia\Avatars\CPK.png" />
+    <None Remove="Images\Create-mask.png" />
+    <None Remove="Images\FlipHorizontal.png" />
+    <None Remove="Images\Commands\PixiEditor\Layer\ToggleMask.png" />
+    <None Remove="Images\Commands\PixiEditor\Layer\ToggleVisible.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\Rotate90Deg.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\Rotate180Deg.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\Rotate270Deg.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\Rotate90DegLayers.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png" />
+    <None Remove="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
+    <None Remove="Images\Crop.png" />
+    <None Remove="Images\ReferenceLayerAbove.png" />
+    <None Remove="Images\ReferenceLayerBelow.png" />
+    <None Remove="Images\Commands\PixiEditor\Selection\SubtractFromMask.png" />
+    <None Remove="Images\Commands\PixiEditor\Selection\IntersectSelectionMask.png" />
+    <None Remove="Images\Commands\PixiEditor\Selection\AddToMask.png" />
+    <None Remove="Images\Commands\PixiEditor\Selection\NewToMask.png" />
+    <None Remove="Images\LanguageFlags\en.png" />
+    <None Remove="Images\LanguageFlags\pl.png" />
+    <None Remove="Images\LanguageFlags\ar.png" />
+    <None Remove="Images\LanguageFlags\cz.png" />
+    <None Remove="Images\LanguageFlags\de.png" />
+    <None Remove="Images\LanguageFlags\es.png" />
+    <None Remove="Images\LanguageFlags\ru.png" />
+    <None Remove="Images\LanguageFlags\cs.png" />
+    <None Remove="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
+    <None Remove="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
+    <None Remove="Images\Commands\PixiEditor\File\OpenFileFromClipboard.png" />
+    <None Remove="Images\Commands\PixiEditor\Window\OpenShortcutWindow.png" />
+    <None Remove="Images\Commands\PixiEditor\Window\OpenAboutWindow.png" />
+    <None Remove="Images\Commands\PixiEditor\Layer\DuplicateSelectedLayer.png" />
+    <None Remove="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
+    <None Remove="Images\LanguageFlags\zh.png" />
+    <None Remove="Images\Commands\PixiEditor\Selection\CropToSelection.png" />
+    <None Remove="Images\LanguageFlags\hu.png" />
+    <None Remove="Images\LanguageFlags\pt-br.png" />
+    <None Remove="OfficialExtensions\supporter-pack.snk" />
+    <None Remove="Images\News\YouTube.png" />
+    <None Remove="Images\News\Misc.png" />
+    <None Remove="Images\News\NewVersion.png" />
+    <None Remove="Images\News\OfficialAnnouncement.png" />
+    <None Remove="Images\Chevron-right.png" />
+    <None Remove="Images\Guides\GridGuide.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>
+      </PackagePath>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
+    <ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
+    <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
+    <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
+    <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
+    <ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
+    <ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'DevRelease'">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Steam'">
+    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'MSIX Debug'">
+    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'MSIX'">
+    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Data\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\ShortcutActionMaps\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Localization\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Localization\Languages\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Models\Colors" />
+  </ItemGroup>
+  <ItemGroup>
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\Accessibility.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\dirkster.avalondock\4.72.0\lib\net5.0-windows7.0\AvalonDock.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\bytesize\2.1.1\lib\net5.0\ByteSize.dll" />
+    <ReferencePath Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\ChunkyImageLib\bin\Debug\net7.0\ChunkyImageLib.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\clsencoderdecoder\1.0.0\lib\netstandard2.0\CLSEncoderDecoder.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\pixieditor.colorpicker\3.3.1\lib\net6.0-windows7.0\ColorPicker.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\discordrichpresence\1.1.3.18\lib\netstandard2.0\DiscordRPC.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\hardware.info\11.0.0\lib\netstandard2.0\Hardware.Info.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\messagepack.annotations\2.5.108\lib\netstandard2.0\MessagePack.Annotations.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\messagepack\2.5.108\lib\net6.0\MessagePack.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\Microsoft.CSharp.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\microsoft.extensions.dependencyinjection.abstractions\7.0.0\lib\net7.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\microsoft.extensions.dependencyinjection\7.0.0\lib\net7.0\Microsoft.Extensions.DependencyInjection.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\Microsoft.VisualBasic.Core.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\Microsoft.VisualBasic.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\Microsoft.Win32.Primitives.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\Microsoft.Win32.Registry.AccessControl.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\Microsoft.Win32.Registry.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\Microsoft.Win32.SystemEvents.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\microsoft.xaml.behaviors.wpf\1.1.31\lib\net5.0-windows7.0\Microsoft.Xaml.Behaviors.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\mscorlib.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\netstandard.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\newtonsoft.json\13.0.3\lib\net6.0\Newtonsoft.Json.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\oneof\3.0.243\lib\netstandard2.0\OneOf.dll" />
+    <ReferencePath Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor.ChangeableDocument\bin\Debug\net7.0\PixiEditor.ChangeableDocument.dll" />
+    <ReferencePath Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor.DrawingApi.Core\bin\Debug\netstandard2.1\PixiEditor.DrawingApi.Core.dll" />
+    <ReferencePath Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor.DrawingApi.Skia\bin\Debug\netstandard2.1\PixiEditor.DrawingApi.Skia.dll" />
+    <ReferencePath Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor.Extensions\bin\Debug\net7.0-windows\PixiEditor.Extensions.dll" />
+    <ReferencePath Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor.Platform\bin\Debug\net7.0\PixiEditor.Platform.dll" />
+    <ReferencePath Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor.Platform.Standalone\bin\Debug\net7.0\PixiEditor.Platform.Standalone.dll" />
+    <ReferencePath Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor.UpdateModule\bin\Debug\net7.0\PixiEditor.UpdateModule.dll" />
+    <ReferencePath Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor.Zoombox\bin\Debug\net7.0-windows\PixiEditor.Zoombox.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\pixieditor.parser\3.3.0\lib\net7.0\PixiParser.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\pixieditor.parser.skia\3.0.0\lib\net6.0\PixiParser.Skia.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\PresentationCore.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\PresentationFramework.Aero.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\PresentationFramework.Aero2.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\PresentationFramework.AeroLite.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\PresentationFramework.Classic.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\PresentationFramework.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\PresentationFramework.Luna.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\PresentationFramework.Royale.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\PresentationUI.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\ReachFramework.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\skiasharp\2.80.3\lib\netstandard2.0\SkiaSharp.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.AppContext.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Buffers.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.CodeDom.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Collections.Concurrent.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Collections.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Collections.Immutable.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Collections.NonGeneric.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Collections.Specialized.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ComponentModel.Annotations.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ComponentModel.DataAnnotations.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ComponentModel.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ComponentModel.EventBasedAsync.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ComponentModel.Primitives.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ComponentModel.TypeConverter.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Configuration.ConfigurationManager.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Configuration.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Console.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Core.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Data.Common.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Data.DataSetExtensions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Data.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.Contracts.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.Debug.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.DiagnosticSource.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.EventLog.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.FileVersionInfo.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.PerformanceCounter.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.Process.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.StackTrace.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.TextWriterTraceListener.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.Tools.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.TraceSource.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Diagnostics.Tracing.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.DirectoryServices.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\system.drawing.common\7.0.0\lib\net7.0\System.Drawing.Common.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Drawing.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Drawing.Primitives.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Dynamic.Runtime.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Formats.Asn1.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Formats.Tar.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Globalization.Calendars.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Globalization.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Globalization.Extensions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.Compression.Brotli.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.Compression.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.Compression.FileSystem.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.Compression.ZipFile.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.FileSystem.AccessControl.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.FileSystem.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.FileSystem.DriveInfo.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.FileSystem.Primitives.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.FileSystem.Watcher.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.IsolatedStorage.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.MemoryMappedFiles.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.IO.Packaging.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.Pipes.AccessControl.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.Pipes.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.IO.UnmanagedMemoryStream.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Linq.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Linq.Expressions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Linq.Parallel.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Linq.Queryable.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\system.management\7.0.0\lib\net7.0\System.Management.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Memory.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.Http.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.Http.Json.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.HttpListener.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.Mail.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.NameResolution.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.NetworkInformation.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.Ping.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.Primitives.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.Quic.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.Requests.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.Security.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.ServicePoint.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.Sockets.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.WebClient.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.WebHeaderCollection.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.WebProxy.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.WebSockets.Client.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Net.WebSockets.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Numerics.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Numerics.Vectors.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ObjectModel.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Printing.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Reflection.DispatchProxy.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Reflection.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Reflection.Emit.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Reflection.Emit.ILGeneration.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Reflection.Emit.Lightweight.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Reflection.Extensions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Reflection.Metadata.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Reflection.Primitives.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Reflection.TypeExtensions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Resources.Extensions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Resources.Reader.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Resources.ResourceManager.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Resources.Writer.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.CompilerServices.Unsafe.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.CompilerServices.VisualC.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Extensions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Handles.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.InteropServices.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.InteropServices.JavaScript.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.InteropServices.RuntimeInformation.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Intrinsics.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Loader.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Numerics.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Serialization.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Serialization.Formatters.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Serialization.Json.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Serialization.Primitives.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Runtime.Serialization.Xml.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.AccessControl.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Claims.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.Algorithms.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.Cng.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.Csp.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.Encoding.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.OpenSsl.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.Pkcs.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.Primitives.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.ProtectedData.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.X509Certificates.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Security.Cryptography.Xml.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Security.Permissions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Principal.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.Principal.Windows.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Security.SecureString.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ServiceModel.Web.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ServiceProcess.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Text.Encoding.CodePages.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Text.Encoding.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Text.Encoding.Extensions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Text.Encodings.Web.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Text.Json.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Text.RegularExpressions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Threading.AccessControl.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.Channels.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.Overlapped.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.Tasks.Dataflow.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.Tasks.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.Tasks.Extensions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.Tasks.Parallel.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.Thread.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.ThreadPool.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Threading.Timer.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Transactions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Transactions.Local.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.ValueTuple.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Web.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Web.HttpUtility.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Windows.Controls.Ribbon.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Windows.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Windows.Extensions.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Windows.Input.Manipulations.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Windows.Presentation.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\System.Xaml.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Xml.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Xml.Linq.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Xml.ReaderWriter.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Xml.Serialization.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Xml.XDocument.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Xml.XmlDocument.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Xml.XmlSerializer.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Xml.XPath.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\ref\net7.0\System.Xml.XPath.XDocument.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\UIAutomationClient.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\UIAutomationClientSideProviders.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\UIAutomationProvider.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\UIAutomationTypes.dll" />
+    <ReferencePath Include="C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\7.0.5\ref\net7.0\WindowsBase.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\wpfanimatedgif\2.0.2\lib\netcoreapp3.0\WpfAnimatedGif.dll" />
+    <ReferencePath Include="C:\Users\phili\.nuget\packages\writeablebitmapex\1.6.8\lib\netcoreapp3.0\WriteableBitmapEx.Wpf.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\AboutPopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\BasicPopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\ConfirmationPopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\CrashReportDialog.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\DebugDialogs\CommandDebugPopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\DebugDialogs\Localization\LocalizationDebugWindow.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\DialogTitleBar.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\ExportFilePopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\Guides\GuidesManager.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\HelloTherePopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\ImportShortcutTemplatePopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\NewFilePopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\NoticePopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\OptionsPopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\PalettesBrowser.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\ResizeCanvasPopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\ResizeDocumentPopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\SendCrashReportWindow.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\SettingGroups\ShortcutsBinder.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\SettingsWindow.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\Dialogs\ShortcutPopup.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\MainWindow.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\TogglableFlyout.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\AnchorPointPicker.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Chip.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\CommandSearch\CommandSearchControl.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\DiscordRPPreview.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\EditableTextBlock.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\FixedViewport.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Guides\DirectionalGuideSettings.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Guides\GridGuideSettings.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Guides\LineGuideSettings.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Guides\RectangleGuideSettings.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\KeyCombinationBox.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Layers\FolderControl.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Layers\LayerControl.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Layers\LayersManager.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Layers\ReferenceLayer.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\NewsFeed\NewsItem.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\NumberInput.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Palettes\ColorReplacer.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Palettes\CompactPaletteViewer.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Palettes\PaletteColorAdder.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Palettes\PaletteColorControl.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Palettes\PaletteItem.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Palettes\PaletteViewer.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\PrependTextBlock.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\PreviewWindow.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\ReferenceLayerView.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\ShortcutsTemplateCard.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\SizeInput.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\SizePicker.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\SmallColorPicker.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\SwatchesView.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\ToolSettingColorPicker.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\Views\UserControls\Viewport.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\App.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\PixiEditor_Content.g.cs" />
+    <Compile Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditor\obj\Debug\net7.0-windows\GeneratedInternalTypeHelper.g.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="C:\Program Files\dotnet\sdk\7.0.302\Sdks\Microsoft.NET.Sdk\targets\..\analyzers\Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll" />
+    <Analyzer Include="C:\Program Files\dotnet\sdk\7.0.302\Sdks\Microsoft.NET.Sdk\targets\..\analyzers\Microsoft.CodeAnalysis.NetAnalyzers.dll" />
+    <Analyzer Include="C:\Users\phili\.nuget\packages\stylecop.analyzers.unstable\1.2.0.435\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
+    <Analyzer Include="C:\Users\phili\.nuget\packages\stylecop.analyzers.unstable\1.2.0.435\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+    <Analyzer Include="C:\Users\phili\source\csharp\Pixi\PixiEditor\src\PixiEditorGen\bin\Debug\netstandard2.0\PixiEditorGen.dll" />
+    <Analyzer Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\analyzers/dotnet/cs/Microsoft.Interop.JavaScript.JSImportGenerator.dll" />
+    <Analyzer Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\analyzers/dotnet/cs/Microsoft.Interop.LibraryImportGenerator.dll" />
+    <Analyzer Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\analyzers/dotnet/cs/Microsoft.Interop.SourceGeneration.dll" />
+    <Analyzer Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\analyzers/dotnet/cs/System.Text.Json.SourceGeneration.dll" />
+    <Analyzer Include="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\7.0.5\analyzers/dotnet/cs/System.Text.RegularExpressions.Generator.dll" />
+  </ItemGroup>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

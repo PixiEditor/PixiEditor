@@ -86,7 +86,6 @@ namespace PixiEditor.Models.DataHolders.Guides
 
         public LineGuide(DocumentViewModel document) : base(document)
         {
-            Color = Colors.CadetBlue;
             SettingsControl = new LineGuideSettings(this);
         }
 

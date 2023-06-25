@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.DataHolders.Guides;
 using PixiEditor.Views.Dialogs.Guides;
@@ -33,14 +34,15 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Guides.AddLineGuide", "ADD_LINE_GUIDE", "ADD_LINE_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/LineGuide.png")]
     public void AddLineGuide()
     {
-        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument!;
 
         var position = document.SizeBindable / 2;
         var guide = new LineGuide(document)
         {
             X = position.X,
             Y = position.Y,
-            Rotation = 45
+            Rotation = 45,
+            Color = Colors.CadetBlue
         };
 
         document.Guides.Add(guide);
@@ -51,12 +53,13 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Guides.AddHorizontalGuide", Direction.Horizontal, "ADD_HORIZONTAL_GUIDE", "ADD_HORIZONTAL_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/HorizontalGuide.png")]
     public void AddDirectionalGuide(Direction direction)
     {
-        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument!;
 
         var documentSize = direction == Direction.Vertical ? document.SizeBindable.X : document.SizeBindable.Y;
         var guide = new DirectionalGuide(document, direction)
         {
-            Offset = documentSize / 2
+            Offset = documentSize / 2,
+            Color = Colors.CadetBlue,
         };
 
         document.Guides.Add(guide);
@@ -66,7 +69,7 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Guides.AddRectangleGuide", "ADD_RECTANGLE_GUIDE", "ADD_RECTANGLE_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/RectangleGuide.png")]
     public void AddRectangleGuide()
     {
-        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument!;
 
         var margin = document.SizeBindable * 0.25;
         var guide = new RectangleGuide(document)
@@ -74,9 +77,28 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
             Left = margin.X,
             Top = margin.Y,
             Height = document.SizeBindable.X - margin.X * 2,
-            Width = document.SizeBindable.Y - margin.Y * 2
+            Width = document.SizeBindable.Y - margin.Y * 2,
+            Color = Colors.CadetBlue,
         };
 
+        document.Guides.Add(guide);
+        OpenGuideManager(^0);
+    }
+
+    [Command.Basic("PixiEditor.Guides.AddGridGuide", "ADD_GRID_GUIDE", "ADD_GRID_GUIDE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "Guides/GridGuide.png")]
+    public void AddGridGuide()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument!;
+
+        var size = document.SizeBindable * 0.25;
+        var guide = new GridGuide(document) 
+        {
+            VerticalOffset = size.X,
+            HorizontalOffset = size.Y,
+            VerticalColor = Colors.CadetBlue,
+            HorizontalColor = Colors.CadetBlue
+        };
+        
         document.Guides.Add(guide);
         OpenGuideManager(^0);
     }

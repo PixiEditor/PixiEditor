@@ -8,7 +8,7 @@ namespace PixiEditor.Models.IO.PaletteParsers;
 
 internal class ClsFileParser : PaletteFileParser
 {
-    public override string FileName { get; } = "Clip Studio Paint Color Set";
+    public override string FileName { get; } = "Clip Studio Paint HorizontalColor Set";
 
     public override string[] SupportedFileExtensions { get; } = { ".cls" };
 

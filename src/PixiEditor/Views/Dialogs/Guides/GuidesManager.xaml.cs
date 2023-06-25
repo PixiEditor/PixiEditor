@@ -139,6 +139,6 @@ public partial class GuidesManager : Window
 
     private void ListViewItem_DoubleClick(object sender, MouseButtonEventArgs e)
     {
-        Width = Math.Abs(Width - 250) < 10 ? 630 : 250;
+        Width = Math.Abs(Width - 250) < 10 ? 630 : 280;
     }
 }

@@ -11,14 +11,14 @@ internal static class ResourceKeys
     #region Accent Keys
 
     /// <summary>
-    /// Accent Color Key - This Color key is used to accent elements in the UI
-    /// (e.g.: Color of Activated Normal Window Frame, ResizeGrip, Focus or MouseOver input elements)
+    /// Accent HorizontalColor Key - This HorizontalColor key is used to accent elements in the UI
+    /// (e.g.: HorizontalColor of Activated Normal Window Frame, ResizeGrip, Focus or MouseOver input elements)
     /// </summary>
     public static readonly ComponentResourceKey ControlAccentColorKey = new ComponentResourceKey(typeof(ResourceKeys), "ControlAccentColorKey");
 
     /// <summary>
     /// Accent Brush Key - This Brush key is used to accent elements in the UI
-    /// (e.g.: Color of Activated Normal Window Frame, ResizeGrip, Focus or MouseOver input elements)
+    /// (e.g.: HorizontalColor of Activated Normal Window Frame, ResizeGrip, Focus or MouseOver input elements)
     /// </summary>
     public static readonly ComponentResourceKey ControlAccentBrushKey = new ComponentResourceKey(typeof(ResourceKeys), "ControlAccentBrushKey");
     #endregion Accent Keys

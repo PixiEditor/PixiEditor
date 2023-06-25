@@ -89,7 +89,6 @@ internal class RectangleGuide : Guide
 
     public RectangleGuide(DocumentViewModel document) : base(document)
     {
-        Color = Colors.CadetBlue;
         SettingsControl = new RectangleGuideSettings(this);
     }
 

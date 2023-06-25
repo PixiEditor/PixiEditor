@@ -62,7 +62,6 @@ internal class DirectionalGuide : Guide
 
     public DirectionalGuide(DocumentViewModel document, Direction direction) : base(document)
     {
-        Color = Colors.CadetBlue;
         this.direction = direction;
         SettingsControl = new DirectionalGuideSettings(this);
     }

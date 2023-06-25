@@ -10,8 +10,8 @@
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d"
         ui:Translator.Key="GUIDES_MANAGER_TITLE"
-        Width="500" Height="450"
-        MinWidth="250" MinHeight="450"
+        Width="630" Height="450"
+        MinWidth="280" MinHeight="450"
         Background="{StaticResource AccentColor}"
         Foreground="White">
 
@@ -63,7 +63,7 @@
         <dialogs:DialogTitleBar TitleKey="GUIDES_MANAGER_TITLE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="280"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
@@ -175,6 +175,11 @@
                                     Command="{cmds:Command PixiEditor.Guides.AddRectangleGuide}"
                                     ui:Translator.TooltipKey="RECTANGLE_GUIDE">
                                 <Image Source="/Images/Guides/RectangleGuide.png"/>
+                            </Button>
+                            <Button DockPanel.Dock="Left"
+                                    Command="{cmds:Command PixiEditor.Guides.AddGridGuide}"
+                                    ui:Translator.TooltipKey="GRID_GUIDE">
+                                <Image Source="/Images/Guides/GridGuide.png"/>
                             </Button>
                             
                             <Button DockPanel.Dock="Right" Tag="0,0,4.5,0"
