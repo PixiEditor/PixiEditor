@@ -1,10 +1,10 @@
-﻿using System.Windows;
-using System.Windows.Data;
+﻿using Avalonia;
+using Avalonia.Data;
 
 namespace PixiEditor.Views;
 
 public interface ICustomTranslatorElement
 {
-    public void SetTranslationBinding(DependencyProperty dependencyProperty, Binding binding);
-    public DependencyProperty GetDependencyProperty();
+    public void SetTranslationBinding(AvaloniaProperty dependencyProperty, IObservable<string> valueObservable);
+    public AvaloniaProperty GetDependencyProperty();
 }

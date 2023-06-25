@@ -1,6 +1,4 @@
-﻿using System.Windows.Controls;
-
-namespace PixiEditor.Extensions.Windowing;
+﻿namespace PixiEditor.Extensions.Windowing;
 
 public interface IWindowProvider
 {

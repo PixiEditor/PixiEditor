@@ -17,11 +17,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Avalonia" Version="11.0.0-preview7" />
-      <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview7" />
+      <PackageReference Include="Avalonia" Version="11.0.0-rc1.1" />
+      <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-rc1.1" />
+      <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.0-rc1.1" />
     </ItemGroup>
 
     <ItemGroup>
       <UpToDateCheckInput Remove="Animations\Processing.axaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="UIBehaviors\" />
     </ItemGroup>
 </Project>

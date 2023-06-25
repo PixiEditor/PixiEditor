@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:PixiEditor.Avalonia.ViewModels"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Avalonia.Views.MainView"
              x:DataType="vm:MainViewModel">
@@ -12,5 +13,17 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-  <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <StackPanel Margin="10" HorizontalAlignment="Left">
+
+        <TextBlock Text="Text"/>
+        <TextBlock Text="h1" Classes="h1"/>
+        <TextBlock Text="h2" Classes="h2"/>
+        <TextBlock Text="h3" Classes="h3"/>
+        <TextBlock Text="h4" Classes="h4"/>
+
+        <TextBlock ui:Translator.Key="LANGUAGE" ui:Translator.TooltipKey="LANGUAGE"/>
+
+        <ProgressBar Width="100" Value="50"/>
+    </StackPanel>
+
 </UserControl>

@@ -3,12 +3,13 @@
         <TargetFramework>net7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
-        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     </PropertyGroup>
 
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
+      <AvaloniaResource Include="Data\**" />
+      <AvaloniaResource Include="Data\Languages\**" />
     </ItemGroup>
 
     <ItemGroup>
@@ -18,6 +19,11 @@
         <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="ByteSize" Version="2.1.1" />
+        <PackageReference Include="Hardware.Info" Version="11.0.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="PixiEditor.Parser" Version="3.3.0" />
+        <PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,6 +32,7 @@
       <ProjectReference Include="..\..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
       <ProjectReference Include="..\..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj" />
       <ProjectReference Include="..\..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
       <ProjectReference Include="..\..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
       <ProjectReference Include="..\..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
       <ProjectReference Include="..\..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />

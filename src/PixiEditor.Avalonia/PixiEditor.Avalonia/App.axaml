@@ -7,5 +7,14 @@
 
     <Application.Styles>
         <themes:PixiEditorTheme />
+        <StyleInclude Source="avares://PixiEditor.UI.Common/Styles/PixiEditor.Controls.axaml"/>
     </Application.Styles>
+
+             <Application.Resources>
+                 <ResourceDictionary>
+                     <ResourceDictionary.MergedDictionaries>
+                         <ResourceInclude Source="avares://PixiEditor.UI.Common/Styles/PixiEditor.axaml"/>
+                     </ResourceDictionary.MergedDictionaries>
+                 </ResourceDictionary>
+             </Application.Resources>
 </Application>
