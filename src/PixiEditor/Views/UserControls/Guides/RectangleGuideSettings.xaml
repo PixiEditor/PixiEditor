@@ -53,10 +53,10 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="position"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock ui:Translator.Key="LEFT" Margin="0,0,10,0" TextAlignment="Right"/>
+            <TextBlock ui:Translator.Key="X" Margin="0,0,10,0" TextAlignment="Right"/>
             <uc:NumberInput Margin="0,0,10,0" Grid.Column="1" Value="{Binding Left, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
 
-            <TextBlock Grid.Column="2" ui:Translator.Key="TOP" Margin="0,0,10,0"/>
+            <TextBlock Grid.Column="2" ui:Translator.Key="Y" Margin="0,0,10,0"/>
             <uc:NumberInput Grid.Column="3" Value="{Binding Top, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
         </Grid>
 
