@@ -4,9 +4,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 using PixiEditor.Extensions.Helpers;
+using PixiEditor.Helpers.Converters;
 
 namespace PixiEditor.Models.Services.NewsFeed;
 
+[JsonConverter(typeof(DefaultUnknownEnumConverter), (int)Misc)]
 internal enum NewsType
 {
     [Description("NewVersion.png")]
