@@ -59,6 +59,11 @@ public partial class GuidesManager : Window
             var newGuide = (Guide)e.AddedItems[0];
             newGuide.IsEditing = true;
         }
+
+        if (guideList.SelectedIndex == -1)
+        {
+            Width = 250;
+        }
     }
 
     private void Border_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
