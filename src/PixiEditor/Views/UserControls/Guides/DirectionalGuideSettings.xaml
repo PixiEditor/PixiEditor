@@ -28,9 +28,7 @@
                      Style="{StaticResource PlaceholderTextBox}" Tag="{Binding TypeNameKey}" Grid.Column="1">
                 <i:Interaction.Behaviors>
                     <behaviors:GlobalShortcutFocusBehavior/>
-                    <behaviors:TextBoxFocusBehavior 
-                        SelectOnMouseClick="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}" 
-                        ConfirmOnEnter="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
+                    <behaviors:TextBoxFocusBehavior
                         DeselectOnFocusLoss="True"/>
                 </i:Interaction.Behaviors>
             </TextBox>

@@ -25,6 +25,35 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
 
+    <Window.Resources>
+        <Style TargetType="Button" x:Key="NakedButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Padding="{TemplateBinding Padding}"
+                                CornerRadius="{TemplateBinding Tag}">
+
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#15FFFFFF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
@@ -101,7 +130,15 @@
 
                                     <Image Source="{Binding IconPath}"/>
                                     <TextBlock Grid.Column="1" ui:Translator.LocalizedString="{Binding DisplayName, Mode=OneWay}" Margin="5,0,0,0"/>
-                                    <StackPanel Grid.Column="2"></StackPanel>
+                                    <Button Grid.Column="2"
+                                            Margin="2, -4"
+                                            Width="25"
+                                            Command="{cmds:Command PixiEditor.Guides.RemoveGuide, UseProvided=True}"
+                                            CommandParameter="{Binding}"
+                                            ui:Translator.TooltipKey="REMOVE_GUIDE"
+                                            Style="{StaticResource NakedButton}">
+                                        <TextBlock FontFamily="{StaticResource Feather}"></TextBlock>
+                                    </Button>
                                 </Grid>
                             </DataTemplate>
                         </ListView.ItemTemplate>
@@ -110,33 +147,9 @@
                     <Border Grid.Row="1" BorderThickness="0,1,0,0" BorderBrush="{StaticResource MainColor}">
                         <DockPanel>
                             <DockPanel.Resources>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                    <Setter Property="Foreground" Value="White"/>
+                                <Style TargetType="Button" BasedOn="{StaticResource NakedButton}">
                                     <Setter Property="Width" Value="30"/>
                                     <Setter Property="Padding" Value="5"/>
-                                    <Setter Property="BorderThickness" Value="0"/>
-
-                                    <Setter Property="Template">
-                                        <Setter.Value>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border Background="{TemplateBinding Background}"
-                                                        BorderBrush="{TemplateBinding BorderBrush}"
-                                                        BorderThickness="{TemplateBinding BorderThickness}"
-                                                        Padding="{TemplateBinding Padding}"
-                                                        CornerRadius="{TemplateBinding Tag}">
-
-                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                </Border>
-                                            </ControlTemplate>
-                                        </Setter.Value>
-                                    </Setter>
-
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#15FFFFFF"/>
-                                        </Trigger>
-                                    </Style.Triggers>
                                 </Style>
                             </DockPanel.Resources>
 
@@ -161,7 +174,7 @@
                                 <Image Source="/Images/Guides/RectangleGuide.png"/>
                             </Button>
                             
-                            <Button DockPanel.Dock="Right"  Tag="0,0,4.5,0"
+                            <Button DockPanel.Dock="Right" Tag="0,0,4.5,0"
                                     ui:Translator.TooltipKey="SAVE_GUIDES">
                                 <Image Source="/Images/Guides/Book.png"/>
                             </Button>

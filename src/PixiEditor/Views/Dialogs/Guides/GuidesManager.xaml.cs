@@ -126,8 +126,9 @@ public partial class GuidesManager : Window
     private void ListViewItem_MouseLeave(object sender, MouseEventArgs e)
     {
         var listItem = (ListViewItem)sender;
-        var guide = (Guide)listItem.DataContext;
-
-        guide.ShowExtended = false;
+        if (listItem.DataContext is Guide guide)
+        {
+            guide.ShowExtended = false;
+        }
     }
 }

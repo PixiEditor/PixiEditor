@@ -73,11 +73,18 @@ internal class GuidesViewModel : SubViewModel<ViewModelMain>
         {
             Left = margin.X,
             Top = margin.Y,
-            Height = margin.X,
-            Width = margin.Y
+            Height = document.SizeBindable.X - margin.X * 2,
+            Width = document.SizeBindable.Y - margin.Y * 2
         };
 
         document.Guides.Add(guide);
         OpenGuideManager(^0);
+    }
+
+    [Command.Internal("PixiEditor.Guides.RemoveGuide", CanExecute = "PixiEditor.HasDocument")]
+    public void RemoveGuide(Guide guide)
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        document?.Guides.Remove(guide);
     }
 }
