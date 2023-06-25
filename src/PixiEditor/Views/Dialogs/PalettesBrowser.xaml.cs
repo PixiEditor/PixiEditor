@@ -172,10 +172,16 @@ internal partial class PalettesBrowser : Window, IPopupWindow
 
     private LocalPalettesFetcher localPalettesFetcher;
 
+    private ILocalizationProvider localizationProvider;
+
     private double _lastScrolledOffset = -1;
 
     public PalettesBrowser(PaletteProvider provider)
     {
+        localizationProvider = ViewModelMain.Current.LocalizationProvider;
+        localizationProvider.OnLanguageChanged += LocalizationProviderOnOnLanguageChanged;
+        MinWidth = DetermineWidth();
+        
         PaletteProvider = provider;
         InitializeComponent();
         Title = new LocalizedString("PALETTE_BROWSER");
@@ -197,6 +203,20 @@ internal partial class PalettesBrowser : Window, IPopupWindow
 
         IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
     }
+
+    private void LocalizationProviderOnOnLanguageChanged(Language obj)
+    {
+        MinWidth = DetermineWidth();
+    }
+
+    private double DetermineWidth()
+    {
+        return localizationProvider.CurrentLanguage.LanguageData.Code switch
+        {
+            "ru" or "uk" => 900,
+            _ => 850
+        };
+    } 
 
     private bool CanAddFromPalette(object param)
     {
