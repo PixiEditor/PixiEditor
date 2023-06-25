@@ -11,10 +11,11 @@
         xmlns:base="clr-namespace:PixiEditor.Views"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d" 
         x:Name="window"
         ShowInTaskbar="False" WindowStartupLocation="CenterScreen"
-        local:Translator.Key="RESIZE_CANVAS"
+        ui:Translator.Key="RESIZE_CANVAS"
         Height="420" Width="320" MinHeight="420" MinWidth="320" 
         WindowStyle="None"
         FlowDirection="{helpers:Localization FlowDirection}">
@@ -38,7 +39,7 @@
             TitleKey="RESIZE_CANVAS" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
 
         <Button DockPanel.Dock="Bottom" Padding="5 0" HorizontalAlignment="Center" Margin="15"
-                Style="{StaticResource DarkRoundButton}" local:Translator.Key="RESIZE" Click="Button_Click" IsDefault="True" />
+                Style="{StaticResource DarkRoundButton}" ui:Translator.Key="RESIZE" Click="Button_Click" IsDefault="True" />
 
         <Border HorizontalAlignment="Center" Margin="0,30,0,0" Background="{StaticResource MainColor}"
                  VerticalAlignment="Top" Grid.Row="1" Width="250" Height="290" CornerRadius="10">
@@ -56,7 +57,7 @@
                                   />
                 <Separator Margin="10,5,10,0" Background="{StaticResource AccentColor}" Height="1" />
                 <DockPanel>
-                    <Label base:Translator.Key="ANCHOR_POINT" Foreground="White" Margin="25,5,0,0" HorizontalAlignment="Left"
+                    <Label ui:Translator.Key="ANCHOR_POINT" Foreground="White" Margin="25,5,0,0" HorizontalAlignment="Left"
                            FontSize="12" />
                     <userControls:AnchorPointPicker AnchorPoint="{Binding Path=SelectedAnchorPoint, Mode=TwoWay, ElementName=window}"
                                              HorizontalAlignment="Right"

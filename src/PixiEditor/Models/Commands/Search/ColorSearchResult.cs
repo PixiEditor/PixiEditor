@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.Models.Commands.Search;
 
@@ -44,7 +45,8 @@ internal class ColorSearchResult : SearchResult
     public static ColorSearchResult PastePalette(DrawingApi.Core.ColorsImpl.Color color, string searchTerm = null)
     {
         //var result = new ColorSearchResult(color, x => ViewModelMain.Current.BitmapManager.ActiveDocument.Palette.Add(x))
-        var result = new ColorSearchResult(color, x => ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument!.Palette.Add(x))
+        var result = new ColorSearchResult(color, x =>
+            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument!.Palette.Add(new PaletteColor(x.R, x.G, x.B)))
         {
             SearchTerm = searchTerm,
             isPalettePaste = true

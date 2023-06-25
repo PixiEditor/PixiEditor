@@ -2,9 +2,10 @@
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
-using PixiEditor.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
@@ -12,7 +13,8 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Models.Localization;
+using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 
@@ -74,6 +76,10 @@ internal class ViewModelMain : ViewModelBase
 
     public RegistryViewModel RegistrySubViewModel { get; set; }
 
+    public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
+
+    public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
+
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
@@ -132,7 +138,7 @@ internal class ViewModelMain : ViewModelBase
         ViewportSubViewModel = services.GetService<ViewOptionsViewModel>();
         GuidesSubViewModel = services.GetService<GuidesViewModel>();
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
-        ColorsSubViewModel?.SetupPaletteParsers(services);
+        ColorsSubViewModel?.SetupPaletteProviders(services);
 
         ToolsSubViewModel?.SetupTools(services);
 
@@ -143,6 +149,8 @@ internal class ViewModelMain : ViewModelBase
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
+        AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
+
         MiscSubViewModel = services.GetService<MiscViewModel>();
 
         CommandController = services.GetService<CommandController>();
@@ -152,6 +160,8 @@ internal class ViewModelMain : ViewModelBase
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
+
+        ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
     }

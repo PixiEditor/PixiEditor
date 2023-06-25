@@ -1,9 +1,10 @@
 ﻿using System.Diagnostics;
 using System.Windows.Input;
 using System.Windows.Media;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Models.Commands.Commands;
 

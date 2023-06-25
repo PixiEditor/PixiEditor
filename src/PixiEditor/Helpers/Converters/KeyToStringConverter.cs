@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.Windows.Input;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Helpers.Converters;
 

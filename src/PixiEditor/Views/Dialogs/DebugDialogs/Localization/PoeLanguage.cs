@@ -1,7 +1,8 @@
 ﻿using System.Globalization;
 using System.Windows.Media;
 using Newtonsoft.Json;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Views.Dialogs.DebugDialogs.Localization;
 

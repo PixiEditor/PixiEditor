@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -19,8 +20,8 @@ internal static class PixiParserDocumentEx
         return DocumentViewModel.Build(b =>
         {
             b.WithSize(document.Width, document.Height)
-                .WithPalette(document.Palette, x => new Color(x.R, x.G, x.B, x.A))
-                .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B, x.A))
+                .WithPalette(document.Palette, x => new PaletteColor(x.R, x.G, x.B))
+                .WithSwatches(document.Swatches, x => new(x.R, x.G, x.B))
                 .WithReferenceLayer(document.ReferenceLayer, (r, builder) => builder
                     .WithIsVisible(r.Enabled)
                     .WithShape(r.Corners)

@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Localization;
 
 #pragma warning disable SA1402 // File may only contain a single type, Justification: "Same class with generic value"
 

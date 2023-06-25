@@ -2,6 +2,8 @@
 using System.IO;
 using System.Text;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
@@ -31,7 +33,7 @@ internal class PaintNetTxtParser : PaletteFileParser
 
         lines = lines.Where(x => !x.StartsWith(";")).ToArray();
 
-        List<Color> colors = new();
+        List<PaletteColor> colors = new();
         for (int i = 0; i < lines.Length; i++)
         {
             // Color format aarrggbb
@@ -43,7 +45,7 @@ internal class PaintNetTxtParser : PaletteFileParser
             byte r = byte.Parse(colorLine.Substring(2, 2), NumberStyles.HexNumber);
             byte g = byte.Parse(colorLine.Substring(4, 2), NumberStyles.HexNumber);
             byte b = byte.Parse(colorLine.Substring(6, 2), NumberStyles.HexNumber);
-            var color = new Color(r, g, b, 255); // alpha is ignored in PixiEditor
+            var color = new PaletteColor(r, g, b); // alpha is ignored in PixiEditor
             if(colors.Contains(color)) continue;
 
             colors.Add(color);
@@ -58,9 +60,9 @@ internal class PaintNetTxtParser : PaletteFileParser
         sb.AppendLine("; Paint.NET Palette File");
         sb.AppendLine($"; Made using PixiEditor {VersionHelpers.GetCurrentAssemblyVersion().ToString()}");
         sb.AppendLine($"; {data.Colors.Length} colors");
-        foreach (Color color in data.Colors)
+        foreach (PaletteColor color in data.Colors)
         {
-            sb.AppendLine(color.ToHex());
+            sb.AppendLine(color.Hex);
         }
 
         try

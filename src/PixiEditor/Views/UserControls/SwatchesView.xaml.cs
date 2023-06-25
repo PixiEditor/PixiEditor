@@ -3,17 +3,18 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.Views.UserControls;
 
 internal partial class SwatchesView : UserControl
 {
     public static readonly DependencyProperty SwatchesProperty =
-        DependencyProperty.Register(nameof(Swatches), typeof(ObservableCollection<Color>), typeof(SwatchesView));
+        DependencyProperty.Register(nameof(Swatches), typeof(ObservableCollection<PaletteColor>), typeof(SwatchesView));
 
-    public ObservableCollection<Color> Swatches
+    public ObservableCollection<PaletteColor> Swatches
     {
-        get => (ObservableCollection<Color>)GetValue(SwatchesProperty);
+        get => (ObservableCollection<PaletteColor>)GetValue(SwatchesProperty);
         set => SetValue(SwatchesProperty, value);
     }
 

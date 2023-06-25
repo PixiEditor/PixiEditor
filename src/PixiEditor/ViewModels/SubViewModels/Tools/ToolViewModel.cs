@@ -3,8 +3,9 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -38,11 +39,6 @@ internal abstract class ToolViewModel : NotifyableObject
     /// Determines if PixiEditor should switch to the Eraser when right click mode is set to erase
     /// </summary>
     public virtual bool IsErasable => false;
-
-    /// <summary>
-    /// Determines if PixiEditor should show the context menu on the canvas when right click mode is set to secondary color or erase
-    /// </summary>
-    public virtual bool AlwaysShowContextMenu => false;
 
     /// <summary>
     /// The mouse button that is being used with the tool

@@ -156,7 +156,14 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         ShortcutPopup.Show();
         ShortcutPopup.Activate();
     }
-    
+
+    [Command.Basic("PixiEditor.Window.OpenPalettesBrowserWindow", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER",
+        IconPath = "Database.png")]
+    public void ShowPalettesBrowserWindow()
+    {
+        PalettesBrowser.Open(Owner.ColorsSubViewModel.PaletteProvider, Owner.ColorsSubViewModel.ImportPaletteCommand,
+            Owner.DocumentManagerSubViewModel.ActiveDocument?.Palette);
+    }
         
     [Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW")]
     public void OpenAboutWindow()

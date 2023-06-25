@@ -2,12 +2,14 @@
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Media;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.AppExtensions;
 using PixiEditor.Helpers.UI;
-using PixiEditor.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using PixiEditor.Platform;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
@@ -50,9 +52,32 @@ internal partial class App : Application
         #endif
 
         AddNativeAssets();
-        
-        MainWindow = new MainWindow();
+
+        InitPlatform();
+
+        ExtensionLoader extensionLoader = new ExtensionLoader();
+        extensionLoader.LoadExtensions();
+
+        MainWindow = new MainWindow(extensionLoader);
         MainWindow.Show();
+    }
+
+    private void InitPlatform()
+    {
+        var platform = GetActivePlatform();
+        IPlatform.RegisterPlatform(platform);
+        platform.PerformHandshake();
+    }
+
+    private IPlatform GetActivePlatform()
+    {
+#if STEAM
+        return new PixiEditor.Platform.Steam.SteamPlatform();
+#elif MSIX || MSIX_DEBUG
+        return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();
+#else
+        return new PixiEditor.Platform.Standalone.StandalonePlatform();
+#endif
     }
 
     private void AddNativeAssets()

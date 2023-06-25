@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
@@ -45,7 +46,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         strokeWidth = toolViewModel.ToolSize;
         memberGuid = member.GuidValue;
 
-        colorsVM.AddSwatch(strokeColor);
+        colorsVM.AddSwatch(new PaletteColor(strokeColor.R, strokeColor.G, strokeColor.B));
 
         return ExecutionState.Success;
     }

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using System.Windows.Media;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Guides;
 
 namespace PixiEditor.Models.DataHolders.Guides

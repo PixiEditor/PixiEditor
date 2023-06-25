@@ -12,6 +12,7 @@
              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" Name="uc"
              d:DesignHeight="50" d:DesignWidth="300">
     <Border BorderBrush="{StaticResource DarkerAccentColor}" 
@@ -29,10 +30,10 @@
                     <Grid Visibility="{Binding ElementName=VisibilityCheckbox, Path=IsChecked, Converter={InverseBoolToVisibilityConverter}}"  Background="Transparent"/>
                 </Grid>
                 <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <local:PaletteColor Color="{Binding ElementName=uc, Path=ColorToReplace}"
+                    <local:PaletteColorControl Color="{Binding ElementName=uc, Path=ColorToReplace}"
                             Height="35" 
                             Width="35" 
-                            views:Translator.TooltipKey="REPLACER_TOOLTIP"
+                            ui:Translator.TooltipKey="REPLACER_TOOLTIP"
                             AllowDrop="True" Drop="UIElement_OnDrop"/>
                     <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0" FlowDirection="{helpers:Localization FlowDirection}"/>
                     <colorPicker:PortableColorPicker 
@@ -42,9 +43,9 @@
                         Height="37"
                         Style="{StaticResource DefaultColorPickerStyle}"
                         Width="37" Focusable="False" Margin="0 0 10 0"
-                        views:Translator.TooltipKey="CLICK_TO_CHOOSE_COLOR"
+                        ui:Translator.TooltipKey="CLICK_TO_CHOOSE_COLOR"
                         ShowAlpha="False"/>
-                    <Button Click="ReplaceButton_OnClick" views:Translator.TooltipKey="REPLACE_COLOR"
+                    <Button Click="ReplaceButton_OnClick" ui:Translator.TooltipKey="REPLACE_COLOR"
                             Style="{StaticResource ToolButtonStyle}" Cursor="Hand" Height="20" Width="20">
                         <Button.Background>
                             <ImageBrush ImageSource="/Images/Replace.png"/>

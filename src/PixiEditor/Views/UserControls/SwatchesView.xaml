@@ -13,7 +13,7 @@
              d:DesignHeight="450" d:DesignWidth="300">
     <UserControl.Resources>
         <ResourceDictionary>
-            <conv:BackendColorToMediaColorConverter x:Key="BackendColorToMediaColorConverter"/>
+            <conv:GenericColorToMediaColorConverter x:Key="BackendColorToMediaColorConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -37,7 +37,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <palettes:PaletteColor Cursor="Hand" Color="{Binding}" Margin="0 5 5 5">
+                    <palettes:PaletteColorControl Cursor="Hand" Color="{Binding}" Margin="0 5 5 5">
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseLeftButtonUp">
                                 <i:InvokeCommandAction
@@ -45,14 +45,14 @@
                                     CommandParameter="{Binding}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
-                        <palettes:PaletteColor.ContextMenu>
+                        <palettes:PaletteColorControl.ContextMenu>
                             <ContextMenu>
                                 <MenuItem Header="Remove" Foreground="White"
                                           Command="{cmds:Command PixiEditor.Colors.RemoveSwatch, UseProvided=True}"
                                           CommandParameter="{Binding}" />
                             </ContextMenu>
-                        </palettes:PaletteColor.ContextMenu>
-                    </palettes:PaletteColor>
+                        </palettes:PaletteColorControl.ContextMenu>
+                    </palettes:PaletteColorControl>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
 using DiscordRPC;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;

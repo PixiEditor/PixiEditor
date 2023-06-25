@@ -562,6 +562,21 @@
   "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_SHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally. Hold Alt and drag a side handle to shear. Drag outside handles to rotate.",
   "TRANSFORM_ACTION_DISPLAY_SCALE_ROTATE_NOSHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally. Drag outside handles to rotate.",
   "TRANSFORM_ACTION_DISPLAY_SCALE_NOROTATE_NOSHEAR_NOPERSPECTIVE": "Drag handles to scale transform. Hold Shift to scale proportionally.",
+
+  "LOCAL_PALETTE_SOURCE_NAME": "Local",
+
+  "ERROR_FORBIDDEN_UNIQUE_NAME": "Extension unique name cannot start with 'pixieditor'.",
+  "ERROR_MISSING_METADATA": "Extension metadata key '{0}' is missing.",
+  "ERROR_NO_CLASS_ENTRY": "Extension class entry is missing on path '{0}'.",
+  "ERROR_NO_ENTRY_ASSEMBLY": "Extension entry assembly is missing on path '{0}'.",
+  "ERROR_MISSING_ADDITIONAL_CONTENT": "Your current setup doesn't allow loading this extension. Perhaps you don't own it or don't have it installed. You can purchase it here '{0}'.",
+
+  "BUY_SUPPORTER_PACK": "Buy Supporter Pack",
+
+  "NEWS": "News",
+  "DISABLE_NEWS_PANEL": "Disable News panel in startup window",
+  "FAILED_FETCH_NEWS": "Failed to fetch news",
+  
   "CROP_TO_SELECTION": "Crop to selection",
   "CROP_TO_SELECTION_DESCRIPTIVE": "Crop image to selection",
   "SHOW_CONTEXT_MENU": "Show context menu",
@@ -587,5 +602,7 @@
   "ADD_HORIZONTAL_GUIDE": "Add horizontal guide",
   "ADD_HORIZONTAL_GUIDE_DESCRIPTIVE": "Add horizontal guide",
   "ADD_RECTANGLE_GUIDE": "Add rectangle guide",
-  "ADD_RECTANGLE_GUIDE_DESCRIPTIVE": "Add rectangle guide"
+  "ADD_RECTANGLE_GUIDE_DESCRIPTIVE": "Add rectangle guide",
+  
+  "COPY_COLOR": "Copy color"
 }

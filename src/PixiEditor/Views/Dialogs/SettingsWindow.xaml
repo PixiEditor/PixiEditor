@@ -16,8 +16,8 @@
         xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
         xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:settingGroups="clr-namespace:PixiEditor.Views.Dialogs.SettingGroups"
-        xmlns:localization="clr-namespace:PixiEditor.Localization"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
         mc:Ignorable="d"
         Name="window" 
@@ -28,7 +28,7 @@
         BorderBrush="Black" BorderThickness="1"
         Background="{StaticResource AccentColor}"
         FlowDirection="{helpers:Localization FlowDirection}"
-        views:Translator.Key="SETTINGS">
+        ui:Translator.Key="SETTINGS">
     <Window.Resources>
         <vm:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
         <BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -53,7 +53,7 @@
             TitleKey="SETTINGS" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
 
         <ListBox DockPanel.Dock="Left" x:Name="pages" ItemsSource="{Binding Pages}"
-                 Background="Transparent" BorderThickness="0" Width="180" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}"
+                 Background="Transparent" BorderThickness="0" MinWidth="165" Width="Auto" ItemContainerStyle="{StaticResource PixiListBoxItemStyle}"
                  SelectedIndex="{Binding CurrentPage}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
@@ -68,14 +68,14 @@
                         <Binding.ConverterParameter><sys:Int32>0</sys:Int32></Binding.ConverterParameter>
                     </Binding>
                 </StackPanel.Visibility>
-                <Label Style="{StaticResource SettingsHeader}" views:Translator.Key="LANGUAGE"/>
+                <Label Style="{StaticResource SettingsHeader}" ui:Translator.Key="LANGUAGE"/>
                 <ComboBox Margin="27 5" Width="200" Height="25" FontSize="12" HorizontalAlignment="Left"
                           ItemsSource="{Binding SettingsSubViewModel.General.AvailableLanguages}"
                           SelectedItem="{Binding SettingsSubViewModel.General.SelectedLanguage, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Image VerticalAlignment="Center" Margin="5 0" Source="{Binding IconPath}"/>
+                                <Image VerticalAlignment="Center" Margin="5 0" Source="{Binding IconFullPath}"/>
                                 <TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
                             </StackPanel>
                         </DataTemplate>
@@ -109,61 +109,65 @@
                     </ComboBox.ItemContainerStyle>
                 </ComboBox>
 
-                <Label Style="{StaticResource SettingsHeader}" views:Translator.Key="MISC" d:Content="Misc"/>
+                <Label Style="{StaticResource SettingsHeader}" ui:Translator.Key="MISC" d:Content="Misc"/>
 
                 <CheckBox Margin="27 0"
-                          VerticalAlignment="Center" views:Translator.Key="SHOW_STARTUP_WINDOW" d:Content="Show startup window"
+                          VerticalAlignment="Center" ui:Translator.Key="SHOW_STARTUP_WINDOW" d:Content="Show startup window"
                           IsChecked="{Binding SettingsSubViewModel.File.ShowStartupWindow}"/>
 
                 <CheckBox Margin="27 10"
-                          VerticalAlignment="Center" d:Content="Show image preview in taskbar" views:Translator.Key="SHOW_IMAGE_PREVIEW_TASKBAR"
+                          VerticalAlignment="Center" ui:Translator.Key="DISABLE_NEWS_PANEL" d:Content="Hide news in startup window"
+                          IsChecked="{Binding SettingsSubViewModel.File.DisableNewsPanel}"/>
+
+                <CheckBox Margin="27 0"
+                          VerticalAlignment="Center" d:Content="Show image preview in taskbar" ui:Translator.Key="SHOW_IMAGE_PREVIEW_TASKBAR"
                           IsChecked="{Binding SettingsSubViewModel.General.ImagePreviewInTaskbar}"/>
 
-                <StackPanel Margin="27 0" Orientation="Horizontal">
+                <StackPanel Margin="27 10 27 0" Orientation="Horizontal">
                 <Label Style="{StaticResource SettingsText}"
-                       views:Translator.Key="RECENT_FILE_LENGTH"
-                       views:Translator.TooltipKey="RECENT_FILE_LENGTH_TOOLTIP"/>
+                       ui:Translator.Key="RECENT_FILE_LENGTH"
+                       ui:Translator.TooltipKey="RECENT_FILE_LENGTH_TOOLTIP"/>
                     <usercontrols:NumberInput Margin="10 0 0 0" 
                                               Min="0" FontSize="12" HorizontalAlignment="Left"
                                    Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}" Height="19" Width="40"/>
                 </StackPanel>
 
-                <Label Style="{StaticResource SettingsHeader}" d:Content="Default new file size" views:Translator.Key="DEFAULT_NEW_SIZE"/>
+                <Label Style="{StaticResource SettingsHeader}" d:Content="Default new file size" ui:Translator.Key="DEFAULT_NEW_SIZE"/>
 
                 <StackPanel Orientation="Horizontal" Margin="27 5">
-                    <Label Style="{StaticResource SettingsText}" d:Content="Width" views:Translator.Key="WIDTH"/>
+                    <Label Style="{StaticResource SettingsText}" d:Content="Width" ui:Translator.Key="WIDTH"/>
                     <usercontrols:SizeInput Margin="10 0 0 0" 
                                  Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}" 
                                  Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="27 5">
-                    <Label Style="{StaticResource SettingsText}" d:Content="Height" views:Translator.Key="HEIGHT"/> 
+                    <Label Style="{StaticResource SettingsText}" d:Content="Height" ui:Translator.Key="HEIGHT"/> 
                     <usercontrols:SizeInput Margin="7 0 0 0"
                                  Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" 
                                  Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
                 </StackPanel>
 
-                <Label Style="{StaticResource SettingsHeader}" d:Content="Tools" views:Translator.Key="TOOLS"/>
+                <Label Style="{StaticResource SettingsHeader}" d:Content="Tools" ui:Translator.Key="TOOLS"/>
                 
                 <StackPanel Margin="27 0" Orientation="Horizontal">
-                    <Label Style="{StaticResource SettingsText}"
-                           views:Translator.Key="RIGHT_CLICK_MODE"/>
+                    <Label Style="{StaticResource SettingsText}" Margin="0,0,7,0"
+                           ui:Translator.Key="RIGHT_CLICK_MODE"/>
                     <ComboBox SelectedItem="{Binding RightClickMode, Source={vm:MainVM ToolsSVM}, Mode=TwoWay}"
                               ItemsSource="{helpers:Enum enums:RightClickMode}"
                               Width="160" Style="{StaticResource TranslatedEnum}"/>
                 </StackPanel>
 
                 <CheckBox VerticalAlignment="Center" Margin="27 5"
-                    IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}" d:Content="Enable shared toolbar" views:Translator.Key="ENABLE_SHARED_TOOLBAR"/>
+                    IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}" d:Content="Enable shared toolbar" ui:Translator.Key="ENABLE_SHARED_TOOLBAR"/>
 
-                <Label Style="{StaticResource SettingsHeader}" d:Content="Automatic updates" views:Translator.Key="AUTOMATIC_UPDATES"/>
+                <Label Style="{StaticResource SettingsHeader}" d:Content="Automatic updates" ui:Translator.Key="AUTOMATIC_UPDATES"/>
 
                 <CheckBox Margin="27 5" VerticalAlignment="Center" IsEnabled="{Binding Path=ShowUpdateTab}"
-                    IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}" views:Translator.Key="CHECK_FOR_UPDATES" d:Content="Check updates on startup"/>
+                    IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}" ui:Translator.Key="CHECK_FOR_UPDATES" d:Content="Check updates on startup"/>
 
                 <StackPanel Orientation="Horizontal" Margin="27 5">
-                    <Label Grid.Row="11" Grid.Column="1" Style="{StaticResource SettingsText}" d:Content="Update stream" views:Translator.Key="UPDATE_STREAM"/>
+                    <Label Grid.Row="11" Grid.Column="1" Style="{StaticResource SettingsText}" d:Content="Update stream" ui:Translator.Key="UPDATE_STREAM"/>
                     <StackPanel Margin="5 0" Orientation="Horizontal" VerticalAlignment="Center"
                             Height="21.96" HorizontalAlignment="Left">
                 <ComboBox Width="110" IsEnabled="{Binding Path=ShowUpdateTab}"
@@ -172,16 +176,16 @@
                 <Image Cursor="Help" Margin="10 0 0 0" Source="/Images/Commands/PixiEditor/Links/OpenDocumentation.png"
                        ToolTipService.InitialShowDelay="0"
                        Visibility="{Binding Path=ShowUpdateTab, Converter={converters:InverseBoolToVisibilityConverter}}"
-                       views:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP"/>
+                       ui:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP"/>
                 </StackPanel>
                 </StackPanel>
 
-                <Label Style="{StaticResource SettingsHeader}" d:Content="Debug" views:Translator.Key="DEBUG"/>
+                <Label Style="{StaticResource SettingsHeader}" d:Content="Debug" ui:Translator.Key="DEBUG"/>
                 <CheckBox Margin="27 5" VerticalAlignment="Center"
-                    IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}" views:Translator.Key="ENABLE_DEBUG_MODE" d:Content="Enable Debug Mode"/>
+                    IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}" ui:Translator.Key="ENABLE_DEBUG_MODE" d:Content="Enable Debug Mode"/>
                 <Label Margin="0 5" Style="{StaticResource SettingsText}" VerticalAlignment="Center">
                     <Hyperlink Command="{cmds:Command PixiEditor.Debug.OpenCrashReportsDirectory}" Style="{StaticResource SettingsLink}">
-                        <Run views:Translator.Key="OPEN_CRASH_REPORTS_DIR" d:Text="Open crash reports directory"/>
+                        <Run ui:Translator.Key="OPEN_CRASH_REPORTS_DIR" d:Text="Open crash reports directory"/>
                         <Run Text="" FontFamily="{StaticResource Feather}"/>
                     </Hyperlink>
                 </Label>
@@ -196,18 +200,18 @@
                     </Binding>
                 </StackPanel.Visibility>
                 <StackPanel Orientation="Vertical">
-                    <Label Style="{StaticResource SettingsHeader}" d:Content="Rich Presence" views:Translator.Key="DISCORD_RICH_PRESENCE"/>
+                    <Label Style="{StaticResource SettingsHeader}" d:Content="Rich Presence" ui:Translator.Key="DISCORD_RICH_PRESENCE"/>
 
                     <CheckBox Margin="27 5" VerticalAlignment="Center"
-                              IsChecked="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" d:Content="Enabled" views:Translator.Key="ENABLED"/>
+                              IsChecked="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" d:Content="Enabled" ui:Translator.Key="ENABLED"/>
                     <CheckBox Margin="27 5" VerticalAlignment="Center"
                               IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
-                              IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentName}" d:Content="Show image name" views:Translator.Key="SHOW_IMAGE_NAME"/>
+                              IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentName}" d:Content="Show image name" ui:Translator.Key="SHOW_IMAGE_NAME"/>
                     <CheckBox Margin="27 5" VerticalAlignment="Center"
-                              IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" d:Content="Show image size" views:Translator.Key="SHOW_IMAGE_SIZE"
+                              IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" d:Content="Show image size" ui:Translator.Key="SHOW_IMAGE_SIZE"
                               IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentSize}"/>
                     <CheckBox Margin="27 5" VerticalAlignment="Center"
-                              IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" views:Translator.Key="SHOW_LAYER_COUNT" d:Content="Show layer count"
+                              IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" ui:Translator.Key="SHOW_LAYER_COUNT" d:Content="Show layer count"
                               IsChecked="{Binding SettingsSubViewModel.Discord.ShowLayerCount}"/>
                 </StackPanel>
                 <usercontrols:DiscordRPPreview 
@@ -244,13 +248,13 @@
                         </Style>
                     </StackPanel.Resources>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Export}"
-                            d:Content="Export" views:Translator.Key="EXPORT"/>
+                            d:Content="Export" ui:Translator.Key="EXPORT"/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Import}"
-                            d:Content="Import" views:Translator.Key="IMPORT"/>
+                            d:Content="Import" ui:Translator.Key="IMPORT"/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.OpenTemplatePopup}"
-                            d:Content="Shortcut Templates" views:Translator.Key="SHORTCUT_TEMPLATES"/>
+                            d:Content="Shortcut Templates" ui:Translator.Key="SHORTCUT_TEMPLATES"/>
                     <Button Command="{cmds:Command PixiEditor.Shortcuts.Reset}"
-                            d:Content="Reset all" views:Translator.Key="RESET_ALL"/>
+                            d:Content="Reset all" ui:Translator.Key="RESET_ALL"/>
                 </StackPanel>
                 <TextBox Grid.Row="1" Style="{StaticResource DarkTextBoxStyle}" Margin="0,10"
                          Text="{Binding SearchTerm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">

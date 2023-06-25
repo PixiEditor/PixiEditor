@@ -13,15 +13,18 @@
     xmlns:PixiEditor="clr-namespace:PixiEditor"
     xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
     xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:commands="clr-namespace:PixiEditor.Models.Commands.Attributes.Commands"
+    xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
     x:Class="PixiEditor.Views.Dialogs.PalettesBrowser"
     mc:Ignorable="d"
-    WindowStartupLocation="CenterScreen" 
-    MinWidth="200" 
-    Height="600" Width="850" 
+    WindowStartupLocation="CenterScreen"
+    Height="600" Width="850"
     WindowStyle="None"
     x:Name="palettesBrowser"
     FlowDirection="{helpers:Localization FlowDirection}"
-    views:Translator.Key="PALETTE_BROWSER">
+    ui:Translator.Key="PALETTE_BROWSER">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </Window.Resources>
@@ -46,11 +49,11 @@
 
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="1">
             <StackPanel HorizontalAlignment="Left" Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
-                <Label views:Translator.Key="SORT_BY" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
+                <Label ui:Translator.Key="SORT_BY" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
                 <ComboBox x:Name="sortingComboBox" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
-                    <ComboBoxItem IsSelected="True" views:Translator.Key="DEFAULT"/>
-                    <ComboBoxItem views:Translator.Key="ALPHABETICAL"/>
-                    <ComboBoxItem views:Translator.Key="COLOR_COUNT"/>
+                    <ComboBoxItem IsSelected="True" ui:Translator.Key="DEFAULT"/>
+                    <ComboBoxItem ui:Translator.Key="ALPHABETICAL"/>
+                    <ComboBoxItem ui:Translator.Key="COLOR_COUNT"/>
                 </ComboBox>
                 <ToggleButton Margin="10 0 0 0" x:Name="toggleBtn"
                               IsChecked="{Binding SortAscending, ElementName=palettesBrowser}"
@@ -66,50 +69,57 @@
                                                 <RotateTransform Angle="180" CenterX="11.5" CenterY="11.5"/>
                                             </Setter.Value>
                                         </Setter>
-                                        <Setter Property="views:Translator.TooltipKey" Value="ASCENDING"/>
+                                        <Setter Property="ui:Translator.TooltipKey" Value="ASCENDING"/>
                                     </DataTrigger>
                                     <DataTrigger Binding="{Binding IsChecked, ElementName=toggleBtn}" Value="false">
-                                        <Setter Property="views:Translator.TooltipKey" Value="DESCENDING"/>
+                                        <Setter Property="ui:Translator.TooltipKey" Value="DESCENDING"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Image.Style>
                     </Image>
                 </ToggleButton>
-                <Label Margin="10 0 0 0" views:Translator.Key="NAME" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
+                <Label Margin="10 0 0 0" ui:Translator.Key="NAME" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
                 <usercontrols:InputBox
                                        Text="{Binding NameFilter, Delay=100, ElementName=palettesBrowser, UpdateSourceTrigger=PropertyChanged}"
                                        VerticalAlignment="Center"
-                                       Style="{StaticResource DarkTextBoxStyle}" Width="150" />
+                                       Style="{StaticResource DarkTextBoxStyle}" Width="150">
+                    <b:Interaction.Behaviors>
+                        <behaviours:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"
+                                                         FocusNext="{Binding ElementName=numberInput, Path=FocusNext}"/>
+                        <behaviours:GlobalShortcutFocusBehavior/>
+                    </b:Interaction.Behaviors>
+                </usercontrols:InputBox>
 
-                <Label Margin="10 0 0 0" views:Translator.Key="COLORS" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
+                <Label Margin="10 0 0 0" ui:Translator.Key="COLORS" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
                 <ComboBox x:Name="colorsComboBox" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
-                    <ComboBoxItem IsSelected="True" views:Translator.Key="ANY"/>
-                    <ComboBoxItem views:Translator.Key="MAX"/>
-                    <ComboBoxItem views:Translator.Key="MIN"/>
-                    <ComboBoxItem views:Translator.Key="EXACT"/>
+                    <ComboBoxItem IsSelected="True" ui:Translator.Key="ANY"/>
+                    <ComboBoxItem ui:Translator.Key="MAX"/>
+                    <ComboBoxItem ui:Translator.Key="MIN"/>
+                    <ComboBoxItem ui:Translator.Key="EXACT"/>
                 </ComboBox>
                 <usercontrols:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
                                    FocusNext="True"
                                    Value="{Binding ColorsNumber, ElementName=palettesBrowser, Mode=TwoWay}"/>
                 <CheckBox Margin="10 0 0 0" VerticalAlignment="Center"
-                          IsChecked="{Binding ShowOnlyFavourites, ElementName=palettesBrowser}" views:Translator.Key="FAVORITES"/>
+                          IsChecked="{Binding ShowOnlyFavourites, ElementName=palettesBrowser}" ui:Translator.Key="FAVORITES"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 10 0">
-                <Button views:Translator.TooltipKey="ADD_FROM_CURRENT_PALETTE" Click="AddFromPalette_OnClick" Cursor="Hand" Margin="10 0" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24">
+                <Button ui:Translator.TooltipKey="ADD_FROM_CURRENT_PALETTE" Command="{Binding ElementName=palettesBrowser, Path=AddFromPaletteCommand}" Cursor="Hand" Margin="10 0"
+                        Style="{StaticResource ToolButtonStyle}" Width="24" Height="24">
                     <Image Source="/Images/Plus-square.png"/>
                 </Button>
                 <Button Cursor="Hand" Click="OpenFolder_OnClick" Style="{StaticResource ImageButtonStyle}" Width="24" Height="24"
-                        views:Translator.TooltipKey="OPEN_PALETTES_DIR_TOOLTIP">
+                        ui:Translator.TooltipKey="OPEN_PALETTES_DIR_TOOLTIP">
                     <Image Source="/Images/Folder.png"/>
                 </Button>
-                <Button HorizontalAlignment="Right" Margin="10 0 0 0" views:Translator.TooltipKey="BROWSE_ON_LOSPEC_TOOLTIP"
+                <Button HorizontalAlignment="Right" Margin="10 0 0 0" ui:Translator.TooltipKey="BROWSE_ON_LOSPEC_TOOLTIP"
                         Style="{StaticResource ImageButtonStyle}" Width="24" Height="24"
                         Click="BrowseOnLospec_OnClick"
                         CommandParameter="https://lospec.com/palette-list">
                     <Image Source="/Images/Globe.png"/>
                 </Button>
-                <Button HorizontalAlignment="Right" Margin="10 0 0 0" views:Translator.TooltipKey="IMPORT_FROM_FILE_TOOLTIP"
+                <Button HorizontalAlignment="Right" Margin="10 0 0 0" ui:Translator.TooltipKey="IMPORT_FROM_FILE_TOOLTIP"
                         Style="{StaticResource ImageButtonStyle}" Width="24" Height="24"
                         Click="ImportFromFile_OnClick">
                     <Image Source="/Images/hard-drive.png"/>
@@ -117,21 +127,21 @@
             </StackPanel>
         </DockPanel>
         <Grid Grid.Row="2" Margin="10">
-            <TextBlock views:Translator.Key="COULD_NOT_LOAD_PALETTE" Foreground="White" FontSize="20" HorizontalAlignment="Center"
+            <TextBlock ui:Translator.Key="COULD_NOT_LOAD_PALETTE" Foreground="White" FontSize="20" HorizontalAlignment="Center"
                        VerticalAlignment="Center" Visibility="{Binding Visibility, Converter={converters:OppositeVisibilityConverter}, ElementName=itemsControl}"/>
             <StackPanel Panel.ZIndex="10" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding ElementName=palettesBrowser, Path=SortedResults.Count, Converter={converters:CountToVisibilityConverter}}">
-                <TextBlock views:Translator.Key="NO_PALETTES_FOUND" Foreground="White" FontSize="20" TextAlignment="Center"/>
+                <TextBlock ui:Translator.Key="NO_PALETTES_FOUND" Foreground="White" FontSize="20" TextAlignment="Center"/>
                 <TextBlock Margin="0 10 0 0">
                     <Hyperlink Foreground="Gray" Cursor="Hand" FontSize="18" NavigateUri="https://lospec.com/palette-list"
                                RequestNavigate="Hyperlink_OnRequestNavigate">
-                        <TextBlock views:Translator.Key="LOSPEC_LINK_TEXT"/>
+                        <TextBlock ui:Translator.Key="LOSPEC_LINK_TEXT"/>
                     </Hyperlink>
                 </TextBlock>
                 <Image Width="128" Height="128" Source="/Images/Search.png"/>
             </StackPanel>
             <ScrollViewer x:Name="scrollViewer" Margin="5" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" ScrollChanged="ScrollViewer_ScrollChanged">
                 <ItemsControl x:Name="itemsControl" ItemsSource="{Binding SortedResults, ElementName=palettesBrowser}"
-                          Visibility="{Binding PaletteList.FetchedCorrectly, Converter={StaticResource BoolToVisibilityConverter}, ElementName=palettesBrowser}">
+                              Visibility="{Binding PaletteList.FetchedCorrectly, Converter={StaticResource BoolToVisibilityConverter}, ElementName=palettesBrowser}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <local:PaletteItem Palette="{Binding}"

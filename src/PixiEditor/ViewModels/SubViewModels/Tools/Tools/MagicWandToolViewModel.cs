@@ -1,9 +1,10 @@
 ﻿using System.Windows.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
@@ -15,8 +16,6 @@ internal class MagicWandToolViewModel : ToolViewModel
     public override LocalizedString Tooltip => new LocalizedString("MAGIC_WAND_TOOL_TOOLTIP", Shortcut);
 
     public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
-    public override bool AlwaysShowContextMenu => true;
-
     public override BrushShape BrushShape => BrushShape.Pixel;
 
     [Settings.Enum("MODE_LABEL")]

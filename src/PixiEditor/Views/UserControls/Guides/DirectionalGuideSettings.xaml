@@ -3,12 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls.Guides"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
-             xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" 
              Foreground="White"
              d:DesignHeight="450" d:DesignWidth="800">
@@ -24,7 +23,7 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="width" MinWidth="70"/>
                 <ColumnDefinition Width="Auto" MinWidth="200"/>
             </Grid.ColumnDefinitions>
-            <TextBlock views:Translator.Key="NAME" Margin="0,0,10,0" TextAlignment="Right"/>
+            <TextBlock ui:Translator.Key="NAME" Margin="0,0,10,0" TextAlignment="Right"/>
             <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource PlaceholderTextBox}" Tag="{Binding TypeNameKey}" Grid.Column="1">
                 <i:Interaction.Behaviors>
@@ -42,7 +41,7 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="width"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock views:Translator.Key="COLOR" Margin="0,0,10,0" TextAlignment="Right"/>
+            <TextBlock ui:Translator.Key="COLOR" Margin="0,0,10,0" TextAlignment="Right"/>
             <colorpicker:PortableColorPicker Grid.Column="1" SelectedColor="{Binding Color, Mode=TwoWay}" Width="30" HorizontalAlignment="Left"/>
         </Grid>
 

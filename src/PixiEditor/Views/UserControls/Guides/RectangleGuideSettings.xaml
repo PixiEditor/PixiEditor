@@ -8,6 +8,7 @@
              xmlns:behaviors="clr-namespace:PixiEditor.Helpers.Behaviours"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="800"
              Foreground="White">
@@ -23,7 +24,7 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="width" MinWidth="70"/>
                 <ColumnDefinition Width="Auto" MinWidth="200"/>
             </Grid.ColumnDefinitions>
-            <TextBlock views:Translator.Key="NAME" Margin="0,0,10,0" TextAlignment="Right"/>
+            <TextBlock ui:Translator.Key="NAME" Margin="0,0,10,0" TextAlignment="Right"/>
             <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Style="{StaticResource PlaceholderTextBox}" Tag="{Binding TypeNameKey}" Grid.Column="1">
                 <i:Interaction.Behaviors>
@@ -41,7 +42,7 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="width"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock views:Translator.Key="COLOR" Margin="0,0,10,0" TextAlignment="Right"/>
+            <TextBlock ui:Translator.Key="COLOR" Margin="0,0,10,0" TextAlignment="Right"/>
             <colorpicker:PortableColorPicker Grid.Column="1" SelectedColor="{Binding Color, Mode=TwoWay}" Width="30" HorizontalAlignment="Left"/>
         </Grid>
 
@@ -52,10 +53,10 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="position"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock views:Translator.Key="LEFT" Margin="0,0,10,0" TextAlignment="Right"/>
+            <TextBlock ui:Translator.Key="LEFT" Margin="0,0,10,0" TextAlignment="Right"/>
             <uc:NumberInput Margin="0,0,10,0" Grid.Column="1" Value="{Binding Left, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
 
-            <TextBlock Grid.Column="2" views:Translator.Key="TOP" Margin="0,0,10,0"/>
+            <TextBlock Grid.Column="2" ui:Translator.Key="TOP" Margin="0,0,10,0"/>
             <uc:NumberInput Grid.Column="3" Value="{Binding Top, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
         </Grid>
 
@@ -66,10 +67,10 @@
                 <ColumnDefinition Width="Auto" SharedSizeGroup="position"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBlock views:Translator.Key="Width" Margin="0,0,10,0" TextAlignment="Right"/>
+            <TextBlock ui:Translator.Key="Width" Margin="0,0,10,0" TextAlignment="Right"/>
             <uc:NumberInput Margin="0,0,10,0" Grid.Column="1" Value="{Binding Width, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
 
-            <TextBlock Grid.Column="2" views:Translator.Key="Height" Margin="0,0,10,0"/>
+            <TextBlock Grid.Column="2" ui:Translator.Key="Height" Margin="0,0,10,0"/>
             <uc:NumberInput Grid.Column="3" Value="{Binding Height, Mode=TwoWay}" Width="50" HorizontalAlignment="Left"/>
         </Grid>
     </StackPanel>

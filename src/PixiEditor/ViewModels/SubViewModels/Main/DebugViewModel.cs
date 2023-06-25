@@ -5,13 +5,14 @@ using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Models.Localization;
 using PixiEditor.Views.Dialogs.DebugDialogs;
 using PixiEditor.Views.Dialogs.DebugDialogs.Localization;
 
@@ -40,6 +41,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         {
             if (SetProperty(ref localizationKeyShowMode, value))
             {
+                LocalizedString.OverridenKeyFlowMode = value;
                 Owner.LocalizationProvider.ReloadLanguage();
             }
         }
@@ -54,6 +56,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         {
             if (SetProperty(ref forceOtherFlowDirection, value))
             {
+                Language.FlipFlowDirection = value;
                 Owner.LocalizationProvider.ReloadLanguage();
             }
         }

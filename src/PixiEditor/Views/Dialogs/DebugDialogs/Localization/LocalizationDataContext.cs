@@ -10,10 +10,12 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
 using PixiEditor.Models.Dialogs;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Models.Localization;
+using PixiEditor.Models.Preferences;
 
 namespace PixiEditor.Views.Dialogs.DebugDialogs.Localization;
 

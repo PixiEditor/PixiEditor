@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Parser;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
@@ -27,7 +29,7 @@ internal class PixiPaletteParser : PaletteFileParser
 
         string name = Path.GetFileNameWithoutExtension(path);
 
-        return new PaletteFileData(name, file.Palette.Select(x => new Color(x.R, x.G, x.B, x.A)).ToArray());
+        return new PaletteFileData(name, file.Palette.Select(x => new PaletteColor(x.R, x.G, x.B)).ToArray());
     }
 
     public override bool CanSave => false;

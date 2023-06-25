@@ -7,6 +7,7 @@
              xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:controls="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d"
              d:DesignHeight="200" 
              d:DesignWidth="800" 
@@ -14,27 +15,35 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid Background="{StaticResource AccentColor}">
+    <Grid Background="{StaticResource AccentColor}" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="100*"/>
             <ColumnDefinition Width="95"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
-            <RowDefinition Height="60*"/>
+            <RowDefinition Height="60*" MinHeight="45"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
-            <Separator Background="{StaticResource MainColor}"/>
-            <StackPanel Orientation="Horizontal">
-                <userControls:EditableTextBlock x:Name="titleTextBlock" OnSubmit="EditableTextBlock_OnSubmit" 
-                                         Text="{Binding Palette.Name, ElementName=paletteItem, Mode=TwoWay}" 
-                                         Foreground="White" FontSize="20" MaxChars="50"/>
+            <Separator Background="{StaticResource MainColor}" />
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <userControls:EditableTextBlock x:Name="titleTextBlock" OnSubmit="EditableTextBlock_OnSubmit"
+                                                    Text="{Binding Palette.Name, ElementName=paletteItem, Mode=TwoWay}"
+                                                    FontSize="20" MaxChars="50"/>
                 <Button Visibility="{Binding ElementName=paletteItem, Path=IsMouseOver, Converter={StaticResource BoolToVisibilityConverter}}"
                         Click="RenameButton_Click"
                         Style="{StaticResource ImageButtonStyle}" Cursor="Hand" Width="20" Height="20">
                     <Image Source="/Images/Edit.png"/>
                 </Button>
             </StackPanel>
+                <!--<Image Margin="0 5 5 0"
+                       Source="/Images/SupperterPack.png" Width="24"
+                       DockPanel.Dock="Right" HorizontalAlignment="Right"/>-->
+                <userControls:Chip Margin="0 5 5 0"
+                                   ui:Translator.Key="{Binding ElementName=paletteItem, Path=Palette.Source.Name.Key}"
+                                   DockPanel.Dock="Right" HorizontalAlignment="Right"/>
+            </DockPanel>
             <TextBlock Margin="0 5 0 0">
             </TextBlock>
         </StackPanel>
@@ -46,7 +55,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Rectangle Fill="{Binding}" ToolTip="{Binding}" Width="30" Height="30"/>
+                    <Rectangle Fill="{Binding Hex}" ToolTip="{Binding}" Width="30" Height="30"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
@@ -65,7 +74,7 @@
                     </Style>
                 </Border.Style>
                 <Button
-                    views:Translator.TooltipKey="USE_IN_CURRENT_IMAGE" Cursor="Hand"
+                    ui:Translator.TooltipKey="USE_IN_CURRENT_IMAGE" Cursor="Hand"
                     Style="{StaticResource ToolButtonStyle}"
                     Margin="0 3 0 0" Width="24" Height="24"
                     CommandParameter="{Binding ElementName=paletteItem, Path=Palette.Colors}"
@@ -92,7 +101,7 @@
                 <Button
                     Command="{Binding ElementName=paletteItem, Path=ToggleFavouriteCommand}"
                     CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
-                    views:Translator.TooltipKey="ADD_TO_FAVORITES">
+                    ui:Translator.TooltipKey="ADD_TO_FAVORITES">
                     <Button.Style>
                         <Style BasedOn="{StaticResource ImageButtonStyle}" TargetType="Button">
                             <Style.Triggers>
@@ -116,22 +125,28 @@
                 </Button>
             </Border>
             <Border Width="28" Height="28" CornerRadius="2.5"
-                    Margin="5 0 0 0" Padding="2">
+                    Margin="5 0 0 0" Padding="2" Name="deleteBorder">
                 <Border.Style>
                     <Style TargetType="Border">
                         <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="Red"/>
-                            </Trigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding Path=IsEnabled, ElementName=deleteButton}" Value="True"/>
+                                    <Condition Binding="{Binding Path=IsMouseOver, ElementName=deleteBorder}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <MultiDataTrigger.Setters>
+                                    <Setter Property="Background" Value="Red"/>
+                                </MultiDataTrigger.Setters>
+                            </MultiDataTrigger>
                             <Trigger Property="IsMouseOver" Value="False">
                                 <Setter Property="Background" Value="Transparent"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-                <Button Command="{Binding DeletePaletteCommand, ElementName=paletteItem}"
+                <Button Name="deleteButton" Command="{Binding DeletePaletteCommand, ElementName=paletteItem}"
                         CommandParameter="{Binding ElementName=paletteItem, Path=Palette}"
-                views:Translator.TooltipKey="DELETE" Width="24" Height="24" Margin="0"
+                ui:Translator.TooltipKey="DELETE" Width="24" Height="24" Margin="0"
                 Style="{StaticResource ToolButtonStyle}" Cursor="Hand">
                     <Button.Background>
                         <ImageBrush ImageSource="/Images/Trash.png"/>

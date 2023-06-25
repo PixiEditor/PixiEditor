@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using CLSEncoderDecoder;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 
@@ -28,7 +30,7 @@ internal class ClsFileParser : PaletteFileParser
                 set.Utf8Name,
                 set.Colors
                     .Where(static color => color.Alpha > 0)
-                    .Select(static color => new Color(color.Red, color.Green, color.Blue, 255))
+                    .Select(static color => new PaletteColor(color.Red, color.Green, color.Blue))
                     .ToArray()
             );
             return data;
@@ -41,7 +43,7 @@ internal class ClsFileParser : PaletteFileParser
 
         string name = data.Title;
         List<ClsColor> colors = data.Colors
-            .Select(color => new ClsColor(color.R, color.G, color.B, color.A)).ToList();
+            .Select(color => new ClsColor(color.R, color.G, color.B, 255)).ToList();
         await Task.Run(() =>
         {
             if (name.Length == 0)

@@ -9,6 +9,7 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" Background="Transparent"
              d:DesignHeight="200" d:DesignWidth="240" Name="uc">
     <i:Interaction.Triggers>
@@ -50,7 +51,7 @@
                                               Converter={converters:EnumBooleanConverter}, 
                                               ConverterParameter=Percentage,
                                               Mode=TwoWay
-                                              }" local:Translator.Key="PERCENTAGE"/>
+                                              }" ui:Translator.Key="PERCENTAGE"/>
                 <userControls:SizeInput Grid.Row="0" 
                                      VerticalAlignment="Center"
                                      HorizontalAlignment="Right"
@@ -80,7 +81,7 @@
                                               ElementName=uc, 
                                               Converter={converters:EnumBooleanConverter},
                                               Mode=TwoWay,
-                                              ConverterParameter=Pixel}" local:Translator.Key="ABSOLUTE"/>
+                                              ConverterParameter=Pixel}" ui:Translator.Key="ABSOLUTE"/>
 
             </Grid>
 
@@ -95,7 +96,7 @@
                     <RowDefinition />
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" Foreground="Snow" local:Translator.Key="WIDTH" VerticalAlignment="Center" HorizontalAlignment="Left" />
+                <TextBlock Grid.Column="0" Grid.Row="0" Foreground="Snow" ui:Translator.Key="WIDTH" VerticalAlignment="Center" HorizontalAlignment="Left" />
                 <userControls:SizeInput Grid.Column="1" Grid.Row="0"
                              x:Name="WidthPicker"
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
@@ -108,7 +109,7 @@
                     </i:Interaction.Triggers>
                 </userControls:SizeInput>
 
-                <TextBlock Grid.Column="0" Grid.Row="1" Foreground="Snow" local:Translator.Key="HEIGHT" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="0" Grid.Row="1" Foreground="Snow" ui:Translator.Key="HEIGHT" VerticalAlignment="Center" HorizontalAlignment="Left"/>
                 <userControls:SizeInput Grid.Column="1" Grid.Row="1"
                              x:Name="HeightPicker" 
                              IsEnabled="{Binding EditingEnabled, ElementName=uc}"
@@ -125,7 +126,7 @@
                   Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"
                   Name="aspectRatio" 
                   IsChecked="{Binding ElementName=uc, Path=PreserveAspectRatio}"
-                  local:Translator.Key="PRESERVE_ASPECT_RATIO"
+                  ui:Translator.Key="PRESERVE_ASPECT_RATIO"
                   Foreground="White" 
                   HorizontalAlignment="Left" 
                   VerticalAlignment="Center" />

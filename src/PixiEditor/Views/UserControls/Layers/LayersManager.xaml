@@ -14,6 +14,7 @@
              xmlns:commands="clr-namespace:PixiEditor.Models.Commands.XAML" 
              xmlns:layerUserControls="clr-namespace:PixiEditor.Views.UserControls.Layers"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+             xmlns:uiExt="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <Grid>
@@ -27,7 +28,7 @@
                 <Button 
                     Command="{commands:Command PixiEditor.Layer.NewLayer}" 
                     DockPanel.Dock="Left"
-                    Height="24" Width="24" Cursor="Hand" vws:Translator.TooltipKey="NEW_LAYER"
+                    Height="24" Width="24" Cursor="Hand" uiExt:Translator.TooltipKey="NEW_LAYER"
                     HorizontalAlignment="Stretch" Margin="0,0,5,0"
                     Style="{StaticResource ToolButtonStyle}"
                     FlowDirection="LeftToRight">
@@ -37,7 +38,7 @@
                 </Button>
                 <Button 
                     Command="{commands:Command PixiEditor.Layer.NewFolder}" 
-                    Height="24" Width="24" vws:Translator.TooltipKey="NEW_FOLDER" Cursor="Hand"
+                    Height="24" Width="24" uiExt:Translator.TooltipKey="NEW_FOLDER" Cursor="Hand"
                     DockPanel.Dock="Left"
                     HorizontalAlignment="Stretch"  Margin="0,0,5,0"
                     Style="{StaticResource ToolButtonStyle}"
@@ -47,7 +48,7 @@
                     </Button.Background>
                 </Button>
                 <Button 
-                    Command="{commands:Command PixiEditor.Layer.DeleteSelected}" Height="24" Width="24" vws:Translator.TooltipKey="LAYER_DELETE_ALL_SELECTED"
+                    Command="{commands:Command PixiEditor.Layer.DeleteSelected}" Height="24" Width="24" uiExt:Translator.TooltipKey="LAYER_DELETE_ALL_SELECTED"
                     Cursor="Hand"
                     HorizontalAlignment="Stretch" Margin="0,0,5,0"
                     DockPanel.Dock="Left"
@@ -58,7 +59,7 @@
                     </Button.Background>
                 </Button>
                 <Button 
-                    Command="{commands:Command PixiEditor.Layer.MergeWithBelow}" Height="24" Width="24" vws:Translator.TooltipKey="MERGE_WITH_BELOW" Cursor="Hand"
+                    Command="{commands:Command PixiEditor.Layer.MergeWithBelow}" Height="24" Width="24" uiExt:Translator.TooltipKey="MERGE_WITH_BELOW" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
                     Style="{StaticResource ToolButtonStyle}"
@@ -68,7 +69,7 @@
                     </Button.Background>
                 </Button>
                 <Button 
-                    Height="24" Width="24" vws:Translator.TooltipKey="CREATE_MASK" Cursor="Hand"
+                    Height="24" Width="24" uiExt:Translator.TooltipKey="CREATE_MASK" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
                     Style="{StaticResource ToolButtonStyle}"
@@ -79,7 +80,7 @@
                     </Button.Background>
                 </Button>
                 <Button 
-                    Height="24" Width="24" vws:Translator.TooltipKey="LOCK_TRANSPARENCY" Cursor="Hand"
+                    Height="24" Width="24" uiExt:Translator.TooltipKey="LOCK_TRANSPARENCY" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
                     Style="{StaticResource ToolButtonStyle}"

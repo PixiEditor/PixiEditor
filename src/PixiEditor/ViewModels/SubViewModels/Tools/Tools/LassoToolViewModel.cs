@@ -1,8 +1,9 @@
 ﻿using System.Windows.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
@@ -18,8 +19,6 @@ internal class LassoToolViewModel : ToolViewModel
         Toolbar = ToolbarFactory.Create(this);
         ActionDisplay = defaultActionDisplay;
     }
-
-    public override bool AlwaysShowContextMenu => true;
 
     private SelectionMode modifierKeySelectionMode = SelectionMode.New;
     public SelectionMode ResultingSelectionMode => modifierKeySelectionMode != SelectionMode.New ? modifierKeySelectionMode : SelectMode;
