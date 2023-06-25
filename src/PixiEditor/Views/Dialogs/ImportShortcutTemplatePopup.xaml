@@ -8,6 +8,7 @@
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d"
         Title="Import from template" Foreground="White"
         WindowStartupLocation="CenterOwner"
@@ -16,7 +17,7 @@
         Background="{StaticResource AccentColor}"
         x:Name="window"
         FlowDirection="{helpers:Localization FlowDirection}"
-        views:Translator.Key="IMPORT_FROM_TEMPLATE">
+        ui:Translator.Key="IMPORT_FROM_TEMPLATE">
 
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"

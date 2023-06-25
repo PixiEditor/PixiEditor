@@ -1,5 +1,6 @@
 ﻿using System.Runtime.Serialization;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Exceptions;
 

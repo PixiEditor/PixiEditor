@@ -2,8 +2,11 @@
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
+using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.Commands.XAML;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
@@ -13,6 +16,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.ExternalServices;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Localization;
 using PixiEditor.Views.Dialogs;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
@@ -23,13 +27,17 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 [Command.Group("PixiEditor.Colors", "PALETTE_COLORS")]
 internal class ColorsViewModel : SubViewModel<ViewModelMain>
 {
-    public RelayCommand<List<string>> ImportPaletteCommand { get; set; }
+    public RelayCommand<List<PaletteColor>> ImportPaletteCommand { get; set; }
+    private PaletteProvider paletteProvider;
 
-    public WpfObservableRangeCollection<PaletteFileParser> PaletteParsers { get; private set; }
-    public WpfObservableRangeCollection<PaletteListDataSource> PaletteDataSources { get; private set; }
+    public PaletteProvider PaletteProvider
+    {
+        get => paletteProvider;
+        set => this.SetProperty(ref paletteProvider, value);
+    }
 
     public LocalPalettesFetcher LocalPaletteFetcher => _localPaletteFetcher ??=
-        (LocalPalettesFetcher)PaletteDataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
+        (LocalPalettesFetcher)PaletteProvider.DataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
 
     private Color primaryColor = Colors.Black;
     private LocalPalettesFetcher _localPaletteFetcher;
@@ -65,7 +73,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     public ColorsViewModel(ViewModelMain owner)
         : base(owner)
     {
-        ImportPaletteCommand = new RelayCommand<List<string>>(ImportPalette, CanImportPalette);
+        ImportPaletteCommand = new RelayCommand<List<PaletteColor>>(ImportPalette, CanImportPalette);
         Owner.OnStartupEvent += OwnerOnStartupEvent;
     }
 
@@ -76,7 +84,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Colors.ReplaceColors")]
-    public void ReplaceColors((Color oldColor, Color newColor) colors)
+    public void ReplaceColors((PaletteColor oldColor, PaletteColor newColor) colors)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || colors.oldColor == colors.newColor)
@@ -88,8 +96,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Colors.ReplacePrimaryBySecondaryColor", true, "REPLACE_PRIMARY_BY_SECONDARY", "REPLACE_PRIMARY_BY_SECONDARY_DESCRIPTIVE", IconEvaluator = "PixiEditor.Colors.ReplaceColorIcon")]
     public void ReplaceColors(bool replacePrimary)
     {
-        var oldColor = replacePrimary ? PrimaryColor : SecondaryColor;
-        var newColor = replacePrimary ? SecondaryColor : PrimaryColor;
+        PaletteColor oldColor = replacePrimary ? PrimaryColor.ToPaletteColor() : SecondaryColor.ToPaletteColor();
+        PaletteColor newColor = replacePrimary ? SecondaryColor.ToPaletteColor() : PrimaryColor.ToPaletteColor();
         
         ReplaceColors((oldColor, newColor));
     }
@@ -137,7 +145,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is not null)
-            PalettesBrowser.Open(PaletteDataSources, ImportPaletteCommand, doc.Palette);
+            PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand, doc.Palette);
     } 
 
     private async Task ImportLospecPalette()
@@ -147,8 +155,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
 
         if (lospecPaletteArg != null)
         {
-            var browser = PalettesBrowser.Open(PaletteDataSources, ImportPaletteCommand,
-                new WpfObservableRangeCollection<Color>());
+            var browser = PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand,
+                new WpfObservableRangeCollection<PaletteColor>());
 
             browser.IsFetching = true;
             var palette = await LospecPaletteFetcher.FetchPalette(lospecPaletteArg.Split(@"://")[1].Replace("/", ""));
@@ -185,7 +193,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
 
         await LocalPaletteFetcher.SavePalette(
             palette.FileName,
-            palette.Colors.Select(Color.Parse).ToArray());
+            palette.Colors.Select(x => new PaletteColor(x.R, x.G, x.B)).ToArray());
 
         await browser.UpdatePaletteList();
         if (browser.SortedResults.Any(x => x.FileName == palette.FileName))
@@ -201,13 +209,13 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Colors.CanImportPalette")]
-    public bool CanImportPalette(List<string> paletteColors)
+    public bool CanImportPalette(List<PaletteColor> paletteColors)
     {
         return paletteColors is not null && Owner.DocumentIsNotNull(paletteColors) && paletteColors.Count > 0;
     }
 
     [Command.Internal("PixiEditor.Colors.ImportPalette", CanExecute = "PixiEditor.Colors.CanImportPalette")]
-    public void ImportPalette(List<string> palette)
+    public void ImportPalette(List<PaletteColor> palette)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -217,10 +225,10 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         {
             if (doc.Palette is null)
             {
-                doc.Palette = new WpfObservableRangeCollection<DrawingApi.Core.ColorsImpl.Color>();
+                doc.Palette = new WpfObservableRangeCollection<PaletteColor>();
             }
 
-            doc.Palette.ReplaceRange(palette.Select(Color.Parse));
+            doc.Palette.ReplaceRange(palette.Select(x => new PaletteColor(x.R, x.G, x.B)));
         }
     }
 
@@ -259,9 +267,14 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
 
         Color color;
         if (document?.Palette is null || document.Palette.Count <= index)
+        {
             color = Colors.Gray;
+        }
         else
-            color = document.Palette[index];
+        {
+            PaletteColor paletteColor = document.Palette[index];
+            color = new Color(paletteColor.R, paletteColor.G, paletteColor.B);
+        }
 
         return ColorSearchResult.GetIcon(color);
     }
@@ -281,7 +294,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (document?.Palette is not null && document.Palette.Count > index)
         {
-            PrimaryColor = document.Palette[index];
+            PaletteColor paletteColor = document.Palette[index];
+            PrimaryColor = new Color(paletteColor.R, paletteColor.G, paletteColor.B);
         }
     }
 
@@ -291,7 +305,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         (PrimaryColor, SecondaryColor) = (SecondaryColor, PrimaryColor);
     }
 
-    public void AddSwatch(Color color)
+    public void AddSwatch(PaletteColor color)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -303,7 +317,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Colors.RemoveSwatch")]
-    public void RemoveSwatch(Color color)
+    public void RemoveSwatch(PaletteColor color)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -315,9 +329,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Colors.SelectColor")]
-    public void SelectColor(Color color)
+    public void SelectColor(PaletteColor color)
     {
-        PrimaryColor = color;
+        PrimaryColor = color.ToColor();
     }
 
     [Command.Basic("PixIEditor.Colors.AddPrimaryToPalettes", "ADD_PRIMARY_COLOR_TO_PALETTE", "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "CopyAdd.png")]
@@ -325,9 +339,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     {
         var palette = Owner.DocumentManagerSubViewModel.ActiveDocument.Palette;
 
-        if (!palette.Contains(PrimaryColor))
+        if (!palette.Contains(PrimaryColor.ToPaletteColor()))
         {
-            palette.Add(PrimaryColor);
+            palette.Add(PrimaryColor.ToPaletteColor());
         }
     }
 
@@ -337,16 +351,16 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         menu.IsOpen = false;
     }
 
-    public void SetupPaletteParsers(IServiceProvider services)
+    public void SetupPaletteProviders(IServiceProvider services)
     {
-        PaletteParsers = new WpfObservableRangeCollection<PaletteFileParser>(services.GetServices<PaletteFileParser>());
-        PaletteDataSources = new WpfObservableRangeCollection<PaletteListDataSource>(services.GetServices<PaletteListDataSource>());
-        var parsers = PaletteParsers.ToList();
+        PaletteProvider = (PaletteProvider)services.GetService<IPaletteProvider>();
+        PaletteProvider.AvailableParsers =
+            new WpfObservableRangeCollection<PaletteFileParser>(services.GetServices<PaletteFileParser>());
+        var dataSources = services.GetServices<PaletteListDataSource>();
 
-        foreach (var dataSource in PaletteDataSources)
+        foreach (var dataSource in dataSources)
         {
-            dataSource.AvailableParsers = parsers;
-            dataSource.Initialize();
+            PaletteProvider.RegisterDataSource(dataSource);
         }
     }
 }

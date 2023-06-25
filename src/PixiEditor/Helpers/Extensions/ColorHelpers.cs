@@ -1,4 +1,5 @@
 ﻿using System.Windows.Media;
+using PixiEditor.Extensions.Palettes;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Helpers.Extensions;
@@ -7,9 +8,14 @@ internal static class ColorHelpers
 {
     public static BackendColor ToOpaqueColor(this Color color) => new(color.R, color.G, color.B);
     public static BackendColor ToColor(this Color color) => new(color.R, color.G, color.B, color.A);
+    public static BackendColor ToColor(this PaletteColor color) => new(color.R, color.G, color.B, 255);
+
+    public static PaletteColor ToPaletteColor(this Color color) => new(color.R, color.G, color.B);
+    public static PaletteColor ToPaletteColor(this BackendColor color) => new(color.R, color.G, color.B);
 
     public static Color ToOpaqueMediaColor(this BackendColor color) => Color.FromRgb(color.R, color.G, color.B);
     public static Color ToColor(this BackendColor color) => Color.FromArgb(color.A, color.R, color.G, color.B);
+    public static Color ToMediaColor(this PaletteColor color) => Color.FromRgb(color.R, color.G, color.B);
     
     public static BackendColor BlendColors(BackendColor bottomColor, BackendColor topColor)
     {

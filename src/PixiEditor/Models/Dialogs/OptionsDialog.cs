@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Windows.Controls;
 using System.Windows.Media;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Localization;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Models.Dialogs;

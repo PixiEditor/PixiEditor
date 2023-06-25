@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -28,7 +29,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         if (!drawOnMask && member is not LayerViewModel)
             return ExecutionState.Error;
 
-        colorsVM.AddSwatch(color);
+        colorsVM.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         memberGuid = member.GuidValue;
         considerAllLayers = fillTool.ConsiderAllLayers;
         color = colorsVM.PrimaryColor;

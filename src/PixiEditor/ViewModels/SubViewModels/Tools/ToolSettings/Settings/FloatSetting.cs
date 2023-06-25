@@ -1,6 +1,5 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Data;
-using PixiEditor.Localization;
 using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;

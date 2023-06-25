@@ -10,8 +10,9 @@
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:views="clr-namespace:PixiEditor.Views"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d" WindowStyle="None"
-        views:Translator.Key="ABOUT"
+        ui:Translator.Key="ABOUT"
         WindowStartupLocation="CenterScreen"
         Name="aboutPopup"
         Width="440" Height="510"
@@ -40,8 +41,8 @@
                 <Image Source="../../Images/PixiEditorLogo.png" Height="40" VerticalAlignment="Center"/>
                 <TextBlock FontSize="40" FontWeight="SemiBold" Foreground="White" VerticalAlignment="Center" Margin="10,0,0,0">PixiEditor</TextBlock>
             </StackPanel>
-            <TextBlock Foreground="White" HorizontalAlignment="Center" FontSize="20" FontWeight="Medium" views:Translator.LocalizedString="{Binding VersionText}"/>
-            <Label views:Translator.Key="PROJECT_MAINTAINERS" Style="{StaticResource Header2}" Margin="10 20 0 5"/>
+            <TextBlock Foreground="White" HorizontalAlignment="Center" FontSize="20" FontWeight="Medium" ui:Translator.LocalizedString="{Binding VersionText}"/>
+            <Label ui:Translator.Key="PROJECT_MAINTAINERS" Style="{StaticResource Header2}" Margin="10 20 0 5"/>
             <StackPanel Orientation="Horizontal" Margin="20 0">
                 <Ellipse Width="32" Height="32" FlowDirection="LeftToRight">
                     <Ellipse.Fill>
@@ -85,7 +86,7 @@
             <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
                 <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor/graphs/contributors"
                            Style="{StaticResource SettingsLink}">
-                    <Run views:Translator.Key="OTHER_AWESOME_CONTRIBUTORS" />
+                    <Run ui:Translator.Key="OTHER_AWESOME_CONTRIBUTORS" />
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </Label>
@@ -95,7 +96,7 @@
             <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
                 <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenLicense}"
                            Style="{StaticResource SettingsLink}">
-                    <Run views:Translator.Key="LICENSE"/>
+                    <Run ui:Translator.Key="LICENSE"/>
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </Label>
@@ -103,7 +104,7 @@
             <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
                 <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenOtherLicenses}"
                            Style="{StaticResource SettingsLink}">
-                    <Run views:Translator.Key="THIRD_PARTY_LICENSES"/>
+                    <Run ui:Translator.Key="THIRD_PARTY_LICENSES"/>
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </Label>
@@ -111,33 +112,41 @@
             <Label Style="{StaticResource SettingsText}" Margin="20 10 0 0" FontSize="14">
                 <Hyperlink Command="{cmds:Command PixiEditor.Links.OpenDocumentation}"
                            Style="{StaticResource SettingsLink}">
-                    <Run views:Translator.Key="DOCUMENTATION" />
+                    <Run ui:Translator.Key="DOCUMENTATION" />
                     <Run Text="" FontFamily="{StaticResource Feather}"/>
                 </Hyperlink>
             </Label>
             
             <userControls:AlignableWrapPanel DockPanel.Dock="Bottom" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,20,0,15">
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://pixieditor.net"
-                            Style="{StaticResource SocialMediaButton}" Tag="#e3002d" views:Translator.TooltipKey="WEBSITE"
+                            Style="{StaticResource SocialMediaButton}" Tag="#e3002d" ui:Translator.TooltipKey="WEBSITE"
                             Content="/Images/SocialMedia/WebsiteIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://discord.gg/tzkQFDkqQS"
-                            Style="{StaticResource SocialMediaButton}" Tag="#7289DA" views:Translator.TooltipKey="DISCORD"
+                            Style="{StaticResource SocialMediaButton}" Tag="#7289DA" ui:Translator.TooltipKey="DISCORD"
                             Content="/Images/SocialMedia/DiscordIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://reddit.com/r/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" views:Translator.TooltipKey="REDDIT"
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
                             Content="/Images/SocialMedia/RedditIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://store.steampowered.com/app/2218560"
-                            Style="{StaticResource SocialMediaButton}" Tag="#00adee" views:Translator.TooltipKey="STEAM"
+                            Style="{StaticResource SocialMediaButton}" Tag="#00adee" ui:Translator.TooltipKey="STEAM"
                             Content="/Images/SocialMedia/SteamIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="Black" views:Translator.TooltipKey="GITHUB"
+                            Style="{StaticResource SocialMediaButton}" Tag="Black" ui:Translator.TooltipKey="GITHUB"
                             Content="/Images/SocialMedia/GithubIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ" 
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" views:Translator.TooltipKey="YOUTUBE"
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
                             Content="/Images/SocialMedia/YouTubeIcon.png"/>
-                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://opencollective.com/pixieditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" views:Translator.TooltipKey="DONATE"
-                            Visibility="{Binding DisplayDonationButton, Converter={BoolToVisibilityConverter}}"
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                            Visibility="{Binding DisplayDonationButton,
+                            Converter={BoolToVisibilityConverter}}"
+                            CommandParameter="https://opencollective.com/pixieditor"
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
+                            Content="/Images/SocialMedia/DonateIcon.png"/>
+                    <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
+                            Visibility="{Binding DisplayDonationButton,
+                            Converter={InverseBoolToVisibilityConverter}}"
+                            CommandParameter="https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/"
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.TooltipKey="BUY_SUPPORTER_PACK"
                             Content="/Images/SocialMedia/DonateIcon.png"/>
                 </userControls:AlignableWrapPanel>
         </StackPanel>

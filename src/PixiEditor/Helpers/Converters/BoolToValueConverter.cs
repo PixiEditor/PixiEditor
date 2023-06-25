@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Helpers.Converters;
 

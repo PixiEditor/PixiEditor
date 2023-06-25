@@ -1,10 +1,13 @@
 ﻿using System.IO;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
-using PixiEditor.Models.UserPreferences;
 
 namespace PixiEditor.Models.DataProviders;
 
@@ -12,10 +15,6 @@ internal delegate void CacheUpdate(RefreshType refreshType, Palette itemAffected
 
 internal class LocalPalettesFetcher : PaletteListDataSource
 {
-    public static string PathToPalettesFolder { get; } = Path.Join(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "PixiEditor", "Palettes");
-
     private List<Palette> cachedPalettes;
 
     public event CacheUpdate CacheUpdated;
@@ -24,10 +23,14 @@ internal class LocalPalettesFetcher : PaletteListDataSource
 
     private FileSystemWatcher watcher;
 
+    public LocalPalettesFetcher() : base("LOCAL_PALETTE_SOURCE_NAME")
+    {
+    }
+
     public override void Initialize()
     {
         InitDir();
-        watcher = new FileSystemWatcher(PathToPalettesFolder);
+        watcher = new FileSystemWatcher(Paths.PathToPalettesFolder);
         watcher.Filter = "*.pal";
         watcher.Changed += FileSystemChanged;
         watcher.Deleted += FileSystemChanged;
@@ -40,22 +43,20 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, updated =>
         {
             cachedFavoritePalettes = (List<string>)updated;
+            cachedPalettes.ForEach(x => x.IsFavourite = cachedFavoritePalettes.Contains(x.Name));
         });
     }
 
-    public override async Task<PaletteList> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
+    public override async Task<List<IPalette>> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
     {
         if (cachedPalettes == null)
         {
             await RefreshCacheAll();
         }
 
-        PaletteList result = new PaletteList
-        {
-            Palettes = new WpfObservableRangeCollection<Palette>()
-        };
+        var filteredPalettes = cachedPalettes.Where(filtering.Filter).OrderByDescending(x => x.IsFavourite).ToArray();
 
-        var filteredPalettes = cachedPalettes.Where(filtering.Filter).ToArray();
+        List<IPalette> result = new List<IPalette>();
 
         if (startIndex >= filteredPalettes.Length) return result;
 
@@ -63,10 +64,9 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         {
             if (startIndex + i >= filteredPalettes.Length) break;
             Palette palette = filteredPalettes[startIndex + i];
-            result.Palettes.Add(palette);
+            result.Add(palette);
         }
 
-        result.FetchedCorrectly = true;
         return result;
     }
 
@@ -78,21 +78,21 @@ internal class LocalPalettesFetcher : PaletteListDataSource
             finalFileName += ".pal";
         }
 
-        return File.Exists(Path.Join(PathToPalettesFolder, finalFileName));
+        return File.Exists(Path.Join(Paths.PathToPalettesFolder, finalFileName));
     }
 
     public static string GetNonExistingName(string currentName, bool appendExtension = false)
     {
         string newName = Path.GetFileNameWithoutExtension(currentName);
 
-        if (File.Exists(Path.Join(PathToPalettesFolder, newName + ".pal")))
+        if (File.Exists(Path.Join(Paths.PathToPalettesFolder, newName + ".pal")))
         {
             int number = 1;
             while (true)
             {
                 string potentialName = $"{newName} ({number})";
                 number++;
-                if (File.Exists(Path.Join(PathToPalettesFolder, potentialName + ".pal")))
+                if (File.Exists(Path.Join(Paths.PathToPalettesFolder, potentialName + ".pal")))
                     continue;
                 newName = potentialName;
                 break;
@@ -105,10 +105,10 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         return newName;
     }
 
-    public async Task SavePalette(string fileName, Color[] colors)
+    public async Task SavePalette(string fileName, PaletteColor[] colors)
     {
         watcher.EnableRaisingEvents = false;
-        string path = Path.Join(PathToPalettesFolder, fileName);
+        string path = Path.Join(Paths.PathToPalettesFolder, fileName);
         InitDir();
         await JascFileParser.SaveFile(path, new PaletteFileData(colors));
         watcher.EnableRaisingEvents = true;
@@ -118,8 +118,8 @@ internal class LocalPalettesFetcher : PaletteListDataSource
 
     public async Task DeletePalette(string name)
     {
-        if (!Directory.Exists(PathToPalettesFolder)) return;
-        string path = Path.Join(PathToPalettesFolder, name);
+        if (!Directory.Exists(Paths.PathToPalettesFolder)) return;
+        string path = Path.Join(Paths.PathToPalettesFolder, name);
         if (!File.Exists(path)) return;
 
         watcher.EnableRaisingEvents = false;
@@ -131,11 +131,11 @@ internal class LocalPalettesFetcher : PaletteListDataSource
 
     public void RenamePalette(string oldFileName, string newFileName)
     {
-        if (!Directory.Exists(PathToPalettesFolder))
+        if (!Directory.Exists(Paths.PathToPalettesFolder))
             return;
 
-        string oldPath = Path.Join(PathToPalettesFolder, oldFileName);
-        string newPath = Path.Join(PathToPalettesFolder, newFileName);
+        string oldPath = Path.Join(Paths.PathToPalettesFolder, oldFileName);
+        string newPath = Path.Join(Paths.PathToPalettesFolder, newFileName);
         if (!File.Exists(oldPath) || File.Exists(newPath))
             return;
 
@@ -149,7 +149,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
     public async Task RefreshCacheAll()
     {
         string[] files = DirectoryExtensions.GetFiles(
-            PathToPalettesFolder,
+            Paths.PathToPalettesFolder,
             string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)),
             SearchOption.TopDirectoryOnly);
         cachedPalettes = await ParseAll(files);
@@ -317,12 +317,12 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         return result;
     }
 
-    private static Palette CreatePalette(PaletteFileData fileData, string file, bool isFavourite)
+    private Palette CreatePalette(PaletteFileData fileData, string file, bool isFavourite)
     {
         var palette = new Palette(
             fileData.Title,
-            new List<string>(fileData.GetHexColors()),
-            Path.GetFileName(file))
+            new List<PaletteColor>(fileData.GetPaletteColors()),
+            Path.GetFileName(file), this)
         {
             IsFavourite = isFavourite
         };
@@ -337,9 +337,9 @@ internal class LocalPalettesFetcher : PaletteListDataSource
 
     private static void InitDir()
     {
-        if (!Directory.Exists(PathToPalettesFolder))
+        if (!Directory.Exists(Paths.PathToPalettesFolder))
         {
-            Directory.CreateDirectory(PathToPalettesFolder);
+            Directory.CreateDirectory(Paths.PathToPalettesFolder);
         }
     }
 }

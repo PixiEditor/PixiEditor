@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using PixiEditor.Extensions.Palettes;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using BackendColors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 
@@ -9,15 +10,14 @@ namespace PixiEditor.Views.UserControls.Palettes;
 
 internal partial class ColorReplacer : UserControl
 {
-    public BackendColor ColorToReplace
+    public PaletteColor ColorToReplace
     {
-        get { return (BackendColor)GetValue(ColorToReplaceProperty); }
+        get { return (PaletteColor)GetValue(ColorToReplaceProperty); }
         set { SetValue(ColorToReplaceProperty, value); }
     }
 
-
     public static readonly DependencyProperty ColorToReplaceProperty =
-        DependencyProperty.Register(nameof(ColorToReplace), typeof(BackendColor), typeof(ColorReplacer), new PropertyMetadata(BackendColors.White));
+        DependencyProperty.Register(nameof(ColorToReplace), typeof(PaletteColor), typeof(ColorReplacer), new PropertyMetadata(PaletteColor.White));
 
 
     public Color HintColor
@@ -57,10 +57,15 @@ internal partial class ColorReplacer : UserControl
 
     private void UIElement_OnDrop(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(PaletteColor.PaletteColorDaoFormat))
+        if (e.Data.GetDataPresent(PaletteColorControl.PaletteColorDaoFormat))
         {
-            string hex = (string)e.Data.GetData(PaletteColor.PaletteColorDaoFormat);
-            ColorToReplace = BackendColor.Parse(hex).WithAlpha(255);
+            string hex = (string)e.Data.GetData(PaletteColorControl.PaletteColorDaoFormat);
+            if (hex is null)
+            {
+                return;
+            }
+
+            ColorToReplace = PaletteColor.Parse(hex);
         }
     }
 
@@ -71,10 +76,10 @@ internal partial class ColorReplacer : UserControl
 
     private void ReplaceButton_OnClick(object sender, RoutedEventArgs e)
     {
-        BackendColor first = ColorToReplace.WithAlpha(255);
+        PaletteColor first = ColorToReplace;
         Color rawSecond = NewColor;
 
-        BackendColor second = new BackendColor(rawSecond.R, rawSecond.G, rawSecond.B, 255);
+        PaletteColor second = new PaletteColor(rawSecond.R, rawSecond.G, rawSecond.B);
 
         var pack = (first, second);
         if (ReplaceColorsCommand.CanExecute(pack))
@@ -83,6 +88,6 @@ internal partial class ColorReplacer : UserControl
         }
 
         ColorToReplace = second;
-        NewColor = first.ToOpaqueMediaColor();
+        NewColor = new Color { R = first.R, G = first.G, B = first.B, A = 255 };
     }
 }

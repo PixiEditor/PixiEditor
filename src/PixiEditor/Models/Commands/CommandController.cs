@@ -3,11 +3,12 @@ using System.Reflection;
 using System.Windows.Media;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 using CommandAttribute = PixiEditor.Models.Commands.Attributes.Commands.Command;
 

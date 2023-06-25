@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.Enums;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
@@ -46,7 +47,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         strokeWidth = toolbar.ToolSize;
         memberGuid = member.GuidValue;
 
-        colorsVM.AddSwatch(strokeColor);
+        colorsVM.AddSwatch(new PaletteColor(strokeColor.R, strokeColor.G, strokeColor.B));
         DrawShape(startPos, true);
         return ExecutionState.Success;
     }

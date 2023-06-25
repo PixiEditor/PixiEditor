@@ -7,14 +7,15 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters" 
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
-             mc:Ignorable="d"
+             mc:Ignorable="d" x:Name="etb"
              d:DesignHeight="60" d:DesignWidth="100" Focusable="True">
     <Grid>
-        <TextBlock Foreground="Snow" MouseLeftButtonDown="TextBlock_MouseDown"
+        <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}" MouseLeftButtonDown="TextBlock_MouseDown"
                    TextTrimming="CharacterEllipsis" Name="textBlock"
                    Visibility="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
                    Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}" />
-        <TextBox MaxLength="{Binding Path=MaxChars, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}" Style="{StaticResource DarkTextBoxStyle}"
+        <TextBox Foreground="{Binding ElementName=etb, Path=Foreground}"
+                 MaxLength="{Binding Path=MaxChars, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}" Style="{StaticResource DarkTextBoxStyle}"
                  LostFocus="TextBox_LostFocus"
                  Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}"
                  KeyDown="TextBox_KeyDown"

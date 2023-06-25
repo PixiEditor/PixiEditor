@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.Views.UserControls;

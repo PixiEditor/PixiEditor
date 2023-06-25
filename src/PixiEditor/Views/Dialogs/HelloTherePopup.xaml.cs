@@ -1,10 +1,13 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Services.NewsFeed;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Views.Dialogs;
@@ -21,6 +24,35 @@ internal partial class HelloTherePopup : Window
 
     public static readonly DependencyProperty RecentlyOpenedEmptyProperty =
         DependencyProperty.Register(nameof(RecentlyOpenedEmpty), typeof(bool), typeof(HelloTherePopup));
+
+    public static readonly DependencyProperty IsFetchingNewsProperty = DependencyProperty.Register(
+        nameof(IsFetchingNews), typeof(bool), typeof(HelloTherePopup), new PropertyMetadata(default(bool)));
+
+    public static readonly DependencyProperty NewsPanelCollapsedProperty = DependencyProperty.Register(
+        nameof(NewsPanelCollapsed), typeof(bool), typeof(HelloTherePopup),
+        new PropertyMetadata(false, NewsPanelCollapsedChangedCallback));
+
+    public bool NewsPanelCollapsed
+    {
+        get { return (bool)GetValue(NewsPanelCollapsedProperty); }
+        set { SetValue(NewsPanelCollapsedProperty, value); }
+    }
+    public bool IsFetchingNews
+    {
+        get { return (bool)GetValue(IsFetchingNewsProperty); }
+        set { SetValue(IsFetchingNewsProperty, value); }
+    }
+
+    public static readonly DependencyProperty FailedFetchingNewsProperty = DependencyProperty.Register(
+        nameof(FailedFetchingNews), typeof(bool), typeof(HelloTherePopup), new PropertyMetadata(false));
+
+    public bool FailedFetchingNews
+    {
+        get { return (bool)GetValue(FailedFetchingNewsProperty); }
+        set { SetValue(FailedFetchingNewsProperty, value); }
+    }
+
+    public WpfObservableRangeCollection<News> News { get; set; } = new WpfObservableRangeCollection<News>();
 
     public static string VersionText =>
         $"v{VersionHelpers.GetCurrentAssemblyVersionString()}";
@@ -39,12 +71,18 @@ internal partial class HelloTherePopup : Window
 
     public bool IsClosing { get; private set; }
 
+    private NewsProvider NewsProvider { get; set; }
+
+    public bool NewsDisabled => _newsDisabled;
+
     public bool ShowDonateButton => // Steam doesn't allow external donations :(
 #if STEAM
         false;
 #else
         true;
 #endif
+
+    private bool _newsDisabled = false;
 
     public HelloTherePopup(FileViewModel fileViewModel)
     {
@@ -60,25 +98,61 @@ internal partial class HelloTherePopup : Window
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
         RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
+        _newsDisabled = IPreferences.Current.GetPreference<bool>(PreferencesConstants.DisableNewsPanel);
+
+        NewsProvider = new NewsProvider();
+
         Closing += (_, _) => { IsClosing = true; };
 
         InitializeComponent();
 
+
+        int newsWidth = 300;
+
+        NewsPanelCollapsed = IPreferences.Current.GetPreference<bool>(PreferencesConstants.NewsPanelCollapsed);
+
+        if (_newsDisabled || NewsPanelCollapsed)
+        {
+            newsColumn.Width = new GridLength(0);
+            newsWidth = 0;
+        }
+
         if (RecentlyOpenedEmpty)
         {
-            Width = 400;
+            Width = 500 + newsWidth;
             Height = 500;
         }
         else if (RecentlyOpened.Count < 4)
         {
-            Width = 445;
+            Width = 545 + newsWidth;
             Height = 500;
         }
         else if (RecentlyOpened.Count < 7)
         {
-            Width = 475;
+            Width = 575 + newsWidth;
             Height = 670;
         }
+    }
+
+    private static void NewsPanelCollapsedChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        HelloTherePopup helloTherePopup = (HelloTherePopup)d;
+
+        if(helloTherePopup._newsDisabled || e.NewValue is not bool newValue)
+            return;
+
+        if (newValue)
+        {
+            helloTherePopup.Width -= 300;
+            helloTherePopup.newsColumn.Width = new GridLength(0);
+        }
+        else
+        {
+            helloTherePopup.Width += 300;
+            helloTherePopup.newsColumn.Width = new GridLength(300);
+        }
+
+        IPreferences.Current.UpdatePreference(PreferencesConstants.NewsPanelCollapsed, newValue);
     }
 
     private void RecentlyOpened_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -124,4 +198,36 @@ internal partial class HelloTherePopup : Window
     }
 
     private bool CanOpenInExplorer(object parameter) => File.Exists((string)parameter);
+
+    private async void HelloTherePopup_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        if(_newsDisabled) return;
+
+        try
+        {
+            IsFetchingNews = true;
+            var news = await NewsProvider.FetchNewsAsync();
+            if (news is not null)
+            {
+                IsFetchingNews = false;
+                News.Clear();
+                News.AddRange(news);
+                if (NewsPanelCollapsed && News.Any(x => x.IsNew))
+                {
+                    NewsPanelCollapsed = false;
+                }
+            }
+            else
+            {
+                IsFetchingNews = false;
+                FailedFetchingNews = true;
+            }
+        }
+        catch(Exception ex)
+        {
+            IsFetchingNews = false;
+            FailedFetchingNews = true;
+            await CrashHelper.SendExceptionInfoToWebhook(ex);
+        }
+    }
 }

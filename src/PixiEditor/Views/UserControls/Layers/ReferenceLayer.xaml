@@ -11,6 +11,7 @@
              xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:views="clr-namespace:PixiEditor.Views"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" 
              d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" Name="uc">
     <Border BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="0 2 0 0" MinWidth="60"
@@ -71,7 +72,7 @@
 
                             <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" 
                                         Margin="0 0 5 0" Foreground="White" 
-                                        FontSize="15" VerticalAlignment="Center" views:Translator.Key="ADD_REFERENCE_LAYER"/>
+                                        FontSize="15" VerticalAlignment="Center" ui:Translator.Key="ADD_REFERENCE_LAYER"/>
                         </StackPanel>
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseUp">
@@ -123,7 +124,7 @@
                     <Button Cursor="Hand" DockPanel.Dock="Right"
                             Command="{cmds:Command PixiEditor.Layer.ResetReferenceLayerPosition}"
                             Style="{StaticResource ImageButtonStyle}" 
-                            views:Translator.TooltipKey="RESET_REFERENCE_LAYER_POS"
+                            ui:Translator.TooltipKey="RESET_REFERENCE_LAYER_POS"
                             RenderOptions.BitmapScalingMode="HighQuality"
                             Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
@@ -133,7 +134,7 @@
                     <Button Cursor="Hand" DockPanel.Dock="Right"
                             Command="{cmds:Command PixiEditor.Layer.TransformReferenceLayer}"
                             Style="{StaticResource ImageButtonStyle}" 
-                            views:Translator.TooltipKey="TRANSFORM_REFERENCE_LAYER"
+                            ui:Translator.TooltipKey="TRANSFORM_REFERENCE_LAYER"
                             RenderOptions.BitmapScalingMode="HighQuality"
                             Width="20" Height="20" HorizontalAlignment="Right">
                         <Button.Background>
@@ -142,7 +143,7 @@
                     </Button>
                     <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" HorizontalAlignment="Center"
                                Margin="0 0 5 0" Foreground="White" 
-                               FontSize="15" VerticalAlignment="Center" views:Translator.Key="REFERENCE"/>
+                               FontSize="15" VerticalAlignment="Center" ui:Translator.Key="REFERENCE"/>
                 </DockPanel>
             </Grid>
         </DockPanel>

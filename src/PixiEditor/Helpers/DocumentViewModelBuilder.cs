@@ -5,6 +5,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Parser;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -15,8 +16,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
     public int Width { get; set; }
     public int Height { get; set; }
     
-    public List<Color> Swatches { get; set; } = new List<Color>();
-    public List<Color> Palette { get; set; } = new List<Color>();
+    public List<PaletteColor> Swatches { get; set; } = new List<PaletteColor>();
+    public List<PaletteColor> Palette { get; set; } = new List<PaletteColor>();
     
     public ReferenceLayerBuilder ReferenceLayer { get; set; }
 
@@ -30,22 +31,22 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
     public DocumentViewModelBuilder WithSize(VecI size) => WithSize(size.X, size.Y);
     
-    public DocumentViewModelBuilder WithSwatches(IEnumerable<Color> swatches)
+    public DocumentViewModelBuilder WithSwatches(IEnumerable<PaletteColor> swatches)
     {
         Swatches = new (swatches);
         return this;
     }
 
-    public DocumentViewModelBuilder WithSwatches<T>(IEnumerable<T> swatches, Func<T, Color> toColor) =>
+    public DocumentViewModelBuilder WithSwatches<T>(IEnumerable<T> swatches, Func<T, PaletteColor> toColor) =>
         WithSwatches(swatches.Select(toColor));
     
-    public DocumentViewModelBuilder WithPalette(IEnumerable<Color> palette)
+    public DocumentViewModelBuilder WithPalette(IEnumerable<PaletteColor> palette)
     {
         Palette = new(palette);
         return this;
     }
 
-    public DocumentViewModelBuilder WithPalette<T>(IEnumerable<T> pallet, Func<T, Color> toColor) =>
+    public DocumentViewModelBuilder WithPalette<T>(IEnumerable<T> pallet, Func<T, PaletteColor> toColor) =>
         WithPalette(pallet.Select(toColor));
 
     public DocumentViewModelBuilder WithReferenceLayer<T>(T reference, Action<T, ReferenceLayerBuilder> builder)

@@ -1,13 +1,22 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Localization;
+using PixiEditor.Extensions;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Extensions.Windowing;
+using PixiEditor.Models.AppExtensions;
+using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.PaletteParsers;
 using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Models.Localization;
+using PixiEditor.Models.Preferences;
 using PixiEditor.ViewModels;
+using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Main;
 using PixiEditor.ViewModels.SubViewModels.Tools;
@@ -20,10 +29,10 @@ internal static class ServiceCollectionHelpers
     /// <summary>
     /// Adds all the services required to fully run PixiEditor's MainWindow
     /// </summary>
-    public static IServiceCollection AddPixiEditor(this IServiceCollection collection) => collection
+    public static IServiceCollection AddPixiEditor(this IServiceCollection collection, ExtensionLoader extensionLoader) => collection
         .AddSingleton<ViewModelMain>()
         .AddSingleton<IPreferences, PreferencesSettings>()
-        .AddSingleton<ILocalizationProvider, LocalizationProvider>()
+        .AddSingleton<ILocalizationProvider, LocalizationProvider>(x => new LocalizationProvider(extensionLoader))
         // View Models
         .AddSingleton<StylusViewModel>()
         .AddSingleton<WindowViewModel>()
@@ -41,6 +50,8 @@ internal static class ServiceCollectionHelpers
         .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
         .AddSingleton<DebugViewModel>()
         .AddSingleton<SearchViewModel>()
+        .AddSingleton<AdditionalContentViewModel>()
+        .AddSingleton(x => new ExtensionsViewModel(x.GetService<ViewModelMain>(), extensionLoader))
         // Controllers
         .AddSingleton<ShortcutController>()
         .AddSingleton<CommandController>()
@@ -71,4 +82,8 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<PaletteFileParser, PixiPaletteParser>()
         // Palette data sources
         .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();
+
+    public static IServiceCollection AddExtensionServices(this IServiceCollection collection) =>
+        collection.AddSingleton<IWindowProvider, WindowProvider>()
+            .AddSingleton<IPaletteProvider, PaletteProvider>();
 }

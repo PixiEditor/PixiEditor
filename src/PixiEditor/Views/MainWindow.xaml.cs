@@ -1,17 +1,23 @@
 ﻿using System.ComponentModel;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using AvalonDock.Layout;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers;
+using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -23,8 +29,9 @@ internal partial class MainWindow : Window
     private static WriteableBitmap pixiEditorLogo;
 
     private readonly IPreferences preferences;
-
+    private readonly IPlatform platform;
     private readonly IServiceProvider services;
+    private static ExtensionLoader extLoader;
 
     public static MainWindow Current { get; private set; }
 
@@ -32,19 +39,26 @@ internal partial class MainWindow : Window
 
     public event Action OnDataContextInitialized;
 
-    public MainWindow()
+    public MainWindow(ExtensionLoader extensionLoader)
     {
+        extLoader = extensionLoader;
         Current = this;
 
         services = new ServiceCollection()
-            .AddPixiEditor()
+            .AddPlatform()
+            .AddPixiEditor(extensionLoader)
+            .AddExtensionServices()
             .BuildServiceProvider();
 
         SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
         DrawingBackendApi.SetupBackend(skiaDrawingBackend);
 
+        SetupTranslator();
+
         preferences = services.GetRequiredService<IPreferences>();
+        platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModelMain>();
+
         DataContext.Setup(services);
 
         InitializeComponent();
@@ -67,6 +81,16 @@ internal partial class MainWindow : Window
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
     }
 
+    private void SetupTranslator()
+    {
+        Translator.ExternalProperties.Add(new ExternalProperty<LayoutContent>(TranslateLayoutContent));
+    }
+
+    private void TranslateLayoutContent(DependencyObject d, LocalizedString value)
+    {
+        ((LayoutContent)d).SetValue(LayoutContent.TitleProperty, value.Value);
+    }
+
     private void MainWindow_ContentRendered(object sender, EventArgs e)
     {
         GlobalMouseHook.Instance.Initilize(this);
@@ -74,7 +98,7 @@ internal partial class MainWindow : Window
 
     public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
     {
-        MainWindow window = new();
+        MainWindow window = new(extLoader);
         FileViewModel fileVM = window.services.GetRequiredService<FileViewModel>();
 
         foreach (var (path, bytes) in documents)
