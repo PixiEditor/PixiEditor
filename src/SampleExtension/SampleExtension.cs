@@ -1,7 +1,4 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using PixiEditor.Extensions;
+﻿using PixiEditor.Extensions;
 
 namespace SampleExtension;
 
@@ -13,12 +10,12 @@ public class SampleExtension : Extension
 
     protected override void OnInitialized()
     {
-        var popup = Api.WindowProvider.CreatePopupWindow("Hello World!", new TextBlock
+        /*var popup = Api.WindowProvider.CreatePopupWindow("Hello World!", new TextBlock
         {
             Text = "Hello World!", Foreground = Brushes.White,
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center
         });
         Api.PaletteProvider.RegisterDataSource(new TestPaletteDataSource());
-        popup.ShowDialog();
+        popup.ShowDialog();*/
     }
 }

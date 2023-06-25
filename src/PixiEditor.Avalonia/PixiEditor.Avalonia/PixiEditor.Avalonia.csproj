@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <AvaloniaResource Include="Assets\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
+        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\ChunkyImageLib\ChunkyImageLib.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj" />
+      <ProjectReference Include="..\..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
+      <ProjectReference Include="..\..\PixiEditorGen\PixiEditorGen.csproj" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
+    </ItemGroup>
+</Project>
