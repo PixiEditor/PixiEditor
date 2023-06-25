@@ -33,7 +33,7 @@
     </Window.CommandBindings>
 
     <StackPanel>
-        <dial:DialogTitleBar TitleText="Send crash report" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+        <dial:DialogTitleBar TitleKey="Send crash report" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
         <StackPanel Margin="10">
             <TextBlock>You can find the report here:</TextBlock>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">

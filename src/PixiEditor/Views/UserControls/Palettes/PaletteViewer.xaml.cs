@@ -4,14 +4,16 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
+using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Views.Dialogs;
-using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Views.UserControls.Palettes;
 
@@ -20,18 +22,18 @@ namespace PixiEditor.Views.UserControls.Palettes;
 /// </summary>
 internal partial class PaletteViewer : UserControl
 {
-    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<BackendColor>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<BackendColor>)));
+    public static readonly DependencyProperty SwatchesProperty = DependencyProperty.Register(nameof(Swatches), typeof(WpfObservableRangeCollection<PaletteColor>), typeof(PaletteViewer), new PropertyMetadata(default(WpfObservableRangeCollection<PaletteColorControl>)));
 
-    public WpfObservableRangeCollection<BackendColor> Swatches
+    public WpfObservableRangeCollection<PaletteColor> Swatches
     {
-        get => (WpfObservableRangeCollection<BackendColor>)GetValue(SwatchesProperty);
+        get => (WpfObservableRangeCollection<PaletteColor>)GetValue(SwatchesProperty);
         set => SetValue(SwatchesProperty, value);
     }
-    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<BackendColor>), typeof(PaletteViewer));
+    public static readonly DependencyProperty ColorsProperty = DependencyProperty.Register(nameof(Colors), typeof(WpfObservableRangeCollection<PaletteColor>), typeof(PaletteViewer));
 
-    public WpfObservableRangeCollection<BackendColor> Colors
+    public WpfObservableRangeCollection<PaletteColor> Colors
     {
-        get { return (WpfObservableRangeCollection<BackendColor>)GetValue(ColorsProperty); }
+        get { return (WpfObservableRangeCollection<PaletteColor>)GetValue(ColorsProperty); }
         set { SetValue(ColorsProperty, value); }
     }
 
@@ -40,7 +42,6 @@ internal partial class PaletteViewer : UserControl
         get { return (Color)GetValue(HintColorProperty); }
         set { SetValue(HintColorProperty, value); }
     }
-
 
     public static readonly DependencyProperty HintColorProperty =
         DependencyProperty.Register(nameof(HintColor), typeof(Color), typeof(PaletteViewer), new PropertyMetadata(System.Windows.Media.Colors.Transparent));
@@ -69,30 +70,18 @@ internal partial class PaletteViewer : UserControl
         set { SetValue(ImportPaletteCommandProperty, value); }
     }
 
-
     public static readonly DependencyProperty ImportPaletteCommandProperty =
         DependencyProperty.Register(nameof(ImportPaletteCommand), typeof(ICommand), typeof(PaletteViewer));
 
-    public WpfObservableRangeCollection<PaletteListDataSource> DataSources
+    public static readonly DependencyProperty PaletteProviderProperty = DependencyProperty.Register(
+        nameof(PaletteProvider), typeof(PaletteProvider), typeof(PaletteViewer), new PropertyMetadata(default(PaletteProvider)));
+
+    public PaletteProvider PaletteProvider
     {
-        get { return (WpfObservableRangeCollection<PaletteListDataSource>)GetValue(DataSourcesProperty); }
-        set { SetValue(DataSourcesProperty, value); }
+        get { return (PaletteProvider)GetValue(PaletteProviderProperty); }
+        set { SetValue(PaletteProviderProperty, value); }
     }
-
-
-    public static readonly DependencyProperty DataSourcesProperty =
-        DependencyProperty.Register(nameof(DataSources), typeof(WpfObservableRangeCollection<PaletteListDataSource>), typeof(PaletteViewer), new PropertyMetadata(new WpfObservableRangeCollection<PaletteListDataSource>()));
-
-    public WpfObservableRangeCollection<PaletteFileParser> FileParsers
-    {
-        get { return (WpfObservableRangeCollection<PaletteFileParser>)GetValue(FileParsersProperty); }
-        set { SetValue(FileParsersProperty, value); }
-    }
-
-
-    public static readonly DependencyProperty FileParsersProperty =
-        DependencyProperty.Register(nameof(FileParsers), typeof(WpfObservableRangeCollection<PaletteFileParser>), typeof(PaletteViewer), new PropertyMetadata(new WpfObservableRangeCollection<PaletteFileParser>()));
-
+    
     public PaletteViewer()
     {
         InitializeComponent();
@@ -101,10 +90,10 @@ internal partial class PaletteViewer : UserControl
     private void RemoveColorMenuItem_OnClick(object sender, RoutedEventArgs e)
     {
         MenuItem menuItem = (MenuItem)sender;
-        BackendColor color = (BackendColor)menuItem.CommandParameter;
-        if (Colors.Contains(color))
+        PaletteColor colorControl = (PaletteColor)menuItem.CommandParameter;
+        if (Colors.Contains(colorControl))
         {
-            Colors.Remove(color);
+            Colors.Remove(colorControl);
         }
     }
 
@@ -112,7 +101,7 @@ internal partial class PaletteViewer : UserControl
     {
         OpenFileDialog openFileDialog = new OpenFileDialog
         {
-            Filter = PaletteHelpers.GetFilter(FileParsers, true),
+            Filter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers, true),
         };
         if (openFileDialog.ShowDialog() == true)
         {
@@ -122,7 +111,7 @@ internal partial class PaletteViewer : UserControl
 
     private async Task ImportPalette(string fileName)
     {
-        var parser = FileParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+        var parser = PaletteProvider.AvailableParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
         var data = await parser.Parse(fileName);
         if (data.IsCorrupted || data.Colors.Length == 0) return;
         Colors.Clear();
@@ -133,13 +122,13 @@ internal partial class PaletteViewer : UserControl
     {
         SaveFileDialog saveFileDialog = new SaveFileDialog
         {
-            Filter = PaletteHelpers.GetFilter(FileParsers.Where(x => x.CanSave).ToList(), false)
+            Filter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList(), false)
         };
 
         if (saveFileDialog.ShowDialog() == true)
         {
             string fileName = saveFileDialog.FileName;
-            var foundParser = FileParsers.First(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+            var foundParser = PaletteProvider.AvailableParsers.First(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
             if (Colors == null || Colors.Count == 0)
             {
                 NoticeDialog.Show("NO_COLORS_TO_SAVE", "ERROR");
@@ -158,7 +147,13 @@ internal partial class PaletteViewer : UserControl
         if (IsSupportedFilePresent(e, out _))
         {
             dragDropGrid.Visibility = Visibility.Visible;
-            ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = "Import palette file";
+            ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = "IMPORT_PALETTE_FILE";
+        }
+        else if (ColorHelper.ParseAnyFormatList(e.Data, out var list))
+        {
+            e.Effects = DragDropEffects.Copy;
+            ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = list.Count > 1 ? "IMPORT_MULTIPLE_PALETTE_COLORS" : "IMPORT_SINGLE_PALETTE_COLOR";
+            e.Handled = true;
         }
     }
 
@@ -174,6 +169,16 @@ internal partial class PaletteViewer : UserControl
         
         if (!IsSupportedFilePresent(e, out string filePath))
         {
+            if (!ColorHelper.ParseAnyFormatList(e.Data, out var colors))
+            {
+                return;
+            }
+
+            List<PaletteColor> paletteColors = colors.Select(x => new PaletteColor(x.R, x.G, x.B)).ToList();
+            
+            e.Effects = DragDropEffects.Copy;
+            Colors.AddRange(paletteColors.Where(x => !Colors.Contains(new PaletteColor(x.R, x.G, x.B))).ToList());
+            e.Handled = true;
             return;
         }
 
@@ -190,7 +195,7 @@ internal partial class PaletteViewer : UserControl
             if (files is { Length: > 0 })
             {
                 var fileName = files[0];
-                var foundParser = FileParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+                var foundParser = PaletteProvider.AvailableParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
                 if (foundParser != null)
                 {
                     filePath = fileName;
@@ -205,31 +210,35 @@ internal partial class PaletteViewer : UserControl
 
     private void PaletteColor_Drop(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(PaletteColor.PaletteColorDaoFormat))
+        if (e.Data.GetDataPresent(PaletteColorControl.PaletteColorDaoFormat))
         {
-            string data = (string)e.Data.GetData(PaletteColor.PaletteColorDaoFormat);
-            BackendColor color = BackendColor.Parse(data);
-            if (Colors.Contains(color))
+            string data = (string)e.Data.GetData(PaletteColorControl.PaletteColorDaoFormat);
+
+            PaletteColor paletteColor = PaletteColor.Parse(data);
+            if (Colors.Contains(paletteColor))
             {
-                PaletteColor paletteColor = sender as PaletteColor;
-                int currIndex = Colors.IndexOf(color);
-                int newIndex = Colors.IndexOf(paletteColor.Color);
-                Colors.RemoveAt(currIndex);
-                Colors.Insert(newIndex, color);
+                PaletteColorControl paletteColorControl = sender as PaletteColorControl;
+                int currIndex = Colors.IndexOf(paletteColor);
+                if (paletteColorControl != null)
+                {
+                    int newIndex = Colors.IndexOf(paletteColorControl.Color);
+                    Colors.RemoveAt(currIndex);
+                    Colors.Insert(newIndex, paletteColor);
+                }
             }
         }
     }
 
     private async void BrowsePalettes_Click(object sender, RoutedEventArgs e)
     {
-        var browser = PalettesBrowser.Open(DataSources, ImportPaletteCommand, Colors);
+        var browser = PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand, Colors);
         await browser.UpdatePaletteList();
     }
 
     private void ReplaceColor_OnClick(object sender, RoutedEventArgs e)
     {
         MenuItem menuItem = (MenuItem)sender;
-        BackendColor color = (BackendColor)menuItem.CommandParameter;
+        PaletteColor color = (PaletteColor)menuItem.CommandParameter;
         Replacer.ColorToReplace = color;
         Replacer.VisibilityCheckbox.IsChecked = false;
     }

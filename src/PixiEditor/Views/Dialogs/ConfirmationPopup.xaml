@@ -10,11 +10,14 @@
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:views="clr-namespace:PixiEditor.Views"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d" d:Title="Unsaved changes"
         Name="popup" WindowStartupLocation="CenterScreen" 
         Height="180" Width="400" MinHeight="180" MinWidth="400"
         WindowStyle="None"
-        FlowDirection="{helpers:Localization FlowDirection}">
+        ui:Translator.Key="{Binding ElementName=popup, Path=Title}"
+        FlowDirection="{helpers:Localization FlowDirection}"
+        d:DataContext="{d:DesignInstance dial:ConfirmationPopup}">
 
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
@@ -27,29 +30,31 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
+            TitleKey="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
 
-        <StackPanel DockPanel.Dock="Bottom" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center"
                     Margin="0,0,10,15">
-            <Button Margin="10,0,10,0" MinWidth="70" IsDefault="True" Padding="5 0"
+            <Button Margin="10,0,10,0" IsDefault="True" Padding="5 0"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
-                    Style="{StaticResource DarkRoundButton}" Content="{Binding Path=DataContext.FirstOptionText}">
+                    ui:Translator.LocalizedString="{Binding FirstOptionText}"
+                    Style="{StaticResource DarkRoundButton}">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button MinWidth="70" Padding="5 0"
+            <Button Padding="5 0"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}"
-                    Style="{StaticResource DarkRoundButton}" Content="{Binding Path=DataContext.SecondOptionText}">
+                    ui:Translator.LocalizedString="{Binding SecondOptionText}"
+                    Style="{StaticResource DarkRoundButton}">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Margin="10,0,10,0" Width="70" Style="{StaticResource DarkRoundButton}" views:Translator.Key="CANCEL"
+            <Button Margin="10,0,10,0" Style="{StaticResource DarkRoundButton}" ui:Translator.Key="CANCEL"
                     Command="{Binding DataContext.CancelCommand, ElementName=popup}" />
         </StackPanel>
 
-        <TextBlock Grid.Row="1" 
+        <TextBlock
                    Text="{Binding Body, ElementName=popup}" 
                    HorizontalAlignment="Center" Margin="20,0" 
                    TextWrapping="WrapWithOverflow" 

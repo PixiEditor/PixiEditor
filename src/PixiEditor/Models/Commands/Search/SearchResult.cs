@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Media;
 using PixiEditor.Helpers;
@@ -19,7 +20,7 @@ internal abstract class SearchResult : NotifyableObject
 
     public abstract string Text { get; }
 
-    public virtual string Description { get; }
+    public virtual FrameworkElement Description { get; }
 
     public abstract bool CanExecute { get; }
 

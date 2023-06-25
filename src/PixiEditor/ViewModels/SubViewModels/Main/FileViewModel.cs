@@ -10,14 +10,15 @@ using Newtonsoft.Json.Linq;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Exceptions;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Models.Localization;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.Dialogs;
@@ -76,12 +77,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
-    public void RemoveRecentlyOpened(object parameter)
+    [Command.Internal("PixiEditor.File.RemoveRecent")]
+    public void RemoveRecentlyOpened(string path)
     {
-        if (RecentlyOpened.Contains((string)parameter))
+        if (!RecentlyOpened.Contains(path))
         {
-            RecentlyOpened.Remove((string)parameter);
+            return;
         }
+
+        RecentlyOpened.Remove(path);
+        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
     private void OpenHelloTherePopup()
@@ -139,6 +144,23 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         OpenFromPath(dialog.FileName);
     }
 
+    [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD", "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard")]
+    public void OpenFromClipboard()
+    {
+        var images = ClipboardController.GetImagesFromClipboard();
+
+        foreach (var dataImage in images)
+        {
+            if (File.Exists(dataImage.name))
+            {
+                OpenRegularImage(dataImage.image, null);
+                continue;
+            }
+            
+            OpenFromPath(dataImage.name, false);
+        }
+    }
+
     private bool MakeExistingDocumentActiveIfOpened(string path)
     {
         foreach (DocumentViewModel document in Owner.DocumentManagerSubViewModel.Documents)
@@ -155,8 +177,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Tries to open the passed file if it isn't already open
     /// </summary>
-    /// <param name="path"></param>
-    public void OpenFromPath(string path)
+    public void OpenFromPath(string path, bool associatePath = true)
     {
         if (MakeExistingDocumentActiveIfOpened(path))
             return;
@@ -165,16 +186,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             if (path.EndsWith(".pixi"))
             {
-                OpenDotPixi(path);
+                OpenDotPixi(path, associatePath);
             }
             else
             {
-                OpenRegularImage(path);
+                OpenRegularImage(path, associatePath);
             }
         }
-        catch (CorruptedFileException ex)
+        catch (RecoverableException ex)
         {
-            NoticeDialog.Show(ex.Message, "FAILED_TO_OPEN_FILE");
+            NoticeDialog.Show(ex.DisplayMessage, "ERROR");
         }
         catch (OldFileFormatException)
         {
@@ -185,9 +206,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Opens a .pixi file from path, creates a document from it, and adds it to the system
     /// </summary>
-    private void OpenDotPixi(string path)
+    private void OpenDotPixi(string path, bool associatePath = true)
     {
-        DocumentViewModel document = Importer.ImportDocument(path);
+        DocumentViewModel document = Importer.ImportDocument(path, associatePath);
         AddDocumentViewModelToTheSystem(document);
         AddRecentlyOpened(document.FullFilePath);
     }
@@ -205,26 +226,44 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Opens a regular image file from path, creates a document from it, and adds it to the system.
     /// </summary>
-    private void OpenRegularImage(string path)
+    private void OpenRegularImage(string path, bool associatePath)
     {
-        ImportFileDialog dialog = new ImportFileDialog();
+        var image = Importer.ImportImage(path, VecI.NegativeOne);
 
-        if (path != null && File.Exists(path))
-        {
-            dialog.FilePath = path;
-        }
+        var doc = NewDocument(b => b
+            .WithSize(image.Size)
+            .WithLayer(l => l
+                .WithName("Image")
+                .WithSize(image.Size)
+                .WithSurface(image)));
 
-        if (dialog.ShowDialog())
+        if (associatePath)
         {
-            DocumentViewModel doc = NewDocument(b => b
-                .WithSize(dialog.FileWidth, dialog.FileHeight)
-                .WithLayer(l => l
-                    .WithName("Image")
-                    .WithSize(dialog.FileWidth, dialog.FileHeight)
-                    .WithSurface(Importer.ImportImage(dialog.FilePath, new VecI(dialog.FileWidth, dialog.FileHeight)))));
             doc.FullFilePath = path;
-            AddRecentlyOpened(path);
         }
+
+        AddRecentlyOpened(path);
+    }
+
+    /// <summary>
+    /// Opens a regular image file from path, creates a document from it, and adds it to the system.
+    /// </summary>
+    private void OpenRegularImage(Surface surface, string path)
+    {
+        DocumentViewModel doc = NewDocument(b => b
+            .WithSize(surface.Size)
+            .WithLayer(l => l
+                .WithName("Image")
+                .WithSize(surface.Size)
+                .WithSurface(surface)));
+
+        if (path == null)
+        {
+            return;
+        }
+
+        doc.FullFilePath = path;
+        AddRecentlyOpened(path);
     }
 
     [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = ModifierKeys.Control)]
@@ -301,7 +340,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     ///     Generates export dialog or saves directly if save data is known.
     /// </summary>
     /// <param name="parameter">CommandProperty.</param>
-    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Alt | ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = ModifierKeys.Control)]
     public void ExportFile()
     {
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

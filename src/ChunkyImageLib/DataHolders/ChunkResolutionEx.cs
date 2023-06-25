@@ -18,6 +18,21 @@ public static class ChunkResolutionEx
     }
 
     /// <summary>
+    /// Returns the inverted multiplier of the <paramref name="resolution"/>.
+    /// </summary>
+    public static double InvertedMultiplier(this ChunkResolution resolution)
+    {
+        return resolution switch
+        {
+            ChunkResolution.Full => 1,
+            ChunkResolution.Half => 2,
+            ChunkResolution.Quarter => 4,
+            ChunkResolution.Eighth => 8,
+            _ => 1,
+        };
+    }
+
+    /// <summary>
     /// Returns the size of a chunk of the resolution <paramref name="resolution"/>
     /// </summary>
     /// <seealso cref="ChunkPool"/>

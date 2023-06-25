@@ -1,9 +1,10 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -19,8 +20,10 @@ internal class BrightnessToolViewModel : ToolViewModel
     public BrightnessToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<BrightnessToolViewModel, BasicToolbar>();
+        Toolbar = ToolbarFactory.Create<BrightnessToolViewModel, BasicToolbar>(this);
     }
+
+    public override bool IsErasable => true;
 
     public override LocalizedString Tooltip => new LocalizedString("BRIGHTNESS_TOOL_TOOLTIP", Shortcut);
 
@@ -51,7 +54,7 @@ internal class BrightnessToolViewModel : ToolViewModel
         }
     }
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseBrightnessTool();
     }

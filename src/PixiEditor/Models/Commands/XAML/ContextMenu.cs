@@ -36,7 +36,7 @@ internal class ContextMenu : System.Windows.Controls.ContextMenu
         var command = CommandController.Current.Commands[value];
 
         item.Command = Command.GetICommand(command, false);
-        item.SetBinding(MenuItem.InputGestureTextProperty, ShortcutBinding.GetBinding(command));
+        item.SetBinding(MenuItem.InputGestureTextProperty, ShortcutBinding.GetBinding(command, null));
     }
 
     private static void HandleDesignMode(MenuItem item, string name)

@@ -7,7 +7,9 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Localization;
 using PixiEditor.Views;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Overlays.SymmetryOverlay;
@@ -204,10 +206,10 @@ internal class SymmetryOverlay : Control
         drawingContext.DrawLine(rulerPen, new Point((RulerOffset - RulerWidth) * PenThickness + xOffset, start), new Point((RulerOffset + RulerWidth) * PenThickness + xOffset, start));
         drawingContext.DrawLine(rulerPen, new Point((RulerOffset - RulerWidth) * PenThickness + xOffset, horizontalAxisY), new Point((RulerOffset + RulerWidth) * PenThickness + xOffset, horizontalAxisY));
 
-        string text = upper ? $"{start - horizontalAxisY}px ({(start - horizontalAxisY) / RenderSize.Height * 100:F1}%)" : $"{horizontalAxisY}px ({horizontalAxisY / RenderSize.Height * 100:F1}%)";
+        string text = upper ? $"{start - horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({(start - horizontalAxisY) / RenderSize.Height * 100:F1}%)‎" : $"{horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({horizontalAxisY / RenderSize.Height * 100:F1}%)‎";
 
         var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
-            FlowDirection.LeftToRight, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White,
+            ILocalizationProvider.Current.CurrentLanguage.FlowDirection, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White,
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
         if (ActualHeight < formattedText.Height * 2.5 || horizontalAxisY == (int)RenderSize.Height && upper || horizontalAxisY == 0 && !upper)
@@ -237,10 +239,10 @@ internal class SymmetryOverlay : Control
         drawingContext.DrawLine(rulerPen, new Point(start, (RulerOffset - RulerWidth) * PenThickness + yOffset), new Point(start, (RulerOffset + RulerWidth) * PenThickness + yOffset));
         drawingContext.DrawLine(rulerPen, new Point(verticalAxisX, (RulerOffset - RulerWidth) * PenThickness + yOffset), new Point(verticalAxisX, (RulerOffset + RulerWidth) * PenThickness + yOffset));
 
-        string text = right ? $"{start - verticalAxisX}px ({(start - verticalAxisX) / RenderSize.Width * 100:F1}%)" : $"{verticalAxisX}px ({verticalAxisX / RenderSize.Width * 100:F1}%)";
+        string text = right ? $"{start - verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({(start - verticalAxisX) / RenderSize.Width * 100:F1}%)‎" : $"{verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({verticalAxisX / RenderSize.Width * 100:F1}%)‎";
 
         var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
-            FlowDirection.LeftToRight, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White,
+            ILocalizationProvider.Current.CurrentLanguage.FlowDirection, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White,
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
         if (ActualWidth < formattedText.Width * 2.5 || verticalAxisX == (int)RenderSize.Width && right || verticalAxisX == 0 && !right)

@@ -1,28 +1,41 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using Microsoft.Win32;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Extensions.Windowing;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
+using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Models.Localization;
+using PixiEditor.Platform;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Palettes;
+using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
 
 namespace PixiEditor.Views.Dialogs;
 
-internal partial class PalettesBrowser : Window
+internal partial class PalettesBrowser : Window, IPopupWindow
 {
-    private const int ItemsPerLoad = 10;
+    public static string UniqueId => "PixiEditor.BrowserPalette";
+    string IPopupWindow.UniqueId => UniqueId;
+
+    private const int ItemsPerLoad = 25;
 
     private readonly LocalizedString[] stopItTexts = new[]
     {
@@ -59,6 +72,15 @@ internal partial class PalettesBrowser : Window
         set => SetValue(DeletePaletteCommandProperty, value);
     }
 
+    public static readonly DependencyProperty AddFromPaletteCommandProperty = DependencyProperty.Register(
+        nameof(AddFromPaletteCommand), typeof(ICommand), typeof(PalettesBrowser), new PropertyMetadata(default(ICommand)));
+
+    public ICommand AddFromPaletteCommand
+    {
+        get { return (ICommand)GetValue(AddFromPaletteCommandProperty); }
+        set { SetValue(AddFromPaletteCommandProperty, value); }
+    }
+
     public bool IsFetching
     {
         get => (bool)GetValue(IsFetchingProperty);
@@ -77,15 +99,6 @@ internal partial class PalettesBrowser : Window
     public static readonly DependencyProperty ColorsNumberProperty =
         DependencyProperty.Register(nameof(ColorsNumber), typeof(int), typeof(PalettesBrowser),
             new PropertyMetadata(8, ColorsNumberChanged));
-
-    public WpfObservableRangeCollection<PaletteListDataSource> PaletteListDataSources
-    {
-        get => (WpfObservableRangeCollection<PaletteListDataSource>)GetValue(PaletteListDataSourcesProperty);
-        set => SetValue(PaletteListDataSourcesProperty, value);
-    }
-
-    public static readonly DependencyProperty PaletteListDataSourcesProperty =
-        DependencyProperty.Register(nameof(PaletteListDataSources), typeof(WpfObservableRangeCollection<PaletteListDataSource>), typeof(PalettesBrowser), new PropertyMetadata(new WpfObservableRangeCollection<PaletteListDataSource>()));
     public bool SortAscending
     {
         get => (bool)GetValue(SortAscendingProperty);
@@ -125,59 +138,89 @@ internal partial class PalettesBrowser : Window
         set => SetValue(ShowOnlyFavouritesProperty, value);
     }
 
-    public RelayCommand<Palette> ToggleFavouriteCommand { get; set; }
+    public static readonly DependencyProperty PaletteProviderProperty = DependencyProperty.Register(
+        nameof(PaletteProvider), typeof(PaletteProvider), typeof(PalettesBrowser), new PropertyMetadata(default(PaletteProvider)));
 
+    public PaletteProvider PaletteProvider
+    {
+        get { return (PaletteProvider)GetValue(PaletteProviderProperty); }
+        set { SetValue(PaletteProviderProperty, value); }
+    }
+    public RelayCommand<Palette> ToggleFavouriteCommand { get; set; }
     public int SortingIndex { get; set; } = 0;
     public ColorsNumberMode ColorsNumberMode { get; set; } = ColorsNumberMode.Any;
 
     private FilteringSettings filteringSettings;
 
     public FilteringSettings Filtering => filteringSettings ??=
-        new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter, ShowOnlyFavourites);
+        new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter, ShowOnlyFavourites,
+            IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes, new List<string>()));
 
     private char[] separators = new char[] { ' ', ',' };
 
     private SortingType InternalSortingType => (SortingType)SortingIndex;
-    public WpfObservableRangeCollection<Color> CurrentEditingPalette { get; set; }
+    public WpfObservableRangeCollection<PaletteColor> CurrentEditingPalette { get; set; }
     public static PalettesBrowser Instance { get; internal set; }
 
     private LocalPalettesFetcher LocalPalettesFetcher
     {
         get
         {
-            return localPalettesFetcher ??= (LocalPalettesFetcher)PaletteListDataSources.First(x => x is LocalPalettesFetcher);
+            return localPalettesFetcher ??= (LocalPalettesFetcher)PaletteProvider.DataSources.First(x => x is LocalPalettesFetcher);
         }
     }
 
     private LocalPalettesFetcher localPalettesFetcher;
 
-    public PalettesBrowser()
+    private double _lastScrolledOffset = -1;
+
+    public PalettesBrowser(PaletteProvider provider)
     {
+        PaletteProvider = provider;
         InitializeComponent();
         Title = new LocalizedString("PALETTE_BROWSER");
         Instance = this;
-        DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette);
+
+        DeletePaletteCommand = new RelayCommand<Palette>(DeletePalette, CanDeletePalette);
         ToggleFavouriteCommand = new RelayCommand<Palette>(ToggleFavourite, CanToggleFavourite);
+        AddFromPaletteCommand = new RelayCommand(AddFromCurrentPalette, CanAddFromPalette);
         Loaded += async (_, _) =>
         {
+            await UpdatePaletteList();
             LocalPalettesFetcher.CacheUpdated += LocalCacheRefreshed;
-            await LocalPalettesFetcher.RefreshCacheAll();
         };
         Closed += (_, _) =>
         {
             Instance = null;
             LocalPalettesFetcher.CacheUpdated -= LocalCacheRefreshed;
         };
+
+        IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
     }
 
-    public static PalettesBrowser Open(WpfObservableRangeCollection<PaletteListDataSource> dataSources, ICommand importPaletteCommand, WpfObservableRangeCollection<Color> currentEditingPalette)
+    private bool CanAddFromPalette(object param)
+    {
+        return CurrentEditingPalette != null;
+    }
+
+    private bool CanDeletePalette(Palette palette)
+    {
+        return palette != null && palette.Source.GetType() == typeof(LocalPalettesFetcher);
+    }
+
+    private void OnFavouritePalettesChanged(object obj)
+    {
+        Filtering.Favourites =
+            IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
+    }
+
+    public static PalettesBrowser Open(PaletteProvider provider, ICommand importPaletteCommand, WpfObservableRangeCollection<PaletteColor> currentEditingPalette)
     {
         if (Instance != null) return Instance;
-        PalettesBrowser browser = new PalettesBrowser
+        PalettesBrowser browser = new PalettesBrowser(provider)
         {
             Owner = Application.Current.MainWindow,
             ImportPaletteCommand = importPaletteCommand,
-            PaletteListDataSources = dataSources,
             CurrentEditingPalette = currentEditingPalette
         };
 
@@ -262,24 +305,30 @@ internal partial class PalettesBrowser : Window
         palette.IsFavourite = !palette.IsFavourite;
         var favouritePalettes = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes, new List<string>());
 
-        if (palette.IsFavourite)
+        if (palette.IsFavourite && !favouritePalettes.Contains(palette.Name))
         {
             favouritePalettes.Add(palette.Name);
         }
         else
         {
-            favouritePalettes.Remove(palette.Name);
+            favouritePalettes.RemoveAll(x => x == palette.Name);
         }
 
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favouritePalettes);
         await UpdatePaletteList();
     }
 
+    private bool IsPaletteFavourite(string name)
+    {
+        var favouritePalettes = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes, new List<string>());
+        return favouritePalettes.Contains(name);
+    }
+
     private void DeletePalette(Palette palette)
     {
         if (palette == null) return;
 
-        string filePath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, palette.FileName);
+        string filePath = Path.Join(Paths.PathToPalettesFolder, palette.FileName);
         if (File.Exists(filePath))
         {
             if (ConfirmationDialog.Show("DELETE_PALETTE_CONFIRMATION", "WARNING") == ConfirmationType.Yes)
@@ -334,20 +383,16 @@ internal partial class PalettesBrowser : Window
     public async Task UpdatePaletteList()
     {
         IsFetching = true;
+        _lastScrolledOffset = -1;
         PaletteList?.Palettes?.Clear();
-
-        for (int i = 0; i < PaletteListDataSources.Count; i++)
+        PaletteList src = await FetchPaletteList(Filtering);
+        if (PaletteList == null)
         {
-            PaletteList src = await FetchPaletteList(i, Filtering);
-            if (!src.FetchedCorrectly) continue;
-            if (PaletteList == null)
-            {
-                PaletteList = src;
-            }
-            else
-            {
-                PaletteList.Palettes?.AddRange(src.Palettes);
-            }
+            PaletteList = src;
+        }
+        else
+        {
+            AddToPaletteList(src.Palettes);
         }
 
         Sort();
@@ -355,11 +400,33 @@ internal partial class PalettesBrowser : Window
         IsFetching = false;
     }
 
-    private async Task<PaletteList> FetchPaletteList(int index, FilteringSettings filtering)
+    private void AddToPaletteList(WpfObservableRangeCollection<Palette> srcPalettes)
+    {
+        if (srcPalettes == null)
+            return;
+
+        foreach (var pal in srcPalettes)
+        {
+            if(PaletteEquals(pal, PaletteList.Palettes)) continue;
+            PaletteList.Palettes.Add(pal);
+        }
+    }
+
+    private async Task<PaletteList> FetchPaletteList(FilteringSettings filtering)
     {
         int startIndex = PaletteList != null ? PaletteList.Palettes.Count : 0;
-        var src = await PaletteListDataSources[index].FetchPaletteList(startIndex, ItemsPerLoad, filtering);
-        return src;
+        var src = await PaletteProvider.FetchPalettes(startIndex, ItemsPerLoad, filtering);
+        WpfObservableRangeCollection<Palette> palettes = new WpfObservableRangeCollection<Palette>();
+        if (src != null)
+        {
+            foreach (var pal in src)
+            {
+                palettes.Add(new Palette(pal.Name, pal.Colors, pal.FileName, pal.Source) { IsFavourite = IsPaletteFavourite(pal.Name) });
+            }
+        }
+
+        PaletteList list = new PaletteList { Palettes = palettes, FetchedCorrectly = src != null };
+        return list;
     }
 
     private static async void OnNameFilterChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -374,20 +441,28 @@ internal partial class PalettesBrowser : Window
     {
         if (PaletteList?.Palettes == null) return;
         var viewer = (ScrollViewer)sender;
-        if (viewer.VerticalOffset == viewer.ScrollableHeight)
+        if (viewer.VerticalOffset == viewer.ScrollableHeight && _lastScrolledOffset != viewer.VerticalOffset)
         {
             IsFetching = true;
-            var newPalettes = await FetchPaletteList(0, Filtering);
+            var newPalettes = await FetchPaletteList(Filtering);
             if (newPalettes is not { FetchedCorrectly: true } || newPalettes.Palettes == null)
             {
                 IsFetching = false;
                 return;
             }
 
-            PaletteList.Palettes.AddRange(newPalettes.Palettes);
+            AddToPaletteList(newPalettes.Palettes);
             Sort();
             IsFetching = false;
+
+            _lastScrolledOffset = viewer.VerticalOffset;
         }
+    }
+
+    private bool PaletteEquals(Palette palette, WpfObservableRangeCollection<Palette> paletteListPalettes)
+    {
+        return paletteListPalettes.Any(x => x.Name == palette.Name && x.Source == palette.Source && x.Colors.Count == palette.Colors.Count
+        && x.Colors.SequenceEqual(palette.Colors));
     }
 
     private void SortingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -403,7 +478,7 @@ internal partial class PalettesBrowser : Window
 
     private async void ColorsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        if (e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem)
+        if (Instance != null && e.AddedItems is { Count: > 0 } && e.AddedItems[0] is ComboBoxItem)
         {
             var comboBox = (ComboBox)sender;
             ColorsNumberMode = (ColorsNumberMode)comboBox.SelectedIndex;
@@ -416,7 +491,7 @@ internal partial class PalettesBrowser : Window
 
     private bool CanToggleFavourite(Palette palette)
     {
-        return palette != null && palette.Colors.Count > 0;
+        return palette is { Colors.Count: > 0 };
     }
 
     private void Grid_MouseDown(object sender, MouseButtonEventArgs e)
@@ -432,6 +507,8 @@ internal partial class PalettesBrowser : Window
     private void Sort(bool descending)
     {
         if (PaletteList?.Palettes == null) return;
+
+        SortedResults?.Clear();
 
         IOrderedEnumerable<Palette> sorted = null;
         if (!descending)
@@ -473,18 +550,18 @@ internal partial class PalettesBrowser : Window
 
     private void OpenFolder_OnClick(object sender, RoutedEventArgs e)
     {
-        if (Directory.Exists(LocalPalettesFetcher.PathToPalettesFolder))
+        if (Directory.Exists(Paths.PathToPalettesFolder))
         {
             Process.Start(new ProcessStartInfo
             {
-                FileName = LocalPalettesFetcher.PathToPalettesFolder,
+                FileName = Paths.PathToPalettesFolder,
                 UseShellExecute = true,
                 Verb = "open"
             });
         }
     }
 
-    private async void AddFromPalette_OnClick(object sender, RoutedEventArgs e)
+    private async void AddFromCurrentPalette(object param)
     {
         if (CurrentEditingPalette?.Count == 0)
             return;
@@ -504,7 +581,7 @@ internal partial class PalettesBrowser : Window
         string oldFileName = $"{e.OldText}.pal";
 
         string finalNewName = LocalPalettesFetcher.GetNonExistingName($"{Palette.ReplaceInvalidChars(e.NewText)}.pal", true);
-        string newPath = Path.Join(LocalPalettesFetcher.PathToPalettesFolder, finalNewName);
+        string newPath = Path.Join(Paths.PathToPalettesFolder, finalNewName);
 
         if (newPath.Length > 250)
         {
@@ -541,7 +618,7 @@ internal partial class PalettesBrowser : Window
 
     private async void ImportFromFile_OnClick(object sender, RoutedEventArgs e)
     {
-        var parsers = ViewModelMain.Current.ColorsSubViewModel.PaletteParsers;
+        var parsers = PaletteProvider.AvailableParsers;
         OpenFileDialog openFileDialog = new OpenFileDialog
         {
             Filter = PaletteHelpers.GetFilter(parsers, true)
@@ -569,5 +646,12 @@ internal partial class PalettesBrowser : Window
     private void Hyperlink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
     {
         ProcessHelpers.ShellExecute(e.Uri.ToString());
+    }
+
+    protected override void OnClosing(CancelEventArgs e)
+    {
+        base.OnClosing(e);
+
+        IPreferences.Current.RemoveCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
     }
 }

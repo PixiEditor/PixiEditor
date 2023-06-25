@@ -12,6 +12,8 @@ internal class ShortcutBinding : MarkupExtension
 
     public string Name { get; set; }
 
+    public IValueConverter Converter { get; set; }
+    
     public ShortcutBinding() { }
 
     public ShortcutBinding(string name) => Name = name;
@@ -25,14 +27,15 @@ internal class ShortcutBinding : MarkupExtension
         }
 
         commandController ??= ViewModelMain.Current.CommandController;
-        return GetBinding(commandController.Commands[Name]).ProvideValue(serviceProvider);
+        return GetBinding(commandController.Commands[Name], Converter).ProvideValue(serviceProvider);
     }
 
-    public static Binding GetBinding(ActualCommand command) => new Binding
+    public static Binding GetBinding(ActualCommand command, IValueConverter converter) => new Binding
     {
         Source = command,
         Path = new("Shortcut"),
         Mode = BindingMode.OneWay,
-        StringFormat = ""
+        StringFormat = "",
+        Converter = converter
     };
 }

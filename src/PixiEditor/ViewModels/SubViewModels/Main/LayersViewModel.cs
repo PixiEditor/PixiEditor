@@ -6,12 +6,14 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
+using PixiEditor.Exceptions;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
@@ -326,23 +328,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     public bool ReferenceLayerDoesntExist() => 
         Owner.DocumentManagerSubViewModel.ActiveDocument is not null && Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
 
-    [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerDoesntExistAndHasClipboardContent")]
-    public bool ReferenceLayerDoesntExistAndHasClipboardContent(DataObject data)
-    {
-        if (!ReferenceLayerDoesntExist())
-        {
-            return false;
-        }
-        
-        if (data != null)
-        {
-            return Owner.DocumentIsNotNull(null) && ClipboardController.IsImage(data);
-        }
-        
-        return Owner.ClipboardSubViewModel.CanPaste();
-    }
-
-    [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "ADD_REFERENCE_LAYER", "ADD_REFERENCE_LAYER", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist")]
+    [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "ADD_REFERENCE_LAYER", "ADD_REFERENCE_LAYER", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist", IconPath = "Add-reference.png")]
     public void ImportReferenceLayer()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -358,9 +344,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         {
             bitmap = Importer.ImportWriteableBitmap(path);
         }
-        catch (Exception e)
+        catch (RecoverableException e)
         {
-            NoticeDialog.Show("ERROR_IMPORTING_IMAGE", "ERROR");
+            NoticeDialog.Show(title: "ERROR", message: e.DisplayMessage);
             return;
         }
 

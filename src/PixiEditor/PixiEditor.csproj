@@ -16,24 +16,58 @@
 		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
 		<Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
-        <ImplicitUsings>true</ImplicitUsings>
-        <AssemblyVersion></AssemblyVersion>
-        <LangVersion>11</LangVersion>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
+    <ImplicitUsings>true</ImplicitUsings>
+    <AssemblyVersion></AssemblyVersion>
+    <LangVersion>11</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x86'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
+		<PlatformTarget>x86</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x64'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
+		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x86'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x64'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -43,29 +77,13 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DefineConstants>TRACE;UPDATE</DefineConstants>
+		<PlatformTarget>x86</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DefineConstants>TRACE;UPDATE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;RELEASE</DefineConstants>
-		<Optimize>true</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x86'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;RELEASE</DefineConstants>
-		<Optimize>true</Optimize>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX|x64'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DefineConstants>TRACE;RELEASE</DefineConstants>
-		<Optimize>true</Optimize>
+		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -79,47 +97,27 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DebugType>full</DebugType>
 		<DebugSymbols>true</DebugSymbols>
+		<PlatformTarget>x86</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DebugType>full</DebugType>
 		<DebugSymbols>true</DebugSymbols>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|AnyCPU'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DebugType>full</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-		<Optimize>false</Optimize>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x86'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DebugType>full</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-		<Optimize>false</Optimize>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MSIX Debug|x64'">
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<DebugType>full</DebugType>
-		<DebugSymbols>true</DebugSymbols>
-		<Optimize>false</Optimize>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x86'">
 	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
 	  <Optimize>True</Optimize>
 	  <OutputPath>bin\x86\Steam\</OutputPath>
+	  <PlatformTarget>x86</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Steam|x64' ">
 	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
 	  <Optimize>True</Optimize>
+	  <PlatformTarget>x64</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'Steam' ">
@@ -131,28 +129,33 @@
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
 	  <Optimize>True</Optimize>
+	  <PlatformTarget>AnyCPU</PlatformTarget>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x64' ">
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
 	  <Optimize>True</Optimize>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x86' ">
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+    <PlatformTarget>x86</PlatformTarget>
 	  <Optimize>True</Optimize>
 	</PropertyGroup>
-
+  
 	<ItemGroup>
 		<Compile Remove="Styles\AvalonDock\Images\**" />
 		<EmbeddedResource Remove="Styles\AvalonDock\Images\**" />
+		<EmbeddedResource Include="OfficialExtensions\supporter-pack.snk" />
 		<None Remove="Styles\AvalonDock\Images\**" />
 		<Page Remove="Styles\AvalonDock\Images\**" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Remove="Images\Add-reference.png" />
 		<None Remove="Images\AnchorDot.png" />
 		<None Remove="Images\Arrow-right.png" />
 		<None Remove="Images\Check-square.png" />
@@ -196,6 +199,7 @@
 		<None Remove="Images\SocialMedia\DonateIcon.png" />
 		<None Remove="Images\SocialMedia\GitHubIcon.png" />
 		<None Remove="Images\SocialMedia\RedditIcon.png" />
+		<None Remove="Images\SocialMedia\SteamIcon.png" />
 		<None Remove="Images\SocialMedia\WebsiteIcon.png" />
 		<None Remove="Images\SocialMedia\YouTubeIcon.png" />
 		<None Remove="Images\SymmetryHorizontal.png" />
@@ -246,6 +250,7 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
+		<Resource Include="Images\Add-reference.png" />
 		<Resource Include="Images\AnchorDot.png" />
 		<Resource Include="Images\Arrow-right.png" />
 		<Resource Include="Images\Check-square.png" />
@@ -276,6 +281,7 @@
 		<Resource Include="Images\Layer-add.png" />
 		<Resource Include="Images\Lock-alpha.png" />
 		<Resource Include="Images\Merge-downwards.png" />
+		<Resource Include="Images\News\Article.png" />
 		<Resource Include="Images\penMode.png" />
 		<Resource Include="Images\PixiBotLogo.png" />
 		<Resource Include="Images\PixiEditorLogo.png" />
@@ -289,6 +295,7 @@
 		<Resource Include="Images\SocialMedia\DonateIcon.png" />
 		<Resource Include="Images\SocialMedia\GitHubIcon.png" />
 		<Resource Include="Images\SocialMedia\RedditIcon.png" />
+		<Resource Include="Images\SocialMedia\SteamIcon.png" />
 		<Resource Include="Images\SocialMedia\WebsiteIcon.png" />
 		<Resource Include="Images\SocialMedia\YouTubeIcon.png" />
 		<Resource Include="Images\SymmetryHorizontal.png" />
@@ -415,6 +422,39 @@
 		<Resource Include="Images\LanguageFlags\ru.png" />
 		<None Remove="Images\LanguageFlags\cs.png" />
 		<Resource Include="Images\LanguageFlags\cs.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
+		<None Remove="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
+		<Resource Include="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
+		<None Remove="Images\Commands\PixiEditor\File\OpenFileFromClipboard.png" />
+		<Resource Include="Images\Commands\PixiEditor\File\OpenFileFromClipboard.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenShortcutWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenShortcutWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\Window\OpenAboutWindow.png" />
+		<Resource Include="Images\Commands\PixiEditor\Window\OpenAboutWindow.png" />
+		<None Remove="Images\Commands\PixiEditor\Layer\DuplicateSelectedLayer.png" />
+		<Resource Include="Images\Commands\PixiEditor\Layer\DuplicateSelectedLayer.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\InvertSelection.png" />
+		<None Remove="Images\LanguageFlags\zh.png" />
+		<Resource Include="Images\LanguageFlags\zh.png" />
+		<None Remove="Images\Commands\PixiEditor\Selection\CropToSelection.png" />
+		<Resource Include="Images\Commands\PixiEditor\Selection\CropToSelection.png" />
+		<None Remove="Images\LanguageFlags\hu.png" />
+		<Resource Include="Images\LanguageFlags\hu.png" />
+		<None Remove="Images\LanguageFlags\pt-br.png" />
+		<Resource Include="Images\LanguageFlags\pt-br.png" />
+		<None Remove="OfficialExtensions\supporter-pack.snk" />
+		<None Remove="Images\News\YouTube.png" />
+		<Resource Include="Images\News\YouTube.png" />
+		<None Remove="Images\News\Misc.png" />
+		<Resource Include="Images\News\Misc.png" />
+		<None Remove="Images\News\NewVersion.png" />
+		<Resource Include="Images\News\NewVersion.png" />
+		<None Remove="Images\News\OfficialAnnouncement.png" />
+		<Resource Include="Images\News\OfficialAnnouncement.png" />
+		<None Remove="Images\Chevron-right.png" />
+		<Resource Include="Images\Chevron-right.png" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\LICENSE">
@@ -425,6 +465,8 @@
 	<ItemGroup>
 		<ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
 		<ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
+		<ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
+		<ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
 		<ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
 		<ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
 		<ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
@@ -437,6 +479,31 @@
 			<HintPath>..\..\PixiParser\src\PixiParser.Skia\bin\Debug\net5.0\PixiParser.Skia.dll</HintPath>
 		</Reference>
 	</ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'DevRelease'">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'Steam'">
+    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'MSIX Debug'">
+    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'MSIX'">
+    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
+  </ItemGroup>
+  
 	<ItemGroup>
 		<Compile Update="Properties\Settings.Designer.cs">
 			<DesignTimeSharedInput>True</DesignTimeSharedInput>

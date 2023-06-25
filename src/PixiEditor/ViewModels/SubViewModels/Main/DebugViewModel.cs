@@ -1,25 +1,27 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
-using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
-using PixiEditor.Models.UserPreferences;
-using PixiEditor.Views.Dialogs;
+using PixiEditor.Models.Localization;
+using PixiEditor.Views.Dialogs.DebugDialogs;
+using PixiEditor.Views.Dialogs.DebugDialogs.Localization;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
 [Command.Group("PixiEditor.Debug", "DEBUG")]
 internal class DebugViewModel : SubViewModel<ViewModelMain>
 {
-    public bool IsDebugBuild { get; set; }
+    public static bool IsDebugBuild { get; set; }
 
     public bool IsDebugModeEnabled { get; set; }
 
@@ -39,6 +41,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         {
             if (SetProperty(ref localizationKeyShowMode, value))
             {
+                LocalizedString.OverridenKeyFlowMode = value;
                 Owner.LocalizationProvider.ReloadLanguage();
             }
         }
@@ -53,6 +56,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         {
             if (SetProperty(ref forceOtherFlowDirection, value))
             {
+                Language.FlipFlowDirection = value;
                 Owner.LocalizationProvider.ReloadLanguage();
             }
         }
@@ -78,22 +82,22 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
     
 
-    [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", @"%LocalAppData%\PixiEditor", "OPEN_LOCAL_APPDATA_DIR", "OPEN_LOCAL_APPDATA_DIR", IconPath = "Folder.png")]
-    [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", @"%LocalAppData%\PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR", "OPEN_CRASH_REPORTS_DIR", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenLocalAppDataDirectory", @"PixiEditor", "OPEN_LOCAL_APPDATA_DIR", "OPEN_LOCAL_APPDATA_DIR", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenCrashReportsDirectory", @"PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR", "OPEN_CRASH_REPORTS_DIR", IconPath = "Folder.png")]
     public static void OpenLocalAppDataFolder(string subDirectory)
     {
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), subDirectory);
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"%AppData%\PixiEditor", "OPEN_ROAMING_APPDATA_DIR", "OPEN_ROAMING_APPDATA_DIR", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenRoamingAppDataDirectory", @"PixiEditor", "OPEN_ROAMING_APPDATA_DIR", "OPEN_ROAMING_APPDATA_DIR", IconPath = "Folder.png")]
     public static void OpenAppDataFolder(string subDirectory)
     {
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), subDirectory);
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"%Temp%\PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR", IconPath = "Folder.png")]
+    [Command.Debug("PixiEditor.Debug.OpenTempDirectory", @"PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR", IconPath = "Folder.png")]
     public static void OpenTempFolder(string subDirectory)
     {
         var path = Path.Combine(Path.GetTempPath(), subDirectory);
@@ -198,7 +202,9 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     [Command.Debug("PixiEditor.Debug.OpenLocalizationDebugWindow", "OPEN_LOCALIZATION_DEBUG_WINDOW", "OPEN_LOCALIZATION_DEBUG_WINDOW")]
     public void OpenLocalizationDebugWindow()
     {
-        new LocalizationDebugWindow().Show();
+        var window = Application.Current.Windows.OfType<LocalizationDebugWindow>().FirstOrDefault(new LocalizationDebugWindow());
+        window.Show();
+        window.Activate();
     }
 
     [Command.Internal("PixiEditor.Debug.SetLanguageFromFilePicker")]
@@ -244,7 +250,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Conditional("DEBUG")]
-    private void SetDebug() => IsDebugBuild = true;
+    private static void SetDebug() => IsDebugBuild = true;
 
     private void UpdateDebugMode(bool setting)
     {

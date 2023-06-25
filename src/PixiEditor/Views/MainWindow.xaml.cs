@@ -1,17 +1,26 @@
 ﻿using System.ComponentModel;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
+using AvalonDock.Layout;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers;
+using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Views;
 
@@ -20,8 +29,9 @@ internal partial class MainWindow : Window
     private static WriteableBitmap pixiEditorLogo;
 
     private readonly IPreferences preferences;
-
+    private readonly IPlatform platform;
     private readonly IServiceProvider services;
+    private static ExtensionLoader extLoader;
 
     public static MainWindow Current { get; private set; }
 
@@ -29,19 +39,26 @@ internal partial class MainWindow : Window
 
     public event Action OnDataContextInitialized;
 
-    public MainWindow()
+    public MainWindow(ExtensionLoader extensionLoader)
     {
+        extLoader = extensionLoader;
         Current = this;
 
         services = new ServiceCollection()
-            .AddPixiEditor()
+            .AddPlatform()
+            .AddPixiEditor(extensionLoader)
+            .AddExtensionServices()
             .BuildServiceProvider();
 
         SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
         DrawingBackendApi.SetupBackend(skiaDrawingBackend);
 
+        SetupTranslator();
+
         preferences = services.GetRequiredService<IPreferences>();
+        platform = services.GetRequiredService<IPlatform>();
         DataContext = services.GetRequiredService<ViewModelMain>();
+
         DataContext.Setup(services);
 
         InitializeComponent();
@@ -64,6 +81,16 @@ internal partial class MainWindow : Window
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
     }
 
+    private void SetupTranslator()
+    {
+        Translator.ExternalProperties.Add(new ExternalProperty<LayoutContent>(TranslateLayoutContent));
+    }
+
+    private void TranslateLayoutContent(DependencyObject d, LocalizedString value)
+    {
+        ((LayoutContent)d).SetValue(LayoutContent.TitleProperty, value.Value);
+    }
+
     private void MainWindow_ContentRendered(object sender, EventArgs e)
     {
         GlobalMouseHook.Instance.Initilize(this);
@@ -71,7 +98,7 @@ internal partial class MainWindow : Window
 
     public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
     {
-        MainWindow window = new();
+        MainWindow window = new(extLoader);
         FileViewModel fileVM = window.services.GetRequiredService<FileViewModel>();
 
         foreach (var (path, bytes) in documents)
@@ -202,10 +229,12 @@ internal partial class MainWindow : Window
                 return;
             }
 
+            e.Effects = DragDropEffects.Copy;
             DataContext.ColorsSubViewModel.PrimaryColor = color.Value;
             return;
         }
 
+        Activate();
         string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
         
         if (files is { Length: > 0 } && Importer.IsSupportedFile(files[0]))
@@ -220,7 +249,8 @@ internal partial class MainWindow : Window
         {
             if (ColorHelper.ParseAnyFormat(e.Data, out _))
             {
-                DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "Paste as primary color";
+                DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "PASTE_AS_PRIMARY_COLOR";
+                e.Effects = DragDropEffects.Copy;
                 return;
             }
             
@@ -229,7 +259,7 @@ internal partial class MainWindow : Window
             return;
         }
 
-        DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "Import as new file";
+        DataContext.ActionDisplays[nameof(MainWindow_Drop)] = "IMPORT_AS_NEW_FILE";
     }
 
     private void MainWindow_DragLeave(object sender, DragEventArgs e)
@@ -240,6 +270,29 @@ internal partial class MainWindow : Window
     private void MainWindow_OnKeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.System) // Disables alt menu item navigation, I hope it won't break anything else.
+        {
+            e.Handled = true;
+        }
+    }
+
+    private void Viewport_OnContextMenuOpening(object sender, ContextMenuEventArgs e)
+    {
+        var tools = DataContext.ToolsSubViewModel;
+
+        var superSpecialBrightnessTool = tools.RightClickMode == RightClickMode.SecondaryColor && tools.ActiveTool is BrightnessToolViewModel;
+        var superSpecialColorPicker = tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool is ColorPickerToolViewModel;
+
+        if (superSpecialBrightnessTool || superSpecialColorPicker)
+        {
+            e.Handled = true;
+            return;
+        }
+
+        var useContextMenu = DataContext.ToolsSubViewModel.RightClickMode == RightClickMode.ContextMenu;
+        var usesErase = tools.RightClickMode == RightClickMode.Erase && tools.ActiveTool.IsErasable;
+        var usesSecondaryColor = tools.RightClickMode == RightClickMode.SecondaryColor && tools.ActiveTool.UsesColor;
+
+        if (!useContextMenu && (usesErase || usesSecondaryColor))
         {
             e.Handled = true;
         }

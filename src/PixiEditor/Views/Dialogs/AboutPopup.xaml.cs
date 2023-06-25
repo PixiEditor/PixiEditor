@@ -1,7 +1,8 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Views.Dialogs;
 

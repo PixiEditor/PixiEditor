@@ -15,13 +15,16 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Helpers;
-using PixiEditor.Localization;
+using PixiEditor.Helpers.Collections;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
@@ -122,6 +125,7 @@ internal partial class DocumentViewModel : NotifyableObject
     public DocumentToolsModule Tools { get; }
     public DocumentOperationsModule Operations { get; }
     public DocumentEventsModule EventInlet { get; }
+    public ActionDisplayList ActionDisplays { get; } = new(() => ViewModelMain.Current.NotifyToolActionDisplayChanged());
 
     public StructureMemberViewModel? SelectedStructureMember { get; private set; } = null;
 
@@ -140,8 +144,8 @@ internal partial class DocumentViewModel : NotifyableObject
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
 
-    public WpfObservableRangeCollection<Color> Swatches { get; set; } = new WpfObservableRangeCollection<Color>();
-    public WpfObservableRangeCollection<Color> Palette { get; set; } = new WpfObservableRangeCollection<Color>();
+    public WpfObservableRangeCollection<PaletteColor> Swatches { get; set; } = new WpfObservableRangeCollection<PaletteColor>();
+    public WpfObservableRangeCollection<PaletteColor> Palette { get; set; } = new WpfObservableRangeCollection<PaletteColor>();
 
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
@@ -159,7 +163,7 @@ internal partial class DocumentViewModel : NotifyableObject
 
         StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
 
-        TransformViewModel = new();
+        TransformViewModel = new(this);
         TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
 
         LineToolOverlayViewModel = new();
@@ -209,8 +213,8 @@ internal partial class DocumentViewModel : NotifyableObject
                 .AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImagePbgra32Bytes.ToImmutableArray(), refLayer.ImageSize));
         }
         
-        viewModel.Swatches = new WpfObservableRangeCollection<Color>(builderInstance.Swatches);
-        viewModel.Palette = new WpfObservableRangeCollection<Color>(builderInstance.Palette);
+        viewModel.Swatches = new WpfObservableRangeCollection<PaletteColor>(builderInstance.Swatches);
+        viewModel.Palette = new WpfObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
         AddMembers(viewModel.StructureRoot.GuidValue, builderInstance.Children);
 
@@ -349,7 +353,7 @@ internal partial class DocumentViewModel : NotifyableObject
         RectI? memberImageBounds;
         try
         {
-            memberImageBounds = layer.LayerImage.FindLatestBounds();
+            memberImageBounds = layer.LayerImage.FindChunkAlignedMostUpToDateBounds();
         }
         catch (ObjectDisposedException)
         {
@@ -387,7 +391,8 @@ internal partial class DocumentViewModel : NotifyableObject
     /// </summary>
     /// <param name="includeReference">Should the color be picked from the reference layer</param>
     /// <param name="includeCanvas">Should the color be picked from the canvas</param>
-    public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas)
+    /// <param name="referenceTopmost">Is the reference layer topmost. (Only affects the result is includeReference and includeCanvas are set.)</param>
+    public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas, bool referenceTopmost = false)
     {
         if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
             includeReference = false;
@@ -395,10 +400,20 @@ internal partial class DocumentViewModel : NotifyableObject
         if (includeCanvas && includeReference)
         {
             Color canvasColor = PickColorFromCanvas((VecI)pos, scope);
-            Color? referenceColor = PickColorFromReferenceLayer(pos);
-            if (referenceColor is null)
+            Color? potentialReferenceColor = PickColorFromReferenceLayer(pos);
+            if (potentialReferenceColor is not { } referenceColor)
                 return canvasColor;
-            return ColorHelpers.BlendColors((Color)referenceColor, canvasColor);
+
+            if (!referenceTopmost)
+            {
+                return ColorHelpers.BlendColors(referenceColor, canvasColor);
+            }
+
+            byte referenceAlpha = canvasColor.A == 0 ? referenceColor.A : (byte)(referenceColor.A * ReferenceLayerViewModel.TopMostOpacity);
+            
+            referenceColor = new Color(referenceColor.R, referenceColor.G, referenceColor.B, referenceAlpha);
+            return ColorHelpers.BlendColors(canvasColor, referenceColor);
+
         }
         if (includeCanvas)
             return PickColorFromCanvas((VecI)pos, scope);

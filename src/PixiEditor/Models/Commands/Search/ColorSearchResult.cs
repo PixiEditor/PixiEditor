@@ -1,4 +1,8 @@
-﻿using System.Windows.Media;
+﻿using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
+using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.Models.Commands.Search;
 
@@ -13,7 +17,11 @@ internal class ColorSearchResult : SearchResult
 
     public override string Text => text;
 
-    public override string Description => $"{color} rgba({color.R}, {color.G}, {color.B}, {color.A})";
+    public override FrameworkElement Description => new TextBlock(new Run($"{color} rgba({color.R}, {color.G}, {color.B}, {color.A})"))
+    {
+        FontSize = 16,
+        TextDecorations = GetDecoration(new Pen(new SolidColorBrush(color.ToOpaqueMediaColor()), 1))
+    };
 
     //public override bool CanExecute => !requiresDocument || (requiresDocument && ViewModelMain.Current.BitmapManager.ActiveDocument != null);
     public override bool CanExecute => !isPalettePaste || ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument != null;
@@ -37,7 +45,8 @@ internal class ColorSearchResult : SearchResult
     public static ColorSearchResult PastePalette(DrawingApi.Core.ColorsImpl.Color color, string searchTerm = null)
     {
         //var result = new ColorSearchResult(color, x => ViewModelMain.Current.BitmapManager.ActiveDocument.Palette.Add(x))
-        var result = new ColorSearchResult(color, x => ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument!.Palette.Add(x))
+        var result = new ColorSearchResult(color, x =>
+            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument!.Palette.Add(new PaletteColor(x.R, x.G, x.B)))
         {
             SearchTerm = searchTerm,
             isPalettePaste = true
@@ -55,4 +64,9 @@ internal class ColorSearchResult : SearchResult
         drawing.Geometry = geometry;
         return new DrawingImage(drawing);
     }
+    
+    private static TextDecorationCollection GetDecoration(Pen pen) => new()
+    {
+        new TextDecoration(TextDecorationLocation.Underline, pen, 0, TextDecorationUnit.Pixel, TextDecorationUnit.Pixel)
+    };
 }

@@ -2,8 +2,9 @@
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using PixiEditor.Extensions.Helpers;
+using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers.Extensions;
-using PixiEditor.Localization;
 using PixiEditor.Views;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
@@ -72,7 +73,8 @@ internal sealed class EnumSetting<TEnum> : Setting<TEnum, ComboBox>
     {
         var combobox = new ComboBox
         {
-            VerticalAlignment = VerticalAlignment.Center
+            VerticalAlignment = VerticalAlignment.Center,
+            MinWidth = 85
         };
 
         GenerateItems(combobox);

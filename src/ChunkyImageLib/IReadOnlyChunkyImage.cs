@@ -10,7 +10,9 @@ public interface IReadOnlyChunkyImage
 {
     bool DrawMostUpToDateChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null);
     bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null);
-    RectI? FindLatestBounds();
+    RectI? FindChunkAlignedMostUpToDateBounds();
+    RectI? FindChunkAlignedCommittedBounds();
+    RectI? FindTightCommittedBounds(ChunkResolution precision = ChunkResolution.Full);
     Color GetCommittedPixel(VecI posOnImage);
     Color GetMostUpToDatePixel(VecI posOnImage);
     bool LatestOrCommittedChunkExists(VecI chunkPos);

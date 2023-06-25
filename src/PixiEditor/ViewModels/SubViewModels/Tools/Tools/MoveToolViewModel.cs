@@ -1,8 +1,9 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
@@ -22,7 +23,7 @@ internal class MoveToolViewModel : ToolViewModel
     public MoveToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<MoveToolViewModel>();
+        Toolbar = ToolbarFactory.Create(this);
         Cursor = Cursors.Arrow;
     }
 
@@ -44,7 +45,7 @@ internal class MoveToolViewModel : ToolViewModel
         }
     }
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseShiftLayerTool();
     }

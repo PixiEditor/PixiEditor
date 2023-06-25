@@ -9,6 +9,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
+using PixiEditor.Exceptions;
 
 namespace PixiEditor.Models.DataHolders;
 
@@ -126,7 +127,7 @@ internal class RecentlyOpenedDocument : NotifyableObject
             {
                 bitmap = Importer.ImportWriteableBitmap(FilePath);
             }
-            catch
+            catch (RecoverableException)
             {
                 corrupt = true;
                 return null;

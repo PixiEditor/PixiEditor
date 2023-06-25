@@ -2,7 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:theme="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero2"
                     xmlns:controls="clr-namespace:PixiEditor.Views.UserControls"
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:views="clr-namespace:PixiEditor.Views"
+                    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions">
 
     <SolidColorBrush x:Key="ComboBox.Static.Background" Color="#252525" />
     <SolidColorBrush x:Key="ComboBox.Static.Border" Color="#2F2F37" />
@@ -11,7 +13,7 @@
     <SolidColorBrush x:Key="ComboBox.Static.Editable.Border" Color="#2F2F37" />
     <SolidColorBrush x:Key="ComboBox.Static.Editable.Button.Background" Color="Transparent" />
     <SolidColorBrush x:Key="ComboBox.Static.Editable.Button.Border" Color="Transparent" />
-    <SolidColorBrush x:Key="ComboBox.MouseOver.Background" Color="#333333" />
+    <SolidColorBrush x:Key="ComboBox.MouseOver.Background" Color="White" />
     <SolidColorBrush x:Key="ComboBox.MouseOver.Border" Color="#FF0000" />
     <SolidColorBrush x:Key="ComboBox.MouseOver.Glyph" Color="#007ACC" />
     <SolidColorBrush x:Key="ComboBox.MouseOver.Editable.Background" Color="#333333" />
@@ -42,12 +44,21 @@
                 <ControlTemplate TargetType="{x:Type ToggleButton}">
                     <Border x:Name="templateRoot" Background="{StaticResource AccentColor}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="5"
                             BorderBrush="{StaticResource ComboBox.Static.Border}" SnapsToDevicePixels="true">
                         <Path x:Name="arrow"
                             Data="M 0 3 L 3 6 L 6 3 L 6 0 L 3 3 L 0 0 L 0 3 Z"
                             Fill="{StaticResource BrighterAccentColor}" HorizontalAlignment="Right" Margin="5"
                             VerticalAlignment="Center" />
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="CornerRadius" Value="5"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}}" Value="true">
+                                        <Setter Property="CornerRadius" Value="5,5,0,0"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                     </Border>
                     <ControlTemplate.Triggers>
                         <MultiDataTrigger>
@@ -103,10 +114,10 @@
             <Popup x:Name="PART_Popup" AllowsTransparency="true" Grid.ColumnSpan="2"
                    IsOpen="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                    Margin="1" Placement="Bottom">
-                <theme:SystemDropShadowChrome x:Name="shadow" Color="Transparent" CornerRadius="5"
+                <theme:SystemDropShadowChrome x:Name="shadow" Color="Transparent" CornerRadius="0,0,5,5"
                                               MinWidth="{Binding ActualWidth, ElementName=templateRoot}"
                                               MaxHeight="{TemplateBinding MaxDropDownHeight}">
-                    <Border x:Name="dropDownBorder" CornerRadius="5"
+                    <Border x:Name="dropDownBorder" CornerRadius="0,0,5,5"
                             Background="{StaticResource DarkerAccentColor}" BorderThickness="1"
                             BorderBrush="{StaticResource BrighterAccentColor}">
                         <ScrollViewer x:Name="DropDownScrollViewer" Margin="1">
@@ -182,13 +193,20 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ComboBoxItem">
-                    <Border Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0">
+                    <Border Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0,1">
                         <ContentPresenter Content="{TemplateBinding Content}" HorizontalAlignment="Stretch"
                                           VerticalAlignment="Center" Margin="4,2"/>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <Trigger Property="IsHighlighted" Value="True">
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
                             <Setter Property="Background" TargetName="Bd" Value="{StaticResource MainColor}" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource MainColor}" />
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource AlmostLightModeAccentColor}" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Foreground" Value="{StaticResource MainColor}" />
@@ -213,5 +231,47 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+    
+    <Style TargetType="ComboBox" x:Key="TranslatedEnum">
+        <Setter Property="ItemTemplate">
+            <Setter.Value>
+                <DataTemplate>
+                    <TextBlock ui:Translator.Enum="{Binding}"/>
+                </DataTemplate>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="{x:Type ComboBoxItem}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                                <Border x:Name="Bd" Background="{TemplateBinding Background}" BorderThickness="0,1">
+                                    <TextBlock ui:Translator.Enum="{Binding}" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="False">
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="Transparent" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Background" TargetName="Bd" Value="{StaticResource MainColor}" />
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" TargetName="Bd" Value="{StaticResource MainColor}" />
+                                        <Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource AlmostLightModeAccentColor}" />
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="{StaticResource MainColor}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Template" Value="{DynamicResource DarkComboBox}" />
     </Style>
 </ResourceDictionary>

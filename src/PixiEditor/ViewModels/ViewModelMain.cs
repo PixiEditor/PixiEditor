@@ -2,9 +2,10 @@
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
-using PixiEditor.Localization;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
@@ -12,7 +13,8 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Models.Localization;
+using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 
@@ -72,10 +74,31 @@ internal class ViewModelMain : ViewModelBase
 
     public RegistryViewModel RegistrySubViewModel { get; set; }
 
+    public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
+
+    public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
+
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
-    public string ActiveActionDisplay => ActionDisplays.HasActive() ? ActionDisplays.GetActive() : ToolsSubViewModel.ActiveTool?.ActionDisplay;
+    public LocalizedString ActiveActionDisplay
+    {
+        get
+        {
+            if (ActionDisplays.HasActive())
+            {
+                return ActionDisplays.GetActive();
+            }
+
+            var documentDisplay = DocumentManagerSubViewModel.ActiveDocument?.ActionDisplays;
+            if (documentDisplay != null && documentDisplay.HasActive())
+            {
+                return documentDisplay.GetActive();
+            }
+
+            return ToolsSubViewModel.ActiveTool?.ActionDisplay ?? default;
+        }
+    }
 
     public ActionDisplayList ActionDisplays { get; }
 
@@ -112,7 +135,7 @@ internal class ViewModelMain : ViewModelBase
         UndoSubViewModel = services.GetService<UndoViewModel>();
         ViewportSubViewModel = services.GetService<ViewOptionsViewModel>();
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
-        ColorsSubViewModel?.SetupPaletteParsers(services);
+        ColorsSubViewModel?.SetupPaletteProviders(services);
 
         ToolsSubViewModel?.SetupTools(services);
 
@@ -123,6 +146,8 @@ internal class ViewModelMain : ViewModelBase
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
+        AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
+
         MiscSubViewModel = services.GetService<MiscViewModel>();
 
         CommandController = services.GetService<CommandController>();
@@ -132,6 +157,8 @@ internal class ViewModelMain : ViewModelBase
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
+
+        ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
     }
@@ -173,7 +200,7 @@ internal class ViewModelMain : ViewModelBase
         }
     }
 
-    private void NotifyToolActionDisplayChanged()
+    public void NotifyToolActionDisplayChanged()
     {
         if (!ActionDisplays.Any()) RaisePropertyChanged(nameof(ActiveActionDisplay));
     }
@@ -260,6 +287,7 @@ internal class ViewModelMain : ViewModelBase
 
     private void OnActiveDocumentChanged(object sender, DocumentChangedEventArgs e)
     {
+        NotifyToolActionDisplayChanged();
         if (e.OldDocument is not null)
             e.OldDocument.SizeChanged -= ActiveDocument_DocumentSizeChanged;
         if (e.NewDocument is not null)

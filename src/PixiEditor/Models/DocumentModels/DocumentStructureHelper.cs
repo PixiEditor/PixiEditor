@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;

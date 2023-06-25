@@ -1,9 +1,10 @@
 ﻿#nullable enable
 using System.IO;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Helpers;
 namespace PixiEditor.Models.DataHolders.Palettes;
 
-internal class Palette : NotifyableObject
+internal class Palette : NotifyableObject, IPalette
 {
     private string _name = "";
 
@@ -12,7 +13,7 @@ internal class Palette : NotifyableObject
         get => _name;
         set => SetProperty(ref _name, value);
     }
-    public List<string> Colors { get; set; }
+    public List<PaletteColor> Colors { get; set; }
 
     private string? fileName;
 
@@ -28,11 +29,14 @@ internal class Palette : NotifyableObject
 
     public bool IsFavourite { get; set; }
 
-    public Palette(string name, List<string> colors, string fileName)
+    public PaletteListDataSource Source { get; }
+
+    public Palette(string name, List<PaletteColor> colors, string? fileName, PaletteListDataSource source)
     {
         Name = name;
         Colors = colors;
         FileName = fileName;
+        Source = source;
     }
 
     public static string? ReplaceInvalidChars(string? filename)

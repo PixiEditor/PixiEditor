@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.Dialogs;
 
@@ -21,14 +22,14 @@ internal static class LospecPaletteFetcher
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 string content = await response.Content.ReadAsStringAsync();
-                var obj = JsonConvert.DeserializeObject<Palette>(content);
+                var obj = JsonConvert.DeserializeObject<PaletteObject>(content);
 
-                if (obj is { Colors: { } })
+                if (obj is { Colors: not null })
                 {
                     ReadjustColors(obj.Colors);
                 }
 
-                return obj;
+                return obj.ToPalette();
             }
         }
         catch (HttpRequestException)

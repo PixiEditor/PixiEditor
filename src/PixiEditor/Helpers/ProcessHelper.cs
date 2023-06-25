@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Security.Principal;
+using System.Windows.Input;
 
 namespace PixiEditor.Helpers;
 
@@ -25,7 +26,19 @@ internal static class ProcessHelper
 
     public static void OpenInExplorer(string path)
     {
-        string fixedPath = Path.GetFullPath(path);
-        Process.Start("explorer.exe", $"/select,\"{fixedPath}\"");
+        Mouse.OverrideCursor = Cursors.Wait;
+
+        try
+        {
+            string fixedPath = Path.GetFullPath(path);
+            var process = Process.Start("explorer.exe", $"/select,\"{fixedPath}\"");
+
+            // Explorer might need a second to show up
+            process.WaitForExit(500);
+        }
+        finally
+        {
+            Mouse.OverrideCursor = null;
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.IO;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions.Undo;
@@ -6,6 +7,8 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
@@ -104,7 +107,7 @@ internal class DocumentOperationsModule
     /// Pastes the <paramref name="images"/> as new layers
     /// </summary>
     /// <param name="images">The images to paste</param>
-    public void PasteImagesAsLayers(List<(string? name, Surface image)> images)
+    public void PasteImagesAsLayers(List<ClipboardController.DataImage> images)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
@@ -112,7 +115,7 @@ internal class DocumentOperationsModule
         RectI maxSize = new RectI(VecI.Zero, Document.SizeBindable);
         foreach (var imageWithName in images)
         {
-            maxSize = maxSize.Union(new RectI(VecI.Zero, imageWithName.image.Size));
+            maxSize = maxSize.Union(new RectI(imageWithName.position, imageWithName.image.Size));
         }
 
         if (maxSize.Size != Document.SizeBindable)
@@ -120,8 +123,8 @@ internal class DocumentOperationsModule
 
         foreach (var imageWithName in images)
         {
-            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, imageWithName.name);
-            DrawImage(imageWithName.image, new ShapeCorners(new RectD(VecD.Zero, imageWithName.image.Size)), layerGuid, true, false, false);
+            var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, Path.GetFileName(imageWithName.name));
+            DrawImage(imageWithName.image, new ShapeCorners(new RectD(imageWithName.position, imageWithName.image.Size)), layerGuid, true, false, false);
         }
         Internals.ActionAccumulator.AddFinishedActions();
     }
@@ -231,16 +234,16 @@ internal class DocumentOperationsModule
     /// </summary>
     /// <param name="oldColor">The color to replace</param>
     /// <param name="newColor">The new color</param>
-    public void ReplaceColor(Color oldColor, Color newColor)
+    public void ReplaceColor(PaletteColor oldColor, PaletteColor newColor)
     {
         if (Internals.ChangeController.IsChangeActive || oldColor == newColor)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor, newColor));
+        Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor.ToColor(), newColor.ToColor()));
         ReplaceInPalette(oldColor, newColor);
     }
 
-    private void ReplaceInPalette(Color oldColor, Color newColor)
+    private void ReplaceInPalette(PaletteColor oldColor, PaletteColor newColor)
     {
         int indexOfOldColor = Document.Palette.IndexOf(oldColor);
         if(indexOfOldColor == -1)
@@ -563,6 +566,24 @@ internal class DocumentOperationsModule
         Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.GuidValue, mode));
     }
 
+    public void CropToSelection(bool clearSelection = true)
+    {
+        var bounds = Document.SelectionPathBindable.TightBounds;
+        if (Document.SelectionPathBindable.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0)
+            return;
+
+        Internals.ActionAccumulator.AddActions(new Crop_Action((RectI)bounds));
+
+        if (clearSelection)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new ClearSelection_Action());
+        }
+        else
+        {
+            Internals.ActionAccumulator.AddFinishedActions();
+        }
+    }
+    
     public void InvertSelection()
     {
         var selection = Document.SelectionPathBindable;

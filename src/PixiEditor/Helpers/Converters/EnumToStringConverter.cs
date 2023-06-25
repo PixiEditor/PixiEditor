@@ -1,6 +1,5 @@
 ﻿using PixiEditor.Models.Enums;
 using System;
-using PixiEditor.Localization;
 
 namespace PixiEditor.Helpers.Converters;
 

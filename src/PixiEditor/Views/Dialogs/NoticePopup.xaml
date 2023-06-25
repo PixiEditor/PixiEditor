@@ -10,10 +10,12 @@
         xmlns:dial="clr-namespace:PixiEditor.Views.Dialogs"
         xmlns:views="clr-namespace:PixiEditor.Views"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d" WindowStyle="None"
         d:Title="Notice" Height="180" Width="400" MinHeight="180" MinWidth="400"
         WindowStartupLocation="CenterScreen"
         x:Name="popup"
+        ui:Translator.Key="{Binding ElementName=popup, Path=Title}"
         FlowDirection="{helpers:Localization FlowDirection}">
 
     <WindowChrome.WindowChrome>
@@ -27,10 +29,10 @@
         </i:Interaction.Behaviors>
 
         <dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleText="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
+            TitleKey="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
 
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
-            <Button Width="70" IsDefault="True" Click="OkButton_Close" Style="{StaticResource DarkRoundButton}" views:Translator.Key="CLOSE"/>
+            <Button Width="70" IsDefault="True" Click="OkButton_Close" Style="{StaticResource DarkRoundButton}" ui:Translator.Key="CLOSE"/>
         </StackPanel>
 
         <TextBlock 

@@ -72,7 +72,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
     public OneOf<None, (Surface image, RectI extractedRect)> ExtractArea(ChunkyImage image, VectorPath path, RectI pathBounds)
     {
         // get rid of transparent areas on edges
-        var memberImageBounds = image.FindLatestBounds();
+        var memberImageBounds = image.FindChunkAlignedMostUpToDateBounds();
         if (memberImageBounds is null)
             return new None();
         pathBounds = pathBounds.Intersect(memberImageBounds.Value);

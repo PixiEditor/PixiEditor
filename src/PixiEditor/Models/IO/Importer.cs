@@ -9,8 +9,10 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Exceptions;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Localization;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -29,13 +31,14 @@ internal class Importer : NotifyableObject
     public static Surface ImportImage(string path, VecI size)
     {
         Surface original = Surface.Load(path);
-        if (original.Size != size)
+        if (original.Size == size || size == VecI.NegativeOne)
         {
-            Surface resized = original.ResizeNearestNeighbor(size);
-            original.Dispose();
-            return resized;
+            return original;
         }
-        return original;
+
+        Surface resized = original.ResizeNearestNeighbor(size);
+        original.Dispose();
+        return resized;
     }
 
     public static WriteableBitmap ImportWriteableBitmap(string path)
@@ -51,22 +54,31 @@ internal class Importer : NotifyableObject
 
             return BitmapFactory.ConvertToPbgra32Format(bitmap);
         }
-        catch (NotSupportedException)
+        catch (NotSupportedException e)
         {
-            throw new CorruptedFileException($"The file type '{Path.GetExtension(path)}' is not supported");
+            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)), e);
         }
-        catch (FileFormatException)
+        catch (FileFormatException e)
         {
-            throw new CorruptedFileException("The file appears to be corrupted");
+            throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
+        }
+        catch (Exception e)
+        {
+            throw new RecoverableException("ERROR_IMPORTING_IMAGE", e);
         }
     }
 
-    public static DocumentViewModel ImportDocument(string path)
+    public static DocumentViewModel ImportDocument(string path, bool associatePath = true)
     {
         try
         {
             var doc = PixiParser.Deserialize(path).ToDocument();
-            doc.FullFilePath = path;
+            
+            if (associatePath)
+            {
+                doc.FullFilePath = path;
+            }
+
             return doc;
         }
         catch (InvalidFileException)
@@ -74,12 +86,17 @@ internal class Importer : NotifyableObject
             try
             {
                 var doc = DepractedPixiParser.Deserialize(path).ToDocument();
-                doc.FullFilePath = path;
+                
+                if (associatePath)
+                {
+                    doc.FullFilePath = path;
+                }
+
                 return doc;
             }
             catch (InvalidFileException e)
             {
-                throw new CorruptedFileException("The given file seems to be corrupted or from a newer version of PixiEditor", e);
+                throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
             }
         }
     }
@@ -102,7 +119,7 @@ internal class Importer : NotifyableObject
             }
             catch (InvalidFileException e)
             {
-                throw new CorruptedFileException("The given file seems to be corrupted or from a newer version of PixiEditor", e);
+                throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
             }
         }
     }
@@ -111,17 +128,9 @@ internal class Importer : NotifyableObject
     {
         if (!IsSupportedFile(path))
         {
-            throw new ArgumentException($"The file type '{Path.GetExtension(path)}' is not supported");
+            throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)));
         }
-        
-        try
-        {
-            return Path.GetExtension(path) != ".pixi" ? ImportWriteableBitmap(path) : PixiParser.Deserialize(path).ToDocument().PreviewBitmap;
-        }
-        catch (InvalidFileException)
-        {
-            throw new CorruptedFileException();
-        }
+        return Path.GetExtension(path) != ".pixi" ? ImportWriteableBitmap(path) : PixiParser.Deserialize(path).ToDocument().PreviewBitmap;
     }
 
     public static bool IsSupportedFile(string path)

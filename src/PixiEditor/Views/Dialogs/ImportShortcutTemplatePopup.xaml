@@ -5,9 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:diag="clr-namespace:PixiEditor.Views.Dialogs"
-        xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
         xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
+        xmlns:views="clr-namespace:PixiEditor.Views"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         mc:Ignorable="d"
         Title="Import from template" Foreground="White"
         WindowStartupLocation="CenterOwner"
@@ -15,7 +16,8 @@
         SizeToContent="WidthAndHeight" WindowStyle="None"
         Background="{StaticResource AccentColor}"
         x:Name="window"
-        FlowDirection="{helpers:Localization FlowDirection}">
+        FlowDirection="{helpers:Localization FlowDirection}"
+        ui:Translator.Key="IMPORT_FROM_TEMPLATE">
 
     <Window.CommandBindings>
         <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
@@ -33,7 +35,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <diag:DialogTitleBar DockPanel.Dock="Top"
-                             TitleText="IMPORT_FROM_TEMPLATE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
+                             TitleKey="IMPORT_FROM_TEMPLATE" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"/>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Templates, ElementName=window}"
                       Margin="10,10,10,5">
             <ItemsControl.ItemsPanel>
@@ -48,36 +50,6 @@
                         Logo="{Binding LogoPath}" Cursor="Hand" 
                         MouseLeftButtonUp="OnTemplateCardLeftMouseButtonDown"
                         HoverLogo="{Binding Path=HoverLogoPath}"/>
-                    <!--<Grid Margin="0,5,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"
-                                   ToolTip="{Binding Description}"/>
-                        <Image Source="{Binding LogoPath}" Width="48" Height="48"/>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <StackPanel.Resources>
-                                <Style TargetType="Button" BasedOn="{StaticResource DarkRoundButton}">
-                                    <Setter Property="Width" Value="120"/>
-                                    <Setter Property="Height" Value="Auto"/>
-                                    <Setter Property="Padding" Value="5"/>
-                                    <Setter Property="FontSize" Value="12"/>
-                                    <Setter Property="Margin" Value="5,0, 0, 0"/>
-                                </Style>
-                            </StackPanel.Resources>
-                            <Button Command="{xaml:Command PixiEditor.Shortcuts.Provider.ImportInstallation, UseProvided=True}"
-                                    CommandParameter="{Binding}" Content="From installed"
-                                    Visibility="{Binding ProvidesFromInstallation, Converter={BoolToVisibilityConverter}}"
-                                    IsEnabled="{Binding HasInstallationPresent}"/>
-                            <Button Command="{xaml:Command PixiEditor.Shortcuts.Provider.ImportFile, UseProvided=True}"
-                                    CommandParameter="{Binding}" Content="Import file"
-                                    Visibility="{Binding ProvidesImport, Converter={BoolToVisibilityConverter}}"/>
-                            <Button Command="{xaml:Command PixiEditor.Shortcuts.Provider.ImportDefault, UseProvided=True}"
-                                    CommandParameter="{Binding}" Content="Import defaults"
-                                    Visibility="{Binding HasDefaultShortcuts, Converter={BoolToVisibilityConverter}}"/>
-                        </StackPanel>
-                    </Grid>-->
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

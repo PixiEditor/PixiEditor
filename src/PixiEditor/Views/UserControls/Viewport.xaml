@@ -20,6 +20,8 @@
     xmlns:cmds="clr-namespace:PixiEditor.Models.Commands.XAML"
     xmlns:tools ="clr-namespace:PixiEditor.ViewModels.SubViewModels.Tools.Tools"
     xmlns:views="clr-namespace:PixiEditor.Views"
+    xmlns:subviews="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
+    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -47,7 +49,7 @@
                                         PassEventArgsToCommand="True"/>
             </i:EventTrigger>
         </i:Interaction.Triggers>
-        <views:TogglableFlyout Margin="5" IconPath="/Images/Settings.png" views:Translator.TooltipKey="VIEWPORT_SETTINGS"
+        <views:TogglableFlyout Margin="5" IconPath="/Images/Settings.png" ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
                                Panel.ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <views:TogglableFlyout.Child>
                 <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="#C8202020" Panel.ZIndex="2">
@@ -57,7 +59,7 @@
                        Text="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, 
              Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
                        Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16"/>
-            <Button Width="32" Height="32" views:Translator.TooltipKey="RESET_VIEWPORT"
+            <Button Width="32" Height="32" ui:Translator.TooltipKey="RESET_VIEWPORT"
                     Style="{StaticResource OverlayButton}"
                     Click="ResetViewportClicked"
                     Cursor="Hand">
@@ -68,7 +70,7 @@
         </StackPanel>
             <Separator/>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <ToggleButton Width="32" Height="32" views:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
+                <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
                         Style="{StaticResource OverlayToggleButton}"
                         IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                         Cursor="Hand">
@@ -76,7 +78,7 @@
                         <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png"/>
                     </ToggleButton.Content>
                 </ToggleButton>
-                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" views:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
+                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
                               Style="{StaticResource OverlayToggleButton}"
                               IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
@@ -91,7 +93,7 @@
             </StackPanel>
             <Separator/>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <ToggleButton Width="32" Height="32" views:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
+                <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
                               Style="{StaticResource OverlayToggleButton}"
                               IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
@@ -99,7 +101,7 @@
                         <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png"/>
                     </ToggleButton.Content>
                 </ToggleButton>
-                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" views:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
+                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
                               Style="{StaticResource OverlayToggleButton}"
                               IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
@@ -149,10 +151,8 @@
                 </Border.Background>
                 <Grid>
                     <Canvas
-                        Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromReferenceLayer, Converter={converters:BoolToVisibilityConverter}}"
                         ZIndex="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToIntConverter}}"
-                        IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}"
-                        Opacity="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToValueConverter FalseValue=1.0, TrueValue=0.6}}">
+                        IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}">
                         <Image
                             Focusable="False"
                             Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Width}"
@@ -160,22 +160,102 @@
                             Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
                             Visibility="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable, Converter={converters:BoolToHiddenVisibilityConverter}}"
                             SizeChanged="OnReferenceImageSizeChanged"
-                            RenderOptions.BitmapScalingMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
+                            RenderOptions.BitmapScalingMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}"
+                            FlowDirection="LeftToRight">
                             <Image.RenderTransform>
                                 <TransformGroup>
                                     <MatrixTransform
                                         Matrix="{Binding Document.ReferenceLayerViewModel.ReferenceTransformMatrix}" />
                                 </TransformGroup>
                             </Image.RenderTransform>
+                            <Image.Style>
+                                <Style>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Document.ReferenceLayerViewModel.ShowHighest, Mode=OneWay}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation 
+                                                            Storyboard.TargetProperty="(Button.Opacity)" 
+                                                            From="1" To="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" Duration="0:0:0.1" /> 
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                            <DataTrigger.ExitActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation 
+                                                            Storyboard.TargetProperty="(Button.Opacity)" 
+                                                            From="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" To="1" Duration="0:0:0.1" /> 
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.ExitActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Image.Style>
                         </Image>
+                        <Canvas.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromReferenceLayer, Mode=OneWay}" Value="False">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Storyboard.TargetProperty="(Button.Opacity)" 
+                                                        From="1" To="0" Duration="0:0:0.1" /> 
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Storyboard.TargetProperty="(Button.Opacity)" 
+                                                        From="0" To="1" Duration="0:0:0.1" /> 
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Canvas.Style>
                     </Canvas>
                     <Image
                         Focusable="False"
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
-                        Visibility="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromCanvas, Converter={converters:BoolToHiddenVisibilityConverter}}"
-                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"/>
+                        RenderOptions.BitmapScalingMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"
+                        FlowDirection="LeftToRight">
+                        <Image.Style>
+                            <Style>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Storyboard.TargetProperty="(Button.Opacity)" 
+                                                        From="1" To="0" Duration="0:0:0.1" /> 
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation 
+                                                        Storyboard.TargetProperty="(Button.Opacity)" 
+                                                        From="0" To="1" Duration="0:0:0.1" /> 
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Image.Style>
+                    </Image>
                     <Grid ZIndex="5">
                         <symOverlay:SymmetryOverlay
                             Focusable="False"
@@ -187,7 +267,8 @@
                             VerticalAxisX="{Binding Document.VerticalSymmetryAxisXBindable, Mode=OneWay}"
                             DragCommand="{cmds:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
                             DragEndCommand="{cmds:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
-                            DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}" />
+                            DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
+                            FlowDirection="LeftToRight" />
                         <overlays:SelectionOverlay
                             Focusable="False"
                             ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
@@ -324,13 +405,13 @@
         </zoombox:Zoombox>
         <Button 
             Panel.ZIndex="99999"
-            DockPanel.Dock="Bottom" 
-            Width="140" 
-            Height="28" 
-            Margin="5" 
+            DockPanel.Dock="Bottom"
+            Margin="5"
+            Padding="8,5,5,5"
             VerticalAlignment="Bottom" 
+            HorizontalAlignment="Center"
             Style="{StaticResource GrayRoundButton}"
-            Command="{cmds:Command PixiEditor.Tools.ApplyTransform}" views:Translator.Key="APPLY_TRANSFORM">
+            Command="{cmds:Command PixiEditor.Tools.ApplyTransform}">
             <Button.Visibility>
                 <MultiBinding Converter="{converters:BoolOrToVisibilityConverter}">
                     <MultiBinding.Bindings>
@@ -339,6 +420,12 @@
                     </MultiBinding.Bindings>
                 </MultiBinding>
             </Button.Visibility>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock ui:Translator.Key="APPLY_TRANSFORM" VerticalAlignment="Center" Margin="0,0,5,0" />
+                <Border Padding="10,3" CornerRadius="5" Background="{StaticResource AccentColor}" Visibility="{cmds:ShortcutBinding PixiEditor.Tools.ApplyTransform, Converter={converters:NotNullToVisibilityConverter}}">
+                    <TextBlock Text="{cmds:ShortcutBinding PixiEditor.Tools.ApplyTransform}" />
+                </Border>
+            </StackPanel>
         </Button>
     </Grid>
 </UserControl>

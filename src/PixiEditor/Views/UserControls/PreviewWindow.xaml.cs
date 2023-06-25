@@ -73,7 +73,7 @@ internal partial class PreviewWindow : UserControl
     {
         if (ViewModelMain.Current != null)
         {
-            ViewModelMain.Current.ActionDisplays[nameof(PreviewWindow)] = "Right-click to pick color, Shift-right-click to copy color to clipboard";
+            ViewModelMain.Current.ActionDisplays[nameof(PreviewWindow)] = "NAVIGATOR_PICK_ACTION_DISPLAY";
         }
     }
 

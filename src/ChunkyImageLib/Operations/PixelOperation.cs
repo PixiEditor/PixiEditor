@@ -6,7 +6,7 @@ using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 namespace ChunkyImageLib.Operations;
 
-public delegate Color PixelProcessor(Color input);
+public delegate Color PixelProcessor(Color commited, Color upToDate);
 internal class PixelOperation : IMirroredDrawOperation
 {
     public bool IgnoreEmptyChunks => false;
@@ -14,8 +14,9 @@ internal class PixelOperation : IMirroredDrawOperation
     private readonly Color color;
     private readonly BlendMode blendMode;
     private readonly Paint paint;
+    private readonly Func<VecI, Color>? getCommitedPixelFunc = null;
 
-    private readonly PixelProcessor? _colorProcessor = null;
+    private readonly PixelProcessor? colorProcessor = null;
 
     public PixelOperation(VecI pixel, Color color, BlendMode blendMode)
     {
@@ -25,22 +26,23 @@ internal class PixelOperation : IMirroredDrawOperation
         paint = new Paint() { BlendMode = blendMode };
     }
 
-    public PixelOperation(VecI pixel, PixelProcessor colorProcessor, BlendMode blendMode)
+    public PixelOperation(VecI pixel, PixelProcessor colorProcessor, Func<VecI, Color> getCommitedPixelFunc, BlendMode blendMode)
     {
         this.pixel = pixel;
-        this._colorProcessor = colorProcessor;
+        this.colorProcessor = colorProcessor;
         this.blendMode = blendMode;
+        this.getCommitedPixelFunc = getCommitedPixelFunc;
         paint = new Paint() { BlendMode = blendMode };
     }
 
-    public void DrawOnChunk(Chunk chunk, VecI chunkPos)
+    public void DrawOnChunk(Chunk targetChunk, VecI chunkPos)
     {
         // a hacky way to make the lines look slightly better on non full res chunks
-        paint.Color = GetColor(chunk, chunkPos);
+        paint.Color = GetColor(targetChunk, chunkPos);
 
-        DrawingSurface surf = chunk.Surface.DrawingSurface;
+        DrawingSurface surf = targetChunk.Surface.DrawingSurface;
         surf.Canvas.Save();
-        surf.Canvas.Scale((float)chunk.Resolution.Multiplier());
+        surf.Canvas.Scale((float)targetChunk.Resolution.Multiplier());
         surf.Canvas.Translate(-chunkPos * ChunkyImage.FullChunkSize);
         surf.Canvas.DrawPoint(pixel, paint);
         surf.Canvas.Restore();
@@ -49,9 +51,10 @@ internal class PixelOperation : IMirroredDrawOperation
     private Color GetColor(Chunk chunk, VecI chunkPos)
     {
         Color pixelColor = color;
-        if (_colorProcessor != null)
+        if (colorProcessor != null && getCommitedPixelFunc != null)
         {
-            pixelColor = _colorProcessor(chunk.Surface.GetSRGBPixel(pixel - chunkPos * ChunkyImage.FullChunkSize));
+            var pos = pixel - chunkPos * ChunkyImage.FullChunkSize;
+            pixelColor = colorProcessor(getCommitedPixelFunc(pixel), chunk.Surface.GetSRGBPixel(pos));
         }
 
         return new Color(pixelColor.R, pixelColor.G, pixelColor.B, (byte)(pixelColor.A * chunk.Resolution.Multiplier()));
@@ -69,9 +72,9 @@ internal class PixelOperation : IMirroredDrawOperation
             pixelRect = (RectI)pixelRect.ReflectX((double)verAxisX).Round();
         if (horAxisY is not null)
             pixelRect = (RectI)pixelRect.ReflectY((double)horAxisY);
-        if (_colorProcessor != null)
+        if (colorProcessor != null && getCommitedPixelFunc != null)
         {
-            return new PixelOperation(pixelRect.Pos, _colorProcessor, blendMode);
+            return new PixelOperation(pixelRect.Pos, colorProcessor, getCommitedPixelFunc, blendMode);
         }
 
         return new PixelOperation(pixelRect.Pos, color, blendMode);

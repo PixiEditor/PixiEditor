@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Text;
 using System.Xml;
+using PixiEditor.Exceptions;
 
 namespace PixiEditor.Models.Commands.Templates.Parsers;
 
@@ -30,12 +31,12 @@ public class AsepriteKeysParser : KeysParser
     {
         if (!File.Exists(path))
         {
-            throw new FileNotFoundException("File not found", path);
+            throw new MissingFileException("FILE_NOT_FOUND", $"File {path} not found");
         }
 
         if (Path.GetExtension(path) != ".aseprite-keys")
         {
-            throw new ArgumentException("File is not aseprite-keys file", nameof(path));
+            throw new InvalidFileTypeException("FILE_FORMAT_NOT_ASEPRITE_KEYS", $"File {path} is not an aseprite-keys file");
         }
         
         return LoadAndParse(path, applyDefaults);
@@ -44,15 +45,34 @@ public class AsepriteKeysParser : KeysParser
     private ShortcutsTemplate LoadAndParse(string path, bool applyDefaults)
     {
         XmlDocument doc = new XmlDocument();
-        doc.Load(path);
+
+        try
+        {
+            doc.Load(path);
+        }
+        catch (Exception e) when (e is DirectoryNotFoundException or FileNotFoundException or PathTooLongException)
+        {
+            throw new MissingFileException("FILE_NOT_FOUND", e);
+        }
+        catch (Exception e)
+        {
+            throw new RecoverableException("FAILED_TO_OPEN_FILE", e);
+        }
         
         List<KeyDefinition> keyDefinitions = new List<KeyDefinition>(); // DefaultShortcut is actually mapped shortcut.
 
         LoadCommands(doc, keyDefinitions, applyDefaults);
         LoadTools(doc, keyDefinitions, applyDefaults);
-        
-        ShortcutsTemplate template = ShortcutsTemplate.FromKeyDefinitions(keyDefinitions);
-        return template;
+
+        try
+        {
+            return ShortcutsTemplate.FromKeyDefinitions(keyDefinitions);
+        }
+        catch (RecoverableException) { throw; }
+        catch (Exception e)
+        {
+            throw new CorruptedFileException("FILE_HAS_INVALID_SHORTCUT", e);
+        }
     }
 
     private void LoadCommands(XmlDocument document, List<KeyDefinition> keyDefinitions, bool applyDefaults)

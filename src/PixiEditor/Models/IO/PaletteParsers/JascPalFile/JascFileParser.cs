@@ -1,5 +1,7 @@
 ﻿using System.IO;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 
 namespace PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 
@@ -21,17 +23,17 @@ internal class JascFileParser : PaletteFileParser
         if (ValidateFile(fileType, magicBytes))
         {
             int colorCount = int.Parse(lines[2]);
-            Color[] colors = new Color[colorCount];
+            PaletteColor[] colors = new PaletteColor[colorCount];
             for (int i = 0; i < colorCount; i++)
             {
                 string[] colorData = lines[i + 3].Split(' ');
-                colors[i] = new Color(byte.Parse(colorData[0]), byte.Parse(colorData[1]), byte.Parse(colorData[2]));
+                colors[i] = new PaletteColor(byte.Parse(colorData[0]), byte.Parse(colorData[1]), byte.Parse(colorData[2]));
             }
 
             return new PaletteFileData(name, colors);
         }
 
-        throw new JascFileException("Invalid JASC-PAL file.");
+        throw new JascFileException("FAILED_TO_OPEN_FILE", "Invalid JASC-PAL file.");
     }
 
     public static async Task<bool> SaveFile(string path, PaletteFileData data)

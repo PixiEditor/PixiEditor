@@ -7,11 +7,14 @@ using PixiEditor.ViewModels.SubViewModels.UserPreferences;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Win32;
-using PixiEditor.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Commands.Templates;
-using PixiEditor.Models.UserPreferences;
 using PixiEditor.Views.Dialogs;
+using PixiEditor.Exceptions;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Models.Localization;
+using PixiEditor.Models.Preferences;
 
 namespace PixiEditor.ViewModels;
 
@@ -122,18 +125,8 @@ internal class SettingsWindowViewModel : ViewModelBase
         if (dialog.ShowDialog().GetValueOrDefault())
         {
             List<Shortcut> shortcuts = new List<Shortcut>();
-            try
-            {
-                if (!TryImport(dialog, ref shortcuts))
-                {
-                    return;
-                }
-            }
-            catch (Exception e)
-            {
-                NoticeDialog.Show("SHORTCUTS_FILE_INCORRECT_FORMAT", "INVALID_FILE");
+            if (!TryImport(dialog, ref shortcuts))
                 return;
-            }
             
             CommandController.Current.ResetShortcuts();
             CommandController.Current.Import(shortcuts, false);
@@ -148,7 +141,16 @@ internal class SettingsWindowViewModel : ViewModelBase
     {
         if (dialog.FileName.EndsWith(".pixisc") || dialog.FileName.EndsWith(".json"))
         {
-            shortcuts = ShortcutFile.LoadTemplate(dialog.FileName)?.Shortcuts.ToList();
+            try
+            {
+                shortcuts = ShortcutFile.LoadTemplate(dialog.FileName)?.Shortcuts.ToList();
+            }
+            catch (Exception)
+            {
+                NoticeDialog.Show(title: "ERROR", message: "ERROR_READING_FILE");
+                return false;
+            }
+
             if (shortcuts is null)
             {
                 NoticeDialog.Show("SHORTCUTS_FILE_INCORRECT_FORMAT", "INVALID_FILE");
@@ -165,7 +167,15 @@ internal class SettingsWindowViewModel : ViewModelBase
                 return false;
             }
 
-            shortcuts = provider.KeysParser.Parse(dialog.FileName, false)?.Shortcuts.ToList();
+            try
+            {
+                shortcuts = provider.KeysParser.Parse(dialog.FileName, false)?.Shortcuts.ToList();
+            }
+            catch (RecoverableException e)
+            {
+                NoticeDialog.Show(title: "ERROR", message: e.DisplayMessage);
+                return false;
+            }
         }
 
         return true;

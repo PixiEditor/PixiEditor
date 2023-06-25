@@ -9,6 +9,7 @@
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:commands="clr-namespace:PixiEditor.Models.Commands"
              xmlns:commands1="clr-namespace:PixiEditor.Models.Commands.Commands"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="400">
     <Grid>
@@ -34,12 +35,12 @@
                     <Grid>
                         <TextBlock Foreground="LightGray" HorizontalAlignment="Center" TextAlignment="Center"
                                    Visibility="{Binding VisibleGroups, ConverterParameter=0, Mode=OneWay, Converter={converters:EqualityBoolToVisibilityConverter}}"
-                                   views:Translator.Key="NOTHING_FOUND"  d:Text="Nothing found."/>
+                                   ui:Translator.Key="NOTHING_FOUND"  d:Text="Nothing found."/>
                         <ItemsControl ItemsSource="{Binding Commands}" Foreground="White" Focusable="False">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate DataType="{x:Type commands:CommandGroup}">
                                     <StackPanel Margin="0,0,0,20" Visibility="{Binding Visibility}">
-                                        <TextBlock views:Translator.Key="{Binding DisplayName.Key}" FontSize="22" FontWeight="SemiBold"/>
+                                        <TextBlock ui:Translator.Key="{Binding DisplayName.Key}" FontSize="22" FontWeight="SemiBold"/>
                                         <ItemsControl ItemsSource="{Binding Commands}" Focusable="False">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate DataType="{x:Type commands1:Command}">

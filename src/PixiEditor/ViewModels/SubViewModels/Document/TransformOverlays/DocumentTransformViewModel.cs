@@ -1,19 +1,19 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
-using PixiEditor;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Helpers;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels;
-using PixiEditor.ViewModels.SubViewModels;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
+using PixiEditor.Models.Localization;
 using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 #nullable enable
 internal class DocumentTransformViewModel : NotifyableObject
 {
+    private DocumentViewModel document;
+    
     private TransformOverlayUndoStack<(ShapeCorners, TransformState)>? undoStack = null;
 
     private TransformState internalState;
@@ -55,7 +55,22 @@ internal class DocumentTransformViewModel : NotifyableObject
     public bool TransformActive
     {
         get => transformActive;
-        set => SetProperty(ref transformActive, value);
+        set
+        {
+            if (!SetProperty(ref transformActive, value))
+            {
+                return;
+            }
+
+            if (value)
+            {
+                document.ActionDisplays[nameof(DocumentTransformViewModel)] = new LocalizedString($"TRANSFORM_ACTION_DISPLAY_{activeTransformMode.GetDescription()}");
+            }
+            else
+            {
+                document.ActionDisplays[nameof(DocumentTransformViewModel)] = null;
+            }
+        }
     }
 
     private bool showTransformControls;
@@ -106,8 +121,9 @@ internal class DocumentTransformViewModel : NotifyableObject
 
     private DocumentTransformMode activeTransformMode = DocumentTransformMode.Scale_Rotate_NoShear_NoPerspective;
 
-    public DocumentTransformViewModel()
+    public DocumentTransformViewModel(DocumentViewModel document)
     {
+        this.document = document;
         ActionCompletedCommand = new RelayCommand((_) =>
         {
             if (undoStack is null)

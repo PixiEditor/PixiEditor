@@ -1,9 +1,10 @@
 ﻿using System.Windows.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
@@ -25,11 +26,11 @@ internal class MagicWandToolViewModel : ToolViewModel
     
     public MagicWandToolViewModel()
     {
-        Toolbar = ToolbarFactory.Create<MagicWandToolViewModel>();
+        Toolbar = ToolbarFactory.Create(this);
         ActionDisplay = "MAGIC_WAND_ACTION_DISPLAY";
     }
     
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseMagicWandTool();
     }

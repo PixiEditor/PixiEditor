@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Text;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 
@@ -30,7 +32,7 @@ internal class GimpGplParser : PaletteFileParser
 
         if(lines.Length == 0) return PaletteFileData.Corrupted;
 
-        List<Color> colors = new();
+        List<PaletteColor> colors = new();
         char[] separators = new[] { '\t', ' ' };
         foreach (var colorLine in lines)
         {
@@ -54,7 +56,7 @@ internal class GimpGplParser : PaletteFileParser
             parsed = byte.TryParse(colorParts[2], out byte b);
             if(!parsed) continue;
 
-            var color = new Color(r, g, b, 255); // alpha is ignored in PixiEditor
+            var color = new PaletteColor(r, g, b); // alpha is ignored in PixiEditor
             if (colors.Contains(color)) continue;
 
             colors.Add(color);

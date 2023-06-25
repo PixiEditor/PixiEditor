@@ -1,4 +1,5 @@
-﻿using PixiEditor.Helpers;
+﻿using PixiEditor.Extensions.Palettes;
+using PixiEditor.Helpers;
 
 namespace PixiEditor.Models.DataHolders.Palettes;
 

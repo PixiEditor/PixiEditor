@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 using PixiEditor.Models.Controllers;
 
@@ -41,6 +42,14 @@ internal partial class EditableTextBlock : UserControl
     public static readonly DependencyProperty MaxCharsProperty =
         DependencyProperty.Register(nameof(MaxChars), typeof(int), typeof(EditableTextBlock), new PropertyMetadata(int.MaxValue));
 
+    public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
+        nameof(Foreground), typeof(SolidColorBrush), typeof(EditableTextBlock), new PropertyMetadata(new SolidColorBrush(Colors.White)));
+
+    public SolidColorBrush Foreground
+    {
+        get { return (SolidColorBrush)GetValue(ForegroundProperty); }
+        set { SetValue(ForegroundProperty, value); }
+    }
 
     public event EventHandler<TextChangedEventArgs> OnSubmit;
 

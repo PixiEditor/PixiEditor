@@ -156,9 +156,8 @@ internal class ActionAccumulator
     {
         foreach (var child in root.Children)
         {
-            child.PreviewBitmap.Lock();
-            if (child.MaskPreviewBitmap is not null)
-                child.MaskPreviewBitmap.Lock();
+            child.PreviewBitmap?.Lock();
+            child.MaskPreviewBitmap?.Lock();
             if (child is FolderViewModel innerFolder)
                 LockPreviewBitmaps(innerFolder);
         }
@@ -169,9 +168,8 @@ internal class ActionAccumulator
     {
         foreach (var child in root.Children)
         {
-            child.PreviewBitmap.Unlock();
-            if (child.MaskPreviewBitmap is not null)
-                child.MaskPreviewBitmap.Unlock();
+            child.PreviewBitmap?.Unlock();
+            child.MaskPreviewBitmap?.Unlock();
             if (child is FolderViewModel innerFolder)
                 UnlockPreviewBitmaps(innerFolder);
         }

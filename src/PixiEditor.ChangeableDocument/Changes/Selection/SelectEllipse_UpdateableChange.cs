@@ -7,6 +7,7 @@ namespace PixiEditor.ChangeableDocument.Changes.Selection;
 internal class SelectEllipse_UpdateableChange : UpdateableChange
 {
     private RectI borders;
+    private VectorPath? documentConstraint;
     private readonly SelectionMode mode;
     private VectorPath? originalPath;
 
@@ -26,6 +27,8 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
     public override bool InitializeAndValidate(Document target)
     {
         originalPath = new VectorPath(target.Selection.SelectionPath);
+        documentConstraint = new VectorPath();
+        documentConstraint.AddRect(new RectI(VecI.Zero, target.Size));
         return true;
     }
 
@@ -35,11 +38,13 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
         if (!borders.IsZeroArea)
             ellipsePath.AddOval(borders);
 
+        using var inConstraint = ellipsePath.Op(documentConstraint!, VectorPathOp.Intersect);
+
         var toDispose = target.Selection.SelectionPath;
         if (mode == SelectionMode.New)
-            target.Selection.SelectionPath = new(ellipsePath);
+            target.Selection.SelectionPath = new(inConstraint);
         else
-            target.Selection.SelectionPath = originalPath!.Op(ellipsePath, mode.ToVectorPathOp());
+            target.Selection.SelectionPath = originalPath!.Op(inConstraint, mode.ToVectorPathOp());
         toDispose.Dispose();
 
         return new Selection_ChangeInfo(new VectorPath(target.Selection.SelectionPath));
@@ -67,5 +72,6 @@ internal class SelectEllipse_UpdateableChange : UpdateableChange
     public override void Dispose()
     {
         originalPath?.Dispose();
+        documentConstraint?.Dispose();
     }
 }

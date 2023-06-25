@@ -18,7 +18,7 @@
           },
           "localeFileName": {
             "type": "string",
-            "description": "The name of the key-value json file found in Data/Localization/Languages",
+            "description": "The name of the key-value json file found in Data/Localization/Languages. Must be prepended with extension unique name and : (e.g. pixieditor.sampleExtension:en.json)",
             "pattern": ".*\\.json",
             "format": "uri",
             "default": ".json"
@@ -34,6 +34,11 @@
             "type": "boolean",
             "description": "Does the language use RTL Layout",
             "default": true
+          },
+          "lastUpdated": {
+            "type": "string",
+            "description": "Date Time offset. Use format '07.05.2023 12:13:35 +00:00'",
+            "format": "date-time"
           }
         },
         "required": [

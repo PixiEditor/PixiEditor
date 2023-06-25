@@ -1,11 +1,15 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
-using PixiEditor.Localization;
+using System.Windows.Media;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.AppExtensions;
+using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using PixiEditor.Platform;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
@@ -40,11 +44,49 @@ internal partial class App : Application
             return;
         }
 
-        if (HandleNewInstance())
+        #if !STEAM
+        if (!HandleNewInstance())
         {
-            MainWindow = new MainWindow();
-            MainWindow.Show();
+            return;
         }
+        #endif
+
+        AddNativeAssets();
+
+        InitPlatform();
+
+        ExtensionLoader extensionLoader = new ExtensionLoader();
+        extensionLoader.LoadExtensions();
+
+        MainWindow = new MainWindow(extensionLoader);
+        MainWindow.Show();
+    }
+
+    private void InitPlatform()
+    {
+        var platform = GetActivePlatform();
+        IPlatform.RegisterPlatform(platform);
+        platform.PerformHandshake();
+    }
+
+    private IPlatform GetActivePlatform()
+    {
+#if STEAM
+        return new PixiEditor.Platform.Steam.SteamPlatform();
+#elif MSIX || MSIX_DEBUG
+        return new PixiEditor.Platform.MSStore.MicrosoftStorePlatform();
+#else
+        return new PixiEditor.Platform.Standalone.StandalonePlatform();
+#endif
+    }
+
+    private void AddNativeAssets()
+    {
+        var iconFont = OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)
+            ? "Segoe Fluent Icons"
+            : "Segoe MDL2 Assets";
+        
+        Resources.Add("NativeIconFont", new FontFamily(iconFont));
     }
 
     private bool HandleNewInstance()
@@ -54,6 +96,9 @@ internal partial class App : Application
         _eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, UniqueEventName);
 
         GC.KeepAlive(_mutex);
+
+        if (Current?.Dispatcher == null)
+            return true;
 
         if (isOwned)
         {
@@ -72,7 +117,7 @@ internal partial class App : Application
                                     List<string> args = new List<string>();
                                     if (File.Exists(passedArgsFile))
                                     {
-                                        args = File.ReadAllText(passedArgsFile).Split(' ').ToList();
+                                        args = CommandLineHelpers.SplitCommandLine(File.ReadAllText(passedArgsFile)).ToList();
                                         File.Delete(passedArgsFile);
                                     }
                                     
@@ -93,12 +138,31 @@ internal partial class App : Application
         }
 
         // Notify other instance so it could bring itself to foreground.
-        File.WriteAllText(passedArgsFile, string.Join(' ', Environment.GetCommandLineArgs()));
+        File.WriteAllText(passedArgsFile, string.Join(' ', WrapSpaces(Environment.GetCommandLineArgs())));
         _eventWaitHandle.Set();
 
         // Terminate this instance.
         Shutdown();
         return false;
+    }
+
+    private string?[] WrapSpaces(string[] args)
+    {
+        string?[] wrappedArgs = new string?[args.Length];
+        for (int i = 0; i < args.Length; i++)
+        {
+            string arg = args[i];
+            if (arg.Contains(' '))
+            {
+                wrappedArgs[i] = $"\"{arg}\"";
+            }
+            else
+            {
+                wrappedArgs[i] = arg;
+            }
+        }
+
+        return wrappedArgs;
     }
 
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)

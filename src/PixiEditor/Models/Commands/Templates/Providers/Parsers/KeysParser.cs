@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
+using PixiEditor.Models.IO;
 
 namespace PixiEditor.Models.Commands.Templates.Parsers;
 
@@ -17,7 +18,7 @@ public abstract class KeysParser
     
     public KeysParser(string mapFileName)
     {
-        _fullMapFilePath = Path.Combine("Data", "ShortcutActionMaps", mapFileName);
+        _fullMapFilePath = Path.Combine(Paths.DataFullPath, "ShortcutActionMaps", mapFileName);
         if (!File.Exists(_fullMapFilePath))
         {
             throw new FileNotFoundException($"Keys map file '{_fullMapFilePath}' not found.");

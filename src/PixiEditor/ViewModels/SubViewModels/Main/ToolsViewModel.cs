@@ -2,10 +2,11 @@
 using ChunkyImageLib.DataHolders;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.UserPreferences;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -16,9 +17,38 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 [Command.Group("PixiEditor.Tools", "TOOLS")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>
 {
+    private RightClickMode rightClickMode;
+    
     public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();
 
     public ToolViewModel? LastActionTool { get; private set; }
+
+    public RightClickMode RightClickMode
+    {
+        get => rightClickMode;
+        set
+        {
+            if (SetProperty(ref rightClickMode, value))
+            {
+                IPreferences.Current.UpdatePreference(nameof(RightClickMode), value);
+            }
+        }
+    }
+
+    public bool EnableSharedToolbar
+    {
+        get => IPreferences.Current.GetPreference<bool>(nameof(EnableSharedToolbar));
+        set
+        {
+            if (EnableSharedToolbar == value)
+            {
+                return;
+            }
+
+            IPreferences.Current.UpdatePreference(nameof(EnableSharedToolbar), value);
+            RaisePropertyChanged(nameof(EnableSharedToolbar));
+        }
+    }
 
     private Cursor? toolCursor;
     public Cursor? ToolCursor
@@ -50,13 +80,15 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     private bool shiftIsDown;
     private bool ctrlIsDown;
     private bool altIsDown;
-    
+
     private ToolViewModel _preTransientTool;
 
 
     public ToolsViewModel(ViewModelMain owner)
         : base(owner)
-    { }
+    {
+        rightClickMode = IPreferences.Current.GetPreference<RightClickMode>(nameof(RightClickMode));
+    }
 
     public void SetupTools(IServiceProvider services)
     {
@@ -97,7 +129,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
     {
         SetActiveTool(tool, false);
     }
-    
+
     public void SetActiveTool(ToolViewModel tool, bool transient)
     {
         if (ActiveTool == tool)
@@ -106,11 +138,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
+        ActiveTool?.OnDeselecting();
+
         if (!tool.Toolbar.SettingsGenerated)
             tool.Toolbar.GenerateSettings();
 
         if (ActiveTool != null) ActiveTool.IsTransient = false;
-        bool shareToolbar = IPreferences.Current.GetPreference<bool>("EnableSharedToolbar");
+        bool shareToolbar = EnableSharedToolbar;
         if (ActiveTool is not null)
         {
             ActiveTool.IsActive = false;
@@ -120,7 +154,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
 
         LastActionTool = ActiveTool;
         ActiveTool = tool;
-        
+
         if (shareToolbar)
         {
             ActiveTool.Toolbar.LoadSharedSettings();
@@ -157,8 +191,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         SetActiveTool(tool.GetType(), false);
     }
 
-    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE", Key = Key.OemCloseBrackets)]
-    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "DECREASE_TOOL_SIZE", "DECREASE_TOOL_SIZE", Key = Key.OemOpenBrackets)]
+    [Command.Basic("PixiEditor.Tools.IncreaseSize", 1, "INCREASE_TOOL_SIZE", "INCREASE_TOOL_SIZE", CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemCloseBrackets)]
+    [Command.Basic("PixiEditor.Tools.DecreaseSize", -1, "DECREASE_TOOL_SIZE", "DECREASE_TOOL_SIZE", CanExecute = "PixiEditor.Tools.CanChangeToolSize", Key = Key.OemOpenBrackets)]
     public void ChangeToolSize(int increment)
     {
         if (ActiveTool?.Toolbar is not BasicToolbar toolbar)
@@ -167,6 +201,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         if (newSize > 0)
             toolbar.ToolSize = newSize;
     }
+
+    [Evaluator.CanExecute("PixiEditor.Tools.CanChangeToolSize")]
+    public bool CanChangeToolSize() => Owner.ToolsSubViewModel.ActiveTool?.Toolbar is BasicToolbar
+                                       && Owner.ToolsSubViewModel.ActiveTool is not PenToolViewModel
+                                       {
+                                           PixelPerfectEnabled: true
+                                       };
 
     public void SetActiveTool(Type toolType, bool transient)
     {
@@ -218,9 +259,12 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>
         ShortcutController.UnblockShortcutExecution("ShortcutDown");
     }
 
-    public void LeftMouseButtonDownInlet(VecD canvasPos)
+    public void UseToolEventInlet(VecD canvasPos, MouseButton button)
     {
-        ActiveTool?.OnLeftMouseButtonDown(canvasPos);
+        if (ActiveTool == null) return;
+
+        ActiveTool.UsedWith = button;
+        ActiveTool.UseTool(canvasPos);
     }
 
     public void ConvertedKeyDownInlet(FilteredKeyEventArgs args)

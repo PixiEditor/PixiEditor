@@ -29,7 +29,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <dial:DialogTitleBar TitleText="PixiEditor has crashed!" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
+        <dial:DialogTitleBar TitleKey="PixiEditor has crashed!" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
         <Grid Grid.Row="1" Margin="30,30,30,0" >
             <StackPanel>
                 <Grid Background="{StaticResource MainColor}">

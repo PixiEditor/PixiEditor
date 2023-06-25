@@ -1,5 +1,5 @@
-﻿using PixiEditor.Models;
-using PixiEditor.Models.UserPreferences;
+﻿using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Models;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
@@ -45,5 +45,13 @@ internal class FileSettings : SettingsGroup
     {
         get => maxOpenedRecently;
         set => RaiseAndUpdatePreference(ref maxOpenedRecently, value);
+    }
+
+    private bool disableNewsPanel = GetPreference(PreferencesConstants.DisableNewsPanel, false);
+
+    public bool DisableNewsPanel
+    {
+        get => disableNewsPanel;
+        set => RaiseAndUpdatePreference(ref disableNewsPanel, value, PreferencesConstants.DisableNewsPanel);
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Localization;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
@@ -15,7 +16,7 @@ internal class LineToolViewModel : ShapeTool
     public LineToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;
-        Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>();
+        Toolbar = ToolbarFactory.Create<LineToolViewModel, BasicToolbar>(this);
     }
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";
@@ -40,7 +41,7 @@ internal class LineToolViewModel : ShapeTool
         }
     }
 
-    public override void OnLeftMouseButtonDown(VecD pos)
+    public override void UseTool(VecD pos)
     {
         ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseLineTool();
     }

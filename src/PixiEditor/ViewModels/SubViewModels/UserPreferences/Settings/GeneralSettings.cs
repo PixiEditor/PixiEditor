@@ -1,15 +1,17 @@
 ﻿using System.Globalization;
-using PixiEditor.Localization;
-using PixiEditor.Models.UserPreferences;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Models.Localization;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences.Settings;
 
 internal class GeneralSettings : SettingsGroup
 {
     private bool imagePreviewInTaskbar = GetPreference(nameof(ImagePreviewInTaskbar), false);
-    private LanguageData selectedLanguage = ILocalizationProvider.Current.CurrentLanguage.LanguageData;
+    private LanguageData selectedLanguage = ILocalizationProvider.Current.SelectedLanguage;
     private List<LanguageData> availableLanguages = ILocalizationProvider.Current.LocalizationData.Languages
-        .OrderByDescending(x => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == x.Code || CultureInfo.InstalledUICulture.TwoLetterISOLanguageName == x.Code)
+        .OrderByDescending(x => x == ILocalizationProvider.Current.FollowSystem)
+        .ThenByDescending(x => CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == x.Code || CultureInfo.InstalledUICulture.TwoLetterISOLanguageName == x.Code)
         .ThenBy(x => x.Name).ToList();
 
     public bool ImagePreviewInTaskbar

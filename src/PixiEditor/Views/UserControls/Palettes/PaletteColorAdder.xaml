@@ -7,6 +7,7 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls" 
              xmlns:colorpicker="clr-namespace:ColorPicker;assembly=ColorPicker"
              xmlns:views="clr-namespace:PixiEditor.Views"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" Name="paletteColorAdder"
              d:DesignHeight="36" d:DesignWidth="120">
     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -18,7 +19,7 @@
             ShowAlpha="False"/>
         <Button Name="AddButton" Margin="0" Width="24" Height="24" 
                 Style="{StaticResource ToolButtonStyle}"
-                views:Translator.TooltipKey="ADD_COLOR_TO_PALETTE"
+                ui:Translator.TooltipKey="ADD_COLOR_TO_PALETTE"
                 Cursor="Hand"  Click="Button_Click">
             <Button.Background>
                 <ImageBrush ImageSource="/Images/Plus-square.png"/>
@@ -26,7 +27,7 @@
         </Button>
         <Button Name="AddFromSwatches" Margin="10 2 0 0" Width="24" Height="24" 
                 Style="{StaticResource ToolButtonStyle}" 
-                views:Translator.TooltipKey="ADD_FROM_SWATCHES"
+                ui:Translator.TooltipKey="ADD_FROM_SWATCHES"
                 Cursor="Hand"  Click="AddFromSwatches_OnClick">
             <Button.Background>
                 <ImageBrush ImageSource="/Images/CopyAdd.png"/>
