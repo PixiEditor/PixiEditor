@@ -144,8 +144,8 @@ internal partial class DocumentViewModel : NotifyableObject
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
 
-    public WpfObservableRangeCollection<PaletteColor> Swatches { get; set; } = new WpfObservableRangeCollection<PaletteColor>();
-    public WpfObservableRangeCollection<PaletteColor> Palette { get; set; } = new WpfObservableRangeCollection<PaletteColor>();
+    public WpfObservableRangeCollection<PaletteColor> Swatches { get; set; } = new();
+    public WpfObservableRangeCollection<PaletteColor> Palette { get; set; } = new();
 
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
