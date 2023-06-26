@@ -76,22 +76,28 @@ internal class GridGuide : Guide
     
     public override void Draw(DrawingContext context, GuideRenderer renderer)
     {
-        if (HorizontalOffset == 0 || VerticalOffset == 0)
-        {
-            return;
-        }
-
-        var size = Document.SizeBindable - VecI.One;
-        var verticalCount = (int)Math.Round(size.X / VerticalOffset, MidpointRounding.AwayFromZero);
-        var horizontalCount = (int)Math.Round(size.Y / HorizontalOffset, MidpointRounding.AwayFromZero);
-
         double sizeMod = (ShowExtended, IsEditing) switch
         {
             (false, false) => 1,
             (true, false) => 1.5,
             (_, true) => 3
         } * renderer.ScreenUnit;
+
+        if (ShowExtended || IsEditing)
+        {
+            context.DrawEllipse(Brushes.Aqua, null, new Point(VerticalOffset, HorizontalOffset), sizeMod * 2, sizeMod * 2);
+        }
         
+        if (HorizontalOffset == 0 || VerticalOffset == 0)
+        {
+            return;
+        }
+
+        var size = Document.SizeBindable - VecI.One;
+
+        var verticalCount = (int)Math.Round(size.X / VerticalOffset, MidpointRounding.AwayFromZero);
+        var horizontalCount = (int)Math.Round(size.Y / HorizontalOffset, MidpointRounding.AwayFromZero);
+
         var verticalPen = new Pen(new SolidColorBrush(VerticalColor), sizeMod);
         var horizontalPen = new Pen(new SolidColorBrush(HorizontalColor), sizeMod);
 
@@ -166,12 +172,21 @@ internal class GridGuide : Guide
 
     private void RendererOnMouseMove(object sender, MouseEventArgs e)
     {
+        var renderer = (GuideRenderer)sender;
+        
+        if (IsEditing && IsInEditingPoint(renderer, e))
+        {
+            renderer.Cursor = Cursors.Cross;
+        }
+        else
+        {
+            renderer.Cursor = null;
+        }
+
         if (!isGrabbingPoint)
         {
             return;
         }
-
-        var renderer = (GuideRenderer)sender;
 
         e.Handled = true;
         var point = e.GetPosition(renderer);
@@ -195,6 +210,6 @@ internal class GridGuide : Guide
     private bool IsInEditingPoint(GuideRenderer renderer, MouseEventArgs args)
     {
         var offset = new Point(VerticalOffset, HorizontalOffset) - args.GetPosition(renderer);
-        return offset.Length < 3 * renderer.ScreenUnit;
+        return offset.Length < 6 * renderer.ScreenUnit;
     }
 }
