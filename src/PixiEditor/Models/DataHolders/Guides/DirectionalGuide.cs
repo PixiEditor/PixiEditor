@@ -126,16 +126,9 @@ internal class DirectionalGuide : Guide
 
         var renderer = (GuideRenderer)sender;
         var position = e.GetPosition(renderer);
+        var size = Document.SizeBindable;
 
-        var offset = IsVertical ? position.X : position.Y;
-        if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
-        {
-            Offset = Math.Round(offset, MidpointRounding.AwayFromZero);
-        }
-        else
-        {
-            Offset = Math.Round(offset * 2, MidpointRounding.AwayFromZero) / 2;
-        }
+        Offset = RoundModAndClamp(IsVertical ? position.X : position.Y, IsVertical ? size.X : size.Y);
     }
 
     private void Renderer_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

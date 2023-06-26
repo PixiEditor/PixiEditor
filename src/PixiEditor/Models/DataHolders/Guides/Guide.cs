@@ -1,4 +1,5 @@
 ﻿using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -107,5 +108,22 @@ namespace PixiEditor.Models.DataHolders.Guides
                 renderer.InvalidateVisual();
             }
         }
+        
+        protected double RoundMod(double value)
+        {
+            if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.LeftShift))
+            {
+                return Math.Round(value * 2, MidpointRounding.AwayFromZero) / 2;
+            }
+
+            if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.LeftAlt))
+            {
+                return value;
+            }
+
+            return Math.Round(value);
+        }
+
+        protected double RoundModAndClamp(double value, double max) => Math.Clamp(RoundMod(value), 0, max);
     }
 }

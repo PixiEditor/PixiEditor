@@ -314,20 +314,6 @@ internal class RectangleGuide : Guide
         return (GrabbedPoint)index;
     }
 
-    private double RoundMod(double value)
-    {
-        if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
-        {
-            return Math.Round(value);
-        }
-        else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
-        {
-            return value;
-        }
-
-        return Math.Round(value * 2, MidpointRounding.AwayFromZero) / 2;
-    }
-
     enum GrabbedPoint
     {
         TopLeft,

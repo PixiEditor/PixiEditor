@@ -233,16 +233,9 @@ namespace PixiEditor.Models.DataHolders.Guides
 
             if (isMoving.Value)
             {
-                if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
-                {
-                    X = Math.Round(x, MidpointRounding.AwayFromZero);
-                    Y = Math.Round(y, MidpointRounding.AwayFromZero);
-                }
-                else
-                {
-                    X = Math.Round(x * 2, MidpointRounding.AwayFromZero) / 2;
-                    Y = Math.Round(y * 2, MidpointRounding.AwayFromZero) / 2;
-                }
+                var size = Document.SizeBindable;
+                X = RoundModAndClamp(x, size.X);
+                Y = RoundModAndClamp(y, size.Y);
             }
             else
             {

@@ -191,8 +191,8 @@ internal class GridGuide : Guide
         e.Handled = true;
         var point = e.GetPosition(renderer);
 
-        VerticalOffset = Math.Round(point.X);
-        HorizontalOffset = Math.Round(point.Y);
+        VerticalOffset = RoundModAndClamp(point.X, document.SizeBindable.X);
+        HorizontalOffset = RoundModAndClamp(point.Y, document.SizeBindable.X);
     }
 
     private void RendererOnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
