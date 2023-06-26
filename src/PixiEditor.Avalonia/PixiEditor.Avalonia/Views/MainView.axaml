@@ -6,14 +6,14 @@
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Avalonia.Views.MainView"
-             x:DataType="vm:MainViewModel">
+             x:DataType="vm:MainViewModel" Background="{DynamicResource ThemeBackgroundBrush}">
   <Design.DataContext>
     <!-- This only sets the DataContext for the previewer in an IDE,
          to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
     <vm:MainViewModel />
   </Design.DataContext>
 
-    <StackPanel Margin="10" HorizontalAlignment="Left">
+    <StackPanel Spacing="10" Margin="10" HorizontalAlignment="Left">
 
         <TextBlock Text="Text"/>
         <TextBlock Text="h1" Classes="h1"/>
@@ -23,6 +23,28 @@
 
         <TextBlock ui:Translator.Key="LANGUAGE" ui:Translator.TooltipKey="LANGUAGE"/>
 
+        <Button Content="Button"/>
+        <Button Content="Button Disabled" IsEnabled="False"/>
+
+        <CheckBox Content="CheckBox" IsThreeState="True"/>
+
+        <RadioButton Content="RadioButton"/>
+
+        <TextBox Text="TextBox"/>
+
+        <ComboBox SelectedIndex="0">
+            <ComboBoxItem Content="ComboBoxItem 1"/>
+            <ComboBoxItem Content="ComboBoxItem 2"/>
+            <ComboBoxItem Content="ComboBoxItem 3"/>
+        </ComboBox>
+
+        <ListBox SelectedIndex="0">
+            <ListBoxItem Content="ListBoxItem 1"/>
+            <ListBoxItem Content="ListBoxItem 2"/>
+            <ListBoxItem Content="ListBoxItem 3"/>
+        </ListBox>
+
+        <Slider Width="100" Value="50"/>
         <ProgressBar Width="100" Value="50"/>
     </StackPanel>
 

@@ -25,8 +25,4 @@
     <ItemGroup>
       <UpToDateCheckInput Remove="Animations\Processing.axaml" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="UIBehaviors\" />
-    </ItemGroup>
 </Project>

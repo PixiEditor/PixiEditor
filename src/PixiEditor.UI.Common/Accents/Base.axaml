@@ -1,0 +1,46 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime">
+
+    <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+            <Color x:Key="ThemeBackgroundColor">#252525</Color> <!--This is the lowest elevation color-->
+            <Color x:Key="ThemeBackgroundColor1">#2D2D30</Color>
+            <Color x:Key="AccentColor">#B00022</Color>
+
+            <Color x:Key="ThemeForegroundColor">#FFFFFF</Color>
+
+            <Color x:Key="ThemeControlLowColor">#252525</Color>
+            <Color x:Key="ThemeControlMidColor">#303030</Color>
+            <Color x:Key="ThemeControlHighColor">#404040</Color>
+            <Color x:Key="ThemeControlHighlightColor">#515151</Color>
+
+            <Color x:Key="ThemeBorderMidColor">#3F3F46</Color>
+            <Color x:Key="ThemeBorderHighColor">#4F4F4F</Color>
+
+            <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
+
+            <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="{StaticResource ThemeBackgroundColor}" />
+            <SolidColorBrush x:Key="ThemeBackgroundBrush1" Color="{StaticResource ThemeBackgroundColor1}" />
+            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+
+            <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{StaticResource ThemeForegroundColor}" />
+
+            <SolidColorBrush x:Key="ThemeControlLowBrush" Color="{StaticResource ThemeControlLowColor}" />
+            <SolidColorBrush x:Key="ThemeControlMidBrush" Color="{StaticResource ThemeControlMidColor}" />
+            <SolidColorBrush x:Key="ThemeControlHighBrush" Color="{StaticResource ThemeControlHighColor}" />
+            <SolidColorBrush x:Key="ThemeControlHighlightBrush" Color="{StaticResource ThemeControlHighlightColor}" />
+
+            <SolidColorBrush x:Key="ThemeBorderMidBrush" Color="{StaticResource ThemeBorderMidColor}" />
+            <SolidColorBrush x:Key="ThemeBorderHighBrush" Color="{StaticResource ThemeBorderHighColor}" />
+
+            <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
+        </ResourceDictionary>
+    </ResourceDictionary.ThemeDictionaries>
+
+    <system:Double x:Key="FontSizeSmall">10</system:Double>
+    <system:Double x:Key="FontSizeNormal">12</system:Double>
+    <system:Double x:Key="FontSizeLarge">16</system:Double>
+    <FontFamily x:Key="ContentControlThemeFontFamily">fonts:Inter#Inter, $Default</FontFamily>
+
+</ResourceDictionary>

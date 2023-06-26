@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.Avalonia.Views;
+using PixiEditor.UI.Common.Themes;
 using Splat;
 
 namespace PixiEditor.Avalonia;
