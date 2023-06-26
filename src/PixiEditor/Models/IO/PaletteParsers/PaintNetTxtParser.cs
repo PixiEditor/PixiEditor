@@ -36,7 +36,7 @@ internal class PaintNetTxtParser : PaletteFileParser
         List<PaletteColor> colors = new();
         for (int i = 0; i < lines.Length; i++)
         {
-            // Color format aarrggbb
+            // HorizontalColor format aarrggbb
             string colorLine = lines[i];
             if(colorLine.Length < 8)
                 continue;

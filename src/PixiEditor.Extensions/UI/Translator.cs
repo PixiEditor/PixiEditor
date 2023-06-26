@@ -117,6 +117,13 @@ public class Translator : UIElement
 
     private static void LocalizedStringPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
+        var newValue = (LocalizedString)e.NewValue;
+
+        if (newValue.IsStatic)
+        {
+            d.SetValue(ValueProperty, ((LocalizedString)e.NewValue).Value);
+        }
+
         d.SetValue(KeyProperty, ((LocalizedString)e.NewValue).Key);
     }
 
@@ -189,7 +196,10 @@ public class Translator : UIElement
         }
         #endif
 
-        d.SetValue(ValueProperty, localizedString.Value);
+        if (localizedString.Key != null)
+        {
+            d.SetValue(ValueProperty, localizedString.Value);
+        }
     }
 
     public static void SetKey(DependencyObject element, string value)

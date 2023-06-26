@@ -52,6 +52,8 @@ internal class ViewModelMain : ViewModelBase
 
     public ViewOptionsViewModel ViewportSubViewModel { get; set; }
 
+    public GuidesViewModel GuidesSubViewModel { get; set; }
+
     public ColorsViewModel ColorsSubViewModel { get; set; }
 
     public MiscViewModel MiscSubViewModel { get; set; }
@@ -134,6 +136,7 @@ internal class ViewModelMain : ViewModelBase
         ClipboardSubViewModel = services.GetService<ClipboardViewModel>();
         UndoSubViewModel = services.GetService<UndoViewModel>();
         ViewportSubViewModel = services.GetService<ViewOptionsViewModel>();
+        GuidesSubViewModel = services.GetService<GuidesViewModel>();
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
         ColorsSubViewModel?.SetupPaletteProviders(services);
 

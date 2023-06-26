@@ -21,6 +21,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.DataHolders.Guides;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
@@ -115,6 +116,7 @@ internal partial class DocumentViewModel : NotifyableObject
     private readonly HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
     public IReadOnlyCollection<StructureMemberViewModel> SoftSelectedStructureMembers => softSelectedStructureMembers;
 
+    public WpfObservableRangeCollection<Guide> Guides { get; } = new();
 
     public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
