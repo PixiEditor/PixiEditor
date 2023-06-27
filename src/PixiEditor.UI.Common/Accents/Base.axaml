@@ -41,6 +41,13 @@
     <system:Double x:Key="FontSizeSmall">10</system:Double>
     <system:Double x:Key="FontSizeNormal">12</system:Double>
     <system:Double x:Key="FontSizeLarge">16</system:Double>
+
+    <system:Double x:Key="Header0">40</system:Double>
+    <system:Double x:Key="Header1">32</system:Double>
+    <system:Double x:Key="Header2">26</system:Double>
+    <system:Double x:Key="Header3">22</system:Double>
+    <system:Double x:Key="Header4">20</system:Double>
+
     <FontFamily x:Key="ContentControlThemeFontFamily">fonts:Inter#Inter, $Default</FontFamily>
 
 </ResourceDictionary>

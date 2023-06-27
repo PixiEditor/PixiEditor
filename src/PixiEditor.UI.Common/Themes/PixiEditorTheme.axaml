@@ -10,4 +10,5 @@
     </Styles.Resources>
 
     <StyleInclude Source="/Styles/PixiEditor.Controls.axaml"/>
+    <StyleInclude Source="/Styles/TextStyles.axaml"/>
 </Styles>
