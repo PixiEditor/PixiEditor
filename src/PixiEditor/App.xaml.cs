@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
-using System.Timers;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
