@@ -13,14 +13,14 @@
       "code": "pl",
       "localeFileName": "pl.json",
       "iconFileName": "pl.png",
-      "lastUpdated": "2023-05-24 21:30:08"
+      "lastUpdated": "2023-06-25 14:16:00"
     },
     {
       "name": "Deutsch",
       "code": "de",
       "localeFileName": "de.json",
       "iconFileName": "de.png",
-      "lastUpdated": "2023-05-09 16:10:00"
+      "lastUpdated": "2023-06-25 12:55:11"
     },
     {
       "name": "Español",
@@ -34,21 +34,21 @@
       "code": "zh",
       "localeFileName": "zh.json",
       "iconFileName": "zh.png",
-      "lastUpdated": "2023-05-15 03:23:28"
+      "lastUpdated": "2023-06-01 12:32:02"
     },
     {
       "name": "Русский",
       "code": "ru",
       "localeFileName": "ru.json",
       "iconFileName": "ru.png",
-      "lastUpdated": "2023-05-15 00:49:58"
+      "lastUpdated": "2023-06-25 14:17:44"
     },
     {
       "name": "Українська",
       "code": "uk",
       "localeFileName": "uk.json",
       "iconFileName": "uk.png",
-      "lastUpdated": "2023-05-18 17:47:07"
+      "lastUpdated": "2023-06-25 11:35:31"
     },
     {
       "name": "عربي",
@@ -56,21 +56,21 @@
       "localeFileName": "ar.json",
       "iconFileName": "ar.png",
       "rightToLeft": true,
-      "lastUpdated": "2023-05-20 11:59:21"
+      "lastUpdated": "2023-06-25 14:47:47"
     },
     {
       "name": "Čeština",
       "code": "cs",
       "localeFileName": "cs.json",
       "iconFileName": "cs.png",
-      "lastUpdated": "2023-05-07 14:01:25"
+      "lastUpdated": "2023-06-27 18:55:52"
     },
     {
       "name": "Português (Brasil)",
       "code": "pt-br",
       "localeFileName": "pt-br.json",
       "iconFileName": "pt-br.png",
-      "lastUpdated": "2023-05-15 09:13:45"
+      "lastUpdated": "2023-06-01 21:22:27"
     },
     {
       "name": "Magyar",
@@ -78,6 +78,13 @@
       "localeFileName": "hu.json",
       "iconFileName": "hu.png",
       "lastUpdated": "2023-05-09 00:07:37"
+    },
+    {
+      "name": "Italiano",
+      "code": "it",
+      "localeFileName": "it.json",
+      "iconFileName": "it.png",
+      "lastUpdated": "2023-06-25 14:44:38"
     }
   ]
 }
