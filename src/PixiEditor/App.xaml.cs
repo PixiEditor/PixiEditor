@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
+using System.Timers;
 using System.Windows;
+using System.Windows.Interop;
 using System.Windows.Media;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.AppExtensions;
@@ -60,6 +62,14 @@ internal partial class App : Application
 
         MainWindow = new MainWindow(extensionLoader);
         MainWindow.Show();
+
+#if STEAM
+        RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
+        MainWindow.Loaded += (sender, args) => // Ugly hack to fix Steam overlay doing weird stuff with WPF
+        {
+            RenderOptions.ProcessRenderMode = RenderMode.Default;
+        };
+#endif
     }
 
     private void InitPlatform()
