@@ -8,6 +8,14 @@
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Window.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Button.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CheckBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/RadioButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TextBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ComboBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ComboBoxItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ScrollViewer.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ScrolLBar.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ToggleButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/PopupRoot.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

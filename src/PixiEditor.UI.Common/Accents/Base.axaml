@@ -9,11 +9,13 @@
             <Color x:Key="AccentColor">#B00022</Color>
 
             <Color x:Key="ThemeForegroundColor">#FFFFFF</Color>
+            <Color x:Key="ThemeForegroundSecondaryColor">#B3FFFFFF</Color>
 
             <Color x:Key="ThemeControlLowColor">#252525</Color>
             <Color x:Key="ThemeControlMidColor">#303030</Color>
             <Color x:Key="ThemeControlHighColor">#404040</Color>
             <Color x:Key="ThemeControlHighlightColor">#515151</Color>
+            <Color x:Key="HighlightForegroundColor">#FFFFFF</Color>
 
             <Color x:Key="ThemeBorderMidColor">#3F3F46</Color>
             <Color x:Key="ThemeBorderHighColor">#4F4F4F</Color>
@@ -22,19 +24,23 @@
 
             <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="{StaticResource ThemeBackgroundColor}" />
             <SolidColorBrush x:Key="ThemeBackgroundBrush1" Color="{StaticResource ThemeBackgroundColor1}" />
-            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+            <SolidColorBrush x:Key="ThemeAccentBrush" Color="{StaticResource AccentColor}" />
 
             <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{StaticResource ThemeForegroundColor}" />
+            <SolidColorBrush x:Key="ThemeForegroundSecondaryBrush" Color="{StaticResource ThemeForegroundSecondaryColor}" />
 
             <SolidColorBrush x:Key="ThemeControlLowBrush" Color="{StaticResource ThemeControlLowColor}" />
             <SolidColorBrush x:Key="ThemeControlMidBrush" Color="{StaticResource ThemeControlMidColor}" />
             <SolidColorBrush x:Key="ThemeControlHighBrush" Color="{StaticResource ThemeControlHighColor}" />
             <SolidColorBrush x:Key="ThemeControlHighlightBrush" Color="{StaticResource ThemeControlHighlightColor}" />
+            <SolidColorBrush x:Key="ThemeHighlightForegroundBrush" Color="{StaticResource HighlightForegroundColor}" />
 
             <SolidColorBrush x:Key="ThemeBorderMidBrush" Color="{StaticResource ThemeBorderMidColor}" />
             <SolidColorBrush x:Key="ThemeBorderHighBrush" Color="{StaticResource ThemeBorderHighColor}" />
 
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
+            <Thickness x:Key="ThemeBorderThickness">1</Thickness>
+            <Thickness x:Key="ScrollBarThickness">5</Thickness>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 

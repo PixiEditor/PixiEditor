@@ -26,11 +26,26 @@
         <Button Content="Button"/>
         <Button Content="Button Disabled" IsEnabled="False"/>
 
+        <ToggleButton Content="ToggleButton"/>
+
+        <RepeatButton Content="Repeat Button"/>
+
         <CheckBox Content="CheckBox" IsThreeState="True"/>
 
-        <RadioButton Content="RadioButton"/>
+        <RadioButton GroupName="Radios" Content="Option 1"/>
+        <RadioButton GroupName="Radios" Content="Option 2"/>
 
-        <TextBox Text="TextBox"/>
+        <ScrollViewer Height="50">
+            <StackPanel>
+                <TextBlock Text="ScrollViewer"/>
+                <TextBlock Text="ScrollViewer"/>
+                <TextBlock Text="ScrollViewer"/>
+                <TextBlock Text="ScrollViewer"/>
+                <TextBlock Text="ScrollViewer"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <TextBox Watermark="TextBox" Text="Sample text"/>
 
         <ComboBox SelectedIndex="0">
             <ComboBoxItem Content="ComboBoxItem 1"/>
