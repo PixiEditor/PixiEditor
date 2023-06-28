@@ -14,7 +14,7 @@
 		<PackageIcon>icon.ico</PackageIcon>
 		<ApplicationIcon>..\icon.ico</ApplicationIcon>
 		<Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK</Authors>
-		<Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease</Configurations>
+		<Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease;DevSteam</Configurations>
 		<Platforms>AnyCPU;x64;x86</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <ImplicitUsings>true</ImplicitUsings>
@@ -124,6 +124,24 @@
 	  <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
 	  <Optimize>True</Optimize>
 	</PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DevSteam|x86'">
+    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+    <Optimize>True</Optimize>
+    <OutputPath>bin\x86\Steam\</OutputPath>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevSteam|x64' ">
+    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+    <Optimize>True</Optimize>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'DevSteam' ">
+    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)' == 'DevRelease' ">
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -495,6 +513,10 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Steam'">
+    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(Configuration)' == 'DevSteam'">
     <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
   </ItemGroup>
 

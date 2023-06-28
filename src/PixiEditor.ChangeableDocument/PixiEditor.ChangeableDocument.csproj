@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Configurations>Debug;Release;Steam;DevRelease</Configurations>
-    <Platforms>AnyCPU</Platforms>
+    <Configurations>Debug;Release;Steam;DevRelease;DevSteam</Configurations>
+    <Platforms>AnyCPU;x86;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|AnyCPU'">
@@ -46,6 +46,20 @@
 
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevSteam|x86' ">
+    <Optimize>True</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevSteam|x64' ">
+    <Optimize>True</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'DevSteam' ">
+    <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
