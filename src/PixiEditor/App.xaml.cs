@@ -1,8 +1,10 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Helpers.UI;
@@ -13,6 +15,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Platform;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
+using Timer = System.Timers.Timer;
 
 namespace PixiEditor;
 
@@ -60,15 +63,8 @@ internal partial class App : Application
         extensionLoader.LoadExtensions();
 
         MainWindow = new MainWindow(extensionLoader);
-        MainWindow.Show();
 
-#if STEAM
-        RenderOptions.ProcessRenderMode = RenderMode.SoftwareOnly;
-        MainWindow.Loaded += (sender, args) => // Ugly hack to fix Steam overlay doing weird stuff with WPF
-        {
-            RenderOptions.ProcessRenderMode = RenderMode.Default;
-        };
-#endif
+        MainWindow.Show();
     }
 
     private void InitPlatform()

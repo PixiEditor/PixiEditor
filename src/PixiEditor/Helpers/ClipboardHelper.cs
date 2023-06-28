@@ -46,12 +46,12 @@ internal static class ClipboardHelper
     public static VecI GetVecI(this DataObject data, string format)
     {
         if (!data.GetDataPresent(format))
-            return default;
+            return VecI.NegativeOne;
 
         byte[] bytes = (byte[])data.GetData(format);
 
         if (bytes is { Length: < 8 })
-            return default;
+            return VecI.NegativeOne;
 
         return VecI.FromBytes(bytes);
     }
