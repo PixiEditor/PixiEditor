@@ -422,8 +422,8 @@
 		<Resource Include="Images\LanguageFlags\ru.png" />
 		<None Remove="Images\LanguageFlags\cs.png" />
 		<Resource Include="Images\LanguageFlags\cs.png" />
-    <None Remove="Images\LanguageFlags\tr.png" />
-    <Resource Include="Images\LanguageFlags\tr.png" />
+		<None Remove="Images\LanguageFlags\tr.png" />
+		<Resource Include="Images\LanguageFlags\tr.png" />
 		<None Remove="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
 		<Resource Include="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
 		<None Remove="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
