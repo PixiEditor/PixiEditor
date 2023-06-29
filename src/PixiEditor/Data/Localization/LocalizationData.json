@@ -85,6 +85,13 @@
       "localeFileName": "it.json",
       "iconFileName": "it.png",
       "lastUpdated": "2023-06-25 14:44:38"
+    },
+    {
+      "name": "Türkçe",
+      "code": "tr",
+      "localeFileName": "tr.json",
+      "iconFileName": "tr.png",
+      "lastUpdated": "2023-06-25 19:43:24"
     }
   ]
 }
