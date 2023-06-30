@@ -12,9 +12,8 @@
         <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="Padding" Value="5"/>
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-        <Setter Property="Height" Value="28"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <ContentPresenter Name="PART_ContentPresenter"

@@ -13,7 +13,7 @@
     <vm:MainViewModel />
   </Design.DataContext>
 
-    <StackPanel Spacing="10" Margin="10" HorizontalAlignment="Left">
+        <WrapPanel Orientation="Vertical" Margin="10" HorizontalAlignment="Left">
 
         <TextBlock Text="Text"/>
         <TextBlock Text="h1" Classes="h1"/>
@@ -21,19 +21,29 @@
         <TextBlock Text="h3" Classes="h3"/>
         <TextBlock Text="h4" Classes="h4"/>
 
+        <Separator/>
+
         <TextBlock ui:Translator.Key="LANGUAGE" ui:Translator.TooltipKey="LANGUAGE"/>
 
+        <Separator/>
+
         <Button Content="Button"/>
-        <Button Content="Button Disabled" IsEnabled="False"/>
+        <Button Content="Button Disabled" Margin="0 10" IsEnabled="False"/>
 
         <ToggleButton Content="ToggleButton"/>
 
-        <RepeatButton Content="Repeat Button"/>
+        <RepeatButton Margin="0 10" Content="Repeat Button" />
+
+        <Separator/>
 
         <CheckBox Content="CheckBox" IsThreeState="True"/>
 
-        <RadioButton GroupName="Radios" Content="Option 1"/>
+        <Separator/>
+
+        <RadioButton GroupName="Radios" Margin="0 10" Content="Option 1"/>
         <RadioButton GroupName="Radios" Content="Option 2"/>
+
+        <Separator/>
 
         <ScrollViewer Height="50">
             <StackPanel>
@@ -45,7 +55,11 @@
             </StackPanel>
         </ScrollViewer>
 
-        <TextBox Watermark="TextBox" Text="Sample text"/>
+        <Separator/>
+
+        <TextBox Watermark="TextBox" Margin="0 10" Text="Sample text"/>
+
+        <Separator/>
 
         <ComboBox SelectedIndex="0">
             <ComboBoxItem Content="ComboBoxItem 1"/>
@@ -59,8 +73,48 @@
             <ListBoxItem Content="ListBoxItem 3"/>
         </ListBox>
 
-        <Slider Width="100" Value="50"/>
-        <ProgressBar Width="100" Value="50"/>
-    </StackPanel>
+        <Slider Margin="0 10" Value="50"/>
+        <ProgressBar VerticalAlignment="Center" IsIndeterminate="True" />
+        <ProgressBar VerticalAlignment="Center" Value="5" Margin="0 10" Maximum="10" />
+        <ProgressBar VerticalAlignment="Center" Value="50" />
+        <ProgressBar VerticalAlignment="Center" Value="50" ShowProgressText="True" Margin="0 10"
+                     Minimum="25" Maximum="75" />
+        <ProgressBar HorizontalAlignment="Left" IsIndeterminate="True" Orientation="Vertical" />
+
+        <Border Background="Green">
+            <Border.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Hello"/>
+                    <MenuItem Header="Hello2"/>
+                    <Separator/>
+                    <MenuItem Header="Hello Nested">
+                        <MenuItem Header="Hover for more">
+                            <MenuItem Header="If you hover again, you'll get a cookie">
+                                <MenuItem Header="Sike! No cookie here, keep going">
+                                    <MenuItem Header="Ok, take some rest 🍪"/>
+                                </MenuItem>
+                                </MenuItem>
+                        </MenuItem>
+                        </MenuItem>
+                </ContextMenu>
+            </Border.ContextMenu>
+            <TextBlock Text="Right click for context menu"/>
+        </Border>
+
+        <Menu>
+            <MenuItem Header="Hello"/>
+            <MenuItem Header="Hello2"/>
+            <Separator/>
+            <MenuItem Header="Hello Nested">
+                <MenuItem Header="Hover for more">
+                    <MenuItem Header="If you hover again, you'll get a cookie">
+                        <MenuItem Header="Sike! No cookie here, keep going">
+                            <MenuItem Header="Ok, take some rest 🍪"/>
+                        </MenuItem>
+                    </MenuItem>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+    </WrapPanel>
 
 </UserControl>

@@ -12,5 +12,5 @@
         WindowState="Maximized"
         Icon="/Assets/avalonia-logo.ico"
         Title="PixiEditor">
-        <views:MainView />
+    <views:MainView />
 </Window>

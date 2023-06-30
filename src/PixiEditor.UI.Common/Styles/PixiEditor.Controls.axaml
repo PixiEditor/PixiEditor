@@ -16,6 +16,15 @@
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ScrolLBar.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ToggleButton.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/PopupRoot.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/RepeatButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ProgressBar.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Slider.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ToolTip.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Separator.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/TitleBar.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ContextMenu.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Menu.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/MenuItem.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
