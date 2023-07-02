@@ -112,7 +112,7 @@
                 <EventTrigger RoutedEvent="Loaded">
                     <BeginStoryboard>
                         <Storyboard>
-                            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:10"/>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity" RepeatBehavior="Forever" From="0" To="1" Duration="0:0:10"/>
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>

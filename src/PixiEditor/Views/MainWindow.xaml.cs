@@ -1,12 +1,10 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using AvalonDock.Layout;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.Bridge;
@@ -21,9 +19,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using Timer = System.Timers.Timer;
 
 namespace PixiEditor.Views;
 
@@ -84,22 +80,21 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
+
+        StartSteamRefresher();
     }
 
-    [Conditional("STEAM")]
     private void StartSteamRefresher()
     {
+#if STEAM
         steamRefresher.Visibility = Visibility.Visible;
-        Timer timer = new(10000);
-        timer.Elapsed += (sender, args) =>
+
+        PixiEditor.Platform.Steam.SteamOverlayHandler handler = new PixiEditor.Platform.Steam.SteamOverlayHandler();
+        handler.ActivateRefreshingElement += (bool activate) =>
         {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                steamRefresher.Visibility = Visibility.Collapsed;
-                timer.Stop();
-            });
+            steamRefresher.Visibility = activate ? Visibility.Visible : Visibility.Collapsed;
         };
-        timer.Start();
+#endif
     }
 
     private void SetupTranslator()
