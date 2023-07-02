@@ -17,6 +17,9 @@ internal static class VersionHelpers
 #if DEVRELEASE
         builder.Append(" Dev Build");
         return builder.ToString();
+#elif DEVSTEAM
+        builder.Append(" Dev Steam Build");
+        return builder.ToString();
 #elif MSIX_DEBUG
         builder.Append(" MSIX Debug Build");
         return builder.ToString();

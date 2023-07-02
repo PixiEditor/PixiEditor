@@ -86,6 +86,11 @@ public struct VecI : IEquatable<VecI>
 
     public static VecI FromBytes(ReadOnlySpan<byte> value)
     {
+        if (value.Length < sizeof(int) * 2)
+        {
+            throw new ArgumentException("Value bytes are invalid. Span must have 8 bytes", nameof(value));
+        }
+
         var x = BitConverter.ToInt32(value);
         var y = BitConverter.ToInt32(value[4..]);
 
