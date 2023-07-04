@@ -97,6 +97,10 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 NoticeDialog.Show("FAILED_DOWNLOADING_TITLE", "FAILED_DOWNLOADING");
                 return false;
             }
+            catch(TaskCanceledException ex)
+            {
+                return false;
+            }
 
             return true;
         }
