@@ -1,0 +1,1 @@
+﻿All the extensions goes in this folder.

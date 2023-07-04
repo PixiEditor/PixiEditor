@@ -20,12 +20,12 @@ internal class ExtensionLoader
 
     public ExtensionLoader()
     {
-        ValidateExtensionFolder();
         _officialExtensionsKeys.Add("pixieditor.supporterpack", new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
     }
 
     public void LoadExtensions()
     {
+        if (!Directory.Exists(Paths.ExtensionsFullPath)) return;
         var directories = Directory.GetDirectories(Paths.ExtensionsFullPath);
         foreach (var directory in directories)
         {
@@ -207,14 +207,6 @@ internal class ExtensionLoader
 
         extensionType = null;
         return null;
-    }
-
-    private void ValidateExtensionFolder()
-    {
-        if (!Directory.Exists(Paths.ExtensionsFullPath))
-        {
-            Directory.CreateDirectory(Paths.ExtensionsFullPath);
-        }
     }
 }
 
