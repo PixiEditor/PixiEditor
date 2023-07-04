@@ -5,7 +5,7 @@
         <RunWorkingDirectory>$(MSBuildProjectDirectory)</RunWorkingDirectory>
         <AssemblyName>PixiEditor.Builder</AssemblyName>
         <RootNamespace>PixiEditor.Builder</RootNamespace>
-        <Configurations>Debug;Release;DevRelease</Configurations>
+        <Configurations>Debug;Release;DevRelease;DevSteam</Configurations>
         <Platforms>AnyCPU;x86;x64</Platforms>
     </PropertyGroup>
     <ItemGroup>

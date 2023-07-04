@@ -218,16 +218,11 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     public void ImportPalette(List<PaletteColor> palette)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is null)
+        if (doc is null || doc.Palette.SequenceEqual(palette))
             return;
 
-        if (ConfirmationDialog.Show(new LocalizedString("REPLACE_PALETTE_CONSENT"), new LocalizedString("REPLACE_PALETTE")) == ConfirmationType.Yes)
+        if (doc.Palette.Count == 0 || ConfirmationDialog.Show(new LocalizedString("REPLACE_PALETTE_CONSENT"), new LocalizedString("REPLACE_PALETTE")) == ConfirmationType.Yes)
         {
-            if (doc.Palette is null)
-            {
-                doc.Palette = new WpfObservableRangeCollection<PaletteColor>();
-            }
-
             doc.Palette.ReplaceRange(palette.Select(x => new PaletteColor(x.R, x.G, x.B)));
         }
     }

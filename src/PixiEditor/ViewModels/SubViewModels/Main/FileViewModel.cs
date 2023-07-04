@@ -230,6 +230,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         var image = Importer.ImportImage(path, VecI.NegativeOne);
 
+        if (image == null) return;
+
         var doc = NewDocument(b => b
             .WithSize(image.Size)
             .WithLayer(l => l

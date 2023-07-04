@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-using System.Reflection;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -19,7 +19,6 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Views;
@@ -63,6 +62,8 @@ internal partial class MainWindow : Window
 
         InitializeComponent();
 
+        StartSteamRefresher();
+
         OnDataContextInitialized?.Invoke();
         pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
@@ -79,6 +80,21 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
+
+        StartSteamRefresher();
+    }
+
+    private void StartSteamRefresher()
+    {
+#if STEAM
+        steamRefresher.Visibility = Visibility.Visible;
+
+        PixiEditor.Platform.Steam.SteamOverlayHandler handler = new PixiEditor.Platform.Steam.SteamOverlayHandler();
+        handler.ActivateRefreshingElement += (bool activate) =>
+        {
+            steamRefresher.Visibility = activate ? Visibility.Visible : Visibility.Collapsed;
+        };
+#endif
     }
 
     private void SetupTranslator()

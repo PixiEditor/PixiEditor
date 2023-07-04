@@ -28,8 +28,9 @@ internal class Importer : NotifyableObject
     /// <param name="path">Path of the image.</param>
     /// <param name="size">New size of the image.</param>
     /// <returns>WriteableBitmap of imported image.</returns>
-    public static Surface ImportImage(string path, VecI size)
+    public static Surface? ImportImage(string path, VecI size)
     {
+        if (!Path.Exists(path)) return null;
         Surface original = Surface.Load(path);
         if (original.Size == size || size == VecI.NegativeOne)
         {

@@ -584,5 +584,10 @@
   "USE_SECONDARY_COLOR": "Use secondary color",
   "RIGHT_CLICK_MODE": "Right click mode",
   "ADD_PRIMARY_COLOR_TO_PALETTE": "Add primary color to palette",
-  "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Add primary color to current palette"
+  "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Add primary color to current palette",
+  
+  "COPY_COLOR": "Copy color",
+
+  "FAILED_DOWNLOADING_TITLE": "Downloading update failed",
+  "FAILED_DOWNLOADING": "Failed downloading the update, you might not have enough space on the disk"
 }

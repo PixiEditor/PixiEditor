@@ -9,7 +9,7 @@ namespace PixiEditor.Views.Dialogs;
 public partial class AboutPopup : Window
 {
     public static LocalizedString VersionText =>
-        new LocalizedString("VERSION", VersionHelpers.GetCurrentAssemblyVersionString());
+        new LocalizedString("VERSION", VersionHelpers.GetCurrentAssemblyVersionString(true));
 
     public bool DisplayDonationButton
     {
