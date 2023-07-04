@@ -112,6 +112,7 @@ internal partial class PaletteViewer : UserControl
     private async Task ImportPalette(string fileName)
     {
         var parser = PaletteProvider.AvailableParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+        if (parser == null) return;
         var data = await parser.Parse(fileName);
         if (data.IsCorrupted || data.Colors.Length == 0) return;
         Colors.Clear();

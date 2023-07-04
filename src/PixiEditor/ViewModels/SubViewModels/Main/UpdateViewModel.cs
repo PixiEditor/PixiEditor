@@ -79,16 +79,29 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         {
             UpdateReadyToInstall = false;
             VersionText = new LocalizedString("DOWNLOADING_UPDATE");
-            if (updateCompatible)
+            try
             {
-                await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                if (updateCompatible)
+                {
+                    await UpdateDownloader.DownloadReleaseZip(UpdateChecker.LatestReleaseInfo);
+                }
+                else
+                {
+                    await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
+                }
+
+                UpdateReadyToInstall = true;
             }
-            else
+            catch (IOException ex)
             {
-                await UpdateDownloader.DownloadInstaller(UpdateChecker.LatestReleaseInfo);
+                NoticeDialog.Show("FAILED_DOWNLOADING_TITLE", "FAILED_DOWNLOADING");
+                return false;
+            }
+            catch(TaskCanceledException ex)
+            {
+                return false;
             }
 
-            UpdateReadyToInstall = true;
             return true;
         }
 
