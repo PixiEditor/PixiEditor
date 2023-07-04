@@ -170,6 +170,9 @@
 		<EmbeddedResource Include="OfficialExtensions\supporter-pack.snk" />
 		<None Remove="Styles\AvalonDock\Images\**" />
 		<Page Remove="Styles\AvalonDock\Images\**" />
+		<None Update="Extensions\readme.txt">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
