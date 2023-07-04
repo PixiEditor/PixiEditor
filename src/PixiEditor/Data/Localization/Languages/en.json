@@ -586,5 +586,8 @@
   "ADD_PRIMARY_COLOR_TO_PALETTE": "Add primary color to palette",
   "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Add primary color to current palette",
   
-  "COPY_COLOR": "Copy color"
+  "COPY_COLOR": "Copy color",
+
+  "FAILED_DOWNLOADING_TITLE": "Downloading update failed",
+  "FAILED_DOWNLOADING": "Failed downloading the update, there is probably not enough space on the disk"
 }
