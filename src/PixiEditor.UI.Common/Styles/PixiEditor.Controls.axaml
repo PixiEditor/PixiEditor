@@ -25,6 +25,9 @@
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ContextMenu.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Menu.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/MenuItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ListBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ListBoxItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/NotificationCard.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

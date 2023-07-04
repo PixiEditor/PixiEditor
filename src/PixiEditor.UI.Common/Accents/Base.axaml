@@ -6,6 +6,7 @@
         <ResourceDictionary x:Key="Dark">
             <Color x:Key="ThemeBackgroundColor">#252525</Color> <!--This is the lowest elevation color-->
             <Color x:Key="ThemeBackgroundColor1">#2D2D30</Color>
+            <Color x:Key="ThemeBackgroundColor2">#303030</Color>
             <Color x:Key="AccentColor">#B00022</Color>
 
             <Color x:Key="ThemeForegroundColor">#FFFFFF</Color>
@@ -20,10 +21,13 @@
             <Color x:Key="ThemeBorderMidColor">#3F3F46</Color>
             <Color x:Key="ThemeBorderHighColor">#4F4F4F</Color>
 
+            <Color x:Key="NotificationCardBackgroundColor">#303030</Color>
+
             <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
 
             <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="{StaticResource ThemeBackgroundColor}" />
             <SolidColorBrush x:Key="ThemeBackgroundBrush1" Color="{StaticResource ThemeBackgroundColor1}" />
+            <SolidColorBrush x:Key="ThemeBackgroundBrush2" Color="{StaticResource ThemeBackgroundColor2}" />
             <SolidColorBrush x:Key="ThemeAccentBrush" Color="{StaticResource AccentColor}" />
 
             <SolidColorBrush x:Key="ThemeForegroundBrush" Color="{StaticResource ThemeForegroundColor}" />
@@ -37,6 +41,8 @@
 
             <SolidColorBrush x:Key="ThemeBorderMidBrush" Color="{StaticResource ThemeBorderMidColor}" />
             <SolidColorBrush x:Key="ThemeBorderHighBrush" Color="{StaticResource ThemeBorderHighColor}" />
+
+            <SolidColorBrush x:Key="NotificationCardBackgroundBrush" Color="{StaticResource NotificationCardBackgroundColor}" />
 
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
             <Thickness x:Key="ThemeBorderThickness">1</Thickness>

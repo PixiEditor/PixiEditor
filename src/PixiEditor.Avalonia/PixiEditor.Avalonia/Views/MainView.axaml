@@ -67,7 +67,7 @@
             <ComboBoxItem Content="ComboBoxItem 3"/>
         </ComboBox>
 
-        <ListBox SelectedIndex="0">
+        <ListBox SelectedIndex="0" Margin="0 10">
             <ListBoxItem Content="ListBoxItem 1"/>
             <ListBoxItem Content="ListBoxItem 2"/>
             <ListBoxItem Content="ListBoxItem 3"/>
@@ -81,7 +81,7 @@
                      Minimum="25" Maximum="75" />
         <ProgressBar HorizontalAlignment="Left" IsIndeterminate="True" Orientation="Vertical" />
 
-        <Border Background="Green">
+        <Border Background="{DynamicResource ThemeBackgroundBrush1}">
             <Border.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Hello"/>
@@ -115,6 +115,7 @@
                 </MenuItem>
             </MenuItem>
         </Menu>
-    </WrapPanel>
 
+        <NotificationCard Content="Notification Card"/>
+    </WrapPanel>
 </UserControl>

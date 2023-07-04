@@ -5,8 +5,9 @@
   <ControlTheme x:Key="TopLevelMenuItem"
                 TargetType="MenuItem">
     <Setter Property="Background" Value="Transparent" />
-    <Setter Property="Padding" Value="6 0" />
+    <Setter Property="Padding" Value="7 4" />
     <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
     <Setter Property="Template">
       <ControlTemplate>
         <Border Name="root"
@@ -32,6 +33,7 @@
                    OverlayInputPassThroughElement="{Binding $parent[Menu]}">
               <Border Background="{DynamicResource ThemeBackgroundBrush}"
                       BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                      CornerRadius="{DynamicResource ControlCornerRadius}"
                       BorderThickness="{TemplateBinding BorderThickness}">
                 <ScrollViewer>
                   <ItemsPresenter Name="PART_ItemsPresenter"
