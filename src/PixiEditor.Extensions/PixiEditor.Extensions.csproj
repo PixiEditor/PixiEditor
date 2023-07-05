@@ -10,10 +10,11 @@
       <Authors>PixiEditor Organization</Authors>
       <Copyright>PixiEditor Organization</Copyright>
       <Description>Package for creating custom extensions for pixel art editor PixiEditor</Description>
+      <AvaloniaVersion>11.0.0</AvaloniaVersion>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Avalonia" Version="11.0.0-rc1.1" />
+      <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
