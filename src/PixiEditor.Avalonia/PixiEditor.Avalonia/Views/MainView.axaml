@@ -117,11 +117,32 @@
         </Menu>
 
         <NotificationCard Content="Notification Card"/>
-        <AutoCompleteBox Margin="0 10"/>
+        <AutoCompleteBox Margin="0 10" Watermark="No, this is" Name="autoComplete" />
         <ButtonSpinner AllowSpin="True" ButtonSpinnerLocation="Right" ShowButtonSpinner="True">
             <TextBlock Text="Button Spinner"/>
         </ButtonSpinner>
         <Calendar/>
+        <DatePicker/>
         <CaptionButtons/>
+        <Carousel>
+            <Carousel.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock>Hello</TextBlock>
+                </DataTemplate>
+            </Carousel.ItemTemplate>
+            <Carousel.Items>
+                <TextBlock/>
+                <TextBlock/>
+                <TextBlock/>
+            </Carousel.Items>
+        </Carousel>
+        <DropDownButton/>
+        <Expander/>
+        <FlyoutPresenter/>
+        <Grid Width="200" Height="200" ColumnDefinitions="*, 4, *">
+            <Rectangle Grid.Column="0" Fill="Blue"/>
+            <GridSplitter Grid.Column="1" Background="Black" ResizeDirection="Columns"/>
+            <Rectangle Grid.Column="2" Fill="Red"/>
+        </Grid>
     </WrapPanel>
 </UserControl>
