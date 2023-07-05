@@ -28,6 +28,14 @@
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ListBox.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ListBoxItem.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/NotificationCard.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/AdornerLayer.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/AutoCompleteBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/ButtonSpinner.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Calendar.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CalendarButton.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CalendarDatePicker.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CalendarItem.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.UI.Common/Controls/CaptionButtons.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

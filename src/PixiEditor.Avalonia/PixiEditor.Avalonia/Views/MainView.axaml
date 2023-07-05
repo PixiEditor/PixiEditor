@@ -117,5 +117,11 @@
         </Menu>
 
         <NotificationCard Content="Notification Card"/>
+        <AutoCompleteBox Margin="0 10"/>
+        <ButtonSpinner AllowSpin="True" ButtonSpinnerLocation="Right" ShowButtonSpinner="True">
+            <TextBlock Text="Button Spinner"/>
+        </ButtonSpinner>
+        <Calendar/>
+        <CaptionButtons/>
     </WrapPanel>
 </UserControl>

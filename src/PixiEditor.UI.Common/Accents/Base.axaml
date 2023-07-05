@@ -21,6 +21,8 @@
             <Color x:Key="ThemeBorderMidColor">#3F3F46</Color>
             <Color x:Key="ThemeBorderHighColor">#4F4F4F</Color>
 
+            <Color x:Key="ErrorColor">#B00020</Color>
+
             <Color x:Key="NotificationCardBackgroundColor">#303030</Color>
 
             <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
@@ -44,7 +46,10 @@
 
             <SolidColorBrush x:Key="NotificationCardBackgroundBrush" Color="{StaticResource NotificationCardBackgroundColor}" />
 
+            <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
+            <system:Double x:Key="ControlCornerRadiusValue">5</system:Double>
             <Thickness x:Key="ThemeBorderThickness">1</Thickness>
             <Thickness x:Key="ScrollBarThickness">5</Thickness>
         </ResourceDictionary>
