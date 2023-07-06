@@ -52,19 +52,22 @@
             <system:Double x:Key="ControlCornerRadiusValue">5</system:Double>
             <Thickness x:Key="ThemeBorderThickness">1</Thickness>
             <Thickness x:Key="ScrollBarThickness">5</Thickness>
+
+            <FontFamily x:Key="ContentControlThemeFontFamily">fonts:Inter#Inter, $Default</FontFamily>
+            <system:Double x:Key="FontSizeSmall">10</system:Double>
+            <system:Double x:Key="FontSizeNormal">12</system:Double>
+            <system:Double x:Key="FontSizeLarge">16</system:Double>
+
+            <system:Double x:Key="Header0">40</system:Double>
+            <system:Double x:Key="Header1">32</system:Double>
+            <system:Double x:Key="Header2">26</system:Double>
+            <system:Double x:Key="Header3">22</system:Double>
+            <system:Double x:Key="Header4">20</system:Double>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 
-    <system:Double x:Key="FontSizeSmall">10</system:Double>
-    <system:Double x:Key="FontSizeNormal">12</system:Double>
-    <system:Double x:Key="FontSizeLarge">16</system:Double>
 
-    <system:Double x:Key="Header0">40</system:Double>
-    <system:Double x:Key="Header1">32</system:Double>
-    <system:Double x:Key="Header2">26</system:Double>
-    <system:Double x:Key="Header3">22</system:Double>
-    <system:Double x:Key="Header4">20</system:Double>
-
-    <FontFamily x:Key="ContentControlThemeFontFamily">fonts:Inter#Inter, $Default</FontFamily>
+    <SolidColorBrush x:Key="RefreshVisualizerBackground">Pink</SolidColorBrush>
+    <SolidColorBrush x:Key="RefreshVisualizerForeground">White</SolidColorBrush>
 
 </ResourceDictionary>

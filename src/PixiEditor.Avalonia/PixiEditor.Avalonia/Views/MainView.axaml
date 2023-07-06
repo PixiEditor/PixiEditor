@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:PixiEditor.Avalonia.ViewModels"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:dialogs="clr-namespace:Avalonia.Dialogs;assembly=Avalonia.Dialogs"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Avalonia.Views.MainView"
              x:DataType="vm:MainViewModel" Background="{DynamicResource ThemeBackgroundBrush}">
@@ -15,15 +16,17 @@
 
         <WrapPanel Orientation="Vertical" Margin="10" HorizontalAlignment="Left">
 
-        <TextBlock Text="Text"/>
-        <TextBlock Text="h1" Classes="h1"/>
-        <TextBlock Text="h2" Classes="h2"/>
-        <TextBlock Text="h3" Classes="h3"/>
-        <TextBlock Text="h4" Classes="h4"/>
+            <Label Content="Label"/>
+            <TextBlock Text="Text"/>
+            <TextBlock Text="h1" Classes="h1"/>
+            <TextBlock Text="h2" Classes="h2"/>
+            <TextBlock Text="h3" Classes="h3"/>
+            <TextBlock Text="h4" Classes="h4"/>
 
-        <Separator/>
+            <Separator/>
 
-        <TextBlock ui:Translator.Key="LANGUAGE" ui:Translator.TooltipKey="LANGUAGE"/>
+            <TextBlock ui:Translator.Key="LANGUAGE" ui:Translator.TooltipKey="LANGUAGE"/>
+            <SelectableTextBlock Text="Selectable text block"/>
 
         <Separator/>
 
@@ -144,5 +147,99 @@
             <GridSplitter Grid.Column="1" Background="Black" ResizeDirection="Columns"/>
             <Rectangle Grid.Column="2" Fill="Red"/>
         </Grid>
-    </WrapPanel>
+
+            <dialogs:ManagedFileChooser Width="300"/>
+            <MenuFlyoutPresenter/>
+            <NativeMenuBar/>
+            <NumericUpDown Margin="0 10"/>
+            <RefreshContainer Content="Refresh Container"/>
+
+            <RefreshVisualizer Orientation="Auto">
+                123
+            </RefreshVisualizer>
+
+            <SplitButton Margin="0 10" Content="Split Button">
+                <SplitButton.Flyout>
+                    <Flyout>
+                        <StackPanel>
+                            <Button Content="Some flyout button"/>
+                        </StackPanel>
+                    </Flyout>
+                </SplitButton.Flyout>
+            </SplitButton>
+            <Border Width="200" Height="200">
+                <SplitView DisplayMode="Inline"
+                           IsPaneOpen="True">
+                    <SplitView.Pane>
+                        <Border Background="Green" />
+                    </SplitView.Pane>
+                    <SplitView.Content>
+                        <Border Background="Blue" />
+                    </SplitView.Content>
+                </SplitView>
+            </Border>
+
+            <TabControl>
+                <TabItem Header="Tab 1">
+                    <TextBlock Text="Tab 1"/>
+                </TabItem>
+                <TabItem Header="Tab 2">
+                    <TextBlock Text="Tab 2"/>
+                </TabItem>
+                <TabItem Header="Tab 3">
+                    <TextBlock Text="Tab 3"/>
+                </TabItem>
+            </TabControl>
+
+            <ThemeVariantScope/>
+
+            <TimePicker/>
+
+            <StackPanel Margin="20" Width="250" Spacing="24">
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Automatic updates"
+                        Classes="h1" />
+                    <TextBlock
+                        Text="Updates will be automaticly Downloaded and installed shile the computer is shutting down or restarting"
+                        TextWrapping="Wrap" />
+                    <ToggleSwitch HorizontalContentAlignment="Left"
+                                  Content="Enable automatic Updates?"
+                                  OffContent="Uit"
+                                  OnContent="Aan"
+                                  VerticalAlignment="Bottom" />
+                </StackPanel>
+
+                <StackPanel Spacing="12">
+                    <TextBlock
+                        Text="Previewer"
+                        Classes="h1" />
+                    <TextBlock
+                        Text="The previewer Shows a preview off your code, this could slow down your system"
+                        TextWrapping="Wrap" />
+                    <ToggleSwitch
+                        Content="Previewer"
+                        IsChecked="True" />
+                </StackPanel>
+
+                <TreeView>
+                    <TreeViewItem Header="Item 1">
+                        <TreeViewItem Header="Item 1.1"/>
+                        <TreeViewItem Header="Item 1.2"/>
+                        <TreeViewItem Header="Item 1.3"/>
+                    </TreeViewItem>
+                    <TreeViewItem Header="Item 2">
+                        <TreeViewItem Header="Item 2.1"/>
+                        <TreeViewItem Header="Item 2.2"/>
+                        <TreeViewItem Header="Item 2.3"/>
+                    </TreeViewItem>
+                    <TreeViewItem Header="Item 3">
+                        <TreeViewItem Header="Item 3.1"/>
+                        <TreeViewItem Header="Item 3.2"/>
+                        <TreeViewItem Header="Item 3.3"/>
+                    </TreeViewItem>
+                </TreeView>
+
+            </StackPanel>
+        </WrapPanel>
 </UserControl>
