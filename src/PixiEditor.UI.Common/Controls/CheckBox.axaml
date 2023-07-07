@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:animators="clr-namespace:PixiEditor.UI.Common.Animators">
     <Design.PreviewWith>
         <StackPanel HorizontalAlignment="Center">
             <CheckBox IsChecked="True" Content="Label"/>
@@ -7,6 +8,29 @@
             <CheckBox IsChecked="{x:Null}" IsThreeState="True" Content="Label"/>
         </StackPanel>
     </Design.PreviewWith>
+
+    <PathGeometry x:Key="Tick">
+        <PathGeometry.Figures>
+            <PathFigure StartPoint="0 4" IsClosed="False">
+                <LineSegment Point="3 8"/>
+                <LineSegment Point="8 0"/>
+            </PathFigure>
+        </PathGeometry.Figures>
+    </PathGeometry>
+
+    <PathGeometry x:Key="Intermediate">
+        <PathGeometry.Figures>
+            <PathFigure StartPoint="0 8">
+                <LineSegment Point="8 0"/>
+            </PathFigure>
+        </PathGeometry.Figures>
+    </PathGeometry>
+
+    <PathGeometry x:Key="Empty">
+        <PathFigure StartPoint="0 4">
+            <LineSegment Point="0 4"/>
+        </PathFigure>
+    </PathGeometry>
 
      <ControlTheme x:Key="{x:Type CheckBox}"
                 TargetType="CheckBox">
@@ -25,13 +49,10 @@
                  Background="{DynamicResource ThemeControlLowColor}"
                                       BorderThickness="1">
             <Panel>
-                <Path FlowDirection="LeftToRight" Width="9" Height="9" x:Name="checkMark" Margin="1 1 0 0"
+                <Path FlowDirection="LeftToRight" Width="9" Height="9" x:Name="checkMark" Margin="2 2 0 0"
                       Stroke="{DynamicResource AccentColor}" StrokeThickness="1.5"
-                      Data="M 0 4 L 3 8 8 0" />
-              <Path x:Name="indeterminateMark"
-                    FlowDirection="LeftToRight" Width="9" Height="9" Margin="1 1 0 0"
-                    Stroke="{DynamicResource AccentColor}" StrokeThickness="1.5"
-                    Data="M 0 8 L 8 0" />
+                      Data="{StaticResource Empty}">
+                </Path>
             </Panel>
           </Border>
           <ContentPresenter Name="PART_ContentPresenter"
@@ -52,16 +73,15 @@
       <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
     </Style>
     <Style Selector="^ /template/ Path#checkMark">
-      <Setter Property="IsVisible" Value="False" />
-    </Style>
-    <Style Selector="^ /template/ Path#indeterminateMark">
-      <Setter Property="IsVisible" Value="False" />
+      <Setter Property="Data" Value="{StaticResource Empty}"/>
     </Style>
     <Style Selector="^:checked /template/ Path#checkMark">
       <Setter Property="IsVisible" Value="True" />
+      <Setter Property="Data" Value="{StaticResource Tick}"/>
     </Style>
-    <Style Selector="^:indeterminate /template/ Path#indeterminateMark">
-      <Setter Property="IsVisible" Value="True" />
+    <Style Selector="^:indeterminate /template/ Path#checkMark">
+        <Setter Property="IsVisible" Value="True" />
+        <Setter Property="Data" Value="{StaticResource Intermediate}"/>
     </Style>
     <Style Selector="^:disabled /template/ Border#border">
       <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
