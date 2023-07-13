@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Timers;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
@@ -14,9 +15,11 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Localization;
+using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
+using Timer = System.Timers.Timer;
 
 namespace PixiEditor.ViewModels;
 
@@ -80,6 +83,8 @@ internal class ViewModelMain : ViewModelBase
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
+
+    private Timer _updateTimer;
 
     public LocalizedString ActiveActionDisplay
     {
@@ -161,6 +166,19 @@ internal class ViewModelMain : ViewModelBase
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
+        InitUpdateTimer();
+    }
+
+    private void InitUpdateTimer()
+    {
+        _updateTimer = new Timer(50);
+        _updateTimer.Elapsed += UpdateTimerOnElapsed;
+        _updateTimer.Start();
+    }
+
+    private void UpdateTimerOnElapsed(object sender, ElapsedEventArgs e)
+    {
+        IPlatform.Current?.Update();
     }
 
     public bool DocumentIsNotNull(object property)

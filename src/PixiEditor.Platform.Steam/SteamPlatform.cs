@@ -20,5 +20,10 @@ public class SteamPlatform : IPlatform
         }
     }
 
+    public void Update()
+    {
+        SteamAPI.RunCallbacks();
+    }
+
     public IAdditionalContentProvider? AdditionalContentProvider { get; } = new SteamAdditionalContentProvider();
 }
