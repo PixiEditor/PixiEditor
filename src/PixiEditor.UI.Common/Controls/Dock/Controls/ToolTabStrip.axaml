@@ -1,0 +1,55 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <ToolTabStrip>
+        <ToolTabStripItem>Item 1</ToolTabStripItem>
+        <ToolTabStripItem>Item 2</ToolTabStripItem>
+        <ToolTabStripItem IsEnabled="False">Disabled</ToolTabStripItem>
+      </ToolTabStrip>
+    </Border>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type ToolTabStrip}" TargetType="ToolTabStrip">
+
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="ClipToBounds" Value="False" />
+    <Setter Property="ZIndex" Value="1" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockPanel>
+          <Border Name="PART_Border"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}"
+                  DockPanel.Dock="Left">
+            <ItemsPresenter Name="PART_ItemsPresenter"
+                            ItemsPanel="{TemplateBinding ItemsPanel}"/>
+          </Border>
+          <Border Name="PART_BorderFill" />
+        </DockPanel>
+      </ControlTemplate>
+    </Setter>
+
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <StackPanel Orientation="Horizontal" ClipToBounds="False" />
+      </ItemsPanelTemplate>
+    </Setter>
+
+    <Style Selector="^:singleitem">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="^/template/ Border#PART_BorderFill">
+      <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+      <Setter Property="BorderThickness" Value="0 1 0  0" />
+    </Style>
+
+  </ControlTheme>
+
+</ResourceDictionary>

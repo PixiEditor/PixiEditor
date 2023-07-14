@@ -1,0 +1,49 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dmc="using:Dock.Model.Controls"
+                    xmlns:core="using:Dock.Model.Core">
+  <Design.PreviewWith>
+    <DockControl Width="600" Height="400" />
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type DockControl}" TargetType="DockControl">
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentControl x:Name="PART_ContentControl"
+                        Content="{TemplateBinding Layout}"
+                        x:DataType="core:IDock"
+                        x:CompileBindings="True">
+          <ContentControl.DataTemplates>
+            <DataTemplate DataType="dmc:IDocumentContent">
+              <DocumentContentControl />
+            </DataTemplate>
+            <DataTemplate DataType="dmc:IToolContent">
+              <ToolContentControl />
+            </DataTemplate>
+            <DataTemplate DataType="dmc:IProportionalDockSplitter">
+              <ProportionalStackPanelSplitter />
+            </DataTemplate>
+            <DataTemplate DataType="dmc:IDocumentDock">
+              <DocumentDockControl />
+            </DataTemplate>
+            <DataTemplate DataType="dmc:IToolDock">
+              <ToolDockControl />
+            </DataTemplate>
+            <DataTemplate DataType="dmc:IProportionalDock">
+              <ProportionalDockControl />
+            </DataTemplate>
+            <DataTemplate DataType="dmc:IDockDock">
+              <DockDockControl />
+            </DataTemplate>
+            <DataTemplate DataType="dmc:IRootDock">
+              <RootDockControl />
+            </DataTemplate>
+          </ContentControl.DataTemplates>
+        </ContentControl>
+      </ControlTemplate>
+    </Setter>
+
+  </ControlTheme>
+
+</ResourceDictionary>

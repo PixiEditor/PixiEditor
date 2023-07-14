@@ -1,0 +1,63 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:core="using:Dock.Model.Core">
+  <Design.PreviewWith>
+    <ToolPinItemControl Width="30" Height="400" />
+  </Design.PreviewWith>
+
+  <ContextMenu x:Key="ToolPinItemControlContextMenu" x:DataType="core:IDockable" x:CompileBindings="True">
+    <MenuItem Header="_Float"
+              Command="{Binding Owner.Factory.FloatDockable}"
+              CommandParameter="{Binding}"
+              IsVisible="{Binding CanFloat}"/>
+    <MenuItem Header="_Show"
+              Command="{Binding Owner.Factory.PinDockable}"
+              CommandParameter="{Binding}"
+              IsVisible="{Binding CanPin}"/>
+    <MenuItem Header="_Close"
+              Command="{Binding Owner.Factory.CloseDockable}"
+              CommandParameter="{Binding}"
+              IsVisible="{Binding CanClose}"/>
+  </ContextMenu>
+
+  <ControlTheme x:Key="{x:Type ToolPinItemControl}" TargetType="ToolPinItemControl">
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockableControl TrackingMode="Pinned"
+                         x:DataType="core:IDockable"
+                         x:CompileBindings="True">
+          <LayoutTransformControl x:Name="PART_LayoutTransformControl">
+            <Button Background="Transparent"
+                    BorderBrush="Transparent"
+                    BorderThickness="0"
+                    CornerRadius="0"
+                    Command="{Binding Owner.Factory.PinDockable}"
+                    CommandParameter="{Binding}"
+                    IsVisible="{Binding CanPin}">
+              <TextBlock Text="{Binding Title}"
+                         VerticalAlignment="Center"
+                         HorizontalAlignment="Left"
+                         ContextMenu="{DynamicResource ToolPinItemControlContextMenu}">
+              </TextBlock>
+            </Button>
+          </LayoutTransformControl>
+        </DockableControl>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^[Orientation=Vertical]/template/ LayoutTransformControl#PART_LayoutTransformControl">
+      <Setter Property="LayoutTransform">
+        <RotateTransform Angle="270" />
+      </Setter>
+    </Style>
+
+    <Style Selector="^[Orientation=Horizontal]/template/ LayoutTransformControl#PART_LayoutTransformControl">
+      <Setter Property="LayoutTransform">
+        <RotateTransform Angle="0" />
+      </Setter>
+    </Style>
+
+  </ControlTheme>
+
+</ResourceDictionary>

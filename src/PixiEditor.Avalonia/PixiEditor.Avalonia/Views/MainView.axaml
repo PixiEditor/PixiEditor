@@ -5,241 +5,104 @@
              xmlns:vm="clr-namespace:PixiEditor.Avalonia.ViewModels"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:dialogs="clr-namespace:Avalonia.Dialogs;assembly=Avalonia.Dialogs"
+             xmlns:main="clr-namespace:PixiEditor.Avalonia.Views.Main"
+             xmlns:controls="clr-namespace:Dock.Avalonia.Controls;assembly=Dock.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Avalonia.Views.MainView"
              x:DataType="vm:MainViewModel" Background="{DynamicResource ThemeBackgroundBrush}">
-  <Design.DataContext>
-    <!-- This only sets the DataContext for the previewer in an IDE,
-         to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-    <vm:MainViewModel />
-  </Design.DataContext>
+    <Grid>
+        <main:MainTitleBar/>
+      <DockControl x:Name="Dock" Grid.Row="1" InitializeLayout="True" InitializeFactory="True">
+      <DockControl.Factory>
+        <Factory />
+      </DockControl.Factory>
 
-        <WrapPanel Orientation="Vertical" Margin="10" HorizontalAlignment="Left">
+      <RootDock x:Name="Root" Id="Root" IsCollapsable="False" DefaultDockable="{Binding #MainLayout}">
 
-            <Label Content="Label"/>
-            <TextBlock Text="Text"/>
-            <TextBlock Text="h1" Classes="h1"/>
-            <TextBlock Text="h2" Classes="h2"/>
-            <TextBlock Text="h3" Classes="h3"/>
-            <TextBlock Text="h4" Classes="h4"/>
+        <!-- Windows -->
 
-            <Separator/>
+        <RootDock.Windows>
+          <!--<DockWindow x:Name="DockWindow" Id="DockWindow" X="281" Y="233" Width="250" Height="400" Topmost="True">
+            <RootDock ActiveDockable="{Binding #ToolDock}" Window="{Binding #DockWindow}">
+              <ToolDock x:Name="ToolDock">
+                <Tool x:Name="ToolWindow" Id="ToolWindow" Title="Tool Window" x:DataType="Tool">
+                  <TextBlock Text="{Binding Title}"/>
+                </Tool>
+              </ToolDock>
+            </RootDock>
+          </DockWindow>-->
+        </RootDock.Windows>
 
-            <TextBlock ui:Translator.Key="LANGUAGE" ui:Translator.TooltipKey="LANGUAGE"/>
-            <SelectableTextBlock Text="Selectable text block"/>
+        <ProportionalDock x:Name="MainLayout" Id="MainLayout" Orientation="Horizontal">
 
-        <Separator/>
+          <!-- Left Pane -->
 
-        <Button Content="Button"/>
-        <Button Content="Button Disabled" Margin="0 10" IsEnabled="False"/>
+          <ToolDock x:Name="LeftPane" Id="LeftPane" Proportion="0.25" Alignment="Left">
+            <Tool x:Name="SolutionExplorer" Id="SolutionExplorer" Title="Solution Explorer" x:DataType="Tool">
+              <TextBlock Text="{Binding Title}"/>
+            </Tool>
+          </ToolDock>
 
-        <ToggleButton Content="ToggleButton"/>
+          <ProportionalDockSplitter x:Name="LeftSplitter" Id="LeftSplitter" />
 
-        <RepeatButton Margin="0 10" Content="Repeat Button" />
+          <!-- Top Pane -->
 
-        <Separator/>
+          <ProportionalDock x:Name="TopPane" Id="TopPane" Orientation="Vertical">
 
-        <CheckBox Content="CheckBox" IsThreeState="True"/>
+            <!-- Right Pane -->
 
-        <Separator/>
+            <ProportionalDock x:Name="RightPane" Id="RightPane" Orientation="Horizontal">
 
-        <RadioButton GroupName="Radios" Margin="0 10" Content="Option 1"/>
-        <RadioButton GroupName="Radios" Content="Option 2"/>
+              <!-- Documents Pane -->
 
-        <Separator/>
+              <DocumentDock x:Name="DocumentsPane" Id="DocumentsPane" CanCreateDocument="True" ActiveDockable="Document1">
+                <DocumentDock.DocumentTemplate>
+                  <DocumentTemplate>
+                    <StackPanel x:DataType="Document">
+                      <TextBlock Text="Title"/>
+                      <TextBox Text="{Binding Title}"/>
+                      <TextBlock Text="Context"/>
+                      <TextBox Text="{Binding Context}"/>
+                    </StackPanel>
+                  </DocumentTemplate>
+                </DocumentDock.DocumentTemplate>
+                <Document x:Name="Document1" Id="Document1" Title="Program.cs" x:DataType="Document">
+                  <TextBlock Text="{Binding Title}"/>
+                </Document>
+                <Document x:Name="Document2" Id="Document2" Title="App.axaml" x:DataType="Document">
+                  <TextBlock Text="{Binding Title}"/>
+                </Document>
+              </DocumentDock>
 
-        <ScrollViewer Height="50">
-            <StackPanel>
-                <TextBlock Text="ScrollViewer"/>
-                <TextBlock Text="ScrollViewer"/>
-                <TextBlock Text="ScrollViewer"/>
-                <TextBlock Text="ScrollViewer"/>
-                <TextBlock Text="ScrollViewer"/>
-            </StackPanel>
-        </ScrollViewer>
+              <ProportionalDockSplitter x:Name="RightSplitter" Id="RightSplitter" />
 
-        <Separator/>
+              <!-- Properties Pane -->
+              <ToolDock x:Name="PropertiesPane" Id="PropertiesPane" Proportion="0.3" Alignment="Right">
+                <Tool x:Name="Properties" Id="Properties" Title="Properties" x:DataType="Tool">
+                  <TextBlock Text="{Binding Title}"/>
+                </Tool>
+              </ToolDock>
 
-        <TextBox Watermark="TextBox" Margin="0 10" Text="Sample text"/>
+            </ProportionalDock>
 
-        <Separator/>
+            <ProportionalDockSplitter x:Name="BottomSplitter" Id="BottomSplitter" />
 
-        <ComboBox SelectedIndex="0">
-            <ComboBoxItem Content="ComboBoxItem 1"/>
-            <ComboBoxItem Content="ComboBoxItem 2"/>
-            <ComboBoxItem Content="ComboBoxItem 3"/>
-        </ComboBox>
+            <!-- Bottom Pane -->
 
-        <ListBox SelectedIndex="0" Margin="0 10">
-            <ListBoxItem Content="ListBoxItem 1"/>
-            <ListBoxItem Content="ListBoxItem 2"/>
-            <ListBoxItem Content="ListBoxItem 3"/>
-        </ListBox>
+            <ToolDock x:Name="BottomPane" Id="BottomPane" Proportion="0.3" Alignment="Bottom" ActiveDockable="Output">
+              <Tool x:Name="ErrorList" Id="ErrorList" Title="Error List" x:DataType="Tool">
+                <TextBlock Text="{Binding Title}"/>
+              </Tool>
+              <Tool x:Name="Output" Id="Output" Title="Output" x:DataType="Tool">
+                <TextBlock Text="{Binding Title}"/>
+              </Tool>
+            </ToolDock>
 
-        <Slider Margin="0 10" Value="50"/>
-        <ProgressBar VerticalAlignment="Center" IsIndeterminate="True" />
-        <ProgressBar VerticalAlignment="Center" Value="5" Margin="0 10" Maximum="10" />
-        <ProgressBar VerticalAlignment="Center" Value="50" />
-        <ProgressBar VerticalAlignment="Center" Value="50" ShowProgressText="True" Margin="0 10"
-                     Minimum="25" Maximum="75" />
-        <ProgressBar HorizontalAlignment="Left" IsIndeterminate="True" Orientation="Vertical" />
+          </ProportionalDock>
 
-        <Border Background="{DynamicResource ThemeBackgroundBrush1}">
-            <Border.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Hello"/>
-                    <MenuItem Header="Hello2"/>
-                    <Separator/>
-                    <MenuItem Header="Hello Nested">
-                        <MenuItem Header="Hover for more">
-                            <MenuItem Header="If you hover again, you'll get a cookie">
-                                <MenuItem Header="Sike! No cookie here, keep going">
-                                    <MenuItem Header="Ok, take some rest 🍪"/>
-                                </MenuItem>
-                                </MenuItem>
-                        </MenuItem>
-                        </MenuItem>
-                </ContextMenu>
-            </Border.ContextMenu>
-            <TextBlock Text="Right click for context menu"/>
-        </Border>
+        </ProportionalDock>
+      </RootDock>
 
-        <Menu>
-            <MenuItem Header="Hello"/>
-            <MenuItem Header="Hello2"/>
-            <Separator/>
-            <MenuItem Header="Hello Nested">
-                <MenuItem Header="Hover for more">
-                    <MenuItem Header="If you hover again, you'll get a cookie">
-                        <MenuItem Header="Sike! No cookie here, keep going">
-                            <MenuItem Header="Ok, take some rest 🍪"/>
-                        </MenuItem>
-                    </MenuItem>
-                </MenuItem>
-            </MenuItem>
-        </Menu>
-
-        <NotificationCard Content="Notification Card"/>
-        <AutoCompleteBox Margin="0 10" Watermark="No, this is" Name="autoComplete" />
-        <ButtonSpinner AllowSpin="True" ButtonSpinnerLocation="Right" ShowButtonSpinner="True">
-            <TextBlock Text="Button Spinner"/>
-        </ButtonSpinner>
-        <Calendar/>
-        <DatePicker/>
-        <CaptionButtons/>
-        <Carousel>
-            <Carousel.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock>Hello</TextBlock>
-                </DataTemplate>
-            </Carousel.ItemTemplate>
-            <Carousel.Items>
-                <TextBlock/>
-                <TextBlock/>
-                <TextBlock/>
-            </Carousel.Items>
-        </Carousel>
-        <DropDownButton/>
-        <Expander/>
-        <FlyoutPresenter/>
-        <Grid Width="200" Height="200" ColumnDefinitions="*, 4, *">
-            <Rectangle Grid.Column="0" Fill="Blue"/>
-            <GridSplitter Grid.Column="1" Background="Black" ResizeDirection="Columns"/>
-            <Rectangle Grid.Column="2" Fill="Red"/>
-        </Grid>
-
-            <dialogs:ManagedFileChooser Width="300"/>
-            <MenuFlyoutPresenter/>
-            <NativeMenuBar/>
-            <NumericUpDown Margin="0 10"/>
-            <RefreshContainer Content="Refresh Container"/>
-
-            <RefreshVisualizer Orientation="Auto">
-                123
-            </RefreshVisualizer>
-
-            <SplitButton Margin="0 10" Content="Split Button">
-                <SplitButton.Flyout>
-                    <Flyout>
-                        <StackPanel>
-                            <Button Content="Some flyout button"/>
-                        </StackPanel>
-                    </Flyout>
-                </SplitButton.Flyout>
-            </SplitButton>
-            <Border Width="200" Height="200">
-                <SplitView DisplayMode="Inline"
-                           IsPaneOpen="True">
-                    <SplitView.Pane>
-                        <Border Background="Green" />
-                    </SplitView.Pane>
-                    <SplitView.Content>
-                        <Border Background="Blue" />
-                    </SplitView.Content>
-                </SplitView>
-            </Border>
-
-            <TabControl>
-                <TabItem Header="Tab 1">
-                    <TextBlock Text="Tab 1"/>
-                </TabItem>
-                <TabItem Header="Tab 2">
-                    <TextBlock Text="Tab 2"/>
-                </TabItem>
-                <TabItem Header="Tab 3">
-                    <TextBlock Text="Tab 3"/>
-                </TabItem>
-            </TabControl>
-
-            <ThemeVariantScope/>
-
-            <TimePicker/>
-
-            <StackPanel Margin="20" Width="250" Spacing="24">
-                <StackPanel Spacing="12">
-                    <TextBlock
-                        Text="Automatic updates"
-                        Classes="h1" />
-                    <TextBlock
-                        Text="Updates will be automaticly Downloaded and installed shile the computer is shutting down or restarting"
-                        TextWrapping="Wrap" />
-                    <ToggleSwitch HorizontalContentAlignment="Left"
-                                  Content="Enable automatic Updates?"
-                                  OffContent="Uit"
-                                  OnContent="Aan"
-                                  VerticalAlignment="Bottom" />
-                </StackPanel>
-
-                <StackPanel Spacing="12">
-                    <TextBlock
-                        Text="Previewer"
-                        Classes="h1" />
-                    <TextBlock
-                        Text="The previewer Shows a preview off your code, this could slow down your system"
-                        TextWrapping="Wrap" />
-                    <ToggleSwitch
-                        Content="Previewer"
-                        IsChecked="True" />
-                </StackPanel>
-
-                <TreeView>
-                    <TreeViewItem Header="Item 1">
-                        <TreeViewItem Header="Item 1.1"/>
-                        <TreeViewItem Header="Item 1.2"/>
-                        <TreeViewItem Header="Item 1.3"/>
-                    </TreeViewItem>
-                    <TreeViewItem Header="Item 2">
-                        <TreeViewItem Header="Item 2.1"/>
-                        <TreeViewItem Header="Item 2.2"/>
-                        <TreeViewItem Header="Item 2.3"/>
-                    </TreeViewItem>
-                    <TreeViewItem Header="Item 3">
-                        <TreeViewItem Header="Item 3.1"/>
-                        <TreeViewItem Header="Item 3.2"/>
-                        <TreeViewItem Header="Item 3.3"/>
-                    </TreeViewItem>
-                </TreeView>
-
-            </StackPanel>
-        </WrapPanel>
+    </DockControl>
+    </Grid>
 </UserControl>

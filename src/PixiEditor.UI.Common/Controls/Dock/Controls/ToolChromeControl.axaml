@@ -1,0 +1,198 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="using:Dock.Avalonia.Converters"
+                    xmlns:controls="using:Dock.Model.Controls">
+  <Design.PreviewWith>
+    <ToolChromeControl Width="300" Height="400" />
+  </Design.PreviewWith>
+
+  <ContextMenu x:Key="ToolChromeControlContextMenu" 
+               x:DataType="controls:IToolDock" x:CompileBindings="True"
+               IsVisible="{Binding !!ActiveDockable}">
+    <MenuItem Header="_Float"
+              Command="{Binding Owner.Factory.FloatDockable}"
+              CommandParameter="{Binding}"
+              IsVisible="{Binding ActiveDockable.CanFloat, FallbackValue=False}"/>
+    <MenuItem Header="_Hide"
+              Command="{Binding Owner.Factory.PinDockable}"
+              CommandParameter="{Binding ActiveDockable}"
+              IsVisible="{Binding ActiveDockable.CanPin, FallbackValue=False}"/>
+    <MenuItem Header="_Close"
+              Command="{Binding Owner.Factory.CloseDockable}"
+              CommandParameter="{Binding ActiveDockable}"
+              IsVisible="{Binding ActiveDockable.CanClose, FallbackValue=False}"/>
+  </ContextMenu>
+  
+  <ControlTheme x:Key="{x:Type ToolChromeControl}" TargetType="ToolChromeControl">
+
+    <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid RowDefinitions="Auto,*" x:DataType="controls:IToolDock" x:CompileBindings="True">
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Content="{TemplateBinding Content}"
+                            Padding="{TemplateBinding Padding}"
+                            Grid.Row="1" />
+          <Border x:Name="PART_Border"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  VerticalAlignment="Top"
+                  ContextMenu="{DynamicResource ToolChromeControlContextMenu}"
+                  Grid.Row="{Binding GripMode, Converter={x:Static converters:GripModeConverters.GridRowAutoHideConverter}}">
+            <Grid x:Name="PART_Grip">
+              <DockPanel LastChildFill="True" Margin="8 0">
+                <Panel DockPanel.Dock="Left">
+                  <TextBlock x:Name="PART_Title"
+                             Text="{Binding ActiveDockable.Title, FallbackValue=TITLE}" />
+                </Panel>
+                <Button x:Name="PART_CloseButton"
+                        Command="{Binding Owner.Factory.CloseDockable}"
+                        CommandParameter="{Binding ActiveDockable}"
+                        IsVisible="{Binding ActiveDockable.CanClose, FallbackValue=False}"
+                        DockPanel.Dock="Right">
+                  <Viewbox>
+                    <Path x:Name="PART_ClosePath" />
+                  </Viewbox>
+                </Button>
+                <Button x:Name="PART_PinButton"
+                        Command="{Binding Owner.Factory.PinDockable}"
+                        CommandParameter="{Binding ActiveDockable}"
+                        IsVisible="{Binding ActiveDockable.CanPin, FallbackValue=False}"
+                        DockPanel.Dock="Right">
+                  <Viewbox>
+                    <Path x:Name="PART_PinPath" />
+                  </Viewbox>
+                </Button>
+                <Grid x:Name="PART_Grid" />
+              </DockPanel>
+            </Grid>
+          </Border>
+          <Panel x:Name="PART_Panel"
+                 Background="{TemplateBinding BorderBrush}"
+                 Height="1"
+                 VerticalAlignment="Top"
+                 Grid.Row="{Binding GripMode, Converter={x:Static converters:GripModeConverters.GridRowAutoHideConverter}}" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^/template/ Border#PART_Border">
+      <Setter Property="BorderThickness" Value="1 1 1 0" />
+      <Setter Property="IsVisible"
+              Value="{Binding GripMode, Converter={x:Static converters:GripModeConverters.IsVisibleVisibleConverter}}" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Border#PART_Border">
+      <Setter Property="IsVisible"
+              Value="{Binding GripMode, Converter={x:Static converters:GripModeConverters.IsVisibleAutoHideOrVisibleConverter}}" />
+    </Style>
+
+    <Style Selector="^:floating /template/ Border#PART_Border">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="^/template/ Panel#PART_Panel">
+      <Setter Property="IsVisible"
+              Value="{Binding GripMode, Converter={x:Static converters:GripModeConverters.IsVisibleAutoHideOrHiddenConverter}}" />
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Panel#PART_Panel">
+      <Setter Property="IsVisible"
+              Value="{Binding GripMode, Converter={x:Static converters:GripModeConverters.IsVisibleVisibleOrHiddenConverter}}" />
+    </Style>
+
+    <Style Selector="^:floating:pointerover /template/ Panel#PART_Panel">
+      <Setter Property="Height" Value="0" />
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <Style Selector="^/template/ TextBlock#PART_Title">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="HorizontalAlignment" Value="Left" />
+      <Setter Property="TextAlignment" Value="Left" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="Margin" Value="0 4 8 4" />
+      <Setter Property="(TextElement.FontSize)" Value="{DynamicResource DockFontSizeNormal}" />
+    </Style>
+
+    <Style Selector="^:active /template/ TextBlock#PART_Title">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource DockApplicationAccentForegroundBrush}" />
+    </Style>
+
+    <Style Selector="^/template/ Grid#PART_Grip">
+      <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+    </Style>
+
+    <Style Selector="^/template/ Grid#PART_Grip">
+      <Setter Property="(DockProperties.IsDragArea)" Value="True" />
+    </Style>
+
+    <Style Selector="^:floating /template/ Grid#PART_Grip">
+      <Setter Property="(DockProperties.IsDragArea)" Value="False" />
+    </Style>
+
+    <Style Selector="^:active /template/ Grid#PART_Grip">
+      <Setter Property="Background" Value="{DynamicResource DockThemeAccentBrush}" />
+    </Style>
+
+    <Style Selector="^/template/ Grid#PART_Grid">
+      <Setter Property="Height" Value="5" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0 0 2 0" />
+      <Setter Property="Background">
+        <VisualBrush SourceRect="0,0,4,5"
+                     DestinationRect="0,0,4,5"
+                     TileMode="Tile"
+                     Stretch="UniformToFill">
+          <VisualBrush.Visual>
+            <Canvas Width="4" Height="5" Background="Transparent">
+              <Rectangle Height="1" Width="1" Fill="#474747" />
+              <Rectangle Height="1" Width="1" Fill="#474747" Canvas.Top="2" Canvas.Left="2" />
+              <Rectangle Height="1" Width="1" Fill="#474747" Canvas.Top="4" />
+            </Canvas>
+          </VisualBrush.Visual>
+        </VisualBrush>
+      </Setter>
+    </Style>
+
+    <Style Selector="^/template/ Button#PART_CloseButton">
+      <Setter Property="Margin" Value="2 0 0 0" />
+      <Setter Property="Padding" Value="3" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Width" Value="18" />
+      <Setter Property="Height" Value="16" />
+    </Style>
+
+    <Style Selector="^/template/ Button#PART_PinButton">
+      <Setter Property="Margin" Value="2 0 0 0" />
+      <Setter Property="Padding" Value="3" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Width" Value="18" />
+      <Setter Property="Height" Value="16" />
+    </Style>
+
+    <Style Selector="^/template/ Path#PART_ClosePath">
+      <Setter Property="Stretch" Value="UniformToFill" />
+      <Setter Property="Fill" Value="#474747" />
+      <Setter Property="Data"
+              Value="M1169 1024l879 -879l-145 -145l-879 879l-879 -879l-145 145l879 879l-879 879l145 145l879 -879l879 879l145 -145z" />
+    </Style>
+
+    <Style Selector="^/template/ Path#PART_PinPath">
+      <Setter Property="Stretch" Value="UniformToFill" />
+      <Setter Property="Fill" Value="#474747" />
+      <Setter Property="Data" Value="M2048 1229v-205h-2048v205h2048z" />
+    </Style>
+
+  </ControlTheme>
+
+</ResourceDictionary>

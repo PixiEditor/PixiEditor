@@ -1,0 +1,79 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dmc="using:Dock.Model.Controls">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <DocumentTabStrip>
+        <DocumentTabStripItem>Item 1</DocumentTabStripItem>
+        <DocumentTabStripItem>Item 2</DocumentTabStripItem>
+        <DocumentTabStripItem IsEnabled="False">Disabled</DocumentTabStripItem>
+      </DocumentTabStrip>
+    </Border>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="ButtonCreateDocument" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Width" Value="26" />
+    <Setter Property="Height" Value="24" />
+    <Setter Property="HorizontalAlignment" Value="Right" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Background" Value="Transparent" />
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="{DynamicResource DockApplicationAccentBrushHigh}" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type DocumentTabStrip}" TargetType="DocumentTabStrip">
+
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="ClipToBounds" Value="False" />
+    <Setter Property="ZIndex" Value="1" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockPanel Background="Transparent"
+                   ClipToBounds="False"
+                   x:DataType="dmc:IDocumentDock"
+                   x:CompileBindings="True">
+          <Button x:Name="PART_ButtonCreate"
+                  Command="{Binding CreateDocument}"
+                  Theme="{StaticResource ButtonCreateDocument}"
+                  IsVisible="{Binding CanCreateDocument}"
+                  DockPanel.Dock="Right">
+            <Path x:Name="PART_PathCreate">
+              <Path.Styles>
+                <Style Selector="Path">
+                  <Setter Property="Margin" Value="5" />
+                  <Setter Property="Stretch" Value="Uniform" />
+                  <Setter Property="UseLayoutRounding" Value="False" />
+                  <Setter Property="Fill" Value="{DynamicResource DockThemeForegroundBrush}" />
+                  <Setter Property="Data"
+                          Value="M8.41687 7.57953V2.41851C8.41687 2.18743 8.22932 1.99988 7.99823 1.99988C7.76715 1.99988 7.5796 2.18743 7.5796 2.41851V7.57953H2.41863C2.18755 7.57953 2 7.76708 2 7.99816C2 8.22925 2.18755 8.41679 2.41863 8.41679H7.5796V13.5812C7.5796 13.8123 7.76715 13.9999 7.99823 13.9999C8.22932 13.9999 8.41687 13.8123 8.41687 13.5812V8.41679L13.5799 8.41851C13.811 8.41851 13.9985 8.23096 13.9985 7.99988C13.9985 7.76879 13.811 7.58125 13.5799 7.58125L8.41687 7.57953Z" />
+                </Style>
+              </Path.Styles>
+            </Path>
+          </Button>
+          <ItemsPresenter x:Name="PART_ItemsPresenter"
+                          ItemsPanel="{TemplateBinding ItemsPanel}" />
+        </DockPanel>
+      </ControlTemplate>
+    </Setter>
+
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <WrapPanel ClipToBounds="False" />
+      </ItemsPanelTemplate>
+    </Setter>
+
+    <Style Selector="^:not(:create):empty">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+  </ControlTheme>
+
+</ResourceDictionary>

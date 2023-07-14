@@ -20,6 +20,8 @@
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
         <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
         <PackageReference Include="ByteSize" Version="2.1.1" />
+        <PackageReference Include="Dock.Avalonia" Version="11.0.0" />
+        <PackageReference Include="Dock.Model.Avalonia" Version="11.0.0" />
         <PackageReference Include="Hardware.Info" Version="11.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="PixiEditor.Parser" Version="3.3.0" />

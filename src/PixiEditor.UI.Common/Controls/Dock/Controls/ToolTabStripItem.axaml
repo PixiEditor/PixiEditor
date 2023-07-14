@@ -1,0 +1,94 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dmc="using:Dock.Model.Controls"
+                    x:CompileBindings="True">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <StackPanel Spacing="20">
+        <ToolTabStripItem>Leaf</ToolTabStripItem>
+        <ToolTabStripItem IsSelected="True">Arch</ToolTabStripItem>
+        <ToolTabStripItem Background="Yellow">Background</ToolTabStripItem>
+      </StackPanel>
+    </Border>
+  </Design.PreviewWith>
+
+  <x:Double x:Key="TabStripItemMinHeight">48</x:Double>
+  <x:Double x:Key="TabStripItemPipeThickness">2</x:Double>
+
+  <ContextMenu x:Key="ToolTabStripItemContextMenu" x:DataType="dmc:IToolDock" x:CompileBindings="True">
+    <MenuItem Header="_Float"
+              Command="{Binding Owner.Factory.FloatDockable}"
+              CommandParameter="{Binding}"
+              IsVisible="{Binding CanFloat}"/>
+    <MenuItem Header="_Hide"
+              Command="{Binding Owner.Factory.PinDockable}"
+              CommandParameter="{Binding}"
+              IsVisible="{Binding CanPin}"/>
+    <MenuItem Header="_Close"
+              Command="{Binding Owner.Factory.CloseDockable}"
+              CommandParameter="{Binding}"
+              IsVisible="{Binding CanClose}"/>
+  </ContextMenu>
+  
+  <ControlTheme x:Key="{x:Type ToolTabStripItem}" TargetType="ToolTabStripItem">
+
+    <Setter Property="(TextElement.FontSize)" Value="{DynamicResource DockFontSizeNormal}" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+    <Setter Property="BorderThickness" Value="0 1 0 0" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Padding" Value="4 1 4 0" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+          <Border Background="{TemplateBinding Background}"
+                  TextElement.FontFamily="{TemplateBinding FontFamily}"
+                  TextElement.FontSize="{TemplateBinding FontSize}"
+                  TextElement.FontWeight="{TemplateBinding FontWeight}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  Padding="{TemplateBinding Padding}"
+                  ContextMenu="{DynamicResource ToolTabStripItemContextMenu}"
+                  x:DataType="dmc:IToolDock" x:CompileBindings="True">
+            <DockableControl TrackingMode="Tab">
+              <StackPanel x:Name="DragTool"
+                          Background="Transparent"
+                          Orientation="Horizontal"
+                          Spacing="2"
+                          DockProperties.IsDragArea="True"
+                          DockProperties.IsDropArea="True">
+                <Panel Margin="2">
+                  <ContentPresenter ContentTemplate="{Binding $parent[ToolControl].HeaderTemplate}"
+                                    Content="{Binding}" />
+                </Panel>
+              </StackPanel>
+            </DockableControl>
+          </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="{DynamicResource DockApplicationAccentBrushMed}" />
+    </Style>
+
+    <Style Selector="^:selected">
+      <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource DockApplicationAccentBrushMed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+      <Setter Property="BorderThickness" Value="1 0 1 1" />
+      <Setter Property="Margin" Value="0 0 0 0" />
+      <Setter Property="Padding" Value="4 2 4 0" />
+    </Style>
+
+    <Style Selector="^:selected:pointerover">
+      <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+    </Style> 
+    
+  </ControlTheme>
+
+</ResourceDictionary>
