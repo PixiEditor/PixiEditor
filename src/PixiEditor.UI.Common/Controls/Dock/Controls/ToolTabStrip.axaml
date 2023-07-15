@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls.Dock.Controls">
   <Design.PreviewWith>
     <Border Padding="20">
       <ToolTabStrip>
@@ -37,7 +38,7 @@
 
     <Setter Property="ItemsPanel">
       <ItemsPanelTemplate>
-        <StackPanel Orientation="Horizontal" ClipToBounds="False" />
+        <controls:StretchableStackPanel Orientation="Horizontal" ClipToBounds="False" />
       </ItemsPanelTemplate>
     </Setter>
 

@@ -32,12 +32,12 @@
   
   <ControlTheme x:Key="{x:Type ToolTabStripItem}" TargetType="ToolTabStripItem">
 
-    <Setter Property="(TextElement.FontSize)" Value="{DynamicResource DockFontSizeNormal}" />
-    <Setter Property="FontWeight" Value="Normal" />
+      <Setter Property="(TextElement.FontSize)" Value="{DynamicResource DockFontSizeNormal}" />
+      <Setter Property="FontWeight" Value="Normal" />
     <Setter Property="MinHeight" Value="0" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Background" Value="Transparent" />
-    <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}" />
     <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
     <Setter Property="BorderThickness" Value="0 1 0 0" />
     <Setter Property="Margin" Value="0" />
@@ -62,7 +62,7 @@
                           DockProperties.IsDragArea="True"
                           DockProperties.IsDropArea="True">
                 <Panel Margin="2">
-                  <ContentPresenter ContentTemplate="{Binding $parent[ToolControl].HeaderTemplate}"
+                  <ContentPresenter x:Name="child" TextTrimming="CharacterEllipsis" ContentTemplate="{Binding $parent[ToolControl].HeaderTemplate}"
                                     Content="{Binding}" />
                 </Panel>
               </StackPanel>
@@ -77,7 +77,7 @@
 
     <Style Selector="^:selected">
       <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource DockApplicationAccentBrushMed}" />
+      <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
       <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
       <Setter Property="BorderThickness" Value="1 0 1 1" />
       <Setter Property="Margin" Value="0 0 0 0" />
