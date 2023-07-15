@@ -101,23 +101,8 @@
         </b:EventTrigger>
     </b:Interaction.Triggers>
     <Grid>
-        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Name="steamRefresher"
-                Visibility="Collapsed"
-                Background="Transparent"
-                BorderThickness="0"
-                Focusable="False"
-                Width="{Binding ElementName=mainWindow, Path=Width}"
-                Height="{Binding ElementName=mainWindow, Path=Height}" Panel.ZIndex="-1000">
-            <Border.Triggers>
-                <EventTrigger RoutedEvent="Loaded">
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <DoubleAnimation Storyboard.TargetProperty="Opacity" RepeatBehavior="Forever" From="0" To="1" Duration="0:0:10"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </EventTrigger>
-            </Border.Triggers>
-        </Border>
+        <usercontrols:SteamOverlay x:Name="steamRefresher" Width="{Binding ElementName=mainWindow, Path=Width}"
+                                   Height="{Binding ElementName=mainWindow, Path=Height}"/>
         <Grid
             Name="mainGrid"
             Margin="5"

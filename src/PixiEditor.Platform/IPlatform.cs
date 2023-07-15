@@ -6,6 +6,7 @@ public interface IPlatform
     public abstract string Id { get; }
     public abstract string Name { get; }
     public bool PerformHandshake();
+    public void Update();
     public IAdditionalContentProvider? AdditionalContentProvider { get; }
 
     public static void RegisterPlatform(IPlatform platform)

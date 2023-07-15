@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using AvalonDock.Layout;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,8 +63,6 @@ internal partial class MainWindow : Window
 
         InitializeComponent();
 
-        StartSteamRefresher();
-
         OnDataContextInitialized?.Invoke();
         pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
@@ -87,12 +86,22 @@ internal partial class MainWindow : Window
     private void StartSteamRefresher()
     {
 #if STEAM
-        steamRefresher.Visibility = Visibility.Visible;
+        steamRefresher.Activate();
 
-        PixiEditor.Platform.Steam.SteamOverlayHandler handler = new PixiEditor.Platform.Steam.SteamOverlayHandler();
+        var handler = new PixiEditor.Platform.Steam.SteamOverlayHandler();
         handler.ActivateRefreshingElement += (bool activate) =>
         {
-            steamRefresher.Visibility = activate ? Visibility.Visible : Visibility.Collapsed;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                if (activate)
+                {
+                    steamRefresher.Activate();
+                }
+                else
+                {
+                    steamRefresher.Deactivate();
+                }
+            });
         };
 #endif
     }
