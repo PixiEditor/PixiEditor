@@ -26,5 +26,6 @@
 
     <ItemGroup>
       <UpToDateCheckInput Remove="Animations\Processing.axaml" />
+      <UpToDateCheckInput Remove="Controls\Dock\Accents\Base.axaml" />
     </ItemGroup>
 </Project>

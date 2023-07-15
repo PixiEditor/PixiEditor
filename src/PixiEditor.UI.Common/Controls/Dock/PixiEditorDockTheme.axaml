@@ -24,7 +24,7 @@
                 <ResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Dock/Controls/DockControl.axaml" />
                 <ResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Dock/Controls/HostWindowTitleBar.axaml" />
                 <ResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Dock/Controls/HostWindow.axaml" />
-                <ResourceInclude Source="avares://PixiEditor.UI.Common/Controls/Dock/Accents/Base.axaml" />
+                <ResourceInclude Source="avares://PixiEditor.UI.Common/Accents/Base.axaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
