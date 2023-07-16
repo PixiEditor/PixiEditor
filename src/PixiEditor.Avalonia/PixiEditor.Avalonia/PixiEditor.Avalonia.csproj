@@ -47,4 +47,12 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
     </ItemGroup>
+  
+    <ItemGroup>
+      <AvaloniaXaml Include="Views\Dialogs\NoticePopup.axaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </AvaloniaXaml>
+    </ItemGroup>
 </Project>
