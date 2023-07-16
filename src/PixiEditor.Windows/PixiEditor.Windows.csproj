@@ -10,4 +10,8 @@
       <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Avalonia.Win32" Version="11.0.0" />
+    </ItemGroup>
+
 </Project>

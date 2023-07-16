@@ -1,14 +1,10 @@
 ﻿using PixiEditor.Helpers;
-using PixiEditor.Helpers.Extensions;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Windows.Input;
 using Avalonia.Input;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Helpers;
-using PixiEditor.Models.Localization;
 
 namespace PixiEditor.Models.DataHolders;
 

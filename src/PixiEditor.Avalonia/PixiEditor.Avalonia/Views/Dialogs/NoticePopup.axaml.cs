@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 
 namespace PixiEditor.Views.Dialogs;

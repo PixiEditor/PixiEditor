@@ -1,33 +1,35 @@
-﻿using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 
 namespace PixiEditor.Models.Commands.XAML;
 
-internal class ContextMenu : ContextMenu
+internal class ContextMenu : global::Avalonia.Controls.ContextMenu
 {
-    public static readonly DependencyProperty CommandNameProperty =
-        DependencyProperty.RegisterAttached(
-            "Command",
-            typeof(string),
-            typeof(ContextMenu),
-            new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, CommandChanged)
-        );
+    public static readonly DirectProperty<ContextMenu, string> CommandNameProperty;
 
-    public static string GetCommand(UIElement target) => (string)target.GetValue(CommandNameProperty);
-
-    public static void SetCommand(UIElement target, string value) => target.SetValue(CommandNameProperty, value);
-
-    public static void CommandChanged(object sender, DependencyPropertyChangedEventArgs e)
+    static ContextMenu()
     {
-        if (e.NewValue is not string value || sender is not MenuItem item)
+        CommandNameProperty = AvaloniaProperty.RegisterDirect<ContextMenu, string>(
+            nameof(Command),
+            GetCommand,
+            SetCommand);
+        CommandNameProperty.Changed.Subscribe(CommandChanged);
+    }
+
+    public static string GetCommand(ContextMenu target) => (string)target.GetValue(CommandNameProperty);
+
+    public static void SetCommand(ContextMenu target, string value) => target.SetValue(CommandNameProperty, value);
+
+    public static void CommandChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is not string value || e.Sender is not MenuItem item)
         {
             throw new InvalidOperationException($"{nameof(ContextMenu)}.Command only works for MenuItem's");
         }
 
-        if (DesignerProperties.GetIsInDesignMode(sender as DependencyObject))
+        if (Design.IsDesignMode)
         {
             HandleDesignMode(item, value);
             return;
@@ -35,13 +37,14 @@ internal class ContextMenu : ContextMenu
 
         var command = CommandController.Current.Commands[value];
 
-        item.Command = Command.GetICommand(command, false);
-        item.SetBinding(MenuItem.InputGestureTextProperty, ShortcutBinding.GetBinding(command, null));
+        //TODO: Same story as in Menu.cs
+        //item.Command = Command.GetICommand(command, false);
+        item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null));
     }
 
     private static void HandleDesignMode(MenuItem item, string name)
     {
         var command = DesignCommandHelpers.GetCommandAttribute(name);
-        item.InputGestureText = new KeyCombination(command.Key, command.Modifiers).ToString();
+        item.InputGesture = new KeyCombination(command.Key, command.Modifiers).ToKeyGesture();
     }
 }

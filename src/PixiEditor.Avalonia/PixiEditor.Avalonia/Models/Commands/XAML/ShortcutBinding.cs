@@ -1,7 +1,11 @@
-﻿using Avalonia.Data;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Containers;
 using PixiEditor.Models.DataHolders;
 using ActualCommand = PixiEditor.Models.Commands.Commands.Command;
 
@@ -21,14 +25,23 @@ internal class ShortcutBinding : MarkupExtension
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        if (ViewModelMain.Current == null)
+        if (Design.IsDesignMode)
         {
             var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
             return new KeyCombination(attribute.Key, attribute.Modifiers).ToString();
         }
 
-        commandController ??= ViewModelMain.Current.CommandController;
-        return GetBinding(commandController.Commands[Name], Converter).ProvideValue(serviceProvider);
+        ICommandsHandler? handler = serviceProvider.GetService<ICommandsHandler>();
+        commandController ??= handler.CommandController;
+        var binding = GetBinding(commandController.Commands[Name], Converter);
+
+        var targetValue = serviceProvider.GetService<IProvideValueTarget>();
+        var targetObject = targetValue.TargetObject as AvaloniaObject;
+        var targetProperty = targetValue.TargetProperty as AvaloniaProperty;
+
+        var instancedBinding = binding.Initiate(targetObject, targetProperty);
+
+        return instancedBinding; //TODO: This won't work, leaving it for now
     }
 
     public static Binding GetBinding(ActualCommand command, IValueConverter converter) => new Binding

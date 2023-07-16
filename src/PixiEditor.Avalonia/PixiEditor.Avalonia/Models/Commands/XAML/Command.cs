@@ -1,4 +1,7 @@
-﻿using Avalonia.Controls;
+﻿using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Helpers;
@@ -53,20 +56,48 @@ internal class Command : MarkupExtension
 
     class ProvidedICommand : IReactiveCommand
     {
-        // TODO: Implement with ReactiveUI
+        //TODO: Not found in Avalonia
+
         /*public event EventHandler CanExecuteChanged
         {
             add => CommandManager.RequerySuggested += value;
             remove => CommandManager.RequerySuggested -= value;
-        }
+        }*/
 
         public Commands.Command Command { get; init; }
 
         public bool UseProvidedParameter { get; init; }
 
-        public bool CanExecute(object parameter) => UseProvidedParameter ? Command.Methods.CanExecute(parameter) : Command.CanExecute();
+        public IObservable<Exception> ThrownExceptions { get; }
 
-        public void Execute(object parameter)
+        public IObservable<bool> IsExecuting { get; }
+
+        public IObservable<bool> CanExecute { get; }
+
+        public ProvidedICommand()
+        {
+            ReactiveCommand<object, Unit> reactiveCommand = ReactiveCommand.Create<object, Unit>(Execute, CanExecuteCommand());
+        }
+
+
+        public IObservable<bool> CanExecuteCommand()
+        {
+            return this.WhenAnyValue(x => x.Command, x => x.UseProvidedParameter, (command, useProvidedParameter) =>
+            {
+                if (useProvidedParameter)
+                {
+                    return command.CanExecute();
+                    //return command.CanExecute(parameter); // Should be this, but idk how to make it properly, I think whole logic should be changed so it fits
+                    // reactiveUI
+                }
+                else
+                {
+                    return command.CanExecute();
+                }
+            });
+        }
+
+        public Unit Execute(object parameter)
         {
             if (UseProvidedParameter)
             {
@@ -76,6 +107,13 @@ internal class Command : MarkupExtension
             {
                 Command.Execute();
             }
-        }*/
+
+            return Unit.Default;
+        }
+
+        public void Dispose()
+        {
+
+        }
     }
 }

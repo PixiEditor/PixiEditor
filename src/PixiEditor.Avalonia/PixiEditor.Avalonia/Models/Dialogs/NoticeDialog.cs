@@ -1,4 +1,7 @@
-﻿using PixiEditor.Extensions.Common.Localization;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Localization;
 using PixiEditor.Views.Dialogs;
 
@@ -13,12 +16,22 @@ internal static class NoticeDialog
     /// <param name="title">Localized string key for title.</param>
     public static void Show(LocalizedString message, LocalizedString title)
     {
-        NoticePopup popup = new()
+        if(Application.Current?.ApplicationLifetime is ClassicDesktopStyleApplicationLifetime lifetime)
         {
-            Body = message,
-            Title = title
-        };
+            NoticePopup popup = new()
+            {
+                Body = message,
+                Title = title
+            };
 
-        popup.ShowDialog();
+            if(lifetime.MainWindow is not null)
+            {
+                popup.ShowDialog(lifetime.MainWindow);
+            }
+        }
+        else
+        {
+            throw new InvalidOperationException("NoticeDialog can only be shown in ClassicDesktopStyleApplicationLifetime");
+        }
     }
 }

@@ -41,7 +41,7 @@ internal class Menu : global::Avalonia.Controls.Menu
         var command = CommandController.Current.Commands[value];
 
         var icon = new Image
-        { 
+        {
             Source = command.GetIcon(), 
             Width = IconDimensions, Height = IconDimensions,
             Opacity = command.CanExecute() ? 1 : 0.75
@@ -53,7 +53,8 @@ internal class Menu : global::Avalonia.Controls.Menu
 
         });
 
-        item.Command = Command.GetICommand(command, false);
+        //TODO: This, some ReactiveUI shit should be here, https://docs.avaloniaui.net/docs/next/concepts/reactiveui/reactive-command
+        //item.Command = Command.GetICommand(command, false);
         item.Icon = icon;
         item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null));
     }
