@@ -1,5 +1,4 @@
-﻿using System.Windows;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 

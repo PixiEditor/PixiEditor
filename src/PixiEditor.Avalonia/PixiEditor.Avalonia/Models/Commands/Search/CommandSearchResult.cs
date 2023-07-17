@@ -1,4 +1,6 @@
-﻿using System.Windows.Media;
+﻿using System.Threading.Tasks;
+using System.Windows.Media;
+using Avalonia.Media;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.DataHolders;
 
@@ -12,11 +14,15 @@ internal class CommandSearchResult : SearchResult
 
     public override bool CanExecute => Command.CanExecute();
 
-    public override ImageSource Icon => Command.IconEvaluator.CallEvaluate(Command, this);
+    public override IImage Icon => Command.IconEvaluator.CallEvaluate(Command, this);
 
     public override KeyCombination Shortcut => Command.Shortcut;
 
     public CommandSearchResult(Command command) => Command = command;
 
-    public override void Execute() => Command.Execute();
+    public override Task Execute()
+    {
+        Command.Execute();
+        return Task.CompletedTask;
+    }
 }

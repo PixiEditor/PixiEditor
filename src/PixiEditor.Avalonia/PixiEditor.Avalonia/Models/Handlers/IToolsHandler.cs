@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Containers;
 
-public interface IToolsHandler
+internal  interface IToolsHandler
 {
     public void SetTool(object parameter);
 }

@@ -50,10 +50,6 @@
     </ItemGroup>
   
     <ItemGroup>
-      <AvaloniaXaml Include="Views\Dialogs\NoticePopup.axaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </AvaloniaXaml>
+
     </ItemGroup>
 </Project>
