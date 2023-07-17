@@ -7,14 +7,11 @@ namespace PixiEditor.Models.Commands.XAML;
 
 internal class ContextMenu : global::Avalonia.Controls.ContextMenu
 {
-    public static readonly DirectProperty<ContextMenu, string> CommandNameProperty;
+    public static readonly StyledProperty<string> CommandNameProperty =
+        AvaloniaProperty.Register<Menu, string>(nameof(Command));
 
     static ContextMenu()
     {
-        CommandNameProperty = AvaloniaProperty.RegisterDirect<ContextMenu, string>(
-            nameof(Command),
-            GetCommand,
-            SetCommand);
         CommandNameProperty.Changed.Subscribe(CommandChanged);
     }
 

@@ -8,22 +8,17 @@ namespace PixiEditor.Models.Commands.XAML;
 
 internal class Menu : global::Avalonia.Controls.Menu
 {
-    public static readonly DirectProperty<Menu, string> CommandNameProperty;
+    public static readonly AttachedProperty<string> CommandProperty =
+        AvaloniaProperty.RegisterAttached<Menu, MenuItem, string>(nameof(Command));
 
     static Menu()
     {
-        CommandNameProperty = AvaloniaProperty.RegisterDirect<Menu, string>(
-            nameof(Command),
-            GetCommand,
-            SetCommand);
-        CommandNameProperty.Changed.Subscribe(CommandChanged);
+        CommandProperty.Changed.Subscribe(CommandChanged);
     }
 
     public const double IconDimensions = 21;
-    
-    public static string GetCommand(Menu menu) => (string)menu.GetValue(CommandNameProperty);
-
-    public static void SetCommand(Menu menu, string value) => menu.SetValue(CommandNameProperty, value);
+    public static string GetCommand(MenuItem menu) => (string)menu.GetValue(CommandProperty);
+    public static void SetCommand(MenuItem menu, string value) => menu.SetValue(CommandProperty, value);
 
     public static void CommandChanged(AvaloniaPropertyChangedEventArgs e)
     {

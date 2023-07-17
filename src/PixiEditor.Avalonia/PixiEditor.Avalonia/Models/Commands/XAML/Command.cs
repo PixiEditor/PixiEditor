@@ -41,7 +41,7 @@ internal class Command : MarkupExtension
 
         if (commandController is null)
         {
-            commandController = serviceProvider.GetRequiredService<CommandController>();
+            commandController = CommandController.Current; // TODO: Find a better way to get the current CommandController
         }
 
         var command = commandController.Commands[Name];
@@ -84,16 +84,17 @@ internal class Command : MarkupExtension
         {
             return this.WhenAnyValue(x => x.Command, x => x.UseProvidedParameter, (command, useProvidedParameter) =>
             {
-                if (useProvidedParameter)
+                return true;
+                /*if (useProvidedParameter)
                 {
                     return command.CanExecute();
-                    //return command.CanExecute(parameter); // Should be this, but idk how to make it properly, I think whole logic should be changed so it fits
+                    //TODO: return command.CanExecute(parameter); // Should be this, but idk how to make it properly, I think whole logic should be changed so it fits
                     // reactiveUI
                 }
                 else
                 {
                     return command.CanExecute();
-                }
+                }*/
             });
         }
 

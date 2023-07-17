@@ -69,7 +69,7 @@ internal abstract partial class Command : ReactiveObject
 
     public bool CanExecute() => Methods.CanExecute(GetParameter());
 
-    public IImage GetIcon() => IconEvaluator.CallEvaluate(this, GetParameter());
+    public IImage GetIcon() => IconEvaluator == null ? null : IconEvaluator.CallEvaluate(this, GetParameter());
 
     public delegate void ShortcutChangedEventHandler(Command command, ShortcutChangedEventArgs args);
 }

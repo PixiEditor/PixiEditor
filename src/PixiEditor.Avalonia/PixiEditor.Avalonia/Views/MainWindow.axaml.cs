@@ -1,16 +1,45 @@
 using System.Collections.Generic;
 using Avalonia.Controls;
+using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Avalonia.ViewModels;
+using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.UI;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Localization;
+using PixiEditor.Platform;
+using PixiEditor.Views;
 
 namespace PixiEditor.Avalonia.Views;
 
 internal partial class MainWindow : Window
 {
+    private readonly IPreferences preferences;
+    private readonly IPlatform platform;
+    private readonly IServiceProvider services;
+    private static ExtensionLoader extLoader;
+
+    public new MainViewModel DataContext { get => (MainViewModel)base.DataContext; set => base.DataContext = value; }
+
     public MainWindow(ExtensionLoader extensionLoader)
     {
-        LocalizationProvider localizationProvider = new LocalizationProvider(null);
-        localizationProvider.LoadData(/*TODO: IPreferences.Current.GetPreference<string>("LanguageCode");*/);
+        extLoader = extensionLoader;
+
+        services = new ServiceCollection()
+            .AddPlatform()
+            .AddPixiEditor(extensionLoader)
+            .AddExtensionServices()
+            .BuildServiceProvider();
+
+        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
+        DrawingBackendApi.SetupBackend(skiaDrawingBackend);
+
+        preferences = services.GetRequiredService<IPreferences>();
+        platform = services.GetRequiredService<IPlatform>();
+        DataContext = services.GetRequiredService<MainViewModel>();
+        DataContext.Setup(services);
 
         InitializeComponent();
     }

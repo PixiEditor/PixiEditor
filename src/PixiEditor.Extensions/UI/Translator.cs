@@ -178,9 +178,9 @@ public class Translator : Control
         {
             contentControl.Bind(ContentControl.ContentProperty, valueObservable);
         }
-        else if (d is HeaderedItemsControl menuItem)
+        else if (d is HeaderedSelectingItemsControl menuItem)
         {
-            menuItem.Bind(HeaderedItemsControl.HeaderProperty, valueObservable);
+            menuItem.Bind(HeaderedSelectingItemsControl.HeaderProperty, valueObservable);
         }
 #if DEBUG
         else

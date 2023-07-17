@@ -146,7 +146,7 @@ internal class CommandController
     private void LoadTools(IServiceProvider serviceProvider, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands,
         ShortcutsTemplate template)
     {
-        IToolsHandler toolsHandler = serviceProvider.GetRequiredService<IToolsHandler>();
+        IToolsHandler toolsHandler = serviceProvider.GetService<IToolsHandler>();
         foreach (var toolInstance in serviceProvider.GetServices<IToolHandler>())
         {
             var type = toolInstance.GetType();

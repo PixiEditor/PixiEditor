@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows.Input;
 using Avalonia.Input;
+using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using Command = PixiEditor.Models.Commands.Commands.Command;
 
 namespace PixiEditor.Models.Commands;
@@ -18,7 +20,8 @@ internal class CommandCollection : ICollection<Command>
 
     public bool IsReadOnly => false;
 
-    public Command this[string name] => _commandInternalNames[name];
+    public Command this[string name] => new Command.BasicCommand(
+        (_) => NoticeDialog.Show("Debug", "Debug"), new CanExecuteEvaluator() { Evaluate = (_) => true });//_commandInternalNames[name];
     public bool ContainsKey(string key) => _commandInternalNames.ContainsKey(key);
 
     public List<Command> this[KeyCombination shortcut] => _commandShortcuts[shortcut];
