@@ -3,6 +3,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.Avalonia.Views;
+using PixiEditor.Initialization;
 using PixiEditor.UI.Common.Themes;
 using Splat;
 
@@ -19,7 +20,7 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            desktop.MainWindow = new MainWindow { DataContext = new MainViewModel() };
+            ClassicDesktopEntry entry = new(desktop);
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {

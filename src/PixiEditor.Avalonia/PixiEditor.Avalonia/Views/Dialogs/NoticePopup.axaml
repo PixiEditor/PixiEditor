@@ -11,7 +11,7 @@
         d:Title="Notice" Height="180" Width="400" MinHeight="180" MinWidth="400"
         WindowStartupLocation="CenterScreen"
         x:Name="popup"
-        ui:Translator.Key="{Binding ElementName=popup, Path=Title}"
+        ui:Translator.Key="{Binding ElementName=popup, Path=Title, Mode=OneTime}"
         FlowDirection="{helpers:Localization FlowDirection}">
 
     <!--<WindowChrome.WindowChrome>
@@ -19,7 +19,7 @@
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>-->
 
-    <DockPanel Background="{StaticResource AccentColor}" Focusable="True">
+    <DockPanel Background="{StaticResource ThemeBackgroundBrush1}" Focusable="True">
         <Interaction.Behaviors>
             <!--<behaviours:ClearFocusOnClickBehavior/>-->
         </Interaction.Behaviors>

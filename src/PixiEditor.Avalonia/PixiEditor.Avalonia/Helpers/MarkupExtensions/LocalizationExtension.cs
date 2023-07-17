@@ -1,5 +1,6 @@
 ﻿using Avalonia.Data;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 
 namespace PixiEditor.Helpers;
 
@@ -10,9 +11,9 @@ public class LocalizationExtension : MarkupExtension
 
     public LocalizationExtension(LocalizationExtensionToProvide toProvide)
     {
-        
+
     }
-    
+
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
         switch (toProvide)
@@ -35,7 +36,7 @@ public class LocalizationExtension : MarkupExtension
         ViewModelMain.Current.LocalizationProvider.OnLanguageChanged += _ => expression.UpdateTarget();
 
         return expression;*/
-        return null;
+        return FlowDirection.LeftToRight;
     }
 }
 

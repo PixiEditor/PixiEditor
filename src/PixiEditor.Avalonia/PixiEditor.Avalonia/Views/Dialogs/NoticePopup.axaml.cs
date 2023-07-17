@@ -12,12 +12,6 @@ internal partial class NoticePopup : Window
     public static readonly StyledProperty<string> BodyProperty =
         AvaloniaProperty.Register<NoticePopup, string>(nameof(Body));
 
-    public new string Title
-    {
-        get => base.Title;
-        set => base.Title = value;
-    }
-
     public string Body
     {
         get => (string)GetValue(BodyProperty);

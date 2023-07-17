@@ -8,6 +8,7 @@
         Width="1600"
         mc:Ignorable="d" d:DesignWidth="1600" d:DesignHeight="1000"
         x:Class="PixiEditor.Avalonia.Views.MainWindow"
+        x:ClassModifier="internal"
         WindowStartupLocation="CenterScreen"
         WindowState="Maximized"
         Icon="/Assets/avalonia-logo.ico"

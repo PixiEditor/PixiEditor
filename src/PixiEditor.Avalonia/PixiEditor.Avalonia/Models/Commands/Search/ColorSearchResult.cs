@@ -70,7 +70,7 @@ internal class ColorSearchResult : SearchResult
         drawing.Geometry = geometry;
         return new DrawingImage(drawing);
     }
-    
+
     private static TextDecorationCollection GetDecoration(double strokeThickness, SolidColorBrush solidColorBrush) => new()
     {
         new TextDecoration()
