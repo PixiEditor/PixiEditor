@@ -101,34 +101,28 @@ public class UpdateChecker
 
     public async Task<string[]> GetUpdateIncompatibleVersionsAsync(string tag)
     {
-        using (HttpClient client = new HttpClient())
-        {
-            client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-            HttpResponseMessage response = await client.GetAsync(string.Format(Channel.IncompatibleFileApiUrl, tag));
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                string content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<string[]>(content);
-            }
-        }
-
-        return Array.Empty<string>();
+        using HttpClient client = new ();
+        
+        client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
+        HttpResponseMessage response = await client.GetAsync(string.Format(Channel.IncompatibleFileApiUrl, tag));
+        
+        if (response.StatusCode != HttpStatusCode.OK) return Array.Empty<string>();
+        
+        string content = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<string[]>(content);
     }
 
     private static async Task<ReleaseInfo> GetLatestReleaseInfoAsync(string apiUrl)
     {
-        using (HttpClient client = new HttpClient())
-        {
-            client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-            HttpResponseMessage response = await client.GetAsync(apiUrl);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                string content = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<ReleaseInfo>(content);
-            }
-        }
+        using HttpClient client = new();
 
-        return new ReleaseInfo(false);
+        client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
+        HttpResponseMessage response = await client.GetAsync(apiUrl);
+
+        if (response.StatusCode != HttpStatusCode.OK) return new ReleaseInfo(false);
+
+        string content = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<ReleaseInfo>(content);
     }
 
     private static string ExtractVersionString(string versionString)

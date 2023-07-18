@@ -188,12 +188,10 @@ internal class RangeObservableCollection<T> : ObservableCollection<T>
             }
             else if (countable.Count == 1)
             {
-                using (IEnumerator<T> enumerator = countable.GetEnumerator())
-                {
-                    enumerator.MoveNext();
-                    Remove(enumerator.Current);
-                    return;
-                }
+                using var enumerator = countable.GetEnumerator();
+                enumerator.MoveNext();
+                Remove(enumerator.Current);
+                return;
             }
         }
         else if (!collection.Any())

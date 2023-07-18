@@ -15,36 +15,34 @@ public static class UpdateDownloader
     {
         Asset matchingAsset = GetMatchingAsset(release);
 
-        using (HttpClient client = new HttpClient())
-        {
-            client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-            client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-            var response = await client.GetAsync(matchingAsset.Url);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                CreateTempDirectory();
-                File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{release.TagName}.zip"), bytes);
-            }
-        }
+        using HttpClient client = new HttpClient();
+
+        client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
+        client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
+        var response = await client.GetAsync(matchingAsset.Url);
+        
+        if (response.StatusCode != HttpStatusCode.OK) return;
+        
+        byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+        CreateTempDirectory();
+        File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{release.TagName}.zip"), bytes);
     }
 
     public static async Task DownloadInstaller(ReleaseInfo info)
     {
         Asset matchingAsset = GetMatchingAsset(info, "application/x-msdownload");
 
-        using (HttpClient client = new HttpClient())
-        {
-            client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
-            client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
-            var response = await client.GetAsync(matchingAsset.Url);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-                CreateTempDirectory();
-                File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{info.TagName}.exe"), bytes);
-            }
-        }
+        using HttpClient client = new HttpClient();
+
+        client.DefaultRequestHeaders.Add("User-Agent", "PixiEditor");
+        client.DefaultRequestHeaders.Add("Accept", "application/octet-stream");
+        var response = await client.GetAsync(matchingAsset.Url);
+
+        if (response.StatusCode != HttpStatusCode.OK) return;
+        
+        byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+        CreateTempDirectory();
+        File.WriteAllBytes(Path.Join(DownloadLocation, $"update-{info.TagName}.exe"), bytes);
     }
 
     public static void CreateTempDirectory()
