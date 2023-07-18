@@ -31,10 +31,9 @@ internal class ColorSearchResult : SearchResult
 
     public override IImage Icon => icon;
 
-    public override Task Execute()
+    public override void Execute()
     {
         target(color);
-        return Task.CompletedTask;
     }
 
     private ColorSearchResult(DrawingApi.Core.ColorsImpl.Color color, Action<DrawingApi.Core.ColorsImpl.Color> target)

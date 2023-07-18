@@ -4,10 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="clr-namespace:PixiEditor.Avalonia.ViewModels"
              xmlns:main="clr-namespace:PixiEditor.Avalonia.Views.Main"
+             xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Avalonia.Views.MainView"
              x:DataType="vm:MainViewModel" Background="{DynamicResource ThemeBackgroundBrush}">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <main:MainTitleBar/>
       <DockControl x:Name="Dock" Grid.Row="1" InitializeLayout="True" InitializeFactory="True">
       <DockControl.Factory>

@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Models.DataHolders;
-using ReactiveUI;
 
 namespace PixiEditor.Models.Commands.Search;
 
-internal abstract class SearchResult : ReactiveObject
+internal abstract class SearchResult : ObservableObject
 {
     private bool isSelected;
     private bool isMouseSelected;
@@ -33,25 +33,25 @@ internal abstract class SearchResult : ReactiveObject
     public bool IsSelected
     {
         get => isSelected;
-        set => this.RaiseAndSetIfChanged(ref isSelected, value);
+        set => SetProperty(ref isSelected, value);
     }
 
     public bool IsMouseSelected
     {
         get => isMouseSelected;
-        set => this.RaiseAndSetIfChanged(ref isMouseSelected, value);
+        set => SetProperty(ref isMouseSelected, value);
     }
 
 
-    public abstract Task Execute();
+    public abstract void Execute();
 
     public virtual KeyCombination Shortcut { get; }
 
-    public IReactiveCommand ExecuteCommand { get; }
+    public ICommand ExecuteCommand { get; }
 
     public SearchResult()
     {
-        ExecuteCommand = ReactiveCommand.CreateFromTask(_ => Execute(), this.WhenAnyValue(x => CanExecute));
+        ExecuteCommand = new RelayCommand(Execute, () => CanExecute);
     }
 
     private IEnumerable<Inline> GetInlines()

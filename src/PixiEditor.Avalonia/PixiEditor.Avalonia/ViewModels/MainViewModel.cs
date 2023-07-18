@@ -1,23 +1,20 @@
 ﻿using System.Reactive;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands;
-using PixiEditor.Models.Localization;
-using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels;
-using ReactiveUI;
 
 namespace PixiEditor.Avalonia.ViewModels;
 
-internal class MainViewModel : ViewModelBase
+internal partial class MainViewModel : ViewModelBase
 {
     public event Action OnStartupEvent;
 
     public IServiceProvider Services { get; set; }
     public CommandController CommandController { get; set; }
-    public ReactiveCommand<Unit, Unit> OnStartupCommand { get; }
     public ToolsViewModel ToolsViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
@@ -25,7 +22,7 @@ internal class MainViewModel : ViewModelBase
 
     public MainViewModel()
     {
-        OnStartupCommand = ReactiveCommand.Create(OnStartup);
+
     }
 
     public void Setup(IServiceProvider services)
@@ -44,6 +41,7 @@ internal class MainViewModel : ViewModelBase
         CommandController.Init(services);
     }
 
+    [RelayCommand]
     private void OnStartup()
     {
         OnStartupEvent?.Invoke();

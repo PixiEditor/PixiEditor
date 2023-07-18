@@ -1,17 +1,14 @@
 ﻿using System.Diagnostics;
-using System.Windows.Input;
-using System.Windows.Media;
 using Avalonia.Media;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Evaluators;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Localization;
-using ReactiveUI;
 
 namespace PixiEditor.Models.Commands.Commands;
 
 [DebuggerDisplay("{InternalName,nq} ('{DisplayName,nq}')")]
-internal abstract partial class Command : ReactiveObject
+internal abstract partial class Command : ObservableObject
 {
     private KeyCombination _shortcut;
 
@@ -37,8 +34,7 @@ internal abstract partial class Command : ReactiveObject
         set
         {
             var oldValue = _shortcut;
-            var combination = this.RaiseAndSetIfChanged(ref _shortcut, value);
-            if (combination != oldValue)
+            if (SetProperty(ref _shortcut, value))
             {
                 ShortcutChanged?.Invoke(this, new(oldValue, value));
             }
@@ -61,8 +57,8 @@ internal abstract partial class Command : ReactiveObject
         DisplayName = new LocalizedString(DisplayName.Key, DisplayName.Parameters);
         Description = new LocalizedString(Description.Key, Description.Parameters);
 
-        this.RaisePropertyChanged(nameof(DisplayName));
-        this.RaisePropertyChanged(nameof(Description));
+        OnPropertyChanged(nameof(DisplayName));
+        OnPropertyChanged(nameof(Description));
     }
 
     public void Execute() => Methods.Execute(GetParameter());

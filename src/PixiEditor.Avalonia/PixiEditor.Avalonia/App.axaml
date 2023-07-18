@@ -7,5 +7,7 @@
 
     <Application.Styles>
         <themes:PixiEditorTheme />
+        <StyleInclude Source="/Styles/PixiEditor.Controls.axaml"/>
     </Application.Styles>
+
 </Application>

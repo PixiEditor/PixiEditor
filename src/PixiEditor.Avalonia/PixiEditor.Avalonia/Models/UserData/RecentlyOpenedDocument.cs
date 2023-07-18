@@ -1,18 +1,15 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using ChunkyImageLib;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Avalonia.Exceptions.Exceptions;
 using PixiEditor.Parser.Deprecated;
-using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Parser;
-using ReactiveUI;
 
 namespace PixiEditor.Models.DataHolders;
 
 [DebuggerDisplay("{FilePath}")]
-internal class RecentlyOpenedDocument : ReactiveObject
+internal class RecentlyOpenedDocument : ObservableObject
 {
     private bool corrupt;
 
@@ -25,9 +22,9 @@ internal class RecentlyOpenedDocument : ReactiveObject
         get => filePath;
         set
         {
-            this.RaiseAndSetIfChanged(ref filePath, value);
-            this.RaisePropertyChanged(nameof(FileName));
-            this.RaisePropertyChanged(nameof(FileExtension));
+            SetProperty(ref filePath, value);
+            this.OnPropertyChanged(nameof(FileName));
+            this.OnPropertyChanged(nameof(FileExtension));
             PreviewBitmap = null;
         }
     }
@@ -35,7 +32,7 @@ internal class RecentlyOpenedDocument : ReactiveObject
     public bool Corrupt
     {
         get => corrupt;
-        set => this.RaiseAndSetIfChanged(ref corrupt, value);
+        set => SetProperty(ref corrupt, value);
     }
 
     public string FileName => Path.GetFileNameWithoutExtension(filePath);
@@ -70,7 +67,7 @@ internal class RecentlyOpenedDocument : ReactiveObject
 
             return previewBitmap;
         }
-        private set => this.RaiseAndSetIfChanged(ref previewBitmap, value);
+        private set => SetProperty(ref previewBitmap, value);
     }
 
     public RecentlyOpenedDocument(string path)

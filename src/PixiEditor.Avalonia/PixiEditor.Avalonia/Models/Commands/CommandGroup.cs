@@ -1,14 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Avalonia.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.DataHolders;
-using ReactiveUI;
 
 namespace PixiEditor.Models.Commands;
 
-internal class CommandGroup : ReactiveObject
+internal class CommandGroup : ObservableObject
 {
     private readonly Command[] commands;
     private readonly Command[] visibleCommands;
@@ -18,7 +18,7 @@ internal class CommandGroup : ReactiveObject
     public LocalizedString DisplayName
     {
         get => displayName;
-        set => this.RaiseAndSetIfChanged(ref displayName, value);
+        set => SetProperty(ref displayName, value);
     }
 
     public bool HasAssignedShortcuts { get; set; }

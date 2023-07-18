@@ -70,7 +70,8 @@
                         <Separator />
                         <MenuItem
                             ui:Translator.Key="EXIT"
-                            Command="{x:Static viewModels:SystemCommands.CloseWindowCommand}">
+                            Command="{x:Static viewModels:SystemCommands.CloseWindowCommand}"
+                            >
                             <MenuItem.Icon>
                                 <TextBlock Text="&#xE106;" FontFamily="{DynamicResource NativeIconFont}" FontSize="20"/>
                             </MenuItem.Icon>

@@ -1,33 +1,29 @@
-﻿using System.Reactive;
-using Avalonia.Controls;
-using ReactiveUI;
+﻿using Avalonia.Controls;
+using Avalonia.Interactivity;
+using CommunityToolkit.Mvvm.Input;
 
 namespace PixiEditor.Avalonia.ViewModels;
 
 public static class SystemCommands
 {
-    public static ReactiveCommand<Window, Unit> CloseWindowCommand { get; } = ReactiveCommand.Create<Window>(CloseWindow);
-    public static ReactiveCommand<Window, Unit> MaximizeWindowCommand { get; } = ReactiveCommand.Create<Window>(MaximizeWindow);
-    public static ReactiveCommand<Window, Unit> MinimizeWindowCommand { get; } = ReactiveCommand.Create<Window>(MinimizeWindow);
-    public static ReactiveCommand<Window, Unit> RestoreWindowCommand { get; } = ReactiveCommand.Create<Window>(RestoreWindow);
+    public static RoutedEvent<RoutedEventArgs> CloseWindowEvent { get; }
+        = RoutedEvent.Register<Window, RoutedEventArgs>(nameof(CloseWindowEvent), RoutingStrategies.Bubble);
+    public static RoutedEvent<RoutedEventArgs> MaximizeWindowEvent { get; }
+        = RoutedEvent.Register<Window, RoutedEventArgs>(nameof(MaximizeWindowEvent), RoutingStrategies.Bubble);
+    public static RoutedEvent<RoutedEventArgs> MinimizeWindowEvent { get; }
+        = RoutedEvent.Register<Window, RoutedEventArgs>(nameof(MinimizeWindowEvent), RoutingStrategies.Bubble);
+    public static RoutedEvent<RoutedEventArgs> RestoreWindowEvent { get; }
+        = RoutedEvent.Register<Window, RoutedEventArgs>(nameof(RestoreWindowEvent), RoutingStrategies.Bubble);
 
-    public static void CloseWindow(Window window)
+    public static RelayCommand<Window> CloseWindowCommand { get; }
+
+    static SystemCommands()
     {
-        window.Close();
+        CloseWindowCommand = new RelayCommand<Window>(CloseWindow);
     }
 
-    public static void MaximizeWindow(Window window)
+    private static void CloseWindow(Window? obj)
     {
-        window.WindowState = WindowState.Maximized;
-    }
 
-    public static void MinimizeWindow(Window window)
-    {
-        window.WindowState = WindowState.Minimized;
-    }
-
-    public static void RestoreWindow(Window window)
-    {
-        window.WindowState = WindowState.Normal;
     }
 }

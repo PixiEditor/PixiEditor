@@ -33,7 +33,7 @@ internal class FileSearchResult : SearchResult
         this.asReferenceLayer = asReferenceLayer;
     }
 
-    public override Task Execute()
+    public override void Execute()
     {
         if (!asReferenceLayer)
         {
@@ -48,7 +48,5 @@ internal class FileSearchResult : SearchResult
                     .Execute(FilePath);
             }
         }
-
-        return Task.CompletedTask;
     }
 }

@@ -20,9 +20,8 @@ internal class CommandSearchResult : SearchResult
 
     public CommandSearchResult(Command command) => Command = command;
 
-    public override Task Execute()
+    public override void Execute()
     {
         Command.Execute();
-        return Task.CompletedTask;
     }
 }

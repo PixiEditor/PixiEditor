@@ -2,7 +2,6 @@
 using Avalonia.Controls;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
-using ReactiveUI;
 
 namespace PixiEditor.Models.Commands.XAML;
 
@@ -42,14 +41,15 @@ internal class Menu : global::Avalonia.Controls.Menu
             Opacity = command.CanExecute() ? 1 : 0.75
         };
 
-        icon.IsVisible.WhenAnyValue(v => v).Subscribe(newValue =>
+        icon.PropertyChanged += (sender, args) =>
         {
-            icon.Opacity = command.CanExecute() ? 1 : 0.75;
+            if (args.Property.Name == nameof(icon.IsVisible))
+            {
+                icon.Opacity = command.CanExecute() ? 1 : 0.75;
+            }
+        };
 
-        });
-
-        //TODO: This, some ReactiveUI shit should be here, https://docs.avaloniaui.net/docs/next/concepts/reactiveui/reactive-command
-        //item.Command = Command.GetICommand(command, false);
+        item.Command = Command.GetICommand(command, false);
         item.Icon = icon;
         item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null));
     }
