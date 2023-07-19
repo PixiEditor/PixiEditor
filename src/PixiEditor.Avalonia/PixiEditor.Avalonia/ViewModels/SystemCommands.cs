@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.Input;
 
@@ -15,15 +17,10 @@ public static class SystemCommands
     public static RoutedEvent<RoutedEventArgs> RestoreWindowEvent { get; }
         = RoutedEvent.Register<Window, RoutedEventArgs>(nameof(RestoreWindowEvent), RoutingStrategies.Bubble);
 
-    public static RelayCommand<Window> CloseWindowCommand { get; }
-
-    static SystemCommands()
-    {
-        CloseWindowCommand = new RelayCommand<Window>(CloseWindow);
-    }
+    public static ICommand CloseWindowCommand { get; } = new RelayCommand<Window>(CloseWindow);
 
     private static void CloseWindow(Window? obj)
     {
-
+        // TODO: Close window, this is just a placeholder, won't work
     }
 }

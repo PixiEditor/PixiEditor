@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.DrawingApi.Core.Bridge;

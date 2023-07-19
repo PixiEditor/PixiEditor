@@ -6,6 +6,7 @@
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
              xmlns:viewModels="clr-namespace:PixiEditor.Avalonia.ViewModels"
+             xmlns:views="clr-namespace:PixiEditor.Avalonia.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.Avalonia.Views.Main.MainTitleBar">
             <xaml:Menu
@@ -70,8 +71,7 @@
                         <Separator />
                         <MenuItem
                             ui:Translator.Key="EXIT"
-                            Command="{x:Static viewModels:SystemCommands.CloseWindowCommand}"
-                            >
+                            Command="{x:Static viewModels:SystemCommands.CloseWindowCommand}">
                             <MenuItem.Icon>
                                 <TextBlock Text="&#xE106;" FontFamily="{DynamicResource NativeIconFont}" FontSize="20"/>
                             </MenuItem.Icon>

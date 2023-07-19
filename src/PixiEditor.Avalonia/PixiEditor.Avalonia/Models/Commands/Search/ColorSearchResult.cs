@@ -27,7 +27,7 @@ internal class ColorSearchResult : SearchResult
     };
 
     //public override bool CanExecute => !requiresDocument || (requiresDocument && ViewModelMain.Current.BitmapManager.ActiveDocument != null);
-    public override bool CanExecute => !isPalettePaste || (IDocumentHandler.Instance != null && IDocumentHandler.Instance.HasActiveDocument);
+    public override bool CanExecute => !isPalettePaste || (IDocumentManagerHandler.Instance != null && IDocumentManagerHandler.Instance.HasActiveDocument);
 
     public override IImage Icon => icon;
 
@@ -51,7 +51,7 @@ internal class ColorSearchResult : SearchResult
     public static ColorSearchResult PastePalette(DrawingApi.Core.ColorsImpl.Color color, string searchTerm = null)
     {
         var result = new ColorSearchResult(color, x =>
-            IDocumentHandler.Instance.ActiveDocument.Palette.Add(new PaletteColor(x.R, x.G, x.B)))
+            IDocumentManagerHandler.Instance.ActiveDocument.Palette.Add(new PaletteColor(x.R, x.G, x.B)))
         {
             SearchTerm = searchTerm,
             isPalettePaste = true

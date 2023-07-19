@@ -3,9 +3,9 @@ using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.Models.Containers;
 
-internal interface IDocumentHandler
+internal interface IDocumentManagerHandler
 {
-    public static IDocumentHandler? Instance { get; }
+    public static IDocumentManagerHandler? Instance { get; }
     public bool HasActiveDocument { get; }
     public IDocument? ActiveDocument { get; set; }
 }
