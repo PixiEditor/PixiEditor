@@ -5,7 +5,7 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.Models.Containers;
 
-internal interface IStructureMemberHandler
+internal interface IStructureMemberHandler : IHandler
 {
     public bool HasMaskBindable { get; }
     public Guid GuidValue { get; }
@@ -16,6 +16,7 @@ internal interface IStructureMemberHandler
     public WriteableBitmap? MaskPreviewBitmap { get; set; }
     public bool MaskIsVisibleBindable { get; set; }
     public StructureMemberSelectionType Selection { get; set; }
+    public float OpacityBindable { get; set; }
     public void SetMaskIsVisible(bool infoIsVisible);
     public void SetClipToMemberBelowEnabled(bool infoClipToMemberBelow);
     public void SetBlendMode(BlendMode infoBlendMode);

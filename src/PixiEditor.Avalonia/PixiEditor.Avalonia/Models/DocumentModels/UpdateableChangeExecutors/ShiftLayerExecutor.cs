@@ -1,9 +1,11 @@
-﻿using ChunkyImageLib.DataHolders;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ChunkyImageLib.DataHolders;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -11,17 +13,16 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
 {
     private List<Guid> _affectedMemberGuids = new List<Guid>();
     private VecI startPos;
-    private MoveToolViewModel? tool;
+    private IMoveToolHandler? tool;
 
     public override ExecutorStartMode StartMode => ExecutorStartMode.OnMouseLeftButtonDown;
 
     public override ExecutionState Start()
     {
-        ViewModelMain? vm = ViewModelMain.Current;
-        StructureMemberViewModel? member = document!.SelectedStructureMember;
+        IStructureMemberHandler? member = document!.SelectedStructureMember;
         
-        tool = ViewModelMain.Current?.ToolsSubViewModel.GetTool<MoveToolViewModel>();
-        if (vm is null || tool is null)
+        tool = GetHandler<IMoveToolHandler>();
+        if (tool is null)
             return ExecutionState.Error;
 
         if (tool.MoveAllLayers)
@@ -50,7 +51,7 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
         for (var i = 0; i < affectedMemberGuids.Count; i++)
         {
             var guid = affectedMemberGuids[i];
-            if (document!.StructureHelper.FindOrThrow(guid) is LayerViewModel { ShouldDrawOnMask: true })
+            if (document!.StructureHelper.FindOrThrow(guid) is ILayerHandler { ShouldDrawOnMask: true })
             {
                 _affectedMemberGuids.Remove(guid);
                 i--;

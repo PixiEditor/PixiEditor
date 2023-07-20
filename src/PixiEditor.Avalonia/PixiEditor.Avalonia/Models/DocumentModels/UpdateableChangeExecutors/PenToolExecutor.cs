@@ -1,12 +1,11 @@
-﻿using ChunkyImageLib.DataHolders;
-using PixiEditor.ChangeableDocument.Actions;
+﻿using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -20,23 +19,24 @@ internal class PenToolExecutor : UpdateableChangeExecutor
 
     public override ExecutionState Start()
     {
-        ViewModelMain? vm = ViewModelMain.Current;
-        StructureMemberViewModel? member = document!.SelectedStructureMember;
-        PenToolViewModel? penTool = vm?.ToolsSubViewModel.GetTool<PenToolViewModel>();
-        if (vm is null || penTool is null || member is null || penTool?.Toolbar is not BasicToolbar toolbar)
+        IStructureMemberHandler? member = document!.SelectedStructureMember;
+        IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
+
+        IPenToolHandler? penTool = GetHandler<IPenToolHandler>();
+        if (colorsHandler is null || penTool is null || member is null || penTool?.Toolbar is not BasicToolbar toolbar)
             return ExecutionState.Error;
-        drawOnMask = member is not LayerViewModel layer || layer.ShouldDrawOnMask;
+        drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
-        if (!drawOnMask && member is not LayerViewModel)
+        if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
         guidValue = member.GuidValue;
-        color = vm.ColorsSubViewModel.PrimaryColor;
+        color = colorsHandler.PrimaryColor;
         toolSize = toolbar.ToolSize;
         pixelPerfect = penTool.PixelPerfectEnabled;
 
-        vm.ColorsSubViewModel.AddSwatch(new PaletteColor(color.R, color.G, color.B));
+        colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = pixelPerfect switch
         {
             false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, toolSize, false, drawOnMask),

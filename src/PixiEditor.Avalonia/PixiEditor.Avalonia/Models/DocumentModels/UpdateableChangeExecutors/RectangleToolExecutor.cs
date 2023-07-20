@@ -1,12 +1,13 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class RectangleToolExecutor : ShapeToolExecutor<RectangleToolViewModel>
+internal class RectangleToolExecutor : ShapeToolExecutor<IRectangleToolHandler>
 {
     public override ExecutorType Type => ExecutorType.ToolLinked;
     private void DrawRectangle(VecI curPos, bool firstDraw)

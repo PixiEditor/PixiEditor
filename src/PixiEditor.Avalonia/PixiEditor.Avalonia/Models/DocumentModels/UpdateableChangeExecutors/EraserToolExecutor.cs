@@ -1,12 +1,12 @@
 ﻿#nullable enable
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -19,16 +19,15 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
 
     public override ExecutionState Start()
     {
-        ViewModelMain? vm = ViewModelMain.Current;
-        StructureMemberViewModel? member = document!.SelectedStructureMember;
-        EraserToolViewModel? eraserTool = (EraserToolViewModel?)(vm?.ToolsSubViewModel.GetTool<EraserToolViewModel>());
+        IStructureMemberHandler? member = document!.SelectedStructureMember;
+        IEraserToolHandler? eraserTool = GetHandler<IEraserToolHandler>();
         BasicToolbar? toolbar = eraserTool?.Toolbar as BasicToolbar;
         if (vm is null || eraserTool is null || member is null || toolbar is null)
             return ExecutionState.Error;
-        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
+        drawOnMask = member is ILayerHandler layer ? layer.ShouldDrawOnMask : true;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
-        if (!drawOnMask && member is not LayerViewModel)
+        if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
         guidValue = member.GuidValue;

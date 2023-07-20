@@ -1,14 +1,13 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Actions;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -25,20 +24,20 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     private VecI curPos;
     private bool started = false;
     private bool transforming = false;
-    private LineToolViewModel? toolViewModel;
+    private ILineToolHandler? toolViewModel;
 
     public override ExecutionState Start()
     {
-        ColorsViewModel? colorsVM = ViewModelMain.Current?.ColorsSubViewModel;
-        toolViewModel = ViewModelMain.Current?.ToolsSubViewModel.GetTool<LineToolViewModel>();
-        StructureMemberViewModel? member = document?.SelectedStructureMember;
+        IColorsHandler? colorsVM = GetHandler<IColorsHandler>();
+        toolViewModel = GetHandler<ILineToolHandler>();
+        IStructureMemberHandler? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolViewModel is null || member is null)
             return ExecutionState.Error;
 
-        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
+        drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
-        if (!drawOnMask && member is not LayerViewModel)
+        if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
         startPos = controller!.LastPixelPosition;
@@ -58,7 +57,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         started = true;
 
         if (toolViewModel!.Snap)
-            pos = ShapeToolExecutor<ShapeTool>.Get45IncrementedPosition(startPos, pos);
+            pos = ShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startPos, pos);
         curPos = pos;
         internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, pos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
     }
@@ -71,7 +70,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
             return;
         }
 
-        document!.LineToolOverlayViewModel.Show(startPos + new VecD(0.5), curPos + new VecD(0.5));
+        document!.LineToolOverlayHandler.Show(startPos + new VecD(0.5), curPos + new VecD(0.5));
         transforming = true;
     }
 
@@ -86,21 +85,21 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     {
         if (!transforming)
             return;
-        document!.LineToolOverlayViewModel.Nudge(distance);
+        document!.LineToolOverlayHandler.Nudge(distance);
     }
 
     public override void OnMidChangeUndo()
     {
         if (!transforming)
             return;
-        document!.LineToolOverlayViewModel.Undo();
+        document!.LineToolOverlayHandler.Undo();
     }
 
     public override void OnMidChangeRedo()
     {
         if (!transforming)
             return;
-        document!.LineToolOverlayViewModel.Redo();
+        document!.LineToolOverlayHandler.Redo();
     }
 
     public override void OnTransformApplied()
@@ -108,7 +107,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         if (!transforming)
             return;
 
-        document!.LineToolOverlayViewModel.Hide();
+        document!.LineToolOverlayHandler.Hide();
         internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
         onEnded!(this);
     }
@@ -116,7 +115,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     public override void ForceStop()
     {
         if (transforming)
-            document!.LineToolOverlayViewModel.Hide();
+            document!.LineToolOverlayHandler.Hide();
 
         internals!.ActionAccumulator.AddFinishedActions(new EndDrawLine_Action());
     }

@@ -2,16 +2,18 @@
 using Avalonia.Media.Imaging;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.Avalonia.Helpers;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Models.Containers;
 
-internal interface IDocument
+internal interface IDocument : IHandler
 {
     public List<PaletteColor> Palette { get; set; }
     public VecI SizeBindable { get; set; }
@@ -31,6 +33,11 @@ internal interface IDocument
     public IFolderHandlerFactory FolderHandlerFactory { get; set; }
     public ITransformHandler TransformHandler { get; }
     public bool Busy { get; set; }
+    public ILineOverlayHandler LineToolOverlayHandler { get; set; }
+    public bool HorizontalSymmetryAxisEnabledBindable { get; set; }
+    public bool VerticalSymmetryAxisEnabledBindable { get; set; }
+    public double HorizontalSymmetryAxisYBindable { get; set; }
+    public double VerticalSymmetryAxisXBindable { get; set; }
     public void RemoveSoftSelectedMember(IStructureMemberHandler member);
     public void ClearSoftSelectedMembers();
     public void AddSoftSelectedMember(IStructureMemberHandler member);
@@ -41,4 +48,6 @@ internal interface IDocument
     public void SetVerticalSymmetryAxisEnabled(bool infoState);
     public void UpdateSelectionPath(VectorPath infoNewPath);
     public void SetSize(VecI infoSize);
+    public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference, bool includeCanvas, bool isTopMost);
+    public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
 }

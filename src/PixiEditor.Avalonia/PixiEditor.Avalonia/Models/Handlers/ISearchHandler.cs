@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Containers;
 
-internal  interface ISearchHandler
+internal interface ISearchHandler : IHandler
 {
     public void OpenSearchWindow(string searchQuery);
 }

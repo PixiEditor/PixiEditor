@@ -1,9 +1,10 @@
-﻿using PixiEditor.ChangeableDocument.Actions.Undo;
+﻿using System.Collections.Generic;
+using System.Linq;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -16,7 +17,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
 
     public override ExecutionState Start()
     {
-        var magicWand = ViewModelMain.Current?.ToolsSubViewModel.GetTool<MagicWandToolViewModel>();
+        var magicWand = GetHandler<IMagicWandToolHandler>();
         var members = document!.ExtractSelectedLayers(true);
 
         if (magicWand is null || members.Count == 0)

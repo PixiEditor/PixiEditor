@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Enums;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Models.Enums;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
 

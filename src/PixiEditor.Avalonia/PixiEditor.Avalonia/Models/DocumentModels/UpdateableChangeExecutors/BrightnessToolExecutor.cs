@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
@@ -16,8 +17,8 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
     public override ExecutionState Start()
     {
         IStructureMemberHandler? member = document!.SelectedStructureMember;
-        BrightnessToolViewModel? tool = vm?.ToolsSubViewModel.GetTool<BrightnessToolViewModel>();
-        if (vm is null || tool is null || member is null)
+        IBrightnessToolHandler? tool = GetHandler<IBrightnessToolHandler>();
+        if (tool is null || member is null)
             return ExecutionState.Error;
         if (member is not ILayerHandler layer || layer.ShouldDrawOnMask)
             return ExecutionState.Error;

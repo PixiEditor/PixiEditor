@@ -5,10 +5,12 @@ using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Models.Containers;
 
-public interface IReferenceLayerHandler
+public interface IReferenceLayerHandler : IHandler
 {
     public WriteableBitmap? ReferenceBitmap { get; protected set; }
     public ShapeCorners ReferenceShapeBindable { get; set; }
+    public bool IsTopMost { get; set; }
+    public bool IsTransforming { get; set; }
     public void SetReferenceLayerIsVisible(bool infoIsVisible);
     public void TransformReferenceLayer(ShapeCorners infoCorners);
     public void DeleteReferenceLayer();

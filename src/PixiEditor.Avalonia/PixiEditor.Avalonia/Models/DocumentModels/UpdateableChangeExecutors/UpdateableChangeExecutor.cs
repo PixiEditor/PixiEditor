@@ -1,6 +1,8 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.Generic;
+using System.Windows.Input;
 using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.Avalonia.Exceptions.Exceptions;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Containers;
@@ -14,13 +16,15 @@ internal abstract class UpdateableChangeExecutor
     protected IDocument? document;
     protected DocumentInternalParts? internals;
     protected ChangeExecutionController? controller;
+    protected IReadOnlyCollection<IHandler> handlers;
     private bool initialized = false;
 
     protected Action<UpdateableChangeExecutor>? onEnded;
     public virtual ExecutorType Type => ExecutorType.Regular;
     public virtual ExecutorStartMode StartMode => ExecutorStartMode.RightAway;
 
-    public void Initialize(IDocument document, DocumentInternalParts internals, ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)
+    public void Initialize(IDocument document, DocumentInternalParts internals, List<IHandler> list,
+        ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)
     {
         if (initialized)
             throw new InvalidOperationException();
@@ -29,7 +33,22 @@ internal abstract class UpdateableChangeExecutor
         this.document = document;
         this.internals = internals;
         this.controller = controller;
+        handlers = list;
         this.onEnded = onEnded;
+    }
+
+    protected T GetHandler<T>()
+        where T : IHandler
+    {
+        foreach (var handler in handlers)
+        {
+            if (handler is T t)
+            {
+                return t;
+            }
+        }
+
+        throw new DependencyNotFoundException(typeof(T));
     }
 
     public abstract ExecutionState Start();

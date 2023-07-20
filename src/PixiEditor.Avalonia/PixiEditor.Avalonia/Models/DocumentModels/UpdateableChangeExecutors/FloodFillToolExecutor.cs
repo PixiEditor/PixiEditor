@@ -1,10 +1,11 @@
-﻿using PixiEditor.ChangeableDocument.Actions.Undo;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
@@ -17,16 +18,16 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
 
     public override ExecutionState Start()
     {
-        var fillTool = ViewModelMain.Current?.ToolsSubViewModel.GetTool<FloodFillToolViewModel>();
-        ColorsViewModel? colorsVM = ViewModelMain.Current?.ColorsSubViewModel;
+        var fillTool = GetHandler<IFloodFillToolHandler>();
+        IColorsHandler? colorsVM = GetHandler<IColorsHandler>();
         var member = document!.SelectedStructureMember;
 
         if (fillTool is null || member is null || colorsVM is null)
             return ExecutionState.Error;
-        drawOnMask = member is LayerViewModel layer ? layer.ShouldDrawOnMask : true;
+        drawOnMask = member is ILayerHandler layer ? layer.ShouldDrawOnMask : true;
         if (drawOnMask && !member.HasMaskBindable)
             return ExecutionState.Error;
-        if (!drawOnMask && member is not LayerViewModel)
+        if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
         colorsVM.AddSwatch(new PaletteColor(color.R, color.G, color.B));

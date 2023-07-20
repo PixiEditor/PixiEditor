@@ -3,7 +3,7 @@ using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.Models.Containers;
 
-internal interface IDocumentManagerHandler
+internal interface IDocumentManagerHandler : IHandler
 {
     public static IDocumentManagerHandler? Instance { get; }
     public bool HasActiveDocument { get; }

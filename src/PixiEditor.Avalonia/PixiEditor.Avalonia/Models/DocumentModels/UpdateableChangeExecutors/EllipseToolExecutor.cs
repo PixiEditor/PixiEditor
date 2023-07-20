@@ -2,12 +2,12 @@
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable
-internal class EllipseToolExecutor : ShapeToolExecutor<EllipseToolViewModel>
+internal class EllipseToolExecutor : ShapeToolExecutor<IEllipseToolHandler>
 {
     private void DrawEllipseOrCircle(VecI curPos, bool firstDraw)
     {

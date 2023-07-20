@@ -1,8 +1,8 @@
-﻿using PixiEditor.ChangeableDocument.Enums;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -12,7 +12,7 @@ internal sealed class LassoToolExecutor : UpdateableChangeExecutor
     
     public override ExecutionState Start()
     {
-        mode = ViewModelMain.Current?.ToolsSubViewModel.GetTool<LassoToolViewModel>()?.ResultingSelectionMode;
+        mode = GetHandler<ILassoToolHandler>()?.ResultingSelectionMode;
 
         if (mode is null)
             return ExecutionState.Error;

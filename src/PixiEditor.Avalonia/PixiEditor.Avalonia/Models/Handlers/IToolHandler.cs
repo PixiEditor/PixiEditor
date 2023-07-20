@@ -4,7 +4,7 @@ using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.Models.Containers;
 
-internal  interface IToolHandler
+internal interface IToolHandler : IHandler
 {
     public bool IsTransient { get; set; }
     public LocalizedString DisplayName => new LocalizedString(ToolNameLocalizationKey);

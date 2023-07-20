@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Enums;
+﻿using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.Models.Enums;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class StructureMemberOpacityExecutor : UpdateableChangeExecutor
