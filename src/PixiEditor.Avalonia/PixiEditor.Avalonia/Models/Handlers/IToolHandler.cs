@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Containers.Toolbars;
 
 namespace PixiEditor.Models.Containers;
 
@@ -14,6 +15,8 @@ internal interface IToolHandler : IHandler
     //public virtual BrushShape BrushShape => BrushShape.Square;
 
     public bool HideHighlight { get; }
+
+    public IToolbar Toolbar { get; set; }
 
     public abstract LocalizedString Tooltip { get; }
 

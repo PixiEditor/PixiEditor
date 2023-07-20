@@ -3,12 +3,11 @@ using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Toolbars;
 using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
-using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Tools;
-using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 
@@ -33,7 +32,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
     {
         IColorsHandler? colorsVM = GetHandler<IColorsHandler>();
         toolViewModel = GetHandler<T>();
-        BasicShapeToolbar? toolbar = (BasicShapeToolbar?)toolViewModel?.Toolbar;
+        IBasicShapeToolbar? toolbar = (IBasicShapeToolbar?)toolViewModel?.Toolbar;
         IStructureMemberHandler? member = document?.SelectedStructureMember;
         if (colorsVM is null || toolbar is null || member is null)
             return ExecutionState.Error;

@@ -5,6 +5,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Toolbars;
 using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
 
@@ -21,8 +22,10 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
     {
         IStructureMemberHandler? member = document!.SelectedStructureMember;
         IEraserToolHandler? eraserTool = GetHandler<IEraserToolHandler>();
-        BasicToolbar? toolbar = eraserTool?.Toolbar as BasicToolbar;
-        if (vm is null || eraserTool is null || member is null || toolbar is null)
+        IBasicToolbar? toolbar = eraserTool?.Toolbar as IBasicToolbar;
+        IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
+
+        if (colorsHandler is null || eraserTool is null || member is null || toolbar is null)
             return ExecutionState.Error;
         drawOnMask = member is ILayerHandler layer ? layer.ShouldDrawOnMask : true;
         if (drawOnMask && !member.HasMaskBindable)
@@ -30,11 +33,12 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
+
         guidValue = member.GuidValue;
-        color = vm.ColorsSubViewModel.PrimaryColor;
+        color = GetHandler<IColorsHandler>().PrimaryColor;
         toolSize = toolbar.ToolSize;
 
-        vm.ColorsSubViewModel.AddSwatch(new PaletteColor(color.R, color.G, color.B));
+        colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = new LineBasedPen_Action(guidValue, DrawingApi.Core.ColorsImpl.Colors.Transparent, controller!.LastPixelPosition, toolSize, true,
             drawOnMask);
         internals!.ActionAccumulator.AddActions(action);

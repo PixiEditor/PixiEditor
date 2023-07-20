@@ -4,6 +4,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Toolbars;
 using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
 
@@ -23,7 +24,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         IColorsHandler? colorsHandler = GetHandler<IColorsHandler>();
 
         IPenToolHandler? penTool = GetHandler<IPenToolHandler>();
-        if (colorsHandler is null || penTool is null || member is null || penTool?.Toolbar is not BasicToolbar toolbar)
+        if (colorsHandler is null || penTool is null || member is null || penTool?.Toolbar is not IBasicToolbar toolbar)
             return ExecutionState.Error;
         drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)

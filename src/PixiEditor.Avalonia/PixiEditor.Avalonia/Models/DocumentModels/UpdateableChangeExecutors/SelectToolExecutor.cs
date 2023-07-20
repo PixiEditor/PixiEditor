@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Models.Containers.Toolbars;
 using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
 
@@ -10,7 +11,7 @@ namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class SelectToolExecutor : UpdateableChangeExecutor
 {
     private ISelectToolHandler? toolViewModel;
-    private Toolbar? toolbar;
+    private IToolbar? toolbar;
     private VecI startPos;
     private SelectionShape selectShape;
     private SelectionMode selectMode;

@@ -13,4 +13,9 @@ internal class ToolsViewModel : SubViewModel<MainViewModel>, IToolsHandler
     {
         throw new NotImplementedException();
     }
+
+    public void RestorePreviousTool()
+    {
+        throw new NotImplementedException();
+    }
 }
