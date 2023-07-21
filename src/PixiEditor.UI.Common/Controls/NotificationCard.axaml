@@ -7,7 +7,7 @@
     <Setter Property="UseLayoutRounding" Value="True" />
     <Setter Property="Width" Value="350" />
     <Setter Property="FontSize" Value="14" />
-    <Setter Property="Foreground" Value="White" />
+    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}"/>
     <Setter Property="RenderTransformOrigin" Value="50%,75%" />
     <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
     <Setter Property="Template">

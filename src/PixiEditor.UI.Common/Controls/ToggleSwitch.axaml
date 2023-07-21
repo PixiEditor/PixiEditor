@@ -151,7 +151,7 @@
 
     <!-- PointerOverState -->
     <Style Selector="^:pointerover /template/ Border#OuterBorder">
-      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighColor}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
       <Setter Property="Background" Value="Transparent" />
     </Style>
 
@@ -160,12 +160,11 @@
     </Style>
 
     <Style Selector="^:pointerover /template/ Ellipse#SwitchKnobOn">
-      <Setter Property="Fill" Value="{DynamicResource HighlightForegroundColor}" />
+      <Setter Property="Fill" Value="{DynamicResource ThemeControlHighlightBrush}" />
     </Style>
 
     <Style Selector="^:pointerover /template/ Border#SwitchKnobBounds">
-      <Setter Property="Background" Value="{DynamicResource ThemeAccentColor2}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccentColor2}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlHighlightBrush}" />
     </Style>
 
     <Style Selector="^:pointerover /template/ Grid#SwitchAreaGrid">
@@ -220,7 +219,7 @@
 
     <!-- CheckedState -->
     <Style Selector="^:checked /template/ Border#OuterBorder">
-      <Setter Property="Opacity" Value="0" />
+        <Setter Property="Background" Value="{DynamicResource ThemeAccent2Brush}" />
     </Style>
 
     <Style Selector="^:checked  /template/ Ellipse#SwitchKnobOff">

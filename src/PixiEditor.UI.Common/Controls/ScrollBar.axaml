@@ -38,7 +38,10 @@
                                 Classes="repeattrack"
                                 Focusable="False" />
                 </Track.IncreaseButton>
-                <Thumb Name="thumb" />
+                  <Thumb Name="thumb"
+                         CornerRadius="{DynamicResource ControlCornerRadius}"
+                         Background="{DynamicResource ThemeControlHighBrush}"/>
+
               </Track>
               <RepeatButton Name="PART_LineDownButton"
                             Grid.Row="2"
@@ -88,7 +91,9 @@
                                 Classes="repeattrack"
                                 Focusable="False" />
                 </Track.IncreaseButton>
-                <Thumb Name="thumb" />
+                <Thumb Name="thumb"
+                       CornerRadius="{DynamicResource ControlCornerRadius}"
+                       Background="{DynamicResource ThemeControlHighBrush}"/>
               </Track>
               <RepeatButton Name="PART_LineDownButton"
                             Grid.Row="2"
@@ -109,16 +114,17 @@
       <Setter Property="Template">
         <Setter.Value>
           <ControlTemplate>
-            <Border Background="{TemplateBinding Background}" />
+            <Border Background="{TemplateBinding Background}"
+                    CornerRadius="{TemplateBinding CornerRadius}" />
           </ControlTemplate>
         </Setter.Value>
       </Setter>
     </Style>
     <Style Selector="^ /template/ Thumb#thumb:pointerover">
-      <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+      <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
     </Style>
     <Style Selector="^ /template/ Thumb#thumb:pressed">
-      <Setter Property="Background" Value="{DynamicResource ThemeControlVeryHighBrush}" />
+      <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
     </Style>
     <Style Selector="^:horizontal /template/ Thumb#thumb">
       <Setter Property="MinWidth" Value="{DynamicResource ScrollBarThickness}" />
@@ -141,11 +147,12 @@
     </Style>
 
     <Style Selector="^ /template/ RepeatButton > Path">
-      <Setter Property="Fill" Value="{DynamicResource ThemeForegroundLowBrush}" />
+      <Setter Property="Fill" Value="{DynamicResource ThemeForegroundBrush}" />
+      <Setter Property="Opacity" Value="0.5"/>
     </Style>
 
     <Style Selector="^ /template/ RepeatButton:pointerover > Path">
-      <Setter Property="Fill" Value="{DynamicResource ThemeAccentBrush}" />
+        <Setter Property="Opacity" Value="1"/>
     </Style>
   </ControlTheme>
 </ResourceDictionary>
