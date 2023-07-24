@@ -22,7 +22,7 @@ internal partial class MainWindow : Window
     private readonly IServiceProvider services;
     private static ExtensionLoader extLoader;
 
-    public new MainViewModel DataContext { get => (MainViewModel)base.DataContext; set => base.DataContext = value; }
+    public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
 
     public MainWindow(ExtensionLoader extensionLoader)
     {
@@ -39,7 +39,7 @@ internal partial class MainWindow : Window
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
-        DataContext = services.GetRequiredService<MainViewModel>();
+        DataContext = services.GetRequiredService<ViewModelMain>();
         DataContext.Setup(services);
 
         InitializeComponent();

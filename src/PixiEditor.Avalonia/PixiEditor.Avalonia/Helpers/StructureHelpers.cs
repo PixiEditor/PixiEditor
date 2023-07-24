@@ -21,19 +21,4 @@ public static class StructureHelpers
             new VecI(Math.Max((int)Math.Round(prSize / proportions), 1), prSize) :
             new VecI(prSize, Math.Max((int)Math.Round(prSize * proportions), 1));
     }
-
-    public static WriteableBitmap CreateBitmap(VecI size)
-    {
-        return new WriteableBitmap(new PixelSize(Math.Max(size.X, 1), Math.Max(size.Y, 1)), new Vector(96, 96), PixelFormats.Bgra8888, AlphaFormat.Premul);
-    }
-
-    public static DrawingSurface CreateDrawingSurface(WriteableBitmap bitmap)
-    {
-        using var frameBuffer = bitmap.Lock();
-        return DrawingSurface.Create(
-            new ImageInfo(bitmap.PixelSize.Width, bitmap.PixelSize.Height, ColorType.Bgra8888, AlphaType.Premul,
-                ColorSpace.CreateSrgb()),
-            frameBuffer.Address,
-            frameBuffer.RowBytes);
-    }
 }

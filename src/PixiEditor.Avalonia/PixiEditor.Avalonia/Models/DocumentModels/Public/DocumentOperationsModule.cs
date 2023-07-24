@@ -19,7 +19,7 @@ using PixiEditor.Models.Position;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 #nullable enable
-internal class DocumentOperationsModule
+internal class DocumentOperationsModule : IDocumentOperations
 {
     private IDocument Document { get; }
     private DocumentInternalParts Internals { get; }

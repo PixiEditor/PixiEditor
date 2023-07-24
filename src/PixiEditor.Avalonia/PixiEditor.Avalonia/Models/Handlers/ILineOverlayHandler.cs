@@ -5,8 +5,8 @@ namespace PixiEditor.Models.Containers;
 internal interface ILineOverlayHandler
 {
     public void Hide();
-    public void Nudge(VecI distance);
-    public void Undo();
-    public void Redo();
+    public bool Nudge(VecD distance);
+    public bool Undo();
+    public bool Redo();
     public void Show(VecD startPos, VecD curPos);
 }

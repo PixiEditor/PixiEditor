@@ -6,6 +6,7 @@ public interface IOperatingSystem
     public string Name { get; }
 
     public IInputKeys InputKeys { get; }
+    public IProcessUtility ProcessUtility { get; }
 
     protected static void SetCurrent(IOperatingSystem operatingSystem)
     {
@@ -16,4 +17,7 @@ public interface IOperatingSystem
 
         Current = operatingSystem;
     }
+
+    public void OpenHyperlink(string url);
+    public void OpenFolder(string path);
 }

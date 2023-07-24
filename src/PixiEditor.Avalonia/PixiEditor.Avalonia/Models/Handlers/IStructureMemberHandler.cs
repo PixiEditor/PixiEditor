@@ -17,6 +17,7 @@ internal interface IStructureMemberHandler : IHandler
     public bool MaskIsVisibleBindable { get; set; }
     public StructureMemberSelectionType Selection { get; set; }
     public float OpacityBindable { get; set; }
+    public IDocument Document { get; }
     public void SetMaskIsVisible(bool infoIsVisible);
     public void SetClipToMemberBelowEnabled(bool infoClipToMemberBelow);
     public void SetBlendMode(BlendMode infoBlendMode);

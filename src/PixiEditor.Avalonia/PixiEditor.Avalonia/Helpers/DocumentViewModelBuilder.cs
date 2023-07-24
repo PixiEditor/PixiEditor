@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.InteropServices;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
@@ -6,6 +8,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Helpers.Extensions;
 using PixiEditor.Parser;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -342,8 +345,9 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public ReferenceLayerBuilder WithSurface(Surface surface)
         {
             var writeableBitmap = surface.ToWriteableBitmap();
-            byte[] bytes = new byte[writeableBitmap.PixelHeight * writeableBitmap.BackBufferStride];
-            Marshal.Copy(surface.ToWriteableBitmap().BackBuffer, bytes, 0, bytes.Length);
+            using var frameBuffer = writeableBitmap.Lock();
+            byte[] bytes = new byte[writeableBitmap.PixelSize.Height * frameBuffer.RowBytes];
+            Marshal.Copy(frameBuffer.Address, bytes, 0, bytes.Length);
 
             WithImage(surface.Size, bytes);
             

@@ -12,6 +12,7 @@ using PixiEditor.Models.Localization;
 using PixiEditor.Models.Preferences;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
+using PixiEditor.ViewModels.SubViewModels.Main;
 
 namespace PixiEditor.Helpers.Extensions;
 
@@ -22,7 +23,7 @@ internal static class ServiceCollectionHelpers
     /// </summary>
     public static IServiceCollection
         AddPixiEditor(this IServiceCollection collection, ExtensionLoader extensionLoader) => collection
-        .AddSingleton<MainViewModel>()
+        .AddSingleton<ViewModelMain>()
         .AddSingleton<IPreferences, PreferencesSettings>()
         .AddSingleton<ILocalizationProvider, LocalizationProvider>(x => new LocalizationProvider(extensionLoader))
 

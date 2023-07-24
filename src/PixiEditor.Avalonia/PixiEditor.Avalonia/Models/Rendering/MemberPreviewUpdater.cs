@@ -222,8 +222,8 @@ internal class MemberPreviewUpdater
                 else
                 {
                     member.PreviewSurface?.Dispose();
-                    member.PreviewBitmap = StructureHelpers.CreateBitmap(newSize.Value.previewSize);
-                    member.PreviewSurface = StructureHelpers.CreateDrawingSurface(member.PreviewBitmap);
+                    member.PreviewBitmap = WriteableBitmapHelpers.CreateBitmap(newSize.Value.previewSize);
+                    member.PreviewSurface = WriteableBitmapHelpers.CreateDrawingSurface(member.PreviewBitmap);
                 }
             }
 
@@ -244,8 +244,8 @@ internal class MemberPreviewUpdater
             }
             else
             {
-                member.MaskPreviewBitmap = StructureHelpers.CreateBitmap(newSize.Value.previewSize);
-                member.MaskPreviewSurface = StructureHelpers.CreateDrawingSurface(member.MaskPreviewBitmap);
+                member.MaskPreviewBitmap = WriteableBitmapHelpers.CreateBitmap(newSize.Value.previewSize);
+                member.MaskPreviewSurface = WriteableBitmapHelpers.CreateDrawingSurface(member.MaskPreviewBitmap);
             }
 
             //TODO: Make sure MaskPreviewBitmap implementation raises PropertyChanged

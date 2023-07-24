@@ -7,12 +7,12 @@ using PixiEditor.Models.Enums;
 namespace Models.DocumentModels.Public;
 internal class DocumentToolsModule
 {
-    private IDocumentManagerHandler DocumentManager { get; set; }
+    private IDocument Document { get; set; }
     private DocumentInternalParts Internals { get; set; }
 
-    public DocumentToolsModule(IDocumentManagerHandler doc, DocumentInternalParts internals)
+    public DocumentToolsModule(IDocument doc, DocumentInternalParts internals)
     {
-        this.DocumentManager = doc;
+        this.Document = doc;
         this.Internals = internals;
     }
 

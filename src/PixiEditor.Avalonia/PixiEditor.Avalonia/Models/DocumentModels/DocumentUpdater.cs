@@ -146,7 +146,7 @@ internal class DocumentUpdater
 
     private void ProcessSetReferenceLayer(SetReferenceLayer_ChangeInfo info)
     {
-        doc.ReferenceLayerHandler.SetReferenceLayer(info.ImagePbgra32Bytes, info.ImageSize, info.Shape);
+        doc.ReferenceLayerHandler.SetReferenceLayer(info.ImagePbgra8888Bytes, info.ImageSize, info.Shape);
     }
     
     private void ProcessReferenceLayerTopMost(ReferenceLayerTopMost_ChangeInfo info)
@@ -276,8 +276,8 @@ internal class DocumentUpdater
         foreach ((ChunkResolution res, DrawingSurface surf) in doc.Surfaces)
         {
             surf.Dispose();
-            newBitmaps[res] = StructureHelpers.CreateBitmap((VecI)(info.Size * res.Multiplier()));
-            doc.Surfaces[res] = StructureHelpers.CreateDrawingSurface(newBitmaps[res]);
+            newBitmaps[res] = WriteableBitmapHelpers.CreateBitmap((VecI)(info.Size * res.Multiplier()));
+            doc.Surfaces[res] = WriteableBitmapHelpers.CreateDrawingSurface(newBitmaps[res]);
         }
 
         doc.LazyBitmaps = newBitmaps;
@@ -288,8 +288,8 @@ internal class DocumentUpdater
 
         VecI documentPreviewSize = StructureHelpers.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
-        doc.PreviewBitmap = StructureHelpers.CreateBitmap(documentPreviewSize);
-        doc.PreviewSurface = StructureHelpers.CreateDrawingSurface(doc.PreviewBitmap);
+        doc.PreviewBitmap = WriteableBitmapHelpers.CreateBitmap(documentPreviewSize);
+        doc.PreviewSurface = WriteableBitmapHelpers.CreateDrawingSurface(doc.PreviewBitmap);
 
         // TODO: Make sure property changed events are raised internally
         /*doc.RaisePropertyChanged(nameof(doc.LazyBitmaps));

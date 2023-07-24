@@ -2,5 +2,5 @@
 
 internal interface IRectangleToolHandler : IShapeToolHandler
 {
-    public bool DrawSquare { get; set; }
+    public bool DrawSquare { get; }
 }
