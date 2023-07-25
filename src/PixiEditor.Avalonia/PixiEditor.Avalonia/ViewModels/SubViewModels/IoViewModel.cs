@@ -2,6 +2,8 @@
 using System.Windows;
 using System.Windows.Input;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.Input;
@@ -30,10 +32,10 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     private bool? drawingWithRight;
     private bool startedWithEraser;
 
-    public RelayCommand MouseMoveCommand { get; set; }
-    public RelayCommand MouseDownCommand { get; set; }
+    public RelayCommand<MouseOnCanvasEventArgs> MouseMoveCommand { get; set; }
+    public RelayCommand<MouseOnCanvasEventArgs> MouseDownCommand { get; set; }
     public RelayCommand PreviewMouseMiddleButtonCommand { get; set; }
-    public RelayCommand MouseUpCommand { get; set; }
+    public RelayCommand<MouseOnCanvasEventArgs> MouseUpCommand { get; set; }
 
     private MouseInputFilter mouseFilter = new();
     private KeyboardInputFilter keyboardFilter = new();
@@ -41,13 +43,21 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
     public IoViewModel(ViewModelMain owner)
         : base(owner)
     {
-        MouseDownCommand = new RelayCommand(mouseFilter.MouseDownInlet);
-        MouseMoveCommand = new RelayCommand(mouseFilter.MouseMoveInlet);
-        MouseUpCommand = new RelayCommand(mouseFilter.MouseUpInlet);
+        MouseDownCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseDownInlet);
+        MouseMoveCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseMoveInlet);
+        MouseUpCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseUpInlet);
         PreviewMouseMiddleButtonCommand = new RelayCommand(OnPreviewMiddleMouseButton);
-        GlobalMouseHook.Instance.OnMouseUp += mouseFilter.MouseUpInlet;
+        // TODO: Implement mouse capturing
+        //GlobalMouseHook.Instance.OnMouseUp += mouseFilter.MouseUpInlet;
 
-        InputManager.Current.PreProcessInput += Current_PreProcessInput;
+        if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow.KeyDown += MainWindowKeyDown;
+            desktop.MainWindow.KeyUp += MainWindowKeyUp;
+
+            desktop.MainWindow.Deactivated += keyboardFilter.DeactivatedInlet;
+            desktop.MainWindow.Deactivated += mouseFilter.DeactivatedInlet;
+        }
 
         mouseFilter.OnMouseDown += OnMouseDown;
         mouseFilter.OnMouseMove += OnMouseMove;
@@ -58,9 +68,6 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
 
         keyboardFilter.OnConvertedKeyDown += OnConvertedKeyDown;
         keyboardFilter.OnConvertedKeyUp += OnConvertedKeyDown;
-
-        Application.Current.Deactivated += keyboardFilter.DeactivatedInlet;
-        Application.Current.Deactivated += mouseFilter.DeactivatedInlet;
     }
 
     private void OnConvertedKeyDown(object? sender, FilteredKeyEventArgs args)
@@ -75,36 +82,19 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         Owner.ToolsSubViewModel.ConvertedKeyUpInlet(args);
     }
 
-    private void Current_PreProcessInput(object sender, PreProcessInputEventArgs e)
+    private void MainWindowKeyDown(object? sender, KeyEventArgs e)
     {
-        if (e is { StagingItem: { Input: { } } })
-        {
-            InputEventArgs inputEvent = e.StagingItem.Input;
+        keyboardFilter.KeyDownInlet(e);
+    }
 
-            if (inputEvent is KeyboardEventArgs)
-            {
-                KeyboardEventArgs k = (KeyboardEventArgs)inputEvent;
-                RoutedEvent r = k.RoutedEvent;
-                KeyEventArgs? keyEvent = k as KeyEventArgs;
-
-                if (keyEvent is null && keyEvent?.InputSource?.RootVisual != MainWindow.Current)
-                    return;
-                if (r == Keyboard.KeyDownEvent)
-                {
-                    keyboardFilter.KeyDownInlet(keyEvent);
-                }
-
-                if (r == Keyboard.KeyUpEvent)
-                {
-                    keyboardFilter.KeyUpInlet(keyEvent);
-                }
-            }
-        }
+    private void MainWindowKeyUp(object? sender, KeyEventArgs e)
+    {
+        keyboardFilter.KeyUpInlet(e);
     }
 
     private void OnKeyDown(object? sender, FilteredKeyEventArgs args)
     {
-        ProcessShortcutDown(args.IsRepeat, args.Key);
+        ProcessShortcutDown(args.IsRepeat, args.Key, args.Modifiers);
         Owner.DocumentManagerSubViewModel.ActiveDocument?.EventInlet.OnKeyDown(args.Key);
     }
 
@@ -131,7 +121,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         return tool;
     }
 
-    private void ProcessShortcutDown(bool isRepeat, Key key)
+    private void ProcessShortcutDown(bool isRepeat, Key key, KeyModifiers argsModifiers)
     {
         HandleTransientKey(key);
         if (isRepeat && Owner.ShortcutController.LastCommands != null &&
@@ -140,7 +130,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
             Owner.ToolsSubViewModel.HandleToolRepeatShortcutDown();
         }
 
-        Owner.ShortcutController.KeyPressed(key, Keyboard.Modifiers);
+        Owner.ShortcutController.KeyPressed(key, argsModifiers);
     }
 
     private void OnKeyUp(object? sender, FilteredKeyEventArgs args)
@@ -224,7 +214,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         tools.SetActiveTool<EraserToolViewModel>(true);
     }
     
-    private void OnPreviewMiddleMouseButton(object sender)
+    private void OnPreviewMiddleMouseButton()
     {
         Owner.ToolsSubViewModel.SetActiveTool<MoveViewportToolViewModel>(true);
     }

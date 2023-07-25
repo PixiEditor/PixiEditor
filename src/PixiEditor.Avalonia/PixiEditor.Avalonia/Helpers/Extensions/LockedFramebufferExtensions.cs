@@ -51,4 +51,18 @@ public static class LockedFramebufferExtensions
             pbgra8888Bytes.AsSpan(srcRowStartIndex, endOffset - startOffset).CopyTo(pixels.Slice(startOffset));
         }
     }
+
+    public static void WritePixel(this ILockedFramebuffer framebuffer, int x, int y, Color color)
+    {
+        unsafe
+        {
+            var bytesPerPixel = framebuffer.Format.BitsPerPixel / 8; //TODO: check if bits per pixel is correct
+            var zero = (byte*)framebuffer.Address;
+            var offset = framebuffer.RowBytes * y + bytesPerPixel * x;
+            zero[offset + 3] = color.A;
+            zero[offset + 2] = color.R;
+            zero[offset + 1] = color.G;
+            zero[offset] = color.B;
+        }
+    }
 }

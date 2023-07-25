@@ -26,25 +26,25 @@ internal class SelectToolViewModel : ToolViewModel
         Cursor = Cursors.Cross;
     }
 
-    private SelectionMode modifierKeySelectionMode = SelectionMode.New;
-    public SelectionMode ResultingSelectionMode => modifierKeySelectionMode != SelectionMode.New ? modifierKeySelectionMode : SelectMode;
+    private SelectionMode KeyModifierselectionMode = SelectionMode.New;
+    public SelectionMode ResultingSelectionMode => KeyModifierselectionMode != SelectionMode.New ? KeyModifierselectionMode : SelectMode;
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)
         {
             ActionDisplay = new LocalizedString("SELECT_TOOL_ACTION_DISPLAY_SHIFT");
-            modifierKeySelectionMode = SelectionMode.Add;
+            KeyModifierselectionMode = SelectionMode.Add;
         }
         else if (ctrlIsDown)
         {
             ActionDisplay = new LocalizedString("SELECT_TOOL_ACTION_DISPLAY_CTRL");
-            modifierKeySelectionMode = SelectionMode.Subtract;
+            KeyModifierselectionMode = SelectionMode.Subtract;
         }
         else
         {
             ActionDisplay = defaultActionDisplay;
-            modifierKeySelectionMode = SelectionMode.New;
+            KeyModifierselectionMode = SelectionMode.New;
         }
     }
 

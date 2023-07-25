@@ -1,8 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Platform.Storage;
 using ChunkyImageLib;
 using Newtonsoft.Json.Linq;
 using PixiEditor.Avalonia.Exceptions.Exceptions;
@@ -14,6 +18,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -122,20 +127,20 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.Open", "OPEN", "OPEN_FILE", Key = Key.O, Modifiers = KeyModifiers.Control)]
-    public void OpenFromOpenFileDialog()
+    public async Task OpenFromOpenFileDialog()
     {
-        string filter = SupportedFilesHelper.BuildOpenFilter();
+        var filter = SupportedFilesHelper.BuildOpenFilter();
 
-        OpenFileDialog dialog = new OpenFileDialog
+        if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            Filter = filter,
-            FilterIndex = 0
-        };
+            var dialog = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
+                new FilePickerOpenOptions { FileTypeFilter = filter });
 
-        if (!(bool)dialog.ShowDialog() || !Importer.IsSupportedFile(dialog.FileName))
-            return;
+            if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.AbsolutePath))
+                return;
 
-        OpenFromPath(dialog.FileName);
+            OpenFromPath(dialog[0].Path.AbsolutePath);
+        }
     }
 
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD", "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard")]
@@ -262,7 +267,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         AddRecentlyOpened(path);
     }
 
-    [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = KeyModifiers.Control)]
     public void CreateFromNewFileDialog()
     {
         NewFileDialog newFile = new NewFileDialog();
@@ -290,31 +295,32 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
     }
 
-    [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control, IconPath = "Save.png")]
-    [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = ModifierKeys.Control | ModifierKeys.Shift, IconPath = "Save.png")]
-    public bool SaveActiveDocument(bool asNew)
+    [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control, IconPath = "Save.png")]
+    [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, IconPath = "Save.png")]
+    public async Task<bool> SaveActiveDocument(bool asNew)
     {
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return false;
-        return SaveDocument(doc, asNew);
+        return await SaveDocument(doc, asNew);
     }
 
-    public bool SaveDocument(DocumentViewModel document, bool asNew)
+    public async Task<bool> SaveDocument(DocumentViewModel document, bool asNew)
     {
         string finalPath = null;
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
-            var result = Exporter.TrySaveWithDialog(document, out string path);
-            if (result == DialogSaveResult.Cancelled)
+            var result = await Exporter.TrySaveWithDialog(document);
+            if (result.Result == DialogSaveResult.Cancelled)
                 return false;
-            if (result != DialogSaveResult.Success)
+            if (result.Result != DialogSaveResult.Success)
             {
-                ShowSaveError(result);
+                ShowSaveError(result.Result);
                 return false;
             }
-            finalPath = path;
-            AddRecentlyOpened(path);
+
+            finalPath = result.Path;
+            AddRecentlyOpened(result.Path);
         }
         else
         {
@@ -336,7 +342,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     ///     Generates export dialog or saves directly if save data is known.
     /// </summary>
     /// <param name="parameter">CommandProperty.</param>
-    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = KeyModifiers.Control)]
     public void ExportFile()
     {
         DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

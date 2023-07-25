@@ -23,12 +23,12 @@ internal class DocumentEventsModule
     public void OnConvertedKeyDown(FilteredKeyEventArgs args)
     {
         Internals.ChangeController.ConvertedKeyDownInlet(args.Key);
-        DocumentsHandler.TransformHandler.ModifierKeysInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
+        DocumentsHandler.TransformHandler.KeyModifiersInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
     }
     public void OnConvertedKeyUp(FilteredKeyEventArgs args)
     {
         Internals.ChangeController.ConvertedKeyUpInlet(args.Key);
-        DocumentsHandler.TransformHandler.ModifierKeysInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
+        DocumentsHandler.TransformHandler.KeyModifiersInlet(args.IsShiftDown, args.IsCtrlDown, args.IsAltDown);
     }
 
     public void OnCanvasLeftMouseButtonDown(VecD pos) => Internals.ChangeController.LeftMouseButtonDownInlet(pos);

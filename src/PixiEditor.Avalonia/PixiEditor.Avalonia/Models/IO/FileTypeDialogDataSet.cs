@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Platform.Storage;
 using PixiEditor.Helpers;
-using PixiEditor.Models.Enums;
 using PixiEditor.Models.Files;
 
 namespace PixiEditor.Models.IO;
@@ -30,6 +30,7 @@ internal class FileTypeDialogDataSet
             Init("Image Files", allSupportedExtensions, FileType.Pixi);
         }
     }
+
     public FileTypeDialogDataSet(string displayName, IEnumerable<FileTypeDialogData> fileTypes, FileType? fileTypeToSkip = null)
     {
         Init(displayName, fileTypes, fileTypeToSkip);
@@ -45,8 +46,9 @@ internal class FileTypeDialogDataSet
         this.displayName = displayName;
     }
 
-    public string GetFormattedTypes()
+    public FilePickerFileType[] GetFormattedTypes()
     {
-        return displayName + " |" + string.Join(";", this.fileTypes.Select(i => i.ExtensionsFormattedForDialog));
+        FilePickerFileType[] types = fileTypes.Select(i => i.SaveFilter).ToArray();
+        return types;
     }
 }

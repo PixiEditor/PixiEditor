@@ -228,7 +228,7 @@ internal class MemberPreviewUpdater
             }
 
             //TODO: Make sure PreviewBitmap implementation raises PropertyChanged
-            //member.RaisePropertyChanged(nameof(member.PreviewBitmap));
+            //member.OnPropertyChanged(nameof(member.PreviewBitmap));
         }
 
         // update masks
@@ -249,7 +249,7 @@ internal class MemberPreviewUpdater
             }
 
             //TODO: Make sure MaskPreviewBitmap implementation raises PropertyChanged
-            //member.RaisePropertyChanged(nameof(member.MaskPreviewBitmap));
+            //member.OnPropertyChanged(nameof(member.MaskPreviewBitmap));
         }
     }
 

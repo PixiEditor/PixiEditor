@@ -1,10 +1,17 @@
 ﻿using System.Collections.Immutable;
+using System.Linq;
+using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Media;
+using PixiEditor.Avalonia.Helpers.Extensions;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.IO;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
@@ -16,18 +23,18 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = ModifierKeys.Control)]
-    public void Cut()
+    [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = KeyModifiers.Control)]
+    public async Task Cut()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        Copy();
+        await Copy();
         doc.Operations.DeleteSelectedPixels(true);
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Shift)]
-    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = ModifierKeys.Control)]
+    [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Shift)]
+    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Control)]
     public void Paste(bool pasteAsNewLayer)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null) 
@@ -45,14 +52,16 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         
         var bitmap = surface.image.ToWriteableBitmap();
 
-        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
-        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
+        byte[] pixels = bitmap.ExtractPixels();
 
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
             surface.image.Size);
 
-        Application.Current.MainWindow!.Activate();
+        if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow!.Activate();
+        }
     }
     
     [Command.Internal("PixiEditor.Clipboard.PasteReferenceLayerFromPath")]
@@ -61,12 +70,11 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
         var bitmap = Importer.GetPreviewBitmap(path);
-        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
-        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
+        byte[] pixels = bitmap.ExtractPixels();
 
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
-            new VecI(bitmap.PixelWidth, bitmap.PixelHeight));
+            new VecI(bitmap.PixelSize.Width, bitmap.PixelSize.Height));
     }
 
     [Command.Basic("PixiEditor.Clipboard.PasteColor", false, "PASTE_COLOR", "PASTE_COLOR_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
@@ -88,20 +96,20 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = ModifierKeys.Control)]
-    public void Copy()
+    [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = KeyModifiers.Control)]
+    public async Task Copy()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
-        ClipboardController.CopyToClipboard(doc);
+        await ClipboardController.CopyToClipboard(doc);
     }
 
     [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsHex", CopyColor.PrimaryHEX, "COPY_COLOR_HEX", "COPY_COLOR_HEX_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
     [Command.Basic("PixiEditor.Clipboard.CopyPrimaryColorAsRgb", CopyColor.PrimaryRGB, "COPY_COLOR_RGB", "COPY_COLOR_RGB_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
     [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsHex", CopyColor.SecondaryHEX, "COPY_COLOR_SECONDARY_HEX", "COPY_COLOR_SECONDARY_HEX_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
     [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsRgb", CopyColor.SecondardRGB, "COPY_COLOR_SECONDARY_RGB", "COPY_COLOR_SECONDARY_RGB_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
-    [Command.Filter("PixiEditor.Clipboard.CopyColorToClipboard", "COPY_COLOR_TO_CLIPBOARD", "COPY_COLOR", Key = Key.C, Modifiers = ModifierKeys.Shift)]
+    [Command.Filter("PixiEditor.Clipboard.CopyColorToClipboard", "COPY_COLOR_TO_CLIPBOARD", "COPY_COLOR", Key = Key.C, Modifiers = KeyModifiers.Shift)]
     public void CopyColorAsHex(CopyColor color)
     {
         var targetColor = color switch

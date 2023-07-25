@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using Avalonia;
 using Avalonia.Input;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
@@ -123,13 +124,13 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         var oldColor = replacePrimary ? PrimaryColor : SecondaryColor;
         var newColor = replacePrimary ? SecondaryColor : PrimaryColor;
         
-        var oldDrawing = new GeometryDrawing { Brush = new SolidColorBrush(oldColor.ToOpaqueMediaColor()), Pen = new(Brushes.Gray, .5) };
-        var oldGeometry = new EllipseGeometry(new Point(5, 5), 5, 5);
+        var oldDrawing = new GeometryDrawing { Brush = new SolidColorBrush(oldColor.ToOpaqueMediaColor()), Pen = new Pen(Brushes.Gray, .5) };
+        var oldGeometry = new EllipseGeometry(new Rect(5, 5, 5, 5));
         
         oldDrawing.Geometry = oldGeometry;
         
-        var newDrawing = new GeometryDrawing { Brush = new SolidColorBrush(newColor.ToOpaqueMediaColor()), Pen = new(Brushes.White, 1) };
-        var newGeometry = new EllipseGeometry(new Point(10, 10), 6, 6);
+        var newDrawing = new GeometryDrawing { Brush = new SolidColorBrush(newColor.ToOpaqueMediaColor()), Pen = new Pen(Brushes.White, 1) };
+        var newGeometry = new EllipseGeometry(new Rect(10, 10, 6, 6));
 
         newDrawing.Geometry = newGeometry;
         

@@ -50,9 +50,9 @@ public sealed class Shortcut
         Commands = new List<string> { command };
     }
     
-    public Shortcut(Key key, KeyModifiers modifierKeys, string command)
+    public Shortcut(Key key, KeyModifiers KeyModifiers, string command)
     {
-        KeyCombination = new KeyCombination(key, modifierKeys);
+        KeyCombination = new KeyCombination(key, KeyModifiers);
         Commands = new List<string> { command };
     }
 }

@@ -200,7 +200,7 @@ internal class DocumentTransformViewModel : ObservableObject
         undoStack.AddState((Corners, InternalState), TransformOverlayStateType.Initial);
     }
 
-    public void ModifierKeysInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)
+    public void KeyModifiersInlet(bool isShiftDown, bool isCtrlDown, bool isAltDown)
     {
         var requestedCornerFreedom = TransformCornerFreedom.Scale;
         var requestedSideFreedom = TransformSideFreedom.Stretch;

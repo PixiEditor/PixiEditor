@@ -7,6 +7,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Containers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.Document;

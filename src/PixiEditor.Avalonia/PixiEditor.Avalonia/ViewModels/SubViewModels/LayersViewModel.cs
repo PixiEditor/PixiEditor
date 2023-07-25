@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform.Storage;
 using PixiEditor.Avalonia.Exceptions.Exceptions;
+using PixiEditor.Avalonia.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
@@ -328,13 +334,13 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument is not null && Owner.DocumentManagerSubViewModel.ActiveDocument.ReferenceLayerViewModel.ReferenceBitmap is null;
 
     [Command.Basic("PixiEditor.Layer.ImportReferenceLayer", "ADD_REFERENCE_LAYER", "ADD_REFERENCE_LAYER", CanExecute = "PixiEditor.Layer.ReferenceLayerDoesntExist", IconPath = "Add-reference.png")]
-    public void ImportReferenceLayer()
+    public async Task ImportReferenceLayer()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
             return;
 
-        string path = OpenReferenceLayerFilePicker();
+        string path = await OpenReferenceLayerFilePicker();
         if (path is null)
             return;
 
@@ -349,27 +355,33 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        byte[] pixels = new byte[bitmap.PixelWidth * bitmap.PixelHeight * 4];
-        bitmap.CopyPixels(pixels, bitmap.PixelWidth * 4, 0);
+        byte[] pixels = bitmap.ExtractPixels();
 
-        VecI size = new VecI(bitmap.PixelWidth, bitmap.PixelHeight);
+        VecI size = new VecI(bitmap.PixelSize.Width, bitmap.PixelSize.Height);
 
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(), 
             size);
     }
 
-    private string OpenReferenceLayerFilePicker()
+    private async Task<string> OpenReferenceLayerFilePicker()
     {
         var imagesFilter = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
-        OpenFileDialog dialog = new OpenFileDialog
+        if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            Title = new LocalizedString("REFERENCE_LAYER_PATH"),
-            CheckPathExists = true,
-            Filter = imagesFilter
-        };
+            var filePicker = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+            {
+                Title = new LocalizedString("REFERENCE_LAYER_PATH"),
+                FileTypeFilter = imagesFilter,
+            });
 
-        return (bool)dialog.ShowDialog() ? dialog.FileName : null;
+            if (filePicker is null)
+                return null;
+
+            return filePicker[0].Path.AbsolutePath;
+        }
+
+        return null;
     }
 
     [Command.Basic("PixiEditor.Layer.DeleteReferenceLayer", "DELETE_REFERENCE_LAYER", "DELETE_REFERENCE_LAYER", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", IconPath = "Trash.png")]
@@ -413,12 +425,12 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.Icon("PixiEditor.Layer.ToggleReferenceLayerTopMostIcon")]
-    public ImageSource GetAboveEverythingReferenceLayerIcon()
+    public IImage GetAboveEverythingReferenceLayerIcon()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || doc.ReferenceLayerViewModel.IsTopMost)
-            return new BitmapImage(new Uri("pack://application:,,,/Images/ReferenceLayerBelow.png"));
+            return new Bitmap("pack://application:,,,/Images/ReferenceLayerBelow.png");
 
-        return new BitmapImage(new Uri("pack://application:,,,/Images/ReferenceLayerAbove.png"));
+        return new Bitmap("pack://application:,,,/Images/ReferenceLayerAbove.png");
     }
 }

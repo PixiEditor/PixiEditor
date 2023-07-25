@@ -145,8 +145,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     }
 
 
-    [Command.Basic("PixiEditor.Document.ResizeDocument", false, "RESIZE_DOCUMENT", "RESIZE_DOCUMENT", CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
-    [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "RESIZE_CANVAS", "RESIZE_CANVAS", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = ModifierKeys.Control | ModifierKeys.Shift)]
+    [Command.Basic("PixiEditor.Document.ResizeDocument", false, "RESIZE_DOCUMENT", "RESIZE_DOCUMENT", CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = KeyModifiers.Control | KeyModifiers.Shift)]
+    [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "RESIZE_CANVAS", "RESIZE_CANVAS", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = KeyModifiers.Control | KeyModifiers.Shift)]
     public void OpenResizePopup(bool canvas)
     {
         DocumentViewModel? doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

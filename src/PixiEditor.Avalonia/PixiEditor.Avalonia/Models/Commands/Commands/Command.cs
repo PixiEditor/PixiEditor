@@ -49,7 +49,7 @@ internal abstract partial class Command : ObservableObject
     {
         Methods = new(this, onExecute, canExecute);
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
-        /*InputLanguageManager.Current.InputLanguageChanged += (_, _) => this.RaisePropertyChanged(nameof(Shortcut)); TODO: Didn't find implementation of this in Avalonia*/
+        /*InputLanguageManager.Current.InputLanguageChanged += (_, _) => this.OnPropertyChanged(nameof(Shortcut)); TODO: Didn't find implementation of this in Avalonia*/
     }
 
     private void OnLanguageChanged(Language obj)

@@ -34,7 +34,7 @@ internal class DocumentUpdater
     public void AfterUndoBoundaryPassed()
     {
         //TODO: Make sure AllChangesSaved trigger raise property changed itself
-        //doc.RaisePropertyChanged(nameof(doc.AllChangesSaved));
+        //doc.OnPropertyChanged(nameof(doc.AllChangesSaved));
     }
 
     /// <summary>
@@ -163,7 +163,7 @@ internal class DocumentUpdater
             return;
         member.Selection = StructureMemberSelectionType.None;
         // TODO: Make sure Selection raises property changed internally
-        //member.RaisePropertyChanged(nameof(member.Selection));
+        //member.OnPropertyChanged(nameof(member.Selection));
         doc.RemoveSoftSelectedMember(member);
     }
 
@@ -174,7 +174,7 @@ internal class DocumentUpdater
             if (oldMember.Selection == StructureMemberSelectionType.Hard)
                 continue;
             oldMember.Selection = StructureMemberSelectionType.None;
-            //oldMember.RaisePropertyChanged(nameof(oldMember.Selection));
+            //oldMember.OnPropertyChanged(nameof(oldMember.Selection));
         }
         doc.ClearSoftSelectedMembers();
     }
@@ -185,7 +185,7 @@ internal class DocumentUpdater
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         member.Selection = StructureMemberSelectionType.Soft;
-        //member.RaisePropertyChanged(nameof(member.Selection));
+        //member.OnPropertyChanged(nameof(member.Selection));
         doc.AddSoftSelectedMember(member);
     }
 
@@ -194,11 +194,11 @@ internal class DocumentUpdater
         if (doc.SelectedStructureMember is { } oldMember)
         {
             oldMember.Selection = StructureMemberSelectionType.None;
-            //oldMember.RaisePropertyChanged(nameof(oldMember.Selection));
+            //oldMember.OnPropertyChanged(nameof(oldMember.Selection));
         }
         IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.GuidValue);
         member.Selection = StructureMemberSelectionType.Hard;
-        //member.RaisePropertyChanged(nameof(member.Selection));
+        //member.OnPropertyChanged(nameof(member.Selection));
         doc.SetSelectedMember(member);
     }
 
@@ -253,7 +253,7 @@ internal class DocumentUpdater
 
         memberVm.SetHasMask(info.HasMask);
         // TODO: Make sure HasMask raises property changed internally
-        //memberVm.RaisePropertyChanged(nameof(memberVm.MaskPreviewBitmap));
+        //memberVm.OnPropertyChanged(nameof(memberVm.MaskPreviewBitmap));
         if (!info.HasMask && memberVm is ILayerHandler layer)
             layer.ShouldDrawOnMask = false;
     }
@@ -292,8 +292,8 @@ internal class DocumentUpdater
         doc.PreviewSurface = WriteableBitmapHelpers.CreateDrawingSurface(doc.PreviewBitmap);
 
         // TODO: Make sure property changed events are raised internally
-        /*doc.RaisePropertyChanged(nameof(doc.LazyBitmaps));
-        doc.RaisePropertyChanged(nameof(doc.PreviewBitmap));*/
+        /*doc.OnPropertyChanged(nameof(doc.LazyBitmaps));
+        doc.OnPropertyChanged(nameof(doc.PreviewBitmap));*/
 
         //doc.InternalRaiseSizeChanged(new(doc, oldSize, info.Size));
     }
@@ -339,15 +339,15 @@ internal class DocumentUpdater
         {
             doc.SelectedStructureMember.Selection = StructureMemberSelectionType.None;
             // TODO: Make sure property changed events are raised internally
-            //doc.SelectedStructureMember.RaisePropertyChanged(nameof(doc.SelectedStructureMember.Selection));
+            //doc.SelectedStructureMember.OnPropertyChanged(nameof(doc.SelectedStructureMember.Selection));
         }
 
         doc.SetSelectedMember(memberVM);
         memberVM.Selection = StructureMemberSelectionType.Hard;
 
         // TODO: Make sure property changed events are raised internally
-        /*doc.RaisePropertyChanged(nameof(doc.SelectedStructureMember));
-        doc.RaisePropertyChanged(nameof(memberVM.Selection));*/
+        /*doc.OnPropertyChanged(nameof(doc.SelectedStructureMember));
+        doc.OnPropertyChanged(nameof(memberVM.Selection));*/
 
         //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Add));
     }

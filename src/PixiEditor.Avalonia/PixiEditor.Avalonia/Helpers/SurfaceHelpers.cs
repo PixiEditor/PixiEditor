@@ -16,14 +16,14 @@ public static class SurfaceHelpers
     /*public static Surface FromBitmapSource(BitmapSource original)
     {
         ColorType color = original.Format.ToColorType(out AlphaType alpha);
-        if (original.PixelWidth <= 0 || original.PixelHeight <= 0)
+        if (original.PixelSize.Width <= 0 || original.PixelSize.Height <= 0)
             throw new ArgumentException("Surface dimensions must be non-zero");
 
-        int stride = (original.PixelWidth * original.Format.BitsPerPixel + 7) / 8;
-        byte[] pixels = new byte[stride * original.PixelHeight];
+        int stride = (original.PixelSize.Width * original.Format.BitsPerPixel + 7) / 8;
+        byte[] pixels = new byte[stride * original.PixelSize.Height];
         original.CopyPixels(pixels, stride, 0);
 
-        Surface surface = new Surface(new VecI(original.PixelWidth, original.PixelHeight));
+        Surface surface = new Surface(new VecI(original.PixelSize.Width, original.PixelSize.Height));
         surface.DrawBytes(surface.Size, pixels, color, alpha);
         return surface;
     }*/

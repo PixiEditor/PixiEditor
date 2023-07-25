@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Avalonia.Platform.Storage;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Files;
 using PixiEditor.Models.IO;
@@ -87,31 +88,35 @@ internal class SupportedFilesHelper
         return allExts;
     }
 
-    public static string BuildSaveFilter(bool includePixi)
+    public static List<FilePickerFileType> BuildSaveFilter(bool includePixi)
     {
         var allSupportedExtensions = GetAllSupportedFileTypes(includePixi);
-        var filter = string.Join("|", allSupportedExtensions.Select(i => i.SaveFilter));
+        var filter = allSupportedExtensions.Select(i => i.SaveFilter).ToList();
 
         return filter;
     }
 
-    public static FileType GetSaveFileTypeFromFilterIndex(bool includePixi, int filterIndex)
+    public static FileType GetSaveFileType(bool includePixi, IStorageFile file)
     {
         var allSupportedExtensions = GetAllSupportedFileTypes(includePixi);
-        //filter index starts at 1 for some reason
-        int index = filterIndex - 1;
-        if (allSupportedExtensions.Count <= index)
+
+        if (file is null)
             return FileType.Unset;
-        return allSupportedExtensions[index].FileType;
+
+        string extension = Path.GetExtension(file.Path.AbsolutePath);
+        return allSupportedExtensions.Single(i => i.Extensions.Contains(extension)).FileType;
     }
 
-    public static string BuildOpenFilter()
+    public static List<FilePickerFileType> BuildOpenFilter()
     {
         var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Any).GetFormattedTypes();
         var pixi = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Pixi).GetFormattedTypes();
         var images = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
 
-        var filter = any + "|" + pixi + "|" + images;
+        var filter = new List<FilePickerFileType>();
+        filter.AddRange(any);
+        filter.AddRange(pixi);
+        filter.AddRange(images);
         return filter;
     }
 }

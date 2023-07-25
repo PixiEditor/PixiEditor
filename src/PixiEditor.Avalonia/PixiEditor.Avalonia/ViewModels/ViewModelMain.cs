@@ -1,22 +1,17 @@
 ﻿using System.ComponentModel;
 using System.Linq;
-using System.Windows;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
-using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
 using PixiEditor.Models.Commands;
-using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Main;
@@ -103,7 +98,7 @@ internal partial class ViewModelMain : ViewModelBase
     public ViewModelMain(IServiceProvider serviceProvider)
     {
         Current = this;
-        ActionDisplays = new ActionDisplayList(() => RaisePropertyChanged(nameof(ActiveActionDisplay)));
+        ActionDisplays = new ActionDisplayList(() => OnPropertyChanged(nameof(ActiveActionDisplay)));
     }
 
     public void Setup(IServiceProvider services)
