@@ -69,6 +69,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return new ImgData(encoded.Handle);
         }
 
+        public ImgData Encode(Image image, EncodedImageFormat format, int quality)
+        {
+            var native = ManagedInstances[image.ObjectPointer];
+            var encoded = native.Encode((SKEncodedImageFormat)format, quality);
+            _imgImplementation.ManagedInstances[encoded.Handle] = encoded;
+            return new ImgData(encoded.Handle);
+        }
+
         public int GetWidth(IntPtr objectPointer)
         {
             return ManagedInstances[objectPointer].Width;

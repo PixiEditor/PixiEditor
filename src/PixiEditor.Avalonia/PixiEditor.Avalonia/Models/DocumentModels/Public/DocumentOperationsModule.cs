@@ -12,6 +12,7 @@ using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Containers;
+using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;

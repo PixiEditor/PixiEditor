@@ -12,6 +12,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public Image FromEncodedData(byte[] dataBytes);
         public void GetColorShifts(ref int platformColorAlphaShift, ref int platformColorRedShift, ref int platformColorGreenShift, ref int platformColorBlueShift);
         public ImgData Encode(Image image);
+        public ImgData Encode(Image image, EncodedImageFormat format, int quality);
         public int GetWidth(IntPtr objectPointer);
         public int GetHeight(IntPtr objectPointer);
     }

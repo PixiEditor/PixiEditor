@@ -8,11 +8,14 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using ChunkyImageLib;
+using PixiEditor.Avalonia.Helpers.Extensions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Files;
+using PixiEditor.Models.IO.FileEncoders;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.IO;
@@ -117,12 +120,16 @@ internal class Exporter
                 return SaveResult.ConcurrencyError;
             var bitmap = maybeBitmap.AsT1;
 
-            if (!encodersFactory.ContainsKey(typeFromPath))
+            EncodedImageFormat mappedFormat = typeFromPath.ToEncodedImageFormat();
+
+            if (mappedFormat == EncodedImageFormat.Unknown)
             {
                 return SaveResult.UnknownError;
             }
 
-            return TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize);
+            UniversalFileEncoder encoder = new(mappedFormat);
+
+            return TrySaveAs(encoder, pathWithExtension, bitmap, exportSize);
         }
         else
         {
@@ -132,14 +139,8 @@ internal class Exporter
         return SaveResult.Success;
     }
 
-    static Dictionary<FileType, Func<BitmapEncoder>> encodersFactory = new Dictionary<FileType, Func<BitmapEncoder>>();
-
     static Exporter()
     {
-        encodersFactory[FileType.Png] = () => new PngBitmapEncoder();
-        encodersFactory[FileType.Jpeg] = () => new JpegBitmapEncoder();
-        encodersFactory[FileType.Bmp] = () => new BmpBitmapEncoder();
-        encodersFactory[FileType.Gif] = () => new GifBitmapEncoder();
     }
 
     public static void SaveAsGZippedBytes(string path, Surface surface)
@@ -173,19 +174,18 @@ internal class Exporter
     /// <summary>
     /// Saves image to PNG file. Messes with the passed bitmap.
     /// </summary>
-    private static SaveResult TrySaveAs(BitmapEncoder encoder, string savePath, Surface bitmap, VecI? exportSize)
+    private static SaveResult TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap, VecI? exportSize)
     {
         try
         {
             if (exportSize is not null && exportSize != bitmap.Size)
                 bitmap = bitmap.ResizeNearestNeighbor((VecI)exportSize);
 
-            if (encoder is (JpegBitmapEncoder or BmpBitmapEncoder))
+            if (!encoder.SupportsTransparency)
                 bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, DrawingApi.Core.Surface.BlendMode.Multiply);
 
             using var stream = new FileStream(savePath, FileMode.Create);
-            encoder.Frames.Add(BitmapFrame.Create(bitmap.ToWriteableBitmap()));
-            encoder.Save(stream);
+            encoder.Save(stream, bitmap);
         }
         catch (SecurityException)
         {

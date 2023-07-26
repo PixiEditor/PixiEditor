@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using ChunkyImageLib;
@@ -8,25 +9,27 @@ using PixiEditor.Avalonia.Helpers;
 using PixiEditor.Avalonia.Helpers.Extensions;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.Helpers.Extensions;
 
 namespace PixiEditor.Helpers;
 
 public static class SurfaceHelpers
 {
-    /*public static Surface FromBitmapSource(BitmapSource original)
+    public static Surface FromBitmap(Bitmap original)
     {
-        ColorType color = original.Format.ToColorType(out AlphaType alpha);
+        if(original.Format == null) throw new ArgumentException("Bitmap format must be non-null");
+
+        ColorType color = original.Format.Value.ToColorType(out AlphaType alpha);
         if (original.PixelSize.Width <= 0 || original.PixelSize.Height <= 0)
             throw new ArgumentException("Surface dimensions must be non-zero");
 
-        int stride = (original.PixelSize.Width * original.Format.BitsPerPixel + 7) / 8;
-        byte[] pixels = new byte[stride * original.PixelSize.Height];
-        original.CopyPixels(pixels, stride, 0);
+        int stride = (original.PixelSize.Width * original.Format.Value.BitsPerPixel + 7) / 8;
+        byte[] pixels = original.ExtractPixels();
 
         Surface surface = new Surface(new VecI(original.PixelSize.Width, original.PixelSize.Height));
         surface.DrawBytes(surface.Size, pixels, color, alpha);
         return surface;
-    }*/
+    }
 
     public static WriteableBitmap ToWriteableBitmap(this Surface surface)
     {
@@ -34,7 +37,7 @@ public static class SurfaceHelpers
         using var framebuffer = result.Lock();
         var dirty = new RectI(0, 0, surface.Size.X, surface.Size.Y);
         framebuffer.WritePixels(dirty, ToByteArray(surface));
-        //result.AddDirtyRect(dirty);
+        //result.AddDirtyRect(dirty); //TODO: Look at this later, no DirtyRect in Avalonia
         return result;
     }
 

@@ -40,5 +40,10 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
         {
             return DrawingBackendApi.Current.ImageImplementation.Encode(this);
         }
+
+        public ImgData Encode(EncodedImageFormat format, int quality = 100)
+        {
+            return DrawingBackendApi.Current.ImageImplementation.Encode(this, format, quality);
+        }
     }
 }
