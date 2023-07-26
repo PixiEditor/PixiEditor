@@ -171,9 +171,10 @@ internal class ViewModelMain : ViewModelBase
 
     private void InitUpdateTimer()
     {
-        _updateTimer = new Timer(50);
+        // Enable this while implementing something that needs it
+        /*_updateTimer = new Timer(50);
         _updateTimer.Elapsed += UpdateTimerOnElapsed;
-        _updateTimer.Start();
+        _updateTimer.Start();*/
     }
 
     private void UpdateTimerOnElapsed(object sender, ElapsedEventArgs e)
