@@ -6,13 +6,12 @@
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
              Name="uc"
              mc:Ignorable="d">
-    <Border HorizontalAlignment="Right" VerticalAlignment="Bottom"
-            Background="Transparent"
-            BorderThickness="0"
-            Width="{Binding Width, ElementName=uc}"
+    <Grid
+          Width="{Binding Width, ElementName=uc}"
             Height="{Binding Height, ElementName=uc}"
+          Background="Transparent"
             Focusable="False"
             Panel.ZIndex="-1000"
-            Name="refresher">
-    </Border>
+            x:Name="refresher">
+    </Grid>
 </UserControl>

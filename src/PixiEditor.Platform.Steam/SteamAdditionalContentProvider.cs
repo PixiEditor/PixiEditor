@@ -14,7 +14,8 @@ public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
         if(!PlatformHasContent(product)) return false;
 
         AppId_t appId = productIds[product];
-        return SteamApps.BIsDlcInstalled(appId);
+        bool installed = SteamApps.BIsDlcInstalled(appId);
+        return installed;
     }
 
     public bool PlatformHasContent(AdditionalContentProduct product)

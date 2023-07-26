@@ -57,8 +57,8 @@ internal partial class MainWindow : Window
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
-        DataContext = services.GetRequiredService<ViewModelMain>();
 
+        DataContext = services.GetRequiredService<ViewModelMain>();
         DataContext.Setup(services);
 
         InitializeComponent();
@@ -79,31 +79,6 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
-
-        StartSteamRefresher();
-    }
-
-    private void StartSteamRefresher()
-    {
-#if STEAM
-        steamRefresher.Activate();
-
-        var handler = new PixiEditor.Platform.Steam.SteamOverlayHandler();
-        handler.ActivateRefreshingElement += (bool activate) =>
-        {
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                if (activate)
-                {
-                    steamRefresher.Activate();
-                }
-                else
-                {
-                    steamRefresher.Deactivate();
-                }
-            });
-        };
-#endif
     }
 
     private void SetupTranslator()

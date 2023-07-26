@@ -15,6 +15,7 @@ public partial class SteamOverlay : UserControl
     }
 
     private void CreateFadeTimer()
+    
     {
         StopFadeTimer();
         _fadeTimer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromSeconds(1f) };

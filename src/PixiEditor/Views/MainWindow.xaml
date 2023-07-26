@@ -101,8 +101,6 @@
         </b:EventTrigger>
     </b:Interaction.Triggers>
     <Grid>
-        <usercontrols:SteamOverlay x:Name="steamRefresher" Width="{Binding ElementName=mainWindow, Path=Width}"
-                                   Height="{Binding ElementName=mainWindow, Path=Height}"/>
         <Grid
             Name="mainGrid"
             Margin="5"
