@@ -17,7 +17,7 @@ public class SteamOverlayHandler
 
     private void InitStartingRefresh()
     {
-        System.Timers.Timer timer = new(10000);
+        System.Timers.Timer timer = new(11000);
         timer.Elapsed += (sender, args) =>
         {
             if (_isOverlayActive) return;

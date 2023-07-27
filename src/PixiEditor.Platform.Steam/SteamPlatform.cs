@@ -1,4 +1,5 @@
 ﻿using Steamworks;
+using Timer = System.Timers.Timer;
 
 namespace PixiEditor.Platform.Steam;
 
