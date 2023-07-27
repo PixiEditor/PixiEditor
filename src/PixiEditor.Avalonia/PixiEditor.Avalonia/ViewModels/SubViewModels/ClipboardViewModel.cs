@@ -43,11 +43,11 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
     
     [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER", "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste")]
-    public void PasteReferenceLayer(DataObject data)
+    public async Task PasteReferenceLayer(DataObject data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
-        var surface = (data == null ? ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
+        var surface = (data == null ? await ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
         using var image = surface.image;
         
         var bitmap = surface.image.ToWriteableBitmap();
@@ -79,9 +79,9 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
 
     [Command.Basic("PixiEditor.Clipboard.PasteColor", false, "PASTE_COLOR", "PASTE_COLOR_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
     [Command.Basic("PixiEditor.Clipboard.PasteColorAsSecondary", true, "PASTE_COLOR_SECONDARY", "PASTE_COLOR_SECONDARY_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]
-    public void PasteColor(bool secondary)
+    public async Task PasteColor(bool secondary)
     {
-        if (!ColorHelper.ParseAnyFormat(Clipboard.GetText().Trim(), out var result))
+        if (!ColorHelper.ParseAnyFormat((await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out var result))
         {
             return;
         }
@@ -110,7 +110,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsHex", CopyColor.SecondaryHEX, "COPY_COLOR_SECONDARY_HEX", "COPY_COLOR_SECONDARY_HEX_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
     [Command.Basic("PixiEditor.Clipboard.CopySecondaryColorAsRgb", CopyColor.SecondardRGB, "COPY_COLOR_SECONDARY_RGB", "COPY_COLOR_SECONDARY_RGB_DESCRIPTIVE", IconEvaluator = "PixiEditor.Clipboard.CopyColorIcon")]
     [Command.Filter("PixiEditor.Clipboard.CopyColorToClipboard", "COPY_COLOR_TO_CLIPBOARD", "COPY_COLOR", Key = Key.C, Modifiers = KeyModifiers.Shift)]
-    public void CopyColorAsHex(CopyColor color)
+    public async Task CopyColorAsHex(CopyColor color)
     {
         var targetColor = color switch
         {
@@ -128,24 +128,24 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
                 : $"rgba({targetColor.R},{targetColor.G},{targetColor.B},{targetColor.A})",
         };
 
-        Clipboard.SetText(text);
+        await ClipboardController.Clipboard.SetTextAsync(text);
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste")]
-    public bool CanPaste(object parameter)
+    public async Task<bool> CanPaste(object parameter)
     {
-        return Owner.DocumentIsNotNull(null) && parameter is DataObject data ? ClipboardController.IsImage(data) : ClipboardController.IsImageInClipboard();
+        return Owner.DocumentIsNotNull(null) && parameter is DataObject data ? ClipboardController.IsImage(data) : await ClipboardController.IsImageInClipboard();
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
-    public static bool CanPasteColor() => ColorHelper.ParseAnyFormat(Clipboard.GetText().Trim(), out _);
+    public static async Task<bool> CanPasteColor() => ColorHelper.ParseAnyFormat((await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out _);
 
     [Evaluator.Icon("PixiEditor.Clipboard.PasteColorIcon")]
-    public static IImage GetPasteColorIcon()
+    public static async Task<IImage> GetPasteColorIcon()
     {
         Color color;
 
-        color = ColorHelper.ParseAnyFormat(Clipboard.GetText().Trim(), out var result) ? result.Value.ToOpaqueMediaColor() : Colors.Transparent;
+        color = ColorHelper.ParseAnyFormat((await ClipboardController.Clipboard.GetTextAsync())?.Trim() ?? string.Empty, out var result) ? result.Value.ToOpaqueMediaColor() : Colors.Transparent;
 
         return ColorSearchResult.GetIcon(color.ToOpaqueColor());
     }

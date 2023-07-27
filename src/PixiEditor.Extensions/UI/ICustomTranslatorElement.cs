@@ -5,6 +5,6 @@ namespace PixiEditor.Views;
 
 public interface ICustomTranslatorElement
 {
-    public void SetTranslationBinding(AvaloniaProperty dependencyProperty, IObservable<string> valueObservable);
+    public void SetTranslationBinding(AvaloniaProperty dependencyProperty, IObservable<string> binding);
     public AvaloniaProperty GetDependencyProperty();
 }

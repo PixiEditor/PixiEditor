@@ -3,11 +3,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using Hardware.Info;
 using Newtonsoft.Json;
+using PixiEditor.Avalonia.Helpers.Extensions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.Commands.Attributes.Commands;
@@ -104,83 +107,103 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Debug("PixiEditor.Debug.DumpAllCommands", "DUMP_ALL_COMMANDS", "DUMP_ALL_COMMANDS_DESCRIPTIVE")]
-    public void DumpAllCommands()
+    public async Task DumpAllCommands()
     {
-        SaveFileDialog dialog = new SaveFileDialog();
-        var dialogResult = dialog.ShowDialog();
-        if (dialogResult.HasValue && dialogResult.Value)
+        await Application.Current.ForDesktopMainWindowAsync(async desktop =>
         {
-            var commands = Owner.CommandController.Commands;
+            FilePickerSaveOptions options = new FilePickerSaveOptions();
+            options.DefaultExtension = "txt";
+            options.FileTypeChoices = new FilePickerFileType[] { new FilePickerFileType("Text") {Patterns = new [] {"*.txt"}} };
+            var pickedFile = desktop.StorageProvider.SaveFilePickerAsync(options).Result;
 
-            using StreamWriter writer = new StreamWriter(dialog.FileName);
-            foreach (var command in commands)
+            if (pickedFile != null)
             {
-                writer.WriteLine($"InternalName: {command.InternalName}");
-                writer.WriteLine($"Default Shortcut: {command.DefaultShortcut}");
-                writer.WriteLine($"IsDebug: {command.IsDebug}");
-                writer.WriteLine();
+                var commands = Owner.CommandController.Commands;
+
+                using StreamWriter writer = new StreamWriter(pickedFile.Path.AbsolutePath);
+                foreach (var command in commands)
+                {
+                    writer.WriteLine($"InternalName: {command.InternalName}");
+                    writer.WriteLine($"Default Shortcut: {command.DefaultShortcut}");
+                    writer.WriteLine($"IsDebug: {command.IsDebug}");
+                    writer.WriteLine();
+                }
             }
-        }
+        });
     }
     
     [Command.Debug("PixiEditor.Debug.GenerateKeysTemplate", "GENERATE_KEY_BINDINGS_TEMPLATE", "GENERATE_KEY_BINDINGS_TEMPLATE_DESCRIPTIVE")]
-    public void GenerateKeysTemplate()
+    public async Task GenerateKeysTemplate()
     {
-        SaveFileDialog dialog = new SaveFileDialog();
-        var dialogResult = dialog.ShowDialog();
-        if (dialogResult.HasValue && dialogResult.Value)
+        await Application.Current.ForDesktopMainWindowAsync(async desktop =>
         {
-            var commands = Owner.CommandController.Commands;
+            FilePickerSaveOptions options = new FilePickerSaveOptions();
+            options.DefaultExtension = "json";
+            options.FileTypeChoices = new FilePickerFileType[] { new FilePickerFileType("Json") {Patterns = new [] {"*.json"}} };
+            var pickedFile = await desktop.StorageProvider.SaveFilePickerAsync(options);
 
-            using StreamWriter writer = new StreamWriter(dialog.FileName);
-            Dictionary<string, KeyDefinition> keyDefinitions = new Dictionary<string, KeyDefinition>();
-            foreach (var command in commands)
+            if (pickedFile != null)
             {
-                if(command.IsDebug)
-                    continue;
-                keyDefinitions.Add($"(provider).{command.InternalName}", new KeyDefinition(command.InternalName, new HumanReadableKeyCombination("None"), Array.Empty<string>()));
-            }
+                var commands = Owner.CommandController.Commands;
 
-            writer.Write(JsonConvert.SerializeObject(keyDefinitions, Formatting.Indented));
-            writer.Close();
-            string file = File.ReadAllText(dialog.FileName);
-            foreach (var command in commands)
-            {
-                if(command.IsDebug)
-                    continue;
-                file = file.Replace($"(provider).{command.InternalName}", "");
+                using StreamWriter writer = new StreamWriter(pickedFile.Path.AbsolutePath);
+                Dictionary<string, KeyDefinition> keyDefinitions = new Dictionary<string, KeyDefinition>();
+                foreach (var command in commands)
+                {
+                    if(command.IsDebug)
+                        continue;
+                    keyDefinitions.Add($"(provider).{command.InternalName}", new KeyDefinition(command.InternalName, new HumanReadableKeyCombination("None"), Array.Empty<string>()));
+                }
+
+                writer.Write(JsonConvert.SerializeObject(keyDefinitions, Formatting.Indented));
+                writer.Close();
+                string file = await File.ReadAllTextAsync(pickedFile.Path.AbsolutePath);
+                foreach (var command in commands)
+                {
+                    if(command.IsDebug)
+                        continue;
+                    file = file.Replace($"(provider).{command.InternalName}", "");
+                }
+
+                await File.WriteAllTextAsync(pickedFile.Path.AbsolutePath, file);
+                IOperatingSystem.Current.OpenFolder(Path.GetDirectoryName(pickedFile.Path.AbsolutePath));
             }
-            
-            File.WriteAllText(dialog.FileName, file);
-            IOperatingSystem.Current.OpenFolder(dialog.FileName);
-        }
+        });
     }
 
     [Command.Debug("PixiEditor.Debug.ValidateShortcutMap", "VALIDATE_SHORTCUT_MAP", "VALIDATE_SHORTCUT_MAP_DESCRIPTIVE")]
-    public void ValidateShortcutMap()
+    public async Task ValidateShortcutMap()
     {
-        OpenFileDialog dialog = new OpenFileDialog();
-        dialog.Filter = "Json files (*.json)|*.json";
-        dialog.InitialDirectory = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data", "ShortcutActionMaps");
-        var dialogResult = dialog.ShowDialog();
-        
-        if (dialogResult.HasValue && dialogResult.Value)
+        await Application.Current.ForDesktopMainWindowAsync(async desktop =>
         {
-            string file = File.ReadAllText(dialog.FileName);
-            var keyDefinitions = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(file);
-            int emptyKeys = file.Split("\"\":").Length - 1;
-            int unknownCommands = 0;
-            
-            foreach (var keyDefinition in keyDefinitions)
-            {
-                if (!Owner.CommandController.Commands.ContainsKey(keyDefinition.Value.Command))
+            FilePickerOpenOptions options = new FilePickerOpenOptions
                 {
-                    unknownCommands++;
-                }
-            }
+                    SuggestedStartLocation =
+                        await desktop.StorageProvider.TryGetFolderFromPathAsync(
+                            Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data",
+                                "ShortcutActionMaps")),
+                    FileTypeFilter = new FilePickerFileType[] { new FilePickerFileType("Json") {Patterns = new [] {"*.json"}} }
+                };
+            var pickedFile = desktop.StorageProvider.OpenFilePickerAsync(options).Result.FirstOrDefault();
 
-            NoticeDialog.Show(new LocalizedString("VALIDATION_KEYS_NOTICE_DIALOG", emptyKeys, unknownCommands), "RESULT");
-        }
+            if (pickedFile != null)
+            {
+                string file = await File.ReadAllTextAsync(pickedFile.Path.AbsolutePath);
+                var keyDefinitions = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(file);
+                int emptyKeys = file.Split("\"\":").Length - 1;
+                int unknownCommands = 0;
+
+                foreach (var keyDefinition in keyDefinitions)
+                {
+                    if (!Owner.CommandController.Commands.ContainsKey(keyDefinition.Value.Command))
+                    {
+                        unknownCommands++;
+                    }
+                }
+
+                NoticeDialog.Show(new LocalizedString("VALIDATION_KEYS_NOTICE_DIALOG", emptyKeys, unknownCommands), "RESULT");
+            }
+        });
     }
 
     [Command.Debug("PixiEditor.Debug.ClearRecentDocument", "CLEAR_RECENT_DOCUMENTS", "CLEAR_RECENTLY_OPENED_DOCUMENTS")]
@@ -212,15 +235,28 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Debug.SetLanguageFromFilePicker")]
-    public void SetLanguageFromFilePicker()
+    public async Task SetLanguageFromFilePicker()
     {
-        var file = new OpenFileDialog { Filter = "key-value json (*.json)|*.json" };
-
-        if (file.ShowDialog().GetValueOrDefault())
+        await Application.Current.ForDesktopMainWindowAsync(async desktop =>
         {
-            Owner.LocalizationProvider.LoadDebugKeys(
-                JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file.FileName)), false);
-        }
+            FilePickerOpenOptions options = new FilePickerOpenOptions
+            {
+                SuggestedStartLocation =
+                    await desktop.StorageProvider.TryGetFolderFromPathAsync(
+                        Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "Data",
+                            "Languages")),
+                FileTypeFilter = new FilePickerFileType[] { new FilePickerFileType("key-value json") {Patterns = new [] {"*.json"}} }
+            };
+            var pickedFile = desktop.StorageProvider.OpenFilePickerAsync(options).Result.FirstOrDefault();
+
+            if (pickedFile != null)
+            {
+                Owner.LocalizationProvider.LoadDebugKeys(
+                    JsonConvert.DeserializeObject<Dictionary<string, string>>(
+                        await File.ReadAllTextAsync(pickedFile.Path.AbsolutePath)),
+                    false);
+            }
+        });
     }
 
     [Command.Debug("PixiEditor.Debug.OpenInstallDirectory", "OPEN_INSTALLATION_DIR", "OPEN_INSTALLATION_DIR", IconPath = "Folder.png")]

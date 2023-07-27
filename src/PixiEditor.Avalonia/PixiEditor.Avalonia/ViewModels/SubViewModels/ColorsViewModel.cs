@@ -173,7 +173,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
             {
                 if (LocalPalettesFetcher.PaletteExists(palette.Name))
                 {
-                    var consent = ConfirmationDialog.Show(
+                    var consent = await ConfirmationDialog.Show(
                         new LocalizedString("OVERWRITE_PALETTE_CONSENT", palette.Name),
                         new LocalizedString("PALETTE_EXISTS"));
                     if (consent == ConfirmationType.No)
@@ -224,13 +224,15 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Colors.ImportPalette", CanExecute = "PixiEditor.Colors.CanImportPalette")]
-    public void ImportPalette(List<PaletteColor> palette)
+    public async Task ImportPalette(List<PaletteColor> palette)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || doc.Palette.SequenceEqual(palette))
             return;
 
-        if (doc.Palette.Count == 0 || ConfirmationDialog.Show(new LocalizedString("REPLACE_PALETTE_CONSENT"), new LocalizedString("REPLACE_PALETTE")) == ConfirmationType.Yes)
+        if (doc.Palette.Count == 0 || await ConfirmationDialog.Show(new LocalizedString(
+                    "REPLACE_PALETTE_CONSENT"),
+                new LocalizedString("REPLACE_PALETTE")) == ConfirmationType.Yes)
         {
             doc.Palette.ReplaceRange(palette.Select(x => new PaletteColor(x.R, x.G, x.B)));
         }

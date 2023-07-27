@@ -144,9 +144,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD", "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard")]
-    public void OpenFromClipboard()
+    public async Task OpenFromClipboard()
     {
-        var images = ClipboardController.GetImagesFromClipboard();
+        var images = await ClipboardController.GetImagesFromClipboard();
 
         foreach (var dataImage in images)
         {

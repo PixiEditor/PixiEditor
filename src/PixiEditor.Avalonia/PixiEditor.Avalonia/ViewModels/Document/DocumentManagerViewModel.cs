@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Input;
+using Avalonia.Input;
 using ChunkyImageLib.Operations;
 using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.ChangeableDocument.Enums;

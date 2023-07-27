@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Avalonia.ViewModels;
@@ -11,6 +12,7 @@ using PixiEditor.Helpers.Collections;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
@@ -236,7 +238,7 @@ internal partial class ViewModelMain : ViewModelBase
         ConfirmationType result = ConfirmationType.No;
         if (!document.AllChangesSaved)
         {
-            result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
+            result = await ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
             if (result == ConfirmationType.Yes)
             {
                 if (!await FileSubViewModel.SaveDocument(document, false))
