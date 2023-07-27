@@ -10,5 +10,10 @@ public sealed class StandalonePlatform : IPlatform
         return true;
     }
 
+    public void Update()
+    {
+
+    }
+
     public IAdditionalContentProvider? AdditionalContentProvider { get; } = new StandaloneAdditionalContentProvider();
 }

@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using AvalonDock.Layout;
 using Microsoft.Extensions.DependencyInjection;
@@ -56,13 +57,11 @@ internal partial class MainWindow : Window
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
-        DataContext = services.GetRequiredService<ViewModelMain>();
 
+        DataContext = services.GetRequiredService<ViewModelMain>();
         DataContext.Setup(services);
 
         InitializeComponent();
-
-        StartSteamRefresher();
 
         OnDataContextInitialized?.Invoke();
         pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
@@ -80,21 +79,6 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
-
-        StartSteamRefresher();
-    }
-
-    private void StartSteamRefresher()
-    {
-#if STEAM
-        steamRefresher.Visibility = Visibility.Visible;
-
-        PixiEditor.Platform.Steam.SteamOverlayHandler handler = new PixiEditor.Platform.Steam.SteamOverlayHandler();
-        handler.ActivateRefreshingElement += (bool activate) =>
-        {
-            steamRefresher.Visibility = activate ? Visibility.Visible : Visibility.Collapsed;
-        };
-#endif
     }
 
     private void SetupTranslator()

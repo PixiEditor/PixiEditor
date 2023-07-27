@@ -1,4 +1,5 @@
 ﻿using Steamworks;
+using Timer = System.Timers.Timer;
 
 namespace PixiEditor.Platform.Steam;
 
@@ -18,6 +19,11 @@ public class SteamPlatform : IPlatform
         {
             return false;
         }
+    }
+
+    public void Update()
+    {
+        SteamAPI.RunCallbacks();
     }
 
     public IAdditionalContentProvider? AdditionalContentProvider { get; } = new SteamAdditionalContentProvider();
