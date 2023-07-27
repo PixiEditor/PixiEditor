@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Input;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.Avalonia.Helpers.Extensions;
 
@@ -17,6 +18,24 @@ public static class DataObjectExtensions
 
     public static string[] GetFileDropList(this DataObject data)
     {
+        if (!data.Contains(DataFormats.Files))
+            return Array.Empty<string>();
+
         return (string[])data.Get(DataFormats.Files);
     }
+
+    public static VecI GetVecI(this DataObject data, string format)
+    {
+        if (!data.Contains(format))
+            return VecI.NegativeOne;
+
+        byte[] bytes = (byte[])data.Get(format);
+
+        if (bytes is { Length: < 8 })
+            return VecI.NegativeOne;
+
+        return VecI.FromBytes(bytes);
+    }
+
+    public static void SetVecI(this DataObject data, string format, VecI value) => data.Set(format, value.ToByteArray());
 }

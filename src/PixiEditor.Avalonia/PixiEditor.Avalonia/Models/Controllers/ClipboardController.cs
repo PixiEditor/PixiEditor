@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -7,7 +6,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Avalonia.Input;
 using Avalonia.Input.Platform;
-using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using ChunkyImageLib;
@@ -15,13 +13,11 @@ using PixiEditor.Avalonia.Helpers;
 using PixiEditor.Avalonia.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.IO.FileEncoders;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 using PixiEditor.ViewModels.SubViewModels.Document;
@@ -50,8 +46,7 @@ internal static class ClipboardController
     /// </summary>
     public static async Task CopyToClipboard(DocumentViewModel document)
     {
-        if (!(await ClipboardHelper.TryClear()))
-            return;
+        await Clipboard.ClearAsync();
 
         var surface = document.MaybeExtractSelectedArea();
         if (surface.IsT0)
@@ -89,7 +84,7 @@ internal static class ClipboardController
             data.SetVecI(PositionFormat, area.Pos);
         }
 
-        await ClipboardHelper.TrySetDataObject(data);
+        await Clipboard.SetDataObjectAsync(data);
     }
 
     /// <summary>
@@ -138,10 +133,38 @@ internal static class ClipboardController
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static bool TryPasteFromClipboard(DocumentViewModel document, bool pasteAsNew = false) =>
-        TryPaste(document, ClipboardHelper.TryGetDataObject(), pasteAsNew);
+    public static async Task<bool> TryPasteFromClipboard(DocumentViewModel document, bool pasteAsNew = false)
+    {
+        //TODO: maybe if we have access to more formats, we can check them as well
+        var data = await TryGetDataObject();
+        if (data == null)
+            return false;
 
-    public static List<DataImage> GetImagesFromClipboard() => GetImage(ClipboardHelper.TryGetDataObject());
+        return TryPaste(document, data, pasteAsNew);
+    }
+
+    private static async Task<DataObject?> TryGetDataObject()
+    {
+        string[] formats = await Clipboard.GetFormatsAsync();
+        if (formats.Length == 0)
+            return null;
+
+        string format = formats[0];
+        var obj = await Clipboard.GetDataAsync(format);
+
+        if (obj == null)
+            return null;
+
+        DataObject data = new DataObject();
+        data.Set(format, obj);
+        return data;
+    }
+
+    public static async Task<List<DataImage>> GetImagesFromClipboard()
+    {
+        var dataObj = await TryGetDataObject();
+        return GetImage(dataObj);
+    }
 
     /// <summary>
     /// Gets images from clipboard, supported PNG, Dib and Bitmap.
@@ -215,7 +238,16 @@ internal static class ClipboardController
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.HasImageInClipboard")]
-    public static bool IsImageInClipboard() => IsImage(ClipboardHelper.TryGetDataObject());
+    public static async Task<bool> IsImageInClipboard()
+    {
+        var files = await Clipboard.GetDataAsync(DataFormats.Files);
+        if (files == null)
+            return false;
+
+        string[] fileArray = ((IEnumerable<string>)files).ToArray();
+
+        return IsImageFormat(fileArray);
+    }
 
     public static bool IsImage(DataObject? dataObject)
     {
@@ -227,12 +259,9 @@ internal static class ClipboardController
             var files = dataObject.GetFileDropList();
             if (files != null)
             {
-                foreach (var file in files)
+                if (IsImageFormat(files))
                 {
-                    if (Importer.IsSupportedFile(file))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
             }
         }
@@ -242,6 +271,19 @@ internal static class ClipboardController
         }
 
         return HasData(dataObject, "PNG", ClipboardDataFormats.Dib, ClipboardDataFormats.Bitmap);
+    }
+
+    private static bool IsImageFormat(string[] files)
+    {
+        foreach (var file in files)
+        {
+            if (Importer.IsSupportedFile(file))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static Bitmap FromPNG(DataObject data)
