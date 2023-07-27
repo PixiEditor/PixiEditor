@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Avalonia.ViewModels;
@@ -164,14 +165,14 @@ internal partial class ViewModelMain : ViewModelBase
     }
 
     [RelayCommand]
-    public void CloseWindow(object property)
+    public async Task CloseWindow(object property)
     {
         if (!(property is CancelEventArgs))
         {
             throw new ArgumentException();
         }
 
-        ((CancelEventArgs)property).Cancel = !DisposeAllDocumentsWithSaveConfirmation();
+        ((CancelEventArgs)property).Cancel = !await DisposeAllDocumentsWithSaveConfirmation();
     }
 
     private void ToolsSubViewModel_SelectedToolChanged(object sender, SelectedToolEventArgs e)
@@ -200,13 +201,13 @@ internal partial class ViewModelMain : ViewModelBase
     /// Closes documents with unsaved changes confirmation dialog.
     /// </summary>
     /// <returns>If documents was removed successfully.</returns>
-    private bool DisposeAllDocumentsWithSaveConfirmation()
+    private async Task<bool> DisposeAllDocumentsWithSaveConfirmation()
     {
         int docCount = DocumentManagerSubViewModel.Documents.Count;
         for (int i = 0; i < docCount; i++)
         {
             WindowSubViewModel.MakeDocumentViewportActive(DocumentManagerSubViewModel.Documents.First());
-            bool canceled = !DisposeActiveDocumentWithSaveConfirmation();
+            bool canceled = !await DisposeActiveDocumentWithSaveConfirmation();
             if (canceled)
             {
                 return false;
@@ -220,14 +221,14 @@ internal partial class ViewModelMain : ViewModelBase
     /// Disposes the active document after showing the unsaved changes confirmation dialog.
     /// </summary>
     /// <returns>If the document was closed successfully.</returns>
-    public bool DisposeActiveDocumentWithSaveConfirmation()
+    public async Task<bool> DisposeActiveDocumentWithSaveConfirmation()
     {
         if (DocumentManagerSubViewModel.ActiveDocument is null)
             return false;
-        return DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument);
+        return await DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument);
     }
 
-    public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
+    public async Task<bool> DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
     {
         const string ConfirmationDialogTitle = "UNSAVED_CHANGES";
         const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
@@ -238,7 +239,7 @@ internal partial class ViewModelMain : ViewModelBase
             result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
             if (result == ConfirmationType.Yes)
             {
-                if (!FileSubViewModel.SaveDocument(document, false))
+                if (!await FileSubViewModel.SaveDocument(document, false))
                     return false;
             }
         }

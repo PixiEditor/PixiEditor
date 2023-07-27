@@ -3,15 +3,18 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Extensions;
+using PixiEditor.Models.IO.FileEncoders;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using BlendMode = PixiEditor.Parser.BlendMode;
@@ -41,7 +44,7 @@ internal partial class DocumentViewModel
         return document;
     }
 
-    private static ReferenceLayer GetReferenceLayer(IReadOnlyDocument document)
+    private static ReferenceLayer? GetReferenceLayer(IReadOnlyDocument document)
     {
         if (document.ReferenceLayer == null)
         {
@@ -54,12 +57,11 @@ internal partial class DocumentViewModel
         
         surface.DrawBytes(surface.Size, layer.ImagePbgra32Bytes.ToArray(), ColorType.Bgra8888, AlphaType.Premul);
 
-        var encoder = new PngBitmapEncoder();
+        var encoder = new UniversalFileEncoder(EncodedImageFormat.Png);
 
         using var stream = new MemoryStream();
         
-        encoder.Frames.Add(BitmapFrame.Create(surface.ToWriteableBitmap()));
-        encoder.Save(stream);
+        encoder.Save(stream, surface);
 
         stream.Position = 0;
 

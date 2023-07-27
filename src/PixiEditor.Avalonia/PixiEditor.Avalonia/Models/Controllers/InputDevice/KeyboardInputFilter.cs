@@ -77,9 +77,11 @@ internal class KeyboardInputFilter
         /*if (key == Key.System) TODO: Validate if this is not needed
             key = args.SystemKey;*/
 
-        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.Down, keyboardState, OnAnyKeyDown);
+        bool isRepeat = keyboardState.TryGetValue(key, out KeyStates state) ? state == KeyStates.Down : false;
+
+        MaybeUpdateKeyState(key, isRepeat, KeyStates.Down, keyboardState, OnAnyKeyDown);
         key = ConvertRightKeys(key);
-        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.Down, converterdKeyboardState, OnConvertedKeyDown);
+        MaybeUpdateKeyState(key, isRepeat, KeyStates.Down, converterdKeyboardState, OnConvertedKeyDown);
     }
 
     public void KeyUpInlet(KeyEventArgs args)
@@ -88,9 +90,11 @@ internal class KeyboardInputFilter
         /*if (key == Key.System) TODO: Validate if this is not needed
             key = args.SystemKey;*/
 
-        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.None, keyboardState, OnAnyKeyUp);
+        bool isRepeat = keyboardState.TryGetValue(key, out KeyStates state) ? state == KeyStates.Down : false;
+
+        MaybeUpdateKeyState(key, isRepeat, KeyStates.None, keyboardState, OnAnyKeyUp);
         key = ConvertRightKeys(key);
-        MaybeUpdateKeyState(key, args.IsRepeat, KeyStates.None, converterdKeyboardState, OnConvertedKeyUp);
+        MaybeUpdateKeyState(key, isRepeat, KeyStates.None, converterdKeyboardState, OnConvertedKeyUp);
     }
 
     private void MaybeUpdateKeyState(

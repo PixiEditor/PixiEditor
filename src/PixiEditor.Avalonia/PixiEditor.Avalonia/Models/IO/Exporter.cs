@@ -185,7 +185,7 @@ internal class Exporter
                 bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, DrawingApi.Core.Surface.BlendMode.Multiply);
 
             using var stream = new FileStream(savePath, FileMode.Create);
-            encoder.Save(stream, bitmap);
+            encoder.SaveAsync(stream, bitmap);
         }
         catch (SecurityException)
         {

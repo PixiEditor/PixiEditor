@@ -17,9 +17,14 @@ public class UniversalFileEncoder : IFileEncoder
         SupportsTransparency = FormatSupportsTransparency(format);
     }
 
-    public async Task Save(Stream stream, Surface bitmap)
+    public async Task SaveAsync(Stream stream, Surface bitmap)
     {
         await bitmap.DrawingSurface.Snapshot().Encode(Format).AsStream().CopyToAsync(stream);
+    }
+
+    public void Save(Stream stream, Surface bitmap)
+    {
+        bitmap.DrawingSurface.Snapshot().Encode(Format).AsStream().CopyTo(stream);
     }
 
     private bool FormatSupportsTransparency(EncodedImageFormat format)

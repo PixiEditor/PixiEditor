@@ -151,7 +151,7 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
     public ObservableCollection<PaletteColor> Swatches { get; set; } = new(); // TODO: Replaced WPFObservableCollection, make sure it works
-    public ObservableCollection<PaletteColor> Palette { get; set; } = new(); // TODO: Same
+    public ObservableRangeCollection<PaletteColor> Palette { get; set; } = new(); // TODO: Same
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
@@ -227,7 +227,7 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
         }
 
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
-        viewModel.Palette = new ObservableCollection<PaletteColor>(builderInstance.Palette);
+        viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
         AddMembers(viewModel.StructureRoot.GuidValue, builderInstance.Children);
 

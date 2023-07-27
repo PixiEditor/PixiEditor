@@ -8,6 +8,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
@@ -16,7 +17,7 @@ namespace PixiEditor.Models.Containers;
 
 internal interface IDocument : IHandler
 {
-    public ObservableCollection<PaletteColor> Palette { get; set; }
+    public ObservableRangeCollection<PaletteColor> Palette { get; set; }
     public VecI SizeBindable { get; }
     public IStructureMemberHandler? SelectedStructureMember { get; }
     public IReferenceLayerHandler ReferenceLayerHandler { get; }

@@ -165,7 +165,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
         if (lospecPaletteArg != null)
         {
             var browser = PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand,
-                new WpfObservableRangeCollection<PaletteColor>());
+                new ObservableRangeCollection<PaletteColor>());
 
             browser.IsFetching = true;
             var palette = await LospecPaletteFetcher.FetchPalette(lospecPaletteArg.Split(@"://")[1].Replace("/", ""));
