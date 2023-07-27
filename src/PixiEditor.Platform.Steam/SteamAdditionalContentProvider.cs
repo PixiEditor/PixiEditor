@@ -11,6 +11,7 @@ public sealed class SteamAdditionalContentProvider : IAdditionalContentProvider
 
     public bool IsContentInstalled(AdditionalContentProduct product)
     {
+        if(!SteamAPI.IsSteamRunning()) return false;
         if(!PlatformHasContent(product)) return false;
 
         AppId_t appId = productIds[product];
