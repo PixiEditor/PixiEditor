@@ -55,8 +55,7 @@ internal partial class App : Application
         }
         #endif
 
-        LoadingWindow loadingWindow = new();
-        loadingWindow.Show();
+        LoadingWindow.ShowInNewThread();
 
         AddNativeAssets();
 
@@ -66,11 +65,11 @@ internal partial class App : Application
         extensionLoader.LoadExtensions();
 
         MainWindow = new MainWindow(extensionLoader);
-        MainWindow.ContentRendered += (sender, args) =>
+        MainWindow.ContentRendered += (_, _) =>
         {
-            loadingWindow.Close();
+            LoadingWindow.Instance.SafeClose();
+            MainWindow.Activate();
         };
-
         MainWindow.Show();
     }
 
