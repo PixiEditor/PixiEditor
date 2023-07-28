@@ -19,7 +19,7 @@ public static class SystemCommands
 
     public static ICommand CloseWindowCommand { get; } = new RelayCommand<Window>(CloseWindow);
 
-    private static void CloseWindow(Window? obj)
+    public static void CloseWindow(Window? obj)
     {
         // TODO: Close window, this is just a placeholder, won't work
     }
