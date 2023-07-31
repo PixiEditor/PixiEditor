@@ -20,7 +20,7 @@ public class PopupWindow : IPopupWindow
     public void Show() => _underlyingWindow.Show();
     public void Close() => _underlyingWindow.Close();
 
-    public bool? ShowDialog() => _underlyingWindow.ShowDialog();
+    public Task<bool?> ShowDialog() => _underlyingWindow.ShowDialog();
     public double Width
     {
         get => _underlyingWindow.Width;

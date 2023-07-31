@@ -1,0 +1,21 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             mc:Ignorable="d"
+             d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput" Focusable="True">
+    <TextBox TextAlignment="Center" Focusable="True"
+             PointerWheelChanged="TextBox_MouseWheel"
+             TextInput="TextBox_PreviewTextInput"
+             Text="{Binding ElementName=numberInput, Path=Value}"
+             Padding="0" VerticalContentAlignment="Center">
+        <Interaction.Behaviors>
+            <behaviours:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"
+                                             FocusNext="{Binding ElementName=numberInput, Path=FocusNext}"/>
+            <behaviours:GlobalShortcutFocusBehavior/>
+        </Interaction.Behaviors>
+    </TextBox>
+</UserControl>

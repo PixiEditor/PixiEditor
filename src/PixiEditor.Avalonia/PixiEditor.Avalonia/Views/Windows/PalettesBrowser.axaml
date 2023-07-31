@@ -9,6 +9,8 @@
     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     xmlns:dialogs1="clr-namespace:PixiEditor.Views.Dialogs"
     xmlns:viewModels="clr-namespace:PixiEditor.Avalonia.ViewModels"
+    xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+    xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
     mc:Ignorable="d"
     WindowStartupLocation="CenterScreen"
     Height="600" Width="850"
@@ -66,16 +68,15 @@
                     </Image>
                 </ToggleButton>
                 <Label Margin="10 0 0 0" ui:Translator.Key="NAME" VerticalAlignment="Center"/>
-                <usercontrols:InputBox
-                                       Text="{Binding NameFilter, Delay=100, ElementName=palettesBrowser, UpdateSourceTrigger=PropertyChanged}"
-                                       VerticalAlignment="Center"
-                                       Style="{StaticResource DarkTextBoxStyle}" Width="150">
+                <userControls:InputBox
+                                       Text="{Binding NameFilter, ElementName=palettesBrowser}"
+                                       VerticalAlignment="Center" Width="150">
                     <Interaction.Behaviors>
                         <behaviours:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"
                                                          FocusNext="{Binding ElementName=numberInput, Path=FocusNext}"/>
                         <behaviours:GlobalShortcutFocusBehavior/>
                     </Interaction.Behaviors>
-                </usercontrols:InputBox>
+                </userControls:InputBox>
 
                 <Label Margin="10 0 0 0" ui:Translator.Key="COLORS" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
                 <ComboBox x:Name="colorsComboBox" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
