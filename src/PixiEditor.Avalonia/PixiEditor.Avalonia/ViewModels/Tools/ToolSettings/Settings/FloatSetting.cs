@@ -1,5 +1,4 @@
-﻿using System.Windows.Controls;
-using System.Windows.Data;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using PixiEditor.Views.UserControls;
@@ -39,7 +38,7 @@ internal sealed class FloatSetting : Setting<float>
         {
             Mode = BindingMode.TwoWay
         };
-        numbrInput.SetBinding(NumberInput.ValueProperty, binding);
+        numbrInput.Bind(NumberInput.ValueProperty, binding);
         return numbrInput;
     }
 

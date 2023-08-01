@@ -2,5 +2,5 @@
 
 internal interface IEllipseToolHandler : IShapeToolHandler
 {
-    public bool DrawCircle { get; set; }
+    public bool DrawCircle { get; }
 }

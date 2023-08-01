@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -14,7 +15,7 @@ using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.M)]
-internal class SelectToolViewModel : ToolViewModel
+internal class SelectToolViewModel : ToolViewModel, ISelectToolHandler
 {
     private string defaultActionDisplay = "SELECT_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "SELECT_TOOL_NAME";

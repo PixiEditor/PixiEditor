@@ -5,6 +5,6 @@ namespace PixiEditor.Models.Containers.Tools;
 
 internal interface ISelectToolHandler : IToolHandler
 {
-    public SelectionShape SelectShape { get; set; }
-    public SelectionMode ResultingSelectionMode { get; set; }
+    public SelectionShape SelectShape { get; }
+    public SelectionMode ResultingSelectionMode { get; }
 }

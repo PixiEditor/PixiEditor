@@ -5,13 +5,15 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.Containers;
+using PixiEditor.Models.Containers.Toolbars;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools;
 
-internal abstract class ToolViewModel : ObservableObject
+internal abstract class ToolViewModel : ObservableObject, IToolHandler
 {
     public bool IsTransient { get; set; } = false;
     public KeyCombination Shortcut { get; set; }
@@ -68,7 +70,7 @@ internal abstract class ToolViewModel : ObservableObject
 
     public Cursor Cursor { get; set; } = new Cursor(StandardCursorType.Arrow);
 
-    public Toolbar Toolbar { get; set; } = new EmptyToolbar();
+    public IToolbar Toolbar { get; set; } = new EmptyToolbar();
 
     internal ToolViewModel()
     {

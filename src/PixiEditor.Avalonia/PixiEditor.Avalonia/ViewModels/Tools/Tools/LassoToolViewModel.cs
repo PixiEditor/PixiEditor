@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -11,7 +12,7 @@ using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.ToolAttribute(Key = Key.Q)]
-internal class LassoToolViewModel : ToolViewModel
+internal class LassoToolViewModel : ToolViewModel, ILassoToolHandler
 {
     private string defaultActionDisplay = "LASSO_TOOL_ACTION_DISPLAY_DEFAULT";
 
@@ -22,7 +23,7 @@ internal class LassoToolViewModel : ToolViewModel
     }
 
     private SelectionMode KeyModifierselectionMode = SelectionMode.New;
-    public SelectionMode ResultingSelectionMode => KeyModifierselectionMode != SelectionMode.New ? KeyModifierselectionMode : SelectMode;
+    public SelectionMode? ResultingSelectionMode => KeyModifierselectionMode != SelectionMode.New ? KeyModifierselectionMode : SelectMode;
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

@@ -2,5 +2,5 @@
 
 internal interface IPenToolHandler : IToolHandler
 {
-    public bool PixelPerfectEnabled { get; set; }
+    public bool PixelPerfectEnabled { get; }
 }

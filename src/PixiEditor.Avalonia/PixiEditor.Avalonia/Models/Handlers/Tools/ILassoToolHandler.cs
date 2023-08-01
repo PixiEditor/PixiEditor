@@ -4,5 +4,5 @@ namespace PixiEditor.Models.Containers.Tools;
 
 internal interface ILassoToolHandler : IToolHandler
 {
-    public SelectionMode? ResultingSelectionMode { get; set; }
+    public SelectionMode? ResultingSelectionMode { get; }
 }

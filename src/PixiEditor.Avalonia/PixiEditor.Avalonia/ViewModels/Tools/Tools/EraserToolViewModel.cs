@@ -5,6 +5,7 @@ using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -12,7 +13,7 @@ using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.E)]
-internal class EraserToolViewModel : ToolViewModel
+internal class EraserToolViewModel : ToolViewModel, IEraserToolHandler
 {
     public EraserToolViewModel()
     {

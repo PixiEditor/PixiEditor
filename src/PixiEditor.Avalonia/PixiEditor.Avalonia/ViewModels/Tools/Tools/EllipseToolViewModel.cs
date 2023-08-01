@@ -5,12 +5,13 @@ using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Localization;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.C)]
-internal class EllipseToolViewModel : ShapeTool
+internal class EllipseToolViewModel : ShapeTool, IEllipseToolHandler
 {
     private string defaultActionDisplay = "ELLIPSE_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "ELLIPSE_TOOL";

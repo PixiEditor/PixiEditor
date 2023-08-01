@@ -2,6 +2,6 @@
 
 internal interface ILineToolHandler : IToolHandler
 {
-    public int ToolSize { get; set; }
-    public bool Snap { get; set; }
+    public int ToolSize { get; }
+    public bool Snap { get; }
 }

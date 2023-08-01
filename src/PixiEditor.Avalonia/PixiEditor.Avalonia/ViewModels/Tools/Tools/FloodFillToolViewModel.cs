@@ -4,13 +4,14 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Localization;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.G)]
-internal class FloodFillToolViewModel : ToolViewModel
+internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
 {
     private readonly string defaultActionDisplay = "FLOOD_FILL_TOOL_ACTION_DISPLAY_DEFAULT";
 

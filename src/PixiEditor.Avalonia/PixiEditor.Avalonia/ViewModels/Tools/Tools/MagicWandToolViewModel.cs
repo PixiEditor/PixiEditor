@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -12,7 +13,7 @@ using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.W)]
-internal class MagicWandToolViewModel : ToolViewModel
+internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
 {
     public override LocalizedString Tooltip => new LocalizedString("MAGIC_WAND_TOOL_TOOLTIP", Shortcut);
 

@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Models.Containers.Toolbars;
 
-public interface IBasicToolbar : IToolbar
+internal interface IBasicToolbar : IToolbar
 {
     public int ToolSize { get; set; }
 }

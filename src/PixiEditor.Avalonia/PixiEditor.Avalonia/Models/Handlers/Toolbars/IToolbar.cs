@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.Models.Containers.Toolbars;
+﻿using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
-public interface IToolbar : IHandler
+namespace PixiEditor.Models.Containers.Toolbars;
+
+internal interface IToolbar : IHandler
 {
-
+    public Setting GetSetting(string name);
 }

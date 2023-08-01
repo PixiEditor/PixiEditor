@@ -1,17 +1,15 @@
-﻿using System.Windows.Input;
-using Avalonia.Input;
-using ChunkyImageLib.DataHolders;
+﻿using Avalonia.Input;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
-using PixiEditor.Models.Localization;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.V)]
-internal class MoveToolViewModel : ToolViewModel
+internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 {
     private string defaultActionDisplay = "MOVE_TOOL_ACTION_DISPLAY";
     public override string ToolNameLocalizationKey => "MOVE_TOOL";

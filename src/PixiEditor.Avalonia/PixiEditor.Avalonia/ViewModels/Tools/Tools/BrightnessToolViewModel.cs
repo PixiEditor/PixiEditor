@@ -5,6 +5,8 @@ using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Containers.Toolbars;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
@@ -14,9 +16,10 @@ using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.U)]
-internal class BrightnessToolViewModel : ToolViewModel
+internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
 {
     private readonly string defaultActionDisplay = "BRIGHTNESS_TOOL_ACTION_DISPLAY_DEFAULT";
+    private int _correctionFactor;
     public override string ToolNameLocalizationKey => "BRIGHTNESS_TOOL";
 
     public BrightnessToolViewModel()
@@ -27,9 +30,13 @@ internal class BrightnessToolViewModel : ToolViewModel
 
     public override bool IsErasable => true;
 
+    public IToolbar Toolbar { get; set; }
     public override LocalizedString Tooltip => new LocalizedString("BRIGHTNESS_TOOL_TOOLTIP", Shortcut);
 
     public override BrushShape BrushShape => BrushShape.Circle;
+
+    BrightnessMode IBrightnessToolHandler.BrightnessMode { get; set; }
+    int IBrightnessToolHandler.ToolSize { get; set; }
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();
@@ -41,6 +48,8 @@ internal class BrightnessToolViewModel : ToolViewModel
     public BrightnessMode BrightnessMode => GetValue<BrightnessMode>();
     
     public bool Darken { get; private set; } = false;
+
+    int IBrightnessToolHandler.CorrectionFactor => (int)CorrectionFactor;
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

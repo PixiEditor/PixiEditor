@@ -11,7 +11,7 @@ using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.L)]
-internal class LineToolViewModel : ShapeTool
+internal class LineToolViewModel : ShapeTool, ILineToolHandler
 {
     private string defaultActionDisplay = "LINE_TOOL_ACTION_DISPLAY_DEFAULT";
 

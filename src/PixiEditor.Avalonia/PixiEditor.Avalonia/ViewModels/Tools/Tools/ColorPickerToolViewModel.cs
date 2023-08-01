@@ -1,15 +1,13 @@
 ﻿using System.ComponentModel;
-using System.Windows.Input;
-using Avalonia.Controls;
 using Avalonia.Input;
 using Hardware.Info;
-using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Models.Containers.Toolbars;
+using PixiEditor.Models.Containers.Tools;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
-using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
@@ -18,7 +16,7 @@ using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 [Command.Tool(Key = Key.O, Transient = Key.LeftAlt)]
-internal class ColorPickerToolViewModel : ToolViewModel
+internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
 {
     private readonly string defaultReferenceActionDisplay = "COLOR_PICKER_ACTION_DISPLAY_DEFAULT";
     
