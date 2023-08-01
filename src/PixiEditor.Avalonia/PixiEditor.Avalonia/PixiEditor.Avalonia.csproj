@@ -51,4 +51,8 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
     </ItemGroup>
+  
+    <ItemGroup>
+      <Folder Include="Views\Buttons\" />
+    </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using Avalonia.Input;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;

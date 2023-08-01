@@ -1,5 +1,7 @@
-﻿using System.Windows.Input;
+﻿using System.Linq;
+using System.Windows.Input;
 using System.Windows.Media;
+using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
@@ -24,7 +26,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Tools.Tools
 
         public PenToolViewModel()
         {
-            Cursor = Cursors.Pen;
+            Cursor = new Cursor(StandardCursorType.Help); // TODO: Create pen cursor
             Toolbar = ToolbarFactory.Create<PenToolViewModel, BasicToolbar>(this);
             
             ViewModelMain.Current.ToolsSubViewModel.SelectedToolChanged += SelectedToolChanged;

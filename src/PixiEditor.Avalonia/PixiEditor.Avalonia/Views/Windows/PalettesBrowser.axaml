@@ -11,6 +11,10 @@
     xmlns:viewModels="clr-namespace:PixiEditor.Avalonia.ViewModels"
     xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
     xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+    xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+    xmlns:helpers1="clr-namespace:PixiEditor.Avalonia.Helpers"
+    xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+    xmlns:indicators="clr-namespace:PixiEditor.Avalonia.Views.Indicators"
     mc:Ignorable="d"
     WindowStartupLocation="CenterScreen"
     Height="600" Width="850"
@@ -44,26 +48,17 @@
                               Focusable="False">
                     <Image Width="24" Height="24" Source="/Images/ChevronsDown.png">
                         <Image.Styles>
-                            <Style Selector="{x:Type Image}">
+                            <Style Selector="Image">
+                                <Setter Property="ui:Translator.TooltipKey" Value="DESCENDING"/>
+                            </Style>
+                            <Style Selector="Image.IsChecked">
                                 <Setter Property="RenderTransform">
                                     <Setter.Value>
-
+                                        <RotateTransform Angle="180" CenterX="11.5" CenterY="11.5"/>
                                     </Setter.Value>
                                 </Setter>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=toggleBtn}" Value="true">
-                                        <Setter Property="RenderTransform">
-                                            <Setter.Value>
-                                                <RotateTransform Angle="180" CenterX="11.5" CenterY="11.5"/>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Setter Property="ui:Translator.TooltipKey" Value="ASCENDING"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding IsChecked, ElementName=toggleBtn}" Value="false">
-                                        <Setter Property="ui:Translator.TooltipKey" Value="DESCENDING"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
+                                <Setter Property="ui:Translator.TooltipKey" Value="ASCENDING"/>
+                                </Style>
                         </Image.Styles>
                     </Image>
                 </ToggleButton>
@@ -78,14 +73,14 @@
                     </Interaction.Behaviors>
                 </userControls:InputBox>
 
-                <Label Margin="10 0 0 0" ui:Translator.Key="COLORS" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
+                <Label Margin="10 0 0 0" ui:Translator.Key="COLORS" VerticalAlignment="Center"/>
                 <ComboBox x:Name="colorsComboBox" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
                     <ComboBoxItem IsSelected="True" ui:Translator.Key="ANY"/>
                     <ComboBoxItem ui:Translator.Key="MAX"/>
                     <ComboBoxItem ui:Translator.Key="MIN"/>
                     <ComboBoxItem ui:Translator.Key="EXACT"/>
                 </ComboBox>
-                <usercontrols:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
+                <userControls:NumberInput Width="50" VerticalAlignment="Center" Margin="10 0 0 0"
                                    FocusNext="True"
                                    Value="{Binding ColorsNumber, ElementName=palettesBrowser, Mode=TwoWay}"/>
                 <CheckBox Margin="10 0 0 0" VerticalAlignment="Center"
@@ -120,10 +115,8 @@
                         IsVisible="{Binding ElementName=palettesBrowser, Path=SortedResults.Count, Converter={converters:CountToVisibilityConverter}}">
                 <TextBlock ui:Translator.Key="NO_PALETTES_FOUND" Foreground="White" FontSize="20" TextAlignment="Center"/>
                 <TextBlock Margin="0 10 0 0">
-                    <Hyperlink Foreground="Gray" Cursor="Hand" FontSize="18" NavigateUri="https://lospec.com/palette-list"
-                               RequestNavigate="Hyperlink_OnRequestNavigate">
-                        <TextBlock ui:Translator.Key="LOSPEC_LINK_TEXT"/>
-                    </Hyperlink>
+                    <TextBlock ui:Translator.Key="LOSPEC_LINK_TEXT"
+                               helpers1:Hyperlink.Url="https://lospec.com/palette-list"/>
                 </TextBlock>
                 <Image Width="128" Height="128" Source="/Images/Search.png"/>
             </StackPanel>
@@ -132,7 +125,7 @@
                               IsVisible="{Binding PaletteList.FetchedCorrectly, ElementName=palettesBrowser}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <local:PaletteItem Palette="{Binding}"
+                            <palettes:PaletteItem Palette="{Binding}"
                                                OnRename="PaletteItem_OnRename"
                                                ToggleFavouriteCommand="{Binding ToggleFavouriteCommand, ElementName=palettesBrowser}"
                                                DeletePaletteCommand="{Binding DeletePaletteCommand, ElementName=palettesBrowser}"
@@ -141,9 +134,10 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-            <Image gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" HorizontalAlignment="Center" VerticalAlignment="Center"
-                   IsVisible="{Binding IsFetching, ElementName=palettesBrowser}"
-                   Height="50" gif:ImageBehavior.AnimationSpeedRatio="1.5"/>
+            <indicators:LoadingIndicator
+                IsVisible="{Binding IsFetching, ElementName=palettesBrowser}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Height="50"/>
         </Grid>
     </Grid>
 </Window>

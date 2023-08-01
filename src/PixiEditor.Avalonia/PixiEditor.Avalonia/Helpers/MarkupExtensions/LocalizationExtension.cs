@@ -27,6 +27,7 @@ public class LocalizationExtension : MarkupExtension
 
     private object GetFlowDirectionBinding(IServiceProvider serviceProvider)
     {
+        //TODO: Fix this
         /*flowDirectionBinding = new Binding("CurrentLanguage.FlowDirection");
         flowDirectionBinding.Source = ViewModelMain.Current.LocalizationProvider;
         flowDirectionBinding.Mode = BindingMode.OneWay;

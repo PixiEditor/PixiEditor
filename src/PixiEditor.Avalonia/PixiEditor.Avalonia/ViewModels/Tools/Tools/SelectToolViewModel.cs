@@ -23,7 +23,7 @@ internal class SelectToolViewModel : ToolViewModel
     {
         ActionDisplay = defaultActionDisplay;
         Toolbar = ToolbarFactory.Create(this);
-        Cursor = Cursors.Cross;
+        Cursor = new Cursor(StandardCursorType.Cross);
     }
 
     private SelectionMode KeyModifierselectionMode = SelectionMode.New;

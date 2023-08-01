@@ -27,6 +27,8 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.OperatingSystem;
+using PixiEditor.Views.UserControls;
+using PixiEditor.Views.UserControls.Palettes;
 using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
 
 namespace PixiEditor.Views.Dialogs;
@@ -394,21 +396,11 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         }
     }
 
-    private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
-    {
-        e.CanExecute = true;
-    }
-
     private static async void OnShowOnlyFavouritesChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
         PalettesBrowser browser = (PalettesBrowser)e.Sender;
         browser.Filtering.ShowOnlyFavourites = e.NewValue.Value;
         await browser.UpdatePaletteList();
-    }
-
-    private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
-    {
-        SystemCommands.CloseWindow(this);
     }
 
     private static async void ColorsNumberChanged(AvaloniaPropertyChangedEventArgs<int> e)
@@ -485,7 +477,7 @@ internal partial class PalettesBrowser : Window, IPopupWindow
     {
         if (PaletteList?.Palettes == null) return;
         var viewer = (ScrollViewer)sender;
-        if (viewer.VerticalOffset == viewer.ScrollableHeight && _lastScrolledOffset != viewer.VerticalOffset)
+        if (viewer.Offset.Y == viewer.Viewport.Height && _lastScrolledOffset != viewer.Offset.Y)
         {
             IsFetching = true;
             var newPalettes = await FetchPaletteList(Filtering);
@@ -499,7 +491,7 @@ internal partial class PalettesBrowser : Window, IPopupWindow
             Sort();
             IsFetching = false;
 
-            _lastScrolledOffset = viewer.VerticalOffset;
+            _lastScrolledOffset = viewer.Offset.Y;
         }
     }
 
@@ -609,7 +601,7 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         await LocalPalettesFetcher.SavePalette(finalFileName, CurrentEditingPalette.ToArray());
     }
 
-    private void PaletteItem_OnRename(object sender, EditableTextBlock.TextChangedEventArgs e)
+    private void PaletteItem_OnRename(object? sender, EditableTextBlock.TextChangedEventArgs e)
     {
         PaletteItem item = (PaletteItem)sender;
         item.Palette.Name = e.OldText;
@@ -682,11 +674,6 @@ internal partial class PalettesBrowser : Window, IPopupWindow
             string name = LocalPalettesFetcher.GetNonExistingName(Path.GetFileName(fileName), true);
             await LocalPalettesFetcher.SavePalette(name, data.Colors.ToArray());
         }
-    }
-
-    private void Hyperlink_OnRequestNavigate(object sender, RequestNavigateEventArgs e)
-    {
-        IOperatingSystem.Current.OpenHyperlink(e.Uri.ToString());
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)

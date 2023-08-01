@@ -80,26 +80,26 @@ internal partial class NumberInput : UserControl
 
     private static void OnValueChanged(AvaloniaPropertyChangedEventArgs<float> e)
     {
-        NumberInput input = (NumberInput)d;
+        NumberInput input = (NumberInput)e.Sender;
         input.Value = (float)Math.Round(Math.Clamp(e.NewValue.Value, input.Min, input.Max), input.Decimals);
     }
 
-    private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    private void TextBox_PreviewTextInput(object sender, TextInputEventArgs e)
     {
         e.Handled = !regex.IsMatch((sender as TextBox).Text.Insert((sender as TextBox).SelectionStart, e.Text));
     }
 
     private void TextBox_MouseWheel(object sender, PointerWheelEventArgs e)
     {
-        int step = e.Delta.Length / 100;
+        int step = (int)e.Delta.Y / 100;
 
         float newValue = Value;
-        if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
             float multiplier = (Max - Min) * 0.1f;
             newValue += step * multiplier;
         }
-        else if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+        else if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             newValue += step / 2f;
         }
@@ -107,6 +107,7 @@ internal partial class NumberInput : UserControl
         {
             newValue += step;
         }
+
         Value = (float)Math.Round(Math.Clamp(newValue, Min, Max), Decimals);
 
         OnScrollAction?.Invoke();

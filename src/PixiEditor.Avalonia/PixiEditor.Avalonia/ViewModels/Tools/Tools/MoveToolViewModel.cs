@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
@@ -24,7 +25,7 @@ internal class MoveToolViewModel : ToolViewModel
     {
         ActionDisplay = defaultActionDisplay;
         Toolbar = ToolbarFactory.Create(this);
-        Cursor = Cursors.Arrow;
+        Cursor = new Cursor(StandardCursorType.Arrow);
     }
 
     public override LocalizedString Tooltip => new LocalizedString("MOVE_TOOL_TOOLTIP", Shortcut);

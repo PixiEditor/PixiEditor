@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="PixiEditor.Views.UserControls.EditableTextBlock"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+             mc:Ignorable="d" x:Name="etb"
+             d:DesignHeight="60" d:DesignWidth="100" Focusable="True">
+    <Grid>
+        <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}" PointerPressed="TextBlock_MouseDown"
+                   TextTrimming="CharacterEllipsis" Name="textBlock"
+                   IsVisible="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                   Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}" />
+        <TextBox Foreground="{Binding ElementName=etb, Path=Foreground}"
+                 MaxLength="{Binding Path=MaxChars, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}"
+                 LostFocus="TextBox_LostFocus"
+                 Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}"
+                 KeyDown="TextBox_KeyDown"
+                 IsVisible="{Binding Path=!TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                 Name="textBox">
+            <Interaction.Behaviors>
+                <behaviours:GlobalShortcutFocusBehavior/>
+            </Interaction.Behaviors>
+        </TextBox>
+    </Grid>
+</UserControl>

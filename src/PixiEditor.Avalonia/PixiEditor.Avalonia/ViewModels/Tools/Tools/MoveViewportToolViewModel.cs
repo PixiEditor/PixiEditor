@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using Avalonia.Input;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Localization;
@@ -16,7 +17,7 @@ internal class MoveViewportToolViewModel : ToolViewModel
 
     public MoveViewportToolViewModel()
     {
-        Cursor = Cursors.SizeAll;
+        Cursor = new Cursor(StandardCursorType.SizeAll);
     }
 
     public override void OnSelected()
