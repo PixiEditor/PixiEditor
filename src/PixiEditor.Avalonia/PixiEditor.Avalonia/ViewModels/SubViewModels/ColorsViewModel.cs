@@ -36,7 +36,7 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 [Command.Group("PixiEditor.Colors", "PALETTE_COLORS")]
 internal class ColorsViewModel : SubViewModel<ViewModelMain>
 {
-    public RelayCommand<List<PaletteColor>> ImportPaletteCommand { get; set; }
+    public AsyncRelayCommand<List<PaletteColor>> ImportPaletteCommand { get; set; }
     private PaletteProvider paletteProvider;
 
     public PaletteProvider PaletteProvider
@@ -82,7 +82,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
     public ColorsViewModel(ViewModelMain owner)
         : base(owner)
     {
-        ImportPaletteCommand = new RelayCommand<List<PaletteColor>>(ImportPalette, CanImportPalette);
+        ImportPaletteCommand = new AsyncRelayCommand<List<PaletteColor>>(ImportPalette, CanImportPalette);
         Owner.OnStartupEvent += OwnerOnStartupEvent;
     }
 

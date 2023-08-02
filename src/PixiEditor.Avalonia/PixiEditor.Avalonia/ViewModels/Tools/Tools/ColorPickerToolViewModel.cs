@@ -105,10 +105,10 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
     private void UpdateActionDisplay()
     {
         // TODO: We probably need to create keyboard service to handle this
-        bool ctrlDown = (Keyboard.Modifiers & KeyModifiers.Control) != 0;
-        bool shiftDown = (Keyboard.Modifiers & KeyModifiers.Shift) != 0;
+        /*bool ctrlDown = (Keyboard.Modifiers & KeyModifiers.Control) != 0;
+        bool shiftDown = (Keyboard.Modifiers & KeyModifiers.Shift) != 0;*/
         
-        UpdateActionDisplay(ctrlDown, shiftDown);
+        UpdateActionDisplay(false, false);
     }
     
     private void UpdateActionDisplay(bool ctrlIsDown, bool shiftIsDown)

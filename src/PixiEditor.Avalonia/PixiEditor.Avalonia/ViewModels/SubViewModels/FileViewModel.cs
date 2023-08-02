@@ -112,9 +112,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.File.OpenRecent")]
-    public void OpenRecent(object parameter)
+    public void OpenRecent(string parameter)
     {
-        string path = (string)parameter;
+        string path = parameter;
         if (!File.Exists(path))
         {
             NoticeDialog.Show("FILE_NOT_FOUND", "FAILED_TO_OPEN_FILE");

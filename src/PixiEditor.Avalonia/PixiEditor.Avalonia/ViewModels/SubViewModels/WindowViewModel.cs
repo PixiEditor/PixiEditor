@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Avalonia.Views;
 using PixiEditor.Models.Commands;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Views.Dialogs;
 using Command = PixiEditor.Models.Commands.Attributes.Commands.Command;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;

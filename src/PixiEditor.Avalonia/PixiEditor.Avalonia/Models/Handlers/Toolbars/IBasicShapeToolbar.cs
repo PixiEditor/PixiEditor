@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Models.Containers.Toolbars;
 
-public interface IBasicShapeToolbar : IBasicToolbar
+internal interface IBasicShapeToolbar : IBasicToolbar
 {
     public bool Fill { get; }
     public Color FillColor { get; }

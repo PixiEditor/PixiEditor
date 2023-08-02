@@ -19,17 +19,4 @@ internal static class ProcessHelper
     {
         return IOperatingSystem.Current.ProcessUtility.IsRunningAsAdministrator();
     }
-
-    public static void OpenInExplorer(string path)
-    {
-        try
-        {
-            string fixedPath = Path.GetFullPath(path);
-            var process = Process.Start("explorer.exe", $"/select,\"{fixedPath}\"");
-
-            // Explorer might need a second to show up
-            process.WaitForExit(500);
-        }
-        finally{}
-    }
 }
