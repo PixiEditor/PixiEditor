@@ -22,11 +22,11 @@ internal class AlignableWrapPanel : Panel
         Size curLineSize = default;
         Size panelSize = default;
 
-        UIElementCollection children = InternalChildren;
+        Controls children = Children;
 
         for (int i = 0; i < children.Count; i++)
         {
-            UIElement child = children[i];
+            Control child = children[i];
 
             // Flow passes its own constraint to children
             child.Measure(constraint);
@@ -34,26 +34,27 @@ internal class AlignableWrapPanel : Panel
 
             if (curLineSize.Width + sz.Width > constraint.Width)
             {
-                panelSize.Width = Math.Max(curLineSize.Width, panelSize.Width);
-                panelSize.Height += curLineSize.Height;
+                panelSize = panelSize.WithWidth(Math.Max(curLineSize.Width, panelSize.Width))
+                .WithHeight(panelSize.Height + curLineSize.Height);
                 curLineSize = sz;
 
                 if (sz.Width > constraint.Width)
                 {
-                    panelSize.Width = Math.Max(sz.Width, panelSize.Width);
-                    panelSize.Height += sz.Height;
+                    panelSize = panelSize
+                        .WithWidth(Math.Max(sz.Width, panelSize.Width))
+                        .WithHeight(panelSize.Height + sz.Height);
                     curLineSize = default;
                 }
             }
             else
             {
-                curLineSize.Width += sz.Width;
-                curLineSize.Height = Math.Max(sz.Height, curLineSize.Height);
+                curLineSize = panelSize.WithWidth(panelSize.Width + sz.Width)
+                .WithHeight(Math.Max(sz.Height, curLineSize.Height));
             }
         }
 
-        panelSize.Width = Math.Max(curLineSize.Width, panelSize.Width);
-        panelSize.Height += curLineSize.Height;
+        panelSize = panelSize.WithWidth(Math.Max(curLineSize.Width, panelSize.Width))
+            .WithHeight(panelSize.Height + curLineSize.Height);
 
         return panelSize;
     }
@@ -63,7 +64,7 @@ internal class AlignableWrapPanel : Panel
         int firstInLine = 0;
         Size curLineSize = default;
         double accumulatedHeight = 0;
-        UIElementCollection children = this.InternalChildren;
+        Controls children = this.Children;
 
         for (int i = 0; i < children.Count; i++)
         {
@@ -87,8 +88,8 @@ internal class AlignableWrapPanel : Panel
             }
             else
             {
-                curLineSize.Width += sz.Width;
-                curLineSize.Height = Math.Max(sz.Height, curLineSize.Height);
+                curLineSize = curLineSize.WithWidth(curLineSize.Width + sz.Width)
+                    .WithHeight(Math.Max(sz.Height, curLineSize.Height));
             }
         }
 
@@ -112,10 +113,10 @@ internal class AlignableWrapPanel : Panel
             x = boundsWidth - lineSize.Width;
         }
 
-        UIElementCollection children = InternalChildren;
+        Controls children = Children;
         for (int i = start; i < end; i++)
         {
-            UIElement child = children[i];
+            Control child = children[i];
             child.Arrange(new Rect(x, y, child.DesiredSize.Width, lineSize.Height));
             x += child.DesiredSize.Width;
         }

@@ -104,7 +104,7 @@
                                ui:Translator.Key="RECENT_EMPTY_TEXT">
                         <TextBlock.IsVisible>
                             <Binding Path="RecentlyOpened.Count"
-                                     Converter="{converters:EqualityBoolToVisibilityConverter}">
+                                     Converter="{converters:EqualityBoolToIsVisibleConverter}">
                                 <Binding.ConverterParameter>
                                     <system:Int32/>
                                 </Binding.ConverterParameter>
@@ -215,22 +215,17 @@
                                                         <TextBlock x:Name="extension" VerticalAlignment="Top" Text="{Binding FileExtension}" FontSize="15" TextAlignment="Center"/>
                                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
                                                             <StackPanel.Resources>
-                                                                <Style TargetType="Button" BasedOn="{StaticResource BaseDarkButton}">
+                                                                <Style Selector="Button">
                                                                     <Setter Property="Margin" Value="0,0,0,5"/>
                                                                     <Setter Property="Width" Value="25"/>
                                                                     <Setter Property="Height" Value="25"/>
                                                                     <Setter Property="MinWidth" Value="25"/>
                                                                     <Setter Property="MinHeight" Value="25"/>
-                                                                    
-                                                                    <Style.Triggers>
-                                                                        <Trigger Property="IsMouseOver" Value="False">
-                                                                            <Setter Property="Background" Value="Transparent"/>
-                                                                        </Trigger>
-                                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                                            <Setter Property="Background" Value="#70FFFFFF"/>
-                                                                        </Trigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
+                                                                    <Setter Property="Background" Value="Transparent"/>
+                                                                    </Style>
+                                                                  <Style Selector="Button:hover">
+                                                                      <Setter Property="Background" Value="#70FFFFFF"/>
+                                                                  </Style>
                                                             </StackPanel.Resources>
                                                             <Button Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
                                                                     CommandParameter="{Binding FilePath}"
@@ -267,49 +262,47 @@
 
                 <uc:AlignableWrapPanel Grid.Row="3" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,5,0,15">
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://pixieditor.net"
-                            ui:Translator.ToolTip.TipKey="WEBSITE"
-                            Style="{StaticResource SocialMediaButton}" Tag="#e3002d"
+                            ui:Translator.TooltipKey="WEBSITE"
+                            Classes="SocialMediaButton" Tag="#e3002d"
                             Content="/Images/SocialMedia/WebsiteIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://discord.gg/tzkQFDkqQS"
-                            Style="{StaticResource SocialMediaButton}" Tag="#5865F2" ui:Translator.ToolTip.TipKey="DISCORD"
+                            Classes="SocialMediaButton" Tag="#5865F2" ui:Translator.TooltipKey="DISCORD"
                             Content="/Images/SocialMedia/DiscordIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://reddit.com/r/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" ui:Translator.ToolTip.TipKey="REDDIT"
+                            Classes="SocialMediaButton" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
                             Content="/Images/SocialMedia/RedditIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://store.steampowered.com/app/2218560"
-                            Style="{StaticResource SocialMediaButton}" Tag="#00adee" ui:Translator.ToolTip.TipKey="STEAM"
+                            Classes="SocialMediaButton" Tag="#00adee" ui:Translator.TooltipKey="STEAM"
                             Content="/Images/SocialMedia/SteamIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="Black" ui:Translator.ToolTip.TipKey="GITHUB"
+                            Classes="SocialMediaButton" Tag="Black" ui:Translator.TooltipKey="GITHUB"
                             Content="/Images/SocialMedia/GithubIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" ui:Translator.ToolTip.TipKey="YOUTUBE"
+                            Classes="SocialMediaButton" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
                             Content="/Images/SocialMedia/YouTubeIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                            Visibility="{Binding ShowDonateButton,
-                            Converter={BoolToVisibilityConverter}}"
+                            IsVisible="{Binding ShowDonateButton}"
                             CommandParameter="https://opencollective.com/pixieditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.ToolTip.TipKey="DONATE"
+                            Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
                             Content="/Images/SocialMedia/DonateIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
-                            Visibility="{Binding ShowDonateButton,
-                            Converter={InverseBoolToVisibilityConverter}}"
+                            IsVisible="{Binding !ShowDonateButton}"
                             CommandParameter="https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/"
-                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.ToolTip.TipKey="BUY_SUPPORTER_PACK"
+                            Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="BUY_SUPPORTER_PACK"
                             Content="/Images/SocialMedia/DonateIcon.png"/>
                 </uc:AlignableWrapPanel>
             </Grid>
         </ScrollViewer>
 
         <ScrollViewer Grid.Row="1" Grid.Column="1"
-                      Visibility="{Binding NewsPanelCollapsed, Converter={converters:InverseBoolToVisibilityConverter}}">
+                      IsVisible="{Binding !NewsPanelCollapsed}">
             <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource MainColor}">
                 <Grid>
                     <indicators:LoadingIndicator IsVisible="{Binding IsFetchingNews}"/>
                     <TextBlock ui:Translator.Key="FAILED_FETCH_NEWS" Foreground="White" FontSize="20"
                                VerticalAlignment="Center" TextAlignment="Center"
-                               Visibility="{Binding Path=FailedFetchingNews, Converter={converters:BoolToVisibilityConverter}}"/>
-                    <StackPanel Orientation="Vertical" Visibility="{Binding IsFetchingNews, Converter={converters:InverseBoolToVisibilityConverter}}">
+                               IsVisible="{Binding Path=FailedFetchingNews}"/>
+                    <StackPanel Orientation="Vertical" IsVisible="{Binding !IsFetchingNews}">
                         <TextBlock HorizontalAlignment="Center" ui:Translator.Key="NEWS" FontSize="18"/>
                         <ItemsControl ItemsSource="{Binding Path=News}">
                             <ItemsControl.ItemTemplate>

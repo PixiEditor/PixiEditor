@@ -5,6 +5,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <MergeResourceInclude Source="avares://PixiEditor.Avalonia/Styles/CommandsMenu.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.Avalonia/Styles/PortingWipStyles.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
