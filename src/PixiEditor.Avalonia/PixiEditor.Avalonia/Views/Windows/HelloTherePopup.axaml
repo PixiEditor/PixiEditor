@@ -14,6 +14,9 @@
         xmlns:newsFeed="clr-namespace:PixiEditor.Views.UserControls.NewsFeed"
         xmlns:gif="http://wpfanimatedgif.codeplex.com"
         xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+        xmlns:system="clr-namespace:System;assembly=System.Runtime"
+        xmlns:indicators="clr-namespace:PixiEditor.Avalonia.Views.Indicators"
+        xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
         mc:Ignorable="d" ShowInTaskbar="False"
         Title="Hello there!" Height="662" Width="982" MinHeight="500" MinWidth="500"
         d:DataContext="{d:DesignInstance local:HelloTherePopup}"
@@ -21,23 +24,13 @@
         FlowDirection="{helpers:Localization FlowDirection}">
 
     <Window.Resources>
-        <Style TargetType="TextBlock">
+        <Style Selector="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="16"/>
         </Style>
     </Window.Resources>
 
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="35"  GlassFrameThickness="0.1"
-                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}"/>
-    </WindowChrome.WindowChrome>
-
-    <Window.CommandBindings>
-        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
-                        Executed="CommandBinding_Executed_Close" />
-    </Window.CommandBindings>
-
-    <Grid Background="{StaticResource AccentColor}">
+    <Grid Background="{StaticResource ThemeBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
             <RowDefinition Height="*"/>
@@ -46,12 +39,6 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="300" x:Name="newsColumn"/>
         </Grid.ColumnDefinitions>
-
-        <DockPanel Grid.Row="0" Grid.ColumnSpan="2" Background="{StaticResource MainColor}">
-            <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Style="{StaticResource CloseButtonStyle}"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close"
-                    Command="{x:Static SystemCommands.CloseWindowCommand}" />
-        </DockPanel>
 
         <ScrollViewer Grid.Column="0" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="3,0">
             <Grid Grid.Row="1" Margin="0,30,0,0">
@@ -63,7 +50,7 @@
                 </Grid.RowDefinitions>
 
                 <Grid Grid.RowSpan="3" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <CheckBox Visibility="{Binding NewsDisabled, Converter={converters:InverseBoolToVisibilityConverter}}"
+                    <CheckBox IsVisible="{Binding !NewsDisabled}"
                               Width="40" Height="40" IsChecked="{Binding NewsPanelCollapsed}">
                     <CheckBox.Template>
                         <ControlTemplate TargetType="{x:Type CheckBox}">
@@ -104,9 +91,9 @@
                 </StackPanel>
 
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenFileCommand}" MinWidth="150" Margin="10"
+                    <Button  Command="{Binding OpenFileCommand}" MinWidth="150" Margin="10"
                             ui:Translator.Key="OPEN_FILE"/>
-                    <Button Style="{StaticResource DarkRoundButton}" Command="{Binding OpenNewFileCommand}" MinWidth="150" Margin="10"
+                    <Button  Command="{Binding OpenNewFileCommand}" MinWidth="150" Margin="10"
                             ui:Translator.Key="NEW_FILE"/>
                 </StackPanel>
 
@@ -115,14 +102,14 @@
                                ui:Translator.Key="RECENT_FILES"/>
                     <TextBlock Margin="0,12.5,0,0" Foreground="LightGray" HorizontalAlignment="Center" 
                                ui:Translator.Key="RECENT_EMPTY_TEXT">
-                        <TextBlock.Visibility>
+                        <TextBlock.IsVisible>
                             <Binding Path="RecentlyOpened.Count"
                                      Converter="{converters:EqualityBoolToVisibilityConverter}">
                                 <Binding.ConverterParameter>
-                                    <sys:Int32/>
+                                    <system:Int32/>
                                 </Binding.ConverterParameter>
                             </Binding>
-                        </TextBlock.Visibility>
+                        </TextBlock.IsVisible>
                     </TextBlock>
                     <ItemsControl ItemsSource="{Binding RecentlyOpened}">
                         <ItemsControl.ItemTemplate>
@@ -134,7 +121,7 @@
                                                 Padding="0"
                                                 Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
                                                 CommandParameter="{Binding FilePath}"
-                                                Style="{StaticResource DarkRoundButton}"
+                                                
                                                 x:Name="fileButton">
                                             <Grid Width="100" Height="100">
                                                 <Image Source="{Binding PreviewBitmap}" x:Name="image" Margin="20">
@@ -247,13 +234,13 @@
                                                             </StackPanel.Resources>
                                                             <Button Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
                                                                     CommandParameter="{Binding FilePath}"
-                                                                    ToolTip="Open in File Explorer">
+                                                                    ToolTip.Tip="Open in File Explorer">
                                                                 <TextBlock Text="&#xEC50;" FontFamily="Segoe MDL2 Assets"
                                                                            TextAlignment="Center" FontSize="18"/>
                                                             </Button>
                                                             <Button Command="{cmds:Command Name=PixiEditor.File.RemoveRecent, UseProvided=True}"
                                                                     CommandParameter="{Binding FilePath}"
-                                                                    ToolTip="Remove from list">
+                                                                    ToolTip.Tip="Remove from list">
                                                                 <TextBlock Text="" FontFamily="{StaticResource Feather}"
                                                                            TextAlignment="Center" FontSize="20"/>
                                                             </Button>
@@ -263,7 +250,7 @@
                                             </Grid>
                                         </Button>
 
-                                        <TextBlock Text="{Binding FileName}" ToolTip="{Binding FilePath}"
+                                        <TextBlock Text="{Binding FileName}" ToolTip.Tip="{Binding FilePath}"
                                                    Width="110" TextAlignment="Center" TextTrimming="CharacterEllipsis"
                                                    FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" Foreground="White"/>
                                     </StackPanel>
@@ -280,35 +267,35 @@
 
                 <uc:AlignableWrapPanel Grid.Row="3" HorizontalContentAlignment="Center" HorizontalAlignment="Center" Margin="0,5,0,15">
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://pixieditor.net"
-                            ui:Translator.TooltipKey="WEBSITE"
+                            ui:Translator.ToolTip.TipKey="WEBSITE"
                             Style="{StaticResource SocialMediaButton}" Tag="#e3002d"
                             Content="/Images/SocialMedia/WebsiteIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://discord.gg/tzkQFDkqQS"
-                            Style="{StaticResource SocialMediaButton}" Tag="#5865F2" ui:Translator.TooltipKey="DISCORD"
+                            Style="{StaticResource SocialMediaButton}" Tag="#5865F2" ui:Translator.ToolTip.TipKey="DISCORD"
                             Content="/Images/SocialMedia/DiscordIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://reddit.com/r/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF4500" ui:Translator.ToolTip.TipKey="REDDIT"
                             Content="/Images/SocialMedia/RedditIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://store.steampowered.com/app/2218560"
-                            Style="{StaticResource SocialMediaButton}" Tag="#00adee" ui:Translator.TooltipKey="STEAM"
+                            Style="{StaticResource SocialMediaButton}" Tag="#00adee" ui:Translator.ToolTip.TipKey="STEAM"
                             Content="/Images/SocialMedia/SteamIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="Black" ui:Translator.TooltipKey="GITHUB"
+                            Style="{StaticResource SocialMediaButton}" Tag="Black" ui:Translator.ToolTip.TipKey="GITHUB"
                             Content="/Images/SocialMedia/GithubIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
-                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
+                            Style="{StaticResource SocialMediaButton}" Tag="#FF0000" ui:Translator.ToolTip.TipKey="YOUTUBE"
                             Content="/Images/SocialMedia/YouTubeIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                             Visibility="{Binding ShowDonateButton,
                             Converter={BoolToVisibilityConverter}}"
                             CommandParameter="https://opencollective.com/pixieditor"
-                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.ToolTip.TipKey="DONATE"
                             Content="/Images/SocialMedia/DonateIcon.png"/>
                     <Button Command="{cmds:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}"
                             Visibility="{Binding ShowDonateButton,
                             Converter={InverseBoolToVisibilityConverter}}"
                             CommandParameter="https://store.steampowered.com/app/2435860/PixiEditor__Supporter_Pack/"
-                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.TooltipKey="BUY_SUPPORTER_PACK"
+                            Style="{StaticResource SocialMediaButton}" Tag="#d4af37" ui:Translator.ToolTip.TipKey="BUY_SUPPORTER_PACK"
                             Content="/Images/SocialMedia/DonateIcon.png"/>
                 </uc:AlignableWrapPanel>
             </Grid>
@@ -318,9 +305,7 @@
                       Visibility="{Binding NewsPanelCollapsed, Converter={converters:InverseBoolToVisibilityConverter}}">
             <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource MainColor}">
                 <Grid>
-                    <Image gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Visibility="{Binding IsFetchingNews, Converter={converters:BoolToVisibilityConverter}}"
-                           Height="50" gif:ImageBehavior.AnimationSpeedRatio="1.5"/>
+                    <indicators:LoadingIndicator IsVisible="{Binding IsFetchingNews}"/>
                     <TextBlock ui:Translator.Key="FAILED_FETCH_NEWS" Foreground="White" FontSize="20"
                                VerticalAlignment="Center" TextAlignment="Center"
                                Visibility="{Binding Path=FailedFetchingNews, Converter={converters:BoolToVisibilityConverter}}"/>

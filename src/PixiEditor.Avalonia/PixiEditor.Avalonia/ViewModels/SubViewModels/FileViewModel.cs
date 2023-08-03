@@ -268,7 +268,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = KeyModifiers.Control)]
-    public void CreateFromNewFileDialog()
+    public async Task CreateFromNewFileDialog()
     {
         NewFileDialog newFile = new NewFileDialog();
         if (newFile.ShowDialog())

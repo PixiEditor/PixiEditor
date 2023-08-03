@@ -1,9 +1,11 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Avalonia.Helpers.Extensions;
 using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
@@ -67,9 +69,9 @@ internal partial class HelloTherePopup : Window
 
     public bool RecentlyOpenedEmpty { get => (bool)GetValue(RecentlyOpenedEmptyProperty); set => SetValue(RecentlyOpenedEmptyProperty, value); }
 
-    public RelayCommand OpenFileCommand { get; set; }
+    public AsyncRelayCommand OpenFileCommand { get; set; }
 
-    public RelayCommand OpenNewFileCommand { get; set; }
+    public AsyncRelayCommand OpenNewFileCommand { get; set; }
 
     public RelayCommand<string> OpenRecentCommand { get; set; }
 
@@ -93,11 +95,10 @@ internal partial class HelloTherePopup : Window
     public HelloTherePopup(FileViewModel fileViewModel)
     {
         DataContext = this;
-        Owner = Application.Current.MainWindow;
         FileViewModel = fileViewModel;
 
-        OpenFileCommand = new RelayCommand(OpenFile);
-        OpenNewFileCommand = new RelayCommand(OpenNewFile);
+        OpenFileCommand = new AsyncRelayCommand(OpenFile);
+        OpenNewFileCommand = new AsyncRelayCommand(OpenNewFile);
         OpenRecentCommand = new RelayCommand<string>(OpenRecent);
         OpenInExplorerCommand = new RelayCommand<string>(OpenInExplorer, CanOpenInExplorer);
 
@@ -165,33 +166,23 @@ internal partial class HelloTherePopup : Window
         RecentlyOpenedEmpty = FileViewModel.RecentlyOpened.Count == 0;
     }
 
-    private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
+    private async Task OpenFile()
     {
-        e.CanExecute = true;
-    }
-
-    private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
-    {
-        SystemCommands.CloseWindow(this);
-    }
-
-    private void OpenFile()
-    {
-        Application.Current.MainWindow.Activate();
+        Application.Current.ForDesktopMainWindow(mainWindow => mainWindow.Activate());
         Close();
-        FileViewModel.OpenFromOpenFileDialog();
+        await FileViewModel.OpenFromOpenFileDialog();
     }
 
-    private void OpenNewFile()
+    private async Task OpenNewFile()
     {
-        Application.Current.MainWindow.Activate();
+        Application.Current.ForDesktopMainWindow(mainWindow => mainWindow.Activate());
         Close();
-        FileViewModel.CreateFromNewFileDialog();
+        await FileViewModel.CreateFromNewFileDialog();
     }
 
     private void OpenRecent(string parameter)
     {
-        Application.Current.MainWindow.Activate();
+        Application.Current.ForDesktopMainWindow(mainWindow => mainWindow.Activate());
         Close();
         FileViewModel.OpenRecent(parameter);
     }
