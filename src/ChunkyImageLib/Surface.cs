@@ -133,12 +133,10 @@ public class Surface : IDisposable
     {
         using var final = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.Rgba8888, AlphaType.Premul, ColorSpace.CreateSrgb()));
         final.Canvas.DrawSurface(DrawingSurface, 0, 0);
-        using (var snapshot = final.Snapshot())
-        {
-            using var stream = File.Create(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), filename));
-            using var png = snapshot.Encode();
-            png.SaveTo(stream);
-        }
+        using var snapshot = final.Snapshot();
+        using var stream = File.Create(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), filename));
+        using var png = snapshot.Encode();
+        png.SaveTo(stream);
     }
 
     private DrawingSurface CreateDrawingSurface()
