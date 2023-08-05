@@ -103,30 +103,23 @@
     <Grid>
         <Grid
             Name="mainGrid"
-            Margin="5"
             KeyboardNavigation.DirectionalNavigation="None"
             KeyboardNavigation.TabNavigation="None"
             Focusable="True">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition
-                    Width="45" />
-                <ColumnDefinition
-                    Width="1*" />
+                <ColumnDefinition Width="35" />
+                <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition
-                    Height="30" />
-                <RowDefinition
-                    Height="40" />
-                <RowDefinition
-                    Height="1*" />
-                <RowDefinition
-                    Height="30" />
+                <RowDefinition Height="35" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="30" />
             </Grid.RowDefinitions>
             <b:Interaction.Behaviors>
                 <behaviours:ClearFocusOnClickBehavior />
             </b:Interaction.Behaviors>
-            <DockPanel
+            <DockPanel Margin="5,5,5,0"
                 Grid.Row="0"
                 Grid.Column="0"
                 Grid.ColumnSpan="3"
@@ -186,7 +179,7 @@
                                             <ColumnDefinition/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        
+
                                         <TextBlock Text="{Binding FilePath}"/>
                                         <TextBlock Grid.Column="1" Margin="20,0,0,0" VerticalAlignment="Center">
                                             <Hyperlink Foreground="#FFF" FontFamily="{StaticResource Feather}"
@@ -320,7 +313,7 @@
                             <MenuItem ui1:Translator.Key="ROT_IMG_90_D" cmds:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
                             <MenuItem ui1:Translator.Key="ROT_IMG_180_D" cmds:Menu.Command="PixiEditor.Document.Rotate180Deg"/>
                             <MenuItem ui1:Translator.Key="ROT_IMG_-90_D" cmds:Menu.Command="PixiEditor.Document.Rotate270Deg"/>
-                            
+
                             <Separator/>
                             <MenuItem ui1:Translator.Key="ROT_LAYERS_90_D" cmds:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
                             <MenuItem ui1:Translator.Key="ROT_LAYERS_180_D" cmds:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
@@ -514,23 +507,20 @@
                 Grid.ColumnSpan="3"
                 Grid.Column="0"
                 Grid.Row="1">
-                <Button
-                    Margin="1,0,0,0"
-                    Command="{cmds:Command PixiEditor.Undo.Undo}"
-                    ui1:Translator.TooltipKey="UNDO"
-                    Style="{StaticResource ToolSettingsGlyphButton}" 
-					Content="&#xE7A7;"/>
-                <Button 
-				Command="{cmds:Command PixiEditor.Undo.Redo}" 
-				ui1:Translator.TooltipKey="REDO"
-                Style="{StaticResource ToolSettingsGlyphButton}" 
-				Content="&#xE7A6;"/>
-                <ToggleButton 
-				Width="30" 
-				BorderThickness="0"
-				ui1:Translator.TooltipKey="PEN_MODE"
-				Focusable="False"
-                IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
+                <Button Margin="1,0,0,0"
+                        Command="{cmds:Command PixiEditor.Undo.Undo}"
+                        ui1:Translator.TooltipKey="UNDO"
+                        Style="{StaticResource ToolSettingsGlyphButton}" 
+					    Content="&#xE7A7;" FontSize="12"/>
+                <Button Command="{cmds:Command PixiEditor.Undo.Redo}" 
+				        ui1:Translator.TooltipKey="REDO"
+                        Style="{StaticResource ToolSettingsGlyphButton}" 
+				        Content="&#xE7A6;" FontSize="12"/>
+                <ToggleButton Width="30" 
+				              BorderThickness="0"
+				              ui1:Translator.TooltipKey="PEN_MODE"
+				              Focusable="False"
+                              IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
                     <ToggleButton.Style>
                         <Style TargetType="ToggleButton">
                             <Setter Property="Template">
@@ -585,9 +575,8 @@
 
             <Grid Grid.Column="1" Grid.Row="2" Background="#303030" >
                 <Grid AllowDrop="True" Drop="MainWindow_Drop" DragEnter="MainWindow_DragEnter" DragLeave="MainWindow_DragLeave">
-                    <DockingManager 
-                        ActiveContent="{Binding WindowSubViewModel.ActiveWindow, Mode=TwoWay}"
-                        DocumentsSource="{Binding WindowSubViewModel.Viewports}">
+                    <DockingManager ActiveContent="{Binding WindowSubViewModel.ActiveWindow, Mode=TwoWay}"
+                                    DocumentsSource="{Binding WindowSubViewModel.Viewports}">
                         <DockingManager.Theme>
                             <avalonDockTheme:PixiEditorDockTheme />
                         </DockingManager.Theme>
@@ -811,43 +800,32 @@
                 </Grid>
             </Grid>
 
-            <Border
-                Grid.Row="2"
-                Grid.Column="0"
-                Background="{StaticResource AccentColor}"
-                Grid.RowSpan="2"
-                CornerRadius="5,0,5,5">
-                <Grid Cursor="Arrow">
+            <Border Grid.Row="2" Grid.Column="0" Grid.RowSpan="1" CornerRadius="0" Background="{StaticResource MainColor}">
+                <Grid Cursor="Arrow" Margin="3,0,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
-                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="32"/>
                     </Grid.RowDefinitions>
 
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl
-                            ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+                        <ItemsControl ItemsSource="{Binding ToolsSubViewModel.ToolSet}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Button
-                                        BorderBrush="White"
-                                        BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
-                                        Style="{StaticResource ToolButtonStyle}"
-                                        Command="{cmds:Command PixiEditor.Tools.SelectTool, UseProvided=True}"
-                                        CommandParameter="{Binding}"
-                                        ui1:Translator.TooltipLocalizedString="{Binding Tooltip}"
-                                        ui1:Translator.TooltipKey="{Binding Tooltip.Key}">
+                                    <Button BorderBrush="White"
+                                            BorderThickness="{Binding IsActive, Converter={StaticResource BoolToIntConverter}}"
+                                            Style="{StaticResource ToolButtonStyle}"
+                                            Command="{cmds:Command PixiEditor.Tools.SelectTool, UseProvided=True}"
+                                            CommandParameter="{Binding}"
+                                            ui1:Translator.TooltipLocalizedString="{Binding Tooltip}"
+                                            ui1:Translator.TooltipKey="{Binding Tooltip.Key}">
                                         <Button.Background>
-                                            <ImageBrush
-                                                RenderOptions.BitmapScalingMode="Fant"
-                                                ImageSource="{Binding ImagePath}"
-                                                Stretch="Uniform" />
+                                            <ImageBrush RenderOptions.BitmapScalingMode="Fant"
+                                                        ImageSource="{Binding ImagePath}"
+                                                        Stretch="Uniform" />
                                         </Button.Background>
                                         <Button.Resources>
-                                            <Style
-                                                TargetType="Border">
-                                                <Setter
-                                                    Property="CornerRadius"
-                                                    Value="2.5" />
+                                            <Style TargetType="Border">
+                                                <Setter Property="CornerRadius" Value="2.5" />
                                             </Style>
                                         </Button.Resources>
                                     </Button>
@@ -855,42 +833,34 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </ScrollViewer>
-                    <Grid Grid.Row="1">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="0.4*"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
-                                BorderBrush="Gray" BorderThickness="1" CornerRadius="0,0,5,5"
-                                Grid.ColumnSpan="2"/>
+                    <Grid Grid.Row="1" Margin="0,0,3,3">
                         <Border Background="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
-                                Margin="0,1,1,1" CornerRadius="0,0,5,0"
-                                Grid.Column="1"/>
+                                Width="20" Height="20"
+                                VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                                ToolTip="The secondary colour. Use right click on the canvas to draw with this"/>
+                        <Border Background="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
+                                BorderBrush="Gray" BorderThickness="1" 
+                                Width="20" Height="20"
+                                VerticalAlignment="Top" HorizontalAlignment="Left"
+                                ToolTip="The primary colour. Use left click on the canvas to draw with this"/>
                     </Grid>
                 </Grid>
             </Border>
 
-            <Border 
-                Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" 
-                Background="#881d1d1d"
-                Cursor=""
-                Visibility="{Binding DocumentManagerSubViewModel.ActiveDocument.Busy, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue={x:Static Visibility.Collapsed}, Source={vm:MainVM}}">
-                <Image 
-                    gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" 
-                    HorizontalAlignment="Center" VerticalAlignment="Center"
-                    Height="50" 
-                    gif:ImageBehavior.AnimationSpeedRatio="1.5"/>
+            <Border Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" 
+                    Background="#881d1d1d"
+                    Cursor=""
+                    Visibility="{Binding DocumentManagerSubViewModel.ActiveDocument.Busy, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue={x:Static Visibility.Collapsed}, Source={vm:MainVM}}">
+                <Image gif:ImageBehavior.AnimatedSource="/Images/Processing.gif" 
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Height="50" 
+                       gif:ImageBehavior.AnimationSpeedRatio="1.5"/>
             </Border>
-            
-            <Grid
-                Grid.Row="3"
-                Grid.Column="1">
+
+            <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition
-                        Width="*" />
-                    <ColumnDefinition
-                        Width="290" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="290" />
                 </Grid.ColumnDefinitions>
                 <DockPanel>
                     <TextBlock
