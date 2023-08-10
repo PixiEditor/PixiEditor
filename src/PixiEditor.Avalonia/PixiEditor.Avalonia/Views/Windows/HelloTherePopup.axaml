@@ -58,7 +58,7 @@
                                 <StackPanel.Background>
                                     <VisualBrush>
                                         <VisualBrush.Visual>
-                                            <Ellipse Fill="{StaticResource MainColor}" Width="20" Height="20"/>
+                                            <Ellipse Fill="{StaticResource ThemeBackgroundBrush}" Width="20" Height="20"/>
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </StackPanel.Background>
@@ -69,7 +69,8 @@
                                 </Image>
                                 <ContentPresenter Focusable="False"/>
                             </StackPanel>
-                            <ControlTemplate.Triggers>
+
+                            <!--<ControlTemplate.Triggers>
                                 <Trigger Property="IsChecked" Value="True">
                                     <Setter TargetName="checkboxImage" Property="RenderTransform">
                                         <Setter.Value>
@@ -77,7 +78,7 @@
                                         </Setter.Value>
                                     </Setter>
                                 </Trigger>
-                            </ControlTemplate.Triggers>
+                            </ControlTemplate.Triggers>-->
                         </ControlTemplate>
                     </CheckBox.Template>
                 </CheckBox>
@@ -125,17 +126,17 @@
                                                 x:Name="fileButton">
                                             <Grid Width="100" Height="100">
                                                 <Image Source="{Binding PreviewBitmap}" x:Name="image" Margin="20">
-                                                    <RenderOptions.BitmapScalingMode>
+                                                    <RenderOptions.BitmapInterpolationMode>
                                                         <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
                                                             <Binding Path="PreviewBitmap.PixelWidth"/>
                                                             <Binding ElementName="image" Path="ActualWidth"/>
                                                         </MultiBinding>
-                                                    </RenderOptions.BitmapScalingMode>
+                                                    </RenderOptions.BitmapInterpolationMode>
                                                 </Image>
                                                 <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder" Margin="5"
                                                         Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}" 
                                                         VerticalAlignment="Bottom" HorizontalAlignment="Right">
-                                                    <Border.Style>
+                                                    <!--<Border.Style>
                                                         <Style TargetType="Border">
                                                             <Style.Triggers>
                                                                 <Trigger Property="IsMouseOver" Value="False">
@@ -188,9 +189,9 @@
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
-                                                    </Border.Style>
+                                                    </Border.Style>-->
                                                     <Grid HorizontalAlignment="Center" Margin="0,10,0,0" Opacity="0">
-                                                        <Grid.Style>
+                                                        <!--<Grid.Style>
                                                             <Style TargetType="Grid">
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding IsMouseOver, ElementName=fileButton}" Value="True">
@@ -211,7 +212,7 @@
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
-                                                        </Grid.Style>
+                                                        </Grid.Style>-->
                                                         <TextBlock x:Name="extension" VerticalAlignment="Top" Text="{Binding FileExtension}" FontSize="15" TextAlignment="Center"/>
                                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
                                                             <StackPanel.Resources>

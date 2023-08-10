@@ -1,10 +1,6 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
-using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 

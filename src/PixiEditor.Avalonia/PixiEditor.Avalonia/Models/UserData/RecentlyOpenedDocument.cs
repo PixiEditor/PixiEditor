@@ -1,7 +1,10 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using Avalonia;
+using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.Avalonia.Exceptions.Exceptions;
+using PixiEditor.Avalonia.Helpers.Extensions;
 using PixiEditor.Parser.Deprecated;
 using PixiEditor.Helpers;
 using PixiEditor.Parser;
@@ -15,7 +18,7 @@ internal class RecentlyOpenedDocument : ObservableObject
 
     private string filePath;
 
-    private SKBitmap previewBitmap;
+    private WriteableBitmap previewBitmap;
 
     public string FilePath
     {
@@ -56,7 +59,7 @@ internal class RecentlyOpenedDocument : ObservableObject
         }
     }
 
-    public SKBitmap PreviewBitmap
+    public WriteableBitmap PreviewBitmap
     {
         get
         {
@@ -75,7 +78,7 @@ internal class RecentlyOpenedDocument : ObservableObject
         FilePath = path;
     }
 
-    private SKBitmap LoadPreviewBitmap()
+    private WriteableBitmap LoadPreviewBitmap()
     {
         if (!File.Exists(FilePath))
         {
@@ -96,7 +99,7 @@ internal class RecentlyOpenedDocument : ObservableObject
                 }
 
                 using var data = new MemoryStream(document.PreviewImage);
-                return SKBitmap.Decode(data);
+                return WriteableBitmap.Decode(data);
             }
             catch
             {
@@ -125,7 +128,7 @@ internal class RecentlyOpenedDocument : ObservableObject
 
         if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
         {
-            SKBitmap bitmap = null;
+            WriteableBitmap bitmap = null;
 
             try
             {
@@ -147,12 +150,14 @@ internal class RecentlyOpenedDocument : ObservableObject
         return null;
     }
 
-    private SKBitmap DownscaleToMaxSize(SKBitmap bitmap)
+    private WriteableBitmap DownscaleToMaxSize(WriteableBitmap bitmap)
     {
-        if (bitmap.Width > Constants.MaxPreviewWidth || bitmap.Height > Constants.MaxPreviewHeight)
+        if (bitmap.PixelSize.Width > Constants.MaxPreviewWidth || bitmap.PixelSize.Height > Constants.MaxPreviewHeight)
         {
-            double factor = Math.Min(Constants.MaxPreviewWidth / (double)bitmap.Width, Constants.MaxPreviewHeight / (double)bitmap.Height);
-            return bitmap.Resize(new SKSizeI((int)(bitmap.Width * factor), (int)(bitmap.Height * factor)), SKFilterQuality.High);
+            double factor = Math.Min(Constants.MaxPreviewWidth / (double)bitmap.PixelSize.Width, Constants.MaxPreviewHeight / (double)bitmap.PixelSize.Height);
+            var scaledBitmap = bitmap.CreateScaledBitmap(new PixelSize((int)(bitmap.PixelSize.Width * factor), (int)(bitmap.PixelSize.Height * factor)),
+                BitmapInterpolationMode.HighQuality);
+            return scaledBitmap.ToWriteableBitmap();
         }
 
         return bitmap;
