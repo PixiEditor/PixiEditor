@@ -271,7 +271,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = KeyModifiers.Control)]
     public async Task CreateFromNewFileDialog()
     {
-        NewFileDialog newFile = new NewFileDialog();
+        //TODO: Implement NewFileDialog
+        /*NewFileDialog newFile = new NewFileDialog();
         if (newFile.ShowDialog())
         {
             NewDocument(b => b
@@ -279,7 +280,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 .WithLayer(l => l
                     .WithName(new LocalizedString("BASE_LAYER_NAME"))
                     .WithSurface(new Surface(new VecI(newFile.Width, newFile.Height)))));
-        }
+        }*/
     }
 
     private DocumentViewModel NewDocument(Action<DocumentViewModelBuilder> builder)
@@ -350,7 +351,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return;
 
-        ExportFileDialog info = new ExportFileDialog(doc.SizeBindable);
+        //TODO: Implement ExportFileDialog
+        /*ExportFileDialog info = new ExportFileDialog(doc.SizeBindable);
         if (info.ShowDialog())
         {
             SaveResult result = Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, out string finalPath, new(info.FileWidth, info.FileHeight));
@@ -358,7 +360,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 ProcessHelper.OpenInExplorer(finalPath);
             else
                 ShowSaveError((DialogSaveResult)result);
-        }
+        }*/
     }
 
     private void ShowSaveError(DialogSaveResult result)

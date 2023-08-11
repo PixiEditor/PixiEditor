@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Avalonia.ViewModels;
@@ -26,6 +28,7 @@ internal partial class MainWindow : Window
 
     public MainWindow(ExtensionLoader extensionLoader)
     {
+        (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow = this;
         extLoader = extensionLoader;
 
         services = new ServiceCollection()

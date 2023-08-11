@@ -119,7 +119,7 @@ internal partial class HelloTherePopup : Window
 
         if (_newsDisabled || NewsPanelCollapsed)
         {
-            newsColumn.Width = new GridLength(0);
+            grid.ColumnDefinitions.Last().Width = new GridLength(0);
             newsWidth = 0;
         }
 
@@ -147,15 +147,15 @@ internal partial class HelloTherePopup : Window
         if(helloTherePopup._newsDisabled)
             return;
 
-        if (newValue)
+        if (e.NewValue.Value)
         {
             helloTherePopup.Width -= 300;
-            helloTherePopup.newsColumn.Width = new GridLength(0);
+            helloTherePopup.grid.ColumnDefinitions.Last().Width = new GridLength(0);
         }
         else
         {
             helloTherePopup.Width += 300;
-            helloTherePopup.newsColumn.Width = new GridLength(300);
+            helloTherePopup.grid.ColumnDefinitions.Last().Width = new GridLength(300);
         }
 
         IPreferences.Current.UpdatePreference(PreferencesConstants.NewsPanelCollapsed, e.NewValue.Value);

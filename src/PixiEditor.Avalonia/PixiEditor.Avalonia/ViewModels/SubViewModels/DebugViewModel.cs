@@ -216,9 +216,9 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     [Command.Debug("PixiEditor.Debug.OpenCommandDebugWindow", "OPEN_CMD_DEBUG_WINDOW", "OPEN_CMD_DEBUG_WINDOW")]
     public void OpenCommandDebugWindow()
     {
-        //TODO: Fix this
+        //TODO: Fix this and implement CommandDebugPopup
         //Mouse.OverrideCursor = Cursors.Wait;
-        new CommandDebugPopup().Show();
+        //new CommandDebugPopup().Show();
         //Mouse.OverrideCursor = null;
     }
 
@@ -227,9 +227,10 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     {
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var window = desktop.Windows.OfType<LocalizationDebugWindow>().FirstOrDefault(new LocalizationDebugWindow());
+            //TODO: Implement LocalizationDebugWindow
+            /*var window = desktop.Windows.OfType<LocalizationDebugWindow>().FirstOrDefault(new LocalizationDebugWindow());
             window.Show();
-            window.Activate();
+            window.Activate();*/
         }
 
     }

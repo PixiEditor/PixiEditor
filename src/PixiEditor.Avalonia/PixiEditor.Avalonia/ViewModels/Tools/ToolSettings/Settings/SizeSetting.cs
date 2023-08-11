@@ -1,6 +1,8 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
+using PixiEditor.Views.UserControls;
 
 namespace PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 
@@ -27,7 +29,7 @@ internal sealed class SizeSetting : Setting<int>
         {
             Mode = BindingMode.TwoWay,
         };
-        tb.SetBinding(SizeInput.SizeProperty, binding);
+        tb.Bind(SizeInput.SizeProperty, binding);
         return tb;
     }
 

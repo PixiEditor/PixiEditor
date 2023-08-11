@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia.Input;
 using ChunkyImageLib.Operations;
@@ -148,7 +149,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.ResizeDocument", false, "RESIZE_DOCUMENT", "RESIZE_DOCUMENT", CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = KeyModifiers.Control | KeyModifiers.Shift)]
     [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "RESIZE_CANVAS", "RESIZE_CANVAS", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = KeyModifiers.Control | KeyModifiers.Shift)]
-    public void OpenResizePopup(bool canvas)
+    public async Task OpenResizePopup(bool canvas)
     {
         DocumentViewModel? doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null)
@@ -158,7 +159,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
             doc.Width,
             doc.Height,
             canvas);
-        if (dialog.ShowDialog())
+        if (await dialog.ShowDialog())
         {
             if (canvas)
             {

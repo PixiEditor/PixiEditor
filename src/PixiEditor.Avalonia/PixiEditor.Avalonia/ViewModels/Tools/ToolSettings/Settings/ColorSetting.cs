@@ -19,7 +19,8 @@ internal sealed class ColorSetting : Setting<Color>
         Value = defaultValue;
     }
 
-    private ToolSettingColorPicker GenerateColorPicker()
+    //TODO: Implement
+    /*private ToolSettingColorPicker GenerateColorPicker()
     {
         var resourceDictionary = new ResourceDictionary();
         resourceDictionary.Source = new Uri(
@@ -39,10 +40,11 @@ internal sealed class ColorSetting : Setting<Color>
         Interaction.GetBehaviors(picker).Add(behavior);
         picker.SetBinding(ToolSettingColorPicker.SelectedColorProperty, selectedColorBinding);
         return picker;
-    }
+    }*/
 
     public override Control GenerateControl()
     {
-        return GenerateColorPicker();
+        return new Border();
+        //return GenerateColorPicker();
     }
 }

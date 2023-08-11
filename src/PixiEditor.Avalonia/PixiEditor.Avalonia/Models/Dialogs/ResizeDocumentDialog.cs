@@ -72,10 +72,10 @@ internal class ResizeDocumentDialog : CustomDialog
             {
                 Width = popup.NewAbsoluteWidth;
                 Height = popup.NewAbsoluteHeight;
-                if (popup is ResizeCanvasPopup resizeCanvas)
+                /*if (popup is ResizeCanvasPopup resizeCanvas) TODO: Implement
                 {
                     ResizeAnchor = resizeCanvas.SelectedAnchorPoint;
-                }
+                }*/
             }
         });
 
@@ -84,11 +84,15 @@ internal class ResizeDocumentDialog : CustomDialog
 
     private async Task<bool> ShowResizeDocumentCanvas()
     {
-        return await ShowDialog<ResizeDocumentPopup>();
+        //TODO: Implement
+        //return await ShowDialog<ResizeDocumentPopup>();
+        return false;
     }
 
     private async Task<bool> ShowResizeCanvasDialog()
     {
-        return await ShowDialog<ResizeCanvasPopup>();
+        //TODO: Implement
+        //return await ShowDialog<ResizeCanvasPopup>();
+        return false;
     }
 }

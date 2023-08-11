@@ -3,16 +3,24 @@ using PixiEditor.Avalonia.ViewModels;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Extensions.Windowing;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Containers;
+using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataProviders;
+using PixiEditor.Models.IO.PaletteParsers;
+using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.Models.Localization;
 using PixiEditor.Models.Preferences;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
+using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Main;
+using PixiEditor.ViewModels.SubViewModels.Tools;
+using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Helpers.Extensions;
 
@@ -30,7 +38,7 @@ internal static class ServiceCollectionHelpers
         // View Models
         .AddSingleton<ToolsViewModel>()
         .AddSingleton<IToolsHandler, ToolsViewModel>()
-        /*.AddSingleton<StylusViewModel>()
+        .AddSingleton<StylusViewModel>()
         .AddSingleton<WindowViewModel>()
         .AddSingleton<FileViewModel>()
         .AddSingleton<UpdateViewModel>()
@@ -44,13 +52,13 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<RegistryViewModel>()
         .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
         .AddSingleton<DebugViewModel>()
-        .AddSingleton<SearchViewModel>()*/
+        .AddSingleton<SearchViewModel>()
         .AddSingleton<AdditionalContentViewModel>()
-        //.AddSingleton(x => new ExtensionsViewModel(x.GetService<ViewModelMain>(), extensionLoader))
+        .AddSingleton(x => new ExtensionsViewModel(x.GetService<ViewModelMain>(), extensionLoader))
         // Controllers
-        //.AddSingleton<ShortcutController>()
-        .AddSingleton<CommandController>();
-        /*.AddSingleton<DocumentManagerViewModel>()
+        .AddSingleton<ShortcutController>()
+        .AddSingleton<CommandController>()
+        .AddSingleton<DocumentManagerViewModel>()
         // Tools
         .AddSingleton<ToolViewModel, MoveViewportToolViewModel>()
         .AddSingleton<ToolViewModel, RotateViewportToolViewModel>()
@@ -76,7 +84,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<PaletteFileParser, GimpGplParser>()
         .AddSingleton<PaletteFileParser, PixiPaletteParser>()
         // Palette data sources
-        .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();*/
+        .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();
 
     public static IServiceCollection AddExtensionServices(this IServiceCollection collection) =>
         collection.AddSingleton<IWindowProvider, WindowProvider>()

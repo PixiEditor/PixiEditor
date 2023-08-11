@@ -56,7 +56,8 @@ internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
 
     public override async Task<bool> ShowDialog()
     {
-        var popup = new OptionPopup(Title, Content, new(_results.Keys.Select(x => (object)x)));
+        //TODO: Implement
+        /*var popup = new OptionPopup(Title, Content, new(_results.Keys.Select(x => (object)x)));
         var popupResult = popup.ShowDialog();
 
         Result = (T)popup.Result;
@@ -65,7 +66,8 @@ internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
             _results[Result]?.Invoke(Result);
         }
 
-        return popupResult.GetValueOrDefault(false);
+        return popupResult.GetValueOrDefault(false);*/
+        return false;
     }
 
     public void Add(T name) => _results.Add(name, null);

@@ -12,7 +12,7 @@ namespace PixiEditor.Views.UserControls;
 internal partial class SizeInput : UserControl
 {
     public static readonly StyledProperty<int> SizeProperty =
-        AvaloniaProperty.Register<SizeInput, int>(nameof(Size), defaultValue: 1, notifyingSetter: SizePropertyChanged);
+        AvaloniaProperty.Register<SizeInput, int>(nameof(Size), defaultValue: 1);
 
     public static readonly StyledProperty<int> MaxSizeProperty =
         AvaloniaProperty.Register<SizeInput, int>(nameof(MaxSize), defaultValue: int.MaxValue);
@@ -32,12 +32,17 @@ internal partial class SizeInput : UserControl
     public static readonly StyledProperty<Action> OnScrollActionProperty =
         AvaloniaProperty.Register<SizeInput, Action>(nameof(OnScrollAction));
 
+    static SizeInput()
+    {
+        SizeProperty.Changed.Subscribe(InputSizeChanged);
+    }
+
     public SizeInput()
     {
         InitializeComponent();
     }
 
-    private void SizeInput_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+    private void SizeInput_GotKeyboardFocus(object sender, GotFocusEventArgs e)
     {
         textBox.Focus();
     }
@@ -66,16 +71,18 @@ internal partial class SizeInput : UserControl
         textBox.SelectAll();
     }
 
-    private void Border_MouseLeftButtonDown(object? sender, PointerPressedEventArgs pointerPressedEventArgs)
+    private void Border_MouseLeftButtonDown(object? sender, PointerPressedEventArgs e)
     {
-        Point pos = Mouse.GetPosition(textBox);
+        /*Point pos = Mouse.GetPosition(textBox);
         int charIndex = textBox.GetCharacterIndexFromPoint(pos, true);
         var charRect = textBox.GetRectFromCharacterIndex(charIndex);
         double middleX = (charRect.Left + charRect.Right) / 2;
         if (pos.X > middleX)
             textBox.CaretIndex = charIndex + 1;
         else
-            textBox.CaretIndex = charIndex;
+            textBox.CaretIndex = charIndex;*/
+        //TODO: Above functions not found in Avalonia
+        textBox.SelectAll();
         e.Handled = true;
         if (!textBox.IsFocused)
             textBox.Focus();
@@ -87,34 +94,34 @@ internal partial class SizeInput : UserControl
         set => SetValue(UnitProperty, value);
     }
 
-    private static void InputSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void InputSizeChanged(AvaloniaPropertyChangedEventArgs<int> e)
     {
-        int newValue = (int)e.NewValue;
-        int maxSize = (int)d.GetValue(MaxSizeProperty);
+        int newValue = e.NewValue.Value;
+        int maxSize = (int)e.Sender.GetValue(MaxSizeProperty);
 
         if (newValue > maxSize)
         {
-            d.SetValue(SizeProperty, maxSize);
+            e.Sender.SetValue(SizeProperty, maxSize);
 
             return;
         }
         else if (newValue <= 0)
         {
-            d.SetValue(SizeProperty, 1);
+            e.Sender.SetValue(SizeProperty, 1);
 
             return;
         }
     }
 
-    private void Border_MouseWheel(object? sender, PointerWheelEventArgs pointerWheelEventArgs)
+    private void Border_MouseWheel(object? sender, PointerWheelEventArgs e)
     {
-        int step = e.Delta / 100;
+        int step = (int)e.Delta.Y / 100;
 
-        if (Keyboard.IsKeyDown(Key.LeftShift))
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
             Size += step * 2;
         }
-        else if (Keyboard.IsKeyDown(Key.LeftCtrl))
+        else if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {
             if (step < 0)
             {

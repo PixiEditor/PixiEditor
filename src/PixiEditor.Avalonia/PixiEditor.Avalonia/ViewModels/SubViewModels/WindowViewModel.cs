@@ -16,8 +16,8 @@ namespace PixiEditor.ViewModels.SubViewModels.Main;
 internal class WindowViewModel : SubViewModel<ViewModelMain>
 {
     private CommandController commandController;
-    private ShortcutPopup? shortcutPopup;
-    private ShortcutPopup ShortcutPopup => shortcutPopup ??= new(commandController);
+    /*private ShortcutPopup? shortcutPopup; TODO: Add shortcut popup
+    private ShortcutPopup ShortcutPopup => shortcutPopup ??= new(commandController);*/
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
     public ObservableCollection<ViewportWindowViewModel> Viewports { get; } = new();
     public event EventHandler<ViewportWindowViewModel>? ActiveViewportChanged;
@@ -140,8 +140,9 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             page = 0;
         }
 
-        var settings = new SettingsWindow(page);
-        settings.Show();
+        //TODO: Add settings window
+        /*var settings = new SettingsWindow(page);
+        settings.Show();*/
     }
 
     [Command.Basic("PixiEditor.Window.OpenStartupWindow", "OPEN_STARTUP_WINDOW", "OPEN_STARTUP_WINDOW")]
@@ -153,8 +154,9 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW", Key = Key.F1)]
     public void ShowShortcutWindow()
     {
-        ShortcutPopup.Show();
-        ShortcutPopup.Activate();
+        //TODO: Add shortcut window
+        /*ShortcutPopup.Show();
+        ShortcutPopup.Activate();*/
     }
 
     [Command.Basic("PixiEditor.Window.OpenPalettesBrowserWindow", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER",
@@ -168,13 +170,15 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW")]
     public void OpenAboutWindow()
     {
-        new AboutPopup().Show();
+        //TODO: Add about window
+        //new AboutPopup().Show();
     }
 
     [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "OPEN_NAVIGATION_WINDOW", "OPEN_NAVIGATION_WINDOW")]
     public static void ShowAvalonDockWindow(string id)
     {
-        if (MainWindow.Current?.LayoutRoot?.Manager?.Layout == null) return;
+        //TODO: Implement this
+        /*if (MainWindow.Current?.LayoutRoot?.Manager?.Layout == null) return;
         var anchorables = new List<LayoutAnchorable>(MainWindow.Current.LayoutRoot.Manager.Layout
             .Descendents()
             .OfType<LayoutAnchorable>());
@@ -186,6 +190,6 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
                 la.Show();
                 la.IsActive = true;
             }
-        }
+        }*/
     }
 }

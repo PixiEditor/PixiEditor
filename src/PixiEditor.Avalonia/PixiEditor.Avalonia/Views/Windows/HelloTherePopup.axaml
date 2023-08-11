@@ -19,25 +19,24 @@
         xmlns:dataHolders="clr-namespace:PixiEditor.Models.DataHolders"
         mc:Ignorable="d" ShowInTaskbar="False"
         Title="Hello there!" Height="662" Width="982" MinHeight="500" MinWidth="500"
-        d:DataContext="{d:DesignInstance local:HelloTherePopup}"
         WindowStartupLocation="CenterScreen" Loaded="HelloTherePopup_OnLoaded"
         FlowDirection="{helpers:Localization FlowDirection}">
 
-    <Window.Resources>
+    <Window.Styles>
         <Style Selector="TextBlock">
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="16"/>
         </Style>
-    </Window.Resources>
+    </Window.Styles>
 
-    <Grid Background="{StaticResource ThemeBackgroundBrush}">
+    <Grid Background="{StaticResource ThemeBackgroundBrush}" x:Name="grid">
         <Grid.RowDefinitions>
             <RowDefinition Height="35" />
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="300" x:Name="newsColumn"/>
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
         <ScrollViewer Grid.Column="0" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="3,0">
@@ -107,7 +106,7 @@
                             <Binding Path="RecentlyOpened.Count"
                                      Converter="{converters:EqualityBoolToIsVisibleConverter}">
                                 <Binding.ConverterParameter>
-                                    <system:Int32/>
+                                    <system:Int32>0</system:Int32>
                                 </Binding.ConverterParameter>
                             </Binding>
                         </TextBlock.IsVisible>
@@ -126,12 +125,12 @@
                                                 x:Name="fileButton">
                                             <Grid Width="100" Height="100">
                                                 <Image Source="{Binding PreviewBitmap}" x:Name="image" Margin="20">
-                                                    <RenderOptions.BitmapInterpolationMode>
+                                                    <!--<RenderOptions.BitmapInterpolationMode> TODO: Fix
                                                         <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                                            <Binding Path="PreviewBitmap.PixelWidth"/>
-                                                            <Binding ElementName="image" Path="ActualWidth"/>
+                                                            <Binding Path="PreviewBitmap.PixelSize.Width"/>
+                                                            <Binding ElementName="image" Path="Width"/>
                                                         </MultiBinding>
-                                                    </RenderOptions.BitmapInterpolationMode>
+                                                    </RenderOptions.BitmapInterpolationMode>-->
                                                 </Image>
                                                 <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder" Margin="5"
                                                         Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}" 
@@ -215,7 +214,7 @@
                                                         </Grid.Style>-->
                                                         <TextBlock x:Name="extension" VerticalAlignment="Top" Text="{Binding FileExtension}" FontSize="15" TextAlignment="Center"/>
                                                         <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Center">
-                                                            <StackPanel.Resources>
+                                                            <StackPanel.Styles>
                                                                 <Style Selector="Button">
                                                                     <Setter Property="Margin" Value="0,0,0,5"/>
                                                                     <Setter Property="Width" Value="25"/>
@@ -227,7 +226,7 @@
                                                                   <Style Selector="Button:hover">
                                                                       <Setter Property="Background" Value="#70FFFFFF"/>
                                                                   </Style>
-                                                            </StackPanel.Resources>
+                                                            </StackPanel.Styles>
                                                             <Button Command="{Binding DataContext.OpenInExplorerCommand, RelativeSource={RelativeSource AncestorType=uc:AlignableWrapPanel}}"
                                                                     CommandParameter="{Binding FilePath}"
                                                                     ToolTip.Tip="Open in File Explorer">
