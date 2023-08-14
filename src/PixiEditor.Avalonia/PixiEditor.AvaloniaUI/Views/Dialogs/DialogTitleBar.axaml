@@ -1,0 +1,30 @@
+﻿<UserControl
+            x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.DialogTitleBar"
+            x:ClassModifier="internal"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns="https://github.com/avaloniaui"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:views="clr-namespace:PixiEditor.Views"
+            xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+            xmlns:controls="https://github.com/avaloniaui"
+             mc:Ignorable="d"
+             x:Name="uc"
+             Height="35" d:DesignWidth="300">
+    <Grid Grid.Row="0" Background="{DynamicResource ThemeBackgroundBrush1}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBlock 
+            TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
+            ui:Translator.Key="{Binding ElementName=uc, Path=TitleKey}"
+            Foreground="White" 
+            FontSize="15" 
+            Margin="5,0,0,0" 
+            Grid.Column="0" Grid.ColumnSpan="2"/>
+        <Button Grid.Column="1" HorizontalAlignment="Right" IsCancel="True"
+                ui:Translator.TooltipKey="CLOSE"
+                    Command="{Binding ElementName=uc, Path=CloseCommand}" />
+    </Grid>
+</UserControl>

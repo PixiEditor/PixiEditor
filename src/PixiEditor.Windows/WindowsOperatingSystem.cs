@@ -9,7 +9,7 @@ public class WindowsOperatingSystem : IOperatingSystem
     public IInputKeys InputKeys { get; } = new WindowsInputKeys();
     public IProcessUtility ProcessUtility { get; } = new WindowsProcessUtility();
 
-    public WindowsOperatingSystem() => IOperatingSystem.SetCurrent(this);
+    public WindowsOperatingSystem() => IOperatingSystem.RegisterOS(this);
 
     public void OpenHyperlink(string url)
     {

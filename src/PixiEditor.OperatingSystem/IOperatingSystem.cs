@@ -8,7 +8,7 @@ public interface IOperatingSystem
     public IInputKeys InputKeys { get; }
     public IProcessUtility ProcessUtility { get; }
 
-    protected static void SetCurrent(IOperatingSystem operatingSystem)
+    protected static void RegisterOS(IOperatingSystem operatingSystem)
     {
         if (Current != null)
         {

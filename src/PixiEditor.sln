@@ -66,11 +66,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.UpdateInstaller.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.UI.Common", "PixiEditor.UI.Common\PixiEditor.UI.Common.csproj", "{FA98BFA6-2E83-41C6-9102-76875B261F51}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Avalonia", "PixiEditor.Avalonia\PixiEditor.Avalonia\PixiEditor.Avalonia.csproj", "{27B4583C-539B-4D75-AF2C-71CAB1B4A153}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.AvaloniaUI", "PixiEditor.Avalonia\PixiEditor.AvaloniaUI\PixiEditor.AvaloniaUI.csproj", "{27B4583C-539B-4D75-AF2C-71CAB1B4A153}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Avalonia.Desktop", "PixiEditor.Avalonia\PixiEditor.Avalonia.Desktop\PixiEditor.Avalonia.Desktop.csproj", "{20406C86-4833-4E8B-8880-8674984AC03C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.AvaloniaUI.Desktop", "PixiEditor.Avalonia\PixiEditor.AvaloniaUI.Desktop\PixiEditor.AvaloniaUI.Desktop.csproj", "{20406C86-4833-4E8B-8880-8674984AC03C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.Avalonia.Browser", "PixiEditor.Avalonia\PixiEditor.Avalonia.Browser\PixiEditor.Avalonia.Browser.csproj", "{6B71BBFF-27D2-4A65-9357-1376356B5ECC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.AvaloniaUI.Browser", "PixiEditor.Avalonia\PixiEditor.AvaloniaUI.Browser\PixiEditor.AvaloniaUI.Browser.csproj", "{6B71BBFF-27D2-4A65-9357-1376356B5ECC}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OperatingSystems", "OperatingSystems", "{2CC7ED59-C25E-4EED-8FED-D48E13EB9CC0}"
 EndProject
