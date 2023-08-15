@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
@@ -58,7 +59,7 @@ internal class IconEvaluator : Evaluator<IImage>
 
         public static Dictionary<string, Bitmap> images = new();
 
-        public override Bitmap CallEvaluate(Command command, object parameter)
+        public override IImage CallEvaluate(Command command, object parameter)
         {
             string path = GetDefaultPath(command);
 

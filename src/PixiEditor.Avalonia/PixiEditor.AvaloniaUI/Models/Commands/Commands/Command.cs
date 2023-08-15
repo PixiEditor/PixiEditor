@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
@@ -46,6 +47,13 @@ internal abstract partial class Command : ObservableObject
     public abstract object GetParameter();
 
     protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute)
+    {
+        Methods = new(this, (_) => Task.FromResult(onExecute), canExecute);
+        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
+        /*InputLanguageManager.Current.InputLanguageChanged += (_, _) => this.OnPropertyChanged(nameof(Shortcut)); TODO: Didn't find implementation of this in Avalonia*/
+    }
+
+    protected Command(Func<object, Task> onExecute, CanExecuteEvaluator canExecute)
     {
         Methods = new(this, onExecute, canExecute);
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;

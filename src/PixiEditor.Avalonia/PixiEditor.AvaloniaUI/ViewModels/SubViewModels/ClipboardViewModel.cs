@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
@@ -22,6 +23,10 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     public ClipboardViewModel(ViewModelMain owner)
         : base(owner)
     {
+        Application.Current.ForDesktopMainWindow((mainWindow) =>
+        {
+            ClipboardController.Initialize(mainWindow.Clipboard);
+        });
     }
 
     [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = KeyModifiers.Control)]

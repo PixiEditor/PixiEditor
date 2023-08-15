@@ -10,6 +10,7 @@
     <ItemGroup>
       <AvaloniaResource Include="Assets\PixiEditorLogo.png" />
       <AvaloniaResource Include="Assets\Processing.gif" />
+      <AvaloniaResource Include="Fonts\feather.ttf" />
       <None Remove="Assets\Fonts\Oxygen-Bold.ttf" />
       <None Remove="Assets\Fonts\Oxygen-Light.ttf" />
       <None Remove="Assets\Fonts\Oxygen-Regular.ttf" />

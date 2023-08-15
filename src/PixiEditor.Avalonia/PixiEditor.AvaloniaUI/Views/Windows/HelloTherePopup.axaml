@@ -56,7 +56,7 @@
                                 <StackPanel.Background>
                                     <VisualBrush>
                                         <VisualBrush.Visual>
-                                            <Ellipse Fill="{StaticResource ThemeBackgroundBrush}" Width="20" Height="20"/>
+                                            <Ellipse Fill="{DynamicResource ThemeBackgroundBrush}" Width="20" Height="20"/>
                                         </VisualBrush.Visual>
                                     </VisualBrush>
                                 </StackPanel.Background>
@@ -235,7 +235,7 @@
                                                             <Button Command="{xaml:Command Name=PixiEditor.File.RemoveRecent, UseProvided=True}"
                                                                     CommandParameter="{Binding FilePath}"
                                                                     ToolTip.Tip="Remove from list">
-                                                                <TextBlock Text="" FontFamily="{StaticResource Feather}"
+                                                                <TextBlock Text="" FontFamily="{DynamicResource Feather}"
                                                                            TextAlignment="Center" FontSize="20"/>
                                                             </Button>
                                                         </StackPanel>
@@ -295,7 +295,7 @@
 
         <ScrollViewer Grid.Row="1" Grid.Column="1"
                       IsVisible="{Binding !NewsPanelCollapsed}">
-            <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource MainColor}">
+            <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource ThemeBackgroundBrush}">
                 <Grid>
                     <indicators1:LoadingIndicator IsVisible="{Binding IsFetchingNews}"/>
                     <TextBlock ui:Translator.Key="FAILED_FETCH_NEWS" Foreground="White" FontSize="20"

@@ -5,8 +5,10 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
@@ -360,7 +362,8 @@ internal class CommandController
             where T : Evaluator<TParameter>, new()
             where TAttr : Evaluator.EvaluatorAttribute
         {
-            if (!method.ReturnType.IsAssignableFrom(typeof(TParameter)) && !IsAssignaleAsync<TAttr, T, TParameter>(method))
+            bool isAssignableAsync = IsAssignaleAsync<TAttr, T, TParameter>(method);
+            if (!method.ReturnType.IsAssignableFrom(typeof(TParameter)) && !isAssignableAsync)
             {
                 throw new Exception(
                     $"Invalid return type for the CanExecute evaluator '{attribute.Name}' at {method.ReflectedType.FullName}.{method.Name}\nExpected '{typeof(TParameter).FullName}'");
@@ -378,21 +381,41 @@ internal class CommandController
 
             var parameters = method.GetParameters();
 
-            Func<object, TParameter> func;
-
-            if (parameters.Length == 1)
+            if (!isAssignableAsync)
             {
-                func = x => (TParameter)method.Invoke(serviceInstance,
-                    new[] { CastParameter(x, parameters[0].ParameterType) });
+                Func<object, TParameter> func;
+
+                if (parameters.Length == 1)
+                {
+                    func = x => (TParameter)method.Invoke(serviceInstance,
+                        new[] { CastParameter(x, parameters[0].ParameterType) });
+                }
+                else
+                {
+                    func = x => (TParameter)method.Invoke(serviceInstance, null);
+                }
+
+                T evaluator = factory(func);
+                evaluators.Add(evaluator.Name, evaluator);
             }
             else
             {
-                func = x => (TParameter)method.Invoke(serviceInstance, null);
+                Func<object, Task<TParameter>> func;
+                if (parameters.Length == 1)
+                {
+                    func = async x => await method.InvokeAsync<TParameter>(serviceInstance,
+                        new[] { CastParameter(x, parameters[0].ParameterType) });
+                }
+                else
+                {
+                    func = async x => await method.InvokeAsync<TParameter>(serviceInstance, null);
+                }
+
+                T evaluator = factory(x => Task.Run(async () => await func(x)).Result);//TODO: This is not truly async
+                evaluators.Add(evaluator.Name, evaluator);
             }
 
-            T evaluator = factory(func);
 
-            evaluators.Add(evaluator.Name, evaluator);
         }
 
         void AddEvaluator<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute,
@@ -424,7 +447,6 @@ internal class CommandController
                                         canExecuteAttribute.NamesOfRequiredCanExecuteEvaluators.Select(x =>
                                             controller.CanExecuteEvaluators[x]);
 
-                                bool isAsync = methodInfo.ReturnType == typeof(Task<bool>);
                                 AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
                                     methodInfo,
                                     serviceProvider.GetService(type.Key),
@@ -437,7 +459,7 @@ internal class CommandController
                                             evaluateFunction.Invoke(evaluateFunctionArgument) &&
                                             getRequiredEvaluatorsObjectsOfCurrentEvaluator.Invoke(this).All(
                                                 requiredEvaluator =>
-                                                    requiredEvaluator.CallEvaluate(null, evaluateFunctionArgument))
+                                                    requiredEvaluator.CallEvaluate(null, evaluateFunctionArgument)),
                                     });
                                 break;
                             }

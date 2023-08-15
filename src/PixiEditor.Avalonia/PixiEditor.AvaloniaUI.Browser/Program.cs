@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Browser;
-using PixiEditor.Avalonia;
 using PixiEditor.AvaloniaUI;
 
 [assembly: SupportedOSPlatform("browser")]

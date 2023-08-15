@@ -7,6 +7,11 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.MainView"
              x:DataType="viewModels1:ViewModelMain" Background="{DynamicResource ThemeBackgroundBrush}">
+    <Interaction.Behaviors>
+        <EventTriggerBehavior EventName="Loaded">
+            <InvokeCommandAction Command="{Binding StartupCommand}"/>
+        </EventTriggerBehavior>
+    </Interaction.Behaviors>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>

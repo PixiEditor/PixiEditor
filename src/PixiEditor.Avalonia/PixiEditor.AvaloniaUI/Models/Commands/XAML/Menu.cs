@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Input;
@@ -19,7 +20,7 @@ internal class Menu : global::Avalonia.Controls.Menu
     public static string GetCommand(MenuItem menu) => (string)menu.GetValue(CommandProperty);
     public static void SetCommand(MenuItem menu, string value) => menu.SetValue(CommandProperty, value);
 
-    public static void CommandChanged(AvaloniaPropertyChangedEventArgs e)
+    public static async void CommandChanged(AvaloniaPropertyChangedEventArgs e) //TODO: Validate async void works
     {
         if (e.NewValue is not string value || e.Sender is not MenuItem item)
         {
@@ -34,18 +35,21 @@ internal class Menu : global::Avalonia.Controls.Menu
 
         var command = CommandController.Current.Commands[value];
 
+        bool canExecute = command.CanExecute();
+
         var icon = new Image
         {
-            Source = command.GetIcon(), 
+            Source = command.GetIcon(),
             Width = IconDimensions, Height = IconDimensions,
-            Opacity = command.CanExecute() ? 1 : 0.75
+            Opacity = canExecute ? 1 : 0.75
         };
 
-        icon.PropertyChanged += (sender, args) =>
+        icon.PropertyChanged += async (sender, args) =>
         {
+            bool canExecute = command.CanExecute();
             if (args.Property.Name == nameof(icon.IsVisible))
             {
-                icon.Opacity = command.CanExecute() ? 1 : 0.75;
+                icon.Opacity = canExecute ? 1 : 0.75;
             }
         };
 
