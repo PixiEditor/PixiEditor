@@ -47,7 +47,7 @@ internal class ShortcutBinding : MarkupExtension
     public static Binding GetBinding(ActualCommand command, IValueConverter converter) => new Binding
     {
         Source = command,
-        Path = new("Shortcut"),
+        Path = new("Shortcut.Gesture"),
         Mode = BindingMode.OneWay,
         StringFormat = "",
         Converter = converter

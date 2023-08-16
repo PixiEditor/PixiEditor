@@ -23,7 +23,7 @@
             <RowDefinition Height="60*" MinHeight="45"/>
         </Grid.RowDefinitions>
         <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
-            <Separator Background="{StaticResource MainColor}" />
+            <Separator Background="{DynamicResource ThemeBackgroundBrush}" />
             <DockPanel>
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
                     <input:EditableTextBlock x:Name="titleTextBlock" OnSubmit="EditableTextBlock_OnSubmit"
@@ -48,7 +48,7 @@
         <ItemsControl Margin="0 -20 0 10" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel Orientation="Horizontal" IsItemsHost="True"/>
+                    <WrapPanel Orientation="Horizontal" />
                 </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>

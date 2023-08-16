@@ -177,8 +177,8 @@ internal partial class ViewModelMain : ViewModelBase
     private void ToolsSubViewModel_SelectedToolChanged(object sender, SelectedToolEventArgs e)
     {
         if (e.OldTool != null)
-            e.OldTool.PropertyChanged -= SelectedTool_PropertyChanged;
-        e.NewTool.PropertyChanged += SelectedTool_PropertyChanged;
+            ((ToolViewModel)e.OldTool).PropertyChanged -= SelectedTool_PropertyChanged;
+        ((ToolViewModel)e.NewTool).PropertyChanged += SelectedTool_PropertyChanged;
 
         NotifyToolActionDisplayChanged();
     }

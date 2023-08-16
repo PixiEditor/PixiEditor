@@ -7,21 +7,21 @@ namespace PixiEditor.AvaloniaUI.Models.Commands;
 internal class CommandMethods
 {
     private readonly Command _command;
-    private readonly Func<object, Task> _execute;
+    private readonly Action<object> _execute;
     private readonly CanExecuteEvaluator _canExecute;
 
-    public CommandMethods(Command command, Func<object, Task> execute, CanExecuteEvaluator canExecute)
+    public CommandMethods(Command command, Action<object> execute, CanExecuteEvaluator canExecute)
     {
         _execute = execute;
         _canExecute = canExecute;
         _command = command;
     }
 
-    public async Task Execute(object parameter)
+    public void Execute(object parameter)
     {
         if (CanExecute(parameter))
         {
-            await _execute(parameter);
+            _execute(parameter);
         }
     }
 

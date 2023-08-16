@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
@@ -10,7 +11,7 @@ using PixiEditor.Extensions.Helpers;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document.TransformOverlays;
 #nullable enable
-internal class DocumentTransformViewModel : ObservableObject
+internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 {
     private DocumentViewModel document;
     

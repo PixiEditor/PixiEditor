@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Xaml.Interactivity;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 
@@ -10,23 +11,23 @@ internal class GlobalShortcutFocusBehavior : Behavior<Control>
     protected override void OnAttached()
     {
         base.OnAttached();
-        AssociatedObject.AddHandler(InputElement.GotFocusEvent, AssociatedObject_GotKeyboardFocus);
-        AssociatedObject.AddHandler(InputElement.LostFocusEvent, AssociatedObject_LostKeyboardFocus);
+        AssociatedObject.GotFocus += AssociatedObject_GotKeyboardFocus;
+        AssociatedObject.LostFocus += AssociatedObject_LostKeyboardFocus;
     }
 
     protected override void OnDetaching()
     {
         base.OnDetaching();
-        AssociatedObject.RemoveHandler(InputElement.GotFocusEvent, AssociatedObject_GotKeyboardFocus);
-        AssociatedObject.RemoveHandler(InputElement.LostFocusEvent, AssociatedObject_LostKeyboardFocus);
+        AssociatedObject.GotFocus -= AssociatedObject_GotKeyboardFocus;
+        AssociatedObject.LostFocus -= AssociatedObject_LostKeyboardFocus;
     }
 
-    private void AssociatedObject_LostKeyboardFocus(object sender)
+    private void AssociatedObject_LostKeyboardFocus(object? sender, RoutedEventArgs routedEventArgs)
     {
         ShortcutController.UnblockShortcutExecution("GlobalShortcutFocusBehavior");
     }
 
-    private void AssociatedObject_GotKeyboardFocus(object sender)
+    private void AssociatedObject_GotKeyboardFocus(object? sender, GotFocusEventArgs gotFocusEventArgs)
     {
         ShortcutController.BlockShortcutExecution("GlobalShortcutFocusBehavior");
     }

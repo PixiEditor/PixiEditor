@@ -35,7 +35,7 @@
 
         <dialogs:DialogTitleBar TitleKey="PALETTE_BROWSER" CloseCommand="{x:Static viewModels:SystemCommands.CloseWindowCommand}"/>
 
-        <DockPanel Background="{StaticResource MainColor}" Grid.Row="1">
+        <DockPanel Background="{DynamicResource ThemeBackgroundBrush}" Grid.Row="1">
             <StackPanel HorizontalAlignment="Left" Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
                 <Label ui:Translator.Key="SORT_BY" VerticalAlignment="Center"/>
                 <ComboBox x:Name="sortingComboBox" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">

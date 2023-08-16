@@ -48,13 +48,6 @@ internal abstract partial class Command : ObservableObject
 
     protected Command(Action<object> onExecute, CanExecuteEvaluator canExecute)
     {
-        Methods = new(this, (_) => Task.FromResult(onExecute), canExecute);
-        ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
-        /*InputLanguageManager.Current.InputLanguageChanged += (_, _) => this.OnPropertyChanged(nameof(Shortcut)); TODO: Didn't find implementation of this in Avalonia*/
-    }
-
-    protected Command(Func<object, Task> onExecute, CanExecuteEvaluator canExecute)
-    {
         Methods = new(this, onExecute, canExecute);
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
         /*InputLanguageManager.Current.InputLanguageChanged += (_, _) => this.OnPropertyChanged(nameof(Shortcut)); TODO: Didn't find implementation of this in Avalonia*/

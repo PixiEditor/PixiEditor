@@ -27,6 +27,8 @@
 
             <Color x:Key="ErrorColor">#B00020</Color>
 
+            <Color x:Key="GlyphColor">#444</Color>
+
             <Color x:Key="NotificationCardBackgroundColor">#303030</Color>
 
             <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
@@ -54,6 +56,7 @@
             <SolidColorBrush x:Key="NotificationCardBackgroundBrush" Color="{StaticResource NotificationCardBackgroundColor}" />
 
             <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
+            <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource GlyphColor}"/>
 
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
             <system:Double x:Key="ControlCornerRadiusValue">5</system:Double>

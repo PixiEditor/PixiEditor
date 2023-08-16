@@ -129,6 +129,8 @@ internal class ActionAccumulator
                 lockedFramebuffer.Dispose();
             }
 
+            lockedFramebuffers.Clear();
+
             // force refresh viewports for better responsiveness
             foreach (var (_, value) in internals.State.Viewports)
             {

@@ -17,6 +17,8 @@ public record struct KeyCombination(Key Key, KeyModifiers Modifiers)
 
     public KeyGesture ToKeyGesture() => new(Key, Modifiers);
 
+    public KeyGesture Gesture => ToKeyGesture();
+
     private string ToString(bool forceInvariant)
     {
         StringBuilder builder = new();

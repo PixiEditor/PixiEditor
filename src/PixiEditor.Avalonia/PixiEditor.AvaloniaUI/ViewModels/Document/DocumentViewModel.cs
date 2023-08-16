@@ -156,9 +156,9 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
     private DocumentInternalParts Internals { get; }
     IFolderHandler IDocument.StructureRoot => StructureRoot;
     IDocumentOperations IDocument.Operations => Operations;
-    ITransformHandler IDocument.TransformHandler { get; }
+    ITransformHandler IDocument.TransformHandler => TransformViewModel;
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
-    ILayerHandlerFactory IDocument.LayerHandlerFactory { get; }
+    public ILayerHandlerFactory LayerHandlerFactory { get; }
     IFolderHandlerFactory IDocument.FolderHandlerFactory { get; }
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
 
@@ -171,6 +171,8 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
         StructureHelper = new DocumentStructureModule(this);
         EventInlet = new DocumentEventsModule(this, Internals);
         Operations = new DocumentOperationsModule(this, Internals);
+
+        LayerHandlerFactory = new LayerHandlerFactory(this);
 
         StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
 
@@ -514,10 +516,8 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
         OnPropertyChanged(nameof(VerticalSymmetryAxisXBindable));
     }
 
-    public void SetSelectedMember(IStructureMemberHandler member)
-    {
-        throw new NotImplementedException();
-    }
+    public void SetSelectedMember(IStructureMemberHandler member) =>
+        SetSelectedMember((StructureMemberViewModel)member);
 
     public void SetHorizontalSymmetryAxisY(double horizontalSymmetryAxisY)
     {
@@ -552,12 +552,7 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
     }
 
     public void ClearSoftSelectedMembers() => softSelectedStructureMembers.Clear();
-    public void AddSoftSelectedMember(IStructureMemberHandler member)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void AddSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Add(member);
+    public void AddSoftSelectedMember(IStructureMemberHandler member) => softSelectedStructureMembers.Add((StructureMemberViewModel)member);
     public void RemoveSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Remove(member);
     #endregion
 

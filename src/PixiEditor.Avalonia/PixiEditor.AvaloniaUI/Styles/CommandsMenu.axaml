@@ -5,5 +5,4 @@
 
     <ControlTheme x:Key="{x:Type xaml:Menu}"
                   TargetType="xaml:Menu" BasedOn="{StaticResource {x:Type Menu}}"/>
-
 </ResourceDictionary>

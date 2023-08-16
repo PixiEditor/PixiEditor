@@ -14,7 +14,7 @@
         mc:Ignorable="d" d:Title="Unsaved changes"
         Name="popup" WindowStartupLocation="CenterScreen" 
         Height="180" Width="400" MinHeight="180" MinWidth="400"
-        ui:Translator.Key="{Binding ElementName=popup, Path=Title}"
+        ui:Translator.Key="{Binding ElementName=popup, Path=Title, Mode=OneTime}"
         FlowDirection="{markupExtensions:Localization FlowDirection}">
 
     <!--

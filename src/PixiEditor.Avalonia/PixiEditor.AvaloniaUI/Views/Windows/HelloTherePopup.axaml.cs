@@ -196,6 +196,7 @@ internal partial class HelloTherePopup : Window
 
     private async void HelloTherePopup_OnLoaded(object sender, RoutedEventArgs e)
     {
+        return;
         if(_newsDisabled) return;
 
         try

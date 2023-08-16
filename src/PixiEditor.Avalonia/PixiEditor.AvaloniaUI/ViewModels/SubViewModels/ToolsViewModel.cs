@@ -23,7 +23,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     private RightClickMode rightClickMode;
     public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();
 
-    public ToolViewModel? LastActionTool { get; private set; }
+    public IToolHandler? LastActionTool { get; private set; }
 
     public RightClickMode RightClickMode
     {
@@ -64,8 +64,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         get => ActiveTool?.Toolbar as BasicToolbar;
     }
 
-    private ToolViewModel? activeTool;
-    public ToolViewModel? ActiveTool
+    private IToolHandler? activeTool;
+    public IToolHandler? ActiveTool
     {
         get => activeTool;
         private set
@@ -75,7 +75,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    public List<ToolViewModel>? ToolSet { get; private set; }
+    public List<IToolHandler>? ToolSet { get; private set; }
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
@@ -94,7 +94,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public void SetupTools(IServiceProvider services)
     {
-        ToolSet = services.GetServices<ToolViewModel>().ToList();
+        ToolSet = services.GetServices<IToolHandler>().ToList();
     }
 
     public void SetupToolsTooltipShortcuts(IServiceProvider services)
@@ -132,7 +132,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         SetActiveTool(tool, false);
     }
 
-    public void SetActiveTool(ToolViewModel tool, bool transient)
+    public void SetActiveTool(IToolHandler tool, bool transient)
     {
         if (ActiveTool == tool)
         {
@@ -215,7 +215,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
-        ToolViewModel foundTool = ToolSet!.First(x => x.GetType() == toolType);
+        IToolHandler foundTool = ToolSet!.First(x => x.GetType() == toolType);
         SetActiveTool(foundTool, transient);
     }
     
