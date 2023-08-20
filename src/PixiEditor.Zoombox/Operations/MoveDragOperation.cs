@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 
@@ -8,19 +9,21 @@ internal class MoveDragOperation : IDragOperation
 {
     private Zoombox parent;
     private VecD prevMousePos;
+    private IPointer? capturedPointer = null!;
 
     public MoveDragOperation(Zoombox zoomBox)
     {
         parent = zoomBox;
     }
 
-    public void Start(MouseButtonEventArgs e)
+    public void Start(PointerEventArgs e)
     {
         prevMousePos = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
-        parent.mainGrid.CaptureMouse();
+        e.Pointer.Capture(parent.mainGrid);
+        capturedPointer = e.Pointer;
     }
 
-    public void Update(MouseEventArgs e)
+    public void Update(PointerEventArgs e)
     {
         var curMousePos = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
         parent.Center += parent.ToZoomboxSpace(prevMousePos) - parent.ToZoomboxSpace(curMousePos);
@@ -29,6 +32,7 @@ internal class MoveDragOperation : IDragOperation
 
     public void Terminate()
     {
-        parent.mainGrid.ReleaseMouseCapture();
+        capturedPointer?.Capture(null);
+        capturedPointer = null!;
     }
 }

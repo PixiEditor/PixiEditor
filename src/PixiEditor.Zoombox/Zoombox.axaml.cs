@@ -1,59 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Markup;
-using ChunkyImageLib.DataHolders;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Metadata;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Zoombox.Operations;
 
 namespace PixiEditor.Zoombox;
 
-[ContentProperty(nameof(AdditionalContent))]
 public partial class Zoombox : ContentControl, INotifyPropertyChanged
 {
-    public static readonly DependencyProperty AdditionalContentProperty =
-        DependencyProperty.Register(nameof(AdditionalContent), typeof(object), typeof(Zoombox),
-            new PropertyMetadata(null));
+ public static readonly StyledProperty<object> AdditionalContentProperty =
+            AvaloniaProperty.Register<Zoombox, object>(nameof(AdditionalContent));
 
-    public static readonly DependencyProperty ZoomModeProperty =
-        DependencyProperty.Register(nameof(ZoomMode), typeof(ZoomboxMode), typeof(Zoombox),
-            new PropertyMetadata(ZoomboxMode.Normal, ZoomModeChanged));
+        public static readonly StyledProperty<ZoomboxMode> ZoomModeProperty =
+            AvaloniaProperty.Register<Zoombox, ZoomboxMode>(nameof(ZoomMode), defaultValue: ZoomboxMode.Normal);
 
-    public static readonly DependencyProperty ZoomOutOnClickProperty =
-        DependencyProperty.Register(nameof(ZoomOutOnClick), typeof(bool), typeof(Zoombox),
-            new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> ZoomOutOnClickProperty =
+            AvaloniaProperty.Register<Zoombox, bool>(nameof(ZoomOutOnClick), defaultValue: false);
 
-    public static readonly DependencyProperty UseTouchGesturesProperty =
-        DependencyProperty.Register(nameof(UseTouchGestures), typeof(bool), typeof(Zoombox));
+        public static readonly StyledProperty<bool> UseTouchGesturesProperty =
+            AvaloniaProperty.Register<Zoombox, bool>(nameof(UseTouchGestures));
 
-    public static readonly DependencyProperty ScaleProperty =
-        DependencyProperty.Register(nameof(Scale), typeof(double), typeof(Zoombox), new(1.0, OnPropertyChange));
+        public static readonly StyledProperty<double> ScaleProperty =
+            AvaloniaProperty.Register<Zoombox, double>(nameof(Scale), defaultValue: 1.0);
 
-    public static readonly DependencyProperty CenterProperty =
-        DependencyProperty.Register(nameof(Center), typeof(VecD), typeof(Zoombox), new(new VecD(0, 0), OnPropertyChange));
+        public static readonly StyledProperty<VecD> CenterProperty =
+            AvaloniaProperty.Register<Zoombox, VecD>(nameof(Center), defaultValue: new VecD(0, 0));
 
-    public static readonly DependencyProperty DimensionsProperty =
-        DependencyProperty.Register(nameof(Dimensions), typeof(VecD), typeof(Zoombox));
+        public static readonly StyledProperty<VecD> DimensionsProperty =
+            AvaloniaProperty.Register<Zoombox, VecD>(nameof(Dimensions));
 
-    public static readonly DependencyProperty RealDimensionsProperty =
-        DependencyProperty.Register(nameof(RealDimensions), typeof(VecD), typeof(Zoombox));
+        public static readonly StyledProperty<VecD> RealDimensionsProperty =
+            AvaloniaProperty.Register<Zoombox, VecD>(nameof(RealDimensions));
 
-    public static readonly DependencyProperty AngleProperty =
-        DependencyProperty.Register(nameof(Angle), typeof(double), typeof(Zoombox), new(0.0, OnPropertyChange));
+        public static readonly StyledProperty<double> AngleProperty =
+            AvaloniaProperty.Register<Zoombox, double>(nameof(Angle), defaultValue: 0.0);
 
-    public static readonly DependencyProperty FlipXProperty =
-        DependencyProperty.Register(nameof(FlipX), typeof(bool), typeof(Zoombox), new(false, OnPropertyChange));
+        public static readonly StyledProperty<bool> FlipXProperty =
+            AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipX), defaultValue: false);
 
-    public static readonly DependencyProperty FlipYProperty =
-        DependencyProperty.Register(nameof(FlipY), typeof(bool), typeof(Zoombox), new(false, OnPropertyChange));
+        public static readonly StyledProperty<bool> FlipYProperty =
+            AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipY), defaultValue: false);
 
-    public static readonly RoutedEvent ViewportMovedEvent = EventManager.RegisterRoutedEvent(
-        nameof(ViewportMoved), RoutingStrategy.Bubble, typeof(EventHandler<ViewportRoutedEventArgs>), typeof(Zoombox));
+    public static readonly RoutedEvent<ViewportRoutedEventArgs> ViewportMovedEvent = RoutedEvent.Register<Zoombox, ViewportRoutedEventArgs>(
+        nameof(ViewportMoved), RoutingStrategies.Bubble);
 
-    public object? AdditionalContent
+    [Content]
+    public object AdditionalContent
     {
         get => GetValue(AdditionalContentProperty);
         set => SetValue(AdditionalContentProperty, value);
@@ -139,8 +136,8 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         get
         {
             double fraction = Math.Max(
-                mainCanvas.ActualWidth / mainGrid.ActualWidth,
-                mainCanvas.ActualHeight / mainGrid.ActualHeight);
+                mainCanvas.Width / mainGrid.Width,
+                mainCanvas.Height / mainGrid.Height);
             return Math.Min(fraction / 8, 0.1);
         }
     }
@@ -155,13 +152,13 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
             delta.X = -delta.X;
         if (FlipY)
             delta.Y = -delta.Y;
-        delta += new VecD(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2);
+        delta += new VecD(mainCanvas.Width / 2, mainCanvas.Height / 2);
         return delta;
     }
 
     internal VecD ToZoomboxSpace(VecD mousePos)
     {
-        VecD delta = mousePos - new VecD(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2);
+        VecD delta = mousePos - new VecD(mainCanvas.Width / 2, mainCanvas.Height / 2);
         if (FlipX)
             delta.X = -delta.X;
         if (FlipY)
@@ -171,14 +168,14 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     }
 
     private IDragOperation? activeDragOperation = null;
-    private MouseButtonEventArgs? activeMouseDownEventArgs = null;
+    private PointerEventArgs? activeMouseDownEventArgs = null;
     private VecD activeMouseDownPos;
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private static void ZoomModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void ZoomModeChanged(AvaloniaPropertyChangedEventArgs<ZoomboxMode> e)
     {
-        Zoombox sender = (Zoombox)d;
+        Zoombox sender = (Zoombox)e.Sender;
         sender.activeDragOperation?.Terminate();
         sender.activeDragOperation = null;
         sender.activeMouseDownEventArgs = null;
@@ -186,11 +183,22 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private double[]? zoomValues;
 
+    static Zoombox()
+    {
+        // Add here all with notifyingSetter
+        ZoomModeProperty.Changed.Subscribe(ZoomModeChanged);
+        ScaleProperty.Changed.Subscribe(OnPropertyChange);
+        AngleProperty.Changed.Subscribe(OnPropertyChange);
+        FlipXProperty.Changed.Subscribe(OnPropertyChange);
+        FlipYProperty.Changed.Subscribe(OnPropertyChange);
+        CenterProperty.Changed.Subscribe(OnPropertyChange);
+    }
+
     public Zoombox()
     {
         CalculateZoomValues();
         InitializeComponent();
-        Loaded += (_, _) => OnPropertyChange(this, new DependencyPropertyChangedEventArgs());
+        Loaded += (_, _) => OnPropertyChange(this);
     }
 
     private void CalculateZoomValues()
@@ -262,7 +270,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void RaiseViewportEvent()
     {
-        VecD realDim = new VecD(mainCanvas.ActualWidth, mainCanvas.ActualHeight);
+        VecD realDim = new VecD(mainCanvas.Width, mainCanvas.Height);
         RealDimensions = realDim;
         RaiseEvent(new ViewportRoutedEventArgs(
             ViewportMovedEvent,
@@ -272,14 +280,14 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
             Angle));
     }
 
-    public void CenterContent() => CenterContent(new(mainGrid.ActualWidth, mainGrid.ActualHeight));
+    public void CenterContent() => CenterContent(new(mainGrid.Width, mainGrid.Height));
 
     public void CenterContent(VecD newSize)
     {
         const double marginFactor = 1.1;
         double scaleFactor = Math.Max(
-            newSize.X * marginFactor / mainCanvas.ActualWidth,
-            newSize.Y * marginFactor / mainCanvas.ActualHeight);
+            newSize.X * marginFactor / mainCanvas.Width,
+            newSize.Y * marginFactor / mainCanvas.Height);
 
         Angle = 0;
         FlipX = false;
@@ -290,7 +298,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     public void ZoomIntoCenter(double delta)
     {
-        ZoomInto(new VecD(mainCanvas.ActualWidth / 2, mainCanvas.ActualHeight / 2), delta);
+        ZoomInto(new VecD(mainCanvas.Width / 2, mainCanvas.Height / 2), delta);
     }
 
     public void ZoomInto(VecD mousePos, double delta)
@@ -330,16 +338,25 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         return index;
     }
 
-    private void OnMouseDown(object sender, MouseButtonEventArgs e)
+    private void OnMouseDown(object? sender, PointerPressedEventArgs e)
     {
-        if (e.ChangedButton == MouseButton.Right)
+        // TODO: idk if this is correct
+        MouseButton but = e.GetCurrentPoint(this).Properties.PointerUpdateKind switch
+        {
+            PointerUpdateKind.LeftButtonPressed => MouseButton.Left,
+            PointerUpdateKind.RightButtonPressed => MouseButton.Right,
+            PointerUpdateKind.MiddleButtonPressed => MouseButton.Middle,
+            _ => MouseButton.None,
+        };
+
+        if (but == MouseButton.Right)
             return;
         activeMouseDownEventArgs = e;
         activeMouseDownPos = ToVecD(e.GetPosition(mainCanvas));
-        Keyboard.Focus(this);
+        Focus(NavigationMethod.Unspecified);
     }
 
-    private void InitiateDrag(MouseButtonEventArgs e)
+    private void InitiateDrag(PointerEventArgs e)
     {
         if (ZoomMode == ZoomboxMode.Normal)
             return;
@@ -358,9 +375,9 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         activeDragOperation.Start(e);
     }
 
-    private void OnMouseUp(object sender, MouseButtonEventArgs e)
+    private void OnMouseUp(object? sender, PointerReleasedEventArgs e)
     {
-        if (e.ChangedButton == MouseButton.Right)
+        if (e.InitialPressMouseButton == MouseButton.Right)
             return;
         if (activeDragOperation is not null)
         {
@@ -369,13 +386,13 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         }
         else
         {
-            if (ZoomMode == ZoomboxMode.Zoom && e.ChangedButton == MouseButton.Left)
+            if (ZoomMode == ZoomboxMode.Zoom && e.InitialPressMouseButton == MouseButton.Left)
                 ZoomInto(ToVecD(e.GetPosition(mainCanvas)), ZoomOutOnClick ? -1 : 1);
         }
         activeMouseDownEventArgs = null;
     }
 
-    private void OnMouseMove(object sender, MouseEventArgs e)
+    private void OnMouseMove(object? sender, PointerEventArgs e)
     {
         if (activeDragOperation is null && activeMouseDownEventArgs is not null)
         {
@@ -387,18 +404,19 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         activeDragOperation?.Update(e);
     }
 
-    private void OnScroll(object sender, MouseWheelEventArgs e)
+    private void OnScroll(object sender, PointerWheelEventArgs e)
     {
-        double abs = Math.Abs(e.Delta / 100.0);
+        double abs = Math.Abs(e.Delta.Y / 100.0);
         for (int i = 0; i < abs; i++)
         {
-            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), e.Delta / 100.0);
+            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), e.Delta.Y / 100.0);
         }
     }
 
 
     private ManipulationOperation? activeManipulationOperation;
 
+    /* TODO: Avalonia uses Pointer events for both mouse and touch, so we can't use this, would be cool to Implement UseTouchGestures
     private void OnManipulationStarted(object? sender, ManipulationStartedEventArgs e)
     {
         if (!UseTouchGestures || activeManipulationOperation is not null)
@@ -420,15 +438,21 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
             return;
         activeManipulationOperation = null;
     }
+    */
 
     internal static VecD ToVecD(Point point) => new VecD(point.X, point.Y);
 
-    private static void OnPropertyChange(DependencyObject obj, DependencyPropertyChangedEventArgs args)
+    private static void OnPropertyChange(AvaloniaPropertyChangedEventArgs e)
     {
-        Zoombox? zoombox = (Zoombox)obj;
+        Zoombox? zoombox = (Zoombox)e.Sender;
 
+       OnPropertyChange(zoombox);
+    }
+
+    private static void OnPropertyChange(Zoombox zoombox)
+    {
         VecD topLeft = zoombox.ToZoomboxSpace(VecD.Zero).Rotate(zoombox.Angle);
-        VecD bottomRight = zoombox.ToZoomboxSpace(new(zoombox.mainCanvas.ActualWidth, zoombox.mainCanvas.ActualHeight)).Rotate(zoombox.Angle);
+        VecD bottomRight = zoombox.ToZoomboxSpace(new(zoombox.mainCanvas.Width, zoombox.mainCanvas.Height)).Rotate(zoombox.Angle);
 
         zoombox.Dimensions = (bottomRight - topLeft).Abs();
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.ScaleTransformXY)));
@@ -442,13 +466,13 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void OnMainCanvasSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        OnPropertyChange(this, new DependencyPropertyChangedEventArgs());
+        OnPropertyChange(this);
         RaiseViewportEvent();
     }
 
     private void OnGridSizeChanged(object sender, SizeChangedEventArgs args)
     {
-        OnPropertyChange(this, new DependencyPropertyChangedEventArgs());
+        OnPropertyChange(this);
         RaiseViewportEvent();
     }
 }

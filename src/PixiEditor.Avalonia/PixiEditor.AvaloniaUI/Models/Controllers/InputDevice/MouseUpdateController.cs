@@ -11,9 +11,9 @@ public class MouseUpdateController : IDisposable
     
     private InputElement element;
     
-    private Action mouseMoveHandler;
+    private Action<PointerEventArgs> mouseMoveHandler;
     
-    public MouseUpdateController(InputElement uiElement, Action onMouseMove)
+    public MouseUpdateController(InputElement uiElement, Action<PointerEventArgs> onMouseMove)
     {
         mouseMoveHandler = onMouseMove;
         element = uiElement;
@@ -22,20 +22,20 @@ public class MouseUpdateController : IDisposable
         _timer.AutoReset = true;
         _timer.Elapsed += TimerOnElapsed;
         
-        element.AddHandler(InputElement.PointerMovedEvent, OnMouseMove);
+        element.PointerMoved += OnMouseMove;
     }
 
     private void TimerOnElapsed(object sender, ElapsedEventArgs e)
     {
         _timer.Stop();
-        element.AddHandler(InputElement.PointerMovedEvent, OnMouseMove);
+        element.PointerMoved += OnMouseMove;
     }
 
     private void OnMouseMove(object sender, PointerEventArgs e)
     {
-        element.RemoveHandler(InputElement.PointerMovedEvent, OnMouseMove);
+        element.PointerMoved -= OnMouseMove;
         _timer.Start();
-        mouseMoveHandler();
+        mouseMoveHandler(e);
     }
 
     public void Dispose()

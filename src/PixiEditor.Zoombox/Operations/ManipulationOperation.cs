@@ -27,7 +27,8 @@ internal class ManipulationOperation
         rotationProcess = new LockingRotationProcess(owner.Angle);
     }
 
-    public void Update(ManipulationDeltaEventArgs args)
+    //TODO: Implement this
+    /*public void Update(ManipulationDeltaEventArgs args)
     {
         args.Handled = true;
         double thresholdFactor = 1;
@@ -44,7 +45,7 @@ internal class ManipulationOperation
         if (owner.FlipX ^ owner.FlipY)
             deltaAngle = -deltaAngle;
         Manipulate(args.DeltaManipulation.Scale.X, screenTranslation, screenOrigin, deltaAngle, thresholdFactor);
-    }
+    }*/
 
     private void Manipulate(double deltaScale, VecD screenTranslation, VecD screenOrigin, double rotation, double thresholdFactor)
     {

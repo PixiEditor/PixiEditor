@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using Avalonia;
+using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 
@@ -11,31 +13,33 @@ internal class RotateDragOperation : IDragOperation
     private double initialZoomboxAngle;
     private double initialClickAngle;
     private LockingRotationProcess? rotationProcess;
+    private IPointer? capturedPointer = null!;
 
     public RotateDragOperation(Zoombox zoomBox)
     {
         owner = zoomBox;
     }
 
-    public void Start(MouseButtonEventArgs e)
+    public void Start(PointerEventArgs e)
     {
         Point pointCur = e.GetPosition(owner.mainCanvas);
         initialClickAngle = GetAngle(new(pointCur.X, pointCur.Y));
         initialZoomboxAngle = owner.Angle;
         rotationProcess = new LockingRotationProcess(initialZoomboxAngle);
-        owner.mainGrid.CaptureMouse();
+        e.Pointer.Capture(owner.mainGrid);
+        capturedPointer = e.Pointer;
     }
 
     private double GetAngle(VecD point)
     {
-        VecD center = new(owner.mainCanvas.ActualWidth / 2, owner.mainCanvas.ActualHeight / 2);
+        VecD center = new(owner.mainCanvas.Width / 2, owner.mainCanvas.Height / 2);
         double angle = (point - center).Angle;
         if (double.IsNaN(angle) || double.IsInfinity(angle))
             return 0;
         return angle;
     }
 
-    public void Update(MouseEventArgs e)
+    public void Update(PointerEventArgs e)
     {
         Point pointCur = e.GetPosition(owner.mainCanvas);
         double clickAngle = GetAngle(new(pointCur.X, pointCur.Y));
@@ -49,6 +53,7 @@ internal class RotateDragOperation : IDragOperation
 
     public void Terminate()
     {
-        owner.mainGrid.ReleaseMouseCapture();
+        capturedPointer?.Capture(null);
+        capturedPointer = null!;
     }
 }
