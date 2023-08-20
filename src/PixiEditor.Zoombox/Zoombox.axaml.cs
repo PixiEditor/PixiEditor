@@ -136,6 +136,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     internal VecD ToScreenSpace(VecD p)
     {
+        if (mainCanvas == null) return p;
         VecD delta = p - Center;
         delta = delta.Rotate(Angle) * Scale;
         if (FlipX)
@@ -175,7 +176,6 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     static Zoombox()
     {
-        // Add here all with notifyingSetter
         ZoomModeProperty.Changed.Subscribe(ZoomModeChanged);
         ScaleProperty.Changed.Subscribe(OnPropertyChange);
         AngleProperty.Changed.Subscribe(OnPropertyChange);

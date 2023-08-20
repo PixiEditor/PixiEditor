@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Input;
+using PixiEditor.AvaloniaUI.ViewModels;
 using ActualCommand = PixiEditor.AvaloniaUI.Models.Commands.Commands.Command;
 
 namespace PixiEditor.AvaloniaUI.Models.Commands.XAML;
@@ -31,17 +32,17 @@ internal class ShortcutBinding : MarkupExtension
             return new KeyCombination(attribute.Key, attribute.Modifiers).ToString();
         }
 
-        ICommandsHandler? handler = serviceProvider.GetService<ICommandsHandler>();
+        ICommandsHandler? handler = ViewModelMain.Current;
         commandController ??= handler.CommandController;
-        var binding = GetBinding(commandController.Commands[Name], Converter);
+        return GetBinding(commandController.Commands[Name], Converter);
 
-        var targetValue = serviceProvider.GetService<IProvideValueTarget>();
+        /*var targetValue = serviceProvider.GetService<IProvideValueTarget>();
         var targetObject = targetValue.TargetObject as AvaloniaObject;
         var targetProperty = targetValue.TargetProperty as AvaloniaProperty;
 
         var instancedBinding = binding.Initiate(targetObject, targetProperty);
 
-        return instancedBinding; //TODO: This won't work, leaving it for now
+        return instancedBinding; //TODO: This won't work, leaving it for now*/
     }
 
     public static Binding GetBinding(ActualCommand command, IValueConverter converter) => new Binding

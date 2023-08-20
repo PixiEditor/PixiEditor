@@ -55,10 +55,9 @@
 
               <!-- Documents Pane -->
 
-              <DocumentDock x:Name="DocumentsPane" Id="DocumentsPane" CanCreateDocument="True" ActiveDockable="Document1">
-                <DocumentDock.DocumentTemplate>
+              <DocumentDock x:Name="DocumentsPane" Id="DocumentsPane" CanCreateDocument="True">
+                  <DocumentDock.DocumentTemplate>
                   <DocumentTemplate>
-                      <!--Tool cursor not present here, since Avalonia doesn't have Cursor property??-->
                       <userControls:Viewport
                                              CenterViewportTrigger="{Binding CenterViewportTrigger}"
                                             ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
@@ -71,10 +70,6 @@
                                             ZoomMode="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels:MainVM}, Converter={converters:ActiveToolToZoomModeConverter}}"
                                             ZoomOutOnClick="{Binding ToolsSubViewModel.ZoomTool.ZoomOutOnClick, Source={viewModels:MainVM}}"
                                             UseTouchGestures="{Binding StylusSubViewModel.UseTouchGestures, Source={viewModels:MainVM}}"
-                                            StylusButtonDownCommand="{xaml:Command PixiEditor.Stylus.StylusDown, UseProvided=True}"
-                                            StylusButtonUpCommand="{xaml:Command PixiEditor.Stylus.StylusUp, UseProvided=True}"
-                                            StylusGestureCommand="{xaml:Command PixiEditor.Stylus.StylusSystemGesture, UseProvided=True}"
-                                            StylusOutOfRangeCommand="{xaml:Command PixiEditor.Stylus.StylusOutOfRange, UseProvided=True}"
                                             FlipX="{Binding FlipX, Mode=TwoWay}"
                                             FlipY="{Binding FlipY, Mode=TwoWay}"
                                             ContextRequested="Viewport_OnContextMenuOpening"
@@ -93,20 +88,20 @@
                                                                         <StackPanel Orientation="Vertical" Grid.Column="0">
                                                                             <MenuItem
 																		ui:Translator.Key="SELECT_ALL"
-																		xaml:ContextMenu.Command="PixiEditor.Selection.SelectAll" />
+																		xaml:Menu.Command="PixiEditor.Selection.SelectAll" />
                                                                             <MenuItem
                                                                                 ui:Translator.Key="DESELECT"
-                                                                                xaml:ContextMenu.Command="PixiEditor.Selection.Clear" />
+                                                                                xaml:Menu.Command="PixiEditor.Selection.Clear" />
                                                                             <Separator />
                                                                             <MenuItem
                                                                                 ui:Translator.Key="CUT"
-                                                                                xaml:ContextMenu.Command="PixiEditor.Clipboard.Cut" />
+                                                                                xaml:Menu.Command="PixiEditor.Clipboard.Cut" />
                                                                             <MenuItem
                                                                                 ui:Translator.Key="COPY"
-                                                                                xaml:ContextMenu.Command="PixiEditor.Clipboard.Copy" />
+                                                                                xaml:Menu.Command="PixiEditor.Clipboard.Copy" />
                                                                             <MenuItem
                                                                                 ui:Translator.Key="PASTE"
-                                                                                xaml:ContextMenu.Command="PixiEditor.Clipboard.Paste" />
+                                                                                xaml:Menu.Command="PixiEditor.Clipboard.Paste" />
                                                                             <Separator />
                                                                             <MenuItem ui:Translator.Key="FLIP_LAYERS_HORIZONTALLY" xaml:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
                                                                             <MenuItem ui:Translator.Key="FLIP_LAYERS_VERTICALLY" xaml:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
@@ -156,12 +151,6 @@
                                         </userControls:Viewport>
                   </DocumentTemplate>
                 </DocumentDock.DocumentTemplate>
-                <Document x:Name="Document1" Id="Document1" Title="SomeDrawing.pixi" x:DataType="Document">
-                  <TextBlock Text="{Binding Title}"/>
-                </Document>
-                <Document x:Name="Document2" Id="Document2" Title="SomePng.png" x:DataType="Document">
-                  <TextBlock Text="{Binding Title}"/>
-                </Document>
               </DocumentDock>
 
               <ProportionalDockSplitter x:Name="RightSplitter" Id="RightSplitter" />

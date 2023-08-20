@@ -8,6 +8,7 @@ using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels.AdditionalContent;
@@ -19,14 +20,13 @@ using PixiEditor.Extensions.Common.UserPreferences;
 
 namespace PixiEditor.AvaloniaUI.ViewModels;
 
-internal partial class ViewModelMain : ViewModelBase
+internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 {
     public static ViewModelMain Current { get; set; }
     public IServiceProvider Services { get; private set; }
 
     public Action CloseAction { get; set; }
     public event EventHandler OnStartupEvent;
-
     public FileViewModel FileSubViewModel { get; set; }
 
     public UpdateViewModel UpdateSubViewModel { get; set; }
