@@ -71,6 +71,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
 
+    public LayoutDockViewModel LayoutDockSubViewModel { get; set; }
+
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
@@ -137,6 +139,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
         AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
+
+        LayoutDockSubViewModel = services.GetService<LayoutDockViewModel>();
 
         MiscSubViewModel = services.GetService<MiscViewModel>();
 

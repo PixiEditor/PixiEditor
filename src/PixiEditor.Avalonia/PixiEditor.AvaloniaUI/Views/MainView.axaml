@@ -24,14 +24,15 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <main1:MainTitleBar/>
-      <DockControl x:Name="Dock" Grid.Row="1" InitializeLayout="True" InitializeFactory="True">
+        <DockControl Grid.Row="1" Layout="{Binding LayoutDockSubViewModel.Layout}"/>
+      <!--<DockControl x:Name="Dock" Grid.Row="1" InitializeLayout="True" InitializeFactory="True">
       <DockControl.Factory>
         <Factory />
       </DockControl.Factory>
 
       <RootDock x:Name="Root" Id="Root" IsCollapsable="False" DefaultDockable="{Binding #MainLayout}">
           <DockDock x:Name="MainLayout" Id="MainLayout" >
-              <!-- Left Pane -->
+              ~1~ Left Pane @1@
               <ToolDock Dock="Left" CanFloat="False" GripMode="Hidden">
                     <Tool CanClose="False" CanPin="False" CanFloat="False">
                         <StackPanel Orientation="Vertical" Spacing="5" Width="40">
@@ -45,110 +46,20 @@
 
 
 
-              <!-- Top Pane -->
+              ~1~ Top Pane @1@
 
           <ProportionalDock x:Name="TopPane" Id="TopPane" Orientation="Vertical">
 
-            <!-- Right Pane -->
+            ~1~ Right Pane @1@
 
             <ProportionalDock x:Name="RightPane" Id="RightPane" Orientation="Horizontal">
 
-              <!-- Documents Pane -->
+              ~1~ Documents Pane @1@
 
               <DocumentDock x:Name="DocumentsPane" Id="DocumentsPane" CanCreateDocument="True">
                   <DocumentDock.DocumentTemplate>
                   <DocumentTemplate>
-                      <userControls:Viewport
-                                             CenterViewportTrigger="{Binding CenterViewportTrigger}"
-                                            ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
-                                            MouseDownCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseDownCommand}"
-                                            MouseMoveCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseMoveCommand}"
-                                            MouseUpCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseUpCommand}"
-                                            MiddleMouseClickedCommand="{Binding IoSubViewModel.PreviewMouseMiddleButtonCommand, Source={viewModels:MainVM}}"
-                                            Cursor="{Binding ToolsSubViewModel.ToolCursor, Source={viewModels:MainVM}}"
-                                            GridLinesVisible="{Binding ViewportSubViewModel.GridLinesEnabled, Source={viewModels:MainVM}}"
-                                            ZoomMode="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels:MainVM}, Converter={converters:ActiveToolToZoomModeConverter}}"
-                                            ZoomOutOnClick="{Binding ToolsSubViewModel.ZoomTool.ZoomOutOnClick, Source={viewModels:MainVM}}"
-                                            UseTouchGestures="{Binding StylusSubViewModel.UseTouchGestures, Source={viewModels:MainVM}}"
-                                            FlipX="{Binding FlipX, Mode=TwoWay}"
-                                            FlipY="{Binding FlipY, Mode=TwoWay}"
-                                            ContextRequested="Viewport_OnContextMenuOpening"
-                                            Document="{Binding Document}">
-                                            <userControls:Viewport.ContextMenu>
-                                                <ContextMenu DataContext="{Binding PlacementTarget.Document, RelativeSource={RelativeSource Self}}">
-                                                    <ContextMenu.Template>
-                                                        <ControlTemplate>
-                                                            <Border Background="{DynamicResource ThemeAccentBrush}" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
-                                                                <Grid Height="235">
-                                                                    <Grid.ColumnDefinitions>
-                                                                        <ColumnDefinition Width="{Binding Palette, Converter={converters:PaletteItemsToWidthConverter}}"/>
-                                                                        <ColumnDefinition />
-                                                                    </Grid.ColumnDefinitions>
-                                                                    <Border Grid.Column="1" BorderThickness="0 0 1 0" BorderBrush="Black">
-                                                                        <StackPanel Orientation="Vertical" Grid.Column="0">
-                                                                            <MenuItem
-																		ui:Translator.Key="SELECT_ALL"
-																		xaml:Menu.Command="PixiEditor.Selection.SelectAll" />
-                                                                            <MenuItem
-                                                                                ui:Translator.Key="DESELECT"
-                                                                                xaml:Menu.Command="PixiEditor.Selection.Clear" />
-                                                                            <Separator />
-                                                                            <MenuItem
-                                                                                ui:Translator.Key="CUT"
-                                                                                xaml:Menu.Command="PixiEditor.Clipboard.Cut" />
-                                                                            <MenuItem
-                                                                                ui:Translator.Key="COPY"
-                                                                                xaml:Menu.Command="PixiEditor.Clipboard.Copy" />
-                                                                            <MenuItem
-                                                                                ui:Translator.Key="PASTE"
-                                                                                xaml:Menu.Command="PixiEditor.Clipboard.Paste" />
-                                                                            <Separator />
-                                                                            <MenuItem ui:Translator.Key="FLIP_LAYERS_HORIZONTALLY" xaml:Menu.Command="PixiEditor.Document.FlipLayersHorizontal"/>
-                                                                            <MenuItem ui:Translator.Key="FLIP_LAYERS_VERTICALLY" xaml:Menu.Command="PixiEditor.Document.FlipLayersVertical"/>
-                                                                            <Separator />
-                                                                            <MenuItem ui:Translator.Key="ROT_LAYERS_90_D" xaml:Menu.Command="PixiEditor.Document.Rotate90DegLayers"/>
-                                                                            <MenuItem ui:Translator.Key="ROT_LAYERS_180_D" xaml:Menu.Command="PixiEditor.Document.Rotate180DegLayers"/>
-                                                                            <MenuItem ui:Translator.Key="ROT_LAYERS_-90_D" xaml:Menu.Command="PixiEditor.Document.Rotate270DegLayers"/>
-                                                                        </StackPanel>
-                                                                    </Border>
-                                                                    <ScrollViewer Margin="5" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                                                                        <ItemsControl ItemsSource="{Binding Palette}">
-                                                                            <ItemsControl.ItemsPanel>
-                                                                                <ItemsPanelTemplate>
-                                                                                    <WrapPanel Orientation="Horizontal"
-                                  HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                                                                                </ItemsPanelTemplate>
-                                                                            </ItemsControl.ItemsPanel>
-                                                                            <ItemsControl.ItemTemplate>
-                                                                                <DataTemplate>
-                                                                                    <palettes:PaletteColorControl Cursor="Hand" CornerRadius="0"
-                                                                                        ui:Translator.TooltipKey="CLICK_SELECT_PRIMARY"
-                                                                                        Width="22" Height="22" Color="{Binding}">
-                                                                                        <Interaction.Behaviors>
-                                                                                            <EventTriggerBehavior EventName="MouseLeftButtonUp">
-                                                                                                <InvokeCommandAction
-                                                                                                    Command="{xaml:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
-                                                                                                    CommandParameter="{Binding}" />
-                                                                                            </EventTriggerBehavior>
-                                                                                            <EventTriggerBehavior EventName="MouseLeftButtonUp">
-                                                                                                <InvokeCommandAction
-                                                                                                    Command="{xaml:Command PixiEditor.CloseContextMenu, UseProvided=True}"
-                                                                                                    CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,
-                                                                                                     AncestorType={x:Type ContextMenu}}}" />
-                                                                                            </EventTriggerBehavior>
-                                                                                        </Interaction.Behaviors>
-                                                                                    </palettes:PaletteColorControl>
-                                                                                </DataTemplate>
-                                                                            </ItemsControl.ItemTemplate>
-                                                                        </ItemsControl>
-                                                                    </ScrollViewer>
-                                                                </Grid>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </ContextMenu.Template>
-                                                </ContextMenu>
-                                            </userControls:Viewport.ContextMenu>
-                                        </userControls:Viewport>
+
                   </DocumentTemplate>
                 </DocumentDock.DocumentTemplate>
               </DocumentDock>
@@ -157,7 +68,7 @@
 
               <ProportionalDock Orientation="Vertical"  x:Name="RightVerticalPane" Id="RightVerticalPane" Proportion="0.15">
 
-                  <!-- Properties Pane -->
+                  ~1~ Properties Pane @1@
               <ToolDock x:Name="ColorsPane" Id="ColorsPane" Alignment="Right">
                 <Tool x:Name="ColorPicker" Id="ColorPicker" CanClose="False" CanPin="False" Title="Color Picker" x:DataType="Tool">
                   <TextBlock Text="{Binding Title}"/>
@@ -184,12 +95,11 @@
                   </ToolDock>
               </ProportionalDock>
             </ProportionalDock>
-
           </ProportionalDock>
 
         </DockDock>
       </RootDock>
 
-    </DockControl>
+    </DockControl>-->
     </Grid>
 </UserControl>

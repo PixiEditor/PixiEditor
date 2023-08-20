@@ -62,7 +62,6 @@
     </ItemGroup>
   
     <ItemGroup>
-      <Folder Include="PixiEditor\" />
       <Folder Include="Views\Buttons\" />
     </ItemGroup>
   
