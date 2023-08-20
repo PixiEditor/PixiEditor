@@ -24,17 +24,20 @@ public class DockFactory : Factory
             {
                 mainLayout,
             },
+            ActiveDockable = mainLayout
         };
-        return base.CreateLayout();
+        return root;
     }
 
     private DockDock BuildMainLayout()
     {
+        var dockables = BuildDockables();
         DockDock dock = new DockDock()
         {
             Name = "MainLayout",
             Id = "MainLayout",
-            VisibleDockables = BuildDockables(),
+            VisibleDockables = dockables,
+            ActiveDockable = dockables[0],
         };
 
         return dock;
@@ -44,6 +47,8 @@ public class DockFactory : Factory
     {
         List<IDockable> dockables = new List<IDockable>();
         dockables.Add(BuildToolDock());
+
+        IDockable documentDock = BuildDocumentDock();
 
         ProportionalDock topPane = new ProportionalDock()
         {
@@ -57,21 +62,22 @@ public class DockFactory : Factory
                     Orientation = Orientation.Horizontal,
                     VisibleDockables = new List<IDockable>()
                     {
-                        BuildDocumentDock(),
+                        documentDock,
                         BuildPropertiesDock()
                     },
+                    ActiveDockable = documentDock
                 },
             },
         };
 
-        dockables.Add(BuildDocumentDock());
+        dockables.Add(topPane);
 
         return dockables;
     }
 
     private IDockable BuildDocumentDock()
     {
-        documentDock = new DocumentDock()
+        documentDock = new PixiEditorDocumentDock()
         {
             Id = "DocumentsPane",
             Title = "Document",
@@ -102,6 +108,13 @@ public class DockFactory : Factory
     public override void InitLayout(IDockable layout)
     {
         DockableLocator = new Dictionary<string, Func<IDockable?>>()
+        {
+            { "MainLayout", () => mainLayout },
+            { "DocumentsPane", () => documentDock },
+            { "ToolsPane", () => toolDock },
+        };
+
+        ContextLocator = new Dictionary<string, Func<object?>>()
         {
             { "MainLayout", () => mainLayout },
             { "DocumentsPane", () => documentDock },

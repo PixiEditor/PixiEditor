@@ -92,7 +92,7 @@
                 <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button  Command="{Binding OpenFileCommand}" MinWidth="150" Margin="10"
                             ui:Translator.Key="OPEN_FILE"/>
-                    <Button  Command="{Binding OpenNewFileCommand}" MinWidth="150" Margin="10"
+                    <Button Command="{Binding OpenNewFileCommand}" MinWidth="150" Margin="10"
                             ui:Translator.Key="NEW_FILE"/>
                 </StackPanel>
 
