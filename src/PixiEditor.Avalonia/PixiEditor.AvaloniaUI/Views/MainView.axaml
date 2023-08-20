@@ -8,6 +8,8 @@
              xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.MainView"
              x:DataType="viewModels1:ViewModelMain" Background="{DynamicResource ThemeBackgroundBrush}">
@@ -75,16 +77,13 @@
                                             StylusOutOfRangeCommand="{xaml:Command PixiEditor.Stylus.StylusOutOfRange, UseProvided=True}"
                                             FlipX="{Binding FlipX, Mode=TwoWay}"
                                             FlipY="{Binding FlipY, Mode=TwoWay}"
-
-                                            ContextMenuOpening="Viewport_OnContextMenuOpening"
-                                            Stylus.IsTapFeedbackEnabled="False"
-                                            Stylus.IsTouchFeedbackEnabled="False"
+                                            ContextRequested="Viewport_OnContextMenuOpening"
                                             Document="{Binding Document}">
                                             <userControls:Viewport.ContextMenu>
                                                 <ContextMenu DataContext="{Binding PlacementTarget.Document, RelativeSource={RelativeSource Self}}">
                                                     <ContextMenu.Template>
                                                         <ControlTemplate>
-                                                            <Border Background="{StaticResource AccentColor}" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
+                                                            <Border Background="{DynamicResource ThemeAccentBrush}" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
                                                                 <Grid Height="235">
                                                                     <Grid.ColumnDefinitions>
                                                                         <ColumnDefinition Width="{Binding Palette, Converter={converters:PaletteItemsToWidthConverter}}"/>
@@ -130,19 +129,19 @@
                                                                                     <palettes:PaletteColorControl Cursor="Hand" CornerRadius="0"
                                                                                         ui:Translator.TooltipKey="CLICK_SELECT_PRIMARY"
                                                                                         Width="22" Height="22" Color="{Binding}">
-                                                                                        <b:Interaction.Triggers>
-                                                                                            <b:EventTrigger EventName="MouseLeftButtonUp">
-                                                                                                <b:InvokeCommandAction
+                                                                                        <Interaction.Behaviors>
+                                                                                            <EventTriggerBehavior EventName="MouseLeftButtonUp">
+                                                                                                <InvokeCommandAction
                                                                                                     Command="{xaml:Command PixiEditor.Colors.SelectColor, UseProvided=True}"
                                                                                                     CommandParameter="{Binding}" />
-                                                                                            </b:EventTrigger>
-                                                                                            <b:EventTrigger EventName="MouseLeftButtonUp">
-                                                                                                <b:InvokeCommandAction
+                                                                                            </EventTriggerBehavior>
+                                                                                            <EventTriggerBehavior EventName="MouseLeftButtonUp">
+                                                                                                <InvokeCommandAction
                                                                                                     Command="{xaml:Command PixiEditor.CloseContextMenu, UseProvided=True}"
                                                                                                     CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor,
                                                                                                      AncestorType={x:Type ContextMenu}}}" />
-                                                                                            </b:EventTrigger>
-                                                                                        </b:Interaction.Triggers>
+                                                                                            </EventTriggerBehavior>
+                                                                                        </Interaction.Behaviors>
                                                                                     </palettes:PaletteColorControl>
                                                                                 </DataTemplate>
                                                                             </ItemsControl.ItemTemplate>

@@ -34,8 +34,7 @@ internal class ContextMenu : global::Avalonia.Controls.ContextMenu
 
         var command = CommandController.Current.Commands[value];
 
-        //TODO: Same story as in Menu.cs
-        //item.Command = Command.GetICommand(command, false);
+        item.Command = Command.GetICommand(command, false);
         item.Bind(MenuItem.InputGestureProperty, ShortcutBinding.GetBinding(command, null));
     }
 

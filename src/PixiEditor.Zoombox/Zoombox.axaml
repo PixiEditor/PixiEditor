@@ -26,14 +26,11 @@
             <Grid.RenderTransform>
                 <TransformGroup>
                     <ScaleTransform
-                        x:Name="scaleTransform"
                         ScaleX="{Binding ElementName=uc, Path=ScaleTransformXY}"
                         ScaleY="{Binding ElementName=uc, Path=ScaleTransformXY}" />
                     <RotateTransform
-                        x:Name="rotateTransform"
                         Angle="{Binding ElementName=uc, Path=RotateTransformAngle}" />
                     <ScaleTransform
-                        x:Name="flipTransform"
                         ScaleX="{Binding ElementName=uc, Path=FlipTransformX}"
                         ScaleY="{Binding ElementName=uc, Path=FlipTransformY}" />
                 </TransformGroup>

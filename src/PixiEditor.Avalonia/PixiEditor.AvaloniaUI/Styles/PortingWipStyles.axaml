@@ -9,4 +9,16 @@
     <Style Selector="Button.SocialMediaButton">
 
     </Style>
+
+    <Style Selector="Button.GrayRoundButton">
+
+    </Style>
+
+    <Style Selector="Button.OverlayToggleButton">
+
+    </Style>
+
+    <Style Selector="Button.OverlayButton">
+
+    </Style>
 </Styles>

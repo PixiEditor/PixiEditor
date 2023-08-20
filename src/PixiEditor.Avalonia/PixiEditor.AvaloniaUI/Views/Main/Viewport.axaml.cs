@@ -280,7 +280,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public double ReferenceLayerScale =>
         ZoomboxScale * ((Document?.ReferenceLayerViewModel.ReferenceBitmap != null && Document?.ReferenceLayerViewModel.ReferenceShapeBindable != null)
-            ? (Document.ReferenceLayerViewModel.ReferenceShapeBindable.RectSize.X / (double)Document.ReferenceLayerViewModel.ReferenceBitmap.PixelWidth)
+            ? (Document.ReferenceLayerViewModel.ReferenceShapeBindable.RectSize.X / (double)Document.ReferenceLayerViewModel.ReferenceBitmap.PixelSize.Width)
             : 1);
 
     public PixiEditor.Zoombox.Zoombox Zoombox => zoombox;
@@ -301,8 +301,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         InitializeComponent();
 
-        Binding binding = new Binding { Source = this, Path = new PropertyPath($"{nameof(Document)}.{nameof(Document.LazyBitmaps)}") };
-        Bind(BitmapsProperty, binding);
+        Binding binding = new Binding { Source = this, Path = $"{nameof(Document)}.{nameof(Document.LazyBitmaps)}" };
+        this.Bind(BitmapsProperty, binding);
 
         MainImage!.Loaded += OnImageLoaded;
         Loaded += OnLoad;
@@ -311,7 +311,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
 
-    public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
+    public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.Content)?.Child)?.Children[1];
     public Grid BackgroundGrid => mainGrid;
 
     private void ForceRefreshFinalImage()
@@ -362,12 +362,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         return new(Angle, Center, RealDimensions, Dimensions, CalculateResolution(), GuidValue, Delayed, ForceRefreshFinalImage);
     }
 
-    private void OnReferenceImageSizeChanged(object? sender, SizeChangedEventArgs e)
+    private void OnReferenceImageSizeChanged(object? sender, SizeChangedEventArgs sizeChangedEventArgs)
     {
         PropertyChanged?.Invoke(this, new(nameof(ReferenceLayerScale)));
     }
 
-    private void Image_MouseDown(object sender, PointerEventArgs e)
+    private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
     {
         bool isMiddle = e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed;
         HandleMiddleMouse(isMiddle);
@@ -390,7 +390,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             MouseDownCommand.Execute(parameter);
     }
 
-    private void Image_MouseMove(PointerEventArgs pointerEventArgs)
+    private void Image_MouseMove(PointerEventArgs e)
     {
         if (MouseMoveCommand is null)
             return;

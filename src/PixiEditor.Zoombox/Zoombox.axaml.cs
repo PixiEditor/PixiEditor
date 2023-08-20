@@ -13,9 +13,6 @@ namespace PixiEditor.Zoombox;
 
 public partial class Zoombox : ContentControl, INotifyPropertyChanged
 {
- public static readonly StyledProperty<object> AdditionalContentProperty =
-            AvaloniaProperty.Register<Zoombox, object>(nameof(AdditionalContent));
-
         public static readonly StyledProperty<ZoomboxMode> ZoomModeProperty =
             AvaloniaProperty.Register<Zoombox, ZoomboxMode>(nameof(ZoomMode), defaultValue: ZoomboxMode.Normal);
 
@@ -48,13 +45,6 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     public static readonly RoutedEvent<ViewportRoutedEventArgs> ViewportMovedEvent = RoutedEvent.Register<Zoombox, ViewportRoutedEventArgs>(
         nameof(ViewportMoved), RoutingStrategies.Bubble);
-
-    [Content]
-    public object AdditionalContent
-    {
-        get => GetValue(AdditionalContentProperty);
-        set => SetValue(AdditionalContentProperty, value);
-    }
 
     public ZoomboxMode ZoomMode
     {
