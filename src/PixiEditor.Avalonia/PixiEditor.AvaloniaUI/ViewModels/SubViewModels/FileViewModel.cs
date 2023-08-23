@@ -18,6 +18,7 @@ using PixiEditor.AvaloniaUI.Models.UserData;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Parser;
 
@@ -272,16 +273,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         //TODO: Implement NewFileDialog
         /*NewFileDialog newFile = new NewFileDialog();
         if (newFile.ShowDialog())
-        {
+        {*/
             NewDocument(b => b
-                .WithSize(newFile.Width, newFile.Height)
+                .WithSize(64/*newFile.Width*/, /*newFile.Height*/64)
                 .WithLayer(l => l
                     .WithName(new LocalizedString("BASE_LAYER_NAME"))
-                    .WithSurface(new Surface(new VecI(newFile.Width, newFile.Height)))));
-        }*/
+                    .WithSurface(new Surface(new VecI(/*newFile.Width*/64, /*newFile.Height*/64)))));
+        //}
     }
 
-    private DocumentViewModel NewDocument(Action<DocumentViewModelBuilder> builder)
+    public DocumentViewModel NewDocument(Action<DocumentViewModelBuilder> builder)
     {
         var doc = DocumentViewModel.Build(builder);
         AddDocumentViewModelToTheSystem(doc);

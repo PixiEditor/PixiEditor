@@ -1,10 +1,11 @@
-﻿using Dock.Model.Avalonia.Controls;
+﻿using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
-public class DockDocumentViewModel : global::Dock.Model.Avalonia.Controls.Document
+internal class DockDocumentViewModel : global::Dock.Model.Avalonia.Controls.Document
 {
-    public DockDocumentViewModel()
+    public DockDocumentViewModel(DocumentViewModel documentViewModel)
     {
+        DataContext = documentViewModel;
     }
 }

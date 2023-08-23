@@ -10,6 +10,8 @@
              xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
+             xmlns:dock="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Dock"
+             xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.MainView"
              x:DataType="viewModels1:ViewModelMain" Background="{DynamicResource ThemeBackgroundBrush}">

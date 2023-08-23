@@ -111,7 +111,6 @@
         </Border>
             </views:TogglableFlyout.Child>
         </views:TogglableFlyout>
-        <!--TODO: Originally Dimensions and RealDimensions had Binding with OneWayToSource, but it resulted in stack overflow. Investigate-->
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
@@ -119,8 +118,8 @@
             Scale="{Binding ZoomboxScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-            RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWay}"
-            Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWay}"
+            RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
+            Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
             ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
@@ -151,8 +150,8 @@
                         <!--TODO: RenderOptions.BitmapInterpolationMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}"-->
                         <Image
                             Focusable="False"
-                            Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Width}"
-                            Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Height}"
+                            Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Width}"
+                            Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Height}"
                             Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
                             IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}"
                             SizeChanged="OnReferenceImageSizeChanged"

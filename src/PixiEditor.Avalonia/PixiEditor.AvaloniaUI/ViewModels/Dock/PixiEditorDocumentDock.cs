@@ -1,12 +1,17 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using Dock.Model.Avalonia.Controls;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
-public class PixiEditorDocumentDock : DocumentDock
+internal class PixiEditorDocumentDock : DocumentDock
 {
-    public PixiEditorDocumentDock()
+    private FileViewModel manager;
+    public PixiEditorDocumentDock(FileViewModel manager)
     {
+        this.manager = manager;
         CreateDocument = new RelayCommand(CreateDockDocument);
     }
 
@@ -17,7 +22,11 @@ public class PixiEditorDocumentDock : DocumentDock
             return;
         }
 
-        var document = new DockDocumentViewModel() { Title = "hello" };
+        var doc = manager.NewDocument(b =>
+        {
+            b.WithSize(new VecI(64, 64));
+        });
+        var document = new DockDocumentViewModel(doc) { Title = "hello" };
 
         Factory?.AddDockable(this, document);
         Factory?.SetActiveDockable(document);

@@ -4,14 +4,24 @@ using Dock.Model.Avalonia;
 using Dock.Model.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
+using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
-public class DockFactory : Factory
+internal class DockFactory : Factory
 {
     private DockDock mainLayout;
     private DocumentDock documentDock;
     private ToolDock toolDock;
+
+    private FileViewModel manager;
+
+    public DockFactory(FileViewModel fileViewModel)
+    {
+        manager = fileViewModel;
+    }
+
+    public override IDocumentDock CreateDocumentDock() => new PixiEditorDocumentDock(manager);
 
     public override IRootDock CreateLayout()
     {
@@ -77,11 +87,11 @@ public class DockFactory : Factory
 
     private IDockable BuildDocumentDock()
     {
-        documentDock = new PixiEditorDocumentDock()
+        documentDock = new PixiEditorDocumentDock(manager)
         {
             Id = "DocumentsPane",
-            Title = "Document",
-            CanCreateDocument = true,
+            Title = "DocumentsPane",
+            CanCreateDocument = true
         };
 
         return documentDock;
@@ -100,6 +110,8 @@ public class DockFactory : Factory
             Dock = DockMode.Left,
             CanFloat = false,
             GripMode = GripMode.Hidden,
+            Id = "ToolsPane",
+            Title = "ToolsPane",
         };
 
         return toolDock;
@@ -116,14 +128,14 @@ public class DockFactory : Factory
 
         ContextLocator = new Dictionary<string, Func<object?>>()
         {
-            { "MainLayout", () => mainLayout },
-            { "DocumentsPane", () => documentDock },
-            { "ToolsPane", () => toolDock },
+            { "MainLayout", () => layout },
+            { "DocumentsPane", () => layout },
+            { "ToolsPane", () => layout },
         };
 
         HostWindowLocator = new Dictionary<string, Func<IHostWindow?>>()
         {
-            { "MainLayout", () => new HostWindow() },
+            [nameof(IDockWindow)] = () => new HostWindow()
         };
 
         base.InitLayout(layout);

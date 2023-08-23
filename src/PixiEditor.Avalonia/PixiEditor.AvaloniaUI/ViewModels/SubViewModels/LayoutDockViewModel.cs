@@ -15,7 +15,7 @@ internal class LayoutDockViewModel : SubViewModel<ViewModelMain>
 
     public LayoutDockViewModel(ViewModelMain owner) : base(owner)
     {
-        DockFactory factory = new();
+        DockFactory factory = new(owner.FileSubViewModel);
         Layout = factory.CreateLayout();
         if (Layout is { })
         {

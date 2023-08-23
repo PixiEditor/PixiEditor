@@ -1,4 +1,4 @@
-<ContentControl
+<UserControl
     x:Class="PixiEditor.Zoombox.Zoombox"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,19 +8,23 @@
     mc:Ignorable="d"
     x:Name="uc"
     d:DesignHeight="450"
+    PointerWheelChanged="OnScroll"
+    PointerPressed="OnMouseDown"
+    PointerReleased="OnMouseUp"
+    PointerMoved="OnMouseMove"
     d:DesignWidth="800">
     <Canvas
-        PointerPressed="OnMouseDown"
-        PointerReleased="OnMouseUp"
-        PointerMoved="OnMouseMove"
-        PointerWheelChanged="OnScroll"
         ClipToBounds="True"
         x:Name="mainCanvas"
+        Width="0.01"
+        Height="0.01"
         Background="Transparent"
         SizeChanged="OnMainCanvasSizeChanged">
         <Grid
             x:Name="mainGrid"
             SizeChanged="OnGridSizeChanged"
+            Width="1"
+            Height="1"
             Canvas.Left="{Binding ElementName=uc, Path=CanvasX}"
             Canvas.Top="{Binding ElementName=uc, Path=CanvasY}">
             <Grid.RenderTransform>
@@ -39,4 +43,4 @@
                 Content="{Binding AdditionalContent, ElementName=uc}" />
         </Grid>
     </Canvas>
-</ContentControl>
+</UserControl>

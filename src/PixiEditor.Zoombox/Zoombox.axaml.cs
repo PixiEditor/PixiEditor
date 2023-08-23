@@ -11,7 +11,7 @@ using PixiEditor.Zoombox.Operations;
 
 namespace PixiEditor.Zoombox;
 
-public partial class Zoombox : ContentControl, INotifyPropertyChanged
+public partial class Zoombox : UserControl, INotifyPropertyChanged
 {
         public static readonly StyledProperty<ZoomboxMode> ZoomModeProperty =
             AvaloniaProperty.Register<Zoombox, ZoomboxMode>(nameof(ZoomMode), defaultValue: ZoomboxMode.Normal);
@@ -42,6 +42,9 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
         public static readonly StyledProperty<bool> FlipYProperty =
             AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipY), defaultValue: false);
+
+        public static readonly StyledProperty<AvaloniaObject> AdditionalContentProperty =
+            AvaloniaProperty.Register<Zoombox, AvaloniaObject>(nameof(AdditionalContent));
 
     public static readonly RoutedEvent<ViewportRoutedEventArgs> ViewportMovedEvent = RoutedEvent.Register<Zoombox, ViewportRoutedEventArgs>(
         nameof(ViewportMoved), RoutingStrategies.Bubble);
@@ -104,6 +107,12 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         get => (VecD)GetValue(RealDimensionsProperty);
         set => SetValue(RealDimensionsProperty, value);
+    }
+
+    public AvaloniaObject AdditionalContent
+    {
+        get => (AvaloniaObject)GetValue(AdditionalContentProperty);
+        set => SetValue(AdditionalContentProperty, value);
     }
 
     public event EventHandler<ViewportRoutedEventArgs> ViewportMoved
@@ -396,10 +405,10 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private void OnScroll(object sender, PointerWheelEventArgs e)
     {
-        double abs = Math.Abs(e.Delta.Y / 100.0);
+        double abs = Math.Abs(-e.Delta.Y / 100.0);
         for (int i = 0; i < abs; i++)
         {
-            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), e.Delta.Y / 100.0);
+            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), -e.Delta.Y / 100.0);
         }
     }
 
@@ -435,7 +444,6 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     private static void OnPropertyChange(AvaloniaPropertyChangedEventArgs e)
     {
         Zoombox? zoombox = (Zoombox)e.Sender;
-
        OnPropertyChange(zoombox);
     }
 
