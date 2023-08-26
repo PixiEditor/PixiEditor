@@ -8,6 +8,7 @@ internal class ActiveToolToZoomModeConverter : SingleInstanceConverter<ActiveToo
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
+        return ZoomboxMode.Move;
         return value switch
         {
             MoveViewportToolViewModel => ZoomboxMode.Move,

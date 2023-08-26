@@ -124,6 +124,7 @@
             ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}">
+            <zoombox:Zoombox.AdditionalContent>
             <Border
                 d:Width="64"
                 d:Height="64"
@@ -405,6 +406,7 @@
                     </Rectangle>
                 </Grid>
             </Border>
+                </zoombox:Zoombox.AdditionalContent>
         </zoombox:Zoombox>
         <Button 
             ZIndex="99999"

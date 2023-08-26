@@ -311,7 +311,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
 
-    public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.Content)?.Child)?.Children[1];
+    public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
     public Grid BackgroundGrid => mainGrid;
 
     private void ForceRefreshFinalImage()
