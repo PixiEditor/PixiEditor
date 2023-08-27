@@ -159,7 +159,7 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
     public ILayerHandlerFactory LayerHandlerFactory { get; }
-    IFolderHandlerFactory IDocument.FolderHandlerFactory { get; }
+    public IFolderHandlerFactory FolderHandlerFactory { get; }
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
 
 
@@ -173,6 +173,7 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
         Operations = new DocumentOperationsModule(this, Internals);
 
         LayerHandlerFactory = new LayerHandlerFactory(this);
+        FolderHandlerFactory = new FolderHandlerFactory(this);
 
         StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
 

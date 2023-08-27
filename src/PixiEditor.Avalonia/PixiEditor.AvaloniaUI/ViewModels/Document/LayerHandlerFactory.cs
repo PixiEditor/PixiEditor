@@ -7,7 +7,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 internal class LayerHandlerFactory : ILayerHandlerFactory
 {
     public DocumentViewModel Document { get; }
-    IDocument ILayerHandlerFactory.Document { get; }
+    IDocument ILayerHandlerFactory.Document => Document;
 
     public LayerHandlerFactory(DocumentViewModel document)
     {

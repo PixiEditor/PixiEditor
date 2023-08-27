@@ -126,7 +126,7 @@ internal class ActionAccumulator
             // unlock bitmaps
             foreach (var lockedFramebuffer in lockedFramebuffers)
             {
-                lockedFramebuffer.Dispose();
+                lockedFramebuffer?.Dispose();
             }
 
             lockedFramebuffers.Clear();
