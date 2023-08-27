@@ -8,6 +8,7 @@ using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
+using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -155,6 +156,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ResizeDocumentDialog dialog = new ResizeDocumentDialog(
             doc.Width,
             doc.Height,
+            MainWindow.Current!,
             canvas);
         if (await dialog.ShowDialog())
         {

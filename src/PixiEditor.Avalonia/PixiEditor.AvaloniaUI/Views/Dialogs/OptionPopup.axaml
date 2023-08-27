@@ -1,0 +1,53 @@
+﻿<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
+    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
+    xmlns:panels="clr-namespace:PixiEditor.AvaloniaUI.Views.Panels"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.OptionPopup"
+    Title="OptionPopup"
+    WindowStartupLocation="CenterScreen"
+    SizeToContent="WidthAndHeight"
+    Name="popup"
+    Background="{DynamicResource AccentColor}"
+    FlowDirection="{markupExtensions:Localization FlowDirection}"
+    ui:Translator.Key="{Binding #popup.Title}">
+    
+    <!--<WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>-->
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <local:DialogTitleBar TitleKey="{Binding #popup.Title}" CloseCommand="{Binding #popup.CancelCommand}"/>
+
+        <ContentPresenter Content="{Binding #popup.PopupContent}"
+                          Grid.Row="1" Margin="15"/>
+
+        <ItemsControl ItemsSource="{Binding #popup.Options}" Grid.Row="2" Margin="15">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Content="{Binding}" MinWidth="70" Margin="5,0"
+                            Command="{Binding #popup.CloseCommand}" CommandParameter="{Binding}"/>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <panels:AlignableWrapPanel HorizontalAlignment="Center" HorizontalContentAlignment="Center"/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+    </Grid>
+</Window>

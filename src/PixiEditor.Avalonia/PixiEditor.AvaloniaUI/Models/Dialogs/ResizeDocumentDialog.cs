@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.ChangeableDocument.Enums;
@@ -11,7 +12,7 @@ internal class ResizeDocumentDialog : CustomDialog
     private int height;
     private int width;
 
-    public ResizeDocumentDialog(int currentWidth, int currentHeight, bool openResizeCanvas = false)
+    public ResizeDocumentDialog(int currentWidth, int currentHeight, Window owner, bool openResizeCanvas = false) : base(owner)
     {
         Width = currentWidth;
         Height = currentHeight;
@@ -64,19 +65,16 @@ internal class ResizeDocumentDialog : CustomDialog
             NewSelectedUnit = SizeUnit.Pixel
         };
 
-        await Application.Current.ForDesktopMainWindowAsync(async window =>
+        var result = await popup.ShowDialog<bool>(OwnerWindow);
+        if (result)
         {
-            var result = await popup.ShowDialog<bool>(window);
-            if (result)
+            Width = popup.NewAbsoluteWidth;
+            Height = popup.NewAbsoluteHeight;
+            /*if (popup is ResizeCanvasPopup resizeCanvas) TODO: Implement
             {
-                Width = popup.NewAbsoluteWidth;
-                Height = popup.NewAbsoluteHeight;
-                /*if (popup is ResizeCanvasPopup resizeCanvas) TODO: Implement
-                {
-                    ResizeAnchor = resizeCanvas.SelectedAnchorPoint;
-                }*/
-            }
-        });
+                ResizeAnchor = resizeCanvas.SelectedAnchorPoint;
+            }*/
+        }
 
         return false;
     }

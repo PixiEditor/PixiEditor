@@ -21,6 +21,17 @@ internal partial class MainWindow : Window
     private static ExtensionLoader extLoader;
 
     public new ViewModelMain DataContext { get => (ViewModelMain)base.DataContext; set => base.DataContext = value; }
+    
+    public static MainWindow? Current {
+        get 
+        {
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                return desktop.MainWindow as MainWindow;
+            if (Application.Current is null)
+                return null;
+            throw new NotSupportedException("ApplicationLifetime is not supported");
+        }
+    }
 
     public MainWindow(ExtensionLoader extensionLoader)
     {

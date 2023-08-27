@@ -8,6 +8,7 @@ using System.Windows;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 
 namespace PixiEditor.Helpers.Converters;
+// TODO: seems like this converter is doing the same as the avalonia built in {x:Static BoolConverters.Or}
 internal class BoolOrToVisibilityConverter : SingleInstanceMultiValueConverter<BoolOrToVisibilityConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)

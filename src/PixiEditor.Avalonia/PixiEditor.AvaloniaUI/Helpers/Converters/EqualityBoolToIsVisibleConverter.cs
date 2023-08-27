@@ -2,6 +2,7 @@
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
+/// TODO: I refactored this logic in <see cref="IsEqualConverter"/>, all usages of this converter should be replaced with IsEqualConverter
 internal class EqualityBoolToIsVisibleConverter : MarkupConverter
 {
     public bool Invert { get; set; }

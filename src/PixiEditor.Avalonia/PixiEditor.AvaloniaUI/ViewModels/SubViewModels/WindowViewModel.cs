@@ -138,9 +138,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             page = 0;
         }
 
-        //TODO: Add settings window
-        /*var settings = new SettingsWindow(page);
-        settings.Show();*/
+        var settings = new SettingsWindow(page);
+        settings.Show();
     }
 
     [Command.Basic("PixiEditor.Window.OpenStartupWindow", "OPEN_STARTUP_WINDOW", "OPEN_STARTUP_WINDOW")]

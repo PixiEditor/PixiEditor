@@ -1,0 +1,67 @@
+﻿<Window
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
+    xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
+    xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
+    xmlns:shortcuts="clr-namespace:PixiEditor.AvaloniaUI.Views.Shortcuts"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:Class="PixiEditor.AvaloniaUI.Views.Shortcuts.ImportShortcutTemplatePopup"
+    WindowStartupLocation="CenterOwner"
+    MinWidth="580"
+    SizeToContent="WidthAndHeight"
+    Background="{DynamicResource AccentColor}"
+    Name="window"
+    FlowDirection="{markupExtensions:Localization FlowDirection}"
+    ui:Translator.Key="IMPORT_FROM_TEMPLATE">
+
+    
+    <!--TODO figure out what these are for <Window.CommandBindings>
+        <CommandBinding
+            Command="{x:Static SystemCommands.CloseWindowCommand}"
+            CanExecute="CommandBinding_CanExecute"
+            Executed="CommandBinding_Executed_Close" />
+    </Window.CommandBindings>-->
+
+    <!--<WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" GlassFrameThickness="0.1"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>-->
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <dialogs:DialogTitleBar
+            DockPanel.Dock="Top"
+            TitleKey="IMPORT_FROM_TEMPLATE"
+            CloseCommand="{x:Static viewModels:SystemCommands.CloseWindowCommand}" />
+        <ItemsControl
+            Grid.Row="1"
+            ItemsSource="{Binding Templates, ElementName=window}"
+            Margin="10,10,10,5">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <shortcuts:ShortcutsTemplateCard
+                        TemplateName="{Binding Name}"
+                        Margin="0 0 5 0"
+                        Logo="{Binding LogoPath}"
+                        Cursor="Hand"
+                        PointerReleased="OnTemplateCardPointerReleased"
+                        HoverLogo="{Binding Path=HoverLogoPath}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>

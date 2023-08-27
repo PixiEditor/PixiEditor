@@ -12,6 +12,7 @@ using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
+using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.OperatingSystem;
@@ -270,8 +271,11 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "DELETE_USR_PREFS", "DELETE_USR_PREFS")]
     [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "DELETE_SHORTCUT_FILE", "DELETE_SHORTCUT_FILE")]
     [Command.Debug("PixiEditor.Debug.DeleteEditorData", @"%localappdata%\PixiEditor\editor_data.json", "DELETE_EDITOR_DATA", "DELETE_EDITOR_DATA")]
-    public static void DeleteFile(string path)
+    public static async Task DeleteFile(string path)
     {
+        if (MainWindow.Current is null)
+            return;
+        
         string file = Environment.ExpandEnvironmentVariables(path);
         if (!File.Exists(file))
         {
@@ -279,13 +283,14 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        OptionsDialog<string> dialog = new("ARE_YOU_SURE", new LocalizedString("ARE_YOU_SURE_PATH_FULL_PATH", path, file))
+        OptionsDialog<string> dialog = new("ARE_YOU_SURE", new LocalizedString("ARE_YOU_SURE_PATH_FULL_PATH", path, file), MainWindow.Current)
         {
-            { "Yes", x => File.Delete(file) },
-            "Cancel"
+            // TODO: seems like this should be localized strings
+            { new LocalizedString("YES"), x => File.Delete(file) },
+            new LocalizedString("CANCEL")
         };
 
-        dialog.ShowDialog();
+        await dialog.ShowDialog();
     }
 
     [Conditional("DEBUG")]

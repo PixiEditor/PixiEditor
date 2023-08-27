@@ -1,0 +1,46 @@
+﻿<UserControl
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignWidth="800"
+    d:DesignHeight="450"
+    x:Class="PixiEditor.AvaloniaUI.Views.Shortcuts.ShortcutsTemplateCard">
+    <Border BorderThickness="1" Height="150" Width="150" Background="{StaticResource MainColor}" 
+            CornerRadius="15" PointerEntered="OnBorderPointerEntered" PointerExited="OnBorderPointerExited">
+        <!-- TODO <Border.Triggers>
+            <EventTrigger RoutedEvent="Border.MouseEnter">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="img" Storyboard.TargetProperty="Width" 
+                                         From="72" To="100" Duration="0:0:0.15"/>
+                        <DoubleAnimation Storyboard.TargetName="img" Storyboard.TargetProperty="Height" 
+                                         From="72" To="100" Duration="0:0:0.15" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="Border.MouseLeave">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="img" Storyboard.TargetProperty="Width" 
+                                         From="100" To="72" Duration="0:0:0.15"/>
+                        <DoubleAnimation Storyboard.TargetName="img" Storyboard.TargetProperty="Height" 
+                                         From="100" To="72" Duration="0:0:0.15" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Border.Triggers>-->
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Image Grid.Row="0" Grid.RowSpan="2" Name="img" HorizontalAlignment="Center" VerticalAlignment="Center" Height="72" Width="72" Source="{Binding ElementName=card, Path=Logo}"/>
+            <Label 
+                Grid.Row="1" HorizontalAlignment="Center" FontWeight="Bold" Margin="0" Padding="0"
+                Content="{Binding ElementName=card, Path=TemplateName}"/>
+                <!--Style="{StaticResource BaseLabel}"-->
+        </Grid>
+    </Border>
+</UserControl>

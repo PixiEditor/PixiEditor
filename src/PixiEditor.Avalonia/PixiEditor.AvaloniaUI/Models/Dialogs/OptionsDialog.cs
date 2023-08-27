@@ -1,25 +1,28 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
+using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.Models.Dialogs;
 
-internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
+internal class OptionsDialog<T> : CustomDialog, IEnumerable<T> 
+    where T : notnull
 {
-    private Dictionary<T, Action<T>> _results = new();
+    private Dictionary<T, Action<T>?> _results = new();
 
     public string Title { get; set; }
 
     public object Content { get; set; }
 
-    public T Result { get; private set; }
+    public T? Result { get; private set; }
 
-    public OptionsDialog(LocalizedString title, object content)
+    public OptionsDialog(LocalizedString title, object content, Window ownerWindow) : base(ownerWindow)
     {
         Title = title;
 
@@ -42,12 +45,13 @@ internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
         }
     }
 
-    public OptionsDialog(string title, object content, IEnumerable<KeyValuePair<T, Action<T>>> options) : this(title, content)
+    public OptionsDialog(string title, object content, IEnumerable<KeyValuePair<T, Action<T>>> options, Window ownerWindow) 
+        : this(title, content, ownerWindow)
     {
         _results = new(options);
     }
 
-    public Action<T> this[T name]
+    public Action<T>? this[T name]
     {
         get => _results[name];
         set => _results.Add(name, value);
@@ -55,18 +59,16 @@ internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
 
     public override async Task<bool> ShowDialog()
     {
-        //TODO: Implement
-        /*var popup = new OptionPopup(Title, Content, new(_results.Keys.Select(x => (object)x)));
-        var popupResult = popup.ShowDialog();
+        var popup = new OptionPopup(Title, Content, new(_results.Keys.Select(x => (object)x)));
+        await popup.ShowDialog(OwnerWindow);
 
-        Result = (T)popup.Result;
+        Result = (T?)popup.Result;
         if (Result != null)
         {
             _results[Result]?.Invoke(Result);
         }
 
-        return popupResult.GetValueOrDefault(false);*/
-        return false;
+        return Result is not null;
     }
 
     public void Add(T name) => _results.Add(name, null);

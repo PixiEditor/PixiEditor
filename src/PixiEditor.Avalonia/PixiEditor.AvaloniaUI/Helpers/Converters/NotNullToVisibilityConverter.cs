@@ -3,6 +3,7 @@ using PixiEditor.AvaloniaUI.Helpers.Converters;
 
 namespace PixiEditor.Helpers.Converters;
 
+// TODO: check if this converter can be replaced with StringConverters.IsNullOrEmpty, StringConverters.IsNotNullOrEmpty, ObjectConverters.IsNull, or ObjectConverters.IsNotNull
 internal class NotNullToVisibilityConverter
     : MarkupConverter
 {
