@@ -15,8 +15,9 @@
     xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
     xmlns:preferences="clr-namespace:PixiEditor.AvaloniaUI.Models.Preferences"
     xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
+    xmlns:settings="clr-namespace:PixiEditor.AvaloniaUI.Views.Settings"
     mc:Ignorable="d"
-    x:Class="PixiEditor.AvaloniaUI.Views.Windows.SettingsWindow"
+    x:Class="PixiEditor.AvaloniaUI.Views.Settings.SettingsWindow"
     Name="window"
     d:DesignWidth="780" d:DesignHeight="688"
     Width="780" Height="688"
@@ -282,7 +283,7 @@
                     </i:Interaction.Behaviors>
                 </TextBox>
 
-                <!--<settingGroups:ShortcutsBinder Grid.Row="2"/>-->
+                <settings:ShortcutsBinder Grid.Row="2"/>
             </Grid>
         </StackPanel>
     </DockPanel>

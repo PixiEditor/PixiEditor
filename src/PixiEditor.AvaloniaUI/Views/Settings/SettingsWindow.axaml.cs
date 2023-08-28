@@ -1,9 +1,7 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.ViewModels;
 
-namespace PixiEditor.AvaloniaUI.Views.Windows;
+namespace PixiEditor.AvaloniaUI.Views.Settings;
 
 public partial class SettingsWindow : Window
 {

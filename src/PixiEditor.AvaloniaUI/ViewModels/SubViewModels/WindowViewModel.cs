@@ -6,6 +6,7 @@ using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using Command = PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands.Command;
+using SettingsWindow = PixiEditor.AvaloniaUI.Views.Settings.SettingsWindow;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
