@@ -33,28 +33,29 @@
         <PackageReference Include="Dock.Avalonia" Version="11.0.0" />
         <PackageReference Include="Dock.Model.Avalonia" Version="11.0.0" />
         <PackageReference Include="Hardware.Info" Version="11.0.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.2.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="PixiEditor.Parser" Version="3.3.0" />
         <PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\ChunkyImageLib\ChunkyImageLib.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.Windows\PixiEditor.Windows.csproj" />
-      <ProjectReference Include="..\..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
-      <ProjectReference Include="..\..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+      <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj" />
+      <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj" />
+      <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
+      <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj" />
+      <ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
+      <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
+      <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
+      <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
+      <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
+      <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
+      <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
+      <ProjectReference Include="..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj" />
+      <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
+      <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj" />
+      <ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
+      <ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
   
     <ItemGroup>
@@ -66,8 +67,8 @@
     </ItemGroup>
   
     <ItemGroup>
-      <AvaloniaResource Include="Images\**"/>
-      <AvaloniaResource Include="Fonts\**"/>
+      <AvaloniaResource Include="Images\**" />
+      <AvaloniaResource Include="Fonts\**" />
     </ItemGroup>
   
     <ItemGroup>
