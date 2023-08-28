@@ -8,7 +8,6 @@ namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>
 {
     public DocumentViewModel Document { get; }
-
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
     public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
 

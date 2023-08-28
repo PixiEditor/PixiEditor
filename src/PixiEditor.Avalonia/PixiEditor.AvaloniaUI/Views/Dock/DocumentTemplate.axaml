@@ -10,24 +10,25 @@
              xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              xmlns:document="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
              xmlns:viewModels1="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
+             xmlns:subViewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.DocumentTemplate">
     <userControls:Viewport
-                                             CenterViewportTrigger="{Binding CenterViewportTrigger}"
-                                            ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
-                                            MouseDownCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseDownCommand}"
-                                            MouseMoveCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseMoveCommand}"
-                                            MouseUpCommand="{Binding ElementName=mainWindow, Path=DataContext.IoSubViewModel.MouseUpCommand}"
+                                             CenterViewportTrigger="{Binding ViewModel.DockCenterViewportTrigger}"
+                                            ZoomViewportTrigger="{Binding ViewModel.ZoomViewportTrigger}"
+                                            MouseDownCommand="{Binding Path=IoSubViewModel.MouseDownCommand, Source={viewModels1:MainVM}}"
+                                            MouseMoveCommand="{Binding Path=IoSubViewModel.MouseMoveCommand, Source={viewModels1:MainVM}}"
+                                            MouseUpCommand="{Binding Path=IoSubViewModel.MouseUpCommand, Source={viewModels1:MainVM}}"
                                             MiddleMouseClickedCommand="{Binding IoSubViewModel.PreviewMouseMiddleButtonCommand, Source={viewModels1:MainVM}}"
                                             Cursor="{Binding ToolsSubViewModel.ToolCursor, Source={viewModels1:MainVM}}"
                                             GridLinesVisible="{Binding ViewportSubViewModel.GridLinesEnabled, Source={viewModels1:MainVM}}"
                                             ZoomMode="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels1:MainVM}, Converter={converters:ActiveToolToZoomModeConverter}}"
                                             ZoomOutOnClick="{Binding ToolsSubViewModel.ZoomTool.ZoomOutOnClick, Source={viewModels1:MainVM}}"
                                             UseTouchGestures="{Binding StylusSubViewModel.UseTouchGestures, Source={viewModels1:MainVM}}"
-                                            FlipX="{Binding FlipX, Mode=TwoWay}"
-                                            FlipY="{Binding FlipY, Mode=TwoWay}"
+                                            FlipX="{Binding ViewModel.FlipX, Mode=TwoWay}"
+                                            FlipY="{Binding ViewModel.FlipY, Mode=TwoWay}"
                                             ContextRequested="Viewport_OnContextMenuOpening"
-                                            Document="{Binding Document}">
+                                            Document="{Binding ViewModel.Document}">
                                             <userControls:Viewport.ContextMenu>
                                                 <ContextMenu DataContext="{Binding PlacementTarget.Document, RelativeSource={RelativeSource Self}}">
                                                     <ContextMenu.Template>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
+using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Position;
@@ -15,14 +16,14 @@ internal abstract class UpdateableChangeExecutor
     protected IDocument? document;
     protected DocumentInternalParts? internals;
     protected ChangeExecutionController? controller;
-    protected IReadOnlyCollection<IHandler> handlers;
+    protected IServiceProvider services;
     private bool initialized = false;
 
     protected Action<UpdateableChangeExecutor>? onEnded;
     public virtual ExecutorType Type => ExecutorType.Regular;
     public virtual ExecutorStartMode StartMode => ExecutorStartMode.RightAway;
 
-    public void Initialize(IDocument document, DocumentInternalParts internals, List<IHandler> list,
+    public void Initialize(IDocument document, DocumentInternalParts internals, IServiceProvider services,
         ChangeExecutionController controller, Action<UpdateableChangeExecutor> onEnded)
     {
         if (initialized)
@@ -32,22 +33,14 @@ internal abstract class UpdateableChangeExecutor
         this.document = document;
         this.internals = internals;
         this.controller = controller;
-        handlers = list;
+        this.services = services;
         this.onEnded = onEnded;
     }
 
     protected T GetHandler<T>()
         where T : IHandler
     {
-        foreach (var handler in handlers)
-        {
-            if (handler is T t)
-            {
-                return t;
-            }
-        }
-
-        throw new DependencyNotFoundException(typeof(T));
+        return services.GetRequiredService<T>();
     }
 
     public abstract ExecutionState Start();

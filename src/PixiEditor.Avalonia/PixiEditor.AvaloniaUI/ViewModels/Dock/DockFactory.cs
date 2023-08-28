@@ -129,7 +129,6 @@ internal class DockFactory : Factory
         ContextLocator = new Dictionary<string, Func<object?>>()
         {
             { "MainLayout", () => layout },
-            { "DocumentsPane", () => layout },
             { "ToolsPane", () => layout },
         };
 

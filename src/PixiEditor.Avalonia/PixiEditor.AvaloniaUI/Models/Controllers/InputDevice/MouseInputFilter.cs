@@ -33,9 +33,9 @@ internal class MouseInputFilter
         OnMouseDown?.Invoke(this, args);
     }
 
-    public void MouseMoveInlet(object args) => OnMouseMove?.Invoke(this, (VecD)args);
+    public void MouseMoveInlet(object args) => OnMouseMove?.Invoke(this, ((MouseOnCanvasEventArgs)args).PositionOnCanvas);
 
-    public void MouseUpInlet(object args) => MouseUpInlet((MouseButton)args);
+    public void MouseUpInlet(object args) => MouseUpInlet(((MouseOnCanvasEventArgs)args).Button);
     public void MouseUpInlet(object? sender, Point p, MouseButton button) => MouseUpInlet(button);
     public void MouseUpInlet(MouseButton button)
     {

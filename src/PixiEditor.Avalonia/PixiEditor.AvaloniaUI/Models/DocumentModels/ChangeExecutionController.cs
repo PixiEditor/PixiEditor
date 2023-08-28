@@ -19,7 +19,7 @@ internal class ChangeExecutionController
     public bool IsChangeActive => currentSession is not null;
 
     private readonly IDocument document;
-    private readonly List<IHandler> handlers = new();
+    private readonly IServiceProvider services;
     private readonly DocumentInternalParts internals;
 
     private VecI lastPixelPos;
@@ -29,11 +29,11 @@ internal class ChangeExecutionController
     
     private UpdateableChangeExecutor? _queuedExecutor = null;
 
-    public ChangeExecutionController(IDocument document, DocumentInternalParts internals, List<IHandler> handlers)
+    public ChangeExecutionController(IDocument document, DocumentInternalParts internals, IServiceProvider services)
     {
         this.document = document;
         this.internals = internals;
-        this.handlers = handlers;
+        this.services = services;
     }
 
     public ExecutorType GetCurrentExecutorType()
@@ -72,7 +72,7 @@ internal class ChangeExecutionController
 
     private bool TryStartExecutorInternal(UpdateableChangeExecutor executor)
     {
-        executor.Initialize(document, internals, handlers, this, EndExecutor);
+        executor.Initialize(document, internals, services, this, EndExecutor);
 
         if (executor.StartMode == ExecutorStartMode.OnMouseLeftButtonDown)
         {

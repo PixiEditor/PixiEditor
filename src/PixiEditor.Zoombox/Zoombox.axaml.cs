@@ -405,10 +405,10 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
 
     private void OnScroll(object sender, PointerWheelEventArgs e)
     {
-        double abs = Math.Abs(-e.Delta.Y / 100.0);
+        double abs = Math.Abs(e.Delta.Y / 100.0);
         for (int i = 0; i < abs; i++)
         {
-            ZoomInto(ToVecD(e.GetPosition(uc)), -e.Delta.Y / 100.0);
+            ZoomInto(ToVecD(e.GetPosition(uc)), e.Delta.Y / 100.0);
         }
     }
 

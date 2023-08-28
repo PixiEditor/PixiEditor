@@ -397,16 +397,28 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Point pos = e.GetPosition(MainImage);
         VecD conv = new VecD(pos.X, pos.Y);
 
-        if (MouseMoveCommand.CanExecute(conv))
-            MouseMoveCommand.Execute(conv);
+        MouseButton mouseButton = e.GetCurrentPoint(this).Properties.PointerUpdateKind switch
+        {
+            PointerUpdateKind.LeftButtonPressed => MouseButton.Left,
+            PointerUpdateKind.RightButtonPressed => MouseButton.Right,
+            _ => MouseButton.Middle
+        };
+
+        MouseOnCanvasEventArgs parameter = new(mouseButton, conv);
+
+        if (MouseMoveCommand.CanExecute(parameter))
+            MouseMoveCommand.Execute(parameter);
     }
 
     private void Image_MouseUp(object? sender, PointerReleasedEventArgs e)
     {
         if (MouseUpCommand is null)
             return;
-        if (MouseUpCommand.CanExecute(e.InitialPressMouseButton))
-            MouseUpCommand.Execute(e.InitialPressMouseButton);
+
+        Point pos = e.GetPosition(MainImage);
+        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, new VecD(pos.X, pos.Y));
+        if (MouseUpCommand.CanExecute(parameter))
+            MouseUpCommand.Execute(parameter);
     }
 
     private void CenterZoomboxContent(object? sender, VecI args)

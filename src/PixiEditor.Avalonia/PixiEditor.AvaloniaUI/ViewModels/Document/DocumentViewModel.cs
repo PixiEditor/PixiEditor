@@ -165,8 +165,8 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
 
     private DocumentViewModel()
     {
-        var allHandlers = ViewModelMain.Current.Services.GetServices<IHandler>().ToList();
-        Internals = new DocumentInternalParts(this, allHandlers);
+        var serviceProvider = ViewModelMain.Current.Services;
+        Internals = new DocumentInternalParts(this, serviceProvider);
         Tools = new DocumentToolsModule(this, Internals);
         StructureHelper = new DocumentStructureModule(this);
         EventInlet = new DocumentEventsModule(this, Internals);

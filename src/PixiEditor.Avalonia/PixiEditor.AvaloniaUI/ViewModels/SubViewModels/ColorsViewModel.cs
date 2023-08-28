@@ -15,6 +15,7 @@ using PixiEditor.AvaloniaUI.Models.Commands.XAML;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.ExternalServices;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Palettes;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
@@ -29,7 +30,7 @@ using Command = PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands.Comman
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
 [Command.Group("PixiEditor.Colors", "PALETTE_COLORS")]
-internal class ColorsViewModel : SubViewModel<ViewModelMain>
+internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
 {
     public AsyncRelayCommand<List<PaletteColor>> ImportPaletteCommand { get; set; }
     private PaletteProvider paletteProvider;

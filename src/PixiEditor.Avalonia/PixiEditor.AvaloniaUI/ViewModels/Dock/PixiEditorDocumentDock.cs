@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using System.Linq;
 using CommunityToolkit.Mvvm.Input;
 using Dock.Model.Avalonia.Controls;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -13,14 +14,14 @@ internal class PixiEditorDocumentDock : DocumentDock
     public PixiEditorDocumentDock(FileViewModel manager)
     {
         this.manager = manager;
-        manager.Owner.DocumentManagerSubViewModel.Documents.CollectionChanged += Documents_CollectionChanged;
+        manager.Owner.WindowSubViewModel.Viewports.CollectionChanged += Viewports_CollectionChanged;
         CreateDocument = new RelayCommand(CreateDockDocument);
     }
 
-    private void Documents_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private void Viewports_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        DocumentViewModel documentVm = e.NewItems[^1] as DocumentViewModel;
-        var document = new DockDocumentViewModel(documentVm) { Title = documentVm.FileName };
+        ViewportWindowViewModel viewportVm = e.NewItems[^1] as ViewportWindowViewModel;
+        var document = new DockDocumentViewModel(viewportVm) { Title = viewportVm.Document.FileName };
 
         Factory?.AddDockable(this, document);
         Factory?.SetActiveDockable(document);
@@ -38,7 +39,7 @@ internal class PixiEditorDocumentDock : DocumentDock
         {
             b.WithSize(new VecI(64, 64));
         });
-        var document = new DockDocumentViewModel(doc) { Title = "hello" };
+        var document = new DockDocumentViewModel(manager.Owner.WindowSubViewModel.Viewports[^1]) { Title = "hello" };
 
         Factory?.AddDockable(this, document);
         Factory?.SetActiveDockable(document);

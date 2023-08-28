@@ -130,6 +130,8 @@
                 d:Height="64"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
+                Width="64"
+                Height="64"
                 DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}"
                 RenderOptions.BitmapInterpolationMode="None">
                 <Border.Background>
