@@ -75,15 +75,4 @@
       <UpToDateCheckInput Remove="Fonts\feather.ttf" />
     </ItemGroup>
   
-    <ItemGroup>
-      <Compile Update="Views\Shortcuts\ImportShortcutTemplatePopup.axaml.cs">
-        <DependentUpon>ImportShortcutTemplatePopup.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Settings\SettingsWindow.axaml.cs">
-        <DependentUpon>SettingsWindow.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-  
 </Project>
