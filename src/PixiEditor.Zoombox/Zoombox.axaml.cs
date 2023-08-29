@@ -152,7 +152,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
             delta.X = -delta.X;
         if (FlipY)
             delta.Y = -delta.Y;
-        delta += new VecD(mainCanvas.Bounds.Width / 2, mainCanvas.Bounds.Height / 2);
+        delta += new VecD(mainCanvas.Bounds.Width / 2f, mainCanvas.Bounds.Height / 2f);
         return delta;
     }
 
@@ -351,7 +351,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         if (but == MouseButton.Right)
             return;
         activeMouseDownEventArgs = e;
-        activeMouseDownPos = ToVecD(e.GetPosition(uc));
+        activeMouseDownPos = ToVecD(e.GetPosition(mainCanvas));
         Focus(NavigationMethod.Unspecified);
     }
 
@@ -386,7 +386,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         else
         {
             if (ZoomMode == ZoomboxMode.Zoom && e.InitialPressMouseButton == MouseButton.Left)
-                ZoomInto(ToVecD(e.GetPosition(uc)), ZoomOutOnClick ? -1 : 1);
+                ZoomInto(ToVecD(e.GetPosition(mainCanvas)), ZoomOutOnClick ? -1 : 1);
         }
         activeMouseDownEventArgs = null;
     }
@@ -395,7 +395,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
     {
         if (activeDragOperation is null && activeMouseDownEventArgs is not null)
         {
-            VecD cur = ToVecD(e.GetPosition(uc));
+            VecD cur = ToVecD(e.GetPosition(mainCanvas));
 
             if ((cur - activeMouseDownPos).TaxicabLength > 3)
                 InitiateDrag(activeMouseDownEventArgs);
@@ -408,7 +408,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         double abs = Math.Abs(e.Delta.Y / 100.0);
         for (int i = 0; i < abs; i++)
         {
-            ZoomInto(ToVecD(e.GetPosition(uc)), e.Delta.Y / 100.0);
+            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), e.Delta.Y / 100.0);
         }
     }
 

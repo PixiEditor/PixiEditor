@@ -130,11 +130,10 @@
                 d:Height="64"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Width="64"
-                Height="64"
                 DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}"
                 RenderOptions.BitmapInterpolationMode="None">
                 <Border.Background>
+                    <!--TODO: Seems like DestinationRect of anything with size below and equal to 1 is tiling texture wrong-->
                     <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
                         <ImageBrush.DestinationRect>
                             <Binding Path="Scale" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type zoombox:Zoombox}}"

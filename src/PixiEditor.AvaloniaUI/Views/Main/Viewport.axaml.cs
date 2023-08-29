@@ -243,11 +243,11 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             realDimensions = value;
             ChunkResolution newRes = CalculateResolution();
 
-            //PropertyChanged?.Invoke(this, new(nameof(RealDimensions)));
+            PropertyChanged?.Invoke(this, new(nameof(RealDimensions)));
             Document?.Operations.AddOrUpdateViewport(GetLocation());
 
-            /*if (oldRes != newRes)
-                PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));*/
+            if (oldRes != newRes)
+                PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
         }
     }
 

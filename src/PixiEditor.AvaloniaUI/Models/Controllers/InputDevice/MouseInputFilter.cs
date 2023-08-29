@@ -39,7 +39,7 @@ internal class MouseInputFilter
     public void MouseUpInlet(object? sender, Point p, MouseButton button) => MouseUpInlet(button);
     public void MouseUpInlet(MouseButton button)
     {
-        if (button is MouseButton.XButton1 or MouseButton.XButton2)
+        if (button is MouseButton.XButton1 or MouseButton.XButton2 or MouseButton.None)
             return;
         if (!buttonStates[button])
             return;

@@ -24,7 +24,7 @@ internal class ZoomDragOperation : IDragOperation
 
     public void Start(PointerEventArgs e)
     {
-        screenScaleOrigin = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
+        screenScaleOrigin = Zoombox.ToVecD(e.GetPosition(parent.mainGrid));
         scaleOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
         originalScale = parent.Scale;
         capturedPointer = e.Pointer;
@@ -33,7 +33,7 @@ internal class ZoomDragOperation : IDragOperation
 
     public void Update(PointerEventArgs e)
     {
-        Point curScreenPos = e.GetPosition(parent.mainCanvas);
+        Point curScreenPos = e.GetPosition(parent.mainGrid);
         double deltaX = curScreenPos.X - screenScaleOrigin.X;
         double deltaPower = deltaX / 10.0;
 

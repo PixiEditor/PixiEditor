@@ -11,10 +11,11 @@ internal class ZoomToViewportConverter
     {
         if (value is double scale && parameter is double factor)
         {
-            double newSize = Math.Clamp((double)factor / scale, 1, 9999);
-            if (newSize > 1 && newSize < 4)
-                newSize = 4;
-            return new Rect(0, 0, newSize, newSize);
+            double newSize = Math.Clamp(factor / scale, 2, 9999);
+
+            //round to power of 2
+            newSize = Math.Pow(2, Math.Round(Math.Log(newSize, 2)));
+            return new RelativeRect(0, 0, newSize, newSize, RelativeUnit.Absolute);
         }
 
         return AvaloniaProperty.UnsetValue;
