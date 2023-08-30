@@ -292,7 +292,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         FlipX = false;
         FlipY = false;
         Scale = 1 / scaleFactor;
-        Center = newSize / 2;
+        Center = newSize / 2 * scaleFactor;
     }
 
     public void ZoomIntoCenter(double delta)
@@ -300,11 +300,11 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         ZoomInto(new VecD(mainCanvas.Bounds.Width / 2, mainCanvas.Bounds.Height / 2), delta);
     }
 
-    public void ZoomInto(VecD mousePos, double delta)
+    public void ZoomInto(VecD position, double delta)
     {
         if (delta == 0)
             return;
-        VecD oldZoomboxMousePos = ToZoomboxSpace(mousePos);
+        VecD oldZoomboxPosition = ToZoomboxSpace(position);
 
         int curIndex = GetClosestRoundZoomValueIndex(Scale);
         int nextIndex = curIndex;
@@ -316,8 +316,8 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         newScale = Math.Clamp(newScale, MinScale, MaxScale);
         Scale = newScale;
 
-        VecD newZoomboxMousePos = ToZoomboxSpace(mousePos);
-        VecD deltaCenter = oldZoomboxMousePos - newZoomboxMousePos;
+        VecD newZoomboxMousePosition = ToZoomboxSpace(position);
+        VecD deltaCenter = oldZoomboxPosition - newZoomboxMousePosition;
         Center += deltaCenter;
     }
 
