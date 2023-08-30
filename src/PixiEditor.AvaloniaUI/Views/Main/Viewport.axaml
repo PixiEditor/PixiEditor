@@ -135,6 +135,9 @@
                 <Border.Background>
                     <!--TODO: Seems like DestinationRect of anything with size below and equal to 1 is tiling texture wrong-->
                     <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                        <ImageBrush.Transform>
+                            <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
+                        </ImageBrush.Transform>
                         <ImageBrush.DestinationRect>
                             <Binding Path="Scale" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type zoombox:Zoombox}}"
                                      Converter="{converters:ZoomToViewportConverter}">
