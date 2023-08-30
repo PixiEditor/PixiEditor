@@ -99,8 +99,7 @@ internal class DockFactory : Factory
 
     private IDockable BuildPropertiesDock()
     {
-        return new ProportionalDock();
-
+        return new ProportionalDock() { Proportion = 0.15 };
     }
 
     private IDockable BuildToolDock()
