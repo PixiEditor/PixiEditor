@@ -403,6 +403,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         activeDragOperation?.Update(e);
     }
 
+    //TODO: Scroll is imprecise
     private void OnScroll(object sender, PointerWheelEventArgs e)
     {
         double abs = Math.Abs(e.Delta.Y / 100.0);

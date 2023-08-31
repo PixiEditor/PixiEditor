@@ -24,8 +24,6 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
     }
 
     public override bool IsErasable => true;
-
-    public IToolbar Toolbar { get; set; }
     public override LocalizedString Tooltip => new LocalizedString("BRIGHTNESS_TOOL_TOOLTIP", Shortcut);
 
     public override BrushShape BrushShape => BrushShape.Circle;

@@ -17,7 +17,6 @@ internal class RectangleToolViewModel : ShapeTool, IRectangleToolHandler
     }
 
     public override string ToolNameLocalizationKey => "RECTANGLE_TOOL";
-    public IToolbar Toolbar { get; set; }
     public override LocalizedString Tooltip => new LocalizedString("RECTANGLE_TOOL_TOOLTIP", Shortcut);
 
     public bool Filled { get; set; } = false;

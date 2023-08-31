@@ -106,13 +106,13 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     }
 
     public T? GetTool<T>()
-        where T : ToolViewModel
+        where T : IToolHandler
     {
         return (T?)ToolSet?.Where(static tool => tool is T).FirstOrDefault();
     }
 
     public void SetActiveTool<T>(bool transient)
-        where T : ToolViewModel
+        where T : IToolHandler
     {
         SetActiveTool(typeof(T), transient);
     }
@@ -215,7 +215,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     {
         if (!typeof(ToolViewModel).IsAssignableFrom(toolType))
             throw new ArgumentException($"'{toolType}' does not inherit from {typeof(ToolViewModel)}");
-        IToolHandler foundTool = ToolSet!.First(x => x.GetType() == toolType);
+        IToolHandler foundTool = ToolSet!.First(x => x.GetType().IsAssignableFrom(toolType));
         SetActiveTool(foundTool, transient);
     }
     

@@ -8,6 +8,7 @@ using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Models.Events;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Input;
 using PixiEditor.AvaloniaUI.Models.Preferences;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -187,7 +188,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void HandleRightMouseEraseDown(ToolsViewModel tools)
+    private void HandleRightMouseEraseDown(IToolsHandler tools)
     {
         var currentToolSize = tools.ActiveTool.Toolbar.Settings.FirstOrDefault(x => x.Name == "ToolSize");
         hadSharedToolbar = tools.EnableSharedToolbar;
@@ -246,7 +247,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         hadSwapped = false;
     }
 
-    private void HandleRightMouseUp(MouseButton button, ToolsViewModel tools)
+    private void HandleRightMouseUp(MouseButton button, IToolsHandler tools)
     {
         switch (button)
         {
@@ -266,7 +267,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void HandleRightMouseEraseUp(ToolsViewModel tools)
+    private void HandleRightMouseEraseUp(IToolsHandler tools)
     {
         if (startedWithEraser)
         {

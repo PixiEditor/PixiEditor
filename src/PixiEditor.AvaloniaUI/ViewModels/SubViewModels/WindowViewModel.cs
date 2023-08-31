@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Windows;
+using PixiEditor.Views.UserControls;
 using Command = PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands.Command;
 using SettingsWindow = PixiEditor.AvaloniaUI.Views.Settings.SettingsWindow;
 
@@ -20,6 +21,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
     public ObservableCollection<ViewportWindowViewModel> Viewports { get; } = new();
     public event EventHandler<ViewportWindowViewModel>? ActiveViewportChanged;
+    public event Action<ViewportWindowViewModel> ViewportAdded;
+    public event Action<ViewportWindowViewModel> ViewportClosed;
 
     private object? activeWindow;
     public object? ActiveWindow
@@ -79,11 +82,14 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
 
     public void CreateNewViewport(DocumentViewModel doc)
     {
-        Viewports.Add(new ViewportWindowViewModel(this, doc));
+        ViewportWindowViewModel newViewport = new ViewportWindowViewModel(this, doc);
+        Viewports.Add(newViewport);
         foreach (var viewport in Viewports.Where(vp => vp.Document == doc))
         {
             viewport.IndexChanged();
         }
+
+        ViewportAdded?.Invoke(newViewport);
     }
 
     public void MakeDocumentViewportActive(DocumentViewModel? doc)
@@ -119,6 +125,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             {
                 sibling.IndexChanged();
             }
+
+            ViewportClosed?.Invoke(viewport);
         }
     }
 
@@ -128,6 +136,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         foreach (ViewportWindowViewModel viewport in viewports)
         {
             Viewports.Remove(viewport);
+            ViewportClosed?.Invoke(viewport);
         }
     }
 

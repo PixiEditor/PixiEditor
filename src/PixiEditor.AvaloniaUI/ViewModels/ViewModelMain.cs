@@ -31,7 +31,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public UpdateViewModel UpdateSubViewModel { get; set; }
 
-    public ToolsViewModel ToolsSubViewModel { get; set; }
+    public IToolsHandler ToolsSubViewModel { get; set; }
 
     public IoViewModel IoSubViewModel { get; set; }
 
@@ -118,7 +118,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
         FileSubViewModel = services.GetService<FileViewModel>();
-        ToolsSubViewModel = services.GetService<ToolsViewModel>();
+        ToolsSubViewModel = services.GetService<IToolsHandler>();
         ToolsSubViewModel.SelectedToolChanged += ToolsSubViewModel_SelectedToolChanged;
 
         IoSubViewModel = services.GetService<IoViewModel>();
