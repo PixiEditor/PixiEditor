@@ -5,6 +5,7 @@ using PixiEditor.AvaloniaUI.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.Models.Tools;
+using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 

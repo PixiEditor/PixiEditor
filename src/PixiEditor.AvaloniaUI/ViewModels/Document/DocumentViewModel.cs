@@ -21,6 +21,7 @@ using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Document.TransformOverlays;
+using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -508,7 +509,8 @@ internal partial class DocumentViewModel : ObservableObject, IDocument
 
     public void SetVerticalSymmetryAxisEnabled(bool infoState)
     {
-        throw new NotImplementedException();
+        verticalSymmetryAxisEnabled = infoState;
+        OnPropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
     }
 
     public void SetVerticalSymmetryAxisX(double verticalSymmetryAxisX)

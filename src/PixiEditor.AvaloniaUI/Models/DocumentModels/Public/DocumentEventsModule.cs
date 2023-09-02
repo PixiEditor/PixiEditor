@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.Models.Events;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Position;
+using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 

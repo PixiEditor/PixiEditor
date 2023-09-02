@@ -9,6 +9,7 @@ using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.AvaloniaUI.Views;
+using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;

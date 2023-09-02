@@ -1,5 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Enums;
 
-namespace PixiEditor.AvaloniaUI.Models.Position;
+namespace PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 #nullable enable
 internal record class SymmetryAxisDragInfo(SymmetryAxisDirection Direction, double NewPosition);

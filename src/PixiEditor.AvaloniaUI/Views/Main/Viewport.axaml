@@ -17,6 +17,7 @@
     xmlns:subviews="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
     xmlns:brushShapeOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay"
     xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
+    xmlns:symmetryOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -262,7 +263,7 @@
                     </Image>
                     <Grid ZIndex="5">
                         <!--TODO: Implement overlays-->
-                        <!--<symOverlay:SymmetryOverlay
+                        <symmetryOverlay:SymmetryOverlay
                             Focusable="False"
                             IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
                             ZoomboxScale="{Binding Zoombox.Scale}"
@@ -270,11 +271,11 @@
                             VerticalAxisVisible="{Binding Document.VerticalSymmetryAxisEnabledBindable}"
                             HorizontalAxisY="{Binding Document.HorizontalSymmetryAxisYBindable, Mode=OneWay}"
                             VerticalAxisX="{Binding Document.VerticalSymmetryAxisXBindable, Mode=OneWay}"
-                            DragCommand="{cmds:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
-                            DragEndCommand="{cmds:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
-                            DragStartCommand="{cmds:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
+                            DragCommand="{xaml:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
+                            DragEndCommand="{xaml:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
+                            DragStartCommand="{xaml:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
                             FlowDirection="LeftToRight" />
-                        <overlays:SelectionOverlay
+                        <!--<overlays:SelectionOverlay
                             Focusable="False"
                             ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                             Path="{Binding Document.SelectionPathBindable}"
