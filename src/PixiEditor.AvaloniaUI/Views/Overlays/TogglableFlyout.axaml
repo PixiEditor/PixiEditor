@@ -8,7 +8,7 @@
     <Border Background="Transparent">
         <StackPanel Orientation="Vertical">
             <Border HorizontalAlignment="Right" Background="#C8202020" CornerRadius="5" Padding="5" x:Name="btnBorder">
-                <ToggleButton Padding="0" Margin="0" ToolTip.Tip="{Binding ElementName=togglableFlyout, Path=ToolTip.Tip}"
+                <ToggleButton Padding="0" Margin="0"
                               x:Name="toggleButton" BorderThickness="0" Width="24" Height="24" Background="Transparent">
                     <ToggleButton.Template>
                         <!--<ControlTemplate TargetType="{x:Type ToggleButton}">

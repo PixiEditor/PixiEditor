@@ -15,6 +15,8 @@
     xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
     xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
     xmlns:subviews="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
+    xmlns:brushShapeOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay"
+    xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -277,18 +279,18 @@
                             ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                             Path="{Binding Document.SelectionPathBindable}"
                             ZoomboxScale="{Binding Zoombox.Scale}"
-                            FlowDirection="LeftToRight" />
-                        <brushOverlay:BrushShapeOverlay
+                            FlowDirection="LeftToRight" />-->
+                        <brushShapeOverlay:BrushShapeOverlay
                             Focusable="False"
                             IsHitTestVisible="False"
-                            Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:InverseBoolToVisibilityConverter}}"
+                            IsVisible="{Binding !Document.TransformViewModel.TransformActive}"
                             ZoomboxScale="{Binding Zoombox.Scale}"
                             MouseEventSource="{Binding Zoombox.Tag.BackgroundGrid, Mode=OneTime}"
                             MouseReference="{Binding Zoombox.Tag.MainImage, Mode=OneTime}"
-                            BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={vm:MainVM}}"
-                            BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={vm:MainVM}, FallbackValue={x:Static brushOverlay:BrushShape.Hidden}}"
+                            BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
+                            BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
                             FlowDirection="LeftToRight"/>
-                        <transformOverlay:TransformOverlay
+                        <!--<transformOverlay:TransformOverlay
                             Focusable="False"
                             Cursor="Arrow"
                             IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
@@ -305,8 +307,8 @@
                             SnapToAngles="{Binding Document.TransformViewModel.SnapToAngles}"
                             InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
                             ZoomboxScale="{Binding Zoombox.Scale}"
-                            ZoomboxAngle="{Binding Zoombox.Angle}" />
-                        <lineOverlay:LineToolOverlay
+                            ZoomboxAngle="{Binding Zoombox.Angle}" />-->
+                        <!--<lineOverlay:LineToolOverlay
                             Focusable="False"
                             Visibility="{Binding Document.LineToolOverlayViewModel.IsEnabled, Converter={converters:BoolToVisibilityConverter}}"
                             ActionCompleted="{Binding Document.LineToolOverlayViewModel.ActionCompletedCommand}"
