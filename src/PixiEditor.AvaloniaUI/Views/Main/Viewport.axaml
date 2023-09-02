@@ -18,6 +18,7 @@
     xmlns:brushShapeOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay"
     xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
     xmlns:symmetryOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay"
+    xmlns:overlays="clr-namespace:PixiEditor.Views.UserControls.Overlays"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -275,12 +276,12 @@
                             DragEndCommand="{xaml:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
                             DragStartCommand="{xaml:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
                             FlowDirection="LeftToRight" />
-                        <!--<overlays:SelectionOverlay
+                        <overlays:SelectionOverlay
                             Focusable="False"
-                            ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={vm:MainVM}, Converter={converters:IsSelectionToolConverter}}"
+                            ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                             Path="{Binding Document.SelectionPathBindable}"
                             ZoomboxScale="{Binding Zoombox.Scale}"
-                            FlowDirection="LeftToRight" />-->
+                            FlowDirection="LeftToRight" />
                         <brushShapeOverlay:BrushShapeOverlay
                             Focusable="False"
                             IsHitTestVisible="False"
