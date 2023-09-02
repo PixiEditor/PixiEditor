@@ -8,12 +8,12 @@
     <Border Background="Transparent">
         <StackPanel Orientation="Vertical">
             <Border HorizontalAlignment="Right" Background="#C8202020" CornerRadius="5" Padding="5" x:Name="btnBorder">
-                <ToggleButton Padding="0" Margin="0" ToolTip.Tip="{Binding ElementName=togglableFlyout, Path=ToolTip}"
+                <ToggleButton Padding="0" Margin="0" ToolTip.Tip="{Binding ElementName=togglableFlyout, Path=ToolTip.Tip}"
                               x:Name="toggleButton" BorderThickness="0" Width="24" Height="24" Background="Transparent">
                     <ToggleButton.Template>
-                        <ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <!--<ControlTemplate TargetType="{x:Type ToggleButton}">
                             <Grid>
-                                <Image Focusable="False" Width="24" Cursor="Hand" x:Name="btnBg" 
+                                <Image Focusable="False" Width="24" Cursor="Hand" x:Name="btnBg"
                                        Source="{Binding ElementName=togglableFlyout, Path=IconPath}">
                                     <Image.RenderTransform>
                                         <RotateTransform Angle="0" CenterX="12" CenterY="12"/>
@@ -21,7 +21,7 @@
                                 </Image>
                                 <ContentPresenter/>
                             </Grid>
-                            <!--<ControlTemplate.Triggers>
+                            ~1~<ControlTemplate.Triggers>
                                 <Trigger Property="IsChecked" Value="True">
                                     <Trigger.EnterActions>
                                         <BeginStoryboard x:Name="Rotate90Animation">
@@ -44,8 +44,8 @@
                                         </BeginStoryboard>
                                     </Trigger.ExitActions>
                                 </Trigger>
-                            </ControlTemplate.Triggers>-->
-                        </ControlTemplate>
+                            </ControlTemplate.Triggers>@1@
+                        </ControlTemplate>-->
                     </ToggleButton.Template>
                 </ToggleButton>
             </Border>

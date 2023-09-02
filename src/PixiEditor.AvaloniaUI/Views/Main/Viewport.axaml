@@ -20,9 +20,8 @@
     d:DesignHeight="450"
     d:DesignWidth="800">
     <Grid 
-        x:Name="mainGrid"
-        PointerPressed="Image_MouseDown"
-        PointerReleased="Image_MouseUp">
+        x:Name="viewportGrid"
+        PointerPressed="Image_MouseDown">
         <Interaction.Behaviors>
             <!--TODO: Implement stylus support-->
             <!--<EventTriggerBehavior EventName="StylusButtonDown">

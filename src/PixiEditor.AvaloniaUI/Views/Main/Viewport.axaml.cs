@@ -307,12 +307,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         MainImage!.Loaded += OnImageLoaded;
         Loaded += OnLoad;
         Unloaded += OnUnload;
+
+        //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
+        this.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
         
         mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
 
     public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
-    public Grid BackgroundGrid => mainGrid;
+    public Grid BackgroundGrid => viewportGrid;
 
     private void ForceRefreshFinalImage()
     {

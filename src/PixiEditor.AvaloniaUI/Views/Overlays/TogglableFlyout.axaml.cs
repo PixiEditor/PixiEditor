@@ -9,8 +9,6 @@ public partial class TogglableFlyout : UserControl
     public static readonly StyledProperty<AvaloniaObject> ChildProperty =
         AvaloniaProperty.Register<TogglableFlyout, AvaloniaObject>(nameof(Child));
 
-    [Bindable(true)]
-    [Category("Content")]
     public AvaloniaObject Child
     {
         get { return GetValue(ChildProperty); }
