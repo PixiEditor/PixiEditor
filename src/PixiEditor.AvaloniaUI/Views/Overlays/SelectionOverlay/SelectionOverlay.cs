@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Animation;
@@ -8,7 +9,7 @@ using Avalonia.Media;
 using Avalonia.Rendering.Composition;
 using Avalonia.Rendering.Composition.Animations;
 using Avalonia.Styling;
-using PixiEditor.AvaloniaUI.Animators;
+using PixiEditor.AvaloniaUI.Animation;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.Views.UserControls.Overlays;
@@ -58,7 +59,8 @@ internal class SelectionOverlay : Control
     private Pen blackDashedPen = new Pen(Brushes.Black, 1) { DashStyle = startingFrame };
     private Brush fillBrush = new SolidColorBrush(Color.FromArgb(80, 0, 80, 255));
 
-    private static DashStyle startingFrame = new DashStyle(new double[] { 2, 4 }, 6);
+    private static DashStyle startingFrame = new DashStyle(new double[] { 2, 4 }, 0);
+    private static DashStyle endingFrame = new DashStyle(new double[] { 2, 4 }, 6);
 
     private Geometry renderPath = new PathGeometry();
 
@@ -72,15 +74,16 @@ internal class SelectionOverlay : Control
             IterationCount = IterationCount.Infinite,
         };
 
-        float step = 1f / 7f;
+        int steps = 7;
+        float step = 1f / steps;
 
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < steps; i++)
         {
             Cue cue = new Cue(i * step);
             animation.Children.Add(new KeyFrame()
             {
                 Cue = cue,
-                Setters = { new Setter(BlackDashedPenProperty, SelectionDashAnimator.Interpolate(cue.CueValue)) }
+                Setters = { new Setter(BlackDashedPenProperty, SelectionDashAnimator.Interpolate(cue.CueValue, 6, blackDashedPen.DashStyle.Dashes.ToArray())) }
             });
         }
 
