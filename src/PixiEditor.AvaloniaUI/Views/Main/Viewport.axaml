@@ -19,6 +19,7 @@
     xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
     xmlns:symmetryOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay"
     xmlns:overlays="clr-namespace:PixiEditor.Views.UserControls.Overlays"
+    xmlns:lineToolOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.LineToolOverlay"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -310,14 +311,14 @@
                             InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
                             ZoomboxScale="{Binding Zoombox.Scale}"
                             ZoomboxAngle="{Binding Zoombox.Angle}" />-->
-                        <!--<lineOverlay:LineToolOverlay
+                        <lineToolOverlay:LineToolOverlay
                             Focusable="False"
-                            Visibility="{Binding Document.LineToolOverlayViewModel.IsEnabled, Converter={converters:BoolToVisibilityConverter}}"
+                            IsVisible="{Binding Document.LineToolOverlayViewModel.IsEnabled}"
                             ActionCompleted="{Binding Document.LineToolOverlayViewModel.ActionCompletedCommand}"
                             LineStart="{Binding Document.LineToolOverlayViewModel.LineStart, Mode=TwoWay}"
                             LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
                             ZoomboxScale="{Binding Zoombox.Scale}"
-                            FlowDirection="LeftToRight"/>-->
+                            FlowDirection="LeftToRight"/>
                     </Grid>
                     <Grid IsHitTestVisible="False" 
                         ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10" 

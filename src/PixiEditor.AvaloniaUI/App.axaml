@@ -12,6 +12,7 @@
         <themes:PixiEditorTheme />
         <StyleInclude Source="/Styles/PixiEditor.Controls.axaml"/>
         <StyleInclude Source="/Styles/PixiEditor.Animators.axaml"/>
+        <StyleInclude Source="/Styles/PixiEditor.Handles.axaml"/>
     </Application.Styles>
 
 </Application>

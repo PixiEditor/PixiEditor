@@ -28,6 +28,7 @@
             <Color x:Key="ErrorColor">#B00020</Color>
 
             <Color x:Key="GlyphColor">#444</Color>
+            <Color x:Key="GlyphBackground">White</Color>
 
             <Color x:Key="NotificationCardBackgroundColor">#303030</Color>
 

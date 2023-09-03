@@ -13,7 +13,7 @@ using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 #nullable enable
-internal class SymmetryOverlay : Control
+internal class SymmetryOverlay : Overlay
 {
     public static readonly StyledProperty<double> HorizontalAxisYProperty =
         AvaloniaProperty.Register<SymmetryOverlay, double>(nameof(HorizontalAxisY), defaultValue: 0.0);
@@ -98,11 +98,7 @@ internal class SymmetryOverlay : Control
     }
 
     private const double HandleSize = 12;
-    private PathGeometry handleGeometry = new()
-    {
-        FillRule = FillRule.NonZero,
-        Figures = PathFigures.Parse($"M -1.1146 -0.6603 c -0.1215 -0.1215 -0.3187 -0.1215 -0.4401 0 l -0.4401 0.4401 c -0.1215 0.1215 -0.1215 0.3187 0 0.4401 l 0.4401 0.4401 c 0.1215 0.1215 0.3187 0.1215 0.4401 0 l 0.4401 -0.4401 c 0.1215 -0.1215 0.1215 -0.3187 0 -0.4401 l -0.4401 -0.4401 Z M -0.5834 0.0012 l 0.5833 -0.0013"),
-    };
+    private Geometry handleGeometry = GetHandleGeometry("MarkerHandle");
 
     private const double DashWidth = 10.0;
     const int RulerOffset = -35;

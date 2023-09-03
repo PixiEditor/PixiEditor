@@ -8,8 +8,8 @@ using PixiEditor.DrawingApi.Core.Numerics;
 namespace PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 internal static class TransformHelper
 {
-    public const double AnchorSize = 10;
-    public const double MoveHandleSize = 16;
+    public const double AnchorSize = 14;
+    public const double MoveHandleSize = 24;
 
     public static Rect ToAnchorRect(VecD pos, double zoomboxScale)
     {
