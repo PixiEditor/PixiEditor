@@ -20,6 +20,7 @@
     xmlns:symmetryOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay"
     xmlns:overlays="clr-namespace:PixiEditor.Views.UserControls.Overlays"
     xmlns:lineToolOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.LineToolOverlay"
+    xmlns:transformOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -293,13 +294,13 @@
                             BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
                             BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
                             FlowDirection="LeftToRight"/>
-                        <!--<transformOverlay:TransformOverlay
+                        <transformOverlay:TransformOverlay
                             Focusable="False"
                             Cursor="Arrow"
                             IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Stretch"
-                            Visibility="{Binding Document.TransformViewModel.TransformActive, Converter={converters:BoolToVisibilityConverter}}"
+                            IsVisible="{Binding Document.TransformViewModel.TransformActive}"
                             ActionCompleted="{Binding Document.TransformViewModel.ActionCompletedCommand}"
                             Corners="{Binding Document.TransformViewModel.Corners, Mode=TwoWay}"
                             RequestedCorners="{Binding Document.TransformViewModel.RequestedCorners, Mode=TwoWay}"
@@ -310,7 +311,7 @@
                             SnapToAngles="{Binding Document.TransformViewModel.SnapToAngles}"
                             InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
                             ZoomboxScale="{Binding Zoombox.Scale}"
-                            ZoomboxAngle="{Binding Zoombox.Angle}" />-->
+                            ZoomboxAngle="{Binding Zoombox.Angle}" />
                         <lineToolOverlay:LineToolOverlay
                             Focusable="False"
                             IsVisible="{Binding Document.LineToolOverlayViewModel.IsEnabled}"

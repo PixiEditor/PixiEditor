@@ -5,7 +5,7 @@ using Avalonia.Media;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays;
 
-public class Overlay : Control
+public class Overlay : Decorator
 {
     protected IBrush HandleGlyphBrush { get; } = GetBrush("HandleGlyphBrush");
     protected IBrush BackgroundBrush { get; } = GetBrush("HandleBackgroundBrush");
@@ -24,7 +24,7 @@ public class Overlay : Control
     {
         if (Application.Current.Styles.TryGetResource(handleName, null, out object shape))
         {
-            return ((Path)shape).Data;
+            return ((Path)shape).Data.Clone();
         }
 
         return Geometry.Parse("M 0 0 L 1 0 M 0 0 L 0 1");

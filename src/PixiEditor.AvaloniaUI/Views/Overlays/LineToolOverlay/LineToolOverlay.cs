@@ -92,15 +92,12 @@ internal class LineToolOverlay : Overlay
 
     public override void Render(DrawingContext context)
     {
-        float scaleMultiplier = (float)(1.0 / ZoomboxScale);
-        float radius = 2.5f * scaleMultiplier;
-
-        context.DrawRectangle(BackgroundBrush, blackPen, TransformHelper.ToAnchorRect(LineStart, ZoomboxScale), radius, radius);
-        context.DrawRectangle(BackgroundBrush, blackPen, TransformHelper.ToAnchorRect(LineEnd, ZoomboxScale), radius, radius);
+        context.DrawRectangleHandle(BackgroundBrush, blackPen, LineStart, ZoomboxScale);
+        context.DrawRectangleHandle(BackgroundBrush, blackPen, LineEnd, ZoomboxScale);
 
         VecD handlePos = TransformHelper.GetDragHandlePos(new ShapeCorners(new RectD(LineStart, LineEnd - LineStart)), ZoomboxScale);
         const double CrossSize = TransformHelper.MoveHandleSize - 1;
-        context.DrawRectangle(BackgroundBrush, blackPen, TransformHelper.ToHandleRect(handlePos, ZoomboxScale), radius, radius);
+        context.DrawRectangle(BackgroundBrush, blackPen, TransformHelper.ToHandleRect(handlePos, ZoomboxScale));
         handleGeometry.Transform = new MatrixTransform(
             new Matrix(
             0, CrossSize / ZoomboxScale,
