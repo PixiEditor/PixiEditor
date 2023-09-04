@@ -144,9 +144,9 @@ internal class TransformOverlay : Overlay
     private Pen blackFreqDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 0) };
     private Pen whiteFreqDashedPen = new Pen(Brushes.White, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 2) };
 
-    private Geometry handleGeometry = GetHandleGeometry("MoveHandle");
+    private Geometry handleGeometry /*= GetHandleGeometry("MoveHandle")*/;
 
-    private Geometry rotateCursorGeometry = GetHandleGeometry("RotateHandle");
+    private Geometry rotateCursorGeometry /*= GetHandleGeometry("RotateHandle")*/;
 
     private Point lastPointerPos;
     private IPointer? capturedPointer;
@@ -204,7 +204,7 @@ internal class TransformOverlay : Overlay
     private void DrawOverlay
         (DrawingContext context, VecD size, ShapeCorners corners, VecD origin, double zoomboxScale)
     {
-        // draw transparent background to enable mouse input
+        /*// draw transparent background to enable mouse input
         DrawMouseInputArea(context, size);
 
         blackPen.Thickness = 1 / zoomboxScale;
@@ -260,7 +260,7 @@ internal class TransformOverlay : Overlay
         context.DrawGeometry(Brushes.Black, null, handleGeometry);
 
         // rotate cursor
-        context.DrawGeometry(Brushes.White, blackPen, rotateCursorGeometry);
+        context.DrawGeometry(Brushes.White, blackPen, rotateCursorGeometry);*/
     }
 
     protected override void OnPointerExited(PointerEventArgs e)
@@ -271,7 +271,7 @@ internal class TransformOverlay : Overlay
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        base.OnPointerPressed(e);
+        /*base.OnPointerPressed(e);
         if (e.GetMouseButton(this) != MouseButton.Left)
             return;
 
@@ -306,20 +306,22 @@ internal class TransformOverlay : Overlay
         }
         
         e.Pointer.Capture(this);
-        capturedPointer = e.Pointer;
+        capturedPointer = e.Pointer;*/
     }
 
     private bool ShouldRotate(VecD mousePos)
     {
-        if (Corners.IsPointInside(mousePos) ||
+        return false;
+        /*if (Corners.IsPointInside(mousePos) ||
             TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale) is not null ||
             TransformHelper.IsWithinTransformHandle(TransformHelper.GetDragHandlePos(Corners, ZoomboxScale), mousePos, ZoomboxScale))
             return false;
-        return TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale, anchorSizeMultiplierForRotation) is not null;
+        return TransformHelper.GetAnchorInPosition(mousePos, Corners, InternalState.Origin, ZoomboxScale, anchorSizeMultiplierForRotation) is not null;*/
     }
 
     private bool UpdateRotationCursor(VecD mousePos)
     {
+        return false;
         if ((!ShouldRotate(mousePos) && !isRotating) || LockRotation)
         {
             rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
@@ -351,7 +353,7 @@ internal class TransformOverlay : Overlay
         }
 
         VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
-        Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale);
+        //Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale);
 
         if (isMoving)
         {
@@ -380,14 +382,14 @@ internal class TransformOverlay : Overlay
             InternalState = InternalState with { ProportionalAngle1 = propAngle1OnStartRotate + angle, ProportionalAngle2 = propAngle2OnStartRotate + angle, };
             Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
         }
-        else if (anchor is not null)
+        /*else if (anchor is not null)
         {
             if ((TransformHelper.IsCorner((Anchor)anchor) && CornerFreedom == TransformCornerFreedom.Free) ||
                 (TransformHelper.IsSide((Anchor)anchor) && SideFreedom == TransformSideFreedom.Free))
                 finalCursor = new Cursor(StandardCursorType.Arrow);
             else
                 finalCursor = TransformHelper.GetResizeCursor((Anchor)anchor, Corners, ZoomboxAngle);
-        }
+        }*/
 
         if (Cursor != finalCursor)
             Cursor = finalCursor;

@@ -98,7 +98,7 @@ internal class SymmetryOverlay : Overlay
     }
 
     private const double HandleSize = 12;
-    private Geometry handleGeometry = GetHandleGeometry("MarkerHandle");
+    private Geometry handleGeometry /*= GetHandleGeometry("MarkerHandle")*/;
 
     private const double DashWidth = 10.0;
     const int RulerOffset = -35;

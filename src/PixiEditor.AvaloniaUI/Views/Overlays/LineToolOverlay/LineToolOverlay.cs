@@ -1,13 +1,12 @@
 ﻿using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
+using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Views.UserControls.Overlays.LineToolOverlay;
@@ -64,23 +63,39 @@ internal class LineToolOverlay : Overlay
     private VecD lineStartOnMouseDown = VecD.Zero;
     private VecD lineEndOnMouseDown = VecD.Zero;
 
-    private LineToolOverlayAnchor? capturedAnchor = null;
-    private bool dragging = false;
     private bool movedWhileMouseDown = false;
 
-    private Geometry handleGeometry = GetHandleGeometry("MoveHandle");
-
     private MouseUpdateController mouseUpdateController;
+
+    private RectangleHandle startHandle;
+    private RectangleHandle endHandle;
+    private TransformHandle moveHandle;
 
     public LineToolOverlay()
     {
         Cursor = new Cursor(StandardCursorType.Arrow);
+
+        VecD anchorSize = new(14, 14);
+
+        startHandle = new RectangleHandle(this, LineStart, anchorSize);
+        startHandle.HandlePen = blackPen;
+        startHandle.OnDrag += StartHandleOnDrag;
+
+        endHandle = new RectangleHandle(this, LineEnd, anchorSize);
+        startHandle.HandlePen = blackPen;
+        endHandle.OnDrag += EndHandleOnDrag;
+
+        moveHandle = new TransformHandle(this, LineStart, new VecD(24, 24));
+        moveHandle.HandlePen = blackPen;
+        moveHandle.OnDrag += MoveHandleOnDrag;
+
         Loaded += OnLoaded;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        mouseUpdateController = new MouseUpdateController(this, MouseMoved);
+        //TODO: Ensure this bug doesn't happen in Avalonia, currently Handle classes are taking care of dragging events
+        //mouseUpdateController = new MouseUpdateController(this, MouseMoved);
     }
 
     private static void OnZoomboxScaleChanged(AvaloniaPropertyChangedEventArgs<double> args)
@@ -88,23 +103,21 @@ internal class LineToolOverlay : Overlay
         var self = (LineToolOverlay)args.Sender;
         double newScale = args.NewValue.Value;
         self.blackPen.Thickness = 1.0 / newScale;
+
+        self.startHandle.ZoomboxScale = newScale;
+        self.endHandle.ZoomboxScale = newScale;
+        self.moveHandle.ZoomboxScale = newScale;
     }
 
     public override void Render(DrawingContext context)
     {
-        context.DrawRectangleHandle(BackgroundBrush, blackPen, LineStart, ZoomboxScale);
-        context.DrawRectangleHandle(BackgroundBrush, blackPen, LineEnd, ZoomboxScale);
+        startHandle.Position = LineStart;
+        endHandle.Position = LineEnd;
+        moveHandle.Position = TransformHelper.GetDragHandlePos(new ShapeCorners(LineStart, LineEnd - LineStart), ZoomboxScale);
 
-        VecD handlePos = TransformHelper.GetDragHandlePos(new ShapeCorners(new RectD(LineStart, LineEnd - LineStart)), ZoomboxScale);
-        const double CrossSize = TransformHelper.MoveHandleSize - 1;
-        context.DrawRectangle(BackgroundBrush, blackPen, TransformHelper.ToHandleRect(handlePos, ZoomboxScale));
-        handleGeometry.Transform = new MatrixTransform(
-            new Matrix(
-            0, CrossSize / ZoomboxScale,
-            CrossSize / ZoomboxScale, 0,
-            handlePos.X - CrossSize / (ZoomboxScale * 2), handlePos.Y - CrossSize / (ZoomboxScale * 2))
-        );
-        context.DrawGeometry(HandleGlyphBrush, null, handleGeometry);
+        startHandle.Draw(context);
+        endHandle.Draw(context);
+        moveHandle.Draw(context);
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -116,19 +129,9 @@ internal class LineToolOverlay : Overlay
         if (changedButton != MouseButton.Left)
             return;
 
-        e.Handled = true;
-
         VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
-        VecD handlePos = TransformHelper.GetDragHandlePos(new ShapeCorners(new RectD(LineStart, LineEnd - LineStart)), ZoomboxScale);
 
-        if (TransformHelper.IsWithinAnchor(LineStart, pos, ZoomboxScale))
-            capturedAnchor = LineToolOverlayAnchor.Start;
-        else if (TransformHelper.IsWithinAnchor(LineEnd, pos, ZoomboxScale))
-            capturedAnchor = LineToolOverlayAnchor.End;
-        else if (TransformHelper.IsWithinTransformHandle(handlePos, pos, ZoomboxScale))
-            dragging = true;
         movedWhileMouseDown = false;
-
         mouseDownPos = pos;
         lineStartOnMouseDown = LineStart;
         lineEndOnMouseDown = LineEnd;
@@ -136,31 +139,26 @@ internal class LineToolOverlay : Overlay
         e.Pointer.Capture(this);
     }
 
-    protected void MouseMoved(PointerEventArgs e)
+    private void StartHandleOnDrag(VecD position)
     {
-        VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
-        if (capturedAnchor == LineToolOverlayAnchor.Start)
-        {
-            LineStart = pos;
-            movedWhileMouseDown = true;
-            return;
-        }
+        LineStart = position;
+        movedWhileMouseDown = true;
+    }
 
-        if (capturedAnchor == LineToolOverlayAnchor.End)
-        {
-            LineEnd = pos;
-            movedWhileMouseDown = true;
-            return;
-        }
+    private void EndHandleOnDrag(VecD position)
+    {
+        LineEnd = position;
+        movedWhileMouseDown = true;
+    }
 
-        if (dragging)
-        {
-            var delta = pos - mouseDownPos;
-            LineStart = lineStartOnMouseDown + delta;
-            LineEnd = lineEndOnMouseDown + delta;
-            movedWhileMouseDown = true;
-            return;
-        }
+    private void MoveHandleOnDrag(VecD position)
+    {
+        var delta = position - mouseDownPos;
+
+        LineStart = lineStartOnMouseDown + delta;
+        LineEnd = lineEndOnMouseDown + delta;
+
+        movedWhileMouseDown = true;
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
@@ -169,12 +167,7 @@ internal class LineToolOverlay : Overlay
         if (e.InitialPressMouseButton != MouseButton.Left)
             return;
 
-        e.Handled = true;
-        capturedAnchor = null;
-        dragging = false;
         if (movedWhileMouseDown && ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
-
-        e.Pointer.Capture(null);
     }
 }

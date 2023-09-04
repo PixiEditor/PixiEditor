@@ -11,16 +11,11 @@ internal static class TransformHelper
     public const double AnchorSize = 14;
     public const double MoveHandleSize = 24;
 
-    public static Rect ToAnchorRect(VecD pos, double zoomboxScale)
+    public static Rect ToHandleRect(VecD pos, VecD size, double zoomboxScale)
     {
-        double scaled = AnchorSize / zoomboxScale;
-        return new Rect(pos.X - scaled / 2, pos.Y - scaled / 2, scaled, scaled);
-    }
-
-    public static Rect ToHandleRect(VecD pos, double zoomboxScale)
-    {
-        double scaled = MoveHandleSize / zoomboxScale;
-        return new Rect(pos.X - scaled / 2, pos.Y - scaled / 2, scaled, scaled);
+        double scaledX = size.X / zoomboxScale;
+        double scaledY = size.Y / zoomboxScale;
+        return new Rect(pos.X - scaledX / 2, pos.Y - scaledY / 2, scaledX, scaledY);
     }
 
     public static VecD ToVecD(Point pos) => new VecD(pos.X, pos.Y);
@@ -244,7 +239,7 @@ internal static class TransformHelper
         };
     }
 
-    public static Anchor? GetAnchorInPosition(VecD pos, ShapeCorners corners, VecD origin, double zoomboxScale, double sizeMult = 1)
+    public static Anchor? GetAnchorInPosition(VecD pos, ShapeCorners corners, VecD origin, double zoomboxScale, VecD size)
     {
         VecD topLeft = corners.TopLeft;
         VecD topRight = corners.TopRight;
@@ -252,43 +247,36 @@ internal static class TransformHelper
         VecD bottomRight = corners.BottomRight;
 
         // corners
-        if (IsWithinAnchor(topLeft, pos, zoomboxScale, sizeMult))
+        if (IsWithinHandle(topLeft, pos, zoomboxScale, size))
             return Anchor.TopLeft;
-        if (IsWithinAnchor(topRight, pos, zoomboxScale, sizeMult))
+        if (IsWithinHandle(topRight, pos, zoomboxScale, size))
             return Anchor.TopRight;
-        if (IsWithinAnchor(bottomLeft, pos, zoomboxScale, sizeMult))
+        if (IsWithinHandle(bottomLeft, pos, zoomboxScale, size))
             return Anchor.BottomLeft;
-        if (IsWithinAnchor(bottomRight, pos, zoomboxScale, sizeMult))
+        if (IsWithinHandle(bottomRight, pos, zoomboxScale, size))
             return Anchor.BottomRight;
 
         // sides
-        if (IsWithinAnchor((bottomLeft - topLeft) / 2 + topLeft, pos, zoomboxScale, sizeMult))
+        if (IsWithinHandle((bottomLeft - topLeft) / 2 + topLeft, pos, zoomboxScale, size))
             return Anchor.Left;
-        if (IsWithinAnchor((bottomRight - topRight) / 2 + topRight, pos, zoomboxScale, sizeMult))
+        if (IsWithinHandle((bottomRight - topRight) / 2 + topRight, pos, zoomboxScale, size))
             return Anchor.Right;
-        if (IsWithinAnchor((topLeft - topRight) / 2 + topRight, pos, zoomboxScale, sizeMult))
+        if (IsWithinHandle((topLeft - topRight) / 2 + topRight, pos, zoomboxScale, size))
             return Anchor.Top;
-        if (IsWithinAnchor((bottomLeft - bottomRight) / 2 + bottomRight, pos, zoomboxScale, sizeMult))
+        if (IsWithinHandle((bottomLeft - bottomRight) / 2 + bottomRight, pos, zoomboxScale, size))
             return Anchor.Bottom;
 
         // origin
-        if (IsWithinAnchor(origin, pos, zoomboxScale, sizeMult))
+        if (IsWithinHandle(origin, pos, zoomboxScale, size))
             return Anchor.Origin;
         return null;
     }
 
-    public static bool IsWithinAnchor(VecD anchorPos, VecD mousePos, double zoomboxScale, double sizeMult = 1)
+    public static bool IsWithinHandle(VecD anchorPos, VecD mousePos, double zoomboxScale, VecD size)
     {
         var delta = (anchorPos - mousePos).Abs();
-        double scaled = AnchorSize * sizeMult / zoomboxScale / 2;
-        return delta.X < scaled && delta.Y < scaled;
-    }
-
-    public static bool IsWithinTransformHandle(VecD handlePos, VecD mousePos, double zoomboxScale)
-    {
-        var delta = (handlePos - mousePos).Abs();
-        double scaled = MoveHandleSize / zoomboxScale / 2;
-        return delta.X < scaled && delta.Y < scaled;
+        VecD scaled = size / zoomboxScale / 2;
+        return delta.X < scaled.X && delta.Y < scaled.Y;
     }
 
     public static VecD GetDragHandlePos(ShapeCorners corners, double zoomboxScale)
