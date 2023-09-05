@@ -1,5 +1,6 @@
 <Styles xmlns="https://github.com/avaloniaui"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <Styles.Resources>
         <ResourceDictionary>
             <Path x:Key="MoveHandle"
@@ -10,6 +11,9 @@
             <Path x:Key="RotateHandle" Data="M -1.26 -0.455 Q 0 0.175 1.26 -0.455 L 1.12 -0.735 L 2.1 -0.7 L 1.54 0.105 L 1.4 -0.175 Q 0 0.525 -1.4 -0.175 L -1.54 0.105 L -2.1 -0.7 L -1.12 -0.735 Z"/>
             <SolidColorBrush x:Key="HandleBrush" Color="{DynamicResource GlyphColor}"/>
             <SolidColorBrush x:Key="HandleBackgroundBrush" Color="{DynamicResource GlyphBackground}"/>
+
+            <system:Double x:Key="HandleSize">24</system:Double>
+            <system:Double x:Key="AnchorHandleSize">14</system:Double>
         </ResourceDictionary>
     </Styles.Resources>
 

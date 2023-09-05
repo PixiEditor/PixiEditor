@@ -14,15 +14,6 @@ using PixiEditor.Views.UserControls.Overlays.LineToolOverlay;
 namespace PixiEditor.AvaloniaUI.Views.Overlays.LineToolOverlay;
 internal class LineToolOverlay : Overlay
 {
-    public static readonly StyledProperty<double> ZoomboxScaleProperty =
-        AvaloniaProperty.Register<LineToolOverlay, double>(nameof(ZoomboxScale), defaultValue: 1.0);
-
-    public double ZoomboxScale
-    {
-        get => GetValue(ZoomboxScaleProperty);
-        set => SetValue(ZoomboxScaleProperty, value);
-    }
-
     public static readonly StyledProperty<VecD> LineStartProperty =
         AvaloniaProperty.Register<LineToolOverlay, VecD>(nameof(LineStart), defaultValue: VecD.Zero);
 
@@ -75,19 +66,20 @@ internal class LineToolOverlay : Overlay
     {
         Cursor = new Cursor(StandardCursorType.Arrow);
 
-        VecD anchorSize = new(14, 14);
-
-        startHandle = new RectangleHandle(this, LineStart, anchorSize);
+        startHandle = new AnchorHandle(this, LineStart);
         startHandle.HandlePen = blackPen;
         startHandle.OnDrag += StartHandleOnDrag;
+        AddHandle(startHandle);
 
-        endHandle = new RectangleHandle(this, LineEnd, anchorSize);
+        endHandle = new AnchorHandle(this, LineEnd);
         startHandle.HandlePen = blackPen;
         endHandle.OnDrag += EndHandleOnDrag;
+        AddHandle(endHandle);
 
-        moveHandle = new TransformHandle(this, LineStart, new VecD(24, 24));
+        moveHandle = new TransformHandle(this, LineStart);
         moveHandle.HandlePen = blackPen;
         moveHandle.OnDrag += MoveHandleOnDrag;
+        AddHandle(moveHandle);
 
         Loaded += OnLoaded;
     }
@@ -100,13 +92,11 @@ internal class LineToolOverlay : Overlay
 
     private static void OnZoomboxScaleChanged(AvaloniaPropertyChangedEventArgs<double> args)
     {
-        var self = (LineToolOverlay)args.Sender;
-        double newScale = args.NewValue.Value;
-        self.blackPen.Thickness = 1.0 / newScale;
+        if (args.Sender is not LineToolOverlay overlay)
+            return;
 
-        self.startHandle.ZoomboxScale = newScale;
-        self.endHandle.ZoomboxScale = newScale;
-        self.moveHandle.ZoomboxScale = newScale;
+        double newScale = args.NewValue.Value;
+        overlay.blackPen.Thickness = 1.0 / newScale;
     }
 
     public override void Render(DrawingContext context)
@@ -139,19 +129,19 @@ internal class LineToolOverlay : Overlay
         e.Pointer.Capture(this);
     }
 
-    private void StartHandleOnDrag(VecD position)
+    private void StartHandleOnDrag(Handle source, VecD position)
     {
         LineStart = position;
         movedWhileMouseDown = true;
     }
 
-    private void EndHandleOnDrag(VecD position)
+    private void EndHandleOnDrag(Handle source, VecD position)
     {
         LineEnd = position;
         movedWhileMouseDown = true;
     }
 
-    private void MoveHandleOnDrag(VecD position)
+    private void MoveHandleOnDrag(Handle source, VecD position)
     {
         var delta = position - mouseDownPos;
 

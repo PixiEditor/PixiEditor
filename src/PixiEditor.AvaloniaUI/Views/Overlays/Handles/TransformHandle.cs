@@ -1,9 +1,9 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.UI.Overlays;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 
@@ -13,8 +13,9 @@ public class TransformHandle : Handle
 
     private Geometry handleGeometry = GetHandleGeometry("MoveHandle");
 
-    public TransformHandle(Control owner, VecD position, VecD size) : base(owner, position, size)
+    public TransformHandle(Control owner, VecD position) : base(owner, position)
     {
+        Cursor = new Cursor(StandardCursorType.SizeAll);
     }
 
     public override void Draw(DrawingContext context)

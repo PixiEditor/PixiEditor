@@ -10,7 +10,7 @@ using PixiEditor.Extensions.UI.Overlays;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 
-public delegate void HandleDrag(VecD newPosition);
+public delegate void HandleEvent(Handle source, VecD position);
 public abstract class Handle : IHandle
 {
     public IBrush HandleBrush { get; set; } = GetBrush("HandleBackgroundBrush");
@@ -21,20 +21,22 @@ public abstract class Handle : IHandle
     public VecD Size { get; set; }
     public RectD HandleRect => new(Position, Size);
 
-    public event Action OnPress;
-    public event HandleDrag OnDrag;
-    public event Action OnRelease;
-    public event Action OnHover;
-    public event Action OnExit;
+    public event HandleEvent OnPress;
+    public event HandleEvent OnDrag;
+    public event Action<Handle> OnRelease;
+    public event Action<Handle> OnHover;
+    public event Action<Handle> OnExit;
+
+    public Cursor? Cursor { get; set; }
 
     private bool isPressed;
     private bool isHovered;
 
-    public Handle(Control owner, VecD position, VecD size)
+    public Handle(Control owner, VecD position)
     {
         Owner = owner;
         Position = position;
-        Size = size;
+        Size = Application.Current.TryGetResource("HandleSize", out object size) ? new VecD((double)size) : new VecD(24);
 
         Owner.PointerPressed += OnPointerPressed;
         Owner.PointerMoved += OnPointerMoved;
@@ -45,12 +47,22 @@ public abstract class Handle : IHandle
 
     public virtual void OnPressed(PointerPressedEventArgs args) { }
 
-    protected virtual bool IsWithinHandle(VecD handlePos, VecD pos, double zoomboxScale)
+    public virtual bool IsWithinHandle(VecD handlePos, VecD pos, double zoomboxScale)
     {
         return TransformHelper.IsWithinHandle(handlePos, pos, zoomboxScale, Size);
     }
 
-    protected static Geometry GetHandleGeometry(string handleName)
+    public static T GetResource<T>(string key)
+    {
+        if (Application.Current.Styles.TryGetResource(key, null, out object resource))
+        {
+            return (T)resource;
+        }
+
+        return default!;
+    }
+
+    public static Geometry GetHandleGeometry(string handleName)
     {
         if (Application.Current.Styles.TryGetResource(handleName, null, out object shape))
         {
@@ -84,7 +96,7 @@ public abstract class Handle : IHandle
         {
             e.Handled = true;
             OnPressed(e);
-            OnPress?.Invoke();
+            OnPress?.Invoke(this, pos);
             isPressed = true;
             e.Pointer.Capture(Owner);
         }
@@ -100,12 +112,18 @@ public abstract class Handle : IHandle
         if (!isHovered && isWithinHandle)
         {
             isHovered = true;
-            OnHover?.Invoke();
+            if (Owner.Cursor != null)
+            {
+                Owner.Cursor = Cursor;
+            }
+
+            OnHover?.Invoke(this);
         }
         else if (isHovered && isWithinHandle)
         {
             isHovered = false;
-            OnExit?.Invoke();
+            Owner.Cursor = null;
+            OnExit?.Invoke(this);
         }
 
         if (!isPressed)
@@ -113,7 +131,7 @@ public abstract class Handle : IHandle
             return;
         }
 
-        OnDrag?.Invoke(pos);
+        OnDrag?.Invoke(this, pos);
     }
 
     private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
@@ -126,7 +144,7 @@ public abstract class Handle : IHandle
         if (isPressed)
         {
             isPressed = false;
-            OnRelease?.Invoke();
+            OnRelease?.Invoke(this);
             e.Pointer.Capture(null);
         }
     }

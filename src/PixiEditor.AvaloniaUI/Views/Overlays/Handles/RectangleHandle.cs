@@ -2,13 +2,12 @@
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.UI.Overlays;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 
 public class RectangleHandle : Handle
 {
-    public RectangleHandle(Control owner, VecD position, VecD size) : base(owner, position, size)
+    public RectangleHandle(Control owner, VecD position) : base(owner, position)
     {
     }
 

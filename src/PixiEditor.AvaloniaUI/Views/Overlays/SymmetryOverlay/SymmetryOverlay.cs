@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Hardware.Info;
+using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -320,13 +321,7 @@ internal class SymmetryOverlay : Overlay
     {
         base.OnPointerPressed(e);
 
-        MouseButton button = e.GetCurrentPoint(this).Properties.PointerUpdateKind switch
-        {
-            PointerUpdateKind.LeftButtonPressed => MouseButton.Left,
-            PointerUpdateKind.RightButtonPressed => MouseButton.Right,
-            PointerUpdateKind.MiddleButtonPressed => MouseButton.Middle,
-            _ => MouseButton.None
-        };
+        MouseButton button = e.GetMouseButton(this);
 
         if (button != MouseButton.Left)
             return;
