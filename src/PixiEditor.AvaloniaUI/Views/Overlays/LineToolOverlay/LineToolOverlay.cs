@@ -103,7 +103,7 @@ internal class LineToolOverlay : Overlay
     {
         startHandle.Position = LineStart;
         endHandle.Position = LineEnd;
-        moveHandle.Position = TransformHelper.GetDragHandlePos(new ShapeCorners(LineStart, LineEnd - LineStart), ZoomboxScale);
+        moveHandle.Position = TransformHelper.GetHandlePos(new ShapeCorners(LineStart, LineEnd - LineStart), ZoomboxScale, moveHandle.Size);
 
         startHandle.Draw(context);
         endHandle.Draw(context);

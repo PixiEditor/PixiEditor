@@ -36,7 +36,7 @@ public abstract class Handle : IHandle
     {
         Owner = owner;
         Position = position;
-        Size = Application.Current.TryGetResource("HandleSize", out object size) ? new VecD((double)size) : new VecD(24);
+        Size = Application.Current.TryGetResource("HandleSize", out object size) ? new VecD((double)size) : new VecD(16);
 
         Owner.PointerPressed += OnPointerPressed;
         Owner.PointerMoved += OnPointerMoved;
@@ -112,14 +112,14 @@ public abstract class Handle : IHandle
         if (!isHovered && isWithinHandle)
         {
             isHovered = true;
-            if (Owner.Cursor != null)
+            if (Cursor != null)
             {
                 Owner.Cursor = Cursor;
             }
 
             OnHover?.Invoke(this);
         }
-        else if (isHovered && isWithinHandle)
+        else if (isHovered && !isWithinHandle)
         {
             isHovered = false;
             Owner.Cursor = null;

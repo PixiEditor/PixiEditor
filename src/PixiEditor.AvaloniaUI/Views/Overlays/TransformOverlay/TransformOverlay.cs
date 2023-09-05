@@ -147,6 +147,7 @@ internal class TransformOverlay : Overlay
     private RectangleHandle bottomHandle;
     private RectangleHandle leftHandle;
     private RectangleHandle rightHandle;
+    private OriginAnchor originHandle;
 
     private Dictionary<Handle, Anchor> anchorMap = new();
 
@@ -170,6 +171,12 @@ internal class TransformOverlay : Overlay
         leftHandle = new AnchorHandle(this, VecD.Zero);
         rightHandle = new AnchorHandle(this, VecD.Zero);
 
+        originHandle = new(this, VecD.Zero)
+        {
+            HandlePen = blackFreqDashedPen, SecondaryHandlePen = whiteFreqDashedPen, HandleBrush = Brushes.Transparent
+        };
+
+        AddHandle(originHandle);
         AddHandle(moveHandle);
         AddHandle(topLeftHandle);
         AddHandle(topRightHandle);
@@ -188,12 +195,16 @@ internal class TransformOverlay : Overlay
         anchorMap.Add(bottomHandle, Anchor.Bottom);
         anchorMap.Add(leftHandle, Anchor.Left);
         anchorMap.Add(rightHandle, Anchor.Right);
+        anchorMap.Add(originHandle, Anchor.Origin);
 
         ForAllHandles<AnchorHandle>(x =>
         {
             x.OnPress += OnAnchorHandlePressed;
             x.OnRelease += OnAnchorHandleReleased;
         });
+
+        originHandle.OnPress += OnAnchorHandlePressed;
+        originHandle.OnRelease += OnAnchorHandleReleased;
 
         moveHandle.OnPress += OnMoveHandlePressed;
     }
@@ -240,11 +251,11 @@ internal class TransformOverlay : Overlay
             TransformHelper.ToPoint((Corners.BottomRight + Corners.TopRight) / 2),
             TransformHelper.ToPoint((Corners.BottomRight + Corners.BottomLeft) / 2),
         };
-        double ellipseSize = (TransformHelper.AnchorSize * anchorSizeMultiplierForRotation - 2) / (ZoomboxScale * 2);
+        /*double ellipseSize = (TransformHelper.AnchorSize * anchorSizeMultiplierForRotation - 2) / (ZoomboxScale * 2);
         foreach (var point in points)
         {
             context.DrawEllipse(Brushes.Transparent, null, point, ellipseSize, ellipseSize);
-        }
+        }*/
     }
 
     private void DrawOverlay
@@ -288,6 +299,7 @@ internal class TransformOverlay : Overlay
         bottomHandle.Position = bottom;
         leftHandle.Position = left;
         rightHandle.Position = right;
+        originHandle.Position = origin;
 
         topLeftHandle.Draw(context);
         topRightHandle.Draw(context);
@@ -297,14 +309,10 @@ internal class TransformOverlay : Overlay
         bottomHandle.Draw(context);
         leftHandle.Draw(context);
         rightHandle.Draw(context);
-
-        // origin
-        double radius = TransformHelper.AnchorSize / zoomboxScale / 2;
-        context.DrawEllipse(Brushes.Transparent, blackFreqDashedPen, TransformHelper.ToPoint(origin), radius, radius);
-        context.DrawEllipse(Brushes.Transparent, whiteFreqDashedPen, TransformHelper.ToPoint(origin), radius, radius);
+        originHandle.Draw(context);
 
         // move handle
-        VecD handlePos = TransformHelper.GetDragHandlePos(corners, zoomboxScale);
+        VecD handlePos = TransformHelper.GetHandlePos(corners, zoomboxScale, moveHandle.Size);
         moveHandle.Position = handlePos;
         moveHandle.Draw(context);
 
@@ -344,14 +352,14 @@ internal class TransformOverlay : Overlay
         if (!CanRotate(pos))
         {
             isMoving = true;
-            mousePosOnStartMove = TransformHelper.ToVecD(e.GetPosition(this));
+            mousePosOnStartMove = pos;
             originOnStartMove = InternalState.Origin;
             cornersOnStartMove = Corners;
         }
         else if (!LockRotation)
         {
             isRotating = true;
-            mousePosOnStartRotate = TransformHelper.ToVecD(e.GetPosition(this));
+            mousePosOnStartRotate = pos;
             cornersOnStartRotate = Corners;
             propAngle1OnStartRotate = InternalState.ProportionalAngle1;
             propAngle2OnStartRotate = InternalState.ProportionalAngle2;

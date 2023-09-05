@@ -12,8 +12,8 @@
             <SolidColorBrush x:Key="HandleBrush" Color="{DynamicResource GlyphColor}"/>
             <SolidColorBrush x:Key="HandleBackgroundBrush" Color="{DynamicResource GlyphBackground}"/>
 
-            <system:Double x:Key="HandleSize">24</system:Double>
-            <system:Double x:Key="AnchorHandleSize">14</system:Double>
+            <system:Double x:Key="HandleSize">20</system:Double>
+            <system:Double x:Key="AnchorHandleSize">10</system:Double>
         </ResourceDictionary>
     </Styles.Resources>
 

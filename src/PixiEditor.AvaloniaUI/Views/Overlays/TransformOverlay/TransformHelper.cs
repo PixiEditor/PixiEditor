@@ -8,9 +8,6 @@ using PixiEditor.DrawingApi.Core.Numerics;
 namespace PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 internal static class TransformHelper
 {
-    public const double AnchorSize = 14;
-    public const double MoveHandleSize = 24;
-
     public static Rect ToHandleRect(VecD pos, VecD size, double zoomboxScale)
     {
         double scaledX = size.X / zoomboxScale;
@@ -61,17 +58,17 @@ internal static class TransformHelper
             return new Cursor(StandardCursorType.SizeWestEast);
         }
 
-        if (angle is (2 or 6))
+        if (angle is 2 or 6)
         {
             return new Cursor(StandardCursorType.SizeNorthSouth);
         }
 
-        if (angle is (1 or 5))
+        if (angle is 1 or 5)
         {
-            return new Cursor(StandardCursorType.SizeAll);
+            return new Cursor(StandardCursorType.BottomRightCorner);
         }
 
-        return new Cursor(StandardCursorType.SizeAll);
+        return new Cursor(StandardCursorType.BottomLeftCorner);
     }
 
     private static double GetSnappingAngle(double angle)
@@ -279,11 +276,11 @@ internal static class TransformHelper
         return delta.X < scaled.X && delta.Y < scaled.Y;
     }
 
-    public static VecD GetDragHandlePos(ShapeCorners corners, double zoomboxScale)
+    public static VecD GetHandlePos(ShapeCorners corners, double zoomboxScale, VecD size)
     {
         VecD max = new(
             Math.Max(Math.Max(corners.TopLeft.X, corners.TopRight.X), Math.Max(corners.BottomLeft.X, corners.BottomRight.X)),
             Math.Max(Math.Max(corners.TopLeft.Y, corners.TopRight.Y), Math.Max(corners.BottomLeft.Y, corners.BottomRight.Y)));
-        return max + new VecD(MoveHandleSize / zoomboxScale, MoveHandleSize / zoomboxScale);
+        return max + new VecD(size.X / zoomboxScale, size.Y / zoomboxScale);
     }
 }
