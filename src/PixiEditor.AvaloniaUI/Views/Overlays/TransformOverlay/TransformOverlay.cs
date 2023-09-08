@@ -138,30 +138,26 @@ internal class TransformOverlay : Overlay
     private Pen blackFreqDashedPen = new Pen(Brushes.Black, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 0) };
     private Pen whiteFreqDashedPen = new Pen(Brushes.White, 1) { DashStyle = new DashStyle(new double[] { 2, 2 }, 2) };
 
-    private TransformHandle moveHandle;
-    private RectangleHandle topLeftHandle;
-    private RectangleHandle topRightHandle;
-    private RectangleHandle bottomLeftHandle;
-    private RectangleHandle bottomRightHandle;
-    private RectangleHandle topHandle;
-    private RectangleHandle bottomHandle;
-    private RectangleHandle leftHandle;
-    private RectangleHandle rightHandle;
+    private AnchorHandle topLeftHandle;
+    private AnchorHandle topRightHandle;
+    private AnchorHandle bottomLeftHandle;
+    private AnchorHandle bottomRightHandle;
+    private AnchorHandle topHandle;
+    private AnchorHandle bottomHandle;
+    private AnchorHandle leftHandle;
+    private AnchorHandle rightHandle;
+    private RectangleHandle centerHandle;
     private OriginAnchor originHandle;
 
     private Dictionary<Handle, Anchor> anchorMap = new();
+    private List<Handle> snapPoints = new();
 
     private Geometry rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle");
 
     private Point lastPointerPos;
-    private IPointer? capturedPointer;
 
     public TransformOverlay()
     {
-        moveHandle = new TransformHandle(this, VecD.Zero);
-        moveHandle.OnDrag += MoveHandleOnDrag;
-        moveHandle.OnRelease += OnMoveHandleReleased;
-
         topLeftHandle = new AnchorHandle(this, VecD.Zero);
         topRightHandle = new AnchorHandle(this, VecD.Zero);
         bottomLeftHandle = new AnchorHandle(this, VecD.Zero);
@@ -170,6 +166,8 @@ internal class TransformOverlay : Overlay
         bottomHandle = new AnchorHandle(this, VecD.Zero);
         leftHandle = new AnchorHandle(this, VecD.Zero);
         rightHandle = new AnchorHandle(this, VecD.Zero);
+        centerHandle = new RectangleHandle(this, VecD.Zero);
+        centerHandle.Size = rightHandle.Size;
 
         originHandle = new(this, VecD.Zero)
         {
@@ -177,7 +175,6 @@ internal class TransformOverlay : Overlay
         };
 
         AddHandle(originHandle);
-        AddHandle(moveHandle);
         AddHandle(topLeftHandle);
         AddHandle(topRightHandle);
         AddHandle(bottomLeftHandle);
@@ -186,6 +183,7 @@ internal class TransformOverlay : Overlay
         AddHandle(bottomHandle);
         AddHandle(leftHandle);
         AddHandle(rightHandle);
+        AddHandle(centerHandle);
 
         anchorMap.Add(topLeftHandle, Anchor.TopLeft);
         anchorMap.Add(topRightHandle, Anchor.TopRight);
@@ -197,6 +195,8 @@ internal class TransformOverlay : Overlay
         anchorMap.Add(rightHandle, Anchor.Right);
         anchorMap.Add(originHandle, Anchor.Origin);
 
+        ForAllHandles<RectangleHandle>(snapPoints.Add);
+
         ForAllHandles<AnchorHandle>(x =>
         {
             x.OnPress += OnAnchorHandlePressed;
@@ -205,8 +205,6 @@ internal class TransformOverlay : Overlay
 
         originHandle.OnPress += OnAnchorHandlePressed;
         originHandle.OnRelease += OnAnchorHandleReleased;
-
-        moveHandle.OnPress += OnMoveHandlePressed;
     }
 
     public override void Render(DrawingContext drawingContext)
@@ -240,17 +238,6 @@ internal class TransformOverlay : Overlay
         if (LockRotation)
             return;
 
-        Span<Point> points = stackalloc Point[]
-        {
-            TransformHelper.ToPoint(Corners.TopLeft),
-            TransformHelper.ToPoint(Corners.TopRight),
-            TransformHelper.ToPoint(Corners.BottomLeft),
-            TransformHelper.ToPoint(Corners.BottomRight),
-            TransformHelper.ToPoint((Corners.TopLeft + Corners.TopRight) / 2),
-            TransformHelper.ToPoint((Corners.TopLeft + Corners.BottomLeft) / 2),
-            TransformHelper.ToPoint((Corners.BottomRight + Corners.TopRight) / 2),
-            TransformHelper.ToPoint((Corners.BottomRight + Corners.BottomLeft) / 2),
-        };
         /*double ellipseSize = (TransformHelper.AnchorSize * anchorSizeMultiplierForRotation - 2) / (ZoomboxScale * 2);
         foreach (var point in points)
         {
@@ -291,6 +278,7 @@ internal class TransformOverlay : Overlay
 
         // corner anchors
 
+        centerHandle.Position = VecD.Zero;
         topLeftHandle.Position = topLeft;
         topRightHandle.Position = topRight;
         bottomLeftHandle.Position = bottomLeft;
@@ -299,7 +287,7 @@ internal class TransformOverlay : Overlay
         bottomHandle.Position = bottom;
         leftHandle.Position = left;
         rightHandle.Position = right;
-        originHandle.Position = origin;
+        originHandle.Position = InternalState.Origin;
 
         topLeftHandle.Draw(context);
         topRightHandle.Draw(context);
@@ -311,10 +299,11 @@ internal class TransformOverlay : Overlay
         rightHandle.Draw(context);
         originHandle.Draw(context);
 
-        // move handle
-        VecD handlePos = TransformHelper.GetHandlePos(corners, zoomboxScale, moveHandle.Size);
-        moveHandle.Position = handlePos;
-        moveHandle.Draw(context);
+        if (capturedAnchor == Anchor.Origin)
+        {
+            centerHandle.Position = Corners.RectCenter;
+            centerHandle.Draw(context);
+        }
 
         // rotate cursor
         context.DrawGeometry(Brushes.White, blackPen, rotateCursorGeometry);
@@ -324,14 +313,6 @@ internal class TransformOverlay : Overlay
     {
         base.OnPointerExited(e);
         rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
-    }
-
-    private void OnMoveHandlePressed(Handle source, VecD position)
-    {
-        isMoving = true;
-        mousePosOnStartMove = position;
-        originOnStartMove = InternalState.Origin;
-        cornersOnStartMove = Corners;
     }
 
     private void OnAnchorHandlePressed(Handle source, VecD position)
@@ -349,7 +330,8 @@ internal class TransformOverlay : Overlay
             return;
 
         VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
-        if (!CanRotate(pos))
+
+        if (!CanRotate(pos) && Handles.All(x => !x.IsWithinHandle(x.Position, pos, ZoomboxScale)))
         {
             isMoving = true;
             mousePosOnStartMove = pos;
@@ -370,7 +352,84 @@ internal class TransformOverlay : Overlay
         }
         
         e.Pointer.Capture(this);
-        capturedPointer = e.Pointer;
+    }
+
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        Cursor finalCursor = new Cursor(StandardCursorType.Arrow);
+
+        lastPointerPos = e.GetPosition(this);
+        VecD pos = TransformHelper.ToVecD(lastPointerPos);
+
+        if (isMoving)
+        {
+            HandleTransform(pos);
+            finalCursor = new Cursor(StandardCursorType.DragMove);
+        }
+
+        if (capturedAnchor is not null)
+        {
+            HandleCapturedAnchorMovement(e);
+            return;
+        }
+
+        if (UpdateRotationCursor(TransformHelper.ToVecD(e.GetPosition(this))))
+        {
+            finalCursor = new Cursor(StandardCursorType.None);
+        }
+
+        Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale, topLeftHandle.Size);
+
+        if (isRotating)
+        {
+            finalCursor = HandleRotate(pos);
+        }
+        else if (anchor is not null)
+        {
+            if ((TransformHelper.IsCorner((Anchor)anchor) && CornerFreedom == TransformCornerFreedom.Free) ||
+                (TransformHelper.IsSide((Anchor)anchor) && SideFreedom == TransformSideFreedom.Free))
+                finalCursor = new Cursor(StandardCursorType.Arrow);
+            else
+                finalCursor = TransformHelper.GetResizeCursor((Anchor)anchor, Corners, ZoomboxAngle);
+        }
+
+        if (Cursor != finalCursor)
+            Cursor = finalCursor;
+
+        InvalidateVisual();
+    }
+
+    private void HandleTransform(VecD pos)
+    {
+        VecD delta = pos - mousePosOnStartMove;
+
+        if (Corners.IsSnappedToPixels)
+            delta = delta.Round();
+
+        Corners = new ShapeCorners()
+        {
+            BottomLeft = cornersOnStartMove.BottomLeft + delta,
+            BottomRight = cornersOnStartMove.BottomRight + delta,
+            TopLeft = cornersOnStartMove.TopLeft + delta,
+            TopRight = cornersOnStartMove.TopRight + delta,
+        };
+
+        InternalState = InternalState with { Origin = originOnStartMove + delta };
+    }
+
+    private Cursor HandleRotate(VecD pos)
+    {
+        Cursor finalCursor;
+        finalCursor = new Cursor(StandardCursorType.None);
+        double angle = (mousePosOnStartRotate - InternalState.Origin).CCWAngleTo(pos - InternalState.Origin);
+        if (SnapToAngles)
+            angle = TransformHelper.FindSnappingAngle(cornersOnStartRotate, angle);
+        InternalState = InternalState with
+        {
+            ProportionalAngle1 = propAngle1OnStartRotate + angle, ProportionalAngle2 = propAngle2OnStartRotate + angle,
+        };
+        Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
+        return finalCursor;
     }
 
     private bool CanRotate(VecD mousePos)
@@ -391,68 +450,6 @@ internal class TransformOverlay : Overlay
         matrix = matrix.ScaleAt(8 / ZoomboxScale, 8 / ZoomboxScale, mousePos.X, mousePos.Y);
         rotateCursorGeometry.Transform = new MatrixTransform(matrix);
         return true;
-    }
-
-    private void MoveHandleOnDrag(Handle source, VecD position)
-    {
-        VecD delta = position - mousePosOnStartMove;
-
-        if (Corners.IsSnappedToPixels)
-            delta = delta.Round();
-
-        Corners = new ShapeCorners()
-        {
-            BottomLeft = cornersOnStartMove.BottomLeft + delta,
-            BottomRight = cornersOnStartMove.BottomRight + delta,
-            TopLeft = cornersOnStartMove.TopLeft + delta,
-            TopRight = cornersOnStartMove.TopRight + delta,
-        };
-
-        InternalState = InternalState with { Origin = originOnStartMove + delta };
-    }
-
-    protected override void OnPointerMoved(PointerEventArgs e)
-    {
-        Cursor finalCursor = new Cursor(StandardCursorType.Arrow);
-
-        lastPointerPos = e.GetPosition(this);
-
-        if (capturedAnchor is not null)
-        {
-            HandleCapturedAnchorMovement(e);
-            return;
-        }
-
-        if (UpdateRotationCursor(TransformHelper.ToVecD(e.GetPosition(this))))
-        {
-            finalCursor = new Cursor(StandardCursorType.None);
-        }
-
-        VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
-        Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale, topLeftHandle.Size);
-
-        if (isRotating)
-        {
-            finalCursor = new Cursor(StandardCursorType.None);
-            double angle = (mousePosOnStartRotate - InternalState.Origin).CCWAngleTo(pos - InternalState.Origin);
-            if (SnapToAngles)
-                angle = TransformHelper.FindSnappingAngle(cornersOnStartRotate, angle);
-            InternalState = InternalState with { ProportionalAngle1 = propAngle1OnStartRotate + angle, ProportionalAngle2 = propAngle2OnStartRotate + angle, };
-            Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
-        }
-        else if (anchor is not null)
-        {
-            if ((TransformHelper.IsCorner((Anchor)anchor) && CornerFreedom == TransformCornerFreedom.Free) ||
-                (TransformHelper.IsSide((Anchor)anchor) && SideFreedom == TransformSideFreedom.Free))
-                finalCursor = new Cursor(StandardCursorType.Arrow);
-            else
-                finalCursor = TransformHelper.GetResizeCursor((Anchor)anchor, Corners, ZoomboxAngle);
-        }
-
-        if (Cursor != finalCursor)
-            Cursor = finalCursor;
-
-        InvalidateVisual();
     }
 
     private void HandleCapturedAnchorMovement(PointerEventArgs e)
@@ -494,23 +491,30 @@ internal class TransformOverlay : Overlay
         }
         else if (capturedAnchor == Anchor.Origin)
         {
-            InternalState = InternalState with { OriginWasManuallyDragged = true, Origin = originOnStartAnchorDrag + pos - mousePosOnStartAnchorDrag, };
+            pos = HandleSnap(pos);
+            InternalState = InternalState with { OriginWasManuallyDragged = true, Origin = pos, };
         }
+    }
+
+    private VecD HandleSnap(VecD pos)
+    {
+        foreach (var snapPoint in snapPoints)
+        {
+            if (snapPoint == originHandle)
+                continue;
+
+            if (TransformHelper.IsWithinHandle(snapPoint.Position, pos, ZoomboxScale, topHandle.Size))
+            {
+                return snapPoint.Position;
+            }
+        }
+
+        return originOnStartAnchorDrag + pos - mousePosOnStartAnchorDrag;
     }
 
     private void OnAnchorHandleReleased(Handle source)
     {
-        capturedPointer = null;
         capturedAnchor = null;
-
-        if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
-            ActionCompleted.Execute(null);
-    }
-
-    private void OnMoveHandleReleased(Handle source)
-    {
-        isMoving = false;
-        capturedPointer = null;
 
         if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
@@ -526,14 +530,15 @@ internal class TransformOverlay : Overlay
         {
             isRotating = false;
             e.Pointer.Capture(null);
-            capturedPointer = null;
             Cursor = new Cursor(StandardCursorType.Arrow);
             var pos = TransformHelper.ToVecD(e.GetPosition(this));
             UpdateRotationCursor(pos);
-
-            if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
-                ActionCompleted.Execute(null);
         }
+
+        isMoving = false;
+
+        if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
+            ActionCompleted.Execute(null);
     }
 
     private static void OnRequestedCorners(AvaloniaPropertyChangedEventArgs<ShapeCorners> args)

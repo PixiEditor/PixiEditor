@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -8,6 +9,7 @@ namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 public class OriginAnchor : Handle
 {
     public IPen? SecondaryHandlePen { get; set; } = new Pen(Brushes.White, 1);
+
     public OriginAnchor(Control owner, VecD position) : base(owner, position)
     {
 

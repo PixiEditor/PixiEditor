@@ -26,7 +26,6 @@ public abstract class Handle : IHandle
     public event Action<Handle> OnRelease;
     public event Action<Handle> OnHover;
     public event Action<Handle> OnExit;
-
     public Cursor? Cursor { get; set; }
 
     private bool isPressed;
@@ -102,7 +101,7 @@ public abstract class Handle : IHandle
         }
     }
 
-    private void OnPointerMoved(object? sender, PointerEventArgs e)
+    protected virtual void OnPointerMoved(object? sender, PointerEventArgs e)
     {
         VecD pos = TransformHelper.ToVecD(e.GetPosition(Owner));
         VecD handlePos = Position;
