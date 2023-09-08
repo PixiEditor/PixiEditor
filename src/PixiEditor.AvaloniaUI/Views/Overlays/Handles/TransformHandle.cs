@@ -9,18 +9,22 @@ namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 
 public class TransformHandle : Handle
 {
+    public double AnchorRadius { get; set; } = GetResource<double>("AnchorRadius");
     public IBrush GlyphBrush { get; set; } = GetBrush("HandleGlyphBrush");
 
     private Geometry handleGeometry = GetHandleGeometry("MoveHandle");
 
-    public TransformHandle(Control owner, VecD position) : base(owner, position)
+    public TransformHandle(Control owner) : base(owner)
     {
         Cursor = new Cursor(StandardCursorType.SizeAll);
     }
 
     public override void Draw(DrawingContext context)
     {
-        context.DrawRectangle(HandleBrush, HandlePen, TransformHelper.ToHandleRect(Position, Size, ZoomboxScale));
+        double scaleMultiplier = (1.0 / ZoomboxScale);
+        double radius = AnchorRadius * scaleMultiplier;
+
+        context.DrawRectangle(HandleBrush, HandlePen, TransformHelper.ToHandleRect(Position, Size, ZoomboxScale), radius, radius);
         double crossSize = HandleRect.Size.X - 1;
 
         handleGeometry.Transform = new MatrixTransform(

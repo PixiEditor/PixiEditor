@@ -66,17 +66,17 @@ internal class LineToolOverlay : Overlay
     {
         Cursor = new Cursor(StandardCursorType.Arrow);
 
-        startHandle = new AnchorHandle(this, LineStart);
+        startHandle = new AnchorHandle(this);
         startHandle.HandlePen = blackPen;
         startHandle.OnDrag += StartHandleOnDrag;
         AddHandle(startHandle);
 
-        endHandle = new AnchorHandle(this, LineEnd);
+        endHandle = new AnchorHandle(this);
         startHandle.HandlePen = blackPen;
         endHandle.OnDrag += EndHandleOnDrag;
         AddHandle(endHandle);
 
-        moveHandle = new TransformHandle(this, LineStart);
+        moveHandle = new TransformHandle(this);
         moveHandle.HandlePen = blackPen;
         moveHandle.OnDrag += MoveHandleOnDrag;
         AddHandle(moveHandle);

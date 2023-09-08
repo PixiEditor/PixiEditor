@@ -31,10 +31,10 @@ public abstract class Handle : IHandle
     private bool isPressed;
     private bool isHovered;
 
-    public Handle(Control owner, VecD position)
+    public Handle(Control owner)
     {
         Owner = owner;
-        Position = position;
+        Position = VecD.Zero;
         Size = Application.Current.TryGetResource("HandleSize", out object size) ? new VecD((double)size) : new VecD(16);
 
         Owner.PointerPressed += OnPointerPressed;

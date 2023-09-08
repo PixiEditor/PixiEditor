@@ -10,7 +10,7 @@ public class OriginAnchor : Handle
 {
     public IPen? SecondaryHandlePen { get; set; } = new Pen(Brushes.White, 1);
 
-    public OriginAnchor(Control owner, VecD position) : base(owner, position)
+    public OriginAnchor(Control owner) : base(owner)
     {
 
     }

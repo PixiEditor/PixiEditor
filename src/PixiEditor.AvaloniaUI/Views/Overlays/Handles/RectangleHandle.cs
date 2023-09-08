@@ -8,7 +8,7 @@ namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 public class RectangleHandle : Handle
 {
     public double AnchorRadius { get; set; } = GetResource<double>("AnchorRadius");
-    public RectangleHandle(Control owner, VecD position) : base(owner, position)
+    public RectangleHandle(Control owner) : base(owner)
     {
     }
 

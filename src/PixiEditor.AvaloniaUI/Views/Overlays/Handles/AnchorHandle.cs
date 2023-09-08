@@ -5,7 +5,7 @@ namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 
 public class AnchorHandle : RectangleHandle
 {
-    public AnchorHandle(Control owner, VecD position) : base(owner, position)
+    public AnchorHandle(Control owner) : base(owner)
     {
         Size = new VecD(GetResource<double>("AnchorHandleSize"));
     }
