@@ -14,6 +14,7 @@
 
             <system:Double x:Key="HandleSize">20</system:Double>
             <system:Double x:Key="AnchorHandleSize">10</system:Double>
+            <system:Double x:Key="AnchorRadius">2.5</system:Double>
         </ResourceDictionary>
     </Styles.Resources>
 

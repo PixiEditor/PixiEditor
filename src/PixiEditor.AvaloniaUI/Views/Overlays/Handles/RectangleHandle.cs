@@ -7,14 +7,15 @@ namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 
 public class RectangleHandle : Handle
 {
+    public double AnchorRadius { get; set; } = GetResource<double>("AnchorRadius");
     public RectangleHandle(Control owner, VecD position) : base(owner, position)
     {
     }
 
     public override void Draw(DrawingContext context)
     {
-        float scaleMultiplier = (float)(1.0 / ZoomboxScale);
-        float radius = 2.5f * scaleMultiplier;
+        double scaleMultiplier = (1.0 / ZoomboxScale);
+        double radius = AnchorRadius * scaleMultiplier;
         context.DrawRectangle(HandleBrush, HandlePen, TransformHelper.ToHandleRect(Position, Size, ZoomboxScale), radius, radius);
     }
 }
