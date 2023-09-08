@@ -435,6 +435,8 @@ internal class TransformOverlay : Overlay
             ProportionalAngle1 = propAngle1OnStartRotate + angle, ProportionalAngle2 = propAngle2OnStartRotate + angle,
         };
         Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
+
+        UpdateOriginPos();
         return finalCursor;
     }
 
