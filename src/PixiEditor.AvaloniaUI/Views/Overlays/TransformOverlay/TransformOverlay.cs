@@ -151,6 +151,7 @@ internal class TransformOverlay : Overlay
 
     private Dictionary<Handle, Anchor> anchorMap = new();
     private List<Handle> snapPoints = new();
+    private Handle? snapHandleOfOrigin;
 
     private Geometry rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle");
 
@@ -321,6 +322,11 @@ internal class TransformOverlay : Overlay
         cornersOnStartAnchorDrag = Corners;
         originOnStartAnchorDrag = InternalState.Origin;
         mousePosOnStartAnchorDrag = TransformHelper.ToVecD(lastPointerPos);
+
+        if (source == originHandle)
+        {
+            snapHandleOfOrigin = null;
+        }
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -473,8 +479,7 @@ internal class TransformOverlay : Overlay
                 bool shouldSnap = (CornerFreedom is TransformCornerFreedom.ScaleProportionally or TransformCornerFreedom.Scale) && Corners.IsSnappedToPixels;
                 Corners = shouldSnap ? TransformHelper.SnapToPixels((ShapeCorners)newCorners) : (ShapeCorners)newCorners;
             }
-            if (!InternalState.OriginWasManuallyDragged)
-                InternalState = InternalState with { Origin = TransformHelper.OriginFromCorners(Corners) };
+            UpdateOriginPos();
         }
         else if (TransformHelper.IsSide((Anchor)capturedAnchor))
         {
@@ -486,17 +491,32 @@ internal class TransformOverlay : Overlay
                 bool shouldSnap = (SideFreedom is TransformSideFreedom.ScaleProportionally or TransformSideFreedom.Stretch) && Corners.IsSnappedToPixels;
                 Corners = shouldSnap ? TransformHelper.SnapToPixels((ShapeCorners)newCorners) : (ShapeCorners)newCorners;
             }
-            if (!InternalState.OriginWasManuallyDragged)
-                InternalState = InternalState with { Origin = TransformHelper.OriginFromCorners(Corners) };
+            UpdateOriginPos();
         }
         else if (capturedAnchor == Anchor.Origin)
         {
-            pos = HandleSnap(pos);
-            InternalState = InternalState with { OriginWasManuallyDragged = true, Origin = pos, };
+            pos = HandleSnap(pos, out bool snapped);
+            InternalState = InternalState with { OriginWasManuallyDragged = !snapped, Origin = pos, };
         }
     }
 
-    private VecD HandleSnap(VecD pos)
+    private void UpdateOriginPos()
+    {
+        if (!InternalState.OriginWasManuallyDragged)
+        {
+            if (snapHandleOfOrigin == centerHandle)
+            {
+                snapHandleOfOrigin.Position = TransformHelper.OriginFromCorners(Corners);
+            }
+
+            InternalState = InternalState with
+            {
+                Origin = snapHandleOfOrigin?.Position ?? TransformHelper.OriginFromCorners(Corners)
+            };
+        }
+    }
+
+    private VecD HandleSnap(VecD pos, out bool snapped)
     {
         foreach (var snapPoint in snapPoints)
         {
@@ -505,10 +525,12 @@ internal class TransformOverlay : Overlay
 
             if (TransformHelper.IsWithinHandle(snapPoint.Position, pos, ZoomboxScale, topHandle.Size))
             {
+                snapped = true;
                 return snapPoint.Position;
             }
         }
 
+        snapped = false;
         return originOnStartAnchorDrag + pos - mousePosOnStartAnchorDrag;
     }
 
@@ -516,8 +538,30 @@ internal class TransformOverlay : Overlay
     {
         capturedAnchor = null;
 
+        if(source == originHandle)
+        {
+            snapHandleOfOrigin = GetSnapHandleOfOrigin();
+            InternalState = InternalState with { OriginWasManuallyDragged = snapHandleOfOrigin is null };
+        }
+
         if (ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
+    }
+
+    private Handle? GetSnapHandleOfOrigin()
+    {
+        foreach (var snapPoint in snapPoints)
+        {
+            if (snapPoint == originHandle)
+                continue;
+
+            if (originHandle.Position == snapPoint.Position)
+            {
+                return snapPoint;
+            }
+        }
+
+        return null;
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
