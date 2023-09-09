@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Input;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,7 +76,8 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         }
     }
 
-    public List<IToolHandler>? ToolSet { get; private set; }
+    ICollection<IToolHandler> IToolsHandler.ToolSet => ToolSet;
+    public ObservableCollection<IToolHandler> ToolSet { get; private set; }
 
     public event EventHandler<SelectedToolEventArgs>? SelectedToolChanged;
 
@@ -94,7 +96,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 
     public void SetupTools(IServiceProvider services)
     {
-        ToolSet = services.GetServices<IToolHandler>().ToList();
+        ToolSet = new ObservableCollection<IToolHandler>(services.GetServices<IToolHandler>());
     }
 
     public void SetupToolsTooltipShortcuts(IServiceProvider services)

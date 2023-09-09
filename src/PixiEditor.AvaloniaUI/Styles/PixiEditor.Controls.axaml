@@ -10,4 +10,5 @@
     </Styles.Resources>
 
     <StyleInclude Source="avares://PixiEditor.AvaloniaUI/Styles/PortingWipStyles.axaml"/>
+    <StyleInclude Source="avares://PixiEditor.AvaloniaUI/Styles/ToolPickerButton.Styles.axaml"/>
 </Styles>

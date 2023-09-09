@@ -3,8 +3,59 @@
                     xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <Styles.Resources>
         <ResourceDictionary>
-            <Path x:Key="MoveHandle"
-                  Data="M 0.50025839 0 0.4248062 0.12971572 0.34987079 0.25994821 h 0.1002584 V 0.45012906 H 0.25994831 V 0.34987066 L 0.12971577 0.42480604 0 0.5002582 0.12971577 0.57519373 0.25994831 0.65012926 V 0.5498709 H 0.45012919 V 0.74005175 H 0.34987079 L 0.42480619 0.87028439 0.50025839 1 0.57519399 0.87028439 0.65012959 0.74005175 H 0.54987119 V 0.5498709 H 0.74005211 V 0.65012926 L 0.87028423 0.57519358 1 0.5002582 0.87028423 0.42480604 0.74005169 0.34987066 v 0.1002584 H 0.54987077 V 0.25994821 h 0.1002584 L 0.5751938 0.12971572 Z"/>
+             <DrawingGroup x:Key="MoveHandle">
+        <DrawingGroup.ClipGeometry>
+            <RectangleGeometry Rect="0.0,0.0,24.0,24.0"/>
+        </DrawingGroup.ClipGeometry>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 5 9 L 2 12 L 5 15"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 9 5 L 12 2 L 15 5"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 15 19 L 12 22 L 9 19"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <PathGeometry Figures="M 19 9 L 22 12 L 19 15"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="2.0,12.0" EndPoint="22.0,12.0"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+        <GeometryDrawing>
+            <GeometryDrawing.Pen>
+                <Pen Brush="{DynamicResource HandleBrush}" LineJoin="Round" Thickness="2.0" LineCap="Round"/>
+            </GeometryDrawing.Pen>
+            <GeometryDrawing.Geometry>
+                <LineGeometry StartPoint="12.0,2.0" EndPoint="12.0,22.0"/>
+            </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+    </DrawingGroup>
 
             <Path x:Key="MarkerHandle" Data="M -1.1146 -0.6603 c -0.1215 -0.1215 -0.3187 -0.1215 -0.4401 0 l -0.4401 0.4401 c -0.1215 0.1215 -0.1215 0.3187 0 0.4401 l 0.4401 0.4401 c 0.1215 0.1215 0.3187 0.1215 0.4401 0 l 0.4401 -0.4401 c 0.1215 -0.1215 0.1215 -0.3187 0 -0.4401 l -0.4401 -0.4401 Z M -0.5834 0.0012 l 0.5833 -0.0013"/>
 

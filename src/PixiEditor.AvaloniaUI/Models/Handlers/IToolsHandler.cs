@@ -12,7 +12,7 @@ internal interface IToolsHandler : IHandler
     public void SetTool(object parameter);
     public void RestorePreviousTool();
     public IToolHandler ActiveTool { get; }
-    public List<IToolHandler> ToolSet { get; }
+    public ICollection<IToolHandler> ToolSet { get; }
     public RightClickMode RightClickMode { get; set; }
     public bool EnableSharedToolbar { get; set; }
     public event EventHandler<SelectedToolEventArgs> SelectedToolChanged;

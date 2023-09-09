@@ -56,7 +56,6 @@ internal class DockFactory : Factory
     private IList<IDockable>? BuildDockables()
     {
         List<IDockable> dockables = new List<IDockable>();
-        dockables.Add(BuildToolDock());
 
         IDockable documentDock = BuildDocumentDock();
 
@@ -102,22 +101,9 @@ internal class DockFactory : Factory
         return new ProportionalDock() { Proportion = 0.15 };
     }
 
-    private IDockable BuildToolDock()
-    {
-        toolDock = new ToolDock()
-        {
-            Dock = DockMode.Left,
-            CanFloat = false,
-            GripMode = GripMode.Hidden,
-            Id = "ToolsPane",
-            Title = "ToolsPane",
-        };
-
-        return toolDock;
-    }
-
     public override void InitLayout(IDockable layout)
     {
+        // Uhh, don't ask me what to put here, I just copied from the example
         DockableLocator = new Dictionary<string, Func<IDockable?>>()
         {
             { "MainLayout", () => mainLayout },

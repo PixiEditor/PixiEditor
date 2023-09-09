@@ -22,6 +22,7 @@ namespace PixiEditor.Views.UserControls;
 #nullable enable
 internal partial class Viewport : UserControl, INotifyPropertyChanged
 {
+    //TODO: IDK where to write this, but on close zoom level, when I drag line handle, it doesn't update the canvas
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public static readonly StyledProperty<bool> FlipXProperty =

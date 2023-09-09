@@ -51,7 +51,7 @@ public abstract class Handle : IHandle
         return TransformHelper.IsWithinHandle(handlePos, pos, zoomboxScale, Size);
     }
 
-    public static T GetResource<T>(string key)
+    public static T? GetResource<T>(string key)
     {
         if (Application.Current.Styles.TryGetResource(key, null, out object resource))
         {
@@ -69,6 +69,17 @@ public abstract class Handle : IHandle
         }
 
         return Geometry.Parse("M 0 0 L 1 0 M 0 0 L 0 1");
+    }
+
+    public static HandleGlyph? GetHandleGlyph(string key)
+    {
+        DrawingGroup? glyph = GetResource<DrawingGroup>(key);
+        if (glyph != null)
+        {
+            return new HandleGlyph(glyph);
+        }
+
+        return null;
     }
 
     protected static IBrush GetBrush(string key)

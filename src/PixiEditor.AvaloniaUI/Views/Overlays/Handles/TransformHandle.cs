@@ -12,10 +12,13 @@ public class TransformHandle : Handle
     public double AnchorRadius { get; set; } = GetResource<double>("AnchorRadius");
     public IBrush GlyphBrush { get; set; } = GetBrush("HandleGlyphBrush");
 
-    private Geometry handleGeometry = GetHandleGeometry("MoveHandle");
+    private HandleGlyph handleGeometry;
 
     public TransformHandle(Control owner) : base(owner)
     {
+        handleGeometry = GetHandleGlyph("MoveHandle");
+        handleGeometry.Size = Size - new VecD(1, 1);
+
         Cursor = new Cursor(StandardCursorType.SizeAll);
     }
 
@@ -25,14 +28,6 @@ public class TransformHandle : Handle
         double radius = AnchorRadius * scaleMultiplier;
 
         context.DrawRectangle(HandleBrush, HandlePen, TransformHelper.ToHandleRect(Position, Size, ZoomboxScale), radius, radius);
-        double crossSize = HandleRect.Size.X - 1;
-
-        handleGeometry.Transform = new MatrixTransform(
-            new Matrix(
-                0, crossSize / ZoomboxScale,
-                crossSize / ZoomboxScale, 0,
-                Position.X - crossSize / (ZoomboxScale * 2), Position.Y - crossSize / (ZoomboxScale * 2))
-        );
-        context.DrawGeometry(GlyphBrush, null, handleGeometry);
+        handleGeometry.Draw(context, ZoomboxScale, Position);
     }
 }

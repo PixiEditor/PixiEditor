@@ -21,6 +21,8 @@
     xmlns:overlays="clr-namespace:PixiEditor.Views.UserControls.Overlays"
     xmlns:lineToolOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.LineToolOverlay"
     xmlns:transformOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay"
+    xmlns:main="clr-namespace:PixiEditor.AvaloniaUI.Views.Main"
+    xmlns:viewModels1="clr-namespace:PixiEditor.ViewModels"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -116,6 +118,11 @@
         </Border>
             </views:TogglableFlyout.Child>
         </views:TogglableFlyout>
+        <main:ToolsPicker ZIndex="2"
+                          Margin="10 0 0 0"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Center"
+                          Tools="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolSet}"/>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"

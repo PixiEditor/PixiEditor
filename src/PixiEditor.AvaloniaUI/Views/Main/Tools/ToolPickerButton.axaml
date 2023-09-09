@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:handlers="clr-namespace:PixiEditor.AvaloniaUI.Models.Handlers"
+             xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="PixiEditor.AvaloniaUI.Views.Main.Tools.ToolPickerButton">
+    <Button Command="{xaml:Command PixiEditor.Tools.SelectTool, UseProvided=true}"
+            CommandParameter="{Binding}"
+            Width="50" Height="40"
+            ui:Translator.TooltipKey="{Binding DisplayName}"
+            Background="{DynamicResource ThemeBackgroundBrush1}">
+        <Button.Template>
+            <ControlTemplate>
+                <Border Height="40" Width="40" Background="{DynamicResource ThemeBackgroundBrush1}">
+                    <ContentPresenter Content="{TemplateBinding Content}"/>
+                </Border>
+            </ControlTemplate>
+        </Button.Template>
+        <Button.Content>
+            <Image Source="{Binding ImagePath, Converter={converters:ImagePathToBitmapConverter}}" Width="30" Height="30"/>
+        </Button.Content>
+    </Button>
+</UserControl>
