@@ -27,7 +27,9 @@
             <DataTemplate DataType="dmc:IDocumentDock">
               <DocumentDockControl />
             </DataTemplate>
-
+            <DataTemplate DataType="dmc:IToolDock">
+              <ToolDockControl />
+            </DataTemplate>
             <DataTemplate DataType="dmc:IProportionalDock">
               <ProportionalDockControl />
             </DataTemplate>

@@ -118,11 +118,6 @@
         </Border>
             </views:TogglableFlyout.Child>
         </views:TogglableFlyout>
-        <main:ToolsPicker ZIndex="2"
-                          Margin="10 0 0 0"
-                          HorizontalAlignment="Left"
-                          VerticalAlignment="Center"
-                          Tools="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolSet}"/>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"

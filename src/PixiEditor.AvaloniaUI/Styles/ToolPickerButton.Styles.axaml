@@ -4,12 +4,14 @@
         xmlns:system="clr-namespace:System;assembly=System.Runtime">
 
     <Styles.Resources>
+        <Color x:Key="SelectedToolBorderColor">#fff</Color>
         <CornerRadius x:Key="SelectedToolCornerRadius">50</CornerRadius>
+        <SolidColorBrush x:Key="SelectedToolBorderBrush" Color="{StaticResource SelectedToolBorderColor}"/>
     </Styles.Resources>
 
     <Style Selector="tools|ToolPickerButton Border">
         <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="BorderThickness" Value="2" />
         <Setter Property="CornerRadius" Value="{DynamicResource SelectedToolCornerRadius}" />
     </Style>
 
