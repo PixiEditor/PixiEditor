@@ -13,6 +13,7 @@
         <StyleInclude Source="/Styles/PixiEditor.Controls.axaml"/>
         <StyleInclude Source="/Styles/PixiEditor.Animators.axaml"/>
         <StyleInclude Source="/Styles/PixiEditor.Handles.axaml"/>
+        <StyleInclude Source="/Styles/PixiEditor.Layers.axaml"/>
     </Application.Styles>
 
 </Application>

@@ -98,7 +98,32 @@ internal class DockFactory : Factory
 
     private IDockable BuildPropertiesDock()
     {
-        return new ProportionalDock() { Proportion = 0.15 };
+        IDockable layersDock = BuildLayersDock();
+        return new ProportionalDock()
+        {
+            Proportion = 0.15,
+            VisibleDockables = CreateList(layersDock),
+            ActiveDockable = layersDock,
+        };
+    }
+
+    private IDockable BuildLayersDock()
+    {
+        LayersDockViewModel layersDock = new()
+        {
+            Id = "LayersPane",
+            Title = "LayersPane",
+        };
+
+        ToolDock layers = new()
+        {
+            Id = "LayersPane",
+            Title = "LayersPane",
+            VisibleDockables = new List<IDockable>() { layersDock },
+            ActiveDockable = layersDock,
+        };
+
+        return layers;
     }
 
     public override void InitLayout(IDockable layout)

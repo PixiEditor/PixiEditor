@@ -1,12 +1,10 @@
 ﻿using System.Globalization;
-using System.Windows.Media;
 using Avalonia.Media;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.Extensions.Palettes;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 internal class GenericColorToMediaColorConverter : SingleInstanceConverter<GenericColorToMediaColorConverter>
 {

@@ -8,6 +8,7 @@ using Avalonia.Media;
 using Hardware.Info;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
+using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
@@ -99,7 +100,7 @@ internal class SymmetryOverlay : Overlay
     }
 
     private const double HandleSize = 12;
-    private Geometry handleGeometry /*= GetHandleGeometry("MarkerHandle")*/;
+    private Geometry handleGeometry = Handle.GetHandleGeometry("MarkerHandle");
 
     private const double DashWidth = 10.0;
     const int RulerOffset = -35;

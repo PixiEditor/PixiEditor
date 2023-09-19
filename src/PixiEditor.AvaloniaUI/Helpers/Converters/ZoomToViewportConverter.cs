@@ -1,8 +1,7 @@
 ﻿using System.Globalization;
 using Avalonia;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 internal class ZoomToViewportConverter
     : SingleInstanceConverter<ZoomToViewportConverter>

@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 // TODO: check if this converter can be replaced with StringConverters.IsNullOrEmpty, StringConverters.IsNotNullOrEmpty, ObjectConverters.IsNull, or ObjectConverters.IsNotNull
 internal class NotNullToVisibilityConverter

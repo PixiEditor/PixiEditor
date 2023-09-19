@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 // TODO: seems like this converter is doing the same as the avalonia built in {x:Static BoolConverters.Or}
 internal class BoolOrToVisibilityConverter : SingleInstanceMultiValueConverter<BoolOrToVisibilityConverter>
 {

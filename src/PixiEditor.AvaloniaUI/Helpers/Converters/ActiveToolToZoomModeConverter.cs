@@ -1,9 +1,8 @@
 ﻿using System.Globalization;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.Zoombox;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 internal class ActiveToolToZoomModeConverter : SingleInstanceConverter<ActiveToolToZoomModeConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)

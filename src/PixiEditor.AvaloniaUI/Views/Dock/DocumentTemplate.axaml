@@ -4,13 +4,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
              xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              xmlns:document="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
              xmlns:viewModels1="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              xmlns:subViewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"
+             xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.DocumentTemplate">
     <userControls:Viewport

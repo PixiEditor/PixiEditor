@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 internal class PaletteItemsToWidthConverter : SingleInstanceConverter<PaletteItemsToWidthConverter>
 {

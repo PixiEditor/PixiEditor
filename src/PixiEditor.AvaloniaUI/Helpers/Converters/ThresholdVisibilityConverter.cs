@@ -1,8 +1,6 @@
 ﻿using System.Globalization;
-using System.Windows;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 internal class ThresholdVisibilityConverter
     : MarkupConverter

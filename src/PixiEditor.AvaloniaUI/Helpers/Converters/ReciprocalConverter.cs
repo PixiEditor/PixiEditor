@@ -1,9 +1,7 @@
 ﻿using System.Globalization;
-using System.Windows;
 using Avalonia;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 internal class ReciprocalConverter : SingleInstanceConverter<ReciprocalConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)

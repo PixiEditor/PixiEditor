@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Dock.Model.Core;
 using PixiEditor.AvaloniaUI.ViewModels.Dock;
 using PixiEditor.AvaloniaUI.Views.Dock;
+using PixiEditor.AvaloniaUI.Views.Layers;
 using PixiEditor.AvaloniaUI.Views.Main;
 
 namespace PixiEditor.AvaloniaUI;
@@ -14,6 +15,7 @@ public class ViewLocator : IDataTemplate
     public static Dictionary<Type, Type> ViewBindingsMap = new Dictionary<Type, Type>()
     {
         [typeof(DockDocumentViewModel)] = typeof(DocumentTemplate),
+        [typeof(LayersDockViewModel)] = typeof(LayersManager),
     };
 
     public Control Build(object? data)

@@ -1,17 +1,16 @@
 ﻿using System.Globalization;
-using Avalonia.Media.Imaging;
+using PixiEditor.AvaloniaUI.Helpers.Extensions;
+using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
-
-internal class ScaleToBitmapScalingModeConverter : SingleInstanceConverter<ScaleToBitmapScalingModeConverter>
+internal class BlendModeToStringConverter : SingleInstanceConverter<BlendModeToStringConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is not double scale)
-            return BitmapInterpolationMode.None;
-        if (scale < 1)
-            return BitmapInterpolationMode.HighQuality;
-        return BitmapInterpolationMode.None;
+        if (value is not BlendMode mode)
+            return "<null>";
+        return new LocalizedString(mode.LocalizedKeys()).Value;
     }
 
     public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

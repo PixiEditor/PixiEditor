@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 internal class BoolToIntConverter
     : SingleInstanceConverter<BoolToIntConverter>

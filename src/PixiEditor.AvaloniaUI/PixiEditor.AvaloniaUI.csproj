@@ -75,11 +75,4 @@
       <UpToDateCheckInput Remove="Fonts\feather.ttf" />
     </ItemGroup>
   
-    <ItemGroup>
-      <Compile Update="Views\Main\Tools\ToolsPicker.axaml.cs">
-        <DependentUpon>ToolsPicker.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-    </ItemGroup>
-  
 </Project>

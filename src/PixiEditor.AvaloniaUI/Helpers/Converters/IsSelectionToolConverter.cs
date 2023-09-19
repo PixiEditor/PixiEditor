@@ -1,8 +1,7 @@
 ﻿using System.Globalization;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 internal class IsSelectionToolConverter : SingleInstanceConverter<IsSelectionToolConverter>
 {

@@ -21,4 +21,24 @@
     <Style Selector="Button.OverlayButton">
 
     </Style>
+
+    <Style Selector="CheckBox.ImageCheckBox">
+
+    </Style>
+
+    <Style Selector="Button.ToolButtonStyle">
+
+    </Style>
+
+    <Style Selector="Button.ImageButtonStyle">
+
+    </Style>
+
+    <Style Selector="CheckBox.ImageCheckBox">
+
+    </Style>
+
+    <Style Selector="ToggleButton.ExpandCollapseToggleStyle">
+
+    </Style>
 </Styles>

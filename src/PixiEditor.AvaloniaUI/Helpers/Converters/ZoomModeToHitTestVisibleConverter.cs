@@ -1,10 +1,8 @@
 ﻿using System.Globalization;
-using System.Windows;
 using Avalonia;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.Zoombox;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 internal class ZoomModeToHitTestVisibleConverter : SingleInstanceConverter<ZoomModeToHitTestVisibleConverter>
 {
