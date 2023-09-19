@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
@@ -53,14 +54,40 @@ internal class Command : MarkupExtension
 
     class ProvidedICommand : ICommand
     {
-        //TODO: Not found in Avalonia
-        public event EventHandler? CanExecuteChanged;
-        /* {
-             add => CommandManager.RequerySuggested += value;
-             remove => CommandManager.RequerySuggested -= value;
-         }*/
+        public event EventHandler? CanExecuteChanged
+        {
+            add
+            {
+                if (CanExecuteChangedHandlers.Count == 0)
+                {
+                    CommandController.ListenForCanExecuteChanged(Command);
+                }
 
-        public Commands.Command Command { get; init; }
+                CanExecuteChangedHandlers.Add(value);
+            }
+            remove
+            {
+                CanExecuteChangedHandlers.Remove(value);
+                if (CanExecuteChangedHandlers.Count == 0)
+                {
+                    CommandController.StopListeningForCanExecuteChanged(Command);
+                }
+            }
+        }
+
+        private List<EventHandler> CanExecuteChangedHandlers { get; } = new();
+
+        private Commands.Command command;
+
+        public Commands.Command Command
+        {
+            get => command;
+            init
+            {
+                command = value;
+                Command.CanExecuteChanged += () => CanExecuteChangedHandlers.ForEach(x => x.Invoke(this, EventArgs.Empty));
+            }
+        }
 
         public bool UseProvidedParameter { get; init; }
 

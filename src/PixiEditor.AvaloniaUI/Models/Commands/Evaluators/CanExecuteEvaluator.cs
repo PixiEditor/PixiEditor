@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 
 namespace PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
@@ -8,6 +10,7 @@ internal class CanExecuteEvaluator : Evaluator<bool>
     public static CanExecuteEvaluator AlwaysTrue { get; } = new StaticValueEvaluator(true);
 
     public static CanExecuteEvaluator AlwaysFalse { get; } = new StaticValueEvaluator(false);
+    public string[]? DependentOn { get; set; }
 
     private class StaticValueEvaluator : CanExecuteEvaluator
     {

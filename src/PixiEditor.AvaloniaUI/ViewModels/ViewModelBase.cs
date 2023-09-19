@@ -2,7 +2,7 @@
 
 namespace PixiEditor.AvaloniaUI.ViewModels;
 
-public class ViewModelBase : ObservableObject
+public class ViewModelBase : PixiObservableObject
 {
     public void AddPropertyChangedCallback(string propertyName, Action action)
     {

@@ -6,6 +6,7 @@ namespace PixiEditor.AvaloniaUI.Models.Commands;
 
 internal class CommandMethods
 {
+    public CanExecuteEvaluator CanExecuteEvaluator => _canExecute;
     private readonly Command _command;
     private readonly Action<object> _execute;
     private readonly CanExecuteEvaluator _canExecute;

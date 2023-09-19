@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
@@ -41,6 +42,8 @@ internal class CommandController
 
     public Dictionary<string, IconEvaluator> IconEvaluators { get; }
 
+    private static readonly List<Command> objectsToInvokeOn = new();
+    
     public CommandController()
     {
         Current ??= this;
@@ -129,7 +132,7 @@ internal class CommandController
         LoadEvaluators(serviceProvider, compiledCommandList);
         LoadCommands(serviceProvider, compiledCommandList, commandGroupsData, commands, template);
         LoadTools(serviceProvider, commandGroupsData, commands, template);
-
+        
         var miscList = new List<Command>();
 
         foreach (var (groupInternalName, storedCommands) in commands)
@@ -146,6 +149,27 @@ internal class CommandController
         }
         
         CommandGroups.Add(new CommandGroup("MISC", miscList));
+    }
+
+    public static void ListenForCanExecuteChanged(Command command)
+    {
+        objectsToInvokeOn.Add(command);
+    }
+
+    public static void StopListeningForCanExecuteChanged(Command handler)
+    {
+        objectsToInvokeOn.Remove(handler);
+    }
+
+    public void NotifyPropertyChanged(string? propertyName)
+    {
+        foreach (var evaluator in objectsToInvokeOn)
+        {
+            if (evaluator.Methods.CanExecuteEvaluator.DependentOn != null && evaluator.Methods.CanExecuteEvaluator.DependentOn.Contains(propertyName))
+            {
+                evaluator.OnCanExecuteChanged();
+            }
+        }
     }
 
     private void LoadTools(IServiceProvider serviceProvider, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands,
@@ -414,8 +438,6 @@ internal class CommandController
                 T evaluator = factory(x => Task.Run(async () => await func(x)).Result);//TODO: This is not truly async
                 evaluators.Add(evaluator.Name, evaluator);
             }
-
-
         }
 
         void AddEvaluator<TAttr, T, TParameter>(MethodInfo method, object instance, TAttr attribute,
@@ -442,11 +464,6 @@ internal class CommandController
                         {
                             case Evaluator.CanExecuteAttribute canExecuteAttribute:
                             {
-                                var getRequiredEvaluatorsObjectsOfCurrentEvaluator =
-                                    (CommandController controller) =>
-                                        canExecuteAttribute.NamesOfRequiredCanExecuteEvaluators.Select(x =>
-                                            controller.CanExecuteEvaluators[x]);
-
                                 AddEvaluatorFactory<Evaluator.CanExecuteAttribute, CanExecuteEvaluator, bool>(
                                     methodInfo,
                                     serviceProvider.GetService(type.Key),
@@ -455,11 +472,8 @@ internal class CommandController
                                     evaluateFunction => new CanExecuteEvaluator()
                                     {
                                         Name = attribute.Name,
-                                        Evaluate = evaluateFunctionArgument =>
-                                            evaluateFunction.Invoke(evaluateFunctionArgument) &&
-                                            getRequiredEvaluatorsObjectsOfCurrentEvaluator.Invoke(this).All(
-                                                requiredEvaluator =>
-                                                    requiredEvaluator.CallEvaluate(null, evaluateFunctionArgument)),
+                                        Evaluate = evaluateFunction.Invoke,
+                                        DependentOn = canExecuteAttribute.DependentOn
                                     });
                                 break;
                             }

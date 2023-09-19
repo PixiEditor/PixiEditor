@@ -39,7 +39,7 @@ using Point = Avalonia.Point;
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
 #nullable enable
-internal partial class DocumentViewModel : ObservableObject, IDocument
+internal partial class DocumentViewModel : PixiObservableObject, IDocument
 {
     public event EventHandler<LayersChangedEventArgs>? LayersChanged;
     public event EventHandler<DocumentSizeChangedEventArgs>? SizeChanged;

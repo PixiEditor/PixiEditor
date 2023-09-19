@@ -4,12 +4,13 @@ using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Input;
+using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.Models.Commands.Commands;
 
 [DebuggerDisplay("{InternalName,nq} ('{DisplayName,nq}')")]
-internal abstract partial class Command : ObservableObject
+internal abstract partial class Command : PixiObservableObject
 {
     private KeyCombination _shortcut;
 
@@ -43,6 +44,7 @@ internal abstract partial class Command : ObservableObject
     }
 
     public event ShortcutChangedEventHandler ShortcutChanged;
+    public event Action CanExecuteChanged;
 
     public abstract object GetParameter();
 
@@ -69,4 +71,9 @@ internal abstract partial class Command : ObservableObject
     public IImage GetIcon() => IconEvaluator == null ? null : IconEvaluator.CallEvaluate(this, GetParameter());
 
     public delegate void ShortcutChangedEventHandler(Command command, ShortcutChangedEventArgs args);
+
+    public void OnCanExecuteChanged()
+    {
+        CanExecuteChanged?.Invoke();
+    }
 }
