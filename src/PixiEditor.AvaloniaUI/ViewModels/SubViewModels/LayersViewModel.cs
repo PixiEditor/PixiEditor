@@ -122,7 +122,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Layer.CanCreateNewMember")]
     public bool CanCreateNewMember()
     {
-        return Owner.DocumentManagerSubViewModel.ActiveDocument is { } doc && !doc.UpdateableChangeActive;
+        return Owner.DocumentManagerSubViewModel.ActiveDocument is { UpdateableChangeActive: false };
     }
 
     [Command.Internal("PixiEditor.Layer.ToggleLockTransparency", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer")]

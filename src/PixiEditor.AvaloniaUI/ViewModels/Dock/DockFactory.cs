@@ -13,6 +13,7 @@ internal class DockFactory : Factory
     private DockDock mainLayout;
     private DocumentDock documentDock;
     private ToolDock toolDock;
+    private ToolDock layersDock;
 
     private FileViewModel manager;
 
@@ -98,18 +99,21 @@ internal class DockFactory : Factory
 
     private IDockable BuildPropertiesDock()
     {
-        IDockable layersDock = BuildLayersDock();
+        layersDock = BuildLayersDock();
         return new ProportionalDock()
         {
             Proportion = 0.15,
-            VisibleDockables = CreateList(layersDock),
+            VisibleDockables = new List<IDockable>()
+            {
+                layersDock,
+            },
             ActiveDockable = layersDock,
         };
     }
 
-    private IDockable BuildLayersDock()
+    private ToolDock BuildLayersDock()
     {
-        LayersDockViewModel layersDock = new()
+        LayersDockViewModel layersVm = new(manager.Owner.DocumentManagerSubViewModel)
         {
             Id = "LayersPane",
             Title = "LayersPane",
@@ -119,8 +123,8 @@ internal class DockFactory : Factory
         {
             Id = "LayersPane",
             Title = "LayersPane",
-            VisibleDockables = new List<IDockable>() { layersDock },
-            ActiveDockable = layersDock,
+            VisibleDockables = new List<IDockable>() { layersVm },
+            ActiveDockable = layersVm,
         };
 
         return layers;
@@ -134,12 +138,15 @@ internal class DockFactory : Factory
             { "MainLayout", () => mainLayout },
             { "DocumentsPane", () => documentDock },
             { "ToolsPane", () => toolDock },
+            { "LayersPane", () => layersDock },
         };
 
         ContextLocator = new Dictionary<string, Func<object?>>()
         {
             { "MainLayout", () => layout },
             { "ToolsPane", () => layout },
+            { "DocumentsPane", () => layout },
+            { "LayersPane", () => layout },
         };
 
         HostWindowLocator = new Dictionary<string, Func<IHostWindow?>>()

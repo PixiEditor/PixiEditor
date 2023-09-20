@@ -18,9 +18,9 @@
             <!--<DataTemplate DataType="dmc:IDocumentContent"> This should be added in the application
               <DocumentContentControl />
             </DataTemplate>-->
-            <DataTemplate DataType="dmc:IToolContent">
+            <!--<DataTemplate DataType="dmc:IToolContent">
               <ToolContentControl />
-            </DataTemplate>
+            </DataTemplate>-->
             <DataTemplate DataType="dmc:IProportionalDockSplitter">
               <ProportionalStackPanelSplitter />
             </DataTemplate>

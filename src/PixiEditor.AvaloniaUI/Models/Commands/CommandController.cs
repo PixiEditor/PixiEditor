@@ -165,7 +165,8 @@ internal class CommandController
     {
         foreach (var evaluator in objectsToInvokeOn)
         {
-            if (evaluator.Methods.CanExecuteEvaluator.DependentOn != null && evaluator.Methods.CanExecuteEvaluator.DependentOn.Contains(propertyName))
+            //TODO: Check if performance is better with or without this
+            /*if (evaluator.Methods.CanExecuteEvaluator.DependentOn != null && evaluator.Methods.CanExecuteEvaluator.DependentOn.Contains(propertyName))*/
             {
                 evaluator.OnCanExecuteChanged();
             }
@@ -473,7 +474,7 @@ internal class CommandController
                                     {
                                         Name = attribute.Name,
                                         Evaluate = evaluateFunction.Invoke,
-                                        DependentOn = canExecuteAttribute.DependentOn
+                                        /*DependentOn = canExecuteAttribute.DependentOn*/
                                     });
                                 break;
                             }

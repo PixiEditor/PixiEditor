@@ -32,6 +32,5 @@
                            VerticalAlignment="Center"
                            Tools="{Binding Path=ToolsSubViewModel.ToolSet}"/>
         <DockControl Grid.Row="1" Layout="{Binding LayoutDockSubViewModel.Layout}"/>
-        <layers:LayersManager Grid.Row="1" Width="200" Height="400" ActiveDocument="{Binding Path=DocumentManagerSubViewModel.ActiveDocument}"/>
     </Grid>
 </UserControl>
