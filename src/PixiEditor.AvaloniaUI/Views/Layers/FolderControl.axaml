@@ -84,7 +84,7 @@
                                     RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                                 <Path 
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z" 
-                                Fill="{StaticResource PixiRed}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                Fill="{DynamicResource ThemeAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"
                                 IsVisible="{Binding !Folder.MaskIsVisibleBindable, ElementName=folderControl}"/>
                             </Grid>
                         </Border>
