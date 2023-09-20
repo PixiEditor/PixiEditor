@@ -18,14 +18,22 @@ public static class LockedFramebufferExtensions
     {
         unsafe
         {
+            if(framebuffer.Format != PixelFormat.Bgra8888)
+                throw new ArgumentException("Only Bgra8888 is supported");
+
             var bytesPerPixel = framebuffer.Format.BitsPerPixel / 8; //TODO: check if bits per pixel is correct
             var zero = (byte*)framebuffer.Address;
             var offset = framebuffer.RowBytes * y + bytesPerPixel * x;
-            return Color.FromArgb(255, zero[offset + 2], zero[offset + 1], zero[offset]);
+            byte a = zero[offset + 3];
+            byte r = zero[offset + 2];
+            byte g = zero[offset + 1];
+            byte b = zero[offset];
+
+            return Color.FromArgb(a, r, g, b);
         }
     }
 
-    public static void WritePixels(this ILockedFramebuffer framebuffer, RectI rectI, byte[] pbgra8888Bytes)
+    public static void WritePixels(this ILockedFramebuffer framebuffer, RectI rectI, byte[] pixelBytes)
     {
         //TODO: Idk if this is correct
         Span<byte> pixels = framebuffer.GetPixels();
@@ -38,7 +46,7 @@ public static class LockedFramebufferExtensions
         int startY = Math.Max(0, rectI.Y);
         int endY = Math.Min(framebuffer.Size.Height, rectI.Y + rectI.Height);
 
-        int bytePerPixel = 4; // BGRA8888 has 4 bytes per pixel
+        int bytePerPixel = framebuffer.Format.BitsPerPixel / 8;
 
         for (int y = startY; y < endY; y++)
         {
@@ -48,7 +56,7 @@ public static class LockedFramebufferExtensions
 
             int srcRowStartIndex = (y - rectI.Y) * rectI.Width * bytePerPixel;
 
-            pbgra8888Bytes.AsSpan(srcRowStartIndex, endOffset - startOffset).CopyTo(pixels.Slice(startOffset));
+            pixelBytes.AsSpan(srcRowStartIndex, endOffset - startOffset).CopyTo(pixels.Slice(startOffset));
         }
     }
 

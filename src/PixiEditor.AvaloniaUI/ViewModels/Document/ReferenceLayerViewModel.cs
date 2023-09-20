@@ -107,9 +107,9 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
 
     public void RaiseShowHighestChanged() => OnPropertyChanged(nameof(ShowHighest));
     
-    public void SetReferenceLayer(ImmutableArray<byte> imagePbgra8888Bytes, VecI imageSize, ShapeCorners shape)
+    public void SetReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI imageSize, ShapeCorners shape)
     {
-        ReferenceBitmap = WriteableBitmapHelpers.FromPbgra8888Array(imagePbgra8888Bytes.ToArray(), imageSize);
+        ReferenceBitmap = WriteableBitmapHelpers.FromBgra8888Array(imageBgra8888Bytes.ToArray(), imageSize);
         referenceShape = shape;
         isVisible = true;
         isTransforming = false;

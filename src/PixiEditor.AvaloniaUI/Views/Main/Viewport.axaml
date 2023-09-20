@@ -23,6 +23,7 @@
     xmlns:main="clr-namespace:PixiEditor.AvaloniaUI.Views.Main"
     xmlns:viewModels1="clr-namespace:PixiEditor.ViewModels"
     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+    xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -158,8 +159,8 @@
                 <Grid>
                     <Canvas
                         ZIndex="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToIntConverter}}"
-                        IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}">
-                        <!--TODO: RenderOptions.BitmapInterpolationMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}"-->
+                        IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}"
+                        ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
                         <Image
                             Focusable="False"
                             Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Width}"
@@ -167,14 +168,13 @@
                             Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
                             IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}"
                             SizeChanged="OnReferenceImageSizeChanged"
-
                             FlowDirection="LeftToRight">
-                            <Image.RenderTransform>
+                            <!--<Image.RenderTransform>
                                 <TransformGroup>
                                     <MatrixTransform
                                         Matrix="{Binding Document.ReferenceLayerViewModel.ReferenceTransformMatrix}" />
                                 </TransformGroup>
-                            </Image.RenderTransform>
+                            </Image.RenderTransform>-->
                             <Image.Styles>
                                 <!--TODO: Implement this-->
                                 <!--<Style>

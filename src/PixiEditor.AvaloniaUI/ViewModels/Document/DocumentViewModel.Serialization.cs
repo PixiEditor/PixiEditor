@@ -52,7 +52,7 @@ internal partial class DocumentViewModel
 
         var surface = new Surface(new VecI(layer.ImageSize.X, layer.ImageSize.Y));
         
-        surface.DrawBytes(surface.Size, layer.ImagePbgra32Bytes.ToArray(), ColorType.Bgra8888, AlphaType.Premul);
+        surface.DrawBytes(surface.Size, layer.ImageBgra8888Bytes.ToArray(), ColorType.Bgra8888, AlphaType.Premul);
 
         var encoder = new UniversalFileEncoder(EncodedImageFormat.Png);
 

@@ -10,11 +10,11 @@ namespace PixiEditor.AvaloniaUI.Helpers;
 
 internal static class WriteableBitmapHelpers
 {
-    public static WriteableBitmap FromPbgra8888Array(byte[] pbgra8888, VecI size)
+    public static WriteableBitmap FromBgra8888Array(byte[] bgra8888, VecI size)
     {
         WriteableBitmap bitmap = new WriteableBitmap(new PixelSize(size.X, size.Y), new Vector(96, 96), PixelFormats.Bgra8888, AlphaFormat.Premul);
         using var frameBuffer = bitmap.Lock();
-        frameBuffer.WritePixels(new RectI(0, 0, size.X, size.Y), pbgra8888);
+        frameBuffer.WritePixels(new RectI(0, 0, size.X, size.Y), bgra8888);
         return bitmap;
     }
 

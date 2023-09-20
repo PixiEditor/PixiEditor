@@ -509,14 +509,14 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// Imports a reference layer from a Pbgra Int32 array
     /// </summary>
     /// <param name="imageSize">The size of the image</param>
-    public void ImportReferenceLayer(ImmutableArray<byte> imagePbgra32Bytes, VecI imageSize)
+    public void ImportReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI imageSize)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
 
         RectD referenceImageRect = new RectD(VecD.Zero, Document.SizeBindable).AspectFit(new RectD(VecD.Zero, imageSize));
         ShapeCorners corners = new ShapeCorners(referenceImageRect);
-        Internals.ActionAccumulator.AddFinishedActions(new SetReferenceLayer_Action(corners, imagePbgra32Bytes, imageSize));
+        Internals.ActionAccumulator.AddFinishedActions(new SetReferenceLayer_Action(corners, imageBgra8888Bytes, imageSize));
     }
 
     /// <summary>

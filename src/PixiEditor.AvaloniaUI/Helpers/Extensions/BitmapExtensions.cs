@@ -12,6 +12,12 @@ public static class BitmapExtensions
         return ExtractPixels(source, out _);
     }
 
+    /// <summary>
+    ///     Extracts pixels from bitmap and returns them as byte array.
+    /// </summary>
+    /// <param name="source">Bitmap to extract pixels from.</param>
+    /// <param name="address">Address of pinned array of pixels.</param>
+    /// <returns>Byte array of pixels.</returns>
     public static byte[] ExtractPixels(this Bitmap source, out IntPtr address)
     {
         var size = source.PixelSize;
@@ -37,6 +43,6 @@ public static class BitmapExtensions
         var address = Marshal.UnsafeAddrOfPinnedArrayElement(target, 0);
 
         source.CopyPixels(new PixelRect(0, 0, size.Width, size.Height), address, bufferSize, stride);
-        return new WriteableBitmap(PixelFormat.Bgra8888, AlphaFormat.Premul, address, size, new Vector(96, 96), stride);
+        return new WriteableBitmap(PixelFormats.Bgra8888, AlphaFormat.Premul, address, size, new Vector(96, 96), stride);
     }
 }

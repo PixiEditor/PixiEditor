@@ -2,9 +2,9 @@
 using Avalonia;
 using PixiEditor.AvaloniaUI;
 
-namespace PixiEditor.Avalonia.Desktop;
+namespace PixiEditor.AvaloniaUI.Desktop;
 
-class Program
+public class Program
 {
     // Initialization code. Don't use any Avalonia, third-party APIs or any
     // SynchronizationContext-reliant code before AppMain is called: things aren't initialized

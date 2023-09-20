@@ -16,6 +16,6 @@ public interface IReferenceLayerHandler : IHandler
     public void SetReferenceLayerIsVisible(bool infoIsVisible);
     public void TransformReferenceLayer(ShapeCorners infoCorners);
     public void DeleteReferenceLayer();
-    public void SetReferenceLayer(ImmutableArray<byte> imagePbgra8888Bytes, VecI infoImageSize, ShapeCorners infoShape);
+    public void SetReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI infoImageSize, ShapeCorners infoShape);
     public void SetReferenceLayerTopMost(bool infoIsTopMost);
 }
