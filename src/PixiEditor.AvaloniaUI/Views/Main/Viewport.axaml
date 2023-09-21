@@ -169,12 +169,12 @@
                             IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}"
                             SizeChanged="OnReferenceImageSizeChanged"
                             FlowDirection="LeftToRight">
-                            <!--<Image.RenderTransform>
+                            <Image.RenderTransform>
                                 <TransformGroup>
                                     <MatrixTransform
                                         Matrix="{Binding Document.ReferenceLayerViewModel.ReferenceTransformMatrix}" />
                                 </TransformGroup>
-                            </Image.RenderTransform>-->
+                            </Image.RenderTransform>
                             <Image.Styles>
                                 <!--TODO: Implement this-->
                                 <!--<Style>
@@ -231,12 +231,12 @@
                             </Style>-->
                         </Canvas.Styles>
                     </Canvas>
-                    <!--TODO: RenderOptions.BitmapInterpolationMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"-->
                     <Image
                         Focusable="False"
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
                         Source="{Binding TargetBitmap}"
+                        ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"
                         FlowDirection="LeftToRight">
                         <Image.Styles>
                             <!--TODO: Implement-->
@@ -267,7 +267,6 @@
                         </Image.Styles>
                     </Image>
                     <Grid ZIndex="5">
-                        <!--TODO: Implement overlays-->
                         <symmetryOverlay:SymmetryOverlay
                             Focusable="False"
                             IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"

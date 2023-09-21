@@ -41,7 +41,7 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
         {
             if (ReferenceBitmap is null)
                 return Matrix.Identity;
-            Matrix3X3 skiaMatrix = OperationHelper.CreateMatrixFromPoints((ShapeCorners)ReferenceShapeBindable, new VecD(ReferenceBitmap.PixelSize.Width, ReferenceBitmap.PixelSize.Height));
+            Matrix3X3 skiaMatrix = OperationHelper.CreateMatrixFromPoints(ReferenceShapeBindable, new VecD(ReferenceBitmap.PixelSize.Width, ReferenceBitmap.PixelSize.Height));
             return new Matrix(skiaMatrix.ScaleX, skiaMatrix.SkewY, skiaMatrix.SkewX, skiaMatrix.ScaleY, skiaMatrix.TransX, skiaMatrix.TransY);
         }
     }
@@ -109,7 +109,7 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
     
     public void SetReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI imageSize, ShapeCorners shape)
     {
-        ReferenceBitmap = WriteableBitmapHelpers.FromBgra8888Array(imageBgra8888Bytes.ToArray(), imageSize);
+        ReferenceBitmap = WriteableBitmapUtility.FromBgra8888Array(imageBgra8888Bytes.ToArray(), imageSize);
         referenceShape = shape;
         isVisible = true;
         isTransforming = false;

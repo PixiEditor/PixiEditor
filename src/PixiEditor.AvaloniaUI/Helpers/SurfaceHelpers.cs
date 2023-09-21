@@ -26,7 +26,7 @@ public static class SurfaceHelpers
 
     public static WriteableBitmap ToWriteableBitmap(this Surface surface)
     {
-        WriteableBitmap result = WriteableBitmapHelpers.CreateBitmap(surface.Size);
+        WriteableBitmap result = WriteableBitmapUtility.CreateBitmap(surface.Size);
         using var framebuffer = result.Lock();
         var dirty = new RectI(0, 0, surface.Size.X, surface.Size.Y);
         framebuffer.WritePixels(dirty, ToByteArray(surface));

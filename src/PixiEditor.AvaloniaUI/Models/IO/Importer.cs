@@ -48,16 +48,7 @@ internal class Importer : ObservableObject
         try
         {
             Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
-            Bitmap bitmap = new Bitmap(path);
-
-            using MemoryStream stream = new();
-            bitmap.Save(stream);
-
-            IntPtr ptr = Marshal.AllocHGlobal((int)stream.Length);
-
-            WriteableBitmap writeableBitmap = new(bitmap.Format.Value, AlphaFormat.Premul, ptr, bitmap.PixelSize, bitmap.Dpi, bitmap.PixelSize.Width * 4);
-
-            return writeableBitmap;
+            return new Bitmap(path).ToWriteableBitmap();
         }
         catch (NotSupportedException e)
         {

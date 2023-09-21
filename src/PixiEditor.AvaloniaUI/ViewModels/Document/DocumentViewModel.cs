@@ -137,10 +137,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public Dictionary<ChunkResolution, DrawingSurface> Surfaces { get; set; } = new();
     public Dictionary<ChunkResolution, WriteableBitmap> LazyBitmaps { get; set; } = new()
     {
-        [ChunkResolution.Full] = WriteableBitmapHelpers.CreateBitmap(new VecI(64, 64)),
-        [ChunkResolution.Half] = WriteableBitmapHelpers.CreateBitmap(new VecI(32, 32)),
-        [ChunkResolution.Quarter] = WriteableBitmapHelpers.CreateBitmap(new VecI(16, 16)),
-        [ChunkResolution.Eighth] = WriteableBitmapHelpers.CreateBitmap(new VecI(8, 8)),
+        [ChunkResolution.Full] = WriteableBitmapUtility.CreateBitmap(new VecI(64, 64)),
+        [ChunkResolution.Half] = WriteableBitmapUtility.CreateBitmap(new VecI(32, 32)),
+        [ChunkResolution.Quarter] = WriteableBitmapUtility.CreateBitmap(new VecI(16, 16)),
+        [ChunkResolution.Eighth] = WriteableBitmapUtility.CreateBitmap(new VecI(8, 8)),
     };
     public WriteableBitmap PreviewBitmap { get; set; }
     public DrawingSurface PreviewSurface { get; set; }
@@ -186,13 +186,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in LazyBitmaps)
         {
-            DrawingSurface? surface = WriteableBitmapHelpers.CreateDrawingSurface(bitmap.Value);
+            DrawingSurface? surface = WriteableBitmapUtility.CreateDrawingSurface(bitmap.Value);
             Surfaces[bitmap.Key] = surface;
         }
 
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
-        PreviewBitmap = WriteableBitmapHelpers.CreateBitmap(previewSize);
-        PreviewSurface = WriteableBitmapHelpers.CreateDrawingSurface(PreviewBitmap);
+        PreviewBitmap = WriteableBitmapUtility.CreateBitmap(previewSize);
+        PreviewSurface = WriteableBitmapUtility.CreateDrawingSurface(PreviewBitmap);
 
         ReferenceLayerViewModel = new(this, Internals);
     }

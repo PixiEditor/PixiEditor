@@ -276,8 +276,8 @@ internal class DocumentUpdater
         foreach ((ChunkResolution res, DrawingSurface surf) in doc.Surfaces)
         {
             surf.Dispose();
-            newBitmaps[res] = WriteableBitmapHelpers.CreateBitmap((VecI)(info.Size * res.Multiplier()));
-            doc.Surfaces[res] = WriteableBitmapHelpers.CreateDrawingSurface(newBitmaps[res]);
+            newBitmaps[res] = WriteableBitmapUtility.CreateBitmap((VecI)(info.Size * res.Multiplier()));
+            doc.Surfaces[res] = WriteableBitmapUtility.CreateDrawingSurface(newBitmaps[res]);
         }
 
         doc.LazyBitmaps = newBitmaps;
@@ -288,8 +288,8 @@ internal class DocumentUpdater
 
         VecI documentPreviewSize = StructureHelpers.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
-        doc.PreviewBitmap = WriteableBitmapHelpers.CreateBitmap(documentPreviewSize);
-        doc.PreviewSurface = WriteableBitmapHelpers.CreateDrawingSurface(doc.PreviewBitmap);
+        doc.PreviewBitmap = WriteableBitmapUtility.CreateBitmap(documentPreviewSize);
+        doc.PreviewSurface = WriteableBitmapUtility.CreateDrawingSurface(doc.PreviewBitmap);
 
         // TODO: Make sure property changed events are raised internally
         /*doc.OnPropertyChanged(nameof(doc.LazyBitmaps));

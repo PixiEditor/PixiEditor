@@ -56,7 +56,7 @@ namespace PixiEditor.Tests
                     try
                     {
                         PixiEditor.AvaloniaUI.Desktop.Program.BuildAvaloniaApp()
-                            .UseHeadless(new AvaloniaHeadlessPlatformOptions { FrameBufferFormat = PixelFormat.Bgra8888, UseHeadlessDrawing = true })
+                            .UseHeadless(new AvaloniaHeadlessPlatformOptions { FrameBufferFormat = PixelFormat.Bgra8888, UseHeadlessDrawing = false })
                             .SetupWithoutStarting();
                         tcs.SetResult(SynchronizationContext.Current);
                     }

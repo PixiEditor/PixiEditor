@@ -111,7 +111,7 @@ internal class PngPaletteParser : PaletteFileParser
     {
         await Task.Run(() =>
         {
-            WriteableBitmap bitmap = WriteableBitmapHelpers.CreateBitmap(new VecI(data.Colors.Length, 1));
+            WriteableBitmap bitmap = WriteableBitmapUtility.CreateBitmap(new VecI(data.Colors.Length, 1));
             using var framebuffer = bitmap.Lock();
             for (int i = 0; i < data.Colors.Length; i++)
             {

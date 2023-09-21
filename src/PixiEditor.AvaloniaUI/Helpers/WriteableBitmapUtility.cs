@@ -8,7 +8,7 @@ using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.AvaloniaUI.Helpers;
 
-internal static class WriteableBitmapHelpers
+public static class WriteableBitmapUtility
 {
     public static WriteableBitmap FromBgra8888Array(byte[] bgra8888, VecI size)
     {
