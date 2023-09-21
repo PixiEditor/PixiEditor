@@ -151,7 +151,7 @@
                 IsVisible="{Binding Path=DataContext.ActiveDocument, ElementName=layersManager, Converter={converters1:NotNullToVisibilityConverter}}"
                 Background="{DynamicResource ThemeBackgroundBrush}"
                 Grid.Row="3" VerticalAlignment="Bottom"/>
-            <TreeView ItemContainerTheme="{StaticResource TreeViewItemTheme}" DockPanel.Dock="Top" Name="treeView"
+            <TreeView DockPanel.Dock="Top" Name="treeView"
                       ItemsSource="{Binding DataContext.ActiveDocument.StructureRoot.Children, ElementName=layersManager}">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -166,18 +166,18 @@
                 <TreeView.DataTemplates>
                     <TreeDataTemplate DataType="docVm:FolderViewModel" ItemsSource="{Binding Children}">
                         <layers:FolderControl
-                            Folder="{Binding}"
-                            Manager="{Binding ElementName=layersManager}"
-                            PointerPressed="FolderControl_MouseDown"
-                            PointerReleased="FolderControl_MouseUp"/>
+                                Folder="{Binding}"
+                                Manager="{Binding ElementName=layersManager}"
+                                PointerPressed="FolderControl_MouseDown"
+                                PointerReleased="FolderControl_MouseUp"/>
                     </TreeDataTemplate>
-                    <TreeDataTemplate DataType="{x:Type docVm:LayerViewModel}">
+                    <DataTemplate DataType="{x:Type docVm:LayerViewModel}">
                         <layers:LayerControl
                             Layer="{Binding}"
                             Manager="{Binding ElementName=layersManager}"
                             PointerPressed="LayerControl_MouseDown"
                             PointerReleased="LayerControl_MouseUp"/>
-                    </TreeDataTemplate>
+                    </DataTemplate>
                 </TreeView.DataTemplates>
             </TreeView>
             <Border Name="dropBorder" DragDrop.AllowDrop="True" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>

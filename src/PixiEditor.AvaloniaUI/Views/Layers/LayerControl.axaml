@@ -39,10 +39,10 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="10"/>
-                <RowDefinition Height="25"/>
+                <RowDefinition Height="26"/>
             </Grid.RowDefinitions>
             <Grid DragDrop.AllowDrop="True" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
-            <Grid Grid.Row="1" Grid.RowSpan="3" Margin="0,-10,0,0" VerticalAlignment="Center" DragDrop.AllowDrop="False">
+            <Grid Grid.Row="1" Margin="0,-17,0,0" VerticalAlignment="Center" DragDrop.AllowDrop="False">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="24"/>
                     <ColumnDefinition Width="*"/>
@@ -74,7 +74,7 @@
                                 <Binding ElementName="uc" Path="Layer.HasMaskBindable"/>
                             </MultiBinding>
                         </Border.BorderBrush>
-                        <Image Source="{Binding Layer.PreviewBitmap,ElementName=uc}" Stretch="Uniform" Width="30" Height="30"
+                        <Image Source="{Binding Layer.PreviewBitmap, ElementName=uc}" Stretch="Uniform" Width="30" Height="30"
                            RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                     </Border>
                     <Border

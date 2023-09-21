@@ -35,10 +35,10 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="10"/>
-                <RowDefinition Height="15"/>
+                <RowDefinition Height="16"/>
                 <RowDefinition Height="10"/>
             </Grid.RowDefinitions>
-            <Grid DragDrop.AllowDrop="True"  Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="3"/>
+            <Grid DragDrop.AllowDrop="True" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="3"/>
             <Grid IsVisible="False" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True" Panel.ZIndex="2" Background="Transparent"></Grid>
             <Grid x:Name="centerGrid" Grid.Row="0" Grid.RowSpan="3" Background="Transparent">
                 <Grid.ColumnDefinitions>
@@ -64,13 +64,12 @@
                                 </ImageBrush>
                             </Border.Background>
                             <Image Source="{Binding Folder.PreviewBitmap, ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30">
-                               <!--TODO: Avalonia throws error for below-->
-                                <!--<RenderOptions.BitmapInterpolationMode>
+                                <helpers:RenderOptionsBindable.BitmapInterpolationMode>
                                     <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
                                         <Binding Path="Folder.PreviewBitmap.PixelSize.Width" ElementName="folderControl"/>
                                         <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Bounds.Width"/>
                                     </MultiBinding>
-                                </RenderOptions.BitmapInterpolationMode>-->
+                                </helpers:RenderOptionsBindable.BitmapInterpolationMode>
                             </Image>
                         </Border>
                         <Border 
