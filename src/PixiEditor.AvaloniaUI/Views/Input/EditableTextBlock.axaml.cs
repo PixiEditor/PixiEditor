@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 
 namespace PixiEditor.AvaloniaUI.Views.Input;
@@ -11,7 +12,7 @@ internal partial class EditableTextBlock : UserControl
 {
     public static readonly StyledProperty<bool> TextBlockVisibilityProperty =
         AvaloniaProperty.Register<EditableTextBlock, bool>(
-            nameof(TextBlockVisibility));
+            nameof(TextBlockVisibility), true);
 
 
     public static readonly StyledProperty<string> TextProperty =
@@ -79,7 +80,8 @@ internal partial class EditableTextBlock : UserControl
         TextBlockVisibility = false;
         IsEditing = true;
         //TODO: Note Previously there was a dispatcher and keyboard focus.
-        textBox.Focus();         // Set Logical Focus
+
+        textBox.Focus();
         textBox.SelectAll();
     }
 
@@ -105,6 +107,7 @@ internal partial class EditableTextBlock : UserControl
         if (e.ClickCount == 2)
         {
             EnableEditing();
+            e.Handled = true;
         }
     }
 

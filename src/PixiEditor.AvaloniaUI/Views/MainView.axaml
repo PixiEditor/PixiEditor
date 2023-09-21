@@ -20,7 +20,7 @@
             <InvokeCommandAction Command="{Binding StartupCommand}"/>
         </EventTriggerBehavior>
     </Interaction.Behaviors>
-    <Grid>
+    <Grid Focusable="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
             <RowDefinition Height="*"/>

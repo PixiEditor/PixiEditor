@@ -57,7 +57,11 @@
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Grid.Column="0" HorizontalAlignment="Left">
                         <Border Width="32" Height="32" BorderThickness="1" BorderBrush="Black" RenderOptions.BitmapInterpolationMode="None">
                             <Border.Background>
-                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile" DestinationRect="0, 0, 0.20, 0.20"/>
+                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
                             </Border.Background>
                             <Image Source="{Binding Folder.PreviewBitmap, ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30">
                                <!--TODO: Avalonia throws error for below-->
@@ -77,7 +81,11 @@
                             IsVisible="{Binding Folder.HasMaskBindable, ElementName=folderControl}"
                             BorderBrush="White">
                             <Border.Background>
-                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile" DestinationRect="0, 0, 0.20, 0.20"/>
+                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
                             </Border.Background>
                             <Grid IsHitTestVisible="False">
                                 <Image Source="{Binding Folder.MaskPreviewBitmap,ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30"

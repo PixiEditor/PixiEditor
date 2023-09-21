@@ -9,21 +9,14 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.AvaloniaUI.ViewModels;
+using PixiEditor.AvaloniaUI.ViewModels.Dock;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.Views.Layers;
 #nullable enable
 internal partial class LayersManager : UserControl
 {
-    public static readonly StyledProperty<DocumentViewModel> ActiveDocumentProperty = AvaloniaProperty.Register<LayersManager, DocumentViewModel>(
-        nameof(ActiveDocument));
-
-    public DocumentViewModel ActiveDocument
-    {
-        get => GetValue(ActiveDocumentProperty);
-        set => SetValue(ActiveDocumentProperty, value);
-    }
-
+    public DocumentViewModel ActiveDocument => DataContext is LayersDockViewModel vm ? vm.ActiveDocument : null;
     private readonly IBrush? highlightColor;
     public LayersManager()
     {

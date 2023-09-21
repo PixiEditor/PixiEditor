@@ -375,7 +375,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
                 FileTypeFilter = imagesFilter,
             });
 
-            if (filePicker is null)
+            if (filePicker is null || filePicker.Count == 0)
                 return null;
 
             return filePicker[0].Path.AbsolutePath;

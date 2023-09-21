@@ -167,6 +167,7 @@
                             Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Height}"
                             Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
                             IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}"
+                            RenderTransformOrigin="0, 0"
                             SizeChanged="OnReferenceImageSizeChanged"
                             FlowDirection="LeftToRight">
                             <Image.RenderTransform>
@@ -391,7 +392,8 @@
                             </Rectangle.Fill>
                         </Rectangle>
                     </Grid>
-                    <Rectangle Stroke="{DynamicResource ThemeAccentBrush}" Opacity=".8" ZIndex="2"
+                    <!--TODO: what was the purpose of the rectangle below lol-->
+                    <Rectangle Stroke="{DynamicResource ThemeBackgroundBrush1}" Opacity=".8" ZIndex="2"
                                IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}">
                         <Rectangle.StrokeThickness>
                             <Binding Converter="{converters:ReciprocalConverter}">

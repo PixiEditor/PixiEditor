@@ -7,7 +7,6 @@
              xmlns:controls="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:helpers="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
@@ -63,7 +62,11 @@
                         RenderOptions.BitmapInterpolationMode="None"
                         PointerPressed="LayerMouseDown">
                         <Border.Background>
-                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile" DestinationRect="0, 0, 0.20, 0.20"/>
+                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                <ImageBrush.Transform>
+                                    <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
+                                </ImageBrush.Transform>
+                            </ImageBrush>
                         </Border.Background>
                         <Border.BorderBrush>
                             <MultiBinding Converter="{StaticResource LayerBorderConverter}">
@@ -82,7 +85,11 @@
                         IsVisible="{Binding Layer.HasMaskBindable, ElementName=uc}"
                         PointerPressed="MaskMouseDown">
                         <Border.Background>
-                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile" DestinationRect="0, 0, 0.20, 0.20"/>
+                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                <ImageBrush.Transform>
+                                    <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
+                                </ImageBrush.Transform>
+                            </ImageBrush>
                         </Border.Background>
                         <Border.BorderBrush>
                             <MultiBinding Converter="{StaticResource MaskBorderConverter}">

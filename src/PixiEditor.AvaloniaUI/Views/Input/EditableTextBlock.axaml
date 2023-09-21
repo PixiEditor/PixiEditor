@@ -10,14 +10,14 @@
     <Grid>
         <TextBlock Foreground="{Binding ElementName=etb, Path=Foreground}" PointerPressed="TextBlock_MouseDown"
                    TextTrimming="CharacterEllipsis" Name="textBlock"
-                   IsVisible="{Binding Path=TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
-                   Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}" />
+                   IsVisible="{Binding Path=TextBlockVisibility, ElementName=etb}"
+                   Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}" />
         <TextBox Foreground="{Binding ElementName=etb, Path=Foreground}"
-                 MaxLength="{Binding Path=MaxChars, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}"
+                 MaxLength="{Binding Path=MaxChars, ElementName=etb, Mode=TwoWay}"
                  LostFocus="TextBox_LostFocus"
-                 Text="{Binding Path=Text, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}, Mode=TwoWay}"
+                 Text="{Binding Path=Text, ElementName=etb, Mode=TwoWay}"
                  KeyDown="TextBox_KeyDown"
-                 IsVisible="{Binding Path=!TextBlockVisibility, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type UserControl}}}"
+                 IsVisible="{Binding !TextBlockVisibility, ElementName=etb}"
                  Name="textBox">
             <Interaction.Behaviors>
                 <behaviours:GlobalShortcutFocusBehavior/>

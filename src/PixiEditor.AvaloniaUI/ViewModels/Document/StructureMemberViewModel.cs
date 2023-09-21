@@ -135,7 +135,13 @@ internal abstract class StructureMemberViewModel : ObservableObject, IStructureM
         }
     }
 
-    public StructureMemberSelectionType Selection { get; set; }
+    private StructureMemberSelectionType selection;
+
+    public StructureMemberSelectionType Selection
+    {
+        get => selection;
+        set => SetProperty(ref selection, value);
+    }
 
     public WriteableBitmap? PreviewBitmap { get; set; }
     public DrawingSurface? PreviewSurface { get; set; }
