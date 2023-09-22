@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <AvaloniaResource Include="Assets\ChevronDown.png" />
       <AvaloniaResource Include="Assets\PixiEditorLogo.png" />
       <AvaloniaResource Include="Assets\Processing.gif" />
       <AvaloniaResource Include="Fonts\feather.ttf" />

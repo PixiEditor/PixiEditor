@@ -8,67 +8,19 @@
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
              xmlns:cmds="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
+             xmlns:decorators="clr-namespace:PixiEditor.AvaloniaUI.Views.Decorators"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d"
              d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" x:Name="uc">
-    <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="0 2 0 0" MinWidth="60"
+    <Border BorderThickness="0 2 0 0" MinWidth="60"
             Focusable="True" DragDrop.AllowDrop="True">
         <Interaction.Behaviors>
             <behaviours:ClearFocusOnClickBehavior/>
         </Interaction.Behaviors>
         <DockPanel Background="Transparent">
-            <CheckBox Focusable="False" ZIndex="10" Name="visibilityCheckbox" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right" DockPanel.Dock="Right">
-              <!--TODO: Recreate this animation-->
-                <!--<CheckBox.Triggers>
-                    <EventTrigger RoutedEvent="CheckBox.Checked">
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="mainDockPanel" Storyboard.TargetProperty="Height" From="40" To="0" Duration="0:0:0.15"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                    <EventTrigger RoutedEvent="CheckBox.Unchecked">
-                        <BeginStoryboard>
-                            <Storyboard>
-                                <DoubleAnimation Storyboard.TargetName="mainDockPanel" Storyboard.TargetProperty="Height" From="0" To="40" Duration="0:0:0.15"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-
-                </CheckBox.Triggers>-->
-                <CheckBox.Template>
-                    <ControlTemplate TargetType="{x:Type CheckBox}">
-                        <StackPanel Orientation="Horizontal" Focusable="False">
-                            <Image Focusable="False" Width="14" Cursor="Hand" x:Name="checkboxImage" Source="/Images/ChevronDown.png">
-                                <Image.RenderTransform>
-                                    <RotateTransform Angle="0"/>
-                                </Image.RenderTransform>
-                            </Image>
-                            <ContentPresenter Focusable="False"/>
-                        </StackPanel>
-                        <!--<ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="checkboxImage" Property="RenderTransform">
-                                    <Setter.Value>
-                                        <RotateTransform Angle="180" CenterX="7" CenterY="4"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </ControlTemplate.Triggers>-->
-                    </ControlTemplate>
-                    <!--<CheckBox.Styles>
-                        <Style Selector="CheckBox:checked #checkboxImage">
-                            <Setter Property="RenderTransform">
-                                <Setter.Value>
-                                    <RotateTransform Angle="180" CenterX="7" CenterY="4"/>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </CheckBox.Styles>-->
-                </CheckBox.Template>
-            </CheckBox>
-
+            <controls:Shelf>
             <Grid Height="40" x:Name="mainDockPanel">
-                <Grid 
+                <Grid
                     IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"
                     Panel.ZIndex="5">
                     <Grid Cursor="Hand" IsVisible="{Binding ElementName=visibilityCheckbox, Path=!IsChecked}" Background="Transparent">
@@ -76,8 +28,8 @@
                             <Image Margin="5 0 5 0" Width="20" Source="/Images/Add-reference.png"
                                IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NullToVisibilityConverter}}"/>
 
-                            <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" 
-                                        Margin="0 0 5 0" Foreground="White" 
+                            <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"
+                                        Margin="0 0 5 0" Foreground="White"
                                         FontSize="15" VerticalAlignment="Center" ui:Translator.Key="ADD_REFERENCE_LAYER"/>
                         </StackPanel>
                         <Interaction.Behaviors>
@@ -153,6 +105,7 @@
                                FontSize="15" VerticalAlignment="Center" ui:Translator.Key="REFERENCE"/>
                 </DockPanel>
             </Grid>
+                </controls:Shelf>
         </DockPanel>
     </Border>
 </UserControl>

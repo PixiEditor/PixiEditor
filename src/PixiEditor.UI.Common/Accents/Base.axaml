@@ -62,6 +62,7 @@
             <SolidColorBrush x:Key="ThumbBrush" Color="{StaticResource ThumbColor}"/>
 
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
+            <CornerRadius x:Key="ControlCornerRadiusTop">5, 5, 0, 0</CornerRadius>
             <system:Double x:Key="ControlCornerRadiusValue">5</system:Double>
             <Thickness x:Key="ThemeBorderThickness">1</Thickness>
             <system:Double x:Key="ScrollBarThickness">12</system:Double>
