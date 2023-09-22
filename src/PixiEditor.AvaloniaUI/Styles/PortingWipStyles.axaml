@@ -27,7 +27,13 @@
     </Style>
 
     <Style Selector="Button.ToolButtonStyle">
-
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}">
+                    <ContentPresenter/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
     </Style>
 
     <Style Selector="Button.ImageButtonStyle">
