@@ -7,17 +7,17 @@ namespace PixiEditor.AvaloniaUI.Views.Input;
 
 internal partial class NumberInput : UserControl
 {
-    public static readonly StyledProperty<float> ValueProperty =
-        AvaloniaProperty.Register<NumberInput, float>(
-            nameof(Value), 0f);
+    public static readonly StyledProperty<double> ValueProperty =
+        AvaloniaProperty.Register<NumberInput, double>(
+            nameof(Value), 0);
 
-    public static readonly StyledProperty<float> MinProperty =
-        AvaloniaProperty.Register<NumberInput, float>(
+    public static readonly StyledProperty<double> MinProperty =
+        AvaloniaProperty.Register<NumberInput, double>(
             nameof(Min), float.NegativeInfinity);
 
-    public static readonly StyledProperty<float> MaxProperty =
-        AvaloniaProperty.Register<NumberInput, float>(
-            nameof(Max), float.PositiveInfinity);
+    public static readonly StyledProperty<double> MaxProperty =
+        AvaloniaProperty.Register<NumberInput, double>(
+            nameof(Max), double.PositiveInfinity);
 
     private readonly Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$", RegexOptions.Compiled);
 
@@ -49,21 +49,21 @@ internal partial class NumberInput : UserControl
         InitializeComponent();
     }
 
-    public float Value
+    public double Value
     {
-        get => (float)GetValue(ValueProperty);
+        get => (double)GetValue(ValueProperty);
         set => SetValue(ValueProperty, value);
     }
 
-    public float Min
+    public double Min
     {
-        get => (float)GetValue(MinProperty);
+        get => (double)GetValue(MinProperty);
         set => SetValue(MinProperty, value);
     }
 
-    public float Max
+    public double Max
     {
-        get => (float)GetValue(MaxProperty);
+        get => (double)GetValue(MaxProperty);
         set => SetValue(MaxProperty, value);
     }
 
@@ -77,7 +77,7 @@ internal partial class NumberInput : UserControl
         set { SetValue(FocusNextProperty, value); }
     }
 
-    private static void OnValueChanged(AvaloniaPropertyChangedEventArgs<float> e)
+    private static void OnValueChanged(AvaloniaPropertyChangedEventArgs<double> e)
     {
         NumberInput input = (NumberInput)e.Sender;
         input.Value = (float)Math.Round(Math.Clamp(e.NewValue.Value, input.Min, input.Max), input.Decimals);
@@ -92,10 +92,10 @@ internal partial class NumberInput : UserControl
     {
         int step = (int)e.Delta.Y / 100;
 
-        float newValue = Value;
+        double newValue = Value;
         if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
-            float multiplier = (Max - Min) * 0.1f;
+            double multiplier = (Max - Min) * 0.1f;
             newValue += step * multiplier;
         }
         else if (e.KeyModifiers.HasFlag(KeyModifiers.Control))

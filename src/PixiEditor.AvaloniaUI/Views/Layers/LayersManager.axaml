@@ -18,6 +18,9 @@
              xmlns:docVm="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
+    <UserControl.Resources>
+        <sys:Double x:Key="OpacityMultiplier">100</sys:Double>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="58"/>
@@ -105,22 +108,12 @@
                     d:Value="100"
                     DockPanel.Dock="Right"
                     IsEnabled="{Binding Path=DataContext.ActiveDocument, ElementName=layersManager, Converter={converters1:NotNullToVisibilityConverter}}"
+                    Value="{Binding Path=DataContext.ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=TwoWay, ElementName=layersManager,
+                        Converter={converters1:MultiplyConverter}, ConverterParameter={StaticResource OpacityMultiplier}}"
                     Width="35" Height="20"
                     Margin="5,0,0,0"
                     VerticalAlignment="Center"
-                    LostFocus="NumberInput_LostFocus">
-                    <input:NumberInput.Value>
-                        <Binding
-                            Mode="TwoWay"
-                            ElementName="layersManager"
-                            Path="DataContext.ActiveDocument.SelectedStructureMember.OpacityBindable"
-                            Converter="{converters1:MultiplyConverter}">
-                            <Binding.ConverterParameter>
-                                <sys:Double>100</sys:Double>
-                            </Binding.ConverterParameter>
-                        </Binding>
-                    </input:NumberInput.Value>
-                </input:NumberInput>
+                    LostFocus="NumberInput_LostFocus"/>
                 <Slider
                     Minimum="0"
                     Maximum="1"
