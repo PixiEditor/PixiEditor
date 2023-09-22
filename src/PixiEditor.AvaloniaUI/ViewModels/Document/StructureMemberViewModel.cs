@@ -152,7 +152,13 @@ internal abstract class StructureMemberViewModel : ObservableObject, IStructureM
     }
     public DrawingSurface? PreviewSurface { get; set; }
 
-    public WriteableBitmap? MaskPreviewBitmap { get; set; }
+    private WriteableBitmap? maskPreviewBitmap;
+
+    public WriteableBitmap? MaskPreviewBitmap
+    {
+        get => maskPreviewBitmap;
+        set => SetProperty(ref maskPreviewBitmap, value);
+    }
 
     public DrawingSurface? MaskPreviewSurface { get; set; }
 

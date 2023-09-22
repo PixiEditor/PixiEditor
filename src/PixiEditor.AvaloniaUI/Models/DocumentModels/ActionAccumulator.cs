@@ -160,7 +160,7 @@ internal class ActionAccumulator
         foreach (var child in root.Children)
         {
             lockedFramebuffers.Add(child.PreviewBitmap?.Lock());
-            child.MaskPreviewBitmap?.Lock();
+            lockedFramebuffers.Add(child.MaskPreviewBitmap?.Lock());
             if (child is IFolderHandler innerFolder)
                 LockPreviewBitmaps(innerFolder, lockedFramebuffers);
         }
