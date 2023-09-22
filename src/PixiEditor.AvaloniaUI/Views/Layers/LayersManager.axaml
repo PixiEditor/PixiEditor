@@ -100,8 +100,9 @@
                 <input:BlendModeComboBox
                     DockPanel.Dock="Left"
                     Margin="0,0,5,0"
-                    Width="80"
-                    SelectedBlendMode="{Binding DataContext.ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay, ElementName=layersManager}" />
+                    Width="120"
+                    SelectedBlendMode="{Binding DataContext.ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay, ElementName=layersManager}">
+                </input:BlendModeComboBox>
                 <input:NumberInput
                     Min="0" Max="100"
                     x:Name="numberInput"

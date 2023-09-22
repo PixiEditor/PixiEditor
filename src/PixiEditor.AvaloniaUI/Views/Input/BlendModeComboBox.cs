@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Generators;
+using Avalonia.Controls.Templates;
+using Avalonia.Layout;
+using Avalonia.Markup.Xaml.Templates;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Extensions.UI;
@@ -29,8 +33,14 @@ internal class BlendModeComboBox : ComboBox
 
     public BlendModeComboBox()
     {
+        ItemsPanel = new FuncTemplate<Panel>(() => new StackPanel() { Orientation = Orientation.Vertical });
         AddItems();
         SelectionChanged += OnSelectionChange;
+    }
+
+    protected override Control CreateContainerForItemOverride(object? item, int index, object? recycleKey)
+    {
+        return item is Separator ? new Separator() : base.CreateContainerForItemOverride(item, index, recycleKey);
     }
 
     private void OnSelectionChange(object sender, SelectionChangedEventArgs e)
@@ -94,6 +104,7 @@ internal class BlendModeComboBox : ComboBox
             {
                 Translator.SetKey(boxItem, boxItem.Content.ToString());
             }
+
             Items.Add(item);
         }
         SelectedIndex = 0;
