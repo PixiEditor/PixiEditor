@@ -35,7 +35,18 @@
     </Style>
 
     <Style Selector="CheckBox.ImageCheckBox">
+        <Setter Property="Template">
+                <ControlTemplate TargetType="{x:Type CheckBox}">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Cursor="Hand" x:Name="checkboxImage" Source="../Images/Eye-off.png"/>
+                        <ContentPresenter/>
+                    </StackPanel>
+            </ControlTemplate>
+        </Setter>
+    </Style>
 
+    <Style Selector="CheckBox.ImageCheckBox:checked Image">
+        <Setter Property="Source" Value="../Images/Eye.png"/>
     </Style>
 
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle">

@@ -1,15 +1,15 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <ControlTheme x:Key="SliderRepeatTrackTheme"
-                TargetType="RepeatButton">
-    <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush1}" />
-    <Setter Property="Focusable" Value="False" />
-    <Setter Property="Foreground" Value="{DynamicResource ThemeBorderLowBrush}" />
-    <Setter Property="Template">
-      <ControlTemplate>
-        <Border Background="{TemplateBinding Background}"/>
-      </ControlTemplate>
-    </Setter>
+
+    <ControlTheme x:Key="SliderRepeatTrackTheme"
+                  TargetType="RepeatButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="Transparent" ></Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
   </ControlTheme>
 
   <ControlTheme x:Key="{x:Type Slider}"
@@ -21,17 +21,11 @@
       <Setter Property="Template">
         <ControlTemplate>
             <Grid Name="grid">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto" />
-              <RowDefinition Height="Auto"
-                             MinHeight="20" />
-              <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Border Name="TrackBackground"
-                    Grid.Row="1"
-                    Height="4"
-                    Margin="6,0"
-                    VerticalAlignment="Center" />
+                <Border Margin="6, 0" CornerRadius="4" Background="{DynamicResource ThemeControlLowBrush}" Height="6"
+                        VerticalAlignment="Center"></Border>
+                <Canvas Margin="-6,-1">
+                    <Rectangle IsVisible="false" x:Name="PART_SelectionRange" Height="4.0" StrokeThickness="1.0"/>
+                </Canvas>
             <Track Name="PART_Track"
                    Grid.Row="1"
                    IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
@@ -49,11 +43,7 @@
                      MinHeight="20">
                 <Thumb.Template>
                   <ControlTemplate>
-                    <Grid Background="{DynamicResource ThemeBackgroundBrush1}">
-                      <Ellipse Width="12"
-                               Height="12"
-                               Fill="{DynamicResource ThemeAccentBrush}" />
-                    </Grid>
+                      <Border Background="{DynamicResource ThumbBrush}" Width="8" Height="18" CornerRadius="4"/>
                   </ControlTemplate>
                 </Thumb.Template>
               </Thumb>
@@ -98,11 +88,7 @@
                      MinHeight="20">
                 <Thumb.Template>
                   <ControlTemplate>
-                    <Grid>
-                      <Ellipse Width="12"
-                               Height="12"
-                               Fill="{DynamicResource ThemeAccentBrush}" />
-                    </Grid>
+                      <Border Background="{DynamicResource ThumbBrush}" Width="18" Height="8" CornerRadius="4"/>
                   </ControlTemplate>
                 </Thumb.Template>
               </Thumb>
