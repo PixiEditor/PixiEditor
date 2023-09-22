@@ -465,13 +465,12 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
 
     private void OnMainCanvasSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        OnPropertyChange(this);
-        RaiseViewportEvent();
+        //TODO: This causes app freeze on window resize
+        //OnPropertyChange(this);
     }
 
     private void OnGridSizeChanged(object sender, SizeChangedEventArgs args)
     {
         OnPropertyChange(this);
-        RaiseViewportEvent();
     }
 }

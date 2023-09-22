@@ -28,7 +28,7 @@
     x:Name="vpUc"
     d:DesignHeight="450"
     d:DesignWidth="800">
-    <Grid 
+    <Grid
         x:Name="viewportGrid"
         PointerPressed="Image_MouseDown">
         <Interaction.Behaviors>
@@ -184,18 +184,18 @@
                                             <DataTrigger.EnterActions>
                                                 <BeginStoryboard>
                                                     <Storyboard>
-                                                        <DoubleAnimation 
-                                                            Storyboard.TargetProperty="(Button.Opacity)" 
-                                                            From="1" To="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" Duration="0:0:0.1" /> 
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetProperty="(Button.Opacity)"
+                                                            From="1" To="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" Duration="0:0:0.1" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </DataTrigger.EnterActions>
                                             <DataTrigger.ExitActions>
                                                 <BeginStoryboard>
                                                     <Storyboard>
-                                                        <DoubleAnimation 
-                                                            Storyboard.TargetProperty="(Button.Opacity)" 
-                                                            From="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" To="1" Duration="0:0:0.1" /> 
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetProperty="(Button.Opacity)"
+                                                            From="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" To="1" Duration="0:0:0.1" />
                                                     </Storyboard>
                                                 </BeginStoryboard>
                                             </DataTrigger.ExitActions>
@@ -212,18 +212,18 @@
                                         <DataTrigger.EnterActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <DoubleAnimation 
-                                                        Storyboard.TargetProperty="(Button.Opacity)" 
-                                                        From="1" To="0" Duration="0:0:0.1" /> 
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="(Button.Opacity)"
+                                                        From="1" To="0" Duration="0:0:0.1" />
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.EnterActions>
                                         <DataTrigger.ExitActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <DoubleAnimation 
-                                                        Storyboard.TargetProperty="(Button.Opacity)" 
-                                                        From="0" To="1" Duration="0:0:0.1" /> 
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="(Button.Opacity)"
+                                                        From="0" To="1" Duration="0:0:0.1" />
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.ExitActions>
@@ -247,18 +247,18 @@
                                         <DataTrigger.EnterActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <DoubleAnimation 
-                                                        Storyboard.TargetProperty="(Button.Opacity)" 
-                                                        From="1" To="0" Duration="0:0:0.1" /> 
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="(Button.Opacity)"
+                                                        From="1" To="0" Duration="0:0:0.1" />
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.EnterActions>
                                         <DataTrigger.ExitActions>
                                             <BeginStoryboard>
                                                 <Storyboard>
-                                                    <DoubleAnimation 
-                                                        Storyboard.TargetProperty="(Button.Opacity)" 
-                                                        From="0" To="1" Duration="0:0:0.1" /> 
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="(Button.Opacity)"
+                                                        From="0" To="1" Duration="0:0:0.1" />
                                                 </Storyboard>
                                             </BeginStoryboard>
                                         </DataTrigger.ExitActions>
@@ -323,8 +323,8 @@
                             ZoomboxScale="{Binding Zoombox.Scale}"
                             FlowDirection="LeftToRight"/>
                     </Grid>
-                    <Grid IsHitTestVisible="False" 
-                        ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10" 
+                    <Grid IsHitTestVisible="False"
+                        ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10"
                         IsVisible="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
                         <Grid.Resources>
                             <converters:ThresholdVisibilityConverter Threshold="10" x:Key="ThresholdVisibilityConverter"/>
