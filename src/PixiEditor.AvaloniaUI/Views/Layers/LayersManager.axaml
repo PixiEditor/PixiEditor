@@ -34,7 +34,7 @@
                     DockPanel.Dock="Left"
                     Height="24" Width="24" Cursor="Hand" uiExt:Translator.TooltipKey="NEW_LAYER"
                     HorizontalAlignment="Stretch" Margin="0,0,5,0"
-                    Classes="ToolButtonStyle"
+                    Classes="ImageButtonStyle"
                     FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush Source="/Images/Layer-add.png"/>
@@ -45,7 +45,7 @@
                     Height="24" Width="24" uiExt:Translator.TooltipKey="NEW_FOLDER" Cursor="Hand"
                     DockPanel.Dock="Left"
                     HorizontalAlignment="Stretch"  Margin="0,0,5,0"
-                    Classes="ToolButtonStyle"
+                    Classes="ImageButtonStyle"
                     FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush Source="/Images/Folder-add.png"/>
@@ -56,7 +56,7 @@
                     Cursor="Hand"
                     HorizontalAlignment="Stretch" Margin="0,0,5,0"
                     DockPanel.Dock="Left"
-                    Classes="ToolButtonStyle"
+                    Classes="ImageButtonStyle"
                     FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush Source="/Images/Trash.png"/>
@@ -66,7 +66,7 @@
                     Command="{xaml:Command PixiEditor.Layer.MergeWithBelow}" Height="24" Width="24" uiExt:Translator.TooltipKey="MERGE_WITH_BELOW" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
-                    Classes="ToolButtonStyle"
+                    Classes="ImageButtonStyle"
                     FlowDirection="LeftToRight">
                     <Button.Background>
                         <ImageBrush Source="/Images/Merge-downwards.png"/>
@@ -76,7 +76,7 @@
                     Height="24" Width="24" uiExt:Translator.TooltipKey="CREATE_MASK" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
-                    Classes="ToolButtonStyle"
+                    Classes="ImageButtonStyle"
                     Command="{xaml:Command PixiEditor.Layer.CreateMask}"
                     FlowDirection="LeftToRight">
                     <Button.Background>
@@ -87,7 +87,7 @@
                     Height="24" Width="24" uiExt:Translator.TooltipKey="LOCK_TRANSPARENCY" Cursor="Hand"
                     DockPanel.Dock="Right"
                     HorizontalAlignment="Stretch" Margin="5,0,0,0"
-                    Classes="ToolButtonStyle"
+                    Classes="ImageButtonStyle"
                     Command="{xaml:Command PixiEditor.Layer.ToggleLockTransparency}"
                     FlowDirection="LeftToRight">
                     <Button.Background>

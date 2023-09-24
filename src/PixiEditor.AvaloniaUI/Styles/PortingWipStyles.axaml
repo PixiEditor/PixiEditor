@@ -26,7 +26,7 @@
 
     </Style>
 
-    <Style Selector="Button.ToolButtonStyle">
+    <Style Selector="Button.ImageButtonStyle">
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Background="{TemplateBinding Background}">
@@ -34,10 +34,6 @@
                 </Border>
             </ControlTemplate>
         </Setter>
-    </Style>
-
-    <Style Selector="Button.ImageButtonStyle">
-
     </Style>
 
     <Style Selector="CheckBox.ImageCheckBox">
