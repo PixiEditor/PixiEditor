@@ -92,6 +92,7 @@
             <system:Double x:Key="Header2">26</system:Double>
             <system:Double x:Key="Header3">22</system:Double>
             <system:Double x:Key="Header4">20</system:Double>
+            <system:Double x:Key="Header5">16</system:Double>
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 

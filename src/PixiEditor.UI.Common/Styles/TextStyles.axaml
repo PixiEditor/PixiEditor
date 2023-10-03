@@ -21,4 +21,8 @@
     <Style Selector="TextBlock.h4">
         <Setter Property="FontSize" Value="{DynamicResource Header4}"/>
     </Style>
+    
+    <Style Selector="TextBlock.h5">
+        <Setter Property="FontSize" Value="{DynamicResource Header5}"/>
+    </Style>
 </Styles>
