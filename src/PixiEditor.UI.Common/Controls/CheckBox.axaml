@@ -49,7 +49,7 @@
                  Background="{DynamicResource ThemeControlLowColor}"
                                       BorderThickness="1">
             <Panel>
-                <Path FlowDirection="LeftToRight" Width="9" Height="9" x:Name="checkMark" Margin="2 2 0 0"
+                <Path FlowDirection="LeftToRight" Width="9" Height="9" x:Name="checkMark" Margin="1 1 0 0"
                       Stroke="{DynamicResource ThemeAccentBrush}" StrokeThickness="1.5"
                       Data="{StaticResource Empty}">
                 </Path>
