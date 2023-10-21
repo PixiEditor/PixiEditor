@@ -1,12 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 
 namespace PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
@@ -15,7 +13,7 @@ internal class IconEvaluator : Evaluator<IImage>
 {
     public static IconEvaluator Default { get; } = new CommandNameEvaluator();
 
-    public override IImage CallEvaluate(Command command, object parameter) =>
+    public override IImage? CallEvaluate(Command command, object parameter) =>
         base.CallEvaluate(command, parameter ?? command);
 
     public static string GetDefaultPath(Command command)
@@ -42,8 +40,6 @@ internal class IconEvaluator : Evaluator<IImage>
             path = $"Images/Commands/{command.InternalName.Replace('.', '/')}.png";
         }
 
-        path = path.ToLower();
-
         if (path.StartsWith("/"))
         {
             path = path[1..];
@@ -55,35 +51,24 @@ internal class IconEvaluator : Evaluator<IImage>
     [DebuggerDisplay("IconEvaluator.Default")]
     private class CommandNameEvaluator : IconEvaluator
     {
-        public static string[] resources = GetResourceNames();
-
         public static Dictionary<string, Bitmap> images = new();
 
-        public override IImage CallEvaluate(Command command, object parameter)
+        public override IImage? CallEvaluate(Command command, object parameter)
         {
             string path = GetDefaultPath(command);
 
-            if (resources.Contains(path))
-            {
-                var image = images.GetValueOrDefault(path);
-
-                if (image == null)
-                {
-                    using Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream($"pack://application:,,,/{path}")!;
-                    image = new Bitmap(stream);
-                    images.Add(path, image);
-                }
-
+            var image = images.GetValueOrDefault(path);
+            if (image is not null)
                 return image;
-            }
+            
+            Uri uri = new($"avares://{Assembly.GetExecutingAssembly().GetName().Name}/{path}");
+            if (!AssetLoader.Exists(uri))
+                return null;
+            
+            image = new Bitmap(AssetLoader.Open(uri));
+            images.Add(path, image);
 
-            return null;
-        }
-
-        private static string[] GetResourceNames()
-        {
-            return App.Current.Resources.Select(entry =>
-                (string)entry.Key).ToArray();
+            return image;
         }
     }
 }
