@@ -15,9 +15,9 @@
     xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
     xmlns:preferences="clr-namespace:PixiEditor.AvaloniaUI.Models.Preferences"
     xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
-    xmlns:settings="clr-namespace:PixiEditor.AvaloniaUI.Views.Settings"
+    xmlns:settings="clr-namespace:PixiEditor.AvaloniaUI.Views.Windows.Settings"
     mc:Ignorable="d"
-    x:Class="PixiEditor.AvaloniaUI.Views.Settings.SettingsWindow"
+    x:Class="PixiEditor.AvaloniaUI.Views.Windows.Settings.SettingsWindow"
     Name="window"
     d:DesignWidth="780" d:DesignHeight="688"
     Width="780" Height="688"
@@ -235,13 +235,14 @@
                     <CheckBox IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
                               IsChecked="{Binding SettingsSubViewModel.Discord.ShowLayerCount}"
                               ui:Translator.Key="SHOW_LAYER_COUNT" d:Content="Show layer count"/>
-
-                    <!--<usercontrols:DiscordRPPreview 
-                        Width="280"
-                        State="{Binding SettingsSubViewModel.Discord.StatePreview}" 
-                        Detail="{Binding SettingsSubViewModel.Discord.DetailPreview}" 
-                        IsPlaying="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"/>-->
                 </controls:FixedSizeStackPanel>
+                
+                <settings:DiscordRichPresencePreview
+                    HorizontalAlignment="Center"
+                    Width="280"
+                    State="{Binding SettingsSubViewModel.Discord.StatePreview}" 
+                    Detail="{Binding SettingsSubViewModel.Discord.DetailPreview}" 
+                    IsPlaying="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"/>
             </StackPanel>
 
             <Grid Height="{Binding ElementName=window, Path=Height, Converter={converters:SubtractConverter}, ConverterParameter=50}">

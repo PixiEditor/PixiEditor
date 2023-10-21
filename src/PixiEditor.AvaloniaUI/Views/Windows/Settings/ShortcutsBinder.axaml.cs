@@ -1,6 +1,6 @@
 ﻿using Avalonia.Controls;
 
-namespace PixiEditor.AvaloniaUI.Views.Settings;
+namespace PixiEditor.AvaloniaUI.Views.Windows.Settings;
 
 public partial class ShortcutsBinder : UserControl
 {

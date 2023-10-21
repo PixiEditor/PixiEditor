@@ -8,7 +8,7 @@
     xmlns:commands="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands"
     mc:Ignorable="d"
     d:DesignHeight="600" d:DesignWidth="400"
-    x:Class="PixiEditor.AvaloniaUI.Views.Settings.ShortcutsBinder">
+    x:Class="PixiEditor.AvaloniaUI.Views.Windows.Settings.ShortcutsBinder">
     
     <Grid>
     <ScrollViewer x:Name="commandScroll">

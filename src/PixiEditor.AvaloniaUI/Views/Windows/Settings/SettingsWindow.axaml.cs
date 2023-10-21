@@ -1,7 +1,7 @@
 ﻿using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.ViewModels;
 
-namespace PixiEditor.AvaloniaUI.Views.Settings;
+namespace PixiEditor.AvaloniaUI.Views.Windows.Settings;
 
 public partial class SettingsWindow : Window
 {
