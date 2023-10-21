@@ -84,8 +84,12 @@
                           SelectedItem="{Binding SettingsSubViewModel.General.SelectedLanguage, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Image VerticalAlignment="Center" Source="{Binding IconFullPath}"/>
+                            <StackPanel Orientation="Horizontal" Height="20">
+                                <Image
+                                    MaxHeight="20"
+                                    Margin="3, 0"
+                                    VerticalAlignment="Center"
+                                    Source="{Binding IconFullPath, Converter={converters:ImagePathToBitmapConverter}}" />
                                 <TextBlock VerticalAlignment="Center" Text="{Binding Name}"/>
                             </StackPanel>
                         </DataTemplate>
