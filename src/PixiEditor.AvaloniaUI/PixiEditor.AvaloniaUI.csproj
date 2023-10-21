@@ -74,6 +74,13 @@
   
     <ItemGroup>
       <UpToDateCheckInput Remove="Fonts\feather.ttf" />
+      <UpToDateCheckInput Remove="Views\Settings\SettingsWindow.axaml" />
+      <UpToDateCheckInput Remove="Views\Settings\ShortcutsBinder.axaml" />
+    </ItemGroup>
+  
+    <ItemGroup>
+      <AdditionalFiles Include="Views\Windows\Settings\SettingsWindow.axaml" />
+      <AdditionalFiles Include="Views\Windows\Settings\ShortcutsBinder.axaml" />
     </ItemGroup>
   
 </Project>
