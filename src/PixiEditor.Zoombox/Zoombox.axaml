@@ -19,6 +19,7 @@
         Background="Transparent"
         SizeChanged="OnMainCanvasSizeChanged">
         <Grid
+            RenderTransformOrigin="0,0"
             x:Name="mainGrid"
             SizeChanged="OnGridSizeChanged"
             Canvas.Left="{Binding ElementName=uc, Path=CanvasX}"

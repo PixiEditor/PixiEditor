@@ -13,38 +13,38 @@ namespace PixiEditor.Zoombox;
 
 public partial class Zoombox : UserControl, INotifyPropertyChanged
 {
-        public static readonly StyledProperty<ZoomboxMode> ZoomModeProperty =
-            AvaloniaProperty.Register<Zoombox, ZoomboxMode>(nameof(ZoomMode), defaultValue: ZoomboxMode.Normal);
+    public static readonly StyledProperty<ZoomboxMode> ZoomModeProperty =
+        AvaloniaProperty.Register<Zoombox, ZoomboxMode>(nameof(ZoomMode), defaultValue: ZoomboxMode.Normal);
 
-        public static readonly StyledProperty<bool> ZoomOutOnClickProperty =
-            AvaloniaProperty.Register<Zoombox, bool>(nameof(ZoomOutOnClick), defaultValue: false);
+    public static readonly StyledProperty<bool> ZoomOutOnClickProperty =
+        AvaloniaProperty.Register<Zoombox, bool>(nameof(ZoomOutOnClick), defaultValue: false);
 
-        public static readonly StyledProperty<bool> UseTouchGesturesProperty =
-            AvaloniaProperty.Register<Zoombox, bool>(nameof(UseTouchGestures));
+    public static readonly StyledProperty<bool> UseTouchGesturesProperty =
+        AvaloniaProperty.Register<Zoombox, bool>(nameof(UseTouchGestures));
 
-        public static readonly StyledProperty<double> ScaleProperty =
-            AvaloniaProperty.Register<Zoombox, double>(nameof(Scale), defaultValue: 1.0);
+    public static readonly StyledProperty<double> ScaleProperty =
+        AvaloniaProperty.Register<Zoombox, double>(nameof(Scale), defaultValue: 1.0);
 
-        public static readonly StyledProperty<VecD> CenterProperty =
-            AvaloniaProperty.Register<Zoombox, VecD>(nameof(Center), defaultValue: new VecD(0, 0));
+    public static readonly StyledProperty<VecD> CenterProperty =
+        AvaloniaProperty.Register<Zoombox, VecD>(nameof(Center), defaultValue: new VecD(0, 0));
 
-        public static readonly StyledProperty<VecD> DimensionsProperty =
-            AvaloniaProperty.Register<Zoombox, VecD>(nameof(Dimensions));
+    public static readonly StyledProperty<VecD> DimensionsProperty =
+        AvaloniaProperty.Register<Zoombox, VecD>(nameof(Dimensions));
 
-        public static readonly StyledProperty<VecD> RealDimensionsProperty =
-            AvaloniaProperty.Register<Zoombox, VecD>(nameof(RealDimensions));
+    public static readonly StyledProperty<VecD> RealDimensionsProperty =
+        AvaloniaProperty.Register<Zoombox, VecD>(nameof(RealDimensions));
 
-        public static readonly StyledProperty<double> AngleProperty =
-            AvaloniaProperty.Register<Zoombox, double>(nameof(Angle), defaultValue: 0.0);
+    public static readonly StyledProperty<double> AngleProperty =
+        AvaloniaProperty.Register<Zoombox, double>(nameof(Angle), defaultValue: 0.0);
 
-        public static readonly StyledProperty<bool> FlipXProperty =
-            AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipX), defaultValue: false);
+    public static readonly StyledProperty<bool> FlipXProperty =
+        AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipX), defaultValue: false);
 
-        public static readonly StyledProperty<bool> FlipYProperty =
-            AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipY), defaultValue: false);
+    public static readonly StyledProperty<bool> FlipYProperty =
+        AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipY), defaultValue: false);
 
-        public static readonly StyledProperty<AvaloniaObject> AdditionalContentProperty =
-            AvaloniaProperty.Register<Zoombox, AvaloniaObject>(nameof(AdditionalContent));
+    public static readonly StyledProperty<AvaloniaObject> AdditionalContentProperty =
+        AvaloniaProperty.Register<Zoombox, AvaloniaObject>(nameof(AdditionalContent));
 
     public static readonly RoutedEvent<ViewportRoutedEventArgs> ViewportMovedEvent = RoutedEvent.Register<Zoombox, ViewportRoutedEventArgs>(
         nameof(ViewportMoved), RoutingStrategies.Bubble);
@@ -403,7 +403,6 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         activeDragOperation?.Update(e);
     }
 
-    //TODO: Scroll is imprecise
     private void OnScroll(object sender, PointerWheelEventArgs e)
     {
         double abs = Math.Abs(e.Delta.Y / 100.0);
@@ -445,7 +444,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
     private static void OnPropertyChange(AvaloniaPropertyChangedEventArgs e)
     {
         Zoombox? zoombox = (Zoombox)e.Sender;
-       OnPropertyChange(zoombox);
+        OnPropertyChange(zoombox);
     }
 
     private static void OnPropertyChange(Zoombox zoombox)
