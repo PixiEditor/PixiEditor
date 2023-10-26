@@ -38,10 +38,14 @@ internal class SettingsPage : ObservableObject
     }
 }
 
-internal class SettingsWindowViewModel : ViewModelBase
+internal partial class SettingsWindowViewModel : ViewModelBase
 {
     private string searchTerm;
+    
+    [ObservableProperty]
     private int visibleGroups;
+    
+    [ObservableProperty]
     private int currentPage;
 
     public bool ShowUpdateTab
@@ -69,18 +73,6 @@ internal class SettingsWindowViewModel : ViewModelBase
                 VisibleGroups = Commands.Count(x => x.IsVisible);
             }
         }
-    }
-
-    public int CurrentPage
-    {
-        get => currentPage;
-        set => SetProperty(ref currentPage, value);
-    }
-
-    public int VisibleGroups
-    {
-        get => visibleGroups;
-        private set => SetProperty(ref visibleGroups, value);
     }
 
     public SettingsViewModel SettingsSubViewModel { get; set; }
@@ -275,9 +267,9 @@ internal class SettingsWindowViewModel : ViewModelBase
     {
         Pages = new ObservableCollection<SettingsPage>
         {
-            new SettingsPage("GENERAL"),
-            new SettingsPage("DISCORD"),
-            new SettingsPage("KEY_BINDINGS"),
+            new("GENERAL"),
+            new("DISCORD"),
+            new("KEY_BINDINGS"),
         };
 
         ILocalizationProvider.Current.OnLanguageChanged += OnLanguageChanged;
@@ -349,43 +341,33 @@ internal class SettingsWindowViewModel : ViewModelBase
             group.IsVisible = visibleCommands > 0;
         }
     }
+}
 
-    internal class GroupSearchResult : ObservableObject
+internal partial class GroupSearchResult : ObservableObject
+{
+    [ObservableProperty]
+    private bool isVisible;
+
+    public LocalizedString DisplayName { get; set; }
+
+    public List<CommandSearchResult> Commands { get; set; }
+
+    public GroupSearchResult(CommandGroup group)
     {
-        private bool isVisible;
-
-        public LocalizedString DisplayName { get; set; }
-
-        public List<CommandSearchResult> Commands { get; set; }
-
-        public bool IsVisible
-        {
-            get => isVisible;
-            set => SetProperty(ref isVisible, value);
-        }
-
-        public GroupSearchResult(CommandGroup group)
-        {
-            DisplayName = group.DisplayName;
-            Commands = new(group.VisibleCommands.Select(x => new CommandSearchResult(x)));
-        }
+        DisplayName = group.DisplayName;
+        Commands = new(group.VisibleCommands.Select(x => new CommandSearchResult(x)));
     }
+}
 
-    internal class CommandSearchResult : ObservableObject
+internal partial class CommandSearchResult : ObservableObject
+{
+    [ObservableProperty]
+    private bool isVisible;
+
+    public Models.Commands.Commands.Command Command { get; set; }
+
+    public CommandSearchResult(Models.Commands.Commands.Command command)
     {
-        private bool isVisible;
-
-        public Models.Commands.Commands.Command Command { get; set; }
-
-        public bool IsVisible
-        {
-            get => isVisible;
-            set => SetProperty(ref isVisible, value);
-        }
-
-        public CommandSearchResult(Models.Commands.Commands.Command command)
-        {
-            Command = command;
-        }
+        Command = command;
     }
 }

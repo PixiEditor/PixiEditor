@@ -64,12 +64,15 @@
     </ItemGroup>
   
     <ItemGroup>
-      <Folder Include="Views\Buttons\" />
+      <AvaloniaResource Include="Images\**" />
+      <AvaloniaResource Include="Fonts\**" />
     </ItemGroup>
   
     <ItemGroup>
-      <AvaloniaResource Include="Images\**" />
-      <AvaloniaResource Include="Fonts\**" />
+      <AvaloniaXaml Remove="Views\Buttons\**" />
+      <Compile Remove="Views\Buttons\**" />
+      <EmbeddedResource Remove="Views\Buttons\**" />
+      <None Remove="Views\Buttons\**" />
     </ItemGroup>
   
     <ItemGroup>

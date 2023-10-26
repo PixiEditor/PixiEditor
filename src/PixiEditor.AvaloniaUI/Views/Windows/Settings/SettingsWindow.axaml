@@ -28,11 +28,11 @@
     Background="{DynamicResource AccentColor}"
     FlowDirection="{markupExtensions:Localization FlowDirection}"
     ui:Translator.Key="SETTINGS">
-    
+
     <Window.Resources>
         <vm:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
     </Window.Resources>
-    
+
     <!-- TODO
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
@@ -44,7 +44,7 @@
                         Executed="CommandBinding_Executed_Close" />
     </Window.CommandBindings>
     -->
-    
+
     <DockPanel Focusable="True" Background="{DynamicResource ThemeBackgroundBrush1}">
         <!--Background="{StaticResource MainColor}"-->
         <i:Interaction.Behaviors>
@@ -75,7 +75,9 @@
             <controls:FixedSizeStackPanel Orientation="Vertical" ChildSize="32" VerticalChildrenAlignment="Center">
                 <controls:FixedSizeStackPanel.IsVisible>
                     <Binding Path="CurrentPage" Converter="{converters:IsEqualConverter}">
-                        <Binding.ConverterParameter><sys:Int32>0</sys:Int32></Binding.ConverterParameter>
+                        <Binding.ConverterParameter>
+                            <sys:Int32>0</sys:Int32>
+                        </Binding.ConverterParameter>
                     </Binding>
                 </controls:FixedSizeStackPanel.IsVisible>
                 <TextBlock ui:Translator.Key="LANGUAGE" Classes="h5"/>
@@ -94,33 +96,6 @@
                             </StackPanel>
                         </DataTemplate>
                     </ComboBox.ItemTemplate>
-                    <!--<ComboBox.ItemContainerStyle>
-                        <Style TargetType="{x:Type ComboBoxItem}">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type ComboBoxItem}">
-                                        <Border Height="25" Padding="5,0" BorderThickness="0,1">
-                                            <ContentPresenter/>
-                                            <Border.Style>
-                                                <Style TargetType="{x:Type Border}">
-                                                    <Style.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="False">
-                                                            <Setter Property="Background" Value="Transparent"/>
-                                                            <Setter Property="BorderBrush" Value="Transparent"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="{StaticResource MainColor}"/>
-                                                            <Setter Property="BorderBrush" Value="{StaticResource AlmostLightModeAccentColor}"/>
-                                                        </Trigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ComboBox.ItemContainerStyle>-->
                 </ComboBox>
 
                 <TextBlock ui:Translator.Key="MISC" Classes="h5"/>
@@ -135,32 +110,32 @@
                           IsChecked="{Binding SettingsSubViewModel.General.ImagePreviewInTaskbar}"/>
 
                 <StackPanel Classes="leftOffset" Orientation="Horizontal">
-                <Label 
-                    ui:Translator.Key="RECENT_FILE_LENGTH"
-                    ui:Translator.TooltipKey="RECENT_FILE_LENGTH_TOOLTIP"/>
+                    <Label
+                        ui:Translator.Key="RECENT_FILE_LENGTH"
+                        ui:Translator.TooltipKey="RECENT_FILE_LENGTH_TOOLTIP"/>
                     <input:NumberInput Min="0" FontSize="12" HorizontalAlignment="Left"
                                    Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}" Width="40"/>
                 </StackPanel>
 
                 <TextBlock
                     Classes="h5"
-                    d:Content="Default new file size" 
+                    d:Content="Default new file size"
                     ui:Translator.Key="DEFAULT_NEW_SIZE"/>
 
                 <StackPanel Orientation="Horizontal"  Classes="leftOffset">
                     <Label d:Content="Width" ui:Translator.Key="WIDTH"/>
-                    <input:SizeInput 
+                    <input:SizeInput
                                  Size="{Binding SettingsSubViewModel.File.DefaultNewFileWidth, Mode=TwoWay}" MaxSize="9999" HorizontalAlignment="Left"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Classes="leftOffset">
-                    <Label d:Content="Height" ui:Translator.Key="HEIGHT"/> 
+                    <Label d:Content="Height" ui:Translator.Key="HEIGHT"/>
                     <input:SizeInput
                                  Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" MaxSize="9999" HorizontalAlignment="Left"/>
                 </StackPanel>
 
                 <TextBlock d:Content="Tools" ui:Translator.Key="TOOLS" Classes="h5" />
-                
+
                 <StackPanel Orientation="Horizontal" Classes="leftOffset">
                     <Label Target="rightClickModeComboBox" ui:Translator.Key="RIGHT_CLICK_MODE" VerticalAlignment="Center"/>
                     <ComboBox SelectedItem="{Binding RightClickMode, Source={vm:MainVM ToolsSVM}, Mode=TwoWay}"
@@ -177,10 +152,10 @@
 
                 <TextBlock ui:Translator.Key="AUTOMATIC_UPDATES" Classes="h5"/>
 
-                <CheckBox 
-                    VerticalAlignment="Center" 
+                <CheckBox
+                    VerticalAlignment="Center"
                     IsEnabled="{Binding Path=ShowUpdateTab}"
-                    IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}" 
+                    IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}"
                     ui:Translator.Key="CHECK_FOR_UPDATES"
                     Classes="leftOffset"/>
 
@@ -197,7 +172,7 @@
                                VerticalAlignment="Center"
                                IsVisible="{Binding !ShowUpdateTab}"
                                ui:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP"/>
-                               <!-- ToolTipService.InitialShowDelay="0"-->
+                        <!-- ToolTipService.InitialShowDelay="0"-->
                     </StackPanel>
                 </StackPanel>
 
@@ -220,28 +195,28 @@
                         </Binding.ConverterParameter>
                     </Binding>
                 </StackPanel.IsVisible>
-            
+
                 <controls:FixedSizeStackPanel ChildSize="32" Orientation="Vertical" VerticalChildrenAlignment="Center">
                     <TextBlock ui:Translator.Key="DISCORD_RICH_PRESENCE" Classes="h5"/>
 
-                    <CheckBox IsChecked="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
+                    <CheckBox IsChecked="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"
                               ui:Translator.Key="ENABLED"/>
-                    <CheckBox IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
-                              IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentName}" 
+                    <CheckBox IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"
+                              IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentName}"
                               ui:Translator.Key="SHOW_IMAGE_NAME"/>
-                    <CheckBox IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
+                    <CheckBox IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"
                               IsChecked="{Binding SettingsSubViewModel.Discord.ShowDocumentSize}"
                               ui:Translator.Key="SHOW_IMAGE_SIZE"/>
-                    <CheckBox IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}" 
+                    <CheckBox IsEnabled="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"
                               IsChecked="{Binding SettingsSubViewModel.Discord.ShowLayerCount}"
                               ui:Translator.Key="SHOW_LAYER_COUNT" d:Content="Show layer count"/>
                 </controls:FixedSizeStackPanel>
-                
+
                 <settings:DiscordRichPresencePreview
                     HorizontalAlignment="Center"
                     Width="280"
-                    State="{Binding SettingsSubViewModel.Discord.StatePreview}" 
-                    Detail="{Binding SettingsSubViewModel.Discord.DetailPreview}" 
+                    State="{Binding SettingsSubViewModel.Discord.StatePreview}"
+                    Detail="{Binding SettingsSubViewModel.Discord.DetailPreview}"
                     IsPlaying="{Binding SettingsSubViewModel.Discord.EnableRichPresence}"/>
             </StackPanel>
 
@@ -279,7 +254,7 @@
                 </StackPanel>
                 <TextBox Grid.Row="1"
                          Text="{Binding SearchTerm, Mode=TwoWay}">
-                        <!--Styles="{StaticResource DarkTextBoxStyle}"-->
+                    <!--Styles="{StaticResource DarkTextBoxStyle}"-->
                     <i:Interaction.Behaviors>
                         <behaviours:GlobalShortcutFocusBehavior/>
                     </i:Interaction.Behaviors>
@@ -289,5 +264,5 @@
             </Grid>
         </StackPanel>
     </DockPanel>
-    
+
 </Window>
