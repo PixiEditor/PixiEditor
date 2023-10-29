@@ -22,7 +22,7 @@
 
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Avalonia.Headless" Version="11.0.4" />
+        <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
         <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
@@ -37,7 +37,8 @@
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.2.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="PixiEditor.Parser" Version="3.3.0" />
-        <PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
+      <PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
+      <PackageReference Include="PixiEditor.ColorPicker.AvaloniaUI" Version="1.0.1" />
     </ItemGroup>
 
     <ItemGroup>

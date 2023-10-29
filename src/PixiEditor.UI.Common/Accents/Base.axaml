@@ -35,6 +35,8 @@
 
             <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
 
+            <SolidColorBrush x:Key="ThemeForegroundLowBrush" Color="gray"></SolidColorBrush>
+
             <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="{StaticResource ThemeBackgroundColor}" />
             <SolidColorBrush x:Key="ThemeBackgroundBrush1" Color="{StaticResource ThemeBackgroundColor1}" />
             <SolidColorBrush x:Key="ThemeBackgroundBrush2" Color="{StaticResource ThemeBackgroundColor2}" />

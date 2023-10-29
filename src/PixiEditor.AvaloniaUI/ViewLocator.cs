@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using ColorPicker;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Dock.Model.Core;
 using PixiEditor.AvaloniaUI.ViewModels.Dock;
@@ -16,6 +17,7 @@ public class ViewLocator : IDataTemplate
     {
         [typeof(DockDocumentViewModel)] = typeof(DocumentTemplate),
         [typeof(LayersDockViewModel)] = typeof(LayersManager),
+        [typeof(ColorPickerDockViewModel)] = typeof(StandardColorPicker),
     };
 
     public Control Build(object? data)

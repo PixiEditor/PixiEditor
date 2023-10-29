@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Dock.Avalonia.Controls;
 using Dock.Model.Avalonia;
 using Dock.Model.Avalonia.Controls;
@@ -14,15 +15,18 @@ internal class DockFactory : Factory
     private DocumentDock documentDock;
     private ToolDock toolDock;
     private ToolDock layersDock;
+    private ToolDock colorPickerDock;
 
-    private FileViewModel manager;
+    private FileViewModel fileVm;
+    private ColorsViewModel colorsVm;
 
-    public DockFactory(FileViewModel fileViewModel)
+    public DockFactory(FileViewModel fileViewModel, ColorsViewModel colorsViewModel)
     {
-        manager = fileViewModel;
+        fileVm = fileViewModel;
+        colorsVm = colorsViewModel;
     }
 
-    public override IDocumentDock CreateDocumentDock() => new PixiEditorDocumentDock(manager);
+    public override IDocumentDock CreateDocumentDock() => new PixiEditorDocumentDock(fileVm);
 
     public override IRootDock CreateLayout()
     {
@@ -87,7 +91,7 @@ internal class DockFactory : Factory
 
     private IDockable BuildDocumentDock()
     {
-        documentDock = new PixiEditorDocumentDock(manager)
+        documentDock = new PixiEditorDocumentDock(fileVm)
         {
             Id = "DocumentsPane",
             Title = "DocumentsPane",
@@ -100,20 +104,42 @@ internal class DockFactory : Factory
     private IDockable BuildPropertiesDock()
     {
         layersDock = BuildLayersDock();
+        colorPickerDock = BuildColorPickerDock();
         return new ProportionalDock()
         {
             Proportion = 0.15,
+            Orientation = Orientation.Vertical,
             VisibleDockables = new List<IDockable>()
             {
-                layersDock,
+                colorPickerDock,
+                layersDock
             },
             ActiveDockable = layersDock,
         };
     }
 
+    private ToolDock BuildColorPickerDock()
+    {
+        ColorPickerDockViewModel colorPickerVm = new(colorsVm)
+        {
+            Id = "ColorPickerPane",
+            Title = "ColorPickerPane",
+        };
+
+        ToolDock colorPicker = new()
+        {
+            Id = "ColorPickerPane",
+            Title = "ColorPickerPane",
+            VisibleDockables = new List<IDockable>() { colorPickerVm },
+            ActiveDockable = colorPickerVm,
+        };
+
+        return colorPicker;
+    }
+
     private ToolDock BuildLayersDock()
     {
-        LayersDockViewModel layersVm = new(manager.Owner.DocumentManagerSubViewModel)
+        LayersDockViewModel layersVm = new(fileVm.Owner.DocumentManagerSubViewModel)
         {
             Id = "LayersPane",
             Title = "LayersPane",
