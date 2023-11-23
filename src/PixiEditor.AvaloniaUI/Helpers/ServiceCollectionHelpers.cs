@@ -41,7 +41,6 @@ internal static class ServiceCollectionHelpers
             // View Models
             .AddSingleton<ToolsViewModel>()
             .AddSingleton<IToolsHandler, ToolsViewModel>(x => x.GetRequiredService<ToolsViewModel>())
-            .AddSingleton<IColorsHandler, ColorsViewModel>()
             .AddSingleton<StylusViewModel>()
             .AddSingleton<WindowViewModel>()
             .AddSingleton<FileViewModel>()
@@ -53,6 +52,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<SelectionViewModel>()
             .AddSingleton<ViewOptionsViewModel>()
             .AddSingleton<ColorsViewModel>()
+            .AddSingleton<IColorsHandler, ColorsViewModel>(x => x.GetRequiredService<ColorsViewModel>())
             .AddSingleton<RegistryViewModel>()
             .AddSingleton(static x => new DiscordViewModel(x.GetService<ViewModelMain>(), "764168193685979138"))
             .AddSingleton<DebugViewModel>()

@@ -7,7 +7,6 @@
         <RootNamespace>PixiEditor.UpdateInstaller.New</RootNamespace>
     </PropertyGroup>
 
-
     <ItemGroup>
         <AvaloniaResource Include="Assets\**" />
     </ItemGroup>

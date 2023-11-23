@@ -17,16 +17,23 @@ public class ViewLocator : IDataTemplate
     {
         [typeof(DockDocumentViewModel)] = typeof(DocumentTemplate),
         [typeof(LayersDockViewModel)] = typeof(LayersManager),
-        [typeof(ColorPickerDockViewModel)] = typeof(StandardColorPicker),
     };
 
     public Control Build(object? data)
     {
-        Type type = data?.GetType() ?? typeof(object);
+        var name = data.GetType().FullName.Replace("ViewModel", "View");
+        var type = Type.GetType(name);
+
+        if (type != null)
+        {
+            return (Control)Activator.CreateInstance(type);
+        }
+
+        type = data?.GetType() ?? typeof(object);
         if (ViewBindingsMap.TryGetValue(type, out Type viewType))
         {
             var instance = Activator.CreateInstance(viewType);
-            if (instance is { })
+            if (instance is not null)
             {
                 return (Control)instance;
             }

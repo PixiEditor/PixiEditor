@@ -64,7 +64,7 @@ public static class LockedFramebufferExtensions
     {
         unsafe
         {
-            var bytesPerPixel = framebuffer.Format.BitsPerPixel / 8; //TODO: check if bits per pixel is correct
+            var bytesPerPixel = framebuffer.Format.BitsPerPixel / 8;
             var zero = (byte*)framebuffer.Address;
             var offset = framebuffer.RowBytes * y + bytesPerPixel * x;
             zero[offset + 3] = color.A;

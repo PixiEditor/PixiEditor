@@ -1,20 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+      <TargetFramework>net7.0</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
       <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
       <Version>0.0.3</Version>
       <Title>PixiEditor Extensions</Title>
       <Authors>PixiEditor Organization</Authors>
       <Copyright>PixiEditor Organization</Copyright>
       <Description>Package for creating custom extensions for pixel art editor PixiEditor</Description>
-      <AvaloniaVersion>11.0.3</AvaloniaVersion>
     </PropertyGroup>
 
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Remote.Protocol" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
