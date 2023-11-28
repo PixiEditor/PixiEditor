@@ -13,7 +13,9 @@ internal class AutosaveViewModel : NotifyableObject
 {
     private readonly Timer savingTimer;
     private readonly Timer updateTextTimer;
+    private readonly Timer busyTimer;
     private bool saveAfterNextFinish;
+    private bool reenableAfterNextSave;
     private string mainMenuText;
     private int savingFailed;
     private DateTime nextSave;
@@ -39,6 +41,13 @@ internal class AutosaveViewModel : NotifyableObject
         savingTimer.Elapsed += (_, _) => TryAutosave();
         savingTimer.AutoReset = false;
 
+        busyTimer = new Timer(TimeSpan.FromMilliseconds(80));
+        busyTimer.AutoReset = false;
+        busyTimer.Elapsed += (_, _) =>
+        {
+            Document.Busy = true;
+        };
+
         updateTextTimer.Elapsed += (_, _) => SetAutosaveText();
 
         var preferences = IPreferences.Current;
@@ -55,6 +64,17 @@ internal class AutosaveViewModel : NotifyableObject
         saveAfterNextFinish = false;
         
         SafeAutosave();
+    }
+
+    public void HintSave()
+    {
+        if (!reenableAfterNextSave)
+            return;
+
+        reenableAfterNextSave = false;
+        
+        RestartTimers();
+        SetAutosaveText();
     }
 
     private void SetAutosaveText()
@@ -110,7 +130,17 @@ internal class AutosaveViewModel : NotifyableObject
         catch (Exception e)
         {
             savingFailed++;
-            UpdateMainMenuTextSave("AUTOSAVE_FAILED_RETRYING");
+            
+            var minute = AutosavePeriodMinutes <= 1
+                ? new LocalizedString("MINUTE_SINGULAR")
+                : new LocalizedString("MINUTE_PLURAL");
+
+            UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute));
+        
+            busyTimer.Stop();
+            Document.Busy = false;
+
+            RestartTimers();
 
             if (savingFailed == 1)
             {
@@ -122,7 +152,6 @@ internal class AutosaveViewModel : NotifyableObject
     private void Autosave()
     {
         saveAfterNextFinish = false;
-        Document.Busy = true;
         
         UpdateMainMenuTextSave("AUTOSAVE_SAVING");
 
@@ -133,27 +162,34 @@ internal class AutosaveViewModel : NotifyableObject
             var root = Path.Combine(Path.GetTempPath(), "PixiEditor", "autosave");
             Directory.CreateDirectory(root);
             filePath = Path.Combine(root, $"autosave-{tempGuid}.pixi");
-            Document.MarkAsSaved();
         }
         else
         {
             filePath = Document.FullFilePath;
         }
         
+        busyTimer.Start();
         var result = Exporter.TrySave(Document, filePath);
 
         if (result == SaveResult.Success)
         {
             savingFailed = 0;
             UpdateMainMenuTextSave("AUTOSAVE_SAVED");
+            Document.MarkAsSaved();
         }
         else if (result is SaveResult.InvalidPath or SaveResult.SecurityError)
         {
             UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE");
+            busyTimer.Stop();
+            Document.Busy = false;
+            reenableAfterNextSave = true;
             return;
         }
         else
         {
+            busyTimer.Stop();
+            Document.Busy = false;
+            
             var minute = AutosavePeriodMinutes <= 1
                 ? new LocalizedString("MINUTE_SINGULAR")
                 : new LocalizedString("MINUTE_PLURAL");
@@ -166,9 +202,12 @@ internal class AutosaveViewModel : NotifyableObject
                 CrashHelper.SendExceptionInfoToWebhook(new Exception($"Failed to autosave 3 times in a row due to {result}"));
             }
         }
+        
+        busyTimer.Stop();
+        Document.Busy = false;
 
         RestartTimers();
-        Document.Busy = false;
+        
     }
 
     private void RestartTimers()

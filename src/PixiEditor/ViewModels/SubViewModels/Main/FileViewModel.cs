@@ -335,6 +335,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         document.FullFilePath = finalPath;
         document.MarkAsSaved();
+        document.AutosaveViewModel.HintSave();
         return true;
     }
 

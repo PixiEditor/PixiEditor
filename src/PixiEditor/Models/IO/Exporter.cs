@@ -92,26 +92,23 @@ internal class Exporter
 
         var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithExtension));
 
-        if (typeFromPath != FileType.Pixi)
+        if (typeFromPath == FileType.Pixi)
         {
-            var maybeBitmap = document.MaybeRenderWholeImage();
-            if (maybeBitmap.IsT0)
-                return SaveResult.ConcurrencyError;
-            var bitmap = maybeBitmap.AsT1;
-
-            if (!encodersFactory.ContainsKey(typeFromPath))
-            {
-                return SaveResult.UnknownError;
-            }
-
-            return TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize);
-        }
-        else
-        {
-            Parser.PixiParser.Serialize(document.ToSerializable(), pathWithExtension);
+            return TrySaveAsPixi(document, pathWithExtension);
         }
 
-        return SaveResult.Success;
+        var maybeBitmap = document.MaybeRenderWholeImage();
+        if (maybeBitmap.IsT0)
+            return SaveResult.ConcurrencyError;
+        var bitmap = maybeBitmap.AsT1;
+
+        if (!encodersFactory.ContainsKey(typeFromPath))
+        {
+            return SaveResult.UnknownError;
+        }
+
+        return TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize);
+
     }
 
     static Dictionary<FileType, Func<BitmapEncoder>> encodersFactory = new Dictionary<FileType, Func<BitmapEncoder>>();
@@ -172,6 +169,10 @@ internal class Exporter
         {
             return SaveResult.SecurityError;
         }
+        catch (UnauthorizedAccessException e)
+        {
+            return SaveResult.SecurityError;
+        }
         catch (IOException)
         {
             return SaveResult.IoError;
@@ -180,6 +181,28 @@ internal class Exporter
         {
             return SaveResult.UnknownError;
         }
+        return SaveResult.Success;
+    }
+
+    private static SaveResult TrySaveAsPixi(DocumentViewModel document, string pathWithExtension)
+    {
+        try
+        {
+            Parser.PixiParser.Serialize(document.ToSerializable(), pathWithExtension);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return SaveResult.SecurityError;
+        }
+        catch (IOException)
+        {
+            return SaveResult.IoError;
+        }
+        catch
+        {
+            return SaveResult.UnknownError;
+        }
+
         return SaveResult.Success;
     }
 }
