@@ -211,7 +211,6 @@ internal class AutosaveViewModel : NotifyableObject
         Document.Busy = false;
 
         RestartTimers();
-        
     }
 
     private void RestartTimers()

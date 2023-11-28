@@ -108,7 +108,6 @@ internal class Exporter
         }
 
         return TrySaveAs(encodersFactory[typeFromPath](), pathWithExtension, bitmap, exportSize);
-
     }
 
     static Dictionary<FileType, Func<BitmapEncoder>> encodersFactory = new Dictionary<FileType, Func<BitmapEncoder>>();
