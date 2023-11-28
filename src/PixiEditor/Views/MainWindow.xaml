@@ -468,6 +468,8 @@
                                    Foreground="White"/>
                     </Grid>
                 </Border>
+                <Label ui1:Translator.LocalizedString="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel.MainMenuText, FallbackValue=''}"
+                       Foreground="White"/>
                 <StackPanel
                     DockPanel.Dock="Right"
                     VerticalAlignment="Top"
