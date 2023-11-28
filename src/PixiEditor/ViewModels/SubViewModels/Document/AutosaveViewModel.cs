@@ -21,7 +21,7 @@ internal class AutosaveViewModel : NotifyableObject
     
     private DocumentViewModel Document { get; }
 
-    private double AutosavePeriodMinutes { get; set; }
+    private double AutosavePeriodMinutes { get; set; } = -1;
 
     public LocalizedString MainMenuText
     {
@@ -45,10 +45,6 @@ internal class AutosaveViewModel : NotifyableObject
         
         preferences.AddCallback<double>(PreferencesConstants.AutosavePeriodMinutes, AutosavePeriodChanged);
         AutosavePeriodChanged(preferences.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault));
-        SetAutosaveText();
-        
-        savingTimer.Start();
-        updateTextTimer.Start();
     }
 
     public void HintFinishedAction()
@@ -184,7 +180,26 @@ internal class AutosaveViewModel : NotifyableObject
 
     private void AutosavePeriodChanged(double minutes)
     {
+        if (minutes == -1)
+        {
+            savingTimer.Enabled = false;
+            updateTextTimer.Enabled = false;
+            saveAfterNextFinish = false;
+            
+            UpdateMainMenuTextSave(string.Empty);
+
+            AutosavePeriodMinutes = minutes;
+            return;
+        }
+        
         var timerEnabled = savingTimer.Enabled;
+
+        if (AutosavePeriodMinutes == -1)
+        {
+            timerEnabled = true;
+            updateTextTimer.Start();
+        }
+        
         savingTimer.Enabled = false;
 
         var timeSpan = TimeSpan.FromMinutes(minutes);

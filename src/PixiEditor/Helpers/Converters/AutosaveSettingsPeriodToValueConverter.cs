@@ -10,7 +10,7 @@ internal class AutosaveSettingsPeriodToValueConverter : SingleInstanceConverter<
     {
         return value switch
         {
-            -1 => new LocalizedString("DISABLED"),
+            -1.0 => new LocalizedString("DISABLED"),
             double d => new LocalizedString(d.ToString(CultureInfo.InvariantCulture)),
             _ => throw new ArgumentException($"{value} has invalid type")
         };
