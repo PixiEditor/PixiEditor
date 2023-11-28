@@ -132,7 +132,9 @@ internal class AutosaveViewModel : NotifyableObject
 
         if (Document.FullFilePath == null || !Document.FullFilePath.EndsWith(".pixi"))
         {
-            filePath = Path.Combine(Path.GetTempPath(), "PixiEditor", $"autosave-{tempGuid}.pixi");
+            var root = Path.Combine(Path.GetTempPath(), "PixiEditor", "autosave");
+            Directory.CreateDirectory(root);
+            filePath = Path.Combine(root, $"autosave-{tempGuid}.pixi");
             Document.MarkAsSaved();
         }
         else
