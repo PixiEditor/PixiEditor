@@ -2,12 +2,19 @@
 
 public static class PreferencesConstants
 {
-    public const string FavouritePalettes = "FavouritePalettes";
-    public const string RecentlyOpened = "RecentlyOpened";
+    public const string FavouritePalettes = nameof(FavouritePalettes);
+    
+    public const string RecentlyOpened = nameof(RecentlyOpened);
 
-    public const string MaxOpenedRecently = "MaxOpenedRecently";
+    public const string MaxOpenedRecently = nameof(MaxOpenedRecently);
     public const int MaxOpenedRecentlyDefault = 8;
-    public const string DisableNewsPanel = "DisableNewsPanel";
-    public const string LastCheckedNewsIds = "LastCheckedNewsIds";
-    public const string NewsPanelCollapsed = "NewsPanelCollapsed";
+    
+    public const string DisableNewsPanel = nameof(DisableNewsPanel);
+    
+    public const string LastCheckedNewsIds = nameof(LastCheckedNewsIds);
+    
+    public const string NewsPanelCollapsed = nameof(NewsPanelCollapsed);
+    
+    public const string AutosavePeriodMinutes = nameof(AutosavePeriodMinutes);
+    public const double AutosavePeriodDefault = 3;
 }

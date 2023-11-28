@@ -34,7 +34,7 @@ internal class AutosaveViewModel : NotifyableObject
         Document = document;
         tempGuid = Guid.NewGuid();
         savingTimer = new Timer();
-        updateTextTimer = new Timer(TimeSpan.FromSeconds(5));
+        updateTextTimer = new Timer(TimeSpan.FromSeconds(10));
 
         savingTimer.Elapsed += (_, _) => TryAutosave();
         savingTimer.AutoReset = false;
@@ -43,8 +43,8 @@ internal class AutosaveViewModel : NotifyableObject
 
         var preferences = IPreferences.Current;
         
-        preferences.AddCallback<double>(nameof(AutosavePeriodMinutes), AutosavePeriodChanged);
-        AutosavePeriodChanged(preferences.GetPreference(nameof(AutosavePeriodMinutes), TimeSpan.FromMinutes(3).TotalMinutes));
+        preferences.AddCallback<double>(PreferencesConstants.AutosavePeriodMinutes, AutosavePeriodChanged);
+        AutosavePeriodChanged(preferences.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault));
         SetAutosaveText();
         
         savingTimer.Start();
@@ -70,12 +70,14 @@ internal class AutosaveViewModel : NotifyableObject
             UpdateMainMenuTextSave("AUTOSAVE_SAVING_IN_MINUTE");
             return;
         }
-            
-        var minute = timeLeft.Minutes < 2
+
+        var adjusted = timeLeft.Add(TimeSpan.FromSeconds(30));
+        
+        var minute = adjusted.Minutes < 2
             ? new LocalizedString("MINUTE_SINGULAR")
             : new LocalizedString("MINUTE_PLURAL");
 
-        UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_SAVING_IN", timeLeft.Minutes.ToString(), minute));
+        UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_SAVING_IN", adjusted.Minutes.ToString(), minute));
     }
 
     private void TryAutosave()
@@ -192,6 +194,10 @@ internal class AutosaveViewModel : NotifyableObject
         savingTimer.Enabled = timerEnabled;
         
         nextSave = DateTime.Now + timeSpan;
+        if (updateTextTimer.Enabled)
+        {
+            SetAutosaveText();
+        }
     }
 
     private void UpdateMainMenuTextSave(LocalizedString text)

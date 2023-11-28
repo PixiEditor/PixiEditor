@@ -19,6 +19,7 @@
         xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
+        xmlns:localization="clr-namespace:PixiEditor.Extensions.Common.Localization;assembly=PixiEditor.Extensions"
         mc:Ignorable="d"
         Name="window" 
         Height="688" Width="780"
@@ -130,6 +131,25 @@
                     <usercontrols:NumberInput Margin="10 0 0 0" 
                                               Min="0" FontSize="12" HorizontalAlignment="Left"
                                    Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}" Height="19" Width="40"/>
+                </StackPanel>
+
+                <StackPanel Margin="27 10 27 0" Orientation="Horizontal">
+                    <Label Style="{StaticResource SettingsText}"
+                           ui:Translator.Key="AUTOSAVE_SETTINGS_PERIOD"/>
+                    <ComboBox SelectedItem="{Binding SettingsSubViewModel.File.AutosavePeriodMinutes, Mode=TwoWay, Converter={converters:AutosaveSettingsPeriodToValueConverter}}"
+                              MinWidth="100" Margin="7, 0">
+                        <ComboBox.ItemsSource>
+                            <x:Array Type="localization:LocalizedString">
+                                <localization:LocalizedString Key="DISABLED" />
+                                <localization:LocalizedString Key="1" />
+                                <localization:LocalizedString Key="3" />
+                                <localization:LocalizedString Key="5" />
+                                <localization:LocalizedString Key="10" />
+                            </x:Array>
+                        </ComboBox.ItemsSource>
+                    </ComboBox>
+                    <Label Style="{StaticResource SettingsText}"
+                           ui:Translator.Key="MINUTE_UNIVERSAL"/>
                 </StackPanel>
 
                 <Label Style="{StaticResource SettingsHeader}" d:Content="Default new file size" ui:Translator.Key="DEFAULT_NEW_SIZE"/>

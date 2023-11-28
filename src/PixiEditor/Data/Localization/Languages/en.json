@@ -599,6 +599,11 @@
   "AUTOSAVE_PLEASE_RESAVE": "Error while saving. Save file manually to enable autosaving.",
   "AUTOSAVE_FAILED_RETRYING": "Error while saving. Retrying in {0} {1}.",
   
+  "AUTOSAVE_SETTINGS_PERIOD": "Autosave every",
+  
+  "DISABLED": "Disabled",
+  
   "MINUTE_SINGULAR": "minute",
-  "MINUTE_PLURAL": "minutes"
+  "MINUTE_PLURAL": "minutes",
+  "MINUTE_UNIVERSAL": "minute(s)"
 }

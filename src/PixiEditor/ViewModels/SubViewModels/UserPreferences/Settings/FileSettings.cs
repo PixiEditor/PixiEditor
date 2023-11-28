@@ -52,6 +52,14 @@ internal class FileSettings : SettingsGroup
     public bool DisableNewsPanel
     {
         get => disableNewsPanel;
-        set => RaiseAndUpdatePreference(ref disableNewsPanel, value, PreferencesConstants.DisableNewsPanel);
+        set => RaiseAndUpdatePreference(ref disableNewsPanel, value);
+    }
+
+    private double autosavePeriodMinutes = GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault);
+    
+    public double AutosavePeriodMinutes
+    {
+        get => autosavePeriodMinutes;
+        set => RaiseAndUpdatePreference(ref autosavePeriodMinutes, value);
     }
 }
