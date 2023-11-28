@@ -601,6 +601,9 @@
   
   "AUTOSAVE_SETTINGS_PERIOD": "Autosave every",
   
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Could not recover all",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Could not fully recover all files.\nIf you send the crash report to the developers\nthey might be able to help you.",
+  
   "DISABLED": "Disabled",
   
   "MINUTE_SINGULAR": "minute",

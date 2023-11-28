@@ -31,6 +31,8 @@ internal class AutosaveViewModel : NotifyableObject
         set => SetProperty(ref mainMenuText, value);
     }
     
+    public string LastSavedPath { get; private set; }
+    
     public AutosaveViewModel(DocumentViewModel document)
     {
         Document = document;
@@ -149,6 +151,8 @@ internal class AutosaveViewModel : NotifyableObject
         }
     }
     
+    private string GetTempPath() => Path.Combine(Path.GetTempPath(), "PixiEditor", "autosave", $"autosave-{tempGuid}.pixi");
+
     private void Autosave()
     {
         saveAfterNextFinish = false;
@@ -159,9 +163,8 @@ internal class AutosaveViewModel : NotifyableObject
 
         if (Document.FullFilePath == null || !Document.FullFilePath.EndsWith(".pixi"))
         {
-            var root = Path.Combine(Path.GetTempPath(), "PixiEditor", "autosave");
-            Directory.CreateDirectory(root);
-            filePath = Path.Combine(root, $"autosave-{tempGuid}.pixi");
+            filePath = GetTempPath();
+            Directory.CreateDirectory(Directory.GetParent(filePath)!.FullName);
         }
         else
         {
@@ -176,6 +179,7 @@ internal class AutosaveViewModel : NotifyableObject
             savingFailed = 0;
             UpdateMainMenuTextSave("AUTOSAVE_SAVED");
             Document.MarkAsSaved();
+            LastSavedPath = filePath;
         }
         else if (result is SaveResult.InvalidPath or SaveResult.SecurityError)
         {

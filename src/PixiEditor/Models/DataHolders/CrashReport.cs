@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
@@ -90,7 +91,7 @@ internal class CrashReport : IDisposable
 
     public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
 
-    public List<(string? originalPath, byte[] dotPixiBytes)> RecoverDocuments()
+    public List<(CrashFilePathInfo originalPath, byte[] dotPixiBytes)> RecoverDocuments()
     {
         // Load .pixi files
         Dictionary<string, byte[]> recoveredDocuments = new();
@@ -99,27 +100,29 @@ internal class CrashReport : IDisposable
             using Stream stream = entry.Open();
             using MemoryStream memStream = new();
             stream.CopyTo(memStream);
-            recoveredDocuments.Add(entry.Name, memStream.ToArray());
+            recoveredDocuments.Add(entry.FullName["Documents/".Length..], memStream.ToArray());
         }
 
-        ZipArchiveEntry? originalPathsEntry = ZipFile.Entries.Where(entry => entry.FullName == "DocumentInfo.json").FirstOrDefault();
-        if (originalPathsEntry is null)
-            return recoveredDocuments.Select<KeyValuePair<string, byte[]>, (string?, byte[])>(keyValue => (null, keyValue.Value)).ToList();
-
+        var originalPathsEntry = ZipFile.Entries.First(entry => entry.FullName == "DocumentInfo.json");
+        
         // Load original paths
-        Dictionary<string, string?> originalPaths;
+        Dictionary<string, CrashFilePathInfo> originalPaths;
         {
             using Stream stream = originalPathsEntry.Open();
             using StreamReader reader = new(stream);
             string json = reader.ReadToEnd();
-            originalPaths = JsonConvert.DeserializeObject<Dictionary<string, string?>>(json);
+            originalPaths = JsonConvert.DeserializeObject<Dictionary<string, CrashFilePathInfo>>(json);
         }
 
-        return (
-            from docKeyValue in recoveredDocuments
-            join pathKeyValue in originalPaths on docKeyValue.Key equals pathKeyValue.Key
-            select (pathKeyValue.Value, docKeyValue.Value)
-            ).ToList();
+        var list = new List<(CrashFilePathInfo originalPath, byte[] dotPixiBytes)>();
+
+        foreach (var document in recoveredDocuments)
+        {
+            var originalPath = originalPaths[document.Key];
+            list.Add((originalPath, document.Value));
+        }
+
+        return list;
     }
 
     public void Dispose()
@@ -169,20 +172,22 @@ internal class CrashReport : IDisposable
 
         // Write the documents into zip
         int counter = 0;
-        Dictionary<string, string?> originalPaths = new();
+        Dictionary<string, CrashFilePathInfo> originalPaths = new();
         foreach (DocumentViewModel document in vm.DocumentManagerSubViewModel.Documents)
         {
             try
             {
                 string fileName = string.IsNullOrWhiteSpace(document.FullFilePath) ? "Unsaved" : Path.GetFileNameWithoutExtension(document.FullFilePath);
-                string nameInZip = $"{fileName}-{document.OpenedUTC}-{counter}.pixi".Replace(':', '_');
+                string nameInZip = $"{fileName}-{document.OpenedUTC.ToString(CultureInfo.InvariantCulture)}-{counter.ToString(CultureInfo.InvariantCulture)}.pixi"
+                    .Replace(':', '_')
+                    .Replace('/', '_');
 
                 byte[] serialized = PixiParser.Serialize(document.ToSerializable());
 
                 using Stream documentStream = archive.CreateEntry($"Documents/{nameInZip}").Open();
                 documentStream.Write(serialized);
 
-                originalPaths.Add(nameInZip, document.FullFilePath);
+                originalPaths.Add(nameInZip, new CrashFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
             }
             catch { }
             counter++;

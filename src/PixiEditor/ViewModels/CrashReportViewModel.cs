@@ -3,8 +3,11 @@ using System.IO;
 using System.Net.Http;
 using System.Text;
 using System.Windows;
+using System.Windows.Threading;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 
@@ -45,11 +48,30 @@ internal class CrashReportViewModel : ViewModelBase
 
     public void RecoverDocuments(object args)
     {
-        MainWindow window = MainWindow.CreateWithDocuments(CrashReport.RecoverDocuments());
+        MainWindow window = MainWindow.CreateWithRecoveredDocuments(CrashReport, out var showMissingFilesDialog);
 
         Application.Current.MainWindow = window;
         window.Show();
         hasRecoveredDocuments = false;
+
+        if (showMissingFilesDialog)
+        {
+            var dialog = new OptionsDialog<LocalizedString>(
+                "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE",
+                new LocalizedString("CRASH_NOT_ALL_DOCUMENTS_RECOVERED"))
+            {
+                {
+                    "SEND", _ =>
+                    {
+                        var sendReportDialog = new SendCrashReportWindow(CrashReport);
+                        sendReportDialog.ShowDialog();
+                    }
+                },
+                "CLOSE"
+            };
+
+            dialog.ShowDialog(true);
+        }
     }
 
     [Conditional("DEBUG")]
