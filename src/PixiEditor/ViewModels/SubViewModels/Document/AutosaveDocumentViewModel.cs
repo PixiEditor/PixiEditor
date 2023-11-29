@@ -160,19 +160,20 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         if (Document.UpdateableChangeActive)
         {
             saveAfterNextFinish = true;
-            UpdateMainMenuTextSave("AUTOSAVE_WAITING_FOR_SAVE", SaveIcon, ActiveBrush, true);
             
             savingTimer.Stop();
             updateTextTimer.Stop();
+            
+            UpdateMainMenuTextSave("AUTOSAVE_WAITING_FOR_SAVE", SaveIcon, ActiveBrush, true);
             
             return;
         }
 
         if (Document.AllChangesSaved)
         {
-            UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
             updateTextTimer.Stop();
             RestartTimers();
+            UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
             return;
         }
 
