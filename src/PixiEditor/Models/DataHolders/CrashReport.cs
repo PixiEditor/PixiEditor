@@ -5,7 +5,9 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
@@ -55,6 +57,31 @@ internal class CrashReport : IDisposable
         {
             builder.AppendLine($"Error ({memE.GetType().FullName}: {memE.Message}) while gathering memory information, skipping...");
         }
+
+        builder.AppendLine("\n--------Command Log--------\n");
+
+        try
+        {
+            builder.Append(CommandController.Current.Log.GetSummary(currentTime.LocalDateTime));
+        }
+        catch (Exception cemLogException)
+        {
+            builder.AppendLine($"Error ({cemLogException.GetType().FullName}: {cemLogException.Message}) while gathering command log, skipping...");
+        }
+        
+        builder.AppendLine("\n-----------State-----------");
+
+        try
+        {
+            builder.AppendLine($"Current Tool: {ViewModelMain.Current?.ToolsSubViewModel?.ActiveTool}");
+            builder.AppendLine($"Autosaving Enabled: {IPreferences.Current.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault).ToString(CultureInfo.InvariantCulture)}");
+        }
+        catch (Exception stateException)
+        {
+            builder.AppendLine($"Error ({stateException.GetType().FullName}: {stateException.Message}) while gathering command log, skipping...");
+        }
+        
+        builder.AppendLine("\n-----------Exception-----------");
 
         CrashHelper.AddExceptionMessage(builder, exception);
 

@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Commands.Commands;
+﻿using PixiEditor.Models.Commands.CommandLog;
+using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 
 namespace PixiEditor.Models.Commands;
@@ -18,11 +19,26 @@ internal class CommandMethods
 
     public void Execute(object parameter)
     {
-        if (CanExecute(parameter))
+        var log = CommandController.Current?.Log;
+        ToLog(log, null);
+        
+        if (!CanExecute(parameter))
         {
-            _execute(parameter);
+            ToLog(log, false);
+            return;
         }
+        ToLog(log, true);
+
+        _execute(parameter);
     }
 
     public bool CanExecute(object parameter) => _canExecute.CallEvaluate(_command, parameter);
+
+    private void ToLog(CommandLog.CommandLog? log, bool? canExecute)
+    {
+        if (log != null && _command != null)
+        {
+            log.Log(_command, canExecute);
+        }
+    }
 }

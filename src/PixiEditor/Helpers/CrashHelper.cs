@@ -89,7 +89,7 @@ internal class CrashHelper
             while (innerException != null)
             {
                 builder
-                    .Append("\n-----Inner exception-----\n")
+                    .Append("\n------Inner exception------\n")
                     .Append(innerException.GetType().ToString())
                     .Append(": ")
                     .Append(innerException.Message);
@@ -98,14 +98,14 @@ internal class CrashHelper
         }
 
         builder
-            .Append("\n\n-------Stack trace-------\n")
+            .Append("\n\n--------Stack trace--------\n")
             .Append(e.StackTrace);
         {
             var innerException = e.InnerException;
             while (innerException != null)
             {
                 builder
-                    .Append("\n-----Inner exception-----\n")
+                    .Append("\n------Inner exception------\n")
                     .Append(innerException.StackTrace);
                 innerException = innerException.InnerException;
             }

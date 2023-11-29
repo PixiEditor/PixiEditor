@@ -25,6 +25,8 @@ internal class CommandController
     public CommandCollection Commands { get; }
 
     public List<CommandGroup> CommandGroups { get; }
+    
+    public CommandLog.CommandLog Log { get; }
 
     public OneToManyDictionary<string, Command> FilterCommands { get; }
     
@@ -37,6 +39,7 @@ internal class CommandController
     public CommandController()
     {
         Current ??= this;
+        Log = new CommandLog.CommandLog();
 
         ShortcutsPath = Path.Join(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
