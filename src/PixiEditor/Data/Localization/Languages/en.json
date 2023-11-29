@@ -593,11 +593,15 @@
   
   "AUTOSAVE_SAVING": "Saving...",
   "AUTOSAVE_SAVED": "Saved.",
-  "AUTOSAVE_SAVING_IN_MINUTE": "Saving in less than a minute.",
-  "AUTOSAVE_SAVING_IN": "Saving in about {0} {1}.",
+  "AUTOSAVE_SAVING_IN_MINUTE": "Saving in less than a minute",
+  "AUTOSAVE_SAVING_IN": "Saving in about {0} {1}",
   "AUTOSAVE_WAITING_FOR_SAVE": "Waiting to autosave.",
   "AUTOSAVE_PLEASE_RESAVE": "Error while saving. Save file manually to enable autosaving.",
   "AUTOSAVE_FAILED_RETRYING": "Error while saving. Retrying in {0} {1}.",
+  "AUTOSAVE_DISABLED": "Autosaving paused for document.",
+  
+  "AUTOSAVE_TOGGLE": "Toggle autosave",
+  "AUTOSAVE_TOGGLE_DESCRIPTION": "Toggle autosave for document",
   
   "AUTOSAVE_SETTINGS_PERIOD": "Autosave every",
   

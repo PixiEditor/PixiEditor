@@ -65,6 +65,8 @@ internal class ViewModelMain : ViewModelBase
 
     public DocumentManagerViewModel DocumentManagerSubViewModel { get; set; }
 
+    public AutosaveViewModel AutosaveViewModel { get; set; }
+
     public CommandController CommandController { get; set; }
 
     public ShortcutController ShortcutController { get; set; }
@@ -80,7 +82,7 @@ internal class ViewModelMain : ViewModelBase
     public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
 
     public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
-
+    
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
@@ -126,6 +128,7 @@ internal class ViewModelMain : ViewModelBase
         WindowSubViewModel = services.GetService<WindowViewModel>();
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
+        AutosaveViewModel = services.GetService<AutosaveViewModel>();
 
         OnStartupCommand = new RelayCommand(OnStartup);
         CloseWindowCommand = new RelayCommand(CloseWindow);

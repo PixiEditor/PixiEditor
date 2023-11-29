@@ -468,8 +468,13 @@
                                    Foreground="White"/>
                     </Grid>
                 </Border>
-                <Label ui1:Translator.LocalizedString="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel.MainMenuText, FallbackValue=''}"
-                       Foreground="White"/>
+                <usercontrols:AutosaveControl
+                    MinWidth="280"
+                    Height="25"
+                    Margin="5,0,0,0"
+                    DataContext="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel}"
+                    VerticalAlignment="Top"
+                    WindowChrome.IsHitTestVisibleInChrome="True"/>
                 <StackPanel
                     DockPanel.Dock="Right"
                     VerticalAlignment="Top"

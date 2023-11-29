@@ -150,7 +150,7 @@ internal partial class DocumentViewModel : NotifyableObject
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
-    public AutosaveViewModel AutosaveViewModel { get; }
+    public AutosaveDocumentViewModel AutosaveViewModel { get; }
 
     private DocumentInternalParts Internals { get; }
 
@@ -161,7 +161,7 @@ internal partial class DocumentViewModel : NotifyableObject
         StructureHelper = new DocumentStructureModule(this);
         EventInlet = new DocumentEventsModule(this, Internals);
         Operations = new DocumentOperationsModule(this, Internals);
-        AutosaveViewModel = new AutosaveViewModel(this);
+        AutosaveViewModel = new AutosaveDocumentViewModel(this);
 
         StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
 

@@ -1,4 +1,6 @@
 ﻿using System.IO;
+using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
@@ -9,36 +11,91 @@ using Timer = System.Timers.Timer;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 
-internal class AutosaveViewModel : NotifyableObject
+internal class AutosaveDocumentViewModel : NotifyableObject
 {
     private readonly Timer savingTimer;
     private readonly Timer updateTextTimer;
     private readonly Timer busyTimer;
     private bool saveAfterNextFinish;
     private bool reenableAfterNextSave;
-    private string mainMenuText;
     private int savingFailed;
     private DateTime nextSave;
     private Guid tempGuid;
+    private bool documentEnabled = true;
+
+    private const string ClockIcon = "\ue84d";
+    private const string WarnIcon = "\ue81e";
+    private const string SaveIcon = "\ue8bc";
+    private const string PauseIcon = "\ue8a2";
+    private const string SavingIcon = "\ue864";
+
+    private readonly Brush ErrorBrush = new SolidColorBrush(Color.FromArgb(255, 214, 66, 56));
+    private readonly Brush WarnBrush = new SolidColorBrush(Color.FromArgb(255, 219, 189, 53));
+    private readonly Brush SuccessBrush = new SolidColorBrush(Color.FromArgb(255, 83, 207, 72));
+    private readonly Brush ActiveBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
+    private readonly Brush InactiveBrush = new SolidColorBrush(Color.FromArgb(255, 120, 120, 120));
     
     private DocumentViewModel Document { get; }
 
     private double AutosavePeriodMinutes { get; set; } = -1;
 
+    private LocalizedString mainMenuText;
+    
     public LocalizedString MainMenuText
     {
         get => mainMenuText; 
         set => SetProperty(ref mainMenuText, value);
     }
-    
+
+    private string mainMenuIconText;
+
+    public string MainMenuIconText
+    {
+        get => mainMenuIconText;
+        set => SetProperty(ref mainMenuIconText, value);
+    }
+
+    private Brush mainMenuBrush;
+
+    public Brush MainMenuBrush
+    {
+        get => mainMenuBrush;
+        set => SetProperty(ref mainMenuBrush, value);
+    }
+
+    private bool mainMenuPulse;
+
+    public bool MainMenuPulse
+    {
+        get => mainMenuPulse;
+        set => SetProperty(ref mainMenuPulse, value);
+    }
+
+    public bool Enabled
+    {
+        get => documentEnabled;
+        set
+        {
+            if (documentEnabled == value)
+                return;
+            
+            AutosavePeriodChanged(
+                IPreferences.Current.GetPreference(
+                    PreferencesConstants.AutosavePeriodMinutes, 
+                    PreferencesConstants.AutosavePeriodDefault),
+                value);
+            documentEnabled = value;
+        }
+    }
+
     public string LastSavedPath { get; private set; }
     
-    public AutosaveViewModel(DocumentViewModel document)
+    public AutosaveDocumentViewModel(DocumentViewModel document)
     {
         Document = document;
         tempGuid = Guid.NewGuid();
         savingTimer = new Timer();
-        updateTextTimer = new Timer(TimeSpan.FromSeconds(10));
+        updateTextTimer = new Timer(TimeSpan.FromSeconds(3));
 
         savingTimer.Elapsed += (_, _) => TryAutosave();
         savingTimer.AutoReset = false;
@@ -54,8 +111,8 @@ internal class AutosaveViewModel : NotifyableObject
 
         var preferences = IPreferences.Current;
         
-        preferences.AddCallback<double>(PreferencesConstants.AutosavePeriodMinutes, AutosavePeriodChanged);
-        AutosavePeriodChanged(preferences.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault));
+        preferences.AddCallback<double>(PreferencesConstants.AutosavePeriodMinutes, (v) => AutosavePeriodChanged(v, documentEnabled));
+        AutosavePeriodChanged(preferences.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault), documentEnabled);
     }
 
     public void HintFinishedAction()
@@ -85,7 +142,7 @@ internal class AutosaveViewModel : NotifyableObject
 
         if (timeLeft.Minutes == 0)
         {
-            UpdateMainMenuTextSave("AUTOSAVE_SAVING_IN_MINUTE");
+            UpdateMainMenuTextSave("AUTOSAVE_SAVING_IN_MINUTE", ClockIcon, InactiveBrush, false);
             return;
         }
 
@@ -95,7 +152,7 @@ internal class AutosaveViewModel : NotifyableObject
             ? new LocalizedString("MINUTE_SINGULAR")
             : new LocalizedString("MINUTE_PLURAL");
 
-        UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_SAVING_IN", adjusted.Minutes.ToString(), minute));
+        UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_SAVING_IN", adjusted.Minutes.ToString(), minute), ClockIcon, InactiveBrush, false);
     }
 
     private void TryAutosave()
@@ -103,7 +160,7 @@ internal class AutosaveViewModel : NotifyableObject
         if (Document.UpdateableChangeActive)
         {
             saveAfterNextFinish = true;
-            UpdateMainMenuTextSave("AUTOSAVE_WAITING_FOR_SAVE");
+            UpdateMainMenuTextSave("AUTOSAVE_WAITING_FOR_SAVE", SaveIcon, ActiveBrush, true);
             
             savingTimer.Stop();
             updateTextTimer.Stop();
@@ -113,7 +170,7 @@ internal class AutosaveViewModel : NotifyableObject
 
         if (Document.AllChangesSaved)
         {
-            UpdateMainMenuTextSave("AUTOSAVE_SAVED");
+            UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
             updateTextTimer.Stop();
             RestartTimers();
             return;
@@ -137,7 +194,7 @@ internal class AutosaveViewModel : NotifyableObject
                 ? new LocalizedString("MINUTE_SINGULAR")
                 : new LocalizedString("MINUTE_PLURAL");
 
-            UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute));
+            UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute), WarnIcon, WarnBrush, true);
         
             busyTimer.Stop();
             Document.Busy = false;
@@ -157,9 +214,10 @@ internal class AutosaveViewModel : NotifyableObject
     {
         saveAfterNextFinish = false;
         
-        UpdateMainMenuTextSave("AUTOSAVE_SAVING");
+        UpdateMainMenuTextSave("AUTOSAVE_SAVING", SavingIcon, ActiveBrush, true);
 
         string filePath;
+        bool fileExists = true;
 
         if (Document.FullFilePath == null || !Document.FullFilePath.EndsWith(".pixi"))
         {
@@ -169,21 +227,22 @@ internal class AutosaveViewModel : NotifyableObject
         else
         {
             filePath = Document.FullFilePath;
+            fileExists = File.Exists(filePath);
         }
         
         busyTimer.Start();
         var result = Exporter.TrySave(Document, filePath);
 
-        if (result == SaveResult.Success)
+        if (result == SaveResult.Success && fileExists)
         {
             savingFailed = 0;
-            UpdateMainMenuTextSave("AUTOSAVE_SAVED");
+            UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
             Document.MarkAsSaved();
             LastSavedPath = filePath;
         }
-        else if (result is SaveResult.InvalidPath or SaveResult.SecurityError)
+        else if (result is SaveResult.InvalidPath or SaveResult.SecurityError || !fileExists)
         {
-            UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE");
+            UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, ErrorBrush, true);
             busyTimer.Stop();
             Document.Busy = false;
             reenableAfterNextSave = true;
@@ -198,7 +257,7 @@ internal class AutosaveViewModel : NotifyableObject
                 ? new LocalizedString("MINUTE_SINGULAR")
                 : new LocalizedString("MINUTE_PLURAL");
             
-            UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute));
+            UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute), WarnIcon, WarnBrush, true);
             savingFailed++;
 
             if (savingFailed == 3)
@@ -220,15 +279,18 @@ internal class AutosaveViewModel : NotifyableObject
         updateTextTimer.Start();
     }
 
-    private void AutosavePeriodChanged(double minutes)
+    private void AutosavePeriodChanged(double minutes, bool documentEnabled)
     {
-        if (minutes == -1)
+        if ((int)minutes == -1 || !documentEnabled)
         {
             savingTimer.Enabled = false;
             updateTextTimer.Enabled = false;
             saveAfterNextFinish = false;
+
+            LocalizedString menuText = documentEnabled ? string.Empty : "AUTOSAVE_DISABLED";
+            string iconText = documentEnabled ? null : PauseIcon;
             
-            UpdateMainMenuTextSave(string.Empty);
+            UpdateMainMenuTextSave(menuText, iconText, ActiveBrush, false);
 
             AutosavePeriodMinutes = minutes;
             return;
@@ -236,7 +298,7 @@ internal class AutosaveViewModel : NotifyableObject
         
         var timerEnabled = savingTimer.Enabled;
 
-        if (AutosavePeriodMinutes == -1)
+        if ((int)AutosavePeriodMinutes == -1 || !Enabled)
         {
             timerEnabled = true;
             updateTextTimer.Start();
@@ -257,11 +319,14 @@ internal class AutosaveViewModel : NotifyableObject
         }
     }
 
-    private void UpdateMainMenuTextSave(LocalizedString text)
+    private void UpdateMainMenuTextSave(LocalizedString text, string iconText, Brush brush, bool pulse)
     {
-        Dispatcher.CurrentDispatcher.Invoke(() =>
+        Application.Current.Dispatcher.Invoke(() =>
         {
             MainMenuText = text;
+            MainMenuIconText = iconText;
+            MainMenuBrush = brush;
+            MainMenuPulse = pulse;
         });
     }
 }
