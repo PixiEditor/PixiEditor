@@ -469,7 +469,7 @@
                     </Grid>
                 </Border>
                 <usercontrols:AutosaveControl
-                    MinWidth="280"
+                    MinWidth="255"
                     Height="25"
                     Margin="5,0,0,0"
                     DataContext="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel}"
