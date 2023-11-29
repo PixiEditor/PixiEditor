@@ -25,5 +25,4 @@ internal class AutosaveViewModel : SubViewModel<ViewModelMain>
     public bool HasDocumentAndAutosaveEnabled() => 
         _documentManager.DocumentNotNull() &&
         (int)IPreferences.Current.GetPreference<double>(PreferencesConstants.AutosavePeriodMinutes) != -1;
-
 }
