@@ -7,6 +7,7 @@
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:public="clr-namespace:PixiEditor.Models.DocumentModels.Public"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              mc:Ignorable="d"
              d:DesignWidth="280" d:DesignHeight="25"
              d:DataContext="{d:DesignInstance public:AutosaveDocumentViewModel}">
@@ -87,7 +88,7 @@
                     </Style>
                 </StackPanel.Resources>
                 <Button Command="{xaml:Command PixiEditor.Autosave.ToggleAutosave}">
-                    <TextBlock Text="" FontFamily="{StaticResource Feather}" />
+                    <TextBlock Text="{Binding Enabled, Mode=OneWay, Converter={converters:BoolToValueConverter FalseValue='', TrueValue=''}}" FontFamily="{StaticResource Feather}"/>
                 </Button>
             </StackPanel>
         </Grid>

@@ -84,7 +84,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
                     PreferencesConstants.AutosavePeriodMinutes, 
                     PreferencesConstants.AutosavePeriodDefault),
                 value);
-            documentEnabled = value;
+            SetProperty(ref documentEnabled, value);
         }
     }
 
