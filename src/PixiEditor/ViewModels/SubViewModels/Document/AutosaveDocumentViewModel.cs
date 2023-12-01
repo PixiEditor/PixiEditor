@@ -209,8 +209,6 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         }
     }
     
-    private string GetTempPath() => Path.Combine(Path.GetTempPath(), "PixiEditor", "autosave", $"autosave-{tempGuid}.pixi");
-
     private void Autosave()
     {
         saveAfterNextFinish = false;
@@ -222,7 +220,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
 
         if (Document.FullFilePath == null || !Document.FullFilePath.EndsWith(".pixi"))
         {
-            filePath = GetTempPath();
+            filePath = Path.Join(Paths.PathToUnsavedFilesFolder, $"autosave-{tempGuid}.pixi");
             Directory.CreateDirectory(Directory.GetParent(filePath)!.FullName);
         }
         else
