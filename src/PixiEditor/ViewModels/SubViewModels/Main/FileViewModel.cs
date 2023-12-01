@@ -22,6 +22,7 @@ using PixiEditor.Models.Localization;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.Dialogs;
+using Path = System.IO.Path;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -98,17 +99,42 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         List<string> args = StartupArgs.Args;
         string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
+
+        if (!args.Contains("--crash"))
+        {
+            ReopenUnsavedFiles();
+        }
+        
         if (file != null)
         {
             OpenFromPath(file);
         }
-        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
+        else if ((!args.Contains("--crash")) && !args.Contains("--openedInExisting"))
         {
             if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
             {
                 OpenHelloTherePopup();
             }
         }
+    }
+
+    private void ReopenUnsavedFiles()
+    {
+        var preferences = Owner.Preferences;
+        var files = preferences.GetLocalPreference<string[]>(PreferencesConstants.UnsavedNextSessionFiles);
+
+        if (files == null)
+            return;
+        
+        foreach (string file in files)
+        {
+            string guidString = Path.GetFileNameWithoutExtension(file)["autosave-".Length..];
+            var document = OpenFromPath(file, false);
+            
+            document.AutosaveViewModel.SetTempFileGuiAndLastSavedPath(Guid.Parse(guidString), file);
+        }
+        
+        preferences.UpdateLocalPreference(PreferencesConstants.UnsavedNextSessionFiles, Array.Empty<string>());
     }
 
     [Command.Internal("PixiEditor.File.OpenRecent")]
@@ -176,21 +202,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Tries to open the passed file if it isn't already open
     /// </summary>
-    public void OpenFromPath(string path, bool associatePath = true)
+    public DocumentViewModel OpenFromPath(string path, bool associatePath = true)
     {
         if (MakeExistingDocumentActiveIfOpened(path))
-            return;
+            return null;
 
         try
         {
-            if (path.EndsWith(".pixi"))
-            {
-                OpenDotPixi(path, associatePath);
-            }
-            else
-            {
-                OpenRegularImage(path, associatePath);
-            }
+            return path.EndsWith(".pixi")
+                ? OpenDotPixi(path, associatePath)
+                : OpenRegularImage(path, associatePath);
         }
         catch (RecoverableException ex)
         {
@@ -200,16 +221,20 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
         }
+
+        return null;
     }
 
     /// <summary>
     /// Opens a .pixi file from path, creates a document from it, and adds it to the system
     /// </summary>
-    private void OpenDotPixi(string path, bool associatePath = true)
+    private DocumentViewModel OpenDotPixi(string path, bool associatePath = true)
     {
-        DocumentViewModel document = Importer.ImportDocument(path, associatePath);
+        var document = Importer.ImportDocument(path, associatePath);
         AddDocumentViewModelToTheSystem(document);
         AddRecentlyOpened(document.FullFilePath);
+
+        return document;
     }
 
     /// <summary>
@@ -225,11 +250,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Opens a regular image file from path, creates a document from it, and adds it to the system.
     /// </summary>
-    private void OpenRegularImage(string path, bool associatePath)
+    private DocumentViewModel OpenRegularImage(string path, bool associatePath)
     {
         var image = Importer.ImportImage(path, VecI.NegativeOne);
 
-        if (image == null) return;
+        if (image == null) return null;
 
         var doc = NewDocument(b => b
             .WithSize(image.Size)
@@ -244,6 +269,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         AddRecentlyOpened(path);
+        return doc;
     }
 
     /// <summary>

@@ -115,6 +115,9 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         AutosavePeriodChanged(preferences.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault), documentEnabled);
     }
 
+    public static bool AutosavingEnabled =>
+        (int)IPreferences.Current.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault) != -1;
+
     public void HintFinishedAction()
     {
         if (!saveAfterNextFinish)
@@ -155,7 +158,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_SAVING_IN", adjusted.Minutes.ToString(), minute), ClockIcon, InactiveBrush, false);
     }
 
-    private void TryAutosave()
+    public void TryAutosave()
     {
         if (Document.UpdateableChangeActive)
         {
@@ -316,6 +319,12 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         {
             SetAutosaveText();
         }
+    }
+
+    public void SetTempFileGuiAndLastSavedPath(Guid guid, string lastSavedPath)
+    {
+        tempGuid = guid;
+        LastSavedPath = lastSavedPath;
     }
 
     private void UpdateMainMenuTextSave(LocalizedString text, string iconText, Brush brush, bool pulse)

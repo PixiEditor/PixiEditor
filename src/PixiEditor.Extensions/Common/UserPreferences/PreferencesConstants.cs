@@ -17,4 +17,6 @@ public static class PreferencesConstants
     
     public const string AutosavePeriodMinutes = nameof(AutosavePeriodMinutes);
     public const double AutosavePeriodDefault = 3;
+
+    public const string UnsavedNextSessionFiles = nameof(UnsavedNextSessionFiles);
 }

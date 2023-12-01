@@ -12,6 +12,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Localization;
@@ -202,6 +203,7 @@ internal class ViewModelMain : ViewModelBase
             throw new ArgumentException();
         }
 
+        AutosaveUnsavedForNextSession();
         ((CancelEventArgs)property).Cancel = !DisposeAllDocumentsWithSaveConfirmation();
     }
 
@@ -245,6 +247,26 @@ internal class ViewModelMain : ViewModelBase
         }
 
         return true;
+    }
+
+    private void AutosaveUnsavedForNextSession()
+    {
+        if (!AutosaveDocumentViewModel.AutosavingEnabled)
+        {
+            return;
+        }
+        
+        var list = new List<string>();
+        foreach (var document in DocumentManagerSubViewModel.Documents.Where(x => x.FullFilePath == null))
+        {
+            document.AutosaveViewModel.TryAutosave();
+            if (document.AutosaveViewModel.LastSavedPath != null)
+            {
+                list.Add(document.AutosaveViewModel.LastSavedPath);
+            }
+        }
+        
+        Preferences.UpdateLocalPreference(PreferencesConstants.UnsavedNextSessionFiles, list);
     }
 
     /// <summary>
