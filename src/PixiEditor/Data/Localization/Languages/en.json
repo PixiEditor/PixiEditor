@@ -599,6 +599,7 @@
   "AUTOSAVE_PLEASE_RESAVE": "Error while saving. Save file manually to enable autosaving.",
   "AUTOSAVE_FAILED_RETRYING": "Error while saving. Retrying in {0} {1}.",
   "AUTOSAVE_DISABLED": "Autosaving paused for document.",
+  "AUTOSAVE_NOTHING_CHANGED": "Nothing changed, not saving.",
   
   "AUTOSAVE_TOGGLE": "Toggle autosave",
   "AUTOSAVE_TOGGLE_DESCRIPTION": "Toggle autosave for document",

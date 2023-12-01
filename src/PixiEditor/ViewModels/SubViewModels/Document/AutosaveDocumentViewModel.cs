@@ -173,7 +173,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         {
             updateTextTimer.Stop();
             RestartTimers();
-            UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
+            UpdateMainMenuTextSave("AUTOSAVE_NOTHING_CHANGED", SaveIcon, InactiveBrush, false);
             return;
         }
 
