@@ -19,6 +19,9 @@ internal abstract class ResizeBasedChangeBase : Change
         return true;
     }
     
+    /// <summary>
+    /// Notice: this commits image changes, you won't have a chance to revert or set ignoreInUndo to true
+    /// </summary>
     protected virtual void Resize(ChunkyImage img, Guid memberGuid, VecI size, VecI offset, Dictionary<Guid, CommittedChunkStorage> deletedChunksDict)
     {
         img.EnqueueResize(size);
@@ -31,9 +34,6 @@ internal abstract class ResizeBasedChangeBase : Change
     
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        if (target.Size == _originalSize)
-            return new None();
-
         target.Size = _originalSize;
         target.ForEveryMember((member) =>
         {
