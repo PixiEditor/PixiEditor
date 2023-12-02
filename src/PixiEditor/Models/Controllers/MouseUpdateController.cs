@@ -42,7 +42,7 @@ public class MouseUpdateController : IDisposable
 
     public void Dispose()
     {
-        _timer.Dispose();
         element.MouseMove -= OnMouseMove;
+        _timer.Dispose();
     }
 }
