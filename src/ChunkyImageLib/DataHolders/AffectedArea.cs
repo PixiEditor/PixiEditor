@@ -19,7 +19,7 @@ public struct AffectedArea
     public HashSet<VecI> Chunks { get; set; }
 
     /// <summary>
-    /// A rectangle in global full-scale coordinat
+    /// A rectangle in global full-scale coordinates
     /// </summary>
     public RectI? GlobalArea { get; set; }
 
