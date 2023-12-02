@@ -203,7 +203,7 @@ internal class ViewModelMain : ViewModelBase
             throw new ArgumentException();
         }
 
-        AutosaveUnsavedForNextSession();
+        AutosaveAllForNextSession();
         ((CancelEventArgs)property).Cancel = !DisposeAllDocumentsWithSaveConfirmation();
     }
 
@@ -249,7 +249,7 @@ internal class ViewModelMain : ViewModelBase
         return true;
     }
 
-    private void AutosaveUnsavedForNextSession()
+    private void AutosaveAllForNextSession()
     {
         if (!AutosaveDocumentViewModel.AutosavingEnabled)
         {
@@ -257,12 +257,16 @@ internal class ViewModelMain : ViewModelBase
         }
         
         var list = new List<string>();
-        foreach (var document in DocumentManagerSubViewModel.Documents.Where(x => x.FullFilePath == null))
+        foreach (var document in DocumentManagerSubViewModel.Documents)
         {
             document.AutosaveViewModel.TryAutosave();
             if (document.AutosaveViewModel.LastSavedPath != null)
             {
                 list.Add(document.AutosaveViewModel.LastSavedPath);
+            }
+            else if (document.FullFilePath != null)
+            {
+                list.Add(document.FullFilePath);
             }
         }
         

@@ -128,10 +128,24 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         
         foreach (string file in files)
         {
-            string guidString = Path.GetFileNameWithoutExtension(file)["autosave-".Length..];
-            var document = OpenFromPath(file, false);
-            
-            document.AutosaveViewModel.SetTempFileGuiAndLastSavedPath(Guid.Parse(guidString), file);
+            try
+            {
+                if (file.StartsWith(Paths.PathToUnsavedFilesFolder))
+                {
+                    string guidString = Path.GetFileNameWithoutExtension(file)["autosave-".Length..];
+                    var document = OpenFromPath(file, false);
+
+                    document.AutosaveViewModel.SetTempFileGuiAndLastSavedPath(Guid.Parse(guidString), file);
+                }
+                else
+                {
+                    OpenFromPath(file);
+                }
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfoToWebhook(e);
+            }
         }
         
         preferences.UpdateLocalPreference(PreferencesConstants.UnsavedNextSessionFiles, Array.Empty<string>());
