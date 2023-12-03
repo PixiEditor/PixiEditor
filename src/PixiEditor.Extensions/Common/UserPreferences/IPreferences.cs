@@ -2,7 +2,7 @@
 
 public interface IPreferences
 {
-    public static IPreferences Current { get; private set; }
+    public static IPreferences? Current { get; private set; }
 
     /// <summary>
     /// Saves the preferences to be stored permanently.

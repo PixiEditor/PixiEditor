@@ -35,7 +35,7 @@ internal class CommandLog
             var relativeSpan = entry.DateTime - relativeTime;
             string canExecute = entry.CanExecute.HasValue ? entry.CanExecute.ToString() : "not executed";
             
-            builder.AppendLine($"{entry.Command.InternalName} | CanExecute: {canExecute} | {entry.DateTime.ToString("O", CultureInfo.InvariantCulture)} | {relativeSpan.ToString("G", CultureInfo.InvariantCulture)}");
+            builder.AppendLine($"{entry.Command.InternalName} | CanExecute: {canExecute} | {relativeSpan.TotalSeconds.ToString("F3", CultureInfo.InvariantCulture)}s ago | {entry.DateTime.ToString("O", CultureInfo.InvariantCulture)}");
         }
 
         return builder.ToString();

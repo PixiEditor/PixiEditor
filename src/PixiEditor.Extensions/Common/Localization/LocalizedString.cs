@@ -26,7 +26,7 @@ public struct LocalizedString
     }
     public string Value { get; private set; }
 
-    public object[] Parameters { get; set; }
+    public object[]? Parameters { get; set; }
 
     public LocalizedString(string key)
     {

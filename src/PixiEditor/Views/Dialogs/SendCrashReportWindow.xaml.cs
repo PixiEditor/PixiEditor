@@ -46,7 +46,11 @@ internal partial class SendCrashReportWindow : Window
 
         foreach (var file in info.EnumerateFiles())
         {
-            file.Delete();
+            try
+            {
+                file.Delete();
+            }
+            catch { }
         }
 
         File.Copy(report.FilePath, Path.Combine(tempPath, Path.GetFileName(report.FilePath)), true);
