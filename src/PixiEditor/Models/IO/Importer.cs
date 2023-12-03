@@ -106,7 +106,7 @@ internal class Importer : NotifyableObject
 
                 return doc;
             }
-            catch (InvalidFileException e)
+            catch (Exception e)
             {
                 throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
             }
