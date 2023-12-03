@@ -80,7 +80,7 @@ public struct RectI : IEquatable<RectI>
     public int Width { readonly get => right - left; set => right = left + value; }
     public int Height { readonly get => bottom - top; set => bottom = top + value; }
     public readonly bool IsZeroArea => left == right || top == bottom;
-    public readonly bool IsZeroOrNegativeArea => left >= right || top >= bottom;
+    public readonly bool IsZeroOrNegativeArea => left >= right || top >= bottom || Width < 0 || Height < 0; // checking Width and Height too as they can overflow in large rectangles 
 
     public RectI()
     {
