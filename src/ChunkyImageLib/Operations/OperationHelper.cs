@@ -234,7 +234,7 @@ public static class OperationHelper
 
     public static HashSet<VecI> FindChunksTouchingRectangle(RectI rect, int chunkSize)
     {
-        if (rect.Width > chunkSize * 40 * 20 || rect.Height > chunkSize * 40 * 20)
+        if (rect.Width > chunkSize * 40 * 20 || rect.Height > chunkSize * 40 * 20 || rect.IsZeroOrNegativeArea)
             return new HashSet<VecI>();
 
         VecI min = GetChunkPos(rect.TopLeft, chunkSize);

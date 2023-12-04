@@ -108,7 +108,14 @@ internal class Exporter
         }
         else
         {
-            Parser.PixiParser.Serialize(document.ToSerializable(), pathWithExtension);
+            try
+            {
+                Parser.PixiParser.Serialize(document.ToSerializable(), pathWithExtension);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return SaveResult.SecurityError;
+            }
         }
 
         return SaveResult.Success;

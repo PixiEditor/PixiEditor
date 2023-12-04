@@ -247,22 +247,23 @@ public static class ChunkRenderer
         OneOf<All, HashSet<Guid>> membersToMerge,
         RectI? transformedClippingRect)
     {
-        if (folder.Children.Count == 0)
+        var folderChildren = folder.Children;
+        if (folderChildren.Count == 0)
             return new EmptyChunk();
 
         Chunk targetChunk = Chunk.Create(resolution);
         targetChunk.Surface.DrawingSurface.Canvas.Clear();
 
         OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk = new FilledChunk();
-        for (int i = 0; i < folder.Children.Count; i++)
+        for (int i = 0; i < folderChildren.Count; i++)
         {
-            var child = folder.Children[i];
+            var child = folderChildren[i];
 
             // next child might use clip to member below in which case we need to save the clip image
             bool needToSaveClippingChunk =
-                i < folder.Children.Count - 1 &&
+                i < folderChildren.Count - 1 &&
                 !child.ClipToMemberBelow &&
-                folder.Children[i + 1].ClipToMemberBelow;
+                folderChildren[i + 1].ClipToMemberBelow;
 
             // if the current member doesn't need a clip, get rid of it
             if (!child.ClipToMemberBelow && !clippingChunk.IsT0)

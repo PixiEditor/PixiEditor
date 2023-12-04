@@ -284,7 +284,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         Angle = 0;
         FlipX = false;
         FlipY = false;
-        Scale = 1 / scaleFactor;
+        Scale = Math.Clamp(1 / scaleFactor, MinScale, MaxScale);
         Center = newSize / 2;
     }
 

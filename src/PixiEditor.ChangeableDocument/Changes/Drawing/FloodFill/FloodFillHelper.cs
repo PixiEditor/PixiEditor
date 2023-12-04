@@ -53,7 +53,7 @@ public static class FloodFillHelper
             static (EmptyChunk _) => Colors.Transparent
         );
 
-        if ((colorToReplace.A == 0 && drawingColor.A == 0) || colorToReplace == drawingColor)
+        if ((drawingColor.A == 0) || colorToReplace == drawingColor)
             return new();
 
         RectI globalSelectionBounds = (RectI?)selection?.TightBounds ?? new RectI(VecI.Zero, document.Size);

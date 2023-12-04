@@ -177,9 +177,13 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
     {
         if (hasEnqueudImages)
             throw new InvalidOperationException("Attempted to dispose the change while it's internally stored image is still used enqueued in some ChunkyImage. Most likely someone tried to dispose a change after ApplyTemporarily was called but before the subsequent call to Apply. Don't do that.");
-        foreach (var (_, (image, _)) in images!)
+
+        if (images is not null)
         {
-            image.Dispose();
+            foreach (var (_, (image, _)) in images)
+            {
+                image.Dispose();
+            }
         }
 
         if (savedChunks is not null)

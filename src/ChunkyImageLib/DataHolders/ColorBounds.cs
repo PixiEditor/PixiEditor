@@ -65,10 +65,10 @@ public struct ColorBounds
 
     public bool IsWithinBounds(Color toCompare)
     {
-        float r = toCompare.R / 255f;
-        float g = toCompare.G / 255f;
-        float b = toCompare.B / 255f;
         float a = toCompare.A / 255f;
+        float r = (toCompare.R / 255f) * a;
+        float g = (toCompare.G / 255f) * a;
+        float b = (toCompare.B / 255f) * a;
         
         if (r < LowerR || r > UpperR)
             return false;

@@ -33,7 +33,7 @@ internal class ZoomDragOperation : IDragOperation
         double deltaX = curScreenPos.X - screenScaleOrigin.X;
         double deltaPower = deltaX / 10.0;
 
-        parent.Scale = originalScale * Math.Pow(Zoombox.ScaleFactor, deltaPower);
+        parent.Scale = Math.Clamp(originalScale * Math.Pow(Zoombox.ScaleFactor, deltaPower), parent.MinScale, Zoombox.MaxScale);
 
         VecD shiftedOrigin = parent.ToZoomboxSpace(screenScaleOrigin);
         parent.Center += scaleOrigin - shiftedOrigin;

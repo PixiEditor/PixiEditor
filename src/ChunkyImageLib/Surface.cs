@@ -64,6 +64,8 @@ public class Surface : IDisposable
     public static Surface Load(byte[] encoded)
     {
         using var image = Image.FromEncodedData(encoded);
+        if (image is null)
+            throw new ArgumentException($"The passed byte array does not contain a valid image");
 
         var surface = new Surface(new VecI(image.Width, image.Height));
         surface.DrawingSurface.Canvas.DrawImage(image, 0, 0);
