@@ -292,7 +292,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         FlipX = false;
         FlipY = false;
         Scale = 1 / scaleFactor;
-        Center = newSize / 2 * scaleFactor;
+        Center = newSize / 2;
     }
 
     public void ZoomIntoCenter(double delta)

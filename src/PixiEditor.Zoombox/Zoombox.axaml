@@ -36,8 +36,8 @@
                         ScaleY="{Binding ElementName=uc, Path=FlipTransformY}" />
                 </TransformGroup>
             </Grid.RenderTransform>
-            <ContentPresenter
-                Content="{Binding AdditionalContent, ElementName=uc}" />
+            <ContentPresenter RenderTransformOrigin="0.5,0.5"
+                              Content="{Binding AdditionalContent, ElementName=uc}" />
         </Grid>
     </Canvas>
 </UserControl>
