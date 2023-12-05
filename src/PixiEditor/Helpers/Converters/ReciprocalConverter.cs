@@ -8,8 +8,13 @@ internal class ReciprocalConverter : SingleInstanceConverter<ReciprocalConverter
     {
         if (value is not double num)
             return DependencyProperty.UnsetValue;
+
+        double result;
         if (parameter is not double mult)
-            return 1 / num;
-        return mult / num;
+            result = 1 / num;
+        else
+            result = mult / num;
+
+        return Math.Clamp(result, 1e-15, 1e15);
     }
 }

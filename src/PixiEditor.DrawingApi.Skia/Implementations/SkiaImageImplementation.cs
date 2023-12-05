@@ -31,9 +31,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return new Image(snapshot.Handle);
         }
         
-        public Image FromEncodedData(byte[] dataBytes)
+        public Image? FromEncodedData(byte[] dataBytes)
         {
             SKImage img = SKImage.FromEncodedData(dataBytes);
+            if (img is null)
+                return null;
             ManagedInstances[img.Handle] = img;
             
             return new Image(img.Handle);
@@ -45,9 +47,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances.TryRemove(image.ObjectPointer, out _);
         }
 
-        public Image FromEncodedData(string path)
+        public Image? FromEncodedData(string path)
         {
             var nativeImg = SKImage.FromEncodedData(path);
+            if (nativeImg is null)
+                return null;
             ManagedInstances[nativeImg.Handle] = nativeImg;
             return new Image(nativeImg.Handle);
         }

@@ -21,7 +21,6 @@ public class MouseUpdateController : IDisposable
         element = uiElement;
         
         _timer = new System.Timers.Timer(MouseUpdateIntervalMs);
-        _timer.AutoReset = true;
         _timer.Elapsed += TimerOnElapsed;
         
         element.MouseMove += OnMouseMove;
@@ -29,8 +28,10 @@ public class MouseUpdateController : IDisposable
 
     private void TimerOnElapsed(object sender, ElapsedEventArgs e)
     {
-        _timer.Stop();
-        element.MouseMove += OnMouseMove;
+        Application.Current?.Dispatcher.Invoke(() =>
+        {
+            element.MouseMove += OnMouseMove;
+        });
     }
 
     private void OnMouseMove(object sender, MouseEventArgs e)
@@ -42,7 +43,7 @@ public class MouseUpdateController : IDisposable
 
     public void Dispose()
     {
-        _timer.Dispose();
         element.MouseMove -= OnMouseMove;
+        _timer.Dispose();
     }
 }

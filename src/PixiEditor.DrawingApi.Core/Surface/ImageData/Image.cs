@@ -26,12 +26,12 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
             DrawingBackendApi.Current.ImageImplementation.DisposeImage(this);
         }
 
-        public static Image FromEncodedData(string path)
+        public static Image? FromEncodedData(string path)
         {
             return DrawingBackendApi.Current.ImageImplementation.FromEncodedData(path);
         }
         
-        public static Image FromEncodedData(byte[] dataBytes)
+        public static Image? FromEncodedData(byte[] dataBytes)
         {
             return DrawingBackendApi.Current.ImageImplementation.FromEncodedData(dataBytes);
         }

@@ -385,18 +385,25 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = ModifierKeys.Control)]
     public void ExportFile()
     {
-        DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (doc is null)
-            return;
-
-        ExportFileDialog info = new ExportFileDialog(doc.SizeBindable);
-        if (info.ShowDialog())
+        try
         {
-            SaveResult result = Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, out string finalPath, new(info.FileWidth, info.FileHeight));
-            if (result == SaveResult.Success)
-                ProcessHelper.OpenInExplorer(finalPath);
-            else
-                ShowSaveError((DialogSaveResult)result);
+            DocumentViewModel doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+            if (doc is null)
+                return;
+
+            ExportFileDialog info = new ExportFileDialog(doc.SizeBindable);
+            if (info.ShowDialog())
+            {
+                SaveResult result = Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, out string finalPath, new(info.FileWidth, info.FileHeight));
+                if (result == SaveResult.Success)
+                    ProcessHelper.OpenInExplorer(finalPath);
+                else
+                    ShowSaveError((DialogSaveResult)result);
+            }
+        }
+        catch (RecoverableException e)
+        {
+            NoticeDialog.Show(e.DisplayMessage, "ERROR");
         }
     }
 
