@@ -32,7 +32,7 @@ internal class RotateDragOperation : IDragOperation
 
     private double GetAngle(VecD point)
     {
-        VecD center = new(owner.mainCanvas.Width / 2, owner.mainCanvas.Height / 2);
+        VecD center = new(owner.mainCanvas.Bounds.Width / 2, owner.mainCanvas.Bounds.Height / 2);
         double angle = (point - center).Angle;
         if (double.IsNaN(angle) || double.IsInfinity(angle))
             return 0;
