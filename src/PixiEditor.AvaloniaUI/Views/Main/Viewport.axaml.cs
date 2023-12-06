@@ -325,11 +325,13 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void OnUnload(object sender, RoutedEventArgs e)
     {
+        viewportGrid.RemoveHandler(PointerPressedEvent, Image_MouseDown);
         Document?.Operations.RemoveViewport(GuidValue);
     }
 
     private void OnLoad(object sender, RoutedEventArgs e)
     {
+        viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Tunnel);
         Document?.Operations.AddOrUpdateViewport(GetLocation());
     }
 
