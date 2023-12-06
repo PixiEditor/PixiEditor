@@ -176,9 +176,15 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
     private static void ZoomModeChanged(AvaloniaPropertyChangedEventArgs<ZoomboxMode> e)
     {
         Zoombox sender = (Zoombox)e.Sender;
-        sender.activeDragOperation?.Terminate();
-        sender.activeDragOperation = null;
-        sender.activeMouseDownEventArgs = null;
+
+        bool reset = sender.activeDragOperation != null;
+
+        if (reset)
+        {
+            sender.activeDragOperation?.Terminate();
+            sender.activeDragOperation = null;
+            sender.activeMouseDownEventArgs = null;
+        }
     }
 
     private double[]? zoomValues;

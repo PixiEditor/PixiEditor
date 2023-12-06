@@ -1,7 +1,9 @@
 ﻿using System.Linq;
 using Avalonia.Input;
+using Avalonia.Media.Imaging;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
+using PixiEditor.AvaloniaUI.Models.Input;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
@@ -21,7 +23,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools
 
         public PenToolViewModel()
         {
-            Cursor = new Cursor(StandardCursorType.Help); // TODO: Create pen cursor
+            Cursor = Cursors.PreciseCursor;
             Toolbar = ToolbarFactory.Create<PenToolViewModel, BasicToolbar>(this);
             
             ViewModelMain.Current.ToolsSubViewModel.SelectedToolChanged += SelectedToolChanged;

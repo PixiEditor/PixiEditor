@@ -123,6 +123,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private readonly HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
 
     public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
+    public bool PointerDragChangeInProgress => Internals.ChangeController.IsChangeActive && Internals.ChangeController.LeftMousePressed;
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
     public bool HasSavedRedo => Internals.Tracker.HasSavedRedo;
 

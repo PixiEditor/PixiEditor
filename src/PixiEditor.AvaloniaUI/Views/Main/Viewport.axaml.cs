@@ -311,8 +311,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
-        // Below it's actually not weird, because order of events is wrong if used with bubble. Middle mouse drag for example doesn't work.
-        viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Tunnel);
+        viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
 
         mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
