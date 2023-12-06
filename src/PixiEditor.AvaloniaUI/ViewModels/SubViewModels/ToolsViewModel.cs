@@ -275,6 +275,11 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         if (ActiveTool == null) return;
 
         ActiveTool.UsedWith = button;
+        if (ActiveTool.StopsLinkedToolOnUse)
+        {
+            ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
+        }
+
         ActiveTool.UseTool(canvasPos);
     }
 

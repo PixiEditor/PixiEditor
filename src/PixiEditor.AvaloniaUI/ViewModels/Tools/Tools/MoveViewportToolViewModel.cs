@@ -13,6 +13,8 @@ internal class MoveViewportToolViewModel : ToolViewModel
     public override bool HideHighlight => true;
     public override LocalizedString Tooltip => new LocalizedString("MOVE_VIEWPORT_TOOLTIP", Shortcut);
 
+    public override bool StopsLinkedToolOnUse => false;
+
     public MoveViewportToolViewModel()
     {
         Cursor = new Cursor(StandardCursorType.SizeAll);

@@ -16,7 +16,6 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     private string transformingActionDisplay = "MOVE_TOOL_ACTION_DISPLAY_TRANSFORMING";
     private bool transformingSelectedArea = false;
-
     public bool MoveAllLayers { get; set; }
 
     public MoveToolViewModel()
