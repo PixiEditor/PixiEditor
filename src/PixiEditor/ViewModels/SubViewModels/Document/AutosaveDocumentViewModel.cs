@@ -176,6 +176,19 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         SafeAutosave(saveUserFileIfEnabled);
     }
 
+    public void PanicAutosave()
+    {
+        string filePath = Path.Join(Paths.PathToUnsavedFilesFolder, $"autosave-{tempGuid}.pixi");
+        Directory.CreateDirectory(Directory.GetParent(filePath)!.FullName);
+
+        var result = Exporter.TrySave(Document, filePath);
+
+        if (result == SaveResult.Success)
+        {
+            LastSavedPath = filePath;
+        }
+    }
+
     private void SafeAutosave(bool saveUserFile)
     {
         try

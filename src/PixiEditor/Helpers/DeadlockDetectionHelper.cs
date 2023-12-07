@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Text;
 using System.Windows.Threading;
 using Microsoft.Diagnostics.Runtime;
+using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Models.DataHolders;
 using PixiEditor.Views;
 using Exception = System.Exception;
 
@@ -94,8 +96,18 @@ public class DeadlockDetectionHelper
         var thread = new Thread(() =>
         {
             var viewModel = ViewModelMain.Current;
-
-            viewModel.AutosaveAllForNextSession();
+            
+            var list = new List<AutosaveFilePathInfo>();
+            foreach (var document in viewModel.DocumentManagerSubViewModel.Documents)
+            {
+                document.AutosaveViewModel.PanicAutosave();
+                if (document.AutosaveViewModel.LastSavedPath != null || document.FullFilePath != null)
+                {
+                    list.Add(new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
+                }
+            }
+        
+            IPreferences.Current?.UpdateLocalPreference(PreferencesConstants.UnsavedNextSessionFiles, list);
         });
         
         thread.Start();
