@@ -37,7 +37,10 @@ public class DeadlockDetectionHelper
                 CheckStatus();
             }
             catch
-            { }
+            {
+                if (Debugger.IsAttached)
+                    Debugger.Break();
+            }
             
             Thread.Sleep(200);
         }
@@ -52,17 +55,51 @@ public class DeadlockDetectionHelper
 
         if (errorsReported < 5)
         {
-            var task = Task.Run(() => ReportProblem(mainThread.ManagedThreadId));
-
-            if (!task.Wait(TimeSpan.FromSeconds(8)))
-            {
-                StartDeadlockHandlerProcess();
-            }
+            TryReportProblem();
         }
 
         errorsReported++;
 
-        CheckDispatcher(Timeout.Infinite, DispatcherPriority.Send);
+        TrySaveFilesForNextSession();
+
+        if (Debugger.IsAttached)
+        {
+            CheckDispatcher(Timeout.Infinite, DispatcherPriority.Send);
+        }
+        else
+        {
+            bool close = !CheckDispatcher(20000, DispatcherPriority.Send);
+        
+            if (close)
+            {
+                ForceNewProcess();
+                Environment.FailFast("Encountered deadlock. Reopening in new process");
+            }
+        }
+    }
+
+    private void TryReportProblem()
+    {
+        var thread = new Thread(() =>
+        {
+            ReportProblem(mainThread.ManagedThreadId);
+        });
+        
+        thread.Start();
+        thread.Join(7000);
+    }
+
+    private void TrySaveFilesForNextSession()
+    {
+        var thread = new Thread(() =>
+        {
+            var viewModel = ViewModelMain.Current;
+
+            viewModel.AutosaveAllForNextSession();
+        });
+        
+        thread.Start();
+        thread.Join(10000);
     }
 
     private void StartDeadlockHandlerProcess()
@@ -73,6 +110,19 @@ public class DeadlockDetectionHelper
         {
             FileName = Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, "exe"),
             Arguments = $"--deadlock {Process.GetCurrentProcess().Id} {mainThread.ManagedThreadId}"
+        };
+
+        process.Start();
+    }
+
+    private void ForceNewProcess()
+    {
+        Process process = new();
+
+        process.StartInfo = new()
+        {
+            FileName = Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, "exe"),
+            Arguments = "--force-new-instance --wait-before-init 6000"
         };
 
         process.Start();
@@ -148,7 +198,6 @@ public class DeadlockDetectionHelper
 
         }
         
-        
         isFree = CheckDispatcher(1600, DispatcherPriority.Input);
 
         stopwatch.Restart();
@@ -158,7 +207,7 @@ public class DeadlockDetectionHelper
         if (isFree)
             return true;
 
-        isFree = CheckDispatcher(1000, DispatcherPriority.Send);
+        isFree = CheckDispatcher(2000, DispatcherPriority.Send);
 
         stopwatch.Restart();
         Debug.WriteLine($"-------- Fourth deadlock check time [0] {stopwatch.Elapsed}");
@@ -171,7 +220,7 @@ public class DeadlockDetectionHelper
     {
         var task = Task.Run(() => dispatcher.Invoke(ReturnTrue, TimeSpan.FromMilliseconds(timeout), priority) as bool? ?? false);
 
-        var waitTimeout = (int)(timeout != -1 ? timeout * 1.5 : timeout);
+        var waitTimeout = (int)(timeout != -1 ? timeout * 1.2 : timeout);
         
         return task.Wait(waitTimeout) && task.Result;
     }

@@ -19,7 +19,6 @@
     <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <ImplicitUsings>true</ImplicitUsings>
     <AssemblyVersion></AssemblyVersion>
-    <LangVersion>11</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 

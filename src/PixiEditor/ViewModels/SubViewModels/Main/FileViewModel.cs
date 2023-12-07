@@ -102,7 +102,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         if (!args.Contains("--crash"))
         {
-            ReopenUnsavedFiles();
+            ReopenTempFiles();
         }
         
         if (file != null)
@@ -118,28 +118,29 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void ReopenUnsavedFiles()
+    private void ReopenTempFiles()
     {
         var preferences = Owner.Preferences;
-        var files = preferences.GetLocalPreference<string[]>(PreferencesConstants.UnsavedNextSessionFiles);
+        var files = preferences.GetLocalPreference<AutosaveFilePathInfo[]>(PreferencesConstants.UnsavedNextSessionFiles);
 
         if (files == null)
             return;
         
-        foreach (string file in files)
+        foreach (var file in files)
         {
             try
             {
-                if (file.StartsWith(Paths.PathToUnsavedFilesFolder))
+                if (file.AutosavePath != null)
                 {
-                    string guidString = Path.GetFileNameWithoutExtension(file)["autosave-".Length..];
-                    var document = OpenFromPath(file, false);
-
-                    document.AutosaveViewModel.SetTempFileGuiAndLastSavedPath(Guid.Parse(guidString), file);
+                    string guidString = Path.GetFileNameWithoutExtension(file.AutosavePath)["autosave-".Length..];
+                    var document = OpenFromPath(file.AutosavePath, false);
+                    document.FullFilePath = file.OriginalPath;
+                    
+                    document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(Guid.Parse(guidString), file.AutosavePath);
                 }
                 else
                 {
-                    OpenFromPath(file);
+                    OpenFromPath(file.OriginalPath);
                 }
             }
             catch (Exception e)
@@ -374,7 +375,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         document.FullFilePath = finalPath;
         document.MarkAsSaved();
-        document.AutosaveViewModel.HintSave();
         return true;
     }
 

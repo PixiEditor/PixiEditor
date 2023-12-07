@@ -19,4 +19,10 @@ public static class PreferencesConstants
     public const double AutosavePeriodDefault = 3;
 
     public const string UnsavedNextSessionFiles = nameof(UnsavedNextSessionFiles);
+
+    public const string AutosaveToDocumentPath = nameof(AutosaveToDocumentPath);
+    public const bool AutosaveToDocumentPathDefault = false;
+    
+    public const string SaveSessionStateEnabled = nameof(SaveSessionStateEnabled);
+    public const bool SaveSessionStateDefault = true;
 }

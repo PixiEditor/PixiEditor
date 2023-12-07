@@ -17,7 +17,6 @@ internal class AutosaveDocumentViewModel : NotifyableObject
     private readonly Timer updateTextTimer;
     private readonly Timer busyTimer;
     private bool saveAfterNextFinish;
-    private bool reenableAfterNextSave;
     private int savingFailed;
     private DateTime nextSave;
     private Guid tempGuid;
@@ -38,6 +37,8 @@ internal class AutosaveDocumentViewModel : NotifyableObject
     private DocumentViewModel Document { get; }
 
     private double AutosavePeriodMinutes { get; set; } = -1;
+
+    private bool SaveToDocumentPath => IPreferences.Current!.GetPreference(PreferencesConstants.AutosaveToDocumentPath, PreferencesConstants.AutosaveToDocumentPathDefault);
 
     private LocalizedString mainMenuText;
     
@@ -95,7 +96,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         Document = document;
         tempGuid = Guid.NewGuid();
         savingTimer = new Timer();
-        updateTextTimer = new Timer(TimeSpan.FromSeconds(3));
+        updateTextTimer = new Timer(TimeSpan.FromSeconds(3.8));
 
         savingTimer.Elapsed += (_, _) => TryAutosave();
         savingTimer.AutoReset = false;
@@ -116,7 +117,9 @@ internal class AutosaveDocumentViewModel : NotifyableObject
     }
 
     public static bool AutosavingEnabled =>
-        (int)IPreferences.Current.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault) != -1;
+        (int)IPreferences.Current!.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault) != -1;
+
+    public static bool SaveStateEnabled => IPreferences.Current!.GetPreference(PreferencesConstants.SaveSessionStateEnabled, PreferencesConstants.SaveSessionStateDefault);
 
     public void HintFinishedAction()
     {
@@ -125,18 +128,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
 
         saveAfterNextFinish = false;
         
-        SafeAutosave();
-    }
-
-    public void HintSave()
-    {
-        if (!reenableAfterNextSave)
-            return;
-
-        reenableAfterNextSave = false;
-        
-        RestartTimers();
-        SetAutosaveText();
+        SafeAutosave(true);
     }
 
     private void SetAutosaveText()
@@ -158,7 +150,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_SAVING_IN", adjusted.Minutes.ToString(), minute), ClockIcon, InactiveBrush, false);
     }
 
-    public void TryAutosave()
+    public void TryAutosave(bool saveUserFileIfEnabled = true)
     {
         if (Document.UpdateableChangeActive)
         {
@@ -181,14 +173,14 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         }
 
         updateTextTimer.Stop();
-        SafeAutosave();
+        SafeAutosave(saveUserFileIfEnabled);
     }
 
-    private void SafeAutosave()
+    private void SafeAutosave(bool saveUserFile)
     {
         try
         {
-            Autosave();
+            Autosave(saveUserFile);
         }
         catch (Exception e)
         {
@@ -212,43 +204,31 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         }
     }
     
-    private void Autosave()
+    private void Autosave(bool saveUserFile)
     {
         saveAfterNextFinish = false;
         
         UpdateMainMenuTextSave("AUTOSAVE_SAVING", SavingIcon, ActiveBrush, true);
 
-        string filePath;
-        bool fileExists = true;
-
-        if (Document.FullFilePath == null || !Document.FullFilePath.EndsWith(".pixi"))
-        {
-            filePath = Path.Join(Paths.PathToUnsavedFilesFolder, $"autosave-{tempGuid}.pixi");
-            Directory.CreateDirectory(Directory.GetParent(filePath)!.FullName);
-        }
-        else
-        {
-            filePath = Document.FullFilePath;
-            fileExists = File.Exists(filePath);
-        }
+        string filePath = Path.Join(Paths.PathToUnsavedFilesFolder, $"autosave-{tempGuid}.pixi");
+        Directory.CreateDirectory(Directory.GetParent(filePath)!.FullName);
         
         busyTimer.Start();
         var result = Exporter.TrySave(Document, filePath);
 
-        if (result == SaveResult.Success && fileExists)
+        if (result == SaveResult.Success)
         {
-            savingFailed = 0;
-            UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
-            Document.MarkAsSaved();
+            if (saveUserFile && SaveToDocumentPath && Document.FullFilePath != null)
+            {
+                CopyTemp(filePath);
+            }
+            else
+            {
+                UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
+            }
+            
+            Document.MarkAsAutosaved();
             LastSavedPath = filePath;
-        }
-        else if (result is SaveResult.InvalidPath or SaveResult.SecurityError || !fileExists)
-        {
-            UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, ErrorBrush, true);
-            busyTimer.Stop();
-            Document.Busy = false;
-            reenableAfterNextSave = true;
-            return;
         }
         else
         {
@@ -262,9 +242,9 @@ internal class AutosaveDocumentViewModel : NotifyableObject
             UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute), WarnIcon, WarnBrush, true);
             savingFailed++;
 
-            if (savingFailed == 3)
+            if (savingFailed < 3)
             {
-                CrashHelper.SendExceptionInfoToWebhook(new Exception($"Failed to autosave 3 times in a row due to {result}"));
+                Task.Run(() => CrashHelper.SendExceptionInfoToWebhook(new Exception($"Failed to autosave for the {savingFailed}. time due to {result}")));
             }
         }
         
@@ -272,6 +252,38 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         Document.Busy = false;
 
         RestartTimers();
+    }
+
+    private void CopyTemp(string tempPath)
+    {
+        if (File.Exists(Document.FullFilePath))
+        {
+            UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, ErrorBrush, true);
+        }
+        
+        Task.Run(Copy);
+        
+        void Copy()
+        {
+            try
+            {
+                File.Copy(tempPath, Document.FullFilePath!, true);
+                Document.MarkAsSaved();
+                UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
+            }
+            catch (Exception e) when (e is UnauthorizedAccessException or DirectoryNotFoundException)
+            {
+                UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, ErrorBrush, true);
+            }
+            catch
+            {
+                var minute = AutosavePeriodMinutes <= 1
+                    ? new LocalizedString("MINUTE_SINGULAR")
+                    : new LocalizedString("MINUTE_PLURAL");
+            
+                UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute), WarnIcon, WarnBrush, true);
+            }
+        }
     }
 
     private void RestartTimers()
@@ -321,7 +333,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         }
     }
 
-    public void SetTempFileGuiAndLastSavedPath(Guid guid, string lastSavedPath)
+    public void SetTempFileGuidAndLastSavedPath(Guid guid, string lastSavedPath)
     {
         tempGuid = guid;
         LastSavedPath = lastSavedPath;

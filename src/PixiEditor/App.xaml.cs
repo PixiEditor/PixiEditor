@@ -71,8 +71,13 @@ internal partial class App : Application
             return;
         }
 
+        if (ParseArgument("--wait-before-init ([0-9]+)", arguments, out Group[] waitBeforeInitGroups))
+        {
+            Task.Delay(int.Parse(waitBeforeInitGroups[1].ValueSpan)).Wait();
+        }
+
 #if !STEAM
-        if (!HandleNewInstance())
+        if (!HandleNewInstance() && !arguments.Contains("--force-new-instance"))
         {
             return;
         }

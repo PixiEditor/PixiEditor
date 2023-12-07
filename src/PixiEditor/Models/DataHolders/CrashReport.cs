@@ -209,7 +209,7 @@ internal class CrashReport : IDisposable
 
     public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
 
-    public List<(CrashFilePathInfo originalPath, byte[] dotPixiBytes)> RecoverDocuments()
+    public List<(AutosaveFilePathInfo originalPath, byte[] dotPixiBytes)> RecoverDocuments()
     {
         // Load .pixi files
         Dictionary<string, byte[]> recoveredDocuments = new();
@@ -224,15 +224,15 @@ internal class CrashReport : IDisposable
         var originalPathsEntry = ZipFile.Entries.First(entry => entry.FullName == "DocumentInfo.json");
         
         // Load original paths
-        Dictionary<string, CrashFilePathInfo> originalPaths;
+        Dictionary<string, AutosaveFilePathInfo> originalPaths;
         {
             using Stream stream = originalPathsEntry.Open();
             using StreamReader reader = new(stream);
             string json = reader.ReadToEnd();
-            originalPaths = JsonConvert.DeserializeObject<Dictionary<string, CrashFilePathInfo>>(json);
+            originalPaths = JsonConvert.DeserializeObject<Dictionary<string, AutosaveFilePathInfo>>(json);
         }
 
-        var list = new List<(CrashFilePathInfo originalPath, byte[] dotPixiBytes)>();
+        var list = new List<(AutosaveFilePathInfo originalPath, byte[] dotPixiBytes)>();
 
         foreach (var document in recoveredDocuments)
         {
@@ -290,7 +290,7 @@ internal class CrashReport : IDisposable
 
         // Write the documents into zip
         int counter = 0;
-        Dictionary<string, CrashFilePathInfo> originalPaths = new();
+        Dictionary<string, AutosaveFilePathInfo> originalPaths = new();
         foreach (DocumentViewModel document in vm.DocumentManagerSubViewModel.Documents)
         {
             try
@@ -305,7 +305,7 @@ internal class CrashReport : IDisposable
                 using Stream documentStream = archive.CreateEntry($"Documents/{nameInZip}").Open();
                 documentStream.Write(serialized);
 
-                originalPaths.Add(nameInZip, new CrashFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
+                originalPaths.Add(nameInZip, new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
             }
             catch { }
             counter++;

@@ -77,6 +77,12 @@ internal partial class DocumentViewModel : NotifyableObject
         }
     }
 
+    private Guid? lastChangeOnAutosave;
+    public bool AllChangesAutosaved
+    {
+        get => Internals.Tracker.LastChangeGuid == lastChangeOnSave;
+    }
+    
     public DateTime OpenedUTC { get; } = DateTime.UtcNow;
 
     private bool horizontalSymmetryAxisEnabled;
@@ -298,6 +304,12 @@ internal partial class DocumentViewModel : NotifyableObject
     {
         lastChangeOnSave = Internals.Tracker.LastChangeGuid;
         RaisePropertyChanged(nameof(AllChangesSaved));
+    }
+
+    public void MarkAsAutosaved()
+    {
+        lastChangeOnAutosave = Internals.Tracker.LastChangeGuid;
+        RaisePropertyChanged(nameof(AllChangesAutosaved));
     }
 
     public void MarkAsUnsaved()

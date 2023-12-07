@@ -249,24 +249,20 @@ internal class ViewModelMain : ViewModelBase
         return true;
     }
 
-    private void AutosaveAllForNextSession()
+    public void AutosaveAllForNextSession()
     {
-        if (!AutosaveDocumentViewModel.AutosavingEnabled)
+        if (!AutosaveDocumentViewModel.SaveStateEnabled)
         {
             return;
         }
         
-        var list = new List<string>();
+        var list = new List<AutosaveFilePathInfo>();
         foreach (var document in DocumentManagerSubViewModel.Documents)
         {
             document.AutosaveViewModel.TryAutosave();
-            if (document.AutosaveViewModel.LastSavedPath != null)
+            if (document.AutosaveViewModel.LastSavedPath != null || document.FullFilePath != null)
             {
-                list.Add(document.AutosaveViewModel.LastSavedPath);
-            }
-            else if (document.FullFilePath != null)
-            {
-                list.Add(document.FullFilePath);
+                list.Add(new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
             }
         }
         
@@ -290,7 +286,8 @@ internal class ViewModelMain : ViewModelBase
         const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
 
         ConfirmationType result = ConfirmationType.No;
-        if (!document.AllChangesSaved)
+        var hasUnsavedChanges = !(document.AllChangesSaved || document.AllChangesAutosaved);
+        if (hasUnsavedChanges)
         {
             result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
             if (result == ConfirmationType.Yes)

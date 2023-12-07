@@ -13,6 +13,7 @@ using PixiEditor.Models.Commands.Templates.Parsers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Localization;
+using PixiEditor.Views;
 using PixiEditor.Views.Dialogs.DebugDialogs;
 using PixiEditor.Views.Dialogs.DebugDialogs.Localization;
 
@@ -227,6 +228,15 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
 
     [Command.Debug("PixiEditor.Debug.Crash", "CRASH", "CRASH_APP")]
     public static void Crash() => throw new InvalidOperationException("User requested to crash :c");
+
+    [Command.Debug("PixiEditor.Debug.Freeze", "FREEZE", "FREEZE_APP")]
+    public static void Freeze()
+    {
+        MainWindow.Current.Dispatcher.Invoke(() =>
+        {
+            Thread.Sleep(-1);
+        });
+    }
 
     [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "DELETE_USR_PREFS", "DELETE_USR_PREFS")]
     [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "DELETE_SHORTCUT_FILE", "DELETE_SHORTCUT_FILE")]
