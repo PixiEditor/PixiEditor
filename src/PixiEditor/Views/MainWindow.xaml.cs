@@ -120,21 +120,31 @@ internal partial class MainWindow : Window
 
         var i = 0;
 
-        foreach (var (path, bytes) in documents)
+        foreach (var document in documents)
         {
             try
             {
-                fileVM.OpenRecoveredDotPixi(path.OriginalPath, bytes);
+                fileVM.OpenRecoveredDotPixi(document.Path.OriginalPath, document.Path.AutosavePath, document.Path.GetAutosaveGuid(), document.GetRecoveredBytes());
                 i++;
             }
             catch (Exception e)
             {
                 try
                 {
-                    fileVM.OpenFromPath(path.AutosavePath, false);
+                    fileVM.OpenFromPath(document.Path.AutosavePath, false);
+                    
                 }
                 catch (Exception deepE)
                 {
+                    try
+                    {
+                        fileVM.OpenRecoveredDotPixi(document.Path.OriginalPath, document.Path.AutosavePath, document.Path.GetAutosaveGuid(), document.GetAutosaveBytes());
+                    }
+                    catch (Exception veryDeepE)
+                    {
+                        CrashHelper.SendExceptionInfoToWebhook(veryDeepE);
+                    }
+                    
                     CrashHelper.SendExceptionInfoToWebhook(deepE);
                 }
                 

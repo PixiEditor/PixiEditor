@@ -132,11 +132,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             {
                 if (file.AutosavePath != null)
                 {
-                    string guidString = Path.GetFileNameWithoutExtension(file.AutosavePath)["autosave-".Length..];
                     var document = OpenFromPath(file.AutosavePath, false);
                     document.FullFilePath = file.OriginalPath;
-                    
-                    document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(Guid.Parse(guidString), file.AutosavePath);
+
+                    if (file.AutosavePath != null)
+                    {
+                        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(file.GetAutosaveGuid()!.Value, file.AutosavePath);
+                    }
                 }
                 else
                 {
@@ -255,10 +257,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Opens a .pixi file from path, creates a document from it, and adds it to the system
     /// </summary>
-    public void OpenRecoveredDotPixi(string? originalPath, byte[] dotPixiBytes)
+    public void OpenRecoveredDotPixi(string? originalPath, string? autosavePath, Guid? autosaveGuid, byte[] dotPixiBytes)
     {
         DocumentViewModel document = Importer.ImportDocument(dotPixiBytes, originalPath);
         document.MarkAsUnsaved();
+
+        if (autosavePath != null)
+        {
+            document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(autosaveGuid!.Value, autosavePath);
+        }
+        
         AddDocumentViewModelToTheSystem(document);
     }
 

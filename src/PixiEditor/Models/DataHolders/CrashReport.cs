@@ -207,40 +207,35 @@ internal class CrashReport : IDisposable
 
     private ZipArchive ZipFile { get; set; }
 
-    public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
+    public int GetDocumentCount() => ZipFile.Entries.Count(x => x.FullName.StartsWith("Documents") && x.FullName.EndsWith(".pixi"));
 
-    public List<(AutosaveFilePathInfo originalPath, byte[] dotPixiBytes)> RecoverDocuments()
+    public List<RecoveredPixi> RecoverDocuments()
     {
-        // Load .pixi files
-        Dictionary<string, byte[]> recoveredDocuments = new();
-        foreach (ZipArchiveEntry entry in ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")))
-        {
-            using Stream stream = entry.Open();
-            using MemoryStream memStream = new();
-            stream.CopyTo(memStream);
-            recoveredDocuments.Add(entry.FullName["Documents/".Length..], memStream.ToArray());
-        }
-
         var originalPathsEntry = ZipFile.Entries.First(entry => entry.FullName == "DocumentInfo.json");
-        
+
         // Load original paths
-        Dictionary<string, AutosaveFilePathInfo> originalPaths;
+        Dictionary<string, AutosaveFilePathInfo> paths;
         {
             using Stream stream = originalPathsEntry.Open();
             using StreamReader reader = new(stream);
             string json = reader.ReadToEnd();
-            originalPaths = JsonConvert.DeserializeObject<Dictionary<string, AutosaveFilePathInfo>>(json);
+            paths = JsonConvert.DeserializeObject<Dictionary<string, AutosaveFilePathInfo>>(json);
         }
 
-        var list = new List<(AutosaveFilePathInfo originalPath, byte[] dotPixiBytes)>();
-
-        foreach (var document in recoveredDocuments)
+        // Load .pixi files
+        List<RecoveredPixi> recoveredDocuments = new();
+        foreach (var path in paths)
         {
-            var originalPath = originalPaths[document.Key];
-            list.Add((originalPath, document.Value));
+            ZipArchiveEntry autosaved = null;
+            if (path.Value.AutosavePath != null)
+            {
+                autosaved = ZipFile.GetEntry($"Autosave/{Path.GetFileName(path.Value.AutosavePath)}");
+            }
+
+            recoveredDocuments.Add(new RecoveredPixi(path.Value, ZipFile.GetEntry($"Documents/{path.Key}"), autosaved));
         }
 
-        return list;
+        return recoveredDocuments;
     }
 
     public void Dispose()
@@ -308,6 +303,18 @@ internal class CrashReport : IDisposable
                 originalPaths.Add(nameInZip, new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
             }
             catch { }
+
+            try
+            {
+                if (document.AutosaveViewModel.LastSavedPath != null)
+                {
+                    using var file = File.OpenRead(document.AutosaveViewModel.LastSavedPath);
+                    using var entry = archive.CreateEntry($"Autosave/{Path.GetFileName(document.AutosaveViewModel.LastSavedPath)}").Open();
+                    
+                    file.CopyTo(entry);
+                }
+            }
+            catch { }
             counter++;
         }
 
@@ -332,6 +339,42 @@ internal class CrashReport : IDisposable
         ReportText = Encoding.UTF8.GetString(encodedReport);
     }
 
+    public class RecoveredPixi
+    {
+        public AutosaveFilePathInfo Path { get; }
+        
+        public ZipArchiveEntry RecoveredEntry { get; }
+        
+        public ZipArchiveEntry? AutosaveEntry { get; }
+
+        public byte[] GetRecoveredBytes()
+        {
+            var buffer = new byte[RecoveredEntry.Length];
+            using var stream = RecoveredEntry.Open();
+
+            stream.ReadExactly(buffer);
+            
+            return buffer;
+        }
+
+        public byte[] GetAutosaveBytes()
+        {
+            var buffer = new byte[AutosaveEntry.Length];
+            using var stream = AutosaveEntry.Open();
+
+            stream.ReadExactly(buffer);
+            
+            return buffer;
+        }
+
+        public RecoveredPixi(AutosaveFilePathInfo path, ZipArchiveEntry recoveredEntry, ZipArchiveEntry? autosaveEntry)
+        {
+            Path = path;
+            RecoveredEntry = recoveredEntry;
+            AutosaveEntry = autosaveEntry;
+        }
+    }
+    
     internal class CrashReportUserMessage
     {
         public string Message { get; set; }
