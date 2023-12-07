@@ -207,7 +207,6 @@ public class DeadlockDetectionHelper
                 return true;
             
             Debug.WriteLine($"-------- Second deadlock check time [{i}] {stopwatch.Elapsed}");
-
         }
         
         isFree = CheckDispatcher(1600, DispatcherPriority.Input);
