@@ -80,7 +80,7 @@ internal partial class DocumentViewModel : NotifyableObject
     private Guid? lastChangeOnAutosave;
     public bool AllChangesAutosaved
     {
-        get => Internals.Tracker.LastChangeGuid == lastChangeOnSave;
+        get => Internals.Tracker.LastChangeGuid == lastChangeOnAutosave;
     }
     
     public DateTime OpenedUTC { get; } = DateTime.UtcNow;
