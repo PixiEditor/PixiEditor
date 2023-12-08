@@ -22,7 +22,7 @@
         xmlns:localization="clr-namespace:PixiEditor.Extensions.Common.Localization;assembly=PixiEditor.Extensions"
         mc:Ignorable="d"
         Name="window" 
-        Height="688" Width="780"
+        Height="820" Width="780"
         MinHeight="500" MinWidth="665"
         WindowStyle="None" DataContext="{DynamicResource SettingsWindowViewModel}"
         WindowStartupLocation="CenterScreen"
@@ -70,7 +70,7 @@
                     </Binding>
                 </StackPanel.Visibility>
                 <Label Style="{StaticResource SettingsHeader}" ui:Translator.Key="LANGUAGE"/>
-                <ComboBox Margin="27 5" Width="200" Height="25" FontSize="12" HorizontalAlignment="Left"
+                <ComboBox Margin="27 5 27 10" Width="200" Height="25" FontSize="12" HorizontalAlignment="Left"
                           ItemsSource="{Binding SettingsSubViewModel.General.AvailableLanguages}"
                           SelectedItem="{Binding SettingsSubViewModel.General.SelectedLanguage, Mode=TwoWay}">
                     <ComboBox.ItemTemplate>
@@ -124,7 +124,7 @@
                           VerticalAlignment="Center" d:Content="Show image preview in taskbar" ui:Translator.Key="SHOW_IMAGE_PREVIEW_TASKBAR"
                           IsChecked="{Binding SettingsSubViewModel.General.ImagePreviewInTaskbar}"/>
 
-                <StackPanel Margin="27 10 27 0" Orientation="Horizontal">
+                <StackPanel Margin="27 10 27 10" Orientation="Horizontal">
                 <Label Style="{StaticResource SettingsText}"
                        ui:Translator.Key="RECENT_FILE_LENGTH"
                        ui:Translator.TooltipKey="RECENT_FILE_LENGTH_TOOLTIP"/>
@@ -133,7 +133,13 @@
                                    Value="{Binding SettingsSubViewModel.File.MaxOpenedRecently, Mode=TwoWay}" Height="19" Width="40"/>
                 </StackPanel>
 
-                <StackPanel Margin="27 10 27 0" Orientation="Horizontal">
+                <Label Style="{StaticResource SettingsHeader}" d:Content="Autosave" ui:Translator.Key="AUTOSAVE_SETTINGS_HEADER"/>
+
+                <CheckBox Margin="27 0"
+                          VerticalAlignment="Center" ui:Translator.Key="AUTOSAVE_SETTINGS_SAVE_STATE" d:Content="Show startup window"
+                          IsChecked="{Binding SettingsSubViewModel.File.SaveSessionStateEnabled}"/>
+
+                <StackPanel Margin="27 5" Orientation="Horizontal">
                     <Label Style="{StaticResource SettingsText}"
                            ui:Translator.Key="AUTOSAVE_SETTINGS_PERIOD"/>
                     <ComboBox SelectedItem="{Binding SettingsSubViewModel.File.AutosavePeriodMinutes, Mode=TwoWay, Converter={converters:AutosaveSettingsPeriodToValueConverter}}"
@@ -152,6 +158,11 @@
                            ui:Translator.Key="MINUTE_UNIVERSAL"/>
                 </StackPanel>
 
+                <CheckBox Margin="27 0 27 10"
+                          VerticalAlignment="Center" ui:Translator.Key="AUTOSAVE_SETTINGS_SAVE_USER_FILE" d:Content="Show startup window"
+                          IsEnabled="{Binding SettingsSubViewModel.File.AutosavePeriodMinutes, Converter={converters:AutosaveSettingsPeriodToValueConverter ReturnBoolAutosavingEnabled=True}}"
+                          IsChecked="{Binding SettingsSubViewModel.File.AutosaveToDocumentPath}"/>
+
                 <Label Style="{StaticResource SettingsHeader}" d:Content="Default new file size" ui:Translator.Key="DEFAULT_NEW_SIZE"/>
 
                 <StackPanel Orientation="Horizontal" Margin="27 5">
@@ -161,7 +172,7 @@
                                  Height="21" MaxSize="9999" HorizontalAlignment="Left"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Margin="27 5">
+                <StackPanel Orientation="Horizontal" Margin="27 5 27 10">
                     <Label Style="{StaticResource SettingsText}" d:Content="Height" ui:Translator.Key="HEIGHT"/> 
                     <usercontrols:SizeInput Margin="7 0 0 0"
                                  Size="{Binding SettingsSubViewModel.File.DefaultNewFileHeight, Mode=TwoWay}" 
@@ -178,30 +189,32 @@
                               Width="160" Style="{StaticResource TranslatedEnum}"/>
                 </StackPanel>
 
-                <CheckBox VerticalAlignment="Center" Margin="27 5"
+                <CheckBox VerticalAlignment="Center" Margin="27 5 27 10"
                     IsChecked="{Binding SettingsSubViewModel.Tools.EnableSharedToolbar}" d:Content="Enable shared toolbar" ui:Translator.Key="ENABLE_SHARED_TOOLBAR"/>
 
                 <Label Style="{StaticResource SettingsHeader}" d:Content="Automatic updates" ui:Translator.Key="AUTOMATIC_UPDATES"/>
 
-                <CheckBox Margin="27 5" VerticalAlignment="Center" IsEnabled="{Binding Path=ShowUpdateTab}"
+                <CheckBox Margin="27 0 27 5" VerticalAlignment="Center" IsEnabled="{Binding Path=ShowUpdateTab}"
                     IsChecked="{Binding SettingsSubViewModel.Update.CheckUpdatesOnStartup}" ui:Translator.Key="CHECK_FOR_UPDATES" d:Content="Check updates on startup"/>
 
-                <StackPanel Orientation="Horizontal" Margin="27 5">
-                    <Label Grid.Row="11" Grid.Column="1" Style="{StaticResource SettingsText}" d:Content="Update stream" ui:Translator.Key="UPDATE_STREAM"/>
+                <StackPanel Orientation="Horizontal" Margin="27 5 27 10">
+                    <Label Grid.Row="11" Grid.Column="1" Style="{StaticResource SettingsText}"
+                           d:Content="Update stream" ui:Translator.Key="UPDATE_STREAM" />
                     <StackPanel Margin="5 0" Orientation="Horizontal" VerticalAlignment="Center"
-                            Height="21.96" HorizontalAlignment="Left">
-                <ComboBox Width="110" IsEnabled="{Binding Path=ShowUpdateTab}"
-                    ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
-                    SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}"/>
-                <Image Cursor="Help" Margin="10 0 0 0" Source="/Images/Commands/PixiEditor/Links/OpenDocumentation.png"
-                       ToolTipService.InitialShowDelay="0"
-                       Visibility="{Binding Path=ShowUpdateTab, Converter={converters:InverseBoolToVisibilityConverter}}"
-                       ui:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP"/>
-                </StackPanel>
+                                Height="21.96" HorizontalAlignment="Left">
+                        <ComboBox Width="110" IsEnabled="{Binding Path=ShowUpdateTab}"
+                                  ItemsSource="{Binding SettingsSubViewModel.Update.UpdateChannels}"
+                                  SelectedValue="{Binding SettingsSubViewModel.Update.UpdateChannelName}" />
+                        <Image Cursor="Help" Margin="10 0 0 0"
+                               Source="/Images/Commands/PixiEditor/Links/OpenDocumentation.png"
+                               ToolTipService.InitialShowDelay="0"
+                               Visibility="{Binding Path=ShowUpdateTab, Converter={converters:InverseBoolToVisibilityConverter}}"
+                               ui:Translator.TooltipKey="UPDATE_CHANNEL_HELP_TOOLTIP" />
+                    </StackPanel>
                 </StackPanel>
 
                 <Label Style="{StaticResource SettingsHeader}" d:Content="Debug" ui:Translator.Key="DEBUG"/>
-                <CheckBox Margin="27 5" VerticalAlignment="Center"
+                <CheckBox Margin="27 0 27 5" VerticalAlignment="Center"
                     IsChecked="{Binding SettingsSubViewModel.General.IsDebugModeEnabled}" ui:Translator.Key="ENABLE_DEBUG_MODE" d:Content="Enable Debug Mode"/>
                 <Label Margin="0 5" Style="{StaticResource SettingsText}" VerticalAlignment="Center">
                     <Hyperlink Command="{cmds:Command PixiEditor.Debug.OpenCrashReportsDirectory}" Style="{StaticResource SettingsLink}">

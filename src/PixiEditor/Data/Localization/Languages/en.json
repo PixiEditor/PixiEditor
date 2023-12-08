@@ -605,8 +605,11 @@
   
   "AUTOSAVE_TOGGLE": "Toggle autosave",
   "AUTOSAVE_TOGGLE_DESCRIPTION": "Toggle autosave for document",
-  
-  "AUTOSAVE_SETTINGS_PERIOD": "Autosave every",
+
+  "AUTOSAVE_SETTINGS_HEADER": "Autosave",
+  "AUTOSAVE_SETTINGS_SAVE_STATE": "Restore opened files on startup",
+  "AUTOSAVE_SETTINGS_PERIOD": "Backup every",
+  "AUTOSAVE_SETTINGS_SAVE_USER_FILE": "Autosave files",
   
   "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Could not recover all",
   "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Could not fully recover all files.\nIf you send the crash report to the developers\nthey might be able to help you.",

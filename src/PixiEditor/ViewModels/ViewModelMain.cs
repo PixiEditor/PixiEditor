@@ -277,16 +277,16 @@ internal class ViewModelMain : ViewModelBase
     {
         if (DocumentManagerSubViewModel.ActiveDocument is null)
             return false;
-        return DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument);
+        return DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument, true);
     }
 
-    public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
+    public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document, bool respectAutosave)
     {
         const string ConfirmationDialogTitle = "UNSAVED_CHANGES";
         const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
 
         ConfirmationType result = ConfirmationType.No;
-        var hasUnsavedChanges = !(document.AllChangesSaved || document.AllChangesAutosaved);
+        var hasUnsavedChanges = !(document.AllChangesSaved || (document.AllChangesAutosaved && respectAutosave));
         if (hasUnsavedChanges)
         {
             result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);

@@ -55,11 +55,27 @@ internal class FileSettings : SettingsGroup
         set => RaiseAndUpdatePreference(ref disableNewsPanel, value);
     }
 
+    private bool saveSessionStateEnabled = GetPreference(PreferencesConstants.SaveSessionStateEnabled, PreferencesConstants.SaveSessionStateDefault);
+    
+    public bool SaveSessionStateEnabled
+    {
+        get => saveSessionStateEnabled;
+        set => RaiseAndUpdatePreference(ref saveSessionStateEnabled, value);
+    }
+    
     private double autosavePeriodMinutes = GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault);
     
     public double AutosavePeriodMinutes
     {
         get => autosavePeriodMinutes;
         set => RaiseAndUpdatePreference(ref autosavePeriodMinutes, value);
+    }
+
+    private bool autosaveToDocumentPath = GetPreference(PreferencesConstants.AutosaveToDocumentPath, PreferencesConstants.AutosaveToDocumentPathDefault);
+    
+    public bool AutosaveToDocumentPath
+    {
+        get => autosaveToDocumentPath;
+        set => RaiseAndUpdatePreference(ref autosaveToDocumentPath, value);
     }
 }

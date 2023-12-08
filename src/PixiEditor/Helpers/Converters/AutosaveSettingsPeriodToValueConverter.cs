@@ -4,10 +4,17 @@ using PixiEditor.Helpers.Converters;
 
 namespace PixiEditor.Helpers.Converters;
 
-internal class AutosaveSettingsPeriodToValueConverter : SingleInstanceConverter<AutosaveSettingsPeriodToValueConverter>
+internal class AutosaveSettingsPeriodToValueConverter : MarkupConverter
 {
+    public bool ReturnBoolAutosavingEnabled { get; set; }
+    
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
+        if (ReturnBoolAutosavingEnabled)
+        {
+            return value is not -1.0;
+        }
+        
         return value switch
         {
             -1.0 => new LocalizedString("DISABLED"),
