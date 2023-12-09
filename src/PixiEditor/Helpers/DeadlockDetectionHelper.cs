@@ -8,6 +8,7 @@ using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Views;
 using Exception = System.Exception;
+using ThreadState = System.Threading.ThreadState;
 
 namespace PixiEditor.Helpers;
 
@@ -70,7 +71,8 @@ public class DeadlockDetectionHelper
         }
         else
         {
-            bool close = !CheckDispatcher(20000, DispatcherPriority.Send);
+            int timeout = mainThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin) ? 8500 : 25000;
+            bool close = !CheckDispatcher(timeout, DispatcherPriority.Send);
         
             if (close)
             {
@@ -218,7 +220,8 @@ public class DeadlockDetectionHelper
         if (isFree)
             return true;
 
-        isFree = CheckDispatcher(2000, DispatcherPriority.Send);
+        int lastTimeout = mainThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin) ? 1400 : 3500;
+        isFree = CheckDispatcher(lastTimeout, DispatcherPriority.Send);
 
         stopwatch.Restart();
         Debug.WriteLine($"-------- Fourth deadlock check time [0] {stopwatch.Elapsed}");
