@@ -277,10 +277,20 @@
   "CANCEL": "Cancel",
   "UNNAMED": "Unnamed",
   "OPEN_COMMAND_DEBUG_WINDOW": "Open command debug window",
+  
   "DELETE": "Delete",
   "USER_PREFS": "User preferences (Roaming)",
   "SHORTCUT_FILE": "Shortcut file (Roaming)",
   "EDITOR_DATA": "Editor data (Local)",
+  
+  "BACKUP_USER_PREFS": "Backup User preferences (Roaming)",
+  "BACKUP_SHORTCUT_FILE": "Backup Shortcut file (Roaming)",
+  "BACKUP_EDITOR_DATA": "Backup Editor data (Local)",
+
+  "LOAD_USER_PREFS_BACKUP": "Load User preferences backup (Roaming)",
+  "LOAD_SHORTCUT_FILE_BACKUP": "Load Shortcut file backup (Roaming)",
+  "LOAD_EDITOR_DATA_BACKUP": "Load Editor data backup (Local)",
+
   "MOVE_VIEWPORT_TOOLTIP": "Moves viewport. ({0})",
   "MOVE_VIEWPORT_ACTION_DISPLAY": "Click and move to pan the viewport",
   "MOVE_TOOL_TOOLTIP": "Moves selected pixels ({0}). Hold Ctrl to move all layers.",
@@ -622,5 +632,7 @@
   "LOGOFF": "Sign out with unsaved data. Are you sure?",
   "SHUTDOWN": "Shut down with unsaved data. Are you sure?",
   "LOGOFF_TITLE": "Sign out?",
-  "SHUTDOWN_TITLE": "Shut down?"
+  "SHUTDOWN_TITLE": "Shut down?",
+  
+  "BACK_UP": "Backup"
 }

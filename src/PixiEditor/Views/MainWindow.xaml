@@ -421,21 +421,44 @@
                         <MenuItem
                             ui1:Translator.Key="FREEZE"
                             cmds:Menu.Command="PixiEditor.Debug.Freeze" />
+                        <Separator />
                         <MenuItem
                             ui1:Translator.Key="DELETE">
                             <MenuItem
                                 ui1:Translator.Key="USER_PREFS"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteUserPreferences" />
                             <MenuItem
-                                ui1:Translator.Key="SHORTCUT_FILE"
-                                cmds:Menu.Command="PixiEditor.Debug.DeleteShortcutFile" />
-                            <MenuItem
                                 ui1:Translator.Key="EDITOR_DATA"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteEditorData" />
+                            <MenuItem
+                                ui1:Translator.Key="SHORTCUT_FILE"
+                                cmds:Menu.Command="PixiEditor.Debug.DeleteShortcutFile" />
                             <Separator/>
                             <MenuItem
                                 ui1:Translator.Key="CLEAR_RECENT_DOCUMENTS"
                                 cmds:Menu.Command="PixiEditor.Debug.ClearRecentDocument"/>
+                        </MenuItem>
+                        <MenuItem
+                            ui1:Translator.Key="BACK_UP">
+                            <MenuItem
+                                ui1:Translator.Key="USER_PREFS"
+                                cmds:Menu.Command="PixiEditor.Debug.BackupUserPreferences" />
+                            <MenuItem
+                                ui1:Translator.Key="EDITOR_DATA"
+                                cmds:Menu.Command="PixiEditor.Debug.BackupEditorData" />
+                            <MenuItem
+                                ui1:Translator.Key="SHORTCUT_FILE"
+                                cmds:Menu.Command="PixiEditor.Debug.BackupShortcutFile" />
+                            <Separator/>
+                            <MenuItem
+                                ui1:Translator.Key="LOAD_USER_PREFS_BACKUP"
+                                cmds:Menu.Command="PixiEditor.Debug.LoadUserPreferencesBackup" />
+                            <MenuItem
+                                ui1:Translator.Key="LOAD_EDITOR_DATA_BACKUP"
+                                cmds:Menu.Command="PixiEditor.Debug.LoadEditorDataBackup" />
+                            <MenuItem
+                                ui1:Translator.Key="LOAD_SHORTCUT_FILE_BACKUP"
+                                cmds:Menu.Command="PixiEditor.Debug.LoadShortcutFileBackup" />
                         </MenuItem>
                     </MenuItem>
                 </cmds:Menu>

@@ -25,6 +25,8 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     public static bool IsDebugBuild { get; set; }
 
     public bool IsDebugModeEnabled { get; set; }
+    
+    public bool ModifiedEditorData { get; set; }
 
     private bool useDebug;
     public bool UseDebug
@@ -239,10 +241,15 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Debug("PixiEditor.Debug.DeleteUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "DELETE_USR_PREFS", "DELETE_USR_PREFS")]
-    [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "DELETE_SHORTCUT_FILE", "DELETE_SHORTCUT_FILE")]
     [Command.Debug("PixiEditor.Debug.DeleteEditorData", @"%localappdata%\PixiEditor\editor_data.json", "DELETE_EDITOR_DATA", "DELETE_EDITOR_DATA")]
-    public static void DeleteFile(string path)
+    [Command.Debug("PixiEditor.Debug.DeleteShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "DELETE_SHORTCUT_FILE", "DELETE_SHORTCUT_FILE")]
+    public void DeleteFile(string path)
     {
+        if (path.EndsWith("editor_data.json"))
+        {
+            ModifiedEditorData = true;
+        }
+        
         string file = Environment.ExpandEnvironmentVariables(path);
         if (!File.Exists(file))
         {
@@ -253,10 +260,66 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         OptionsDialog<string> dialog = new("ARE_YOU_SURE", new LocalizedString("ARE_YOU_SURE_PATH_FULL_PATH", path, file))
         {
             { "Yes", x => File.Delete(file) },
+            { "Backup first", _ =>
+                {
+                    BackupFile(path);
+                    File.Delete(file);
+                }
+            },
             "Cancel"
         };
 
         dialog.ShowDialog();
+    }
+
+    [Command.Debug("PixiEditor.Debug.BackupUserPreferences", @"%appdata%\PixiEditor\user_preferences.json", "BACKUP_USR_PREFS", "BACKUP_USR_PREFS")]
+    [Command.Debug("PixiEditor.Debug.BackupEditorData", @"%localappdata%\PixiEditor\editor_data.json", "BACKUP_EDITOR_DATA", "BACKUP_EDITOR_DATA")]
+    [Command.Debug("PixiEditor.Debug.BackupShortcutFile", @"%appdata%\PixiEditor\shortcuts.json", "BACKUP_SHORTCUT_FILE", "BACKUP_SHORTCUT_FILE")]
+    public static void BackupFile(string path)
+    {
+        string file = Environment.ExpandEnvironmentVariables(path);
+        string backup = $"{file}.bak";
+        
+        if (!File.Exists(file))
+        {
+            NoticeDialog.Show(new LocalizedString("File {0} does not exist\n(Full Path: {1})", path, file), "FILE_NOT_FOUND");
+            return;
+        }
+        
+        File.Copy(file, backup, true);
+    }
+
+    [Command.Debug("PixiEditor.Debug.LoadUserPreferencesBackup", @"%appdata%\PixiEditor\user_preferences.json", "LOAD_USR_PREFS_BACKUP", "LOAD_USR_PREFS_BACKUP")]
+    [Command.Debug("PixiEditor.Debug.LoadEditorDataBackup", @"%localappdata%\PixiEditor\editor_data.json", "LOAD_EDITOR_DATA_BACKUP", "LOAD_EDITOR_DATA_BACKUP")]
+    [Command.Debug("PixiEditor.Debug.LoadShortcutFileBackup", @"%appdata%\PixiEditor\shortcuts.json", "LOAD_SHORTCUT_FILE_BACKUP", "LOAD_SHORTCUT_FILE_BACKUP")]
+    public void LoadBackupFile(string path)
+    {
+        if (path.EndsWith("editor_data.json"))
+        {
+            ModifiedEditorData = true;
+        }
+        
+        string file = Environment.ExpandEnvironmentVariables(path);
+        string backup = $"{file}.bak";
+        
+        if (!File.Exists(backup))
+        {
+            NoticeDialog.Show(new LocalizedString("File {0} does not exist\n(Full Path: {1})", path, file), "FILE_NOT_FOUND");
+            return;
+        }
+
+        if (File.Exists(file))
+        {
+            OptionsDialog<string> dialog = new("ARE_YOU_SURE", $"Are you sure you want to overwrite {path}\n(Full Path: {file})")
+            {
+                { "Yes", x => File.Delete(file) },
+                "Cancel"
+            };
+
+            dialog.ShowDialog();
+        }
+        
+        File.Copy(backup, file, true);
     }
 
     [Conditional("DEBUG")]

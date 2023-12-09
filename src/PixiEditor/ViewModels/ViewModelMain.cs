@@ -251,7 +251,7 @@ internal class ViewModelMain : ViewModelBase
 
     public void AutosaveAllForNextSession()
     {
-        if (!AutosaveDocumentViewModel.SaveStateEnabled)
+        if (!AutosaveDocumentViewModel.SaveStateEnabled || DebugSubViewModel.ModifiedEditorData)
         {
             return;
         }
