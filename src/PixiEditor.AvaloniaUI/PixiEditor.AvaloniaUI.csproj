@@ -88,12 +88,4 @@
       <AdditionalFiles Include="Views\Windows\Settings\ShortcutsBinder.axaml" />
     </ItemGroup>
   
-    <ItemGroup>
-      <AvaloniaXaml Include="Views\Palettes\PaletteViewer.axaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </AvaloniaXaml>
-    </ItemGroup>
-  
 </Project>

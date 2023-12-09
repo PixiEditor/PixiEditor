@@ -1,20 +1,20 @@
-﻿<UserControl x:Class="PixiEditor.Views.UserControls.Palettes.PaletteViewer"
+﻿<UserControl x:Class="PixiEditor.AvaloniaUI.Views.Palettes.PaletteViewer"
              x:ClassModifier="internal"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
-             xmlns:helpers="clr-namespace:PixiEditor.Helpers"
              xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:palettes="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
+             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:decorators="clr-namespace:PixiEditor.AvaloniaUI.Views.Decorators"
              d:DesignHeight="450" d:DesignWidth="300" Name="paletteControl">
     <DockPanel>
         <palettes:ColorReplacer Grid.Row="3" VerticalAlignment="Bottom" x:Name="Replacer" DockPanel.Dock="Bottom"
                                 ReplaceColorsCommand="{Binding ElementName=paletteControl, Path=ReplaceColorsCommand}"
                                 HintColor="{Binding ElementName=paletteControl, Path=HintColor}"/>
-        <Grid AllowDrop="True" PreviewDragEnter="Grid_PreviewDragEnter" PreviewDragLeave="Grid_PreviewDragLeave"
+        <Grid DragDrop.AllowDrop="True" PreviewDragEnter="Grid_PreviewDragEnter" PreviewDragLeave="Grid_PreviewDragLeave"
           Drop="Grid_Drop">
             <Grid.RowDefinitions>
                 <RowDefinition Height="37.5"/>
@@ -28,26 +28,26 @@
                                             HintColor="{Binding ElementName=paletteControl, Path=HintColor}"
                                             Colors="{Binding ElementName=paletteControl, Path=Colors}"/>
                     <StackPanel Margin="0, 0, 5, 0" HorizontalAlignment="Right" Width="110" VerticalAlignment="Center" Orientation="Horizontal">
-                        <local:AlwaysEnabled>
+                        <decorators:AlwaysEnabled>
                             <Button Margin="0, 0, 5, 0"
-                                    Style="{StaticResource ToolButtonStyle}" Click="BrowsePalettes_Click"
+                                    Classes="ToolButtonStyle" Click="BrowsePalettes_Click"
                                     Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="BROWSE_PALETTES">
                                 <Button.Background>
-                                    <ImageBrush ImageSource="/Images/Database.png"/>
+                                    <ImageBrush Source="/Images/Database.png"/>
                                 </Button.Background>
                             </Button>
-                        </local:AlwaysEnabled>
+                        </decorators:AlwaysEnabled>
                         <Button Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}" 
                 Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="LOAD_PALETTE" Click="ImportPalette_OnClick">
                             <Button.Background>
-                                <ImageBrush ImageSource="/Images/Folder.png"/>
+                                <ImageBrush Source="/Images/Folder.png"/>
                             </Button.Background>
                         </Button>
                         <Button Height="24" Width="24" Margin="0, 0, 2.5, 0" Style="{StaticResource ToolButtonStyle}"
                                 IsEnabled="{Binding ElementName=paletteControl, Path=Colors.Count}"
                                 Cursor="Hand" ui:Translator.TooltipKey="SAVE_PALETTE" Click="SavePalette_OnClick">
                             <Button.Background>
-                                <ImageBrush ImageSource="/Images/Save.png"/>
+                                <ImageBrush Source="/Images/Save.png"/>
                             </Button.Background>
                         </Button>
                         <Button Height="24" Width="24" Margin="0, 0, 5, 0" Style="{StaticResource ToolButtonStyle}"
@@ -61,22 +61,12 @@
                 </DockPanel>
             </StackPanel>
             <Separator Grid.Row="1" Margin="0, 0, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
-            <Grid Visibility="Hidden" Background="{StaticResource AccentColor}" Opacity="0.7" Grid.Row="2" Name="dragDropGrid">
+            <Grid IsVisible="False" Background="{StaticResource AccentColor}" Opacity="0.7" Grid.Row="2" Name="dragDropGrid">
                 <TextBlock TextWrapping="Wrap" ui:Translator.Key="DROP_PALETTE" Foreground="White" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Colors, ElementName=paletteControl}" AlternationCount="9999">
-                    <d:ItemsControl.ItemsSource>
-                        <x:Array Type="{x:Type Color}">
-                            <Color R="0" G="0" B="0" A="255"/>
-                            <Color R="255" G="255" B="255" A="255"/>
-                            <Color R="255" G="255" B="255" A="150"/>
-                            <Color R="255" G="255" B="255" A="0"/>
-                            <Color R="255" G="0" B="0" A="255"/>
-                            <Color R="0" G="255" B="0" A="255"/>
-                            <Color R="0" G="0" B="255" A="255"/>
-                        </x:Array>
-                    </d:ItemsControl.ItemsSource>
+                <!--TODO: Alternation count was here-->
+                <ItemsControl ItemsSource="{Binding Colors, ElementName=paletteControl}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Margin="10" Orientation="Horizontal"
@@ -87,18 +77,18 @@
                         <DataTemplate>
                             <palettes:PaletteColorControl Cursor="Hand"
                                                    ui:Translator.TooltipKey="PALETTE_COLOR_TOOLTIP"
-                                                   AllowDrop="True" Color="{Binding}"
+                                                   DragDrop.AllowDrop="True" Color="{Binding}"
                                                Margin="2.5"
                                             Drop="PaletteColor_Drop"
                                             AssociatedKey="{Binding Path=(ItemsControl.AlternationIndex), 
                 RelativeSource={RelativeSource TemplatedParent}, Converter={converters:IndexToAssociatedKeyConverter}}">
-                                <b:Interaction.Triggers>
-                                    <b:EventTrigger EventName="MouseLeftButtonUp">
-                                        <b:InvokeCommandAction
+                                <Interaction.Behaviors>
+                                    <EventTriggerBehavior EventName="MouseLeftButtonUp">
+                                        <InvokeCommandAction
                                     Command="{Binding SelectColorCommand, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type palettes:PaletteViewer}}}"
                                     CommandParameter="{Binding}" />
-                                    </b:EventTrigger>
-                                </b:Interaction.Triggers>
+                                    </EventTriggerBehavior>
+                                </Interaction.Behaviors>
                                 <palettes:PaletteColorControl.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem ui:Translator.Key="CHOOSE" Foreground="White" Click="MenuItem_OnClick"

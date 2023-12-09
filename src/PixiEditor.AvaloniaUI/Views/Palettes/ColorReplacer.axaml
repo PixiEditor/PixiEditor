@@ -1,0 +1,92 @@
+﻿<UserControl x:Class="PixiEditor.AvaloniaUI.Views.Palettes.ColorReplacer"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
+             xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             xmlns:palettes="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
+             Name="uc">
+    <Border BorderBrush="{DynamicResource ThemeBorderMidColor}"
+            Background="{DynamicResource ThemeBackgroundColor}"
+            BorderThickness="0 2 0 0" MinWidth="60" Focusable="True">
+        <Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior/>
+        </Interaction.Behaviors>
+        <Grid>
+            <Grid Grid.Row="0"  VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.ColumnSpan="2" Grid.RowSpan="2">
+                    <Grid IsVisible="{Binding ElementName=VisibilityCheckbox, Path=!IsChecked}"  Background="Transparent"/>
+                </Grid>
+                <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <!--TODO: Drop PaletteColorControl_OnDrop-->
+                    <palettes:PaletteColorControl Color="{Binding ElementName=uc, Path=ColorToReplace}"
+                                               Height="35"
+                                               Width="35"
+                                               ui:Translator.TooltipKey="REPLACER_TOOLTIP"
+                                               DragDrop.AllowDrop="True" />
+                    <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0" FlowDirection="{markupExtensions:Localization FlowDirection}"/>
+                    <colorPicker:PortableColorPicker
+                        UseHintColor="True"
+                        SelectedColor="{Binding ElementName=uc, Path=NewColor, Mode=TwoWay}"
+                        HintColor="{Binding ElementName=uc, Path=HintColor}"
+                        Height="37"
+                        Width="37" Focusable="False" Margin="0 0 10 0"
+                        ui:Translator.TooltipKey="CLICK_TO_CHOOSE_COLOR"
+                        ShowAlpha="False"/>
+                    <Button Click="ReplaceButton_OnClick" ui:Translator.TooltipKey="REPLACE_COLOR"
+                            Classes="ToolButtonStyle" Cursor="Hand" Height="20" Width="20">
+                        <Button.Background>
+                            <ImageBrush Source="/Images/Replace.png"/>
+                        </Button.Background>
+                    </Button>
+                </StackPanel>
+                <CheckBox Focusable="False" IsChecked="{Binding ElementName=uc, Path=IsCollapsed}" Panel.ZIndex="10" Name="VisibilityCheckbox" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right">
+                    <!--<CheckBox.Triggers>
+                        <EventTrigger RoutedEvent="CheckBox.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="MiddleStackPanel" Storyboard.TargetProperty="Height" From="40" To="0" Duration="0:0:0.15"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="CheckBox.Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="MiddleStackPanel" Storyboard.TargetProperty="Height" From="0" To="40" Duration="0:0:0.15"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+
+                    </CheckBox.Triggers>-->
+                    <CheckBox.Template>
+                        <ControlTemplate TargetType="{x:Type CheckBox}">
+                            <StackPanel Orientation="Horizontal" Focusable="False">
+                                <Image Focusable="False" Width="14" Cursor="Hand" x:Name="checkboxImage" Source="/Images/ChevronDown.png">
+                                    <Image.RenderTransform>
+                                        <RotateTransform Angle="0"/>
+                                    </Image.RenderTransform>
+                                </Image>
+                                <ContentPresenter Focusable="False"/>
+                            </StackPanel>
+                            <!--TODO: Write to Avalonia-->
+                            <!--<ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="checkboxImage" Property="RenderTransform">
+                                        <Setter.Value>
+                                            <RotateTransform Angle="180" CenterX="7" CenterY="4"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </ControlTemplate.Triggers>-->
+                        </ControlTemplate>
+                    </CheckBox.Template>
+                </CheckBox>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

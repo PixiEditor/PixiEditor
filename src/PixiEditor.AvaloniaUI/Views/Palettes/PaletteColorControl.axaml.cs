@@ -3,7 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using PixiEditor.Extensions.Palettes;
 
-namespace PixiEditor.Views.UserControls.Palettes;
+namespace PixiEditor.AvaloniaUI.Views.Palettes;
 
 internal partial class PaletteColorControl : UserControl
 {

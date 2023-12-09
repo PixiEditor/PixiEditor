@@ -1,11 +1,11 @@
-﻿<UserControl x:Class="PixiEditor.Views.UserControls.Palettes.PaletteColorControl"
+﻿<UserControl x:Class="PixiEditor.AvaloniaUI.Views.Palettes.PaletteColorControl"
              x:ClassModifier="internal"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+             xmlns:palettes1="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
              mc:Ignorable="d" 
              d:DesignHeight="45" d:DesignWidth="45" 
              x:Name="uc" 
@@ -13,7 +13,7 @@
              PointerMoved="PaletteColor_OnMouseMove"
              PointerReleased="PaletteColor_OnMouseUp">
     <UserControl.Styles>
-        <Style Selector="palettes|PaletteColorControl">
+        <Style Selector="palettes1|PaletteColorControl">
             <Setter Property="Width" Value="36"/>
             <Setter Property="Height" Value="36"/>
         </Style>

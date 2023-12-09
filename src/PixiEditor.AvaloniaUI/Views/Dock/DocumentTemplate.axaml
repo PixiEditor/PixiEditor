@@ -11,6 +11,7 @@
              xmlns:viewModels1="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              xmlns:subViewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+             xmlns:palettes1="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.DocumentTemplate">
     <userControls:Viewport
@@ -76,7 +77,7 @@
                                                                             </ItemsControl.ItemsPanel>
                                                                             <ItemsControl.ItemTemplate>
                                                                                 <DataTemplate>
-                                                                                    <palettes:PaletteColorControl Cursor="Hand" CornerRadius="0"
+                                                                                    <palettes1:PaletteColorControl Cursor="Hand" CornerRadius="0"
                                                                                         ui:Translator.TooltipKey="CLICK_SELECT_PRIMARY"
                                                                                         Width="22" Height="22" Color="{Binding}">
                                                                                         <Interaction.Behaviors>
@@ -92,7 +93,7 @@
                                                                                                      AncestorType={x:Type ContextMenu}}}" />
                                                                                             </EventTriggerBehavior>
                                                                                         </Interaction.Behaviors>
-                                                                                    </palettes:PaletteColorControl>
+                                                                                    </palettes1:PaletteColorControl>
                                                                                 </DataTemplate>
                                                                             </ItemsControl.ItemTemplate>
                                                                         </ItemsControl>
