@@ -16,6 +16,7 @@ public class MouseUpdateController : IDisposable
 
     private readonly FrameworkElement element;
     private readonly MouseEventHandler mouseMoveHandler;
+    
 
     public MouseUpdateController(FrameworkElement uiElement, MouseEventHandler onMouseMove)
     {
@@ -47,21 +48,26 @@ public class MouseUpdateController : IDisposable
         isAborted = false;
     }
 
+    private bool IsThreadShouldStop()
+    {
+        return isAborted || timerThread != Thread.CurrentThread || Application.Current is null;
+    }
+    
     private void TimerThread()
     {
         try
         {
             // abort if a new thread was created
-            while (!isAborted && timerThread == Thread.CurrentThread)
+            while (!IsThreadShouldStop())
             {
                 // call waitOne periodically instead of waiting infinitely to make sure we crash or exit when resetEvent is disposed
-                if (!resetEvent.WaitOne(1000))
+                if (!resetEvent.WaitOne(300))
                     continue;
                 
                 lock (lockObj)
                 {
                     Thread.Sleep(MouseUpdateIntervalMs);
-                    if (isAborted || timerThread != Thread.CurrentThread)
+                    if (IsThreadShouldStop())
                         return;
                     Application.Current?.Dispatcher.Invoke(() =>
                     {
