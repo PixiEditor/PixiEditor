@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.IO;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Data;
@@ -13,11 +14,23 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
     {
         if (value is not string path)
             return AvaloniaProperty.UnsetValue;
-        
+
+        try
+        {
+            return LoadBitmapFromRelativePath(path);
+        }
+        catch (FileNotFoundException)
+        {
+            return AvaloniaProperty.UnsetValue;
+        }
+    }
+
+    public static Bitmap LoadBitmapFromRelativePath(string path)
+    {
         Uri uri = new($"avares://{Assembly.GetExecutingAssembly().FullName}{path}");
         if (!AssetLoader.Exists(uri))
-            return AvaloniaProperty.UnsetValue;
-        
-        return new Bitmap(AssetLoader.Open(uri));
+            throw new FileNotFoundException($"Could not find asset with path {path}");
+
+        return new Bitmap(AssetLoader.Open(uri)).CreateScaledBitmap(new PixelSize(32, 32));
     }
 }

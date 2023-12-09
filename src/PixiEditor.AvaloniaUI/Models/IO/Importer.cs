@@ -43,12 +43,11 @@ internal class Importer : ObservableObject
         return resized;
     }
 
-    public static WriteableBitmap ImportWriteableBitmap(string path)
+    public static Bitmap ImportBitmap(string path)
     {
         try
         {
-            Uri uri = new Uri(path, UriKind.RelativeOrAbsolute);
-            return new Bitmap(path).ToWriteableBitmap();
+            return new Bitmap(path);
         }
         catch (NotSupportedException e)
         {
@@ -62,6 +61,11 @@ internal class Importer : ObservableObject
         {
             throw new RecoverableException("ERROR_IMPORTING_IMAGE", e);
         }
+    }
+
+    public static WriteableBitmap ImportWriteableBitmap(string path)
+    {
+        return ImportBitmap(path).ToWriteableBitmap();
     }
 
     public static DocumentViewModel ImportDocument(string path, bool associatePath = true)

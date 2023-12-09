@@ -21,6 +21,8 @@ internal class ZoomToolViewModel : ToolViewModel
     public override string ToolNameLocalizationKey => "ZOOM_TOOL";
     public override BrushShape BrushShape => BrushShape.Hidden;
 
+    public override bool StopsLinkedToolOnUse => false;
+
     public ZoomToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;

@@ -310,8 +310,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         Unloaded += OnUnload;
 
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
-        this.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
-        
+        viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
+        viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
+
         mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
 

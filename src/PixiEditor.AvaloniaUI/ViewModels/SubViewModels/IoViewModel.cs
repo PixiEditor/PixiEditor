@@ -39,7 +39,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         MouseDownCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseDownInlet);
         MouseMoveCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseMoveInlet);
         MouseUpCommand = new RelayCommand<MouseOnCanvasEventArgs>(mouseFilter.MouseUpInlet);
-        PreviewMouseMiddleButtonCommand = new RelayCommand(OnPreviewMiddleMouseButton);
+        PreviewMouseMiddleButtonCommand = new RelayCommand(OnMiddleMouseButton);
         // TODO: Implement mouse capturing
         //GlobalMouseHook.Instance.OnMouseUp += mouseFilter.MouseUpInlet;
 
@@ -207,7 +207,7 @@ internal class IoViewModel : SubViewModel<ViewModelMain>
         tools.SetActiveTool<EraserToolViewModel>(true);
     }
     
-    private void OnPreviewMiddleMouseButton()
+    private void OnMiddleMouseButton()
     {
         Owner.ToolsSubViewModel.SetActiveTool<MoveViewportToolViewModel>(true);
     }

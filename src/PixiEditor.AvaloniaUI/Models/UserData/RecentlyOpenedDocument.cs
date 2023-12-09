@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
+using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 
@@ -18,7 +19,7 @@ internal class RecentlyOpenedDocument : ObservableObject
 
     private string filePath;
 
-    private WriteableBitmap previewBitmap;
+    private Bitmap previewBitmap;
 
     public string FilePath
     {
@@ -59,7 +60,7 @@ internal class RecentlyOpenedDocument : ObservableObject
         }
     }
 
-    public WriteableBitmap PreviewBitmap
+    public Bitmap PreviewBitmap
     {
         get
         {
@@ -78,7 +79,7 @@ internal class RecentlyOpenedDocument : ObservableObject
         FilePath = path;
     }
 
-    private WriteableBitmap LoadPreviewBitmap()
+    private Bitmap LoadPreviewBitmap()
     {
         if (!File.Exists(FilePath))
         {
@@ -128,12 +129,11 @@ internal class RecentlyOpenedDocument : ObservableObject
 
         if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
         {
-            WriteableBitmap bitmap = null;
+            Bitmap bitmap = null;
 
             try
             {
-                //TODO: Fix this
-                //bitmap = Importer.ImportWriteableBitmap(FilePath);
+                bitmap = Importer.ImportBitmap(FilePath);
             }
             catch (RecoverableException)
             {
@@ -150,7 +150,7 @@ internal class RecentlyOpenedDocument : ObservableObject
         return null;
     }
 
-    private WriteableBitmap DownscaleToMaxSize(WriteableBitmap bitmap)
+    private Bitmap DownscaleToMaxSize(Bitmap bitmap)
     {
         if (bitmap.PixelSize.Width > Constants.MaxPreviewWidth || bitmap.PixelSize.Height > Constants.MaxPreviewHeight)
         {

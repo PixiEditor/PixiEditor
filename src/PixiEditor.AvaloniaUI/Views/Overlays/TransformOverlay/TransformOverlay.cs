@@ -362,6 +362,7 @@ internal class TransformOverlay : Overlay
         }
         
         e.Pointer.Capture(this);
+        e.Handled = true;
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)

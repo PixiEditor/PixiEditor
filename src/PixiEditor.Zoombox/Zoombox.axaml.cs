@@ -176,9 +176,15 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
     private static void ZoomModeChanged(AvaloniaPropertyChangedEventArgs<ZoomboxMode> e)
     {
         Zoombox sender = (Zoombox)e.Sender;
-        sender.activeDragOperation?.Terminate();
-        sender.activeDragOperation = null;
-        sender.activeMouseDownEventArgs = null;
+
+        bool reset = sender.activeDragOperation != null;
+
+        if (reset)
+        {
+            sender.activeDragOperation?.Terminate();
+            sender.activeDragOperation = null;
+            sender.activeMouseDownEventArgs = null;
+        }
     }
 
     private double[]? zoomValues;
@@ -292,7 +298,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         FlipX = false;
         FlipY = false;
         Scale = 1 / scaleFactor;
-        Center = newSize / 2 * scaleFactor;
+        Center = newSize / 2;
     }
 
     public void ZoomIntoCenter(double delta)

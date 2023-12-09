@@ -40,6 +40,9 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
    /// </summary>
     public virtual bool IsErasable => false;
 
+   /// <inheritdoc cref="IToolHandler.StopsLinkedToolOnUse"/>
+    public virtual bool StopsLinkedToolOnUse => true;
+
     /// <summary>
     /// The mouse button that is being used with the tool
     /// </summary>
@@ -82,11 +85,9 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     }
 
     public virtual void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown) { }
+
     public virtual void UseTool(VecD pos) { }
-    public virtual void OnSelected() 
-    {
-        ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument?.Operations.TryStopToolLinkedExecutor();
-    }
+    public virtual void OnSelected() { }
 
     public virtual void OnDeselecting()
     { }

@@ -31,6 +31,15 @@ internal interface IToolHandler : IHandler
     public virtual bool IsErasable => false;
 
     /// <summary>
+    /// Indicates whether active linked tool stops on use.
+    /// </summary>
+    /// <remarks>
+    /// If this property is true, the linked tool will stop executing when used.
+    /// If this property is false, the linked tool will continue executing even after being used.
+    /// </remarks>
+    public virtual bool StopsLinkedToolOnUse => true;
+
+    /// <summary>
     /// The mouse button that is being used with the tool
     /// </summary>
     public MouseButton UsedWith { get; set; }
