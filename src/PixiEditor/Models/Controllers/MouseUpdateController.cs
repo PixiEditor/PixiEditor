@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -7,7 +8,7 @@ namespace PixiEditor.Models.Controllers;
 #nullable enable
 public class MouseUpdateController : IDisposable
 {
-    private const int MouseUpdateIntervalMs = 7; // 7ms ~= 142 Hz
+    private const double MouseUpdateIntervalMs = 1000 / 142.0; //142 Hz
 
     private Thread timerThread;
     private readonly AutoResetEvent resetEvent = new(false);
@@ -17,7 +18,6 @@ public class MouseUpdateController : IDisposable
     private readonly FrameworkElement element;
     private readonly MouseEventHandler mouseMoveHandler;
     
-
     public MouseUpdateController(FrameworkElement uiElement, MouseEventHandler onMouseMove)
     {
         mouseMoveHandler = onMouseMove;
@@ -57,22 +57,32 @@ public class MouseUpdateController : IDisposable
     {
         try
         {
+            long lastThreadIter = Stopwatch.GetTimestamp();
+            
             // abort if a new thread was created
             while (!IsThreadShouldStop())
             {
                 // call waitOne periodically instead of waiting infinitely to make sure we crash or exit when resetEvent is disposed
                 if (!resetEvent.WaitOne(300))
+                {
+                    lastThreadIter = Stopwatch.GetTimestamp();
                     continue;
-                
+                }
+
                 lock (lockObj)
                 {
-                    Thread.Sleep(MouseUpdateIntervalMs);
+                    double sleepDur = Math.Clamp(MouseUpdateIntervalMs - Stopwatch.GetElapsedTime(lastThreadIter).TotalMilliseconds, 0, MouseUpdateIntervalMs);
+                    lastThreadIter += (long)(MouseUpdateIntervalMs * Stopwatch.Frequency / 1000);
+                    if (sleepDur > 0)
+                        Thread.Sleep((int)Math.Round(sleepDur));
+                    
                     if (IsThreadShouldStop())
                         return;
                     Application.Current?.Dispatcher.Invoke(() =>
                     {
                         element.MouseMove += OnMouseMove;
                     });
+                    
                 }
             }
         }
