@@ -1,11 +1,9 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Threading;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Helpers.UI;
@@ -16,7 +14,6 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Platform;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
-using Timer = System.Timers.Timer;
 
 namespace PixiEditor;
 
@@ -213,14 +210,23 @@ internal partial class App : Application
         var vm = ViewModelMain.Current;
         if (vm is null)
             return;
-
-        if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
+        
+        if (IPreferences.Current != null)
         {
-            ConfirmationType confirmation = ConfirmationDialog.Show(
-                new LocalizedString("SESSION_UNSAVED_DATA", e.ReasonSessionEnding),
-                $"{e.ReasonSessionEnding}");
-            e.Cancel = confirmation != ConfirmationType.Yes;
+            vm.AutosaveAllForNextSession();
         }
+
+        if (vm.DocumentManagerSubViewModel.Documents.All(x => x.AllChangesSaved || x.AllChangesAutosaved))
+        {
+            return;
+        }
+
+        string reason = e.ReasonSessionEnding.ToString().ToUpperInvariant();
+        
+        var confirmation = ConfirmationDialog.Show(
+            new LocalizedString(reason),
+            new LocalizedString($"{reason}_TITLE"));
+        e.Cancel = confirmation != ConfirmationType.Yes;
     }
 
     private bool ParseArgument(string pattern, string args, out Group[] groups)

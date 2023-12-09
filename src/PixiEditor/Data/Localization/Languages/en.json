@@ -476,7 +476,6 @@
   "SHORTCUT_ALREADY_ASSIGNED_OVERWRITE": "This shortcut is already assigned to '{0}'\nDo you want to replace the existing shortcut?",
   "UNSAVED_CHANGES": "Unsaved changes",
   "DOCUMENT_MODIFIED_SAVE": "The document has been modified. Do you want to save changes?",
-  "SESSION_UNSAVED_DATA": "{0} with unsaved data. Are you sure?",
   "PROJECT_MAINTAINERS": "Project Maintainers",
   "OTHER_AWESOME_CONTRIBUTORS": "And other awesome contributors",
   "HELP": "Help",
@@ -618,5 +617,10 @@
   
   "MINUTE_SINGULAR": "minute",
   "MINUTE_PLURAL": "minutes",
-  "MINUTE_UNIVERSAL": "minute(s)"
+  "MINUTE_UNIVERSAL": "minute(s)",
+  
+  "LOGOFF": "Sign out with unsaved data. Are you sure?",
+  "SHUTDOWN": "Shut down with unsaved data. Are you sure?",
+  "LOGOFF_TITLE": "Sign out?",
+  "SHUTDOWN_TITLE": "Shut down?"
 }
