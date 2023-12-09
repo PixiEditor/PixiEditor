@@ -117,7 +117,9 @@ public class Translator : UIElement
 
     private static void LocalizedStringPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        d.SetValue(KeyProperty, ((LocalizedString)e.NewValue).Key);
+        var key = ((LocalizedString)e.NewValue).Key;
+        d.SetValue(KeyProperty, key);
+        UpdateKey(d, key);
     }
 
     private static void EnumPropertyChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)

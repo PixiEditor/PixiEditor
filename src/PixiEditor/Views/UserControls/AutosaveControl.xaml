@@ -66,7 +66,7 @@
                     </TextBlock.Style>
                 </TextBlock>
                 <Label
-                    ui:Translator.LocalizedString="{Binding MainMenuText, FallbackValue='', Mode=OneWay}"
+                    ui:Translator.LocalizedString="{Binding MainMenuText, Mode=OneWay}"
                     Foreground="White" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
