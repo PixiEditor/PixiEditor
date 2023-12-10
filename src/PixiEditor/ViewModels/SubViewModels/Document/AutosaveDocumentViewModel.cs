@@ -7,15 +7,14 @@ using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using Timer = System.Timers.Timer;
 
 namespace PixiEditor.Models.DocumentModels.Public;
 
 internal class AutosaveDocumentViewModel : NotifyableObject
 {
-    private readonly Timer savingTimer;
-    private readonly Timer updateTextTimer;
-    private readonly Timer busyTimer;
+    private readonly DispatcherTimer savingTimer;
+    private readonly DispatcherTimer updateTextTimer;
+    private readonly DispatcherTimer busyTimer;
     private bool saveAfterNextFinish;
     private int savingFailed;
     private DateTime nextSave;
@@ -95,24 +94,25 @@ internal class AutosaveDocumentViewModel : NotifyableObject
     {
         Document = document;
         tempGuid = Guid.NewGuid();
-        savingTimer = new Timer();
-        updateTextTimer = new Timer(TimeSpan.FromSeconds(3.8));
 
-        savingTimer.Elapsed += (_, _) => TryAutosave();
-        savingTimer.AutoReset = false;
+        var dispatcher = Application.Current.Dispatcher;
+        
+        updateTextTimer = new DispatcherTimer(DispatcherPriority.Normal, dispatcher) { Interval = TimeSpan.FromSeconds(3.8) };
+        updateTextTimer.Tick += (_, _) => SetAutosaveText();
 
-        busyTimer = new Timer(TimeSpan.FromMilliseconds(80));
-        busyTimer.AutoReset = false;
-        busyTimer.Elapsed += (_, _) =>
+        savingTimer = new DispatcherTimer(DispatcherPriority.Normal);
+        savingTimer.Tick += (_, _) => { savingTimer.Stop(); TryAutosave(); };
+
+        busyTimer = new DispatcherTimer(DispatcherPriority.Normal, dispatcher) { Interval = TimeSpan.FromMilliseconds(80) };
+        busyTimer.Tick += (_, _) =>
         {
+            busyTimer!.Stop();
             Document.Busy = true;
         };
 
-        updateTextTimer.Elapsed += (_, _) => SetAutosaveText();
-
         var preferences = IPreferences.Current;
         
-        preferences.AddCallback<double>(PreferencesConstants.AutosavePeriodMinutes, (v) => AutosavePeriodChanged(v, documentEnabled));
+        preferences!.AddCallback<double>(PreferencesConstants.AutosavePeriodMinutes, (v) => AutosavePeriodChanged(v, documentEnabled));
         AutosavePeriodChanged(preferences.GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault), documentEnabled);
     }
 
@@ -302,7 +302,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
     private void RestartTimers()
     {
         savingTimer.Start();
-        nextSave = DateTime.Now + TimeSpan.FromMilliseconds(savingTimer.Interval);
+        nextSave = DateTime.Now + savingTimer.Interval;
         updateTextTimer.Start();
     }
 
@@ -310,8 +310,8 @@ internal class AutosaveDocumentViewModel : NotifyableObject
     {
         if ((int)minutes == -1 || !documentEnabled)
         {
-            savingTimer.Enabled = false;
-            updateTextTimer.Enabled = false;
+            savingTimer.IsEnabled = false;
+            updateTextTimer.IsEnabled = false;
             saveAfterNextFinish = false;
 
             LocalizedString menuText = documentEnabled ? string.Empty : "AUTOSAVE_DISABLED";
@@ -323,7 +323,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
             return;
         }
         
-        var timerEnabled = savingTimer.Enabled;
+        var timerEnabled = savingTimer.IsEnabled;
 
         if ((int)AutosavePeriodMinutes == -1 || !Enabled)
         {
@@ -331,16 +331,16 @@ internal class AutosaveDocumentViewModel : NotifyableObject
             updateTextTimer.Start();
         }
         
-        savingTimer.Enabled = false;
+        savingTimer.IsEnabled = false;
 
         var timeSpan = TimeSpan.FromMinutes(minutes);
-        savingTimer.Interval = timeSpan.TotalMilliseconds;
+        savingTimer.Interval = timeSpan;
         AutosavePeriodMinutes = minutes;
         
-        savingTimer.Enabled = timerEnabled;
+        savingTimer.IsEnabled = timerEnabled;
         
         nextSave = DateTime.Now + timeSpan;
-        if (updateTextTimer.Enabled)
+        if (updateTextTimer.IsEnabled)
         {
             SetAutosaveText();
         }
@@ -354,12 +354,9 @@ internal class AutosaveDocumentViewModel : NotifyableObject
 
     private void UpdateMainMenuTextSave(LocalizedString text, string iconText, Brush brush, bool pulse)
     {
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            MainMenuText = text;
-            MainMenuIconText = iconText;
-            MainMenuBrush = brush;
-            MainMenuPulse = pulse;
-        });
+        MainMenuText = text;
+        MainMenuIconText = iconText;
+        MainMenuBrush = brush;
+        MainMenuPulse = pulse;
     }
 }
