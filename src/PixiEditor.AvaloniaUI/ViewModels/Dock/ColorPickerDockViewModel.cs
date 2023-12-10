@@ -14,6 +14,7 @@ internal class ColorPickerDockViewModel : Tool
         get => GetValue(ColorsViewModelProperty);
         set => SetValue(ColorsViewModelProperty, value);
     }
+
     public ColorPickerDockViewModel(ColorsViewModel colorsVm)
     {
         ColorsViewModel = colorsVm;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Avalonia.Platform.Storage;
 using PixiEditor.Extensions.Palettes.Parsers;
 
@@ -15,7 +16,8 @@ internal static class PaletteHelpers
             List<string> allSupportedFormats = new();
             foreach (var parser in parsers)
             {
-                allSupportedFormats.AddRange(parser.SupportedFileExtensions);
+                allSupportedFormats.AddRange(parser.SupportedFileExtensions
+                    .Select(x => x.Replace(".", "*.")));
             }
 
             string allSupportedFormatsString = string.Join(';', allSupportedFormats).Replace(".", "*.");

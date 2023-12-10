@@ -9,6 +9,7 @@ using Avalonia.Controls.ApplicationLifetimes;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
+using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Platform;
@@ -135,7 +136,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
                 {
                     ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
                     var result = ConfirmationDialog.Show("UPDATE_READY", "NEW_UPDATE");
-                    if (result == Models.Enums.ConfirmationType.Yes)
+                    result.Wait();
+                    if (result.Result == ConfirmationType.Yes)
                     {
                         if (updateFileExists && File.Exists(updaterPath))
                         {

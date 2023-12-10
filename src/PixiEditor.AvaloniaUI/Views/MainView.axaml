@@ -8,7 +8,6 @@
              xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
-             xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              xmlns:dock="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Dock"
              xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
              xmlns:layers="clr-namespace:PixiEditor.AvaloniaUI.Views.Layers"

@@ -8,7 +8,9 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Platform.Storage;
 using PixiEditor.AvaloniaUI.Helpers;
+using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.Structures;
@@ -116,23 +118,26 @@ internal partial class PaletteViewer : UserControl
 
     private async void ImportPalette_OnClick(object sender, RoutedEventArgs e)
     {
-        OpenFileDialog openFileDialog = new OpenFileDialog
+        await Application.Current.ForDesktopMainWindowAsync(async window =>
         {
-            Filter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers, true),
-        };
-        if (openFileDialog.ShowDialog() == true)
-        {
-            await ImportPalette(openFileDialog.FileName);
-        }
+            var file = await window.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions()
+            {
+                FileTypeFilter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers, true),
+            });
+
+            if (file is null || file.Count == 0) return;
+
+            await ImportPalette(file[0].Path.AbsolutePath);
+        });
     }
 
-    private async Task ImportPalette(string fileName)
+    private async Task ImportPalette(string filePath)
     {
         var parser =
             PaletteProvider.AvailableParsers.FirstOrDefault(x =>
-                x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+                x.SupportedFileExtensions.Contains(Path.GetExtension(filePath)));
         if (parser == null) return;
-        var data = await parser.Parse(fileName);
+        var data = await parser.Parse(filePath);
         if (data.IsCorrupted || data.Colors.Length == 0) return;
         Colors.Clear();
         Colors.AddRange(data.Colors);
@@ -140,15 +145,17 @@ internal partial class PaletteViewer : UserControl
 
     private async void SavePalette_OnClick(object sender, RoutedEventArgs e)
     {
-        SaveFileDialog saveFileDialog = new SaveFileDialog
+        await Application.Current.ForDesktopMainWindowAsync(async window =>
         {
-            Filter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList(),
-                false)
-        };
+            var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
+            {
+                FileTypeChoices = PaletteHelpers.GetFilter(
+                    PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList(), false)
+            });
 
-        if (saveFileDialog.ShowDialog() == true)
-        {
-            string fileName = saveFileDialog.Pa;
+            if (file is null) return;
+
+            string fileName = file.Name;
             var foundParser =
                 PaletteProvider.AvailableParsers.First(x =>
                     x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
@@ -163,7 +170,7 @@ internal partial class PaletteViewer : UserControl
             {
                 NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
             }
-        }
+        });
     }
 
     private void Grid_PreviewDragEnter(object sender, DragEventArgs e)
@@ -266,7 +273,7 @@ internal partial class PaletteViewer : UserControl
         MenuItem menuItem = (MenuItem)sender;
         PaletteColor color = (PaletteColor)menuItem.CommandParameter;
         Replacer.ColorToReplace = color;
-        Replacer.IsVisibleCheckbox.IsChecked = false;
+        Replacer.VisibilityCheckbox.IsChecked = false;
     }
 
     private void MenuItem_OnClick(object sender, RoutedEventArgs e)
@@ -278,7 +285,7 @@ internal partial class PaletteViewer : UserControl
         }
     }
 
-    private async Task DiscardPalette_OnClick(object sender, RoutedEventArgs e)
+    private async void DiscardPalette_OnClick(object sender, RoutedEventArgs e)
     {
         if (await ConfirmationDialog.Show("DISCARD_PALETTE_CONFIRMATION", "DISCARD_PALETTE") == ConfirmationType.Yes)
         {

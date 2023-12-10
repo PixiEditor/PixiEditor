@@ -6,7 +6,6 @@
              xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
-             xmlns:palettes="clr-namespace:PixiEditor.Views.UserControls.Palettes"
              xmlns:document="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
              xmlns:viewModels1="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              xmlns:subViewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"

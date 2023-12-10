@@ -88,4 +88,8 @@
       <AdditionalFiles Include="Views\Windows\Settings\ShortcutsBinder.axaml" />
     </ItemGroup>
   
+    <ItemGroup>
+      <Resource Include="Images\ChevronDown.png" />
+    </ItemGroup>
+  
 </Project>

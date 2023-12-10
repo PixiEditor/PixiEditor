@@ -5,6 +5,7 @@ using Dock.Model.Avalonia;
 using Dock.Model.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
+using PixiEditor.AvaloniaUI.Models.Palettes;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
@@ -126,11 +127,17 @@ internal class DockFactory : Factory
             Title = "ColorPickerPane",
         };
 
+        PaletteViewerDockViewModel paletteViewerVm = new(colorsVm, fileVm.Owner.DocumentManagerSubViewModel)
+        {
+            Id = "PaletteViewerPane",
+            Title = "PaletteViewerPane",
+        };
+
         ToolDock colorPicker = new()
         {
             Id = "ColorPickerPane",
             Title = "ColorPickerPane",
-            VisibleDockables = new List<IDockable>() { colorPickerVm },
+            VisibleDockables = new List<IDockable>() { colorPickerVm, paletteViewerVm},
             ActiveDockable = colorPickerVm,
         };
 

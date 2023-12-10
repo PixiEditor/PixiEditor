@@ -7,7 +7,7 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.ColorPickerDockView">
     <colorPicker:StandardColorPicker
-        SelectedColor="{Binding DataContext.ColorsViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
-        SecondaryColor="{Binding DataContext.ColorsViewModel.SecondaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
+        SelectedColor="{Binding DataContext.ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
+        SecondaryColor="{Binding DataContext.ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
         UseHintColor="False"/>
 </UserControl>

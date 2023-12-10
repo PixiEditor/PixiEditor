@@ -17,7 +17,7 @@ internal class NotNullToVisibilityConverter
             isNull = !isNull;
         }
 
-        return isNull ? false : true;
+        return !isNull;
     }
     
     bool IsDefaultValue(object obj)
@@ -29,11 +29,13 @@ internal class NotNullToVisibilityConverter
         
         var type = obj.GetType();
 
-        if (type.IsValueType)
+        //TODO: Try to find what breaks without below, because in my opinion this
+        // is not a correct thing to do with NotNull converter, lots with false positives, like 0 as a int
+        /*if (type.IsValueType)
         {
             object defaultValue = Activator.CreateInstance(type);
             return obj.Equals(defaultValue);
-        }
+        }*/
 
         return false;
     }
