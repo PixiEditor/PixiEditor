@@ -1,11 +1,15 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using PixiEditor.Exceptions;
 
 namespace PixiEditor;
 
 [Serializable]
 internal class NotifyableObject : INotifyPropertyChanged
 {
+    private static Thread uiThread;
+    
     [field: NonSerialized]
     public event PropertyChangedEventHandler PropertyChanged = (sender, e) => { };
 
@@ -33,6 +37,8 @@ internal class NotifyableObject : INotifyPropertyChanged
 
     public void RaisePropertyChanged(string property)
     {
+        ReportNonUiThread(property);
+        
         if (property != null)
         {
             PropertyChanged(this, new PropertyChangedEventArgs(property));
@@ -44,6 +50,8 @@ internal class NotifyableObject : INotifyPropertyChanged
 
     protected bool SetProperty<T>(ref T backingStore, T value, out T oldValue, Action beforeChange = null, [CallerMemberName] string propertyName = "")
     {
+        ReportNonUiThread(propertyName);
+        
         if (EqualityComparer<T>.Default.Equals(backingStore, value))
         {
             oldValue = backingStore;
@@ -55,5 +63,25 @@ internal class NotifyableObject : INotifyPropertyChanged
         backingStore = value;
         PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         return true;
+    }
+
+    private static void ReportNonUiThread(string property, [CallerMemberName] string methodName = "")
+    {
+        uiThread ??= Application.Current.Dispatcher.Thread;
+        var currentThread = Thread.CurrentThread;
+
+        if (currentThread == uiThread)
+        {
+            return;
+        }
+
+        var exception = new CustomStackTraceException($"Do not call {methodName}() from a thread other than the UI thread. Calling for property '{property ?? "{ property name null }"}'. (Calling from '{currentThread.Name ?? "{ name null }"}' @{currentThread.ManagedThreadId})");
+        
+#if DEBUG
+        throw exception;
+#else
+        exception.GenerateStackTrace();
+        Task.Run(() => CrashHelper.SendExceptionInfoToWebhook(exception));
+#endif
     }
 }

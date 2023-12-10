@@ -48,13 +48,18 @@ internal partial class App : Application
             }
             catch (Exception exception)
             {
+                Task sendReport = null;
+                
                 try
                 {
-                    CrashHelper.SendExceptionInfoToWebhook(exception);
+                    sendReport = CrashHelper.SendExceptionInfoToWebhook(exception);
                 }
                 finally
                 {
-                    MessageBox.Show("Fatal error", $"Fatal error while trying to open crash report in App.OnStartup()\n{exception}");
+                    MessageBox.Show($"Fatal error while trying to open crash report in App.OnStartup()\nPlease report this https://pixieditor.net/help\n{exception}", "Fatal error");
+                    if (sendReport != null && sendReport.Status != TaskStatus.RanToCompletion)
+                        sendReport.Wait(8000);
+                    Shutdown();
                 }
             }
 
