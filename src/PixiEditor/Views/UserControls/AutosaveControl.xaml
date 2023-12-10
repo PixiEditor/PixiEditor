@@ -36,7 +36,8 @@
                 <TextBlock
                     Text="{Binding MainMenuIconText, FallbackValue='', Mode=OneWay}"
                     FontFamily="{StaticResource Feather}"
-                    FontSize="16" Margin="0,5,0,0"
+                    FontSize="16" Margin="0,1,5,0"
+                    VerticalAlignment="Center"
                     Foreground="{Binding MainMenuBrush, Mode=OneWay}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
@@ -65,9 +66,10 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <Label
+                <TextBlock
                     ui:Translator.LocalizedString="{Binding MainMenuText, Mode=OneWay}"
-                    Foreground="White" />
+                    Foreground="White"
+                    VerticalAlignment="Center" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <StackPanel.Style>
