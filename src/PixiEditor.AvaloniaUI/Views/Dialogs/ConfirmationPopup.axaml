@@ -35,6 +35,7 @@
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center"
                     Margin="0,0,10,15">
             <Button Margin="10,0,10,0" IsDefault="True" Padding="5 0"
+                    ui:Translator.LocalizedString="{Binding FirstOptionText}"
                     Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>

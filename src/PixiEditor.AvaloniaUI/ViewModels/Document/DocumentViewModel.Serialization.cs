@@ -158,6 +158,6 @@ internal partial class DocumentViewModel
         };
     }
 
-    private ColorCollection ToCollection(ObservableCollection<PaletteColor> collection) =>
+    private ColorCollection ToCollection(IList<PaletteColor> collection) =>
         new(collection.Select(x => Color.FromArgb(255, x.R, x.G, x.B)));
 }

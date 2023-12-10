@@ -2,10 +2,11 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using Avalonia.Collections;
 
 namespace PixiEditor.AvaloniaUI.Models.Structures;
 
-public class ObservableRangeCollection<T> : ObservableCollection<T>
+public class ObservableRangeCollection<T> : AvaloniaList<T>
 {
     public ObservableRangeCollection()
     {
@@ -15,24 +16,9 @@ public class ObservableRangeCollection<T> : ObservableCollection<T>
     {
     }
 
-    public void AddRange(IEnumerable<T> collection)
-    {
-        foreach (var i in collection)
-        {
-            Items.Add(i);
-        }
-
-        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, collection.ToList()));
-    }
-
     public void ReplaceRange(IEnumerable<T> collection)
     {
-        Items.Clear();
-        foreach (var i in collection)
-        {
-            Items.Add(i);
-        }
-
-        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        Clear();
+        AddRange(collection);
     }
 }

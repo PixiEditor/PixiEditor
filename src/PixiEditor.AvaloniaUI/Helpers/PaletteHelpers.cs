@@ -29,7 +29,7 @@ internal static class PaletteHelpers
 
         foreach (var parser in parsers)
         {
-            string supportedFormats = string.Join(';', parser.SupportedFileExtensions).Replace(".", "*.");
+            string supportedFormats = string.Join(';', parser.SupportedFileExtensions);
             filePickerFileTypes.Add(new FilePickerFileType($"{parser.FileName} ({supportedFormats})")
             {
                 Patterns = parser.SupportedFileExtensions

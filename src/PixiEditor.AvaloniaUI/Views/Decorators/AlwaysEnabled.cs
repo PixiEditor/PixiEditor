@@ -3,7 +3,7 @@ using Avalonia.Controls;
 
 namespace PixiEditor.AvaloniaUI.Views.Decorators;
 
-public class AlwaysEnabled : ContentControl
+public class AlwaysEnabled : Decorator
 {
     static AlwaysEnabled()
     {
