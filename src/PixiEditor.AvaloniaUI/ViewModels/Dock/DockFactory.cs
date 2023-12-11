@@ -108,7 +108,7 @@ internal class DockFactory : Factory
         colorPickerDock = BuildColorPickerDock();
         return new ProportionalDock()
         {
-            Proportion = 0.15,
+            Proportion = 0.20,
             Orientation = Orientation.Vertical,
             VisibleDockables = new List<IDockable>()
             {

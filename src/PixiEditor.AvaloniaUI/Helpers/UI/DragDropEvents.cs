@@ -140,7 +140,7 @@ public static class DragDropEvents
     {
         return (sender, args) =>
         {
-            if (args.Source != null && args.Source.Equals(source))
+            if (source == sender)
             {
                 handler(sender, args);
             }

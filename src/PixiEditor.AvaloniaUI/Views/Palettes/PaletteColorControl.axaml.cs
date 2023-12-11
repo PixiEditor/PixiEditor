@@ -57,7 +57,7 @@ internal partial class PaletteColorControl : UserControl
             if (length > 10)
             {
                 DataObject data = new DataObject();
-                data.Set(PaletteColorControl.PaletteColorDaoFormat, colorControl.Color.ToString());
+                data.Set(PaletteColorDaoFormat, colorControl.Color.ToString());
                 DragDrop.DoDragDrop(e, data, DragDropEffects.Move);
                 e.Handled = true;
             }
