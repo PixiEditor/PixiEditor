@@ -113,6 +113,7 @@ internal partial class PaletteViewer : UserControl
         if (Colors.Contains(colorControl))
         {
             Colors.Remove(colorControl);
+            RefreshAllItems();
         }
     }
 
@@ -257,9 +258,16 @@ internal partial class PaletteViewer : UserControl
                     int newIndex = Colors.IndexOf(paletteColorControl.Color);
                     Colors.RemoveAt(currIndex);
                     Colors.Insert(newIndex, paletteColor);
+                    RefreshAllItems();
                 }
             }
         }
+    }
+
+    private void RefreshAllItems()
+    {
+        PaletteItemsSource.ItemsSource = null;
+        PaletteItemsSource.ItemsSource = Colors;
     }
 
     private async void BrowsePalettes_Click(object sender, RoutedEventArgs e)

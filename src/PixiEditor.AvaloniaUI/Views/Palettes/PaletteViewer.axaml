@@ -66,7 +66,7 @@
                 <TextBlock TextWrapping="Wrap" ui:Translator.Key="DROP_PALETTE" Foreground="White" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Colors, ElementName=paletteControl}">
+                <ItemsControl Name="PaletteItemsSource" ItemsSource="{Binding Colors, ElementName=paletteControl}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapPanel Margin="10" Orientation="Horizontal"
