@@ -53,8 +53,7 @@ internal partial class LayersManager : UserControl
         if (e.Source is LayerControl container && isLeftPressed && Equals(e.Pointer.Captured, container))
         {
             DataObject data = new();
-            //TODO: Check what dataformat to use
-            data.Set(DataFormats.Text, container);
+            data.Set(LayerControl.LayerControlDataName, container);
             Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDrop(e, data, DragDropEffects.Move));
         }
     }
@@ -95,7 +94,7 @@ internal partial class LayersManager : UserControl
             isLeftPressed && Equals(e.Pointer.Captured, container))
         {
             DataObject data = new();
-            data.Set(DataFormats.Text, container);
+            data.Set(FolderControl.FolderControlDataName, container);
             Dispatcher.UIThread.InvokeAsync(() => DragDrop.DoDragDrop(e, data, DragDropEffects.Move));
         }
     }

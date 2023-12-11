@@ -41,7 +41,7 @@
                 <RowDefinition Height="10"/>
                 <RowDefinition Height="26"/>
             </Grid.RowDefinitions>
-            <Grid DragDrop.AllowDrop="True" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
+            <Grid DragDrop.AllowDrop="True" helpers:DragDropEvents.DragEnter="Grid_DragEnter" helpers:DragDropEvents.Drop="Grid_Drop_Top" helpers:DragDropEvents.DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent"/>
             <Grid Grid.Row="1" Margin="0,-17,0,0" VerticalAlignment="Center" DragDrop.AllowDrop="False">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="24"/>
@@ -136,10 +136,12 @@
                             IsVisible="{Binding Layer.LockTransparencyBindable, ElementName=uc}"/>
                     </WrapPanel>
                 </StackPanel>
-                <Grid Margin="0, 0, 0, -2.5" VerticalAlignment="Bottom" Height="10" Grid.Row="2" Grid.Column="0" DragDrop.AllowDrop="True"  Background="Transparent" Name="dropBelowGrid"/>
+                <Grid Margin="0, 0, 0, -2.5" helpers:DragDropEvents.DragEnter="Grid_DragEnter" VerticalAlignment="Bottom" helpers:DragDropEvents.Drop="Grid_Drop_Below"  helpers:DragDropEvents.DragLeave="Grid_DragLeave" Height="10" Grid.Row="2" Grid.Column="0" DragDrop.AllowDrop="True"  Background="Transparent" Name="dropBelowGrid"/>
                 <Grid Margin="0, 0, 0, -2.5" VerticalAlignment="Bottom" Height="10" Grid.Row="2" Grid.Column="1" Background="{Binding ElementName=dropBelowGrid, Path=Background}"/>
 
-                <Grid Margin="0, 0, 0, -2.5" VerticalAlignment="Bottom" Height="10" Grid.Row="2" Grid.Column="2" DragDrop.AllowDrop="True"  Background="Transparent"/>
+                <Grid Margin="0, 0, 0, -2.5" VerticalAlignment="Bottom" Height="10" Grid.Row="2" Grid.Column="2"
+                      helpers:DragDropEvents.DragEnter="Grid_DragEnter" helpers:DragDropEvents.Drop="Grid_Drop_Bottom" helpers:DragDropEvents.DragLeave="Grid_DragLeave"
+                      DragDrop.AllowDrop="True"  Background="Transparent"/>
             </Grid>
         </Grid>
         <Border.ContextMenu>

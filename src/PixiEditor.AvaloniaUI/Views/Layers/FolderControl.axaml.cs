@@ -22,7 +22,6 @@ internal partial class FolderControl : UserControl
     }
 
     public static string? FolderControlDataName = typeof(FolderControl).FullName;
-    public static string? LayerControlDataName = typeof(LayerControl).FullName;
 
     public static readonly StyledProperty<LayersManager> ManagerProperty =
         AvaloniaProperty.Register<FolderControl, LayersManager>(nameof(Manager));

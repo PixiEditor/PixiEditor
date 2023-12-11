@@ -16,6 +16,7 @@
              xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
              xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:docVm="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
+             xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <UserControl.Resources>
@@ -174,7 +175,7 @@
                     </DataTemplate>
                 </TreeView.DataTemplates>
             </TreeView>
-            <Border Name="dropBorder" DragDrop.AllowDrop="True" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
+            <Border Name="dropBorder" ui1:DragDropEvents.DragEnter="Grid_DragEnter" ui1:DragDropEvents.DragLeave="Grid_DragLeave" DragDrop.AllowDrop="True" ui1:DragDropEvents.Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
         </DockPanel>
     </Grid>
 </UserControl>

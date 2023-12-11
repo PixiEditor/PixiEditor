@@ -12,73 +12,75 @@ namespace PixiEditor.AvaloniaUI.Views.Layers;
 #nullable enable
 internal partial class LayerControl : UserControl
 {
-   public static readonly StyledProperty<LayerViewModel> LayerProperty =
+    public static string? LayerControlDataName = typeof(LayerControl).FullName;
+
+    public static readonly StyledProperty<LayerViewModel> LayerProperty =
         AvaloniaProperty.Register<LayerControl, LayerViewModel>(nameof(Layer));
 
-   public LayerViewModel Layer
+    public LayerViewModel Layer
     {
         get => GetValue(LayerProperty);
         set => SetValue(LayerProperty, value);
     }
 
-   private readonly IBrush? highlightColor;
+    private readonly IBrush? highlightColor;
 
-   public static readonly StyledProperty<bool> ControlButtonsVisibleProperty =
+    public static readonly StyledProperty<bool> ControlButtonsVisibleProperty =
         AvaloniaProperty.Register<LayerControl, bool>(nameof(ControlButtonsVisible), false);
 
-   public bool ControlButtonsVisible
+    public bool ControlButtonsVisible
     {
         get => GetValue(ControlButtonsVisibleProperty);
         set => SetValue(ControlButtonsVisibleProperty, value);
     }
 
-   public string LayerColor
+    public string LayerColor
     {
         get => GetValue(LayerColorProperty);
         set => SetValue(LayerColorProperty, value);
     }
 
-   public static readonly StyledProperty<string> LayerColorProperty =
+    public static readonly StyledProperty<string> LayerColorProperty =
         AvaloniaProperty.Register<LayerControl, string>(nameof(LayerColor), "#00000000");
 
-   public static readonly StyledProperty<LayersManager> ManagerProperty =
+    public static readonly StyledProperty<LayersManager> ManagerProperty =
         AvaloniaProperty.Register<LayerControl, LayersManager>(nameof(Manager));
 
-   public LayersManager Manager
+    public LayersManager Manager
     {
         get => GetValue(ManagerProperty);
         set => SetValue(ManagerProperty, value);
     }
 
-   public static readonly StyledProperty<RelayCommand> MoveToBackCommandProperty =
+    public static readonly StyledProperty<RelayCommand> MoveToBackCommandProperty =
         AvaloniaProperty.Register<LayerControl, RelayCommand>(nameof(MoveToBackCommand));
 
-   public RelayCommand MoveToBackCommand
+    public RelayCommand MoveToBackCommand
     {
         get => GetValue(MoveToBackCommandProperty);
         set => SetValue(MoveToBackCommandProperty, value);
     }
 
-   public static readonly StyledProperty<RelayCommand> MoveToFrontCommandProperty =
+    public static readonly StyledProperty<RelayCommand> MoveToFrontCommandProperty =
         AvaloniaProperty.Register<LayerControl, RelayCommand>(nameof(MoveToFrontCommand));
 
-   public RelayCommand MoveToFrontCommand
+    public RelayCommand MoveToFrontCommand
     {
         get => GetValue(MoveToFrontCommandProperty);
         set => SetValue(MoveToFrontCommandProperty, value);
     }
 
 
-   private MouseUpdateController mouseUpdateController;
-    
-   public LayerControl()
+    private MouseUpdateController mouseUpdateController;
+
+    public LayerControl()
     {
         InitializeComponent();
         Loaded += LayerControl_Loaded;
         highlightColor = (Brush?)App.Current.Resources["SoftSelectedLayerColor"];
     }
 
-   private void LayerControl_Loaded(object sender, RoutedEventArgs e)
+    private void LayerControl_Loaded(object sender, RoutedEventArgs e)
     {
         mouseUpdateController = new MouseUpdateController(this, Manager.LayerControl_MouseMove);
     }
@@ -96,7 +98,6 @@ internal partial class LayerControl : UserControl
     private void LayerItem_OnMouseLeave(object sender, PointerEventArgs e)
     {
         ControlButtonsVisible = false;
-
     }
 
     private void Grid_DragEnter(object? sender, DragEventArgs e)
@@ -115,7 +116,7 @@ internal partial class LayerControl : UserControl
 
     public static Guid? ExtractMemberGuid(IDataObject droppedMemberDataObject)
     {
-        object droppedLayer = droppedMemberDataObject.Get(FolderControl.LayerControlDataName);
+        object droppedLayer = droppedMemberDataObject.Get(LayerControlDataName);
         object droppedFolder = droppedMemberDataObject.Get(AvaloniaUI.Views.Layers.FolderControl.FolderControlDataName);
         if (droppedLayer is LayerControl layer)
             return layer.Layer.GuidValue;
@@ -152,18 +153,18 @@ internal partial class LayerControl : UserControl
         HandleDrop(e.Data, StructureMemberPlacement.BelowOutsideFolder);
     }
 
-   private void RenameMenuItem_Click(object sender, RoutedEventArgs e)
+    private void RenameMenuItem_Click(object sender, RoutedEventArgs e)
     {
         editableTextBlock.EnableEditing();
     }
 
-   private void MaskMouseDown(object sender, PointerPressedEventArgs e)
+    private void MaskMouseDown(object sender, PointerPressedEventArgs e)
     {
         if (Layer is not null)
             Layer.ShouldDrawOnMask = true;
     }
 
-   private void LayerMouseDown(object sender, PointerPressedEventArgs e)
+    private void LayerMouseDown(object sender, PointerPressedEventArgs e)
     {
         if (Layer is not null)
             Layer.ShouldDrawOnMask = false;
