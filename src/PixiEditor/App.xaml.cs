@@ -66,13 +66,6 @@ internal partial class App : Application
             return;
         }
 
-        if (ParseArgument("--deadlock ([0-9]+) ([0-9]+)", arguments, out Group[] deadlockGroups))
-        {
-            DeadlockDetectionHelper.HandleDeadlockOfOtherProcess(int.Parse(deadlockGroups[1].ValueSpan), int.Parse(deadlockGroups[2].ValueSpan));
-            Shutdown();
-            return;
-        }
-
         if (ParseArgument("--wait-before-init ([0-9]+)", arguments, out Group[] waitBeforeInitGroups))
         {
             Task.Delay(int.Parse(waitBeforeInitGroups[1].ValueSpan)).Wait();

@@ -126,19 +126,6 @@ public class DeadlockDetectionHelper
         thread.Join(10000);
     }
 
-    private void StartDeadlockHandlerProcess()
-    {
-        Process process = new();
-
-        process.StartInfo = new()
-        {
-            FileName = Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, "exe"),
-            Arguments = $"--deadlock {Process.GetCurrentProcess().Id} {mainThread.ManagedThreadId}"
-        };
-
-        process.Start();
-    }
-
     private void ForceNewProcess()
     {
         Process process = new();
@@ -152,23 +139,16 @@ public class DeadlockDetectionHelper
         process.Start();
     }
     
-    private static void ReportProblem(int mainThreadId, int processId = -1)
+    private static void ReportProblem(int mainThreadId)
     {
         string stackTrace;
-        var isOwn = false;
 
-        if (processId == -1)
-        {
-            isOwn = true;
-            processId = Process.GetCurrentProcess().Id;
-        }
-        
-        using (var target = DataTarget.CreateSnapshotAndAttach(processId))
+        using (var target = DataTarget.CreateSnapshotAndAttach(Process.GetCurrentProcess().Id))
         {
             stackTrace = GetMainClrThreadStackTrace(target, mainThreadId);
         }
 
-        CrashHelper.SendExceptionInfoToWebhook(new DeadlockException(stackTrace, isOwn)).Wait();
+        CrashHelper.SendExceptionInfoToWebhook(new DeadlockException(stackTrace)).Wait();
     }
 
     private static string? GetMainClrThreadStackTrace(DataTarget target, int threadId)
@@ -258,28 +238,13 @@ public class DeadlockDetectionHelper
 
     private static bool ReturnTrue() => true;
 
-    public static void HandleDeadlockOfOtherProcess(int processId, int mainThreadId) =>
-        ReportProblem(mainThreadId, processId);
-    
     class DeadlockException : Exception
     {
-        public DeadlockException(string stackTrace, bool isOwn) : base(GetMessage(isOwn))
+        public DeadlockException(string stackTrace) : base("A deadlock has occured. Stack trace is from the Main Thread. ")
         {
             this.StackTrace = stackTrace;
         }
 
         public override string StackTrace { get; }
-
-        private static string GetMessage(bool isOwn)
-        {
-            var builder = new StringBuilder("A deadlock has occured. Stack trace is from the Main Thread. ");
-            if (!isOwn)
-            {
-                builder.Append(
-                    "NOTICE: Any above state information is from the reporting process and not the actual deadlocked process");
-            }
-
-            return builder.ToString();
-        }
     }
 }
