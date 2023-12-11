@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Diagnostics.Runtime;
 using PixiEditor.Extensions.Common.UserPreferences;
@@ -18,10 +19,14 @@ public class DeadlockDetectionHelper
     private Thread mainThread;
     private int checkTimes;
     private int errorsReported;
+    private bool shuttingDown;
     
     public void Start()
     {
-        dispatcher = MainWindow.Current.Dispatcher;
+        var application = Application.Current;
+
+        application.Exit += (_, _) => shuttingDown = true;
+        dispatcher = application.Dispatcher;
         mainThread = dispatcher.Thread;
         
         var thread = new Thread(ThreadStart)
@@ -35,6 +40,11 @@ public class DeadlockDetectionHelper
     {
         while (true)
         {
+            if (shuttingDown)
+            {
+                return;
+            }
+            
             try
             {
                 CheckStatus();
@@ -229,6 +239,12 @@ public class DeadlockDetectionHelper
 
     private bool CheckDispatcher(int timeout, DebugLogStopwatch stopwatch, DispatcherPriority priority)
     {
+        if (dispatcher.HasShutdownStarted)
+        {
+            Debug.WriteLine("----- Deadlock detector could not check for deadlock as the main dispatcher is shutting down");
+            return true;
+        }
+        
         stopwatch.Restart();
         var task = Task.Run(() => dispatcher.Invoke(ReturnTrue, TimeSpan.FromMilliseconds(timeout), priority) as bool? ?? false);
 
