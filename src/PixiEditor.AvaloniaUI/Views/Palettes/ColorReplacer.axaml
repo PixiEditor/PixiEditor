@@ -7,6 +7,7 @@
              xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
              xmlns:palettes="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
+             xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
              Name="uc">
     <Border BorderBrush="{DynamicResource ThemeBorderMidColor}"
             Background="{DynamicResource ThemeBackgroundColor}"
@@ -23,11 +24,11 @@
                     <Grid IsVisible="{Binding ElementName=VisibilityCheckbox, Path=!IsChecked}"  Background="Transparent"/>
                 </Grid>
                 <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
-                    <!--TODO: Drop PaletteColorControl_OnDrop-->
                     <palettes:PaletteColorControl Color="{Binding ElementName=uc, Path=ColorToReplace}"
                                                Height="35"
                                                Width="35"
                                                ui:Translator.TooltipKey="REPLACER_TOOLTIP"
+                                               ui1:DragDropEvents.Drop="PaletteColorControl_OnDrop"
                                                DragDrop.AllowDrop="True" />
                     <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0" FlowDirection="{markupExtensions:Localization FlowDirection}"/>
                     <colorPicker:PortableColorPicker
