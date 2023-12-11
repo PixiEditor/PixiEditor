@@ -13,13 +13,43 @@ using ThreadState = System.Threading.ThreadState;
 
 namespace PixiEditor.Helpers;
 
-public class DeadlockDetectionHelper
+internal class DeadlockDetectionHelper
 {
     private Dispatcher dispatcher;
     private Thread mainThread;
     private int checkTimes;
     private int errorsReported;
     private bool shuttingDown;
+
+    private int totalChecks;
+    private int secondStageChecks;
+    private int thirdStageChecks;
+    private int fourthStageChecks;
+    private int deadlocksDetected;
+    
+    public DateTime StartTime { get; private set; }
+    
+    public static DeadlockDetectionHelper Current { get; private set; }
+
+    public int TotalChecks => totalChecks;
+    
+    public int SecondStageChecks => secondStageChecks;
+
+    public int ThirdStageChecks => thirdStageChecks;
+
+    public int FourthStageChecks => fourthStageChecks;
+
+    public int DeadlocksDetected => deadlocksDetected;
+    
+    public DeadlockDetectionHelper()
+    {
+        if (Current != null)
+        {
+            throw new InvalidOperationException("There's already a deadlock detection helper");
+        }
+        
+        Current = this;
+    }
     
     public void Start()
     {
@@ -38,6 +68,8 @@ public class DeadlockDetectionHelper
 
     private void ThreadStart()
     {
+        StartTime = DateTime.Now;
+        
         while (true)
         {
             if (shuttingDown)
@@ -65,6 +97,8 @@ public class DeadlockDetectionHelper
         {
             return;
         }
+
+        Interlocked.Increment(ref deadlocksDetected);
 
         if (errorsReported < 5)
         {
@@ -184,35 +218,43 @@ public class DeadlockDetectionHelper
         // First deadlock check
         bool isFree = CheckDispatcher(1000, stopwatch, DispatcherPriority.Background);
 
+        Interlocked.Increment(ref totalChecks);
+
         if (isFree)
             return true;
+            
+        stopwatch.Log($"----- First deadlock check time [0] {{0}}; Dispatcher had time: false");
         
-        stopwatch.Log("-------- First deadlock check time [0] {0}");
+        Interlocked.Increment(ref secondStageChecks);
         
         // Second deadlock check
         for (var i = 0; i < 3; i++)
         {
             isFree = CheckDispatcher(400, stopwatch, DispatcherPriority.Input);
 
+            stopwatch.Log($"------ Second deadlock check time [{i}] {{0}}; Dispatcher had time: {isFree}");
+            
             if (isFree)
                 return true;
-            
-            stopwatch.Log($"-------- Second deadlock check time [{i}] {{0}}");
         }
         
+        Interlocked.Increment(ref thirdStageChecks);
+
         // Third deadlock check
         isFree = CheckDispatcher(1600, stopwatch, DispatcherPriority.Input);
+
+        stopwatch.Log($"------- Third deadlock check time [0] {{0}}; Dispatcher had time: {isFree}");
 
         if (isFree)
             return true;
 
-        stopwatch.Log("-------- Third deadlock check time [0] {0}");
-        
+        Interlocked.Increment(ref fourthStageChecks);
+
         // Forth deadlock
         int lastTimeout = mainThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin) ? 1400 : 3500;
         isFree = CheckDispatcher(lastTimeout, stopwatch, DispatcherPriority.Send);
 
-        stopwatch.Log("-------- Fourth deadlock check time [0] {0}");
+        stopwatch.Log($"-------- Fourth deadlock check time [0] {{0}}; Dispatcher had time: {isFree}");
         
         return isFree;
     }
