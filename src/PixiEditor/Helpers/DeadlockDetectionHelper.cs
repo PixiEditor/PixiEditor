@@ -67,12 +67,12 @@ public class DeadlockDetectionHelper
 
         if (Debugger.IsAttached)
         {
-            CheckDispatcher(Timeout.Infinite, DispatcherPriority.Send);
+            CheckDispatcher(Timeout.Infinite, null, DispatcherPriority.Send);
         }
         else
         {
             int timeout = mainThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin) ? 8500 : 25000;
-            bool close = !CheckDispatcher(timeout, DispatcherPriority.Send);
+            bool close = !CheckDispatcher(timeout, null, DispatcherPriority.Send);
         
             if (close)
             {
@@ -188,55 +188,56 @@ public class DeadlockDetectionHelper
 
     private bool CheckNotBusy()
     {
-        var stopwatch = new Stopwatch();
+        DebugLogStopwatch stopwatch = null;
+        DebugLogStopwatch.Create(ref stopwatch);
         
-        stopwatch.Start();
-        bool isFree = CheckDispatcher(1000, DispatcherPriority.Background);
-        stopwatch.Stop();
+        // First deadlock check
+        bool isFree = CheckDispatcher(1000, stopwatch, DispatcherPriority.Background);
 
         if (isFree)
             return true;
         
-        Debug.WriteLine($"-------- First deadlock check time [0] {stopwatch.Elapsed}");
+        stopwatch.Log("-------- First deadlock check time [0] {0}");
         
+        // Second deadlock check
         for (var i = 0; i < 3; i++)
         {
-            stopwatch.Restart();
-            isFree = CheckDispatcher(400, DispatcherPriority.Input);
-            stopwatch.Stop();
+            isFree = CheckDispatcher(400, stopwatch, DispatcherPriority.Input);
 
             if (isFree)
                 return true;
             
-            Debug.WriteLine($"-------- Second deadlock check time [{i}] {stopwatch.Elapsed}");
+            stopwatch.Log($"-------- Second deadlock check time [{i}] {{0}}");
         }
         
-        isFree = CheckDispatcher(1600, DispatcherPriority.Input);
+        // Third deadlock check
+        isFree = CheckDispatcher(1600, stopwatch, DispatcherPriority.Input);
 
-        stopwatch.Restart();
-        Debug.WriteLine($"-------- Third deadlock check time [0] {stopwatch.Elapsed}");
-        stopwatch.Stop();
-        
         if (isFree)
             return true;
 
+        stopwatch.Log("-------- Third deadlock check time [0] {0}");
+        
+        // Forth deadlock
         int lastTimeout = mainThread.ThreadState.HasFlag(ThreadState.WaitSleepJoin) ? 1400 : 3500;
-        isFree = CheckDispatcher(lastTimeout, DispatcherPriority.Send);
+        isFree = CheckDispatcher(lastTimeout, stopwatch, DispatcherPriority.Send);
 
-        stopwatch.Restart();
-        Debug.WriteLine($"-------- Fourth deadlock check time [0] {stopwatch.Elapsed}");
-        stopwatch.Stop();
+        stopwatch.Log("-------- Fourth deadlock check time [0] {0}");
         
         return isFree;
     }
 
-    private bool CheckDispatcher(int timeout, DispatcherPriority priority)
+    private bool CheckDispatcher(int timeout, DebugLogStopwatch stopwatch, DispatcherPriority priority)
     {
+        stopwatch.Restart();
         var task = Task.Run(() => dispatcher.Invoke(ReturnTrue, TimeSpan.FromMilliseconds(timeout), priority) as bool? ?? false);
 
         var waitTimeout = (int)(timeout != -1 ? timeout * 1.2 : timeout);
         
-        return task.Wait(waitTimeout) && task.Result;
+        bool result = task.Wait(waitTimeout) && task.Result;
+        stopwatch.Stop();
+
+        return result;
     }
 
     private static bool ReturnTrue() => true;
