@@ -210,8 +210,8 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         window.Activate();
     }
 
-    [Command.Debug("PixiEditor.Debug.OpenDeadlockDetectionDebugWindow", "Deadlock Detection Debug Popup", "Open Deadlock Detection Debug Popup")]
-    public void OpenDeadlockDetectionDebugPopup() => new DeadlockDetectionDebugPopup().Show();
+    // [Command.Debug("PixiEditor.Debug.OpenDeadlockDetectionDebugWindow", "Deadlock Detection Debug Popup", "Open Deadlock Detection Debug Popup")]
+    // public void OpenDeadlockDetectionDebugPopup() => new DeadlockDetectionDebugPopup().Show();
 
     [Command.Internal("PixiEditor.Debug.SetLanguageFromFilePicker")]
     public void SetLanguageFromFilePicker()

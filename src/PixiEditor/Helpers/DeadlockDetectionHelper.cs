@@ -29,7 +29,7 @@ internal class DeadlockDetectionHelper
     
     public DateTime StartTime { get; private set; }
     
-    public static DeadlockDetectionHelper Current { get; private set; }
+    // public static DeadlockDetectionHelper Current { get; private set; }
 
     public int TotalChecks => totalChecks;
     
@@ -43,12 +43,12 @@ internal class DeadlockDetectionHelper
     
     public DeadlockDetectionHelper()
     {
-        if (Current != null)
+        // if (Current != null)
         {
             throw new InvalidOperationException("There's already a deadlock detection helper");
         }
         
-        Current = this;
+        // Current = this;
     }
     
     public void Start()

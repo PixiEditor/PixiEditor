@@ -64,7 +64,7 @@ public partial class DeadlockDetectionDebugPopup : Window
     
     public DeadlockDetectionDebugPopup()
     {
-        helper = DeadlockDetectionHelper.Current;
+        //helper = DeadlockDetectionHelper.Current;
         DataContext = this;
         InitializeComponent();
         Refresh_OnClick(null, null);

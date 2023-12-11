@@ -398,9 +398,6 @@
                         <MenuItem
                             ui1:Translator.Key="OPEN_LOCALIZATION_DEBUG_WINDOW"
                             cmds:Menu.Command="PixiEditor.Debug.OpenLocalizationDebugWindow"/>
-                        <MenuItem
-                            Header="Open Deadlock Detection Debug Window"
-                            cmds:Menu.Command="PixiEditor.Debug.OpenDeadlockDetectionDebugWindow"/>
                         <Separator/>
                         <MenuItem
                             ui1:Translator.Key="OPEN_LOCAL_APPDATA_DIR"

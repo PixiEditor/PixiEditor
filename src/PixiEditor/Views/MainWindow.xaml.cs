@@ -35,7 +35,7 @@ internal partial class MainWindow : Window
     private readonly IPlatform platform;
     private readonly IServiceProvider services;
     private static ExtensionLoader extLoader;
-    private DeadlockDetectionHelper deadlockDetection;
+    // private DeadlockDetectionHelper deadlockDetection;
 
     public static MainWindow Current { get; private set; }
 
@@ -67,8 +67,8 @@ internal partial class MainWindow : Window
 
         InitializeComponent();
 
-        deadlockDetection = new DeadlockDetectionHelper();
-        deadlockDetection.Start();
+        // deadlockDetection = new DeadlockDetectionHelper();
+        // deadlockDetection.Start();
         
         OnDataContextInitialized?.Invoke();
         pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
