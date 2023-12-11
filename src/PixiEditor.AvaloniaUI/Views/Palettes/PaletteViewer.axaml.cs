@@ -281,7 +281,7 @@ internal partial class PaletteViewer : UserControl
         MenuItem menuItem = (MenuItem)sender;
         PaletteColor color = (PaletteColor)menuItem.CommandParameter;
         Replacer.ColorToReplace = color;
-        Replacer.VisibilityCheckbox.IsChecked = false;
+        Replacer.Shelf.IsOpen = true;
     }
 
     private void MenuItem_OnClick(object sender, RoutedEventArgs e)

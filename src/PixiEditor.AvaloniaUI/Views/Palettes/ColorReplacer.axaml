@@ -8,6 +8,7 @@
              xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
              xmlns:palettes="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
              xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
              Name="uc">
     <Border BorderBrush="{DynamicResource ThemeBorderMidColor}"
             Background="{DynamicResource ThemeBackgroundColor}"
@@ -23,6 +24,7 @@
                 <Grid Grid.ColumnSpan="2" Grid.RowSpan="2">
                     <Grid IsVisible="{Binding ElementName=VisibilityCheckbox, Path=!IsChecked}"  Background="Transparent"/>
                 </Grid>
+                <controls:Shelf Name="Shelf">
                 <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
                     <palettes:PaletteColorControl Color="{Binding ElementName=uc, Path=ColorToReplace}"
                                                Height="35"
@@ -46,47 +48,7 @@
                         </Button.Background>
                     </Button>
                 </StackPanel>
-                <CheckBox Focusable="False" IsChecked="{Binding ElementName=uc, Path=IsCollapsed}" ZIndex="10" Name="VisibilityCheckbox" Margin="0,0,5,0" Height="16" HorizontalAlignment="Right">
-                    <!--<CheckBox.Triggers>
-                        <EventTrigger RoutedEvent="CheckBox.Checked">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetName="MiddleStackPanel" Storyboard.TargetProperty="Height" From="40" To="0" Duration="0:0:0.15"/>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                        <EventTrigger RoutedEvent="CheckBox.Unchecked">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Storyboard.TargetName="MiddleStackPanel" Storyboard.TargetProperty="Height" From="0" To="40" Duration="0:0:0.15"/>
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-
-                    </CheckBox.Triggers>-->
-                    <CheckBox.Template>
-                        <ControlTemplate TargetType="{x:Type CheckBox}">
-                            <StackPanel Orientation="Horizontal" Focusable="False">
-                                <Image Focusable="False" Width="14" Cursor="Hand" x:Name="checkboxImage" Source="/Images/ChevronDown.png">
-                                    <Image.RenderTransform>
-                                        <RotateTransform Angle="0"/>
-                                    </Image.RenderTransform>
-                                </Image>
-                                <ContentPresenter Focusable="False"/>
-                            </StackPanel>
-                            <!--TODO: Write to Avalonia-->
-                            <!--<ControlTemplate.Triggers>
-                                <Trigger Property="IsChecked" Value="True">
-                                    <Setter TargetName="checkboxImage" Property="RenderTransform">
-                                        <Setter.Value>
-                                            <RotateTransform Angle="180" CenterX="7" CenterY="4"/>
-                                        </Setter.Value>
-                                    </Setter>
-                                </Trigger>
-                            </ControlTemplate.Triggers>-->
-                        </ControlTemplate>
-                    </CheckBox.Template>
-                </CheckBox>
+                </controls:Shelf>
             </Grid>
         </Grid>
     </Border>

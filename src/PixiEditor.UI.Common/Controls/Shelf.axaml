@@ -8,7 +8,7 @@
                         Background="{DynamicResource ThemeBackgroundBrush1}">
                     <Border.Transitions>
                         <Transitions>
-                            <TransformOperationsTransition Easing="CubicEaseInOut" Property="RenderTransform" Duration="0:0:0.3"/>
+                            <TransformOperationsTransition Easing="SineEaseInOut" Property="RenderTransform" Duration="0:0:0.3"/>
                         </Transitions>
                     </Border.Transitions>
                     <DockPanel LastChildFill="True">
@@ -16,7 +16,7 @@
                                   DockPanel.Dock="Right" VerticalAlignment="Top" Margin="0,5,5,0">
                         <CheckBox.Transitions>
                             <Transitions>
-                                <TransformOperationsTransition Easing="BackEaseInOut" Property="RenderTransform" Duration="0:0:0.3"/>
+                                <TransformOperationsTransition Easing="SineEaseInOut" Property="RenderTransform" Duration="0:0:0.3"/>
                             </Transitions>
                         </CheckBox.Transitions>
                     <CheckBox.Template>
