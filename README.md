@@ -98,4 +98,4 @@ Please read [CONTRIBUTING.md](https://github.com/flabbet/PixiEditor/blob/master/
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/flabbet/PixiEditor/blob/master/LICENSE) - file for details
+This project is licensed under the LGPLv3 License - see the [LICENSE.md](https://github.com/flabbet/PixiEditor/blob/master/LICENSE) - file for details
