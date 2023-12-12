@@ -7,6 +7,7 @@
              xmlns:dataHolders="clr-namespace:PixiEditor.AvaloniaUI.Models.UserData"
              xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             Background="{DynamicResource ThemeBackgroundBrush1}"
              x:Class="PixiEditor.AvaloniaUI.Views.Main.MainTitleBar">
             <xaml:Menu
                 Margin="10, 0, 0, 0"

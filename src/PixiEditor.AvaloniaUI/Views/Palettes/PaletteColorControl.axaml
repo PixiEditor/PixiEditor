@@ -36,7 +36,7 @@
         </Border>
         <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="15" Margin="0 0 0 -1"
                 IsVisible="{Binding ElementName=uc, Path=AssociatedKey, Converter={converters:NotNullToVisibilityConverter}}"
-                Background="{DynamicResource ThemeBackground1Brush}" CornerRadius="3.5 0 3.5 0">
+                Background="{DynamicResource ThemeBackgroundBrush1}" CornerRadius="3.5 0 3.5 0">
             <TextBlock Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="1 0 0 0"
                                         Text="{Binding AssociatedKey, ElementName=uc}"/>
         </Border>

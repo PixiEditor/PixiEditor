@@ -11,6 +11,7 @@
              xmlns:dock="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Dock"
              xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
              xmlns:layers="clr-namespace:PixiEditor.AvaloniaUI.Views.Layers"
+             xmlns:tools="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.Tools"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.MainView"
              x:DataType="viewModels1:ViewModelMain" Background="{DynamicResource ThemeBackgroundBrush}">
@@ -22,14 +23,16 @@
     <Grid Focusable="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="25"/>
+            <RowDefinition Height="45"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <main1:MainTitleBar/>
-        <main1:ToolsPicker ZIndex="2" Grid.Row="1"
+        <tools:Toolbar Grid.Row="1" DataContext="{Binding .}"/>
+        <main1:ToolsPicker ZIndex="2" Grid.Row="2"
                            Margin="10 0 0 0"
                            HorizontalAlignment="Left"
                            VerticalAlignment="Center"
                            Tools="{Binding Path=ToolsSubViewModel.ToolSet}"/>
-        <DockControl Grid.Row="1" Layout="{Binding LayoutDockSubViewModel.Layout}"/>
+        <DockControl Grid.Row="2" Layout="{Binding LayoutDockSubViewModel.Layout}"/>
     </Grid>
 </UserControl>
