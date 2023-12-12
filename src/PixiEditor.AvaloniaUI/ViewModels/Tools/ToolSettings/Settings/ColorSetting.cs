@@ -1,5 +1,11 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Media;
+using Avalonia.Xaml.Interactivity;
+using ColorPicker;
+using PixiEditor.AvaloniaUI.Helpers.Behaviours;
+using PixiEditor.AvaloniaUI.Views.Input;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Settings;
 
@@ -15,17 +21,9 @@ internal sealed class ColorSetting : Setting<Color>
         Value = defaultValue;
     }
 
-    //TODO: Implement
-    /*private ToolSettingColorPicker GenerateColorPicker()
+    private ToolSettingColorPicker GenerateColorPicker()
     {
-        var resourceDictionary = new ResourceDictionary();
-        resourceDictionary.Source = new Uri(
-            "pack://application:,,,/ColorPicker;component/Styles/DefaultColorPickerStyle.xaml",
-            UriKind.RelativeOrAbsolute);
-        var picker = new ToolSettingColorPicker
-        {
-            Style = (Style)resourceDictionary["DefaultColorPickerStyle"]
-        };
+        var picker = new ToolSettingColorPicker();
 
         var selectedColorBinding = new Binding("Value")
         {
@@ -34,13 +32,12 @@ internal sealed class ColorSetting : Setting<Color>
 
         var behavior = new GlobalShortcutFocusBehavior();
         Interaction.GetBehaviors(picker).Add(behavior);
-        picker.SetBinding(ToolSettingColorPicker.SelectedColorProperty, selectedColorBinding);
+        picker.Bind(ToolSettingColorPicker.SelectedColorProperty, selectedColorBinding);
         return picker;
-    }*/
+    }
 
     public override Control GenerateControl()
     {
-        return new Border();
-        //return GenerateColorPicker();
+        return GenerateColorPicker();
     }
 }

@@ -8,10 +8,7 @@
              x:Class="PixiEditor.AvaloniaUI.Views.Main.Tools.Toolbar">
      <StackPanel
                 Background="{DynamicResource ThemeBackgroundBrush1}"
-                Orientation="Horizontal"
-                Grid.ColumnSpan="3"
-                Grid.Column="0"
-                Grid.Row="1">
+                Orientation="Horizontal">
                 <Button
                     Margin="1,0,0,0"
                     Command="{cmds:Command PixiEditor.Undo.Undo}"
@@ -73,9 +70,9 @@
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,10,0">
                                 <Label
-                                IsVisible="{Binding HasLabel}"
+                                IsVisible="{Binding HasLabel}" VerticalAlignment="Center"
                                 Foreground="White" ui:Translator.Key="{Binding Label.Key}" />
-                                <ContentControl Content="{Binding SettingControl}" />
+                                <ContentControl VerticalAlignment="Center" Content="{Binding SettingControl}" />
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

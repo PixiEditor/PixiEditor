@@ -19,7 +19,6 @@ internal sealed class SizeSetting : Setting<int>
     {
         SizeInput tb = new SizeInput
         {
-            Height = 20,
             VerticalAlignment = VerticalAlignment.Center,
             MaxSize = 9999,
             IsEnabled = true
