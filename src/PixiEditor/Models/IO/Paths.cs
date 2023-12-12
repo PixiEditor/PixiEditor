@@ -17,7 +17,7 @@ public static class Paths
     /// </summary>
     public static string PathToPalettesFolder { get; } = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "PixiEditor", "Autosave");
+        "PixiEditor", "Palettes");
     /// <summary>
     /// Path to %temp%/PixiEditor/Autosave
     /// </summary>
