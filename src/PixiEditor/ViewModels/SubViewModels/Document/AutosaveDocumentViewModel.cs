@@ -6,9 +6,8 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.IO;
-using PixiEditor.ViewModels.SubViewModels.Document;
 
-namespace PixiEditor.Models.DocumentModels.Public;
+namespace PixiEditor.ViewModels.SubViewModels.Document;
 
 internal class AutosaveDocumentViewModel : NotifyableObject
 {
@@ -27,11 +26,11 @@ internal class AutosaveDocumentViewModel : NotifyableObject
     private const string PauseIcon = "\ue8a2";
     private const string SavingIcon = "\ue864";
 
-    private readonly Brush ErrorBrush = new SolidColorBrush(Color.FromArgb(255, 214, 66, 56));
-    private readonly Brush WarnBrush = new SolidColorBrush(Color.FromArgb(255, 219, 189, 53));
-    private readonly Brush SuccessBrush = new SolidColorBrush(Color.FromArgb(255, 83, 207, 72));
-    private readonly Brush ActiveBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
-    private readonly Brush InactiveBrush = new SolidColorBrush(Color.FromArgb(255, 120, 120, 120));
+    private readonly Brush errorBrush = new SolidColorBrush(Color.FromArgb(255, 214, 66, 56));
+    private readonly Brush warnBrush = new SolidColorBrush(Color.FromArgb(255, 219, 189, 53));
+    private readonly Brush successBrush = new SolidColorBrush(Color.FromArgb(255, 83, 207, 72));
+    private readonly Brush activeBrush = new SolidColorBrush(Color.FromArgb(255, 255, 255, 255));
+    private readonly Brush inactiveBrush = new SolidColorBrush(Color.FromArgb(255, 120, 120, 120));
     
     private DocumentViewModel Document { get; }
 
@@ -137,7 +136,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
 
         if (timeLeft.Minutes == 0)
         {
-            UpdateMainMenuTextSave("AUTOSAVE_SAVING_IN_MINUTE", ClockIcon, InactiveBrush, false);
+            UpdateMainMenuTextSave("AUTOSAVE_SAVING_IN_MINUTE", ClockIcon, inactiveBrush, false);
             return;
         }
 
@@ -147,7 +146,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
             ? new LocalizedString("MINUTE_SINGULAR")
             : new LocalizedString("MINUTE_PLURAL");
 
-        UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_SAVING_IN", adjusted.Minutes.ToString(), minute), ClockIcon, InactiveBrush, false);
+        UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_SAVING_IN", adjusted.Minutes.ToString(), minute), ClockIcon, inactiveBrush, false);
     }
 
     public void TryAutosave(bool saveUserFileIfEnabled = true)
@@ -159,7 +158,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
             savingTimer.Stop();
             updateTextTimer.Stop();
             
-            UpdateMainMenuTextSave("AUTOSAVE_WAITING_FOR_SAVE", SaveIcon, ActiveBrush, true);
+            UpdateMainMenuTextSave("AUTOSAVE_WAITING_FOR_SAVE", SaveIcon, activeBrush, true);
             
             return;
         }
@@ -168,7 +167,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
         {
             updateTextTimer.Stop();
             RestartTimers();
-            UpdateMainMenuTextSave("AUTOSAVE_NOTHING_CHANGED", SaveIcon, InactiveBrush, false);
+            UpdateMainMenuTextSave("AUTOSAVE_NOTHING_CHANGED", SaveIcon, inactiveBrush, false);
             return;
         }
 
@@ -203,7 +202,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
                 ? new LocalizedString("MINUTE_SINGULAR")
                 : new LocalizedString("MINUTE_PLURAL");
 
-            UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute), WarnIcon, WarnBrush, true);
+            UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute), WarnIcon, warnBrush, true);
         
             busyTimer.Stop();
             Document.Busy = false;
@@ -221,7 +220,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
     {
         saveAfterNextFinish = false;
         
-        UpdateMainMenuTextSave("AUTOSAVE_SAVING", SavingIcon, ActiveBrush, true);
+        UpdateMainMenuTextSave("AUTOSAVE_SAVING", SavingIcon, activeBrush, true);
 
         string filePath = Path.Join(Paths.PathToUnsavedFilesFolder, $"autosave-{tempGuid}.pixi");
         Directory.CreateDirectory(Directory.GetParent(filePath)!.FullName);
@@ -237,7 +236,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
             }
             else
             {
-                UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
+                UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, successBrush, false);
             }
             
             Document.MarkAsAutosaved();
@@ -252,7 +251,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
                 ? new LocalizedString("MINUTE_SINGULAR")
                 : new LocalizedString("MINUTE_PLURAL");
             
-            UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute), WarnIcon, WarnBrush, true);
+            UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute), WarnIcon, warnBrush, true);
             savingFailed++;
 
             if (savingFailed < 3)
@@ -271,7 +270,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
     {
         if (File.Exists(Document.FullFilePath))
         {
-            UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, ErrorBrush, true);
+            UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, errorBrush, true);
         }
         
         Task.Run(Copy);
@@ -284,14 +283,14 @@ internal class AutosaveDocumentViewModel : NotifyableObject
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     Document.MarkAsSaved();
-                    UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
+                    UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, successBrush, false);
                 });
             }
             catch (Exception e) when (e is UnauthorizedAccessException or DirectoryNotFoundException)
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, ErrorBrush, true);
+                    UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, errorBrush, true);
                 });
             }
             catch
@@ -304,7 +303,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
                 {
                     UpdateMainMenuTextSave(
                         new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute),
-                        WarnIcon, WarnBrush, true);
+                        WarnIcon, warnBrush, true);
                 });
             }
         }
@@ -328,7 +327,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
             LocalizedString menuText = documentEnabled ? string.Empty : "AUTOSAVE_DISABLED";
             string iconText = documentEnabled ? null : PauseIcon;
             
-            UpdateMainMenuTextSave(menuText, iconText, ActiveBrush, false);
+            UpdateMainMenuTextSave(menuText, iconText, activeBrush, false);
 
             AutosavePeriodMinutes = minutes;
             return;

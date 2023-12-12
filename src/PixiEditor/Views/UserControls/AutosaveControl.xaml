@@ -8,9 +8,10 @@
              xmlns:public="clr-namespace:PixiEditor.Models.DocumentModels.Public"
              xmlns:xaml="clr-namespace:PixiEditor.Models.Commands.XAML"
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
+             xmlns:document="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
              mc:Ignorable="d"
              d:DesignWidth="280" d:DesignHeight="25"
-             d:DataContext="{d:DesignInstance public:AutosaveDocumentViewModel}">
+             d:DataContext="{d:DesignInstance document:AutosaveDocumentViewModel}">
     <Border Padding="8, 0"
             CornerRadius="5"
             BorderThickness="0"
