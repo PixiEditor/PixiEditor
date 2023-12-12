@@ -256,7 +256,8 @@ internal class AutosaveDocumentViewModel : NotifyableObject
 
             if (savingFailed < 3)
             {
-                Task.Run(() => CrashHelper.SendExceptionInfoToWebhook(new Exception($"Failed to autosave for the {savingFailed}. time due to {result}")));
+                int _savingFailed = savingFailed;
+                Task.Run(() => CrashHelper.SendExceptionInfoToWebhook(new Exception($"Failed to autosave for the {_savingFailed}. time due to {result}")));
             }
         }
         
