@@ -14,6 +14,7 @@
     <Border Padding="8, 0"
             CornerRadius="5"
             BorderThickness="0"
+            ui:Translator.TooltipKey="{Binding MainMenuText, Mode=OneWay}"
             x:Name="autosaveControl">
         <Border.Style>
             <Style TargetType="Border">
@@ -66,10 +67,6 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <TextBlock
-                    ui:Translator.LocalizedString="{Binding MainMenuText, Mode=OneWay}"
-                    Foreground="White"
-                    VerticalAlignment="Center" />
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <StackPanel.Style>

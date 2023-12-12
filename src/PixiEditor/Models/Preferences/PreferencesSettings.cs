@@ -199,19 +199,27 @@ internal class PreferencesSettings : IPreferences
     {
         if (!dict.ContainsKey(name)) return fallbackValue;
         var preference = dict[name];
-        if (typeof(T) == preference.GetType()) return (T)preference;
 
-        if (typeof(T).IsEnum)
+        try
         {
-            return (T)Enum.Parse(typeof(T), preference.ToString());
-        }
-        
-        if (preference.GetType() == typeof(JArray))
-        {
-            return ((JArray)preference).ToObject<T>();
-        }
+            if (typeof(T) == preference.GetType()) return (T)preference;
 
-        return (T)Convert.ChangeType(dict[name], typeof(T));
+            if (typeof(T).IsEnum)
+            {
+                return (T)Enum.Parse(typeof(T), preference.ToString());
+            }
+
+            if (preference.GetType() == typeof(JArray))
+            {
+                return ((JArray)preference).ToObject<T>();
+            }
+
+            return (T)Convert.ChangeType(dict[name], typeof(T));
+        }
+        catch (Exception)
+        {
+            return fallbackValue;
+        }
     }
 
 #nullable disable

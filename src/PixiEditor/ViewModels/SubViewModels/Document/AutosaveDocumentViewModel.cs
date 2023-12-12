@@ -281,20 +281,31 @@ internal class AutosaveDocumentViewModel : NotifyableObject
             try
             {
                 File.Copy(tempPath, Document.FullFilePath!, true);
-                Document.MarkAsSaved();
-                UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Document.MarkAsSaved();
+                    UpdateMainMenuTextSave("AUTOSAVE_SAVED", SaveIcon, SuccessBrush, false);
+                });
             }
             catch (Exception e) when (e is UnauthorizedAccessException or DirectoryNotFoundException)
             {
-                UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, ErrorBrush, true);
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    UpdateMainMenuTextSave("AUTOSAVE_PLEASE_RESAVE", SaveIcon, ErrorBrush, true);
+                });
             }
             catch
             {
                 var minute = AutosavePeriodMinutes <= 1
                     ? new LocalizedString("MINUTE_SINGULAR")
                     : new LocalizedString("MINUTE_PLURAL");
-            
-                UpdateMainMenuTextSave(new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute), WarnIcon, WarnBrush, true);
+
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    UpdateMainMenuTextSave(
+                        new LocalizedString("AUTOSAVE_FAILED_RETRYING", AutosavePeriodMinutes.ToString("0"), minute),
+                        WarnIcon, WarnBrush, true);
+                });
             }
         }
     }
