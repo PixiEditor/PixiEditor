@@ -40,7 +40,11 @@ internal partial class FolderControl : UserControl
     public FolderControl()
     {
         InitializeComponent();
-        highlightColor = (Brush?)App.Current.Resources["SoftSelectedLayerColor"];
+        if (App.Current.TryGetResource("SoftSelectedLayerBrush", App.Current.ActualThemeVariant, out var value))
+        {
+            highlightColor = value as IBrush;
+        }
+
         Loaded += OnLoaded;
     }
 
