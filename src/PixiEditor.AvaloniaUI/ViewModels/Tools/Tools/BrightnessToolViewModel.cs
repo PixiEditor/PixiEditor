@@ -28,8 +28,8 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
 
     public override BrushShape BrushShape => BrushShape.Circle;
 
-    BrightnessMode IBrightnessToolHandler.BrightnessMode { get; set; }
-    int IBrightnessToolHandler.ToolSize { get; set; }
+    BrightnessMode IBrightnessToolHandler.BrightnessMode { get; set; } = BrightnessMode.Default;
+    int IBrightnessToolHandler.ToolSize { get; set; } = 1;
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();
