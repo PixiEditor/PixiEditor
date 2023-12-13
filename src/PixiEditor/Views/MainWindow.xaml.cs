@@ -146,7 +146,7 @@ internal partial class MainWindow : Window
             }
             catch (Exception e)
             {
-                Task.Run(() => CrashHelper.SendExceptionInfoToWebhook(e)).Wait();
+                CrashHelper.SendExceptionInfoToWebhook(e, true);
                 throw;
             }
         }

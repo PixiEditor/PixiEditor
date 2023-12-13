@@ -43,7 +43,7 @@ internal class CrashReportViewModel : ViewModelBase
         AttachDebuggerCommand = new(AttachDebugger);
 
         if (!IsDebugBuild)
-            _ = CrashHelper.SendReportTextToWebhook(report);
+            _ = CrashHelper.SendReportTextToWebhookAsync(report);
     }
 
     public void RecoverDocuments(object args)

@@ -53,7 +53,7 @@ internal partial class App : Application
             {
                 try
                 {
-                    CrashHelper.SendExceptionInfoToWebhook(exception);
+                    CrashHelper.SendExceptionInfoToWebhook(exception, true);
                 }
                 finally
                 {

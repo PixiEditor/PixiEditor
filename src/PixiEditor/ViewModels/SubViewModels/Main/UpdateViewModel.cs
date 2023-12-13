@@ -222,7 +222,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
             }
             catch (Exception e)
             {
-                CrashHelper.SendExceptionInfoToWebhook(e);
+                CrashHelper.SendExceptionInfoToWebhookAsync(e);
                 NoticeDialog.Show("COULD_NOT_CHECK_FOR_UPDATES", "UPDATE_CHECK_FAILED");
             }
 

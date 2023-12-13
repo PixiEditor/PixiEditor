@@ -238,7 +238,7 @@ internal partial class HelloTherePopup : Window
         {
             IsFetchingNews = false;
             FailedFetchingNews = true;
-            await CrashHelper.SendExceptionInfoToWebhook(ex);
+            await CrashHelper.SendExceptionInfoToWebhookAsync(ex);
         }
     }
 }
