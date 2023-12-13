@@ -109,31 +109,26 @@ internal partial class MainWindow : Window
 
     public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {
-        var app = (App)Application.Current;
-        MainWindow window = new(app.InitApp());
-        FileViewModel fileVM = window.services.GetRequiredService<FileViewModel>();
-        var documents = report.RecoverDocuments();
+        var window = GetMainWindow();
+        var fileVM = window.services.GetRequiredService<FileViewModel>();
+
+        if (!report.TryRecoverDocuments(out var documents))
+        {
+            showMissingFilesDialog = true;
+            return window;
+        }
 
         var i = 0;
 
-        foreach (var (path, bytes) in documents)
+        foreach (var document in documents)
         {
             try
             {
-                fileVM.OpenRecoveredDotPixi(path.OriginalPath, bytes);
+                fileVM.OpenRecoveredDotPixi(document.Path, document.GetRecoveredBytes());
                 i++;
             }
             catch (Exception e)
             {
-                try
-                {
-                    fileVM.OpenFromPath(path.AutosavePath, false);
-                }
-                catch (Exception deepE)
-                {
-                    CrashHelper.SendExceptionInfoToWebhook(deepE);
-                }
-                
                 CrashHelper.SendExceptionInfoToWebhook(e);
             }
         }
@@ -141,6 +136,20 @@ internal partial class MainWindow : Window
         showMissingFilesDialog = documents.Count != i;
 
         return window;
+
+        MainWindow GetMainWindow()
+        {
+            try
+            {
+                var app = (App)Application.Current;
+                return new MainWindow(app.InitApp());
+            }
+            catch (Exception e)
+            {
+                Task.Run(() => CrashHelper.SendExceptionInfoToWebhook(e)).Wait();
+                throw;
+            }
+        }
     }
 
     /// <summary>Brings main window to foreground.</summary>

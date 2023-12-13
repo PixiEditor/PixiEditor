@@ -91,39 +91,45 @@ internal class CrashReport : IDisposable
 
     public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
 
-    public List<(CrashFilePathInfo originalPath, byte[] dotPixiBytes)> RecoverDocuments()
+    public bool TryRecoverDocuments(out List<RecoveredPixi> list)
     {
-        // Load .pixi files
-        Dictionary<string, byte[]> recoveredDocuments = new();
-        foreach (ZipArchiveEntry entry in ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")))
+        try
         {
-            using Stream stream = entry.Open();
-            using MemoryStream memStream = new();
-            stream.CopyTo(memStream);
-            recoveredDocuments.Add(entry.FullName["Documents/".Length..], memStream.ToArray());
+            list = RecoverDocuments();
+        }
+        catch (Exception e)
+        {
+            list = null;
+            CrashHelper.SendExceptionInfoToWebhook(e);
+            return false;
         }
 
+        return true;
+    }
+    
+    public List<RecoveredPixi> RecoverDocuments()
+    {
         var originalPathsEntry = ZipFile.Entries.First(entry => entry.FullName == "DocumentInfo.json");
-        
+
         // Load original paths
-        Dictionary<string, CrashFilePathInfo> originalPaths;
+        Dictionary<string, string> paths;
         {
             using Stream stream = originalPathsEntry.Open();
             using StreamReader reader = new(stream);
             string json = reader.ReadToEnd();
-            originalPaths = JsonConvert.DeserializeObject<Dictionary<string, CrashFilePathInfo>>(json);
+            paths = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
         }
 
-        var list = new List<(CrashFilePathInfo originalPath, byte[] dotPixiBytes)>();
-
-        foreach (var document in recoveredDocuments)
+        // Load .pixi files
+        List<RecoveredPixi> recoveredDocuments = new();
+        foreach (var path in paths)
         {
-            var originalPath = originalPaths[document.Key];
-            list.Add((originalPath, document.Value));
+            recoveredDocuments.Add(new RecoveredPixi(path.Value, ZipFile.GetEntry($"Documents/{path.Key}")));
         }
 
-        return list;
+        return recoveredDocuments;
     }
+
 
     public void Dispose()
     {
@@ -172,8 +178,8 @@ internal class CrashReport : IDisposable
 
         // Write the documents into zip
         int counter = 0;
-        Dictionary<string, CrashFilePathInfo> originalPaths = new();
-        foreach (DocumentViewModel document in vm.DocumentManagerSubViewModel.Documents)
+        var originalPaths = new Dictionary<string, string>();
+        foreach (var document in vm.DocumentManagerSubViewModel.Documents)
         {
             try
             {
@@ -187,7 +193,7 @@ internal class CrashReport : IDisposable
                 using Stream documentStream = archive.CreateEntry($"Documents/{nameInZip}").Open();
                 documentStream.Write(serialized);
 
-                originalPaths.Add(nameInZip, new CrashFilePathInfo(document.FullFilePath, null));
+                originalPaths.Add(nameInZip, document.FullFilePath);
             }
             catch { }
             counter++;
@@ -214,10 +220,27 @@ internal class CrashReport : IDisposable
         ReportText = Encoding.UTF8.GetString(encodedReport);
     }
 
-    internal class CrashReportUserMessage
-    {
-        public string Message { get; set; }
 
-        public string Mail { get; set; }
+    public class RecoveredPixi
+    {
+        public string? Path { get; }
+        
+        public ZipArchiveEntry RecoveredEntry { get; }
+        
+        public byte[] GetRecoveredBytes()
+        {
+            var buffer = new byte[RecoveredEntry.Length];
+            using var stream = RecoveredEntry.Open();
+
+            stream.ReadExactly(buffer);
+            
+            return buffer;
+        }
+        
+        public RecoveredPixi(string? path, ZipArchiveEntry recoveredEntry)
+        {
+            Path = path;
+            RecoveredEntry = recoveredEntry;
+        }
     }
 }
