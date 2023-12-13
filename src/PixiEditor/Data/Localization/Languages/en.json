@@ -589,5 +589,8 @@
   "COPY_COLOR": "Copy color",
 
   "FAILED_DOWNLOADING_TITLE": "Downloading update failed",
-  "FAILED_DOWNLOADING": "Failed downloading the update, you might not have enough space on the disk"
+  "FAILED_DOWNLOADING": "Failed downloading the update, you might not have enough space on the disk",
+  
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Could not recover all",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Could not fully recover all files.\nIf you send the crash report to the developers\nthey might be able to help you."
 }

@@ -16,11 +16,14 @@ using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Views;
 
@@ -79,6 +82,14 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
+        
+        ContentRendered += OnContentRendered;
+    }
+
+    private void OnContentRendered(object sender, EventArgs e)
+    {
+        LoadingWindow.Instance?.SafeClose();
+        Activate();
     }
 
     private void SetupTranslator()
@@ -96,15 +107,38 @@ internal partial class MainWindow : Window
         GlobalMouseHook.Instance.Initilize(this);
     }
 
-    public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
+    public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {
-        MainWindow window = new(extLoader);
+        var app = (App)Application.Current;
+        MainWindow window = new(app.InitApp());
         FileViewModel fileVM = window.services.GetRequiredService<FileViewModel>();
+        var documents = report.RecoverDocuments();
+
+        var i = 0;
 
         foreach (var (path, bytes) in documents)
         {
-            fileVM.OpenRecoveredDotPixi(path, bytes);
+            try
+            {
+                fileVM.OpenRecoveredDotPixi(path.OriginalPath, bytes);
+                i++;
+            }
+            catch (Exception e)
+            {
+                try
+                {
+                    fileVM.OpenFromPath(path.AutosavePath, false);
+                }
+                catch (Exception deepE)
+                {
+                    CrashHelper.SendExceptionInfoToWebhook(deepE);
+                }
+                
+                CrashHelper.SendExceptionInfoToWebhook(e);
+            }
         }
+
+        showMissingFilesDialog = documents.Count != i;
 
         return window;
     }
