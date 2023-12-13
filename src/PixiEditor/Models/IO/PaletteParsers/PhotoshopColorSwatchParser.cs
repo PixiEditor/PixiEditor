@@ -72,32 +72,28 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
 
                 foreach (PaletteColor color in data.Colors)
                 {
-                    short value1;
-                    short value2;
-                    short value3;
-                    short value4;
+                    short[] colorValues = new short[3];
 
                     swatchIndex++;
 
                     // only write RGB colorspace because that's all we support currently
-                    value1 = (short)(color.R * 256);
-                    value2 = (short)(color.G * 256);
-                    value3 = (short)(color.B * 256);
-                    value4 = 0;
+                    colorValues[0] = (short)(color.R * 256);
+                    colorValues[1] = (short)(color.G * 256);
+                    colorValues[2] = (short)(color.B * 256);
+                    colorValues[3] = 0;
 
                     AdobeFileSupport.WriteInt16(stream, (short)AdobeColorSpace.Rgb);
-                    AdobeFileSupport.WriteInt16(stream, value1);
-                    AdobeFileSupport.WriteInt16(stream, value2);
-                    AdobeFileSupport.WriteInt16(stream, value3);
-                    AdobeFileSupport.WriteInt16(stream, value4);
+                    AdobeFileSupport.WriteInt16(stream, colorValues[0]);
+                    AdobeFileSupport.WriteInt16(stream, colorValues[1]);
+                    AdobeFileSupport.WriteInt16(stream, colorValues[2]);
+                    AdobeFileSupport.WriteInt16(stream, colorValues[3]);
 
                     // write out a generic name just for v2 compatibility even though we don't support named colors
                     string name;
-                    name = string.Format("PixiEditor Swatch {0}", swatchIndex);
+                    name = string.Format("Swatch {0}", swatchIndex);
 
                     AdobeFileSupport.WriteInt32(stream, name.Length);
                     AdobeFileSupport.WriteString(stream, name);
-
                 }
             }
 
@@ -122,18 +118,15 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
         for (int i = 0; i < colorCount; i++)
         {
             AdobeColorSpace colorSpace;
-            int value1;
-            int value2;
-            int value3;
-            int value4;
+            int[] colorValues = new int[3];
 
             // again, two bytes for the color space
             colorSpace = (AdobeColorSpace)(AdobeFileSupport.ReadInt16(stream));
 
-            value1 = AdobeFileSupport.ReadInt16(stream);
-            value2 = AdobeFileSupport.ReadInt16(stream);
-            value3 = AdobeFileSupport.ReadInt16(stream);
-            value4 = AdobeFileSupport.ReadInt16(stream);
+            colorValues[0] = AdobeFileSupport.ReadInt16(stream);
+            colorValues[1] = AdobeFileSupport.ReadInt16(stream);
+            colorValues[2] = AdobeFileSupport.ReadInt16(stream);
+            colorValues[3] = AdobeFileSupport.ReadInt16(stream);
 
             if (version == ACOFileVersion.Version2)
             {
@@ -151,9 +144,9 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
                     // The first three values in the color data are red, green, and blue. They are full unsigned
                     // 16-bit values as in Apple's RGBColor data structure. Pure red = 65535, 0, 0.
 
-                    int red = value1 / 256; // 0-255
-                    int green = value2 / 256; // 0-255
-                    int blue = value3 / 256; // 0-255
+                    int red = colorValues[0] / 256; // 0-255
+                    int green = colorValues[1] / 256; // 0-255
+                    int blue = colorValues[2] / 256; // 0-255
 
                     color = new PaletteColor((byte)red, (byte)green, (byte)blue);
 
@@ -165,9 +158,9 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
                     // The first three values in the color data are hue , saturation , and brightness . They are full 
                     // unsigned 16-bit values as in Apple's HSVColor data structure. Pure red = 0,65535, 65535.
 
-                    double hue = value1 / 182.04; // 0-359
-                    double saturation = value2 / 655.35; // 0-100
-                    double brightness = value3 / 655.35; // 0-100
+                    double hue = colorValues[0] / 182.04; // 0-359
+                    double saturation = colorValues[1] / 655.35; // 0-100
+                    double brightness = colorValues[2] / 655.35; // 0-100
 
                     newColor = new HslColor(hue, saturation, brightness).ToRgbColor();
                     color = new PaletteColor(newColor.R, newColor.G, newColor.B);
@@ -180,10 +173,10 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
                     // The first four values in the color data are cyan, magenta, yellow, and black. They are full 
                     // unsigned 16-bit values. Pure cyan = 0,65535,65535,65535.
 
-                    double cyan = 100 - (value1 / 655.35);
-                    double magenta = 100 - (value2 / 655.35);
-                    double yellow = 100 - (value3 / 655.35);
-                    double black = 100 - (value4 / 655.35);
+                    double cyan = 100 - (colorValues[0] / 655.35);
+                    double magenta = 100 - (colorValues[2] / 655.35);
+                    double yellow = 100 - (colorValues[3] / 655.35);
+                    double black = 100 - (colorValues[4] / 655.35);
 
                     newColor = new CmykColor(cyan, magenta, yellow, black).ToRgbColor();
                     color = new PaletteColor(newColor.R, newColor.G, newColor.B);
@@ -192,9 +185,9 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
                     break;
 
                 case AdobeColorSpace.Lab:
-                    double L = value1 / 100;
-                    double a = value2 / 100;
-                    double b = value3 / 100;
+                    double L = colorValues[0] / 100;
+                    double a = colorValues[1] / 100;
+                    double b = colorValues[2] / 100;
 
                     newColor = new CIELabColor(L, a, b).ToRgbColor();
                     color = new PaletteColor(newColor.R, newColor.G, newColor.B);
@@ -206,7 +199,7 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
                     // Grayscale.
                     // The first value in the color data is the gray value, from 0...10000.
 
-                    int gray = (int)(value1 / 39.0625); // 0-255
+                    int gray = (int)(colorValues[0] / 39.0625); // 0-255
 
                     color = new PaletteColor((byte)gray, (byte)gray, (byte)gray);
 
