@@ -10,16 +10,25 @@
                 Background="{DynamicResource ThemeBackgroundBrush1}"
                 Orientation="Horizontal">
                 <Button
-                    Margin="1,0,0,0"
+                    Margin="12.5,0,0,0"
+                    Width="24" Height="24"
                     Command="{cmds:Command PixiEditor.Undo.Undo}"
-                    ui:Translator.TooltipKey="UNDO"
-                    Classes="ToolSettingsGlyphButton"
-					Content="&#xE7A7;"/>
+                    Classes="ImageButtonStyle"
+                    ui:Translator.TooltipKey="UNDO">
+                    <Button.Background>
+                        <ImageBrush Source="/Images/Undo.png" />
+                    </Button.Background>
+                </Button>
                 <Button
 				Command="{cmds:Command PixiEditor.Undo.Redo}"
-				ui:Translator.TooltipKey="REDO"
-                Classes="ToolSettingsGlyphButton"
-				Content="&#xE7A6;"/>
+                Width="24" Height="24"
+                Classes="ImageButtonStyle"
+                Margin="0, 0, 5, 0"
+				ui:Translator.TooltipKey="REDO">
+                    <Button.Background>
+                        <ImageBrush Source="/Images/Redo.png"/>
+                    </Button.Background>
+                </Button>
                 <ToggleButton
 				Width="30"
 				BorderThickness="0"

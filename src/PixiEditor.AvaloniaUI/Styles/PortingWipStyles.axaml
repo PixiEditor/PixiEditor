@@ -29,7 +29,7 @@
     <Style Selector="Button.ImageButtonStyle">
         <Setter Property="Template">
             <ControlTemplate>
-                <Border Background="{TemplateBinding Background}">
+                <Border Cursor="Hand" Background="{TemplateBinding Background}">
                     <ContentPresenter/>
                 </Border>
             </ControlTemplate>
