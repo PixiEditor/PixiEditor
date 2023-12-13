@@ -156,7 +156,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 continue;
             }
             
-            OpenFromPath(dataImage.name, false);
+            OpenRegularImage(dataImage.image, null);
         }
     }
 
