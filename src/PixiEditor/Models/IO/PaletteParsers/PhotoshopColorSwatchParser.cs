@@ -118,7 +118,7 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
         for (int i = 0; i < colorCount; i++)
         {
             AdobeColorSpace colorSpace;
-            int[] colorValues = new int[3];
+            int[] colorValues = new int[4];
 
             // again, two bytes for the color space
             colorSpace = (AdobeColorSpace)(AdobeFileSupport.ReadInt16(stream));
@@ -174,9 +174,9 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
                     // unsigned 16-bit values. Pure cyan = 0,65535,65535,65535.
 
                     double cyan = 100 - (colorValues[0] / 655.35);
-                    double magenta = 100 - (colorValues[2] / 655.35);
-                    double yellow = 100 - (colorValues[3] / 655.35);
-                    double black = 100 - (colorValues[4] / 655.35);
+                    double magenta = 100 - (colorValues[1] / 655.35);
+                    double yellow = 100 - (colorValues[2] / 655.35);
+                    double black = 100 - (colorValues[3] / 655.35);
 
                     newColor = new CmykColor(cyan, magenta, yellow, black).ToRgbColor();
                     color = new PaletteColor(newColor.R, newColor.G, newColor.B);
