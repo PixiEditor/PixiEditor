@@ -112,14 +112,24 @@ internal class CrashHelper
         }
     }
 
-    public static async Task SendExceptionInfoToWebhook(Exception e, [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
+    public static void SendExceptionInfoToWebhook(Exception e, bool wait = false,
+        [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
+    {
+        var task = Task.Run(() => SendExceptionInfoToWebhookAsync(e, filePath, memberName));
+        if (wait)
+        {
+            task.Wait();
+        }
+    }
+
+    public static async Task SendExceptionInfoToWebhookAsync(Exception e, [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
     {
         if (DebugViewModel.IsDebugBuild)
             return;
-        await SendReportTextToWebhook(CrashReport.Generate(e), $"{filePath}; Method {memberName}");
+        await SendReportTextToWebhookAsync(CrashReport.Generate(e), $"{filePath}; Method {memberName}");
     }
 
-    public static async Task SendReportTextToWebhook(CrashReport report, string catchLocation = null)
+    public static async Task SendReportTextToWebhookAsync(CrashReport report, string catchLocation = null)
     {
         string reportText = report.ReportText;
         if (catchLocation is not null)
