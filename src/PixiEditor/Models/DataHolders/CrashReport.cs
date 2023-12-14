@@ -285,25 +285,45 @@ internal class CrashReport : IDisposable
     
     public List<RecoveredPixi> RecoverDocuments()
     {
-        var originalPathsEntry = ZipFile.Entries.First(entry => entry.FullName == "DocumentInfo.json");
-
-        // Load original paths
-        Dictionary<string, string> paths;
-        {
-            using Stream stream = originalPathsEntry.Open();
-            using StreamReader reader = new(stream);
-            string json = reader.ReadToEnd();
-            paths = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-        }
-
-        // Load .pixi files
         List<RecoveredPixi> recoveredDocuments = new();
-        foreach (var path in paths)
+
+        var paths = TryGetOriginalPaths();
+        if (paths == null)
         {
-            recoveredDocuments.Add(new RecoveredPixi(path.Value, ZipFile.GetEntry($"Documents/{path.Key}")));
+            recoveredDocuments.AddRange(
+                ZipFile.Entries
+                    .Where(x => 
+                        x.FullName.StartsWith("Documents") && 
+                        x.FullName.EndsWith(".pixi"))
+                    .Select(entry => new RecoveredPixi(null, entry)));
+
+            return recoveredDocuments;
         }
+
+        recoveredDocuments.AddRange(paths.Select(path => new RecoveredPixi(path.Value, ZipFile.GetEntry($"Documents/{path.Key}"))));
 
         return recoveredDocuments;
+
+        Dictionary<string, string>? TryGetOriginalPaths()
+        {
+            var originalPathsEntry = ZipFile.Entries.FirstOrDefault(entry => entry.FullName == "DocumentInfo.json");
+
+            if (originalPathsEntry == null)
+                return null;
+            
+            try
+            {
+                using var stream = originalPathsEntry.Open();
+                using var reader = new StreamReader(stream);
+                string json = reader.ReadToEnd();
+                
+                return JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+            }
+            catch
+            {
+                return null;
+            }
+        }
     }
 
 
