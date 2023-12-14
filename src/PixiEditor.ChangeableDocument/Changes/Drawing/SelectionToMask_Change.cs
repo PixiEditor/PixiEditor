@@ -48,8 +48,6 @@ internal class SelectionToMask_Change : Change
         image.SetBlendMode(blendMode);
 
         var selectionImage = FloodFillHelper.FillSelection(target, selection!);
-        
-        selectionImage.SaveToDesktop();
 
         image.EnqueueDrawImage(new VecI(0, 0), selectionImage);
         
