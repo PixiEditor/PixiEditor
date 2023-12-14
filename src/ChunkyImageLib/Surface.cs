@@ -132,7 +132,7 @@ public class Surface : IDisposable
         return true;
     }
 
-    [Conditional("DEBUG")]
+#if DEBUG
     public void SaveToDesktop(string filename = "savedSurface.png")
     {
         using var final = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.Rgba8888, AlphaType.Premul, ColorSpace.CreateSrgb()));
@@ -144,6 +144,7 @@ public class Surface : IDisposable
             png.SaveTo(stream);
         }
     }
+#endif
 
     private DrawingSurface CreateDrawingSurface()
     {
