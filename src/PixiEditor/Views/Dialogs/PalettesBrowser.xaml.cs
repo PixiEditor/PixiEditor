@@ -1,19 +1,16 @@
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Navigation;
 using Microsoft.Win32;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
-using PixiEditor.Extensions.Windowing;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
@@ -22,8 +19,6 @@ using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
-using PixiEditor.Models.Localization;
-using PixiEditor.Platform;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Palettes;
 using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
@@ -181,7 +176,7 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         localizationProvider = ViewModelMain.Current.LocalizationProvider;
         localizationProvider.OnLanguageChanged += LocalizationProviderOnOnLanguageChanged;
         MinWidth = DetermineWidth();
-        
+
         PaletteProvider = provider;
         InitializeComponent();
         Title = new LocalizedString("PALETTE_BROWSER");
@@ -216,7 +211,7 @@ internal partial class PalettesBrowser : Window, IPopupWindow
             "ru" or "uk" => 900,
             _ => 850
         };
-    } 
+    }
 
     private bool CanAddFromPalette(object param)
     {
@@ -427,7 +422,7 @@ internal partial class PalettesBrowser : Window, IPopupWindow
 
         foreach (var pal in srcPalettes)
         {
-            if(PaletteEquals(pal, PaletteList.Palettes)) continue;
+            if (PaletteEquals(pal, PaletteList.Palettes)) continue;
             PaletteList.Palettes.Add(pal);
         }
     }
@@ -652,14 +647,23 @@ internal partial class PalettesBrowser : Window, IPopupWindow
 
     private async Task ImportPalette(string fileName, IList<PaletteFileParser> parsers)
     {
-        var parser = parsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
-        if (parser != null)
-        {
-            var data = await parser.Parse(fileName);
+        // check all parsers for formats with same file extension
+        var parserList = parsers.Where(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName).ToLower())).ToList();
 
-            if (data.IsCorrupted) return;
-            string name = LocalPalettesFetcher.GetNonExistingName(Path.GetFileName(fileName), true);
-            await LocalPalettesFetcher.SavePalette(name, data.Colors.ToArray());
+        if (parserList != null)
+        {
+            int index = 0;
+            foreach (var parser in parserList)
+            {
+                var data = await parser.Parse(fileName);
+                index++;
+
+                if (data.IsCorrupted && index == parserList.Count) return; // fail if none of the parsers in our list can read the file
+                if (data.IsCorrupted) continue; // skip to next parser if unable to read
+
+                string name = LocalPalettesFetcher.GetNonExistingName(Path.GetFileName(fileName), true);
+                await LocalPalettesFetcher.SavePalette(name, data.Colors.ToArray());
+            }
         }
     }
 

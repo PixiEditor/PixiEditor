@@ -5,11 +5,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
 using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
@@ -81,7 +79,7 @@ internal partial class PaletteViewer : UserControl
         get { return (PaletteProvider)GetValue(PaletteProviderProperty); }
         set { SetValue(PaletteProviderProperty, value); }
     }
-    
+
     public PaletteViewer()
     {
         InitializeComponent();
@@ -111,12 +109,24 @@ internal partial class PaletteViewer : UserControl
 
     private async Task ImportPalette(string fileName)
     {
-        var parser = PaletteProvider.AvailableParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
-        if (parser == null) return;
-        var data = await parser.Parse(fileName);
-        if (data.IsCorrupted || data.Colors.Length == 0) return;
-        Colors.Clear();
-        Colors.AddRange(data.Colors);
+        // check all parsers for formats with same file extension
+        var parserList = PaletteProvider.AvailableParsers.Where(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName).ToLower())).ToList();
+
+        if (parserList != null)
+        {
+            int index = 0;
+            foreach (var parser in parserList)
+            {
+                var data = await parser.Parse(fileName);
+                index++;
+
+                if ((data.IsCorrupted || data.Colors.Length == 0) && index == parserList.Count) return; // fail if none of the parsers in our list can read the file
+                if (data.IsCorrupted) continue; // skip to next parser if unable to read
+
+                Colors.Clear();
+                Colors.AddRange(data.Colors);
+            }
+        }
     }
 
     private async void SavePalette_OnClick(object sender, RoutedEventArgs e)
@@ -167,7 +177,7 @@ internal partial class PaletteViewer : UserControl
     private async void Grid_Drop(object sender, DragEventArgs e)
     {
         ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = null;
-        
+
         if (!IsSupportedFilePresent(e, out string filePath))
         {
             if (!ColorHelper.ParseAnyFormatList(e.Data, out var colors))
@@ -176,7 +186,7 @@ internal partial class PaletteViewer : UserControl
             }
 
             List<PaletteColor> paletteColors = colors.Select(x => new PaletteColor(x.R, x.G, x.B)).ToList();
-            
+
             e.Effects = DragDropEffects.Copy;
             Colors.AddRange(paletteColors.Where(x => !Colors.Contains(new PaletteColor(x.R, x.G, x.B))).ToList());
             e.Handled = true;
@@ -255,7 +265,7 @@ internal partial class PaletteViewer : UserControl
 
     private void DiscardPalette_OnClick(object sender, RoutedEventArgs e)
     {
-        if(ConfirmationDialog.Show("DISCARD_PALETTE_CONFIRMATION", "DISCARD_PALETTE") == ConfirmationType.Yes)
+        if (ConfirmationDialog.Show("DISCARD_PALETTE_CONFIRMATION", "DISCARD_PALETTE") == ConfirmationType.Yes)
         {
             Colors.Clear();
         }
