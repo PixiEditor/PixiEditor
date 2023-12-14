@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.UI;
 using PixiEditor.Models.Localization;
 using PixiEditor.Views.Dialogs;
 
@@ -51,9 +52,12 @@ internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
         set => _results.Add(name, value);
     }
 
-    public override bool ShowDialog()
+    public override bool ShowDialog() => ShowDialog(false);
+
+    public bool ShowDialog(bool topmost)
     {
         var popup = new OptionPopup(Title, Content, new(_results.Keys.Select(x => (object)x)));
+        popup.Topmost = topmost;
         var popupResult = popup.ShowDialog();
 
         Result = (T)popup.Result;
