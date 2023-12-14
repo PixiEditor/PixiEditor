@@ -4,10 +4,16 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Text;
+using System.Windows.Input;
 using Newtonsoft.Json;
+using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
+using PixiEditor.Models.Commands;
+using PixiEditor.Models.Enums;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Views;
 
 namespace PixiEditor.Models.DataHolders;
 
@@ -21,14 +27,59 @@ internal class CrashReport : IDisposable
 
         builder
             .AppendLine($"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString(moreSpecific: true)} x{IntPtr.Size * 8} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss} {currentTime:zzz}")
+            .AppendLine($"Application started {GetFormatted(() => Process.GetCurrentProcess().StartTime, "yyyy.MM.dd HH:hh:ss")}, {GetFormatted(() => DateTime.Now - Process.GetCurrentProcess().StartTime, @"d\ hh\:mm\.ss")} ago")
             .AppendLine($"Report: {Guid.NewGuid()}\n")
             .AppendLine("-----System Information----")
             .AppendLine("General:")
             .AppendLine($"  OS: {Environment.OSVersion.VersionString}")
+            .AppendLine($"  Has Stylus Tablet Device: {GetFormatted(() => HasTabletDevice(TabletDeviceType.Stylus))}")
+            .AppendLine($"  Has Touch Tablet Device: {GetFormatted(() => HasTabletDevice(TabletDeviceType.Touch))}")
             .AppendLine();
 
         CrashHelper helper = new();
 
+        AppendHardwareInfo(helper, builder);
+
+        builder.AppendLine("\n--------Command Log--------\n");
+
+        try
+        {
+            builder.Append(CommandController.Current.Log.GetSummary(currentTime.LocalDateTime));
+        }
+        catch (Exception cemLogException)
+        {
+            builder.AppendLine($"Error ({cemLogException.GetType().FullName}: {cemLogException.Message}) while gathering command log, skipping...");
+        }
+        
+        builder.AppendLine("\n-----------State-----------");
+
+        try
+        {
+            AppendStateInfo(builder);
+        }
+        catch (Exception stateException)
+        {
+            builder.AppendLine($"Error ({stateException.GetType().FullName}: {stateException.Message}) while gathering state (Must be bug in GetPreferenceFormatted, GetFormatted or StringBuilder.AppendLine as these should not throw), skipping...");
+        }
+        
+        CrashHelper.AddExceptionMessage(builder, exception);
+
+        string filename = $"crash-{currentTime:yyyy-MM-dd_HH-mm-ss_fff}.zip";
+        string path = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "PixiEditor",
+            "crash_logs");
+        Directory.CreateDirectory(path);
+
+        CrashReport report = new();
+        report.FilePath = Path.Combine(path, filename);
+        report.ReportText = builder.ToString();
+
+        return report;
+    }
+
+    private static void AppendHardwareInfo(CrashHelper helper, StringBuilder builder)
+    {
         try
         {
             helper.GetCPUInformation(builder);
@@ -55,21 +106,146 @@ internal class CrashReport : IDisposable
         {
             builder.AppendLine($"Error ({memE.GetType().FullName}: {memE.Message}) while gathering memory information, skipping...");
         }
+    }
 
-        CrashHelper.AddExceptionMessage(builder, exception);
+    private static void AppendStateInfo(StringBuilder builder)
+    {
+        builder
+            .AppendLine("Environment:")
+            .AppendLine($"  Thread Count: {GetFormatted(() => Process.GetCurrentProcess().Threads.Count)}")
+            .AppendLine("\nCulture:")
+            .AppendLine($"  Selected language: {GetPreferenceFormatted("LanguageCode", true, "system")}")
+            .AppendLine($"  Current Culture: {GetFormatted(() => CultureInfo.CurrentCulture)}")
+            .AppendLine($"  Current UI Culture: {GetFormatted(() => CultureInfo.CurrentUICulture)}")
+            .AppendLine("\nPreferences:")
+            .AppendLine($"  Has shared toolbar enabled: {GetPreferenceFormatted("EnableSharedToolbar", true, false)}")
+            .AppendLine($"  Right click mode: {GetPreferenceFormatted<RightClickMode>("RightClickMode", true)}")
+            .AppendLine($"  Has Rich presence enabled: {GetPreferenceFormatted("EnableRichPresence", true, true)}")
+            .AppendLine($"  Debug Mode enabled: {GetPreferenceFormatted("IsDebugModeEnabled", true, false)}")
+            .AppendLine("\nUI:")
+            .AppendLine($"  MainWindow not null: {GetFormatted(() => MainWindow.Current != null)}")
+            .AppendLine($"  MainWindow Size: {GetFormatted(() => MainWindow.Current.RenderSize)}")
+            .AppendLine($"  MainWindow State: {GetFormatted(() => MainWindow.Current.WindowState)}")
+            .AppendLine("\nViewModels:")
+            .AppendLine($"  Has active updateable change: {GetFormatted(() => ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument?.UpdateableChangeActive)}")
+            .AppendLine($"  Current Tool: {GetFormattedFromViewModelMain(x => x.ToolsSubViewModel?.ActiveTool?.ToolName)}")
+            .AppendLine($"  Primary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.PrimaryColor)}")
+            .AppendLine($"  Secondary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.SecondaryColor)}")
+            .Append("\nActive Document: ");
 
-        string filename = $"crash-{currentTime:yyyy-MM-dd_HH-mm-ss_fff}.zip";
-        string path = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "PixiEditor",
-            "crash_logs");
-        Directory.CreateDirectory(path);
+        try
+        {
+            AppendActiveDocumentInfo(builder);
+        }
+        catch (Exception e)
+        {
+            builder.AppendLine($"Could not get active document info:\n{e}");
+        }
+    }
 
-        CrashReport report = new();
-        report.FilePath = Path.Combine(path, filename);
-        report.ReportText = builder.ToString();
+    private static void AppendActiveDocumentInfo(StringBuilder builder)
+    {
+        var main = ViewModelMain.Current;
+        
+        if (main == null)
+        {
+            builder.AppendLine("{ ViewModelMain.Current is null }");
+            return;
+        }
 
-        return report;
+        var manager = main.DocumentManagerSubViewModel;
+
+        if (manager == null)
+        {
+            builder.AppendLine("{ DocumentManagerSubViewModel is null }");
+            return;
+        }
+
+        var document = manager.ActiveDocument;
+
+        if (document == null)
+        {
+            builder.AppendLine("null");
+            return;
+        }
+
+        builder
+            .AppendLine()
+            .AppendLine($"  Size: {document.SizeBindable}")
+            .AppendLine($"  Layer Count: {FormatObject(document.StructureHelper.GetAllLayers().Count)}")
+            .AppendLine($"  Has all changes saved: {document.AllChangesSaved}")
+            .AppendLine($"  Horizontal Symmetry Enabled: {document.HorizontalSymmetryAxisEnabledBindable}")
+            .AppendLine($"  Horizontal Symmetry Value: {FormatObject(document.HorizontalSymmetryAxisYBindable)}")
+            .AppendLine($"  Vertical Symmetry Enabled: {document.VerticalSymmetryAxisEnabledBindable}")
+            .AppendLine($"  Vertical Symmetry Value: {FormatObject(document.VerticalSymmetryAxisXBindable)}")
+            .AppendLine($"  Updateable Change Active: {FormatObject(document.UpdateableChangeActive)}")
+            .AppendLine($"  Transform: {FormatObject(document.TransformViewModel)}");
+    }
+
+    private static bool HasTabletDevice(TabletDeviceType type) => Tablet.TabletDevices.Cast<TabletDevice>().Any(tabletDevice => tabletDevice.Type == type);
+
+    private static string GetPreferenceFormatted<T>(string name, bool roaming, T defaultValue = default, string? format = null)
+    {
+        try
+        {
+            var preferences = IPreferences.Current;
+
+            if (preferences == null)
+                return "{ Preferences are null }";
+            
+            var value = roaming
+                ? preferences.GetPreference(name, defaultValue)
+                : preferences.GetLocalPreference(name, defaultValue);
+
+            return FormatObject(value, format);
+        }
+        catch (Exception e)
+        {
+            return $$"""{ Failed getting preference: {{e.Message}} }""";
+        }
+    }
+
+    private static string GetFormattedFromViewModelMain<T>(Func<ViewModelMain, T?> getter, string? format = null)
+    {
+        var main = ViewModelMain.Current;
+        
+        if (main == null)
+            return "{ ViewModelMain.Current is null }";
+
+        return GetFormatted(() => getter(main), format);
+    }
+
+    private static string GetFormatted<T>(Func<T?> getter, string? format = null)
+    {
+        try
+        {
+            var value = getter();
+
+            return FormatObject(value, format);
+        }
+        catch (Exception e)
+        {
+            return $$"""{ Failed retrieving: {{e.Message}} }""";
+        }
+    }
+
+    private static string FormatObject<T>(T? value, string? format = null)
+    {
+        return value switch
+        {
+            null => "null",
+            IFormattable formattable => formattable.ToString(format, CultureInfo.InvariantCulture),
+            LocalizedString localizedS => FormatLocalizedString(localizedS),
+            string s => $"\"{s}\"",
+            _ => value.ToString()
+        };
+
+        string FormatLocalizedString(LocalizedString localizedS)
+        {
+            return localizedS.Parameters != null
+                ? $"{localizedS.Key} @({string.Join(", ", localizedS.Parameters.Select(x => FormatObject(x, format)))})" 
+                : localizedS.Key;
+        }
     }
 
     public static CrashReport Parse(string path)
