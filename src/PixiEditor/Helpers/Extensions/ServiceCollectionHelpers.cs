@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
@@ -10,15 +9,12 @@ using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataProviders;
-using PixiEditor.Models.IO;
 using PixiEditor.Models.IO.PaletteParsers;
 using PixiEditor.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.Models.Localization;
 using PixiEditor.Models.Preferences;
-using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.ViewModels.SubViewModels.Document;
-using PixiEditor.ViewModels.SubViewModels.Main;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
@@ -75,6 +71,7 @@ internal static class ServiceCollectionHelpers
         // Palette Parsers
         .AddSingleton<PaletteFileParser, JascFileParser>()
         .AddSingleton<PaletteFileParser, ClsFileParser>()
+        .AddSingleton<PaletteFileParser, CorelDrawPalParser>()
         .AddSingleton<PaletteFileParser, PngPaletteParser>()
         .AddSingleton<PaletteFileParser, PaintNetTxtParser>()
         .AddSingleton<PaletteFileParser, HexPaletteParser>()
