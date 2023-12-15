@@ -70,6 +70,8 @@ internal class CorelDrawPalParser : PaletteFileParser
         return new PaletteFileData(name, colors.ToArray());
     }
 
+    public override bool CanSave => false;
+
     // NOTE: saving data works but PixiEditor defaults to first .pal parser which
     //       is JASC so saving to an actual file is currently not available.
     //       Palette exporter needs to be refactored to support multiple formats of
