@@ -72,7 +72,7 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
 
                 foreach (PaletteColor color in data.Colors)
                 {
-                    short[] colorValues = new short[3];
+                    short[] colorValues = new short[4];
 
                     swatchIndex++;
 
