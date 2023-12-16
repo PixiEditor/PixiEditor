@@ -13,7 +13,7 @@ public struct HsbColor
 {
     #region Constants
 
-    public static readonly HslColor Empty;
+    public static readonly HsbColor Empty;
 
     #endregion
 
@@ -35,7 +35,7 @@ public struct HsbColor
 
     static HsbColor()
     {
-        Empty = new HslColor
+        Empty = new HsbColor
         {
             IsEmpty = true
         };
@@ -196,7 +196,7 @@ public struct HsbColor
     {
         double[] colors = new[] { 0.0, 0.0, 0.0 };
 
-        if (Math.Abs(S - 0) < double.Epsilon)
+        if (S == 0)
         {
             // achromatic (gray)
             colors[0] = B;
@@ -205,55 +205,61 @@ public struct HsbColor
         }
         else
         {
-            // the color wheel has six sectors
-
+            // The color wheel consists of 6 sectors.
+            // Figure out which sector you're in.
             double sectorPosition = H / 60;
-            double sectorNumber = (int)Math.Floor(sectorPosition);
+            int sectorNumber = (int)Math.Floor(sectorPosition);
+
+            // get the fractional part of the sector.
+            // That is, how many degrees into the sector
+            // are you?
             double fractionalSector = sectorPosition - sectorNumber;
 
-            double v = B * 255;
-            double p = v * (1 - S);
-            double q = v * (1 - S * fractionalSector);
-            double t = v * (1 - S * (1 - fractionalSector));
+            // Calculate values for the three axes
+            // of the color.
+            double p = B * (1 - S);
+            double q = B * (1 - (S * fractionalSector));
+            double t = B * (1 - (S * (1 - fractionalSector)));
 
             // Assign the fractional colors to r, g, and b
             // based on the sector the angle is in.
             switch (sectorNumber)
             {
                 case 0:
-                    colors[0] = v;
+                    colors[0] = B;
                     colors[1] = t;
                     colors[2] = p;
                     break;
                 case 1:
                     colors[0] = q;
-                    colors[1] = v;
+                    colors[1] = B;
                     colors[2] = p;
                     break;
                 case 2:
                     colors[0] = p;
-                    colors[1] = v;
+                    colors[1] = B;
                     colors[2] = t;
                     break;
                 case 3:
                     colors[0] = p;
                     colors[1] = q;
-                    colors[2] = v;
+                    colors[2] = B;
                     break;
                 case 4:
                     colors[0] = t;
                     colors[1] = p;
-                    colors[2] = v;
+                    colors[2] = B;
                     break;
                 case 5:
-                    colors[0] = v;
+                    colors[0] = B;
                     colors[1] = p;
                     colors[2] = q;
                     break;
             }
         }
 
-        return Color.FromArgb(alpha, Convert.ToInt32(colors[0]), Convert.ToInt32(colors[1]), Convert.ToInt32(colors[2]));
+        // return with values scaled to be between 0 and 255.
+        return Color.FromArgb(alpha, (int)Math.Round(colors[0] * 255.0), (int)Math.Round(colors[1] * 255.0), (int)Math.Round((colors[2] * 255.0)));
     }
 
     #endregion

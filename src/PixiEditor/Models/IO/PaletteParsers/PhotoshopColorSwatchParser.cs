@@ -6,6 +6,10 @@ using PixiEditor.Models.IO.PaletteParsers.Support;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 
+// Implementation based on: 
+// https://devblog.cyotek.com/post/reading-photoshop-color-swatch-aco-files-using-csharp
+// Copyright © Richard Moss, licensed under MIT.
+
 internal class PhotoshopColorSwatchParser : PaletteFileParser
 {
     public override string FileName { get; } = "Adobe Photoshop Color Swatch";
@@ -162,7 +166,7 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
                     double saturation = colorValues[1] / 655.35; // 0-100
                     double brightness = colorValues[2] / 655.35; // 0-100
 
-                    newColor = new HslColor(hue, saturation, brightness).ToRgbColor();
+                    newColor = new HsbColor(hue, saturation, brightness).ToRgbColor();
                     color = new PaletteColor(newColor.R, newColor.G, newColor.B);
 
                     results.Add(color);
