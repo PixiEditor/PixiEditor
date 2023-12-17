@@ -580,5 +580,8 @@
   "RIGHT_CLICK_MODE": "Режим правої кнопки миші",
   "ADD_PRIMARY_COLOR_TO_PALETTE": "Додати основний колір до палітри",
   "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Додати основний колір до поточної палітри",
-  "COPY_COLOR": "Copy color"
+  "COPY_COLOR": "Копія кольору",
+  "ERROR_FAILED_TO_OPEN_EXPLORER": "Не вдалося відкрити Провідник",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Не вдалося відновити все",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Не вдалося повністю відновити всі файли.\nЯкщо ви надішлете звіт про збій розробникам\nвони можуть вам допомогти."
 }

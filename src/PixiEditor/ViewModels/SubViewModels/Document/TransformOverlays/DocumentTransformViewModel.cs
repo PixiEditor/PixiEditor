@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+﻿using System.Diagnostics;
+using System.Text;
+using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
@@ -10,6 +12,7 @@ using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 #nullable enable
+[DebuggerDisplay("{ToString(),nq}")]
 internal class DocumentTransformViewModel : NotifyableObject
 {
     private DocumentViewModel document;
@@ -246,4 +249,6 @@ internal class DocumentTransformViewModel : NotifyableObject
                 break;
         }
     }
+
+    public override string ToString() => !TransformActive ? "Not active" : $"Transform Mode: {activeTransformMode}; Corner Freedom: {CornerFreedom}; Side Freedom: {SideFreedom}";
 }

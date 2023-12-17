@@ -24,7 +24,7 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
             }
         });
 
-        if (!bounds.HasValue)
+        if (!bounds.HasValue || bounds.Value.IsZeroOrNegativeArea || bounds.Value == new RectI(VecI.Zero, target.Size))
         {
             ignoreInUndo = true;
             return new None();
@@ -48,12 +48,6 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
             
             Resize(member.Mask, member.GuidValue, newBounds.Size, -newBounds.Pos, deletedMaskChunks);
         });
-        
-        if (newBounds.IsZeroOrNegativeArea)
-        {
-            ignoreInUndo = true;
-            return new None();
-        }
 
         ignoreInUndo = false;
         return new Size_ChangeInfo(newBounds.Size, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);

@@ -57,7 +57,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public Pixmap CreateFrom(SKPixmap pixmap)
         {
             ManagedInstances[pixmap.Handle] = pixmap;
-            return new Pixmap(pixmap.Info.ToImageInfo(colorSpaceImplementation), pixmap.GetPixels());
+            return Pixmap.InternalCreateFromExistingPointer(pixmap.Handle);
         }
     }
 }

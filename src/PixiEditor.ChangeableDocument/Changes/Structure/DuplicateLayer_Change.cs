@@ -15,6 +15,7 @@ internal class DuplicateLayer_Change : Change
     {
         if (!target.TryFindMember<Layer>(layerGuid, out Layer? layer))
             return false;
+        duplicateGuid = Guid.NewGuid();
         return true;
     }
 
@@ -23,7 +24,6 @@ internal class DuplicateLayer_Change : Change
         (Layer existingLayer, Folder parent) = ((Layer, Folder))target.FindChildAndParentOrThrow(layerGuid);
 
         Layer clone = existingLayer.Clone();
-        duplicateGuid = Guid.NewGuid();
         clone.GuidValue = duplicateGuid;
 
         int index = parent.Children.IndexOf(existingLayer);

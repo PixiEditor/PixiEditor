@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using AvalonDock.Layout;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,11 +16,14 @@ using PixiEditor.Extensions.UI;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Platform;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
+using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Views;
 
@@ -56,13 +60,11 @@ internal partial class MainWindow : Window
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
-        DataContext = services.GetRequiredService<ViewModelMain>();
 
+        DataContext = services.GetRequiredService<ViewModelMain>();
         DataContext.Setup(services);
 
         InitializeComponent();
-
-        StartSteamRefresher();
 
         OnDataContextInitialized?.Invoke();
         pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
@@ -80,21 +82,14 @@ internal partial class MainWindow : Window
         });
 
         DataContext.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
-
-        StartSteamRefresher();
+        
+        ContentRendered += OnContentRendered;
     }
 
-    private void StartSteamRefresher()
+    private void OnContentRendered(object sender, EventArgs e)
     {
-#if STEAM
-        steamRefresher.Visibility = Visibility.Visible;
-
-        PixiEditor.Platform.Steam.SteamOverlayHandler handler = new PixiEditor.Platform.Steam.SteamOverlayHandler();
-        handler.ActivateRefreshingElement += (bool activate) =>
-        {
-            steamRefresher.Visibility = activate ? Visibility.Visible : Visibility.Collapsed;
-        };
-#endif
+        LoadingWindow.Instance?.SafeClose();
+        Activate();
     }
 
     private void SetupTranslator()
@@ -112,17 +107,49 @@ internal partial class MainWindow : Window
         GlobalMouseHook.Instance.Initilize(this);
     }
 
-    public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
+    public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {
-        MainWindow window = new(extLoader);
-        FileViewModel fileVM = window.services.GetRequiredService<FileViewModel>();
+        var window = GetMainWindow();
+        var fileVM = window.services.GetRequiredService<FileViewModel>();
 
-        foreach (var (path, bytes) in documents)
+        if (!report.TryRecoverDocuments(out var documents))
         {
-            fileVM.OpenRecoveredDotPixi(path, bytes);
+            showMissingFilesDialog = true;
+            return window;
         }
 
+        var i = 0;
+
+        foreach (var document in documents)
+        {
+            try
+            {
+                fileVM.OpenRecoveredDotPixi(document.Path, document.GetRecoveredBytes());
+                i++;
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfoToWebhook(e);
+            }
+        }
+
+        showMissingFilesDialog = documents.Count != i;
+
         return window;
+
+        MainWindow GetMainWindow()
+        {
+            try
+            {
+                var app = (App)Application.Current;
+                return new MainWindow(app.InitApp());
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfoToWebhook(e, true);
+                throw;
+            }
+        }
     }
 
     /// <summary>Brings main window to foreground.</summary>
