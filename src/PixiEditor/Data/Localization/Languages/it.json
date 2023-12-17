@@ -580,5 +580,8 @@
   "RIGHT_CLICK_MODE": "Modalità tasto destro",
   "ADD_PRIMARY_COLOR_TO_PALETTE": "Aggiungi colore primario alla tavolozza",
   "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Aggiungi colore primario alla tavolozza corrente",
-  "COPY_COLOR": "Copia colore"
+  "COPY_COLOR": "Copia colore",
+  "ERROR_FAILED_TO_OPEN_EXPLORER": "Couldn't open File Explorer",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Could not recover all",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Could not fully recover all files.\nIf you send the crash report to the developers\nthey might be able to help you."
 }
