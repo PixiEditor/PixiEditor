@@ -3,6 +3,10 @@ using System.Text;
 
 namespace PixiEditor.Models.IO.PaletteParsers.Support;
 
+// Implementation based on: 
+// https://devblog.cyotek.com/post/reading-photoshop-color-swatch-aco-files-using-csharp
+// Copyright © Richard Moss, licensed under MIT.
+
 public enum AdobeColorSpace
 {
     Rgb = 0,
