@@ -18,7 +18,7 @@ public struct HslColor
 
     #endregion
 
-    #region Instance Fields
+    #region Fields
 
     private int _alpha;
 
@@ -44,7 +44,7 @@ public struct HslColor
 
     #endregion
 
-    #region Public Constructors
+    #region Constructors
 
     public HslColor(double hue, double saturation, double lightness)
         : this(255, hue, saturation, lightness)
@@ -195,61 +195,103 @@ public struct HslColor
 
     public Color ToRgbColor(int alpha)
     {
-        double q;
-        if (L < 0.5)
+        return HslColor.HslToRgb(alpha, _hue, _saturation, _lightness);
+    }
+
+    #endregion Public Methods
+
+    #region Internal Methods
+
+    internal static Color HslToRgb(double h, double s, double l)
+    {
+        return HslColor.HslToRgb(255, h, s, l);
+    }
+
+    internal static Color HslToRgb(int alpha, double h, double s, double l)
+    {
+        byte r;
+        byte g;
+        byte b;
+
+        // https://www.programmingalgorithms.com/algorithm/hsl-to-rgb
+
+        if (Math.Abs(s) < double.Epsilon)
         {
-            q = L * (1 + S);
+            r = g = b = Convert.ToByte(l * 255F);
         }
         else
         {
-            q = L + S - L * S;
-        }
-        double p = 2 * L - q;
-        double hk = H / 360;
+            double v1;
+            double v2;
+            double hue;
 
-        // r,g,b colors
-        double[] tc = new[]
-        {
-            hk + 1d / 3d, hk, hk - 1d / 3d
-        };
-        double[] colors = new[]
-        {
-            0.0, 0.0, 0.0
-        };
+            hue = h / 360;
 
-        for (int color = 0; color < colors.Length; color++)
-        {
-            if (tc[color] < 0)
-            {
-                tc[color] += 1;
-            }
-            if (tc[color] > 1)
-            {
-                tc[color] -= 1;
-            }
+            v2 = l < 0.5
+                ? l * (1 + s)
+                : l + s - l * s;
+            v1 = 2 * l - v2;
 
-            if (tc[color] < 1d / 6d)
-            {
-                colors[color] = p + (q - p) * 6 * tc[color];
-            }
-            else if (tc[color] >= 1d / 6d && tc[color] < 1d / 2d)
-            {
-                colors[color] = q;
-            }
-            else if (tc[color] >= 1d / 2d && tc[color] < 2d / 3d)
-            {
-                colors[color] = p + (q - p) * 6 * (2d / 3d - tc[color]);
-            }
-            else
-            {
-                colors[color] = p;
-            }
-
-            colors[color] = Math.Round(colors[color] * 255d);
+            r = HslColor.Clamp(255 * HslColor.HueToRgb(v1, v2, hue + 1.0f / 3));
+            g = HslColor.Clamp(255 * HslColor.HueToRgb(v1, v2, hue));
+            b = HslColor.Clamp(255 * HslColor.HueToRgb(v1, v2, hue - 1.0f / 3));
         }
 
-        return Color.FromArgb(alpha, (int)colors[0], (int)colors[1], (int)colors[2]);
+        return Color.FromArgb(alpha, r, g, b);
     }
 
-    #endregion
+    #endregion Public Methods
+
+    #region Private Methods
+
+    private static byte Clamp(double v)
+    {
+        if (v < 0)
+        {
+            v = 0;
+        }
+
+        if (v > 255)
+        {
+            v = 255;
+        }
+
+        return (byte)Math.Round(v);
+    }
+
+    private static double HueToRgb(double v1, double v2, double vH)
+    {
+        double result;
+
+        if (vH < 0)
+        {
+            vH++;
+        }
+
+        if (vH > 1)
+        {
+            vH--;
+        }
+
+        if (6 * vH < 1)
+        {
+            result = v1 + (v2 - v1) * 6 * vH;
+        }
+        else if (2 * vH < 1)
+        {
+            result = v2;
+        }
+        else if (3 * vH < 2)
+        {
+            result = v1 + (v2 - v1) * (2.0f / 3 - vH) * 6;
+        }
+        else
+        {
+            result = v1;
+        }
+
+        return result;
+    }
+
+    #endregion Private Methods
 }
