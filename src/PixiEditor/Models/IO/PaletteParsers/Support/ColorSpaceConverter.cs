@@ -4,7 +4,6 @@ namespace PixiEditor.Models.IO.PaletteParsers.Support;
 
 internal static class ColorSpaceConverter
 {
-
     /// <summary>
     /// Converts HSB to RGB.
     /// </summary>
@@ -97,7 +96,6 @@ internal static class ColorSpaceConverter
         // return with values scaled to be between 0 and 255
         return new PaletteColor((byte)Math.Round(b * 255.0), (byte)Math.Round(g * 255.0), (byte)Math.Round(r * 255.0));
     }
-
 
     /// <summary>
     /// Converts Lab to RGB.
