@@ -209,13 +209,13 @@ public struct HslColor
 
         // r,g,b colors
         double[] tc = new[]
-                {
-                      hk + 1d / 3d, hk, hk - 1d / 3d
-                    };
+        {
+            hk + 1d / 3d, hk, hk - 1d / 3d
+        };
         double[] colors = new[]
-                    {
-                          0.0, 0.0, 0.0
-                        };
+        {
+            0.0, 0.0, 0.0
+        };
 
         for (int color = 0; color < colors.Length; color++)
         {
@@ -245,7 +245,7 @@ public struct HslColor
                 colors[color] = p;
             }
 
-            colors[color] *= 255;
+            colors[color] = Math.Round(colors[color] * 255d);
         }
 
         return Color.FromArgb(alpha, (int)colors[0], (int)colors[1], (int)colors[2]);
