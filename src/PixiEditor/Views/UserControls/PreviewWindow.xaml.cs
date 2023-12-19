@@ -54,11 +54,22 @@ internal partial class PreviewWindow : UserControl
     {
         InitializeComponent();
         
-        mouseUpdateController = new MouseUpdateController(imageGrid, ImageGrid_MouseMove);
-        
         imageGrid.MouseRightButtonDown += ImageGrid_MouseRightButtonDown;
         imageGrid.MouseEnter += ImageGrid_MouseEnter;
         imageGrid.MouseLeave += ImageGrid_MouseLeave;
+        
+        imageGrid.Loaded += OnGridLoaded;
+        imageGrid.Unloaded += OnGridUnloaded;
+    }
+
+    private void OnGridUnloaded(object sender, RoutedEventArgs e)
+    {
+        mouseUpdateController?.Dispose();
+    }
+
+    private void OnGridLoaded(object sender, RoutedEventArgs e)
+    {
+        mouseUpdateController = new MouseUpdateController(imageGrid, ImageGrid_MouseMove);
     }
 
     private void ImageGrid_MouseLeave(object sender, MouseEventArgs e)
