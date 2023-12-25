@@ -65,7 +65,7 @@ internal class BrushShapeOverlay : Control
     private Pen whitePen = new Pen(Brushes.LightGray, 1);
     private Point lastMousePos = new();
 
-    private MouseUpdateController mouseUpdateController;
+    private MouseUpdateController? mouseUpdateController;
 
     public BrushShapeOverlay()
     {
@@ -75,10 +75,7 @@ internal class BrushShapeOverlay : Control
 
     private void ControlUnloaded(object sender, RoutedEventArgs e)
     {
-        if (MouseEventSource is null)
-            return;
-        
-        mouseUpdateController.Dispose();
+        mouseUpdateController?.Dispose();
     }
 
     private void ControlLoaded(object sender, RoutedEventArgs e)
