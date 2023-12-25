@@ -31,8 +31,11 @@ internal class MouseUpdateControllerSession : IDisposable
         this.onStopListening = onStopListening;
         this.onMouseMove = onMouseMove;
 
-        Thread timerThread = new(TimerLoop);
-        timerThread.Name = "MouseUpdateController thread";
+        Thread timerThread = new(TimerLoop)
+        {
+            IsBackground = true, Name = "MouseUpdateController thread"
+        };
+
         timerThread.Start();
 
         onStartListening();
