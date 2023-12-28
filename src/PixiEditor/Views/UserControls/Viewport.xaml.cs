@@ -283,7 +283,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public Guid GuidValue { get; } = Guid.NewGuid();
 
-    private MouseUpdateController mouseUpdateController;
+    private MouseUpdateController? mouseUpdateController;
 
     public Viewport()
     {
@@ -295,8 +295,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         MainImage!.Loaded += OnImageLoaded;
         Loaded += OnLoad;
         Unloaded += OnUnload;
-        
-        mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
 
     public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
@@ -310,11 +308,13 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnUnload(object sender, RoutedEventArgs e)
     {
         Document?.Operations.RemoveViewport(GuidValue);
+        mouseUpdateController?.Dispose();
     }
 
     private void OnLoad(object sender, RoutedEventArgs e)
     {
         Document?.Operations.AddOrUpdateViewport(GetLocation());
+        mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
 
     private static void OnDocumentChange(DependencyObject viewportObj, DependencyPropertyChangedEventArgs args)

@@ -32,13 +32,19 @@ internal partial class FolderControl : UserControl
 
     private readonly Brush? highlightColor;
     
-    private MouseUpdateController mouseUpdateController;
+    private MouseUpdateController? mouseUpdateController;
 
     public FolderControl()
     {
         InitializeComponent();
         highlightColor = (Brush?)App.Current.Resources["SoftSelectedLayerColor"];
         Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        mouseUpdateController?.Dispose();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)

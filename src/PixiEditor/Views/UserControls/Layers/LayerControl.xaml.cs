@@ -62,13 +62,19 @@ internal partial class LayerControl : UserControl
         nameof(MoveToFrontCommand), typeof(RelayCommand), typeof(LayerControl), new PropertyMetadata(default(RelayCommand)));
 
 
-    private MouseUpdateController mouseUpdateController;
+    private MouseUpdateController? mouseUpdateController;
     
     public LayerControl()
     {
         InitializeComponent();
         Loaded += LayerControl_Loaded;
+        Unloaded += LayerControl_Unloaded;
         highlightColor = (Brush?)App.Current.Resources["SoftSelectedLayerColor"];
+    }
+
+    private void LayerControl_Unloaded(object sender, RoutedEventArgs e)
+    { 
+        mouseUpdateController?.Dispose();
     }
 
     private void LayerControl_Loaded(object sender, RoutedEventArgs e)
