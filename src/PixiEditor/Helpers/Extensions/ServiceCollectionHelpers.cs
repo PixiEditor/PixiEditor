@@ -75,6 +75,7 @@ internal static class ServiceCollectionHelpers
         // Palette Parsers
         .AddSingleton<PaletteFileParser, JascFileParser>()
         .AddSingleton<PaletteFileParser, ClsFileParser>()
+        .AddSingleton<PaletteFileParser, PhotoshopColorSwatchParser>()
         .AddSingleton<PaletteFileParser, PngPaletteParser>()
         .AddSingleton<PaletteFileParser, PaintNetTxtParser>()
         .AddSingleton<PaletteFileParser, HexPaletteParser>()
