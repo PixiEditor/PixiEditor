@@ -19,7 +19,7 @@
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>-->
 
-    <DockPanel Background="{StaticResource ThemeBackgroundBrush1}" Focusable="True">
+    <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
         <Interaction.Behaviors>
             <!--<behaviours:ClearFocusOnClickBehavior/>-->
         </Interaction.Behaviors>

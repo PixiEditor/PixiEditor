@@ -92,4 +92,10 @@
       <Resource Include="Images\ChevronDown.png" />
     </ItemGroup>
   
+    <ItemGroup>
+      <Reference Include="Microsoft.Xaml.Behaviors">
+        <HintPath>..\..\..\..\Users\flubb\.nuget\packages\microsoft.xaml.behaviors.wpf\1.1.31\lib\net5.0-windows7.0\Microsoft.Xaml.Behaviors.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+  
 </Project>

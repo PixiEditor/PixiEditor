@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
@@ -10,12 +11,14 @@ using ChunkyImageLib;
 using Newtonsoft.Json.Linq;
 using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Helpers;
+using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.UserData;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
@@ -270,16 +273,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = KeyModifiers.Control)]
     public async Task CreateFromNewFileDialog()
     {
-        //TODO: Implement NewFileDialog
-        /*NewFileDialog newFile = new NewFileDialog();
-        if (newFile.ShowDialog())
-        {*/
+        Window mainWindow = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow;
+        NewFileDialog newFile = new NewFileDialog(mainWindow);
+        if (await newFile.ShowDialog())
+        {
             NewDocument(b => b
-                .WithSize(64/*newFile.Width*/, /*newFile.Height*/64)
+                .WithSize(newFile.Width, newFile.Height)
                 .WithLayer(l => l
                     .WithName(new LocalizedString("BASE_LAYER_NAME"))
-                    .WithSurface(new Surface(new VecI(/*newFile.Width*/64, /*newFile.Height*/64)))));
-        //}
+                    .WithSurface(new Surface(new VecI(newFile.Width, newFile.Height)))));
+        }
     }
 
     public DocumentViewModel NewDocument(Action<DocumentViewModelBuilder> builder)
