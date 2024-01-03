@@ -119,11 +119,17 @@ internal class SymmetryOverlay : Control
     private double horizontalAxisY;
     private double verticalAxisX;
 
-    private MouseUpdateController mouseUpdateController;
+    private MouseUpdateController? mouseUpdateController;
 
     public SymmetryOverlay()
     {
         Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        mouseUpdateController?.Dispose();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)

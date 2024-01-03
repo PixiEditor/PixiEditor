@@ -23,7 +23,7 @@ internal class BrushShapeOverlay : Control
             new FrameworkPropertyMetadata(1, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty MouseEventSourceProperty =
-        DependencyProperty.Register(nameof(MouseEventSource), typeof(UIElement), typeof(BrushShapeOverlay), new(null));
+        DependencyProperty.Register(nameof(MouseEventSource), typeof(FrameworkElement), typeof(BrushShapeOverlay), new(null));
 
     public static readonly DependencyProperty MouseReferenceProperty =
         DependencyProperty.Register(nameof(MouseReference), typeof(UIElement), typeof(BrushShapeOverlay), new(null));
@@ -44,9 +44,9 @@ internal class BrushShapeOverlay : Control
         set => SetValue(MouseReferenceProperty, value);
     }
 
-    public UIElement? MouseEventSource
+    public FrameworkElement? MouseEventSource
     {
-        get => (UIElement?)GetValue(MouseEventSourceProperty);
+        get => (FrameworkElement?)GetValue(MouseEventSourceProperty);
         set => SetValue(MouseEventSourceProperty, value);
     }
 
@@ -65,7 +65,7 @@ internal class BrushShapeOverlay : Control
     private Pen whitePen = new Pen(Brushes.LightGray, 1);
     private Point lastMousePos = new();
 
-    private MouseUpdateController mouseUpdateController;
+    private MouseUpdateController? mouseUpdateController;
 
     public BrushShapeOverlay()
     {
@@ -75,10 +75,7 @@ internal class BrushShapeOverlay : Control
 
     private void ControlUnloaded(object sender, RoutedEventArgs e)
     {
-        if (MouseEventSource is null)
-            return;
-        
-        mouseUpdateController.Dispose();
+        mouseUpdateController?.Dispose();
     }
 
     private void ControlLoaded(object sender, RoutedEventArgs e)

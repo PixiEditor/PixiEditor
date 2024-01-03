@@ -3,10 +3,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.DataHolders;
+using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Services.NewsFeed;
 using PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -193,8 +195,17 @@ internal partial class HelloTherePopup : Window
 
     private void OpenInExplorer(object parameter)
     {
-        if (parameter is not string value) return;
-        ProcessHelper.OpenInExplorer(value);
+        if (parameter is not string value) 
+            return;
+
+        try
+        {
+            ProcessHelper.OpenInExplorer(value);
+        }
+        catch (RecoverableException e)
+        {
+            NoticeDialog.Show(e.DisplayMessage, "INTERNAL_ERROR");
+        }
     }
 
     private bool CanOpenInExplorer(object parameter) => File.Exists((string)parameter);
@@ -227,7 +238,7 @@ internal partial class HelloTherePopup : Window
         {
             IsFetchingNews = false;
             FailedFetchingNews = true;
-            await CrashHelper.SendExceptionInfoToWebhook(ex);
+            await CrashHelper.SendExceptionInfoToWebhookAsync(ex);
         }
     }
 }

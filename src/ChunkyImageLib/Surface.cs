@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -64,6 +65,8 @@ public class Surface : IDisposable
     public static Surface Load(byte[] encoded)
     {
         using var image = Image.FromEncodedData(encoded);
+        if (image is null)
+            throw new ArgumentException($"The passed byte array does not contain a valid image");
 
         var surface = new Surface(new VecI(image.Width, image.Height));
         surface.DrawingSurface.Canvas.DrawImage(image, 0, 0);
@@ -129,6 +132,7 @@ public class Surface : IDisposable
         return true;
     }
 
+#if DEBUG
     public void SaveToDesktop(string filename = "savedSurface.png")
     {
         using var final = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.Rgba8888, AlphaType.Premul, ColorSpace.CreateSrgb()));
@@ -140,6 +144,7 @@ public class Surface : IDisposable
             png.SaveTo(stream);
         }
     }
+#endif
 
     private DrawingSurface CreateDrawingSurface()
     {

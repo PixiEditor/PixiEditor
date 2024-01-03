@@ -580,5 +580,8 @@
   "RIGHT_CLICK_MODE": "وضع النقر بزر الماوس الأيمن",
   "ADD_PRIMARY_COLOR_TO_PALETTE": "أضف اللون الأساسي إلى لوح الألوان",
   "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "أضف اللون الأساسي إلى اللوحة الحالية",
-  "COPY_COLOR": "انسخ اللون"
+  "COPY_COLOR": "انسخ اللون",
+  "ERROR_FAILED_TO_OPEN_EXPLORER": "لا يمكن فتح قائمة الملفات",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "لا يمكن استيراد الكل",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "لا يمكن استرداد الملفات بشكل كامل.\nإذا قمت بإرسال التقرير إلى المطورين\nقد يكونوا قادرين على مساعدتك."
 }

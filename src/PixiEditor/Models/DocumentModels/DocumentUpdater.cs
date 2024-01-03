@@ -190,12 +190,14 @@ internal class DocumentUpdater
 
     private void ProcessSetSelectedMember(SetSelectedMember_PassthroughAction info)
     {
+        StructureMemberViewModel? member = doc.StructureHelper.Find(info.GuidValue);
+        if (member is null || member.Selection == StructureMemberSelectionType.Hard)
+            return;
         if (doc.SelectedStructureMember is { } oldMember)
         {
             oldMember.Selection = StructureMemberSelectionType.None;
             oldMember.RaisePropertyChanged(nameof(oldMember.Selection));
         }
-        StructureMemberViewModel? member = doc.StructureHelper.FindOrThrow(info.GuidValue);
         member.Selection = StructureMemberSelectionType.Hard;
         member.RaisePropertyChanged(nameof(member.Selection));
         doc.InternalSetSelectedMember(member);

@@ -9,6 +9,11 @@ public class Pixmap : NativeObject
     internal Pixmap(IntPtr objPtr) : base(objPtr)
     {
     }
+
+    public static Pixmap InternalCreateFromExistingPointer(IntPtr objPointer)
+    {
+        return new Pixmap(objPointer);
+    }
     
     public Pixmap(ImageInfo imgInfo, IntPtr dataPtr) : base(dataPtr)
     {

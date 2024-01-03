@@ -1,48 +1,69 @@
-﻿using System.Timers;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace PixiEditor.Models.Controllers;
 
+#nullable enable
 public class MouseUpdateController : IDisposable
 {
-    private const int MouseUpdateIntervalMs = 7;  // 7ms ~= 142 Hz
+    private bool isDisposed = false;
+
+    private readonly FrameworkElement element;
+    private readonly MouseEventHandler mouseMoveHandler;
+    private MouseUpdateControllerSession? session;
     
-    private readonly System.Timers.Timer _timer;
-    
-    private UIElement element;
-    
-    private MouseEventHandler mouseMoveHandler;
-    
-    public MouseUpdateController(UIElement uiElement, MouseEventHandler onMouseMove)
+    public MouseUpdateController(FrameworkElement uiElement, MouseEventHandler onMouseMove)
     {
         mouseMoveHandler = onMouseMove;
         element = uiElement;
         
-        _timer = new System.Timers.Timer(MouseUpdateIntervalMs);
-        _timer.AutoReset = true;
-        _timer.Elapsed += TimerOnElapsed;
+        element.Loaded += OnElementLoaded;
+        element.Unloaded += OnElementUnloaded;
         
-        element.MouseMove += OnMouseMove;
+        session ??= new MouseUpdateControllerSession(StartListening, StopListening, mouseMoveHandler); 
+        
+        element.MouseMove += CallMouseMoveInput;
+    }
+    
+    void OnElementLoaded(object o, RoutedEventArgs routedEventArgs)
+    {
+        session ??= new MouseUpdateControllerSession(StartListening, StopListening, mouseMoveHandler);
+    }
+    
+    private void OnElementUnloaded(object o, RoutedEventArgs routedEventArgs)
+    {
+        session.Dispose();
+        session = null;
     }
 
-    private void TimerOnElapsed(object sender, ElapsedEventArgs e)
+    private void StartListening()
     {
-        _timer.Stop();
-        element.MouseMove += OnMouseMove;
+        if (isDisposed)
+            return;
+        element.MouseMove -= CallMouseMoveInput;
+        element.MouseMove += CallMouseMoveInput;
     }
 
-    private void OnMouseMove(object sender, MouseEventArgs e)
+    private void CallMouseMoveInput(object sender, MouseEventArgs e)
     {
-        element.MouseMove -= OnMouseMove;
-        _timer.Start();
-        mouseMoveHandler(sender, e);
+        if (isDisposed)
+            return;
+        session?.MouseMoveInput(sender, e);
+    }
+    
+    private void StopListening()
+    {
+        if (isDisposed)
+            return;
+        element.MouseMove -= CallMouseMoveInput;
     }
 
     public void Dispose()
     {
-        _timer.Dispose();
-        element.MouseMove -= OnMouseMove;
+        element.MouseMove -= CallMouseMoveInput;
+        element.Loaded -= OnElementLoaded;
+        element.Unloaded -= OnElementUnloaded;
+        session?.Dispose();
+        isDisposed = true;
     }
 }
