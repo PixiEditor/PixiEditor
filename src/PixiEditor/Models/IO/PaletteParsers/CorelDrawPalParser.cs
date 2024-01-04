@@ -28,7 +28,7 @@ internal class CorelDrawPalParser : PaletteFileParser
 
         List<PaletteColor> colors = new();
 
-        await using (Stream stream = File.OpenRead(path))
+        using (Stream stream = File.OpenRead(path))
         {
             using (TextReader reader = new StreamReader(stream, Encoding.ASCII))
             {
