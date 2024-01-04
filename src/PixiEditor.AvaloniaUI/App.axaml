@@ -16,6 +16,7 @@
         <StyleInclude Source="/Styles/PixiEditor.Animators.axaml"/>
         <StyleInclude Source="/Styles/PixiEditor.Handles.axaml"/>
         <StyleInclude Source="/Styles/PixiEditor.Layers.axaml"/>
+        <StyleInclude Source="/Styles/PixiEditorPopupTemplate.axaml"/>
     </Application.Styles>
 
 </Application>

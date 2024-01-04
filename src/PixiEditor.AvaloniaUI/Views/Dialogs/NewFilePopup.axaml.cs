@@ -8,7 +8,7 @@ namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 /// <summary>
 ///     Interaction logic for NewFilePopup.xaml.
 /// </summary>
-internal partial class NewFilePopup : Window
+internal partial class NewFilePopup : PixiEditorPopup
 {
     public static readonly StyledProperty<int> FileHeightProperty =
         AvaloniaProperty.Register<NewFilePopup, int>(nameof(FileHeight));
@@ -39,18 +39,5 @@ internal partial class NewFilePopup : Window
     {
         get => (int)GetValue(FileWidthProperty);
         set => SetValue(FileWidthProperty, value);
-    }
-
-
-    [RelayCommand]
-    private void SetResultAndClose(bool property)
-    {
-        Close(true);
-    }
-
-    [RelayCommand]
-    private void Cancel()
-    {
-        Close(false);
     }
 }

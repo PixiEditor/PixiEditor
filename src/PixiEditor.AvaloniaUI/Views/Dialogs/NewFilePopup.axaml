@@ -2,59 +2,29 @@
         x:ClassModifier="internal"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:PixiEditor.Views"
-        xmlns:vm="clr-namespace:PixiEditor.ViewModels"
-        xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
-        xmlns:helpers="clr-namespace:PixiEditor.Helpers"
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-        xmlns:subViewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"
-        xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
-        xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
         xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
-        xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
         xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
-        ShowInTaskbar="False"
-        SystemDecorations="None"
-        WindowStartupLocation="CenterScreen" 
-        MinHeight="250" Height="250"
-        SizeToContent="Width"
-        Name="newFilePopup" 
+        Width="300" Height="250"
+        SizeToContent="Height"
+        Name="popup"
         BorderBrush="Black" BorderThickness="1"
-        FlowDirection="{markupExtensions:Localization FlowDirection}"
-        ui:Translator.Key="CREATE_NEW_IMAGE">
-    <!--<WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
-                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
-    </WindowChrome.WindowChrome>
-
-    <Window.CommandBindings>
-        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
-                        Executed="CommandBinding_Executed_Close" />
-    </Window.CommandBindings>-->
-
+        Title="CREATE_NEW_IMAGE">
     <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
-        <Interaction.Behaviors>
-            <behaviours:ClearFocusOnClickBehavior/>
-        </Interaction.Behaviors>
-
-        <dialogs:DialogTitleBar DockPanel.Dock="Top"
-            TitleKey="CREATE_NEW_IMAGE" CloseCommand="{Binding DataContext.CancelCommand, ElementName=newFilePopup}"  />
-
         <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
                 IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton"
                 Classes="DarkRoundButton"
-                Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=newFilePopup}">
-                <Button.CommandParameter>
-                    <system:Boolean>True</system:Boolean>
-                </Button.CommandParameter>
-            </Button>
+                Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
+            <Button.CommandParameter>
+                <system:Boolean>True</system:Boolean>
+            </Button.CommandParameter>
+        </Button>
 
         <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="15,30,15,0"
-                              PreserveAspectRatio="False"
-                              ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=newFilePopup}"
-                              ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=newFilePopup}" 
-                              x:Name="sizePicker"/>
+                          PreserveAspectRatio="False"
+                          ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=popup}"
+                          ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=popup}"
+                          x:Name="sizePicker"/>
     </DockPanel>
 </Window>

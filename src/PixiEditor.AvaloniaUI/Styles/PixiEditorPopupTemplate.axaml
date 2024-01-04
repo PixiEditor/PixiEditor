@@ -1,0 +1,30 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:PixiEditor.AvaloniaUI.Views.Dialogs"
+        xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours">
+    <Design.PreviewWith>
+        <controls:PixiEditorPopup Width="400" Height="400" SizeToContent="Manual"/>
+    </Design.PreviewWith>
+
+    <Style Selector="controls|PixiEditorPopup">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="WindowStartupLocation" Value="CenterOwner"/>
+        <Setter Property="TransparencyLevelHint" Value="Transparent"/>
+        <Setter Property="SystemDecorations" Value="None"/>
+        <Setter Property="ShowInTaskbar" Value="False"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True" RowDefinitions="40, *">
+                    <Interaction.Behaviors>
+                        <behaviours:ClearFocusOnClickBehavior/>
+                    </Interaction.Behaviors>
+
+                    <controls:DialogTitleBar DockPanel.Dock="Top"
+                                            TitleKey="{TemplateBinding Title}"/>
+
+                    <ContentPresenter Grid.Row="1" DockPanel.Dock="Bottom" Content="{TemplateBinding Content}" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>
