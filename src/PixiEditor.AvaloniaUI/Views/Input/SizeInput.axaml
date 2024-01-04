@@ -16,15 +16,13 @@
             Cursor="IBeam" PointerPressed="Border_MouseLeftButtonDown"
             PointerWheelChanged="Border_MouseWheel">
         <Border.Styles>
-            <!--TODO: Handle these colors-->
-            <!--<Style Selector="Border">
-                <Setter Property="Background" Value="{DynamicResource DarkerAccentColor}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource AlmostLightModeAccentColor}"/>
+            <Style Selector="Border">
+                <Setter Property="Background" Value="{DynamicResource ThemeControlLowBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}"/>
             </Style>
-            <Style Selector="Border:hover">
-                <Setter Property="Background" Value="{StaticResource AccentColor}"/>
-                <Setter Property="BorderBrush" Value="{StaticResource BrighterAccentColor}"/>
-            </Style>-->
+            <Style Selector="Border:pointerover">
+                <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}"/>
+            </Style>
         </Border.Styles>
         <Grid>
             <Grid.ColumnDefinitions>
