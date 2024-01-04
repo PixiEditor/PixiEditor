@@ -109,23 +109,12 @@ internal partial class PaletteViewer : UserControl
 
     private async Task ImportPalette(string fileName)
     {
-        // check all parsers for formats with same file extension
-        var parserList = PaletteProvider.AvailableParsers.Where(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName).ToLower())).ToList();
-
-        if (parserList != null)
+        // check if valid parser found
+        var parser = await PaletteHelpers.GetValidParser(PaletteProvider.AvailableParsers, fileName);
+        if (parser != null)
         {
-            int index = 0;
-            foreach (var parser in parserList)
-            {
-                var data = await parser.Parse(fileName);
-                index++;
-
-                if ((data.IsCorrupted || data.Colors.Length == 0) && index == parserList.Count) return; // fail if none of the parsers in our list can read the file
-                if (data.IsCorrupted) continue; // skip to next parser if unable to read
-
-                Colors.Clear();
-                Colors.AddRange(data.Colors);
-            }
+            Colors.Clear();
+            Colors.AddRange(parser.Colors);
         }
     }
 

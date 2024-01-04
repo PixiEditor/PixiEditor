@@ -647,23 +647,12 @@ internal partial class PalettesBrowser : Window, IPopupWindow
 
     private async Task ImportPalette(string fileName, IList<PaletteFileParser> parsers)
     {
-        // check all parsers for formats with same file extension
-        var parserList = parsers.Where(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName).ToLower())).ToList();
-
-        if (parserList != null)
+        // check if valid parser found
+        var parser = await PaletteHelpers.GetValidParser(parsers, fileName);
+        if (parser != null)
         {
-            int index = 0;
-            foreach (var parser in parserList)
-            {
-                var data = await parser.Parse(fileName);
-                index++;
-
-                if (data.IsCorrupted && index == parserList.Count) return; // fail if none of the parsers in our list can read the file
-                if (data.IsCorrupted) continue; // skip to next parser if unable to read
-
-                string name = LocalPalettesFetcher.GetNonExistingName(Path.GetFileName(fileName), true);
-                await LocalPalettesFetcher.SavePalette(name, data.Colors.ToArray());
-            }
+            string name = LocalPalettesFetcher.GetNonExistingName(Path.GetFileName(fileName), true);
+            await LocalPalettesFetcher.SavePalette(name, parser.Colors.ToArray());
         }
     }
 
