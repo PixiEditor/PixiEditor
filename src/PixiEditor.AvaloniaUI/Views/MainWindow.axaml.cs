@@ -5,7 +5,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.AppExtensions;
+using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
 using PixiEditor.AvaloniaUI.Models.Services;
+using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Extensions.Common.UserPreferences;
@@ -56,19 +58,52 @@ internal partial class MainWindow : Window
         InitializeComponent();
     }
 
-    public static MainWindow CreateWithDocuments(IEnumerable<(string? originalPath, byte[] dotPixiBytes)> documents)
+    public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {
-        //TODO: Implement this
-        /*MainWindow window = new(extLoader);
-        FileViewModel fileVM = window.services.GetRequiredService<FileViewModel>();
+        showMissingFilesDialog = false;
+        return new MainWindow(new ExtensionLoader());
+        // TODO implement this
+        /*
+        var window = GetMainWindow();
+        var fileVM = window.services.GetRequiredService<FileViewModel>();
 
-        foreach (var (path, bytes) in documents)
+        if (!report.TryRecoverDocuments(out var documents))
         {
-            fileVM.OpenRecoveredDotPixi(path, bytes);
+            showMissingFilesDialog = true;
+            return window;
         }
 
-        return window;*/
+        var i = 0;
 
-        return new MainWindow(null);
+        foreach (var document in documents)
+        {
+            try
+            {
+                fileVM.OpenRecoveredDotPixi(document.Path, document.GetRecoveredBytes());
+                i++;
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfoToWebhook(e);
+            }
+        }
+
+        showMissingFilesDialog = documents.Count != i;
+
+        return window;
+
+        MainWindow GetMainWindow()
+        {
+            try
+            {
+                var app = (App)Application.Current;
+                return new MainWindow(app.InitApp());
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfoToWebhook(e, true);
+                throw;
+            }
+        }*/
     }
 }

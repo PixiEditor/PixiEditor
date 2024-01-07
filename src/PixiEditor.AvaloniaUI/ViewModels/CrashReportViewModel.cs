@@ -1,10 +1,13 @@
 ﻿using System.Diagnostics;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Helpers;
+using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
 using PixiEditor.AvaloniaUI.Views;
+using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.ViewModels;
 
@@ -31,17 +34,38 @@ internal partial class CrashReportViewModel : ViewModelBase
         //OpenSendCrashReportCommand = ReactiveCommand.Create(() => new SendCrashReportWindow(CrashReport).Show());
 
         if (!IsDebugBuild)
-            _ = CrashHelper.SendReportTextToWebhook(report);
+            _ = CrashHelper.SendReportTextToWebhookAsync(report);
     }
 
     [RelayCommand(CanExecute = nameof(CanRecoverDocuments))]
-    public void RecoverDocuments()
+    public async Task RecoverDocuments()
     {
-        MainWindow window = MainWindow.CreateWithDocuments(CrashReport.RecoverDocuments());
+        MainWindow window = MainWindow.CreateWithRecoveredDocuments(CrashReport, out var showMissingFilesDialog);
 
         Application.Current.Run(window);
         window.Show();
         hasRecoveredDocuments = false;
+        
+        if (showMissingFilesDialog)
+        {
+            var dialog = new OptionsDialog<LocalizedString>(
+                "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE",
+                new LocalizedString("CRASH_NOT_ALL_DOCUMENTS_RECOVERED"), 
+                MainWindow.Current!)
+            {
+                {
+                    "SEND", _ =>
+                    {
+                        // TODO
+                        //var sendReportDialog = new SendCrashReportWindow(CrashReport);
+                        //sendReportDialog.ShowDialog();
+                    }
+                },
+                "CLOSE"
+            };
+
+            await dialog.ShowDialog(true);
+        }
     }
 
     public bool CanRecoverDocuments()

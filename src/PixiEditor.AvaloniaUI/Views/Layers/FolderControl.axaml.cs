@@ -35,7 +35,7 @@ internal partial class FolderControl : UserControl
     private readonly IBrush? highlightColor;
 
     
-    private MouseUpdateController mouseUpdateController;
+    private MouseUpdateController? mouseUpdateController;
 
     public FolderControl()
     {
@@ -46,9 +46,15 @@ internal partial class FolderControl : UserControl
         }
 
         Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnUnloaded(object? sender, RoutedEventArgs e)
+    {
+        mouseUpdateController?.Dispose();
+    }
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
     {
         mouseUpdateController = new MouseUpdateController(this, Manager.FolderControl_MouseMove);
     }

@@ -82,12 +82,18 @@ internal class LineToolOverlay : Overlay
         AddHandle(moveHandle);
 
         Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e)
+    private void OnLoaded(object? sender, RoutedEventArgs e)
     {
         //TODO: Ensure this bug doesn't happen in Avalonia, currently Handle classes are taking care of dragging events
         //mouseUpdateController = new MouseUpdateController(this, MouseMoved);
+    }
+    
+    private void OnUnloaded(object? sender, RoutedEventArgs e)
+    {
+        //mouseUpdateController?.Dispose();
     }
 
     private static void OnZoomboxScaleChanged(AvaloniaPropertyChangedEventArgs<double> args)

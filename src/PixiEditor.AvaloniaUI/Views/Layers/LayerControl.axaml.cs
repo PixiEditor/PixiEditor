@@ -77,14 +77,20 @@ internal partial class LayerControl : UserControl
     {
         InitializeComponent();
         Loaded += LayerControl_Loaded;
+        Unloaded += LayerControl_Unloaded;
 
         if (App.Current.TryGetResource("SoftSelectedLayerBrush", App.Current.ActualThemeVariant, out var value))
         {
             highlightColor = value as IBrush;
         }
     }
+    
+    private void LayerControl_Unloaded(object? sender, RoutedEventArgs e)
+    { 
+        mouseUpdateController?.Dispose();
+    }
 
-    private void LayerControl_Loaded(object sender, RoutedEventArgs e)
+    private void LayerControl_Loaded(object? sender, RoutedEventArgs e)
     {
         mouseUpdateController = new MouseUpdateController(this, Manager.LayerControl_MouseMove);
     }

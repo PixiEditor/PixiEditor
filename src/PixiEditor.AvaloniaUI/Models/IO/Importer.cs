@@ -31,8 +31,19 @@ internal class Importer : ObservableObject
     /// <returns>WriteableBitmap of imported image.</returns>
     public static Surface? ImportImage(string path, VecI size)
     {
-        if (!Path.Exists(path)) return null;
-        Surface original = Surface.Load(path);
+        if (!Path.Exists(path)) 
+            throw new MissingFileException();
+        
+        Surface original;
+        try
+        {
+            original = Surface.Load(path);
+        }
+        catch (Exception e) when (e is ArgumentException or FileNotFoundException)
+        {
+            throw new CorruptedFileException(e);
+        }
+        
         if (original.Size == size || size == VecI.NegativeOne)
         {
             return original;
@@ -94,7 +105,7 @@ internal class Importer : ObservableObject
 
                 return doc;
             }
-            catch (InvalidFileException e)
+            catch (Exception e)
             {
                 throw new CorruptedFileException("FAILED_TO_OPEN_FILE", e);
             }

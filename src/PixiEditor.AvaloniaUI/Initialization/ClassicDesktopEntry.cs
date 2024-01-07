@@ -49,9 +49,24 @@ internal class ClassicDesktopEntry
 
         if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
         {
-            CrashReport report = CrashReport.Parse(groups[2].Value);
-            desktop.MainWindow = new CrashReportDialog(report);
-            desktop.MainWindow.Show();
+            try
+            {
+                CrashReport report = CrashReport.Parse(groups[2].Value);
+                desktop.MainWindow = new CrashReportDialog(report);
+                desktop.MainWindow.Show();
+            }
+            catch (Exception exception)
+            {
+                try
+                {
+                    CrashHelper.SendExceptionInfoToWebhook(exception, true);
+                }
+                finally
+                {
+                    // TODO: find an avalonia replacement for messagebox 
+                    //MessageBox.Show("Fatal error", $"Fatal error while trying to open crash report in App.OnStartup()\n{exception}");
+                }
+            }
             return;
         }
 
@@ -65,10 +80,7 @@ internal class ClassicDesktopEntry
         #endif
 
         InitOperatingSystem();
-        InitPlatform();
-
-        ExtensionLoader extensionLoader = new ExtensionLoader();
-        extensionLoader.LoadExtensions();
+        var extensionLoader = InitApp();
 
         desktop.MainWindow = new MainWindow(extensionLoader);
         desktop.MainWindow.Show();
@@ -79,6 +91,16 @@ internal class ClassicDesktopEntry
         var platform = GetActivePlatform();
         IPlatform.RegisterPlatform(platform);
         platform.PerformHandshake();
+    }
+    
+    public ExtensionLoader InitApp()
+    {
+        InitPlatform();
+
+        ExtensionLoader extensionLoader = new ExtensionLoader();
+        extensionLoader.LoadExtensions();
+        
+        return extensionLoader;
     }
 
     private IPlatform GetActivePlatform()

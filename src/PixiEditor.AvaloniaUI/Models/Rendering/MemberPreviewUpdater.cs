@@ -563,7 +563,7 @@ internal class MemberPreviewUpdater
                 continue;
 
             if (tightBounds is null)
-                tightBounds = lastMainPreviewTightBounds[guid];
+                tightBounds = lastMaskPreviewTightBounds[guid];
 
             var previewSize = StructureHelpers.CalculatePreviewSize(tightBounds.Value.Size);
             float scaling = (float)previewSize.X / tightBounds.Value.Width;

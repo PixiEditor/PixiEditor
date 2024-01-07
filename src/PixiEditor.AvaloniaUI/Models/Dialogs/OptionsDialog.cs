@@ -57,9 +57,12 @@ internal class OptionsDialog<T> : CustomDialog, IEnumerable<T>
         set => _results.Add(name, value);
     }
 
-    public override async Task<bool> ShowDialog()
+    public override Task<bool> ShowDialog() => ShowDialog(false);
+
+    public async Task<bool> ShowDialog(bool topmost)
     {
         var popup = new OptionPopup(Title, Content, new(_results.Keys.Select(x => (object)x)));
+        popup.Topmost = topmost;
         await popup.ShowDialog(OwnerWindow);
 
         Result = (T?)popup.Result;

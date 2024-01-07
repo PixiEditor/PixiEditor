@@ -20,7 +20,7 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "REPOSITORY", "OPEN_REPOSITORY", IconPath = "Globe.png")]
     [Command.Basic("PixiEditor.Links.OpenLicense", "https://github.com/PixiEditor/PixiEditor/blob/master/LICENSE", "LICENSE", "OPEN_LICENSE", IconPath = "Globe.png")]
     [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "https://pixieditor.net/docs/Third-party-licenses", "THIRD_PARTY_LICENSES", "OPEN_THIRD_PARTY_LICENSES", IconPath = "Globe.png")]
-    public static async Task OpenHyperlink(string url)
+    public static void OpenHyperlink(string url)
     {
         try
         {
@@ -28,8 +28,8 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
         }
         catch (Exception e)
         {
+            CrashHelper.SendExceptionInfoToWebhook(e);
             NoticeDialog.Show(title: "Error", message: $"Couldn't open the address {url} in your default browser");
-            await CrashHelper.SendExceptionInfoToWebhook(e);
         }
     }
 }

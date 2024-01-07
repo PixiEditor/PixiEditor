@@ -19,8 +19,8 @@ internal class BrushShapeOverlay : Control
     public static readonly StyledProperty<int> BrushSizeProperty =
         AvaloniaProperty.Register<BrushShapeOverlay, int>(nameof(BrushSize), defaultValue: 1);
 
-    public static readonly StyledProperty<InputElement?> MouseEventSourceProperty =
-        AvaloniaProperty.Register<BrushShapeOverlay, InputElement?>(nameof(MouseEventSource), defaultValue: null);
+    public static readonly StyledProperty<Control?> MouseEventSourceProperty =
+        AvaloniaProperty.Register<BrushShapeOverlay, Control?>(nameof(MouseEventSource), defaultValue: null);
 
     public static readonly StyledProperty<InputElement?> MouseReferenceProperty =
         AvaloniaProperty.Register<BrushShapeOverlay, InputElement?>(nameof(MouseReference), defaultValue: null);
@@ -40,9 +40,9 @@ internal class BrushShapeOverlay : Control
         set => SetValue(MouseReferenceProperty, value);
     }
 
-    public InputElement? MouseEventSource
+    public Control? MouseEventSource
     {
-        get => (InputElement?)GetValue(MouseEventSourceProperty);
+        get => (Control?)GetValue(MouseEventSourceProperty);
         set => SetValue(MouseEventSourceProperty, value);
     }
 
@@ -61,7 +61,7 @@ internal class BrushShapeOverlay : Control
     private Pen whitePen = new Pen(Brushes.LightGray, 1);
     private Point lastMousePos = new();
 
-    private MouseUpdateController mouseUpdateController;
+    private MouseUpdateController? mouseUpdateController;
 
     static BrushShapeOverlay()
     {
@@ -77,15 +77,15 @@ internal class BrushShapeOverlay : Control
         Unloaded += ControlUnloaded;
     }
 
-    private void ControlUnloaded(object sender, RoutedEventArgs e)
+    private void ControlUnloaded(object? sender, RoutedEventArgs e)
     {
         if (MouseEventSource is null)
             return;
         
-        mouseUpdateController.Dispose();
+        mouseUpdateController?.Dispose();
     }
 
-    private void ControlLoaded(object sender, RoutedEventArgs e)
+    private void ControlLoaded(object? sender, RoutedEventArgs e)
     {
         if (MouseEventSource is null)
             return;

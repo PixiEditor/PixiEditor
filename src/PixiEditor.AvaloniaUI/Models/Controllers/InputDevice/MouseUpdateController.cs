@@ -1,46 +1,71 @@
 ﻿using System.Timers;
+using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 
+#nullable enable
 public class MouseUpdateController : IDisposable
 {
-    private const int MouseUpdateIntervalMs = 7;  // 7ms ~= 142 Hz
-    
-    private readonly System.Timers.Timer _timer;
-    
-    private InputElement element;
-    
-    private Action<PointerEventArgs> mouseMoveHandler;
-    
-    public MouseUpdateController(InputElement uiElement, Action<PointerEventArgs> onMouseMove)
+    private bool isDisposed = false;
+
+    private readonly Control element;
+    private readonly Action<PointerEventArgs> mouseMoveHandler;
+    private MouseUpdateControllerSession? session;
+
+    public MouseUpdateController(Control uiElement, Action<PointerEventArgs> onMouseMove)
     {
         mouseMoveHandler = onMouseMove;
         element = uiElement;
         
-        _timer = new System.Timers.Timer(MouseUpdateIntervalMs);
-        _timer.AutoReset = true;
-        _timer.Elapsed += TimerOnElapsed;
-        
-        element.PointerMoved += OnMouseMove;
+        element.Loaded += OnElementLoaded;
+        element.Unloaded += OnElementUnloaded;
+
+        session ??= new MouseUpdateControllerSession(StartListening, StopListening, mouseMoveHandler); 
+
+        element.PointerMoved += CallMouseMoveInput;
     }
 
-    private void TimerOnElapsed(object sender, ElapsedEventArgs e)
+    void OnElementLoaded(object? o, RoutedEventArgs routedEventArgs)
     {
-        _timer.Stop();
-        element.PointerMoved += OnMouseMove;
+        session ??= new MouseUpdateControllerSession(StartListening, StopListening, mouseMoveHandler);
     }
 
-    private void OnMouseMove(object sender, PointerEventArgs e)
+    private void OnElementUnloaded(object? o, RoutedEventArgs routedEventArgs)
     {
-        element.PointerMoved -= OnMouseMove;
-        _timer.Start();
-        mouseMoveHandler(e);
+        session.Dispose();
+        session = null;
+    }
+
+    private void StartListening()
+    {
+        if (isDisposed)
+            return;
+        element.PointerMoved -= CallMouseMoveInput;
+        element.PointerMoved += CallMouseMoveInput;
+    }
+
+    private void CallMouseMoveInput(object? sender, PointerEventArgs e)
+    {
+        if (isDisposed)
+            return;
+        session?.MouseMoveInput(e);
+    }
+
+    private void StopListening()
+    {
+        if (isDisposed)
+            return;
+        element.PointerMoved -= CallMouseMoveInput;
     }
 
     public void Dispose()
     {
-        _timer.Dispose();
-        element.RemoveHandler(InputElement.PointerMovedEvent, OnMouseMove);
+        element.RemoveHandler(InputElement.PointerMovedEvent, CallMouseMoveInput);
+        element.RemoveHandler(Control.LoadedEvent, OnElementLoaded);
+        element.RemoveHandler(Control.UnloadedEvent, OnElementUnloaded);
+        session?.Dispose();
+        isDisposed = true;
     }
 }

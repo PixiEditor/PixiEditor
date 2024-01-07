@@ -144,6 +144,8 @@ internal class CanvasUpdater
                 break;
             }
         }
+        
+        UpdateAffectedNonRerenderedChunks(chunksToRerender, chunkGatherer.MainImageArea);
 
         bool anythingToUpdate = false;
         foreach (var (_, chunks) in chunksToRerender)
@@ -152,8 +154,6 @@ internal class CanvasUpdater
         }
         if (!anythingToUpdate)
             return new();
-
-        UpdateAffectedNonRerenderedChunks(chunksToRerender, chunkGatherer.MainImageArea);
         
         List<IRenderInfo> infos = new();
         UpdateMainImage(chunksToRerender, updatingStoredChunks ? null : chunkGatherer.MainImageArea.GlobalArea.Value, infos);

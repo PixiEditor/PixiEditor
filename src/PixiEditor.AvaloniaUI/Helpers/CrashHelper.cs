@@ -110,16 +110,28 @@ internal class CrashHelper
             }
         }
     }
+    
+    public static void SendExceptionInfoToWebhook(Exception e, bool wait = false,
+        [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
+    {
+        // TODO: quadruple check that this Task.Run is actually acceptable here
+        // I think it might not be because there is stuff about the main window in the crash report, so Avalonia is touched from a different thread (is it bad for avalonia?)
+        var task = Task.Run(() => SendExceptionInfoToWebhookAsync(e, filePath, memberName));
+        if (wait)
+        {
+            task.Wait();
+        }
+    }
 
-    public static async Task SendExceptionInfoToWebhook(Exception e, [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
+    public static async Task SendExceptionInfoToWebhookAsync(Exception e, [CallerFilePath] string filePath = "<unknown>", [CallerMemberName] string memberName = "<unknown>")
     {
         // TODO: Proper DebugBuild checking
         /*if (DebugViewModel.IsDebugBuild)
             return;*/
-        await SendReportTextToWebhook(CrashReport.Generate(e), $"{filePath}; Method {memberName}");
+        await SendReportTextToWebhookAsync(CrashReport.Generate(e), $"{filePath}; Method {memberName}");
     }
 
-    public static async Task SendReportTextToWebhook(CrashReport report, string catchLocation = null)
+    public static async Task SendReportTextToWebhookAsync(CrashReport report, string catchLocation = null)
     {
         string reportText = report.ReportText;
         if (catchLocation is not null)

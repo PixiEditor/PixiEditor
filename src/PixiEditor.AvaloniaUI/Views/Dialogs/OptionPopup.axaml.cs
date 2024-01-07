@@ -41,6 +41,7 @@ public partial class OptionPopup : Window
 
     public OptionPopup(string title, object content, ObservableCollection<object> options)
     {
+        Title = title;
         PopupContent = content;
         Options = options;
         CancelCommand = new RelayCommand(Cancel);

@@ -112,30 +112,26 @@ internal class Exporter
 
         var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithExtension));
 
-        if (typeFromPath != FileType.Pixi)
+        if (typeFromPath == FileType.Pixi)
         {
-            var maybeBitmap = document.MaybeRenderWholeImage();
-            if (maybeBitmap.IsT0)
-                return SaveResult.ConcurrencyError;
-            var bitmap = maybeBitmap.AsT1;
-
-            EncodedImageFormat mappedFormat = typeFromPath.ToEncodedImageFormat();
-
-            if (mappedFormat == EncodedImageFormat.Unknown)
-            {
-                return SaveResult.UnknownError;
-            }
-
-            UniversalFileEncoder encoder = new(mappedFormat);
-
-            return TrySaveAs(encoder, pathWithExtension, bitmap, exportSize);
+            return TrySaveAsPixi(document, pathWithExtension);
         }
-        else
+        
+        var maybeBitmap = document.MaybeRenderWholeImage();
+        if (maybeBitmap.IsT0)
+            return SaveResult.ConcurrencyError;
+        var bitmap = maybeBitmap.AsT1;
+
+        EncodedImageFormat mappedFormat = typeFromPath.ToEncodedImageFormat();
+
+        if (mappedFormat == EncodedImageFormat.Unknown)
         {
-            Parser.PixiParser.Serialize(document.ToSerializable(), pathWithExtension);
+            return SaveResult.UnknownError;
         }
 
-        return SaveResult.Success;
+        UniversalFileEncoder encoder = new(mappedFormat);
+
+        return TrySaveAs(encoder, pathWithExtension, bitmap, exportSize);
     }
 
     static Exporter()
@@ -187,6 +183,32 @@ internal class Exporter
             encoder.SaveAsync(stream, bitmap);
         }
         catch (SecurityException)
+        {
+            return SaveResult.SecurityError;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return SaveResult.SecurityError;
+        }
+        catch (IOException)
+        {
+            return SaveResult.IoError;
+        }
+        catch
+        {
+            return SaveResult.UnknownError;
+        }
+
+        return SaveResult.Success;
+    }
+    
+    private static SaveResult TrySaveAsPixi(DocumentViewModel document, string pathWithExtension)
+    {
+        try
+        {
+            Parser.PixiParser.Serialize(document.ToSerializable(), pathWithExtension);
+        }
+        catch (UnauthorizedAccessException e)
         {
             return SaveResult.SecurityError;
         }

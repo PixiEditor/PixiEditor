@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Diagnostics;
+using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -11,6 +12,7 @@ using PixiEditor.Extensions.Helpers;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document.TransformOverlays;
 #nullable enable
+[DebuggerDisplay("{ToString(),nq}")]
 internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
 {
     private DocumentViewModel document;
@@ -247,4 +249,6 @@ internal class DocumentTransformViewModel : ObservableObject, ITransformHandler
                 break;
         }
     }
+    
+    public override string ToString() => !TransformActive ? "Not active" : $"Transform Mode: {activeTransformMode}; Corner Freedom: {CornerFreedom}; Side Freedom: {SideFreedom}";
 }

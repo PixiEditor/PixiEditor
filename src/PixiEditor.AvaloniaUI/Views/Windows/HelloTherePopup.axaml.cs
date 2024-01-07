@@ -196,7 +196,7 @@ internal partial class HelloTherePopup : Window
 
     private async void HelloTherePopup_OnLoaded(object sender, RoutedEventArgs e)
     {
-        return;
+        return; // TODO
         if(_newsDisabled) return;
 
         try
@@ -223,7 +223,7 @@ internal partial class HelloTherePopup : Window
         {
             IsFetchingNews = false;
             FailedFetchingNews = true;
-            await CrashHelper.SendExceptionInfoToWebhook(ex);
+            await CrashHelper.SendExceptionInfoToWebhookAsync(ex);
         }
     }
 }

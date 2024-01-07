@@ -288,7 +288,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public Guid GuidValue { get; } = Guid.NewGuid();
 
-    private MouseUpdateController mouseUpdateController;
+    private MouseUpdateController? mouseUpdateController;
 
     static Viewport()
     {
@@ -312,8 +312,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
-
-        mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
 
     public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
@@ -324,14 +322,16 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         MainImage?.InvalidateVisual();
     }
 
-    private void OnUnload(object sender, RoutedEventArgs e)
+    private void OnUnload(object? sender, RoutedEventArgs e)
     {
         Document?.Operations.RemoveViewport(GuidValue);
+        mouseUpdateController?.Dispose();
     }
 
-    private void OnLoad(object sender, RoutedEventArgs e)
+    private void OnLoad(object? sender, RoutedEventArgs e)
     {
         Document?.Operations.AddOrUpdateViewport(GetLocation());
+        mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
     }
 
     private static void OnDocumentChange(AvaloniaPropertyChangedEventArgs<DocumentViewModel> e)
