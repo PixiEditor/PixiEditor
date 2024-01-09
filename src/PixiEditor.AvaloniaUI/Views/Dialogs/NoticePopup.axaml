@@ -1,4 +1,4 @@
-﻿<controls:Window x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.NoticePopup"
+﻿<dialogs:PixiEditorPopup x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.NoticePopup"
         x:ClassModifier="internal"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,26 +7,15 @@
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         xmlns:controls="https://github.com/avaloniaui"
         xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
+        xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
         mc:Ignorable="d"
         d:Title="Notice" Height="180" Width="400" MinHeight="180" MinWidth="400"
-        WindowStartupLocation="CenterScreen"
+        CanResize="False"
+        CanMinimize="False"
         x:Name="popup"
-        ui:Translator.Key="{Binding ElementName=popup, Path=Title, Mode=OneTime}"
-        FlowDirection="{markupExtensions:Localization FlowDirection}">
+        ui:Translator.Key="{Binding ElementName=popup, Path=Title, Mode=OneTime}">
 
-    <!--<WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
-                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
-    </WindowChrome.WindowChrome>-->
-
-    <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
-        <Interaction.Behaviors>
-            <!--<behaviours:ClearFocusOnClickBehavior/>-->
-        </Interaction.Behaviors>
-
-        <!--<dial:DialogTitleBar DockPanel.Dock="Top"
-            TitleKey="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />-->
-
+    <DockPanel>
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
             <Button Width="70" IsDefault="True" Click="OkButton_Close" ui:Translator.Key="CLOSE"/>
         </StackPanel>
@@ -36,4 +25,4 @@
             VerticalAlignment="Center" FontSize="15" Foreground="White" Margin="20,0" d:Text="The file does not exist"
             TextWrapping="WrapWithOverflow" TextTrimming="WordEllipsis" />
     </DockPanel>
-</controls:Window>
+</dialogs:PixiEditorPopup>

@@ -7,7 +7,7 @@ namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 /// <summary>
 /// Interaction logic for NoticePopup.xaml.
 /// </summary>
-internal partial class NoticePopup : Window
+internal partial class NoticePopup : PixiEditorPopup
 {
     public static readonly StyledProperty<string> BodyProperty =
         AvaloniaProperty.Register<NoticePopup, string>(nameof(Body));

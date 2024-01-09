@@ -6,7 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
-public partial class OptionPopup : Window
+public partial class OptionPopup : PixiEditorPopup
 {
     public static readonly StyledProperty<object> PopupContentProperty =
         AvaloniaProperty.Register<OptionPopup, object>(nameof(PopupContent));

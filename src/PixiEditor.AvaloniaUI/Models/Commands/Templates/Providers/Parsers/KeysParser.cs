@@ -19,6 +19,7 @@ public abstract class KeysParser
     
     public KeysParser(string mapFileName)
     {
+        // TODO: Fix this, should use avares:// or custom path for external parsers
         _fullMapFilePath = Path.Combine(Paths.DataFullPath, "ShortcutActionMaps", mapFileName);
         if (!File.Exists(_fullMapFilePath))
         {

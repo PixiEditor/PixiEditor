@@ -10,8 +10,9 @@
 
     <ItemGroup>
       <AvaloniaResource Include="Assets\**" />
-      <AvaloniaResource Include="Data\**" />
-      <AvaloniaResource Include="Data\Languages\**" />
+      <AvaloniaResource Include="Data\**"/>
+      <AvaloniaResource Include="Data\Languages\**"/>
+      <AvaloniaResource Include="Data\ShortcutActionMaps\**"/>
       <None Remove="Images\Create-mask.svg" />
       <AvaloniaResource Include="Images\Create-mask.svg" />
       <None Remove="Images\Lock-alpha.svg" />
