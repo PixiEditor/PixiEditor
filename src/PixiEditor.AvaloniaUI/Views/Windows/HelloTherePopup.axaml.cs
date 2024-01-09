@@ -11,6 +11,7 @@ using PixiEditor.AvaloniaUI.Models.Services.NewsFeed;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.UserData;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
+using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.OperatingSystem;
 
@@ -19,7 +20,7 @@ namespace PixiEditor.AvaloniaUI.Views.Windows;
 /// <summary>
 /// Interaction logic for HelloTherePopup.xaml.
 /// </summary>
-internal partial class HelloTherePopup : Window
+internal partial class HelloTherePopup : PixiEditorPopup
 {
     public RecentlyOpenedCollection RecentlyOpened { get => FileViewModel.RecentlyOpened; }
 

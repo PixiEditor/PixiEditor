@@ -17,10 +17,9 @@
         xmlns:indicators1="clr-namespace:PixiEditor.AvaloniaUI.Views.Indicators"
         xmlns:newsFeed1="clr-namespace:PixiEditor.AvaloniaUI.Views.NewsFeed"
         xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
-        mc:Ignorable="d" ShowInTaskbar="False"
+        mc:Ignorable="d"
         Title="Hello there!" Height="662" Width="982" MinHeight="500" MinWidth="500"
-        WindowStartupLocation="CenterScreen" Loaded="HelloTherePopup_OnLoaded"
-        FlowDirection="{markupExtensions:Localization FlowDirection}">
+        Loaded="HelloTherePopup_OnLoaded">
 
     <Window.Styles>
         <Style Selector="TextBlock">
@@ -30,8 +29,6 @@
     </Window.Styles>
 
     <DockPanel>
-        <dialogs:DialogTitleBar 
-            DockPanel.Dock="Top"/>
         <Grid Background="{StaticResource ThemeBackgroundBrush}" x:Name="grid">
             <Grid.RowDefinitions>
                 <RowDefinition Height="35" />
