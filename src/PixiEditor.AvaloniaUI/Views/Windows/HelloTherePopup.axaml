@@ -1,4 +1,4 @@
-﻿<Window x:Class="PixiEditor.AvaloniaUI.Views.Windows.HelloTherePopup"
+﻿<dialogs:PixiEditorPopup x:Class="PixiEditor.AvaloniaUI.Views.Windows.HelloTherePopup"
         x:ClassModifier="internal"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -30,16 +30,12 @@
 
     <DockPanel>
         <Grid Background="{StaticResource ThemeBackgroundBrush}" x:Name="grid">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="35" />
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="300"/>
             </Grid.ColumnDefinitions>
 
-            <ScrollViewer Grid.Column="0" Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="3,0">
+            <ScrollViewer Grid.Column="0"  VerticalScrollBarVisibility="Auto" Margin="3,0">
                 <Grid Grid.Row="1" Margin="0,30,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="90"/>
@@ -294,7 +290,7 @@
                 </Grid>
             </ScrollViewer>
 
-            <ScrollViewer Grid.Row="1" Grid.Column="1"
+            <ScrollViewer Grid.Column="1"
                           IsVisible="{Binding !NewsPanelCollapsed}">
                 <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource ThemeBackgroundBrush}">
                     <Grid>
@@ -317,4 +313,4 @@
             </ScrollViewer>
         </Grid>
     </DockPanel>
-</Window>
+</dialogs:PixiEditorPopup>

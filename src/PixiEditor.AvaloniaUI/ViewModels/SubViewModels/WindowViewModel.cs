@@ -4,6 +4,7 @@ using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.Views.UserControls;
 using Command = PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands.Command;
@@ -155,7 +156,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Window.OpenStartupWindow", "OPEN_STARTUP_WINDOW", "OPEN_STARTUP_WINDOW")]
     public void OpenHelloThereWindow()
     {
-        new HelloTherePopup(Owner.FileSubViewModel).Show();
+        new HelloTherePopup(Owner.FileSubViewModel).Show(MainWindow.Current);
     }
 
     [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW", Key = Key.F1)]

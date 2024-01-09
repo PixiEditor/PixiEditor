@@ -29,7 +29,7 @@
                     <Setter Property="Background" Value="Transparent"/>
                     <Setter Property="CornerRadius" Value="0"/>
                     <Setter Property="Width" Value="48"></Setter>
-                    <Setter Property="IsHitTestVisible" Value="True"></Setter>
+                    <Setter Property="IsHitTestVisible" Value="True"/>
                 </Style>
             </DockPanel.Styles>
             <Button 
@@ -39,22 +39,28 @@
                 Click="CloseWindow">
                 🗙
             </Button>
-            <Button
-                IsVisible="{Binding !$parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
-                DockPanel.Dock="Right"
-                ui:Translator.TooltipKey="MAXIMIZE"
-                Click="MaximizeWindow">
-                🗖
-            </Button>
-            <Button
-                IsVisible="{Binding $parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
-                DockPanel.Dock="Right"
-                ui:Translator.TooltipKey="RESTORE"
-                Click="RestoreWindow">
-                🗗
-            </Button>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" IsVisible="{Binding ElementName=uc, Path=CanFullscreen}">
+                <Button
+                    IsVisible="{Binding !$parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
+                    DockPanel.Dock="Right"
+                    ui:Translator.TooltipKey="MAXIMIZE"
+                    Name="maximizeButton"
+                    Click="MaximizeWindow">
+                    🗖
+                </Button>
+                <Button
+                    IsVisible="{Binding $parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
+                    DockPanel.Dock="Right"
+                    Name="restoreButton"
+                    ui:Translator.TooltipKey="RESTORE"
+                    Click="RestoreWindow">
+                    🗗
+                </Button>
+            </StackPanel>
             <Button 
-                DockPanel.Dock="Right" 
+                DockPanel.Dock="Right"
+                Name="minimizeButton"
+                IsVisible="{Binding ElementName=uc, Path=CanMinimize}"
                 ui:Translator.TooltipKey="MINIMIZE"
                 Click="MinimizeWindow">
                 🗕

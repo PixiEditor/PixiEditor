@@ -18,13 +18,15 @@
                 <DockPanel>
                     <controls:DialogTitleBar 
                         DockPanel.Dock="Top"
+                        CanMinimize="{TemplateBinding CanMinimize}"
+                        CanFullscreen="{TemplateBinding CanResize}"
                         TitleKey="{TemplateBinding Title}"/>
-                    <Grid Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True" RowDefinitions="40, *">
+                    <Grid Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
                         <Interaction.Behaviors>
                             <behaviours:ClearFocusOnClickBehavior/>
                         </Interaction.Behaviors>
                         
-                        <ContentPresenter Grid.Row="1" DockPanel.Dock="Bottom" Content="{TemplateBinding Content}" />
+                        <ContentPresenter DockPanel.Dock="Bottom" Content="{TemplateBinding Content}" />
                     </Grid>
                 </DockPanel>
             </ControlTemplate>

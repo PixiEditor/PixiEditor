@@ -1,4 +1,5 @@
-﻿<Window x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.NewFilePopup"
+﻿<dialogs:PixiEditorPopup
+    x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.NewFilePopup"
         x:ClassModifier="internal"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,9 +9,11 @@
         xmlns:system="clr-namespace:System;assembly=System.Runtime"
         Width="300" Height="250"
         SizeToContent="Height"
+        CanResize="False"
+        CanMinimize="False"
         Name="popup"
         Title="CREATE_NEW_IMAGE">
-    <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
+    <DockPanel Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True">
         <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
                 IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton"
                 Classes="DarkRoundButton"
@@ -26,4 +29,4 @@
                           ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=popup}"
                           x:Name="sizePicker"/>
     </DockPanel>
-</Window>
+</dialogs:PixiEditorPopup>
