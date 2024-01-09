@@ -21,20 +21,14 @@
             TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
             ui:Translator.Key="{Binding ElementName=uc, Path=TitleKey}"
             Foreground="White" 
-            FontSize="15" 
+            FontSize="15"
             Margin="5,0,0,0"/>
         <DockPanel IsHitTestVisible="True">
-            <DockPanel.Styles>
-                <Style Selector="Button">
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="CornerRadius" Value="0"/>
-                    <Setter Property="Width" Value="48"></Setter>
-                    <Setter Property="IsHitTestVisible" Value="True"/>
-                </Style>
-            </DockPanel.Styles>
             <Button 
                 DockPanel.Dock="Right" 
                 IsCancel="True"
+                Classes="close"
+                Theme="{StaticResource DialogButtonTheme}"
                 ui:Translator.TooltipKey="CLOSE"
                 Click="CloseWindow">
                 🗙
@@ -43,6 +37,7 @@
                 <Button
                     IsVisible="{Binding !$parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
                     DockPanel.Dock="Right"
+                    Theme="{StaticResource DialogButtonTheme}"
                     ui:Translator.TooltipKey="MAXIMIZE"
                     Name="maximizeButton"
                     Click="MaximizeWindow">
@@ -52,6 +47,7 @@
                     IsVisible="{Binding $parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
                     DockPanel.Dock="Right"
                     Name="restoreButton"
+                    Theme="{StaticResource DialogButtonTheme}"
                     ui:Translator.TooltipKey="RESTORE"
                     Click="RestoreWindow">
                     🗗
@@ -60,6 +56,7 @@
             <Button 
                 DockPanel.Dock="Right"
                 Name="minimizeButton"
+                Theme="{StaticResource DialogButtonTheme}"
                 IsVisible="{Binding ElementName=uc, Path=CanMinimize}"
                 ui:Translator.TooltipKey="MINIMIZE"
                 Click="MinimizeWindow">

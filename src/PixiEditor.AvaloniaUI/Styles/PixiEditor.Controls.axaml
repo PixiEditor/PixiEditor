@@ -6,6 +6,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/CommandsMenu.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/BlendModeComboBox.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Buttons/DialogButtonTheme.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

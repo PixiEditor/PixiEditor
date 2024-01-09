@@ -81,6 +81,7 @@
       <UpToDateCheckInput Remove="Fonts\feather.ttf" />
       <UpToDateCheckInput Remove="Views\Settings\SettingsWindow.axaml" />
       <UpToDateCheckInput Remove="Views\Settings\ShortcutsBinder.axaml" />
+      <UpToDateCheckInput Remove="Styles\Buttons\DialogButton.Template.axaml" />
     </ItemGroup>
   
     <ItemGroup>
