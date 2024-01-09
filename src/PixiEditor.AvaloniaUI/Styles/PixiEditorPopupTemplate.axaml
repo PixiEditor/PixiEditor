@@ -26,7 +26,7 @@
                             <behaviours:ClearFocusOnClickBehavior/>
                         </Interaction.Behaviors>
                         
-                        <ContentPresenter DockPanel.Dock="Bottom" Content="{TemplateBinding Content}" />
+                        <ContentPresenter DockPanel.Dock="Bottom" Background="{DynamicResource ThemeBackgroundBrush}" Content="{TemplateBinding Content}" />
                     </Grid>
                 </DockPanel>
             </ControlTemplate>

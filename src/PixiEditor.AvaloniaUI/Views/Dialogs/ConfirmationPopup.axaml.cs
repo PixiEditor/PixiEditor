@@ -8,7 +8,7 @@ namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 /// <summary>
 ///     Interaction logic for ConfirmationPopup.xaml
 /// </summary>
-internal partial class ConfirmationPopup : Window
+internal partial class ConfirmationPopup : PixiEditorPopup
 {
     public static readonly StyledProperty<bool> ResultProperty =
         AvaloniaProperty.Register<ConfirmationPopup, bool>(nameof(Result), true);

@@ -1,37 +1,23 @@
-﻿<Window x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.ConfirmationPopup"
-        x:ClassModifier="internal"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:views="clr-namespace:PixiEditor.Views"
-        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-        xmlns:controls="https://github.com/avaloniaui"
-        xmlns:system="clr-namespace:System;assembly=System.Runtime"
-        xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
-        xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
-        xmlns:dialogs1="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
-        mc:Ignorable="d" d:Title="Unsaved changes"
-        Name="popup" WindowStartupLocation="CenterScreen" 
-        Height="180" Width="400" MinHeight="180" MinWidth="400"
-        ui:Translator.Key="{Binding ElementName=popup, Path=Title, Mode=OneTime}"
-        FlowDirection="{markupExtensions:Localization FlowDirection}">
+﻿<dialogs1:PixiEditorPopup x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.ConfirmationPopup"
+                 x:ClassModifier="internal"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns="https://github.com/avaloniaui"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:views="clr-namespace:PixiEditor.Views"
+                 xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                 xmlns:controls="https://github.com/avaloniaui"
+                 xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                 xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
+                 xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
+                 xmlns:dialogs1="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
+                 mc:Ignorable="d" d:Title="Unsaved changes"
+                 Name="popup"
+                 Height="180" Width="400" MinHeight="180" MinWidth="400"
+                 CanMinimize="False" CanResize="False"
+                 ui:Translator.Key="{Binding ElementName=popup, Path=Title, Mode=OneTime}">
 
-    <!--
-    <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
-                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
-    </WindowChrome.WindowChrome>
-    -->
-
-    <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
-        <Interaction.Behaviors>
-            <behaviours:ClearFocusOnClickBehavior/>
-        </Interaction.Behaviors>
-
-        <dialogs1:DialogTitleBar DockPanel.Dock="Top"
-            TitleKey="{Binding ElementName=popup, Path=Title}" CloseCommand="{Binding DataContext.CancelCommand, ElementName=popup}" />
-
+    <DockPanel Focusable="True">
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center"
                     Margin="0,0,10,15">
             <Button Margin="10,0,10,0" IsDefault="True" Padding="5 0"
@@ -60,4 +46,4 @@
                    TextAlignment="Center"
                    VerticalAlignment="Center" FontSize="15" Foreground="White" d:Text="The document has been modified. Do you want to save changes?"/>
     </DockPanel>
-</Window>
+</dialogs1:PixiEditorPopup>
