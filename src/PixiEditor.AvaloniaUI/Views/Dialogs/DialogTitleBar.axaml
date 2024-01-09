@@ -37,27 +37,27 @@
                 IsCancel="True"
                 ui:Translator.TooltipKey="CLOSE"
                 Click="CloseWindow">
-                ✕
+                🗙
             </Button>
             <Button
                 IsVisible="{Binding !$parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
                 DockPanel.Dock="Right"
                 ui:Translator.TooltipKey="MAXIMIZE"
                 Click="MaximizeWindow">
-                □
+                🗖
             </Button>
             <Button
                 IsVisible="{Binding $parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
                 DockPanel.Dock="Right"
                 ui:Translator.TooltipKey="RESTORE"
                 Click="RestoreWindow">
-                □□
+                🗗
             </Button>
             <Button 
                 DockPanel.Dock="Right" 
                 ui:Translator.TooltipKey="MINIMIZE"
                 Click="MinimizeWindow">
-                ＿
+                🗕
             </Button>
             <Control /><!-- dummy control to occupy dockpanel center -->
         </DockPanel>
