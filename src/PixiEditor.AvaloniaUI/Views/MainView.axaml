@@ -14,25 +14,27 @@
              xmlns:tools="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.Tools"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.MainView"
-             x:DataType="viewModels1:ViewModelMain" Background="{DynamicResource ThemeBackgroundBrush}">
+             x:DataType="viewModels1:ViewModelMain">
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
             <InvokeCommandAction Command="{Binding StartupCommand}"/>
         </EventTriggerBehavior>
     </Interaction.Behaviors>
-    <Grid Focusable="True">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <main1:MainTitleBar/>
-        <tools:Toolbar Grid.Row="1" DataContext="{Binding .}"/>
-        <main1:ToolsPicker ZIndex="2" Grid.Row="2"
-                           Margin="10 0 0 0"
-                           HorizontalAlignment="Left"
-                           VerticalAlignment="Center"
-                           Tools="{Binding Path=ToolsSubViewModel.ToolSet}"/>
-        <DockControl Grid.Row="2" Layout="{Binding LayoutDockSubViewModel.Layout}"/>
-    </Grid>
+    <DockPanel>
+        <main1:MainTitleBar DockPanel.Dock="Top"/>
+        <Grid Focusable="True">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+        
+            <tools:Toolbar Grid.Row="0" DataContext="{Binding .}"/>
+            <main1:ToolsPicker ZIndex="2" Grid.Row="1"
+                               Margin="10 0 0 0"
+                               HorizontalAlignment="Left"
+                               VerticalAlignment="Center"
+                               Tools="{Binding Path=ToolsSubViewModel.ToolSet}"/>
+            <DockControl Grid.Row="1" Layout="{Binding LayoutDockSubViewModel.Layout}"/>
+        </Grid>
+    </DockPanel>
 </UserControl>

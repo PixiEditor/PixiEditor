@@ -9,7 +9,6 @@
         Width="300" Height="250"
         SizeToContent="Height"
         Name="popup"
-        BorderBrush="Black" BorderThickness="1"
         Title="CREATE_NEW_IMAGE">
     <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
         <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"

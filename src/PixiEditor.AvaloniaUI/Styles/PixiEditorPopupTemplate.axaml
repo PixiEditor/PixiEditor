@@ -7,23 +7,26 @@
     </Design.PreviewWith>
 
     <Style Selector="controls|PixiEditorPopup">
-        <Setter Property="Background" Value="Transparent" />
         <Setter Property="WindowStartupLocation" Value="CenterOwner"/>
         <Setter Property="TransparencyLevelHint" Value="Transparent"/>
-        <Setter Property="SystemDecorations" Value="None"/>
+        <Setter Property="ExtendClientAreaChromeHints" Value="NoChrome" />
+        <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
+        <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="36" />
         <Setter Property="ShowInTaskbar" Value="False"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True" RowDefinitions="40, *">
-                    <Interaction.Behaviors>
-                        <behaviours:ClearFocusOnClickBehavior/>
-                    </Interaction.Behaviors>
-
-                    <controls:DialogTitleBar DockPanel.Dock="Top"
-                                            TitleKey="{TemplateBinding Title}"/>
-
-                    <ContentPresenter Grid.Row="1" DockPanel.Dock="Bottom" Content="{TemplateBinding Content}" />
-                </Grid>
+                <DockPanel>
+                    <controls:DialogTitleBar 
+                        DockPanel.Dock="Top"
+                        TitleKey="{TemplateBinding Title}"/>
+                    <Grid Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True" RowDefinitions="40, *">
+                        <Interaction.Behaviors>
+                            <behaviours:ClearFocusOnClickBehavior/>
+                        </Interaction.Behaviors>
+                        
+                        <ContentPresenter Grid.Row="1" DockPanel.Dock="Bottom" Content="{TemplateBinding Content}" />
+                    </Grid>
+                </DockPanel>
             </ControlTemplate>
         </Setter>
     </Style>
