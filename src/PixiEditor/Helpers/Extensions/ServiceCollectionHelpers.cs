@@ -72,6 +72,7 @@ internal static class ServiceCollectionHelpers
         .AddSingleton<PaletteFileParser, JascFileParser>()
         .AddSingleton<PaletteFileParser, ClsFileParser>()
         .AddSingleton<PaletteFileParser, CorelDrawPalParser>()
+        .AddSingleton<PaletteFileParser, DeluxePaintParser>()
         .AddSingleton<PaletteFileParser, PngPaletteParser>()
         .AddSingleton<PaletteFileParser, PaintNetTxtParser>()
         .AddSingleton<PaletteFileParser, HexPaletteParser>()

@@ -6,6 +6,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Threading;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Helpers.UI;
 using PixiEditor.Models.Controllers;
@@ -42,34 +43,37 @@ internal partial class App : Application
 
         if (ParseArgument("--crash (\"?)([A-z0-9:\\/\\ -_.]+)\\1", arguments, out Group[] groups))
         {
-            CrashReport report = CrashReport.Parse(groups[2].Value);
-            MainWindow = new CrashReportDialog(report);
-            MainWindow.Show();
+            try
+            {
+                CrashReport report = CrashReport.Parse(groups[2].Value);
+                MainWindow = new CrashReportDialog(report);
+                MainWindow.Show();
+            }
+            catch (Exception exception)
+            {
+                try
+                {
+                    CrashHelper.SendExceptionInfoToWebhook(exception, true);
+                }
+                finally
+                {
+                    MessageBox.Show("Fatal error", $"Fatal error while trying to open crash report in App.OnStartup()\n{exception}");
+                }
+            }
+
             return;
         }
 
-        #if !STEAM
+#if !STEAM
         if (!HandleNewInstance())
         {
             return;
         }
-        #endif
-
-        LoadingWindow.ShowInNewThread();
-
-        AddNativeAssets();
-
-        InitPlatform();
-
-        ExtensionLoader extensionLoader = new ExtensionLoader();
-        extensionLoader.LoadExtensions();
-
+#endif
+        
+        var extensionLoader = InitApp();
+        
         MainWindow = new MainWindow(extensionLoader);
-        MainWindow.ContentRendered += (_, _) =>
-        {
-            LoadingWindow.Instance.SafeClose();
-            MainWindow.Activate();
-        };
         MainWindow.Show();
     }
 
@@ -78,6 +82,20 @@ internal partial class App : Application
         var platform = GetActivePlatform();
         IPlatform.RegisterPlatform(platform);
         platform.PerformHandshake();
+    }
+
+    public ExtensionLoader InitApp()
+    {
+        LoadingWindow.ShowInNewThread();
+
+        AddNativeAssets();
+
+        InitPlatform();
+
+        ExtensionLoader extensionLoader = new ExtensionLoader();
+        extensionLoader.LoadExtensions();
+        
+        return extensionLoader;
     }
 
     private IPlatform GetActivePlatform()

@@ -49,7 +49,7 @@ internal class ExtensionLoader
         }
         catch (Exception ex)
         {
-            Task.Run(async () => await CrashHelper.SendExceptionInfoToWebhook(ex));
+            CrashHelper.SendExceptionInfoToWebhook(ex);
         }
     }
 
@@ -86,7 +86,7 @@ internal class ExtensionLoader
         catch (Exception ex)
         {
             //MessageBox.Show(new LocalizedString("ERROR_LOADING_PACKAGE", packageJsonPath), "ERROR");
-            Task.Run(async () => await CrashHelper.SendExceptionInfoToWebhook(ex));
+            CrashHelper.SendExceptionInfoToWebhook(ex);
         }
     }
 
