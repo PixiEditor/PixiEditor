@@ -29,7 +29,7 @@
             <Setter Property="Height" Value="25"/>
         </Style>
     </UserControl.Styles>
-    <Border Background="{DynamicResource ThemeBackgroundBrush}" VerticalAlignment="Stretch" CornerRadius="10" Padding="15,0">
+    <Border VerticalAlignment="Stretch" CornerRadius="10" Padding="15,0">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid Height="60" HorizontalAlignment="Stretch" DockPanel.Dock="Top"
                   IsVisible="{Binding IsSizeUnitSelectionVisible, ElementName=uc}">

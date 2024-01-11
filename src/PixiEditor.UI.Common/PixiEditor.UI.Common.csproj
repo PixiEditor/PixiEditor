@@ -10,7 +10,6 @@
       <AvaloniaResource Include="Assets\ChevronDown.png" />
       <AvaloniaResource Include="Assets\PixiEditorLogo.png" />
       <AvaloniaResource Include="Assets\Processing.gif" />
-      <AvaloniaResource Include="Fonts\feather.ttf" />
       <None Remove="Assets\Fonts\Oxygen-Bold.ttf" />
       <None Remove="Assets\Fonts\Oxygen-Light.ttf" />
       <None Remove="Assets\Fonts\Oxygen-Regular.ttf" />
@@ -28,5 +27,9 @@
     <ItemGroup>
       <UpToDateCheckInput Remove="Animations\Processing.axaml" />
       <UpToDateCheckInput Remove="Controls\Dock\Accents\Base.axaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="Fonts\feather.ttf" />
     </ItemGroup>
 </Project>

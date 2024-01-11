@@ -19,6 +19,7 @@
       <AvaloniaResource Include="Images\Lock-alpha.svg" />
       <None Remove="Images\Merge-downwards.svg" />
       <AvaloniaResource Include="Images\Merge-downwards.svg" />
+      <None Remove="Nunito.ttf" />
     </ItemGroup>
 
     <ItemGroup>

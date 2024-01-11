@@ -18,11 +18,13 @@ using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.UserData;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
@@ -346,7 +348,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     /// <param name="parameter">CommandProperty.</param>
     [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = KeyModifiers.Control)]
-    public void ExportFile()
+    public async Task ExportFile()
     {
         try
         {
@@ -354,16 +356,15 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             if (doc is null)
                 return;
 
-            //TODO: Implement ExportFileDialog
-            /*ExportFileDialog info = new ExportFileDialog(doc.SizeBindable);
-            if (info.ShowDialog())
+            ExportFileDialog info = new ExportFileDialog(MainWindow.Current, doc.SizeBindable) { SuggestedName = Path.GetFileNameWithoutExtension(doc.FileName) };
+            if (await info.ShowDialog())
             {
                 SaveResult result = Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, out string finalPath, new(info.FileWidth, info.FileHeight));
                 if (result == SaveResult.Success)
-                    ProcessHelper.OpenInExplorer(finalPath);
+                    IOperatingSystem.Current.OpenFolder(finalPath);
                 else
                     ShowSaveError((DialogSaveResult)result);
-            }*/
+            }
         }
         catch (RecoverableException e)
         {

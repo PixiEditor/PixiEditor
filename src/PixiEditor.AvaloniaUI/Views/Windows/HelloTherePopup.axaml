@@ -232,7 +232,7 @@
                                                                 <Button Command="{xaml:Command Name=PixiEditor.File.RemoveRecent, UseProvided=True}"
                                                                         CommandParameter="{Binding FilePath}"
                                                                         ToolTip.Tip="Remove from list">
-                                                                    <TextBlock Text="" FontFamily="{DynamicResource Feather}"
+                                                                    <TextBlock Text="" FontFamily="{StaticResource Feather}"
                                                                                TextAlignment="Center" FontSize="20"/>
                                                                 </Button>
                                                             </StackPanel>

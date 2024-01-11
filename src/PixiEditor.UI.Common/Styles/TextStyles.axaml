@@ -25,4 +25,14 @@
     <Style Selector="TextBlock.h5">
         <Setter Property="FontSize" Value="{DynamicResource Header5}"/>
     </Style>
+
+    <Style Selector="TextBlock.hyperlink">
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundSecondaryBrush}"/>
+    </Style>
+
+    <Style Selector="TextBlock.hyperlink:pointerover">
+        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}"/>
+        <Setter Property="TextDecorations" Value="Underline"/>
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
 </Styles>

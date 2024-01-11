@@ -16,7 +16,6 @@
     <DockPanel Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True">
         <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
                 IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton"
-                Classes="DarkRoundButton"
                 Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
             <Button.CommandParameter>
                 <system:Boolean>True</system:Boolean>
