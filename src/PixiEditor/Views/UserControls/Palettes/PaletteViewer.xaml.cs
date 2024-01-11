@@ -5,12 +5,14 @@ using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.Win32;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.IO.PaletteParsers;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Views.UserControls.Palettes;
@@ -120,22 +122,31 @@ internal partial class PaletteViewer : UserControl
 
     private async void SavePalette_OnClick(object sender, RoutedEventArgs e)
     {
+        List<PaletteFileParser> availableParsers = PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList();
         SaveFileDialog saveFileDialog = new SaveFileDialog
         {
-            Filter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList(), false)
+            Filter = PaletteHelpers.GetFilter(availableParsers, false)
         };
 
         if (saveFileDialog.ShowDialog() == true)
         {
-            string fileName = saveFileDialog.FileName;
-            var foundParser = PaletteProvider.AvailableParsers.First(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+            int filterIndex = saveFileDialog.FilterIndex;
+            var foundParser = availableParsers[filterIndex - 1];
             if (Colors == null || Colors.Count == 0)
             {
                 NoticeDialog.Show("NO_COLORS_TO_SAVE", "ERROR");
                 return;
             }
-            bool saved = await foundParser.Save(fileName, new PaletteFileData(Colors.ToArray()));
-            if (!saved)
+
+            try
+            {
+                bool saved = await foundParser.Save(saveFileDialog.FileName, new PaletteFileData(Colors.ToArray()));
+                if (!saved)
+                {
+                    NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
+                }
+            }
+            catch (SavingNotSupportedException savingNotSupportedException)
             {
                 NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
             }
