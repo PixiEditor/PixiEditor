@@ -10,7 +10,7 @@
         x:ClassModifier="internal"
         WindowState="Maximized"
         Name="Window"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Images/favicon.ico"
         Title="PixiEditor">
     <views1:MainView />
 </Window>
