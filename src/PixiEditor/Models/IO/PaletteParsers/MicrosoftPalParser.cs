@@ -5,12 +5,12 @@ using PixiEditor.Extensions.Palettes.Parsers;
 
 namespace PixiEditor.Models.IO.PaletteParsers;
 
-// Reads Microsoft RIFF palette data.
+// Reads Microsoft RIFF palette files.
 
 // There are two variants of RIFF palettes, simple and extended.
-// This is implementation only supports the simple format with consists
+// This implementation only supports the simple format which consists
 // of RGB colors. I've yet to come across files using the extended variant, but
-// if anyone comes across these I should be able to easily add with some testing.
+// if anyone finds these I should be able to easily add support with some testing.
 // The extended variant includes extra header data describing how the palette
 // is used, and can be either RGB, YUV or XYZ color data.
 internal class MicrosoftPalParser : PaletteFileParser
