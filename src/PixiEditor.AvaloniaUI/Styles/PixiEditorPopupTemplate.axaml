@@ -19,27 +19,33 @@
         <Setter Property="ShowInTaskbar" Value="False"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <DockPanel>
-                    <controls:DialogTitleBar 
-                        DockPanel.Dock="Top"
-                        CanMinimize="{TemplateBinding CanMinimize}"
-                        CanFullscreen="{TemplateBinding CanResize}"
-                        TitleKey="{TemplateBinding Title}"/>
-                    <Grid Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
-                        <Interaction.Behaviors>
-                            <behaviours:ClearFocusOnClickBehavior/>
-                        </Interaction.Behaviors>
-                        
-                        <ContentPresenter DockPanel.Dock="Bottom"
-                                          Name="PART_ContentPresenter"
-                                          Margin="{TemplateBinding Padding}"
-                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                          Content="{TemplateBinding Content}"
-                                          ContentTemplate="{TemplateBinding ContentTemplate}"  />
-                    </Grid>
-                </DockPanel>
+                <Panel>
+                    <DockPanel>
+                        <controls:DialogTitleBar
+                            DockPanel.Dock="Top"
+                            CanMinimize="{TemplateBinding CanMinimize}"
+                            CanFullscreen="{TemplateBinding CanResize}"
+                            TitleKey="{TemplateBinding Title}"/>
+                        <Grid Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
+                            <Interaction.Behaviors>
+                                <behaviours:ClearFocusOnClickBehavior/>
+                            </Interaction.Behaviors>
+
+                            <ContentPresenter DockPanel.Dock="Bottom"
+                                              Name="PART_ContentPresenter"
+                                              Margin="{TemplateBinding Padding}"
+                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Content="{TemplateBinding Content}"
+                                              ContentTemplate="{TemplateBinding ContentTemplate}"  />
+                        </Grid>
+                    </DockPanel>
+                </Panel>
             </ControlTemplate>
         </Setter>
+
+        <Style Selector="^controls|PixiEditorPopup[WindowState=Maximized] /template/ Panel">
+            <Setter Property="Margin" Value="8"/>
+        </Style>
     </Style>
 </Styles>

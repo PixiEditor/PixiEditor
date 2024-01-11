@@ -35,7 +35,7 @@
             </ControlTemplate>
         </Setter>
         <Style Selector="^Window[WindowState=Maximized] /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Padding" Value="8"/>
         </Style>
     </ControlTheme>
 </ResourceDictionary>
