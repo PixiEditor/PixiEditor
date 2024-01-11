@@ -33,7 +33,7 @@ using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;
 
 namespace PixiEditor.AvaloniaUI.Views.Windows;
 
-internal partial class PalettesBrowser : Window, IPopupWindow
+internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 {
     public static string UniqueId => "PixiEditor.BrowserPalette";
     string IPopupWindow.UniqueId => UniqueId;

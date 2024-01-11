@@ -1,4 +1,4 @@
-﻿<Window
+﻿<dialogs:PixiEditorPopup
     x:Class="PixiEditor.AvaloniaUI.Views.Windows.PalettesBrowser"
     x:ClassModifier="internal"
     xmlns="https://github.com/avaloniaui"
@@ -16,26 +16,16 @@
     xmlns:palettes1="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
     xmlns:indicators1="clr-namespace:PixiEditor.AvaloniaUI.Views.Indicators"
     mc:Ignorable="d"
-    WindowStartupLocation="CenterScreen"
     Height="600" Width="850"
     x:Name="palettesBrowser"
-    FlowDirection="{markupExtensions:Localization FlowDirection}"
-    ui:Translator.Key="PALETTE_BROWSER">
-    <!--<WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32"  GlassFrameThickness="0.1"
-                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
-    </WindowChrome.WindowChrome>-->
-
+    Title="PALETTE_BROWSER">
     <Grid Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True" PointerPressed="Grid_MouseDown">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35" />
             <RowDefinition Height="45"/>
             <RowDefinition Height="1*"/>
         </Grid.RowDefinitions>
 
-        <dialogs:DialogTitleBar TitleKey="PALETTE_BROWSER" CloseCommand="{x:Static viewModels:SystemCommands.CloseWindowCommand}"/>
-
-        <DockPanel Background="{DynamicResource ThemeBackgroundBrush}" Grid.Row="1">
+        <DockPanel Background="{DynamicResource ThemeBackgroundBrush}" Grid.Row="0">
             <StackPanel HorizontalAlignment="Left" Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
                 <Label ui:Translator.Key="SORT_BY" VerticalAlignment="Center"/>
                 <ComboBox x:Name="sortingComboBox" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
@@ -108,7 +98,7 @@
                 </Button>
             </StackPanel>
         </DockPanel>
-        <Grid Grid.Row="2" Margin="10">
+        <Grid Grid.Row="1" Margin="10">
             <TextBlock ui:Translator.Key="COULD_NOT_LOAD_PALETTE" Foreground="White" FontSize="20" HorizontalAlignment="Center"
                        VerticalAlignment="Center" IsVisible="{Binding !Visibility, ElementName=itemsControl}"/>
             <StackPanel Panel.ZIndex="10" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -140,4 +130,4 @@
                 Height="50"/>
         </Grid>
     </Grid>
-</Window>
+</dialogs:PixiEditorPopup>
