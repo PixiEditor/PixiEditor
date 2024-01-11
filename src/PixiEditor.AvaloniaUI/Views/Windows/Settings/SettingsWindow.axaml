@@ -1,4 +1,4 @@
-﻿<Window
+﻿<dialogs:PixiEditorPopup
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -24,25 +24,17 @@
     MinWidth="665" MinHeight="500"
     DataContext="{DynamicResource SettingsWindowViewModel}"
     BorderBrush="Black" BorderThickness="1"
-    FlowDirection="{markupExtensions:Localization FlowDirection}"
-    ui:Translator.Key="SETTINGS">
+    Title="SETTINGS">
 
     <Window.Resources>
         <vm:SettingsWindowViewModel x:Key="SettingsWindowViewModel"/>
     </Window.Resources>
 
     <DockPanel>
-        <dialogs:DialogTitleBar 
-            DockPanel.Dock="Top"
-            TitleKey="SETTINGS"/>
         <DockPanel Focusable="True" Background="{DynamicResource ThemeBackgroundBrush}">
-            <i:Interaction.Behaviors>
-                <behaviours:ClearFocusOnClickBehavior/>
-            </i:Interaction.Behaviors>
-            
             <ListBox DockPanel.Dock="Left" x:Name="pages" ItemsSource="{Binding Pages}"
                      Margin="0, 8"
-                     Background="{DynamicResource ThemeBackgroundBrush}" 
+                     Background="{DynamicResource ThemeBackgroundBrush}"
                      MinWidth="165"
                      SelectedIndex="{Binding CurrentPage}">
                 <ListBox.ItemTemplate>
@@ -73,7 +65,7 @@
                                 </Binding.ConverterParameter>
                             </Binding>
                         </controls:FixedSizeStackPanel.IsVisible>
-                        
+
                         <TextBlock ui:Translator.Key="LANGUAGE" Classes="h5"/>
                         <ComboBox Classes="leftOffset" Width="200" HorizontalAlignment="Left"
                                   ItemsSource="{Binding SettingsSubViewModel.General.AvailableLanguages}"
@@ -261,4 +253,5 @@
         </DockPanel>
     </DockPanel>
 
-</Window>
+</dialogs:PixiEditorPopup>
+
