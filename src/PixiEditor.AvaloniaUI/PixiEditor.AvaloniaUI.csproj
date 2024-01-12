@@ -97,5 +97,14 @@
         <HintPath>..\..\..\..\Users\flubb\.nuget\packages\microsoft.xaml.behaviors.wpf\1.1.31\lib\net5.0-windows7.0\Microsoft.Xaml.Behaviors.dll</HintPath>
       </Reference>
     </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="../../LICENSE">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="../../THIRD_PARTY_LICENSES.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   
 </Project>

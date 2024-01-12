@@ -31,6 +31,6 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
         if (!AssetLoader.Exists(uri))
             throw new FileNotFoundException($"Could not find asset with path {path}");
 
-        return new Bitmap(AssetLoader.Open(uri)).CreateScaledBitmap(new PixelSize(32, 32));
+        return new Bitmap(AssetLoader.Open(uri));
     }
 }

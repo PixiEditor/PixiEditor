@@ -17,6 +17,11 @@ internal class AlignableWrapPanel : Panel
             nameof(HorizontalContentAlignment),
             HorizontalAlignment.Left);//TODO: AffectedArrange was here
 
+    static AlignableWrapPanel()
+    {
+        AffectsArrange<AlignableWrapPanel>(HorizontalContentAlignmentProperty);
+    }
+
     protected override Size MeasureOverride(Size constraint)
     {
         Size curLineSize = default;
@@ -40,15 +45,13 @@ internal class AlignableWrapPanel : Panel
 
                 if (sz.Width > constraint.Width)
                 {
-                    panelSize = panelSize
-                        .WithWidth(Math.Max(sz.Width, panelSize.Width))
-                        .WithHeight(panelSize.Height + sz.Height);
+                    panelSize = new Size(Math.Max(sz.Width, panelSize.Width), panelSize.Height + sz.Height);
                     curLineSize = default;
                 }
             }
             else
             {
-                curLineSize = panelSize.WithWidth(panelSize.Width + sz.Width)
+                curLineSize = curLineSize.WithWidth(curLineSize.Width + sz.Width)
                 .WithHeight(Math.Max(sz.Height, curLineSize.Height));
             }
         }

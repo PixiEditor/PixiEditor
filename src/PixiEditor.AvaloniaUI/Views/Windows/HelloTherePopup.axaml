@@ -272,7 +272,7 @@
                                 Content="/Images/SocialMedia/SteamIcon.png"/>
                         <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://github.com/PixiEditor/PixiEditor"
                                 Classes="SocialMediaButton" Tag="Black" ui:Translator.TooltipKey="GITHUB"
-                                Content="/Images/SocialMedia/GithubIcon.png"/>
+                                Content="/Images/SocialMedia/GitHubIcon.png"/>
                         <Button Command="{xaml:Command PixiEditor.Links.OpenHyperlink, UseProvided=True}" CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
                                 Classes="SocialMediaButton" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
                                 Content="/Images/SocialMedia/YouTubeIcon.png"/>

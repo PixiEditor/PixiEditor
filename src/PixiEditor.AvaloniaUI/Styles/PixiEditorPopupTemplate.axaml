@@ -16,7 +16,7 @@
         <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
-        <Setter Property="ShowInTaskbar" Value="False"/>
+        <Setter Property="ShowInTaskbar" Value="{TemplateBinding CanMinimize}"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Panel>
@@ -26,7 +26,7 @@
                             CanMinimize="{TemplateBinding CanMinimize}"
                             CanFullscreen="{TemplateBinding CanResize}"
                             TitleKey="{TemplateBinding Title}"/>
-                        <Grid Background="{DynamicResource ThemeBackgroundBrush1}" Focusable="True">
+                        <Grid Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True">
                             <Interaction.Behaviors>
                                 <behaviours:ClearFocusOnClickBehavior/>
                             </Interaction.Behaviors>

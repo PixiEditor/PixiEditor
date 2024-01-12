@@ -12,9 +12,9 @@ public class WindowsOperatingSystem : IOperatingSystem
 
     public WindowsOperatingSystem() => IOperatingSystem.RegisterOS(this);
 
-    public void OpenHyperlink(string url)
+    public void OpenUri(string uri)
     {
-        WindowsProcessUtility.ShellExecute(url);
+        WindowsProcessUtility.ShellExecute(uri);
     }
 
     public void OpenFolder(string path)

@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views;
+using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.Views.UserControls;
 using Command = PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands.Command;
@@ -178,8 +179,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW")]
     public void OpenAboutWindow()
     {
-        //TODO: Add about window
-        //new AboutPopup().Show();
+        new AboutPopup().Show();
     }
 
     [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "OPEN_NAVIGATION_WINDOW", "OPEN_NAVIGATION_WINDOW")]

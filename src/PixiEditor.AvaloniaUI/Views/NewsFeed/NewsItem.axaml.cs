@@ -25,7 +25,7 @@ internal partial class NewsItem : UserControl
 
     private void CoverImageClicked(object sender, PointerPressedEventArgs e)
     {
-        IOperatingSystem.Current.OpenHyperlink(News.Url);
+        IOperatingSystem.Current.OpenUri(News.Url);
     }
 }
 

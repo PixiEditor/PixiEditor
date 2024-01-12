@@ -18,6 +18,6 @@ public interface IOperatingSystem
         Current = operatingSystem;
     }
 
-    public void OpenHyperlink(string url);
+    public void OpenUri(string uri);
     public void OpenFolder(string path);
 }

@@ -30,15 +30,15 @@ public class Hyperlink : AvaloniaObject
     {
         if (e.Sender is TextBlock tb)
         {
-            tb.Classes.Add("link");
+            tb.Classes.Add("hyperlink");
             tb.Cursor = new Cursor(StandardCursorType.Hand);
             tb.PointerPressed += (sender, args) =>
             {
                 if (sender is TextBlock tb)
                 {
-                    if (tb.GetValue(UrlProperty) is string url)
+                    if (tb.GetValue(UrlProperty) is string uri)
                     {
-                        IOperatingSystem.Current.OpenHyperlink(url);
+                        IOperatingSystem.Current.OpenUri(uri);
                     }
                 }
             };

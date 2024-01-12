@@ -643,7 +643,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
         Button button = sender as Button;
         string url = (string)button.CommandParameter;
 
-        IOperatingSystem.Current.OpenHyperlink(url);
+        IOperatingSystem.Current.OpenUri(url);
     }
 
 

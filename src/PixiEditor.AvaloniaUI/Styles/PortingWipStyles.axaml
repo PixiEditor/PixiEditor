@@ -1,14 +1,11 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters">
     <Design.PreviewWith>
         <Border Padding="20">
             <!-- Add Controls for Previewer Here -->
         </Border>
     </Design.PreviewWith>
-
-    <Style Selector="Button.SocialMediaButton">
-
-    </Style>
 
     <Style Selector="Button.GrayRoundButton">
 
@@ -53,5 +50,36 @@
 
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle">
 
+    </Style>
+
+    <Style Selector="Button.SocialMediaButton">
+        <Setter Property="Width" Value="50"/>
+        <Setter Property="Margin" Value="5,8,5,0"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Height" Value="50"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border
+                        x:Name="Border"
+                        Background="{TemplateBinding Background}"
+                        Width="{TemplateBinding Width}" Height="{TemplateBinding Height}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        CornerRadius="5">
+                        <ContentControl>
+                            <Image Margin="8" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content,
+                            Converter={converters:ImagePathToBitmapConverter}}" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                        </ContentControl>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style Selector="Button.SocialMediaButton:pointerover">
+        <Setter Property="Background" Value="{Binding Tag, RelativeSource={RelativeSource Self}}"/>
     </Style>
 </Styles>

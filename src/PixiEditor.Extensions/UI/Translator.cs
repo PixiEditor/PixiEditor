@@ -192,7 +192,7 @@ public class Translator : Control
         d.SetValue(ValueProperty, localizedString.Value);
     }
 
-    public static void SetKey(Control element, string value)
+    public static void SetKey(AvaloniaObject element, string value)
     {
         element.SetValue(KeyProperty, value);
     }
@@ -202,12 +202,12 @@ public class Translator : Control
         return element.GetValue(KeyProperty);
     }
 
-    public static void SetLocalizedString(Control element, LocalizedString value)
+    public static void SetLocalizedString(AvaloniaObject element, LocalizedString value)
     {
         element.SetValue(LocalizedStringProperty, value);
     }
 
-    public static void SetEnum(Control element, object value)
+    public static void SetEnum(AvaloniaObject element, object value)
     {
         element.SetValue(EnumProperty, value);
     }
@@ -217,7 +217,7 @@ public class Translator : Control
         return element.GetValue(LocalizedStringProperty);
     }
 
-    public static string GetValue(Control element)
+    public static string GetValue(AvaloniaObject element)
     {
         return (string)element.GetValue(ValueProperty);
     }
@@ -227,7 +227,7 @@ public class Translator : Control
         return element.GetValue(TooltipLocalizedStringProperty);
     }
 
-    public static void SetTooltipLocalizedString(Control element, LocalizedString value)
+    public static void SetTooltipLocalizedString(AvaloniaObject element, LocalizedString value)
     {
         element.SetValue(TooltipLocalizedStringProperty, value);
     }
