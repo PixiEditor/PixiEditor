@@ -9,16 +9,18 @@
                          xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
                          xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
                          mc:Ignorable="d"
-                         Name="window"
+                         x:Name="window"
+                         CanResize="False"
+                         CanMinimize="False"
                          Title="RESIZE_CANVAS"
-                         Height="420" Width="320" MinHeight="420" MinWidth="320">
+                         Height="410" Width="320">
     <DockPanel Focusable="True">
-        <Button DockPanel.Dock="Bottom" Padding="5 0" HorizontalAlignment="Center" Margin="15"
+        <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" Margin="15"
                 ui:Translator.Key="RESIZE" Click="Button_Click"
                 IsDefault="True" />
 
-        <Border HorizontalAlignment="Center" Margin="0,30,0,0" Background="{DynamicResource ThemeBackgroundBrush}"
-                VerticalAlignment="Top" Grid.Row="1" Width="250" Height="290" CornerRadius="10">
+        <Border HorizontalAlignment="Center" Margin="0,30,0,0" Background="{DynamicResource ThemeBackgroundBrush1}"
+                VerticalAlignment="Top" Width="250" Height="290" CornerRadius="{DynamicResource ControlCornerRadius}">
             <StackPanel>
                 <input:SizePicker Margin="0,8,0,0"
                                          Width="240"
@@ -30,7 +32,7 @@
                                          ChosenPercentageSize="{Binding NewPercentageSize, Mode=TwoWay, ElementName=window}"
                                          SelectedUnit="{ Binding NewSelectedUnit, Mode=TwoWay, ElementName=window}"
                                          IsSizeUnitSelectionVisible="True" />
-                <Separator Margin="10,5,10,0" Background="{StaticResource AccentColor}" Height="1" />
+                <Separator Margin="10,5,10,0" Height="1" />
                 <DockPanel>
                     <Label ui:Translator.Key="ANCHOR_POINT" Foreground="White" Margin="25,5,0,0"
                            HorizontalAlignment="Left"

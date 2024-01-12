@@ -21,7 +21,6 @@
                           BorderBrush="{TemplateBinding BorderBrush}"
                           BorderThickness="{TemplateBinding BorderThickness}"
                           Content="{TemplateBinding Content}"
-                          Transitions="{TemplateBinding Transitions}"
                           ContentTemplate="{TemplateBinding ContentTemplate}"
                           CornerRadius="{TemplateBinding CornerRadius}"
                           RecognizesAccessKey="True"

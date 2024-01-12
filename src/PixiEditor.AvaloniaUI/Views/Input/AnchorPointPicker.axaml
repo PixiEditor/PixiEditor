@@ -20,68 +20,32 @@
             <ColumnDefinition Width="26" />
             <ColumnDefinition Width="26" />
         </Grid.ColumnDefinitions>
-        <ToggleButton IsChecked="True" Checked="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
-                      Classes="AnchorPointToggleButtonStyle" ui:Translator.TooltipKey="TOP_LEFT" Grid.Row="0"
-                      Grid.Column="0" BorderBrush="Black">
-            <ToggleButton.Background>
-                <ImageBrush Source="../../Images/AnchorDot.png" />
-            </ToggleButton.Background>
-        </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
-                      Classes="AnchorPointToggleButtonStyle" Grid.Row="0" ui:Translator.TooltipKey="TOP_CENTER"
-                      Grid.Column="1" BorderBrush="Black">
-            <ToggleButton.Background>
-                <ImageBrush Source="../../Images/AnchorDot.png" />
-            </ToggleButton.Background>
-        </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
-                      Classes="AnchorPointToggleButtonStyle" ui:Translator.TooltipKey="TOP_RIGHT" Grid.Row="0"
-                      Grid.Column="2" BorderBrush="Black">
-            <ToggleButton.Background>
-                <ImageBrush Source="../../Images/AnchorDot.png" />
-            </ToggleButton.Background>
-        </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
-                      Classes="AnchorPointToggleButtonStyle" Grid.Row="1" ui:Translator.TooltipKey="MIDDLE_LEFT"
-                      Grid.Column="0" BorderBrush="Black">
-            <ToggleButton.Background>
-                <ImageBrush Source="../../Images/AnchorDot.png" />
-            </ToggleButton.Background>
-        </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
-                      Classes="AnchorPointToggleButtonStyle" Grid.Row="1" Grid.Column="1"
-                      ui:Translator.TooltipKey="MIDDLE_CENTER" BorderBrush="Black">
-            <ToggleButton.Background>
-                <ImageBrush Source="../../Images/AnchorDot.png" />
-            </ToggleButton.Background>
-        </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
-                      Classes="AnchorPointToggleButtonStyle" Grid.Row="1" Grid.Column="2"
-                      ui:Translator.TooltipKey="MIDDLE_RIGHT" BorderBrush="Black">
-            <ToggleButton.Background>
-                <ImageBrush Source="../../Images/AnchorDot.png" />
-            </ToggleButton.Background>
-        </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
-                      Classes="AnchorPointToggleButtonStyle" Grid.Row="2" Grid.Column="0"
-                      ui:Translator.TooltipKey="BOTTOM_LEFT" BorderBrush="Black">
-            <ToggleButton.Background>
-                <ImageBrush Source="../../Images/AnchorDot.png" />
-            </ToggleButton.Background>
-        </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
-                      Classes="AnchorPointToggleButtonStyle" Grid.Row="2" Grid.Column="1"
-                      ui:Translator.TooltipKey="BOTTOM_CENTER" BorderBrush="Black">
-            <ToggleButton.Background>
-                <ImageBrush Source="../../Images/AnchorDot.png" />
-            </ToggleButton.Background>
-        </ToggleButton>
-        <ToggleButton Checked="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
-                      Classes="AnchorPointToggleButtonStyle" Grid.Row="2" Grid.Column="2"
-                      ui:Translator.TooltipKey="BOTTOM_RIGHT" BorderBrush="Black">
-            <ToggleButton.Background>
-                <ImageBrush Source="../../Images/AnchorDot.png" />
-            </ToggleButton.Background>
-        </ToggleButton>
+        <ToggleButton IsChecked="True" IsCheckedChanged="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" ui:Translator.TooltipKey="TOP_LEFT" Grid.Row="0" Name="topLeft"
+                      Grid.Column="0" CornerRadius="5,0,0,0"/>
+        <ToggleButton IsCheckedChanged="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="0" ui:Translator.TooltipKey="TOP_CENTER" Name="topCenter"
+                      Grid.Column="1" />
+        <ToggleButton IsCheckedChanged="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25" Name="topRight"
+                      Classes="AnchorPointToggleButtonStyle" ui:Translator.TooltipKey="TOP_RIGHT" CornerRadius="0,5,0,0" Grid.Row="0"
+                      Grid.Column="2" />
+        <ToggleButton IsCheckedChanged="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="1" ui:Translator.TooltipKey="MIDDLE_LEFT" Name="middleLeft"
+                      Grid.Column="0" />
+        <ToggleButton IsCheckedChanged="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="1" Grid.Column="1" Name="middleCenter"
+                      ui:Translator.TooltipKey="MIDDLE_CENTER" />
+        <ToggleButton IsCheckedChanged="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="1" Grid.Column="2" Name="middleRight"
+                      ui:Translator.TooltipKey="MIDDLE_RIGHT" />
+        <ToggleButton IsCheckedChanged="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="2" Grid.Column="0" Name="bottomLeft"
+                      ui:Translator.TooltipKey="BOTTOM_LEFT" CornerRadius="0,0,0,5" />
+        <ToggleButton IsCheckedChanged="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25"
+                      Classes="AnchorPointToggleButtonStyle" Grid.Row="2" Grid.Column="1" Name="bottomCenter"
+                      ui:Translator.TooltipKey="BOTTOM_CENTER" />
+        <ToggleButton IsCheckedChanged="ToggleButton_Checked" PointerPressed="ToggleButton_Click" Margin="0.25" Name="bottomRight"
+                      Classes="AnchorPointToggleButtonStyle" CornerRadius="0,0,5,0" Grid.Row="2" Grid.Column="2"
+                      ui:Translator.TooltipKey="BOTTOM_RIGHT" />
     </Grid>
 </controls:UserControl>

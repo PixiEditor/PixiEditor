@@ -27,7 +27,7 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Cursor="Hand" Background="{TemplateBinding Background}">
-                    <ContentPresenter/>
+                    <ContentPresenter />
                 </Border>
             </ControlTemplate>
         </Setter>
@@ -35,17 +35,17 @@
 
     <Style Selector="CheckBox.ImageCheckBox">
         <Setter Property="Template">
-                <ControlTemplate TargetType="{x:Type CheckBox}">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Cursor="Hand" x:Name="checkboxImage" Source="../Images/Eye-off.png"/>
-                        <ContentPresenter/>
-                    </StackPanel>
+            <ControlTemplate TargetType="{x:Type CheckBox}">
+                <StackPanel Orientation="Horizontal">
+                    <Image Cursor="Hand" x:Name="checkboxImage" Source="../Images/Eye-off.png" />
+                    <ContentPresenter />
+                </StackPanel>
             </ControlTemplate>
         </Setter>
     </Style>
 
     <Style Selector="CheckBox.ImageCheckBox:checked Image">
-        <Setter Property="Source" Value="../Images/Eye.png"/>
+        <Setter Property="Source" Value="../Images/Eye.png" />
     </Style>
 
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle">
@@ -53,12 +53,12 @@
     </Style>
 
     <Style Selector="Button.SocialMediaButton">
-        <Setter Property="Width" Value="50"/>
-        <Setter Property="Margin" Value="5,8,5,0"/>
-        <Setter Property="FontSize" Value="18"/>
-        <Setter Property="Height" Value="50"/>
-        <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="Width" Value="50" />
+        <Setter Property="Margin" Value="5,8,5,0" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Height" Value="50" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="MinWidth" Value="0" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -70,8 +70,10 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         CornerRadius="5">
                         <ContentControl>
-                            <Image Margin="8" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content,
-                            Converter={converters:ImagePathToBitmapConverter}}" RenderOptions.BitmapInterpolationMode="HighQuality"/>
+                            <Image Margin="8"
+                                   Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content,
+                            Converter={converters:ImagePathToBitmapConverter}}"
+                                   RenderOptions.BitmapInterpolationMode="HighQuality" />
                         </ContentControl>
                     </Border>
                 </ControlTemplate>
@@ -80,10 +82,36 @@
     </Style>
 
     <Style Selector="Button.SocialMediaButton:pointerover">
-        <Setter Property="Background" Value="{Binding Tag, RelativeSource={RelativeSource Self}}"/>
+        <Setter Property="Background" Value="{Binding Tag, RelativeSource={RelativeSource Self}}" />
     </Style>
 
     <Style Selector="ToggleButton.AnchorPointToggleButtonStyle">
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+        <Setter Property="CornerRadius" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <!--TODO: After toggling on and off, weird visual glitch appears on the corner of rounded anchor-->
+                    <Border CornerRadius="{TemplateBinding CornerRadius}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Border.Background>
+                            <ImageBrush Source="/Images/AnchorDot.png"/>
+                        </Border.Background>
+                        <ContentPresenter Padding="{TemplateBinding Padding}"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          RecognizesAccessKey="True"
+                                          TextElement.Foreground="{TemplateBinding Foreground}" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
+    <Style Selector="ToggleButton.AnchorPointToggleButtonStyle:checked">
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeHighlightForegroundBrush}" />
     </Style>
 </Styles>
