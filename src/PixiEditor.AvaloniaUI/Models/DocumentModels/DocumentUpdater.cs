@@ -295,10 +295,10 @@ internal class DocumentUpdater
         doc.PreviewSurface = WriteableBitmapUtility.CreateDrawingSurface(doc.PreviewBitmap);
 
         // TODO: Make sure property changed events are raised internally
+        // UPDATE: I think I did, but I'll leave it commented out for now
         /*doc.OnPropertyChanged(nameof(doc.LazyBitmaps));
-        doc.OnPropertyChanged(nameof(doc.PreviewBitmap));*/
-
-        //doc.InternalRaiseSizeChanged(new(doc, oldSize, info.Size));
+        doc.OnPropertyChanged(nameof(doc.PreviewBitmap));
+        doc.InternalRaiseSizeChanged(new DocumentSizeChangedEventArgs(doc, oldSize, info.Size));*/
     }
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)

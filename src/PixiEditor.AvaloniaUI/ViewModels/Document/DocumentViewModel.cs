@@ -143,7 +143,19 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         [ChunkResolution.Quarter] = WriteableBitmapUtility.CreateBitmap(new VecI(16, 16)),
         [ChunkResolution.Eighth] = WriteableBitmapUtility.CreateBitmap(new VecI(8, 8)),
     };
-    public WriteableBitmap PreviewBitmap { get; set; }
+
+    private WriteableBitmap previewBitmap;
+
+    public WriteableBitmap PreviewBitmap
+    {
+        get => previewBitmap;
+        set
+        {
+            SetProperty(ref previewBitmap, value);
+            OnPropertyChanged(nameof(LazyBitmaps));
+        }
+    }
+
     public DrawingSurface PreviewSurface { get; set; }
 
     private VectorPath selectionPath = new VectorPath();
@@ -531,10 +543,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public void SetSize(VecI size)
     {
+        var oldSize = size;
         this.size = size;
         OnPropertyChanged(nameof(SizeBindable));
         OnPropertyChanged(nameof(Width));
         OnPropertyChanged(nameof(Height));
+
+        // TODO: Make sure this is correct, it was in InternalRaiseSizeChanged previously, check DocumentUpdater.cs ProcessSize
+        SizeChanged?.Invoke(this, new DocumentSizeChangedEventArgs(this, oldSize, size));
     }
 
     public void UpdateSelectionPath(VectorPath vectorPath)
