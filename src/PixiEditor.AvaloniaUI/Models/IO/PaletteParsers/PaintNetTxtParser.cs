@@ -65,7 +65,7 @@ internal class PaintNetTxtParser : PaletteFileParser
         sb.AppendLine($"; {data.Colors.Length} colors");
         foreach (PaletteColor color in data.Colors)
         {
-            sb.AppendLine(color.Hex);
+            sb.AppendLine($"FF{color.R:X2}{color.G:X2}{color.B:X2}");
         }
 
         try

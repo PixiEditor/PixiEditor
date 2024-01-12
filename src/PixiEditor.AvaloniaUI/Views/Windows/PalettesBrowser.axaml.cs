@@ -443,7 +443,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
         foreach (var pal in srcPalettes)
         {
-            if(PaletteEquals(pal, PaletteList.Palettes)) continue;
+            if (PaletteEquals(pal, PaletteList.Palettes)) continue;
             PaletteList.Palettes.Add(pal);
         }
     }
@@ -665,14 +665,12 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private async Task ImportPalette(string fileName, IList<PaletteFileParser> parsers)
     {
-        var parser = parsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+        // check if valid parser found
+        var parser = await PaletteHelpers.GetValidParser(parsers, fileName);
         if (parser != null)
         {
-            var data = await parser.Parse(fileName);
-
-            if (data.IsCorrupted) return;
             string name = LocalPalettesFetcher.GetNonExistingName(Path.GetFileName(fileName), true);
-            await LocalPalettesFetcher.SavePalette(name, data.Colors.ToArray());
+            await LocalPalettesFetcher.SavePalette(name, parser.Colors.ToArray());
         }
     }
 

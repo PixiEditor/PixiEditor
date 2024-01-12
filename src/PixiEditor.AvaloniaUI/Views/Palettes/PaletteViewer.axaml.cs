@@ -13,11 +13,13 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
+using PixiEditor.AvaloniaUI.Models.IO.PaletteParsers;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Models.IO;
 
 namespace PixiEditor.AvaloniaUI.Views.Palettes;
@@ -134,40 +136,44 @@ internal partial class PaletteViewer : UserControl
 
     private async Task ImportPalette(string filePath)
     {
-        var parser =
-            PaletteProvider.AvailableParsers.FirstOrDefault(x =>
-                x.SupportedFileExtensions.Contains(Path.GetExtension(filePath)));
-        if (parser == null) return;
-        var data = await parser.Parse(filePath);
-        if (data.IsCorrupted || data.Colors.Length == 0) return;
-        Colors.Clear();
-        Colors.AddRange(data.Colors);
+        // check if valid parser found
+        var parser = await PaletteHelpers.GetValidParser(PaletteProvider.AvailableParsers, filePath);
+        if (parser != null)
+        {
+            Colors.Clear();
+            Colors.AddRange(parser.Colors);
+        }
     }
 
     private async void SavePalette_OnClick(object sender, RoutedEventArgs e)
     {
         await Application.Current.ForDesktopMainWindowAsync(async window =>
         {
+            List<PaletteFileParser> availableParsers = PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList();
             var file = await window.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions()
             {
-                FileTypeChoices = PaletteHelpers.GetFilter(
-                    PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList(), false)
+                FileTypeChoices = PaletteHelpers.GetFilter(availableParsers, false)
             });
 
             if (file is null) return;
 
-            string path = file.Path.AbsolutePath;
-            var foundParser =
-                PaletteProvider.AvailableParsers.First(x =>
-                    x.SupportedFileExtensions.Contains(Path.GetExtension(path)));
-            if (Colors == null || Colors.Count == 0)
+            int filterIndex = 0; //file.FilterIndex; //TODO get chosen filter index somehow
+            var foundParser = availableParsers[filterIndex - 1];
+            if (Colors is null || Colors.Count == 0)
             {
                 NoticeDialog.Show("NO_COLORS_TO_SAVE", "ERROR");
                 return;
             }
 
-            bool saved = await foundParser.Save(path, new PaletteFileData(Colors.ToArray()));
-            if (!saved)
+            try
+            {
+                bool saved = await foundParser.Save(file.Path.AbsolutePath, new PaletteFileData(Colors.ToArray()));
+                if (!saved)
+                {
+                    NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
+                }
+            }
+            catch (SavingNotSupportedException savingNotSupportedException)
             {
                 NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
             }
