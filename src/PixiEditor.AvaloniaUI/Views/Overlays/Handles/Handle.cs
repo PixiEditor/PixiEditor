@@ -76,6 +76,7 @@ public abstract class Handle : IHandle
         DrawingGroup? glyph = GetResource<DrawingGroup>(key);
         if (glyph != null)
         {
+            glyph.Transform = new MatrixTransform();
             return new HandleGlyph(glyph);
         }
 
