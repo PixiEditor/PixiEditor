@@ -5,10 +5,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:views="clr-namespace:PixiEditor.Views"
     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-    xmlns:controls="https://github.com/avaloniaui"
-    xmlns:vm="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
     mc:Ignorable="d"
     x:Name="uc"
@@ -59,6 +56,7 @@
                 Theme="{StaticResource DialogButtonTheme}"
                 IsVisible="{Binding ElementName=uc, Path=CanMinimize}"
                 ui:Translator.TooltipKey="MINIMIZE"
+                Padding="0, 0, 0, 5"
                 Click="MinimizeWindow">
                 🗕
             </Button>

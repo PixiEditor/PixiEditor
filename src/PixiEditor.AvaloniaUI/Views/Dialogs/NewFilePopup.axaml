@@ -24,6 +24,8 @@
 
         <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="15,30,15,0"
                           PreserveAspectRatio="False"
+                          Background="{DynamicResource ThemeBackgroundBrush1}"
+                          CornerRadius="{DynamicResource ControlCornerRadius}"
                           ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=popup}"
                           ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=popup}"
                           x:Name="sizePicker"/>

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 #nullable enable

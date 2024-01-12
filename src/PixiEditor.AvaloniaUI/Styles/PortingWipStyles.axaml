@@ -82,4 +82,8 @@
     <Style Selector="Button.SocialMediaButton:pointerover">
         <Setter Property="Background" Value="{Binding Tag, RelativeSource={RelativeSource Self}}"/>
     </Style>
+
+    <Style Selector="ToggleButton.AnchorPointToggleButtonStyle">
+
+    </Style>
 </Styles>

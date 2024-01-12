@@ -12,6 +12,7 @@ using ChunkyImageLib.DataHolders;
 using Hardware.Info;
 using PixiEditor.AvaloniaUI.Helpers.UI;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
+using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -306,6 +307,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         this.Bind(BitmapsProperty, binding);
 
         MainImage!.Loaded += OnImageLoaded;
+        MainImage.SizeChanged += OnMainImageSizeChanged;
         Loaded += OnLoad;
         Unloaded += OnUnload;
 
@@ -346,7 +348,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private static void OnBitmapsChange(AvaloniaPropertyChangedEventArgs<Dictionary<ChunkResolution, WriteableBitmap>?> e)
     {
         Viewport viewportObj = (Viewport)e.Sender;
-        ((Viewport)viewportObj).PropertyChanged?.Invoke(viewportObj, new(nameof(TargetBitmap)));
+        viewportObj.PropertyChanged?.Invoke(viewportObj, new(nameof(TargetBitmap)));
     }
 
     private ChunkResolution CalculateResolution()
@@ -439,6 +441,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void OnImageLoaded(object sender, EventArgs e)
     {
         zoombox.CenterContent();
+    }
+
+    private void OnMainImageSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        if (zoombox.Dimensions is { X: 0, Y: 0 }) return;
+        zoombox.CenterContent(new VecD(e.NewSize.Width, e.NewSize.Height));
     }
     
     private void ResetViewportClicked(object sender, RoutedEventArgs e)

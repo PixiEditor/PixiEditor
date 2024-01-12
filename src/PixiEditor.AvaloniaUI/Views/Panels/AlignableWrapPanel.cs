@@ -15,7 +15,7 @@ internal class AlignableWrapPanel : Panel
     public static readonly StyledProperty<HorizontalAlignment> HorizontalContentAlignmentProperty =
         AvaloniaProperty.Register<AlignableWrapPanel, HorizontalAlignment>(
             nameof(HorizontalContentAlignment),
-            HorizontalAlignment.Left);//TODO: AffectedArrange was here
+            HorizontalAlignment.Left);
 
     static AlignableWrapPanel()
     {

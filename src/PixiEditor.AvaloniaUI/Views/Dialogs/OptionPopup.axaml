@@ -5,7 +5,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-    xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
     xmlns:panels="clr-namespace:PixiEditor.AvaloniaUI.Views.Panels"
     mc:Ignorable="d"
     d:DesignWidth="800"
