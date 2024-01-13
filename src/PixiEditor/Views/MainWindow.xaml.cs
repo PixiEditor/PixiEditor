@@ -155,6 +155,20 @@ internal partial class MainWindow : Window
         showMissingFilesDialog = documents.Count != i;
 
         return window;
+
+        MainWindow GetMainWindow()
+        {
+            try
+            {
+                var app = (App)Application.Current;
+                return new MainWindow(app.InitApp());
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfoToWebhook(e, true);
+                throw;
+            }
+        }
     }
 
     /// <summary>Brings main window to foreground.</summary>

@@ -23,7 +23,7 @@
   "UPDATE_CHANNEL_HELP_TOOLTIP": "Aktualizační  kanály mohou být aktualizovány jen v samostatných verzích aplikace (stáhnutých z https://pixieditor.net/) Steam a Microsoft Store verze zacházejí s jednotlivými verzemi odlišně.",
   "DEBUG": "Debug",
   "ENABLE_DEBUG_MODE": "Aktivovat Debug mód",
-  "OPEN_CRASH_REPORTS_DIR": "Otevřít složku crash reportů",
+  "OPEN_CRASH_REPORTS_DIR": "Otevřít složku zpráv o selhání",
   "DISCORD_RICH_PRESENCE": "Bohatá přítomnost",
   "ENABLED": "Povoleno",
   "SHOW_IMAGE_NAME": "Ukázat jméno obrázku",
@@ -580,5 +580,8 @@
   "RIGHT_CLICK_MODE": "Režim pravého tlačítka",
   "ADD_PRIMARY_COLOR_TO_PALETTE": "Přidat hlavní barvu do palety",
   "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Přidat hlavní barvu do současné palety",
-  "COPY_COLOR": "Zkopírovat barvu"
+  "COPY_COLOR": "Zkopírovat barvu",
+  "ERROR_FAILED_TO_OPEN_EXPLORER": "Nepodařilo se otevřít Průzkumníka Souborů",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Nepodařilo se obnovit všechno",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Nepodařilo se plně obnovit všechny soubory.\nKdyž pošlete zprávu o selhání vývojářům, možná vám budou schopni pomoct."
 }

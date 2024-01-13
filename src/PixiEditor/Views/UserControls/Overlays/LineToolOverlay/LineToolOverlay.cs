@@ -72,11 +72,17 @@ internal class LineToolOverlay : Control
     {
         Cursor = Cursors.Arrow;
         Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         mouseUpdateController = new MouseUpdateController(this, MouseMoved);
+    }
+    
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        mouseUpdateController?.Dispose();
     }
 
     private static void OnZoomboxScaleChanged(DependencyObject obj, DependencyPropertyChangedEventArgs args)

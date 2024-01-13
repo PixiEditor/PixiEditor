@@ -99,7 +99,7 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public RectD GetBounds(VectorPath vectorPath)
         {
             SKRect rect = ManagedInstances[vectorPath.ObjectPointer].Bounds;
-            return new RectD(rect.Left, rect.Top, rect.Right, rect.Bottom);
+            return RectD.FromSides(rect.Left, rect.Right, rect.Top, rect.Bottom);
         }
 
         public void Reset(VectorPath vectorPath)

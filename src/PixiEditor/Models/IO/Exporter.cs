@@ -203,4 +203,26 @@ internal class Exporter
         }
         return SaveResult.Success;
     }
+
+    private static SaveResult TrySaveAsPixi(DocumentViewModel document, string pathWithExtension)
+    {
+        try
+        {
+            Parser.PixiParser.Serialize(document.ToSerializable(), pathWithExtension);
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            return SaveResult.SecurityError;
+        }
+        catch (IOException)
+        {
+            return SaveResult.IoError;
+        }
+        catch
+        {
+            return SaveResult.UnknownError;
+        }
+
+        return SaveResult.Success;
+    }
 }

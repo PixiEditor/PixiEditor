@@ -111,7 +111,9 @@ internal class CrashReport : IDisposable
     private static void AppendStateInfo(StringBuilder builder)
     {
         builder
-            .AppendLine("Culture:")
+            .AppendLine("Environment:")
+            .AppendLine($"  Thread Count: {GetFormatted(() => Process.GetCurrentProcess().Threads.Count)}")
+            .AppendLine("\nCulture:")
             .AppendLine($"  Selected language: {GetPreferenceFormatted("LanguageCode", true, "system")}")
             .AppendLine($"  Current Culture: {GetFormatted(() => CultureInfo.CurrentCulture)}")
             .AppendLine($"  Current UI Culture: {GetFormatted(() => CultureInfo.CurrentUICulture)}")
@@ -126,12 +128,59 @@ internal class CrashReport : IDisposable
             .AppendLine($"  MainWindow Size: {GetFormatted(() => MainWindow.Current.RenderSize)}")
             .AppendLine($"  MainWindow State: {GetFormatted(() => MainWindow.Current.WindowState)}")
             .AppendLine("\nViewModels:")
-            .AppendLine($"  Current Document not null: {GetFormatted(() => ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument != null)}")
             .AppendLine($"  Has active updateable change: {GetFormatted(() => ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument?.UpdateableChangeActive)}")
-            .AppendLine($"  Autosave State: {GetFormatted(() => ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument?.AutosaveViewModel?.MainMenuText)}")
-            .AppendLine($"  Current Tool: {GetFormatted(() => ViewModelMain.Current?.ToolsSubViewModel?.ActiveTool?.ToolName)}")
-            .AppendLine($"  Primary Color: {GetFormatted(() => ViewModelMain.Current?.ColorsSubViewModel?.PrimaryColor)}")
-            .AppendLine($"  Secondary Color: {GetFormatted(() => ViewModelMain.Current?.ColorsSubViewModel?.SecondaryColor)}");
+            .AppendLine($"  Current Tool: {GetFormattedFromViewModelMain(x => x.ToolsSubViewModel?.ActiveTool?.ToolName)}")
+            .AppendLine($"  Primary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.PrimaryColor)}")
+            .AppendLine($"  Secondary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.SecondaryColor)}")
+            .Append("\nActive Document: ");
+
+        try
+        {
+            AppendActiveDocumentInfo(builder);
+        }
+        catch (Exception e)
+        {
+            builder.AppendLine($"Could not get active document info:\n{e}");
+        }
+    }
+
+    private static void AppendActiveDocumentInfo(StringBuilder builder)
+    {
+        var main = ViewModelMain.Current;
+        
+        if (main == null)
+        {
+            builder.AppendLine("{ ViewModelMain.Current is null }");
+            return;
+        }
+
+        var manager = main.DocumentManagerSubViewModel;
+
+        if (manager == null)
+        {
+            builder.AppendLine("{ DocumentManagerSubViewModel is null }");
+            return;
+        }
+
+        var document = manager.ActiveDocument;
+
+        if (document == null)
+        {
+            builder.AppendLine("null");
+            return;
+        }
+
+        builder
+            .AppendLine()
+            .AppendLine($"  Size: {document.SizeBindable}")
+            .AppendLine($"  Layer Count: {FormatObject(document.StructureHelper.GetAllLayers().Count)}")
+            .AppendLine($"  Has all changes saved: {document.AllChangesSaved}")
+            .AppendLine($"  Horizontal Symmetry Enabled: {document.HorizontalSymmetryAxisEnabledBindable}")
+            .AppendLine($"  Horizontal Symmetry Value: {FormatObject(document.HorizontalSymmetryAxisYBindable)}")
+            .AppendLine($"  Vertical Symmetry Enabled: {document.VerticalSymmetryAxisEnabledBindable}")
+            .AppendLine($"  Vertical Symmetry Value: {FormatObject(document.VerticalSymmetryAxisXBindable)}")
+            .AppendLine($"  Updateable Change Active: {FormatObject(document.UpdateableChangeActive)}")
+            .AppendLine($"  Transform: {FormatObject(document.TransformViewModel)}");
     }
 
     private static bool HasTabletDevice(TabletDeviceType type) => Tablet.TabletDevices.Cast<TabletDevice>().Any(tabletDevice => tabletDevice.Type == type);
@@ -157,7 +206,17 @@ internal class CrashReport : IDisposable
         }
     }
 
-    private static string GetFormatted(Func<object?> getter, string? format = null)
+    private static string GetFormattedFromViewModelMain<T>(Func<ViewModelMain, T?> getter, string? format = null)
+    {
+        var main = ViewModelMain.Current;
+        
+        if (main == null)
+            return "{ ViewModelMain.Current is null }";
+
+        return GetFormatted(() => getter(main), format);
+    }
+
+    private static string GetFormatted<T>(Func<T?> getter, string? format = null)
     {
         try
         {
@@ -171,7 +230,7 @@ internal class CrashReport : IDisposable
         }
     }
 
-    private static string FormatObject(object? value, string? format)
+    private static string FormatObject<T>(T? value, string? format = null)
     {
         return value switch
         {
@@ -237,6 +296,50 @@ internal class CrashReport : IDisposable
 
         return recoveredDocuments;
     }
+    
+    public List<RecoveredPixi> RecoverDocuments()
+    {
+        List<RecoveredPixi> recoveredDocuments = new();
+
+        var paths = TryGetOriginalPaths();
+        if (paths == null)
+        {
+            recoveredDocuments.AddRange(
+                ZipFile.Entries
+                    .Where(x => 
+                        x.FullName.StartsWith("Documents") && 
+                        x.FullName.EndsWith(".pixi"))
+                    .Select(entry => new RecoveredPixi(null, entry)));
+
+            return recoveredDocuments;
+        }
+
+        recoveredDocuments.AddRange(paths.Select(path => new RecoveredPixi(path.Value, ZipFile.GetEntry($"Documents/{path.Key}"))));
+
+        return recoveredDocuments;
+
+        Dictionary<string, string>? TryGetOriginalPaths()
+        {
+            var originalPathsEntry = ZipFile.Entries.FirstOrDefault(entry => entry.FullName == "DocumentInfo.json");
+
+            if (originalPathsEntry == null)
+                return null;
+            
+            try
+            {
+                using var stream = originalPathsEntry.Open();
+                using var reader = new StreamReader(stream);
+                string json = reader.ReadToEnd();
+                
+                return JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+
 
     public void Dispose()
     {
@@ -379,6 +482,26 @@ internal class CrashReport : IDisposable
     {
         public string Message { get; set; }
 
-        public string Mail { get; set; }
+    public class RecoveredPixi
+    {
+        public string? Path { get; }
+        
+        public ZipArchiveEntry RecoveredEntry { get; }
+        
+        public byte[] GetRecoveredBytes()
+        {
+            var buffer = new byte[RecoveredEntry.Length];
+            using var stream = RecoveredEntry.Open();
+
+            stream.ReadExactly(buffer);
+            
+            return buffer;
+        }
+        
+        public RecoveredPixi(string? path, ZipArchiveEntry recoveredEntry)
+        {
+            Path = path;
+            RecoveredEntry = recoveredEntry;
+        }
     }
 }

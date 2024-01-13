@@ -109,7 +109,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             OpenFromPath(file);
         }
-        else if ((!args.Contains("--crash")) && !args.Contains("--openedInExisting"))
+        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
         {
             if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
             {

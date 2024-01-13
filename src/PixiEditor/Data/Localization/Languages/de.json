@@ -580,5 +580,8 @@
   "RIGHT_CLICK_MODE": "Rechtsklick Modus",
   "ADD_PRIMARY_COLOR_TO_PALETTE": "Primärfarbe zu Palette hinzufügen",
   "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Primärfarbe der Farbpalette hinzufügen",
-  "COPY_COLOR": "Copy color"
+  "COPY_COLOR": "Farbe kopieren",
+  "ERROR_FAILED_TO_OPEN_EXPLORER": "Windows Explorer konnte nicht geöffnet werden",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Konnte nicht alle Dokumente wiederherstellen",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Nichte alle Dateien konnten wiederhergestellt werden.\nDie Entwickler können dir eventuell helfen,\nalle Dateien wieder herzustellen."
 }

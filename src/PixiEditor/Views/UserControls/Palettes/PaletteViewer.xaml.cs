@@ -9,10 +9,10 @@ using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
-using PixiEditor.Models.DataProviders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
+using PixiEditor.Models.IO.PaletteParsers;
 using PixiEditor.Views.Dialogs;
 
 namespace PixiEditor.Views.UserControls.Palettes;
@@ -81,7 +81,7 @@ internal partial class PaletteViewer : UserControl
         get { return (PaletteProvider)GetValue(PaletteProviderProperty); }
         set { SetValue(PaletteProviderProperty, value); }
     }
-    
+
     public PaletteViewer()
     {
         InitializeComponent();
@@ -111,32 +111,42 @@ internal partial class PaletteViewer : UserControl
 
     private async Task ImportPalette(string fileName)
     {
-        var parser = PaletteProvider.AvailableParsers.FirstOrDefault(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
-        if (parser == null) return;
-        var data = await parser.Parse(fileName);
-        if (data.IsCorrupted || data.Colors.Length == 0) return;
-        Colors.Clear();
-        Colors.AddRange(data.Colors);
+        // check if valid parser found
+        var parser = await PaletteHelpers.GetValidParser(PaletteProvider.AvailableParsers, fileName);
+        if (parser != null)
+        {
+            Colors.Clear();
+            Colors.AddRange(parser.Colors);
+        }
     }
 
     private async void SavePalette_OnClick(object sender, RoutedEventArgs e)
     {
+        List<PaletteFileParser> availableParsers = PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList();
         SaveFileDialog saveFileDialog = new SaveFileDialog
         {
-            Filter = PaletteHelpers.GetFilter(PaletteProvider.AvailableParsers.Where(x => x.CanSave).ToList(), false)
+            Filter = PaletteHelpers.GetFilter(availableParsers, false)
         };
 
         if (saveFileDialog.ShowDialog() == true)
         {
-            string fileName = saveFileDialog.FileName;
-            var foundParser = PaletteProvider.AvailableParsers.First(x => x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+            int filterIndex = saveFileDialog.FilterIndex;
+            var foundParser = availableParsers[filterIndex - 1];
             if (Colors == null || Colors.Count == 0)
             {
                 NoticeDialog.Show("NO_COLORS_TO_SAVE", "ERROR");
                 return;
             }
-            bool saved = await foundParser.Save(fileName, new PaletteFileData(Colors.ToArray()));
-            if (!saved)
+
+            try
+            {
+                bool saved = await foundParser.Save(saveFileDialog.FileName, new PaletteFileData(Colors.ToArray()));
+                if (!saved)
+                {
+                    NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
+                }
+            }
+            catch (SavingNotSupportedException savingNotSupportedException)
             {
                 NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
             }
@@ -167,7 +177,7 @@ internal partial class PaletteViewer : UserControl
     private async void Grid_Drop(object sender, DragEventArgs e)
     {
         ViewModelMain.Current.ActionDisplays[nameof(PaletteViewer)] = null;
-        
+
         if (!IsSupportedFilePresent(e, out string filePath))
         {
             if (!ColorHelper.ParseAnyFormatList(e.Data, out var colors))
@@ -176,7 +186,7 @@ internal partial class PaletteViewer : UserControl
             }
 
             List<PaletteColor> paletteColors = colors.Select(x => new PaletteColor(x.R, x.G, x.B)).ToList();
-            
+
             e.Effects = DragDropEffects.Copy;
             Colors.AddRange(paletteColors.Where(x => !Colors.Contains(new PaletteColor(x.R, x.G, x.B))).ToList());
             e.Handled = true;
@@ -255,7 +265,7 @@ internal partial class PaletteViewer : UserControl
 
     private void DiscardPalette_OnClick(object sender, RoutedEventArgs e)
     {
-        if(ConfirmationDialog.Show("DISCARD_PALETTE_CONFIRMATION", "DISCARD_PALETTE") == ConfirmationType.Yes)
+        if (ConfirmationDialog.Show("DISCARD_PALETTE_CONFIRMATION", "DISCARD_PALETTE") == ConfirmationType.Yes)
         {
             Colors.Clear();
         }

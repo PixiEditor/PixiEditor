@@ -580,5 +580,8 @@
   "RIGHT_CLICK_MODE": "Akcja prawego przysiku myszy",
   "ADD_PRIMARY_COLOR_TO_PALETTE": "Dodaj aktywny kolor do palety",
   "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Dodaj aktywny kolor do aktualnej palety",
-  "COPY_COLOR": "Kopiuj kolor"
+  "COPY_COLOR": "Kopiuj kolor",
+  "ERROR_FAILED_TO_OPEN_EXPLORER": "Nie udało się otworzyć eksploratora plików",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Nie udało się odzyskać wszystkich plików",
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Nie udało się odzyskać wszystkich plików. \nJeżeli wyślesz raport awarii do developerów, być może będą w stanie Ci pomóc."
 }
