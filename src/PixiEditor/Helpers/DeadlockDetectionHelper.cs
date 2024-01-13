@@ -182,7 +182,7 @@ internal class DeadlockDetectionHelper
             stackTrace = GetMainClrThreadStackTrace(target, mainThreadId);
         }
 
-        CrashHelper.SendExceptionInfoToWebhook(new DeadlockException(stackTrace)).Wait();
+        CrashHelper.SendExceptionInfoToWebhookAsync(new DeadlockException(stackTrace)).Wait();
     }
 
     private static string? GetMainClrThreadStackTrace(DataTarget target, int threadId)

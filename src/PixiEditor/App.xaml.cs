@@ -52,7 +52,7 @@ internal partial class App : Application
                 
                 try
                 {
-                    sendReport = CrashHelper.SendExceptionInfoToWebhook(exception);
+                    sendReport = CrashHelper.SendExceptionInfoToWebhookAsync(exception);
                 }
                 finally
                 {
