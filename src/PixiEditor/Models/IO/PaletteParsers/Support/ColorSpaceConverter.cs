@@ -94,7 +94,7 @@ internal static class ColorSpaceConverter
         }
 
         // return with values scaled to be between 0 and 255
-        return new PaletteColor((byte)Math.Round(b * 255.0), (byte)Math.Round(g * 255.0), (byte)Math.Round(r * 255.0));
+        return new PaletteColor((byte)Math.Round(r * 255.0), (byte)Math.Round(g * 255.0), (byte)Math.Round(b * 255.0));
     }
 
     /// <summary>
@@ -104,18 +104,14 @@ internal static class ColorSpaceConverter
     /// <param name="exA">The a component in the range of [-128, 127].</param>
     /// <param name="exB">The b component in the range of [-128, 127].</param>
     /// <returns>The Lab color converted to RGB.</returns>
-    public static PaletteColor LabToRGB(double exL, double exA, double exB)
+    public static PaletteColor LabToRGB(double L, double a, double b)
     {
-        int L = (int)exL;
-        int a = (int)exA;
-        int b = (int)exB;
-
         // For the conversion we first convert values to XYZ and then to RGB
-        // Standards used Observer = 2, Illuminant = D65
+        // Standards used Observer = 2, Illuminant = D50 (through experimentation I figured out that photoshop uses D50 instead of the standard D65)
 
-        const double refX = 95.047;
+        const double refX = 96.4212;
         const double refY = 100.000;
-        const double refZ = 108.883;
+        const double refZ = 82.5188;
 
         double var_Y = (L + 16.0) / 116.0;
         double var_X = a / 500.0 + var_Y;
@@ -131,7 +127,7 @@ internal static class ColorSpaceConverter
         }
         else
         {
-            var_Y = (var_Y - 16 / 116) / 7.787;
+            var_Y = (var_Y - 16.0 / 116) / 7.787;
         }
 
         if (var_X3 > 0.008856)
@@ -140,7 +136,7 @@ internal static class ColorSpaceConverter
         }
         else
         {
-            var_X = (var_X - 16 / 116) / 7.787;
+            var_X = (var_X - 16.0 / 116) / 7.787;
         }
 
         if (var_Z3 > 0.008856)
@@ -149,7 +145,7 @@ internal static class ColorSpaceConverter
         }
         else
         {
-            var_Z = (var_Z - 16 / 116) / 7.787;
+            var_Z = (var_Z - 16.0 / 116) / 7.787;
         }
 
         double X = refX * var_X;
@@ -168,17 +164,20 @@ internal static class ColorSpaceConverter
     /// <returns>PaletteColor</returns>
     private static PaletteColor XYZToRGB(double X, double Y, double Z)
     {
-        // Standards used Observer = 2, Illuminant = D65
-        // ref_X = 95.047, ref_Y = 100.000, ref_Z = 108.883
+        // Standards used Observer = 2, Illuminant = D50 (through experimentation I figured out that photoshop uses D50 instead of the standard D65)
+        // refX = 96.4212
+        // refY = 100.000
+        // refZ = 82.5188
 
         double var_X = X / 100.0;
         double var_Y = Y / 100.0;
         double var_Z = Z / 100.0;
 
-        double var_R = var_X * 3.2406 + var_Y * (-1.5372) + var_Z * (-0.4986);
-        double var_G = var_X * (-0.9689) + var_Y * 1.8758 + var_Z * 0.0415;
-        double var_B = var_X * 0.0557 + var_Y * (-0.2040) + var_Z * 1.0570;
-
+        // Source for matrix used: http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+        double var_R = var_X * 3.1338561 + var_Y * (-1.6168667) + var_Z * (-0.4906146);
+        double var_G = var_X * (-.9787684) + var_Y * 1.9161415 + var_Z * 0.0334540;
+        double var_B = var_X * 0.0719453 + var_Y * (-0.2289914) + var_Z * 1.4052427;
+        
         if (var_R > 0.0031308)
         {
             var_R = 1.055 * (Math.Pow(var_R, 1 / 2.4)) - 0.055;
@@ -206,9 +205,9 @@ internal static class ColorSpaceConverter
             var_B = 12.92 * var_B;
         }
 
-        int nRed = (int)(var_R * 256.0);
-        int nGreen = (int)(var_G * 256.0);
-        int nBlue = (int)(var_B * 256.0);
+        int nRed = (int)Math.Round(var_R * 255.0);
+        int nGreen = (int)Math.Round(var_G * 255.0);
+        int nBlue = (int)Math.Round(var_B * 255.0);
 
         if (nRed < 0)
         {
@@ -237,7 +236,7 @@ internal static class ColorSpaceConverter
             nBlue = 255;
         }
 
-        return new PaletteColor((byte)nBlue, (byte)nGreen, (byte)nRed);
+        return new PaletteColor((byte)nRed, (byte)nGreen, (byte)nBlue);
     }
 
     /// <summary>
@@ -288,6 +287,6 @@ internal static class ColorSpaceConverter
             blue = 255;
         }
 
-        return new PaletteColor((byte)blue, (byte)green, (byte)red);
+        return new PaletteColor((byte)red, (byte)green, (byte)blue);
     }
 }

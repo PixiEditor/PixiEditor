@@ -143,11 +143,10 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
             }
 
             PaletteColor color = PaletteColor.Empty;
-            Color newColor = Color.Empty;
             switch (colorSpace)
             {
                 case AdobeColorSpace.Rgb:
-                    // RGB.
+                    // RGB. The specific variant of RGB is not specified, so this can be sRGB, Adobe RGB, Apple RGB, etc. We interpret it as sRGB
                     // The first three values in the color data are red, green, and blue. They are full unsigned
                     // 16-bit values as in Apple's RGBColor data structure. Pure red = 65535, 0, 0.
 
@@ -166,8 +165,8 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
                     // unsigned 16-bit values as in Apple's HSVColor data structure. Pure red = 0,65535, 65535.
 
                     double hue = (colorValues[0] / 65535.0) * 360.0;
-                    double saturation = (colorValues[1] / 65535.0) * 100.0;
-                    double brightness = (colorValues[2] / 65535.0) * 100.0;
+                    double saturation = (colorValues[1] / 65535.0);
+                    double brightness = (colorValues[2] / 65535.0);
 
                     color = ColorSpaceConverter.HSBToRGB(hue, saturation, brightness);
 
@@ -191,9 +190,9 @@ internal class PhotoshopColorSwatchParser : PaletteFileParser
 
                 case AdobeColorSpace.Lab:
 
-                    double L = colorValues[0] / 100.0;
-                    double a = colorValues[1] / 100.0;
-                    double b = colorValues[2] / 100.0;
+                    double L = BitConverter.ToInt16(BitConverter.GetBytes(colorValues[0])) / 100.0;
+                    double a = BitConverter.ToInt16(BitConverter.GetBytes(colorValues[1])) / 100.0;
+                    double b = BitConverter.ToInt16(BitConverter.GetBytes(colorValues[2])) / 100.0;
 
                     color = ColorSpaceConverter.LabToRGB(L, a, b);
 
