@@ -100,9 +100,9 @@ internal static class ColorSpaceConverter
     /// <summary>
     /// Converts Lab to RGB.
     /// </summary>
-    /// <param name="exL">The L component in the range of [0, 100].</param>
-    /// <param name="exA">The a component in the range of [-128, 127].</param>
-    /// <param name="exB">The b component in the range of [-128, 127].</param>
+    /// <param name="L">The L component in the range of [0, 100].</param>
+    /// <param name="a">The a component in the range of [-128, 127].</param>
+    /// <param name="b">The b component in the range of [-128, 127].</param>
     /// <returns>The Lab color converted to RGB.</returns>
     public static PaletteColor LabToRGB(double L, double a, double b)
     {
@@ -169,6 +169,10 @@ internal static class ColorSpaceConverter
         // refY = 100.000
         // refZ = 82.5188
 
+        // Reference white points for D50 Illuminat, 10° observer
+        // X = 0.34773, Y = 0.35952
+        // https://en.wikipedia.org/wiki/Standard_illuminant
+
         double var_X = X / 100.0;
         double var_Y = Y / 100.0;
         double var_Z = Z / 100.0;
@@ -177,64 +181,18 @@ internal static class ColorSpaceConverter
         double var_R = var_X * 3.1338561 + var_Y * (-1.6168667) + var_Z * (-0.4906146);
         double var_G = var_X * (-.9787684) + var_Y * 1.9161415 + var_Z * 0.0334540;
         double var_B = var_X * 0.0719453 + var_Y * (-0.2289914) + var_Z * 1.4052427;
-        
-        if (var_R > 0.0031308)
-        {
-            var_R = 1.055 * (Math.Pow(var_R, 1 / 2.4)) - 0.055;
-        }
-        else
-        {
-            var_R = 12.92 * var_R;
-        }
 
-        if (var_G > 0.0031308)
-        {
-            var_G = 1.055 * (Math.Pow(var_G, 1 / 2.4)) - 0.055;
-        }
-        else
-        {
-            var_G = 12.92 * var_G;
-        }
-
-        if (var_B > 0.0031308)
-        {
-            var_B = 1.055 * (Math.Pow(var_B, 1 / 2.4)) - 0.055;
-        }
-        else
-        {
-            var_B = 12.92 * var_B;
-        }
+        var_R = GammaTransform(var_R);
+        var_G = GammaTransform(var_G);
+        var_B = GammaTransform(var_B);
 
         int nRed = (int)Math.Round(var_R * 255.0);
         int nGreen = (int)Math.Round(var_G * 255.0);
         int nBlue = (int)Math.Round(var_B * 255.0);
 
-        if (nRed < 0)
-        {
-            nRed = 0;
-        }
-        else if (nRed > 255)
-        {
-            nRed = 255;
-        }
-
-        if (nGreen < 0)
-        {
-            nGreen = 0;
-        }
-        else if (nGreen > 255)
-        {
-            nGreen = 255;
-        }
-
-        if (nBlue < 0)
-        {
-            nBlue = 0;
-        }
-        else if (nBlue > 255)
-        {
-            nBlue = 255;
-        }
+        nRed = Clamp(nRed);
+        nGreen = Clamp(nGreen);
+        nBlue = Clamp(nBlue);
 
         return new PaletteColor((byte)nRed, (byte)nGreen, (byte)nBlue);
     }
@@ -260,33 +218,36 @@ internal static class ColorSpaceConverter
         int green = (int)((1.0 - (m * (1 - k) + k)) * 255);
         int blue = (int)((1.0 - (y * (1 - k) + k)) * 255);
 
-        if (red < 0)
-        {
-            red = 0;
-        }
-        else if (red > 255)
-        {
-            red = 255;
-        }
-
-        if (green < 0)
-        {
-            green = 0;
-        }
-        else if (green > 255)
-        {
-            green = 255;
-        }
-
-        if (blue < 0)
-        {
-            blue = 0;
-        }
-        else if (blue > 255)
-        {
-            blue = 255;
-        }
+        red = Clamp(red);
+        green = Clamp(green);
+        blue = Clamp(blue);
 
         return new PaletteColor((byte)red, (byte)green, (byte)blue);
+    }
+
+    /// <summary>
+    /// Applies gamma correction to a linear RGB component in XYZ conversion. 
+    /// https://en.wikipedia.org/wiki/SRGB#Specification_of_the_transformation
+    /// </summary>
+    /// <param name="linearVal">The linear color component to transform</param>
+    /// <returns>The RGB component converted to non-linear</returns>
+    private static double GammaTransform(double linearVal)
+    {
+        if (linearVal < 0.0031308)
+        {
+            return 12.92 * linearVal;
+
+        }
+        return 1.055 * (Math.Pow(linearVal, 1 / 2.4)) - 0.055;
+    }
+
+    /// <summary>
+    /// Clamp a value to 0-255
+    /// </summary>
+    private static int Clamp(int i)
+    {
+        if (i < 0) return 0;
+        if (i > 255) return 255;
+        return i;
     }
 }
