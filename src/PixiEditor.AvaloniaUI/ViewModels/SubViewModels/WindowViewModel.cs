@@ -18,8 +18,8 @@ namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 internal class WindowViewModel : SubViewModel<ViewModelMain>
 {
     private CommandController commandController;
-    /*private ShortcutPopup? shortcutPopup; TODO: Add shortcut popup
-    private ShortcutPopup ShortcutPopup => shortcutPopup ??= new(commandController);*/
+    private ShortcutsPopup? shortcutPopup;
+    private ShortcutsPopup ShortcutsPopup => shortcutPopup ??= new(commandController);
     public RelayCommand<string> ShowAvalonDockWindowCommand { get; set; }
     public ObservableCollection<ViewportWindowViewModel> Viewports { get; } = new();
     public event EventHandler<ViewportWindowViewModel>? ActiveViewportChanged;
@@ -163,9 +163,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW", Key = Key.F1)]
     public void ShowShortcutWindow()
     {
-        //TODO: Add shortcut window
-        /*ShortcutPopup.Show();
-        ShortcutPopup.Activate();*/
+        ShortcutsPopup.Show();
+        ShortcutsPopup.Activate();
     }
 
     [Command.Basic("PixiEditor.Window.OpenPalettesBrowserWindow", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER",
