@@ -98,6 +98,11 @@
                         <Border.Background>
                             <ImageBrush Source="/Images/AnchorDot.png"/>
                         </Border.Background>
+                        <Border.Transitions>
+                            <Transitions>
+                                <BrushTransition Duration="0:0:0.1" Property="BorderBrush" />
+                            </Transitions>
+                        </Border.Transitions>
                         <ContentPresenter Padding="{TemplateBinding Padding}"
                                           HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
