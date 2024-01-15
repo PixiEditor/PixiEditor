@@ -17,6 +17,7 @@ internal class DockFactory : Factory
     private ToolDock toolDock;
     private ToolDock layersDock;
     private ToolDock colorPickerDock;
+    private ToolDock navigationDock;
 
     private FileViewModel fileVm;
     private ColorsViewModel colorsVm;
@@ -106,6 +107,7 @@ internal class DockFactory : Factory
     {
         layersDock = BuildLayersDock();
         colorPickerDock = BuildColorPickerDock();
+        navigationDock = BuildNavigationDock();
         return new ProportionalDock()
         {
             Proportion = 0.20,
@@ -113,10 +115,30 @@ internal class DockFactory : Factory
             VisibleDockables = new List<IDockable>()
             {
                 colorPickerDock,
-                layersDock
+                layersDock,
+                navigationDock,
             },
             ActiveDockable = layersDock,
         };
+    }
+
+    private ToolDock BuildNavigationDock()
+    {
+        NavigationDockViewModel navigationVm = new(colorsVm, fileVm.Owner.DocumentManagerSubViewModel)
+        {
+            Id = "NavigationPane",
+            Title = "NavigationPane",
+        };
+
+        ToolDock navigation = new()
+        {
+            Id = "NavigationPane",
+            Title = "NavigationPane",
+            VisibleDockables = new List<IDockable>() { navigationVm },
+            ActiveDockable = navigationVm,
+        };
+
+        return navigation;
     }
 
     private ToolDock BuildColorPickerDock()
@@ -137,7 +159,7 @@ internal class DockFactory : Factory
         {
             Id = "ColorPickerPane",
             Title = "ColorPickerPane",
-            VisibleDockables = new List<IDockable>() { colorPickerVm, paletteViewerVm},
+            VisibleDockables = new List<IDockable>() { colorPickerVm, paletteViewerVm },
             ActiveDockable = colorPickerVm,
         };
 

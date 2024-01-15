@@ -74,6 +74,10 @@
       <Compile Remove="Views\Buttons\**" />
       <EmbeddedResource Remove="Views\Buttons\**" />
       <None Remove="Views\Buttons\**" />
+      <Compile Update="Views\Main\ViewportControls\Viewport.axaml.cs">
+        <DependentUpon>Viewport.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
   
     <ItemGroup>
