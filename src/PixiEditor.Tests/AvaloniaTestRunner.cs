@@ -2,6 +2,7 @@
 using Avalonia.Headless;
 using Avalonia.Platform;
 using Avalonia.Threading;
+using PixiEditor.Avalonia.Desktop;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -55,7 +56,7 @@ namespace PixiEditor.Tests
                 {
                     try
                     {
-                        PixiEditor.AvaloniaUI.Desktop.Program.BuildAvaloniaApp()
+                        Program.BuildAvaloniaApp()
                             .UseHeadless(new AvaloniaHeadlessPlatformOptions { FrameBufferFormat = PixelFormat.Bgra8888, UseHeadlessDrawing = false })
                             .SetupWithoutStarting();
                         tcs.SetResult(SynchronizationContext.Current);

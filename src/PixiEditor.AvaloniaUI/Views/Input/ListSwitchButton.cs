@@ -7,13 +7,13 @@ using Avalonia.Media;
 
 namespace PixiEditor.AvaloniaUI.Views.Input;
 
-internal class ListSwitchButton : Button
+internal class ListSwitchButton : Button, INotifyPropertyChanged
 {
     public static readonly StyledProperty<ObservableCollection<SwitchItem>> ItemsProperty =
         AvaloniaProperty.Register<ListSwitchButton, ObservableCollection<SwitchItem>>(nameof(Items));
 
     public static readonly StyledProperty<SwitchItem> ActiveItemProperty =
-        AvaloniaProperty.Register<ListSwitchButton, SwitchItem>(nameof(ActiveItem), new SwitchItem(new SolidColorBrush(Brushes.Transparent.Color), "", null));
+        AvaloniaProperty.Register<ListSwitchButton, SwitchItem>(nameof(ActiveItem));
 
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -31,8 +31,7 @@ internal class ListSwitchButton : Button
 
     static ListSwitchButton()
     {
-        //TODO: Validate it is not needed
-        //DefaultStyleKeyProperty.OverrideMetadata(typeof(ListSwitchButton), new FrameworkPropertyMetadata(typeof(ListSwitchButton)));
+        ItemsProperty.Changed.Subscribe(CollChanged);
     }
 
     public ListSwitchButton()

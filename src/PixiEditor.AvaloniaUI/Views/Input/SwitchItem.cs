@@ -1,12 +1,21 @@
-﻿using Avalonia.Media;
+﻿using Avalonia;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 
 namespace PixiEditor.AvaloniaUI.Views.Input;
 
-internal class SwitchItem
+internal class SwitchItem : AvaloniaObject
 {
     public string Content { get; set; } = "";
-    public IBrush? Background { get; set; }
+
+    public static readonly StyledProperty<IBrush?> BackgroundProperty = AvaloniaProperty.Register<SwitchItem, IBrush?>(
+        "Background");
+
+    public IBrush? Background
+    {
+        get => GetValue(BackgroundProperty);
+        set => SetValue(BackgroundProperty, value);
+    }
     public object Value { get; set; }
 
     public BitmapInterpolationMode ScalingMode { get; set; } = BitmapInterpolationMode.HighQuality;

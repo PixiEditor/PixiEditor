@@ -2,7 +2,7 @@
 using Avalonia;
 using PixiEditor.AvaloniaUI;
 
-namespace PixiEditor.AvaloniaUI.Desktop;
+namespace PixiEditor.Avalonia.Desktop;
 
 public class Program
 {

@@ -21,8 +21,9 @@
               IsVisible="{Binding !!Document, ElementName=uc}"
               Margin="10" Background="Transparent"
               d:Width="8" d:Height="8">
+            <!--TODO: In WPF, delayed was True and yet viewport refreshed instantly, here I had to switch it to False so it happens.-->
             <viewportControls:FixedViewport
-                Delayed="True"
+                Delayed="False"
                 x:Name="viewport"
                 Document="{Binding Document, ElementName=uc}"
                 Background="{Binding ActiveItem.Value, ElementName=backgroundButton}"/>
@@ -30,8 +31,8 @@
                     x:Name="colorCursor" Width="1" Height="1"
                     Margin="{Binding ColorCursorPosition, ElementName=uc}"
                     HorizontalAlignment="Left" VerticalAlignment="Top"
-                    BorderBrush="Black" BorderThickness=".1"
-                    IsVisible="{Binding IsMouseOver, ElementName=imageGrid}">
+                    BorderBrush="{DynamicResource ThemeBorderLowBrush}" BorderThickness=".1"
+                    IsVisible="{Binding IsPointerOver, ElementName=imageGrid}">
                 <Border BorderThickness=".1" BorderBrush="White"/>
             </Border>
         </Grid>
@@ -41,7 +42,7 @@
                 <SolidColorBrush Color="{Binding ColorCursorColor, ElementName=uc, FallbackValue=Black}"/>
             </Grid.Background>
         </Grid>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" MinHeight="30"
+        <StackPanel Margin="10, 0, 0, 0" Grid.Row="2" Orientation="Horizontal" MinHeight="30"
                     Background="{DynamicResource ThemeBackgroundBrush}" MaxHeight="60">
             <StackPanel.Styles>
                 <Style Selector="TextBlock">
@@ -63,20 +64,20 @@
         </StackPanel>
         <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,5,0" ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
             <StackPanel Orientation="Horizontal">
-                <input:ListSwitchButton x:Name="formatButton" Margin="0,0,5,0" Height="20" Width="40" BorderBrush="Black">
+                <input:ListSwitchButton x:Name="formatButton" Margin="0,0,5,0" Height="20">
                     <input:ListSwitchButton.Items>
                         <input:SwitchItemObservableCollection>
-                            <input:SwitchItem Content="RGBA" Background="#353535" Value="RGBA"/>
-                            <input:SwitchItem Content="HEX" Background="#353535" Value="HEX"/>
+                            <input:SwitchItem Content="RGBA" Background="{DynamicResource ThemeControlMidBrush}" Value="RGBA"/>
+                            <input:SwitchItem Content="HEX" Background="{DynamicResource ThemeControlMidBrush}" Value="HEX"/>
                         </input:SwitchItemObservableCollection>
                     </input:ListSwitchButton.Items>
                 </input:ListSwitchButton>
-                <input:ListSwitchButton BorderBrush="{StaticResource DarkerAccentColor}" Width="25" Height="20" x:Name="backgroundButton" ui:Translator.TooltipKey="PREVIEW_BACKGROUND">
+                <input:ListSwitchButton RenderOptions.BitmapInterpolationMode="None" BorderBrush="{DynamicResource ThemeBorderMidBrush}" Width="25" Height="20" x:Name="backgroundButton">
                     <input:ListSwitchButton.Items>
                         <input:SwitchItemObservableCollection>
                             <input:SwitchItem ScalingMode="None">
                                 <input:SwitchItem.Background>
-                                    <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile" DestinationRect="0, 0, 1, 1"/>
+                                    <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile" DestinationRect="0, 0, 25 25"/>
                                 </input:SwitchItem.Background>
                                 <input:SwitchItem.Value>
                                     <ImageBrush DestinationRect="0, 10, 10, 10" Source="/Images/CheckerTile.png" TileMode="Tile"/>

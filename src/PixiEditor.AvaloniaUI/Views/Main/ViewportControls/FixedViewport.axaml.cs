@@ -14,7 +14,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Main.ViewportControls;
 
-internal partial class FixedViewport : UserControl
+internal partial class FixedViewport : UserControl, INotifyPropertyChanged
 {
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
         AvaloniaProperty.Register<FixedViewport, DocumentViewModel>(nameof(Document), null);
@@ -137,7 +137,7 @@ internal partial class FixedViewport : UserControl
     private void OnImageSizeChanged(object sender, SizeChangedEventArgs e)
     {
         PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
-        Document?.Operations.AddOrUpdateViewport(GetLocation());
+        //Document?.Operations.AddOrUpdateViewport(GetLocation()); //TODO: This causes deadlock
     }
 }
 

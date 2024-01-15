@@ -22,6 +22,7 @@
             <Color x:Key="ThemeControlHighlightColor">#515151</Color>
             <Color x:Key="HighlightForegroundColor">#FFFFFF</Color>
 
+            <Color x:Key="ThemeBorderLowColor">#1A1A1A</Color>
             <Color x:Key="ThemeBorderMidColor">#3F3F46</Color>
             <Color x:Key="ThemeBorderHighColor">#4F4F4F</Color>
 
@@ -54,6 +55,7 @@
             <SolidColorBrush x:Key="ThemeControlHighlightBrush" Color="{StaticResource ThemeControlHighlightColor}" />
             <SolidColorBrush x:Key="ThemeHighlightForegroundBrush" Color="{StaticResource HighlightForegroundColor}" />
 
+            <SolidColorBrush x:Key="ThemeBorderLowBrush" Color="{StaticResource ThemeBorderLowColor}" />
             <SolidColorBrush x:Key="ThemeBorderMidBrush" Color="{StaticResource ThemeBorderMidColor}" />
             <SolidColorBrush x:Key="ThemeBorderHighBrush" Color="{StaticResource ThemeBorderHighColor}" />
 
