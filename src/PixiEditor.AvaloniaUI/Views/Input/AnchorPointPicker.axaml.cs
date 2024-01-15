@@ -21,58 +21,12 @@ internal partial class AnchorPointPicker : UserControl
         set => SetValue(AnchorPointProperty, value);
     }
 
-    static AnchorPointPicker()
-    {
-        AnchorPointProperty.Changed.Subscribe(OnAnchorPointChanged);
-    }
-
-    private ToggleButton _selectedToggleButton;
-
     public AnchorPointPicker()
     {
         InitializeComponent();
-        _selectedToggleButton = topLeft;
     }
 
-    private static void OnAnchorPointChanged(AvaloniaPropertyChangedEventArgs e)
-    {
-        AnchorPointPicker picker = (AnchorPointPicker)e.Sender;
-        if (e.NewValue is ResizeAnchor anchor)
-        {
-            switch (anchor)
-            {
-                case ResizeAnchor.TopLeft:
-                    picker.topLeft.IsChecked = true;
-                    break;
-                case ResizeAnchor.Top:
-                    picker.topCenter.IsChecked = true;
-                    break;
-                case ResizeAnchor.TopRight:
-                    picker.topRight.IsChecked = true;
-                    break;
-                case ResizeAnchor.Left:
-                    picker.middleLeft.IsChecked = true;
-                    break;
-                case ResizeAnchor.Center:
-                    picker.middleCenter.IsChecked = true;
-                    break;
-                case ResizeAnchor.Right:
-                    picker.middleRight.IsChecked = true;
-                    break;
-                case ResizeAnchor.BottomLeft:
-                    picker.bottomLeft.IsChecked = true;
-                    break;
-                case ResizeAnchor.Bottom:
-                    picker.bottomCenter.IsChecked = true;
-                    break;
-                case ResizeAnchor.BottomRight:
-                    picker.bottomRight.IsChecked = true;
-                    break;
-            }
-        }
-    }
-
-    private void ToggleButton_Checked(object sender, RoutedEventArgs e)
+    private void ToggleButton_Click(object sender, RoutedEventArgs e)
     {
         ToggleButton btn = (ToggleButton)sender;
         int row = Grid.GetRow(btn);
@@ -90,13 +44,10 @@ internal partial class AnchorPointPicker : UserControl
             (2, 2) => ResizeAnchor.BottomRight,
             _ => throw new NotImplementedException()
         };
-        if (_selectedToggleButton != null) _selectedToggleButton.IsChecked = false;
-        _selectedToggleButton = btn;
-    }
 
-    private void ToggleButton_Click(object sender, PointerPressedEventArgs e)
-    {
-        if ((sender as ToggleButton).IsChecked.Value)
-            e.Handled = true;
+        if (!btn.IsChecked.Value)
+        {
+            btn.IsChecked = true;
+        }
     }
 }
