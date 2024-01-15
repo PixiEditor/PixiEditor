@@ -214,15 +214,39 @@ internal static class ColorSpaceConverter
         y = (1.0 - yellow);
         k = (1.0 - black);
 
-        int red = (int)((1.0 - (c * (1 - k) + k)) * 255);
-        int green = (int)((1.0 - (m * (1 - k) + k)) * 255);
-        int blue = (int)((1.0 - (y * (1 - k) + k)) * 255);
+        // The following Adobe ICC profile would do a great job here: WebCoatedSWOP2006Grade3.icc
+        //
+        // The license conditions for profile are a bit vague, so I don't use it.
+        //
+        // There is a very good replacement from color.org named SWOP2006_Coated3v2.icc and its free.
+        // Let it be known though that CMYK - > RGB conversion can not be done with complete accuracy
+        // (with any ICC profile) because of the nature of the 2 color spaces. We can at least give a
+        // good guess about the color.
 
-        red = Clamp(red);
-        green = Clamp(green);
-        blue = Clamp(blue);
+        // var cmykColor = new float[] { (float)cyan, (float)magenta, (float)yellow, (float)black };
 
-        return new PaletteColor((byte)red, (byte)green, (byte)blue);
+        // var newColor = Color.FromValues(cmykColor, new Uri("C:\\ICC Profiles\\SWOP2006_Coated3v2.icc"));
+
+        // return new PaletteColor(newColor.R, newColor.G, newColor.B);
+
+        // The following magic formulas emulate the Adobe ICC profile. It's not perfect but better
+        // than the simple conversion formula (1 - c/m/y)*(1 - k) found overall the internet. 
+        // The formulas and their factors were found by experiments in color wizardry. 
+
+        double r = 1 - ((0.2 * c + 1 - 0.25 * m - 0.25 * y - 0.7 * k) * c
+                        + (0.09 + 0.08 * y - 0.05 * k) * m
+                        + (-0.05 + 0.05 * k) * y
+                        + (0.15 * k + 0.7) * k);
+        double g = 1 - ((0.34 - 0.3 * m - 0.18 * k) * c
+                        + (0.1 * m + 0.8 - 0.05 * y - 0.62 * k) * m
+                        + (0.1 - 0.1 * k) * y
+                        + (0.15 * k + 0.7) * k);
+        double b = 1 - ((0.09 - 0.1 * m - 0.1 * y) * c
+                        + (0.48 - 0.3 * y - 0.2 * k) * m
+                        + (0.1 * y + 0.8 - 0.74 * k) * y
+                        + (0.15 * k + 0.7) * k);
+
+        return new PaletteColor(ClampColorByte(r), ClampColorByte(g), ClampColorByte(b));
     }
 
     /// <summary>
@@ -249,5 +273,32 @@ internal static class ColorSpaceConverter
         if (i < 0) return 0;
         if (i > 255) return 255;
         return i;
+    }
+
+    /// <summary>
+    /// Convert the relative color in range [0..1] to [0..255] and check the limits
+    /// </summary>
+    /// <param name="relativeColor"></param>
+    /// <returns></returns>
+    private static byte ClampColorByte(double relativeColor)
+    {
+        byte colorValue;
+
+        relativeColor = relativeColor * 255;
+
+        if (relativeColor > 255)
+        {
+            colorValue = 255;
+        }
+        else if (relativeColor < 0)
+        {
+            colorValue = 0;
+        }
+        else
+        {
+            colorValue = (byte)relativeColor;
+        }
+
+        return colorValue;
     }
 }
