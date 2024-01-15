@@ -23,6 +23,7 @@
                     <DockPanel>
                         <controls:DialogTitleBar
                             DockPanel.Dock="Top"
+                            CloseCommand="{TemplateBinding CloseCommand}"
                             CanMinimize="{TemplateBinding CanMinimize}"
                             CanFullscreen="{TemplateBinding CanResize}"
                             TitleKey="{TemplateBinding Title}"/>
