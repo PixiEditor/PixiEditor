@@ -7,6 +7,7 @@
              xmlns:dataHolders="clr-namespace:PixiEditor.AvaloniaUI.Models.UserData"
              xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
+             xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Main.MainTitleBar">
     <Grid>
@@ -159,27 +160,24 @@
                     ui:Translator.Key="CENTER_CONTENT"
                     xaml:Menu.Command="PixiEditor.Document.CenterContent" />
                 <Separator />
-                <!--TODO: Create ToggleableMenuItem
-                <MenuItem
-                    IsCheckable="True"
-                    IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
-                    IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.HorizontalSymmetryAxisEnabledBindable}"
+                <input:ToggleableMenuItem
+                    IsEnabled="{Binding !!DocumentManagerSubViewModel.ActiveDocument, Source={viewModels:MainVM}}"
+                    IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.HorizontalSymmetryAxisEnabledBindable, Source={viewModels:MainVM}, Mode=TwoWay}"
                     ui:Translator.Key="HORIZONTAL_LINE_SYMMETRY">
                     <MenuItem.Icon>
-                        <Image Source="../Images/SymmetryHorizontal.png"
+                        <Image Source="/Images/SymmetryHorizontal.png"
                                Width="{x:Static xaml:Menu.IconDimensions}" Height="{x:Static xaml:Menu.IconDimensions}"/>
                     </MenuItem.Icon>
-                </MenuItem>
-                <MenuItem
-                    IsCheckable="True"
-                    IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Source={vm:MainVM}, Converter={converters:NotNullToBoolConverter}}"
-                    IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable}"
+                </input:ToggleableMenuItem>
+                <input:ToggleableMenuItem
+                    IsEnabled="{Binding !!DocumentManagerSubViewModel.ActiveDocument, Source={viewModels:MainVM}}"
+                    IsChecked="{Binding DocumentManagerSubViewModel.ActiveDocument.VerticalSymmetryAxisEnabledBindable, Source={viewModels:MainVM}, Mode=TwoWay}"
                     ui:Translator.Key="VERTICAL_LINE_SYMMETRY">
                     <MenuItem.Icon>
-                        <Image Source="../Images/SymmetryVertical.png"
+                        <Image Source="/Images/SymmetryVertical.png"
                                Width="{x:Static xaml:Menu.IconDimensions}" Height="{x:Static xaml:Menu.IconDimensions}"/>
                     </MenuItem.Icon>
-                </MenuItem>-->
+                </input:ToggleableMenuItem>
                 <Separator/>
                 <MenuItem ui:Translator.Key="ROTATION">
                     <MenuItem ui:Translator.Key="ROT_IMG_90_D" xaml:Menu.Command="PixiEditor.Document.Rotate90Deg"/>
