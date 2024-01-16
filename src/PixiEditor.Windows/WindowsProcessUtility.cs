@@ -32,6 +32,11 @@ public class WindowsProcessUtility : IProcessUtility
         });
     }
 
+    void IProcessUtility.ShellExecute(string url)
+    {
+        ShellExecute(url);
+    }
+
     public static void ShellExecute(string url, string args)
     {
         Process.Start(new ProcessStartInfo

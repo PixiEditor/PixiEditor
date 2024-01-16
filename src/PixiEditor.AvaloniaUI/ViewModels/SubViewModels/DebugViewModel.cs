@@ -13,6 +13,7 @@ using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Views;
+using PixiEditor.AvaloniaUI.Views.Dialogs.Debug.Localization;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.OperatingSystem;
@@ -226,10 +227,9 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     {
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            //TODO: Implement LocalizationDebugWindow
-            /*var window = desktop.Windows.OfType<LocalizationDebugWindow>().FirstOrDefault(new LocalizationDebugWindow());
+            var window = desktop.Windows.OfType<LocalizationDebugWindow>().FirstOrDefault(new LocalizationDebugWindow());
             window.Show();
-            window.Activate();*/
+            window.Activate();
         }
 
     }

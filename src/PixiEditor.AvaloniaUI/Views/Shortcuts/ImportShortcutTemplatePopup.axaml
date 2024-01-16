@@ -17,7 +17,7 @@
     SizeToContent="WidthAndHeight"
     Background="{DynamicResource AccentColor}"
     Name="window"
-    FlowDirection="{markupExtensions:Localization FlowDirection}"
+    ui:Translator.UseLanguageFlowDirection="True"
     ui:Translator.Key="IMPORT_FROM_TEMPLATE">
 
     

@@ -9,6 +9,7 @@ public interface ILocalizationProvider
     public LanguageData SelectedLanguage { get; }
     public LanguageData FollowSystem { get; }
     public event Action<Language> OnLanguageChanged;
+    public static event Action<ILocalizationProvider> OnLocalizationProviderChanged;
 
     /// <summary>
     ///     Loads the localization data from the specified file.
@@ -22,5 +23,6 @@ public interface ILocalizationProvider
     protected static void SetAsCurrent(ILocalizationProvider provider)
     {
         Current = provider;
+        OnLocalizationProviderChanged?.Invoke(provider);
     }
 }

@@ -4,6 +4,7 @@ using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Data.Core;
+using Avalonia.Media;
 using Avalonia.Reactive;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Helpers;
@@ -33,6 +34,12 @@ public class Translator : Control
     public static readonly AttachedProperty<LocalizedString> TooltipLocalizedStringProperty =
         AvaloniaProperty.RegisterAttached<Translator, Control, LocalizedString>("TooltipLocalizedString");
 
+    public static readonly AttachedProperty<bool> UseLanguageFlowDirectionProperty =
+        AvaloniaProperty.RegisterAttached<Translator, Control, bool>("UseLanguageFlowDirection");
+
+    public static void SetUseLanguageFlowDirection(Control obj, bool value) => obj.SetValue(UseLanguageFlowDirectionProperty, value);
+    public static bool GetUseLanguageFlowDirection(Control obj) => obj.GetValue(UseLanguageFlowDirectionProperty);
+
     static Translator()
     {
         IObserver<AvaloniaPropertyChangedEventArgs<string>> keyObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<string>>(KeyPropertyChanged);
@@ -49,6 +56,28 @@ public class Translator : Control
 
         IObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>> tooltipLocalizedStringObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<LocalizedString>>(TooltipLocalizedStringPropertyChanged);
         TooltipLocalizedStringProperty.Changed.Subscribe(tooltipLocalizedStringObserver);
+
+        IObserver<AvaloniaPropertyChangedEventArgs<bool>> useLanguageFlowDirectionObserver = new AnonymousObserver<AvaloniaPropertyChangedEventArgs<bool>>(UseLanguageFlowDirectionPropertyChanged);
+        UseLanguageFlowDirectionProperty.Changed.Subscribe(useLanguageFlowDirectionObserver);
+    }
+
+    private static void UseLanguageFlowDirectionPropertyChanged(AvaloniaPropertyChangedEventArgs<bool> obj)
+    {
+        if (!obj.NewValue.Value)
+        {
+            obj.Sender.SetValue(Control.FlowDirectionProperty, FlowDirection.LeftToRight);
+            ILocalizationProvider.Current.OnLanguageChanged -= (lang) => OnLanguageChangedFlowDirection(obj.Sender);
+        }
+        else
+        {
+            OnLanguageChangedFlowDirection(obj.Sender);
+            ILocalizationProvider.Current.OnLanguageChanged += (lang) => OnLanguageChangedFlowDirection(obj.Sender);
+        }
+    }
+
+    private static void OnLanguageChangedFlowDirection(AvaloniaObject objSender)
+    {
+        objSender.SetValue(Control.FlowDirectionProperty, ILocalizationProvider.Current.CurrentLanguage.FlowDirection);
     }
 
     private static void TooltipLocalizedStringPropertyChanged(AvaloniaPropertyChangedEventArgs<LocalizedString> e)

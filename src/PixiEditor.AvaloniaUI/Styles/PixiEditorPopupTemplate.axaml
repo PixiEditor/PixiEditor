@@ -1,7 +1,9 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="using:PixiEditor.AvaloniaUI.Views.Dialogs"
-        xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours">
+        xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
+        xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions">
     <Design.PreviewWith>
         <controls:PixiEditorPopup Width="400" Height="400" SizeToContent="Manual"/>
     </Design.PreviewWith>
@@ -17,6 +19,7 @@
         <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
         <Setter Property="ShowInTaskbar" Value="{TemplateBinding CanMinimize}"/>
+        <Setter Property="ui:Translator.UseLanguageFlowDirection" Value="True"></Setter>
         <Setter Property="Template">
             <ControlTemplate>
                 <Panel>

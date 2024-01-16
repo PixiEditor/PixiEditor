@@ -78,6 +78,10 @@
         <DependentUpon>Viewport.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Dialogs\Debug\Localization\LocalizationDebugWindow.axaml.cs">
+        <DependentUpon>LocalizationDebugWindow.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
   
     <ItemGroup>

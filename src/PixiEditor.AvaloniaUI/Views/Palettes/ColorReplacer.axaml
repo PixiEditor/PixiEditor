@@ -32,7 +32,7 @@
                                                ui:Translator.TooltipKey="REPLACER_TOOLTIP"
                                                ui1:DragDropEvents.Drop="PaletteColorControl_OnDrop"
                                                DragDrop.AllowDrop="True" />
-                    <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0" FlowDirection="{markupExtensions:Localization FlowDirection}"/>
+                    <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0" ui:Translator.UseLanguageFlowDirection="True"/>
                     <colorPicker:PortableColorPicker
                         UseHintColor="True"
                         SelectedColor="{Binding ElementName=uc, Path=NewColor, Mode=TwoWay}"
