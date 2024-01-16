@@ -155,11 +155,17 @@ internal class DockFactory : Factory
             Title = "PaletteViewerPane",
         };
 
+        SwatchesDockViewModel swatchesVm = new(fileVm.Owner.DocumentManagerSubViewModel)
+        {
+            Id = "SwatchesPane",
+            Title = "SwatchesPane",
+        };
+
         ToolDock colorPicker = new()
         {
             Id = "ColorPickerPane",
             Title = "ColorPickerPane",
-            VisibleDockables = new List<IDockable>() { colorPickerVm, paletteViewerVm },
+            VisibleDockables = new List<IDockable>() { colorPickerVm, paletteViewerVm, swatchesVm },
             ActiveDockable = colorPickerVm,
         };
 
