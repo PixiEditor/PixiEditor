@@ -2,7 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
                     xmlns:converters="clr-namespace:Avalonia.Controls.Converters;assembly=Avalonia.Controls"
-                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                    xmlns:converters1="clr-namespace:PixiEditor.UI.Common.Converters">
     <ControlTheme x:Key="{x:Type input:ToggleableMenuItem}"
                   TargetType="input:ToggleableMenuItem">
         <Setter Property="Background" Value="Transparent" />
@@ -56,7 +57,7 @@
                                    Grid.Column="3"
                                    VerticalAlignment="Center"
                                    Text="{TemplateBinding InputGesture,
-                                              Converter={StaticResource KeyGestureConverter}}" />
+                                              Converter={converters1:MenuItemKeyGestureConverter}}" />
                         <Path Name="rightArrow"
                               Grid.Column="4"
                               Margin="10,0,0,0"

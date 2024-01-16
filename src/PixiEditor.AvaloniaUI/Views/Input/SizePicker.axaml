@@ -5,7 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:PixiEditor.Views"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:enums="clr-namespace:PixiEditor.Models.Enums"
              xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"

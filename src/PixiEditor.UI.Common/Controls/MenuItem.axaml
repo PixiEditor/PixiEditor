@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:conv="using:Avalonia.Controls.Converters"
                     xmlns:sys="using:System"
+                    xmlns:converters="clr-namespace:PixiEditor.UI.Common.Converters"
                     x:ClassModifier="internal">
   <conv:PlatformKeyGestureConverter x:Key="KeyGestureConverter" />
 
@@ -56,7 +57,7 @@
                        Grid.Column="3"
                        VerticalAlignment="Center"
                        Text="{TemplateBinding InputGesture,
-                                              Converter={StaticResource KeyGestureConverter}}" />
+                                              Converter={converters:MenuItemKeyGestureConverter}}" />
             <Path Name="rightArrow"
                   Grid.Column="4"
                   Margin="10,0,0,0"

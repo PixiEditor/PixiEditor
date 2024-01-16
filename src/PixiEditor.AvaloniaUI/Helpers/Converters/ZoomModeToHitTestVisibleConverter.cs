@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Avalonia;
+using PixiEditor.UI.Common.Converters;
 using PixiEditor.Zoombox;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;

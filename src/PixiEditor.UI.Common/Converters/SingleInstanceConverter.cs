@@ -1,6 +1,4 @@
-﻿using PixiEditor.UI.Common.Converters;
-
-namespace PixiEditor.AvaloniaUI.Helpers.Converters;
+﻿namespace PixiEditor.UI.Common.Converters;
 
 /// <summary>
 /// Use this if you want to share the same converter over the whole application. <para/> Do not use this if your converter has properties.

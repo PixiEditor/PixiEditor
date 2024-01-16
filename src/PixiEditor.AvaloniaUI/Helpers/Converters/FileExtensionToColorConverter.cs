@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Models.Files;
+using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 

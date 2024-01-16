@@ -2,9 +2,9 @@
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 
-namespace PixiEditor.AvaloniaUI.Helpers.Converters;
+namespace PixiEditor.UI.Common.Converters;
 
-internal abstract class MarkupConverter : MarkupExtension, IValueConverter
+public abstract class MarkupConverter : MarkupExtension, IValueConverter
 {
     public abstract object Convert(object value, Type targetType, object parameter, CultureInfo culture);
 

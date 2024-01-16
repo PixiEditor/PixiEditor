@@ -7,9 +7,9 @@
              xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:palettes="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
-             xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:decorators="clr-namespace:PixiEditor.AvaloniaUI.Views.Decorators"
              xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
+             xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              d:DesignHeight="450" d:DesignWidth="300" Name="paletteControl">
     <DockPanel>
         <palettes:ColorReplacer Grid.Row="3" VerticalAlignment="Bottom" Name="Replacer" DockPanel.Dock="Bottom"

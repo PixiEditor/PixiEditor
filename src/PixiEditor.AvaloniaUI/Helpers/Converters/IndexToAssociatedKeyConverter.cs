@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.Extensions.Palettes;
 
-namespace PixiEditor.Helpers.Converters;
+namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 internal class IndexToAssociatedKeyConverter : SingleInstanceMultiValueConverter<IndexToAssociatedKeyConverter>
 {
