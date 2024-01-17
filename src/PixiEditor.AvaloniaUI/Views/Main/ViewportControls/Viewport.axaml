@@ -24,6 +24,7 @@
     xmlns:viewModels1="clr-namespace:PixiEditor.ViewModels"
     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
     xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
+    xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -330,70 +331,21 @@
                         <Grid.Resources>
                             <converters:ThresholdVisibilityConverter Threshold="10" x:Key="ThresholdVisibilityConverter"/>
                         </Grid.Resources>
-                        <Rectangle Focusable="False" IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}">
+                        <visuals:GridLines Scale="{Binding Zoombox.Scale}" IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}"
+                                           Rows="{Binding Document.Width}" Columns="{Binding Document.Height}"/>
+                        <!--<Rectangle Focusable="False" IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}">
                             <Rectangle.Fill>
                                 <VisualBrush DestinationRect="{Binding Document.Width, Converter={converters:IntToViewportRectConverter}, ConverterParameter=vertical}"
-                                            TileMode="Tile" >
+                                            TileMode="Tile">
                                     <VisualBrush.Visual>
+                                        <
                                         <Line StartPoint="0, 0" EndPoint="0, 1" Stroke="Black"
-                                              StrokeThickness="{Binding Zoombox.Scale, Converter={converters:ReciprocalConverter}}"/>
+                                              StrokeThickness="}"/>
                                     </VisualBrush.Visual>
                                 </VisualBrush>
                             </Rectangle.Fill>
-                        </Rectangle>
-                        <Rectangle Focusable="False" IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}">
-                            <Rectangle.Fill>
-                                <VisualBrush DestinationRect="{Binding Document.Height, Converter={converters:IntToViewportRectConverter}}"
-                                           TileMode="Tile" >
-                                    <VisualBrush.Visual>
-                                        <Line StartPoint="0, 0" EndPoint="1, 0" Stroke="Black" StrokeThickness="{Binding Zoombox.Scale, Converter={converters:ReciprocalConverter}}"/>
-                                    </VisualBrush.Visual>
-                                </VisualBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>
-                        <Rectangle Focusable="False" IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}">
-                            <Rectangle.Fill>
-                                <VisualBrush DestinationRect="{Binding Document.Width, Converter={converters:IntToViewportRectConverter}, ConverterParameter=vertical}" TileMode="Tile" >
-                                    <VisualBrush.Visual>
-                                        <Line StartPoint="0, 0" EndPoint="0, 1" Stroke="White">
-                                            <Line.StrokeThickness>
-                                                <Binding Converter="{converters:ReciprocalConverter}">
-                                                    <Binding.Path>Zoombox.Scale</Binding.Path>
-                                                    <Binding.ConverterParameter>
-                                                        <sys:Double>
-                                                            1.1
-                                                        </sys:Double>
-                                                    </Binding.ConverterParameter>
-                                                </Binding>
-                                            </Line.StrokeThickness>
-                                        </Line>
-                                    </VisualBrush.Visual>
-                                </VisualBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>
-                        <Rectangle Focusable="False" IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}">
-                            <Rectangle.Fill>
-                                <!--TODO: Make sure Viewport is DestinationRect in Avalonia. Also Viewbox Units not found-->
-                                <VisualBrush DestinationRect="{Binding Document.Height, Converter={converters:IntToViewportRectConverter}}" TileMode="Tile">
-                                    <VisualBrush.Visual>
-                                        <Line StartPoint="0, 0" EndPoint="1, 0" Stroke="White">
-                                            <Line.StrokeThickness>
-                                                <Binding Converter="{converters:ReciprocalConverter}">
-                                                    <Binding.Path>Zoombox.Scale</Binding.Path>
-                                                    <Binding.ConverterParameter>
-                                                        <sys:Double>
-                                                            1.1
-                                                        </sys:Double>
-                                                    </Binding.ConverterParameter>
-                                                </Binding>
-                                            </Line.StrokeThickness>
-                                        </Line>
-                                    </VisualBrush.Visual>
-                                </VisualBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>
+                        </Rectangle>-->
                     </Grid>
-                    <!--TODO: what was the purpose of the rectangle below lol-->
                     <Rectangle Stroke="{DynamicResource ThemeBackgroundBrush1}" Opacity=".8" ZIndex="2"
                                IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}">
                         <Rectangle.StrokeThickness>

@@ -10,6 +10,7 @@ namespace PixiEditor.Helpers;
 
 internal static class IconEvaluators
 {
+    /*TODO: Segoe is Windows only*/
     private static readonly FontFamily segeoMdl2 = new FontFamily("Segoe MDL2 Assets");
 
     [Evaluator.Icon("PixiEditor.FontIcon")]

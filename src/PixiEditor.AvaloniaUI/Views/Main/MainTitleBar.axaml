@@ -8,6 +8,7 @@
              xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input;assembly=PixiEditor.UI.Common"
+             xmlns:avaloniaUi="clr-namespace:PixiEditor.AvaloniaUI"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Main.MainTitleBar">
     <Grid>
@@ -216,16 +217,15 @@
                     ui:Translator.Key="OPEN_PALETTE_BROWSER"
                     xaml:Menu.Command="PixiEditor.Window.OpenPalettesBrowserWindow" />
                 <Separator/>
-                <!--<MenuItem
+                <input:ToggleableMenuItem
                     ui:Translator.Key="TOGGLE_GRIDLINES"
                     IsChecked="{Binding ViewportSubViewModel.GridLinesEnabled, Mode=TwoWay}"
-                    IsCheckable="True"
-                    InputGestureText="{xaml:ShortcutBinding PixiEditor.View.ToggleGrid}">
+                    InputGesture="{xaml:ShortcutBinding PixiEditor.View.ToggleGrid}">
                     <MenuItem.Icon>
-                        <Image Source="../Images/Commands/PixiEditor/View/ToggleGrid.png"
+                        <Image Source="/Images/Commands/PixiEditor/View/ToggleGrid.png"
                                Width="{x:Static xaml:Menu.IconDimensions}" Height="{x:Static xaml:Menu.IconDimensions}"/>
                     </MenuItem.Icon>
-                </MenuItem>-->
+                </input:ToggleableMenuItem>
             </MenuItem>
             <MenuItem
                 Focusable="False"
