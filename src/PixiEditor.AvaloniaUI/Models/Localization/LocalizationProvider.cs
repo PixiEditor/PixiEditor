@@ -177,8 +177,31 @@ internal class LocalizationProvider : ILocalizationProvider
     private IDictionary<string, string> ReadLocaleFile(string localePath)
     {
         JsonSerializer serializer = new();
-        using Stream stream = AssetLoader.Open(new Uri(localePath));
-        return serializer.Deserialize<Dictionary<string, string>>(new JsonTextReader(new StreamReader(stream)));
+        Stream stream = null;
+        if (!localePath.StartsWith("avares://"))
+        {
+            if (!File.Exists(localePath))
+            {
+                throw new FileNotFoundException("Locale file not found.", localePath);
+            }
+
+            stream = File.OpenRead(localePath);
+        }
+        else
+        {
+            Uri uri = new Uri(localePath);
+            if (!AssetLoader.Exists(uri))
+            {
+                throw new FileNotFoundException("Locale file not found.", localePath);
+            }
+
+            stream = AssetLoader.Open(new Uri(localePath));
+        }
+
+        var result = serializer.Deserialize<Dictionary<string, string>>(new JsonTextReader(new StreamReader(stream)));
+        stream.Dispose();
+
+        return result;
     }
 
     private string GetLocalePath(LanguageData languageData)

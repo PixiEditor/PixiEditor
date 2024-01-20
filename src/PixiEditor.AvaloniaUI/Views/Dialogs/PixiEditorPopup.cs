@@ -1,15 +1,19 @@
-﻿using System.Windows.Input;
+﻿using System.Threading.Tasks;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
+using PixiEditor.Extensions;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
-public partial class PixiEditorPopup : Window, IStyleable
+public partial class PixiEditorPopup : Window, IStyleable, IPopupWindow
 {
+    public string UniqueId => "PixiEditor.Popup";
+
     public static readonly StyledProperty<bool> CanMinimizeProperty = AvaloniaProperty.Register<PixiEditorPopup, bool>(
         nameof(CanMinimize), defaultValue: true);
 
@@ -47,6 +51,11 @@ public partial class PixiEditorPopup : Window, IStyleable
     public override void Show()
     {
         Show(MainWindow.Current);
+    }
+
+    public async Task<bool?> ShowDialog()
+    {
+        return await ShowDialog<bool?>(MainWindow.Current);
     }
 
     [RelayCommand]

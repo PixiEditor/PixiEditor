@@ -333,18 +333,6 @@
                         </Grid.Resources>
                         <visuals:GridLines Scale="{Binding Zoombox.Scale}" IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}"
                                            Rows="{Binding Document.Width}" Columns="{Binding Document.Height}"/>
-                        <!--<Rectangle Focusable="False" IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}">
-                            <Rectangle.Fill>
-                                <VisualBrush DestinationRect="{Binding Document.Width, Converter={converters:IntToViewportRectConverter}, ConverterParameter=vertical}"
-                                            TileMode="Tile">
-                                    <VisualBrush.Visual>
-                                        <
-                                        <Line StartPoint="0, 0" EndPoint="0, 1" Stroke="Black"
-                                              StrokeThickness="}"/>
-                                    </VisualBrush.Visual>
-                                </VisualBrush>
-                            </Rectangle.Fill>
-                        </Rectangle>-->
                     </Grid>
                     <Rectangle Stroke="{DynamicResource ThemeBackgroundBrush1}" Opacity=".8" ZIndex="2"
                                IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}">

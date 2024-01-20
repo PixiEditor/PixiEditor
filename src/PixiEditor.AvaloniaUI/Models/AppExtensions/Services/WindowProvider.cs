@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Windowing;
 
@@ -23,10 +24,7 @@ public class WindowProvider : IWindowProvider
 
     public PopupWindow CreatePopupWindow(string title, object body)
     {
-        //TODO: Implement BasicPopup
-        //return new PopupWindow(new BasicPopup { Title = title, Body = body });
-
-        return null;
+        return new PopupWindow(new PixiEditorPopup() { Title = title, Content = body });
     }
 
     public PopupWindow OpenWindow(WindowType type)
