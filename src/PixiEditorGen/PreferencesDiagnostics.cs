@@ -10,6 +10,8 @@ namespace PixiEditorGen;
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class PreferencesDiagnostics : DiagnosticAnalyzer
 {
+    private const string Attribute = "PreferenceConstantAttribute";
+    
     private static DiagnosticDescriptor wrongDestinationDescriptor = new("WrongDestination",
         "Wrong preferences destination", "Preference '{0}' should be used with {1} preferences",
         "PixiEditor", DiagnosticSeverity.Error, true);
@@ -39,7 +41,12 @@ public class PreferencesDiagnostics : DiagnosticAnalyzer
 
             var parameter = methodSymbol.Parameters[i];
 
-            CheckAttributes(context, member, invocationExpression, methodNameSyntax, parameter);
+            if (context.SemanticModel.GetSymbolInfo(member).Symbol is not { } symbol)
+            {
+                return;
+            }
+
+            CheckAttributes(context, symbol, invocationExpression, methodNameSyntax, parameter);
         }
     }
 
@@ -61,35 +68,48 @@ public class PreferencesDiagnostics : DiagnosticAnalyzer
         return symbol != null;
     }
     
-    private static void CheckAttributes(SyntaxNodeAnalysisContext context, ExpressionSyntax member, InvocationExpressionSyntax invocation, SimpleNameSyntax? methodNameExpr, ISymbol parameterSymbol)
+    private static void CheckAttributes(SyntaxNodeAnalysisContext context, ISymbol symbol, InvocationExpressionSyntax invocation, SimpleNameSyntax? methodNameExpr, ISymbol parameterSymbol)
     {
-        foreach (var attributeData in parameterSymbol.GetAttributes())
+        bool hasCorrectUsage = false;
+        bool hasIncorrectUsage = false;
+        AttributeData? incorrectAttributeData = null;
+        
+        var attributes = parameterSymbol.GetAttributes();
+        for (var i = 0; i < attributes.Length; i++)
         {
-            if (attributeData.AttributeClass?.BaseType?.Name != "PreferenceConstantAttribute")
+            var attributeData = attributes[i];
+            if (attributeData.AttributeClass?.BaseType?.Name != Attribute)
             {
                 continue;
             }
 
-            if (context.SemanticModel.GetSymbolInfo(member).Symbol is not { } symbol)
+            var correctAttribute = symbol.GetAttributes().FirstOrDefault(x =>
+                x.AttributeClass?.BaseType?.Name == Attribute &&
+                x.AttributeClass?.Name == attributeData.AttributeClass?.Name);
+
+            if (correctAttribute != null)
             {
-                continue;
+                hasCorrectUsage = true;
+                break;
             }
 
-            var memberAttributeData = symbol.GetAttributes()
-                .FirstOrDefault(x => x.AttributeClass?.BaseType?.Name == "PreferenceConstantAttribute");
-            
-            if (memberAttributeData != null && memberAttributeData.AttributeClass?.Name != attributeData.AttributeClass?.Name)
-            {
-                var diagnostic = Diagnostic.Create(
-                    wrongDestinationDescriptor,
-                    methodNameExpr?.GetLocation() ?? invocation.GetLocation(), symbol.ToDisplayString(),
-                    memberAttributeData.AttributeClass?.Name.Replace("PreferenceConstantAttribute", "").ToLower());
-
-                context.ReportDiagnostic(diagnostic);
-            }
-
-            break;
+            incorrectAttributeData =
+                symbol.GetAttributes().FirstOrDefault(x => x.AttributeClass?.BaseType?.Name == Attribute);
+            hasIncorrectUsage = true;
+            i++;
         }
+
+        if (hasCorrectUsage || !hasIncorrectUsage)
+        {
+            return;
+        }
+
+        var diagnostic = Diagnostic.Create(
+            wrongDestinationDescriptor,
+            methodNameExpr?.GetLocation() ?? invocation.GetLocation(), symbol?.ToDisplayString(),
+            incorrectAttributeData?.AttributeClass?.Name.Replace(Attribute, "").ToLower());
+
+        context.ReportDiagnostic(diagnostic);
     }
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
