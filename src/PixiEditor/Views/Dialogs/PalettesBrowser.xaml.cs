@@ -11,6 +11,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Extensions.Windowing;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;

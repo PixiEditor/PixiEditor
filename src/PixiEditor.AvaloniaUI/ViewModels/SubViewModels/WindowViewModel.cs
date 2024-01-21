@@ -171,8 +171,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         IconPath = "Database.png")]
     public void ShowPalettesBrowserWindow()
     {
-        PalettesBrowser.Open(Owner.ColorsSubViewModel.PaletteProvider, Owner.ColorsSubViewModel.ImportPaletteCommand,
-            Owner.DocumentManagerSubViewModel.ActiveDocument?.Palette);
+        PalettesBrowser.Open();
     }
         
     [Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW")]

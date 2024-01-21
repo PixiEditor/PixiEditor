@@ -26,12 +26,12 @@ public class WindowProvider : IWindowProvider
         return new PopupWindow(new BasicPopup { Title = title, Body = body });
     }
 
-    public PopupWindow OpenWindow(WindowType type)
+    public PopupWindow GetWindow(WindowType type)
     {
-        return OpenWindow($"PixiEditor.{type}");
+        return GetWindow($"PixiEditor.{type}");
     }
 
-    public PopupWindow OpenWindow(string windowId)
+    public PopupWindow GetWindow(string windowId)
     {
         var handler = _openHandlers.FirstOrDefault(x => x.Key == windowId);
         if (handler.Key != null)

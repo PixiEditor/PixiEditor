@@ -107,7 +107,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();
     }
 
-    public static IServiceCollection AddExtensionServices(this IServiceCollection collection) =>
-        collection.AddSingleton<IWindowProvider, WindowProvider>()
+    public static IServiceCollection AddExtensionServices(this IServiceCollection collection, ExtensionLoader loader) =>
+        collection.AddSingleton<IWindowProvider, WindowProvider>(x => new WindowProvider(loader, x))
             .AddSingleton<IPaletteProvider, PaletteProvider>();
 }

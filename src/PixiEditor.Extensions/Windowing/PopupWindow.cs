@@ -2,8 +2,6 @@
 
 public class PopupWindow : IPopupWindow
 {
-    public string UniqueId => _underlyingWindow.UniqueId;
-
     private IPopupWindow _underlyingWindow;
 
     public PopupWindow(IPopupWindow basicPopup)
@@ -30,5 +28,17 @@ public class PopupWindow : IPopupWindow
     {
         get => _underlyingWindow.Height;
         set => _underlyingWindow.Height = value;
+    }
+
+    public bool CanResize
+    {
+        get => _underlyingWindow.CanResize;
+        set => _underlyingWindow.CanResize = value;
+    }
+
+    public bool CanMinimize
+    {
+        get => _underlyingWindow.CanMinimize;
+        set => _underlyingWindow.CanMinimize = value;
     }
 }

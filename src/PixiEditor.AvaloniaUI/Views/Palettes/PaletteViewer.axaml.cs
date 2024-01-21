@@ -279,7 +279,7 @@ internal partial class PaletteViewer : UserControl
 
     private async void BrowsePalettes_Click(object sender, RoutedEventArgs e)
     {
-        var browser = PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand, Colors);
+        var browser = PalettesBrowser.Open();
         await browser.UpdatePaletteList();
     }
 

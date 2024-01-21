@@ -82,6 +82,10 @@
         <DependentUpon>LocalizationDebugWindow.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Update="Views\Windows\PalettesBrowser.axaml.cs">
+        <DependentUpon>PalettesBrowser.axaml</DependentUpon>
+        <SubType>Code</SubType>
+      </Compile>
     </ItemGroup>
   
     <ItemGroup>

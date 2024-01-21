@@ -2,6 +2,7 @@
 using Avalonia.Layout;
 using Avalonia.Media;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.Windowing;
 
 namespace SampleExtension;
 
@@ -20,5 +21,7 @@ public class SampleExtension : Extension
         });
         Api.PaletteProvider.RegisterDataSource(new TestPaletteDataSource());
         popup.ShowDialog();
+
+        Api.WindowProvider.GetWindow(WindowType.PalettesBrowser).Show();
     }
 }

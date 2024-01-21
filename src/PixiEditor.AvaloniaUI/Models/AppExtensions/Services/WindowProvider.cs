@@ -1,47 +1,79 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.Helpers;
 using PixiEditor.Extensions.Windowing;
 
 namespace PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
 
 public class WindowProvider : IWindowProvider
 {
-    private Dictionary<string, Func<IPopupWindow>> _openHandlers = new();
+    private readonly Dictionary<string, Type> registeredWindows = new();
+    private ExtensionLoader extensionLoader;
+    private IServiceProvider services;
 
-    public WindowProvider RegisterHandler(string id, Func<IPopupWindow> handler)
+    internal WindowProvider(ExtensionLoader loader, IServiceProvider services)
     {
-        if (_openHandlers.ContainsKey(id))
+        this.extensionLoader = loader;
+        this.services = services;
+    }
+
+    public WindowProvider RegisterWindow<T>() where T : IPopupWindow
+    {
+        Type type = typeof(T);
+        string? id = extensionLoader.GetTypeId(type);
+        if (id is null)
         {
-            _openHandlers[id] = handler;
-            throw new ArgumentException($"Window with id {id} already has a handler");
+            throw new ArgumentException($"Window {type} doesn't seem to be part of an extension.");
         }
 
-        _openHandlers.Add(id, handler);
+        if (!registeredWindows.TryAdd(id, type))
+        {
+            throw new ArgumentException($"Window with id {id} is already registered.");
+        }
+
         return this;
     }
 
     public PopupWindow CreatePopupWindow(string title, object body)
     {
-        return new PopupWindow(new PixiEditorPopup() { Title = title, Content = body });
+        return new PopupWindow(new PixiEditorPopup { Title = title, Content = body });
     }
 
-    public PopupWindow OpenWindow(WindowType type)
+    public PopupWindow GetWindow(WindowType type)
     {
-        return OpenWindow($"PixiEditor.{type}");
+        string id = type.GetDescription();
+        return GetWindow($"PixiEditor.{id}");
     }
 
-    public PopupWindow OpenWindow(string windowId)
+    public PopupWindow GetWindow(string windowId)
     {
-        var handler = _openHandlers.FirstOrDefault(x => x.Key == windowId);
-        if (handler.Key != null)
+        if (registeredWindows.TryGetValue(windowId, out Type? handler))
         {
-            return new PopupWindow(handler.Value());
+            object[] args = TryGetConstructorArgs(handler);
+            return new PopupWindow((IPopupWindow)Activator.CreateInstance(handler, args));
         }
-        else
+
+        throw new ArgumentException($"Window with id {windowId} does not exist");
+    }
+
+    private object?[] TryGetConstructorArgs(Type handler)
+    {
+        ConstructorInfo[] constructors = handler.GetConstructors();
+        if (constructors.Length == 0)
         {
-            throw new ArgumentException($"Window with id {windowId} does not exist");
+            return Array.Empty<object>();
         }
+
+        ConstructorInfo constructor = constructors[0];
+        ParameterInfo[] parameters = constructor.GetParameters();
+        if (parameters.Length == 0)
+        {
+            return Array.Empty<object>();
+        }
+
+        return parameters.Select(x => services.GetService(x.ParameterType)).ToArray();
     }
 }

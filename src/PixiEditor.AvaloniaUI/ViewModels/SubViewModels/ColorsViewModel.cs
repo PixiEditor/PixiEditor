@@ -150,7 +150,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is not null)
-            PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand, doc.Palette);
+            PalettesBrowser.Open();
     } 
 
     private async Task ImportLospecPalette()
@@ -160,8 +160,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
 
         if (lospecPaletteArg != null)
         {
-            var browser = PalettesBrowser.Open(PaletteProvider, ImportPaletteCommand,
-                new ObservableRangeCollection<PaletteColor>());
+            var browser = PalettesBrowser.Open();
 
             browser.IsFetching = true;
             var palette = await LospecPaletteFetcher.FetchPalette(lospecPaletteArg.Split(@"://")[1].Replace("/", ""));

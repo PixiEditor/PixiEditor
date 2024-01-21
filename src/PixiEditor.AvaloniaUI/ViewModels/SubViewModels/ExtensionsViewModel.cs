@@ -13,14 +13,15 @@ internal class ExtensionsViewModel : SubViewModel<ViewModelMain>
     public ExtensionsViewModel(ViewModelMain owner, ExtensionLoader loader) : base(owner)
     {
         ExtensionLoader = loader;
-        ((WindowProvider)Owner.Services.GetService<IWindowProvider>()).RegisterHandler(PalettesBrowser.UniqueId, () =>
-        {
-            return PalettesBrowser.Open(
-                Owner.ColorsSubViewModel.PaletteProvider,
-                Owner.ColorsSubViewModel.ImportPaletteCommand,
-                Owner.DocumentManagerSubViewModel.ActiveDocument?.Palette);
-        });
+        WindowProvider windowProvider = (WindowProvider)Owner.Services.GetService<IWindowProvider>();
+
+        RegisterCoreWindows(windowProvider);
         Owner.OnStartupEvent += Owner_OnStartupEvent;
+    }
+
+    private void RegisterCoreWindows(WindowProvider? windowProvider)
+    {
+        windowProvider?.RegisterWindow<PalettesBrowser>();
     }
 
     private void Owner_OnStartupEvent(object sender, EventArgs e)

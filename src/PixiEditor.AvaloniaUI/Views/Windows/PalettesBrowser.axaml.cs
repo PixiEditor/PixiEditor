@@ -18,6 +18,7 @@ using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.Palettes;
 using PixiEditor.AvaloniaUI.Models.Structures;
+using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Input;
 using PixiEditor.AvaloniaUI.Views.Palettes;
@@ -26,6 +27,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Extensions.Windowing;
 using PixiEditor.Models.Enums;
 using PixiEditor.OperatingSystem;
 using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
@@ -35,9 +37,6 @@ namespace PixiEditor.AvaloniaUI.Views.Windows;
 
 internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 {
-    public static string UniqueId => "PixiEditor.BrowserPalette";
-    string IPopupWindow.UniqueId => UniqueId;
-
     private const int ItemsPerLoad = 25;
 
     private readonly LocalizedString[] stopItTexts = new[]
@@ -184,13 +183,15 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
         ShowOnlyFavouritesProperty.Changed.Subscribe(OnShowOnlyFavouritesChanged);
     }
 
-    public PalettesBrowser(PaletteProvider provider)
+    public PalettesBrowser(ColorsViewModel vm)
     {
         localizationProvider = ViewModelMain.Current.LocalizationProvider;
         localizationProvider.OnLanguageChanged += LocalizationProviderOnOnLanguageChanged;
         MinWidth = DetermineWidth();
         
-        PaletteProvider = provider;
+        PaletteProvider = vm.PaletteProvider;
+        ImportPaletteCommand = vm.ImportPaletteCommand;
+        CurrentEditingPalette = vm.Owner.DocumentManagerSubViewModel.ActiveDocument?.Palette;
         InitializeComponent();
         Title = new LocalizedString("PALETTE_BROWSER");
         Instance = this;
@@ -253,7 +254,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
             IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
     }
 
-    public static PalettesBrowser Open(PaletteProvider provider, ICommand importPaletteCommand, ObservableRangeCollection<PaletteColor> currentEditingPalette)
+    public static PalettesBrowser Open()
     {
         if (Instance != null) return Instance;
 
@@ -263,11 +264,9 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
             owner = desktop.MainWindow;
         }
 
-        PalettesBrowser browser = new PalettesBrowser(provider)
+        PalettesBrowser browser = new PalettesBrowser(ViewModelMain.Current.ColorsSubViewModel)
         {
             Owner = owner,
-            ImportPaletteCommand = importPaletteCommand,
-            CurrentEditingPalette = currentEditingPalette
         };
 
         browser.Show();

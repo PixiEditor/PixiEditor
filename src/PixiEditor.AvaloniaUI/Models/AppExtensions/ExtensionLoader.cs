@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.IO;
@@ -38,6 +37,26 @@ internal class ExtensionLoader
         }
     }
 
+    // Uncomment when PixiEditor.Core extension concept is implemented
+    /*private void LoadCore()
+    {
+        Type entry = typeof(PixiEditorCoreExtension);
+        Assembly assembly = entry.Assembly;
+        var serializer = new JsonSerializer();
+
+        Uri uri = new Uri("avares://PixiEditor.Core/extension.json");
+
+        if (!AssetLoader.Exists(uri))
+        {
+            throw new FileNotFoundException("Core metadata not found", uri.ToString());
+        }
+
+        using var sr = new StreamReader(AssetLoader.Open(uri));
+        using var jsonTextReader = new JsonTextReader(sr);
+        ExtensionMetadata? metadata = serializer.Deserialize<ExtensionMetadata>(jsonTextReader);
+        LoadExtensionFrom(assembly, entry, metadata);
+    }*/
+
     public void InitializeExtensions(ExtensionServices pixiEditorApi)
     {
         try
@@ -49,7 +68,9 @@ internal class ExtensionLoader
         }
         catch (Exception ex)
         {
-            CrashHelper.SendExceptionInfoToWebhook(ex);
+            // TODO: Log exception
+            // Maybe it's not a good idea to send webhook exceptions in the extension loader
+            //CrashHelper.SendExceptionInfoToWebhook(ex);
         }
     }
 
@@ -71,9 +92,7 @@ internal class ExtensionLoader
                 return;
             }
 
-            var extension = LoadExtensionEntry(entry, extensionType, metadata);
-            extension.Load();
-            LoadedExtensions.Add(extension);
+            LoadExtensionFrom(entry, extensionType, metadata);
         }
         catch (JsonException)
         {
@@ -88,6 +107,13 @@ internal class ExtensionLoader
             //MessageBox.Show(new LocalizedString("ERROR_LOADING_PACKAGE", packageJsonPath), "ERROR");
             CrashHelper.SendExceptionInfoToWebhook(ex);
         }
+    }
+
+    private void LoadExtensionFrom(Assembly entry, Type extensionType, ExtensionMetadata metadata)
+    {
+        var extension = LoadExtensionEntry(entry, extensionType, metadata);
+        extension.Load();
+        LoadedExtensions.Add(extension);
     }
 
     private Assembly? GetEntryAssembly(string assemblyFolder, out Type extensionType)
@@ -215,6 +241,25 @@ internal class ExtensionLoader
         {
             Directory.CreateDirectory(Paths.ExtensionsFullPath);
         }
+    }
+
+    public string? GetTypeId(Type id)
+    {
+        if (id.Assembly == Assembly.GetExecutingAssembly())
+        {
+            return $"PixiEditor.{id.Name}";
+        }
+
+        foreach (var extension in LoadedExtensions)
+        {
+            Type? foundType = extension.Assembly.GetTypes().FirstOrDefault(x => x == id);
+            if (foundType != null)
+            {
+                return $"{extension.Metadata.UniqueName}:{foundType.Name}";
+            }
+        }
+
+        return null;
     }
 }
 
