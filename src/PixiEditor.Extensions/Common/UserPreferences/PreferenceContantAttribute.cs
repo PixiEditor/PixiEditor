@@ -7,5 +7,5 @@ public abstract class PreferenceConstantAttribute : Attribute
 public class LocalPreferenceConstantAttribute : PreferenceConstantAttribute
 { }
 
-public class RemotePreferenceConstantAttribute : PreferenceConstantAttribute
+public class SyncedPreferenceConstantAttribute : PreferenceConstantAttribute
 { }

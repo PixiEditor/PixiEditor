@@ -43,7 +43,7 @@ public interface IPreferences
     /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
     /// <param name="name">The name of the setting.</param>
     /// <param name="value">The new value.</param>
-    public void UpdatePreference<T>([RemotePreferenceConstant] string name, T value);
+    public void UpdatePreference<T>([SyncedPreferenceConstant] string name, T value);
 
     /// <summary>
     /// Updates a editor setting and calls all added callbacks.
@@ -61,7 +61,7 @@ public interface IPreferences
     /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
     /// <param name="name">The name of the setting</param>
     /// <returns>The setting or the default of <typeparamref name="T"/> if it has not been set yet</returns>
-    public T? GetPreference<T>([RemotePreferenceConstant] string name);
+    public T? GetPreference<T>([SyncedPreferenceConstant] string name);
 
     /// <summary>
     /// Reads the user preference that is called <paramref name="name"/>, if the setting does not exist the default of <paramref name="fallbackValue"/> will be used
@@ -69,7 +69,7 @@ public interface IPreferences
     /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
     /// <param name="name">The name of the setting</param>
     /// <returns>The setting or the <paramref name="fallbackValue"/> if it has not been set yet</returns>
-    public T? GetPreference<T>([RemotePreferenceConstant] string name, T? fallbackValue);
+    public T? GetPreference<T>([SyncedPreferenceConstant] string name, T? fallbackValue);
 
     /// <summary>
     /// Reads the editor setting that is called <paramref name="name"/>, if the setting does not exist the deafult of <typeparamref name="T"/> will be used
