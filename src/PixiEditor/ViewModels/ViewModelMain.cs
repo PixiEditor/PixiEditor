@@ -266,7 +266,7 @@ internal class ViewModelMain : ViewModelBase
             }
         }
         
-        Preferences.UpdatePreference(PreferencesConstants.UnsavedNextSessionFiles, list);
+        Preferences.UpdateLocalPreference(PreferencesConstants.UnsavedNextSessionFiles, list);
     }
 
     /// <summary>
