@@ -15,7 +15,6 @@
     <Border Padding="8, 0"
             CornerRadius="5"
             BorderThickness="0"
-            ui:Translator.TooltipKey="{Binding MainMenuText, Mode=OneWay}"
             x:Name="autosaveControl">
         <Border.Style>
             <Style TargetType="Border">
@@ -31,50 +30,49 @@
         </Border.Style>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock
-                    Text="{Binding MainMenuIconText, FallbackValue='', Mode=OneWay}"
-                    FontFamily="{StaticResource Feather}"
-                    FontSize="16" Margin="0,1,5,0"
-                    VerticalAlignment="Center"
-                    Foreground="{Binding MainMenuBrush, Mode=OneWay}">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Style.Triggers>
-                                <DataTrigger
-                                    Binding="{Binding MainMenuPulse, Mode=OneWay}"
-                                    Value="True">
-                                    <DataTrigger.EnterActions>
-                                        <BeginStoryboard x:Name="storyboard">
-                                            <Storyboard TargetProperty="Opacity">
-                                                <DoubleAnimation From="0.4" To="1" Duration="0:0:2"
-                                                                 AutoReverse="True"
-                                                                 RepeatBehavior="Forever">
-                                                    <DoubleAnimation.EasingFunction>
-                                                        <QuadraticEase EasingMode="EaseInOut" />
-                                                    </DoubleAnimation.EasingFunction>
-                                                </DoubleAnimation>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <RemoveStoryboard BeginStoryboardName="storyboard" />
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </StackPanel>
+            <TextBlock
+                Text="{Binding MainMenuIconText, FallbackValue='', Mode=OneWay}"
+                FontFamily="{StaticResource Feather}"
+                FontSize="16" Margin="0,1,5,0"
+                VerticalAlignment="Center"
+                Foreground="{Binding MainMenuBrush, Mode=OneWay}">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <DataTrigger
+                                Binding="{Binding MainMenuPulse, Mode=OneWay}"
+                                Value="True">
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard x:Name="storyboard">
+                                        <Storyboard TargetProperty="Opacity">
+                                            <DoubleAnimation From="0.4" To="1" Duration="0:0:2"
+                                                             AutoReverse="True"
+                                                             RepeatBehavior="Forever">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuadraticEase EasingMode="EaseInOut" />
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <RemoveStoryboard BeginStoryboardName="storyboard" />
+                                </DataTrigger.ExitActions>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
             <StackPanel Grid.Column="1" Orientation="Horizontal">
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsMouseOver, ElementName=autosaveControl}" Value="False">
-                                <Setter Property="Opacity" Value="0.0"></Setter>
+                                <Setter Property="Visibility" Value="Collapsed"></Setter>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -88,9 +86,32 @@
                     </Style>
                 </StackPanel.Resources>
                 <Button Command="{xaml:Command PixiEditor.Autosave.ToggleAutosave}">
-                    <TextBlock Text="{Binding Enabled, Mode=OneWay, Converter={converters:BoolToValueConverter FalseValue='', TrueValue=''}}" FontFamily="{StaticResource Feather}"/>
+                    <TextBlock
+                        Text="{Binding Enabled, Mode=OneWay, Converter={converters:BoolToValueConverter FalseValue='', TrueValue=''}}"
+                        FontFamily="{StaticResource Feather}" />
                 </Button>
             </StackPanel>
+            <TextBlock
+                Grid.Column="2"
+                ui:Translator.LocalizedString="{Binding MainMenuText, Mode=OneWay}"
+                x:Name="autosaveText"
+                Foreground="White"
+                VerticalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsMouseOver, ElementName=autosaveControl}"
+                                               Value="False" />
+                                    <Condition Binding="{Binding IsImportantText}" Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Hidden" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
         </Grid>
     </Border>
 </UserControl>
