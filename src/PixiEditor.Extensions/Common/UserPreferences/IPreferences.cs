@@ -64,12 +64,12 @@ public interface IPreferences
     public T? GetPreference<T>([SyncedPreferenceConstant] string name);
 
     /// <summary>
-    /// Reads the user preference that is called <paramref name="name"/>, if the setting does not exist the default of <paramref name="fallbackValue"/> will be used
+    /// Reads the user preference that is called <paramref name="name"/>, if the setting does not exist the default of <paramref name="defaultValue"/> will be used
     /// </summary>
     /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
     /// <param name="name">The name of the setting</param>
-    /// <returns>The setting or the <paramref name="fallbackValue"/> if it has not been set yet</returns>
-    public T? GetPreference<T>([SyncedPreferenceConstant] string name, T? fallbackValue);
+    /// <returns>The setting or the <paramref name="defaultValue"/> if it has not been set yet</returns>
+    public T? GetPreference<T>([SyncedPreferenceConstant] string name, T? defaultValue);
 
     /// <summary>
     /// Reads the editor setting that is called <paramref name="name"/>, if the setting does not exist the deafult of <typeparamref name="T"/> will be used
@@ -80,12 +80,12 @@ public interface IPreferences
     public T? GetLocalPreference<T>([LocalPreferenceConstant] string name);
 
     /// <summary>
-    /// Reads the editor setting that is called <paramref name="name"/>, if the setting does not exist the <paramref name="fallbackValue"/> will be used
+    /// Reads the editor setting that is called <paramref name="name"/>, if the setting does not exist the <paramref name="defaultValue"/> will be used
     /// </summary>
     /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
     /// <param name="name">The name of the setting</param>
-    /// <returns>The editor setting or the <paramref name="fallbackValue"/> if it has not been set yet</returns>
-    public T? GetLocalPreference<T>([LocalPreferenceConstant] string name, T? fallbackValue);
+    /// <returns>The editor setting or the <paramref name="defaultValue"/> if it has not been set yet</returns>
+    public T? GetLocalPreference<T>([LocalPreferenceConstant] string name, T? defaultValue);
 
     protected static void SetAsCurrent(IPreferences provider)
     {
