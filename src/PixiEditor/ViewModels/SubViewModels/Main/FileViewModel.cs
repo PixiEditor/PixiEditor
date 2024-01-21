@@ -168,7 +168,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 try
                 {
                     OpenFromPath(document.Path.AutosavePath, false);
-                    
                 }
                 catch (Exception deepE)
                 {

@@ -90,4 +90,3 @@ public partial class DeadlockDetectionDebugPopup : Window
         DeadlocksDetected = helper.DeadlocksDetected;
     }
 }
-

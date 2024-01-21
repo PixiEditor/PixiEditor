@@ -1,5 +1,5 @@
 ﻿using System.Collections.Immutable;
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -16,8 +16,6 @@ public class PreferencesDiagnostics : DiagnosticAnalyzer
     
     public override void Initialize(AnalysisContext context)
     {
-        PostLogMessage("hello");
-        
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
         context.RegisterSyntaxNodeAction(AnalyzeNode, SyntaxKind.InvocationExpression);
@@ -25,86 +23,75 @@ public class PreferencesDiagnostics : DiagnosticAnalyzer
 
     private static void AnalyzeNode(SyntaxNodeAnalysisContext context)
     {
-        var invocation = (InvocationExpressionSyntax)context.Node;
+        var invocationExpression = (InvocationExpressionSyntax)context.Node;
 
-        if (invocation.ArgumentList.Arguments.Count == 0) return;
-        
-        var methodNameExpr = invocation.Expression switch
-        {
-            MemberAccessExpressionSyntax memberAccess => memberAccess.Name, // for `obj.Method()` or `Class.Method()`
-            IdentifierNameSyntax identifierName => identifierName,          // for `Method()`
-            _ => null
-        };
-
-        var methodSymbol = context.SemanticModel.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
-
-        if (methodSymbol == null)
+        if (!TryGetMethodSymbol(context, invocationExpression, out var methodSymbol, out var methodNameSyntax))
         {
             return;
         }
 
         for (var i = 0; i < methodSymbol.Parameters.Length; i++)
         {
-            if (invocation.ArgumentList.Arguments[i].Expression is not MemberAccessExpressionSyntax member)
+            if (invocationExpression.ArgumentList.Arguments[i].Expression is not MemberAccessExpressionSyntax member)
             {
                 continue;
             }
 
-            var parameterSymbol = methodSymbol.Parameters[i];
-            
-            foreach (var attributeData in parameterSymbol.GetAttributes())
-            {
-                if (attributeData.AttributeClass?.BaseType?.Name != "PreferenceConstantAttribute")
-                {
-                    continue;
-                }
+            var parameter = methodSymbol.Parameters[i];
 
-                if (context.SemanticModel.GetSymbolInfo(member).Symbol is not { } symbol)
-                {
-                    continue;
-                }
-
-                var memberAttributeData = symbol.GetAttributes()
-                    .FirstOrDefault(x => x.AttributeClass?.BaseType?.Name == "PreferenceConstantAttribute");
-                
-                if (memberAttributeData != null && memberAttributeData.AttributeClass?.Name != attributeData.AttributeClass?.Name)
-                {
-                    var diagnostic = Diagnostic.Create(
-                        wrongDestinationDescriptor,
-                        methodNameExpr?.GetLocation() ?? invocation.GetLocation(), symbol.ToDisplayString(),
-                        memberAttributeData.AttributeClass?.Name.Replace("PreferenceConstantAttribute", "").ToLower());
-
-                    context.ReportDiagnostic(diagnostic);
-                }
-
-                break;
-            }
+            CheckAttributes(context, member, invocationExpression, methodNameSyntax, parameter);
         }
     }
 
-    static void PostLogMessage(string message)
+    private static bool TryGetMethodSymbol(SyntaxNodeAnalysisContext context, InvocationExpressionSyntax invocation, [NotNullWhen(true)] out IMethodSymbol? symbol, out SimpleNameSyntax? nameSyntax)
     {
-        Task.Run(() => PostLogMessageAsync(message));
-    }
-
-    static async Task PostLogMessageAsync(string logMessage)
-    {
-        using var client = new HttpClient();
+        symbol = null;
+        nameSyntax = null;
+        if (invocation.ArgumentList.Arguments.Count == 0) return false;
         
-        var content = new StringContent(logMessage, Encoding.UTF8, "text/plain");
-        HttpResponseMessage response = await client.PostAsync("http://localhost:8080", content);
+        nameSyntax = invocation.Expression switch
+        {
+            MemberAccessExpressionSyntax memberAccess => memberAccess.Name, // for `obj.Method()` or `Class.Method()`
+            IdentifierNameSyntax identifierName => identifierName,          // for `Method()`
+            _ => null
+        };
 
-        if (response.IsSuccessStatusCode)
-        {
-            string responseBody = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBody);
-        }
-        else
-        {
-            Console.WriteLine($"Error: {response.StatusCode}");
-        }
+        symbol = context.SemanticModel.GetSymbolInfo(invocation).Symbol as IMethodSymbol;
+
+        return symbol != null;
     }
     
+    private static void CheckAttributes(SyntaxNodeAnalysisContext context, ExpressionSyntax member, InvocationExpressionSyntax invocation, SimpleNameSyntax? methodNameExpr, ISymbol parameterSymbol)
+    {
+        foreach (var attributeData in parameterSymbol.GetAttributes())
+        {
+            if (attributeData.AttributeClass?.BaseType?.Name != "PreferenceConstantAttribute")
+            {
+                continue;
+            }
+
+            if (context.SemanticModel.GetSymbolInfo(member).Symbol is not { } symbol)
+            {
+                continue;
+            }
+
+            var memberAttributeData = symbol.GetAttributes()
+                .FirstOrDefault(x => x.AttributeClass?.BaseType?.Name == "PreferenceConstantAttribute");
+            
+            if (memberAttributeData != null && memberAttributeData.AttributeClass?.Name != attributeData.AttributeClass?.Name)
+            {
+                var diagnostic = Diagnostic.Create(
+                    wrongDestinationDescriptor,
+                    methodNameExpr?.GetLocation() ?? invocation.GetLocation(), symbol.ToDisplayString(),
+                    memberAttributeData.AttributeClass?.Name.Replace("PreferenceConstantAttribute", "").ToLower());
+
+                context.ReportDiagnostic(diagnostic);
+            }
+
+            break;
+        }
+    }
+
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
     {
         get => ImmutableArray.Create(wrongDestinationDescriptor);
