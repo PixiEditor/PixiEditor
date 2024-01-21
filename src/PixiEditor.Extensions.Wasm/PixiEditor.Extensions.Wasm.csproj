@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+  <Import Project="build\PixiEditor.Extensions.Wasm.targets"/>
+  <Import Project="build\PixiEditor.Extensions.Wasm.props"/>
+
+  <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_PackageFiles Include="build\**" BuildAction="Content" PackagePath="build" />
+      <_PackageFiles Include="native\**" BuildAction="Content" PackagePath="native" />
+    </ItemGroup>
+  </Target>
+
+</Project>
