@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows.Input;
 using ByteSizeLib;
 using Hardware.Info;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.DataHolders;
 using Mouse = System.Windows.Input.Mouse;
 
@@ -28,6 +29,16 @@ internal class CrashHelper
         
         var report = CrashReport.Generate(exception);
         report.TrySave();
+
+        try
+        {
+            IPreferences.Current?.UpdateLocalPreference(PreferencesConstants.LastCrashFile, report.FilePath);
+        }
+        catch
+        {
+            // ignored
+        }
+        
         report.RestartToCrashReport();
     }
 

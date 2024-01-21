@@ -100,9 +100,35 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         List<string> args = StartupArgs.Args;
         string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
 
-        if (!args.Contains("--crash"))
+        var preferences = IPreferences.Current;
+
+        try
         {
-            ReopenTempFiles();
+            if (!args.Contains("--crash"))
+            {
+                var lastCrash = preferences!.GetLocalPreference<string>(PreferencesConstants.LastCrashFile);
+
+                if (lastCrash == null)
+                {
+                    ReopenTempFiles();
+                }
+                else
+                {
+                    preferences.UpdateLocalPreference<string>(PreferencesConstants.LastCrashFile, null);
+
+                    var report = CrashReport.Parse(lastCrash);
+                    OpenFromReport(report, out bool showMissingFilesDialog);
+
+                    if (showMissingFilesDialog)
+                    {
+                        CrashReportViewModel.ShowMissingFilesDialog(report);
+                    }
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            CrashHelper.SendExceptionInfoToWebhook(exc);
         }
         
         if (file != null)
@@ -111,11 +137,59 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
         {
-            if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
+            if (preferences!.GetPreference("ShowStartupWindow", true))
             {
                 OpenHelloTherePopup();
             }
         }
+    }
+
+    public void OpenFromReport(CrashReport report, out bool showMissingFilesDialog)
+    {
+        var documents = report.RecoverDocuments();
+        
+        var i = 0;
+
+        Exception firstException = null;
+        Exception secondException = null;
+        Exception thirdException = null;
+        
+        foreach (var document in documents)
+        {
+            try
+            {
+                OpenRecoveredDotPixi(document.Path.OriginalPath, document.Path.AutosavePath, document.Path.GetAutosaveGuid(), document.GetRecoveredBytes());
+                i++;
+            }
+            catch (Exception e)
+            {
+                firstException = e;
+                
+                try
+                {
+                    OpenFromPath(document.Path.AutosavePath, false);
+                    
+                }
+                catch (Exception deepE)
+                {
+                    secondException = deepE;
+                    
+                    try
+                    {
+                        OpenRecoveredDotPixi(document.Path.OriginalPath, document.Path.AutosavePath, document.Path.GetAutosaveGuid(), document.GetAutosaveBytes());
+                    }
+                    catch (Exception veryDeepE)
+                    {
+                        thirdException = veryDeepE;
+                    }
+                }
+            }
+
+            var exceptions = new[] { firstException, secondException, thirdException };
+            CrashHelper.SendExceptionInfoToWebhook(new AggregateException(exceptions.Where(x => x != null).ToArray()));
+        }
+
+        showMissingFilesDialog = documents.Count != i;
     }
 
     private void ReopenTempFiles()

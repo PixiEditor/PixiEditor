@@ -634,5 +634,6 @@
   "LOGOFF_TITLE": "Sign out?",
   "SHUTDOWN_TITLE": "Shut down?",
   
-  "BACK_UP": "Backup"
+  "BACK_UP": "Backup",
+  "SEND": "Send"
 }

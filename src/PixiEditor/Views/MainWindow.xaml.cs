@@ -115,45 +115,11 @@ internal partial class MainWindow : Window
     {
         var app = (App)Application.Current;
         MainWindow window = new(app.InitApp());
-        FileViewModel fileVM = window.services.GetRequiredService<FileViewModel>();
-        var documents = report.RecoverDocuments();
+        var files = window.services.GetRequiredService<FileViewModel>();
+        var preferences = window.services.GetRequiredService<IPreferences>();
 
-        var i = 0;
-
-        foreach (var document in documents)
-        {
-            try
-            {
-                fileVM.OpenRecoveredDotPixi(document.Path.OriginalPath, document.Path.AutosavePath, document.Path.GetAutosaveGuid(), document.GetRecoveredBytes());
-                i++;
-            }
-            catch (Exception e)
-            {
-                try
-                {
-                    fileVM.OpenFromPath(document.Path.AutosavePath, false);
-                    
-                }
-                catch (Exception deepE)
-                {
-                    try
-                    {
-                        fileVM.OpenRecoveredDotPixi(document.Path.OriginalPath, document.Path.AutosavePath, document.Path.GetAutosaveGuid(), document.GetAutosaveBytes());
-                    }
-                    catch (Exception veryDeepE)
-                    {
-                        CrashHelper.SendExceptionInfoToWebhook(veryDeepE);
-                    }
-                    
-                    CrashHelper.SendExceptionInfoToWebhook(deepE);
-                }
-                
-                CrashHelper.SendExceptionInfoToWebhook(e);
-            }
-        }
-
-        showMissingFilesDialog = documents.Count != i;
-
+        files.OpenFromReport(report, out showMissingFilesDialog);
+        
         return window;
 
         MainWindow GetMainWindow()
@@ -275,20 +241,9 @@ internal partial class MainWindow : Window
         }
     }
 
-    private void MainWindow_Initialized(object sender, EventArgs e)
+    private void MainWindow_Initialized(object sender, EventArgs _)
     {
-        AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-        {
-            try
-            {
-                DataContext.AutosaveAllForNextSession();
-            }
-            finally
-            {
-                CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
-
-            }
-        };
+        AppDomain.CurrentDomain.UnhandledException += (_, e) => CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
     }
 
     private void MainWindow_Drop(object sender, DragEventArgs e)

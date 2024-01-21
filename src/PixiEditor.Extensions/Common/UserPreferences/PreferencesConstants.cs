@@ -25,4 +25,6 @@ public static class PreferencesConstants
     
     public const string SaveSessionStateEnabled = nameof(SaveSessionStateEnabled);
     public const bool SaveSessionStateDefault = true;
+
+    public const string LastCrashFile = nameof(LastCrashFile);
 }
