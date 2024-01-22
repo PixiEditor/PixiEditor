@@ -5,5 +5,6 @@ namespace PixiEditor.Extensions.Wasm;
 
 internal class Interop
 {
-    internal static extern unsafe void LogMessage(char* message);
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    internal static extern void LogMessage(string message);
 }

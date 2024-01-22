@@ -25,10 +25,6 @@ public class Logger : ILogger
 
     private void InvokeApiLog(string message)
     {
-        unsafe
-        {
-            IntPtr ptr = Marshal.StringToHGlobalAnsi(message);
-            Interop.LogMessage((char*)ptr);
-        }
+        Interop.LogMessage(message);
     }
 }

@@ -2,4 +2,4 @@
 using PixiEditor.WasmRuntime;
 
 WasmRuntime runtime = new WasmRuntime();
-runtime.LoadModule(@"C:\Git\PixiEditor\src\WasmSampleExtension\bin\Release\net8.0\wasi-wasm\publish\WasmSampleExtension.wasm");
+runtime.LoadModule(@"C:\Git\PixiEditor\src\WasmSampleExtension\bin\Debug\net8.0\WasmSampleExtension.wasm");

@@ -1,7 +1,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <ItemGroup>
-    <WasmImport Include="$(MSBuildThisFileDirectory)..\native\*.c" />
+    <WasiNativeFileReference Include="$(MSBuildThisFileDirectory)..\native\*.c" />
+    <WasiAfterRuntimeLoaded Include="attach_internal_calls" />
   </ItemGroup>
 
 </Project>
