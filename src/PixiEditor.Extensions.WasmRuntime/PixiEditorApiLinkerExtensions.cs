@@ -9,7 +9,7 @@ public static class PixiEditorApiLinkerExtensions
         linker.DefineFunction("env", "log_message",(int messageOffset) =>
         {
             string messageString = MemoryUtility.GetStringFromWasmMemory(messageOffset, instance.Instance.GetMemory("memory"));
-            Console.WriteLine(messageString);
+            Console.WriteLine(messageString.ReplaceLineEndings());
         });
 
         linker.DefineFunction("env", "create_popup_window",(int titleOffset, int bodyOffset) =>
