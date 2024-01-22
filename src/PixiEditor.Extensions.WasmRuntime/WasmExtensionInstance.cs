@@ -25,6 +25,12 @@ public class WasmExtensionInstance : Extension
         Instance = Linker.Instantiate(Store, Module);
     }
 
+    protected override void OnInitialized()
+    {
+        Instance.GetAction("initialize").Invoke();
+        base.OnInitialized();
+    }
+
     protected override void OnLoaded()
     {
         Instance.GetFunction("_start").Invoke();

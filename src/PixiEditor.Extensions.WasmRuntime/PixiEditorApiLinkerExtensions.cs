@@ -16,6 +16,7 @@ public static class PixiEditorApiLinkerExtensions
         {
             string title = MemoryUtility.GetStringFromWasmMemory(titleOffset, instance.Instance.GetMemory("memory"));
             string body = MemoryUtility.GetStringFromWasmMemory(bodyOffset, instance.Instance.GetMemory("memory"));
+            instance.Api.WindowProvider.CreatePopupWindow(title, body).ShowDialog();
         });
     }
 }

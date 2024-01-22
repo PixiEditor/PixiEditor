@@ -2,13 +2,27 @@
 #include <string.h>
 #include <assert.h>
 
-MonoMethod* method_entry;
+MonoMethod* method_init;
 
 __attribute__((import_name("log_message")))
 void log_message(const char* message);
 
 __attribute__((import_name("create_popup_window")))
 void create_popup_window(const char* title, const char* content);
+
+__attribute((export_name("initialize")))
+void initialize()
+{
+    if (!method_init) {
+        method_init = lookup_dotnet_method("PixiEditor.Extensions.Wasm.dll", "PixiEditor.Extensions.Wasm", "Interop", "Initialize", -1);
+        assert(method_init);
+    }
+
+    void* method_params[] = {  };
+    MonoObject* exception;
+    mono_wasm_invoke_method(method_init, NULL, method_params, &exception);
+    assert(!exception);
+}
 
 /*__attribute__((export_name("entry")))
 void entry()

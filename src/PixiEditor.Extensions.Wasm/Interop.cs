@@ -10,4 +10,9 @@ internal class Interop
 
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void CreatePopupWindow(string title, string body);
+
+    internal static void Initialize()
+    {
+        ExtensionEvents.Initialize();
+    }
 }
