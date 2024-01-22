@@ -10,9 +10,9 @@ public class ExtensionException : RecoverableException
     }
 }
 
-public class NoEntryAssemblyException : ExtensionException
+public class NoEntryException : ExtensionException
 {
-    public NoEntryAssemblyException(string containingFolder) : base(new LocalizedString("ERROR_NO_ENTRY_ASSEMBLY", containingFolder))
+    public NoEntryException(string containingFolder) : base(new LocalizedString("ERROR_NO_ENTRY_ASSEMBLY", containingFolder))
     {
     }
 }

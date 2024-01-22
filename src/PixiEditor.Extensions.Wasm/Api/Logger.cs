@@ -4,10 +4,6 @@ namespace PixiEditor.Extensions.Wasm.Api;
 
 public class Logger : ILogger
 {
-    public Logger() : base()
-    {
-    }
-
     public void Log(string message)
     {
         InvokeApiLog(message);

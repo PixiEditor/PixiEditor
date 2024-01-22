@@ -41,10 +41,6 @@ public class WasmRuntime
         instance = linker.Instantiate(store, module);
 
         instance.GetFunction("_start").Invoke();
-        //linker.GetDefaultFunction(store, "WasmSampleExtension").Invoke();
-        /*var main = instance.GetAction("entry");
-
-        main.Invoke();*/
     }
 
     private string GetFromWasmMemory(int offset, Memory memory)

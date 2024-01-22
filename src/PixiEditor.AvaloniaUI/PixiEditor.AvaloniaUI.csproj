@@ -51,6 +51,7 @@
       <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
       <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj" />
       <ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
+      <ProjectReference Include="..\PixiEditor.Extensions.WasmRuntime\PixiEditor.Extensions.WasmRuntime.csproj" />
       <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
       <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
       <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />

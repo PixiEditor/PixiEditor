@@ -9,9 +9,9 @@ public class SampleExtension : WasmExtension
         Api.Logger.Log("WASM SampleExtension loaded!");
     }
 
-
     public override void OnInitialized()
     {
         Api.Logger.Log("WASM SampleExtension initialized!");
+        Api.WindowProvider.CreatePopupWindow("WASM SampleExtension", "Hello from WASM PixiEditor Extension");
     }
 }
