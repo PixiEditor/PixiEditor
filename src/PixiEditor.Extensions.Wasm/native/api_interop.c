@@ -3,20 +3,35 @@
 #include <assert.h>
 #include "api.h"
 
-MonoMethod* method_init;
+MonoMethod* lookup_interop_method(const char* method_name)
+{
+    MonoMethod* method = NULL;
+    method = lookup_dotnet_method("PixiEditor.Extensions.Wasm.dll", "PixiEditor.Extensions.Wasm", "Interop", method_name, -1);
+    assert(method);
+
+    return method;
+}
+
+void invoke_interop_method(MonoMethod* method)
+{
+    void* method_params[] = {  };
+    MonoObject* exception;
+    mono_wasm_invoke_method(method, NULL, method_params, &exception);
+    assert(!exception);
+}
+
+__attribute((export_name("load")))
+void load()
+{
+    MonoMethod* metod = lookup_interop_method("Load");
+    invoke_interop_method(metod);
+}
 
 __attribute((export_name("initialize")))
 void initialize()
 {
-    if (!method_init) {
-        method_init = lookup_dotnet_method("PixiEditor.Extensions.Wasm.dll", "PixiEditor.Extensions.Wasm", "Interop", "Initialize", -1);
-        assert(method_init);
-    }
-
-    void* method_params[] = {  };
-    MonoObject* exception;
-    mono_wasm_invoke_method(method_init, NULL, method_params, &exception);
-    assert(!exception);
+    MonoMethod* metod = lookup_interop_method("Initialize");
+    invoke_interop_method(metod);
 }
 
 void attach_internal_calls()

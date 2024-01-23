@@ -23,6 +23,7 @@ public class WasmExtensionInstance : Extension
         Linker.DefineModule(Store, Module);
 
         Instance = Linker.Instantiate(Store, Module);
+        Instance.GetFunction("_start").Invoke();
     }
 
     protected override void OnInitialized()
@@ -33,6 +34,7 @@ public class WasmExtensionInstance : Extension
 
     protected override void OnLoaded()
     {
-        Instance.GetFunction("_start").Invoke();
+        Instance.GetAction("load").Invoke();
+        base.OnLoaded();
     }
 }
