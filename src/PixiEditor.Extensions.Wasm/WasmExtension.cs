@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace PixiEditor.Extensions.Wasm;
+﻿namespace PixiEditor.Extensions.Wasm;
 
 public abstract class WasmExtension
 {
