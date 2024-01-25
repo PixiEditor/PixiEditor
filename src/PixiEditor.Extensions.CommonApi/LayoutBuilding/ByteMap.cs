@@ -9,7 +9,8 @@ public static class ByteMap
         // If you do add a new control, make sure to add it to GlobalControlFactory inside PixiEditor project
         { "Layout", 0 },
         { "Center", 1 },
-        { "Text", 2 }
+        { "Text", 2 },
+        { "Button", 3}
     };
 
     public static byte GetTypeByteId(Type type)

@@ -2,5 +2,5 @@
 
 public interface ITextElement<out TBuildResult> : ILayoutElement<TBuildResult>
 {
-    public string Data { get; set; }
+    public string Value { get; set; }
 }

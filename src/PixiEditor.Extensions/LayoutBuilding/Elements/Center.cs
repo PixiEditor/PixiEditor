@@ -3,7 +3,7 @@ using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public class Center : ISingleChildLayoutElement<Control>, IDeserializable
+public class Center : ISingleChildLayoutElement<Control>, IPropertyDeserializable
 {
     public ILayoutElement<Control> Child { get; set; }
 
@@ -25,7 +25,7 @@ public class Center : ISingleChildLayoutElement<Control>, IDeserializable
         };
     }
 
-    void IDeserializable.DeserializeProperties(List<object> values)
+    void IPropertyDeserializable.DeserializeProperties(List<object> values)
     {
 
     }

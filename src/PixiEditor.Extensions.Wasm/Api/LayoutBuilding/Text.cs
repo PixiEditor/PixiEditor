@@ -4,17 +4,17 @@ namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
 public class Text : ITextElement<NativeControl>
 {
-    public string Data { get; set; }
+    public string Value { get; set; }
 
-    public Text(string data)
+    public Text(string value)
     {
-        Data = data;
+        Value = value;
     }
 
     NativeControl ILayoutElement<NativeControl>.Build()
     {
         NativeControl text = new NativeControl("Text");
-        text.AddProperty(Data);
+        text.AddProperty(Value);
         return text;
     }
 }

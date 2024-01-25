@@ -69,13 +69,16 @@ public static class LayoutConverter
 
     private static ILayoutElement<Control> BuildLayoutElement(int controlId, List<object> properties, List<ILayoutElement<Control>> children)
     {
-        Func<IDeserializable> factory = GlobalControlFactory.Map[controlId];
+        Func<ILayoutElement<Control>> factory = GlobalControlFactory.Map[controlId];
         var element = factory();
         
-        if(element is not ILayoutElement<Control> layoutElement)
+        if(element is not { } layoutElement)
             throw new Exception("Element is not ILayoutElement<Control>");
-        
-        element.DeserializeProperties(properties);
+
+        if (element is IPropertyDeserializable deserializableProperties)
+        {
+            deserializableProperties.DeserializeProperties(properties);
+        }
 
         if (element is ISingleChildLayoutElement<Control> singleChildLayoutElement)
         {

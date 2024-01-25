@@ -3,22 +3,22 @@ using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public class Text : ITextElement<Control>, IDeserializable
+public class Text : ITextElement<Control>, IPropertyDeserializable
 {
-    public string Data { get; set; }
+    public string Value { get; set; }
 
-    public Text(string data = "")
+    public Text(string value = "")
     {
-        Data = data;
+        Value = value;
     }
 
     Control ILayoutElement<Control>.Build()
     {
-        return new TextBlock { Text = Data };
+        return new TextBlock { Text = Value };
     }
 
-    void IDeserializable.DeserializeProperties(List<object> values)
+    void IPropertyDeserializable.DeserializeProperties(List<object> values)
     {
-        Data = (string)values[0];
+        Value = (string)values[0];
     }
 }
