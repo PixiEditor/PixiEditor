@@ -22,4 +22,8 @@
         </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.Extensions.Wasm\PixiEditor.Extensions.Wasm.csproj" />
+    </ItemGroup>
+
 </Project>

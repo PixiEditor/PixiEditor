@@ -1,4 +1,6 @@
 ﻿using PixiEditor.Extensions.Wasm.Api;
+using PixiEditor.Extensions.Wasm.Api.Logging;
+using PixiEditor.Extensions.Wasm.Api.Window;
 
 namespace PixiEditor.Extensions.Wasm;
 

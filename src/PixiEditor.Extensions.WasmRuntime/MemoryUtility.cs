@@ -11,4 +11,10 @@ public static class MemoryUtility
         
         return Encoding.UTF8.GetString(span);
     }
+
+    public static Span<T> GetSpanFromWasmMemory<T>(int bodyOffset, int bodyLength, Memory memory) where T : unmanaged
+    {
+        var span = memory.GetSpan<T>(bodyOffset, bodyLength);
+        return span;
+    }
 }

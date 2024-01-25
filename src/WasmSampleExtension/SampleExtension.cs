@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Extensions.Wasm;
+using PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
 namespace SampleExtension.WASM;
 
@@ -12,6 +13,12 @@ public class SampleExtension : WasmExtension
     public override void OnInitialized()
     {
         Api.Logger.Log("WASM SampleExtension initialized!");
-        Api.WindowProvider.CreatePopupWindow("WASM SampleExtension", "Hello from WASM PixiEditor Extension");
+
+        Layout layout = new Layout(
+            new Center(
+                child: new Text("hello sexy.")));
+
+        Api.WindowProvider.CreatePopupWindow("WASM SampleExtension", layout.Build());
     }
 }
+

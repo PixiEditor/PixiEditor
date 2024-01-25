@@ -7,6 +7,10 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj" />
+    </ItemGroup>
+
   <Import Project="build\PixiEditor.Extensions.Wasm.targets"/>
   <Import Project="build\PixiEditor.Extensions.Wasm.props"/>
 

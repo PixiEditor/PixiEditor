@@ -1,3 +1,4 @@
+using PixiEditor.Extensions.LayoutBuilding.Elements;
 using Wasmtime;
 
 namespace PixiEditor.Extensions.WasmRuntime;
@@ -15,8 +16,10 @@ public static class PixiEditorApiLinkerExtensions
         linker.DefineFunction("env", "create_popup_window",(int titleOffset, int titleLength, int bodyOffset, int bodyLength) =>
         {
             string title = MemoryUtility.GetStringFromWasmMemory(titleOffset, titleLength, instance.Instance.GetMemory("memory"));
-            string body = MemoryUtility.GetStringFromWasmMemory(bodyOffset, bodyLength, instance.Instance.GetMemory("memory"));
-            instance.Api.WindowProvider.CreatePopupWindow(title, body).ShowDialog();
+            Span<byte> arr = MemoryUtility.GetSpanFromWasmMemory<byte>(bodyOffset, bodyLength, instance.Instance.GetMemory("memory"));
+
+            var body = LayoutConverter.Deserialize(arr);
+            instance.Api.WindowProvider.CreatePopupWindow(title, body.Build()).ShowDialog();
         });
     }
 }

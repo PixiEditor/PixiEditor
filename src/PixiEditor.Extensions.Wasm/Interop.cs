@@ -11,7 +11,7 @@ internal class Interop
     internal static extern void LogMessage(string message);
 
     [MethodImpl(MethodImplOptions.InternalCall)]
-    internal static extern void CreatePopupWindow(string title, string body);
+    internal static extern void CreatePopupWindow(string title, IntPtr data, int length);
 
     internal static void Load()
     {

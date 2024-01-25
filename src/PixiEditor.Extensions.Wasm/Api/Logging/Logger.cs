@@ -1,6 +1,4 @@
-﻿using System.Runtime.InteropServices;
-
-namespace PixiEditor.Extensions.Wasm.Api;
+﻿namespace PixiEditor.Extensions.Wasm.Api.Logging;
 
 public class Logger : ILogger
 {
