@@ -1,30 +1,32 @@
 ﻿using Avalonia.Controls;
+using Avalonia.Interactivity;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding;
+using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public class Button : ISingleChildLayoutElement<Control>
+public class Button : SingleChildLayoutElement
 {
-    ILayoutElement<Control> ISingleChildLayoutElement<Control>.Child
+    public event ElementEventHandler Click
     {
-        get => Content;
-        set => Content = value;
+        add => AddEvent(nameof(Click), value);
+        remove => RemoveEvent(nameof(Click), value);
     }
 
-    public ILayoutElement<Control> Content { get; set; }
-
-    public Button(ILayoutElement<Control> content = null)
+    public Button(ILayoutElement<Control>? child = null)
     {
-        Content = content;
+        Child = child;
     }
 
-    public Control Build()
+    public override Control Build()
     {
-        return new Avalonia.Controls.Button() { Content = Content.Build() };
-    }
+        Avalonia.Controls.Button btn = new Avalonia.Controls.Button()
+        {
+            Content = Child?.Build(),
+        };
 
-    public void DeserializeProperties(List<object> values)
-    {
+        btn.Click += (sender, args) => RaiseEvent(nameof(Click), new ElementEventArgs());
 
+        return btn;
     }
 }

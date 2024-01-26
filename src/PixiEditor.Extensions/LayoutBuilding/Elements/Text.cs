@@ -3,16 +3,14 @@ using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public class Text : ITextElement<Control>, IPropertyDeserializable
+public class Text : TextElement, IPropertyDeserializable
 {
-    public string Value { get; set; }
-
     public Text(string value = "")
     {
         Value = value;
     }
 
-    Control ILayoutElement<Control>.Build()
+    public override Control Build()
     {
         return new TextBlock { Text = Value };
     }

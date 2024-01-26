@@ -16,7 +16,12 @@ public class SampleExtension : WasmExtension
 
         Layout layout = new Layout(
             new Center(
-                child: new Button(new Text("hello sexy."))));
+                child: new Button(
+                    child: new Text("hello sexy."),
+                    onClick: _ => Api.Logger.Log("button clicked!")
+                    )
+                )
+            );
 
         Api.WindowProvider.CreatePopupWindow("WASM SampleExtension", layout.Build());
     }

@@ -1,6 +1,9 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 using PixiEditor.Extensions.LayoutBuilding;
 using PixiEditor.Extensions.LayoutBuilding.Elements;
+using Button = PixiEditor.Extensions.LayoutBuilding.Elements.Button;
 
 namespace PixiEditor.Extensions.Test;
 
@@ -31,5 +34,30 @@ public class LayoutBuilderTests
         TextBlock textBlock = (TextBlock)childGrid.Children[0];
 
         Assert.Equal("Hello", textBlock.Text);
+    }
+
+    [Fact]
+    public void TestThatButtonClickEventFiresCallback()
+    {
+        Button button = new Button();
+        bool callbackFired = false;
+
+        button.Click += (e) => callbackFired = true;
+        button.RaiseEvent(nameof(Button.Click), ElementEventArgs.Empty);
+
+        Assert.True(callbackFired);
+    }
+
+    [Fact]
+    public void TestThatAvaloniaClickEventFiresElementCallback()
+    {
+        Button button = new Button();
+        bool callbackFired = false;
+
+        button.Click += (e) => callbackFired = true;
+
+        button.Build().RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+
+        Assert.True(callbackFired);
     }
 }

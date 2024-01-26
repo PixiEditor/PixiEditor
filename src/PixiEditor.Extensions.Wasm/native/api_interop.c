@@ -12,11 +12,10 @@ MonoMethod* lookup_interop_method(const char* method_name)
     return method;
 }
 
-void invoke_interop_method(MonoMethod* method)
+void invoke_interop_method(MonoMethod* method, void* params)
 {
-    void* method_params[] = {  };
     MonoObject* exception;
-    mono_wasm_invoke_method(method, NULL, method_params, &exception);
+    mono_wasm_invoke_method(method, NULL, params, &exception);
     assert(!exception);
 }
 
@@ -24,14 +23,14 @@ __attribute((export_name("load")))
 void load()
 {
     MonoMethod* metod = lookup_interop_method("Load");
-    invoke_interop_method(metod);
+    invoke_interop_method(metod, NULL);
 }
 
 __attribute((export_name("initialize")))
 void initialize()
 {
     MonoMethod* metod = lookup_interop_method("Initialize");
-    invoke_interop_method(metod);
+    invoke_interop_method(metod, NULL);
 }
 
 void attach_internal_calls()

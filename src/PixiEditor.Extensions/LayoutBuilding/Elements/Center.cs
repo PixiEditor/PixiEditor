@@ -3,16 +3,14 @@ using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public class Center : ISingleChildLayoutElement<Control>, IPropertyDeserializable
+public class Center : SingleChildLayoutElement, IPropertyDeserializable
 {
-    public ILayoutElement<Control> Child { get; set; }
-
     public Center(ILayoutElement<Control> child = null)
     {
         Child = child;
     }
 
-    Control ILayoutElement<Control>.Build()
+    public override Control Build()
     {
         return new Panel()
         {

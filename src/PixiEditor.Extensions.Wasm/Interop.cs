@@ -2,6 +2,9 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using PixiEditor.Extensions.CommonApi.LayoutBuilding;
+using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
+using PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
 namespace PixiEditor.Extensions.Wasm;
 
@@ -30,5 +33,14 @@ internal class Interop
     internal static void Initialize()
     {
         ExtensionContext.Active.OnInitialized();
+    }
+
+    internal static void EventRaised(int internalControlId, string eventName) //TOOD: Args
+    {
+        WasmExtension.Api.Logger.Log($"Event raised: {eventName} on {internalControlId}");
+        if (LayoutElementsStore.LayoutElements.TryGetValue(internalControlId, out ILayoutElement<NativeControl> element))
+        {
+            element.RaiseEvent(eventName, new ElementEventArgs());
+        }
     }
 }

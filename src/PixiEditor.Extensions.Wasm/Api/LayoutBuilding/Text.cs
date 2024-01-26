@@ -2,16 +2,14 @@
 
 namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
-public class Text : ITextElement<NativeControl>
+public class Text : TextElement
 {
-    public string Value { get; set; }
-
     public Text(string value)
     {
         Value = value;
     }
 
-    NativeControl ILayoutElement<NativeControl>.Build()
+    public override NativeControl Build()
     {
         NativeControl text = new NativeControl("Text");
         text.AddProperty(Value);

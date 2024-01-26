@@ -11,6 +11,10 @@
       <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ClCompile Include="native\layout_builder_api.c" />
+    </ItemGroup>
+
   <Import Project="build\PixiEditor.Extensions.Wasm.targets"/>
   <Import Project="build\PixiEditor.Extensions.Wasm.props"/>
 

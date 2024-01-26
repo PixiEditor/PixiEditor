@@ -1,26 +1,29 @@
 ﻿using PixiEditor.Extensions.CommonApi.LayoutBuilding;
+using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 
 namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
-public class Button : ISingleChildLayoutElement<NativeControl>
+public class Button : SingleChildLayoutElement
 {
-    ILayoutElement<NativeControl> ISingleChildLayoutElement<NativeControl>.Child
+    public event ElementEventHandler Click
     {
-        get => Content;
-        set => Content = value;
+        add => AddEvent(nameof(Click), value);
+        remove => RemoveEvent(nameof(Click), value);
     }
 
-    public ILayoutElement<NativeControl> Content { get; set; }
-
-    public Button(ILayoutElement<NativeControl> child = null)
+    public Button(ILayoutElement<NativeControl> child = null, ElementEventHandler onClick = null)
     {
-        Content = child;
+        Child = child;
+        if (onClick != null)
+            Click += onClick;
     }
 
-    public NativeControl Build()
+    public override NativeControl Build()
     {
         NativeControl button = new NativeControl("Button");
-        button.AddChild(Content.Build());
+        if (Child != null)
+            button.AddChild(Child.Build());
+
         return button;
     }
 }

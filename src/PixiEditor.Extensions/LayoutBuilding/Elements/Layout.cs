@@ -3,18 +3,22 @@ using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public sealed class Layout : ISingleChildLayoutElement<Control>, IPropertyDeserializable
+public sealed class Layout : SingleChildLayoutElement, IPropertyDeserializable
 {
-    public ILayoutElement<Control> Child { get; set; }
-
     public Layout(ILayoutElement<Control> body = null)
     {
         Child = body;
     }
 
-    public Control Build()
+    public override Control Build()
     {
-        return new Panel { Children = { Child.Build() } };
+        Panel panel = new Panel();
+        if (Child != null)
+        {
+            panel.Children.Add(Child.Build());
+        }
+
+        return panel;
     }
 
     void IPropertyDeserializable.DeserializeProperties(List<object> values)
