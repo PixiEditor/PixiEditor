@@ -6,6 +6,8 @@ namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
 public abstract class LayoutElement : ILayoutElement<Control>
 {
+    public int UniqueId { get; set; }
+
     private Dictionary<string, List<ElementEventHandler>>? _events;
     public abstract Control Build();
 

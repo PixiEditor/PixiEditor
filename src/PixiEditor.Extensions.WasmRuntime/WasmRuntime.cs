@@ -21,6 +21,7 @@ public class WasmRuntime
 
         using var config = new Config().WithDebugInfo(true)
             .WithCraneliftDebugVerifier(true)
+            .WithReferenceTypes(true)
             .WithOptimizationLevel(OptimizationLevel.SpeedAndSize)
             .WithWasmThreads(true)
             .WithBulkMemory(true)

@@ -4,17 +4,19 @@ namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
 public sealed class Layout : SingleChildLayoutElement
 {
-    public Layout(ILayoutElement<NativeControl> body = null)
+    public Layout(ILayoutElement<CompiledControl> body = null)
     {
         Child = body;
     }
 
-    public override NativeControl Build()
+    public override CompiledControl Build()
     {
-        NativeControl layout = new NativeControl("Layout");
+        CompiledControl layout = new CompiledControl(UniqueId, "Layout");
 
         if (Child != null)
             layout.AddChild(Child.Build());
+
+        BuildPendingEvents(layout);
         return layout;
     }
 

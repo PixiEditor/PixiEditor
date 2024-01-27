@@ -4,17 +4,19 @@ namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
 public class Center : SingleChildLayoutElement
 {
-    public Center(ILayoutElement<NativeControl> child)
+    public Center(ILayoutElement<CompiledControl> child)
     {
         Child = child;
     }
 
-    public override NativeControl Build()
+    public override CompiledControl Build()
     {
-        NativeControl center = new NativeControl("Center");
+        CompiledControl center = new CompiledControl(UniqueId, "Center");
 
         if (Child != null)
             center.AddChild(Child.Build());
+
+        BuildPendingEvents(center);
         return center;
     }
 }

@@ -9,7 +9,7 @@ public class NativeControlSerializationTest
     [Fact]
     public void TestThatNoChildLayoutSerializesCorrectBytes()
     {
-        NativeControl layout = new NativeControl("Layout");
+        CompiledControl layout = new CompiledControl(0, "Layout");
         layout.AddProperty("Title");
 
         int controlId = ByteMap.ControlMap["Layout"];
@@ -40,8 +40,8 @@ public class NativeControlSerializationTest
     [Fact]
     public void TestThatChildLayoutSerializesCorrectBytes()
     {
-        NativeControl layout = new NativeControl("Layout");
-        layout.AddChild(new NativeControl("Center"));
+        CompiledControl layout = new CompiledControl(0, "Layout");
+        layout.AddChild(new CompiledControl(0, "Center"));
 
         int controlId = ByteMap.ControlMap["Layout"];
         byte[] controlIdBytes = BitConverter.GetBytes(controlId);
@@ -75,9 +75,9 @@ public class NativeControlSerializationTest
     [Fact]
     public void TestThatChildNestedLayoutSerializesCorrectBytes()
     {
-        NativeControl layout = new NativeControl("Layout");
-        NativeControl center = new NativeControl("Center");
-        NativeControl text = new NativeControl("Text");
+        CompiledControl layout = new CompiledControl(0, "Layout");
+        CompiledControl center = new CompiledControl(1, "Center");
+        CompiledControl text = new CompiledControl(2, "Text");
         text.AddProperty("Hello world");
         center.AddChild(text);
         layout.AddChild(center);
@@ -141,17 +141,29 @@ public class NativeControlSerializationTest
             new Center(
                 child: new Text("hello sexy.")));
 
-        NativeControl nativeControl = layout.Build();
+        CompiledControl compiledControl = layout.Build();
 
-        Assert.Equal("Layout", nativeControl.ControlId);
-        Assert.Empty(nativeControl.Properties);
-        Assert.Single(nativeControl.Children);
+        Assert.Equal("Layout", compiledControl.ControlTypeId);
+        Assert.Empty(compiledControl.Properties);
+        Assert.Single(compiledControl.Children);
 
-        Assert.Equal("Center", nativeControl.Children[0].ControlId);
-        Assert.Empty(nativeControl.Children[0].Properties);
+        Assert.Equal("Center", compiledControl.Children[0].ControlTypeId);
+        Assert.Empty(compiledControl.Children[0].Properties);
 
-        Assert.Equal("Text", nativeControl.Children[0].Children[0].ControlId);
-        Assert.Single(nativeControl.Children[0].Children[0].Properties);
-        Assert.Equal("hello sexy.", nativeControl.Children[0].Children[0].Properties[0]);
+        Assert.Equal("Text", compiledControl.Children[0].Children[0].ControlTypeId);
+        Assert.Single(compiledControl.Children[0].Children[0].Properties);
+        Assert.Equal("hello sexy.", compiledControl.Children[0].Children[0].Properties[0]);
+    }
+
+    [Fact]
+    public void TestThatBuildButtonQueuesEvents()
+    {
+        Button button = new Button(
+            child: new Text("hello sexy."),
+            onClick: _ => { });
+
+        button.Build();
+
+        Assert.Contains(button.BuildQueuedEvents, x => x == "Click");
     }
 }

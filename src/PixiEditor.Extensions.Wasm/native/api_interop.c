@@ -17,6 +17,9 @@ void invoke_interop_method(MonoMethod* method, void* params)
     MonoObject* exception;
     mono_wasm_invoke_method(method, NULL, params, &exception);
     assert(!exception);
+
+    free(exception);
+    free(method);
 }
 
 __attribute((export_name("load")))
@@ -37,4 +40,5 @@ void attach_internal_calls()
 {
     attach_logger_calls();
     attach_window_calls();
+    attach_layout_builder_calls();
 }

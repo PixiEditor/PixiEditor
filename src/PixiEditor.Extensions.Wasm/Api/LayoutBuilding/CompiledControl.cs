@@ -3,16 +3,19 @@ using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 
 namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
-public class NativeControl
+public class CompiledControl
 {
-    public string ControlId { get; set; }
-
+    public string ControlTypeId { get; set; }
     public List<object> Properties { get; set; } = new();
-    public List<NativeControl> Children { get; set; } = new();
+    public List<CompiledControl> Children { get; set; } = new();
+    public int UniqueId { get; set; }
+    internal List<string> QueuedEvents => _buildQueuedEvents;
 
-    public NativeControl(string controlId)
+    private List<string> _buildQueuedEvents = new List<string>();
+    public CompiledControl(int uniqueId, string controlTypeId)
     {
-        ControlId = controlId;
+        ControlTypeId = controlTypeId;
+        UniqueId = uniqueId;
     }
 
     public void AddProperty<T>(T value) where T : unmanaged
@@ -25,7 +28,7 @@ public class NativeControl
         Properties.Add(value);
     }
 
-    public void AddChild(NativeControl child)
+    public void AddChild(CompiledControl child)
     {
         Children.Add(child);
     }
@@ -39,7 +42,9 @@ public class NativeControl
     {
         // TODO: Make it more efficient
 
-        byte[] idBytes = BitConverter.GetBytes(ByteMap.ControlMap[ControlId]);
+        byte[] uniqueIdBytes = BitConverter.GetBytes(UniqueId);
+        bytes.AddRange(uniqueIdBytes);
+        byte[] idBytes = BitConverter.GetBytes(ByteMap.ControlMap[ControlTypeId]);
         bytes.AddRange(idBytes);
         bytes.AddRange(BitConverter.GetBytes(Properties.Count));
         bytes.AddRange(SerializeProperties());
@@ -50,7 +55,7 @@ public class NativeControl
 
     private void SerializeChildren(List<byte> bytes)
     {
-        foreach (NativeControl child in Children)
+        foreach (CompiledControl child in Children)
         {
             child.Serialize(bytes);
         }
@@ -83,5 +88,10 @@ public class NativeControl
         }
 
         return result;
+    }
+
+    internal void AddEvent(string eventName)
+    {
+        _buildQueuedEvents.Add(eventName);
     }
 }

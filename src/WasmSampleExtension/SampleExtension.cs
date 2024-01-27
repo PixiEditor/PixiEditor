@@ -23,7 +23,7 @@ public class SampleExtension : WasmExtension
                 )
             );
 
-        Api.WindowProvider.CreatePopupWindow("WASM SampleExtension", layout.Build());
+        Api.WindowProvider.CreatePopupWindow("WASM SampleExtension", layout);
     }
 }
 

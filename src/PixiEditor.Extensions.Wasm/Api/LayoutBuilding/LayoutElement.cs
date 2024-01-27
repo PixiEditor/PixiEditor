@@ -3,23 +3,23 @@ using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 
 namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
-public abstract class LayoutElement : ILayoutElement<NativeControl>
+public abstract class LayoutElement : ILayoutElement<CompiledControl>
 {
     private Dictionary<string, List<ElementEventHandler>> _events;
+    public List<string> BuildQueuedEvents = new List<string>();
+    public int UniqueId { get; set; }
 
-    private int InternalControlId { get; set; }
-
-    public abstract NativeControl Build();
+    public abstract CompiledControl Build();
 
     public LayoutElement()
     {
-        InternalControlId = LayoutElementIdGenerator.GetNextId();
-        LayoutElementsStore.AddElement(InternalControlId, this);
+        UniqueId = LayoutElementIdGenerator.GetNextId();
+        LayoutElementsStore.AddElement(UniqueId, this);
     }
 
     ~LayoutElement()
     {
-        LayoutElementsStore.RemoveElement(InternalControlId);
+        LayoutElementsStore.RemoveElement(UniqueId);
     }
 
     public void AddEvent(string eventName, ElementEventHandler eventHandler)
@@ -35,6 +35,7 @@ public abstract class LayoutElement : ILayoutElement<NativeControl>
         }
 
         _events[eventName].Add(eventHandler);
+        BuildQueuedEvents.Add(eventName);
     }
 
     public void RemoveEvent(string eventName, ElementEventHandler eventHandler)
@@ -67,6 +68,14 @@ public abstract class LayoutElement : ILayoutElement<NativeControl>
         foreach (ElementEventHandler eventHandler in _events[eventName])
         {
             eventHandler.Invoke(args);
+        }
+    }
+
+    protected void BuildPendingEvents(CompiledControl control)
+    {
+        foreach (string eventName in BuildQueuedEvents)
+        {
+            control.QueuedEvents.Add(eventName);
         }
     }
 }

@@ -16,6 +16,9 @@ internal class Interop
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void CreatePopupWindow(string title, IntPtr data, int length);
 
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    internal static extern void SubscribeToEvent(int internalControlId, string eventName);
+
     internal static void Load()
     {
         Type extensionType = Assembly.GetEntryAssembly().ExportedTypes
@@ -38,9 +41,9 @@ internal class Interop
     internal static void EventRaised(int internalControlId, string eventName) //TOOD: Args
     {
         WasmExtension.Api.Logger.Log($"Event raised: {eventName} on {internalControlId}");
-        if (LayoutElementsStore.LayoutElements.TryGetValue(internalControlId, out ILayoutElement<NativeControl> element))
+        if (LayoutElementsStore.LayoutElements.TryGetValue((int)internalControlId, out ILayoutElement<CompiledControl> element))
         {
-            element.RaiseEvent(eventName, new ElementEventArgs());
+            element.RaiseEvent(eventName ?? "", new ElementEventArgs());
         }
     }
 }

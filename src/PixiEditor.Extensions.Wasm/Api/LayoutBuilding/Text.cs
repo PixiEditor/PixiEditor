@@ -9,10 +9,12 @@ public class Text : TextElement
         Value = value;
     }
 
-    public override NativeControl Build()
+    public override CompiledControl Build()
     {
-        NativeControl text = new NativeControl("Text");
+        CompiledControl text = new CompiledControl(UniqueId, "Text");
         text.AddProperty(Value);
+
+        BuildPendingEvents(text);
         return text;
     }
 }

@@ -6,14 +6,24 @@ using PixiEditor.Extensions.Helpers;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public static class LayoutConverter
+public class LayoutBuilder
 {
     private static int int32Size = sizeof(int);
 
-    public static ILayoutElement<Control> Deserialize(Span<byte> layoutSpan)
+    Dictionary<int, ILayoutElement<Control>> managedElements = new();
+    public LayoutBuilder(Dictionary<int, ILayoutElement<Control>> managedElements)
+    {
+        this.managedElements = managedElements;
+    }
+
+    public ILayoutElement<Control> Deserialize(Span<byte> layoutSpan)
     {
         int offset = 0;
-        int controlId = BitConverter.ToInt32(layoutSpan[..int32Size]);
+
+        int uniqueId = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
+        offset += int32Size;
+
+        int controlTypeId = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
 
         int propertiesCount = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
@@ -26,7 +36,7 @@ public static class LayoutConverter
 
         List<ILayoutElement<Control>> children = DeserializeChildren(layoutSpan, childrenCount, ref offset);
 
-        return BuildLayoutElement(controlId, properties, children);
+        return BuildLayoutElement(uniqueId, controlTypeId, properties, children);
     }
 
     private static List<object> DeserializeProperties(Span<byte> layoutSpan, int propertiesCount, ref int offset)
@@ -56,7 +66,7 @@ public static class LayoutConverter
         return properties;
     }
 
-    private static List<ILayoutElement<Control>> DeserializeChildren(Span<byte> layoutSpan, int childrenCount, ref int offset)
+    private List<ILayoutElement<Control>> DeserializeChildren(Span<byte> layoutSpan, int childrenCount, ref int offset)
     {
         var children = new List<ILayoutElement<Control>>();
         for (int i = 0; i < childrenCount; i++)
@@ -67,13 +77,16 @@ public static class LayoutConverter
         return children;
     }
 
-    private static ILayoutElement<Control> BuildLayoutElement(int controlId, List<object> properties, List<ILayoutElement<Control>> children)
+    private ILayoutElement<Control> BuildLayoutElement(int uniqueId, int controlId, List<object> properties,
+        List<ILayoutElement<Control>> children)
     {
         Func<ILayoutElement<Control>> factory = GlobalControlFactory.Map[controlId];
         var element = factory();
         
         if(element is not { } layoutElement)
             throw new Exception("Element is not ILayoutElement<Control>");
+
+        element.UniqueId = uniqueId;
 
         if (element is IPropertyDeserializable deserializableProperties)
         {
@@ -88,7 +101,8 @@ public static class LayoutConverter
         {
             multiChildLayoutElement.Children = children;
         }
-        
+
+        managedElements.Add(uniqueId, layoutElement);
         return layoutElement;
     }
 }

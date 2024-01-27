@@ -11,19 +11,20 @@ public class Button : SingleChildLayoutElement
         remove => RemoveEvent(nameof(Click), value);
     }
 
-    public Button(ILayoutElement<NativeControl> child = null, ElementEventHandler onClick = null)
+    public Button(ILayoutElement<CompiledControl> child = null, ElementEventHandler onClick = null)
     {
         Child = child;
         if (onClick != null)
             Click += onClick;
     }
 
-    public override NativeControl Build()
+    public override CompiledControl Build()
     {
-        NativeControl button = new NativeControl("Button");
+        CompiledControl button = new CompiledControl(UniqueId, "Button");
         if (Child != null)
             button.AddChild(Child.Build());
 
+        BuildPendingEvents(button);
         return button;
     }
 }

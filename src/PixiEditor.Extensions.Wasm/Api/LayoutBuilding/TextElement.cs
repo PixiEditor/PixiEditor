@@ -2,9 +2,9 @@
 
 namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
-public abstract class TextElement(string value = "") : LayoutElement, ITextElement<NativeControl>
+public abstract class TextElement(string value = "") : LayoutElement, ITextElement<CompiledControl>
 {
     public string Value { get; set; } = value;
 
-    public abstract override NativeControl Build();
+    public abstract override CompiledControl Build();
 }

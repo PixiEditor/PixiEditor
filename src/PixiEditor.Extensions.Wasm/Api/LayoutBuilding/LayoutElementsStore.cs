@@ -4,9 +4,9 @@ namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
 internal static class LayoutElementsStore
 {
-    public static Dictionary<int, ILayoutElement<NativeControl>> LayoutElements { get; } = new();
+    public static Dictionary<int, ILayoutElement<CompiledControl>> LayoutElements { get; } = new();
 
-    public static void AddElement(int internalId, ILayoutElement<NativeControl> element)
+    public static void AddElement(int internalId, ILayoutElement<CompiledControl> element)
     {
         LayoutElements.Add(internalId, element);
     }
