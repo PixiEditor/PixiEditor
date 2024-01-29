@@ -105,18 +105,36 @@ public class LayoutBuilder
             {
                 throw new DuplicateIdElementException(uniqueId);
             }
-            else if (duplicatedIdTactic == DuplicateResolutionTactic.Replace)
+
+            if (duplicatedIdTactic == DuplicateResolutionTactic.ReplaceRemoveChildren)
             {
+                if (managedElements[uniqueId] is IChildrenDeserializable childrenDeserializable)
+                {
+                    RemoveChildren(childrenDeserializable);
+                }
+
                 managedElements[uniqueId] = layoutElement;
             }
         }
 
         return layoutElement;
     }
+
+    private void RemoveChildren(IChildrenDeserializable childrenDeserializable)
+    {
+        foreach (var child in childrenDeserializable)
+        {
+            managedElements.Remove(child.UniqueId);
+            if (child is IChildrenDeserializable childChildrenDeserializable)
+            {
+                RemoveChildren(childChildrenDeserializable);
+            }
+        }
+    }
 }
 
 public enum DuplicateResolutionTactic
 {
     ThrowException,
-    Replace,
+    ReplaceRemoveChildren,
 }

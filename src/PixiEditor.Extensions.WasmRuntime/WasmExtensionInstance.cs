@@ -23,8 +23,6 @@ public class WasmExtensionInstance : Extension
     private LayoutBuilder LayoutBuilder { get; }
     private WasmMemoryUtility WasmMemoryUtility { get; set; }
 
-    private Action<int, int> raiseElementEvent;
-
     public WasmExtensionInstance(Linker linker, Store store, Module module)
     {
         Linker = linker;
@@ -46,7 +44,6 @@ public class WasmExtensionInstance : Extension
 
     protected override void OnInitialized()
     {
-        raiseElementEvent = Instance.GetAction<int, int>("raise_element_event");
         Instance.GetAction("initialize").Invoke();
         base.OnInitialized();
     }
@@ -94,7 +91,7 @@ public class WasmExtensionInstance : Extension
             Span<byte> arr = memory.GetSpan<byte>(bodyOffset, bodyLength);
 
             var element = managedElements[controlId];
-            var body = LayoutBuilder.Deserialize(arr, DuplicateResolutionTactic.Replace);
+            var body = LayoutBuilder.Deserialize(arr, DuplicateResolutionTactic.ReplaceRemoveChildren);
 
             Dispatcher.UIThread.InvokeAsync(() =>
             {
