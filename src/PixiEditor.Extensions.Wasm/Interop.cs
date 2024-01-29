@@ -19,6 +19,9 @@ internal class Interop
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void SubscribeToEvent(int internalControlId, string eventName);
 
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    internal static extern void StateChanged(int uniqueId, IntPtr data, int length);
+
     internal static void Load()
     {
         Type extensionType = Assembly.GetEntryAssembly().ExportedTypes

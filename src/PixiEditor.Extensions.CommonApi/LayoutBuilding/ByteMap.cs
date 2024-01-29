@@ -10,7 +10,8 @@ public static class ByteMap
         { "Layout", 0 },
         { "Center", 1 },
         { "Text", 2 },
-        { "Button", 3}
+        { "Button", 3 },
+        { "StatefulContainer", 4 }
     };
 
     public static byte GetTypeByteId(Type type)

@@ -1,7 +1,7 @@
 ﻿using PixiEditor.Extensions.Wasm;
 using PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
-namespace SampleExtension.WASM;
+namespace WasmSampleExtension;
 
 public class SampleExtension : WasmExtension
 {
@@ -16,12 +16,7 @@ public class SampleExtension : WasmExtension
 
         Layout layout = new Layout(
             new Center(
-                child: new Button(
-                    child: new Text("hello sexy."),
-                    onClick: _ =>
-                    {
-                        Api.Logger.Log("button clicked!");
-                    })
+                child: new ButtonTextElement()
                 )
             );
 

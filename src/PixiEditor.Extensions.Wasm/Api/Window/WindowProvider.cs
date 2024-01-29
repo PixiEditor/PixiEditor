@@ -19,6 +19,17 @@ public class WindowProvider : IWindowProvider
         SubscribeToEvents(compiledControl);
     }
 
+    void IWindowProvider.LayoutStateChanged(int uniqueId, CompiledControl newLayout)
+    {
+        byte[] bytes = newLayout.Serialize().ToArray();
+        IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
+        Marshal.Copy(bytes, 0, ptr, bytes.Length);
+        Interop.StateChanged(uniqueId, ptr, bytes.Length);
+        Marshal.FreeHGlobal(ptr);
+
+        SubscribeToEvents(newLayout);
+    }
+
     private void SubscribeToEvents(CompiledControl body)
     {
         foreach (CompiledControl child in body.Children)

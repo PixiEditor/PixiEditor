@@ -6,7 +6,6 @@ namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
 public abstract class State : IState<Control>
 {
-
     public abstract ILayoutElement<Control> Build();
 
     public void SetState(Action setAction)

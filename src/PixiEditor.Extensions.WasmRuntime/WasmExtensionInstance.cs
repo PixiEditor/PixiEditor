@@ -3,6 +3,7 @@ using System.Text;
 using Avalonia.Controls;
 using Avalonia.Threading;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding;
+using PixiEditor.Extensions.CommonApi.LayoutBuilding.State;
 using PixiEditor.Extensions.LayoutBuilding.Elements;
 using Wasmtime;
 
@@ -69,7 +70,7 @@ public class WasmExtensionInstance : Extension
             string title = WasmMemoryUtility.GetString(titleOffset, titleLength);
             Span<byte> arr = memory.GetSpan<byte>(bodyOffset, bodyLength);
 
-            var body = LayoutBuilder.Deserialize(arr);
+            var body = LayoutBuilder.Deserialize(arr, DuplicateResolutionTactic.ThrowException);
 
             Api.WindowProvider.CreatePopupWindow(title, body.BuildNative()).Show();
         });
@@ -85,6 +86,23 @@ public class WasmExtensionInstance : Extension
 
                 action.Invoke(controlId, ptr);
                 //WasmMemoryUtility.Free(nameOffset);
+            });
+        });
+
+        Linker.DefineFunction("env", "state_changed", (int controlId, int bodyOffset, int bodyLength) =>
+        {
+            Span<byte> arr = memory.GetSpan<byte>(bodyOffset, bodyLength);
+
+            var element = managedElements[controlId];
+            var body = LayoutBuilder.Deserialize(arr, DuplicateResolutionTactic.Replace);
+
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                managedElements[controlId] = element;
+                if (element is StatefulContainer statefulElement && body is StatefulContainer statefulBodyElement)
+                {
+                    statefulElement.State.SetState(() => statefulElement.State.Content = statefulBodyElement.State.Content);
+                }
             });
         });
     }

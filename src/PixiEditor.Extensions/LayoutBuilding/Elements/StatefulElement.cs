@@ -1,6 +1,5 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
-using Avalonia.VisualTree;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding.State;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;

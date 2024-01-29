@@ -71,6 +71,9 @@ internal class ExtensionLoader
         }
         catch (Exception ex)
         {
+#if DEBUG
+            throw;
+#endif
             // TODO: Log exception
             // Maybe it's not a good idea to send webhook exceptions in the extension loader
             //CrashHelper.SendExceptionInfoToWebhook(ex);
@@ -99,14 +102,23 @@ internal class ExtensionLoader
         }
         catch (JsonException)
         {
+#if DEBUG
+            throw;
+#endif
             //MessageBox.Show(new LocalizedString("ERROR_INVALID_PACKAGE", packageJsonPath), "ERROR");
         }
         catch (ExtensionException ex)
         {
+#if DEBUG
+            throw;
+#endif
             //MessageBox.Show(ex.DisplayMessage, "ERROR");
         }
         catch (Exception ex)
         {
+#if DEBUG
+            throw;
+#endif
             //MessageBox.Show(new LocalizedString("ERROR_LOADING_PACKAGE", packageJsonPath), "ERROR");
             CrashHelper.SendExceptionInfoToWebhook(ex);
         }

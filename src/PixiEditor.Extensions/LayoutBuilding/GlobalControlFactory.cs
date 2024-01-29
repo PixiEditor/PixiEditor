@@ -14,6 +14,7 @@ public static class GlobalControlFactory
         { 0, () => new Layout() },
         { 1,  () => new Center() },
         { 2, () => new Text() },
-        { 3, () => new Button() }
+        { 3, () => new Button() },
+        { 4, () => new StatefulContainer() }
     };
 }

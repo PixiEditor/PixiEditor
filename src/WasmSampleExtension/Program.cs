@@ -1,6 +1,4 @@
-﻿using PixiEditor.Extensions.Wasm;
-
-namespace SampleExtension.WASM;
+﻿namespace WasmSampleExtension;
 
 public static class Program
 {

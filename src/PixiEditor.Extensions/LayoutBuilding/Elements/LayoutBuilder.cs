@@ -3,6 +3,7 @@ using System.Text;
 using Avalonia.Controls;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 using PixiEditor.Extensions.Helpers;
+using PixiEditor.Extensions.LayoutBuilding.Elements.Exceptions;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
@@ -16,7 +17,7 @@ public class LayoutBuilder
         this.managedElements = managedElements;
     }
 
-    public ILayoutElement<Control> Deserialize(Span<byte> layoutSpan)
+    public ILayoutElement<Control> Deserialize(Span<byte> layoutSpan, DuplicateResolutionTactic duplicatedIdTactic)
     {
         int offset = 0;
 
@@ -34,9 +35,9 @@ public class LayoutBuilder
         int childrenCount = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
 
-        List<ILayoutElement<Control>> children = DeserializeChildren(layoutSpan, childrenCount, ref offset);
+        List<ILayoutElement<Control>> children = DeserializeChildren(layoutSpan, childrenCount, ref offset, duplicatedIdTactic);
 
-        return BuildLayoutElement(uniqueId, controlTypeId, properties, children);
+        return BuildLayoutElement(uniqueId, controlTypeId, properties, children, duplicatedIdTactic);
     }
 
     private static List<object> DeserializeProperties(Span<byte> layoutSpan, int propertiesCount, ref int offset)
@@ -66,19 +67,19 @@ public class LayoutBuilder
         return properties;
     }
 
-    private List<ILayoutElement<Control>> DeserializeChildren(Span<byte> layoutSpan, int childrenCount, ref int offset)
+    private List<ILayoutElement<Control>> DeserializeChildren(Span<byte> layoutSpan, int childrenCount, ref int offset, DuplicateResolutionTactic duplicatedIdTactic)
     {
         var children = new List<ILayoutElement<Control>>();
         for (int i = 0; i < childrenCount; i++)
         {
-            children.Add(Deserialize(layoutSpan[offset..]));
+            children.Add(Deserialize(layoutSpan[offset..], duplicatedIdTactic));
         }
 
         return children;
     }
 
     private ILayoutElement<Control> BuildLayoutElement(int uniqueId, int controlId, List<object> properties,
-        List<ILayoutElement<Control>> children)
+        List<ILayoutElement<Control>> children, DuplicateResolutionTactic duplicatedIdTactic)
     {
         Func<ILayoutElement<Control>> factory = GlobalControlFactory.Map[controlId];
         var element = factory();
@@ -93,16 +94,29 @@ public class LayoutBuilder
             deserializableProperties.DeserializeProperties(properties);
         }
 
-        if (element is ISingleChildLayoutElement<Control> singleChildLayoutElement)
+        if (element is IChildrenDeserializable customChildrenDeserializable)
         {
-            singleChildLayoutElement.Child = children[0];
-        }
-        else if (element is IMultiChildLayoutElement<Control> multiChildLayoutElement)
-        {
-            multiChildLayoutElement.Children = children;
+            customChildrenDeserializable.DeserializeChildren(children);
         }
 
-        managedElements.Add(uniqueId, layoutElement);
+        if (!managedElements.TryAdd(uniqueId, layoutElement))
+        {
+            if (duplicatedIdTactic == DuplicateResolutionTactic.ThrowException)
+            {
+                throw new DuplicateIdElementException(uniqueId);
+            }
+            else if (duplicatedIdTactic == DuplicateResolutionTactic.Replace)
+            {
+                managedElements[uniqueId] = layoutElement;
+            }
+        }
+
         return layoutElement;
     }
+}
+
+public enum DuplicateResolutionTactic
+{
+    ThrowException,
+    Replace,
 }
