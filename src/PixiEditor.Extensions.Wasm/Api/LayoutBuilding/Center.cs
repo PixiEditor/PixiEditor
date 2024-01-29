@@ -9,12 +9,12 @@ public class Center : SingleChildLayoutElement
         Child = child;
     }
 
-    public override CompiledControl Build()
+    public override CompiledControl BuildNative()
     {
         CompiledControl center = new CompiledControl(UniqueId, "Center");
 
         if (Child != null)
-            center.AddChild(Child.Build());
+            center.AddChild(Child.BuildNative());
 
         BuildPendingEvents(center);
         return center;

@@ -40,7 +40,6 @@ internal class Interop
 
     internal static void EventRaised(int internalControlId, string eventName) //TOOD: Args
     {
-        WasmExtension.Api.Logger.Log($"Event raised: {eventName} on {internalControlId}");
         if (LayoutElementsStore.LayoutElements.TryGetValue((int)internalControlId, out ILayoutElement<CompiledControl> element))
         {
             element.RaiseEvent(eventName ?? "", new ElementEventArgs());

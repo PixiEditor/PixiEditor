@@ -9,12 +9,12 @@ public sealed class Layout : SingleChildLayoutElement
         Child = body;
     }
 
-    public override CompiledControl Build()
+    public override CompiledControl BuildNative()
     {
         CompiledControl layout = new CompiledControl(UniqueId, "Layout");
 
         if (Child != null)
-            layout.AddChild(Child.Build());
+            layout.AddChild(Child.BuildNative());
 
         BuildPendingEvents(layout);
         return layout;

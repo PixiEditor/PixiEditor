@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Interactivity;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 using PixiEditor.Extensions.LayoutBuilding;
@@ -16,7 +17,7 @@ public class LayoutBuilderTests
             body: new Center(
                 child: new Text("Hello")));
 
-        object result = layout.Build();
+        object result = layout.BuildNative();
 
         Assert.IsType<Panel>(result);
         Panel grid = (Panel)result;
@@ -56,8 +57,32 @@ public class LayoutBuilderTests
 
         button.Click += (e) => callbackFired = true;
 
-        button.Build().RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+        button.BuildNative().RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
 
         Assert.True(callbackFired);
+    }
+
+    [Fact]
+    public void TestStateChangesDataAndRebuildsControls()
+    {
+        TestStatefulElement testStatefulElement = new TestStatefulElement();
+        testStatefulElement.CreateState();
+        var native = testStatefulElement.BuildNative();
+
+        Assert.IsType<ContentPresenter>(native);
+        Assert.IsType<Avalonia.Controls.Button>((native as ContentPresenter).Content);
+
+        Assert.Equal(0, testStatefulElement.State.ClickedTimes);
+
+        ContentPresenter contentPresenter = native as ContentPresenter;
+        Avalonia.Controls.Button button = contentPresenter.Content as Avalonia.Controls.Button;
+
+        button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+
+        Assert.Equal(1, testStatefulElement.State.ClickedTimes);
+
+        Assert.IsType<ContentPresenter>(native);
+        Assert.IsType<Avalonia.Controls.Button>((native as ContentPresenter).Content);
+        Assert.NotEqual(button, (native as ContentPresenter).Content);
     }
 }

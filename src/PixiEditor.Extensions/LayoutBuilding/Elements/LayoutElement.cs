@@ -9,7 +9,7 @@ public abstract class LayoutElement : ILayoutElement<Control>
     public int UniqueId { get; set; }
 
     private Dictionary<string, List<ElementEventHandler>>? _events;
-    public abstract Control Build();
+    public abstract Control BuildNative();
 
     public void AddEvent(string eventName, ElementEventHandler eventHandler)
     {

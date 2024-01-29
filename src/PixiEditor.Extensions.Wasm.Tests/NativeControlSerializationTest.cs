@@ -12,6 +12,9 @@ public class NativeControlSerializationTest
         CompiledControl layout = new CompiledControl(0, "Layout");
         layout.AddProperty("Title");
 
+        int uniqueId = 0;
+        byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueId);
+
         int controlId = ByteMap.ControlMap["Layout"];
         byte[] controlIdBytes = BitConverter.GetBytes(controlId);
 
@@ -27,6 +30,7 @@ public class NativeControlSerializationTest
         byte[] childCountBytes = BitConverter.GetBytes(childCount);
 
         List<byte> expectedBytes = new();
+        expectedBytes.AddRange(uniqueIdBytes);
         expectedBytes.AddRange(controlIdBytes);
         expectedBytes.AddRange(propertiesCountBytes);
         expectedBytes.Add(ByteMap.GetTypeByteId(typeof(string)));
@@ -41,7 +45,10 @@ public class NativeControlSerializationTest
     public void TestThatChildLayoutSerializesCorrectBytes()
     {
         CompiledControl layout = new CompiledControl(0, "Layout");
-        layout.AddChild(new CompiledControl(0, "Center"));
+        layout.AddChild(new CompiledControl(1, "Center"));
+
+        int uniqueId = 0;
+        byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueId);
 
         int controlId = ByteMap.ControlMap["Layout"];
         byte[] controlIdBytes = BitConverter.GetBytes(controlId);
@@ -51,6 +58,9 @@ public class NativeControlSerializationTest
 
         int childCount = 1;
         byte[] childCountBytes = BitConverter.GetBytes(childCount);
+
+        int childUniqueId = 1;
+        byte[] childUniqueIdBytes = BitConverter.GetBytes(childUniqueId);
 
         int childControlId = ByteMap.ControlMap["Center"];
         byte[] childControlIdBytes = BitConverter.GetBytes(childControlId);
@@ -62,9 +72,11 @@ public class NativeControlSerializationTest
         byte[] childChildCountBytes = BitConverter.GetBytes(childChildCount);
 
         List<byte> expectedBytes = new();
+        expectedBytes.AddRange(uniqueIdBytes);
         expectedBytes.AddRange(controlIdBytes);
         expectedBytes.AddRange(propertiesCountBytes);
         expectedBytes.AddRange(childCountBytes);
+        expectedBytes.AddRange(childUniqueIdBytes);
         expectedBytes.AddRange(childControlIdBytes);
         expectedBytes.AddRange(childPropertiesCountBytes);
         expectedBytes.AddRange(childChildCountBytes);
@@ -82,6 +94,9 @@ public class NativeControlSerializationTest
         center.AddChild(text);
         layout.AddChild(center);
 
+        int uniqueId = 0;
+        byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueId);
+
         int controlId = ByteMap.ControlMap["Layout"];
         byte[] controlIdBytes = BitConverter.GetBytes(controlId);
 
@@ -91,6 +106,9 @@ public class NativeControlSerializationTest
         int childCount = 1;
         byte[] childCountBytes = BitConverter.GetBytes(childCount);
 
+        int childUniqueId = 1;
+        byte[] childUniqueIdBytes = BitConverter.GetBytes(childUniqueId);
+
         int childControlId = ByteMap.ControlMap["Center"];
         byte[] childControlIdBytes = BitConverter.GetBytes(childControlId);
 
@@ -99,6 +117,9 @@ public class NativeControlSerializationTest
 
         int childChildCount = 1;
         byte[] childChildCountBytes = BitConverter.GetBytes(childChildCount);
+
+        int textUniqueId = 2;
+        byte[] textUniqueIdBytes = BitConverter.GetBytes(textUniqueId);
 
         int textControlId = ByteMap.ControlMap["Text"];
         byte[] textControlIdBytes = BitConverter.GetBytes(textControlId);
@@ -116,14 +137,17 @@ public class NativeControlSerializationTest
 
 
         List<byte> expectedBytes = new();
+        expectedBytes.AddRange(uniqueIdBytes);
         expectedBytes.AddRange(controlIdBytes);
         expectedBytes.AddRange(propertiesCountBytes);
         expectedBytes.AddRange(childCountBytes);
 
+        expectedBytes.AddRange(childUniqueIdBytes);
         expectedBytes.AddRange(childControlIdBytes);
         expectedBytes.AddRange(childPropertiesCountBytes);
         expectedBytes.AddRange(childChildCountBytes);
 
+        expectedBytes.AddRange(textUniqueIdBytes);
         expectedBytes.AddRange(textControlIdBytes);
         expectedBytes.AddRange(textPropertiesCountBytes);
         expectedBytes.Add(ByteMap.GetTypeByteId(typeof(string)));
@@ -141,7 +165,7 @@ public class NativeControlSerializationTest
             new Center(
                 child: new Text("hello sexy.")));
 
-        CompiledControl compiledControl = layout.Build();
+        CompiledControl compiledControl = layout.BuildNative();
 
         Assert.Equal("Layout", compiledControl.ControlTypeId);
         Assert.Empty(compiledControl.Properties);
@@ -162,7 +186,7 @@ public class NativeControlSerializationTest
             child: new Text("hello sexy."),
             onClick: _ => { });
 
-        button.Build();
+        button.BuildNative();
 
         Assert.Contains(button.BuildQueuedEvents, x => x == "Click");
     }

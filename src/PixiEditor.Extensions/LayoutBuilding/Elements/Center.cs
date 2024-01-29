@@ -10,13 +10,13 @@ public class Center : SingleChildLayoutElement, IPropertyDeserializable
         Child = child;
     }
 
-    public override Control Build()
+    public override Control BuildNative()
     {
         return new Panel()
         {
             Children =
             {
-                Child.Build()
+                Child.BuildNative()
             },
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center

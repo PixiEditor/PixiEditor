@@ -1,16 +1,16 @@
 ﻿using Avalonia.Controls;
-using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public class Text : TextElement, IPropertyDeserializable
+public class Text : StatelessElement, IPropertyDeserializable
 {
+    public string Value { get; set; }
     public Text(string value = "")
     {
         Value = value;
     }
 
-    public override Control Build()
+    public override Control BuildNative()
     {
         return new TextBlock { Text = Value };
     }

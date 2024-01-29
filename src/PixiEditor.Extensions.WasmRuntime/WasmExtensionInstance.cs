@@ -71,7 +71,7 @@ public class WasmExtensionInstance : Extension
 
             var body = LayoutBuilder.Deserialize(arr);
 
-            Api.WindowProvider.CreatePopupWindow(title, body.Build()).ShowDialog();
+            Api.WindowProvider.CreatePopupWindow(title, body.BuildNative()).Show();
         });
 
         Linker.DefineFunction("env", "subscribe_to_event", (int controlId, int eventNameOffset, int eventNameLengthOffset) =>

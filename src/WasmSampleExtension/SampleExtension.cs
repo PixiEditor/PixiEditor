@@ -18,8 +18,10 @@ public class SampleExtension : WasmExtension
             new Center(
                 child: new Button(
                     child: new Text("hello sexy."),
-                    onClick: _ => Api.Logger.Log("button clicked!")
-                    )
+                    onClick: _ =>
+                    {
+                        Api.Logger.Log("button clicked!");
+                    })
                 )
             );
 

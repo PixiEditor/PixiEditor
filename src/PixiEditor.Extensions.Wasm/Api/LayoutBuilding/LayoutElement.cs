@@ -9,7 +9,7 @@ public abstract class LayoutElement : ILayoutElement<CompiledControl>
     public List<string> BuildQueuedEvents = new List<string>();
     public int UniqueId { get; set; }
 
-    public abstract CompiledControl Build();
+    public abstract CompiledControl BuildNative();
 
     public LayoutElement()
     {

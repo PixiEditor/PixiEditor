@@ -6,5 +6,5 @@ namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 public abstract class SingleChildLayoutElement : LayoutElement, ISingleChildLayoutElement<Control>
 {
     public ILayoutElement<Control>? Child { get; set; }
-    public abstract override Control Build();
+    public abstract override Control BuildNative();
 }

@@ -2,14 +2,11 @@
 
 namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
-public class Text : TextElement
+public class Text(string value) : StatelessElement
 {
-    public Text(string value)
-    {
-        Value = value;
-    }
+    public string Value { get; set; } = value;
 
-    public override CompiledControl Build()
+    public override CompiledControl BuildNative()
     {
         CompiledControl text = new CompiledControl(UniqueId, "Text");
         text.AddProperty(Value);

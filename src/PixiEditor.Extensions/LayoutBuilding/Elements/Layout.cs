@@ -10,12 +10,12 @@ public sealed class Layout : SingleChildLayoutElement, IPropertyDeserializable
         Child = body;
     }
 
-    public override Control Build()
+    public override Control BuildNative()
     {
         Panel panel = new Panel();
         if (Child != null)
         {
-            panel.Children.Add(Child.Build());
+            panel.Children.Add(Child.BuildNative());
         }
 
         return panel;

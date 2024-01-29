@@ -18,11 +18,11 @@ public class Button : SingleChildLayoutElement
             Click += onClick;
     }
 
-    public override CompiledControl Build()
+    public override CompiledControl BuildNative()
     {
         CompiledControl button = new CompiledControl(UniqueId, "Button");
         if (Child != null)
-            button.AddChild(Child.Build());
+            button.AddChild(Child.BuildNative());
 
         BuildPendingEvents(button);
         return button;

@@ -9,7 +9,7 @@ public class WindowProvider : IWindowProvider
 {
     public void CreatePopupWindow(string title, LayoutElement body)
     {
-        CompiledControl compiledControl = body.Build();
+        CompiledControl compiledControl = body.BuildNative();
         byte[] bytes = compiledControl.Serialize().ToArray();
         IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
         Marshal.Copy(bytes, 0, ptr, bytes.Length);
