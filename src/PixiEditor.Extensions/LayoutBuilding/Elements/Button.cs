@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Interactivity;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
@@ -24,10 +26,9 @@ public class Button : SingleChildLayoutElement
 
     public override Control BuildNative()
     {
-        Avalonia.Controls.Button btn = new Avalonia.Controls.Button()
-        {
-            Content = Child?.BuildNative(),
-        };
+        Avalonia.Controls.Button btn = new Avalonia.Controls.Button();
+        Binding binding = new Binding(nameof(Child)) { Source = this, Converter = LayoutElementToNativeControlConverter.Instance };
+        btn.Bind(Avalonia.Controls.Button.ContentProperty, binding);
 
         btn.Click += (sender, args) => RaiseEvent(nameof(Click), new ElementEventArgs());
 

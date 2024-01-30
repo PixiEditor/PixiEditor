@@ -4,16 +4,26 @@ using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public class StatefulContainer : StatefulElement<ContainerState>, IChildrenDeserializable
+public class StatefulContainer : StatefulElement<ContainerState>, IChildHost
 {
     public override ContainerState CreateState()
     {
-        return new();
+         return new ContainerState();
     }
 
-    void IChildrenDeserializable.DeserializeChildren(List<ILayoutElement<Control>> children)
+    void IChildHost.DeserializeChildren(List<ILayoutElement<Control>> children)
     {
         State.Content = children.FirstOrDefault();
+    }
+
+    public void AddChild(ILayoutElement<Control> child)
+    {
+        State.SetState(() => State.Content = child);
+    }
+
+    public void RemoveChild(ILayoutElement<Control> child)
+    {
+        State.SetState(() => State.Content = null);
     }
 
     public IEnumerator<ILayoutElement<Control>> GetEnumerator()

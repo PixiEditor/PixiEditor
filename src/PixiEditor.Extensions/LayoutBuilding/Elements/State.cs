@@ -14,5 +14,5 @@ public abstract class State : IState<Control>
         StateChanged?.Invoke();
     }
 
-    public event Action? StateChanged;
+    public event Action StateChanged;
 }

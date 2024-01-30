@@ -1,10 +1,12 @@
-﻿using Avalonia.Controls;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Avalonia.Controls;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public abstract class LayoutElement : ILayoutElement<Control>
+public abstract class LayoutElement : ILayoutElement<Control>, INotifyPropertyChanged
 {
     public int UniqueId { get; set; }
 
@@ -57,5 +59,20 @@ public abstract class LayoutElement : ILayoutElement<Control>
         {
             eventHandler.Invoke(args);
         }
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
+        field = value;
+        OnPropertyChanged(propertyName);
+        return true;
     }
 }

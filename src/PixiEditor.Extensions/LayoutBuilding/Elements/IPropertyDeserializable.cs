@@ -5,5 +5,6 @@ namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
 public interface IPropertyDeserializable
 {
-    public void DeserializeProperties(List<object> values);
+    public IEnumerable<object> GetProperties();
+    public void DeserializeProperties(IEnumerable<object> values);
 }

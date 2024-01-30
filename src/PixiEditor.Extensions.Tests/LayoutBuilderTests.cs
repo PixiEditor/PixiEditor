@@ -63,7 +63,7 @@ public class LayoutBuilderTests
     }
 
     [Fact]
-    public void TestStateChangesDataAndRebuildsControls()
+    public void TestStateChangesDataAndOnlyAppliesDiffProperties()
     {
         TestStatefulElement testStatefulElement = new TestStatefulElement();
         testStatefulElement.CreateState();
@@ -71,18 +71,69 @@ public class LayoutBuilderTests
 
         Assert.IsType<ContentPresenter>(native);
         Assert.IsType<Avalonia.Controls.Button>((native as ContentPresenter).Content);
+        Avalonia.Controls.Button button = (native as ContentPresenter).Content as Avalonia.Controls.Button;
+        Assert.IsType<TextBlock>(button.Content);
+
+        TextBlock textBlock = button.Content as TextBlock;
 
         Assert.Equal(0, testStatefulElement.State.ClickedTimes);
+        Assert.Equal(string.Format(TestState.Format, 0), textBlock.Text);
 
         ContentPresenter contentPresenter = native as ContentPresenter;
-        Avalonia.Controls.Button button = contentPresenter.Content as Avalonia.Controls.Button;
 
         button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
 
         Assert.Equal(1, testStatefulElement.State.ClickedTimes);
 
         Assert.IsType<ContentPresenter>(native);
+        Assert.Equal(contentPresenter, native);
+        Assert.IsType<Avalonia.Controls.Button>(contentPresenter.Content);
+        Assert.Equal(button, contentPresenter.Content);
+        Assert.IsType<TextBlock>(button.Content);
+        Assert.Equal(textBlock, button.Content);
+        Assert.Equal(string.Format(TestState.Format, 1), textBlock.Text);
+    }
+
+    [Fact]
+    public void TestStateRemovesChildFromTree()
+    {
+        TestStatefulElement testStatefulElement = new TestStatefulElement();
+        testStatefulElement.CreateState();
+        var native = testStatefulElement.BuildNative();
+
+        Assert.IsType<ContentPresenter>(native);
         Assert.IsType<Avalonia.Controls.Button>((native as ContentPresenter).Content);
-        Assert.NotEqual(button, (native as ContentPresenter).Content);
+        Avalonia.Controls.Button button = (native as ContentPresenter).Content as Avalonia.Controls.Button;
+
+        Assert.NotNull(button.Content);
+        Assert.IsType<TextBlock>(button.Content);
+
+        testStatefulElement.State.SetState(() => testStatefulElement.State.RemoveText = true);
+
+        Assert.Null(button.Content); // Old layout is updated and text is removed
+    }
+
+    [Fact]
+    public void TestStateAddsChildToTree()
+    {
+        TestStatefulElement testStatefulElement = new TestStatefulElement();
+        testStatefulElement.CreateState();
+        var native = testStatefulElement.BuildNative();
+
+        Assert.IsType<ContentPresenter>(native);
+        Assert.IsType<Avalonia.Controls.Button>((native as ContentPresenter).Content);
+        Avalonia.Controls.Button button = (native as ContentPresenter).Content as Avalonia.Controls.Button;
+
+        Assert.NotNull(button.Content);
+        Assert.IsType<TextBlock>(button.Content);
+
+        testStatefulElement.State.SetState(() => testStatefulElement.State.RemoveText = true);
+
+        Assert.Null(button.Content); // Old layout is updated and text is removed
+
+        testStatefulElement.State.SetState(() => testStatefulElement.State.RemoveText = false);
+
+        Assert.NotNull(button.Content); // Old layout is updated and text is added
+        Assert.IsType<TextBlock>(button.Content);
     }
 }

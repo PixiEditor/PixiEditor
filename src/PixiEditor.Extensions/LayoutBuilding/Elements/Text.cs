@@ -1,10 +1,15 @@
-﻿using Avalonia.Controls;
+﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
 public class Text : StatelessElement, IPropertyDeserializable
 {
-    public string Value { get; set; }
+    private string _value = null!;
+    public string Value { get => _value; set => SetField(ref _value, value); }
     public Text(string value = "")
     {
         Value = value;
@@ -12,11 +17,24 @@ public class Text : StatelessElement, IPropertyDeserializable
 
     public override Control BuildNative()
     {
-        return new TextBlock { Text = Value };
+        TextBlock textBlock = new();
+        Binding binding = new()
+        {
+            Source = this,
+            Path = nameof(Value),
+        };
+
+        textBlock.Bind(TextBlock.TextProperty, binding);
+        return textBlock;
     }
 
-    void IPropertyDeserializable.DeserializeProperties(List<object> values)
+    IEnumerable<object> IPropertyDeserializable.GetProperties()
     {
-        Value = (string)values[0];
+        yield return Value;
+    }
+
+    void IPropertyDeserializable.DeserializeProperties(IEnumerable<object> values)
+    {
+        Value = (string)values.ElementAt(0);
     }
 }

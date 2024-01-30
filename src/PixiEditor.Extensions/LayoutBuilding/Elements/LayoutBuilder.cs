@@ -94,7 +94,7 @@ public class LayoutBuilder
             deserializableProperties.DeserializeProperties(properties);
         }
 
-        if (element is IChildrenDeserializable customChildrenDeserializable)
+        if (element is IChildHost customChildrenDeserializable)
         {
             customChildrenDeserializable.DeserializeChildren(children);
         }
@@ -108,7 +108,7 @@ public class LayoutBuilder
 
             if (duplicatedIdTactic == DuplicateResolutionTactic.ReplaceRemoveChildren)
             {
-                if (managedElements[uniqueId] is IChildrenDeserializable childrenDeserializable)
+                if (managedElements[uniqueId] is IChildHost childrenDeserializable)
                 {
                     RemoveChildren(childrenDeserializable);
                 }
@@ -120,12 +120,12 @@ public class LayoutBuilder
         return layoutElement;
     }
 
-    private void RemoveChildren(IChildrenDeserializable childrenDeserializable)
+    private void RemoveChildren(IChildHost childHost)
     {
-        foreach (var child in childrenDeserializable)
+        foreach (var child in childHost)
         {
             managedElements.Remove(child.UniqueId);
-            if (child is IChildrenDeserializable childChildrenDeserializable)
+            if (child is IChildHost childChildrenDeserializable)
             {
                 RemoveChildren(childChildrenDeserializable);
             }
