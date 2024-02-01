@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Models.AppExtensions;
 using PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
@@ -18,6 +19,8 @@ using PixiEditor.AvaloniaUI.ViewModels.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.IO;
+using PixiEditor.Extensions.LayoutBuilding;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Extensions.Windowing;
@@ -109,5 +112,18 @@ internal static class ServiceCollectionHelpers
 
     public static IServiceCollection AddExtensionServices(this IServiceCollection collection, ExtensionLoader loader) =>
         collection.AddSingleton<IWindowProvider, WindowProvider>(x => new WindowProvider(loader, x))
-            .AddSingleton<IPaletteProvider, PaletteProvider>();
+            .AddSingleton<IPaletteProvider, PaletteProvider>()
+            .AddSingleton<ElementMap>(x =>
+            {
+                ElementMap elementMap = new ElementMap();
+                Assembly[] pixiEditorAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(x => x.FullName.StartsWith("PixiEditor")).ToArray();
+                foreach (Assembly assembly in pixiEditorAssemblies)
+                {
+                    elementMap.AddElementsFromAssembly(assembly);
+                }
+
+                return elementMap;
+            })
+            .AddSingleton<IFileSystemProvider, FileSystemProvider>();
 }

@@ -18,6 +18,6 @@ public class SampleExtension : Extension
         Layout layout = new Layout(
             body: new ButtonTextElement());
 
-        Api.WindowProvider.CreatePopupWindow("Test layout builder", layout.BuildNative()).Show();
+        Api.Windowing.CreatePopupWindow("Test layout builder", layout.BuildNative()).Show();
     }
 }

@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding.State;
+using PixiEditor.Extensions.LayoutBuilding;
 using PixiEditor.Extensions.LayoutBuilding.Elements;
 using Wasmtime;
 
@@ -20,7 +21,7 @@ public class WasmExtensionInstance : Extension
     private Memory memory = null!;
 
     private Dictionary<int, ILayoutElement<Control>> managedElements = new();
-    private LayoutBuilder LayoutBuilder { get; }
+    private LayoutBuilder LayoutBuilder { get; set; }
     private WasmMemoryUtility WasmMemoryUtility { get; set; }
 
     public WasmExtensionInstance(Linker linker, Store store, Module module)
@@ -28,7 +29,6 @@ public class WasmExtensionInstance : Extension
         Linker = linker;
         Store = store;
         Module = module;
-        LayoutBuilder = new LayoutBuilder(managedElements);
     }
 
     public void Instantiate()
@@ -44,6 +44,9 @@ public class WasmExtensionInstance : Extension
 
     protected override void OnInitialized()
     {
+        LayoutBuilder = new LayoutBuilder(managedElements, (ElementMap)Api.Services.GetService(typeof(ElementMap)));
+
+        SetElementMap();
         Instance.GetAction("initialize").Invoke();
         base.OnInitialized();
     }
@@ -52,6 +55,16 @@ public class WasmExtensionInstance : Extension
     {
         Instance.GetAction("load").Invoke();
         base.OnLoaded();
+    }
+
+    private void SetElementMap()
+    {
+        var elementMap = (ElementMap)Api.Services.GetService(typeof(ElementMap));
+        byte[] map = elementMap.Serialize();
+        var ptr = WasmMemoryUtility.WriteSpan(map);
+        Instance.GetAction<int, int>("set_element_map").Invoke(ptr, map.Length);
+
+        WasmMemoryUtility.Free(ptr);
     }
 
     private void DefinePixiEditorApi()
@@ -69,7 +82,7 @@ public class WasmExtensionInstance : Extension
 
             var body = LayoutBuilder.Deserialize(arr, DuplicateResolutionTactic.ThrowException);
 
-            Api.WindowProvider.CreatePopupWindow(title, body.BuildNative()).Show();
+            Api.Windowing.CreatePopupWindow(title, body.BuildNative()).Show();
         });
 
         Linker.DefineFunction("env", "subscribe_to_event", (int controlId, int eventNameOffset, int eventNameLengthOffset) =>
@@ -82,7 +95,8 @@ public class WasmExtensionInstance : Extension
                 var ptr = WasmMemoryUtility.WriteString(eventName);
 
                 action.Invoke(controlId, ptr);
-                //WasmMemoryUtility.Free(nameOffset);
+
+                WasmMemoryUtility.Free(ptr);
             });
         });
 

@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 using PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
@@ -46,6 +47,23 @@ internal class Interop
         if (LayoutElementsStore.LayoutElements.TryGetValue((int)internalControlId, out ILayoutElement<CompiledControl> element))
         {
             element.RaiseEvent(eventName ?? "", new ElementEventArgs());
+        }
+    }
+
+    internal static void SetElementMap(byte[] bytes)
+    {
+        // Dictionary format: [int bytes controlTypeId, string controlTypeName]
+
+        int offset = 0;
+        while (offset < bytes.Length)
+        {
+            int id = BitConverter.ToInt32(bytes, offset);
+            offset += sizeof(int);
+            int nameLength = BitConverter.ToInt32(bytes, offset);
+            offset += sizeof(int);
+            string name = Encoding.UTF8.GetString(bytes, offset, nameLength);
+            offset += nameLength;
+            ByteMap.ControlMap.Add(name, id);
         }
     }
 }

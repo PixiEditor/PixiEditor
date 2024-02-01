@@ -26,6 +26,23 @@ void raise_element_event(int elementId, const char* eventName)
     free(method);
 }
 
+__attribute((export_name("set_element_map")))
+void set_element_map(uint8_t* data, int length)
+{
+    MonoArray* array = mono_wasm_obj_array_new(length);
+
+    for (int i = 0; i < length; i++)
+    {
+        mono_array_set(array, uint8_t, i, data[i]);
+    }
+
+    MonoMethod* method = lookup_interop_method("SetElementMap");
+    void* args[] = { array };
+    invoke_interop_method(method, args);
+
+    free(method);
+}
+
 void attach_layout_builder_calls()
 {
     mono_add_internal_call("PixiEditor.Extensions.Wasm.Interop::SubscribeToEvent", internal_subscribe_to_event);

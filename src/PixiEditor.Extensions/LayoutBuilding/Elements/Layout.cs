@@ -3,8 +3,13 @@ using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public sealed class Layout : SingleChildLayoutElement
+public class Layout : SingleChildLayoutElement
 {
+    public Layout()
+    {
+
+    }
+
     public Layout(ILayoutElement<Control> body = null)
     {
         Child = body;

@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+       <OutputPath>..\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\Extensions\DevTools</OutputPath>
+       <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="extension.json" />
+      <Content Include="extension.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
+</Project>

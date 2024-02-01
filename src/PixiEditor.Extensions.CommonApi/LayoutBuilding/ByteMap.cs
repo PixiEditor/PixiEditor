@@ -2,17 +2,7 @@
 
 public static class ByteMap
 {
-    public static IReadOnlyDictionary<string, int> ControlMap => controlMap;
-
-    private static Dictionary<string, int> controlMap = new Dictionary<string, int>()
-    {
-        // If you do add a new control, make sure to add it to GlobalControlFactory inside PixiEditor project
-        { "Layout", 0 },
-        { "Center", 1 },
-        { "Text", 2 },
-        { "Button", 3 },
-        { "StatefulContainer", 4 }
-    };
+    public static Dictionary<string, int> ControlMap { get; set; } = new Dictionary<string, int>();
 
     public static byte GetTypeByteId(Type type)
     {

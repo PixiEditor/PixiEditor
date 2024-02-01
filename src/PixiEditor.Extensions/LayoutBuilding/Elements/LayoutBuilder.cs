@@ -12,9 +12,11 @@ public class LayoutBuilder
     private static int int32Size = sizeof(int);
 
     Dictionary<int, ILayoutElement<Control>> managedElements = new();
-    public LayoutBuilder(Dictionary<int, ILayoutElement<Control>> managedElements)
+    private ElementMap elementMap;
+    public LayoutBuilder(Dictionary<int, ILayoutElement<Control>> managedElements, ElementMap elementMap)
     {
         this.managedElements = managedElements;
+        this.elementMap = elementMap;
     }
 
     public ILayoutElement<Control> Deserialize(Span<byte> layoutSpan, DuplicateResolutionTactic duplicatedIdTactic)
@@ -81,8 +83,8 @@ public class LayoutBuilder
     private ILayoutElement<Control> BuildLayoutElement(int uniqueId, int controlId, List<object> properties,
         List<ILayoutElement<Control>> children, DuplicateResolutionTactic duplicatedIdTactic)
     {
-        Func<ILayoutElement<Control>> factory = GlobalControlFactory.Map[controlId];
-        var element = factory();
+        Type typeToSpawn = elementMap.ControlMap[controlId];
+        var element = CreateInstance(typeToSpawn);
         
         if(element is not { } layoutElement)
             throw new Exception("Element is not ILayoutElement<Control>");
@@ -118,6 +120,20 @@ public class LayoutBuilder
         }
 
         return layoutElement;
+    }
+
+    private ILayoutElement<Control> CreateInstance(Type typeToSpawn)
+    {
+        var constructor = typeToSpawn.GetConstructor(Type.EmptyTypes);
+        if (constructor != null)
+        {
+            return (ILayoutElement<Control>)Activator.CreateInstance(typeToSpawn);
+        }
+
+        var constructorWithParams = typeToSpawn.GetConstructors()[0];
+        var parameters = constructorWithParams.GetParameters();
+        var parameterValues = parameters.Select(x => x.DefaultValue).ToArray();
+        return (ILayoutElement<Control>)Activator.CreateInstance(typeToSpawn, parameterValues);
     }
 
     private void RemoveChildren(IChildHost childHost)

@@ -9,6 +9,11 @@ namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 public class Center : SingleChildLayoutElement
 {
     private Panel panel;
+    public Center()
+    {
+
+    }
+
     public Center(ILayoutElement<Control> child = null)
     {
         Child = child;

@@ -285,9 +285,11 @@ internal class ExtensionLoader
                 WasmExtensionInstance instance = _wasmRuntime.LoadModule(wasm);
                 return instance;
             }
-            catch
+            catch (Exception ex)
             {
-                // ignored
+#if DEBUG
+                throw;
+#endif
             }
         }
 

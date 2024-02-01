@@ -13,12 +13,12 @@ public class StatefulContainer : StatefulElement<ContainerState>, IChildHost
 
     void IChildHost.DeserializeChildren(List<ILayoutElement<Control>> children)
     {
-        State.Content = children.FirstOrDefault();
+        State.Content = (LayoutElement)children.FirstOrDefault();
     }
 
     public void AddChild(ILayoutElement<Control> child)
     {
-        State.SetState(() => State.Content = child);
+        State.SetState(() => State.Content = (LayoutElement)child);
     }
 
     public void RemoveChild(ILayoutElement<Control> child)

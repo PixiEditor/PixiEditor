@@ -14,7 +14,7 @@ public class SampleExtension : Extension
 
     protected override void OnInitialized()
     {
-        var popup = Api.WindowProvider.CreatePopupWindow("Hello World!", new TextBlock
+        var popup = Api.Windowing.CreatePopupWindow("Hello World!", new TextBlock
         {
             Text = "Hello World!", Foreground = Brushes.White,
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center
@@ -22,6 +22,6 @@ public class SampleExtension : Extension
         Api.PaletteProvider.RegisterDataSource(new TestPaletteDataSource());
         popup.ShowDialog();
 
-        Api.WindowProvider.GetWindow(WindowType.PalettesBrowser).Show();
+        Api.Windowing.GetWindow(WindowType.PalettesBrowser).Show();
     }
 }

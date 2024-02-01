@@ -15,6 +15,11 @@ public class Button : SingleChildLayoutElement
         remove => RemoveEvent(nameof(Click), value);
     }
 
+    public Button()
+    {
+
+    }
+
     public Button(ILayoutElement<Control>? child = null, ElementEventHandler? onClick = null)
     {
         Child = child;

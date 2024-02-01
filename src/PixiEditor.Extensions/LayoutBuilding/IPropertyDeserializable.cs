@@ -1,7 +1,4 @@
-﻿using Avalonia.Controls;
-using PixiEditor.Extensions.CommonApi.LayoutBuilding;
-
-namespace PixiEditor.Extensions.LayoutBuilding.Elements;
+﻿namespace PixiEditor.Extensions.LayoutBuilding;
 
 public interface IPropertyDeserializable
 {

@@ -10,6 +10,12 @@ public class Text : StatelessElement, IPropertyDeserializable
 {
     private string _value = null!;
     public string Value { get => _value; set => SetField(ref _value, value); }
+
+    public Text()
+    {
+
+    }
+
     public Text(string value = "")
     {
         Value = value;

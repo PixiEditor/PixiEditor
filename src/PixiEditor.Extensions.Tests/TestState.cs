@@ -1,8 +1,5 @@
-﻿using Avalonia.Controls;
-using PixiEditor.Extensions.CommonApi.LayoutBuilding;
-using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
+﻿using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 using PixiEditor.Extensions.LayoutBuilding.Elements;
-using Button = PixiEditor.Extensions.LayoutBuilding.Elements.Button;
 
 namespace PixiEditor.Extensions.Test;
 
@@ -12,7 +9,7 @@ public class TestState : State
     public int ClickedTimes { get; private set; } = 0;
     public bool RemoveText { get; set; } = false;
 
-    public override ILayoutElement<Control> Build()
+    public override LayoutElement BuildElement()
     {
         return new Button(
             onClick: OnClick,
