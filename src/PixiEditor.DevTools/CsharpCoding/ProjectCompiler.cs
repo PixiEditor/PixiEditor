@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.MSBuild;
 using Microsoft.CodeAnalysis.Text;
+using PixiEditor.Extensions.LayoutBuilding.Elements;
 
 namespace PixiEditor.DevTools.CsharpCoding;
 
@@ -15,7 +16,7 @@ public class ProjectCompiler
     public MSBuildWorkspace Workspace { get; }
     public List<Project> CsProjects { get; private set; }
 
-    public List<Type> AnimacoProjectsTypes = new List<Type>();
+    public List<Type> LayoutElementTypes = new List<Type>();
     public Assembly? CompiledAssembly { get; private set; }
 
     private Dictionary<Document, SyntaxTree> _cachedSyntaxTrees = new Dictionary<Document, SyntaxTree>();
@@ -31,11 +32,11 @@ public class ProjectCompiler
     [MethodImpl(MethodImplOptions.NoInlining)]
     public async Task<Assembly?> Compile(bool restore = false)
     {
-        return await Compile(await GetDocuments());
+        //return await Compile(await GetDocuments());
         CompiledAssembly = await CliCompile(restore);
         if (CompiledAssembly != null)
         {
-            AnimacoProjectsTypes = CompiledAssembly.GetTypes().Where(x => typeof(AnimacoProject).IsAssignableFrom(x))
+            LayoutElementTypes = CompiledAssembly.GetTypes().Where(x => typeof(LayoutElement).IsAssignableFrom(x))
                 .ToList();
         }
 
@@ -58,8 +59,8 @@ public class ProjectCompiler
         startInfo.UseShellExecute = false;
         Process process = new Process();
         process.StartInfo = startInfo;
-        process.OutputDataReceived += (sender, args) => ILogger.Current.Log(args.Data);
-        process.ErrorDataReceived += (sender, args) => ILogger.Current.LogError(args.Data);
+        process.OutputDataReceived += (sender, args) => Debug.WriteLine(args.Data);
+        process.ErrorDataReceived += (sender, args) => Debug.WriteLine(args.Data);
         process.Start();
 
         process.BeginOutputReadLine();
@@ -84,8 +85,8 @@ public class ProjectCompiler
         };
         Process process = new Process();
         process.StartInfo = startInfo;
-        process.OutputDataReceived += (sender, args) => ILogger.Current.Log(args.Data);
-        process.ErrorDataReceived += (sender, args) => ILogger.Current.LogError(args.Data);
+        process.OutputDataReceived += (sender, args) => Debug.WriteLine(args.Data);
+        process.ErrorDataReceived += (sender, args) => Debug.WriteLine(args.Data);
         process.Start();
 
         process.BeginOutputReadLine();
@@ -139,7 +140,7 @@ public class ProjectCompiler
 
             foreach (Diagnostic diagnostic in failures)
             {
-                ILogger.Current.LogError($"{diagnostic.Id}: {diagnostic.GetMessage()}");
+                Debug.WriteLine($"{diagnostic.Id}: {diagnostic.GetMessage()}");
             }
         }
         else
@@ -155,9 +156,9 @@ public class ProjectCompiler
         foreach (var diagnostic in result.Diagnostics)
         {
             if (diagnostic.Severity == DiagnosticSeverity.Error)
-                ILogger.Current.LogError(diagnostic.GetMessage());
+                Debug.WriteLine(diagnostic.GetMessage());
             else
-                ILogger.Current.Log(diagnostic.GetMessage());
+                Debug.WriteLine(diagnostic.GetMessage());
         }
     }
 
@@ -210,7 +211,7 @@ public class ProjectCompiler
         ms.Seek(0, SeekOrigin.Begin);
         CompiledAssembly = Assembly.Load(ms.ToArray());
         SaveAssembly(ms);
-        AnimacoProjectsTypes = CompiledAssembly.GetTypes().Where(x => typeof(AnimacoProject).IsAssignableFrom(x))
+        LayoutElementTypes = CompiledAssembly.GetTypes().Where(x => typeof(LayoutElement).IsAssignableFrom(x))
             .ToList();
     }
 
@@ -261,7 +262,7 @@ public class ProjectCompiler
         }
     }
 
-    public AnimacoProject GetProject(string csFileName)
+    public LayoutElement GetLayoutElement(string csFileName)
     {
         if (CompiledAssembly == null)
         {
@@ -272,10 +273,10 @@ public class ProjectCompiler
 
         if (projIndex == -1)
         {
-            throw new ProjectNotFoundException($"No project with name {csFileName} found");
+            throw new Exception($"No layout with name {csFileName} found");
         }
 
-        return (AnimacoProject)Activator.CreateInstance(AnimacoProjectsTypes[projIndex])!;
+        return (LayoutElement)Activator.CreateInstance(LayoutElementTypes[projIndex])!;
     }
 
     public int GetProjectIndex(string csFileName)
@@ -292,9 +293,9 @@ public class ProjectCompiler
 
         string fileName = Path.GetFileNameWithoutExtension(csFileName);
 
-        for (int i = 0; i < AnimacoProjectsTypes.Count; i++)
+        for (int i = 0; i < LayoutElementTypes.Count; i++)
         {
-            if (string.Equals(fileName, AnimacoProjectsTypes[i].Name, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(fileName, LayoutElementTypes[i].Name, StringComparison.OrdinalIgnoreCase))
             {
                 return i;
             }

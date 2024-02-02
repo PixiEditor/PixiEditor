@@ -17,8 +17,7 @@ public class ProjectLoader
 
     public List<string> ReferencedProjectPaths { get; private set; }
 
-    private static readonly string[] _animacoCoreProjects = new[] { "Animaco.Core", "Animaco.Rendering", "Animaco.FFmpegRenderer", "Animaco.GUIPreview",
-        "Animaco", "Animaco.AvaloniaUI" };
+    private static readonly string[] _coreProjects = new[] { "PixiEditor.AvaloniaUI" };
 
     public ProjectLoader(string projectPath)
     {
@@ -98,7 +97,7 @@ public class ProjectLoader
 
     private bool IsAnimacoCoreProject(string projectPath)
     {
-        return _animacoCoreProjects.Any(x => projectPath.EndsWith($"{x}.csproj"));
+        return _coreProjects.Any(x => projectPath.EndsWith($"{x}.csproj"));
     }
 }
 
