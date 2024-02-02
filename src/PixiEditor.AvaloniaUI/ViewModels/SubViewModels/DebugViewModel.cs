@@ -13,7 +13,7 @@ using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Views;
-using PixiEditor.AvaloniaUI.Views.Dialogs.Debug.Localization;
+using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.Localization;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.OperatingSystem;
