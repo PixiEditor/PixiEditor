@@ -1,7 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.Input;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;

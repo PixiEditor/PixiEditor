@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.Common.Localization;
 

@@ -7,11 +7,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Models.AppExtensions;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
+using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.Windows;
@@ -97,7 +98,9 @@ internal class ClassicDesktopEntry
     {
         InitPlatform();
 
-        ExtensionLoader extensionLoader = new ExtensionLoader();
+        ExtensionLoader extensionLoader = new ExtensionLoader(Paths.ExtensionsFullPath);
+        //TODO: fetch from extension store
+        extensionLoader.AddOfficialExtension("pixieditor.supporterpack", new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
         extensionLoader.LoadExtensions();
         
         return extensionLoader;

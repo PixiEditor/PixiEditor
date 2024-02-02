@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 
-namespace PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
+namespace PixiEditor.AvaloniaUI.Models.ExtensionServices;
 
 internal sealed class PaletteProvider : IPaletteProvider
 {

@@ -1,5 +1,4 @@
 ﻿using PixiEditor.AvaloniaUI.Models.Handlers;
-using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.DocumentModels;

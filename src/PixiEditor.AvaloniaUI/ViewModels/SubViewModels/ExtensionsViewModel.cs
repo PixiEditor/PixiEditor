@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.AvaloniaUI.Models.AppExtensions;
-using PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
+using PixiEditor.AvaloniaUI.Models.ExtensionServices;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Extensions.Windowing;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;

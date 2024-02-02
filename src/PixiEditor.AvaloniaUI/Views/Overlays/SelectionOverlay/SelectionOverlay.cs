@@ -1,13 +1,8 @@
 ﻿using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Animation;
-using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Rendering.Composition;
-using Avalonia.Rendering.Composition.Animations;
 using Avalonia.Styling;
 using PixiEditor.AvaloniaUI.Animation;
 using PixiEditor.DrawingApi.Core.Surface.Vector;

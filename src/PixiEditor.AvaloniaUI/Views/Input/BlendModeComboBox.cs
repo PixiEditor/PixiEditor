@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Generators;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
-using Avalonia.Markup.Xaml.Templates;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Extensions.UI;

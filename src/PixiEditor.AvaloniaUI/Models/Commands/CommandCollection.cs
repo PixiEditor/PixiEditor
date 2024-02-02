@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Avalonia.Input;
-using PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
-using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.Input;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using Command = PixiEditor.AvaloniaUI.Models.Commands.Commands.Command;

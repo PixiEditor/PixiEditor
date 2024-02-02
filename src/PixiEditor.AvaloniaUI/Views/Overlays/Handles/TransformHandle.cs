@@ -1,5 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;

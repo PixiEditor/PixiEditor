@@ -1,7 +1,6 @@
-using PixiEditor.Extensions;
 using PixiEditor.Extensions.WasmRuntime;
 
-namespace PixiEditor.AvaloniaUI.Models.AppExtensions;
+namespace PixiEditor.Extensions.Runtime;
 
 public class WasmExtensionEntry : ExtensionEntry
 {

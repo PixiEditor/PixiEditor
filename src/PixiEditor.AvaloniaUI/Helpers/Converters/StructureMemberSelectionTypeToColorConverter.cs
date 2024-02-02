@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Models.Layers;
-using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 internal class StructureMemberSelectionTypeToColorConverter : SingleInstanceConverter<StructureMemberSelectionTypeToColorConverter>

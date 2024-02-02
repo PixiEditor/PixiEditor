@@ -2,12 +2,12 @@
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
-using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Templates;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Exceptions;
 
 namespace PixiEditor.AvaloniaUI.Views.Shortcuts;
 

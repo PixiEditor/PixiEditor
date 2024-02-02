@@ -1,10 +1,9 @@
 ﻿using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.AvaloniaUI.Models.AppExtensions;
-using PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Controllers;
+using PixiEditor.AvaloniaUI.Models.ExtensionServices;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 using PixiEditor.AvaloniaUI.Models.IO.PaletteParsers;
@@ -15,7 +14,6 @@ using PixiEditor.AvaloniaUI.Models.Preferences;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels.AdditionalContent;
-using PixiEditor.AvaloniaUI.ViewModels.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
@@ -23,6 +21,7 @@ using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.LayoutBuilding;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Extensions.Windowing;
 using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;
 

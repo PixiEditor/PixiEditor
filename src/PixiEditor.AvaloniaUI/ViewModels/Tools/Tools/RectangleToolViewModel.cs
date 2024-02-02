@@ -1,6 +1,5 @@
 ﻿using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
-using PixiEditor.AvaloniaUI.Models.Handlers.Toolbars;
 using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;

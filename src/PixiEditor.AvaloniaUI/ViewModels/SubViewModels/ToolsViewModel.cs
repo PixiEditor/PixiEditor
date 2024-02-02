@@ -1,13 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Reflection;
-using Avalonia;
 using Avalonia.Input;
-using Avalonia.Media.Imaging;
 using Microsoft.Extensions.DependencyInjection;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Controllers;

@@ -20,7 +20,7 @@ public class Button : SingleChildLayoutElement
 
     }
 
-    public Button(ILayoutElement<Control>? child = null, ElementEventHandler? onClick = null)
+    public Button(LayoutElement? child = null, ElementEventHandler? onClick = null)
     {
         Child = child;
         if (onClick != null)

@@ -1,5 +1,4 @@
 ﻿using Avalonia;
-using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;

@@ -2,11 +2,9 @@
 using System.Linq;
 using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
-using Hardware.Info;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Views.Overlays.Handles;

@@ -1,9 +1,7 @@
-﻿using Avalonia;
-using PixiEditor.AvaloniaUI.Helpers.Extensions;
-using PixiEditor.AvaloniaUI.Views;
+﻿using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.Extensions.IO;
 
-namespace PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
+namespace PixiEditor.AvaloniaUI.Models.ExtensionServices;
 
 public class FileSystemProvider : IFileSystemProvider
 {

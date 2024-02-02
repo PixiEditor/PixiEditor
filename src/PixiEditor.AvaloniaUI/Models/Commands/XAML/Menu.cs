@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Input;

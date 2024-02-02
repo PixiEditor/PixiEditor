@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Threading;
-using Avalonia;
 using Avalonia.Input;
 using Avalonia.Threading;
 

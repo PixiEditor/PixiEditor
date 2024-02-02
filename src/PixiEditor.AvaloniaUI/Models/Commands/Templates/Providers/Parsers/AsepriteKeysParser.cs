@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Xml;
 using PixiEditor.AvaloniaUI.Exceptions;
+using PixiEditor.Extensions.Exceptions;
 
 namespace PixiEditor.AvaloniaUI.Models.Commands.Templates.Providers.Parsers;
 

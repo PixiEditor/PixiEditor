@@ -8,7 +8,6 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
-using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
@@ -19,6 +18,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Exceptions;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 #nullable enable

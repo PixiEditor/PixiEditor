@@ -9,9 +9,7 @@ using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using ChunkyImageLib;
 using Newtonsoft.Json.Linq;
-using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
@@ -24,6 +22,7 @@ using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.Exceptions;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
 

@@ -2,7 +2,6 @@
 using Avalonia.Media.Imaging;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.DocumentModels.Public;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.Tools;

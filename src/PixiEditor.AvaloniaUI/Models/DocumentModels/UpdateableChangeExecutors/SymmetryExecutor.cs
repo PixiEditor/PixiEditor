@@ -1,5 +1,4 @@
-﻿using PixiEditor.AvaloniaUI.Models.Position;
-using PixiEditor.AvaloniaUI.Models.Tools;
+﻿using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Enums;

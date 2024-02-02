@@ -2,7 +2,6 @@
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
 using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.AvaloniaUI.Views.Palettes;

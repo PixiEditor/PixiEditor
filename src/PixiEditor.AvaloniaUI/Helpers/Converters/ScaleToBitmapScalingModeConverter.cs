@@ -1,6 +1,5 @@
 ﻿using System.Globalization;
 using Avalonia.Media.Imaging;
-using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 

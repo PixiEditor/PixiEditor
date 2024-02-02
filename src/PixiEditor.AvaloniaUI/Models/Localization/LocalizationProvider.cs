@@ -5,10 +5,10 @@ using System.Linq;
 using Avalonia.Platform;
 using Newtonsoft.Json;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
-using PixiEditor.AvaloniaUI.Models.AppExtensions;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Runtime;
 
 namespace PixiEditor.AvaloniaUI.Models.Localization;
 

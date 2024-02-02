@@ -5,7 +5,6 @@ using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.Handlers;
-using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.AvaloniaUI.Views;

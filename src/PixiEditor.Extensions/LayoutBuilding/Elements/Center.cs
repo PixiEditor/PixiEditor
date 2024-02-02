@@ -14,7 +14,7 @@ public class Center : SingleChildLayoutElement
 
     }
 
-    public Center(ILayoutElement<Control> child = null)
+    public Center(LayoutElement child = null)
     {
         Child = child;
         PropertyChanged += OnPropertyChanged;

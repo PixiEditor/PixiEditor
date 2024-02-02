@@ -1,16 +1,14 @@
-using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Models.AppExtensions;
 using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
-using PixiEditor.AvaloniaUI.Models.Services;
-using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
+using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
 using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;
 
@@ -61,7 +59,7 @@ internal partial class MainWindow : Window
     public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {
         showMissingFilesDialog = false;
-        return new MainWindow(new ExtensionLoader());
+        return new MainWindow(new ExtensionLoader(Paths.ExtensionsFullPath));
         // TODO implement this
         /*
         var window = GetMainWindow();

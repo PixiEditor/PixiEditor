@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Templates;
@@ -14,6 +13,7 @@ using PixiEditor.AvaloniaUI.ViewModels.UserPreferences;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Shortcuts;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Exceptions;
 
 namespace PixiEditor.AvaloniaUI.ViewModels;
 

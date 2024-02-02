@@ -2,11 +2,11 @@
 using System.Linq;
 using System.Reflection;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
-using PixiEditor.Extensions;
 using PixiEditor.Extensions.Helpers;
+using PixiEditor.Extensions.Runtime;
 using PixiEditor.Extensions.Windowing;
 
-namespace PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
+namespace PixiEditor.AvaloniaUI.Models.ExtensionServices;
 
 public class WindowProvider : IWindowProvider
 {

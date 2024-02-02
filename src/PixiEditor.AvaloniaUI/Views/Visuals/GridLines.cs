@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;

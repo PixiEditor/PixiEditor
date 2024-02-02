@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Threading;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 
 namespace PixiEditor.AvaloniaUI.Views.Input;

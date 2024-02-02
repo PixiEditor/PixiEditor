@@ -1,6 +1,5 @@
 ﻿using Avalonia;
 using Avalonia.Input;
-using Avalonia.Media.Imaging;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 
 namespace PixiEditor.AvaloniaUI.Models.Input;

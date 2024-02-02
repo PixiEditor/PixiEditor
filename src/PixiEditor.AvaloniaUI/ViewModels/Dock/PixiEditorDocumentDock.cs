@@ -1,11 +1,8 @@
-﻿using System.Collections.Specialized;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Dock.Model.Avalonia.Controls;
-using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
-using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 

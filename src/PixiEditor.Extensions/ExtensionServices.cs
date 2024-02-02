@@ -8,9 +8,9 @@ namespace PixiEditor.Extensions;
 public class ExtensionServices
 {
     public IServiceProvider Services { get; private set; }
-    public IWindowProvider Windowing => Services.GetRequiredService<IWindowProvider>();
-    public IPaletteProvider PaletteProvider => Services.GetRequiredService<IPaletteProvider>();
-    public IFileSystemProvider FileSystem => Services.GetRequiredService<IFileSystemProvider>();
+    public IWindowProvider? Windowing => Services.GetService<IWindowProvider>();
+    public IPaletteProvider? PaletteProvider => Services.GetService<IPaletteProvider>();
+    public IFileSystemProvider? FileSystem => Services.GetService<IFileSystemProvider>();
 
     public ExtensionServices(IServiceProvider services)
     {

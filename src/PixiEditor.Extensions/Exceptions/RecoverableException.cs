@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Serialization;
 using PixiEditor.Extensions.Common.Localization;
 
-namespace PixiEditor.AvaloniaUI.Exceptions;
+namespace PixiEditor.Extensions.Exceptions;
 
 public class RecoverableException : Exception
 {

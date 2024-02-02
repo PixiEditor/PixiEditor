@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Media;
 using Avalonia.Xaml.Interactivity;
-using ColorPicker;
 using PixiEditor.AvaloniaUI.Helpers.Behaviours;
 using PixiEditor.AvaloniaUI.Views.Input;
 

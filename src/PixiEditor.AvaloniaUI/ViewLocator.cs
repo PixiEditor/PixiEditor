@@ -1,13 +1,11 @@
 using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using ColorPicker;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Dock.Model.Core;
 using PixiEditor.AvaloniaUI.ViewModels.Dock;
 using PixiEditor.AvaloniaUI.Views.Dock;
 using PixiEditor.AvaloniaUI.Views.Layers;
-using PixiEditor.AvaloniaUI.Views.Main;
 
 namespace PixiEditor.AvaloniaUI;
 

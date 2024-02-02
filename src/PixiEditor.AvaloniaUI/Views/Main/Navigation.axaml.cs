@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Hardware.Info;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Models.Tools;

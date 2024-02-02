@@ -1,6 +1,5 @@
 ﻿using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
-using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.Extensions.Common.Localization;
 

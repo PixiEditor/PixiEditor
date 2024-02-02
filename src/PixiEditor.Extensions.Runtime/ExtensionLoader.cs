@@ -1,34 +1,35 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
-using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Models.IO;
-using PixiEditor.Extensions;
 using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime;
 using PixiEditor.Platform;
 
-namespace PixiEditor.AvaloniaUI.Models.AppExtensions;
+namespace PixiEditor.Extensions.Runtime;
 
-internal class ExtensionLoader
+public class ExtensionLoader
 {
     private readonly Dictionary<string, OfficialExtensionData> _officialExtensionsKeys = new Dictionary<string, OfficialExtensionData>();
     public List<Extension> LoadedExtensions { get; } = new();
+    
+    public string ExtensionsFullPath { get; }
 
-    private WasmRuntime _wasmRuntime = new WasmRuntime();
+    private WasmRuntime.WasmRuntime _wasmRuntime = new WasmRuntime.WasmRuntime();
 
-    public ExtensionLoader()
+    public ExtensionLoader(string extensionsFullPath)
     {
+        ExtensionsFullPath = extensionsFullPath;
         ValidateExtensionFolder();
-        _officialExtensionsKeys.Add("pixieditor.supporterpack", new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
+    }
+    
+    public void AddOfficialExtension(string uniqueName, OfficialExtensionData data)
+    {
+        _officialExtensionsKeys.Add(uniqueName, data);
     }
 
     public void LoadExtensions()
     {
-        var directories = Directory.GetDirectories(Paths.ExtensionsFullPath);
+        var directories = Directory.GetDirectories(ExtensionsFullPath);
         foreach (var directory in directories)
         {
             string packageJsonPath = Path.Combine(directory, "extension.json");
@@ -60,13 +61,13 @@ internal class ExtensionLoader
         LoadExtensionFrom(assembly, entry, metadata);
     }*/
 
-    public void InitializeExtensions(ExtensionServices pixiEditorApi)
+    public void InitializeExtensions(ExtensionServices apiServices)
     {
         try
         {
             foreach (var extension in LoadedExtensions)
             {
-                extension.Initialize(pixiEditorApi);
+                extension.Initialize(apiServices);
             }
         }
         catch (Exception ex)
@@ -80,7 +81,7 @@ internal class ExtensionLoader
         }
     }
 
-    private void LoadExtension(string packageJsonPath)
+    public Extension? LoadExtension(string packageJsonPath)
     {
         string json = File.ReadAllText(packageJsonPath);
         try
@@ -95,10 +96,10 @@ internal class ExtensionLoader
 
             if (!ValidateMetadata(metadata, entry))
             {
-                return;
+                return null;
             }
 
-            LoadExtensionFrom(entry, metadata);
+            return LoadExtensionFrom(entry, metadata);
         }
         catch (JsonException)
         {
@@ -120,15 +121,18 @@ internal class ExtensionLoader
             throw;
 #endif
             //MessageBox.Show(new LocalizedString("ERROR_LOADING_PACKAGE", packageJsonPath), "ERROR");
-            CrashHelper.SendExceptionInfoToWebhook(ex);
+            //CrashHelper.SendExceptionInfoToWebhook(ex);
         }
+
+        return null;
     }
 
-    private void LoadExtensionFrom(ExtensionEntry entry, ExtensionMetadata metadata)
+    private Extension LoadExtensionFrom(ExtensionEntry entry, ExtensionMetadata metadata)
     {
         var extension = LoadExtensionEntry(entry, metadata);
         extension.Load();
         LoadedExtensions.Add(extension);
+        return extension;
     }
 
     private ExtensionEntry? GetEntry(string assemblyFolder)
@@ -211,7 +215,7 @@ internal class ExtensionLoader
         if (entry is WasmExtensionEntry wasmExtensionEntry)
         {
             return true;
-            //TODO: Verify wasm signature
+            //TODO: Verify wasm signature somehow
             //return VerifyAssemblySignature(metadataUniqueName, wasmExtensionEntry.Instance);
         }
 
@@ -243,6 +247,7 @@ internal class ExtensionLoader
         return assemblyPublicKey.SequenceEqual(publicKey);
     }
 
+    //TODO: uhh, other platforms dumbass?
     [DllImport("mscoree.dll", CharSet=CharSet.Unicode)]
     static extern bool StrongNameSignatureVerificationEx(string wszFilePath, bool fForceVerification, ref bool pfWasVerified);
 
@@ -298,15 +303,15 @@ internal class ExtensionLoader
 
     private void ValidateExtensionFolder()
     {
-        if (!Directory.Exists(Paths.ExtensionsFullPath))
+        if (!Directory.Exists(ExtensionsFullPath))
         {
-            Directory.CreateDirectory(Paths.ExtensionsFullPath);
+            Directory.CreateDirectory(ExtensionsFullPath);
         }
     }
 
     public string? GetTypeId(Type id)
     {
-        if (id.Assembly == Assembly.GetExecutingAssembly())
+        if (id.Assembly == Assembly.GetCallingAssembly())
         {
             return $"PixiEditor.{id.Name}";
         }
@@ -324,7 +329,7 @@ internal class ExtensionLoader
     }
 }
 
-internal struct OfficialExtensionData
+public struct OfficialExtensionData
 {
     public string PublicKeyName { get; }
     public AdditionalContentProduct? Product { get; }

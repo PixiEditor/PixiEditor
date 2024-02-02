@@ -1,9 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media.Imaging;
-using Avalonia.Styling;
 
 namespace PixiEditor.AvaloniaUI.Views.Shortcuts;
 

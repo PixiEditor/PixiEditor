@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using PixiEditor.AvaloniaUI.Models.Handlers;
+﻿using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.ChangeableDocument;
 
 namespace PixiEditor.AvaloniaUI.Models.DocumentModels;

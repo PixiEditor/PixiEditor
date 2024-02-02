@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
-using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays;

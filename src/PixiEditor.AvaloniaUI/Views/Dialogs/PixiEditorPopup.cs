@@ -2,11 +2,8 @@
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.Input;
-using PixiEditor.AvaloniaUI.Helpers.Extensions;
-using PixiEditor.Extensions;
 using PixiEditor.Extensions.Windowing;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;

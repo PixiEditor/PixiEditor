@@ -3,10 +3,10 @@ using System.IO;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PixiEditor.AvaloniaUI.Exceptions;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.IO;
+using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 

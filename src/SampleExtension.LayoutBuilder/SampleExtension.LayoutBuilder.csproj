@@ -4,7 +4,8 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-      <OutputPath>..\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\Extensions</OutputPath>
+      <OutputPath>..\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\Extensions\SampleExtension.LayoutBuilder</OutputPath>
+      <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     </PropertyGroup>
 
     <ItemGroup>

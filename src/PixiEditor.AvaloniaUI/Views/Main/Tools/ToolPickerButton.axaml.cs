@@ -1,5 +1,4 @@
-﻿using System.Reactive.Linq;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 

@@ -1,6 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-
-namespace PixiEditor.AvaloniaUI.ViewModels;
+﻿namespace PixiEditor.AvaloniaUI.ViewModels;
 
 public class ViewModelBase : PixiObservableObject
 {

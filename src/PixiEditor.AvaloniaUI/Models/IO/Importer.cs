@@ -2,7 +2,6 @@
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Exceptions;
@@ -14,6 +13,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;

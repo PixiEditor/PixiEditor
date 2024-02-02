@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Avalonia;
+﻿using Avalonia;
 using Dock.Model.Avalonia.Controls;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 

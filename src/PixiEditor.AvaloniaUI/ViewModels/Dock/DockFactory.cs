@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Dock.Avalonia.Controls;
 using Dock.Model.Avalonia;
 using Dock.Model.Avalonia.Controls;
 using Dock.Model.Controls;
 using Dock.Model.Core;
-using PixiEditor.AvaloniaUI.Models.Palettes;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;

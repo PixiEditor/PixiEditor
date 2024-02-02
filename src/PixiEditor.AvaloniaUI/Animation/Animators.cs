@@ -1,5 +1,4 @@
-﻿using Avalonia.Markup.Xaml;
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using Avalonia.Styling;
 
 namespace PixiEditor.AvaloniaUI.Animation;

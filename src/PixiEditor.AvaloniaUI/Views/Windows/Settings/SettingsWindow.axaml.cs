@@ -1,5 +1,4 @@
-﻿using Avalonia.Controls;
-using PixiEditor.AvaloniaUI.ViewModels;
+﻿using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
 
 namespace PixiEditor.AvaloniaUI.Views.Windows.Settings;

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using PixiEditor.AvaloniaUI.Helpers;
+﻿using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.OperatingSystem;

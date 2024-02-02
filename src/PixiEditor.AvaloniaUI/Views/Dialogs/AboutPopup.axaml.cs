@@ -1,7 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
-using PixiEditor.AvaloniaUI.Helpers;
+﻿using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;

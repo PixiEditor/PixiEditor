@@ -1,10 +1,6 @@
-﻿using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+﻿using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Models.Preferences;
-using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.Dock;
-using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 

@@ -2,10 +2,8 @@
 using System.IO;
 using System.Reflection;
 using Avalonia;
-using Avalonia.Data;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 

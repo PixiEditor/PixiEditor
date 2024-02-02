@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using Avalonia.Input;
-using Avalonia.Media.Imaging;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 using PixiEditor.AvaloniaUI.Models.Input;

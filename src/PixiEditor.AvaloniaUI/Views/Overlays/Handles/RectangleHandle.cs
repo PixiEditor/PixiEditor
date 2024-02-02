@@ -1,7 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
-using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 

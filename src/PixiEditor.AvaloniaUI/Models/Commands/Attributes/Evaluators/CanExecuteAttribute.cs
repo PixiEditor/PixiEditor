@@ -1,6 +1,4 @@
-﻿using PixiEditor.AvaloniaUI.ViewModels.Document;
-
-namespace PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
+﻿namespace PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 
 internal partial class Evaluator
 {

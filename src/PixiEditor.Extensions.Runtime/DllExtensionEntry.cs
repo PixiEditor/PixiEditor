@@ -1,7 +1,6 @@
 using System.Reflection;
-using PixiEditor.Extensions;
 
-namespace PixiEditor.AvaloniaUI.Models.AppExtensions;
+namespace PixiEditor.Extensions.Runtime;
 
 public class DllExtensionEntry : ExtensionEntry
 {

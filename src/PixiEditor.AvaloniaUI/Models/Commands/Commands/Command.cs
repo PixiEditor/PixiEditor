@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Threading.Tasks;
 using Avalonia.Media;
-using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Input;
 using PixiEditor.AvaloniaUI.ViewModels;

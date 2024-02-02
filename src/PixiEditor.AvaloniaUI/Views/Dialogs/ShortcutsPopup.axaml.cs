@@ -1,11 +1,8 @@
-﻿using System.ComponentModel;
-using Avalonia;
-using Avalonia.Controls;
+﻿using Avalonia;
 using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 using PixiEditor.AvaloniaUI.Models.Input;
-using PixiEditor.AvaloniaUI.ViewModels;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 

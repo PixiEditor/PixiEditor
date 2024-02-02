@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using PixiEditor.Extensions.IO;
 
-namespace PixiEditor.AvaloniaUI.Models.AppExtensions.Services;
+namespace PixiEditor.AvaloniaUI.Models.ExtensionServices;
 
 public static class FileFilterExtensions
 {

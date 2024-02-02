@@ -1,7 +1,7 @@
-﻿using PixiEditor.AvaloniaUI.Exceptions;
-using PixiEditor.Extensions.Common.Localization;
+﻿using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Exceptions;
 
-namespace PixiEditor.AvaloniaUI.Models.AppExtensions;
+namespace PixiEditor.Extensions.Runtime;
 
 public class ExtensionException : RecoverableException
 {

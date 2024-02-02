@@ -6,9 +6,15 @@ namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
 public abstract class SingleChildLayoutElement : LayoutElement, ISingleChildLayoutElement<Control>, IChildHost
 {
-    private ILayoutElement<Control>? _child;
+    private LayoutElement _child;
 
-    public ILayoutElement<Control>? Child
+    ILayoutElement<Control>? ISingleChildLayoutElement<Control>.Child
+    {
+        get => Child;
+        set => Child = (LayoutElement)value;
+    }
+
+    public LayoutElement Child
     {
         get => _child;
         set => SetField(ref _child, value);
@@ -18,12 +24,12 @@ public abstract class SingleChildLayoutElement : LayoutElement, ISingleChildLayo
 
     void IChildHost.DeserializeChildren(List<ILayoutElement<Control>> children)
     {
-        Child = children.FirstOrDefault();
+        Child = (LayoutElement)children.FirstOrDefault();
     }
 
     public void AddChild(ILayoutElement<Control> child)
     {
-        Child = child;
+        Child = (LayoutElement)child;
     }
 
     public void RemoveChild(ILayoutElement<Control> child)

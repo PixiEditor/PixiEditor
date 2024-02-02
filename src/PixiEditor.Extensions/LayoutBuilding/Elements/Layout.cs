@@ -10,7 +10,7 @@ public class Layout : SingleChildLayoutElement
 
     }
 
-    public Layout(ILayoutElement<Control> body = null)
+    public Layout(LayoutElement body = null)
     {
         Child = body;
     }

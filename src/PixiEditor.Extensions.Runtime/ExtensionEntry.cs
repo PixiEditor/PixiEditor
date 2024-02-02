@@ -1,6 +1,4 @@
-using PixiEditor.Extensions;
-
-namespace PixiEditor.AvaloniaUI.Models.AppExtensions;
+namespace PixiEditor.Extensions.Runtime;
 
 public abstract class ExtensionEntry
 {

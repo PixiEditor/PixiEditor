@@ -1,7 +1,6 @@
 ﻿using System.Globalization;
 using Avalonia.Controls;
 using Avalonia.Data;
-using PixiEditor.UI.Common.Converters;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
