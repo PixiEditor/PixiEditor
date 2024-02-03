@@ -265,7 +265,7 @@ public class ExtensionLoader
             try
             {
                 var assembly = Assembly.LoadFrom(dll);
-                extensionType = assembly.GetTypes().FirstOrDefault(x => x.IsSubclassOf(typeof(Extension)));
+                extensionType = assembly.GetExportedTypes().FirstOrDefault(x => x.IsSubclassOf(typeof(Extension)));
                 if (extensionType is not null)
                 {
                     return assembly;
