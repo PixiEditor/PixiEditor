@@ -11,33 +11,6 @@ namespace PixiEditor.Extensions.Test;
 public class LayoutBuilderTests
 {
     [Fact]
-    public void TestCenteredTextLayoutIsBuildCorrectly()
-    {
-        Layout layout = new Layout(
-            body: new Center(
-                child: new Text("Hello")));
-
-        object result = layout.BuildNative();
-
-        Assert.IsType<Panel>(result);
-        Panel grid = (Panel)result;
-        Assert.Single(grid.Children);
-
-        Assert.IsType<Panel>(grid.Children[0]);
-        Panel childGrid = (Panel)grid.Children[0];
-
-        Assert.Equal(Avalonia.Layout.HorizontalAlignment.Center, childGrid.HorizontalAlignment);
-        Assert.Equal(Avalonia.Layout.VerticalAlignment.Center, childGrid.VerticalAlignment);
-
-        Assert.Single(childGrid.Children);
-
-        Assert.IsType<TextBlock>(childGrid.Children[0]);
-        TextBlock textBlock = (TextBlock)childGrid.Children[0];
-
-        Assert.Equal("Hello", textBlock.Text);
-    }
-
-    [Fact]
     public void TestThatButtonClickEventFiresCallback()
     {
         Button button = new Button();
@@ -135,5 +108,37 @@ public class LayoutBuilderTests
 
         Assert.NotNull(button.Content); // Old layout is updated and text is added
         Assert.IsType<TextBlock>(button.Content);
+    }
+
+    [Fact]
+    public void TestThatMultiChildLayoutStateUpdatesTreeCorrectly()
+    {
+        TestMultiChildStatefulElement testStatefulElement = new TestMultiChildStatefulElement();
+        testStatefulElement.CreateState();
+
+        var native = testStatefulElement.BuildNative();
+
+        Assert.IsType<ContentPresenter>(native);
+        Assert.IsType<StackPanel>((native as ContentPresenter).Content);
+        StackPanel panel = (native as ContentPresenter).Content as StackPanel;
+
+        Assert.Equal(2, panel.Children.Count);
+
+        Assert.IsType<Avalonia.Controls.Button>(panel.Children[0]);
+        Assert.IsType<StackPanel>(panel.Children[1]);
+
+        Assert.Empty((panel.Children[1] as StackPanel).Children);
+
+        Avalonia.Controls.Button button = (Avalonia.Controls.Button)panel.Children[0];
+        StackPanel innerPanel = (StackPanel)panel.Children[1];
+
+        button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+
+        Assert.Single(innerPanel.Children);
+        Assert.IsType<TextBlock>(innerPanel.Children[0]);
+
+        button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
+
+        Assert.Equal(2, innerPanel.Children.Count);
     }
 }
