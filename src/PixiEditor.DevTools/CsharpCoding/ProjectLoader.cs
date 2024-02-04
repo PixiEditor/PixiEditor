@@ -26,8 +26,8 @@ public class ProjectLoader
         Workspace = MSBuildWorkspace.Create(props);
         Workspace.LoadMetadataForReferencedProjects = true;
 
-        PackageReferences = LoadPackageReferences(projectPath, out List<string> projects);
-        ReferencedProjectPaths = projects;
+        /*PackageReferences = LoadPackageReferences(projectPath, out List<string> projects);
+        ReferencedProjectPaths = projects;*/
         ProjectPath = projectPath;
     }
 
@@ -82,17 +82,18 @@ public class ProjectLoader
             .ToList();
     }
 
-    public async Task LoadProjectsAsync()
+    public void LoadProjects()
     {
         AllProjects = new List<Project>();
-        foreach (var projectPath in ReferencedProjectPaths)
+        /*foreach (var projectPath in ReferencedProjectPaths)
         {
             if(IsAnimacoCoreProject(projectPath))
                 continue;
             AllProjects.Add(await Workspace.OpenProjectAsync(projectPath));
-        }
+        }*/
 
-        TargetProject = AllProjects.First(x => x.FilePath == ProjectPath);
+        AllProjects.Add(Workspace.OpenProjectAsync(ProjectPath).Result);
+        TargetProject = AllProjects[0];
     }
 
     private bool IsAnimacoCoreProject(string projectPath)

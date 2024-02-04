@@ -18,6 +18,21 @@ public class HotReloader
 
     private void WatcherOnChanged(object sender, FileSystemEventArgs e)
     {
-        OnFileChanged?.Invoke(e.FullPath);
+        try
+        {
+            (sender as FileSystemWatcher).EnableRaisingEvents = false;
+            OnFileChanged?.Invoke(e.FullPath);
+        }
+
+        finally
+        {
+            (sender as FileSystemWatcher).EnableRaisingEvents = true;
+        }
+    }
+
+    public void WatchProject(string selectedProjectFile)
+    {
+        string directory = Path.GetDirectoryName(selectedProjectFile);
+        WatchFile(directory, "*.cs");
     }
 }

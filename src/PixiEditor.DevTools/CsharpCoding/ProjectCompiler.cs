@@ -30,10 +30,10 @@ public class ProjectCompiler
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    public async Task<Assembly?> Compile(bool restore = false)
+    public Assembly Compile(bool restore = false)
     {
-        //return await Compile(await GetDocuments());
-        CompiledAssembly = await CliCompile(restore);
+        CompiledAssembly = Compile(GetDocuments());
+        //CompiledAssembly = await CliCompile(restore);
         if (CompiledAssembly != null)
         {
             LayoutElementTypes = CompiledAssembly.GetTypes().Where(x => typeof(LayoutElement).IsAssignableFrom(x))
@@ -94,13 +94,13 @@ public class ProjectCompiler
         process.WaitForExit();
     }
 
-    private async Task<HashSet<Document>> GetDocuments()
+    private HashSet<Document> GetDocuments()
     {
         HashSet<Document> documents = new HashSet<Document>();
         for (var i = 0; i < CsProjects.Count; i++)
         {
             var project = CsProjects[i];
-            var generated = await project.GetSourceGeneratedDocumentsAsync();
+            var generated = project.GetSourceGeneratedDocumentsAsync().Result;
             List<Document> allDocs = new List<Document>(project.Documents.Concat(generated));
 
             foreach (var document in allDocs)
@@ -120,13 +120,13 @@ public class ProjectCompiler
         return documentFilePath.EndsWith("AssemblyInfo.cs") || documentFilePath.EndsWith("AssemblyAttributes.cs");
     }
 
-    public async Task<Assembly?> Compile(HashSet<Document> documents)
+    public Assembly? Compile(HashSet<Document> documents)
     {
-        await ParseSyntaxTrees(documents);
+        ParseSyntaxTrees(documents);
 
         var references = CreateReferences();
 
-        await CreateCompilation(documents, references);
+        CreateCompilation(documents, references);
         List<ResourceDescription> manifestResources = GetManifestResources();
 
         using var ms = new MemoryStream();

@@ -48,7 +48,7 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
         PerformDiff(_content, newTree);
     }
 
-    private void PerformDiff(ILayoutElement<Control> oldNode, ILayoutElement<Control> newNode)
+    private void PerformDiff(ILayoutElement<Control> oldNode, ILayoutElement<Control> newNode, IChildHost? parent = null)
     {
         // Check if the node types are the same
         bool isSameType = oldNode.GetType() == newNode.GetType();
@@ -60,6 +60,7 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
         else
         {
             // Replace the entire node if the types are different
+            parent?.RemoveChild(oldNode);
             oldNode = newNode;
             return;
         }
@@ -73,7 +74,7 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
 
             while (oldChildren.MoveNext() && newChildren.MoveNext())
             {
-                PerformDiff(oldChildren.Current, newChildren.Current);
+                PerformDiff(oldChildren.Current, newChildren.Current, oldDeserializable);
             }
 
             if (oldChildren.Current == null && newChildren.Current != null)

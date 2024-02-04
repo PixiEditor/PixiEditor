@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
        <OutputPath>..\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\Extensions\DevTools</OutputPath>
        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+      <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
     <ItemGroup>
@@ -23,6 +24,7 @@
     <ItemGroup>
       <PackageReference Include="Microsoft.Build.Locator" Version="1.6.10" />
       <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+      <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
       <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.8.0" />
     </ItemGroup>
 

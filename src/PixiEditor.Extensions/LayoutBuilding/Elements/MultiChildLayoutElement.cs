@@ -20,8 +20,7 @@ public abstract class MultiChildLayoutElement : LayoutElement, IMultiChildLayout
         get => children;
         set
         {
-            children = value;
-            OnPropertyChanged();
+            SetField(ref children, value);
         }
     }
 
