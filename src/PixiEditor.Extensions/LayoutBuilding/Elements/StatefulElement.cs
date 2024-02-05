@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System.Collections;
+using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding.State;
@@ -62,6 +63,7 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
             // Replace the entire node if the types are different
             parent?.RemoveChild(oldNode);
             oldNode = newNode;
+            parent?.AddChild(oldNode);
             return;
         }
 
@@ -77,15 +79,6 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
                 PerformDiff(oldChildren.Current, newChildren.Current, oldDeserializable);
             }
 
-            if (oldChildren.Current == null && newChildren.Current != null)
-            {
-                oldDeserializable.AddChild(newChildren.Current);
-            }
-            else if (oldChildren.Current != null && newChildren.Current == null)
-            {
-                oldDeserializable.RemoveChild(oldChildren.Current);
-            }
-
             while (oldChildren.MoveNext())
             {
                 oldDeserializable.RemoveChild(oldChildren.Current);
@@ -94,6 +87,15 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
             while (newChildren.MoveNext())
             {
                 oldDeserializable.AddChild(newChildren.Current);
+            }
+
+            if (oldChildren.Current == null && newChildren.Current != null && oldDeserializable.Count() < newDeserializable.Count())
+            {
+                oldDeserializable.AddChild(newChildren.Current);
+            }
+            else if (oldChildren.Current != null && newChildren.Current == null && oldDeserializable.Count() > newDeserializable.Count())
+            {
+                oldDeserializable.RemoveChild(oldChildren.Current);
             }
         }
     }

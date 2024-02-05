@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
+﻿using System.Collections;
+using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 using PixiEditor.Extensions.LayoutBuilding.Elements;
 
 namespace PixiEditor.Extensions.Test;
@@ -6,6 +7,8 @@ namespace PixiEditor.Extensions.Test;
 public class TestMultiChildState : State
 {
     private LayoutElement[] rows = Array.Empty<LayoutElement>();
+    public LayoutElement[] Rows => rows;
+
     public override LayoutElement BuildElement()
     {
         return new Column(

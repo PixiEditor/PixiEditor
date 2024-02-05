@@ -81,7 +81,11 @@ public class LayoutBuilderTests
         Assert.NotNull(button.Content);
         Assert.IsType<TextBlock>(button.Content);
 
-        testStatefulElement.State.SetState(() => testStatefulElement.State.RemoveText = true);
+        testStatefulElement.State.SetState(() =>
+        {
+            testStatefulElement.State.ReplaceText = true;
+            testStatefulElement.State.ReplaceTextWith = null;
+        });
 
         Assert.Null(button.Content); // Old layout is updated and text is removed
     }
@@ -100,11 +104,43 @@ public class LayoutBuilderTests
         Assert.NotNull(button.Content);
         Assert.IsType<TextBlock>(button.Content);
 
-        testStatefulElement.State.SetState(() => testStatefulElement.State.RemoveText = true);
+        testStatefulElement.State.SetState(() =>
+        {
+            testStatefulElement.State.ReplaceText = true;
+            testStatefulElement.State.ReplaceTextWith = null;
+        });
 
         Assert.Null(button.Content); // Old layout is updated and text is removed
 
-        testStatefulElement.State.SetState(() => testStatefulElement.State.RemoveText = false);
+        testStatefulElement.State.SetState(() => testStatefulElement.State.ReplaceText = false);
+
+        Assert.NotNull(button.Content); // Old layout is updated and text is added
+        Assert.IsType<TextBlock>(button.Content);
+    }
+
+    [Fact]
+    public void TestStateReplacesChildInTree()
+    {
+        TestStatefulElement testStatefulElement = new TestStatefulElement();
+        testStatefulElement.CreateState();
+        var native = testStatefulElement.BuildNative();
+
+        Assert.IsType<ContentPresenter>(native);
+        Assert.IsType<Avalonia.Controls.Button>((native as ContentPresenter).Content);
+        Avalonia.Controls.Button button = (native as ContentPresenter).Content as Avalonia.Controls.Button;
+
+        Assert.NotNull(button.Content);
+        Assert.IsType<TextBlock>(button.Content);
+
+        testStatefulElement.State.SetState(() =>
+        {
+            testStatefulElement.State.ReplaceText = true;
+            testStatefulElement.State.ReplaceTextWith = new Button();
+        });
+
+        Assert.IsType<Avalonia.Controls.Button>(button.Content); // Old layout is updated and text is removed
+
+        testStatefulElement.State.SetState(() => testStatefulElement.State.ReplaceText = false);
 
         Assert.NotNull(button.Content); // Old layout is updated and text is added
         Assert.IsType<TextBlock>(button.Content);
@@ -128,6 +164,7 @@ public class LayoutBuilderTests
         Assert.IsType<StackPanel>(panel.Children[1]);
 
         Assert.Empty((panel.Children[1] as StackPanel).Children);
+        Assert.Empty(testStatefulElement.State.Rows);
 
         Avalonia.Controls.Button button = (Avalonia.Controls.Button)panel.Children[0];
         StackPanel innerPanel = (StackPanel)panel.Children[1];
@@ -135,6 +172,7 @@ public class LayoutBuilderTests
         button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
 
         Assert.Single(innerPanel.Children);
+        Assert.Single(testStatefulElement.State.Rows);
         Assert.IsType<TextBlock>(innerPanel.Children[0]);
 
         button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
