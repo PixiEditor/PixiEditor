@@ -6,7 +6,7 @@ namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
 public class Row : MultiChildLayoutElement
 {
-    private StackPanel panel;
+    private DockPanel panel;
     public Row()
     {
     }
@@ -26,6 +26,7 @@ public class Row : MultiChildLayoutElement
                 foreach (LayoutElement? item in e.NewItems)
                 {
                     var newChild = item.BuildNative();
+                    DockPanel.SetDock(newChild, Dock.Left);
                     panel.Children.Add(newChild);
                 }
             }
@@ -41,12 +42,19 @@ public class Row : MultiChildLayoutElement
 
     public override Control BuildNative()
     {
-        panel = new StackPanel
+        panel = new DockPanel()
         {
-            Orientation = Avalonia.Layout.Orientation.Horizontal
+            LastChildFill = true,
+            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch
         };
 
         panel.Children.AddRange(Children.Select(x => x.BuildNative()));
+
+        foreach (var child in panel.Children)
+        {
+            DockPanel.SetDock(child, Dock.Left);
+        }
 
         return panel;
     }

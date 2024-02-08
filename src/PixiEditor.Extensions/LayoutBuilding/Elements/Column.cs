@@ -2,13 +2,14 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Threading;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
 public class Column : MultiChildLayoutElement
 {
-    private StackPanel panel;
+    private DockPanel panel;
 
     public Column()
     {
@@ -29,6 +30,7 @@ public class Column : MultiChildLayoutElement
                 foreach (LayoutElement? item in e.NewItems)
                 {
                     var newChild = item.BuildNative();
+                    DockPanel.SetDock(newChild, Dock.Top);
                     panel.Children.Add(newChild);
                 }
             }
@@ -44,12 +46,19 @@ public class Column : MultiChildLayoutElement
 
     public override Control BuildNative()
     {
-        panel = new StackPanel
+        panel = new DockPanel
         {
-            Orientation = Avalonia.Layout.Orientation.Vertical
+            LastChildFill = true,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch
         };
 
         panel.Children.AddRange(Children.Select(x => x.BuildNative()));
+
+        foreach (var child in panel.Children)
+        {
+            DockPanel.SetDock(child, Dock.Top);
+        }
 
         return panel;
     }

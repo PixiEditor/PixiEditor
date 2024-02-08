@@ -38,6 +38,7 @@ public class CompiledControl
         return Serialize(new List<byte>()).ToArray();
     }
 
+    // DO NOT REMOVE, used by reflection-based layout compiler, using Serialize with Span<byte> throws error.
     public byte[] SerializeBytes()
     {
         return Serialize(new List<byte>()).ToArray();

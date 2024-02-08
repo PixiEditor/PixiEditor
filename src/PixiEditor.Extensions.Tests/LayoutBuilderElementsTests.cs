@@ -19,8 +19,8 @@ public class LayoutBuilderElementsTests
         Panel grid = (Panel)result;
         Assert.Single(grid.Children);
 
-        Assert.IsType<StackPanel>(grid.Children[0]);
-        Panel childGrid = (StackPanel)grid.Children[0];
+        Assert.IsType<DockPanel>(grid.Children[0]);
+        Panel childGrid = (DockPanel)grid.Children[0];
 
         Assert.Equal(Avalonia.Layout.HorizontalAlignment.Stretch, childGrid.HorizontalAlignment);
         Assert.Equal(Avalonia.Layout.VerticalAlignment.Stretch, childGrid.VerticalAlignment);
@@ -52,8 +52,8 @@ public class LayoutBuilderElementsTests
         Panel grid = (Panel)result;
         Assert.Single(grid.Children);
 
-        Assert.IsType<StackPanel>(grid.Children[0]);
-        Panel childGrid = (StackPanel)grid.Children[0];
+        Assert.IsType<DockPanel>(grid.Children[0]);
+        Panel childGrid = (DockPanel)grid.Children[0];
 
         Assert.Equal(Avalonia.Layout.HorizontalAlignment.Stretch, childGrid.HorizontalAlignment);
         Assert.Equal(Avalonia.Layout.VerticalAlignment.Stretch, childGrid.VerticalAlignment);
