@@ -116,7 +116,7 @@ internal partial class DocumentViewModel
     
     private static ImageLayer ToSerializable(IReadOnlyLayer layer, IReadOnlyDocument document)
     {
-        var result = document.GetLayerImage(layer.GuidValue);
+        var result = document.GetLayerRasterizedImage(layer.GuidValue);
 
         var tightBounds = document.GetChunkAlignedLayerBounds(layer.GuidValue);
         using var data = result?.DrawingSurface.Snapshot().Encode();

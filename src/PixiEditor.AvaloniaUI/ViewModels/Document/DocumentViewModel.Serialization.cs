@@ -114,7 +114,7 @@ internal partial class DocumentViewModel
     
     private static ImageLayer ToSerializable(IReadOnlyLayer layer, IReadOnlyDocument document)
     {
-        var result = document.GetLayerImage(layer.GuidValue);
+        var result = document.GetLayerRasterizedImage(layer.GuidValue);
 
         var tightBounds = document.GetChunkAlignedLayerBounds(layer.GuidValue);
         using var data = result?.DrawingSurface.Snapshot().Encode();
@@ -124,7 +124,7 @@ internal partial class DocumentViewModel
             Width = result?.Size.X ?? 0, Height = result?.Size.Y ?? 0, OffsetX = tightBounds?.X ?? 0, OffsetY = tightBounds?.Y ?? 0,
             Enabled = layer.IsVisible, BlendMode = (BlendMode)(int)layer.BlendMode, ImageBytes = bytes,
             ClipToMemberBelow = layer.ClipToMemberBelow, Name = layer.Name,
-            LockAlpha = layer.LockTransparency,
+            LockAlpha = layer is ITransparencyLockable { LockTransparency: true },
             Opacity = layer.Opacity, Mask = GetMask(layer.Mask, layer.MaskIsVisible)
         };
 

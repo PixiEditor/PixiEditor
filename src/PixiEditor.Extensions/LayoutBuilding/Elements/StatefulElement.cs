@@ -33,6 +33,7 @@ public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeseri
 
     public TState State => (TState)((IStatefulElement<Control>)this).State;
 
+    // TODO: Move actual Avalonia implementation to PixiEditor itself.
     public override Control BuildNative()
     {
         _presenter ??= new ContentPresenter();

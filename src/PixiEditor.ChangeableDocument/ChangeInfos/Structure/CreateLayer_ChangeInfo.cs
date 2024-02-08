@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Enums;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
@@ -34,7 +35,7 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
             layer.GuidValue,
             layer.Mask is not null,
             layer.MaskIsVisible,
-            layer.LockTransparency
+            layer is ITransparencyLockable { LockTransparency: true }
             );
     }
 }

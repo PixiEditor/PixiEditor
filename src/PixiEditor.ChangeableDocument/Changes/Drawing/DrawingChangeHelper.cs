@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal static class DrawingChangeHelper
@@ -46,7 +47,7 @@ internal static class DrawingChangeHelper
             targetImage.SetClippingPath(target.Selection.SelectionPath);
 
         var targetMember = target.FindMemberOrThrow(targetMemberGuid);
-        if (targetMember is Layer { LockTransparency: true } && !drawOnMask)
+        if (targetMember is ITransparencyLockable { LockTransparency: true } && !drawOnMask)
             targetImage.EnableLockTransparency();
 
         if (target.HorizontalSymmetryAxisEnabled)

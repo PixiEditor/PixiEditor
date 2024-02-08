@@ -31,7 +31,8 @@ internal class CreateStructureMember_Change : Change
 
         StructureMember member = type switch
         {
-            StructureMemberType.Layer => new Layer(document.Size) { GuidValue = newMemberGuid },
+            // TODO: Add support for other types
+            StructureMemberType.Layer => new RasterLayer(document.Size) { GuidValue = newMemberGuid },
             StructureMemberType.Folder => new Folder() { GuidValue = newMemberGuid },
             _ => throw new NotSupportedException(),
         };
