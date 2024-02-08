@@ -1,6 +1,4 @@
-﻿using Microsoft.CodeAnalysis.MSBuild;
-using PixiEditor.DevTools.CsharpCoding;
-using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
+﻿using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.LayoutBuilding.Elements;
 using PixiEditor.Extensions.Runtime;
@@ -9,17 +7,14 @@ namespace PixiEditor.DevTools.Layouts;
 
 public class LivePreviewWindowState : State
 {
-    private ExtensionLoader Loader { get; }
-    private ProjectLoader projectLoader;
-    private ProjectCompiler compiler;
     private HotReloader reloader;
 
     private LayoutElement? _element;
+    private LayoutDeserializer? _deserializer;
     public string? SelectedProjectFile { get; set; }
 
     public LivePreviewWindowState()
     {
-        Loader = new ExtensionLoader(AppDomain.CurrentDomain.BaseDirectory);
         reloader = new HotReloader();
         reloader.OnFileChanged += OnFileChanged;
     }
@@ -39,23 +34,20 @@ public class LivePreviewWindowState : State
 
     private void OnFileChanged(string obj)
     {
-        compiler.Compile();
         SetState(BuildLayoutElement);
     }
 
     private void BuildLayoutElement()
     {
-        var typeToInit = compiler.LayoutElementTypes.FirstOrDefault();
-        if (typeToInit != null)
+        if (_deserializer != null)
         {
-            var instance = (LayoutElement)Activator.CreateInstance(typeToInit);
-            _element = instance;
+            _element = _deserializer.DeserializeLayout();
         }
     }
 
     private void OnClick(ElementEventArgs args)
     {
-        if (DevToolsExtension.PixiEditorApi.FileSystem.OpenFileDialog(new FileFilter().AddFilter("C# project file", "*.csproj"), out string? path))
+        if (DevToolsExtension.PixiEditorApi.FileSystem.OpenFileDialog(new FileFilter().AddFilter("Layout file", "*.layout"), out string? path))
         {
             SetState(() =>
             {
@@ -67,11 +59,8 @@ public class LivePreviewWindowState : State
 
     private void InitProject()
     {
-        projectLoader = new ProjectLoader(SelectedProjectFile);
-        projectLoader.LoadProjects();
-        compiler = new ProjectCompiler(projectLoader.Workspace, projectLoader.AllProjects);
-        reloader.WatchProject(SelectedProjectFile);
-        compiler.Compile();
+        _deserializer = new LayoutDeserializer(SelectedProjectFile);
+        reloader.WatchFile(SelectedProjectFile, "*.layout");
         BuildLayoutElement();
     }
 }

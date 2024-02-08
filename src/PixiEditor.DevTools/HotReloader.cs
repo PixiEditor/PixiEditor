@@ -9,8 +9,9 @@ public class HotReloader
 
     public void WatchFile(string path, string filter)
     {
+        string directory = Path.GetDirectoryName(path);
         WatchedFiles.Add(path);
-        FileSystemWatcher watcher = new(path, filter);
+        FileSystemWatcher watcher = new(directory, filter);
         watcher.Changed += WatcherOnChanged;
         watcher.EnableRaisingEvents = true;
         _watchers.Add(watcher);
@@ -28,11 +29,5 @@ public class HotReloader
         {
             (sender as FileSystemWatcher).EnableRaisingEvents = true;
         }
-    }
-
-    public void WatchProject(string selectedProjectFile)
-    {
-        string directory = Path.GetDirectoryName(selectedProjectFile);
-        WatchFile(directory, "*.cs");
     }
 }

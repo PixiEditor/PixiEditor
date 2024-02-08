@@ -9,7 +9,6 @@
                          xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
                          xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
                          xmlns:main="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"
-                         xmlns:debug="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs.Debug"
                          xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
                          xmlns:globalization="clr-namespace:System.Globalization;assembly=System.Runtime"
                          xmlns:localization1="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.Localization"

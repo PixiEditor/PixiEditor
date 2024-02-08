@@ -38,13 +38,20 @@ public class CompiledControl
         return Serialize(new List<byte>()).ToArray();
     }
 
+    public byte[] SerializeBytes()
+    {
+        return Serialize(new List<byte>()).ToArray();
+    }
+
     private List<byte> Serialize(List<byte> bytes)
     {
         // TODO: Make it more efficient
 
         byte[] uniqueIdBytes = BitConverter.GetBytes(UniqueId);
         bytes.AddRange(uniqueIdBytes);
-        byte[] idBytes = BitConverter.GetBytes(ByteMap.ControlMap[ControlTypeId]);
+        byte[] idLengthBytes = BitConverter.GetBytes(ControlTypeId.Length);
+        bytes.AddRange(idLengthBytes);
+        byte[] idBytes = Encoding.UTF8.GetBytes(ControlTypeId);
         bytes.AddRange(idBytes);
         bytes.AddRange(BitConverter.GetBytes(Properties.Count));
         bytes.AddRange(SerializeProperties());

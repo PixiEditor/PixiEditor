@@ -15,8 +15,8 @@ public class NativeControlSerializationTest
         int uniqueId = 0;
         byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueId);
 
-        int controlId = ByteMap.ControlMap["Layout"];
-        byte[] controlIdBytes = BitConverter.GetBytes(controlId);
+        string controlId = "Layout";
+        byte[] controlIdBytes = Encoding.UTF8.GetBytes(controlId);
 
         int propertiesCount = 1;
         byte[] propertiesCountBytes = BitConverter.GetBytes(propertiesCount);
@@ -31,6 +31,7 @@ public class NativeControlSerializationTest
 
         List<byte> expectedBytes = new();
         expectedBytes.AddRange(uniqueIdBytes);
+        expectedBytes.AddRange(BitConverter.GetBytes(controlId.Length));
         expectedBytes.AddRange(controlIdBytes);
         expectedBytes.AddRange(propertiesCountBytes);
         expectedBytes.Add(ByteMap.GetTypeByteId(typeof(string)));
@@ -50,8 +51,8 @@ public class NativeControlSerializationTest
         int uniqueId = 0;
         byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueId);
 
-        int controlId = ByteMap.ControlMap["Layout"];
-        byte[] controlIdBytes = BitConverter.GetBytes(controlId);
+        string controlId = "Layout";
+        byte[] controlIdBytes = Encoding.UTF8.GetBytes(controlId);
 
         int propertiesCount = 0;
         byte[] propertiesCountBytes = BitConverter.GetBytes(propertiesCount);
@@ -62,8 +63,8 @@ public class NativeControlSerializationTest
         int childUniqueId = 1;
         byte[] childUniqueIdBytes = BitConverter.GetBytes(childUniqueId);
 
-        int childControlId = ByteMap.ControlMap["Center"];
-        byte[] childControlIdBytes = BitConverter.GetBytes(childControlId);
+        string childControlId = "Center";
+        byte[] childControlIdBytes = Encoding.UTF8.GetBytes(childControlId);
 
         int childPropertiesCount = 0;
         byte[] childPropertiesCountBytes = BitConverter.GetBytes(childPropertiesCount);
@@ -73,10 +74,12 @@ public class NativeControlSerializationTest
 
         List<byte> expectedBytes = new();
         expectedBytes.AddRange(uniqueIdBytes);
+        expectedBytes.AddRange(BitConverter.GetBytes(controlId.Length));
         expectedBytes.AddRange(controlIdBytes);
         expectedBytes.AddRange(propertiesCountBytes);
         expectedBytes.AddRange(childCountBytes);
         expectedBytes.AddRange(childUniqueIdBytes);
+        expectedBytes.AddRange(BitConverter.GetBytes(childControlId.Length));
         expectedBytes.AddRange(childControlIdBytes);
         expectedBytes.AddRange(childPropertiesCountBytes);
         expectedBytes.AddRange(childChildCountBytes);
@@ -97,8 +100,8 @@ public class NativeControlSerializationTest
         int uniqueId = 0;
         byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueId);
 
-        int controlId = ByteMap.ControlMap["Layout"];
-        byte[] controlIdBytes = BitConverter.GetBytes(controlId);
+        string controlId = "Layout";
+        byte[] controlIdBytes = Encoding.UTF8.GetBytes(controlId);
 
         int propertiesCount = 0;
         byte[] propertiesCountBytes = BitConverter.GetBytes(propertiesCount);
@@ -109,8 +112,8 @@ public class NativeControlSerializationTest
         int childUniqueId = 1;
         byte[] childUniqueIdBytes = BitConverter.GetBytes(childUniqueId);
 
-        int childControlId = ByteMap.ControlMap["Center"];
-        byte[] childControlIdBytes = BitConverter.GetBytes(childControlId);
+        string childControlId = "Center";
+        byte[] childControlIdBytes = Encoding.UTF8.GetBytes(childControlId);
 
         int childPropertiesCount = 0;
         byte[] childPropertiesCountBytes = BitConverter.GetBytes(childPropertiesCount);
@@ -121,8 +124,8 @@ public class NativeControlSerializationTest
         int textUniqueId = 2;
         byte[] textUniqueIdBytes = BitConverter.GetBytes(textUniqueId);
 
-        int textControlId = ByteMap.ControlMap["Text"];
-        byte[] textControlIdBytes = BitConverter.GetBytes(textControlId);
+        string textControlId = "Text";
+        byte[] textControlIdBytes = Encoding.UTF8.GetBytes(textControlId);
 
         int textPropertiesCount = 1;
         byte[] textPropertiesCountBytes = BitConverter.GetBytes(textPropertiesCount);
@@ -138,16 +141,19 @@ public class NativeControlSerializationTest
 
         List<byte> expectedBytes = new();
         expectedBytes.AddRange(uniqueIdBytes);
+        expectedBytes.AddRange(BitConverter.GetBytes(controlId.Length));
         expectedBytes.AddRange(controlIdBytes);
         expectedBytes.AddRange(propertiesCountBytes);
         expectedBytes.AddRange(childCountBytes);
 
         expectedBytes.AddRange(childUniqueIdBytes);
+        expectedBytes.AddRange(BitConverter.GetBytes(childControlId.Length));
         expectedBytes.AddRange(childControlIdBytes);
         expectedBytes.AddRange(childPropertiesCountBytes);
         expectedBytes.AddRange(childChildCountBytes);
 
         expectedBytes.AddRange(textUniqueIdBytes);
+        expectedBytes.AddRange(BitConverter.GetBytes(textControlId.Length));
         expectedBytes.AddRange(textControlIdBytes);
         expectedBytes.AddRange(textPropertiesCountBytes);
         expectedBytes.Add(ByteMap.GetTypeByteId(typeof(string)));

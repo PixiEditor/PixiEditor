@@ -11,7 +11,7 @@ public class ButtonTextElementState : State
     {
         return new Button(
             onClick: OnClick,
-            child: new Text($"Clicked: {ClickedTimes}"));
+            child: new Text($"Hot hot hot: {ClickedTimes}"));
     }
 
     private void OnClick(ElementEventArgs args)

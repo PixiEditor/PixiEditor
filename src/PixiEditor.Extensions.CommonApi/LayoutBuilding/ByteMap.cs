@@ -2,8 +2,6 @@
 
 public static class ByteMap
 {
-    public static Dictionary<string, int> ControlMap { get; set; } = new Dictionary<string, int>();
-
     public static byte GetTypeByteId(Type type)
     {
         if (type == typeof(int))

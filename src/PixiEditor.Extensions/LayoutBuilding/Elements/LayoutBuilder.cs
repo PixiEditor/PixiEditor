@@ -11,11 +11,10 @@ public class LayoutBuilder
 {
     private static int int32Size = sizeof(int);
 
-    Dictionary<int, ILayoutElement<Control>> managedElements = new();
+    public Dictionary<int, ILayoutElement<Control>> ManagedElements = new();
     private ElementMap elementMap;
-    public LayoutBuilder(Dictionary<int, ILayoutElement<Control>> managedElements, ElementMap elementMap)
+    public LayoutBuilder(ElementMap elementMap)
     {
-        this.managedElements = managedElements;
         this.elementMap = elementMap;
     }
 
@@ -26,8 +25,11 @@ public class LayoutBuilder
         int uniqueId = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
 
-        int controlTypeId = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
+        int controlTypeIdLength = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
+
+        string controlTypeId = Encoding.UTF8.GetString(layoutSpan[offset..(offset + controlTypeIdLength)]);
+        offset += controlTypeIdLength;
 
         int propertiesCount = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
@@ -80,7 +82,7 @@ public class LayoutBuilder
         return children;
     }
 
-    private ILayoutElement<Control> BuildLayoutElement(int uniqueId, int controlId, List<object> properties,
+    private ILayoutElement<Control> BuildLayoutElement(int uniqueId, string controlId, List<object> properties,
         List<ILayoutElement<Control>> children, DuplicateResolutionTactic duplicatedIdTactic)
     {
         Type typeToSpawn = elementMap.ControlMap[controlId];
@@ -101,7 +103,7 @@ public class LayoutBuilder
             customChildrenDeserializable.DeserializeChildren(children);
         }
 
-        if (!managedElements.TryAdd(uniqueId, layoutElement))
+        if (!ManagedElements.TryAdd(uniqueId, layoutElement))
         {
             if (duplicatedIdTactic == DuplicateResolutionTactic.ThrowException)
             {
@@ -110,12 +112,12 @@ public class LayoutBuilder
 
             if (duplicatedIdTactic == DuplicateResolutionTactic.ReplaceRemoveChildren)
             {
-                if (managedElements[uniqueId] is IChildHost childrenDeserializable)
+                if (ManagedElements[uniqueId] is IChildHost childrenDeserializable)
                 {
                     RemoveChildren(childrenDeserializable);
                 }
 
-                managedElements[uniqueId] = layoutElement;
+                ManagedElements[uniqueId] = layoutElement;
             }
         }
 
@@ -140,7 +142,7 @@ public class LayoutBuilder
     {
         foreach (var child in childHost)
         {
-            managedElements.Remove(child.UniqueId);
+            ManagedElements.Remove(child.UniqueId);
             if (child is IChildHost childChildrenDeserializable)
             {
                 RemoveChildren(childChildrenDeserializable);

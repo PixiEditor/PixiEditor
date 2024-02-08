@@ -12,7 +12,8 @@ Layout byte span is a recursive structure containing elements and properties dat
 Byte sequence:
 ```
     4 bytes - unique id of the control,
-    4 bytes - type id of the control,
+    4 bytes - length of control type string,
+    n bytes - control type string,
     4 bytes - length of properties data,
     n bytes - properties data,
         - 1 byte - property type,

@@ -1,12 +1,13 @@
 ﻿using System.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
+using Avalonia.Threading;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding;
 using PixiEditor.Extensions.CommonApi.LayoutBuilding.State;
 
 namespace PixiEditor.Extensions.LayoutBuilding.Elements;
 
-public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<Control, TState> where TState : IState<Control>
+public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeserializable,*/ IStatefulElement<Control, TState> where TState : IState<Control>
 {
     private TState? _state;
     private ContentPresenter _presenter = null!;
@@ -109,4 +110,31 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
             propertyDeserializable.DeserializeProperties(fromProps.GetProperties());
         }
     }
+
+    /*IEnumerable<object> IPropertyDeserializable.GetProperties()
+    {
+        if (_content == null)
+        {
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                BuildNative();
+            });
+        }
+
+        yield return _content;
+    }
+
+    void IPropertyDeserializable.DeserializeProperties(IEnumerable<object> values)
+    {
+        if (values == null || !values.Any())
+        {
+            return;
+        }
+
+        object first = values.ElementAt(0);
+        if(first is ILayoutElement<Control> layoutElement)
+        {
+            ContentFromLayout(layoutElement);
+        }
+    }*/
 }

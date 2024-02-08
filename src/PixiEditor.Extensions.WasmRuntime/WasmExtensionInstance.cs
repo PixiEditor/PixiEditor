@@ -19,8 +19,6 @@ public class WasmExtensionInstance : Extension
     private Module Module { get; }
 
     private Memory memory = null!;
-
-    private Dictionary<int, ILayoutElement<Control>> managedElements = new();
     private LayoutBuilder LayoutBuilder { get; set; }
     private WasmMemoryUtility WasmMemoryUtility { get; set; }
 
@@ -44,9 +42,9 @@ public class WasmExtensionInstance : Extension
 
     protected override void OnInitialized()
     {
-        LayoutBuilder = new LayoutBuilder(managedElements, (ElementMap)Api.Services.GetService(typeof(ElementMap)));
+        LayoutBuilder = new LayoutBuilder((ElementMap)Api.Services.GetService(typeof(ElementMap)));
 
-        SetElementMap();
+        //SetElementMap();
         Instance.GetAction("initialize").Invoke();
         base.OnInitialized();
     }
@@ -89,7 +87,7 @@ public class WasmExtensionInstance : Extension
         {
             string eventName = WasmMemoryUtility.GetString(eventNameOffset, eventNameLengthOffset);
 
-            managedElements[controlId].AddEvent(eventName, (args) =>
+            LayoutBuilder.ManagedElements[controlId].AddEvent(eventName, (args) =>
             {
                 var action = Instance.GetAction<int, int>("raise_element_event");
                 var ptr = WasmMemoryUtility.WriteString(eventName);
@@ -104,12 +102,12 @@ public class WasmExtensionInstance : Extension
         {
             Span<byte> arr = memory.GetSpan<byte>(bodyOffset, bodyLength);
 
-            var element = managedElements[controlId];
+            var element = LayoutBuilder.ManagedElements[controlId];
             var body = LayoutBuilder.Deserialize(arr, DuplicateResolutionTactic.ReplaceRemoveChildren);
 
             Dispatcher.UIThread.InvokeAsync(() =>
             {
-                managedElements[controlId] = element;
+                LayoutBuilder.ManagedElements[controlId] = element;
                 if (element is StatefulContainer statefulElement && body is StatefulContainer statefulBodyElement)
                 {
                     statefulElement.State.SetState(() => statefulElement.State.Content = statefulBodyElement.State.Content);

@@ -179,4 +179,24 @@ public class LayoutBuilderTests
 
         Assert.Equal(2, innerPanel.Children.Count);
     }
+
+    [Fact]
+    public void TestThatNestedStatefulElementsAreUpdatedCorrectly()
+    {
+        //TODO: Make this test
+        /*TestNestedStatefulElement testStatefulElement = new TestNestedStatefulElement();
+        testStatefulElement.CreateState();
+
+        var native = testStatefulElement.BuildNative();
+
+        Assert.IsType<ContentPresenter>(native);
+        Assert.IsType<ContentPresenter>((native as ContentPresenter).Content);
+        ContentPresenter innerPresenter = (native as ContentPresenter).Content as ContentPresenter;
+
+        Assert.IsType<Avalonia.Controls.Button>(innerPresenter.Content);
+        Avalonia.Controls.Button button = (innerPresenter.Content as Avalonia.Controls.Button);
+
+        Assert.IsType<TextBlock>(button.Content);
+        TextBlock textBlock = button.Content as TextBlock;*/
+    }
 }
