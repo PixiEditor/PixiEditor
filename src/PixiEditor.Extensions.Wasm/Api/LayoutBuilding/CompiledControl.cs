@@ -6,7 +6,7 @@ namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 public class CompiledControl
 {
     public string ControlTypeId { get; set; }
-    public List<object> Properties { get; set; } = new();
+    public List<(object value, Type type)> Properties { get; set; } = new();
     public List<CompiledControl> Children { get; set; } = new();
     public int UniqueId { get; set; }
     internal List<string> QueuedEvents => _buildQueuedEvents;
@@ -20,12 +20,12 @@ public class CompiledControl
 
     public void AddProperty<T>(T value) where T : unmanaged
     {
-        Properties.Add(value);
+        Properties.Add((value, typeof(T)));
     }
 
-    public void AddProperty(string value)
+    public void AddProperty(string value, Type type)
     {
-        Properties.Add(value);
+        Properties.Add((value, type));
     }
 
     public void AddChild(CompiledControl child)
@@ -73,13 +73,13 @@ public class CompiledControl
         var result = new List<byte>();
         foreach (var property in Properties)
         {
-            result.Add(ByteMap.GetTypeByteId(property.GetType()));
-            if (property is string str)
+            result.Add(ByteMap.GetTypeByteId(property.type));
+            if (property.type == typeof(string))
             {
-                result.AddRange(BitConverter.GetBytes(str.Length));
+                result.AddRange(BitConverter.GetBytes(property.value is string s ? s.Length : 0));
             }
 
-            result.AddRange(property switch
+            result.AddRange(property.value switch
             {
                 int i => BitConverter.GetBytes(i),
                 float f => BitConverter.GetBytes(f),
@@ -90,7 +90,8 @@ public class CompiledControl
                 byte b => new byte[] { b },
                 char c => BitConverter.GetBytes(c),
                 string s => Encoding.UTF8.GetBytes(s),
-                _ => throw new Exception($"Unknown unmanaged type: {property.GetType()}")
+                null => Array.Empty<byte>(),
+                _ => throw new Exception($"Unknown unmanaged type: {property.value.GetType()}")
             });
         }
 

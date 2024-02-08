@@ -10,7 +10,7 @@ public class NativeControlSerializationTest
     public void TestThatNoChildLayoutSerializesCorrectBytes()
     {
         CompiledControl layout = new CompiledControl(0, "Layout");
-        layout.AddProperty("Title");
+        layout.AddProperty("Title", typeof(string));
 
         int uniqueId = 0;
         byte[] uniqueIdBytes = BitConverter.GetBytes(uniqueId);
@@ -93,7 +93,7 @@ public class NativeControlSerializationTest
         CompiledControl layout = new CompiledControl(0, "Layout");
         CompiledControl center = new CompiledControl(1, "Center");
         CompiledControl text = new CompiledControl(2, "Text");
-        text.AddProperty("Hello world");
+        text.AddProperty("Hello world", typeof(string));
         center.AddChild(text);
         layout.AddChild(center);
 
@@ -182,7 +182,7 @@ public class NativeControlSerializationTest
 
         Assert.Equal("Text", compiledControl.Children[0].Children[0].ControlTypeId);
         Assert.Single(compiledControl.Children[0].Children[0].Properties);
-        Assert.Equal("hello sexy.", compiledControl.Children[0].Children[0].Properties[0]);
+        Assert.Equal("hello sexy.", compiledControl.Children[0].Children[0].Properties[0].value);
     }
 
     [Fact]

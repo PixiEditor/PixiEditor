@@ -5,7 +5,7 @@
   </ItemGroup>
 
   <Target Name="GenerateLayouts" AfterTargets="Build" Inputs="bin\Debug\$(TargetFramework)\PixiEditor.Extensions.Wasm.dll" Outputs="$(RootFolder)\Layouts\">
-    <Exec ConsoleToMSBuild="true"
+    <Exec  ConsoleToMSBuild="true"
           Command="..\PixiEditor.Extensions.MSBuildLayoutCompiler\bin\Debug\net8.0\PixiEditor.Extensions.MSBuildLayoutCompiler.exe $(OutputPath)\$(MSBuildProjectName).dll $(OutputPath)\Layouts\"/>
   </Target>
 

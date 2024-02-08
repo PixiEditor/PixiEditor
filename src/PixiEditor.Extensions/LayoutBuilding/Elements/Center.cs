@@ -42,7 +42,7 @@ public class Center : SingleChildLayoutElement
         panel = new Panel()
         {
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
-            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
         };
 
         if (Child != null)

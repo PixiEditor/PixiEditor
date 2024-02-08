@@ -21,15 +21,17 @@ public class LivePreviewWindowState : State
 
     public override LayoutElement BuildElement()
     {
-        return new Align(
-            alignment: Alignment.TopLeft,
-            child: new Column(
-                new Button(
-                    child: SelectedProjectFile != null ? new Text($"Selected extension: {SelectedProjectFile}") : new Text("Select extension"),
-                    onClick: OnClick),
-                _element ?? new Text("No layout element selected")
-                )
-            );
+        return new Column(
+            new Align(
+                alignment: Alignment.TopLeft,
+                child: new Button(
+                    child: SelectedProjectFile != null
+                        ? new Text($"Selected extension: {SelectedProjectFile}")
+                        : new Text("Select extension"),
+                    onClick: OnClick)),
+            new Center(
+                child: _element ?? new Text("No layout element selected"))
+        );
     }
 
     private void OnFileChanged(string obj)
@@ -47,7 +49,8 @@ public class LivePreviewWindowState : State
 
     private void OnClick(ElementEventArgs args)
     {
-        if (DevToolsExtension.PixiEditorApi.FileSystem.OpenFileDialog(new FileFilter().AddFilter("Layout file", "*.layout"), out string? path))
+        if (DevToolsExtension.PixiEditorApi.FileSystem.OpenFileDialog(
+                new FileFilter().AddFilter("Layout file", "*.layout"), out string? path))
         {
             SetState(() =>
             {

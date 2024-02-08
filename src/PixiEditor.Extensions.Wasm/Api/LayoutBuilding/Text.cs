@@ -9,7 +9,7 @@ public class Text(string value) : StatelessElement
     public override CompiledControl BuildNative()
     {
         CompiledControl text = new CompiledControl(UniqueId, "Text");
-        text.AddProperty(Value);
+        text.AddProperty(Value, typeof(string));
 
         BuildPendingEvents(text);
         return text;
