@@ -99,13 +99,14 @@ internal sealed class FlipImage_Change : Change
         {
             if (membersToFlip.Count == 0 || membersToFlip.Contains(member.GuidValue))
             {
-                if (member is Layer layer)
+                if (member is RasterLayer layer)
                 {
                     FlipImage(layer.LayerImage);
                     changes.Add(
                         new LayerImageArea_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedArea()));
                     layer.LayerImage.CommitChanges();
                 }
+                // TODO: Add support for non-raster layers
 
                 if (member.Mask is not null)
                 {

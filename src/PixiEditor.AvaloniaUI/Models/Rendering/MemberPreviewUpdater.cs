@@ -291,8 +291,15 @@ internal class MemberPreviewUpdater
         if (layer.Mask is null && forMask)
             throw new InvalidOperationException();
 
-        IReadOnlyChunkyImage targetImage = forMask ? layer.Mask! : layer.LayerImage;
-        return FindImageTightBounds(targetImage);
+        if (layer.Mask is not null && forMask)
+            return FindImageTightBoundsFast(layer.Mask);
+
+        if (layer is IReadOnlyRasterLayer raster)
+        {
+            return FindImageTightBoundsFast(raster.LayerImage);
+        }
+
+        return layer.GetTightBounds();
     }
 
     /// <summary>
@@ -304,7 +311,7 @@ internal class MemberPreviewUpdater
         {
             if (folder.Mask is null)
                 throw new InvalidOperationException();
-            return FindImageTightBounds(folder.Mask);
+            return FindImageTightBoundsFast(folder.Mask);
         }
 
         RectI? combinedBounds = null;
@@ -330,7 +337,7 @@ internal class MemberPreviewUpdater
     /// Finds the current committed tight bounds for an image in a reasonably efficient way.
     /// Looks at the low-res chunks for large images, meaning the resulting bounds aren't 100% precise.
     /// </summary>
-    private RectI? FindImageTightBounds(IReadOnlyChunkyImage targetImage)
+    private RectI? FindImageTightBoundsFast(IReadOnlyChunkyImage targetImage)
     {
         RectI? bounds = targetImage.FindChunkAlignedCommittedBounds();
         if (bounds is null)
@@ -524,7 +531,7 @@ internal class MemberPreviewUpdater
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
-            if (!layer.LayerImage.DrawCommittedChunkOn(chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
+            if (!layer.Rasterize().DrawCommittedChunkOn(chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
                 memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
         }
 

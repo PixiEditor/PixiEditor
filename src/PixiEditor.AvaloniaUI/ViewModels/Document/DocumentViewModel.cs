@@ -363,12 +363,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public OneOf<Error, None, (Surface, RectI)> MaybeExtractSelectedArea(IStructureMemberHandler? layerToExtractFrom = null)
     {
         layerToExtractFrom ??= SelectedStructureMember;
-        if (layerToExtractFrom is null || layerToExtractFrom is not LayerViewModel layerVm)
+        if (layerToExtractFrom is not LayerViewModel layerVm)
             return new Error();
         if (SelectionPathBindable.IsEmpty)
             return new None();
 
-        IReadOnlyLayer? layer = (IReadOnlyLayer?)Internals.Tracker.Document.FindMember(layerVm.GuidValue);
+        //TODO: Make sure it's not needed for other layer types
+        IReadOnlyRasterLayer? layer = (IReadOnlyRasterLayer?)Internals.Tracker.Document.FindMember(layerVm.GuidValue);
         if (layer is null)
             return new Error();
 
@@ -490,7 +491,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             IReadOnlyStructureMember? maybeMember = Internals.Tracker.Document.FindMember(layerVm.GuidValue);
             if (maybeMember is not IReadOnlyLayer layer)
                 return Colors.Transparent;
-            return layer.LayerImage.GetMostUpToDatePixel(pos);
+            return layer.Rasterize().GetMostUpToDatePixel(pos);
         }
         catch (ObjectDisposedException)
         {

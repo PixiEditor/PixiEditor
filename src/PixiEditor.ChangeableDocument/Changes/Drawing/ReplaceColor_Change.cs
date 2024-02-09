@@ -29,8 +29,9 @@ internal class ReplaceColor_Change : Change
         List<IChangeInfo> infos = new();
         target.ForEveryMember(member =>
         {
-            if (member is not Layer layer)
+            if (member is not RasterLayer layer)
                 return;
+            //TODO: Add support for replacing in different Layer types
             layer.LayerImage.EnqueueReplaceColor(oldColor, newColor);
             var affArea = layer.LayerImage.FindAffectedArea();
             CommittedChunkStorage storage = new(layer.LayerImage, affArea.Chunks);
@@ -49,7 +50,7 @@ internal class ReplaceColor_Change : Change
         List<IChangeInfo> infos = new();
         target.ForEveryMember(member =>
         {
-            if (member is not Layer layer)
+            if (member is not RasterLayer layer)
                 return;
             CommittedChunkStorage? storage = savedChunks[member.GuidValue];
             var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(layer.LayerImage, ref storage);

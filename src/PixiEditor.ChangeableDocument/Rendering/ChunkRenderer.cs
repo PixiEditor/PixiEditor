@@ -76,7 +76,7 @@ public static class ChunkRenderer
             targetChunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
         }
 
-        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
+        if (!layer.Rasterize().DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
@@ -126,7 +126,7 @@ public static class ChunkRenderer
             targetChunk.Surface.DrawingSurface.Canvas.Save();
             targetChunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
         }
-        if (!layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
+        if (!layer.Rasterize().DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
@@ -177,7 +177,7 @@ public static class ChunkRenderer
             targetChunk.Surface.DrawingSurface.Canvas.Save();
             targetChunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
         }
-        layer.LayerImage.DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.DrawingSurface, VecI.Zero, context.BlendModeOpacityPaint);
+        layer.Rasterize().DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.DrawingSurface, VecI.Zero, context.BlendModeOpacityPaint);
         if (transformedClippingRect is not null)
             targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }

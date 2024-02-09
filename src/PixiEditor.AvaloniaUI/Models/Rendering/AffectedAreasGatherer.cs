@@ -99,7 +99,7 @@ internal class AffectedAreasGatherer
         var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyLayer layer)
         {
-            var chunks = layer.LayerImage.FindAllChunks();
+            var chunks = layer.Rasterize().FindAllChunks();
             AddToImagePreviews(memberGuid, new AffectedArea(chunks), ignoreSelf);
         }
         else if (member is IReadOnlyFolder folder)
@@ -115,7 +115,7 @@ internal class AffectedAreasGatherer
         var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyLayer layer)
         {
-            var chunks = layer.LayerImage.FindAllChunks();
+            var chunks = layer.Rasterize().FindAllChunks();
             if (layer.Mask is not null && layer.MaskIsVisible && useMask)
                 chunks.IntersectWith(layer.Mask.FindAllChunks());
             AddToMainImage(new AffectedArea(chunks));

@@ -27,7 +27,7 @@ internal sealed class ApplyMask_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var layer = (Layer)target.FindMember(structureMemberGuid)!;
+        var layer = target.FindMemberOrThrow<RasterLayer>(structureMemberGuid)!;
         layer!.LayerImage.EnqueueApplyMask(layer.Mask!);
         ignoreInUndo = false;
         var layerInfo = new LayerImageArea_ChangeInfo(structureMemberGuid, layer.LayerImage.FindAffectedArea());

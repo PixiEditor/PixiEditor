@@ -15,7 +15,7 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
         {
             if (member is Layer layer)
             {
-                var layerBounds = layer.LayerImage.FindTightCommittedBounds();
+                var layerBounds = layer.GetTightBounds();
                 if (layerBounds.HasValue)
                 {
                     bounds ??= layerBounds.Value;
@@ -38,7 +38,7 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
         
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is RasterLayer layer)
             {
                 Resize(layer.LayerImage, layer.GuidValue, newBounds.Size, -newBounds.Pos, deletedChunks);
             }
