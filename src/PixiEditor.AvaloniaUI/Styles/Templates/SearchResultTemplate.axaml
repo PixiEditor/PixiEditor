@@ -1,0 +1,8 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:search="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.Search">
+
+    <!--<ControlTheme TargetType="search:SearchResult">
+
+    </ControlTheme>-->
+</ResourceDictionary>

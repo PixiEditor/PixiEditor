@@ -3,7 +3,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Documents;
+using Avalonia.Controls.Metadata;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -42,7 +44,6 @@ internal abstract class SearchResult : ObservableObject
         set => SetProperty(ref isMouseSelected, value);
     }
 
-
     public abstract void Execute();
 
     public virtual KeyCombination Shortcut { get; }
@@ -51,6 +52,7 @@ internal abstract class SearchResult : ObservableObject
 
     public SearchResult()
     {
+
         ExecuteCommand = new RelayCommand(Execute, () => CanExecute);
     }
 

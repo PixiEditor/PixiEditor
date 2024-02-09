@@ -165,7 +165,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         {
             color = (CopyColor)command.Parameter;
         }
-        else if (data is CommandSearchResult result)
+        else if (data is Models.Commands.Search.CommandSearchResult result)
         {
             color = (CopyColor)((Models.Commands.Commands.Command.BasicCommand)result.Command).Parameter;
         }

@@ -12,29 +12,38 @@
              xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
              xmlns:layers="clr-namespace:PixiEditor.AvaloniaUI.Views.Layers"
              xmlns:tools="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.Tools"
+             xmlns:commandSearch="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.CommandSearch"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.MainView"
              x:DataType="viewModels1:ViewModelMain">
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
-            <InvokeCommandAction Command="{Binding StartupCommand}"/>
+            <InvokeCommandAction Command="{Binding StartupCommand}" />
         </EventTriggerBehavior>
     </Interaction.Behaviors>
-    <DockPanel>
-        <main1:MainTitleBar DockPanel.Dock="Top"/>
-        <Grid Focusable="True">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-        
-            <tools:Toolbar Grid.Row="0" DataContext="{Binding .}"/>
-            <main1:ToolsPicker ZIndex="2" Grid.Row="1"
-                               Margin="10 0 0 0"
-                               HorizontalAlignment="Left"
-                               VerticalAlignment="Center"
-                               Tools="{Binding Path=ToolsSubViewModel.ToolSet}"/>
-            <DockControl Grid.Row="1" Layout="{Binding LayoutDockSubViewModel.Layout}"/>
-        </Grid>
-    </DockPanel>
+    <Grid>
+        <DockPanel>
+            <main1:MainTitleBar DockPanel.Dock="Top" />
+            <Grid Focusable="True">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="40" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <tools:Toolbar Grid.Row="0" DataContext="{Binding .}" />
+                <main1:ToolsPicker ZIndex="2" Grid.Row="1"
+                                   Margin="10 0 0 0"
+                                   HorizontalAlignment="Left"
+                                   VerticalAlignment="Center"
+                                   Tools="{Binding Path=ToolsSubViewModel.ToolSet}" />
+                <DockControl Grid.Row="1" Layout="{Binding LayoutDockSubViewModel.Layout}" />
+            </Grid>
+        </DockPanel>
+        <commandSearch:CommandSearchControl
+            IsVisible="{Binding SearchSubViewModel.SearchWindowOpen, Mode=TwoWay}"
+            SearchTerm="{Binding SearchSubViewModel.SearchTerm, Mode=TwoWay}"
+            HorizontalAlignment="Center"
+            Height="700"
+            MaxWidth="920" />
+    </Grid>
 </UserControl>

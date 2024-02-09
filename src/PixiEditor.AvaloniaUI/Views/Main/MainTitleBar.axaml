@@ -9,6 +9,7 @@
              xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input;assembly=PixiEditor.UI.Common"
              xmlns:avaloniaUi="clr-namespace:PixiEditor.AvaloniaUI"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Main.MainTitleBar">
     <Grid>
@@ -298,5 +299,31 @@
                 </MenuItem>
             </MenuItem>
         </xaml:Menu>
+        <Border Width="300" Height="25"
+                Background="{DynamicResource ThemeBackgroundBrush}"
+                CornerRadius="5" BorderThickness="1"
+                Margin="10,-6,0,0"
+                Cursor="IBeam">
+            <Border.Styles>
+                <Style Selector="Border">
+                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}"/>
+                </Style>
+                <Style Selector="Border:pointerover">
+                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}"/>
+                </Style>
+            </Border.Styles>
+            <Interaction.Behaviors>
+                <EventTriggerBehavior
+                    EventName="PointerPressed">
+                    <InvokeCommandAction
+                        Command="{xaml:Command PixiEditor.Search.Toggle}"/>
+                </EventTriggerBehavior>
+            </Interaction.Behaviors>
+            <Grid Margin="5,0" VerticalAlignment="Center">
+                <TextBlock ui:Translator.Key="SEARCH"/>
+                <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Search.Toggle}"
+                           HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

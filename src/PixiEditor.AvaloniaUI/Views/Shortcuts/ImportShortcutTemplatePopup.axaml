@@ -20,19 +20,6 @@
     ui:Translator.UseLanguageFlowDirection="True"
     ui:Translator.Key="IMPORT_FROM_TEMPLATE">
 
-    
-    <!--TODO figure out what these are for <Window.CommandBindings>
-        <CommandBinding
-            Command="{x:Static SystemCommands.CloseWindowCommand}"
-            CanExecute="CommandBinding_CanExecute"
-            Executed="CommandBinding_Executed_Close" />
-    </Window.CommandBindings>-->
-
-    <!--<WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="32" GlassFrameThickness="0.1"
-                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
-    </WindowChrome.WindowChrome>-->
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="32" />
