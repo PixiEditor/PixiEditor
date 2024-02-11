@@ -23,6 +23,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
+using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
@@ -302,20 +303,17 @@ internal partial class DocumentViewModel : NotifyableObject
 
     public void MarkAsSaved()
     {
-        lastChangeOnSave = Internals.Tracker.LastChangeGuid;
-        RaisePropertyChanged(nameof(AllChangesSaved));
+        Internals.ActionAccumulator.AddActions(new MarkAsSavedAutosavedEtc_PassthroughAction(DocumentMarkType.Saved));
     }
 
     public void MarkAsAutosaved()
     {
-        lastChangeOnAutosave = Internals.Tracker.LastChangeGuid;
-        RaisePropertyChanged(nameof(AllChangesAutosaved));
+        Internals.ActionAccumulator.AddActions(new MarkAsSavedAutosavedEtc_PassthroughAction(DocumentMarkType.Autosaved));
     }
 
     public void MarkAsUnsaved()
     {
-        lastChangeOnSave = Guid.NewGuid();
-        RaisePropertyChanged(nameof(AllChangesSaved));
+        Internals.ActionAccumulator.AddActions(new MarkAsSavedAutosavedEtc_PassthroughAction(DocumentMarkType.Unsaved));
     }
 
     /// <summary>
@@ -542,7 +540,31 @@ internal partial class DocumentViewModel : NotifyableObject
     public void InternalClearSoftSelectedMembers() => softSelectedStructureMembers.Clear();
 
     public void InternalAddSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Add(member);
+    
     public void InternalRemoveSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Remove(member);
+
+    public void InternalMarkAsSavedAutosavedEtc(DocumentMarkType type)
+    {
+        switch (type)
+        {
+            case DocumentMarkType.Saved:
+                lastChangeOnSave = Internals.Tracker.LastChangeGuid;
+                RaisePropertyChanged(nameof(AllChangesSaved));
+                break;
+            case DocumentMarkType.Unsaved:
+                lastChangeOnSave = Guid.NewGuid();
+                RaisePropertyChanged(nameof(AllChangesSaved));
+                break;
+            case DocumentMarkType.Autosaved:
+                lastChangeOnAutosave = Internals.Tracker.LastChangeGuid;
+                RaisePropertyChanged(nameof(AllChangesAutosaved));
+                break;
+            case DocumentMarkType.UnAutosaved:
+                lastChangeOnAutosave = Guid.NewGuid();
+                RaisePropertyChanged(nameof(AllChangesAutosaved));
+                break;
+        }
+    }
     #endregion
 
     /// <summary>

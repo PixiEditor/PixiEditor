@@ -125,8 +125,15 @@ internal class DocumentUpdater
             case ClearSoftSelectedMembers_PassthroughAction info:
                 ProcessClearSoftSelectedMembers(info);
                 break;
-                
+            case MarkAsSavedAutosavedEtc_PassthroughAction info:
+                MarkAsSavedAutosavedEtc(info);
+                break;
         }
+    }
+
+    private void MarkAsSavedAutosavedEtc(MarkAsSavedAutosavedEtc_PassthroughAction info)
+    {
+        doc.InternalMarkAsSavedAutosavedEtc(info.Type);
     }
 
     private void ProcessReferenceLayerIsVisible(ReferenceLayerIsVisible_ChangeInfo info)
