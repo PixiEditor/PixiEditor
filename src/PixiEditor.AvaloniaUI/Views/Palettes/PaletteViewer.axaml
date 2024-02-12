@@ -29,15 +29,13 @@
                                             HintColor="{Binding ElementName=paletteControl, Path=HintColor}"
                                             Colors="{Binding ElementName=paletteControl, Path=Colors}"/>
                     <StackPanel Margin="0, 0, 5, 0" HorizontalAlignment="Right" Width="110" VerticalAlignment="Center" Orientation="Horizontal">
-                        <decorators:AlwaysEnabled>
-                            <Button Margin="0, 0, 5, 0"
-                                    Classes="ToolButtonStyle" Click="BrowsePalettes_Click"
-                                    Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="BROWSE_PALETTES">
-                                <Button.Background>
-                                    <ImageBrush Source="/Images/Database.png"/>
-                                </Button.Background>
-                            </Button>
-                        </decorators:AlwaysEnabled>
+                        <Button Margin="0, 0, 5, 0"
+                                Classes="ToolButtonStyle" Click="BrowsePalettes_Click"
+                                Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="BROWSE_PALETTES">
+                            <Button.Background>
+                                <ImageBrush Source="/Images/Database.png"/>
+                            </Button.Background>
+                        </Button>
                         <Button Margin="0, 0, 5, 0" Classes="ToolButtonStyle"
                 Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="LOAD_PALETTE" Click="ImportPalette_OnClick">
                             <Button.Background>

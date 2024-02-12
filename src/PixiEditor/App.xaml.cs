@@ -196,19 +196,7 @@ internal partial class App : Application
 
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
     {
-        base.OnSessionEnding(e);
 
-        var vm = ViewModelMain.Current;
-        if (vm is null)
-            return;
-
-        if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
-        {
-            ConfirmationType confirmation = ConfirmationDialog.Show(
-                new LocalizedString("SESSION_UNSAVED_DATA", e.ReasonSessionEnding),
-                $"{e.ReasonSessionEnding}");
-            e.Cancel = confirmation != ConfirmationType.Yes;
-        }
     }
 
     private bool ParseArgument(string pattern, string args, out Group[] groups)

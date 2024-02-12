@@ -1,12 +1,18 @@
+using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers;
+using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
 using PixiEditor.AvaloniaUI.Models.IO;
+using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
@@ -103,5 +109,26 @@ internal partial class MainWindow : Window
                 throw;
             }
         }*/
+    }
+
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        if (!DataContext.UserWantsToClose)
+        {
+            e.Cancel = true;
+            Task.Run(async () =>
+            {
+                await Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    await DataContext.CloseWindowCommand.ExecuteAsync(null);
+                    if (DataContext.UserWantsToClose)
+                    {
+                        Close();
+                    }
+                });
+            });
+        }
+
+        base.OnClosing(e);
     }
 }

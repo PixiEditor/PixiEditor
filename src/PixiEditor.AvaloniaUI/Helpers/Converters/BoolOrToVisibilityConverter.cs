@@ -14,6 +14,6 @@ internal class BoolOrToVisibilityConverter : SingleInstanceMultiValueConverter<B
     public override object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
         bool boolean = values.Aggregate(false, (acc, cur) => acc |= (cur as bool?) ?? false);
-        return boolean ? true : false;
+        return boolean;
     }
 }

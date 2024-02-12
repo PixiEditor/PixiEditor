@@ -96,6 +96,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     }
 
     public ActionDisplayList ActionDisplays { get; }
+    public bool UserWantsToClose { get; private set; }
 
     public ViewModelMain(IServiceProvider serviceProvider)
     {
@@ -168,14 +169,9 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     }
 
     [RelayCommand]
-    public async Task CloseWindow(object property)
+    public async Task CloseWindow()
     {
-        if (!(property is CancelEventArgs))
-        {
-            throw new ArgumentException();
-        }
-
-        ((CancelEventArgs)property).Cancel = !await DisposeAllDocumentsWithSaveConfirmation();
+        UserWantsToClose = await DisposeAllDocumentsWithSaveConfirmation();
     }
 
     private void ToolsSubViewModel_SelectedToolChanged(object sender, SelectedToolEventArgs e)

@@ -54,7 +54,7 @@ internal partial class ConfirmationPopup : PixiEditorPopup
     }
 
     [RelayCommand]
-    private void SetResultAndClose(bool property)
+    public void SetConfirmationResultAndClose(bool property)
     {
         bool result = property;
         Result = result;

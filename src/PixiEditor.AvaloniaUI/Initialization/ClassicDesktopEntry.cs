@@ -3,15 +3,18 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Controllers;
+using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
@@ -22,7 +25,7 @@ namespace PixiEditor.AvaloniaUI.Initialization;
 
 internal class ClassicDesktopEntry
 {
-        /// <summary>The event mutex name.</summary>
+    /// <summary>The event mutex name.</summary>
     private const string UniqueEventName = "33f1410b-2ad7-412a-a468-34fe0a85747c";
 
     /// <summary>The unique mutex name.</summary>
@@ -31,13 +34,16 @@ internal class ClassicDesktopEntry
     /// <summary>The event wait handle.</summary>
     private EventWaitHandle _eventWaitHandle;
 
-    private string passedArgsFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PixiEditor", ".passedArgs");
+    private string passedArgsFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+        "PixiEditor", ".passedArgs");
+
     private IClassicDesktopStyleApplicationLifetime desktop;
 
     public ClassicDesktopEntry(IClassicDesktopStyleApplicationLifetime desktop)
     {
         this.desktop = desktop;
         desktop.Startup += Start;
+        desktop.ShutdownRequested += ShutdownRequested;
     }
 
     /// <summary>The mutex.</summary>
@@ -68,17 +74,18 @@ internal class ClassicDesktopEntry
                     //MessageBox.Show("Fatal error", $"Fatal error while trying to open crash report in App.OnStartup()\n{exception}");
                 }
             }
+
             return;
         }
 
         Dispatcher dispatcher = Dispatcher.UIThread;
 
-        #if !STEAM
+#if !STEAM
         if (!HandleNewInstance(dispatcher))
         {
             return;
         }
-        #endif
+#endif
 
         InitOperatingSystem();
         var extensionLoader = InitApp();
@@ -93,16 +100,17 @@ internal class ClassicDesktopEntry
         IPlatform.RegisterPlatform(platform);
         platform.PerformHandshake();
     }
-    
+
     public ExtensionLoader InitApp()
     {
         InitPlatform();
 
         ExtensionLoader extensionLoader = new ExtensionLoader(Paths.ExtensionsFullPath);
         //TODO: fetch from extension store
-        extensionLoader.AddOfficialExtension("pixieditor.supporterpack", new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
+        extensionLoader.AddOfficialExtension("pixieditor.supporterpack",
+            new OfficialExtensionData("supporter-pack.snk", AdditionalContentProduct.SupporterPack));
         extensionLoader.LoadExtensions();
-        
+
         return extensionLoader;
     }
 
@@ -154,7 +162,8 @@ internal class ClassicDesktopEntry
                                     List<string> args = new List<string>();
                                     if (File.Exists(passedArgsFile))
                                     {
-                                        args = CommandLineHelpers.SplitCommandLine(File.ReadAllText(passedArgsFile)).ToList();
+                                        args = CommandLineHelpers.SplitCommandLine(File.ReadAllText(passedArgsFile))
+                                            .ToList();
                                         File.Delete(passedArgsFile);
                                     }
 
@@ -203,24 +212,6 @@ internal class ClassicDesktopEntry
         return wrappedArgs;
     }
 
-    //TODO: Implement this
-    /*protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
-    {
-        base.OnSessionEnding(e);
-
-        var vm = ViewModelMain.Current;
-        if (vm is null)
-            return;
-
-        if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
-        {
-            ConfirmationType confirmation = ConfirmationDialog.Show(
-                new LocalizedString("SESSION_UNSAVED_DATA", e.ReasonSessionEnding),
-                $"{e.ReasonSessionEnding}");
-            e.Cancel = confirmation != ConfirmationType.Yes;
-        }
-    }*/
-
     private bool ParseArgument(string pattern, string args, out Group[] groups)
     {
         Match match = Regex.Match(args, pattern, RegexOptions.IgnoreCase);
@@ -232,5 +223,32 @@ internal class ClassicDesktopEntry
         }
 
         return match.Success;
+    }
+
+    private void ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+    {
+        // TODO: Make sure this works
+        var vm = ViewModelMain.Current;
+        if (vm is null)
+            return;
+
+        if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
+        {
+            e.Cancel = true;
+            Task.Run(async () =>
+            {
+                await Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    ConfirmationType confirmation = await ConfirmationDialog.Show(
+                        new LocalizedString("SESSION_UNSAVED_DATA", "Shutdown"),
+                        $"Shutdown");
+
+                    if (confirmation != ConfirmationType.Yes)
+                    {
+                        desktop.Shutdown();
+                    }
+                });
+            });
+        }
     }
 }
