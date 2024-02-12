@@ -29,7 +29,7 @@
     </Window.Styles>
 
     <DockPanel>
-        <Grid Background="{StaticResource ThemeBackgroundBrush}" x:Name="grid">
+        <Grid Background="{DynamicResource ThemeBackgroundBrush}" x:Name="grid">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="300"/>
@@ -232,7 +232,7 @@
                                                                 <Button Command="{xaml:Command Name=PixiEditor.File.RemoveRecent, UseProvided=True}"
                                                                         CommandParameter="{Binding FilePath}"
                                                                         ToolTip.Tip="Remove from list">
-                                                                    <TextBlock Text="" FontFamily="{StaticResource Feather}"
+                                                                    <TextBlock Text="" FontFamily="{DynamicResource Feather}"
                                                                                TextAlignment="Center" FontSize="20"/>
                                                                 </Button>
                                                             </StackPanel>
@@ -243,7 +243,7 @@
 
                                             <TextBlock Text="{Binding FileName}" ToolTip.Tip="{Binding FilePath}"
                                                        Width="110" TextAlignment="Center" TextTrimming="CharacterEllipsis"
-                                                       FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" Foreground="White"/>
+                                                       FontSize="18" Margin="10,10,10,2" HorizontalAlignment="Center" />
                                         </StackPanel>
                                     </Grid>
                                 </DataTemplate>
@@ -292,10 +292,10 @@
 
             <ScrollViewer Grid.Column="1"
                           IsVisible="{Binding !NewsPanelCollapsed}">
-                <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{StaticResource ThemeBackgroundBrush}">
+                <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{DynamicResource ThemeBackgroundBrush}">
                     <Grid>
                         <indicators1:LoadingIndicator IsVisible="{Binding IsFetchingNews}"/>
-                        <TextBlock ui:Translator.Key="FAILED_FETCH_NEWS" Foreground="White" FontSize="20"
+                        <TextBlock ui:Translator.Key="FAILED_FETCH_NEWS" FontSize="20"
                                    VerticalAlignment="Center" TextAlignment="Center"
                                    IsVisible="{Binding Path=FailedFetchingNews}"/>
                         <StackPanel Orientation="Vertical" IsVisible="{Binding !IsFetchingNews}">

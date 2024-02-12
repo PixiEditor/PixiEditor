@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using AsyncImageLoader.Loaders;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -50,6 +51,8 @@ internal partial class MainWindow : Window
             .AddPixiEditor(extensionLoader)
             .AddExtensionServices(extensionLoader)
             .BuildServiceProvider();
+
+        AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader();
 
         SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
         DrawingBackendApi.SetupBackend(skiaDrawingBackend);
