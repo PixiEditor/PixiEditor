@@ -31,7 +31,7 @@ internal class PixiEditorDocumentDock : DocumentDock
         var document = VisibleDockables?.OfType<DockDocumentViewModel>().FirstOrDefault(x => x.ViewModel == e);
         if (document != null)
         {
-            Factory?.RemoveDockable(this, true);
+            Factory?.RemoveDockable(document, true);
         }
     }
 
@@ -43,5 +43,13 @@ internal class PixiEditorDocumentDock : DocumentDock
         }
 
         await manager.CreateFromNewFileDialog();
+    }
+
+    public override bool OnClose()
+    {
+        manager.Owner.WindowSubViewModel.ViewportAdded -= AddNewViewport;
+        manager.Owner.WindowSubViewModel.ViewportClosed -= RemoveViewport;
+
+        return base.OnClose();
     }
 }
