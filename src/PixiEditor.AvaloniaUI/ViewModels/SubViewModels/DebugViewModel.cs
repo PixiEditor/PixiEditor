@@ -13,6 +13,7 @@ using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Templates.Providers.Parsers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Views;
+using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging;
 using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.Localization;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
@@ -216,10 +217,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     [Command.Debug("PixiEditor.Debug.OpenCommandDebugWindow", "OPEN_CMD_DEBUG_WINDOW", "OPEN_CMD_DEBUG_WINDOW")]
     public void OpenCommandDebugWindow()
     {
-        //TODO: Fix this and implement CommandDebugPopup
-        //Mouse.OverrideCursor = Cursors.Wait;
-        //new CommandDebugPopup().Show();
-        //Mouse.OverrideCursor = null;
+        new CommandDebugPopup().Show();
     }
 
     [Command.Debug("PixiEditor.Debug.OpenLocalizationDebugWindow", "OPEN_LOCALIZATION_DEBUG_WINDOW", "OPEN_LOCALIZATION_DEBUG_WINDOW")]

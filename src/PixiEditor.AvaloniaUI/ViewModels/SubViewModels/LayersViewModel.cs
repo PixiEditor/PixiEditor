@@ -7,7 +7,9 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Platform.Storage;
+using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
@@ -429,8 +431,10 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || doc.ReferenceLayerViewModel.IsTopMost)
-            return new Bitmap("pack://application:,,,/Images/ReferenceLayerBelow.png");
+        {
+            return ImagePathToBitmapConverter.LoadBitmapFromRelativePath("/Images/ReferenceLayerBelow.png");
+        }
 
-        return new Bitmap("pack://application:,,,/Images/ReferenceLayerAbove.png");
+        return ImagePathToBitmapConverter.LoadBitmapFromRelativePath("/Images/ReferenceLayerAbove.png");
     }
 }
