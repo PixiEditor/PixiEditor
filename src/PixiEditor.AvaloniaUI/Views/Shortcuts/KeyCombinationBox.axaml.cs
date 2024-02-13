@@ -89,7 +89,6 @@ internal partial class KeyCombinationBox : UserControl
         {
             KeyCombination = new(e.Key, currentCombination.Modifiers);
             focusGrid.Focus();
-            //Keyboard.ClearFocus();
         }
 
         UpdateButton();
@@ -104,14 +103,12 @@ internal partial class KeyCombinationBox : UserControl
 
     private void TextBox_LostKeyboardFocus(object sender, RoutedEventArgs e)
     {
-        // TODO: Validate if right
         ignoreButtonPress = TopLevel.GetTopLevel(this).FocusManager.GetFocusedElement() == button;
         currentCombination = KeyCombination;
 
         UpdateText();
         UpdateButton();
         focusGrid.Focus();
-        //FocusHelper.MoveFocusToParent((FrameworkElement)sender);
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)

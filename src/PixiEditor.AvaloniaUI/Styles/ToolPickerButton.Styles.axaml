@@ -5,7 +5,7 @@
 
     <Styles.Resources>
         <Color x:Key="SelectedToolBorderColor">#fff</Color>
-        <CornerRadius x:Key="SelectedToolCornerRadius">50</CornerRadius>
+        <CornerRadius x:Key="SelectedToolCornerRadius">5</CornerRadius>
         <SolidColorBrush x:Key="SelectedToolBorderBrush" Color="{StaticResource SelectedToolBorderColor}"/>
     </Styles.Resources>
 
