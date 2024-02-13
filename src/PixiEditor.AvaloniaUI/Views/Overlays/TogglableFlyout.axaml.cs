@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.AvaloniaUI.Views.Overlays;
 
 public partial class TogglableFlyout : UserControl
 {

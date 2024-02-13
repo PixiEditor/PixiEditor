@@ -6,7 +6,7 @@ using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Search;
 
-namespace PixiEditor.Helpers;
+namespace PixiEditor.AvaloniaUI.Helpers;
 
 internal static class IconEvaluators
 {

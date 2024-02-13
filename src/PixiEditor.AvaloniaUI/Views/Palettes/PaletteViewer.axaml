@@ -3,11 +3,8 @@
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
-             xmlns:views="clr-namespace:PixiEditor.Views"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:palettes="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
-             xmlns:decorators="clr-namespace:PixiEditor.AvaloniaUI.Views.Decorators"
              xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              d:DesignHeight="450" d:DesignWidth="300" Name="paletteControl">

@@ -7,7 +7,7 @@ using Avalonia.Styling;
 using PixiEditor.AvaloniaUI.Animation;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 
-namespace PixiEditor.Views.UserControls.Overlays;
+namespace PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay;
 #nullable enable
 internal class SelectionOverlay : Control
 {
@@ -63,7 +63,7 @@ internal class SelectionOverlay : Control
     {
         IsHitTestVisible = false;
 
-        Animation animation = new Animation()
+        Avalonia.Animation.Animation animation = new Avalonia.Animation.Animation()
         {
             Duration = new TimeSpan(0, 0, 0, 2, 0),
             IterationCount = IterationCount.Infinite,

@@ -4,7 +4,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-    xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
     xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
     xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
     xmlns:shortcuts="clr-namespace:PixiEditor.AvaloniaUI.Views.Shortcuts"

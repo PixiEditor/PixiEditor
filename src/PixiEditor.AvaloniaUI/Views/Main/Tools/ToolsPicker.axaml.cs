@@ -3,7 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 
-namespace PixiEditor.AvaloniaUI.Views.Main;
+namespace PixiEditor.AvaloniaUI.Views.Main.Tools;
 
 internal partial class ToolsPicker : UserControl
 {

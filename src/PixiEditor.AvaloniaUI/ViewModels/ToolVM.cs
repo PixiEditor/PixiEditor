@@ -1,8 +1,7 @@
 ﻿using System.Linq;
 using Avalonia.Markup.Xaml;
-using PixiEditor.AvaloniaUI.ViewModels;
 
-namespace PixiEditor.ViewModels;
+namespace PixiEditor.AvaloniaUI.ViewModels;
 
 internal class ToolVM : MarkupExtension
 {

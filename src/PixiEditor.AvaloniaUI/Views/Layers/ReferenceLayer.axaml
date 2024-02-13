@@ -8,7 +8,6 @@
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
              xmlns:cmds="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
-             xmlns:decorators="clr-namespace:PixiEditor.AvaloniaUI.Views.Decorators"
              xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d"
              d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" x:Name="uc">

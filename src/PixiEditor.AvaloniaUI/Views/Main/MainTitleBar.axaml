@@ -8,8 +8,6 @@
              xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input;assembly=PixiEditor.UI.Common"
-             xmlns:avaloniaUi="clr-namespace:PixiEditor.AvaloniaUI"
-             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Main.MainTitleBar">
     <Grid>

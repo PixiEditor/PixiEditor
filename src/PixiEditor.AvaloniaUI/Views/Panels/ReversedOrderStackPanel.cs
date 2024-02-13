@@ -2,7 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 
-namespace PixiEditor.Helpers.UI;
+namespace PixiEditor.AvaloniaUI.Views.Panels;
 
 internal class ReversedOrderStackPanel : StackPanel
 {

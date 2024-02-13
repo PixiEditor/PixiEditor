@@ -4,13 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels1="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              xmlns:main1="clr-namespace:PixiEditor.AvaloniaUI.Views.Main"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-             xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
-             xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
-             xmlns:viewModels="clr-namespace:PixiEditor.ViewModels"
-             xmlns:dock="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Dock"
-             xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
-             xmlns:layers="clr-namespace:PixiEditor.AvaloniaUI.Views.Layers"
              xmlns:tools="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.Tools"
              xmlns:commandSearch="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.CommandSearch"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
@@ -31,7 +24,7 @@
                 </Grid.RowDefinitions>
 
                 <tools:Toolbar Grid.Row="0" DataContext="{Binding .}" />
-                <main1:ToolsPicker ZIndex="2" Grid.Row="1"
+                <tools:ToolsPicker ZIndex="2" Grid.Row="1"
                                    Margin="10 0 0 0"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"

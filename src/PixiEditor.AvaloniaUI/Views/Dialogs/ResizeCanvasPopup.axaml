@@ -5,7 +5,6 @@
                          xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                          xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                          xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-                         xmlns:windows="clr-namespace:PixiEditor.AvaloniaUI.Views.Windows"
                          xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
                          xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
                          mc:Ignorable="d"

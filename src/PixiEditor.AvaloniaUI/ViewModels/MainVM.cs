@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Markup.Xaml;
-using PixiEditor.ViewModels;
 
 namespace PixiEditor.AvaloniaUI.ViewModels;
 internal class MainVM : MarkupExtension

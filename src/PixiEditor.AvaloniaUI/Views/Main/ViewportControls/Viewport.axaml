@@ -5,27 +5,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:local="clr-namespace:PixiEditor.Views.UserControls"
     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
-    xmlns:uc="clr-namespace:PixiEditor.Views.UserControls"
-    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-    xmlns:views="clr-namespace:PixiEditor.Views"
     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
     xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
     xmlns:zoombox="clr-namespace:PixiEditor.Zoombox;assembly=PixiEditor.Zoombox"
-    xmlns:subviews="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
     xmlns:brushShapeOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay"
     xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
     xmlns:symmetryOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay"
-    xmlns:overlays="clr-namespace:PixiEditor.Views.UserControls.Overlays"
     xmlns:lineToolOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.LineToolOverlay"
     xmlns:transformOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay"
-    xmlns:main="clr-namespace:PixiEditor.AvaloniaUI.Views.Main"
-    xmlns:viewModels1="clr-namespace:PixiEditor.ViewModels"
     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
     xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
     xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
     xmlns:viewportControls="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.ViewportControls"
+    xmlns:overlays="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays"
+    xmlns:selectionOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -52,9 +46,9 @@
                                         PassEventArgsToCommand="True"/>
             </EventTriggerBehavior>-->
         </Interaction.Behaviors>
-        <views:TogglableFlyout Margin="5" IconPath="/Images/Settings.png" ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
+        <overlays:TogglableFlyout Margin="5" IconPath="/Images/Settings.png" ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
                                ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
-            <views:TogglableFlyout.Child>
+            <overlays:TogglableFlyout.Child>
                 <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="#C8202020" ZIndex="2">
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
@@ -119,8 +113,8 @@
             </StackPanel>
         </StackPanel>
         </Border>
-            </views:TogglableFlyout.Child>
-        </views:TogglableFlyout>
+            </overlays:TogglableFlyout.Child>
+        </overlays:TogglableFlyout>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
@@ -283,7 +277,7 @@
                             DragEndCommand="{xaml:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
                             DragStartCommand="{xaml:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
                             FlowDirection="LeftToRight" />
-                        <overlays:SelectionOverlay
+                        <selectionOverlay:SelectionOverlay
                             Focusable="False"
                             ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels:MainVM}, Converter={converters:IsSelectionToolConverter}}"
                             Path="{Binding Document.SelectionPathBindable}"

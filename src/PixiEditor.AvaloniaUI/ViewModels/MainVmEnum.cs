@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.ViewModels;
+﻿namespace PixiEditor.AvaloniaUI.ViewModels;
 
 enum MainVmEnum
 {

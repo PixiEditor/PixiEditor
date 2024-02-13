@@ -5,8 +5,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:views="clr-namespace:PixiEditor.Views"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
              xmlns:decorators="clr-namespace:PixiEditor.AvaloniaUI.Views.Decorators"
              mc:Ignorable="d"
@@ -42,8 +41,7 @@
                                    ui:Translator.Key="{Binding ElementName=paletteItem, Path=Palette.Source.Name.Key}"
                                    DockPanel.Dock="Right" HorizontalAlignment="Right"/>
             </DockPanel>
-            <TextBlock Margin="0 5 0 0">
-            </TextBlock>
+            <TextBlock Margin="0 5 0 0" />
         </StackPanel>
         <ItemsControl Margin="0 -20 0 10" Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ElementName=paletteItem, Path=Palette.Colors}">
             <ItemsControl.ItemsPanel>

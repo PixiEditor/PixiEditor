@@ -3,13 +3,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:tools="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Tools"
-             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-             xmlns:handlers="clr-namespace:PixiEditor.AvaloniaUI.Models.Handlers"
-             xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
-             xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
              xmlns:tools1="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.Tools"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="PixiEditor.AvaloniaUI.Views.Main.ToolsPicker" Name="picker">
+             x:Class="PixiEditor.AvaloniaUI.Views.Main.Tools.ToolsPicker" Name="picker">
     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
             BorderBrush="{DynamicResource ThemeBorderMidBrush}"
             BorderThickness="{DynamicResource ThemeBorderThickness}"

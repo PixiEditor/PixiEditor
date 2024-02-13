@@ -4,7 +4,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
@@ -39,7 +38,7 @@
                 <RowDefinition Height="10"/>
             </Grid.RowDefinitions>
             <Grid DragDrop.AllowDrop="True" helpers:DragDropEvents.DragEnter="Grid_DragEnter" helpers:DragDropEvents.Drop="Grid_Drop_Top" helpers:DragDropEvents.DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="3"/>
-            <Grid IsVisible="True" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True" Panel.ZIndex="2" Background="Transparent" helpers:DragDropEvents.DragEnter="Grid_CenterEnter" helpers:DragDropEvents.Drop="Grid_Drop_Center" helpers:DragDropEvents.DragLeave="Grid_CenterLeave"></Grid>
+            <Grid IsVisible="True" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True" Panel.ZIndex="2" Background="Transparent" helpers:DragDropEvents.DragEnter="Grid_CenterEnter" helpers:DragDropEvents.Drop="Grid_Drop_Center" helpers:DragDropEvents.DragLeave="Grid_CenterLeave" />
             <Grid x:Name="centerGrid" Grid.Row="0" Grid.RowSpan="3" Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="24"/>

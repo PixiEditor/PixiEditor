@@ -1,6 +1,5 @@
 <Styles xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
                     xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
                     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters">
 

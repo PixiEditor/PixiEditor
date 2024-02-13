@@ -4,19 +4,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:vws="clr-namespace:PixiEditor.Views" 
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
              xmlns:uiExt="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:converters1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:layers="clr-namespace:PixiEditor.AvaloniaUI.Views.Layers"
              xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
              xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
-             xmlns:ui="clr-namespace:PixiEditor.Helpers.UI"
              xmlns:docVm="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
              xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
+             xmlns:panels="clr-namespace:PixiEditor.AvaloniaUI.Views.Panels"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="250" x:Name="layersManager">
     <UserControl.Resources>
@@ -102,8 +99,7 @@
                     DockPanel.Dock="Left"
                     Margin="0,0,5,0"
                     Width="80"
-                    SelectedBlendMode="{Binding DataContext.ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay, ElementName=layersManager}">
-                </input:BlendModeComboBox>
+                    SelectedBlendMode="{Binding DataContext.ActiveDocument.SelectedStructureMember.BlendModeBindable, Mode=TwoWay, ElementName=layersManager}" />
                 <input:NumberInput
                     Min="0" Max="100"
                     x:Name="numberInput"
@@ -150,7 +146,7 @@
                       ItemsSource="{Binding DataContext.ActiveDocument.StructureRoot.Children, ElementName=layersManager}">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <ui:ReversedOrderStackPanel />
+                        <panels:ReversedOrderStackPanel />
                     </ItemsPanelTemplate>
                 </TreeView.ItemsPanel>
                 <TreeView.Resources>
@@ -175,7 +171,7 @@
                     </DataTemplate>
                 </TreeView.DataTemplates>
             </TreeView>
-            <Border Name="dropBorder" ui1:DragDropEvents.DragEnter="Grid_DragEnter" ui1:DragDropEvents.DragLeave="Grid_DragLeave" DragDrop.AllowDrop="True" ui1:DragDropEvents.Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0"></Border>
+            <Border Name="dropBorder" ui1:DragDropEvents.DragEnter="Grid_DragEnter" ui1:DragDropEvents.DragLeave="Grid_DragLeave" DragDrop.AllowDrop="True" ui1:DragDropEvents.Drop="Grid_Drop" Background="Transparent" BorderThickness="0, 5, 0, 0" />
         </DockPanel>
     </Grid>
 </UserControl>

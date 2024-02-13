@@ -10,7 +10,6 @@
                          xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
                          xmlns:main="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"
                          xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
-                         xmlns:globalization="clr-namespace:System.Globalization;assembly=System.Runtime"
                          xmlns:localization1="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.Localization"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          Width="600"
@@ -38,10 +37,9 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="120" />
             </Grid.ColumnDefinitions>
-            <TextBlock ui:Translator.Key="API_KEY" Margin="0,0,5,0"></TextBlock>
+            <TextBlock ui:Translator.Key="API_KEY" Margin="0,0,5,0" />
             <TextBox Grid.Column="1" TextChanged="ApiKeyChanged"
-                     Text="{Binding ApiKey}">
-            </TextBox>
+                     Text="{Binding ApiKey}" />
             <Button Margin="5,0,0,0" Grid.Column="2"
                     ui:Translator.Key="LOG_IN"
                     Command="{Binding LoadApiKeyCommand}" />
@@ -99,8 +97,7 @@
                     <TextBlock ui:Translator.Key="SELECT_A_LANGUAGE"
                                IsVisible="{Binding SelectedItem, ElementName=LanguageComboBox, Converter={converters:NullToVisibilityConverter}}"
                                Margin="5,0,0,0" VerticalAlignment="Center"
-                               IsHitTestVisible="False">
-                    </TextBlock>
+                               IsHitTestVisible="False" />
                 </Grid>
             </Grid>
             <Border Padding="5"
