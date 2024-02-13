@@ -1,11 +1,14 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Avalonia;
 using Avalonia.Media.Imaging;
+using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.IO;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
@@ -116,15 +119,12 @@ internal class RecentlyOpenedDocument : ObservableObject
                 }
             }
 
-            //TODO: Fix this
-            /*using Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
+            using Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
                 serializableDocument.Layers
                     .Where(x => x.Opacity > 0.8)
                     .Select(x => (x.ToImage(), new VecI(x.OffsetX, x.OffsetY))).ToList());
 
-            return DownscaleToMaxSize(surface.ToBitmap());*/
-
-            return null;
+            return DownscaleToMaxSize(surface.ToWriteableBitmap());
         }
 
         if (SupportedFilesHelper.IsExtensionSupported(FileExtension))

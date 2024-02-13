@@ -8,6 +8,7 @@
     xmlns:commands="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands"
     xmlns:commands1="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.Commands"
     xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
+    xmlns:shortcuts="clr-namespace:PixiEditor.AvaloniaUI.Views.Shortcuts"
     mc:Ignorable="d"
     d:DesignHeight="600" d:DesignWidth="400"
     x:Class="PixiEditor.AvaloniaUI.Views.Windows.Settings.ShortcutsBinder">
@@ -66,10 +67,10 @@
                 </ControlTemplate>
             </ScrollViewer.Template>-->
             <Grid>
-                <TextBlock Foreground="LightGray" HorizontalAlignment="Center" TextAlignment="Center"
+                <TextBlock HorizontalAlignment="Center" TextAlignment="Center"
                            IsVisible="{Binding !VisibleGroups, Mode=OneWay}"
                            ui:Translator.Key="NOTHING_FOUND"  d:Text="Nothing found."/>
-                <ItemsControl ItemsSource="{Binding Commands}" Foreground="White" Focusable="False">
+                <ItemsControl ItemsSource="{Binding Commands}" Focusable="False">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate DataType="{x:Type viewModels:GroupSearchResult}">
                             <StackPanel Margin="0,0,0,20" IsVisible="{Binding IsVisible}">
@@ -79,7 +80,7 @@
                                         <DataTemplate DataType="{x:Type viewModels:CommandSearchResult}">
                                             <Grid Margin="0,5,5,0" IsVisible="{Binding IsVisible}">
                                                 <TextBlock Text="{Binding Command.DisplayName}" ToolTip.Tip="{Binding Command.Description}"/>
-                                                <!--<userControls:ShortcutBox Width="120" Command="{Binding Command}" HorizontalAlignment="Right" Focusable="False"/>-->
+                                                <shortcuts:ShortcutBox Width="120" Command="{Binding Command}" HorizontalAlignment="Right" Focusable="False"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>

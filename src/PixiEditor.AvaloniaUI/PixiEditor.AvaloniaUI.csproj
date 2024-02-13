@@ -19,7 +19,6 @@
       <AvaloniaResource Include="Images\Lock-alpha.svg" />
       <None Remove="Images\Merge-downwards.svg" />
       <AvaloniaResource Include="Images\Merge-downwards.svg" />
-      <None Remove="Nunito.ttf" />
     </ItemGroup>
 
     <ItemGroup>
@@ -77,18 +76,6 @@
       <Compile Remove="Views\Buttons\**" />
       <EmbeddedResource Remove="Views\Buttons\**" />
       <None Remove="Views\Buttons\**" />
-      <Compile Update="Views\Main\ViewportControls\Viewport.axaml.cs">
-        <DependentUpon>Viewport.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Dialogs\Debug\Localization\LocalizationDebugWindow.axaml.cs">
-        <DependentUpon>LocalizationDebugWindow.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
-      <Compile Update="Views\Windows\PalettesBrowser.axaml.cs">
-        <DependentUpon>PalettesBrowser.axaml</DependentUpon>
-        <SubType>Code</SubType>
-      </Compile>
     </ItemGroup>
   
     <ItemGroup>

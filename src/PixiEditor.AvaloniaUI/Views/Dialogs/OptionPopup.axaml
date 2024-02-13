@@ -13,7 +13,7 @@
     Title="OptionPopup"
     SizeToContent="WidthAndHeight"
     Name="popup"
-    ui:Translator.Key="{Binding #popup.Title}">
+    ui:Translator.Key="{Binding #popup.Title, Mode=OneTime}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
