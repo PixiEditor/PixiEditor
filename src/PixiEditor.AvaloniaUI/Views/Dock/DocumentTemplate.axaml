@@ -11,9 +11,10 @@
              xmlns:subViewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:palettes1="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
+             xmlns:viewportControls="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.ViewportControls"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.DocumentTemplate">
-    <userControls:Viewport
+    <viewportControls:Viewport
         CenterViewportTrigger="{Binding ViewModel.DockCenterViewportTrigger}"
         ZoomViewportTrigger="{Binding ViewModel.ZoomViewportTrigger}"
         MouseDownCommand="{Binding Path=IoSubViewModel.MouseDownCommand, Source={viewModels1:MainVM}}"
@@ -29,7 +30,7 @@
         FlipY="{Binding ViewModel.FlipY, Mode=TwoWay}"
         ContextRequested="Viewport_OnContextMenuOpening"
         Document="{Binding ViewModel.Document}">
-        <userControls:Viewport.ContextMenu>
+        <viewportControls:Viewport.ContextMenu>
             <ContextMenu DataContext="{Binding PlacementTarget.Document, RelativeSource={RelativeSource Self}}">
                 <ContextMenu.Template>
                     <ControlTemplate>
@@ -110,6 +111,6 @@
                     </ControlTemplate>
                 </ContextMenu.Template>
             </ContextMenu>
-        </userControls:Viewport.ContextMenu>
-    </userControls:Viewport>
+        </viewportControls:Viewport.ContextMenu>
+    </viewportControls:Viewport>
 </UserControl>

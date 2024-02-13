@@ -1,5 +1,5 @@
 ﻿<UserControl
-    x:Class="PixiEditor.Views.UserControls.Viewport"
+    x:Class="PixiEditor.AvaloniaUI.Views.Main.ViewportControls.Viewport"
     x:ClassModifier="internal"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -25,6 +25,7 @@
     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
     xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
     xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+    xmlns:viewportControls="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.ViewportControls"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -58,7 +59,7 @@
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal">
             <TextBlock Margin="5 0" TextAlignment="Center"
-                       Text="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, 
+                       Text="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, 
              Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
                        Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16"/>
             <Button Width="32" Height="32" ui:Translator.TooltipKey="RESET_VIEWPORT"
@@ -74,7 +75,7 @@
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
                         Classes="OverlayToggleButton"
-                        IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
+                        IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                         Cursor="Hand">
                     <ToggleButton.Content>
                         <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png"/>
@@ -82,7 +83,7 @@
                 </ToggleButton>
                 <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
                               Classes="OverlayToggleButton"
-                              IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
+                              IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
                     <ToggleButton.Content>
                         <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png">
@@ -97,7 +98,7 @@
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
                               Classes="OverlayToggleButton"
-                              IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
+                              IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
                     <ToggleButton.Content>
                         <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png"/>
@@ -105,7 +106,7 @@
                 </ToggleButton>
                 <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
                               Classes="OverlayToggleButton"
-                              IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
+                              IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
                               Cursor="Hand">
                     <ToggleButton.Content>
                         <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png">
@@ -123,23 +124,23 @@
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
-            UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWay}"
-            Scale="{Binding ZoomboxScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-            Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-            Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-            RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-            Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-            ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
-            ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
-            FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
-            FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}">
+            UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
+            Scale="{Binding ZoomboxScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+            ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+            FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+            FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}">
             <zoombox:Zoombox.AdditionalContent>
             <Border
                 d:Width="64"
                 d:Height="64"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}"
+                DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
                 RenderOptions.BitmapInterpolationMode="None">
                 <Border.Background>
                     <!--TODO: Seems like DestinationRect of anything with size below and equal to 1 is tiling texture wrong-->
@@ -327,7 +328,7 @@
                     </Grid>
                     <Grid IsHitTestVisible="False"
                         ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10"
-                        IsVisible="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}}">
+                        IsVisible="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}">
                         <Grid.Resources>
                             <converters:ThresholdVisibilityConverter Threshold="10" x:Key="ThresholdVisibilityConverter"/>
                         </Grid.Resources>

@@ -15,7 +15,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Zoombox;
 
-namespace PixiEditor.Views.UserControls;
+namespace PixiEditor.AvaloniaUI.Views.Main.ViewportControls;
 
 #nullable enable
 internal partial class Viewport : UserControl, INotifyPropertyChanged
