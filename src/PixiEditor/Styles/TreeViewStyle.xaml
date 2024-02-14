@@ -128,7 +128,7 @@
     <Style TargetType="{x:Type TreeViewItem}" BasedOn="{StaticResource TreeViewItemStyle}">
         <Style.Triggers>
             <Trigger Property="HasItems" Value="True">
-                <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                <Setter Property="IsExpanded" Value="{Binding IsForceExpanded, Mode=TwoWay}" />
             </Trigger>
         </Style.Triggers>
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />

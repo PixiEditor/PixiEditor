@@ -39,7 +39,6 @@ internal class ActionAccumulator
         queuedActions.AddRange(actions);
         queuedActions.Add(new ChangeBoundary_Action());
         TryExecuteAccumulatedActions();
-        document.AutosaveViewModel.HintFinishedAction();
     }
 
     public void AddActions(params IAction[] actions)

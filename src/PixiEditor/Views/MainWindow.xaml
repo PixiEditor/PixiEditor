@@ -495,10 +495,11 @@
                     </Grid>
                 </Border>
                 <usercontrols:AutosaveControl
+                    AutosaveStateData="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel.AutosaveStateData}"
+                    AutosaveEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel.Enabled}"
                     MinWidth="50"
                     Height="25"
                     Margin="5,0,0,0"
-                    DataContext="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel}"
                     VerticalAlignment="Top"
                     WindowChrome.IsHitTestVisibleInChrome="True"/>
                 <StackPanel

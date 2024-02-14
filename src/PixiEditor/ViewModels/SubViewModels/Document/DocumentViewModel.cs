@@ -168,7 +168,7 @@ internal partial class DocumentViewModel : NotifyableObject
         StructureHelper = new DocumentStructureModule(this);
         EventInlet = new DocumentEventsModule(this, Internals);
         Operations = new DocumentOperationsModule(this, Internals);
-        AutosaveViewModel = new AutosaveDocumentViewModel(this);
+        AutosaveViewModel = new AutosaveDocumentViewModel(this, Internals);
 
         StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
 

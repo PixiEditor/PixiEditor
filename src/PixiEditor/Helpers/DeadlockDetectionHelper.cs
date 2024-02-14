@@ -146,7 +146,7 @@ internal class DeadlockDetectionHelper
             var list = new List<AutosaveFilePathInfo>();
             foreach (var document in viewModel.DocumentManagerSubViewModel.Documents)
             {
-                document.AutosaveViewModel.PanicAutosave();
+                document.AutosaveViewModel.PanicAutosaveFromDeadlockDetector();
                 if (document.AutosaveViewModel.LastSavedPath != null || document.FullFilePath != null)
                 {
                     list.Add(new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
