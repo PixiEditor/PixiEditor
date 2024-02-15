@@ -21,7 +21,7 @@
         </Grid.RowDefinitions>
 
         <ContentPresenter Content="{Binding #popup.PopupContent}"
-                          Grid.Row="1" Margin="15"/>
+                          Grid.Row="0" Margin="15"/>
 
         <ItemsControl ItemsSource="{Binding #popup.Options}" Grid.Row="1" Margin="15">
             <ItemsControl.ItemTemplate>

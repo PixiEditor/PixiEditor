@@ -35,8 +35,6 @@ public partial class OptionPopup : PixiEditorPopup
 
     public RelayCommand CancelCommand { get; set; }
 
-    public RelayCommand CloseCommand { get; set; }
-
     public OptionPopup(string title, object content, ObservableCollection<object> options)
     {
         Title = title;
@@ -57,12 +55,6 @@ public partial class OptionPopup : PixiEditorPopup
     private void Cancel()
     {
         Result = null;
-        Close();
-    }
-
-    private void Close(object parameter)
-    {
-        Result = parameter;
         Close();
     }
 }
