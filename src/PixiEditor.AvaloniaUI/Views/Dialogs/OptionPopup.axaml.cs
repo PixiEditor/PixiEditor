@@ -34,6 +34,7 @@ public partial class OptionPopup : PixiEditorPopup
     }
 
     public RelayCommand CancelCommand { get; set; }
+    public RelayCommand<object> PickOptionCommand { get; set; }
 
     public OptionPopup(string title, object content, ObservableCollection<object> options)
     {
@@ -42,9 +43,16 @@ public partial class OptionPopup : PixiEditorPopup
         Options = options;
         CancelCommand = new RelayCommand(Cancel);
         CloseCommand = new RelayCommand(Close);
+        PickOptionCommand = new RelayCommand<object>(PickOption);
         InitializeComponent();
         
         Loaded += OptionPopup_Loaded;
+    }
+
+    private void PickOption(object? obj)
+    {
+        Result = obj;
+        Close();
     }
 
     private void OptionPopup_Loaded(object? sender, EventArgs e)

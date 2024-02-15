@@ -27,7 +27,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Button Content="{Binding}" MinWidth="70" Margin="5,0"
-                            Command="{Binding #popup.CloseCommand}" CommandParameter="{Binding}"/>
+                            Command="{Binding #popup.PickOptionCommand}" CommandParameter="{Binding}"/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>
