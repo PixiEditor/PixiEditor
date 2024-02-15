@@ -2,7 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Hardware.Info;
 using PixiEditor.AvaloniaUI.Models.Input;
 using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.Extensions.Common.Localization;

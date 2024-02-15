@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Media.Imaging;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 
 namespace PixiEditor.AvaloniaUI.Views.Shortcuts;

@@ -18,6 +18,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
+using PixiEditor.Views;
 using PixiEditor.Windows;
 using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;
 
@@ -103,6 +104,8 @@ internal class ClassicDesktopEntry
 
     public ExtensionLoader InitApp()
     {
+        LoadingWindow.ShowInNewThread();
+
         InitPlatform();
 
         ExtensionLoader extensionLoader = new ExtensionLoader(Paths.ExtensionsFullPath);

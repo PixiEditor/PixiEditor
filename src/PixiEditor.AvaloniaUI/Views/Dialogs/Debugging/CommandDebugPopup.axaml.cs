@@ -3,12 +3,10 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
-using PixiEditor.AvaloniaUI.ViewModels;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs.Debugging;
 

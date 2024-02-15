@@ -1,19 +1,18 @@
-using System.Linq;
 using System.Threading.Tasks;
 using AsyncImageLoader.Loaders;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Models.Dialogs;
+using PixiEditor.AvaloniaUI.Initialization;
 using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
 using PixiEditor.AvaloniaUI.Models.IO;
-using PixiEditor.AvaloniaUI.Views.Dialogs;
+using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
-using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
@@ -67,10 +66,6 @@ internal partial class MainWindow : Window
 
     public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {
-        showMissingFilesDialog = false;
-        return new MainWindow(new ExtensionLoader(Paths.ExtensionsFullPath));
-        // TODO implement this
-        /*
         var window = GetMainWindow();
         var fileVM = window.services.GetRequiredService<FileViewModel>();
 
@@ -104,14 +99,22 @@ internal partial class MainWindow : Window
             try
             {
                 var app = (App)Application.Current;
-                return new MainWindow(app.InitApp());
+                ClassicDesktopEntry entry = new(app.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime);
+                return new MainWindow(entry.InitApp());
             }
             catch (Exception e)
             {
                 CrashHelper.SendExceptionInfoToWebhook(e, true);
                 throw;
             }
-        }*/
+        }
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        LoadingWindow.Instance?.SafeClose();
+        Activate();
     }
 
     protected override void OnClosing(WindowClosingEventArgs e)
