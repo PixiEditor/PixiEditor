@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using PixiEditor.AvaloniaUI.Models.Commands.Templates.Providers.Parsers;
+using PixiEditor.AvaloniaUI.Models.IO;
 
 namespace PixiEditor.AvaloniaUI.Models.Commands.Templates.Providers;
 
@@ -17,7 +18,7 @@ internal partial class ShortcutProvider
         
         public AsepriteProvider() : base("Aseprite")
         {
-            _parser = new AsepriteKeysParser("AsepriteShortcutMap.json");
+            _parser = new AsepriteKeysParser($"{Paths.InternalResourceDataPath}/ShortcutActionMaps/AsepriteShortcutMap.json");
             LogoPath = "/Images/TemplateLogos/Aseprite.png";
             HoverLogoPath = "/Images/TemplateLogos/Aseprite-Hover.png";
         }

@@ -1,4 +1,4 @@
-﻿<Window
+﻿<dialogs:PixiEditorPopup
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -20,16 +20,7 @@
     ui:Translator.Key="IMPORT_FROM_TEMPLATE">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="32" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <dialogs:DialogTitleBar
-            DockPanel.Dock="Top"
-            TitleKey="IMPORT_FROM_TEMPLATE"
-            CloseCommand="{x:Static viewModels:SystemCommands.CloseWindowCommand}" />
         <ItemsControl
-            Grid.Row="1"
             ItemsSource="{Binding Templates, ElementName=window}"
             Margin="10,10,10,5">
             <ItemsControl.ItemsPanel>
@@ -50,4 +41,4 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
     </Grid>
-</Window>
+</dialogs:PixiEditorPopup>

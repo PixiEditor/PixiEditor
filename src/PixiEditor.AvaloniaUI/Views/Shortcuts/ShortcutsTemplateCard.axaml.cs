@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media.Imaging;
+using PixiEditor.AvaloniaUI.Helpers.Converters;
 
 namespace PixiEditor.AvaloniaUI.Views.Shortcuts;
 
@@ -16,10 +17,10 @@ public partial class ShortcutsTemplateCard : UserControl
         set { SetValue(TemplateNameProperty, value); }
     }
 
-    public static readonly StyledProperty<string>  LogoProperty = 
+    public static readonly StyledProperty<string> LogoProperty =
         AvaloniaProperty.Register<ShortcutsTemplateCard, string>(nameof(Logo));
 
-    public static readonly StyledProperty<string>  HoverLogoProperty = 
+    public static readonly StyledProperty<string> HoverLogoProperty =
         AvaloniaProperty.Register<ShortcutsTemplateCard, string>(nameof(HoverLogo));
 
     public string HoverLogo
@@ -46,7 +47,7 @@ public partial class ShortcutsTemplateCard : UserControl
             return;
         }
         
-        img.Source = new Bitmap(HoverLogo);
+        img.Source = ImagePathToBitmapConverter.LoadBitmapFromRelativePath(Logo);
     }
 
     private void OnBorderPointerEntered(object? sender, PointerEventArgs e)
@@ -55,8 +56,8 @@ public partial class ShortcutsTemplateCard : UserControl
         {
             return;
         }
-        
-        img.Source = new Bitmap(Logo);
+
+        img.Source = ImagePathToBitmapConverter.LoadBitmapFromRelativePath(HoverLogo);
     }
 }
 

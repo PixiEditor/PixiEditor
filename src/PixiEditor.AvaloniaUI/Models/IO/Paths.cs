@@ -12,4 +12,7 @@ public static class Paths
     public static string PathToPalettesFolder { get; } = Path.Join(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "PixiEditor", "Palettes");
+
+    public static string InternalResourceDataPath { get; } =
+        $"avares://{Assembly.GetExecutingAssembly().GetName().Name}/Data";
 }

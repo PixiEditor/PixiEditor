@@ -6,12 +6,13 @@ using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Templates;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
+using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Exceptions;
 
 namespace PixiEditor.AvaloniaUI.Views.Shortcuts;
 
-internal partial class ImportShortcutTemplatePopup : Window
+internal partial class ImportShortcutTemplatePopup : PixiEditorPopup
 {
     public IEnumerable<ShortcutProvider> Templates { get; set; }
 
@@ -19,11 +20,6 @@ internal partial class ImportShortcutTemplatePopup : Window
     {
         Templates = ShortcutProvider.GetProviders();
         InitializeComponent();
-        
-        LayoutUpdated += (_, _) =>
-        {
-            MinHeight = Bounds.Height;
-        };
     }
 
     [Command.Internal("PixiEditor.Shortcuts.Provider.ImportDefault")]
