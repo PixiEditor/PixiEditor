@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              mc:Ignorable="d"
              d:DesignHeight="380" d:DesignWidth="200" Name="togglableFlyout">
     <Border Background="Transparent">
@@ -11,17 +12,30 @@
                 <ToggleButton Padding="0" Margin="0"
                               x:Name="toggleButton" BorderThickness="0" Width="24" Height="24" Background="Transparent">
                     <ToggleButton.Template>
-                        <!--<ControlTemplate TargetType="{x:Type ToggleButton}">
+                        <ControlTemplate TargetType="{x:Type ToggleButton}">
                             <Grid>
+                                <Grid.Styles>
+                                    <Style Selector="Grid Image#btnBg">
+                                        <Setter Property="RenderTransform" Value="rotate(0)"/>
+                                    </Style>
+                                    <Style Selector="ToggleButton:checked Image#btnBg">
+                                        <Setter Property="RenderTransform" Value="rotate(180deg)"/>
+                                    </Style>
+                                </Grid.Styles>
                                 <Image Focusable="False" Width="24" Cursor="Hand" x:Name="btnBg"
-                                       Source="{Binding ElementName=togglableFlyout, Path=IconPath}">
+                                       Source="{Binding ElementName=togglableFlyout, Path=IconPath, Converter={converters:ImagePathToBitmapConverter}}">
+                                    <Image.Transitions>
+                                        <Transitions>
+                                            <TransformOperationsTransition Duration="0:0:0.15" Property="RenderTransform" />
+                                        </Transitions>
+                                    </Image.Transitions>
                                     <Image.RenderTransform>
                                         <RotateTransform Angle="0" CenterX="12" CenterY="12"/>
                                     </Image.RenderTransform>
                                 </Image>
                                 <ContentPresenter/>
                             </Grid>
-                            ~1~<ControlTemplate.Triggers>
+                            <!--<ControlTemplate.Triggers>
                                 <Trigger Property="IsChecked" Value="True">
                                     <Trigger.EnterActions>
                                         <BeginStoryboard x:Name="Rotate90Animation">
@@ -44,8 +58,8 @@
                                         </BeginStoryboard>
                                     </Trigger.ExitActions>
                                 </Trigger>
-                            </ControlTemplate.Triggers>@1@
-                        </ControlTemplate>-->
+                            </ControlTemplate.Triggers>-->
+                        </ControlTemplate>
                     </ToggleButton.Template>
                 </ToggleButton>
             </Border>
