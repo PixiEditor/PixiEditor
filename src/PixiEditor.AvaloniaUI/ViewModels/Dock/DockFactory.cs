@@ -191,7 +191,6 @@ internal class DockFactory : Factory
 
     public override void InitLayout(IDockable layout)
     {
-        // Uhh, don't ask me what to put here, I just copied from the example
         DockableLocator = new Dictionary<string, Func<IDockable?>>()
         {
             { "MainLayout", () => mainLayout },

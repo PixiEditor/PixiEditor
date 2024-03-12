@@ -8,7 +8,7 @@ using PixiEditor.Extensions.Windowing;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
-public partial class PixiEditorPopup : Window, IStyleable, IPopupWindow
+public partial class PixiEditorPopup : Window, IPopupWindow
 {
     public string UniqueId => "PixiEditor.Popup";
 
@@ -39,7 +39,7 @@ public partial class PixiEditorPopup : Window, IStyleable, IPopupWindow
         set => SetValue(CanMinimizeProperty, value);
     }
 
-    Type IStyleable.StyleKey => typeof(PixiEditorPopup);
+    protected override Type StyleKeyOverride => typeof(PixiEditorPopup);
 
     public PixiEditorPopup()
     {
