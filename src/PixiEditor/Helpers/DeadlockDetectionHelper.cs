@@ -139,7 +139,7 @@ internal class DeadlockDetectionHelper
 
     private void TrySaveFilesForNextSession()
     {
-        var thread = new Thread(() =>
+        /*var thread = new Thread(() =>
         {
             var viewModel = ViewModelMain.Current;
             
@@ -147,9 +147,9 @@ internal class DeadlockDetectionHelper
             foreach (var document in viewModel.DocumentManagerSubViewModel.Documents)
             {
                 document.AutosaveViewModel.PanicAutosaveFromDeadlockDetector();
-                if (document.AutosaveViewModel.LastSavedPath != null || document.FullFilePath != null)
+                if (document.AutosaveViewModel.LastAutosavedPath != null || document.FullFilePath != null)
                 {
-                    list.Add(new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
+                    list.Add(new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastAutosavedPath));
                 }
             }
         
@@ -157,7 +157,7 @@ internal class DeadlockDetectionHelper
         });
         
         thread.Start();
-        thread.Join(10000);
+        thread.Join(10000);*/
     }
 
     private void ForceNewProcess()

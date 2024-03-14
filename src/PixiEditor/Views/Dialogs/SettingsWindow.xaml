@@ -142,8 +142,13 @@
                 <StackPanel Margin="27 5" Orientation="Horizontal">
                     <Label Style="{StaticResource SettingsText}"
                            ui:Translator.Key="AUTOSAVE_SETTINGS_PERIOD"/>
-                    <ComboBox SelectedItem="{Binding SettingsSubViewModel.File.AutosavePeriodMinutes, Mode=TwoWay, Converter={converters:AutosaveSettingsPeriodToValueConverter}}"
-                              MinWidth="100" Margin="7, 0">
+                    <ComboBox MinWidth="100" Margin="7, 0">
+                        <ComboBox.SelectedItem>
+                            <MultiBinding Converter="{converters:AutosaveSettingsPeriodToValueConverter}">
+                                <Binding Path="SettingsSubViewModel.File.AutosaveEnabled"></Binding>
+                                <Binding Path="SettingsSubViewModel.File.AutosavePeriodMinutes"></Binding>
+                            </MultiBinding>
+                        </ComboBox.SelectedItem>
                         <ComboBox.ItemsSource>
                             <x:Array Type="localization:LocalizedString">
                                 <localization:LocalizedString Key="DISABLED" />
@@ -160,7 +165,7 @@
 
                 <CheckBox Margin="27 0 27 10"
                           VerticalAlignment="Center" ui:Translator.Key="AUTOSAVE_SETTINGS_SAVE_USER_FILE" d:Content="Show startup window"
-                          IsEnabled="{Binding SettingsSubViewModel.File.AutosavePeriodMinutes, Converter={converters:AutosaveSettingsPeriodToValueConverter ReturnBoolAutosavingEnabled=True}}"
+                          IsEnabled="{Binding SettingsSubViewModel.File.AutosaveEnabled}"
                           IsChecked="{Binding SettingsSubViewModel.File.AutosaveToDocumentPath}"/>
 
                 <Label Style="{StaticResource SettingsHeader}" d:Content="Default new file size" ui:Translator.Key="DEFAULT_NEW_SIZE"/>

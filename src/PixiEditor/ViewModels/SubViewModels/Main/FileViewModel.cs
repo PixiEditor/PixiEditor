@@ -17,6 +17,8 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.Autosave;
+using PixiEditor.Models.DocumentModels.Autosave.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Localization;
 using PixiEditor.Parser;
@@ -87,7 +89,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         RecentlyOpened.Remove(path);
-        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
+        IPreferences.Current!.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
     private void OpenHelloTherePopup()
@@ -110,7 +112,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
                 if (lastCrash == null)
                 {
-                    ReopenTempFiles();
+                    MaybeReopenTempAutosavedFiles();
                 }
                 else
                 {
@@ -191,13 +193,86 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         showMissingFilesDialog = documents.Count != i;
     }
 
-    private void ReopenTempFiles()
+    private void MaybeReopenTempAutosavedFiles()
     {
         var preferences = Owner.Preferences;
-        var files = preferences.GetLocalPreference<AutosaveFilePathInfo[]>(PreferencesConstants.UnsavedNextSessionFiles);
 
-        if (files == null)
+        // Todo sure, no session saving, but shouldn't we still load backups in case of unexpected shutdown?
+        // it probably should be handled elsewhere
+        if (!preferences.GetPreference<bool>(PreferencesConstants.SaveSessionStateEnabled))
             return;
+        
+        var history = preferences.GetLocalPreference<List<AutosaveHistorySession>>(PreferencesConstants.AutosaveHistory);
+        
+        // There are no autosave attempts .. but what if the user has just launched pixieditor for the first time,
+        // and it unexpectedly closed before auto saving anything. They could've still had some files open, and they won't be reopened in this session
+        // I'll say this is by design
+        if (history is null || history.Count == 0)
+            return;
+        var lastSession = history[^1];
+        if (lastSession.AutosaveEntries.Count == 0)
+            return; 
+
+        List<List<AutosaveHistoryEntry>> perDocumentHistories = ( 
+            from entry in lastSession.AutosaveEntries
+            group entry by entry.TempFileGuid into entryGroup
+            select entryGroup.OrderBy(a => a.DateTime).ToList()
+        ).ToList();
+        
+        /*bool shutdownWasUnexpected = lastSession.AutosaveEntries.All(a => a.Type != AutosaveHistoryType.OnClose);
+        if (shutdownWasUnexpected)
+        {
+            List<List<AutosaveHistoryEntry>> lastBackups = ( 
+                from entry in lastSession.AutosaveEntries
+                group entry by entry.TempFileGuid into entryGroup
+                select entryGroup.OrderBy(a => a.DateTime).ToList()
+                ).ToList();
+            // todo notify about files getting recovered after unexpected shutdown
+            // also separate this out into a function
+            return;
+        }*/
+
+        foreach (var documentHistory in perDocumentHistories)
+        {
+            AutosaveHistoryEntry lastEntry = documentHistory[^1]; 
+            try
+            {
+                if (lastEntry.Type != AutosaveHistoryType.OnClose)
+                {
+                    // unexpected shutdown happened, this file wasn't saved on close, but we supposedly have a backup
+                    
+                }
+                else
+                {
+                    switch (lastEntry.Result)
+                    {
+                        case AutosaveHistoryResult.SavedBackup:
+                            // load from autosave
+                            break;
+                        case AutosaveHistoryResult.SavedUserFile:
+                        case AutosaveHistoryResult.NothingToSave:
+                            // load from user file
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }                    
+                }
+                
+                
+                
+                string path = AutosaveHelper.GetAutosavePath(entry.TempFileGuid);
+                if (!File.Exists(path))
+                {
+                    // something happened with the file? todo try to recover backup while notifying user
+                    continue;
+                }
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfoToWebhook(e);
+            }
+
+        }
         
         foreach (var file in files)
         {
@@ -210,7 +285,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
                     if (file.AutosavePath != null)
                     {
-                        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(file.GetAutosaveGuid()!.Value, file.AutosavePath);
+                        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(AutosaveHelper.GetAutosaveGuid(file.AutosavePath)!.Value, file.AutosavePath);
                     }
                 }
                 else

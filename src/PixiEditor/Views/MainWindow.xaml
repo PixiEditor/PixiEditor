@@ -495,8 +495,9 @@
                     </Grid>
                 </Border>
                 <usercontrols:AutosaveControl
+                    Visibility="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={converters:NotNullToVisibilityConverter}}"
                     AutosaveStateData="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel.AutosaveStateData}"
-                    AutosaveEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel.Enabled}"
+                    AutosaveEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel.CurrentDocumentAutosaveEnabled}"
                     MinWidth="50"
                     Height="25"
                     Margin="5,0,0,0"

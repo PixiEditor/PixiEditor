@@ -1,34 +1,28 @@
 ﻿using System.Globalization;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers.Converters;
 
 namespace PixiEditor.Helpers.Converters;
 
-internal class AutosaveSettingsPeriodToValueConverter : MarkupConverter
+internal class AutosaveSettingsPeriodToValueConverter : MultiValueMarkupConverter
 {
-    public bool ReturnBoolAutosavingEnabled { get; set; }
-    
-    public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        if (ReturnBoolAutosavingEnabled)
+        return (values[0], values[1]) switch
         {
-            return value is not -1.0;
-        }
-        
-        return value switch
-        {
-            -1.0 => new LocalizedString("DISABLED"),
-            double d => new LocalizedString(d.ToString(CultureInfo.InvariantCulture)),
-            _ => throw new ArgumentException($"{value} has invalid type")
+            (false, _) => new LocalizedString("DISABLED"),
+            (true, double d) => new LocalizedString(d.ToString(CultureInfo.InvariantCulture)),
+            _ => throw new ArgumentException($"{values[0]} {values[1]} are invalid")
         };
     }
 
-    public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    public override object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
     {
         return value switch
         {
-            LocalizedString { Key: "DISABLED" } => -1,
-            LocalizedString s when double.TryParse(s.Key, out double period) => period,
+            LocalizedString { Key: "DISABLED" } => [false, PreferencesConstants.AutosavePeriodDefault],
+            LocalizedString s when double.TryParse(s.Key, out double period) => [true, period],
             _ => throw new ArgumentException($"{value} has invalid type")
         };
     }

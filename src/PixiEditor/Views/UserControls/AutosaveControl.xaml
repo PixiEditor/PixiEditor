@@ -10,8 +10,8 @@
              xmlns:converters="clr-namespace:PixiEditor.Helpers.Converters"
              xmlns:document="clr-namespace:PixiEditor.ViewModels.SubViewModels.Document"
              mc:Ignorable="d"
-             d:DesignWidth="280" d:DesignHeight="25"
-             d:DataContext="{d:DesignInstance local:AutosaveControl}">
+             x:Name="uc"
+             d:DesignWidth="280" d:DesignHeight="25">
     <Border Padding="8, 0"
             CornerRadius="5"
             BorderThickness="0"
@@ -35,16 +35,16 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <TextBlock
-                Text="{Binding IconText, FallbackValue='', Mode=OneWay}"
+                Text="{Binding IconText, FallbackValue='', Mode=OneWay, ElementName=uc}"
                 FontFamily="{StaticResource Feather}"
                 FontSize="16" Margin="0,1,5,0"
                 VerticalAlignment="Center"
-                Foreground="{Binding IconBrush, Mode=OneWay}">
+                Foreground="{Binding IconBrush, Mode=OneWay, ElementName=uc}">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Style.Triggers>
                             <DataTrigger
-                                Binding="{Binding PulseIcon, Mode=OneWay}"
+                                Binding="{Binding PulseIcon, Mode=OneWay, ElementName=uc}"
                                 Value="True">
                                 <DataTrigger.EnterActions>
                                     <BeginStoryboard x:Name="storyboard">
@@ -87,13 +87,13 @@
                 </StackPanel.Resources>
                 <Button Command="{xaml:Command PixiEditor.Autosave.ToggleAutosave}">
                     <TextBlock
-                        Text="{Binding AutosaveEnabled, Mode=OneWay, Converter={converters:BoolToValueConverter FalseValue='', TrueValue=''}}"
+                        Text="{Binding AutosaveEnabled, ElementName=uc, Mode=OneWay, Converter={converters:BoolToValueConverter FalseValue='', TrueValue=''}}"
                         FontFamily="{StaticResource Feather}" />
                 </Button>
             </StackPanel>
             <TextBlock
                 Grid.Column="2"
-                ui:Translator.LocalizedString="{Binding Text, Mode=OneWay}"
+                ui:Translator.LocalizedString="{Binding Text, Mode=OneWay, ElementName=uc}"
                 Foreground="White"
                 VerticalAlignment="Center">
                 <TextBlock.Style>
@@ -103,7 +103,7 @@
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsMouseOver, ElementName=autosaveControl}"
                                                Value="False" />
-                                    <Condition Binding="{Binding IsForceExpanded}" Value="False" />
+                                    <Condition Binding="{Binding IsForceExpanded, ElementName=uc}" Value="False" />
                                 </MultiDataTrigger.Conditions>
                                 <Setter Property="Visibility" Value="Hidden" />
                             </MultiDataTrigger>

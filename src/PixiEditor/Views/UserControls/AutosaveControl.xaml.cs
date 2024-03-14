@@ -5,63 +5,24 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Models.DocumentModels.Autosave.Enums;
+using PixiEditor.Models.DocumentModels.Autosave.Structs;
 
 namespace PixiEditor.Views.UserControls;
-
-public enum AutosaveState
-{
-    Paused,
-    Idle,
-    AwaitingUpdateableChangeEnd,
-    InProgress
-}
-
-public enum UserFileAutosaveResult
-{
-    Success,
-    NoUserFile,
-    ExceptionWhileSaving,
-    Disabled,
-    NothingToSave
-}
-
-public enum BackupAutosaveResult
-{
-    Success,
-    Error,
-    NothingToSave
-}
-
-public struct LastAutosaveData
-{
-    public DateTime Time { get; set; }
-    
-    public UserFileAutosaveResult UserFileSaveResult { get; set; }
-    
-    public BackupAutosaveResult BackupSaveResult { get; set; }
-}
-
-public struct AutosaveStateData
-{
-    public LastAutosaveData? LastAutosaveData { get; set; }
-    public AutosaveState AutosaveState { get; set; }
-    public DateTime AutosaveLaunchDateTime { get; set; }
-    public TimeSpan AutosaveInterval { get; set; }
-}
 
 public partial class AutosaveControl : UserControl, INotifyPropertyChanged
 {
     public static readonly DependencyProperty AutosaveStateDataProperty =
-        DependencyProperty.Register(nameof(AutosaveStateData), typeof(AutosaveStateData), typeof(AutosaveControl), new PropertyMetadata(OnStateChanged));
+        DependencyProperty.Register(nameof(AutosaveStateData), typeof(AutosaveStateData?), typeof(AutosaveControl), new PropertyMetadata(OnStateChanged));
     
-    public AutosaveStateData AutosaveStateData
+    public AutosaveStateData? AutosaveStateData
     {
-        get => (AutosaveStateData)GetValue(AutosaveStateDataProperty);
+        get => (AutosaveStateData?)GetValue(AutosaveStateDataProperty);
         set => SetValue(AutosaveStateDataProperty, value);
     }
     
     public static readonly DependencyProperty AutosaveEnabledProperty =
-        DependencyProperty.Register(nameof(AutosaveEnabled), typeof(AutosaveStateData), typeof(AutosaveControl));
+        DependencyProperty.Register(nameof(AutosaveEnabled), typeof(bool), typeof(AutosaveControl));
     
     public bool AutosaveEnabled
     {
@@ -75,6 +36,8 @@ public partial class AutosaveControl : UserControl, INotifyPropertyChanged
     private const string WarnIcon = "\ue81e";
     private const string SaveIcon = "\ue8bc";
     private const string PauseIcon = "\ue8a2";
+    
+    private const double TimerIntervalSeconds = 3.8;
 
     private readonly Brush errorBrush = new SolidColorBrush(Color.FromArgb(255, 214, 66, 56));
     private readonly Brush warnBrush = new SolidColorBrush(Color.FromArgb(255, 219, 189, 53));
@@ -83,7 +46,6 @@ public partial class AutosaveControl : UserControl, INotifyPropertyChanged
     private readonly Brush inactiveBrush = new SolidColorBrush(Color.FromArgb(255, 120, 120, 120));
     
     private DispatcherTimer textUpdateTimer;
-    private const double timerIntervalSeconds = 3.8;
 
     private string iconText;
 
@@ -128,9 +90,8 @@ public partial class AutosaveControl : UserControl, INotifyPropertyChanged
     public AutosaveControl()
     {
         InitializeComponent();
-        DataContext = this;
 
-        textUpdateTimer = new DispatcherTimer(TimeSpan.FromSeconds(timerIntervalSeconds), DispatcherPriority.Normal, (_, _) => Update(), Application.Current.Dispatcher)
+        textUpdateTimer = new DispatcherTimer(TimeSpan.FromSeconds(TimerIntervalSeconds), DispatcherPriority.Normal, (_, _) => Update(), Application.Current.Dispatcher)
         {
             IsEnabled = true
         };
@@ -138,46 +99,49 @@ public partial class AutosaveControl : UserControl, INotifyPropertyChanged
 
     private void Update()
     {
-        var data = AutosaveStateData;
-        if (data.AutosaveState is AutosaveState.Paused)
+        if (AutosaveStateData is null || AutosaveStateData.Value.AutosaveState is AutosaveState.Paused )
         {
             UpdateTextSave("AUTOSAVE_DISABLED", false, PauseIcon, activeBrush, false);
+            textUpdateTimer.Stop();
+            return;
+        }
+        if (!textUpdateTimer.IsEnabled)
+            textUpdateTimer.Start();
+        
+        var data = AutosaveStateData.Value;
+        if (data.LastBackupAutosaveData is null)
+        {
+            SetWaitingToSave(data);
             return;
         }
         
-        if (data.LastAutosaveData is null)
+        if (data.AutosaveState is AutosaveState.Idle)
         {
-            SetWaitingToSave();
-            return;
-        }
-        
-        if (AutosaveStateData.AutosaveState is AutosaveState.Idle)
-        {
-            if ((DateTime.Now - data.LastAutosaveData.Value.Time).TotalSeconds < (timerIntervalSeconds - 0.1))
+            if ((DateTime.Now - data.LastBackupAutosaveData.Value.Time).TotalSeconds < (TimerIntervalSeconds - 0.1))
             {
                 // just autosaved, show result
                 bool showingError = false;
-                if (data.LastAutosaveData.Value.UserFileSaveResult is UserFileAutosaveResult.NoUserFile)
+                if (data.LastUserFileAutosaveData?.SaveResult is UserFileAutosaveResult.NoUserFile)
                 {
                     UpdateTextSave("AUTOSAVE_PLEASE_RESAVE", true, SaveIcon, errorBrush, true);
                     showingError = true;
                 }
-                if (data.LastAutosaveData.Value.BackupSaveResult is BackupAutosaveResult.Error || 
-                    data.LastAutosaveData.Value.UserFileSaveResult is UserFileAutosaveResult.ExceptionWhileSaving)
+                if (data.LastBackupAutosaveData.Value.SaveResult is BackupAutosaveResult.Error || 
+                    data.LastUserFileAutosaveData?.SaveResult is UserFileAutosaveResult.ExceptionWhileSaving)
                 {
-                    SetWaitingToSave();
+                    SetWaitingToSave(data);
                     showingError = true;
                 }
                 if (showingError)
                     return;
 
-                if (data.LastAutosaveData.Value.BackupSaveResult is BackupAutosaveResult.NothingToSave)
+                if (data.LastBackupAutosaveData.Value.SaveResult is BackupAutosaveResult.NothingToSave)
                 {
                     UpdateTextSave("AUTOSAVE_NOTHING_CHANGED", false, SaveIcon, inactiveBrush, false);
                     return;
                 }
 
-                if (data.LastAutosaveData.Value.BackupSaveResult is BackupAutosaveResult.Success)
+                if (data.LastBackupAutosaveData.Value.SaveResult is BackupAutosaveResult.Success)
                 {
                     UpdateTextSave("AUTOSAVE_SAVED", true, SaveIcon, successBrush, false);
                     return;
@@ -185,37 +149,37 @@ public partial class AutosaveControl : UserControl, INotifyPropertyChanged
             }
             else
             {
-                SetWaitingToSave();
+                SetWaitingToSave(data);
                 return;
             }
         }
         
-        if (AutosaveStateData.AutosaveState is AutosaveState.AwaitingUpdateableChangeEnd)
+        if (data.AutosaveState is AutosaveState.AwaitingUpdateableChangeEnd)
         {
             UpdateTextSave("AUTOSAVE_WAITING_FOR_SAVE", true, SaveIcon, activeBrush, true);
             return;
         }
 
-        if (AutosaveStateData.AutosaveState is AutosaveState.InProgress)
+        if (data.AutosaveState is AutosaveState.InProgress)
         {
             UpdateTextSave("AUTOSAVE_SAVING", true, SaveIcon, activeBrush, true);
             return;
         }
     }
 
-    private void SetWaitingToSave()
+    private void SetWaitingToSave(AutosaveStateData data)
     {
-        var data = AutosaveStateData;
-        TimeSpan timeLeft = data.LastAutosaveData switch
+        TimeSpan timeLeft = data.LastBackupAutosaveData switch
         {
             null => data.AutosaveInterval - (DateTime.Now - data.AutosaveLaunchDateTime),
             { } lastData => data.AutosaveInterval - (DateTime.Now - lastData.Time)
         };
         
-        bool error = data.LastAutosaveData switch
+        bool error = (data.LastBackupAutosaveData, data.LastUserFileAutosaveData) switch
         {
-            null => false,
-            { } lastData => lastData.BackupSaveResult != BackupAutosaveResult.Error && lastData.UserFileSaveResult != UserFileAutosaveResult.ExceptionWhileSaving
+            (null, null) => false,
+            ({ } backup, null) => backup.SaveResult == BackupAutosaveResult.Error,
+            ({ } backup, { } autosave) => backup.SaveResult == BackupAutosaveResult.Error || autosave.SaveResult == UserFileAutosaveResult.ExceptionWhileSaving
         };
         
         if (timeLeft.Minutes == 0 && !error)
@@ -224,8 +188,8 @@ public partial class AutosaveControl : UserControl, INotifyPropertyChanged
             return;
         }
         
-        var adjusted = timeLeft.Add(TimeSpan.FromSeconds(30));
-        var minute = adjusted.Minutes < 2
+        TimeSpan adjusted = timeLeft.Add(TimeSpan.FromSeconds(30));
+        LocalizedString minute = adjusted.Minutes < 2
             ? new LocalizedString("MINUTE_SINGULAR")
             : new LocalizedString("MINUTE_PLURAL");
         
@@ -257,7 +221,7 @@ public partial class AutosaveControl : UserControl, INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+    private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
     {
         if (EqualityComparer<T>.Default.Equals(field, value)) return false;
         field = value;

@@ -12,6 +12,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.Autosave;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
@@ -109,6 +110,9 @@ internal class ViewModelMain : ViewModelBase
     }
 
     public ActionDisplayList ActionDisplays { get; }
+
+    public Guid CurrentSessionId { get; } = Guid.NewGuid();
+    public DateTime LaunchDateTime { get; } = DateTime.Now;
 
     public ViewModelMain(IServiceProvider serviceProvider)
     {
@@ -251,22 +255,13 @@ internal class ViewModelMain : ViewModelBase
 
     public void AutosaveAllForNextSession()
     {
-        if (!AutosaveDocumentViewModel.SaveStateEnabled || DebugSubViewModel.ModifiedEditorData)
-        {
+        if (!AutosaveViewModel.SaveSessionStateEnabled || DebugSubViewModel.ModifiedEditorData)
             return;
-        }
         
-        var list = new List<AutosaveFilePathInfo>();
-        foreach (var document in DocumentManagerSubViewModel.Documents)
+        foreach (DocumentViewModel document in DocumentManagerSubViewModel.Documents)
         {
-            document.AutosaveViewModel.TryAutosave();
-            if (document.AutosaveViewModel.LastSavedPath != null || document.FullFilePath != null)
-            {
-                list.Add(new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
-            }
+            document.AutosaveViewModel.AutosaveOnClose();
         }
-        
-        Preferences.UpdateLocalPreference(PreferencesConstants.UnsavedNextSessionFiles, list);
     }
 
     /// <summary>
@@ -319,6 +314,7 @@ internal class ViewModelMain : ViewModelBase
 
             // document.Dispose();
             WindowSubViewModel.CloseViewportsForDocument(document);
+            document.AutosaveViewModel.OnDocumentClosed();
 
             return true;
         }

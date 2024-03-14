@@ -128,8 +128,8 @@ internal class CrashReport : IDisposable
             .AppendLine($"  Has shared toolbar enabled: {GetPreferenceFormatted("EnableSharedToolbar", true, false)}")
             .AppendLine($"  Right click mode: {GetPreferenceFormatted<RightClickMode>("RightClickMode", true)}")
             .AppendLine($"  Has Rich presence enabled: {GetPreferenceFormatted("EnableRichPresence", true, true)}")
-            .AppendLine(
-                $"  Autosaving Enabled: {GetPreferenceFormatted(PreferencesConstants.AutosavePeriodMinutes, true, PreferencesConstants.AutosavePeriodDefault)}")
+            .AppendLine($"  Autosaving Enabled: {GetPreferenceFormatted(PreferencesConstants.AutosaveEnabled, true, PreferencesConstants.AutosaveEnabledDefault)}")
+            .AppendLine($"  Autosaving Period: {GetPreferenceFormatted(PreferencesConstants.AutosavePeriodMinutes, true, PreferencesConstants.AutosavePeriodDefault)}")
             .AppendLine($"  Debug Mode enabled: {GetPreferenceFormatted("IsDebugModeEnabled", true, false)}")
             .AppendLine("\nUI:")
             .AppendLine($"  MainWindow not null: {GetFormatted(() => MainWindow.Current != null)}")
@@ -287,12 +287,12 @@ internal class CrashReport : IDisposable
         var originalPathsEntry = ZipFile.Entries.First(entry => entry.FullName == "DocumentInfo.json");
 
         // Load original paths
-        Dictionary<string, AutosaveFilePathInfo> paths;
+        Dictionary<string, CrashReportAutosaveFilePathInfo> paths;
         {
             using Stream stream = originalPathsEntry.Open();
             using StreamReader reader = new(stream);
             string json = reader.ReadToEnd();
-            paths = JsonConvert.DeserializeObject<Dictionary<string, AutosaveFilePathInfo>>(json);
+            paths = JsonConvert.DeserializeObject<Dictionary<string, CrashReportAutosaveFilePathInfo>>(json);
         }
 
         // Load .pixi files
@@ -358,7 +358,7 @@ internal class CrashReport : IDisposable
 
         // Write the documents into zip
         int counter = 0;
-        Dictionary<string, AutosaveFilePathInfo> originalPaths = new();
+        Dictionary<string, CrashReportAutosaveFilePathInfo> originalPaths = new();
         foreach (DocumentViewModel document in vm.DocumentManagerSubViewModel.Documents)
         {
             try
@@ -377,22 +377,28 @@ internal class CrashReport : IDisposable
                 documentStream.Write(serialized);
 
                 originalPaths.Add(nameInZip,
-                    new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
+                    new CrashReportAutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastAutosavedPath));
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             try
             {
-                if (document.AutosaveViewModel.LastSavedPath != null)
+                if (document.AutosaveViewModel.LastAutosavedPath != null)
                 {
-                    using var file = File.OpenRead(document.AutosaveViewModel.LastSavedPath);
+                    using var file = File.OpenRead(document.AutosaveViewModel.LastAutosavedPath);
                     using var entry = archive
-                        .CreateEntry($"Autosave/{Path.GetFileName(document.AutosaveViewModel.LastSavedPath)}").Open();
+                        .CreateEntry($"Autosave/{Path.GetFileName(document.AutosaveViewModel.LastAutosavedPath)}").Open();
 
                     file.CopyTo(entry);
                 }
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
 
             counter++;
         }
@@ -420,7 +426,7 @@ internal class CrashReport : IDisposable
 
     public class RecoveredPixi
     {
-        public AutosaveFilePathInfo Path { get; }
+        public CrashReportAutosaveFilePathInfo Path { get; }
 
         public ZipArchiveEntry RecoveredEntry { get; }
 
@@ -446,7 +452,7 @@ internal class CrashReport : IDisposable
             return buffer;
         }
 
-        public RecoveredPixi(AutosaveFilePathInfo path, ZipArchiveEntry recoveredEntry, ZipArchiveEntry? autosaveEntry)
+        public RecoveredPixi(CrashReportAutosaveFilePathInfo path, ZipArchiveEntry recoveredEntry, ZipArchiveEntry? autosaveEntry)
         {
             Path = path;
             RecoveredEntry = recoveredEntry;

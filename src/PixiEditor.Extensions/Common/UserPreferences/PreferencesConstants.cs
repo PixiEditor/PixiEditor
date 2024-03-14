@@ -24,9 +24,13 @@ public static class PreferencesConstants
     [SyncedPreferenceConstant]
     public const string AutosavePeriodMinutes = nameof(AutosavePeriodMinutes);
     public const double AutosavePeriodDefault = 3;
+    
+    [SyncedPreferenceConstant]
+    public const string AutosaveEnabled = nameof(AutosaveEnabled);
+    public const bool AutosaveEnabledDefault = true;
 
     [LocalPreferenceConstant]
-    public const string UnsavedNextSessionFiles = nameof(UnsavedNextSessionFiles);
+    public const string AutosaveHistory = nameof(AutosaveHistory);
 
     [SyncedPreferenceConstant]
     public const string AutosaveToDocumentPath = nameof(AutosaveToDocumentPath);
