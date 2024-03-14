@@ -343,10 +343,9 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
         public ReferenceLayerBuilder WithSurface(Surface surface)
         {
-            var writeableBitmap = surface.ToWriteableBitmap();
-            using var frameBuffer = writeableBitmap.Lock();
-            byte[] bytes = new byte[writeableBitmap.PixelSize.Height * frameBuffer.RowBytes];
-            Marshal.Copy(frameBuffer.Address, bytes, 0, bytes.Length);
+            // TODO: Make sure this works, there was WriteableBitmap previously
+            byte[] bytes = new byte[surface.Size.Y * surface.BytesPerPixel];
+            Marshal.Copy(surface.PixelBuffer, bytes, 0, bytes.Length);
 
             WithImage(surface.Size, bytes);
             

@@ -13,6 +13,8 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
     /// </remarks>
     public class Image : NativeObject
     {
+        public override object Native => DrawingBackendApi.Current.ImageImplementation.GetNativeImage(ObjectPointer);
+
         public int Width => DrawingBackendApi.Current.ImageImplementation.GetWidth(ObjectPointer);
         
         public int Height => DrawingBackendApi.Current.ImageImplementation.GetHeight(ObjectPointer);

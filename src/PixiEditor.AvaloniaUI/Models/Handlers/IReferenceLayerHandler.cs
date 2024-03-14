@@ -1,14 +1,16 @@
 ﻿using System.Collections.Immutable;
 using Avalonia;
 using Avalonia.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;
 
 public interface IReferenceLayerHandler : IHandler
 {
-    public WriteableBitmap? ReferenceBitmap { get; }
+    public Surface? ReferenceBitmap { get; }
     public ShapeCorners ReferenceShapeBindable { get; set; }
     public bool IsTopMost { get; set; }
     public bool IsTransforming { get; set; }

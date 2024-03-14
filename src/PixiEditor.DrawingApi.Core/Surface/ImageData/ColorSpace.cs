@@ -5,6 +5,8 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 public class ColorSpace : NativeObject
 {
+    public override object Native => DrawingBackendApi.Current.ColorSpaceImplementation.GetNativeColorSpace(ObjectPointer);
+
     public ColorSpace(IntPtr objPtr) : base(objPtr)
     {
         

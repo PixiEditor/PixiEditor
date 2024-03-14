@@ -54,6 +54,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return ManagedInstances[pixmap.ObjectPointer].BytesSize;
         }
 
+        public object GetNativePixmap(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
+        }
+
         public Pixmap CreateFrom(SKPixmap pixmap)
         {
             ManagedInstances[pixmap.Handle] = pixmap;

@@ -26,6 +26,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Palettes;
@@ -131,29 +132,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DocumentEventsModule EventInlet { get; }
     public ActionDisplayList ActionDisplays { get; } = new(() => ViewModelMain.Current.NotifyToolActionDisplayChanged());
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
-
-    public Dictionary<ChunkResolution, DrawingSurface> Surfaces { get; set; } = new();
-    public Dictionary<ChunkResolution, WriteableBitmap> LazyBitmaps { get; set; } = new()
+    //TODO: It was DrawingSurface before, check if it's correct
+    public Dictionary<ChunkResolution, Surface> Surfaces { get; set; } = new()
     {
-        [ChunkResolution.Full] = WriteableBitmapUtility.CreateBitmap(new VecI(64, 64)),
-        [ChunkResolution.Half] = WriteableBitmapUtility.CreateBitmap(new VecI(32, 32)),
-        [ChunkResolution.Quarter] = WriteableBitmapUtility.CreateBitmap(new VecI(16, 16)),
-        [ChunkResolution.Eighth] = WriteableBitmapUtility.CreateBitmap(new VecI(8, 8)),
+        [ChunkResolution.Full] = new Surface(new VecI(64, 64)),
+        [ChunkResolution.Half] = new Surface(new VecI(32, 32)),
+        [ChunkResolution.Quarter] = new Surface(new VecI(16, 16)),
+        [ChunkResolution.Eighth] = new Surface(new VecI(8, 8))
     };
 
-    private WriteableBitmap previewBitmap;
-
-    public WriteableBitmap PreviewBitmap
-    {
-        get => previewBitmap;
-        set
-        {
-            SetProperty(ref previewBitmap, value);
-            OnPropertyChanged(nameof(LazyBitmaps));
-        }
-    }
-
-    public DrawingSurface PreviewSurface { get; set; }
+    public Surface PreviewSurface { get; set; }
 
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;
@@ -194,15 +182,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         LineToolOverlayViewModel = new();
         LineToolOverlayViewModel.LineMoved += (_, args) => Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
-        foreach (KeyValuePair<ChunkResolution, WriteableBitmap> bitmap in LazyBitmaps)
-        {
-            DrawingSurface? surface = WriteableBitmapUtility.CreateDrawingSurface(bitmap.Value);
-            Surfaces[bitmap.Key] = surface;
-        }
-
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
-        PreviewBitmap = WriteableBitmapUtility.CreateBitmap(previewSize);
-        PreviewSurface = WriteableBitmapUtility.CreateDrawingSurface(PreviewBitmap);
+        PreviewSurface = new Surface(new VecI(previewSize.X, previewSize.Y));
 
         ReferenceLayerViewModel = new(this, Internals);
     }
@@ -448,7 +429,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public Color? PickColorFromReferenceLayer(VecD pos)
     {
-        WriteableBitmap? bitmap = ReferenceLayerViewModel.ReferenceBitmap; 
+        Surface? bitmap = ReferenceLayerViewModel.ReferenceBitmap;
         if (bitmap is null)
             return null;
         
@@ -456,11 +437,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         matrix.Invert();
         var transformed = matrix.Transform(new Point(pos.X, pos.Y));
 
-        if (transformed.X < 0 || transformed.Y < 0 || transformed.X >= bitmap.PixelSize.Width || transformed.Y >= bitmap.PixelSize.Height)
+        if (transformed.X < 0 || transformed.Y < 0 || transformed.X >= bitmap.Size.X || transformed.Y >= bitmap.Size.Y)
             return null;
 
-        using var frameBuffer = bitmap.Lock();
-        return frameBuffer.GetPixel((int)transformed.X, (int)transformed.Y).ToColor();
+        return bitmap.GetSRGBPixel(new VecI((int)transformed.X, (int)transformed.Y));
     }
 
     public Color PickColorFromCanvas(VecI pos, DocumentScope scope)

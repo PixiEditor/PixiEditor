@@ -5,10 +5,12 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.AvaloniaUI.Views.Main.ViewportControls;
 
@@ -43,11 +45,11 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         set => SetValue(DocumentProperty, value);
     }
 
-    public WriteableBitmap? TargetBitmap
+    public Surface? TargetBitmap
     {
         get
         {
-            if (Document?.LazyBitmaps.TryGetValue(CalculateResolution(), out WriteableBitmap? value) == true)
+            if (Document?.Surfaces.TryGetValue(CalculateResolution(), out Surface? value) == true)
                 return value;
             return null;
         }
@@ -64,7 +66,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     public FixedViewport()
     {
         InitializeComponent();
-        Binding binding = new Binding { Source = this, Path = $"{nameof(Document)}.{nameof(Document.LazyBitmaps)}" };
+        Binding binding = new Binding { Source = this, Path = $"{nameof(Document)}.{nameof(Document.Surfaces)}" };
         this.Bind(BitmapsProperty, binding);
         Loaded += OnLoad;
         Unloaded += OnUnload;

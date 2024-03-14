@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
@@ -14,6 +15,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.AvaloniaUI.Models.DocumentModels;
 #nullable enable
@@ -275,15 +277,12 @@ internal class DocumentUpdater
     {
         VecI oldSize = doc.SizeBindable;
 
-        Dictionary<ChunkResolution, WriteableBitmap> newBitmaps = new();
-        foreach ((ChunkResolution res, DrawingSurface surf) in doc.Surfaces)
+        foreach ((ChunkResolution res, Surface surf) in doc.Surfaces)
         {
             surf.Dispose();
-            newBitmaps[res] = WriteableBitmapUtility.CreateBitmap((VecI)(info.Size * res.Multiplier()));
-            doc.Surfaces[res] = WriteableBitmapUtility.CreateDrawingSurface(newBitmaps[res]);
+            VecI size = (VecI)(info.Size * res.Multiplier());
+            doc.Surfaces[res] = new Surface(size); //TODO: Bgra8888 was here
         }
-
-        doc.LazyBitmaps = newBitmaps;
 
         doc.SetSize(info.Size);
         doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);
@@ -291,8 +290,7 @@ internal class DocumentUpdater
 
         VecI documentPreviewSize = StructureHelpers.CalculatePreviewSize(info.Size);
         doc.PreviewSurface.Dispose();
-        doc.PreviewBitmap = WriteableBitmapUtility.CreateBitmap(documentPreviewSize);
-        doc.PreviewSurface = WriteableBitmapUtility.CreateDrawingSurface(doc.PreviewBitmap);
+        doc.PreviewSurface = new Surface(documentPreviewSize); //TODO: Bgra8888 was here
 
         // TODO: Make sure property changed events are raised internally
         // UPDATE: I think I did, but I'll leave it commented out for now

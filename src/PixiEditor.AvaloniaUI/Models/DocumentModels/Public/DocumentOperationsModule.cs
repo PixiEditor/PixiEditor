@@ -548,7 +548,9 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Document.ReferenceLayerHandler.ReferenceBitmap is null || Internals.ChangeController.IsChangeActive)
             return;
 
-        VecD size = new(Document.ReferenceLayerHandler.ReferenceBitmap.PixelSize.Width, Document.ReferenceLayerHandler.ReferenceBitmap.PixelSize.Height);
+
+
+        VecD size = new(Document.ReferenceLayerHandler.ReferenceBitmap.Size.X, Document.ReferenceLayerHandler.ReferenceBitmap.Size.Y);
         RectD referenceImageRect = new RectD(VecD.Zero, Document.SizeBindable).AspectFit(new RectD(VecD.Zero, size));
         ShapeCorners corners = new ShapeCorners(referenceImageRect);
         Internals.ActionAccumulator.AddFinishedActions(

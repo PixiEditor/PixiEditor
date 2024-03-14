@@ -145,5 +145,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
             skPaint.ColorFilter = colorFilterImplementation[value.ObjectPointer];
         }
+
+        public object GetNativePaint(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
+        }
     }
 }

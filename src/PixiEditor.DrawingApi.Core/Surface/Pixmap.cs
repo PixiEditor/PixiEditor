@@ -6,6 +6,8 @@ namespace PixiEditor.DrawingApi.Core.Surface;
 
 public class Pixmap : NativeObject
 {
+    public override object Native => DrawingBackendApi.Current.PixmapImplementation.GetNativePixmap(ObjectPointer);
+
     internal Pixmap(IntPtr objPtr) : base(objPtr)
     {
     }

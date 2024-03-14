@@ -158,22 +158,22 @@
                         ZIndex="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToIntConverter}}"
                         IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}"
                         ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
-                        <Image
+                        <visuals:SurfaceControl
                             Focusable="False"
-                            Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Width}"
-                            Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Height}"
-                            Source="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
+                            Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.X}"
+                            Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Y}"
+                            Surface="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
                             IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}"
                             RenderTransformOrigin="0, 0"
                             SizeChanged="OnReferenceImageSizeChanged"
                             FlowDirection="LeftToRight">
-                            <Image.RenderTransform>
+                            <visuals:SurfaceControl.RenderTransform>
                                 <TransformGroup>
                                     <MatrixTransform
                                         Matrix="{Binding Document.ReferenceLayerViewModel.ReferenceTransformMatrix}" />
                                 </TransformGroup>
-                            </Image.RenderTransform>
-                            <Image.Styles>
+                            </visuals:SurfaceControl.RenderTransform>
+                            <visuals:SurfaceControl.Styles>
                                 <!--TODO: Implement this-->
                                 <!--<Style>
                                     <Style.Triggers>
@@ -199,8 +199,8 @@
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>-->
-                            </Image.Styles>
-                        </Image>
+                            </visuals:SurfaceControl.Styles>
+                        </visuals:SurfaceControl>
                         <Canvas.Styles>
                             <!--TODO: Implement this-->
                             <!--<Style>
@@ -229,14 +229,14 @@
                             </Style>-->
                         </Canvas.Styles>
                     </Canvas>
-                    <Image
+                    <visuals:SurfaceControl
                         Focusable="False"
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
-                        Source="{Binding TargetBitmap}"
+                        Surface="{Binding TargetBitmap}"
                         ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"
                         FlowDirection="LeftToRight">
-                        <Image.Styles>
+                        <visuals:SurfaceControl.Styles>
                             <!--TODO: Implement-->
                             <!--<Style>
                                 <Style.Triggers>
@@ -262,8 +262,8 @@
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>-->
-                        </Image.Styles>
-                    </Image>
+                        </visuals:SurfaceControl.Styles>
+                    </visuals:SurfaceControl>
                     <Grid ZIndex="5">
                         <symmetryOverlay:SymmetryOverlay
                             Focusable="False"

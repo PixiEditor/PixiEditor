@@ -1,13 +1,9 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Avalonia;
-using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Helpers.Extensions;
-using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Parser;
@@ -22,7 +18,7 @@ internal class RecentlyOpenedDocument : ObservableObject
 
     private string filePath;
 
-    private Bitmap previewBitmap;
+    private Surface previewBitmap;
 
     public string FilePath
     {
@@ -63,7 +59,7 @@ internal class RecentlyOpenedDocument : ObservableObject
         }
     }
 
-    public Bitmap PreviewBitmap
+    public Surface PreviewBitmap
     {
         get
         {
@@ -82,7 +78,7 @@ internal class RecentlyOpenedDocument : ObservableObject
         FilePath = path;
     }
 
-    private Bitmap LoadPreviewBitmap()
+    private Surface? LoadPreviewBitmap()
     {
         if (!File.Exists(FilePath))
         {
@@ -102,8 +98,7 @@ internal class RecentlyOpenedDocument : ObservableObject
                     return null;
                 }
 
-                using var data = new MemoryStream(document.PreviewImage);
-                return WriteableBitmap.Decode(data);
+                return Surface.Load(document.PreviewImage);
             }
             catch
             {
@@ -119,21 +114,21 @@ internal class RecentlyOpenedDocument : ObservableObject
                 }
             }
 
-            using Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
+            Surface surface = Surface.Combine(serializableDocument.Width, serializableDocument.Height,
                 serializableDocument.Layers
                     .Where(x => x.Opacity > 0.8)
                     .Select(x => (x.ToImage(), new VecI(x.OffsetX, x.OffsetY))).ToList());
 
-            return DownscaleToMaxSize(surface.ToWriteableBitmap());
+            return DownscaleToMaxSize(surface);
         }
 
         if (SupportedFilesHelper.IsExtensionSupported(FileExtension))
         {
-            Bitmap bitmap = null;
+            Surface bitmap = null;
 
             try
             {
-                bitmap = Importer.ImportBitmap(FilePath);
+                bitmap = Surface.Load(FilePath);
             }
             catch (RecoverableException)
             {
@@ -150,14 +145,14 @@ internal class RecentlyOpenedDocument : ObservableObject
         return null;
     }
 
-    private Bitmap DownscaleToMaxSize(Bitmap bitmap)
+    private Surface DownscaleToMaxSize(Surface bitmap)
     {
-        if (bitmap.PixelSize.Width > Constants.MaxPreviewWidth || bitmap.PixelSize.Height > Constants.MaxPreviewHeight)
+        if (bitmap.Size.X > Constants.MaxPreviewWidth || bitmap.Size.Y > Constants.MaxPreviewHeight)
         {
-            double factor = Math.Min(Constants.MaxPreviewWidth / (double)bitmap.PixelSize.Width, Constants.MaxPreviewHeight / (double)bitmap.PixelSize.Height);
-            var scaledBitmap = bitmap.CreateScaledBitmap(new PixelSize((int)(bitmap.PixelSize.Width * factor), (int)(bitmap.PixelSize.Height * factor)),
-                BitmapInterpolationMode.HighQuality);
-            return scaledBitmap.ToWriteableBitmap();
+            double factor = Math.Min(Constants.MaxPreviewWidth / (double)bitmap.Size.X, Constants.MaxPreviewHeight / (double)bitmap.Size.Y);
+            var scaledBitmap = bitmap.Resize(new VecI((int)(bitmap.Size.X * factor), (int)(bitmap.Size.Y * factor)),
+                ResizeMethod.HighQuality);
+            return scaledBitmap;
         }
 
         return bitmap;

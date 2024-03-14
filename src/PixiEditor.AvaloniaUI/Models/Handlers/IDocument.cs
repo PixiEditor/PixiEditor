@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Avalonia.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.DocumentModels.Public;
@@ -21,14 +22,12 @@ internal interface IDocument : IHandler
     public IReferenceLayerHandler ReferenceLayerHandler { get; }
     public VectorPath SelectionPathBindable { get; }
     public IFolderHandler StructureRoot { get; }
-    public Dictionary<ChunkResolution, DrawingSurface> Surfaces { get; set; }
+    public Dictionary<ChunkResolution, Surface> Surfaces { get; set; }
     public DocumentStructureModule StructureHelper { get; }
-    public DrawingSurface PreviewSurface { get; set; }
+    public Surface PreviewSurface { get; set; }
     public bool AllChangesSaved { get; }
     public string CoordinatesString { get; set; }
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers { get; }
-    public Dictionary<ChunkResolution, WriteableBitmap> LazyBitmaps { get; set; }
-    public WriteableBitmap PreviewBitmap { get; set; }
     public ILayerHandlerFactory LayerHandlerFactory { get; }
     public IFolderHandlerFactory FolderHandlerFactory { get; }
     public ITransformHandler TransformHandler { get; }

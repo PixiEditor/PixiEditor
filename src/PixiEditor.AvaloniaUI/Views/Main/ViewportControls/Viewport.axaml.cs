@@ -7,13 +7,17 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers.UI;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Zoombox;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.Views.Main.ViewportControls;
 
@@ -269,17 +273,17 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         }
     }
 
-    public WriteableBitmap? TargetBitmap
+    public Surface? TargetBitmap
     {
         get
         {
-            return Document?.LazyBitmaps.TryGetValue(CalculateResolution(), out WriteableBitmap? value) == true ? value : null;
+            return Document?.Surfaces.TryGetValue(CalculateResolution(), out Surface? value) == true ? value : null;
         }
     }
 
     public double ReferenceLayerScale =>
         ZoomboxScale * ((Document?.ReferenceLayerViewModel.ReferenceBitmap != null && Document?.ReferenceLayerViewModel.ReferenceShapeBindable != null)
-            ? (Document.ReferenceLayerViewModel.ReferenceShapeBindable.RectSize.X / (double)Document.ReferenceLayerViewModel.ReferenceBitmap.PixelSize.Width)
+            ? (Document.ReferenceLayerViewModel.ReferenceShapeBindable.RectSize.X / (double)Document.ReferenceLayerViewModel.ReferenceBitmap.Size.X)
             : 1);
 
     public PixiEditor.Zoombox.Zoombox Zoombox => zoombox;
@@ -300,7 +304,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         InitializeComponent();
 
-        Binding binding = new Binding { Source = this, Path = $"{nameof(Document)}.{nameof(Document.LazyBitmaps)}" };
+        Binding binding = new Binding { Source = this, Path = $"{nameof(Document)}.{nameof(Document.Surfaces)}" };
         this.Bind(BitmapsProperty, binding);
 
         MainImage!.Loaded += OnImageLoaded;
@@ -313,7 +317,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
     }
 
-    public Image? MainImage => (Image?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
+    public SurfaceControl? MainImage => (SurfaceControl?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
     public Grid BackgroundGrid => viewportGrid;
 
     private void ForceRefreshFinalImage()

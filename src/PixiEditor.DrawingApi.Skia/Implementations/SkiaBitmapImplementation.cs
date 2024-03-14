@@ -21,5 +21,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[skBitmap.Handle] = skBitmap;
             return new Bitmap(skBitmap.Handle);
         }
+
+        public object GetNativeBitmap(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
+        }
     }
 }

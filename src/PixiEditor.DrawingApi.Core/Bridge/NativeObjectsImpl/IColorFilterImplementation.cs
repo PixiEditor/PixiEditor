@@ -9,4 +9,5 @@ public interface IColorFilterImplementation
 {
     public IntPtr CreateBlendMode(Color color, BlendMode blendMode);
     public void Dispose(ColorFilter colorFilter);
+    public object GetNativeColorFilter(IntPtr objectPointer);
 }

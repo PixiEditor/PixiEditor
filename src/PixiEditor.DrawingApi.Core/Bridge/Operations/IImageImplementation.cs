@@ -15,5 +15,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public ImgData Encode(Image image, EncodedImageFormat format, int quality);
         public int GetWidth(IntPtr objectPointer);
         public int GetHeight(IntPtr objectPointer);
+        public object GetNativeImage(IntPtr objectPointer);
     }
 }

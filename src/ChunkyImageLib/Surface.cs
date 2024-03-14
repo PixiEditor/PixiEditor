@@ -86,6 +86,26 @@ public class Surface : IDisposable
         }
     }
 
+    public Surface Resize(VecI newSize, ResizeMethod resizeMethod)
+    {
+        using Image image = DrawingSurface.Snapshot();
+        Surface newSurface = new(newSize);
+        using Paint paint = new();
+
+        FilterQuality filterQuality = resizeMethod switch
+        {
+            ResizeMethod.HighQuality => FilterQuality.High,
+            ResizeMethod.MediumQuality => FilterQuality.Medium,
+            ResizeMethod.LowQuality => FilterQuality.Low,
+            _ => FilterQuality.None
+        };
+
+        paint.FilterQuality = filterQuality;
+
+        newSurface.DrawingSurface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), paint);
+        return newSurface;
+    }
+
     public Surface ResizeNearestNeighbor(VecI newSize)
     {
         using Image image = DrawingSurface.Snapshot();
@@ -177,4 +197,12 @@ public class Surface : IDisposable
     {
         Marshal.FreeHGlobal(PixelBuffer);
     }
+}
+
+public enum ResizeMethod
+{
+    NearestNeighbor,
+    HighQuality,
+    MediumQuality,
+    LowQuality,
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
@@ -69,6 +70,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             ManagedInstances[drawingSurface.ObjectPointer].Dispose();
             ManagedInstances.TryRemove(drawingSurface.ObjectPointer, out _);
+        }
+
+        public object GetNativeSurface(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
         }
 
         private DrawingSurface CreateDrawingSurface(SKSurface skSurface)

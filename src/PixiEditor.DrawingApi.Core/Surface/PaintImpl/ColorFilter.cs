@@ -6,6 +6,7 @@ namespace PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
 public class ColorFilter : NativeObject
 {
+    public override object Native => DrawingBackendApi.Current.ColorFilterImplementation.GetNativeColorFilter(ObjectPointer);
     public ColorFilter(IntPtr objPtr) : base(objPtr)
     {
         

@@ -1,5 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
@@ -7,8 +8,9 @@ namespace PixiEditor.DrawingApi.Core.Surface
 {
     public class DrawingSurface : NativeObject
     {
+        public override object Native => DrawingBackendApi.Current.SurfaceImplementation.GetNativeSurface(ObjectPointer);
         public Canvas Canvas { get; private set; }
-        
+
         public DrawingSurface(IntPtr objPtr, Canvas canvas) : base(objPtr)
         {
             Canvas = canvas;

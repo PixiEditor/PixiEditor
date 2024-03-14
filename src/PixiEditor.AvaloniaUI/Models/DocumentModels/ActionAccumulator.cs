@@ -58,8 +58,6 @@ internal class ActionAccumulator
             document.Busy = true;
         };
         busyTimer.Start();
-        
-        List<ILockedFramebuffer> lockedFramebuffers = new();
 
         while (queuedActions.Count > 0)
         {
@@ -84,12 +82,6 @@ internal class ActionAccumulator
             }
             if (undoBoundaryPassed)
                 internals.Updater.AfterUndoBoundaryPassed();
-            
-            // lock bitmaps
-            foreach (var (_, bitmap) in document.LazyBitmaps)
-            {
-                lockedFramebuffers.Add(bitmap.Lock());
-            }
 
             // update the contents of the bitmaps
             var affectedAreas = new AffectedAreasGatherer(internals.Tracker, optimizedChanges);
@@ -97,19 +89,8 @@ internal class ActionAccumulator
             renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
             renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
 
-            if (undoBoundaryPassed)
-                LockPreviewBitmaps(document.StructureRoot, lockedFramebuffers);
-
             // add dirty rectangles
             AddDirtyRects(renderResult);
-
-            // unlock bitmaps
-            foreach (var lockedFramebuffer in lockedFramebuffers)
-            {
-                lockedFramebuffer?.Dispose();
-            }
-
-            lockedFramebuffers.Clear();
 
             // force refresh viewports for better responsiveness
             foreach (var (_, value) in internals.State.Viewports)
@@ -133,18 +114,6 @@ internal class ActionAccumulator
                 return false;
         }
         return true;
-    }
-
-    private void LockPreviewBitmaps(IFolderHandler root, List<ILockedFramebuffer> lockedFramebuffers)
-    {
-        foreach (var child in root.Children)
-        {
-            lockedFramebuffers.Add(child.PreviewBitmap?.Lock());
-            lockedFramebuffers.Add(child.MaskPreviewBitmap?.Lock());
-            if (child is IFolderHandler innerFolder)
-                LockPreviewBitmaps(innerFolder, lockedFramebuffers);
-        }
-        lockedFramebuffers.Add(document.PreviewBitmap.Lock());
     }
 
     private void AddDirtyRects(List<IRenderInfo> changes)

@@ -38,4 +38,5 @@ public interface IVectorPathImplementation
     public string ToSvgPathData(VectorPath vectorPath);
     public bool Contains(VectorPath vectorPath, float x, float y);
     public void AddPath(VectorPath vectorPath, VectorPath path, AddPathMode mode);
+    public object GetNativePath(IntPtr objectPointer);
 }

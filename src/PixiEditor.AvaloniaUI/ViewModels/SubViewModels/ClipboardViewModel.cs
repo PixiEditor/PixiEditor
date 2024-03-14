@@ -7,6 +7,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
+using PixiEditor.AvaloniaUI.Models.Clipboard;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Commands.Search;
@@ -52,16 +53,16 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
-        var surface = (data == null ? await ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
-        using var image = surface.image;
-        
-        var bitmap = surface.image.ToWriteableBitmap();
+        DataImage imageData = (data == null ? await ClipboardController.GetImagesFromClipboard() : ClipboardController.GetImage(data)).First();
+        using var surface = imageData.image;
+
+        var bitmap = imageData.image.ToWriteableBitmap();
 
         byte[] pixels = bitmap.ExtractPixels();
 
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
-            surface.image.Size);
+            imageData.image.Size);
 
         if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
@@ -75,11 +76,11 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
         var bitmap = Importer.GetPreviewBitmap(path);
-        byte[] pixels = bitmap.ExtractPixels();
+        byte[] pixels = bitmap.ToWriteableBitmap().ExtractPixels();
 
         doc.Operations.ImportReferenceLayer(
             pixels.ToImmutableArray(),
-            new VecI(bitmap.PixelSize.Width, bitmap.PixelSize.Height));
+            new VecI(bitmap.Size.X, bitmap.Size.Y));
     }
 
     [Command.Basic("PixiEditor.Clipboard.PasteColor", false, "PASTE_COLOR", "PASTE_COLOR_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPasteColor", IconEvaluator = "PixiEditor.Clipboard.PasteColorIcon")]

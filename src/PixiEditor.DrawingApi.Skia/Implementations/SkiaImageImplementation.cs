@@ -90,5 +90,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             return ManagedInstances[objectPointer].Height;
         }
+
+        public object GetNativeImage(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
+        }
     }
 }

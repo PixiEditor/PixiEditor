@@ -13,6 +13,8 @@
         xmlns:indicators1="clr-namespace:PixiEditor.AvaloniaUI.Views.Indicators"
         xmlns:newsFeed1="clr-namespace:PixiEditor.AvaloniaUI.Views.NewsFeed"
         xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
+        xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+        xmlns:skiaSharp="clr-namespace:SkiaSharp;assembly=SkiaSharp"
         mc:Ignorable="d"
         Title="Hello there!" Height="662" Width="982" MinHeight="500" MinWidth="500"
         Loaded="HelloTherePopup_OnLoaded">
@@ -116,14 +118,18 @@
                                                     
                                                     x:Name="fileButton">
                                                 <Grid Width="100" Height="100">
-                                                    <Image Source="{Binding PreviewBitmap}" x:Name="image" Margin="20">
+                                                    <visuals:SurfaceControl
+                                                        Surface="{Binding PreviewBitmap}"
+                                                        Stretch="Uniform"
+                                                        x:Name="image"
+                                                        Margin="20">
                                                         <!--<RenderOptions.BitmapInterpolationMode> TODO: Fix
                                                             <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
                                                                 <Binding Path="PreviewBitmap.PixelSize.Width"/>
                                                                 <Binding ElementName="image" Path="Width"/>
                                                             </MultiBinding>
                                                         </RenderOptions.BitmapInterpolationMode>-->
-                                                    </Image>
+                                                    </visuals:SurfaceControl>
                                                     <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder" Margin="5"
                                                             Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}" 
                                                             VerticalAlignment="Bottom" HorizontalAlignment="Right">

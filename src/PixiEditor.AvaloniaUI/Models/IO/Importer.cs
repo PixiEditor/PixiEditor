@@ -135,13 +135,14 @@ internal class Importer : ObservableObject
         }
     }
 
-    public static WriteableBitmap GetPreviewBitmap(string path)
+    public static Surface GetPreviewBitmap(string path)
     {
         if (!IsSupportedFile(path))
         {
             throw new InvalidFileTypeException(new LocalizedString("FILE_EXTENSION_NOT_SUPPORTED", Path.GetExtension(path)));
         }
-        return Path.GetExtension(path) != ".pixi" ? ImportWriteableBitmap(path) : PixiParser.Deserialize(path).ToDocument().PreviewBitmap;
+
+        return Path.GetExtension(path) != ".pixi" ? Surface.Load(path) : PixiParser.Deserialize(path).ToDocument().PreviewSurface;
     }
 
     public static bool IsSupportedFile(string path)

@@ -10,10 +10,13 @@ namespace PixiEditor.DrawingApi.Core.Surface
 {
     public class Canvas : NativeObject
     {
+
+        public override object Native => DrawingBackendApi.Current.CanvasImplementation.GetNativeCanvas(ObjectPointer);
+
         public Canvas(IntPtr objPtr) : base(objPtr)
         {
         }
-        
+
         public void DrawPixel(VecI position, Paint drawingPaint) => DrawPixel(position.X, position.Y, drawingPaint);
         public void DrawPixel(int posX, int posY, Paint drawingPaint) => 
             DrawingBackendApi.Current.CanvasImplementation.DrawPixel(ObjectPointer, posX, posY, drawingPaint);

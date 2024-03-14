@@ -9,6 +9,8 @@ namespace PixiEditor.DrawingApi.Core.Surface.PaintImpl
     /// </summary>
     public class Paint : NativeObject
     {
+        public override object Native => DrawingBackendApi.Current.PaintImplementation.GetNativePaint(ObjectPointer);
+
         public Color Color
         {
             get => DrawingBackendApi.Current.PaintImplementation.GetColor(this);
