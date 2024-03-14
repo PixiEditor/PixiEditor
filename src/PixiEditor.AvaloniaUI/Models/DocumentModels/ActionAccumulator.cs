@@ -10,6 +10,7 @@ using PixiEditor.AvaloniaUI.Models.Rendering.RenderInfos;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.DocumentModels;
 #nullable enable
@@ -68,9 +69,13 @@ internal class ActionAccumulator
             // pass them to changeabledocument for processing
             List<IChangeInfo?> changes;
             if (AreAllPassthrough(toExecute))
+            {
                 changes = toExecute.Select(a => (IChangeInfo?)a).ToList();
+            }
             else
+            {
                 changes = await internals.Tracker.ProcessActions(toExecute);
+            }
 
             // update viewmodels based on changes
             List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
@@ -89,6 +94,11 @@ internal class ActionAccumulator
             renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
             renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
 
+            if (undoBoundaryPassed)
+            {
+                ClearDirtyRects();
+            }
+
             // add dirty rectangles
             AddDirtyRects(renderResult);
 
@@ -106,6 +116,14 @@ internal class ActionAccumulator
         executing = false;
     }
 
+    private void ClearDirtyRects()
+    {
+        foreach (var surface in document.Surfaces)
+        {
+            surface.Value.ClearDirtyRects();
+        }
+    }
+
     private bool AreAllPassthrough(List<IAction> actions)
     {
         foreach (var action in actions)
@@ -118,42 +136,41 @@ internal class ActionAccumulator
 
     private void AddDirtyRects(List<IRenderInfo> changes)
     {
-        //TODO: Avalonia doesn't seem to have a way to add dirty rects to bitmaps
-        /*foreach (IRenderInfo renderInfo in changes)
+        foreach (IRenderInfo renderInfo in changes)
         {
             switch (renderInfo)
             {
                 case DirtyRect_RenderInfo info:
                     {
-                        var bitmap = document.LazyBitmaps[info.Resolution];
-                        RectI finalRect = new RectI(VecI.Zero, new(bitmap.PixelSize.Width, bitmap.PixelSize.Height));
+                        var bitmap = document.Surfaces[info.Resolution];
+                        RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
 
                         RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                        bitmap.AddDirtyRect(new(dirtyRect.Left, dirtyRect.Top, dirtyRect.Width, dirtyRect.Height));
+                        bitmap.AddDirtyRect(dirtyRect);
                     }
                     break;
                 case PreviewDirty_RenderInfo info:
                     {
-                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewBitmap;
+                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.PreviewSurface;
                         if (bitmap is null)
                             continue;
-                        bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelSize.Width, bitmap.PixelSize.Height));
+                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case MaskPreviewDirty_RenderInfo info:
                     {
-                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewBitmap;
+                        var bitmap = document.StructureHelper.Find(info.GuidValue)?.MaskPreviewSurface;
                         if (bitmap is null)
                             continue;
-                        bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelSize.Width, bitmap.PixelSize.Height));
+                        bitmap.AddDirtyRect(new RectI(0, 0, bitmap.Size.X, bitmap.Size.Y));
                     }
                     break;
                 case CanvasPreviewDirty_RenderInfo:
                     {
-                        document.PreviewBitmap.AddDirtyRect(new Int32Rect(0, 0, document.PreviewBitmap.PixelSize.Width, document.PreviewBitmap.PixelSize.Height));
+                        document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
                     }
                     break;
             }
-        }*/
+        }
     }
 }

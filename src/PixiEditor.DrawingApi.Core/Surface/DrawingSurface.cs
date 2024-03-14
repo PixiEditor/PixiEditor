@@ -31,6 +31,11 @@ namespace PixiEditor.DrawingApi.Core.Surface
             return DrawingBackendApi.Current.ImageImplementation.Snapshot(this);
         }
 
+        public Image Snapshot(RectI bounds)
+        {
+            return DrawingBackendApi.Current.ImageImplementation.Snapshot(this, bounds);
+        }
+
         public Pixmap PeekPixels()
         {
             return DrawingBackendApi.Current.SurfaceImplementation.PeekPixels(this);

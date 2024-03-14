@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using SkiaSharp;
@@ -27,6 +28,15 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             var surface = _surfaceImplementation![drawingSurface.ObjectPointer];
             SKImage snapshot = surface.Snapshot();
             
+            ManagedInstances[snapshot.Handle] = snapshot;
+            return new Image(snapshot.Handle);
+        }
+
+        public Image Snapshot(DrawingSurface drawingSurface, RectI bounds)
+        {
+            var surface = _surfaceImplementation![drawingSurface.ObjectPointer];
+            SKImage snapshot = surface.Snapshot(bounds.ToSkRectI());
+
             ManagedInstances[snapshot.Handle] = snapshot;
             return new Image(snapshot.Handle);
         }

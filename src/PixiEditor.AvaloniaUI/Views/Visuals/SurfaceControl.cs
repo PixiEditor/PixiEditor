@@ -6,6 +6,7 @@ using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
@@ -37,10 +38,12 @@ public class SurfaceControl : Control
 
     static SurfaceControl()
     {
-        AffectsRender<SurfaceControl>(SurfaceProperty, StretchProperty);
+        AffectsRender<SurfaceControl>(StretchProperty);
         SurfaceProperty.Changed.AddClassHandler<SurfaceControl>(OnSurfaceChanged);
         BoundsProperty.Changed.AddClassHandler<SurfaceControl>(BoundsChanged);
         StretchProperty.Changed.AddClassHandler<SurfaceControl>(StretchChanged);
+        WidthProperty.Changed.AddClassHandler<SurfaceControl>(BoundsChanged);
+        HeightProperty.Changed.AddClassHandler<SurfaceControl>(BoundsChanged);
     }
 
     public override void Render(DrawingContext context)
@@ -86,6 +89,11 @@ public class DrawingSurfaceOp : ICustomDrawOperation
 
     private SKPaint _paint = new SKPaint();
 
+    //TODO: Implement dirty rect handling
+    /*private RectI? _lastDirtyRect;
+    private SKImage? _lastImage;
+    private SKImage? _lastFullImage;*/
+
     public DrawingSurfaceOp(Surface surface, Rect bounds, Stretch stretch)
     {
         Surface = surface;
@@ -100,8 +108,32 @@ public class DrawingSurfaceOp : ICustomDrawOperation
             using var lease = skiaSurface.Lease();
             var canvas = lease.SkCanvas;
             canvas.Save();
+
             ScaleCanvas(canvas);
             canvas.DrawSurface((SKSurface)Surface.DrawingSurface.Native, 0, 0, _paint);
+            /*if(_lastDirtyRect != Surface.DirtyRect)
+            {
+                RectI dirtyRect = Surface.DirtyRect;
+                if (dirtyRect.IsZeroOrNegativeArea)
+                {
+                    dirtyRect = new RectI(0, 0, Surface.Size.X, Surface.Size.Y);
+                    _lastFullImage = (SKImage)Surface.DrawingSurface.Snapshot().Native;
+                }
+
+                _lastImage = (SKImage)Surface.DrawingSurface.Snapshot(dirtyRect).Native;
+                _lastDirtyRect = Surface.DirtyRect;
+            }
+
+            if (_lastFullImage != null)
+            {
+                canvas.DrawImage(_lastFullImage, new SKPoint(0, 0), _paint);
+            }
+
+            if (_lastImage != null)
+            {
+                canvas.DrawImage(_lastImage, new SKPoint(_lastDirtyRect.Value.X, _lastDirtyRect.Value.Y), _paint);
+            }*/
+
             canvas.Restore();
         }
     }

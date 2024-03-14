@@ -212,19 +212,17 @@ internal class MemberPreviewUpdater
             {
                 member.PreviewSurface?.Dispose();
                 member.PreviewSurface = null;
-                member.PreviewBitmap = null;
             }
             else
             {
-                if (member.PreviewBitmap is not null && member.PreviewBitmap.PixelSize.Width == newSize.Value.previewSize.X && member.PreviewBitmap.PixelSize.Height == newSize.Value.previewSize.Y)
+                if (member.PreviewSurface is not null && member.PreviewSurface.Size.X == newSize.Value.previewSize.X && member.PreviewSurface.Size.Y == newSize.Value.previewSize.Y)
                 {
-                    member.PreviewSurface!.Canvas.Clear();
+                    member.PreviewSurface!.DrawingSurface.Canvas.Clear();
                 }
                 else
                 {
                     member.PreviewSurface?.Dispose();
-                    member.PreviewSurface = DrawingSurface.Create(new ImageInfo(newSize.Value.previewSize.X,
-                        newSize.Value.previewSize.Y, ColorType.Bgra8888, AlphaType.Premul));
+                    member.PreviewSurface = new Surface(newSize.Value.previewSize); // TODO: premul bgra8888 was here
                 }
             }
 
@@ -241,12 +239,10 @@ internal class MemberPreviewUpdater
             if (newSize is null)
             {
                 member.MaskPreviewSurface = null;
-                member.MaskPreviewBitmap = null;
             }
             else
             {
-                member.MaskPreviewSurface = DrawingSurface.Create(new ImageInfo(newSize.Value.previewSize.X,
-                    newSize.Value.previewSize.Y, ColorType.Bgra8888, AlphaType.Premul));
+                member.MaskPreviewSurface = new Surface(newSize.Value.previewSize); // TODO: premul bgra8888 was here
             }
 
             //TODO: Make sure MaskPreviewBitmap implementation raises PropertyChanged
@@ -496,10 +492,10 @@ internal class MemberPreviewUpdater
     /// </summary>
     private void RenderFolderMainPreview(IReadOnlyFolder folder, IStructureMemberHandler memberVM, AffectedArea area, VecI position, float scaling)
     {
-        memberVM.PreviewSurface.Canvas.Save();
-        memberVM.PreviewSurface.Canvas.Scale(scaling);
-        memberVM.PreviewSurface.Canvas.Translate(-position);
-        memberVM.PreviewSurface.Canvas.ClipRect((RectD)area.GlobalArea);
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Save();
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Translate(-position);
+        memberVM.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)area.GlobalArea);
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
@@ -508,15 +504,15 @@ internal class MemberPreviewUpdater
             OneOf<Chunk, EmptyChunk> rendered = ChunkRenderer.MergeWholeStructure(chunk, ChunkResolution.Full, folder);
             if (rendered.IsT0)
             {
-                memberVM.PreviewSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
+                memberVM.PreviewSurface.DrawingSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
                 rendered.AsT0.Dispose();
             }
             else
             {
-                memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(), ChunkResolution.Full.PixelSize(), ClearPaint);
+                memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(), ChunkResolution.Full.PixelSize(), ClearPaint);
             }
         }
-        memberVM.PreviewSurface.Canvas.Restore();
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
     }
 
     /// <summary>
@@ -524,19 +520,19 @@ internal class MemberPreviewUpdater
     /// </summary>
     private void RenderLayerMainPreview(IReadOnlyLayer layer, IStructureMemberHandler memberVM, AffectedArea area, VecI position, float scaling)
     {
-        memberVM.PreviewSurface.Canvas.Save();
-        memberVM.PreviewSurface.Canvas.Scale(scaling);
-        memberVM.PreviewSurface.Canvas.Translate(-position);
-        memberVM.PreviewSurface.Canvas.ClipRect((RectD)area.GlobalArea);
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Save();
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Translate(-position);
+        memberVM.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)area.GlobalArea);
 
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
-            if (!layer.Rasterize().DrawCommittedChunkOn(chunk, ChunkResolution.Full, memberVM.PreviewSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
-                memberVM.PreviewSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
+            if (!layer.Rasterize().DrawCommittedChunkOn(chunk, ChunkResolution.Full, memberVM.PreviewSurface.DrawingSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
+                memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
         }
 
-        memberVM.PreviewSurface.Canvas.Restore();
+        memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
     }
 
     private void RenderMaskPreviews(
@@ -579,18 +575,18 @@ internal class MemberPreviewUpdater
 
             var member = internals.Tracker.Document.FindMemberOrThrow(guid);
 
-            memberVM.MaskPreviewSurface!.Canvas.Save();
-            memberVM.MaskPreviewSurface.Canvas.Scale(scaling);
-            memberVM.MaskPreviewSurface.Canvas.Translate(-position);
-            memberVM.MaskPreviewSurface.Canvas.ClipRect((RectD)affArea.Value.GlobalArea);
+            memberVM.MaskPreviewSurface!.DrawingSurface.Canvas.Save();
+            memberVM.MaskPreviewSurface.DrawingSurface.Canvas.Scale(scaling);
+            memberVM.MaskPreviewSurface.DrawingSurface.Canvas.Translate(-position);
+            memberVM.MaskPreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)affArea.Value.GlobalArea);
             foreach (var chunk in affArea.Value.Chunks)
             {
                 var pos = chunk * ChunkResolution.Full.PixelSize();
                 member.Mask!.DrawMostUpToDateChunkOn
-                    (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
+                    (chunk, ChunkResolution.Full, memberVM.MaskPreviewSurface.DrawingSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
             }
 
-            memberVM.MaskPreviewSurface.Canvas.Restore();
+            memberVM.MaskPreviewSurface.DrawingSurface.Canvas.Restore();
             infos.Add(new MaskPreviewDirty_RenderInfo(guid));
         }
     }

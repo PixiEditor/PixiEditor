@@ -11,6 +11,7 @@
              xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
              xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
+             xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
              mc:Ignorable="d" 
              Focusable="True"
              d:DesignHeight="35" d:DesignWidth="250" Name="uc"
@@ -72,7 +73,9 @@
                                 <Binding ElementName="uc" Path="Layer.HasMaskBindable"/>
                             </MultiBinding>
                         </Border.BorderBrush>
-                        <Image Source="{Binding Layer.PreviewBitmap, ElementName=uc}" Stretch="Uniform" Width="30" Height="30"
+                        <visuals:SurfaceControl Surface="{Binding Layer.PreviewSurface, ElementName=uc}"
+                                                Stretch="Uniform" Width="30"
+                                                Height="30"
                            RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                     </Border>
                     <Border
@@ -95,7 +98,7 @@
                             </MultiBinding>
                         </Border.BorderBrush>
                         <Grid IsHitTestVisible="False">
-                            <Image Source="{Binding Layer.MaskPreviewBitmap,ElementName=uc}" Stretch="Uniform" Width="30" Height="30"
+                            <visuals:SurfaceControl Surface="{Binding Layer.MaskPreviewSurface,ElementName=uc}" Stretch="Uniform" Width="30" Height="30"
                            RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                             <Path
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z"

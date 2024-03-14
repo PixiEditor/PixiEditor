@@ -13,12 +13,13 @@
              VerticalAlignment="Center"
              d:DesignHeight="450" d:DesignWidth="800">
 
-    <!--TODO there was Stretch="Uniform" below-->
     <visuals:SurfaceControl
         x:Name="mainImage"
         Focusable="True"
         Surface="{Binding TargetBitmap, ElementName=uc}"
-        HorizontalAlignment="Stretch"
+        Width="{Binding Document.Width, ElementName=uc}"
+        Height="{Binding Document.Height, ElementName=uc}"
+        Stretch="Uniform"
         SizeChanged="OnImageSizeChanged">
         <ui:RenderOptionsBindable.BitmapInterpolationMode>
             <MultiBinding Converter="{converters1:WidthToBitmapScalingModeConverter}">

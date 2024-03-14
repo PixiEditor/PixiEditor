@@ -1,4 +1,5 @@
 ﻿using Avalonia.Media.Imaging;
+using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
@@ -143,24 +144,9 @@ internal abstract class StructureMemberViewModel : ObservableObject, IStructureM
         set => SetProperty(ref selection, value);
     }
 
-    private WriteableBitmap? previewBitmap;
+    public Surface? PreviewSurface { get; set; }
 
-    public WriteableBitmap? PreviewBitmap
-    {
-        get => previewBitmap;
-        set => SetProperty(ref previewBitmap, value);
-    }
-    public DrawingSurface? PreviewSurface { get; set; }
-
-    private WriteableBitmap? maskPreviewBitmap;
-
-    public WriteableBitmap? MaskPreviewBitmap
-    {
-        get => maskPreviewBitmap;
-        set => SetProperty(ref maskPreviewBitmap, value);
-    }
-
-    public DrawingSurface? MaskPreviewSurface { get; set; }
+    public Surface? MaskPreviewSurface { get; set; }
 
     IDocument IStructureMemberHandler.Document => Document;
 
@@ -182,7 +168,6 @@ internal abstract class StructureMemberViewModel : ObservableObject, IStructureM
         Internals = internals;
 
         this.guidValue = guidValue;
-        PreviewBitmap = null;
         PreviewSurface = null;
     }
 }

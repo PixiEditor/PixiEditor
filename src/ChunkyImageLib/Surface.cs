@@ -17,6 +17,8 @@ public class Surface : IDisposable
     public int BytesPerPixel { get; }
     public VecI Size { get; }
 
+    public RectI DirtyRect { get; private set; }
+
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
     private Paint nearestNeighborReplacingPaint = new() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.None };
 
@@ -196,6 +198,17 @@ public class Surface : IDisposable
     ~Surface()
     {
         Marshal.FreeHGlobal(PixelBuffer);
+    }
+
+    public void AddDirtyRect(RectI dirtyRect)
+    {
+        // TODO: yeah well this is probably wrong lol, since the name even says "Add" and not "Set"
+        DirtyRect = dirtyRect;
+    }
+
+    public void ClearDirtyRects()
+    {
+        DirtyRect = default;
     }
 }
 

@@ -45,6 +45,11 @@ namespace PixiEditor.DrawingApi.Skia
         {
             return new SKRect(rect.Left, rect.Top, rect.Right, rect.Bottom);
         }
+
+        public static SKRectI ToSkRectI(this RectI rect)
+        {
+            return new SKRectI(rect.Left, rect.Top, rect.Right, rect.Bottom);
+        }
         
         public static SKImageInfo ToSkImageInfo(this ImageInfo info)
         {
