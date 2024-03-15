@@ -89,11 +89,6 @@ public class DrawingSurfaceOp : ICustomDrawOperation
 
     private SKPaint _paint = new SKPaint();
 
-    //TODO: Implement dirty rect handling
-    /*private RectI? _lastDirtyRect;
-    private SKImage? _lastImage;
-    private SKImage? _lastFullImage;*/
-
     public DrawingSurfaceOp(Surface surface, Rect bounds, Stretch stretch)
     {
         Surface = surface;
@@ -111,29 +106,6 @@ public class DrawingSurfaceOp : ICustomDrawOperation
 
             ScaleCanvas(canvas);
             canvas.DrawSurface((SKSurface)Surface.DrawingSurface.Native, 0, 0, _paint);
-            /*if(_lastDirtyRect != Surface.DirtyRect)
-            {
-                RectI dirtyRect = Surface.DirtyRect;
-                if (dirtyRect.IsZeroOrNegativeArea)
-                {
-                    dirtyRect = new RectI(0, 0, Surface.Size.X, Surface.Size.Y);
-                    _lastFullImage = (SKImage)Surface.DrawingSurface.Snapshot().Native;
-                }
-
-                _lastImage = (SKImage)Surface.DrawingSurface.Snapshot(dirtyRect).Native;
-                _lastDirtyRect = Surface.DirtyRect;
-            }
-
-            if (_lastFullImage != null)
-            {
-                canvas.DrawImage(_lastFullImage, new SKPoint(0, 0), _paint);
-            }
-
-            if (_lastImage != null)
-            {
-                canvas.DrawImage(_lastImage, new SKPoint(_lastDirtyRect.Value.X, _lastDirtyRect.Value.Y), _paint);
-            }*/
-
             canvas.Restore();
         }
     }

@@ -6,6 +6,7 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.DocumentModels.Public;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.Tools;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -22,7 +23,7 @@ internal interface IDocument : IHandler
     public IReferenceLayerHandler ReferenceLayerHandler { get; }
     public VectorPath SelectionPathBindable { get; }
     public IFolderHandler StructureRoot { get; }
-    public Dictionary<ChunkResolution, Surface> Surfaces { get; set; }
+    public ChunkCache RenderedChunks { get; }
     public DocumentStructureModule StructureHelper { get; }
     public Surface PreviewSurface { get; set; }
     public bool AllChangesSaved { get; }
@@ -50,4 +51,5 @@ internal interface IDocument : IHandler
     public void SetSize(VecI infoSize);
     public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference, bool includeCanvas, bool isTopMost);
     public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
+    public void UpdateChunk(VecI chunkPos, ChunkResolution resolution, Chunk? updated);
 }

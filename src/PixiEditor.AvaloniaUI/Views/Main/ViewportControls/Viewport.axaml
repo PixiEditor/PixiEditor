@@ -20,6 +20,8 @@
     xmlns:viewportControls="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.ViewportControls"
     xmlns:overlays="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays"
     xmlns:selectionOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay"
+    xmlns:renderers="clr-namespace:PixiEditor.AvaloniaUI.Views.Renderers"
+    xmlns:generic="clr-namespace:System.Collections.Generic;assembly=System.Runtime"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -229,14 +231,23 @@
                             </Style>-->
                         </Canvas.Styles>
                     </Canvas>
-                    <visuals:SurfaceControl
-                        Focusable="False"
-                        Width="{Binding Document.Width}"
-                        Height="{Binding Document.Height}"
-                        Surface="{Binding TargetBitmap}"
+                    <ItemsControl ItemsSource="{Binding ActiveChunkSet}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <renderers:ChunkSetPanel
+                                    ChunkCache="{Binding Document.RenderedChunks}"
+                                    MaxSize="{Binding Document.SizeBindable}"
+                                    Resolution="{Binding ActiveResolution}"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                 <renderers:ChunkControl
+                        Chunk="{Binding Value}"
+                        ChunkPosition="{Binding Key}"
                         ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"
                         FlowDirection="LeftToRight">
-                        <visuals:SurfaceControl.Styles>
+                        <renderers:ChunkControl.Styles>
                             <!--TODO: Implement-->
                             <!--<Style>
                                 <Style.Triggers>
@@ -262,8 +273,11 @@
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>-->
-                        </visuals:SurfaceControl.Styles>
-                    </visuals:SurfaceControl>
+                        </renderers:ChunkControl.Styles>
+                    </renderers:ChunkControl>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                     <Grid ZIndex="5">
                         <symmetryOverlay:SymmetryOverlay
                             Focusable="False"

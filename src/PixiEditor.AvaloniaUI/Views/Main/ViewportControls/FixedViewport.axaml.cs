@@ -45,7 +45,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         set => SetValue(DocumentProperty, value);
     }
 
-    public Surface? TargetBitmap
+    /*public Surface? TargetBitmap
     {
         get
         {
@@ -53,7 +53,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
                 return value;
             return null;
         }
-    }
+    }*/
 
     public Guid GuidValue { get; } = Guid.NewGuid();
 
@@ -66,7 +66,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     public FixedViewport()
     {
         InitializeComponent();
-        Binding binding = new Binding { Source = this, Path = $"{nameof(Document)}.{nameof(Document.Surfaces)}" };
+        Binding binding = new Binding { Source = this, Path = $"{nameof(Document)}.{nameof(Document.RenderedChunks)}" };
         this.Bind(BitmapsProperty, binding);
         Loaded += OnLoad;
         Unloaded += OnUnload;
@@ -130,13 +130,13 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     private static void OnBitmapsChange(AvaloniaPropertyChangedEventArgs<Dictionary<ChunkResolution, WriteableBitmap>> args)
     {
         FixedViewport? viewport = (FixedViewport)args.Sender;
-        viewport.PropertyChanged?.Invoke(viewport, new(nameof(TargetBitmap)));
+        //viewport.PropertyChanged?.Invoke(viewport, new(nameof(TargetBitmap)));
         viewport.Document?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
     private void OnImageSizeChanged(object sender, SizeChangedEventArgs e)
     {
-        PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
+        //PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
         //Document?.Operations.AddOrUpdateViewport(GetLocation()); //TODO: This causes deadlock
     }
 }

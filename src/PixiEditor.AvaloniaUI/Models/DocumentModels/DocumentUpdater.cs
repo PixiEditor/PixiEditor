@@ -277,12 +277,12 @@ internal class DocumentUpdater
     {
         VecI oldSize = doc.SizeBindable;
 
-        foreach ((ChunkResolution res, Surface surf) in doc.Surfaces)
+        /*foreach ((ChunkResolution res, Chunk surf) in doc.Surfaces)
         {
             surf.Dispose();
             VecI size = (VecI)(info.Size * res.Multiplier());
             doc.Surfaces[res] = new Surface(size); //TODO: Bgra8888 was here
-        }
+        }*/
 
         doc.SetSize(info.Size);
         doc.SetVerticalSymmetryAxisX(info.VerticalSymmetryAxisX);

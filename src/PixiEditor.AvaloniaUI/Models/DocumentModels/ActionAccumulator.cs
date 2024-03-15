@@ -94,10 +94,10 @@ internal class ActionAccumulator
             renderResult.AddRange(await canvasUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed || viewportRefreshRequest));
             renderResult.AddRange(await previewUpdater.UpdateGatheredChunks(affectedAreas, undoBoundaryPassed));
 
-            if (undoBoundaryPassed)
+            /*if (undoBoundaryPassed)
             {
                 ClearDirtyRects();
-            }
+            }*/
 
             // add dirty rectangles
             AddDirtyRects(renderResult);
@@ -114,14 +114,6 @@ internal class ActionAccumulator
         if (document.Busy)
             document.Busy = false;
         executing = false;
-    }
-
-    private void ClearDirtyRects()
-    {
-        foreach (var surface in document.Surfaces)
-        {
-            surface.Value.ClearDirtyRects();
-        }
     }
 
     private bool AreAllPassthrough(List<IAction> actions)
@@ -142,11 +134,16 @@ internal class ActionAccumulator
             {
                 case DirtyRect_RenderInfo info:
                     {
-                        var bitmap = document.Surfaces[info.Resolution];
-                        RectI finalRect = new RectI(VecI.Zero, new(bitmap.Size.X, bitmap.Size.Y));
+                        if(!document.RenderedChunks.ContainsKey(info.Resolution))
+                            continue;
+                        if (!document.RenderedChunks[info.Resolution].ContainsKey(info.Pos))
+                            continue;
 
+                        var bitmap = document.RenderedChunks[info.Resolution][info.Pos];
+                        RectI finalRect = new RectI(VecI.Zero, new(bitmap.PixelSize.X, bitmap.PixelSize.Y));
                         RectI dirtyRect = new RectI(info.Pos, info.Size).Intersect(finalRect);
-                        bitmap.AddDirtyRect(dirtyRect);
+
+                        bitmap.IsDirty = true;
                     }
                     break;
                 case PreviewDirty_RenderInfo info:

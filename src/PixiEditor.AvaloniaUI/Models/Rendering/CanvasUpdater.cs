@@ -169,10 +169,19 @@ internal class CanvasUpdater
             if (globalClippingRectangle is not null)
                 globalScaledClippingRectangle = (RectI?)((RectI)globalClippingRectangle).Scale(resolution.Multiplier()).RoundOutwards();
 
-            Surface screenSurface = doc.Surfaces[resolution];
             foreach (var chunkPos in chunks)
             {
-                RenderChunk(chunkPos, screenSurface, resolution, globalClippingRectangle, globalScaledClippingRectangle);
+                ChunkRenderer.MergeWholeStructure(chunkPos, resolution,
+                    internals.Tracker.Document.StructureRoot, globalClippingRectangle).Switch(
+                    (Chunk chunk) =>
+                    {
+                        doc.UpdateChunk(chunkPos, resolution, chunk);
+                    },
+                    (EmptyChunk _) =>
+                    {
+                        doc.UpdateChunk(chunkPos, resolution, null);
+
+                    });
                 RectI chunkRect = new(chunkPos * chunkSize, new(chunkSize, chunkSize));
                 if (globalScaledClippingRectangle is RectI rect)
                     chunkRect = chunkRect.Intersect(rect);

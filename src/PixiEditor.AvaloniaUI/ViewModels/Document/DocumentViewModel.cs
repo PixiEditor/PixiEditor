@@ -132,15 +132,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DocumentEventsModule EventInlet { get; }
     public ActionDisplayList ActionDisplays { get; } = new(() => ViewModelMain.Current.NotifyToolActionDisplayChanged());
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
-    //TODO: It was DrawingSurface before, check if it's correct
-    public Dictionary<ChunkResolution, Surface> Surfaces { get; set; } = new()
-    {
-        [ChunkResolution.Full] = new Surface(new VecI(64, 64)),
-        [ChunkResolution.Half] = new Surface(new VecI(32, 32)),
-        [ChunkResolution.Quarter] = new Surface(new VecI(16, 16)),
-        [ChunkResolution.Eighth] = new Surface(new VecI(8, 8))
-    };
-
+    public ChunkCache RenderedChunks { get; set; } = new();
     public Surface PreviewSurface { get; set; }
 
     private VectorPath selectionPath = new VectorPath();
@@ -160,7 +152,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ILayerHandlerFactory LayerHandlerFactory { get; }
     public IFolderHandlerFactory FolderHandlerFactory { get; }
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
-
 
     private DocumentViewModel()
     {
@@ -213,8 +204,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         if (builderInstance.ReferenceLayer is { } refLayer)
         {
-            acc
-                .AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImagePbgra32Bytes.ToImmutableArray(), refLayer.ImageSize));
+            acc.AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImagePbgra32Bytes.ToImmutableArray(), refLayer.ImageSize));
         }
 
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
@@ -589,6 +579,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         }
         return result;
+    }
+
+    public void UpdateChunk(VecI chunkPos, ChunkResolution resolution, Chunk? updated)
+    {
+        if (RenderedChunks.ContainsKey(resolution) && RenderedChunks[resolution].TryGetValue(chunkPos, out Chunk? value))
+        {
+            value?.Dispose();
+        }
+        if (!RenderedChunks.ContainsKey(resolution))
+            RenderedChunks[resolution] = new();
+
+        RenderedChunks[resolution][chunkPos] = updated;
     }
 
     private void ExtractSelectedLayers(FolderViewModel folder, List<Guid> list,

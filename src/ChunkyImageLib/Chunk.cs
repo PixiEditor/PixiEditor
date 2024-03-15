@@ -17,6 +17,8 @@ public class Chunk : IDisposable
 
     private bool returned = false;
 
+    public bool IsDirty { get; set; }
+
     /// <summary>
     /// The surface of the chunk
     /// </summary>
@@ -31,6 +33,9 @@ public class Chunk : IDisposable
     /// The resolution of the chunk
     /// </summary>
     public ChunkResolution Resolution { get; }
+
+    public Guid Uid { get; } = Guid.NewGuid();
+
     private Chunk(ChunkResolution resolution)
     {
         int size = resolution.PixelSize();
