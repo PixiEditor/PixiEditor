@@ -2,23 +2,41 @@
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
 using PixiEditor.DrawingApi.Skia.Implementations;
+using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia
 {
     public class SkiaDrawingBackend : IDrawingBackend
     {
-        public IColorImplementation ColorImplementation { get; }
-        public IImageImplementation ImageImplementation { get; }
-        public IImgDataImplementation ImgDataImplementation { get; }
-        public ICanvasImplementation CanvasImplementation { get; }
-        public IPaintImplementation PaintImplementation { get; }
-        public IVectorPathImplementation PathImplementation { get; }
-        public IMatrix3X3Implementation MatrixImplementation { get; }
-        public IPixmapImplementation PixmapImplementation { get; }
-        public ISurfaceImplementation SurfaceImplementation { get; }
-        public IColorSpaceImplementation ColorSpaceImplementation { get; }
-        public IBitmapImplementation BitmapImplementation { get; }
-        public IColorFilterImplementation ColorFilterImplementation { get; set; }
+        public SkiaColorImplementation ColorImplementation { get; }
+        public SkiaImageImplementation ImageImplementation { get; }
+        public SkiaImgDataImplementation ImgDataImplementation { get; }
+        public SkiaCanvasImplementation CanvasImplementation { get; }
+        public SkiaPaintImplementation PaintImplementation { get; }
+        public SkiaPathImplementation PathImplementation { get; }
+        public SkiaMatrixImplementation MatrixImplementation { get; }
+        public SkiaPixmapImplementation PixmapImplementation { get; }
+        public SkiaSurfaceImplementation SurfaceImplementation { get; }
+        public SkiaColorSpaceImplementation ColorSpaceImplementation { get; }
+        public SkiaBitmapImplementation BitmapImplementation { get; }
+        public SkiaColorFilterImplementation ColorFilterImplementation { get; set; }
+        IColorImplementation IDrawingBackend.ColorImplementation => ColorImplementation;
+        IImageImplementation IDrawingBackend.ImageImplementation => ImageImplementation;
+        IImgDataImplementation IDrawingBackend.ImgDataImplementation => ImgDataImplementation;
+        ICanvasImplementation IDrawingBackend.CanvasImplementation => CanvasImplementation;
+        IPaintImplementation IDrawingBackend.PaintImplementation => PaintImplementation;
+        IVectorPathImplementation IDrawingBackend.PathImplementation => PathImplementation;
+        IMatrix3X3Implementation IDrawingBackend.MatrixImplementation => MatrixImplementation;
+        IPixmapImplementation IDrawingBackend.PixmapImplementation => PixmapImplementation;
+        ISurfaceImplementation IDrawingBackend.SurfaceImplementation => SurfaceImplementation;
+        IColorSpaceImplementation IDrawingBackend.ColorSpaceImplementation => ColorSpaceImplementation;
+        IBitmapImplementation IDrawingBackend.BitmapImplementation => BitmapImplementation;
+
+        IColorFilterImplementation IDrawingBackend.ColorFilterImplementation
+        {
+            get => ColorFilterImplementation;
+            set => ColorFilterImplementation = (SkiaColorFilterImplementation)value;
+        }
 
         public SkiaDrawingBackend()
         {
@@ -65,7 +83,6 @@ namespace PixiEditor.DrawingApi.Skia
         
         public void Setup()
         {
-            
         }
     }
 }

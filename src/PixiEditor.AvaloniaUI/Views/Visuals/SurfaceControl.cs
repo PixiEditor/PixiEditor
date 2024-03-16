@@ -1,26 +1,33 @@
-﻿using System.Diagnostics;
-using Avalonia;
+﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.OpenGL;
+using Avalonia.OpenGL.Controls;
 using Avalonia.Platform;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
+using Avalonia.Threading;
 using ChunkyImageLib;
+using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
-using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
+using PixiEditor.DrawingApi.Skia;
+using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 
-public class SurfaceControl : Control
+public class SurfaceControl : OpenGlControlBase
 {
     public static readonly StyledProperty<Surface> SurfaceProperty = AvaloniaProperty.Register<SurfaceControl, Surface>(
         nameof(Surface));
 
     public static readonly StyledProperty<Stretch> StretchProperty = AvaloniaProperty.Register<SurfaceControl, Stretch>(
         nameof(Stretch), Stretch.Uniform);
+
+    public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<SurfaceControl, double>(
+        nameof(Scale), 1);
+
 
     public Stretch Stretch
     {
@@ -34,7 +41,16 @@ public class SurfaceControl : Control
         set => SetValue(SurfaceProperty, value);
     }
 
+    public double Scale
+    {
+        get { return (double)GetValue(ScaleProperty); }
+        set { SetValue(ScaleProperty, value); }
+    }
+
     private DrawingSurfaceOp _drawingSurfaceOp;
+    private GRContext grContext;
+    private GRGlFramebufferInfo frameBuffer;
+    private SKSurface surface;
 
     static SurfaceControl()
     {
@@ -46,7 +62,7 @@ public class SurfaceControl : Control
         HeightProperty.Changed.AddClassHandler<SurfaceControl>(BoundsChanged);
     }
 
-    public override void Render(DrawingContext context)
+    /*public override void Render(DrawingContext context)
     {
         if (Surface == null)
         {
@@ -54,6 +70,42 @@ public class SurfaceControl : Control
         }
 
         context.Custom(_drawingSurfaceOp);
+    }*/
+
+    protected override void OnOpenGlInit(GlInterface gl)
+    {
+        base.OnOpenGlInit(gl);
+        if (DrawingBackendApi.Current is SkiaDrawingBackend skiaDrawingBackend)
+        {
+            grContext = GRContext.CreateGl(GRGlInterface.Create(gl.GetProcAddress));
+            skiaDrawingBackend.SurfaceImplementation.SetGrContext(grContext);
+        }
+
+        grContext = GRContext.CreateGl(GRGlInterface.Create(gl.GetProcAddress));
+                SKImage snapshot = ((SKSurface)Surface.DrawingSurface.Native).Snapshot();
+        frameBuffer = new GRGlFramebufferInfo(0, SKColorType.Rgba8888.ToGlSizedFormat());
+        GRBackendRenderTarget desc = new GRBackendRenderTarget((int)Bounds.Width, (int)Bounds.Height, 4, 0, frameBuffer);
+
+        surface = SKSurface.Create(grContext, desc, GRSurfaceOrigin.BottomLeft, snapshot.ColorType);
+    }
+
+    protected override void OnOpenGlRender(GlInterface gl, int fb)
+    {
+        if (Surface == null)
+        {
+            return;
+        }
+
+        SKCanvas canvas = surface.Canvas;
+        canvas.Clear(SKColors.Transparent);
+        using (var paint = new SKPaint())
+        {
+            canvas.DrawSurface((SKSurface)Surface.DrawingSurface.Native, 0, 0, paint);
+        }
+
+        canvas.Flush();
+
+        Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Background);
     }
 
     private static void StretchChanged(SurfaceControl sender, AvaloniaPropertyChangedEventArgs e)

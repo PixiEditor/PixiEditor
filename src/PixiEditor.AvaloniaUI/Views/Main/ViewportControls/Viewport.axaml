@@ -231,9 +231,10 @@
                     </Canvas>
                     <visuals:SurfaceControl
                         Focusable="False"
+                        Surface="{Binding TargetBitmap}"
                         Width="{Binding Document.Width}"
                         Height="{Binding Document.Height}"
-                        Surface="{Binding TargetBitmap}"
+                        Scale="{Binding Zoombox.Scale}"
                         ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"
                         FlowDirection="LeftToRight">
                         <visuals:SurfaceControl.Styles>

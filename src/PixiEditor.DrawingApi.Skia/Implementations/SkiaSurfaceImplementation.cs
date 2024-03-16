@@ -14,6 +14,8 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private readonly SkiaCanvasImplementation _canvasImplementation;
         private readonly SkiaPaintImplementation _paintImplementation;
 
+        private GRContext? _grContext;
+
         public SkiaSurfaceImplementation(SkiaPixmapImplementation pixmapImplementation, SkiaCanvasImplementation canvasImplementation, SkiaPaintImplementation paintImplementation)
         {
             _pixmapImplementation = pixmapImplementation;
@@ -43,26 +45,62 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixels, int rowBytes)
         {
-            SKSurface skSurface = SKSurface.Create(imageInfo.ToSkImageInfo(), pixels, rowBytes);
+            SKSurface skSurface;
+            if (_grContext != null)
+            {
+                skSurface = CreateGrContextSurface(imageInfo.ToSkImageInfo());
+            }
+            else
+            {
+                skSurface = SKSurface.Create(imageInfo.ToSkImageInfo(), pixels, rowBytes);
+            }
+
             return CreateDrawingSurface(skSurface);
         }
 
         public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer)
         {
-            SKSurface skSurface = SKSurface.Create(imageInfo.ToSkImageInfo(), pixelBuffer);
+            SKSurface skSurface;
+            if (_grContext != null)
+            {
+                skSurface = CreateGrContextSurface(imageInfo.ToSkImageInfo(), pixelBuffer);
+            }
+            else
+            {
+                skSurface = SKSurface.Create(imageInfo.ToSkImageInfo(), pixelBuffer);
+            }
             return CreateDrawingSurface(skSurface);
         }
 
         public DrawingSurface Create(Pixmap pixmap)
         {
             SKPixmap skPixmap = _pixmapImplementation[pixmap.ObjectPointer];
-            SKSurface skSurface = SKSurface.Create(skPixmap);
+            SKSurface skSurface;
+            if (_grContext != null)
+            {
+                // TODO: This is not correct lol, leaving for debugging purposes right now
+                skSurface = CreateGrContextSurface(skPixmap.Info);
+            }
+            else
+            {
+                skSurface = SKSurface.Create(skPixmap);
+            }
+
             return CreateDrawingSurface(skSurface);
         }
 
         public DrawingSurface Create(ImageInfo imageInfo)
         {
-            SKSurface skSurface = SKSurface.Create(imageInfo.ToSkImageInfo());
+            SKSurface skSurface;
+            if (_grContext != null)
+            {
+                skSurface = CreateGrContextSurface(imageInfo.ToSkImageInfo());
+            }
+            else
+            {
+                skSurface = SKSurface.Create(imageInfo.ToSkImageInfo());
+            }
+
             return CreateDrawingSurface(skSurface);
         }
 
@@ -77,6 +115,20 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return ManagedInstances[objectPointer];
         }
 
+        private SKSurface CreateGrContextSurface(SKImageInfo info)
+        {
+            GRGlFramebufferInfo framebuffer = new GRGlFramebufferInfo((uint)0, info.ColorType.ToGlSizedFormat());
+            GRBackendRenderTarget renderTarget = new GRBackendRenderTarget(info.Width, info.Height, 4, 0, framebuffer);
+            return SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.BottomLeft, SKImageInfo.PlatformColorType);
+        }
+
+        private SKSurface CreateGrContextSurface(SKImageInfo info, IntPtr pixelBuffer)
+        {
+            GRGlFramebufferInfo framebuffer = new GRGlFramebufferInfo((uint)0, info.ColorType.ToGlSizedFormat());
+            GRBackendRenderTarget renderTarget = new GRBackendRenderTarget(info.Width, info.Height, 4, 0, framebuffer);
+            return SKSurface.Create(_grContext, renderTarget, GRSurfaceOrigin.BottomLeft, info.ColorType, info.ColorSpace);
+        }
+
         private DrawingSurface CreateDrawingSurface(SKSurface skSurface)
         {
             _canvasImplementation.ManagedInstances[skSurface.Canvas.Handle] = skSurface.Canvas;
@@ -85,6 +137,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             DrawingSurface surface = new DrawingSurface(skSurface.Handle, canvas);
             ManagedInstances[skSurface.Handle] = skSurface;
             return surface;
+        }
+
+        public void SetGrContext(GRContext grContext)
+        {
+            _grContext = grContext;
         }
     }
 }

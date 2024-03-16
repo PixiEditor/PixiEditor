@@ -18,5 +18,9 @@ public class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
+            .With(new Win32PlatformOptions()
+            {
+                RenderingMode = new [] { Win32RenderingMode.Wgl }
+            })
             .LogToTrace();
 }
