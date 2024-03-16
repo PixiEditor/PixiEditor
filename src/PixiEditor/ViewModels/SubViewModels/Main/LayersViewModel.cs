@@ -84,9 +84,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
                         break;
                 }
-
-            }
-
+             }
             doc.Operations.AddSoftSelectedMember(baseLayer.GuidValue);
             doc.InternalSetSelectedMember(baseLayer);
         }
