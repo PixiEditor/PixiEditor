@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -15,6 +16,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Localization;
 using PixiEditor.ViewModels.SubViewModels.Document;
+using PixiEditor.Views.UserControls.Layers;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable
@@ -48,10 +50,46 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.DeleteSelected", "LAYER_DELETE_SELECTED", "LAYER_DELETE_SELECTED_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.CanDeleteSelected", IconPath = "Trash.png")]
     public void DeleteSelected()
     {
-        var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
+        var doc = Owner.DocumentManagerSubViewModel?.ActiveDocument;
+
+        var member = doc.SelectedStructureMember;
         if (member is null)
             return;
+
         member.Document.Operations.DeleteStructureMember(member.GuidValue);
+
+        if (doc.StructureHelper.GetAllLayers().Count > 1)
+        {
+            //Declare the layer that will be selected
+             var baseLayer = doc.StructureHelper.GetAllLayers()[doc.StructureHelper.GetAllLayers().ToArray().Length - 1];
+        
+             for (int i = 0; i < doc.StructureHelper.GetAllLayers().Count; i++)
+            {
+                //Checking that the selected layer and the deleted layer are not the same
+                if (doc.StructureHelper.GetAllLayers()[i] == member)
+                {
+                    //Selecting the new layer
+                    if (i > 0)
+                    {
+                        baseLayer = doc.StructureHelper.GetAllLayers()[i-1];
+                    }
+                    else if (i == doc.StructureHelper.GetAllLayers().Count - 1) 
+                    {
+                        baseLayer = doc.StructureHelper.GetAllLayers()[i];
+                    }
+                    else if (i == 0)
+                    {
+                        baseLayer = doc.StructureHelper.GetAllLayers().ToArray()[i+1];
+                    }
+
+                        break;
+                }
+
+            }
+
+            doc.Operations.AddSoftSelectedMember(baseLayer.GuidValue);
+            doc.InternalSetSelectedMember(baseLayer);
+        }
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasSelectedMembers")]
