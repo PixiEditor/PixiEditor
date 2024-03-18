@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.OpenGL;
@@ -5,6 +6,7 @@ using Avalonia.OpenGL.Controls;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Skia;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
@@ -22,6 +24,15 @@ internal class Scene : OpenGlControlBase
 
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty = AvaloniaProperty.Register<Scene, DocumentViewModel>(
         nameof(Document));
+
+    public static readonly StyledProperty<double> AngleProperty = AvaloniaProperty.Register<Scene, double>(
+        nameof(Angle), 0);
+
+    public double Angle
+    {
+        get => GetValue(AngleProperty);
+        set => SetValue(AngleProperty, value);
+    }
 
     public DocumentViewModel Document
     {
@@ -47,14 +58,13 @@ internal class Scene : OpenGlControlBase
         set => SetValue(SurfaceProperty, value);
     }
 
-    private SKSurface _workingSurface;
-    private SKSurface _viewportSizedSurface;
-    private SKPaint _paint = new SKPaint() { BlendMode = SKBlendMode.SrcOver };
+    private SKSurface _outputSurface;
+    private SKPaint _paint = new SKPaint();
     private GRContext? gr;
+    private RectI visibleSurfaceRect = new RectI(0, 0, 0, 0);
 
     static Scene()
     {
-        SurfaceProperty.Changed.AddClassHandler<Scene>(OnSurfaceChanged);
         BoundsProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
         WidthProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
         HeightProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
@@ -68,40 +78,57 @@ internal class Scene : OpenGlControlBase
     protected override void OnOpenGlInit(GlInterface gl)
     {
         gr = GRContext.CreateGl(GRGlInterface.Create(gl.GetProcAddress));
-        CreateWorkingSurface();
+        CreateOutputSurface();
     }
 
-    private void CreateWorkingSurface()
+    private void CreateOutputSurface()
     {
         if (gr == null) return;
 
-        _workingSurface?.Dispose();
+        _outputSurface?.Dispose();
         GRGlFramebufferInfo frameBuffer = new GRGlFramebufferInfo(0, SKColorType.Rgba8888.ToGlSizedFormat());
         GRBackendRenderTarget desc = new GRBackendRenderTarget((int)Bounds.Width, (int)Bounds.Height, 4, 0, frameBuffer);
-        _workingSurface = SKSurface.Create(gr, desc, GRSurfaceOrigin.BottomLeft, SKImageInfo.PlatformColorType);
+        _outputSurface = SKSurface.Create(gr, desc, GRSurfaceOrigin.BottomLeft, SKImageInfo.PlatformColorType);
     }
 
     protected override void OnOpenGlRender(GlInterface gl, int fb)
     {
-        SKCanvas canvas = _workingSurface.Canvas;
+        if (Surface == null || Document == null) return;
+
+        SKCanvas canvas = _outputSurface.Canvas;
+
+        var scale = CalculateFinalScale();
+
+        VecI surfaceStart = ViewportToSurface(new VecI(0, 0), scale, Angle);
+        VecI surfaceEnd = ViewportToSurface(new VecI((int)Bounds.Width, (int)Bounds.Height), scale, Angle);
+
+        if (IsOutOfBounds(surfaceStart, surfaceEnd))
+        {
+            canvas.Clear(SKColors.Transparent);
+            canvas.Flush();
+            RequestNextFrameRendering();
+            return;
+        }
+
         canvas.Save();
         canvas.ClipRect(new SKRect(0, 0, (float)Bounds.Width, (float)Bounds.Height));
 
         canvas.Clear(SKColors.Transparent);
 
-        float scaleX = (float)Document.Width / Surface.Size.X;
-        float scaleY = (float)Document.Height / Surface.Size.Y;
-        var scaleUniform = Math.Min(scaleX, scaleY);
-
-        float scale = (float)Scale * scaleUniform;
-
+        canvas.RotateDegrees((float)Angle, ContentPosition.X, ContentPosition.Y);
         canvas.Scale(scale, scale, ContentPosition.X, ContentPosition.Y);
         canvas.Translate(ContentPosition.X, ContentPosition.Y);
 
-        //canvas.Translate((float)Bounds.Width / 2f - Surface.Size.X / 2f, (float)Bounds.Height / 2f - Surface.Size.Y / 2f);
+        int x = Math.Max(0, surfaceStart.X);
+        int y = Math.Max(0, surfaceStart.Y);
+        int width = Math.Min(Surface.Size.X, surfaceEnd.X - x) + 1;
+        int height = Math.Min(Surface.Size.Y, surfaceEnd.Y - y) + 1;
 
-        canvas.DrawSurface((SKSurface)Surface.DrawingSurface.Native, 0, 0, _paint);
-        //canvas.DrawRect(0, 0, Surface.Size.X, Surface.Size.Y, _paint);
+        visibleSurfaceRect = new RectI(x, y, width, height);
+
+        using Image snapshot = Surface.DrawingSurface.Snapshot(visibleSurfaceRect);
+
+        canvas.DrawImage((SKImage)snapshot.Native, visibleSurfaceRect.X, visibleSurfaceRect.Y, _paint);
 
         canvas.Restore();
 
@@ -109,28 +136,40 @@ internal class Scene : OpenGlControlBase
         RequestNextFrameRendering();
     }
 
-    private static void StretchChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
+    private float CalculateFinalScale()
     {
-        if (e.NewValue is Stretch stretch)
-        {
-            //sender._drawingSurfaceOp = new DrawingSurfaceOp(sender.Surface, sender.Bounds, stretch);
-        }
+        float scaleX = (float)Document.Width / Surface.Size.X;
+        float scaleY = (float)Document.Height / Surface.Size.Y;
+        var scaleUniform = Math.Min(scaleX, scaleY);
+
+        float scale = (float)Scale * scaleUniform;
+        return scale;
+    }
+
+    private bool IsOutOfBounds(VecI surfaceStart, VecI surfaceEnd)
+    {
+        return surfaceStart.X >= Surface.Size.X || surfaceStart.Y >= Surface.Size.Y || surfaceEnd.X <= 0 || surfaceEnd.Y <= 0;
+    }
+
+    private VecI ViewportToSurface(VecI point, float scale, double angle)
+    {
+        VecD nonRotated = new VecD(
+         ((point.X - ContentPosition.X) / scale),
+         ((point.Y - ContentPosition.Y) / scale));
+
+        return new VecI((int)nonRotated.X, (int)nonRotated.Y);
+        // TODO: Implement rotation and other matrix transformations
+        /*double angleRad = angle * (Math.PI / 180);
+
+        var rotated = nonRotated.Rotate(angleRad, ContentPosition);
+        return new VecI((int)rotated.X, (int)rotated.Y);*/
     }
 
     private static void BoundsChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.NewValue is Rect bounds)
         {
-            //sender._drawingSurfaceOp = new DrawingSurfaceOp(sender.Surface, bounds, sender.Stretch);
-            sender.CreateWorkingSurface();
-        }
-    }
-
-    private static void OnSurfaceChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
-    {
-        if (e.NewValue is Surface surface)
-        {
-            //sender._drawingSurfaceOp = new DrawingSurfaceOp(surface, sender.Bounds, sender.Stretch);
+            sender.CreateOutputSurface();
         }
     }
 }

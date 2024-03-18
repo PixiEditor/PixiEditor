@@ -42,6 +42,11 @@ public struct VecD : IEquatable<VecD>
     {
         return new(Math.Floor(X), Math.Floor(Y));
     }
+    /// <summary>
+    ///     Rotates the vector by the specified angle in radians
+    /// </summary>
+    /// <param name="angle">Angle in radians</param>
+    /// <returns>Rotated vector</returns>
     public VecD Rotate(double angle)
     {
         VecD result = new VecD();
