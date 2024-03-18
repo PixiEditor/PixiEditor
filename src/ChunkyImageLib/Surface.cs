@@ -16,7 +16,6 @@ public class Surface : IDisposable
     public DrawingSurface DrawingSurface { get; }
     public int BytesPerPixel { get; }
     public VecI Size { get; }
-
     public RectI DirtyRect { get; private set; }
 
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };

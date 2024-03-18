@@ -121,6 +121,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         remove => RemoveHandler(ViewportMovedEvent, value);
     }
 
+    public VecD CanvasPos => ToScreenSpace(VecD.Zero);
     public double CanvasX => ToScreenSpace(VecD.Zero).X;
     public double CanvasY => ToScreenSpace(VecD.Zero).Y;
 
@@ -465,6 +466,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.FlipTransformY)));
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.CanvasX)));
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.CanvasY)));
+        zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.CanvasPos)));
         zoombox.RaiseViewportEvent();
     }
 

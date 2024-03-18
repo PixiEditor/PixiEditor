@@ -25,8 +25,7 @@
     d:DesignHeight="450"
     d:DesignWidth="800">
     <Grid
-        x:Name="viewportGrid"
-        >
+        x:Name="viewportGrid">
         <Interaction.Behaviors>
             <!--TODO: Implement stylus support-->
             <!--<EventTriggerBehavior EventName="StylusButtonDown">
@@ -115,6 +114,46 @@
         </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
+         <visuals:Scene
+                        Focusable="False" Name="scene"
+                        RenderTransformOrigin="0,0"
+                        ZIndex="10"
+                        Width="{Binding RealDimensions.X, ElementName=vpUc}"
+                        Height="{Binding RealDimensions.Y, ElementName=vpUc}"
+                        Surface="{Binding TargetBitmap, ElementName=vpUc}"
+                        Scale="{Binding Scale, ElementName=zoombox, Mode=OneWay}"
+                        Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
+                        ContentPosition="{Binding CanvasPos, ElementName=zoombox, Mode=OneWay}"
+                        ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}"
+                        FlowDirection="LeftToRight">
+                        <visuals:Scene.Styles>
+                            <!--TODO: Implement-->
+                            <!--<Style>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}" Value="True">
+                                        <DataTrigger.EnterActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="(Button.Opacity)"
+                                                        From="1" To="0" Duration="0:0:0.1" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.EnterActions>
+                                        <DataTrigger.ExitActions>
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="(Button.Opacity)"
+                                                        From="0" To="1" Duration="0:0:0.1" />
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </DataTrigger.ExitActions>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>-->
+                        </visuals:Scene.Styles>
+                    </visuals:Scene>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
@@ -229,41 +268,7 @@
                             </Style>-->
                         </Canvas.Styles>
                     </Canvas>
-                    <visuals:SurfaceControl
-                        Focusable="False"
-                        Width="{Binding Document.Width}"
-                        Height="{Binding Document.Height}"
-                        Surface="{Binding TargetBitmap}"
-                        ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Zoombox.Scale, Converter={converters:ScaleToBitmapScalingModeConverter}}"
-                        FlowDirection="LeftToRight">
-                        <visuals:SurfaceControl.Styles>
-                            <!--TODO: Implement-->
-                            <!--<Style>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}" Value="True">
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetProperty="(Button.Opacity)"
-                                                        From="1" To="0" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.EnterActions>
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetProperty="(Button.Opacity)"
-                                                        From="0" To="1" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.ExitActions>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>-->
-                        </visuals:SurfaceControl.Styles>
-                    </visuals:SurfaceControl>
+                    <Panel Width="{Binding Document.Width}" Height="{Binding Document.Height}"/>
                     <Grid ZIndex="5">
                         <symmetryOverlay:SymmetryOverlay
                             Focusable="False"

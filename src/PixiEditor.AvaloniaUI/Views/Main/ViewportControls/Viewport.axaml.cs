@@ -48,9 +48,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<ICommand> MouseUpCommandProperty =
         AvaloniaProperty.Register<Viewport, ICommand>(nameof(MouseUpCommand), null);
 
-    private static readonly StyledProperty<Dictionary<ChunkResolution, WriteableBitmap>> BitmapsProperty =
-        AvaloniaProperty.Register<Viewport, Dictionary<ChunkResolution, WriteableBitmap>>(nameof(Bitmaps), null);
-
     public static readonly StyledProperty<bool> DelayedProperty =
         AvaloniaProperty.Register<Viewport, bool>(nameof(Delayed), false);
 
@@ -148,12 +145,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get => (bool)GetValue(DelayedProperty);
         set => SetValue(DelayedProperty, value);
-    }
-
-    public Dictionary<ChunkResolution, WriteableBitmap>? Bitmaps
-    {
-        get => (Dictionary<ChunkResolution, WriteableBitmap>?)GetValue(BitmapsProperty);
-        set => SetValue(BitmapsProperty, value);
     }
 
     public ICommand? MouseDownCommand
@@ -295,7 +286,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     static Viewport()
     {
         DocumentProperty.Changed.Subscribe(OnDocumentChange);
-        BitmapsProperty.Changed.Subscribe(OnBitmapsChange);
         ZoomViewportTriggerProperty.Changed.Subscribe(ZoomViewportTriggerChanged);
         CenterViewportTriggerProperty.Changed.Subscribe(CenterViewportTriggerChanged);
     }
@@ -303,9 +293,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public Viewport()
     {
         InitializeComponent();
-
-        Binding binding = new Binding { Source = this, Path = $"{nameof(Document)}.{nameof(Document.Surfaces)}" };
-        this.Bind(BitmapsProperty, binding);
 
         MainImage!.Loaded += OnImageLoaded;
         MainImage.SizeChanged += OnMainImageSizeChanged;
@@ -317,7 +304,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
     }
 
-    public SurfaceControl? MainImage => (SurfaceControl?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
+    public Panel? MainImage => (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
     public Grid BackgroundGrid => viewportGrid;
 
     private void ForceRefreshFinalImage()
