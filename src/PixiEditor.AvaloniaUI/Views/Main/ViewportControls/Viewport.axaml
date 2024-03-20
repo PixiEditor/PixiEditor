@@ -122,8 +122,10 @@
                         Height="{Binding RealDimensions.Y, ElementName=vpUc}"
                         Surface="{Binding TargetBitmap, ElementName=vpUc}"
                         Scale="{Binding Scale, ElementName=zoombox, Mode=OneWay}"
+                        Dimensions="{Binding Dimensions, ElementName=zoombox, Mode=OneWay}"
                         Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
                         ContentPosition="{Binding CanvasPos, ElementName=zoombox, Mode=OneWay}"
+                        Center="{Binding Center, ElementName=zoombox, Mode=OneWay}"
                         Angle="{Binding RotateTransformAngle, ElementName=zoombox, Mode=OneWay}"
                         ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}"
                         FlowDirection="LeftToRight">
