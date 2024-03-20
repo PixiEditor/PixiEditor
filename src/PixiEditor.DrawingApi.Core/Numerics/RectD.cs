@@ -145,6 +145,19 @@ public struct RectD : IEquatable<RectD>
         };
     }
 
+    public static RectD CreateAABB(VecD first, VecD second, VecD third, VecD fourth)
+    {
+        VecD min = new VecD(
+            Math.Min(first.X, Math.Min(second.X, Math.Min(third.X, fourth.X))),
+            Math.Min(first.Y, Math.Min(second.Y, Math.Min(third.Y, fourth.Y))));
+
+        VecD max = new VecD(
+            Math.Max(first.X, Math.Max(second.X, Math.Max(third.X, fourth.X))),
+            Math.Max(first.Y, Math.Max(second.Y, Math.Max(third.Y, fourth.Y))));
+
+        return new RectD(min, max - min);
+    }
+
     /// <summary>
     /// Converts rectangles with negative dimensions into a normal one
     /// </summary>
