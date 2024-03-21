@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Metadata;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Zoombox.Operations;
@@ -43,8 +44,8 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<bool> FlipYProperty =
         AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipY), defaultValue: false);
 
-    public static readonly StyledProperty<AvaloniaObject> AdditionalContentProperty =
-        AvaloniaProperty.Register<Zoombox, AvaloniaObject>(nameof(AdditionalContent));
+    public static readonly StyledProperty<Control> AdditionalContentProperty =
+        AvaloniaProperty.Register<Zoombox, Control>(nameof(AdditionalContent));
 
     public static readonly RoutedEvent<ViewportRoutedEventArgs> ViewportMovedEvent = RoutedEvent.Register<Zoombox, ViewportRoutedEventArgs>(
         nameof(ViewportMoved), RoutingStrategies.Bubble);
@@ -109,9 +110,9 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         set => SetValue(RealDimensionsProperty, value);
     }
 
-    public AvaloniaObject AdditionalContent
+    public Control AdditionalContent
     {
-        get => (AvaloniaObject)GetValue(AdditionalContentProperty);
+        get => (Control)GetValue(AdditionalContentProperty);
         set => SetValue(AdditionalContentProperty, value);
     }
 
@@ -124,6 +125,16 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
     public VecD CanvasPos => ToScreenSpace(VecD.Zero);
     public double CanvasX => ToScreenSpace(VecD.Zero).X;
     public double CanvasY => ToScreenSpace(VecD.Zero).Y;
+
+    public TransformGroup CanvasTransform => new TransformGroup
+    {
+        Children =
+        {
+            new ScaleTransform(Scale, Scale),
+            new RotateTransform(Angle * 180 / Math.PI),
+            new TranslateTransform(CanvasX, CanvasY),
+        },
+    };
 
     public double ScaleTransformXY => Scale;
     public double FlipTransformX => FlipX ? -1 : 1;
@@ -467,6 +478,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.CanvasX)));
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.CanvasY)));
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.CanvasPos)));
+        zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.CanvasTransform)));
         zoombox.RaiseViewportEvent();
     }
 

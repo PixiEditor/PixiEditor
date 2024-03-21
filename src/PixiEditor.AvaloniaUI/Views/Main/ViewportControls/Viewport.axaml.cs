@@ -304,11 +304,13 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
     }
 
-    public Panel? MainImage => (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1];
+    public Panel? MainImage => zoombox != null ? (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1] : null;
+    public Scene Scene => (Scene)scene;
     public Grid BackgroundGrid => viewportGrid;
 
     private void ForceRefreshFinalImage()
     {
+        Scene.RequestNextFrameRendering();
         MainImage?.InvalidateVisual();
     }
 
@@ -320,8 +322,16 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void OnLoad(object? sender, RoutedEventArgs e)
     {
+        InitializeOverlays();
         Document?.Operations.AddOrUpdateViewport(GetLocation());
         mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
+    }
+
+    private void InitializeOverlays()
+    {
+        brushShapeOverlay.MouseEventSource = BackgroundGrid;
+        brushShapeOverlay.MouseReference = MainImage;
+        brushShapeOverlay.Initialize();
     }
 
     private static void OnDocumentChange(AvaloniaPropertyChangedEventArgs<DocumentViewModel> e)

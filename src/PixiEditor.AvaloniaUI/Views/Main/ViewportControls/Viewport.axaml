@@ -45,92 +45,94 @@
                                         PassEventArgsToCommand="True"/>
             </EventTriggerBehavior>-->
         </Interaction.Behaviors>
-        <overlays:TogglableFlyout Margin="5" IconPath="/Images/Settings.png" ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
-                               ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <overlays:TogglableFlyout Margin="5" IconPath="/Images/Settings.png"
+                                  ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
+                                  ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
                 <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="#C8202020" ZIndex="2">
-        <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Horizontal">
-            <TextBlock Margin="5 0" TextAlignment="Center"
-                       Text="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, 
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Margin="5 0" TextAlignment="Center"
+                                       Text="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport},
              Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
-                       Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16"/>
-            <Button Width="32" Height="32" ui:Translator.TooltipKey="RESET_VIEWPORT"
-                    Classes="OverlayButton"
-                    Click="ResetViewportClicked"
-                    Cursor="Hand">
-            <Button.Content>
-                <Image Width="28" Height="28" Source="/Images/Layout.png"/>
-            </Button.Content>
-            </Button>
-        </StackPanel>
-            <Separator/>
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
-                        Classes="OverlayToggleButton"
-                        IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                        Cursor="Hand">
-                    <ToggleButton.Content>
-                        <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png"/>
-                    </ToggleButton.Content>
-                </ToggleButton>
-                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
-                              Classes="OverlayToggleButton"
-                              IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                              Cursor="Hand">
-                    <ToggleButton.Content>
-                        <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png">
-                            <Image.RenderTransform>
-                                <RotateTransform Angle="90"/>
-                            </Image.RenderTransform>
-                        </Image>
-                    </ToggleButton.Content>
-                </ToggleButton>
-            </StackPanel>
-            <Separator/>
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-                <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
-                              Classes="OverlayToggleButton"
-                              IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                              Cursor="Hand">
-                    <ToggleButton.Content>
-                        <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png"/>
-                    </ToggleButton.Content>
-                </ToggleButton>
-                <ToggleButton Margin="10 0 0 0" Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
-                              Classes="OverlayToggleButton"
-                              IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                              Cursor="Hand">
-                    <ToggleButton.Content>
-                        <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png">
-                            <Image.RenderTransform>
-                                <RotateTransform Angle="90"/>
-                            </Image.RenderTransform>
-                        </Image>
-                    </ToggleButton.Content>
-                </ToggleButton>
-            </StackPanel>
-        </StackPanel>
-        </Border>
+                                       Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16" />
+                            <Button Width="32" Height="32" ui:Translator.TooltipKey="RESET_VIEWPORT"
+                                    Classes="OverlayButton"
+                                    Click="ResetViewportClicked"
+                                    Cursor="Hand">
+                                <Button.Content>
+                                    <Image Width="28" Height="28" Source="/Images/Layout.png" />
+                                </Button.Content>
+                            </Button>
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
+                                          Classes="OverlayToggleButton"
+                                          IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Cursor="Hand">
+                                <ToggleButton.Content>
+                                    <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png" />
+                                </ToggleButton.Content>
+                            </ToggleButton>
+                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                                          ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
+                                          Classes="OverlayToggleButton"
+                                          IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Cursor="Hand">
+                                <ToggleButton.Content>
+                                    <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png">
+                                        <Image.RenderTransform>
+                                            <RotateTransform Angle="90" />
+                                        </Image.RenderTransform>
+                                    </Image>
+                                </ToggleButton.Content>
+                            </ToggleButton>
+                        </StackPanel>
+                        <Separator />
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
+                                          Classes="OverlayToggleButton"
+                                          IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Cursor="Hand">
+                                <ToggleButton.Content>
+                                    <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png" />
+                                </ToggleButton.Content>
+                            </ToggleButton>
+                            <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
+                                          ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
+                                          Classes="OverlayToggleButton"
+                                          IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
+                                          Cursor="Hand">
+                                <ToggleButton.Content>
+                                    <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png">
+                                        <Image.RenderTransform>
+                                            <RotateTransform Angle="90" />
+                                        </Image.RenderTransform>
+                                    </Image>
+                                </ToggleButton.Content>
+                            </ToggleButton>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-         <visuals:Scene
-                        Focusable="False" Name="scene"
-                        RenderTransformOrigin="0,0"
-                        ZIndex="10"
-                        Width="{Binding RealDimensions.X, ElementName=vpUc}"
-                        Height="{Binding RealDimensions.Y, ElementName=vpUc}"
-                        Surface="{Binding TargetBitmap, ElementName=vpUc}"
-                        Scale="{Binding Scale, ElementName=zoombox, Mode=OneWay}"
-                        Dimensions="{Binding Dimensions, ElementName=zoombox, Mode=OneWay}"
-                        Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
-                        ContentPosition="{Binding CanvasPos, ElementName=zoombox, Mode=OneWay}"
-                        Angle="{Binding RotateTransformAngle, ElementName=zoombox, Mode=OneWay}"
-                        ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}"
-                        FlowDirection="LeftToRight">
-                        <visuals:Scene.Styles>
-                            <!--TODO: Implement-->
-                            <!--<Style>
+        <visuals:Scene
+            Focusable="False" Name="scene"
+            RenderTransformOrigin="0,0"
+            ZIndex="1"
+            Width="{Binding RealDimensions.X, ElementName=vpUc}"
+            Height="{Binding RealDimensions.Y, ElementName=vpUc}"
+            Surface="{Binding TargetBitmap, ElementName=vpUc}"
+            Scale="{Binding Scale, ElementName=zoombox, Mode=OneWay}"
+            Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
+            ContentPosition="{Binding CanvasPos, ElementName=zoombox, Mode=OneWay}"
+            Angle="{Binding RotateTransformAngle, ElementName=zoombox, Mode=OneWay}"
+            ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}"
+            FlowDirection="LeftToRight">
+            <visuals:Scene.Styles>
+                <!--TODO: Implement-->
+                <!--<Style>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}" Value="True">
                                         <DataTrigger.EnterActions>
@@ -154,8 +156,8 @@
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>-->
-                        </visuals:Scene.Styles>
-                    </visuals:Scene>
+            </visuals:Scene.Styles>
+        </visuals:Scene>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
@@ -170,53 +172,54 @@
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}">
             <zoombox:Zoombox.AdditionalContent>
-            <Border
-                d:Width="64"
-                d:Height="64"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
-                RenderOptions.BitmapInterpolationMode="None">
-                <Border.Background>
-                    <!--TODO: Seems like DestinationRect of anything with size below and equal to 1 is tiling texture wrong-->
-                    <!--Update: Seems like it depends on screen DPI and scaling, value of 2 also produces artifacts on high DPI device-->
-                    <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
-                        <ImageBrush.Transform>
-                            <ScaleTransform ScaleX="0.5" ScaleY="0.5"/>
-                        </ImageBrush.Transform>
-                        <ImageBrush.DestinationRect>
-                            <Binding Path="Scale" RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type zoombox:Zoombox}}"
-                                     Converter="{converters:ZoomToViewportConverter}">
-                                <Binding.ConverterParameter>
-                                    <sys:Double>16</sys:Double>
-                                </Binding.ConverterParameter>
-                            </Binding>
-                        </ImageBrush.DestinationRect>
-                    </ImageBrush>
-                </Border.Background>
-                <Grid>
-                    <Canvas
-                        ZIndex="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToIntConverter}}"
-                        IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}"
-                        ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
-                        <visuals:SurfaceControl
-                            Focusable="False"
-                            Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.X}"
-                            Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Y}"
-                            Surface="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
-                            IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}"
-                            RenderTransformOrigin="0, 0"
-                            SizeChanged="OnReferenceImageSizeChanged"
-                            FlowDirection="LeftToRight">
-                            <visuals:SurfaceControl.RenderTransform>
-                                <TransformGroup>
-                                    <MatrixTransform
-                                        Matrix="{Binding Document.ReferenceLayerViewModel.ReferenceTransformMatrix}" />
-                                </TransformGroup>
-                            </visuals:SurfaceControl.RenderTransform>
-                            <visuals:SurfaceControl.Styles>
-                                <!--TODO: Implement this-->
-                                <!--<Style>
+                <Border
+                    d:Width="64"
+                    d:Height="64"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
+                    RenderOptions.BitmapInterpolationMode="None">
+                    <Border.Background>
+                        <!--TODO: Seems like DestinationRect of anything with size below and equal to 1 is tiling texture wrong-->
+                        <!--Update: Seems like it depends on screen DPI and scaling, value of 2 also produces artifacts on high DPI device-->
+                        <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                            <ImageBrush.Transform>
+                                <ScaleTransform ScaleX="0.5" ScaleY="0.5" />
+                            </ImageBrush.Transform>
+                            <ImageBrush.DestinationRect>
+                                <Binding Path="Scale"
+                                         RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type zoombox:Zoombox}}"
+                                         Converter="{converters:ZoomToViewportConverter}">
+                                    <Binding.ConverterParameter>
+                                        <sys:Double>16</sys:Double>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </ImageBrush.DestinationRect>
+                        </ImageBrush>
+                    </Border.Background>
+                    <Grid>
+                        <Canvas
+                            ZIndex="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToIntConverter}}"
+                            IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}"
+                            ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
+                            <visuals:SurfaceControl
+                                Focusable="False"
+                                Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.X}"
+                                Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Y}"
+                                Surface="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
+                                IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}"
+                                RenderTransformOrigin="0, 0"
+                                SizeChanged="OnReferenceImageSizeChanged"
+                                FlowDirection="LeftToRight">
+                                <visuals:SurfaceControl.RenderTransform>
+                                    <TransformGroup>
+                                        <MatrixTransform
+                                            Matrix="{Binding Document.ReferenceLayerViewModel.ReferenceTransformMatrix}" />
+                                    </TransformGroup>
+                                </visuals:SurfaceControl.RenderTransform>
+                                <visuals:SurfaceControl.Styles>
+                                    <!--TODO: Implement this-->
+                                    <!--<Style>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Document.ReferenceLayerViewModel.ShowHighest, Mode=OneWay}" Value="True">
                                             <DataTrigger.EnterActions>
@@ -240,11 +243,11 @@
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>-->
-                            </visuals:SurfaceControl.Styles>
-                        </visuals:SurfaceControl>
-                        <Canvas.Styles>
-                            <!--TODO: Implement this-->
-                            <!--<Style>
+                                </visuals:SurfaceControl.Styles>
+                            </visuals:SurfaceControl>
+                            <Canvas.Styles>
+                                <!--TODO: Implement this-->
+                                <!--<Style>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromReferenceLayer, Mode=OneWay}" Value="False">
                                         <DataTrigger.EnterActions>
@@ -268,121 +271,128 @@
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>-->
-                        </Canvas.Styles>
-                    </Canvas>
-                    <Panel Width="{Binding Document.Width}" Height="{Binding Document.Height}"/>
-                    <Grid ZIndex="5">
-                        <symmetryOverlay:SymmetryOverlay
-                            Focusable="False"
-                            IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
-                            ZoomboxScale="{Binding Zoombox.Scale}"
-                            HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"
-                            VerticalAxisVisible="{Binding Document.VerticalSymmetryAxisEnabledBindable}"
-                            HorizontalAxisY="{Binding Document.HorizontalSymmetryAxisYBindable, Mode=OneWay}"
-                            VerticalAxisX="{Binding Document.VerticalSymmetryAxisXBindable, Mode=OneWay}"
-                            DragCommand="{xaml:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
-                            DragEndCommand="{xaml:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
-                            DragStartCommand="{xaml:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
-                            FlowDirection="LeftToRight" />
-                        <selectionOverlay:SelectionOverlay
-                            Focusable="False"
-                            ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels:MainVM}, Converter={converters:IsSelectionToolConverter}}"
-                            Path="{Binding Document.SelectionPathBindable}"
-                            ZoomboxScale="{Binding Zoombox.Scale}"
-                            FlowDirection="LeftToRight" />
-                        <brushShapeOverlay:BrushShapeOverlay
-                            Focusable="False"
-                            IsHitTestVisible="False"
-                            IsVisible="{Binding !Document.TransformViewModel.TransformActive}"
-                            ZoomboxScale="{Binding Zoombox.Scale}"
-                            MouseEventSource="{Binding Zoombox.Tag.BackgroundGrid, Mode=OneTime}"
-                            MouseReference="{Binding Zoombox.Tag.MainImage, Mode=OneTime}"
-                            BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
-                            BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
-                            FlowDirection="LeftToRight"/>
-                        <transformOverlay:TransformOverlay
-                            Focusable="False"
-                            Cursor="Arrow"
-                            IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Stretch"
-                            IsVisible="{Binding Document.TransformViewModel.TransformActive}"
-                            ActionCompleted="{Binding Document.TransformViewModel.ActionCompletedCommand}"
-                            Corners="{Binding Document.TransformViewModel.Corners, Mode=TwoWay}"
-                            RequestedCorners="{Binding Document.TransformViewModel.RequestedCorners, Mode=TwoWay}"
-                            CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"
-                            SideFreedom="{Binding Document.TransformViewModel.SideFreedom}"
-                            LockRotation="{Binding Document.TransformViewModel.LockRotation}"
-                            CoverWholeScreen="{Binding Document.TransformViewModel.CoverWholeScreen}"
-                            SnapToAngles="{Binding Document.TransformViewModel.SnapToAngles}"
-                            InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
-                            ZoomboxScale="{Binding Zoombox.Scale}"
-                            ZoomboxAngle="{Binding Zoombox.Angle}" />
-                        <lineToolOverlay:LineToolOverlay
-                            Focusable="False"
-                            IsVisible="{Binding Document.LineToolOverlayViewModel.IsEnabled}"
-                            ActionCompleted="{Binding Document.LineToolOverlayViewModel.ActionCompletedCommand}"
-                            LineStart="{Binding Document.LineToolOverlayViewModel.LineStart, Mode=TwoWay}"
-                            LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
-                            ZoomboxScale="{Binding Zoombox.Scale}"
-                            FlowDirection="LeftToRight"/>
+                            </Canvas.Styles>
+                        </Canvas>
+                        <Panel Width="{Binding Document.Width}" Height="{Binding Document.Height}" />
+                        <Grid IsHitTestVisible="False"
+                              ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}"
+                              Panel.ZIndex="10"
+                              IsVisible="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}">
+                            <Grid.Resources>
+                                <converters:ThresholdVisibilityConverter Threshold="10"
+                                                                         x:Key="ThresholdVisibilityConverter" />
+                            </Grid.Resources>
+                            <visuals:GridLines Scale="{Binding Zoombox.Scale}"
+                                               IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}"
+                                               Rows="{Binding Document.Width}" Columns="{Binding Document.Height}" />
+                        </Grid>
+                        <Rectangle Stroke="{DynamicResource ThemeBackgroundBrush1}" Opacity=".8" ZIndex="2"
+                                   IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}">
+                            <Rectangle.StrokeThickness>
+                                <Binding Converter="{converters:ReciprocalConverter}">
+                                    <Binding.Path>Zoombox.Scale</Binding.Path>
+                                    <Binding.ConverterParameter>
+                                        <sys:Double>
+                                            3
+                                        </sys:Double>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </Rectangle.StrokeThickness>
+                            <Rectangle.Margin>
+                                <Binding Converter="{converters:ReciprocalConverter}">
+                                    <Binding.Path>Zoombox.Scale</Binding.Path>
+                                    <Binding.ConverterParameter>
+                                        <sys:Double>
+                                            -3
+                                        </sys:Double>
+                                    </Binding.ConverterParameter>
+                                </Binding>
+                            </Rectangle.Margin>
+                        </Rectangle>
                     </Grid>
-                    <Grid IsHitTestVisible="False"
-                        ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}" Panel.ZIndex="10"
-                        IsVisible="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}">
-                        <Grid.Resources>
-                            <converters:ThresholdVisibilityConverter Threshold="10" x:Key="ThresholdVisibilityConverter"/>
-                        </Grid.Resources>
-                        <visuals:GridLines Scale="{Binding Zoombox.Scale}" IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}"
-                                           Rows="{Binding Document.Width}" Columns="{Binding Document.Height}"/>
-                    </Grid>
-                    <Rectangle Stroke="{DynamicResource ThemeBackgroundBrush1}" Opacity=".8" ZIndex="2"
-                               IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}">
-                        <Rectangle.StrokeThickness>
-                            <Binding Converter="{converters:ReciprocalConverter}">
-                                <Binding.Path>Zoombox.Scale</Binding.Path>
-                                <Binding.ConverterParameter>
-                                    <sys:Double>
-                                        3
-                                    </sys:Double>
-                                </Binding.ConverterParameter>
-                            </Binding>
-                        </Rectangle.StrokeThickness>
-                        <Rectangle.Margin>
-                            <Binding Converter="{converters:ReciprocalConverter}">
-                                <Binding.Path>Zoombox.Scale</Binding.Path>
-                                <Binding.ConverterParameter>
-                                    <sys:Double>
-                                        -3
-                                    </sys:Double>
-                                </Binding.ConverterParameter>
-                            </Binding>
-                        </Rectangle.Margin>
-                    </Rectangle>
-                </Grid>
-            </Border>
-                </zoombox:Zoombox.AdditionalContent>
+                </Border>
+            </zoombox:Zoombox.AdditionalContent>
         </zoombox:Zoombox>
-        <Button 
+        <Grid ZIndex="5" DataContext="{Binding ElementName=vpUc}"
+              RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}">
+            <symmetryOverlay:SymmetryOverlay
+                Focusable="False"
+                Size="{Binding Document.SizeBindable, Mode=OneWay}"
+                IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
+                ZoomboxScale="{Binding #zoombox.Scale}"
+                HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"
+                VerticalAxisVisible="{Binding Document.VerticalSymmetryAxisEnabledBindable}"
+                HorizontalAxisY="{Binding Document.HorizontalSymmetryAxisYBindable, Mode=OneWay}"
+                VerticalAxisX="{Binding Document.VerticalSymmetryAxisXBindable, Mode=OneWay}"
+                DragCommand="{xaml:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
+                DragEndCommand="{xaml:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
+                DragStartCommand="{xaml:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
+                FlowDirection="LeftToRight" />
+            <selectionOverlay:SelectionOverlay
+                Focusable="False"
+                ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels:MainVM}, Converter={converters:IsSelectionToolConverter}}"
+                Path="{Binding Document.SelectionPathBindable}"
+                ZoomboxScale="{Binding #zoombox.Scale}"
+                FlowDirection="LeftToRight" />
+            <brushShapeOverlay:BrushShapeOverlay
+                Name="brushShapeOverlay"
+                Focusable="False"
+                IsHitTestVisible="False"
+                IsVisible="{Binding !Document.TransformViewModel.TransformActive}"
+                ZoomboxScale="{Binding #zoombox.Scale}"
+                MouseEventSource="{Binding #vpUc.BackgroundGrid, Mode=OneTime}"
+                MouseReference="{Binding #vpUc.MainImage, Mode=OneTime}"
+                BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
+                BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
+                FlowDirection="LeftToRight" />
+            <transformOverlay:TransformOverlay
+                Focusable="False"
+                Cursor="Arrow"
+                IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                IsVisible="{Binding Document.TransformViewModel.TransformActive}"
+                ActionCompleted="{Binding Document.TransformViewModel.ActionCompletedCommand}"
+                Corners="{Binding Document.TransformViewModel.Corners, Mode=TwoWay}"
+                RequestedCorners="{Binding Document.TransformViewModel.RequestedCorners, Mode=TwoWay}"
+                CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"
+                SideFreedom="{Binding Document.TransformViewModel.SideFreedom}"
+                LockRotation="{Binding Document.TransformViewModel.LockRotation}"
+                CoverWholeScreen="{Binding Document.TransformViewModel.CoverWholeScreen}"
+                SnapToAngles="{Binding Document.TransformViewModel.SnapToAngles}"
+                InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
+                ZoomboxScale="{Binding #zoombox.Scale}"
+                ZoomboxAngle="{Binding #zoombox.Angle}" />
+            <lineToolOverlay:LineToolOverlay
+                Focusable="False"
+                IsVisible="{Binding Document.LineToolOverlayViewModel.IsEnabled}"
+                ActionCompleted="{Binding Document.LineToolOverlayViewModel.ActionCompletedCommand}"
+                LineStart="{Binding Document.LineToolOverlayViewModel.LineStart, Mode=TwoWay}"
+                LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
+                ZoomboxScale="{Binding #zoombox.Scale}"
+                FlowDirection="LeftToRight" />
+        </Grid>
+        <Button
             ZIndex="99999"
             DockPanel.Dock="Bottom"
             Margin="5"
             Padding="8,5,5,5"
-            VerticalAlignment="Bottom" 
+            VerticalAlignment="Bottom"
             HorizontalAlignment="Center"
             Classes="GrayRoundButton"
             Command="{xaml:Command PixiEditor.Tools.ApplyTransform}">
             <Button.IsVisible>
                 <MultiBinding Converter="{converters:BoolOrToVisibilityConverter}">
                     <MultiBinding.Bindings>
-                        <Binding ElementName="vpUc" Path="Document.TransformViewModel.ShowTransformControls"/>
-                        <Binding ElementName="vpUc" Path="Document.LineToolOverlayViewModel.IsEnabled"/>
+                        <Binding ElementName="vpUc" Path="Document.TransformViewModel.ShowTransformControls" />
+                        <Binding ElementName="vpUc" Path="Document.LineToolOverlayViewModel.IsEnabled" />
                     </MultiBinding.Bindings>
                 </MultiBinding>
             </Button.IsVisible>
             <StackPanel Orientation="Horizontal">
                 <TextBlock ui:Translator.Key="APPLY_TRANSFORM" VerticalAlignment="Center" Margin="0,0,5,0" />
-                <Border Padding="10,3" CornerRadius="5" Background="{DynamicResource ThemeAccentBrush}" IsVisible="{xaml:ShortcutBinding PixiEditor.Tools.ApplyTransform, Converter={converters:NotNullToVisibilityConverter}}">
+                <Border Padding="10,3" CornerRadius="5" Background="{DynamicResource ThemeAccentBrush}"
+                        IsVisible="{xaml:ShortcutBinding PixiEditor.Tools.ApplyTransform, Converter={converters:NotNullToVisibilityConverter}}">
                     <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Tools.ApplyTransform}" />
                 </Border>
             </StackPanel>

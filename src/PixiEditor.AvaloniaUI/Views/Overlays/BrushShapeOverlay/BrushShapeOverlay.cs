@@ -73,7 +73,6 @@ internal class BrushShapeOverlay : Control
 
     public BrushShapeOverlay()
     {
-        Loaded += ControlLoaded;
         Unloaded += ControlUnloaded;
     }
 
@@ -85,11 +84,11 @@ internal class BrushShapeOverlay : Control
         mouseUpdateController?.Dispose();
     }
 
-    private void ControlLoaded(object? sender, RoutedEventArgs e)
+    public void Initialize()
     {
         if (MouseEventSource is null)
             return;
-        
+
         mouseUpdateController = new MouseUpdateController(MouseEventSource, SourceMouseMove);
     }
 

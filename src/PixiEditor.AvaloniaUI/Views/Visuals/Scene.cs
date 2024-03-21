@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Linq;
 using Avalonia;
 using Avalonia.OpenGL;
@@ -20,9 +21,6 @@ internal class Scene : OpenGlControlBase
 
     public static readonly StyledProperty<VecI> ContentPositionProperty = AvaloniaProperty.Register<Scene, VecI>(
         nameof(ContentPosition));
-
-    public static readonly StyledProperty<VecD> DimensionsProperty = AvaloniaProperty.Register<Scene, VecD>(
-        nameof(Dimensions));
 
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty = AvaloniaProperty.Register<Scene, DocumentViewModel>(
         nameof(Document));
@@ -47,12 +45,6 @@ internal class Scene : OpenGlControlBase
         get => GetValue(ContentPositionProperty);
         set => SetValue(ContentPositionProperty, value);
     }
-    
-    public VecD Dimensions
-    {
-        get => GetValue(DimensionsProperty);
-        set => SetValue(DimensionsProperty, value);
-    }
 
     public double Scale
     {
@@ -74,6 +66,7 @@ internal class Scene : OpenGlControlBase
 
     static Scene()
     {
+        AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty);
         BoundsProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
         WidthProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
         HeightProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
@@ -98,8 +91,6 @@ internal class Scene : OpenGlControlBase
         GRGlFramebufferInfo frameBuffer = new GRGlFramebufferInfo(0, SKColorType.Rgba8888.ToGlSizedFormat());
         GRBackendRenderTarget desc = new GRBackendRenderTarget((int)Bounds.Width, (int)Bounds.Height, 4, 0, frameBuffer);
         _outputSurface = SKSurface.Create(gr, desc, GRSurfaceOrigin.BottomLeft, SKImageInfo.PlatformColorType);
-        
-        //FinalBounds = new(dime)
     }
 
     protected override void OnOpenGlRender(GlInterface gl, int fb)
@@ -112,28 +103,10 @@ internal class Scene : OpenGlControlBase
         canvas.ClipRect(new SKRect(0, 0, (float)Bounds.Width, (float)Bounds.Height));
         canvas.Clear(SKColors.Transparent);
 
-        float resolutionScale = CalculateResolutionScale();
         float finalScale = CalculateFinalScale();
         float radians = (float)(Angle * Math.PI / 180);
 
-        RectD viewport = new(FinalBounds.X, FinalBounds.Y, FinalBounds.Width, FinalBounds.Height);
-
-        ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale, radians);
-        RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
-        RectI viewportBoundsInViewportSpace = (RectI)(new RectD(FinalBounds.X, FinalBounds.Y, FinalBounds.Width, FinalBounds.Height)).RoundOutwards();
-        RectI firstIntersectionInViewportSpace = surfaceBoundsInViewportSpace.Intersect(viewportBoundsInViewportSpace);
-        ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale, radians);
-        RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();
-
-        VecD scaledCenter = ViewportToSurface(new VecD(FinalBounds.Center.X, FinalBounds.Center.Y), finalScale, radians);
-        ShapeCorners viewportInSurfaceSpace = new ShapeCorners(scaledCenter, Dimensions * resolutionScale).AsRotated(-radians, scaledCenter);
-        RectD viewportBoundsInSurfaceSpace = viewportInSurfaceSpace.AABBBounds;
-        RectD surfaceBoundsInSurfaceSpace = new(VecD.Zero, Surface.Size);
-        RectI secondIntersectionInSurfaceSpace = (RectI)viewportBoundsInSurfaceSpace.Intersect(surfaceBoundsInSurfaceSpace).RoundOutwards();
-
-        //Inflate makes sure rounding doesn't cut any pixels.
-        RectI surfaceRectToRender = firstIntersectionBoundsInSurfaceSpace.Intersect(secondIntersectionInSurfaceSpace).Inflate(1);
-        surfaceRectToRender = surfaceRectToRender.Intersect(new RectI(VecI.Zero, Surface.Size)); // Clamp to surface size
+        RectI surfaceRectToRender = FindRectToRender(finalScale, radians);
 
         if (surfaceRectToRender.IsZeroOrNegativeArea)
         {
@@ -147,13 +120,31 @@ internal class Scene : OpenGlControlBase
         canvas.Scale(finalScale, finalScale, ContentPosition.X, ContentPosition.Y);
         canvas.Translate(ContentPosition.X, ContentPosition.Y);
 
-        using Image snapshot = Surface.DrawingSurface.Snapshot((RectI)surfaceRectToRender);
-        canvas.DrawImage((SKImage)snapshot.Native, (float)surfaceRectToRender.X, (float)surfaceRectToRender.Y, _paint);
+        using Image snapshot = Surface.DrawingSurface.Snapshot(surfaceRectToRender);
+        canvas.DrawImage((SKImage)snapshot.Native, surfaceRectToRender.X, surfaceRectToRender.Y, _paint);
 
         canvas.Restore();
 
         canvas.Flush();
-        RequestNextFrameRendering();
+    }
+
+    private RectI FindRectToRender(float finalScale, float radians)
+    {
+        ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale, radians);
+        RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
+        RectI viewportBoundsInViewportSpace = (RectI)(new RectD(FinalBounds.X, FinalBounds.Y, FinalBounds.Width, FinalBounds.Height)).RoundOutwards();
+        RectI firstIntersectionInViewportSpace = surfaceBoundsInViewportSpace.Intersect(viewportBoundsInViewportSpace);
+        ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale, radians);
+        RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();
+
+        ShapeCorners viewportInSurfaceSpace = ViewportToSurface(viewportBoundsInViewportSpace, finalScale, radians);
+        RectD viewportBoundsInSurfaceSpace = viewportInSurfaceSpace.AABBBounds;
+        RectD surfaceBoundsInSurfaceSpace = new(VecD.Zero, Surface.Size);
+        RectI secondIntersectionInSurfaceSpace = (RectI)viewportBoundsInSurfaceSpace.Intersect(surfaceBoundsInSurfaceSpace).RoundOutwards();
+
+        //Inflate makes sure rounding doesn't cut any pixels.
+        RectI surfaceRectToRender = firstIntersectionBoundsInSurfaceSpace.Intersect(secondIntersectionInSurfaceSpace).Inflate(1);
+        return surfaceRectToRender.Intersect(new RectI(VecI.Zero, Surface.Size)); // Clamp to surface size
     }
 
     private void DrawDebugRect(SKCanvas canvas, RectD rect)
