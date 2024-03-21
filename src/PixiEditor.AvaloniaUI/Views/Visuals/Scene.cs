@@ -79,7 +79,7 @@ internal class Scene : OpenGlControlBase
         set => SetValue(SurfaceProperty, value);
     }
 
-    public Rect FinalBounds => new Rect((Bounds.Width - Bounds.Width/2 )/2, (Bounds.Height - Bounds.Height/2 )/2, Bounds.Width/2, Bounds.Height/2);
+    public Rect FinalBounds => new Rect((Bounds.Width - Bounds.Width / 2 ) / 2, (Bounds.Height - Bounds.Height / 2 ) / 2, Bounds.Width / 2, Bounds.Height / 2);
 
     private SKSurface _outputSurface;
     private SKPaint _paint = new SKPaint();
@@ -125,39 +125,27 @@ internal class Scene : OpenGlControlBase
         canvas.ClipRect(new SKRect(0, 0, (float)Bounds.Width, (float)Bounds.Height));
         canvas.Clear(SKColors.Transparent);
 
-        var scale = CalculateFinalScale();
+        float resolutionScale = CalculateResolutionScale();
+        float finalScale = CalculateFinalScale();
         float radians = (float)(Angle * Math.PI / 180);
 
-        /*canvas.RotateDegrees((float)Angle, ContentPosition.X, ContentPosition.Y);
-        canvas.Scale(scale, scale, ContentPosition.X, ContentPosition.Y);
-
-        canvas.Translate(ContentPosition.X, ContentPosition.Y);*/
-
-        
         RectD viewport = new(FinalBounds.X, FinalBounds.Y, FinalBounds.Width, FinalBounds.Height);
-
 
         _paint.Color = SKColors.Blue;
         DrawDebugRect(canvas, viewport);
-        
 
-        ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), scale, radians);
+
+        ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale, radians);
         RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
         RectI viewportBoundsInViewportSpace = (RectI)(new RectD(FinalBounds.X, FinalBounds.Y, FinalBounds.Width, FinalBounds.Height)).RoundOutwards();
         RectI firstIntersectionInViewportSpace = surfaceBoundsInViewportSpace.Intersect(viewportBoundsInViewportSpace);
-        ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, scale, radians);
+        ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale, radians);
         RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();
-        
-        ShapeCorners viewportInSurfaceSpace = new ShapeCorners(Center, Dimensions / 2).AsRotated(-radians, Center);
+
+        ShapeCorners viewportInSurfaceSpace = new ShapeCorners(Center, Dimensions / 2f * resolutionScale).AsRotated(-radians, Center);
         RectD viewportBoundsInSurfaceSpace = viewportInSurfaceSpace.AABBBounds;
         RectD surfaceBoundsInSurfaceSpace = new(VecD.Zero, Surface.Size);
         RectI secondIntersectionInSurfaceSpace = (RectI)viewportBoundsInSurfaceSpace.Intersect(surfaceBoundsInSurfaceSpace).RoundOutwards();
-        //ShapeCorners secondIntersectionInViewportSpace = SurfaceToViewport(secondIntersectionInSurfaceSpace, scale, radians);
-        //RectI secondIntersectionBoundsInViewportSpace = (RectI)secondIntersectionInViewportSpace.AABBBounds.RoundOutwards();
-        //
-        //RectI combinedIntersectionInViewportSpace = firstIntersectionInViewportSpace.Intersect(secondIntersectionBoundsInViewportSpace);
-        //ShapeCorners combinedIntersectionInSurfaceSpace = ViewportToSurface(combinedIntersectionInViewportSpace, scale, radians);
-        //RectI combinedIntersectionBoundsInSurfaceSpace = (RectI)combinedIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();
 
         RectI surfaceRectToRender = firstIntersectionBoundsInSurfaceSpace.Intersect(secondIntersectionInSurfaceSpace);
 
@@ -170,7 +158,7 @@ internal class Scene : OpenGlControlBase
         }
 
         canvas.RotateDegrees((float)Angle, ContentPosition.X, ContentPosition.Y);
-        canvas.Scale(scale, scale, ContentPosition.X, ContentPosition.Y);
+        canvas.Scale(finalScale, finalScale, ContentPosition.X, ContentPosition.Y);
 
         canvas.Translate(ContentPosition.X, ContentPosition.Y);
 
@@ -231,12 +219,17 @@ internal class Scene : OpenGlControlBase
 
     private float CalculateFinalScale()
     {
+        var scaleUniform = CalculateResolutionScale();
+        float scale = (float)Scale * scaleUniform;
+        return scale;
+    }
+
+    private float CalculateResolutionScale()
+    {
         float scaleX = (float)Document.Width / Surface.Size.X;
         float scaleY = (float)Document.Height / Surface.Size.Y;
         var scaleUniform = Math.Min(scaleX, scaleY);
-
-        float scale = (float)Scale * scaleUniform;
-        return scale;
+        return scaleUniform;
     }
 
     private bool IsOutOfBounds(VecI surfaceStart, VecI surfaceEnd)
