@@ -1,8 +1,5 @@
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Avalonia;
-using Avalonia.Media;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
 using ChunkyImageLib;
@@ -10,7 +7,6 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.DrawingApi.Skia;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 
@@ -24,10 +20,7 @@ internal class Scene : OpenGlControlBase
 
     public static readonly StyledProperty<VecI> ContentPositionProperty = AvaloniaProperty.Register<Scene, VecI>(
         nameof(ContentPosition));
-    
-    public static readonly StyledProperty<VecD> CenterProperty = AvaloniaProperty.Register<Scene, VecD>(
-        nameof(Center));
-    
+
     public static readonly StyledProperty<VecD> DimensionsProperty = AvaloniaProperty.Register<Scene, VecD>(
         nameof(Dimensions));
 
@@ -55,12 +48,6 @@ internal class Scene : OpenGlControlBase
         set => SetValue(ContentPositionProperty, value);
     }
     
-    public VecD Center
-    {
-        get => GetValue(CenterProperty);
-        set => SetValue(CenterProperty, value);
-    }
-    
     public VecD Dimensions
     {
         get => GetValue(DimensionsProperty);
@@ -79,7 +66,7 @@ internal class Scene : OpenGlControlBase
         set => SetValue(SurfaceProperty, value);
     }
 
-    public Rect FinalBounds => new Rect((Bounds.Width - Bounds.Width / 2 ) / 2, (Bounds.Height - Bounds.Height / 2 ) / 2, Bounds.Width / 2, Bounds.Height / 2);
+    public Rect FinalBounds => Bounds;
 
     private SKSurface _outputSurface;
     private SKPaint _paint = new SKPaint();
@@ -131,10 +118,6 @@ internal class Scene : OpenGlControlBase
 
         RectD viewport = new(FinalBounds.X, FinalBounds.Y, FinalBounds.Width, FinalBounds.Height);
 
-        _paint.Color = SKColors.Blue;
-        DrawDebugRect(canvas, viewport);
-
-
         ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale, radians);
         RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
         RectI viewportBoundsInViewportSpace = (RectI)(new RectD(FinalBounds.X, FinalBounds.Y, FinalBounds.Width, FinalBounds.Height)).RoundOutwards();
@@ -142,12 +125,15 @@ internal class Scene : OpenGlControlBase
         ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale, radians);
         RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();
 
-        ShapeCorners viewportInSurfaceSpace = new ShapeCorners(Center, Dimensions / 2f * resolutionScale).AsRotated(-radians, Center);
+        VecD scaledCenter = ViewportToSurface(new VecD(FinalBounds.Center.X, FinalBounds.Center.Y), finalScale, radians);
+        ShapeCorners viewportInSurfaceSpace = new ShapeCorners(scaledCenter, Dimensions * resolutionScale).AsRotated(-radians, scaledCenter);
         RectD viewportBoundsInSurfaceSpace = viewportInSurfaceSpace.AABBBounds;
         RectD surfaceBoundsInSurfaceSpace = new(VecD.Zero, Surface.Size);
         RectI secondIntersectionInSurfaceSpace = (RectI)viewportBoundsInSurfaceSpace.Intersect(surfaceBoundsInSurfaceSpace).RoundOutwards();
 
-        RectI surfaceRectToRender = firstIntersectionBoundsInSurfaceSpace.Intersect(secondIntersectionInSurfaceSpace);
+        //Inflate makes sure rounding doesn't cut any pixels.
+        RectI surfaceRectToRender = firstIntersectionBoundsInSurfaceSpace.Intersect(secondIntersectionInSurfaceSpace).Inflate(1);
+        surfaceRectToRender = surfaceRectToRender.Intersect(new RectI(VecI.Zero, Surface.Size)); // Clamp to surface size
 
         if (surfaceRectToRender.IsZeroOrNegativeArea)
         {
@@ -159,12 +145,8 @@ internal class Scene : OpenGlControlBase
 
         canvas.RotateDegrees((float)Angle, ContentPosition.X, ContentPosition.Y);
         canvas.Scale(finalScale, finalScale, ContentPosition.X, ContentPosition.Y);
-
         canvas.Translate(ContentPosition.X, ContentPosition.Y);
 
-
-        _paint.Color = SKColors.Red;
-        DrawDebugRect(canvas, (RectD)surfaceRectToRender);
         using Image snapshot = Surface.DrawingSurface.Snapshot((RectI)surfaceRectToRender);
         canvas.DrawImage((SKImage)snapshot.Native, (float)surfaceRectToRender.X, (float)surfaceRectToRender.Y, _paint);
 
@@ -205,18 +187,6 @@ internal class Scene : OpenGlControlBase
         };
     }
 
-    private bool IsWithinBounds(VecD point, Rect bounds)
-    {
-        return point.X >= bounds.X && point.X <= bounds.Right && point.Y >= bounds.Y && point.Y <= bounds.Bottom;
-    }
-
-    private bool IsSurfaceWithinViewportBounds(VecI surfacePoint)
-    {
-        float angle = (float)(Angle * Math.PI / 180);
-        VecD viewportPoint = SurfaceToViewport(surfacePoint, (float)Scale, angle);
-        return IsWithinBounds(viewportPoint, FinalBounds);
-    }
-
     private float CalculateFinalScale()
     {
         var scaleUniform = CalculateResolutionScale();
@@ -231,20 +201,6 @@ internal class Scene : OpenGlControlBase
         var scaleUniform = Math.Min(scaleX, scaleY);
         return scaleUniform;
     }
-
-    private bool IsOutOfBounds(VecI surfaceStart, VecI surfaceEnd)
-    {
-        return surfaceStart.X >= Surface.Size.X || surfaceStart.Y >= Surface.Size.Y || surfaceEnd.X <= 0 || surfaceEnd.Y <= 0;
-    }
-
-    /*private VecI ViewportToSurface(VecI surfacePoint, float scale)
-    {
-        float radians = (float)(Angle * Math.PI / 180);
-        VecD rotatedSurfacePoint = ((VecD)surfacePoint).Rotate(radians, ContentPosition / scale);
-        return new VecI(
-            (int)((rotatedSurfacePoint.X - ContentPosition.X) / scale),
-            (int)((rotatedSurfacePoint.Y - ContentPosition.Y) / scale));
-    }*/
 
     private VecD SurfaceToViewport(VecI surfacePoint, float scale, float angleRadians)
     {
@@ -269,154 +225,5 @@ internal class Scene : OpenGlControlBase
         {
             sender.CreateOutputSurface();
         }
-    }
-}
-
-class CornerInViewport(VecD position, bool isWithinBounds, VecI surfacePosition)
-{
-    public VecD Position { get; set; } = position;
-    public VecI SurfacePosition { get; set; } = surfacePosition;
-    public bool IsWithinBounds { get; set; } = isWithinBounds;
-    public CornerInViewport[] ConnectedCorners { get; set; }
-}
-
-class CornersInViewport
-{
-    public CornerInViewport TopLeft { get; set; }
-    public CornerInViewport TopRight { get; set; }
-    public CornerInViewport BottomRight { get; set; }
-    public CornerInViewport BottomLeft { get; set; }
-
-    public CornersInViewport(CornerInViewport topLeft, CornerInViewport topRight, CornerInViewport bottomRight, CornerInViewport bottomLeft)
-    {
-        TopLeft = topLeft;
-        TopRight = topRight;
-        BottomRight = bottomRight;
-        BottomLeft = bottomLeft;
-
-        TopLeft.ConnectedCorners = new[] { TopRight, BottomLeft };
-        TopRight.ConnectedCorners = new[] { TopLeft, BottomRight };
-        BottomRight.ConnectedCorners = new[] { BottomLeft, TopRight };
-        BottomLeft.ConnectedCorners = new[] { TopLeft, BottomRight };
-    }
-
-    public RectI ShrinkToViewport(RectI surfaceToRender, Func<VecI, bool> isWithinBoundsAction)
-    {
-        // start with first corner that is not within bounds, find next that is not within bounds and go to the direction of visible corner
-        // check if each pixel column and row is within bounds, if both are not visible, shrink surfaceToRender by 1
-
-        VecI maxSize = surfaceToRender.Size;
-
-        CornerInViewport firstNotWithinBounds = GetStartingCorner();
-        CornerInViewport? invisibleNeighbor = firstNotWithinBounds.ConnectedCorners.FirstOrDefault(x => !x.IsWithinBounds);
-        if (invisibleNeighbor == null) return surfaceToRender;
-
-        surfaceToRender = TraverseShrinkCorners(surfaceToRender, isWithinBoundsAction, invisibleNeighbor, firstNotWithinBounds, maxSize);
-        invisibleNeighbor = firstNotWithinBounds.ConnectedCorners.First(x => x != invisibleNeighbor);
-        if (!invisibleNeighbor.IsWithinBounds)
-        {
-            surfaceToRender = TraverseShrinkCorners(surfaceToRender, isWithinBoundsAction, invisibleNeighbor,
-                firstNotWithinBounds, maxSize);
-        }
-
-        /*invisibleNeighbor = GetOppositeCorner(invisibleNeighbor);
-        if (!invisibleNeighbor.IsWithinBounds)
-        {
-            surfaceToRender = TraverseShrinkCorners(surfaceToRender, isWithinBoundsAction, invisibleNeighbor,
-                firstNotWithinBounds, maxSize);
-        }*/
-
-        return surfaceToRender;
-    }
-
-    private CornerInViewport GetOppositeCorner(CornerInViewport invisibleNeighbor)
-    {
-        if (invisibleNeighbor == TopLeft) return BottomRight;
-        if (invisibleNeighbor == TopRight) return BottomLeft;
-        if (invisibleNeighbor == BottomRight) return TopLeft;
-        if (invisibleNeighbor == BottomLeft) return TopRight;
-
-        throw new Exception("Invalid corner");
-    }
-
-    private static RectI TraverseShrinkCorners(RectI surfaceToRender, Func<VecI, bool> isWithinBoundsAction,
-        CornerInViewport invisibleNeighbor, CornerInViewport firstNotWithinBounds, VecI maxSize)
-    {
-        VecI crossDirection = firstNotWithinBounds.ConnectedCorners.First(x => x != invisibleNeighbor).SurfacePosition -
-                              firstNotWithinBounds.SurfacePosition;
-        VecI crossDirectionNormalized = crossDirection.SignsWithZero();
-
-        VecI currentSurfacePosition = firstNotWithinBounds.SurfacePosition;
-        VecI oppositeSurfacePosition = invisibleNeighbor.SurfacePosition;
-
-        if (!isWithinBoundsAction(currentSurfacePosition) && !isWithinBoundsAction(oppositeSurfacePosition))
-        {
-            surfaceToRender = ShrinkToDir(surfaceToRender, crossDirectionNormalized);
-
-            VecI currentDirection = crossDirectionNormalized;
-
-            int maxIterations = currentDirection.X != 0 ? maxSize.X : maxSize.Y;
-            for (int i = 0; i < maxIterations; i++)
-            {
-                VecI nextSurfacePosition = currentSurfacePosition + currentDirection;
-                VecI oppositeNextSurfacePosition = oppositeSurfacePosition + currentDirection;
-                if (!isWithinBoundsAction(nextSurfacePosition) && !isWithinBoundsAction(oppositeNextSurfacePosition))
-                {
-                    surfaceToRender = ShrinkToDir(surfaceToRender, currentDirection);
-                    currentSurfacePosition = nextSurfacePosition;
-                    oppositeSurfacePosition = oppositeNextSurfacePosition;
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-
-        return surfaceToRender;
-    }
-
-    private static RectI ShrinkToDir(RectI surfaceToRender, VecI crossDirectionNormalized)
-    {
-        // if crossDirectionNormalized is (1, 0) then we shrink width, if it's (0, 1) we shrink height, if it's (-1, 0) we shrink X, if it's (0, -1) we shrink Y
-
-        int x = surfaceToRender.X;
-        int y = surfaceToRender.Y;
-        int width = surfaceToRender.Width;
-        int height = surfaceToRender.Height;
-
-        if (crossDirectionNormalized.X == 1)
-        {
-            x++;
-            width--;
-        }
-        else if (crossDirectionNormalized.X == -1)
-        {
-            width--;
-        }
-        else if (crossDirectionNormalized.Y == 1)
-        {
-            y++;
-            height--;
-        }
-        else if (crossDirectionNormalized.Y == -1)
-        {
-            height--;
-        }
-
-        return new RectI(x, y, width, height);
-    }
-
-    private CornerInViewport GetStartingCorner()
-    {
-       CornerInViewport[] corners = { TopLeft, TopRight, BottomRight, BottomLeft };
-       CornerInViewport? firstWithInvisibleNeighbors = corners.FirstOrDefault(x => !x.IsWithinBounds && x.ConnectedCorners.All(y => !y.IsWithinBounds));
-
-       if (firstWithInvisibleNeighbors != null)
-       {
-           return firstWithInvisibleNeighbors;
-       }
-
-       return corners.First(x => !x.IsWithinBounds);
     }
 }
