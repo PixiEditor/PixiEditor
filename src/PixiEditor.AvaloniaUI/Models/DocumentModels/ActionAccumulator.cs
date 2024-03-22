@@ -96,7 +96,7 @@ internal class ActionAccumulator
 
             if (undoBoundaryPassed)
             {
-                ClearDirtyRects();
+                //ClearDirtyRects();
             }
 
             // add dirty rectangles
@@ -114,14 +114,6 @@ internal class ActionAccumulator
         if (document.Busy)
             document.Busy = false;
         executing = false;
-    }
-
-    private void ClearDirtyRects()
-    {
-        foreach (var surface in document.Surfaces)
-        {
-            surface.Value.ClearDirtyRects();
-        }
     }
 
     private bool AreAllPassthrough(List<IAction> actions)

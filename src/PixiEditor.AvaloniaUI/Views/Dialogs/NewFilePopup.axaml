@@ -13,15 +13,7 @@
         CanMinimize="False"
         Name="popup"
         Title="CREATE_NEW_IMAGE">
-    <DockPanel Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True">
-        <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
-                IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton"
-                Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
-            <Button.CommandParameter>
-                <system:Boolean>True</system:Boolean>
-            </Button.CommandParameter>
-        </Button>
-
+    <StackPanel Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True" Orientation="Vertical">
         <input:SizePicker HorizontalAlignment="Center" MinWidth="230" Height="125" Margin="15,30,15,0"
                           PreserveAspectRatio="False"
                           Background="{DynamicResource ThemeBackgroundBrush1}"
@@ -29,5 +21,13 @@
                           ChosenHeight="{Binding FileHeight, Mode=TwoWay, ElementName=popup}"
                           ChosenWidth="{Binding FileWidth, Mode=TwoWay, ElementName=popup}"
                           x:Name="sizePicker"/>
-    </DockPanel>
+
+        <Button DockPanel.Dock="Bottom" Margin="0,15,0,15" HorizontalAlignment="Center"
+                IsDefault="True" ui:Translator.Key="CREATE" x:Name="createButton" Focusable="True"
+                Command="{Binding Path=DataContext.SetResultAndCloseCommand, ElementName=popup}">
+            <Button.CommandParameter>
+                <system:Boolean>True</system:Boolean>
+            </Button.CommandParameter>
+        </Button>
+    </StackPanel>
 </dialogs:PixiEditorPopup>

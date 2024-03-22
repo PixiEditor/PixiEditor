@@ -1,4 +1,5 @@
 ﻿using System;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
 public struct RectD : IEquatable<RectD>
@@ -156,6 +157,32 @@ public struct RectD : IEquatable<RectD>
             Math.Max(first.Y, Math.Max(second.Y, Math.Max(third.Y, fourth.Y))));
 
         return new RectD(min, max - min);
+    }
+
+    public static RectD? FromPoints(Point[] points)
+    {
+        if (points.Length == 0)
+            return null;
+
+        double minX, minY, maxX, maxY;
+        minY = double.MaxValue;
+        minX = double.MaxValue;
+        maxY = double.MinValue;
+        maxX = double.MinValue;
+
+        foreach (Point point in points)
+        {
+            if (point.X < minX)
+                minX = point.X;
+            if (point.X > maxX)
+                maxX = point.X;
+            if (point.Y < minY)
+                minY = point.Y;
+            if (point.Y > maxY)
+                maxY = point.Y;
+        }
+
+        return FromTwoPoints(new VecD(minX, minY), new VecD(maxX, maxY));
     }
 
     /// <summary>

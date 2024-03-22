@@ -8,22 +8,30 @@ using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.DrawingApi.Core.Surface
 {
+    public delegate void SurfaceChangedEventHandler(RectD? changedRect);
     public class Canvas : NativeObject
     {
 
         public override object Native => DrawingBackendApi.Current.CanvasImplementation.GetNativeCanvas(ObjectPointer);
+        public event SurfaceChangedEventHandler? Changed;
 
         public Canvas(IntPtr objPtr) : base(objPtr)
         {
         }
 
         public void DrawPixel(VecI position, Paint drawingPaint) => DrawPixel(position.X, position.Y, drawingPaint);
-        public void DrawPixel(int posX, int posY, Paint drawingPaint) => 
+        public void DrawPixel(int posX, int posY, Paint drawingPaint)
+        {
             DrawingBackendApi.Current.CanvasImplementation.DrawPixel(ObjectPointer, posX, posY, drawingPaint);
+            Changed?.Invoke(new RectD(posX, posY, 1, 1));
+        }
 
-        public void DrawSurface(DrawingSurface original, int x, int y, Paint? paint) 
-            => DrawingBackendApi.Current.CanvasImplementation.DrawSurface(ObjectPointer, original, x, y, paint);
-        
+        public void DrawSurface(DrawingSurface original, int x, int y, Paint? paint)
+        {
+            DrawingBackendApi.Current.CanvasImplementation.DrawSurface(ObjectPointer, original, x, y, paint);
+            Changed?.Invoke(null);
+        }
+
         public void DrawSurface(DrawingSurface original, int x, int y) => DrawSurface(original, x, y, null);
         
         public void DrawSurface(DrawingSurface surfaceToDraw, VecI size, Paint paint)
@@ -46,16 +54,19 @@ namespace PixiEditor.DrawingApi.Core.Surface
             DrawingBackendApi.Current.CanvasImplementation.Restore(ObjectPointer);
         }
         
-        public void Scale(float s) => DrawingBackendApi.Current.CanvasImplementation.Scale(ObjectPointer, s, s);
+        public void Scale(float s) => Scale(s, s);
+
+        /// <param name="size">The amount to scale.</param>
+        /// <summary>Pre-concatenates the current matrix with the specified scale.</summary>
+        public void Scale(Point size) => Scale(size.X, size.Y);
 
         /// <param name="sx">The amount to scale in the x-direction.</param>
         /// <param name="sy">The amount to scale in the y-direction.</param>
         /// <summary>Pre-concatenates the current matrix with the specified scale.</summary>
-        public void Scale(float sx, float sy) => DrawingBackendApi.Current.CanvasImplementation.Scale(ObjectPointer, sx, sy);
-
-        /// <param name="size">The amount to scale.</param>
-        /// <summary>Pre-concatenates the current matrix with the specified scale.</summary>
-        public void Scale(Point size) => DrawingBackendApi.Current.CanvasImplementation.Scale(ObjectPointer, size.X, size.Y);
+        public void Scale(float sx, float sy)
+        {
+            DrawingBackendApi.Current.CanvasImplementation.Scale(ObjectPointer, sx, sy);
+        }
 
         /// <param name="sx">The amount to scale in the x-direction.</param>
         /// <param name="sy">The amount to scale in the y-direction.</param>
@@ -69,31 +80,35 @@ namespace PixiEditor.DrawingApi.Core.Surface
             Translate(-px, -py);
         }
 
+        public void Translate(VecD vector) => Translate((float)vector.X, (float)vector.Y);
+
         public void Translate(float translationX, float translationY)
         {
             DrawingBackendApi.Current.CanvasImplementation.Translate(ObjectPointer, translationX, translationY);
         }
-        
-        public void Translate(VecD vector) => Translate((float)vector.X, (float)vector.Y);
 
         public void DrawPath(VectorPath path, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawPath(ObjectPointer, path, paint);
+            Changed?.Invoke(path.Bounds);
         }
         
         public void DrawPoint(VecI pos, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawPoint(ObjectPointer, pos, paint);
+            Changed?.Invoke(new RectD(pos.X, pos.Y, 1, 1));
         }
 
         public void DrawPoints(PointMode pointMode, Point[] points, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawPoints(ObjectPointer, pointMode, points, paint);
+            Changed?.Invoke(RectD.FromPoints(points));
         }
 
         public void DrawRect(int x, int y, int width, int height, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawRect(ObjectPointer, x, y, width, height, paint);
+            Changed?.Invoke(new RectD(x, y, width, height));
         }
         
         public void DrawRect(RectI rect, Paint paint) => DrawRect(rect.X, rect.Y, rect.Width, rect.Height, paint);
@@ -116,16 +131,19 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public void Clear()
         {
             DrawingBackendApi.Current.CanvasImplementation.Clear(ObjectPointer);
+            Changed?.Invoke(null);
         }
         
         public void Clear(Color color)
         {
             DrawingBackendApi.Current.CanvasImplementation.Clear(ObjectPointer, color);
+            Changed?.Invoke(null);
         }
 
         public void DrawLine(VecI from, VecI to, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawLine(ObjectPointer, from, to, paint);
+            Changed?.Invoke(new RectD(from, to));
         }
 
         public void Flush()
@@ -146,6 +164,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public void DrawColor(Color color, BlendMode paintBlendMode)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawColor(ObjectPointer, color, paintBlendMode);
+            Changed?.Invoke(null);
         }
 
         public void RotateRadians(float dataAngle, float centerX, float centerY)
@@ -156,6 +175,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public void DrawBitmap(Bitmap bitmap, int x, int y)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawBitmap(ObjectPointer, bitmap, x, y);
+            Changed?.Invoke(null);
         }
 
         public override void Dispose()

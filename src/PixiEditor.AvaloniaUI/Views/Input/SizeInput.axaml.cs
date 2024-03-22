@@ -31,21 +31,6 @@ internal partial class SizeInput : UserControl
     public static readonly StyledProperty<Action> OnScrollActionProperty =
         AvaloniaProperty.Register<SizeInput, Action>(nameof(OnScrollAction));
 
-    static SizeInput()
-    {
-        SizeProperty.Changed.Subscribe(InputSizeChanged);
-    }
-
-    public SizeInput()
-    {
-        InitializeComponent();
-    }
-
-    private void SizeInput_GotKeyboardFocus(object sender, GotFocusEventArgs e)
-    {
-        textBox.Focus();
-    }
-
     public int Size
     {
         get => (int)GetValue(SizeProperty);
@@ -62,6 +47,21 @@ internal partial class SizeInput : UserControl
     {
         get => (bool)GetValue(BehaveLikeSmallEmbeddedFieldProperty);
         set => SetValue(BehaveLikeSmallEmbeddedFieldProperty, value);
+    }
+
+    static SizeInput()
+    {
+        SizeProperty.Changed.Subscribe(InputSizeChanged);
+    }
+
+    public SizeInput()
+    {
+        InitializeComponent();
+    }
+
+    protected override void OnGotFocus(GotFocusEventArgs e)
+    {
+        FocusAndSelect();
     }
 
     public void FocusAndSelect()

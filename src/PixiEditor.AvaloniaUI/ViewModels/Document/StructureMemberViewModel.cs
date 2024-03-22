@@ -144,9 +144,20 @@ internal abstract class StructureMemberViewModel : ObservableObject, IStructureM
         set => SetProperty(ref selection, value);
     }
 
-    public Surface? PreviewSurface { get; set; }
+    private Surface? previewSurface;
+    private Surface? maskPreviewSurface;
 
-    public Surface? MaskPreviewSurface { get; set; }
+    public Surface? PreviewSurface
+    {
+        get => previewSurface;
+        set => SetProperty(ref previewSurface, value);
+    }
+
+    public Surface? MaskPreviewSurface
+    {
+        get => maskPreviewSurface;
+        set => SetProperty(ref maskPreviewSurface, value);
+    }
 
     IDocument IStructureMemberHandler.Document => Document;
 

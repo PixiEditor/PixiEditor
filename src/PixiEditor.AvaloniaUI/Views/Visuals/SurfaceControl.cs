@@ -2,12 +2,9 @@
 using Avalonia.Media;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
-using Avalonia.Platform;
-using Avalonia.Rendering.SceneGraph;
-using Avalonia.Skia;
+using Avalonia.Threading;
 using ChunkyImageLib;
-using PixiEditor.DrawingApi.Skia;
-using Point = Avalonia.Point;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 
@@ -34,13 +31,12 @@ public class SurfaceControl : OpenGlControlBase
     private SKSurface _workingSurface;
     private SKPaint _paint = new SKPaint() { BlendMode = SKBlendMode.Src };
     private GRContext? gr;
+    private RectI? nextDirtyRect;
 
     static SurfaceControl()
     {
-        AffectsRender<SurfaceControl>(StretchProperty);
+        AffectsRender<SurfaceControl>(StretchProperty, SurfaceProperty);
         BoundsProperty.Changed.AddClassHandler<SurfaceControl>(BoundsChanged);
-        WidthProperty.Changed.AddClassHandler<SurfaceControl>(BoundsChanged);
-        HeightProperty.Changed.AddClassHandler<SurfaceControl>(BoundsChanged);
         SurfaceProperty.Changed.AddClassHandler<SurfaceControl>(Rerender);
         StretchProperty.Changed.AddClassHandler<SurfaceControl>(Rerender);
     }
@@ -68,7 +64,6 @@ public class SurfaceControl : OpenGlControlBase
 
     protected override void OnOpenGlRender(GlInterface gl, int fb)
     {
-        // TODO: draw only when needed
         if (Surface == null)
         {
             return;
@@ -80,12 +75,21 @@ public class SurfaceControl : OpenGlControlBase
         ScaleCanvas(canvas);
         canvas.Clear(SKColors.Transparent);
 
+        //TODO: Implement dirty rect rendering
+        /*if (nextDirtyRect.HasValue)
+        {
+            using SKImage snapshot = (SKImage)Surface.DrawingSurface.Snapshot(nextDirtyRect.Value).Native;
+            canvas.DrawImage(snapshot, nextDirtyRect.Value.X, nextDirtyRect.Value.Y, _paint);
+        }
+        else
+        {
+            canvas.DrawSurface((SKSurface)Surface.DrawingSurface.Native, new SKPoint(0, 0), _paint);
+        }*/
+
         canvas.DrawSurface((SKSurface)Surface.DrawingSurface.Native, new SKPoint(0, 0), _paint);
 
         canvas.Restore();
-
         canvas.Flush();
-        RequestNextFrameRendering();
     }
 
     private void ScaleCanvas(SKCanvas canvas)
@@ -116,16 +120,43 @@ public class SurfaceControl : OpenGlControlBase
         }
     }
 
+    private void SurfaceChanged(RectD? changedRect)
+    {
+        if (changedRect.HasValue)
+        {
+            var rect = changedRect.Value;
+            var rectI = new RectI((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height);
+            nextDirtyRect = nextDirtyRect?.Union(rectI) ?? rectI;
+        }
+        else
+        {
+            nextDirtyRect = null;
+        }
+
+        Dispatcher.UIThread.Post(RequestNextFrameRendering, DispatcherPriority.Render);
+    }
+
     private static void BoundsChanged(SurfaceControl sender, AvaloniaPropertyChangedEventArgs e)
     {
         if (e.NewValue is Rect bounds)
         {
             sender.CreateWorkingSurface();
         }
+
+        Dispatcher.UIThread.Post(sender.RequestNextFrameRendering, DispatcherPriority.Render);
     }
 
     private static void Rerender(SurfaceControl sender, AvaloniaPropertyChangedEventArgs e)
     {
-        sender.RequestNextFrameRendering();
+        if (e.OldValue is Surface oldSurface)
+        {
+            oldSurface.Changed -= sender.SurfaceChanged;
+        }
+        if (e.NewValue is Surface newSurface)
+        {
+            newSurface.Changed += sender.SurfaceChanged;
+        }
+
+        Dispatcher.UIThread.Post(sender.RequestNextFrameRendering, DispatcherPriority.Render);
     }
 }

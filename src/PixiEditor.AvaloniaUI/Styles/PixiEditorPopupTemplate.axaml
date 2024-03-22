@@ -35,6 +35,7 @@
                                 <behaviours:ClearFocusOnClickBehavior/>
                             </Interaction.Behaviors>
 
+                            <!--TODO: FocusAdorner seems not to work-->
                             <ContentPresenter DockPanel.Dock="Bottom"
                                               Name="PART_ContentPresenter"
                                               Margin="{TemplateBinding Padding}"

@@ -16,7 +16,8 @@ public class Surface : IDisposable
     public DrawingSurface DrawingSurface { get; }
     public int BytesPerPixel { get; }
     public VecI Size { get; }
-    public RectI DirtyRect { get; private set; }
+
+    public event SurfaceChangedEventHandler? Changed;
 
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
     private Paint nearestNeighborReplacingPaint = new() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.None };
@@ -97,6 +98,8 @@ public class Surface : IDisposable
             using DrawingSurface surface = DrawingSurface.Create(map);
             surface.Draw(DrawingSurface.Canvas, 0, 0, drawingPaint);
         }
+
+        DrawingSurfaceChanged(new RectD(0, 0, size.X, size.Y));
     }
 
     public Surface Resize(VecI newSize, ResizeMethod resizeMethod)
@@ -150,6 +153,7 @@ public class Surface : IDisposable
     {
         drawingPaint.Color = color;
         DrawingSurface.Canvas.DrawPixel(pos.X, pos.Y, drawingPaint);
+        DrawingSurfaceChanged(new RectD(pos.X, pos.Y, 1, 1));
     }
 
     public unsafe bool IsFullyTransparent()
@@ -181,7 +185,8 @@ public class Surface : IDisposable
 
     private DrawingSurface CreateDrawingSurface()
     {
-        var surface = PixiEditor.DrawingApi.Core.Surface.DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb()), PixelBuffer);
+        var surface = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb()), PixelBuffer);
+        surface.Changed += DrawingSurfaceChanged;
         if (surface is null)
             throw new InvalidOperationException($"Could not create surface (Size:{Size})");
         return surface;
@@ -199,6 +204,8 @@ public class Surface : IDisposable
     {
         if (disposed)
             return;
+
+        DrawingSurface.Changed -= DrawingSurfaceChanged;
         disposed = true;
         drawingPaint.Dispose();
         nearestNeighborReplacingPaint.Dispose();
@@ -206,20 +213,19 @@ public class Surface : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    public void AddDirtyRect(RectI dirtyRect)
+    {
+        DrawingSurfaceChanged(new RectD(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height));
+    }
+
+    private void DrawingSurfaceChanged(RectD? changedRect)
+    {
+        Changed?.Invoke(changedRect);
+    }
+
     ~Surface()
     {
         Marshal.FreeHGlobal(PixelBuffer);
-    }
-
-    public void AddDirtyRect(RectI dirtyRect)
-    {
-        // TODO: yeah well this is probably wrong lol, since the name even says "Add" and not "Set"
-        DirtyRect = dirtyRect;
-    }
-
-    public void ClearDirtyRects()
-    {
-        DirtyRect = default;
     }
 }
 

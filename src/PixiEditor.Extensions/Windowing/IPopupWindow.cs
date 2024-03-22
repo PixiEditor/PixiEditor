@@ -2,7 +2,7 @@
 
 public interface IPopupWindow
 {
-    public string Title { get; set; }
+    public string? Title { get; set; }
     public void Show();
     public void Close();
     public Task<bool?> ShowDialog();

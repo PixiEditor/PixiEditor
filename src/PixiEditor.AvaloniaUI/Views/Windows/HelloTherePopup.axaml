@@ -15,6 +15,7 @@
         xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
         xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
         xmlns:skiaSharp="clr-namespace:SkiaSharp;assembly=SkiaSharp"
+        xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
         mc:Ignorable="d"
         Title="Hello there!" Height="662" Width="982" MinHeight="500" MinWidth="500"
         Loaded="HelloTherePopup_OnLoaded">
@@ -123,12 +124,12 @@
                                                         Stretch="Uniform"
                                                         x:Name="image"
                                                         Margin="20">
-                                                        <!--<RenderOptions.BitmapInterpolationMode> TODO: Fix
+                                                        <ui1:RenderOptionsBindable.BitmapInterpolationMode>
                                                             <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                                                <Binding Path="PreviewBitmap.PixelSize.Width"/>
+                                                                <Binding Path="PreviewBitmap.Size.X"/>
                                                                 <Binding ElementName="image" Path="Width"/>
                                                             </MultiBinding>
-                                                        </RenderOptions.BitmapInterpolationMode>-->
+                                                        </ui1:RenderOptionsBindable.BitmapInterpolationMode>
                                                     </visuals:SurfaceControl>
                                                     <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder" Margin="5"
                                                             Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}" 
