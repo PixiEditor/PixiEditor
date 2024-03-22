@@ -132,6 +132,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged
         {
             new ScaleTransform(Scale, Scale),
             new RotateTransform(Angle * 180 / Math.PI),
+            new ScaleTransform(FlipX ? -1 : 1, FlipY ? -1 : 1),
             new TranslateTransform(CanvasX, CanvasY),
         },
     };

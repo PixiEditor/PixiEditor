@@ -128,6 +128,8 @@
             Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
             ContentPosition="{Binding CanvasPos, ElementName=zoombox, Mode=OneWay}"
             Angle="{Binding RotateTransformAngle, ElementName=zoombox, Mode=OneWay}"
+            FlipX="{Binding FlipX, ElementName=zoombox, Mode=OneWay}"
+            FlipY="{Binding FlipY, ElementName=zoombox, Mode=OneWay}"
             ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}"
             FlowDirection="LeftToRight">
             <visuals:Scene.Styles>

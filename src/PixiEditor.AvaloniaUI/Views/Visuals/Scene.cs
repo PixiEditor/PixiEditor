@@ -28,6 +28,11 @@ internal class Scene : OpenGlControlBase
     public static readonly StyledProperty<double> AngleProperty = AvaloniaProperty.Register<Scene, double>(
         nameof(Angle), 0);
 
+    public static readonly StyledProperty<bool> FlipXProperty = AvaloniaProperty.Register<Scene, bool>(
+        nameof(FlipX), false);
+    public static readonly StyledProperty<bool> FlipYProperty = AvaloniaProperty.Register<Scene, bool>(
+        nameof(FlipY), false);
+
     public double Angle
     {
         get => GetValue(AngleProperty);
@@ -60,16 +65,28 @@ internal class Scene : OpenGlControlBase
 
     public Rect FinalBounds => Bounds;
 
+    public bool FlipX
+    {
+        get { return (bool)GetValue(FlipXProperty); }
+        set { SetValue(FlipXProperty, value); }
+    }
+
+    public bool FlipY
+    {
+        get { return (bool)GetValue(FlipYProperty); }
+        set { SetValue(FlipYProperty, value); }
+    }
+
     private SKSurface _outputSurface;
     private SKPaint _paint = new SKPaint();
     private GRContext? gr;
 
     static Scene()
     {
-        AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty);
+        AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleProperty, FlipXProperty, FlipYProperty, ContentPositionProperty, DocumentProperty, SurfaceProperty);
         BoundsProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
-        WidthProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
-        HeightProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
+        FlipXProperty.Changed.AddClassHandler<Scene>(RequestRendering);
+        FlipYProperty.Changed.AddClassHandler<Scene>(RequestRendering);
     }
 
     public Scene()
@@ -104,9 +121,8 @@ internal class Scene : OpenGlControlBase
         canvas.Clear(SKColors.Transparent);
 
         float finalScale = CalculateFinalScale();
-        float radians = (float)(Angle * Math.PI / 180);
 
-        RectI surfaceRectToRender = FindRectToRender(finalScale, radians);
+        RectI surfaceRectToRender = FindRectToRender(finalScale);
 
         if (surfaceRectToRender.IsZeroOrNegativeArea)
         {
@@ -116,8 +132,19 @@ internal class Scene : OpenGlControlBase
             return;
         }
 
-        canvas.RotateDegrees((float)Angle, ContentPosition.X, ContentPosition.Y);
         canvas.Scale(finalScale, finalScale, ContentPosition.X, ContentPosition.Y);
+        float angle = (float)Angle;
+        if (FlipX)
+        {
+            angle = 360 - angle;
+        }
+        if (FlipY)
+        {
+            angle = 360 - angle;
+        }
+
+        canvas.RotateDegrees(angle, ContentPosition.X, ContentPosition.Y);
+        canvas.Scale(FlipX ? -1 : 1, FlipY ? -1 : 1, ContentPosition.X, ContentPosition.Y);
         canvas.Translate(ContentPosition.X, ContentPosition.Y);
 
         using Image snapshot = Surface.DrawingSurface.Snapshot(surfaceRectToRender);
@@ -128,16 +155,16 @@ internal class Scene : OpenGlControlBase
         canvas.Flush();
     }
 
-    private RectI FindRectToRender(float finalScale, float radians)
+    private RectI FindRectToRender(float finalScale)
     {
-        ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale, radians);
+        ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale);
         RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
         RectI viewportBoundsInViewportSpace = (RectI)(new RectD(FinalBounds.X, FinalBounds.Y, FinalBounds.Width, FinalBounds.Height)).RoundOutwards();
         RectI firstIntersectionInViewportSpace = surfaceBoundsInViewportSpace.Intersect(viewportBoundsInViewportSpace);
-        ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale, radians);
+        ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale);
         RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();
 
-        ShapeCorners viewportInSurfaceSpace = ViewportToSurface(viewportBoundsInViewportSpace, finalScale, radians);
+        ShapeCorners viewportInSurfaceSpace = ViewportToSurface(viewportBoundsInViewportSpace, finalScale);
         RectD viewportBoundsInSurfaceSpace = viewportInSurfaceSpace.AABBBounds;
         RectD surfaceBoundsInSurfaceSpace = new(VecD.Zero, Surface.Size);
         RectI secondIntersectionInSurfaceSpace = (RectI)viewportBoundsInSurfaceSpace.Intersect(surfaceBoundsInSurfaceSpace).RoundOutwards();
@@ -156,25 +183,25 @@ internal class Scene : OpenGlControlBase
         canvas.DrawLine((float)rect.X, (float)rect.Bottom, (float)rect.X, (float)rect.Y, _paint);
     }
 
-    private ShapeCorners ViewportToSurface(RectI viewportRect, float scale, float angleRadians)
+    private ShapeCorners ViewportToSurface(RectI viewportRect, float scale)
     {
         return new ShapeCorners()
         {
-            TopLeft = ViewportToSurface(viewportRect.TopLeft, scale, angleRadians),
-            TopRight = ViewportToSurface(viewportRect.TopRight, scale, angleRadians),
-            BottomLeft = ViewportToSurface(viewportRect.BottomLeft, scale, angleRadians),
-            BottomRight = ViewportToSurface(viewportRect.BottomRight, scale, angleRadians),
+            TopLeft = ViewportToSurface(viewportRect.TopLeft, scale),
+            TopRight = ViewportToSurface(viewportRect.TopRight, scale),
+            BottomLeft = ViewportToSurface(viewportRect.BottomLeft, scale),
+            BottomRight = ViewportToSurface(viewportRect.BottomRight, scale),
         };
     }
     
-    private ShapeCorners SurfaceToViewport(RectI viewportRect, float scale, float angleRadians)
+    private ShapeCorners SurfaceToViewport(RectI viewportRect, float scale)
     {
         return new ShapeCorners()
         {
-            TopLeft = SurfaceToViewport(viewportRect.TopLeft, scale, angleRadians),
-            TopRight = SurfaceToViewport(viewportRect.TopRight, scale, angleRadians),
-            BottomLeft = SurfaceToViewport(viewportRect.BottomLeft, scale, angleRadians),
-            BottomRight = SurfaceToViewport(viewportRect.BottomRight, scale, angleRadians),
+            TopLeft = SurfaceToViewport(viewportRect.TopLeft, scale),
+            TopRight = SurfaceToViewport(viewportRect.TopRight, scale),
+            BottomLeft = SurfaceToViewport(viewportRect.BottomLeft, scale),
+            BottomRight = SurfaceToViewport(viewportRect.BottomRight, scale),
         };
     }
 
@@ -193,21 +220,57 @@ internal class Scene : OpenGlControlBase
         return scaleUniform;
     }
 
-    private VecD SurfaceToViewport(VecI surfacePoint, float scale, float angleRadians)
+    private VecD SurfaceToViewport(VecI surfacePoint, float scale)
     {
         VecD unscaledPoint = surfacePoint * scale;
+
+        float angle = (float)Angle;
+        if (FlipX)
+        {
+            unscaledPoint.X = -unscaledPoint.X;
+            angle = 360 - angle;
+        }
+        if (FlipY)
+        {
+            unscaledPoint.Y = -unscaledPoint.Y;
+            angle = 360 - angle;
+        }
+
         VecD offseted = unscaledPoint + ContentPosition;
 
-        return offseted.Rotate(angleRadians, ContentPosition);
+        float angleRadians = (float)(angle * Math.PI / 180);
+        VecD rotated = offseted.Rotate(angleRadians, ContentPosition);
+
+        return rotated;
     }
 
-    private VecI ViewportToSurface(VecD viewportPoint, float scale, float angleRadians)
+    private VecI ViewportToSurface(VecD viewportPoint, float scale)
     {
+        float angle = (float)Angle;
+        if (FlipX)
+        {
+            angle = 360 - angle;
+        }
+        if (FlipY)
+        {
+            angle = 360 - angle;
+        }
+
+        float angleRadians = (float)(angle * Math.PI / 180);
         VecD rotatedViewportPoint = (viewportPoint).Rotate(-angleRadians, ContentPosition);
+
         VecD unscaledPoint = rotatedViewportPoint - ContentPosition;
-        return new VecI(
+
+        if (FlipX)
+            unscaledPoint.X = -unscaledPoint.X;
+        if (FlipY)
+            unscaledPoint.Y = -unscaledPoint.Y;
+
+        VecI pos = new VecI(
             (int)Math.Round(unscaledPoint.X / scale),
             (int)Math.Round(unscaledPoint.Y / scale));
+
+        return pos;
     }
 
     private static void BoundsChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
@@ -216,5 +279,12 @@ internal class Scene : OpenGlControlBase
         {
             sender.CreateOutputSurface();
         }
+
+        sender.RequestNextFrameRendering();
+    }
+
+    private static void RequestRendering(Scene sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        sender.RequestNextFrameRendering();
     }
 }
