@@ -66,6 +66,15 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return new Image(nativeImg.Handle);
         }
 
+        public Image? FromPixelCopy(ImageInfo info, byte[] pixels)
+        {
+            var nativeImg = SKImage.FromPixelCopy(info.ToSkImageInfo(), pixels);
+            if (nativeImg is null)
+                return null;
+            ManagedInstances[nativeImg.Handle] = nativeImg;
+            return new Image(nativeImg.Handle);
+        }
+
         public void GetColorShifts(ref int platformColorAlphaShift, ref int platformColorRedShift, ref int platformColorGreenShift,
             ref int platformColorBlueShift)
         {

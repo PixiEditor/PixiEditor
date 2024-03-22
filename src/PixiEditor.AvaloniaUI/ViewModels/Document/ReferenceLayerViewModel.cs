@@ -13,6 +13,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
@@ -112,7 +113,7 @@ internal class ReferenceLayerViewModel : ObservableObject, IReferenceLayerHandle
     
     public void SetReferenceLayer(ImmutableArray<byte> imageBgra8888Bytes, VecI imageSize, ShapeCorners shape)
     {
-        ReferenceBitmap = Surface.Load(imageBgra8888Bytes.ToArray()); //TODO: Was WriteableBitmapUtility.FromBgra8888Array(imageBgra8888Bytes.ToArray(), imageSize);
+        ReferenceBitmap = Surface.Load(imageBgra8888Bytes.ToArray(), ColorType.Bgra8888, imageSize); //TODO: Was WriteableBitmapUtility.FromBgra8888Array(imageBgra8888Bytes.ToArray(), imageSize);
         referenceShape = shape;
         isVisible = true;
         isTransforming = false;

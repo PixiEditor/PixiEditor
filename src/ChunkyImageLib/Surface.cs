@@ -75,6 +75,18 @@ public class Surface : IDisposable
         return surface;
     }
 
+    public static Surface? Load(byte[] encoded, ColorType colorType, VecI imageSize)
+    {
+        using var image = Image.FromPixels(new ImageInfo(imageSize.X, imageSize.Y, colorType), encoded);
+        if (image is null)
+            return null;
+
+        var surface = new Surface(new VecI(image.Width, image.Height));
+        surface.DrawingSurface.Canvas.DrawImage(image, 0, 0);
+
+        return surface;
+    }
+
     public unsafe void DrawBytes(VecI size, byte[] bytes, ColorType colorType, AlphaType alphaType)
     {
         ImageInfo info = new ImageInfo(size.X, size.Y, colorType, alphaType);
