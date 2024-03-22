@@ -58,28 +58,30 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         member.Document.Operations.DeleteStructureMember(member.GuidValue);
 
-        if (doc.StructureHelper.GetAllLayers().Count > 1)
+        var allLayers = doc.StructureHelper.GetAllLayers().ToArray();
+
+        if (allLayers.Length > 1)
         {
             //Declare the layer that will be selected
-             var baseLayer = doc.StructureHelper.GetAllLayers()[doc.StructureHelper.GetAllLayers().ToArray().Length - 1];
+             var baseLayer = allLayers[allLayers.ToArray().Length - 1];
         
-             for (int i = 0; i < doc.StructureHelper.GetAllLayers().Count; i++)
+             for (int i = 0; i <allLayers.Length; i++)
             {
                 //Checking that the selected layer and the deleted layer are not the same
-                if (doc.StructureHelper.GetAllLayers()[i] == member)
+                if (allLayers[i] == member)
                 {
                     //Selecting the new layer
                     if (i > 0)
                     {
-                        baseLayer = doc.StructureHelper.GetAllLayers()[i-1];
+                        baseLayer = allLayers[i - 1];
                     }
-                    else if (i == doc.StructureHelper.GetAllLayers().Count - 1) 
+                    else if (i == allLayers.Length - 1) 
                     {
-                        baseLayer = doc.StructureHelper.GetAllLayers()[i];
+                        baseLayer = allLayers[i];
                     }
                     else if (i == 0)
                     {
-                        baseLayer = doc.StructureHelper.GetAllLayers().ToArray()[i+1];
+                        baseLayer = allLayers[i + 1];
                     }
 
                         break;
