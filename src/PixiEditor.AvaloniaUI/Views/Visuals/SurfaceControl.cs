@@ -36,6 +36,7 @@ public class SurfaceControl : OpenGlControlBase
     static SurfaceControl()
     {
         AffectsRender<SurfaceControl>(StretchProperty, SurfaceProperty);
+        AffectsMeasure<SurfaceControl>(StretchProperty, SurfaceProperty);
         BoundsProperty.Changed.AddClassHandler<SurfaceControl>(BoundsChanged);
         SurfaceProperty.Changed.AddClassHandler<SurfaceControl>(Rerender);
         StretchProperty.Changed.AddClassHandler<SurfaceControl>(Rerender);
@@ -44,6 +45,41 @@ public class SurfaceControl : OpenGlControlBase
     public SurfaceControl()
     {
         ClipToBounds = true;
+    }
+
+    /// <summary>
+    /// Measures the control.
+    /// </summary>
+    /// <param name="availableSize">The available size.</param>
+    /// <returns>The desired size of the control.</returns>
+    protected override Size MeasureOverride(Size availableSize)
+    {
+        var source = Surface;
+        var result = new Size();
+
+        if (source != null)
+        {
+            result = Stretch.CalculateSize(availableSize, new Size(source.Size.X, source.Size.Y));
+        }
+
+        return result;
+    }
+
+    /// <inheritdoc/>
+    protected override Size ArrangeOverride(Size finalSize)
+    {
+        var source = Surface;
+
+        if (source != null)
+        {
+            var sourceSize = source.Size;
+            var result = Stretch.CalculateSize(finalSize, new Size(sourceSize.X, sourceSize.Y));
+            return result;
+        }
+        else
+        {
+            return new Size();
+        }
     }
 
     protected override void OnOpenGlInit(GlInterface gl)

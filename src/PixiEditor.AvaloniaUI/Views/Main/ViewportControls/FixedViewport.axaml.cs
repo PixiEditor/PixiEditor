@@ -10,7 +10,6 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.AvaloniaUI.Views.Main.ViewportControls;
 
@@ -98,7 +97,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
 
     private void ForceRefreshFinalImage()
     {
-        mainImage.InvalidateVisual();
+        mainImage.RequestNextFrameRendering();
     }
 
     private ViewportInfo GetLocation()
@@ -125,6 +124,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         FixedViewport? viewport = (FixedViewport)args.Sender;
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+        viewport.PropertyChanged?.Invoke(viewport, new(nameof(TargetBitmap)));
     }
 
     private static void OnBitmapsChange(AvaloniaPropertyChangedEventArgs<Dictionary<ChunkResolution, WriteableBitmap>> args)

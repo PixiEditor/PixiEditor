@@ -116,14 +116,13 @@
                                                     Padding="0"
                                                     Command="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=panels:AlignableWrapPanel}}"
                                                     CommandParameter="{Binding FilePath}"
-                                                    
                                                     x:Name="fileButton">
                                                 <Grid Width="100" Height="100">
                                                     <visuals:SurfaceControl
                                                         Surface="{Binding PreviewBitmap}"
+                                                        Margin="10"
                                                         Stretch="Uniform"
-                                                        x:Name="image"
-                                                        Margin="20">
+                                                        x:Name="image">
                                                         <ui1:RenderOptionsBindable.BitmapInterpolationMode>
                                                             <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
                                                                 <Binding Path="PreviewBitmap.Size.X"/>

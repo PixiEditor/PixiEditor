@@ -17,8 +17,6 @@
         x:Name="mainImage"
         Focusable="True"
         Surface="{Binding TargetBitmap, ElementName=uc}"
-        Width="{Binding Document.Width, ElementName=uc}"
-        Height="{Binding Document.Height, ElementName=uc}"
         Stretch="Uniform"
         SizeChanged="OnImageSizeChanged">
         <ui:RenderOptionsBindable.BitmapInterpolationMode>
