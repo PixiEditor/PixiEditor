@@ -20,7 +20,8 @@ public class Program
             .WithInterFont()
             .With(new Win32PlatformOptions()
             {
-                RenderingMode = new[] { Win32RenderingMode.Wgl }
+                RenderingMode = new[] { Win32RenderingMode.Wgl },
+                OverlayPopups = true
             })
             .LogToTrace();
 }
