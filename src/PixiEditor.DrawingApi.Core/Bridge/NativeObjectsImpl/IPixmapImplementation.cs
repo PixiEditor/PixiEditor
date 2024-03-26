@@ -20,4 +20,5 @@ public interface IPixmapImplementation
     public int GetHeight(Pixmap pixmap);
 
     public int GetBytesSize(Pixmap pixmap);
+    public object GetNativePixmap(IntPtr objectPointer);
 }

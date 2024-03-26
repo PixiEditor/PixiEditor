@@ -42,7 +42,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, layerGuid, false))
             return false;
-        Layer layer = (Layer)target.FindMemberOrThrow(layerGuid);
+        RasterLayer layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, layer.LayerImage, layerGuid, false);
         return true;
     }
@@ -52,7 +52,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         if (ignoreUpdate)
             return new None();
         VecI pos = positions[^1];
-        Layer layer = (Layer)target.FindMemberOrThrow(layerGuid);
+        RasterLayer layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
 
         int queueLength = layer.LayerImage.QueueLength;
         
@@ -89,7 +89,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var layer = (Layer)target.FindMemberOrThrow(layerGuid);
+        var layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
         ignoreInUndo = false;
 
         if (savedChunks is not null)

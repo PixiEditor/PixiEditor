@@ -1,0 +1,66 @@
+﻿<UserControl
+    x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.DialogTitleBar"
+    x:ClassModifier="internal"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+    mc:Ignorable="d"
+    x:Name="uc"
+    Height="36"
+    d:DesignWidth="300">
+    <Grid>
+        <Grid Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False"/>
+        <TextBlock
+            IsHitTestVisible="False"
+            TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
+            ui:Translator.Key="{Binding ElementName=uc, Path=TitleKey}"
+            Foreground="White" 
+            FontSize="15"
+            Margin="5,0,0,0"/>
+        <DockPanel IsHitTestVisible="True">
+            <Button 
+                DockPanel.Dock="Right" 
+                IsCancel="True"
+                Classes="close"
+                Theme="{StaticResource DialogButtonTheme}"
+                ui:Translator.TooltipKey="CLOSE"
+                Click="CloseWindow">
+                🗙
+            </Button>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" IsVisible="{Binding ElementName=uc, Path=CanFullscreen}">
+                <Button
+                    IsVisible="{Binding !$parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
+                    DockPanel.Dock="Right"
+                    Theme="{StaticResource DialogButtonTheme}"
+                    ui:Translator.TooltipKey="MAXIMIZE"
+                    Name="maximizeButton"
+                    Click="MaximizeWindow">
+                    🗖
+                </Button>
+                <Button
+                    IsVisible="{Binding $parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
+                    DockPanel.Dock="Right"
+                    Name="restoreButton"
+                    Theme="{StaticResource DialogButtonTheme}"
+                    ui:Translator.TooltipKey="RESTORE"
+                    Click="RestoreWindow">
+                    🗗
+                </Button>
+            </StackPanel>
+            <Button 
+                DockPanel.Dock="Right"
+                Name="minimizeButton"
+                Theme="{StaticResource DialogButtonTheme}"
+                IsVisible="{Binding ElementName=uc, Path=CanMinimize}"
+                ui:Translator.TooltipKey="MINIMIZE"
+                Padding="0, 0, 0, 5"
+                Click="MinimizeWindow">
+                🗕
+            </Button>
+            <Control /><!-- dummy control to occupy dockpanel center -->
+        </DockPanel>
+    </Grid>
+</UserControl>

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Windows;
+using Avalonia.Media;
 
 namespace PixiEditor.Extensions.Common.Localization;
 

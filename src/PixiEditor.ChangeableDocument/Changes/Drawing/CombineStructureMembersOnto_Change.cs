@@ -50,12 +50,13 @@ internal class CombineStructureMembersOnto_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var toDrawOn = target.FindMemberOrThrow<Layer>(targetLayer);
+        //TODO: Add support for different Layer types
+        var toDrawOn = target.FindMemberOrThrow<RasterLayer>(targetLayer);
 
         var chunksToCombine = new HashSet<VecI>();
         foreach (var guid in layersToCombine)
         {
-            var layer = target.FindMemberOrThrow<Layer>(guid);
+            var layer = target.FindMemberOrThrow<RasterLayer>(guid);
             chunksToCombine.UnionWith(layer.LayerImage.FindAllChunks());
         }
 
@@ -79,7 +80,7 @@ internal class CombineStructureMembersOnto_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var toDrawOn = target.FindMemberOrThrow<Layer>(targetLayer);
+        var toDrawOn = target.FindMemberOrThrow<RasterLayer>(targetLayer);
         var affectedArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.LayerImage, ref originalChunks);
         return new LayerImageArea_ChangeInfo(targetLayer, affectedArea);
     }

@@ -40,10 +40,13 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
 
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is RasterLayer layer)
             {
                 Resize(layer.LayerImage, layer.GuidValue, newSize, offset, deletedChunks);
             }
+
+            // TODO: Check if adding support for different Layer types is necessary
+
             if (member.Mask is null)
                 return;
 

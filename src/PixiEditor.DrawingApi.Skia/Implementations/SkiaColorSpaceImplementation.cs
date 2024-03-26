@@ -27,5 +27,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[objectPointer].Dispose();
             ManagedInstances.TryRemove(objectPointer, out _);
         }
+
+        public object GetNativeColorSpace(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
+        }
     }
 }

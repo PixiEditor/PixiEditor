@@ -1,0 +1,37 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="using:Dock.Avalonia.Converters"
+                    xmlns:core="using:Dock.Model.Core">
+  <Design.PreviewWith>
+    <DockDockControl Width="300" Height="300" />
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type DockDockControl}" TargetType="DockDockControl">
+
+    <Setter Property="(ProportionalStackPanelSplitter.Proportion)" Value="{Binding Proportion}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockableControl TrackingMode="Visible">
+          <ItemsControl ItemsSource="{Binding VisibleDockables}">
+            <ItemsControl.Styles>
+              <Style Selector="ItemsControl > ContentPresenter" x:DataType="core:IDock">
+                <Setter Property="(DockPanel.Dock)"
+                        Value="{Binding Dock, Converter={x:Static converters:DockModeConverter.Instance}}" />
+              </Style>
+            </ItemsControl.Styles>
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <DockPanel DockProperties.IsDropArea="True"
+                           Background="Transparent"
+                           LastChildFill="{Binding LastChildFill}"/>
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+        </DockableControl>
+      </ControlTemplate>
+    </Setter>
+
+  </ControlTheme>
+
+</ResourceDictionary>

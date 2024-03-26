@@ -1,4 +1,5 @@
 ﻿using System;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
@@ -15,4 +16,5 @@ public interface ISurfaceImplementation
     public DrawingSurface Create(Pixmap pixmap);
     public DrawingSurface Create(ImageInfo imageInfo);
     public void Dispose(DrawingSurface drawingSurface);
+    public object GetNativeSurface(IntPtr objectPointer);
 }

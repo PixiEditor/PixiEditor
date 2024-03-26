@@ -23,7 +23,7 @@ internal class DuplicateLayer_Change : Change
     {
         (Layer existingLayer, Folder parent) = ((Layer, Folder))target.FindChildAndParentOrThrow(layerGuid);
 
-        Layer clone = existingLayer.Clone();
+        Layer clone = (Layer)existingLayer.Clone();
         clone.GuidValue = duplicateGuid;
 
         int index = parent.Children.IndexOf(existingLayer);

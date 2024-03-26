@@ -1,7 +1,8 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
+﻿using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.Windowing;
 
 namespace SampleExtension;
 
@@ -13,12 +14,14 @@ public class SampleExtension : Extension
 
     protected override void OnInitialized()
     {
-        var popup = Api.WindowProvider.CreatePopupWindow("Hello World!", new TextBlock
+        var popup = Api.Windowing.CreatePopupWindow("Hello World!", new TextBlock
         {
             Text = "Hello World!", Foreground = Brushes.White,
             HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center
         });
         Api.PaletteProvider.RegisterDataSource(new TestPaletteDataSource());
         popup.ShowDialog();
+
+        Api.Windowing.GetWindow(WindowType.PalettesBrowser).Show();
     }
 }

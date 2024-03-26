@@ -52,7 +52,7 @@ internal partial class DocumentViewModel
 
         var surface = new Surface(new VecI(layer.ImageSize.X, layer.ImageSize.Y));
         
-        surface.DrawBytes(surface.Size, layer.ImagePbgra32Bytes.ToArray(), ColorType.Bgra8888, AlphaType.Premul);
+        surface.DrawBytes(surface.Size, layer.ImageBgra8888Bytes.ToArray(), ColorType.Bgra8888, AlphaType.Premul);
 
         var encoder = new PngBitmapEncoder();
 
@@ -116,7 +116,7 @@ internal partial class DocumentViewModel
     
     private static ImageLayer ToSerializable(IReadOnlyLayer layer, IReadOnlyDocument document)
     {
-        var result = document.GetLayerImage(layer.GuidValue);
+        var result = document.GetLayerRasterizedImage(layer.GuidValue);
 
         var tightBounds = document.GetChunkAlignedLayerBounds(layer.GuidValue);
         using var data = result?.DrawingSurface.Snapshot().Encode();

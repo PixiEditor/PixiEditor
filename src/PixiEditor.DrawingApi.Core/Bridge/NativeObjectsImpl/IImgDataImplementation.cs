@@ -10,4 +10,5 @@ public interface IImgDataImplementation
     public void SaveTo(ImgData imgData, FileStream stream);
     public Stream AsStream(ImgData imgData);
     public ReadOnlySpan<byte> AsSpan(ImgData imgData);
+    public object GetNativeImgData(IntPtr objectPointer);
 }

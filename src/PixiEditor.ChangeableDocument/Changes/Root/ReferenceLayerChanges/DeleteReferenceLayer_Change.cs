@@ -29,7 +29,7 @@ internal class DeleteReferenceLayer_Change : Change
     {
         target.ReferenceLayer = lastReferenceLayer!.Clone();
         return new SetReferenceLayer_ChangeInfo(
-            target.ReferenceLayer.ImagePbgra32Bytes,
+            target.ReferenceLayer.ImageBgra8888Bytes,
             target.ReferenceLayer.ImageSize,
             target.ReferenceLayer.Shape);
     }

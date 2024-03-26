@@ -32,7 +32,7 @@ internal class Crop_Change : ResizeBasedChangeBase
 
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is RasterLayer layer)
             {
                 Resize(layer.LayerImage, layer.GuidValue, rect.Size, rect.Pos * -1, deletedChunks);
             }

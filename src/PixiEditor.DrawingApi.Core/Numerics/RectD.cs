@@ -1,4 +1,5 @@
 ﻿using System;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
 public struct RectD : IEquatable<RectD>
@@ -143,6 +144,45 @@ public struct RectD : IEquatable<RectD>
             Top = center.Y - size.Y / 2,
             Bottom = center.Y + size.Y / 2
         };
+    }
+
+    public static RectD CreateAABB(VecD first, VecD second, VecD third, VecD fourth)
+    {
+        VecD min = new VecD(
+            Math.Min(first.X, Math.Min(second.X, Math.Min(third.X, fourth.X))),
+            Math.Min(first.Y, Math.Min(second.Y, Math.Min(third.Y, fourth.Y))));
+
+        VecD max = new VecD(
+            Math.Max(first.X, Math.Max(second.X, Math.Max(third.X, fourth.X))),
+            Math.Max(first.Y, Math.Max(second.Y, Math.Max(third.Y, fourth.Y))));
+
+        return new RectD(min, max - min);
+    }
+
+    public static RectD? FromPoints(Point[] points)
+    {
+        if (points.Length == 0)
+            return null;
+
+        double minX, minY, maxX, maxY;
+        minY = double.MaxValue;
+        minX = double.MaxValue;
+        maxY = double.MinValue;
+        maxX = double.MinValue;
+
+        foreach (Point point in points)
+        {
+            if (point.X < minX)
+                minX = point.X;
+            if (point.X > maxX)
+                maxX = point.X;
+            if (point.Y < minY)
+                minY = point.Y;
+            if (point.Y > maxY)
+                maxY = point.Y;
+        }
+
+        return FromTwoPoints(new VecD(minX, minY), new VecD(maxX, maxY));
     }
 
     /// <summary>

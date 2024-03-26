@@ -1,0 +1,144 @@
+﻿<UserControl x:Class="PixiEditor.AvaloniaUI.Views.Main.CommandSearch.CommandSearchControl"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
+             xmlns:search="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.Search"
+             mc:Ignorable="d"
+             Foreground="White"
+             d:DesignHeight="450" d:DesignWidth="600"
+             Width="600"
+             x:Name="uc">
+    <Grid x:Name="mainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBox Text="{Binding SearchTerm, Mode=TwoWay, ElementName=uc}"
+                 FontSize="17"
+                 Padding="5"
+                 x:Name="textBox">
+            <Interaction.Behaviors>
+                <behaviours:TextBoxFocusBehavior SelectOnMouseClick="{Binding SelectAll, ElementName=uc, Mode=OneWay}" />
+                <behaviours:GlobalShortcutFocusBehavior />
+            </Interaction.Behaviors>
+            <!--<TextBox.Styles>
+                <Style Selector="TextBox">
+                    <Style.Resources>
+                        <Style Selector="Border">
+                            <Setter Property="CornerRadius" Value="5,5,0,0" />
+                        </Style>
+                    </Style.Resources>
+                </Style>
+            </TextBox.Styles>-->
+        </TextBox>
+        <Border Grid.Row="1" BorderThickness="1,0,1,0" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                Background="{DynamicResource ThemeBackgroundBrush}">
+            <Grid>
+                <TextBlock Text="{Binding Warnings, ElementName=uc}" TextAlignment="Center" Foreground="Gray"
+                           Margin="0,5,0,0"
+                           IsVisible="{Binding HasWarnings, ElementName=uc}" />
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <ItemsControl ItemsSource="{Binding Results, ElementName=uc}" x:Name="itemscontrol">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="search:SearchResult">
+                                <Button Padding="5" Height="40" BorderThickness="0" Background="{DynamicResource ThemeBackgroundBrush}"
+                                        Command="{Binding ButtonClickedCommand, ElementName=uc}"
+                                        CommandParameter="{Binding}"
+                                        HorizontalContentAlignment="Stretch"
+                                        PointerMoved="Button_MouseMove">
+                                    <!--TODO: Implement-->
+                                    <!--<Button.Styles>
+                                        <Style Selector="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border>
+                                                            <Border.Styles>
+                                                                <Style Selector="Border">
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger
+                                                                            Binding="{Binding IsSelected, Mode=TwoWay}"
+                                                                            Value="False">
+                                                                            <Setter Property="Background"
+                                                                                Value="Transparent" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger
+                                                                            Binding="{Binding IsMouseSelected, Mode=TwoWay}"
+                                                                            Value="False">
+                                                                            <Setter Property="Background"
+                                                                                Value="Transparent" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger
+                                                                            Binding="{Binding IsMouseSelected, Mode=TwoWay}"
+                                                                            Value="True">
+                                                                            <Setter Property="Background"
+                                                                                Value="{StaticResource BrighterAccentColor}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger
+                                                                            Binding="{Binding IsSelected, Mode=TwoWay}"
+                                                                            Value="True">
+                                                                            <Setter Property="Background"
+                                                                                Value="{StaticResource AlmostLightModeAccentColor}" />
+                                                                        </DataTrigger>
+                                                                        <DataTrigger Binding="{Binding CanExecute}"
+                                                                            Value="False">
+                                                                            <Setter Property="Background"
+                                                                                Value="Transparent" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Border.Styles>
+                                                            <ContentPresenter />
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Styles>-->
+                                    <Button.Resources>
+                                        <!--<Style TargetType="TextBlock">
+                                            <Setter Property="FontSize" Value="16" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding CanExecute}" Value="True">
+                                                    <Setter Property="Foreground" Value="White" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding CanExecute}" Value="False">
+                                                    <Setter Property="Foreground" Value="Gray" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>-->
+                                    </Button.Resources>
+                                    <Grid VerticalAlignment="Center" x:Name="dp" Margin="5,0,10,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border Width="25" Margin="0,0,5,0" Padding="1">
+                                                <Image HorizontalAlignment="Center" Source="{Binding Icon}" />
+                                            </Border>
+                                            <TextBlock VerticalAlignment="Center"
+                                                       behaviours:TextBlockExtensions.BindableInlines="{Binding TextBlockContent}" />
+                                        </StackPanel>
+
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Classes="KeyBorder"
+                                                   HorizontalAlignment="Right" Text="{Binding Shortcut}" />
+                                    </Grid>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+        <Border Grid.Row="2" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                CornerRadius="0,0,5,5" Background="{DynamicResource ThemeBackgroundBrush1}" Padding="3">
+            <ContentPresenter Content="{Binding SelectedResult.Description, Mode=OneWay, ElementName=uc}" />
+        </Border>
+    </Grid>
+</UserControl>

@@ -147,6 +147,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[vectorPath.ObjectPointer].AddPath(ManagedInstances[other.ObjectPointer], (SKPathAddMode)mode);
         }
 
+        public object GetNativePath(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
+        }
+
         /// <summary>
         ///     Compute the result of a logical operation on two paths.
         /// </summary>

@@ -11,7 +11,7 @@ public class LanguageData
     
     // https://icons8.com/icon/set/flags/color
     public string IconFileName { get; set; }
-    public string IconPath = $"pack://application:,,,/PixiEditor;component/Images/LanguageFlags/";
+    public string IconPath = $"/Images/LanguageFlags/";
 
     [JsonIgnore]
     public List<string> AdditionalLocalePaths { get; set; }

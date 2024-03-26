@@ -23,5 +23,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             skColorFilter.Dispose();
             ManagedInstances.TryRemove(skColorFilter.Handle, out _);
         }
+
+        public object GetNativeColorFilter(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
+        }
     }
 }

@@ -28,10 +28,25 @@ public struct VecI : IEquatable<VecI>
         X = bothAxesValue;
         Y = bothAxesValue;
     }
+
+    /// <summary>
+    ///     Returns a new vector with X and Y signed. Zero values are considered positive.
+    /// </summary>
+    /// <returns>Vector with X and Y values, where each value is 1 if original value is positive or 0, and -1 if original value is negative.</returns>
     public VecI Signs()
     {
         return new VecI(X >= 0 ? 1 : -1, Y >= 0 ? 1 : -1);
     }
+
+    /// <summary>
+    ///    Returns a new vector with X and Y signed. Zero values are signed as 0.
+    /// </summary>
+    /// <returns>Vector with X and Y values, where each value is 1 if original value is positive, -1 if original value is negative, and 0 if original value is 0.</returns>
+    public VecI SignsWithZero()
+    {
+        return new VecI(Math.Sign(X), Math.Sign(Y));
+    }
+
     public VecI Multiply(VecI other)
     {
         return new VecI(X * other.X, Y * other.Y);

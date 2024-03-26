@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,13 +10,13 @@ namespace PixiEditorGen;
 [Generator(LanguageNames.CSharp)]
 public class CommandNameListGenerator : IIncrementalGenerator
 {
-    private const string Commands = "PixiEditor.Models.Commands.Attributes.Commands";
+    private const string Commands = "PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands";
 
-    private const string Evaluators = "PixiEditor.Models.Commands.Attributes.Evaluators.Evaluator";
+    private const string Evaluators = "PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators";
 
-    private const string Groups = "PixiEditor.Models.Commands.Attributes.Commands.Command.GroupAttribute";
+    private const string Groups = "PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands";
 
-    private const string InternalNameAttribute = "PixiEditor.Models.Commands.Attributes.InternalNameAttribute";
+    private const string InternalNameAttribute = "PixiEditor.AvaloniaUI.Models.Commands.Attributes.InternalNameAttribute";
 
     private static DiagnosticDescriptor commandDuplicate = new("Pixi01", "Command/Evaluator duplicate", "{0} with name '{1}' is defined multiple times", "PixiEditor.Commands", DiagnosticSeverity.Error, true);
     
@@ -107,7 +108,7 @@ public class CommandNameListGenerator : IIncrementalGenerator
 
         // namespace PixiEditor.Models.Commands
         var nspace = SyntaxFactory
-            .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
+            .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.AvaloniaUI.Models.Commands"))
             .AddMembers(cDecl);
 
         context.AddSource($"CommandNameList+{name}", nspace.NormalizeWhitespace().ToFullString());
@@ -155,7 +156,7 @@ public class CommandNameListGenerator : IIncrementalGenerator
 
         // namespace PixiEditor.Models.Commands
         var nspace = SyntaxFactory
-            .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Models.Commands"))
+            .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.AvaloniaUI.Models.Commands"))
             .AddMembers(cDecl);
 
         context.AddSource("CommandNameList+Groups", nspace.NormalizeWhitespace().ToFullString());

@@ -1,0 +1,35 @@
+﻿<UserControl x:Class="PixiEditor.AvaloniaUI.Views.Palettes.PaletteColorAdder"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             mc:Ignorable="d" Name="paletteColorAdder"
+             d:DesignHeight="36" d:DesignWidth="120">
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <colorPicker:PortableColorPicker
+            ColorChanged="PortableColorPicker_ColorChanged"
+            SelectedColor="{Binding SelectedColor, ElementName=paletteColorAdder, Mode=TwoWay}"
+            UseHintColor="True" HintColor="{Binding ElementName=paletteColorAdder, Path=HintColor}"
+            Width="50" Focusable="False" Margin="0 0 10 0"
+            ShowAlpha="False"/>
+        <Button Name="AddButton" Margin="0" Width="24" Height="24" 
+                Classes="ToolButtonStyle"
+                ui:Translator.TooltipKey="ADD_COLOR_TO_PALETTE"
+                Cursor="Hand" Click="Button_Click">
+            <Button.Background>
+                <ImageBrush Source="/Images/Plus-square.png"/>
+            </Button.Background>
+        </Button>
+        <Button Name="AddFromSwatches" Margin="10 2 0 0" Width="24" Height="24" 
+                Classes="ToolButtonStyle"
+                ui:Translator.TooltipKey="ADD_FROM_SWATCHES"
+                Cursor="Hand" Click="AddFromSwatches_OnClick">
+            <Button.Background>
+                <ImageBrush Source="/Images/CopyAdd.png"/>
+            </Button.Background>
+        </Button>
+    </StackPanel>
+</UserControl>

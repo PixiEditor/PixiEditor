@@ -13,6 +13,8 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
     /// </remarks>
     public class Image : NativeObject
     {
+        public override object Native => DrawingBackendApi.Current.ImageImplementation.GetNativeImage(ObjectPointer);
+
         public int Width => DrawingBackendApi.Current.ImageImplementation.GetWidth(ObjectPointer);
         
         public int Height => DrawingBackendApi.Current.ImageImplementation.GetHeight(ObjectPointer);
@@ -36,9 +38,19 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
             return DrawingBackendApi.Current.ImageImplementation.FromEncodedData(dataBytes);
         }
 
+        public static Image? FromPixels(ImageInfo info, byte[] pixels)
+        {
+            return DrawingBackendApi.Current.ImageImplementation.FromPixelCopy(info, pixels);
+        }
+
         public ImgData Encode()
         {
             return DrawingBackendApi.Current.ImageImplementation.Encode(this);
+        }
+
+        public ImgData Encode(EncodedImageFormat format, int quality = 100)
+        {
+            return DrawingBackendApi.Current.ImageImplementation.Encode(this, format, quality);
         }
     }
 }

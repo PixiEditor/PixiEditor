@@ -17,6 +17,8 @@ public class Surface : IDisposable
     public int BytesPerPixel { get; }
     public VecI Size { get; }
 
+    public event SurfaceChangedEventHandler? Changed;
+
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
     private Paint nearestNeighborReplacingPaint = new() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.None };
 
@@ -74,6 +76,18 @@ public class Surface : IDisposable
         return surface;
     }
 
+    public static Surface? Load(byte[] encoded, ColorType colorType, VecI imageSize)
+    {
+        using var image = Image.FromPixels(new ImageInfo(imageSize.X, imageSize.Y, colorType), encoded);
+        if (image is null)
+            return null;
+
+        var surface = new Surface(new VecI(image.Width, image.Height));
+        surface.DrawingSurface.Canvas.DrawImage(image, 0, 0);
+
+        return surface;
+    }
+
     public unsafe void DrawBytes(VecI size, byte[] bytes, ColorType colorType, AlphaType alphaType)
     {
         ImageInfo info = new ImageInfo(size.X, size.Y, colorType, alphaType);
@@ -84,6 +98,28 @@ public class Surface : IDisposable
             using DrawingSurface surface = DrawingSurface.Create(map);
             surface.Draw(DrawingSurface.Canvas, 0, 0, drawingPaint);
         }
+
+        DrawingSurfaceChanged(new RectD(0, 0, size.X, size.Y));
+    }
+
+    public Surface Resize(VecI newSize, ResizeMethod resizeMethod)
+    {
+        using Image image = DrawingSurface.Snapshot();
+        Surface newSurface = new(newSize);
+        using Paint paint = new();
+
+        FilterQuality filterQuality = resizeMethod switch
+        {
+            ResizeMethod.HighQuality => FilterQuality.High,
+            ResizeMethod.MediumQuality => FilterQuality.Medium,
+            ResizeMethod.LowQuality => FilterQuality.Low,
+            _ => FilterQuality.None
+        };
+
+        paint.FilterQuality = filterQuality;
+
+        newSurface.DrawingSurface.Canvas.DrawImage(image, new RectD(0, 0, newSize.X, newSize.Y), paint);
+        return newSurface;
     }
 
     public Surface ResizeNearestNeighbor(VecI newSize)
@@ -117,6 +153,7 @@ public class Surface : IDisposable
     {
         drawingPaint.Color = color;
         DrawingSurface.Canvas.DrawPixel(pos.X, pos.Y, drawingPaint);
+        DrawingSurfaceChanged(new RectD(pos.X, pos.Y, 1, 1));
     }
 
     public unsafe bool IsFullyTransparent()
@@ -148,7 +185,8 @@ public class Surface : IDisposable
 
     private DrawingSurface CreateDrawingSurface()
     {
-        var surface = PixiEditor.DrawingApi.Core.Surface.DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb()), PixelBuffer);
+        var surface = DrawingSurface.Create(new ImageInfo(Size.X, Size.Y, ColorType.RgbaF16, AlphaType.Premul, ColorSpace.CreateSrgb()), PixelBuffer);
+        surface.Changed += DrawingSurfaceChanged;
         if (surface is null)
             throw new InvalidOperationException($"Could not create surface (Size:{Size})");
         return surface;
@@ -166,6 +204,8 @@ public class Surface : IDisposable
     {
         if (disposed)
             return;
+
+        DrawingSurface.Changed -= DrawingSurfaceChanged;
         disposed = true;
         drawingPaint.Dispose();
         nearestNeighborReplacingPaint.Dispose();
@@ -173,8 +213,26 @@ public class Surface : IDisposable
         GC.SuppressFinalize(this);
     }
 
+    public void AddDirtyRect(RectI dirtyRect)
+    {
+        DrawingSurfaceChanged(new RectD(dirtyRect.X, dirtyRect.Y, dirtyRect.Width, dirtyRect.Height));
+    }
+
+    private void DrawingSurfaceChanged(RectD? changedRect)
+    {
+        Changed?.Invoke(changedRect);
+    }
+
     ~Surface()
     {
         Marshal.FreeHGlobal(PixelBuffer);
     }
+}
+
+public enum ResizeMethod
+{
+    NearestNeighbor,
+    HighQuality,
+    MediumQuality,
+    LowQuality,
 }

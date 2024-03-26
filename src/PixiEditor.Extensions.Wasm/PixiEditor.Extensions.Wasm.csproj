@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ClCompile Include="native\layout_builder_api.c" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.8.3" />
+    </ItemGroup>
+
+  <Import Project="build\PixiEditor.Extensions.Wasm.targets"/>
+  <Import Project="build\PixiEditor.Extensions.Wasm.props"/>
+
+  <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_PackageFiles Include="build\**" BuildAction="Content" PackagePath="build" />
+      <_PackageFiles Include="native\**" BuildAction="Content" PackagePath="native" />
+    </ItemGroup>
+  </Target>
+
+</Project>

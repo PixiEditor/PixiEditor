@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="Assets\ChevronDown.png" />
+      <AvaloniaResource Include="Assets\PixiEditorLogo.png" />
+      <AvaloniaResource Include="Assets\Processing.gif" />
+      <None Remove="Assets\Fonts\Oxygen-Bold.ttf" />
+      <None Remove="Assets\Fonts\Oxygen-Light.ttf" />
+      <None Remove="Assets\Fonts\Oxygen-Regular.ttf" />
+      <None Remove="Assets\Fonts\Jost-VariableFont_wght.ttf" />
+      <None Remove="Assets\Fonts\Jost-Regular.ttf" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.5" />
+      <PackageReference Include="Dock.Avalonia" Version="11.0.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Animations\Processing.axaml" />
+      <UpToDateCheckInput Remove="Controls\Dock\Accents\Base.axaml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AvaloniaResource Include="Fonts\feather.ttf" />
+    </ItemGroup>
+</Project>

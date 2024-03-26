@@ -35,5 +35,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             SKData data = ManagedInstances[imgData.ObjectPointer];
             return data.AsSpan();
         }
+
+        public object GetNativeImgData(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
+        }
     }
 }

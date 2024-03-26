@@ -1,0 +1,111 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:core="using:Dock.Model.Core">
+  <Design.PreviewWith>
+    <HostWindow IsToolWindow="False" Width="300" Height="400" />
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type HostWindow}" TargetType="HostWindow">
+
+    <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+    <Setter Property="(TextElement.FontSize)" Value="{DynamicResource DockFontSizeNormal}" />
+    <Setter Property="FontFamily" Value="{TemplateBinding FontFamily}" />
+    <Setter Property="TextBlock.Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+    <Setter Property="WindowState" Value="Normal" />
+    <Setter Property="UseLayoutRounding" Value="True" />
+    <Setter Property="Title" Value="{Binding ActiveDockable.Title}" />
+    <Setter Property="SystemDecorations" Value="Full" />
+    <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
+    <Setter Property="ExtendClientAreaChromeHints" Value="PreferSystemChrome" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border Name="PART_TransparencyFallback" IsHitTestVisible="False" />
+          <Border Background="{TemplateBinding Background}" IsHitTestVisible="False" />
+          <Panel Background="Transparent" Margin="{TemplateBinding WindowDecorationMargin}" />
+          <VisualLayerManager>
+            <VisualLayerManager.ChromeOverlayLayer>
+              <HostWindowTitleBar Name="PART_TitleBar" />
+            </VisualLayerManager.ChromeOverlayLayer>
+            <ContentPresenter Name="PART_ContentPresenter"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Content="{TemplateBinding Content}"
+                              Margin="{TemplateBinding Padding}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </VisualLayerManager>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <Setter Property="Content">
+      <Template>
+        <Panel Margin="{Binding $parent[HostWindow].OffScreenMargin}">
+          <Panel Margin="{Binding $parent[HostWindow].WindowDecorationMargin}">
+            <DockControl Layout="{Binding}"
+                         x:DataType="core:IHostWindow"
+                         x:CompileBindings="True" />
+          </Panel>
+        </Panel>
+      </Template>
+    </Setter>
+
+    <Style Selector="^:toolwindow">
+
+      <Setter Property="SystemDecorations" Value="None" />
+      <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
+      <Setter Property="ExtendClientAreaChromeHints" Value="PreferSystemChrome" />
+
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Panel>
+            <Border Name="PART_TransparencyFallback" IsHitTestVisible="False" />
+            <Border Background="{TemplateBinding Background}" IsHitTestVisible="False" />
+            <Panel Background="Transparent" Margin="{TemplateBinding WindowDecorationMargin}" />
+            <VisualLayerManager>
+              <VisualLayerManager.ChromeOverlayLayer>
+                <!-- <TitleBar/> -->
+              </VisualLayerManager.ChromeOverlayLayer>
+              <ContentPresenter Name="PART_ContentPresenter"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                Content="{TemplateBinding Content}"
+                                Margin="{TemplateBinding Padding}"
+                                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+            </VisualLayerManager>
+          </Panel>
+        </ControlTemplate>
+      </Setter>
+
+      <Setter Property="Content">
+        <Template>
+          <Panel Margin="{Binding $parent[HostWindow].OffScreenMargin}">
+            <DockControl Layout="{Binding}"
+                         x:DataType="core:IHostWindow"
+                         x:CompileBindings="True" />
+          </Panel>
+        </Template>
+      </Setter>
+
+    </Style>
+
+    <Style Selector="^:toolwindow">
+      <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+      <Setter Property="TransparencyLevelHint" Value="None"/>
+      <Setter Property="Opacity" Value="1.0" />
+    </Style>
+
+    <Style Selector="^:toolwindow:dragging">
+      <Setter Property="Background" Value="{x:Null}" />
+      <Setter Property="TransparencyLevelHint" Value="Transparent"/>
+      <Setter Property="Opacity" Value="0.5" />
+    </Style>
+
+    <Style Selector="^TitleBar /template/ Border#PART_Background">
+      <Setter Property="IsHitTestVisible" Value="True" />
+    </Style>
+
+  </ControlTheme>
+
+</ResourceDictionary>

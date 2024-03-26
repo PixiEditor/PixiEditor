@@ -16,7 +16,8 @@ internal class ApplyLayerMask_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember<Layer>(layerGuid, out var layer) || layer.Mask is null)
+        //TODO: Check if support for different Layer types is needed here.
+        if (!target.TryFindMember<RasterLayer>(layerGuid, out var layer) || layer.Mask is null)
             return false;
 
         savedLayer = new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindCommittedChunks());
@@ -26,7 +27,7 @@ internal class ApplyLayerMask_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var layer = target.FindMemberOrThrow<Layer>(layerGuid);
+        var layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
         if (layer.Mask is null)
             throw new InvalidOperationException("Cannot apply layer mask, no mask");
 
@@ -55,7 +56,7 @@ internal class ApplyLayerMask_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var layer = target.FindMemberOrThrow<Layer>(layerGuid);
+        var layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
         if (layer.Mask is not null)
             throw new InvalidOperationException("Cannot restore layer mask, it already has one");
         if (savedLayer is null || savedMask is null)

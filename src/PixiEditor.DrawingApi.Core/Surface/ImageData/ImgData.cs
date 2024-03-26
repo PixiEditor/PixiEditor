@@ -7,6 +7,8 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData;
 /// <summary>The <see cref="ImgData" /> holds an immutable data buffer.</summary>
 public class ImgData : NativeObject
 {
+    public override object Native => DrawingBackendApi.Current.ImgDataImplementation.GetNativeImgData(ObjectPointer);
+
     public ImgData(IntPtr objPtr) : base(objPtr)
     {
     }

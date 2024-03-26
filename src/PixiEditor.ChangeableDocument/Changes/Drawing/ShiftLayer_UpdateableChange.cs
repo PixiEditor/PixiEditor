@@ -50,7 +50,8 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         foreach (var layerGuid in layerGuids)
         {
             var area = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
-            var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
+            // TODO: Add support for different Layer types
+            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).LayerImage;
             
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, area));
             
@@ -80,7 +81,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         List<IChangeInfo> changes = new List<IChangeInfo>();
         foreach (var layerGuid in layerGuids)
         {
-            var image = target.FindMemberOrThrow<Layer>(layerGuid).LayerImage;
+            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).LayerImage;
             CommittedChunkStorage? originalChunks = originalLayerChunks[layerGuid];
             var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));

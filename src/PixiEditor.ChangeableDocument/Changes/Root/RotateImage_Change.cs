@@ -139,10 +139,12 @@ internal sealed class RotateImage_Change : Change
         {
             if (guids.Contains(member.GuidValue))
             {
-                if (member is Layer layer)
+                if (member is RasterLayer layer)
                 {
                     Resize(layer.LayerImage, layer.GuidValue, deletedChunks, changes);
                 }
+
+                // TODO: Add support for different Layer types
 
                 if (member.Mask is null)
                     return;
@@ -170,7 +172,7 @@ internal sealed class RotateImage_Change : Change
 
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is RasterLayer layer)
             {
                 Resize(layer.LayerImage, layer.GuidValue, deletedChunks, null);
             }
@@ -211,7 +213,7 @@ internal sealed class RotateImage_Change : Change
         target.ForEveryMember((member) =>
         {
             if(membersToRotate.Count > 0 && !membersToRotate.Contains(member.GuidValue)) return;
-            if (member is Layer layer)
+            if (member is RasterLayer layer)
             {
                 layer.LayerImage.EnqueueResize(originalSize);
                 deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);

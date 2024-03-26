@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.Numerics;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal static class DrawingChangeHelper
@@ -23,6 +24,7 @@ internal static class DrawingChangeHelper
 
     public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask)
     {
+        // TODO: Figure out if this should work only for raster layers or should rasterize any
         var member = target.FindMemberOrThrow(memberGuid);
         
         if (drawOnMask)
@@ -36,8 +38,13 @@ internal static class DrawingChangeHelper
         {
             throw new InvalidOperationException("Trying to draw on a folder");
         }
+
+        if (member is not RasterLayer layer)
+        {
+            throw new InvalidOperationException("Trying to draw on a non-raster layer member");
+        }
         
-        return ((Layer)member).LayerImage;
+        return layer.LayerImage;
     }
 
     public static void ApplyClipsSymmetriesEtc(Document target, ChunkyImage targetImage, Guid targetMemberGuid, bool drawOnMask)
@@ -46,7 +53,7 @@ internal static class DrawingChangeHelper
             targetImage.SetClippingPath(target.Selection.SelectionPath);
 
         var targetMember = target.FindMemberOrThrow(targetMemberGuid);
-        if (targetMember is Layer { LockTransparency: true } && !drawOnMask)
+        if (targetMember is ITransparencyLockable { LockTransparency: true } && !drawOnMask)
             targetImage.EnableLockTransparency();
 
         if (target.HorizontalSymmetryAxisEnabled)

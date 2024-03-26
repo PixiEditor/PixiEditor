@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -49,7 +50,8 @@ internal class ExtensionLoader
         }
         catch (Exception ex)
         {
-            CrashHelper.SendExceptionInfoToWebhook(ex);
+            Debug.WriteLine(ex);
+            //CrashHelper.SendExceptionInfoToWebhook(ex);
         }
     }
 
@@ -82,11 +84,13 @@ internal class ExtensionLoader
         catch (ExtensionException ex)
         {
             //MessageBox.Show(ex.DisplayMessage, "ERROR");
+            Debug.WriteLine(ex);
         }
         catch (Exception ex)
         {
             //MessageBox.Show(new LocalizedString("ERROR_LOADING_PACKAGE", packageJsonPath), "ERROR");
-            CrashHelper.SendExceptionInfoToWebhook(ex);
+            //TODO: Maybe sending exception info to webhook is not a good idea?
+            //CrashHelper.SendExceptionInfoToWebhook(ex);
         }
     }
 

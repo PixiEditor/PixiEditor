@@ -45,7 +45,7 @@ public interface IReadOnlyDocument
     /// </summary>
     void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action);
     
-    public Surface? GetLayerImage(Guid layerGuid);
+    public Surface? GetLayerRasterizedImage(Guid layerGuid);
     public RectI? GetChunkAlignedLayerBounds(Guid layerGuid);
 
     /// <summary>

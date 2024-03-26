@@ -1,12 +1,13 @@
 ﻿using System.Windows.Input;
+using Avalonia.Input;
 
 namespace PixiEditor.Zoombox.Operations;
 
 internal interface IDragOperation
 {
-    void Start(MouseButtonEventArgs e);
+    void Start(PointerEventArgs e);
 
-    void Update(MouseEventArgs e);
+    void Update(PointerEventArgs e);
 
     void Terminate();
 }

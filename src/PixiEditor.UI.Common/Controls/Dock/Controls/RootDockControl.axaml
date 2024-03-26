@@ -1,0 +1,41 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:dmc="using:Dock.Model.Controls">
+  <Design.PreviewWith>
+    <RootDockControl Width="300" Height="300" />
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type RootDockControl}" TargetType="RootDockControl">
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockableControl TrackingMode="Visible"
+                         x:DataType="dmc:IRootDock"
+                         x:CompileBindings="True">
+          <DockPanel Background="Transparent"
+                     DockProperties.IsDropArea="False">
+            <ToolPinnedControl DockPanel.Dock="Left" 
+                               Orientation="Vertical"
+                               Items="{Binding LeftPinnedDockables}"
+                               IsVisible="{Binding !!LeftPinnedDockables.Count}" />
+            <ToolPinnedControl DockPanel.Dock="Right" 
+                               Orientation="Vertical"
+                               Items="{Binding RightPinnedDockables}"
+                               IsVisible="{Binding !!RightPinnedDockables.Count}" />
+            <ToolPinnedControl DockPanel.Dock="Top" 
+                               Orientation="Horizontal"
+                               Items="{Binding TopPinnedDockables}"
+                               IsVisible="{Binding !!TopPinnedDockables.Count}" />
+            <ToolPinnedControl DockPanel.Dock="Bottom" 
+                               Orientation="Horizontal"
+                               Items="{Binding BottomPinnedDockables}"
+                               IsVisible="{Binding !!BottomPinnedDockables.Count}" />
+            <ContentControl Content="{Binding ActiveDockable}" />
+          </DockPanel>
+        </DockableControl>
+      </ControlTemplate>
+    </Setter>
+
+  </ControlTheme>
+
+</ResourceDictionary>

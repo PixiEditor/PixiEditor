@@ -175,5 +175,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             
             ManagedInstances.TryRemove(objectPointer, out _);
         }
+
+        public object GetNativeCanvas(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
+        }
     }
 }
