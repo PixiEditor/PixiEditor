@@ -1,17 +1,21 @@
 using System.Diagnostics;
 using System.Linq;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 using Avalonia.OpenGL;
 using Avalonia.OpenGL.Controls;
+using Avalonia.Rendering.SceneGraph;
+using Avalonia.Skia;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 
-internal class Scene : OpenGlControlBase
+internal class Scene : Control
 {
     public static readonly StyledProperty<Surface> SurfaceProperty = AvaloniaProperty.Register<SurfaceControl, Surface>(
         nameof(Surface));
@@ -77,10 +81,6 @@ internal class Scene : OpenGlControlBase
         set { SetValue(FlipYProperty, value); }
     }
 
-    private SKSurface _outputSurface;
-    private SKPaint _paint = new SKPaint();
-    private GRContext? gr;
-
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleProperty, FlipXProperty, FlipYProperty, ContentPositionProperty, DocumentProperty, SurfaceProperty);
@@ -94,31 +94,55 @@ internal class Scene : OpenGlControlBase
         ClipToBounds = true;
     }
 
-    protected override void OnOpenGlInit(GlInterface gl)
-    {
-        gr = GRContext.CreateGl(GRGlInterface.Create(gl.GetProcAddress));
-        CreateOutputSurface();
-    }
-
-    private void CreateOutputSurface()
-    {
-        if (gr == null) return;
-
-        _outputSurface?.Dispose();
-        GRGlFramebufferInfo frameBuffer = new GRGlFramebufferInfo(0, SKColorType.Rgba8888.ToGlSizedFormat());
-        GRBackendRenderTarget desc = new GRBackendRenderTarget((int)Bounds.Width, (int)Bounds.Height, 4, 0, frameBuffer);
-        _outputSurface = SKSurface.Create(gr, desc, GRSurfaceOrigin.BottomLeft, SKImageInfo.PlatformColorType);
-    }
-
-    protected override void OnOpenGlRender(GlInterface gl, int fb)
+    public override void Render(DrawingContext context)
     {
         if (Surface == null || Document == null) return;
 
-        SKCanvas canvas = _outputSurface.Canvas;
+        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, Scale, Angle, FlipX, FlipY, Bounds);
+        context.Custom(operation);
+    }
+
+    private static void BoundsChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        sender.InvalidateVisual();
+    }
+
+    private static void RequestRendering(Scene sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        sender.InvalidateVisual();
+    }
+}
+
+internal class DrawSceneOperation : SkiaDrawOperation
+{
+    public Surface Surface { get; set; }
+    public DocumentViewModel Document { get; set; }
+    public VecI ContentPosition { get; set; }
+    public double Scale { get; set; }
+    public double Angle { get; set; }
+    public bool FlipX { get; set; }
+    public bool FlipY { get; set; }
+
+    private SKPaint _paint = new SKPaint();
+
+    public DrawSceneOperation(Surface surface, DocumentViewModel document, VecI contentPosition, double scale, double angle, bool flipX, bool flipY, Rect bounds) : base(bounds)
+    {
+        Surface = surface;
+        Document = document;
+        ContentPosition = contentPosition;
+        Scale = scale;
+        Angle = angle;
+        FlipX = flipX;
+        FlipY = flipY;
+    }
+
+    public override void Render(ISkiaSharpApiLease lease)
+    {
+        if (Surface == null || Document == null) return;
+
+        SKCanvas canvas = lease.SkCanvas;
 
         canvas.Save();
-        canvas.ClipRect(new SKRect(0, 0, (float)Bounds.Width, (float)Bounds.Height));
-        canvas.Clear(SKColors.Transparent);
 
         float finalScale = CalculateFinalScale();
 
@@ -128,7 +152,6 @@ internal class Scene : OpenGlControlBase
         {
             canvas.Restore();
             canvas.Flush();
-            RequestNextFrameRendering();
             return;
         }
 
@@ -159,7 +182,7 @@ internal class Scene : OpenGlControlBase
     {
         ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale);
         RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
-        RectI viewportBoundsInViewportSpace = (RectI)(new RectD(FinalBounds.X, FinalBounds.Y, FinalBounds.Width, FinalBounds.Height)).RoundOutwards();
+        RectI viewportBoundsInViewportSpace = (RectI)(new RectD(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height)).RoundOutwards();
         RectI firstIntersectionInViewportSpace = surfaceBoundsInViewportSpace.Intersect(viewportBoundsInViewportSpace);
         ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale);
         RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();
@@ -193,7 +216,7 @@ internal class Scene : OpenGlControlBase
             BottomRight = ViewportToSurface(viewportRect.BottomRight, scale),
         };
     }
-    
+
     private ShapeCorners SurfaceToViewport(RectI viewportRect, float scale)
     {
         return new ShapeCorners()
@@ -273,18 +296,8 @@ internal class Scene : OpenGlControlBase
         return pos;
     }
 
-    private static void BoundsChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
+    public override bool Equals(ICustomDrawOperation? other)
     {
-        if (e.NewValue is Rect bounds)
-        {
-            sender.CreateOutputSurface();
-        }
-
-        sender.RequestNextFrameRendering();
-    }
-
-    private static void RequestRendering(Scene sender, AvaloniaPropertyChangedEventArgs e)
-    {
-        sender.RequestNextFrameRendering();
+        return false;
     }
 }

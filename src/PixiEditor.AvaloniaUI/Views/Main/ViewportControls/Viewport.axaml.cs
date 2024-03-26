@@ -310,7 +310,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void ForceRefreshFinalImage()
     {
-        Scene.RequestNextFrameRendering();
+        Scene.InvalidateVisual();
         MainImage?.InvalidateVisual();
     }
 

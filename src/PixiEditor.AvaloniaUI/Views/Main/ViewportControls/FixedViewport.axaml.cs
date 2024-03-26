@@ -97,7 +97,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
 
     private void ForceRefreshFinalImage()
     {
-        mainImage.RequestNextFrameRendering();
+        mainImage.InvalidateVisual();
     }
 
     private ViewportInfo GetLocation()
