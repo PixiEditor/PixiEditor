@@ -2,12 +2,40 @@
 
 public static class PreferencesConstants
 {
-    public const string FavouritePalettes = "FavouritePalettes";
-    public const string RecentlyOpened = "RecentlyOpened";
+    [LocalPreferenceConstant]
+    public const string FavouritePalettes = nameof(FavouritePalettes);
+    
+    [LocalPreferenceConstant]
+    public const string RecentlyOpened = nameof(RecentlyOpened);
 
-    public const string MaxOpenedRecently = "MaxOpenedRecently";
+    [SyncedPreferenceConstant]
+    public const string MaxOpenedRecently = nameof(MaxOpenedRecently);
     public const int MaxOpenedRecentlyDefault = 8;
-    public const string DisableNewsPanel = "DisableNewsPanel";
-    public const string LastCheckedNewsIds = "LastCheckedNewsIds";
-    public const string NewsPanelCollapsed = "NewsPanelCollapsed";
+    
+    [SyncedPreferenceConstant]
+    public const string DisableNewsPanel = nameof(DisableNewsPanel);
+    
+    [SyncedPreferenceConstant]
+    public const string LastCheckedNewsIds = nameof(LastCheckedNewsIds);
+    
+    [SyncedPreferenceConstant]
+    public const string NewsPanelCollapsed = nameof(NewsPanelCollapsed);
+    
+    [SyncedPreferenceConstant]
+    public const string AutosavePeriodMinutes = nameof(AutosavePeriodMinutes);
+    public const double AutosavePeriodDefault = 3;
+
+    [LocalPreferenceConstant]
+    public const string UnsavedNextSessionFiles = nameof(UnsavedNextSessionFiles);
+
+    [SyncedPreferenceConstant]
+    public const string AutosaveToDocumentPath = nameof(AutosaveToDocumentPath);
+    public const bool AutosaveToDocumentPathDefault = false;
+    
+    [SyncedPreferenceConstant]
+    public const string SaveSessionStateEnabled = nameof(SaveSessionStateEnabled);
+    public const bool SaveSessionStateDefault = true;
+
+    [LocalPreferenceConstant]
+    public const string LastCrashFile = nameof(LastCrashFile);
 }

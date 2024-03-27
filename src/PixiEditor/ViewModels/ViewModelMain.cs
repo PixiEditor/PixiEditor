@@ -12,6 +12,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Localization;
@@ -65,6 +66,8 @@ internal class ViewModelMain : ViewModelBase
 
     public DocumentManagerViewModel DocumentManagerSubViewModel { get; set; }
 
+    public AutosaveViewModel AutosaveViewModel { get; set; }
+
     public CommandController CommandController { get; set; }
 
     public ShortcutController ShortcutController { get; set; }
@@ -80,7 +83,7 @@ internal class ViewModelMain : ViewModelBase
     public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
 
     public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
-
+    
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
@@ -126,6 +129,7 @@ internal class ViewModelMain : ViewModelBase
         WindowSubViewModel = services.GetService<WindowViewModel>();
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
+        AutosaveViewModel = services.GetService<AutosaveViewModel>();
 
         OnStartupCommand = new RelayCommand(OnStartup);
         CloseWindowCommand = new RelayCommand(CloseWindow);
@@ -199,6 +203,7 @@ internal class ViewModelMain : ViewModelBase
             throw new ArgumentException();
         }
 
+        AutosaveAllForNextSession();
         ((CancelEventArgs)property).Cancel = !DisposeAllDocumentsWithSaveConfirmation();
     }
 
@@ -244,6 +249,26 @@ internal class ViewModelMain : ViewModelBase
         return true;
     }
 
+    public void AutosaveAllForNextSession()
+    {
+        if (!AutosaveDocumentViewModel.SaveStateEnabled || DebugSubViewModel.ModifiedEditorData)
+        {
+            return;
+        }
+        
+        var list = new List<AutosaveFilePathInfo>();
+        foreach (var document in DocumentManagerSubViewModel.Documents)
+        {
+            document.AutosaveViewModel.TryAutosave();
+            if (document.AutosaveViewModel.LastSavedPath != null || document.FullFilePath != null)
+            {
+                list.Add(new AutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastSavedPath));
+            }
+        }
+        
+        Preferences.UpdateLocalPreference(PreferencesConstants.UnsavedNextSessionFiles, list);
+    }
+
     /// <summary>
     /// Disposes the active document after showing the unsaved changes confirmation dialog.
     /// </summary>
@@ -252,16 +277,17 @@ internal class ViewModelMain : ViewModelBase
     {
         if (DocumentManagerSubViewModel.ActiveDocument is null)
             return false;
-        return DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument);
+        return DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument, true);
     }
 
-    public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
+    public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document, bool respectAutosave)
     {
         const string ConfirmationDialogTitle = "UNSAVED_CHANGES";
         const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
 
         ConfirmationType result = ConfirmationType.No;
-        if (!document.AllChangesSaved)
+        var hasUnsavedChanges = !(document.AllChangesSaved || (document.AllChangesAutosaved && respectAutosave));
+        if (hasUnsavedChanges)
         {
             result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
             if (result == ConfirmationType.Yes)

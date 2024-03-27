@@ -32,13 +32,13 @@
         <dial:DialogTitleBar TitleKey="PixiEditor has crashed!" CloseCommand="{x:Static SystemCommands.CloseWindowCommand}" />
         <Grid Grid.Row="1" Margin="30,30,30,0" >
             <StackPanel>
-                <Grid Background="{StaticResource MainColor}">
+                <Border Background="{StaticResource MainColor}" CornerRadius="5">
                     <StackPanel Margin="7" VerticalAlignment="Center">
                         <TextBlock Text="{Binding DocumentCount, StringFormat={}{0} file(s) might be recoverable}"
                        d:Text="2 file(s) can be recovered"/>
                         <TextBlock TextWrapping="Wrap">You can help the developers fix this bug by sending a crash report that was generated (you will still be able to recover the files).</TextBlock>
                     </StackPanel>
-                </Grid>
+                </Border>
 
                 <WrapPanel Margin="0,20,0,5" Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button Command="{Binding OpenSendCrashReportCommand}"

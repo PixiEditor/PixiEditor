@@ -1,0 +1,46 @@
+﻿<Window x:Class="PixiEditor.Views.Dialogs.DebugDialogs.DeadlockDetectionDebugPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:PixiEditor.Views.Dialogs.DebugDialogs"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:dialogs="clr-namespace:PixiEditor.Views.Dialogs"
+        xmlns:behaviours="clr-namespace:PixiEditor.Helpers.Behaviours"
+        xmlns:userControls="clr-namespace:PixiEditor.Views.UserControls"
+        mc:Ignorable="d"
+        Foreground="White"
+        Title="DeadlockDetectionDebugPopup" Height="200" Width="400"
+        ResizeMode="NoResize"
+        d:DataContext="{d:DesignInstance local:DeadlockDetectionDebugPopup}">
+
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static SystemCommands.CloseWindowCommand}" CanExecute="CommandBinding_CanExecute"
+                        Executed="CommandBinding_Executed_Close" />
+    </Window.CommandBindings>
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="32" GlassFrameThickness="0.1"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
+
+    <DockPanel Background="{StaticResource AccentColor}" Focusable="True">
+        <b:Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior />
+        </b:Interaction.Behaviors>
+
+        <dialogs:DialogTitleBar DockPanel.Dock="Top"
+                                CloseCommand="{x:Static SystemCommands.CloseWindowCommand}"
+                                TitleKey="Deadlock Detection Debug" />
+
+        <StackPanel Margin="5">
+            <Button Style="{StaticResource DarkRoundButton}" HorizontalAlignment="Left" Click="Refresh_OnClick">Refresh</Button>
+            <userControls:PrependTextBlock Prepend="Time since start of Deadlock Detection: " Text="{Binding TimeSinceStart, Mode=OneWay}" Margin="0,5"/>
+            <userControls:PrependTextBlock Prepend="Total Checks: " Text="{Binding TotalChecks, Mode=OneWay}"/>
+            <userControls:PrependTextBlock Prepend="Second Stage Checks: " Text="{Binding SecondStageChecks, Mode=OneWay}"/>
+            <userControls:PrependTextBlock Prepend="Third Stage Checks: " Text="{Binding ThirdStageChecks, Mode=OneWay}"/>
+            <userControls:PrependTextBlock Prepend="Fourth Stage Checks: " Text="{Binding FourthStageChecks, Mode=OneWay}"/>
+            <userControls:PrependTextBlock Prepend="Deadlocks Detected: " Text="{Binding DeadlocksDetected, Mode=OneWay}" Margin="0, 5"/>
+        </StackPanel>
+    </DockPanel>
+</Window>

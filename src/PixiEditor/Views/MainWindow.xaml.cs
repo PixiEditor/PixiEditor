@@ -35,6 +35,7 @@ internal partial class MainWindow : Window
     private readonly IPlatform platform;
     private readonly IServiceProvider services;
     private static ExtensionLoader extLoader;
+    // private DeadlockDetectionHelper deadlockDetection;
 
     public static MainWindow Current { get; private set; }
 
@@ -66,6 +67,9 @@ internal partial class MainWindow : Window
 
         InitializeComponent();
 
+        // deadlockDetection = new DeadlockDetectionHelper();
+        // deadlockDetection.Start();
+        
         OnDataContextInitialized?.Invoke();
         pixiEditorLogo = BitmapFactory.FromResource(@"/Images/PixiEditorLogo.png");
 
@@ -109,32 +113,13 @@ internal partial class MainWindow : Window
 
     public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {
-        var window = GetMainWindow();
-        var fileVM = window.services.GetRequiredService<FileViewModel>();
+        var app = (App)Application.Current;
+        MainWindow window = new(app.InitApp());
+        var files = window.services.GetRequiredService<FileViewModel>();
+        var preferences = window.services.GetRequiredService<IPreferences>();
 
-        if (!report.TryRecoverDocuments(out var documents))
-        {
-            showMissingFilesDialog = true;
-            return window;
-        }
-
-        var i = 0;
-
-        foreach (var document in documents)
-        {
-            try
-            {
-                fileVM.OpenRecoveredDotPixi(document.Path, document.GetRecoveredBytes());
-                i++;
-            }
-            catch (Exception e)
-            {
-                CrashHelper.SendExceptionInfoToWebhook(e);
-            }
-        }
-
-        showMissingFilesDialog = documents.Count != i;
-
+        files.OpenFromReport(report, out showMissingFilesDialog);
+        
         return window;
 
         MainWindow GetMainWindow()
@@ -256,9 +241,9 @@ internal partial class MainWindow : Window
         }
     }
 
-    private void MainWindow_Initialized(object sender, EventArgs e)
+    private void MainWindow_Initialized(object sender, EventArgs _)
     {
-        AppDomain.CurrentDomain.UnhandledException += (sender, e) => Helpers.CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
+        AppDomain.CurrentDomain.UnhandledException += (_, e) => CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
     }
 
     private void MainWindow_Drop(object sender, DragEventArgs e)

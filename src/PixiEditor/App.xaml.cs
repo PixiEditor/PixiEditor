@@ -1,11 +1,9 @@
 ﻿using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Interop;
 using System.Windows.Media;
-using System.Windows.Threading;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Helpers.UI;
@@ -16,7 +14,6 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Platform;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
-using Timer = System.Timers.Timer;
 
 namespace PixiEditor;
 
@@ -51,21 +48,31 @@ internal partial class App : Application
             }
             catch (Exception exception)
             {
+                Task sendReport = null;
+                
                 try
                 {
-                    CrashHelper.SendExceptionInfoToWebhook(exception, true);
+                    sendReport = CrashHelper.SendExceptionInfoToWebhookAsync(exception);
                 }
                 finally
                 {
-                    MessageBox.Show("Fatal error", $"Fatal error while trying to open crash report in App.OnStartup()\n{exception}");
+                    MessageBox.Show($"Fatal error while trying to open crash report in App.OnStartup()\nPlease report this https://pixieditor.net/help\n{exception}", "Fatal error");
+                    if (sendReport != null && sendReport.Status != TaskStatus.RanToCompletion)
+                        sendReport.Wait(8000);
+                    Shutdown();
                 }
             }
 
             return;
         }
 
+        if (ParseArgument("--wait-before-init ([0-9]+)", arguments, out Group[] waitBeforeInitGroups))
+        {
+            Task.Delay(int.Parse(waitBeforeInitGroups[1].ValueSpan)).Wait();
+        }
+
 #if !STEAM
-        if (!HandleNewInstance())
+        if (!HandleNewInstance() && !arguments.Contains("--force-new-instance"))
         {
             return;
         }
@@ -201,14 +208,23 @@ internal partial class App : Application
         var vm = ViewModelMain.Current;
         if (vm is null)
             return;
-
-        if (vm.DocumentManagerSubViewModel.Documents.Any(x => !x.AllChangesSaved))
+        
+        if (IPreferences.Current != null)
         {
-            ConfirmationType confirmation = ConfirmationDialog.Show(
-                new LocalizedString("SESSION_UNSAVED_DATA", e.ReasonSessionEnding),
-                $"{e.ReasonSessionEnding}");
-            e.Cancel = confirmation != ConfirmationType.Yes;
+            vm.AutosaveAllForNextSession();
         }
+
+        if (vm.DocumentManagerSubViewModel.Documents.All(x => x.AllChangesSaved || x.AllChangesAutosaved))
+        {
+            return;
+        }
+
+        string reason = e.ReasonSessionEnding.ToString().ToUpperInvariant();
+        
+        var confirmation = ConfirmationDialog.Show(
+            new LocalizedString(reason),
+            new LocalizedString($"{reason}_TITLE"));
+        e.Cancel = confirmation != ConfirmationType.Yes;
     }
 
     private bool ParseArgument(string pattern, string args, out Group[] groups)

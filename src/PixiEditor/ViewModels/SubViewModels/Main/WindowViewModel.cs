@@ -111,7 +111,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         var viewports = Viewports.Where(vp => vp.Document == viewport.Document).ToArray();
         if (viewports.Length == 1)
         {
-            Owner.DisposeDocumentWithSaveConfirmation(viewport.Document);
+            Owner.DisposeDocumentWithSaveConfirmation(viewport.Document, false);
         }
         else
         {

@@ -77,6 +77,12 @@ internal partial class DocumentViewModel : NotifyableObject
         }
     }
 
+    private Guid? lastChangeOnAutosave;
+    public bool AllChangesAutosaved
+    {
+        get => Internals.Tracker.LastChangeGuid == lastChangeOnAutosave;
+    }
+    
     public DateTime OpenedUTC { get; } = DateTime.UtcNow;
 
     private bool horizontalSymmetryAxisEnabled;
@@ -150,6 +156,7 @@ internal partial class DocumentViewModel : NotifyableObject
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
+    public AutosaveDocumentViewModel AutosaveViewModel { get; }
 
     private DocumentInternalParts Internals { get; }
 
@@ -160,6 +167,7 @@ internal partial class DocumentViewModel : NotifyableObject
         StructureHelper = new DocumentStructureModule(this);
         EventInlet = new DocumentEventsModule(this, Internals);
         Operations = new DocumentOperationsModule(this, Internals);
+        AutosaveViewModel = new AutosaveDocumentViewModel(this);
 
         StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
 
@@ -296,6 +304,12 @@ internal partial class DocumentViewModel : NotifyableObject
     {
         lastChangeOnSave = Internals.Tracker.LastChangeGuid;
         RaisePropertyChanged(nameof(AllChangesSaved));
+    }
+
+    public void MarkAsAutosaved()
+    {
+        lastChangeOnAutosave = Internals.Tracker.LastChangeGuid;
+        RaisePropertyChanged(nameof(AllChangesAutosaved));
     }
 
     public void MarkAsUnsaved()
