@@ -11,5 +11,4 @@
 
     <StyleInclude Source="/Styles/PixiEditor.Controls.axaml"/>
     <StyleInclude Source="/Styles/PixiEditor.Styles.axaml"/>
-    <StyleInclude Source="/Controls/Dock/PixiEditorDockTheme.axaml"/>
 </Styles>

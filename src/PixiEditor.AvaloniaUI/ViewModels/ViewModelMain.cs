@@ -71,7 +71,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
 
-    public LayoutDockViewModel LayoutDockSubViewModel { get; set; }
+    public LayoutViewModel LayoutSubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -111,10 +111,14 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
 
+        CommandController = services.GetService<CommandController>();
+
         LocalizationProvider = services.GetRequiredService<ILocalizationProvider>();
         LocalizationProvider.LoadData();
 
         WindowSubViewModel = services.GetService<WindowViewModel>();
+        LayoutSubViewModel = services.GetService<LayoutViewModel>();
+
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
@@ -141,12 +145,11 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
 
-        LayoutDockSubViewModel = services.GetService<LayoutDockViewModel>();
+        CommandController.Init(services);
+        LayoutSubViewModel.LayoutManager.InitLayout(this);
 
         MiscSubViewModel = services.GetService<MiscViewModel>();
 
-        CommandController = services.GetService<CommandController>();
-        CommandController.Init(services);
         ShortcutController = new ShortcutController();
 
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);

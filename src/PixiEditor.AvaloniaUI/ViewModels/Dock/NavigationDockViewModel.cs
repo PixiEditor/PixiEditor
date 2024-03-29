@@ -1,28 +1,34 @@
-﻿using Avalonia;
-using Dock.Model.Avalonia.Controls;
+﻿using Avalonia.Media;
+using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
-internal class NavigationDockViewModel : Tool
+internal class NavigationDockViewModel : DockableViewModel
 {
-    public static readonly StyledProperty<ColorsViewModel> ColorsViewModelProperty = AvaloniaProperty.Register<ColorPickerDockViewModel, ColorsViewModel>(
-        nameof(ColorsSubViewModel));
+    public const string TabId = "Navigator";
+
+    public override string Id => TabId;
+    public override string Title => "Navigator";
+    public override bool CanFloat => true;
+    public override bool CanClose => true;
+    public override IImage? Icon { get; } = ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/Navigator.png");
+
+    private ColorsViewModel colorsSubViewModel;
 
     public ColorsViewModel ColorsSubViewModel
     {
-        get => GetValue(ColorsViewModelProperty);
-        set => SetValue(ColorsViewModelProperty, value);
+        get => colorsSubViewModel;
+        set => SetProperty(ref colorsSubViewModel, value);
     }
 
-    public static readonly StyledProperty<DocumentManagerViewModel> DocumentManagerSubViewModelProperty = AvaloniaProperty.Register<PaletteViewerDockViewModel, DocumentManagerViewModel>(
-        "DocumentManagerSubViewModel");
+    private DocumentManagerViewModel documentManagerSubViewModel;
 
     public DocumentManagerViewModel DocumentManagerSubViewModel
     {
-        get => GetValue(DocumentManagerSubViewModelProperty);
-        set => SetValue(DocumentManagerSubViewModelProperty, value);
+        get => documentManagerSubViewModel;
+        set => SetProperty(ref documentManagerSubViewModel, value);
     }
 
     public NavigationDockViewModel(ColorsViewModel colorsSubViewModel, DocumentManagerViewModel documentManagerViewModel)

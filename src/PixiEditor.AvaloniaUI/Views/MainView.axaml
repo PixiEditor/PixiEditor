@@ -6,9 +6,13 @@
              xmlns:main1="clr-namespace:PixiEditor.AvaloniaUI.Views.Main"
              xmlns:tools="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.Tools"
              xmlns:commandSearch="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.CommandSearch"
+             xmlns:controls="clr-namespace:PixiDocks.Avalonia.Controls;assembly=PixiDocks.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.MainView"
              x:DataType="viewModels1:ViewModelMain">
+    <Design.DataContext>
+        <viewModels1:ViewModelMain />
+    </Design.DataContext>
     <Interaction.Behaviors>
         <EventTriggerBehavior EventName="Loaded">
             <InvokeCommandAction Command="{Binding StartupCommand}" />
@@ -29,7 +33,9 @@
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
                                    Tools="{Binding Path=ToolsSubViewModel.ToolSet}" />
-                <DockControl Grid.Row="1" Layout="{Binding LayoutDockSubViewModel.Layout}" />
+                <controls:DockableAreaRegion Grid.Row="1"
+                                             Root="{Binding LayoutSubViewModel.LayoutManager.ActiveLayout.Root}"
+                                             Context="{Binding LayoutSubViewModel.LayoutManager.DockContext}"/>
             </Grid>
         </DockPanel>
         <commandSearch:CommandSearchControl

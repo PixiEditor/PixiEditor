@@ -2,8 +2,9 @@ using System.Collections.Generic;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Dock.Model.Core;
+using PixiDocks.Core.Docking;
 using PixiEditor.AvaloniaUI.ViewModels.Dock;
+using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.Views.Dock;
 using PixiEditor.AvaloniaUI.Views.Layers;
 
@@ -13,7 +14,7 @@ public class ViewLocator : IDataTemplate
 {
     public static Dictionary<Type, Type> ViewBindingsMap = new Dictionary<Type, Type>()
     {
-        [typeof(DockDocumentViewModel)] = typeof(DocumentTemplate),
+        [typeof(ViewportWindowViewModel)] = typeof(DocumentTemplate),
         [typeof(LayersDockViewModel)] = typeof(LayersManager),
     };
 

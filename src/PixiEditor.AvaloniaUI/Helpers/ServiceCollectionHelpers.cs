@@ -61,7 +61,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<SearchViewModel>()
             .AddSingleton<ISearchHandler, SearchViewModel>(x => x.GetRequiredService<SearchViewModel>())
             .AddSingleton<AdditionalContentViewModel>()
-            .AddSingleton<LayoutDockViewModel>()
+            .AddSingleton<LayoutViewModel>()
             .AddSingleton(x => new ExtensionsViewModel(x.GetService<ViewModelMain>(), extensionLoader))
             // Controllers
             .AddSingleton<ShortcutController>()

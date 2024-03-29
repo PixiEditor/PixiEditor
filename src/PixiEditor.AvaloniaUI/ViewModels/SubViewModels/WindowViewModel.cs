@@ -2,6 +2,7 @@
 using System.Linq;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
+using PixiDocks.Core.Docking;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views;
@@ -43,7 +44,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     public WindowViewModel(ViewModelMain owner, CommandController commandController)
         : base(owner)
     {
-        ShowAvalonDockWindowCommand = new(ShowAvalonDockWindow);
+        ShowAvalonDockWindowCommand = new(ShowDockWindow);
         this.commandController = commandController;
     }
 
@@ -180,7 +181,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "OPEN_NAVIGATION_WINDOW", "OPEN_NAVIGATION_WINDOW")]
-    public static void ShowAvalonDockWindow(string id)
+    public static void ShowDockWindow(string id)
     {
         //TODO: Implement this
         /*if (MainWindow.Current?.LayoutRoot?.Manager?.Layout == null) return;

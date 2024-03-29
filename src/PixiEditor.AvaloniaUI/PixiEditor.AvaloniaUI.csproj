@@ -34,8 +34,6 @@
         <PackageReference Include="CLSEncoderDecoder" Version="1.0.0" />
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
-        <PackageReference Include="Dock.Avalonia" Version="11.0.0.5" />
-        <PackageReference Include="Dock.Model.Avalonia" Version="11.0.0.5" />
         <PackageReference Include="Hardware.Info" Version="11.0.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
@@ -47,6 +45,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj" />
       <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj" />
       <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj" />
       <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
@@ -98,6 +97,9 @@
     <ItemGroup>
       <Reference Include="Microsoft.Xaml.Behaviors">
         <HintPath>..\..\..\..\Users\flubb\.nuget\packages\microsoft.xaml.behaviors.wpf\1.1.31\lib\net5.0-windows7.0\Microsoft.Xaml.Behaviors.dll</HintPath>
+      </Reference>
+      <Reference Include="PixiDocks.Core">
+        <HintPath>..\..\..\PixiDocks\src\PixiDocks.Core\bin\Debug\net8.0\PixiDocks.Core.dll</HintPath>
       </Reference>
     </ItemGroup>
 

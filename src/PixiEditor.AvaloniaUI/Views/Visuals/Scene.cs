@@ -1,10 +1,6 @@
-using System.Diagnostics;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.OpenGL;
-using Avalonia.OpenGL.Controls;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using ChunkyImageLib;

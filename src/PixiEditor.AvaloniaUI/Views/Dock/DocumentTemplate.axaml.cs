@@ -15,7 +15,7 @@ public partial class DocumentTemplate : UserControl
 
     private void Viewport_OnContextMenuOpening(object? sender, ContextRequestedEventArgs e)
     {
-        ViewportWindowViewModel vm = ((DockDocumentViewModel)DataContext).ViewModel;
+        ViewportWindowViewModel vm = ((ViewportWindowViewModel)DataContext);
         var tools = vm.Owner.Owner.ToolsSubViewModel;
 
         var superSpecialBrightnessTool = tools.RightClickMode == RightClickMode.SecondaryColor && tools.ActiveTool is BrightnessToolViewModel;

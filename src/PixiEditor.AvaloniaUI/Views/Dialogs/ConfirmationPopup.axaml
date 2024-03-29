@@ -17,20 +17,20 @@
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center"
                     Margin="0,0,10,15">
             <Button Margin="10,0,10,0" IsDefault="True" Padding="5 0"
-                    ui:Translator.LocalizedString="{Binding FirstOptionText}"
+                    ui:Translator.LocalizedString="{Binding FirstOptionText}" MinWidth="70"
                     Command="{Binding Path=SetConfirmationResultAndCloseCommand, ElementName=popup}">
                 <Button.CommandParameter>
                     <system:Boolean>True</system:Boolean>
                 </Button.CommandParameter>
             </Button>
             <Button Padding="5 0"
-                    Command="{Binding Path=SetConfirmationResultAndCloseCommand, ElementName=popup}"
+                    Command="{Binding Path=SetConfirmationResultAndCloseCommand, ElementName=popup}" MinWidth="70"
                     ui:Translator.LocalizedString="{Binding SecondOptionText}">
                 <Button.CommandParameter>
                     <system:Boolean>False</system:Boolean>
                 </Button.CommandParameter>
             </Button>
-            <Button Margin="10,0,10,0" ui:Translator.Key="CANCEL"
+            <Button Margin="10,0,10,0" ui:Translator.Key="CANCEL" MinWidth="70"
                     Command="{Binding CancelCommand, ElementName=popup}" />
         </StackPanel>
 

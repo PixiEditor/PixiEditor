@@ -1,18 +1,16 @@
 ﻿using Avalonia;
-using Dock.Model.Avalonia.Controls;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
-internal class SwatchesDockViewModel : Tool
+internal class SwatchesDockViewModel : ViewModelBase
 {
-    public static readonly StyledProperty<DocumentManagerViewModel> DocumentManagerSubViewModelProperty = AvaloniaProperty.Register<PaletteViewerDockViewModel, DocumentManagerViewModel>(
-        "DocumentManagerSubViewModel");
+    private DocumentManagerViewModel documentManagerSubViewModel;
 
     public DocumentManagerViewModel DocumentManagerSubViewModel
     {
-        get => GetValue(DocumentManagerSubViewModelProperty);
-        set => SetValue(DocumentManagerSubViewModelProperty, value);
+        get => documentManagerSubViewModel;
+        set => SetProperty(ref documentManagerSubViewModel, value);
     }
 
     public SwatchesDockViewModel(DocumentManagerViewModel documentManagerViewModel)

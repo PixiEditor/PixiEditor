@@ -1,18 +1,26 @@
 ﻿using Avalonia;
-using Dock.Model.Avalonia.Controls;
+using Avalonia.Media;
+using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
+using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
-internal class ColorPickerDockViewModel : Tool
+internal class ColorPickerDockViewModel : DockableViewModel
 {
-    public static readonly StyledProperty<ColorsViewModel> ColorsViewModelProperty = AvaloniaProperty.Register<ColorPickerDockViewModel, ColorsViewModel>(
-        nameof(ColorsSubViewModel));
+    public const string TabId = "ColorPicker";
+    public override string Id => TabId;
+    public override string Title => new LocalizedString("COLOR_PICKER_DOCKABLE_TITLE");
+    public override bool CanFloat => true;
+    public override bool CanClose => true;
+    public override IImage? Icon { get; } = ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/ColorPicker.png");
+
+    private ColorsViewModel colorsSubViewModel;
 
     public ColorsViewModel ColorsSubViewModel
     {
-        get => GetValue(ColorsViewModelProperty);
-        set => SetValue(ColorsViewModelProperty, value);
+        get => colorsSubViewModel;
+        set => SetProperty(ref colorsSubViewModel, value);
     }
 
     public ColorPickerDockViewModel(ColorsViewModel colorsSubVm)

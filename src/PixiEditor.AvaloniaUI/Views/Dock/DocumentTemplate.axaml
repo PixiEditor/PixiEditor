@@ -8,11 +8,16 @@
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:palettes1="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
              xmlns:viewportControls="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.ViewportControls"
+             xmlns:subViewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="subViewModels:ViewportWindowViewModel"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.DocumentTemplate">
+    <Design.DataContext>
+        <subViewModels:ViewportWindowViewModel />
+    </Design.DataContext>
     <viewportControls:Viewport
-        CenterViewportTrigger="{Binding ViewModel.DockCenterViewportTrigger}"
-        ZoomViewportTrigger="{Binding ViewModel.ZoomViewportTrigger}"
+        CenterViewportTrigger="{Binding DockCenterViewportTrigger}"
+        ZoomViewportTrigger="{Binding ZoomViewportTrigger}"
         MouseDownCommand="{Binding Path=IoSubViewModel.MouseDownCommand, Source={viewModels1:MainVM}}"
         MouseMoveCommand="{Binding Path=IoSubViewModel.MouseMoveCommand, Source={viewModels1:MainVM}}"
         MouseUpCommand="{Binding Path=IoSubViewModel.MouseUpCommand, Source={viewModels1:MainVM}}"
@@ -22,10 +27,10 @@
         ZoomMode="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels1:MainVM}, Converter={converters:ActiveToolToZoomModeConverter}}"
         ZoomOutOnClick="{Binding ToolsSubViewModel.ZoomTool.ZoomOutOnClick, Source={viewModels1:MainVM}}"
         UseTouchGestures="{Binding StylusSubViewModel.UseTouchGestures, Source={viewModels1:MainVM}}"
-        FlipX="{Binding ViewModel.FlipX, Mode=TwoWay}"
-        FlipY="{Binding ViewModel.FlipY, Mode=TwoWay}"
+        FlipX="{Binding FlipX, Mode=TwoWay}"
+        FlipY="{Binding FlipY, Mode=TwoWay}"
         ContextRequested="Viewport_OnContextMenuOpening"
-        Document="{Binding ViewModel.Document}">
+        Document="{Binding Document}">
         <viewportControls:Viewport.ContextMenu>
             <ContextMenu DataContext="{Binding PlacementTarget.Document, RelativeSource={RelativeSource Self}}">
                 <ContextMenu.Template>

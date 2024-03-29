@@ -32,4 +32,10 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
 
         return new Bitmap(AssetLoader.Open(uri));
     }
+
+    public static Bitmap? TryLoadBitmapFromRelativePath(string path)
+    {
+        Uri uri = new($"avares://{Assembly.GetExecutingAssembly().FullName}{path}");
+        return !AssetLoader.Exists(uri) ? null : new Bitmap(AssetLoader.Open(uri));
+    }
 }
