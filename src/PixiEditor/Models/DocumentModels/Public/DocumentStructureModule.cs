@@ -115,7 +115,6 @@ internal class DocumentStructureModule
         return layers;
     }
 
-
     private List<StructureMemberViewModel> GetAllMembers(FolderViewModel folder, List<StructureMemberViewModel> layers)
     {
         foreach (StructureMemberViewModel? member in folder.Children)

@@ -67,14 +67,12 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         //Checking if the length is greater than one, to avoid crashing.
         if (allLayers.Length > 0)
-        {
-           
+        {  
             for (int i = 0; i < allLayers.Length; i++)
             {
                 //Finding the layer that is being deleted
                 if (allLayers[i] == member)
                 {
-
                     //Selecting the new layer
                     if (i > 0)
                     {
@@ -94,9 +92,9 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
                 else
                 {
                     //Managing elements inside folders
-                    if (allLayers[i] is FolderViewModel _folder)
+                    if (allLayers[i] is FolderViewModel folder)
                     {
-                        var list = _folder.Children.OfType<StructureMemberViewModel>().ToArray();
+                        var list = folder.Children.OfType<StructureMemberViewModel>().ToArray();
 
                         if (list.Length > 1)
                         {
