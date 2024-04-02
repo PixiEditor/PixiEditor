@@ -1,4 +1,6 @@
 ﻿using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Dynamic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,6 +17,7 @@ using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Localization;
+using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.UserControls.Layers;
 
@@ -57,25 +60,27 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
 
         member.Document.Operations.DeleteStructureMember(member.GuidValue);
+        var allLayers = doc.StructureHelper.GetAllMembers().ToArray();
 
-        var allLayers = doc.StructureHelper.GetAllLayers().ToArray();
+        //Declare the layer that will be selected
+        StructureMemberViewModel baseLayer = member;
 
-        if (allLayers.Length > 1)
+        //Checking if the length is greater than one, to avoid crashing.
+        if (allLayers.Length > 0)
         {
-            //Declare the layer that will be selected
-             var baseLayer = allLayers[allLayers.ToArray().Length - 1];
-        
-             for (int i = 0; i <allLayers.Length; i++)
+           
+            for (int i = 0; i < allLayers.Length; i++)
             {
-                //Checking that the selected layer and the deleted layer are not the same
+                //Finding the layer that is being deleted
                 if (allLayers[i] == member)
                 {
+
                     //Selecting the new layer
                     if (i > 0)
                     {
                         baseLayer = allLayers[i - 1];
                     }
-                    else if (i == allLayers.Length - 1) 
+                    else if (i == allLayers.Length - 1)
                     {
                         baseLayer = allLayers[i];
                     }
@@ -84,11 +89,45 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
                         baseLayer = allLayers[i + 1];
                     }
 
-                        break;
+                    break;
                 }
-             }
-            doc.Operations.AddSoftSelectedMember(baseLayer.GuidValue);
+                else
+                {
+                    //Managing elements inside folders
+                    if (allLayers[i] is FolderViewModel _folder)
+                    {
+                        var list = _folder.Children.OfType<StructureMemberViewModel>().ToArray();
+
+                        if (list.Length > 1)
+                        {
+                            for (int j = 0; j < list.Length; j++)
+                            {
+                                //Finding the layer that is being deleted
+                                if (list[j] == member)
+                                {
+                                    // Selecting the new layer
+                                    if (j > 0)
+                                    {
+                                        baseLayer = list[j - 1];
+                                    }
+                                    else if (j == list.Length - 1)
+                                    {
+                                        baseLayer = list[j];
+                                    }
+                                    else if (j == 0)
+                                    {
+                                        baseLayer = list[j + 1];
+                                    }
+                                    break; 
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             doc.InternalSetSelectedMember(baseLayer);
+            doc.Operations.AddSoftSelectedMember(baseLayer.GuidValue);
         }
     }
 

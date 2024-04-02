@@ -100,6 +100,37 @@ internal class DocumentStructureModule
         return layers;
     }
 
+    public List<StructureMemberViewModel> GetAllMembers()
+    {
+        List<StructureMemberViewModel> layers = new List<StructureMemberViewModel>();
+        foreach (StructureMemberViewModel? member in doc.StructureRoot.Children)
+        {
+            if (member is LayerViewModel layer)
+                layers.Add(layer);
+            else if (member is FolderViewModel folder)
+            {
+                layers.Add(folder);
+            }
+        }
+        return layers;
+    }
+
+
+    private List<StructureMemberViewModel> GetAllMembers(FolderViewModel folder, List<StructureMemberViewModel> layers)
+    {
+        foreach (StructureMemberViewModel? member in folder.Children)
+        {
+            if (member is LayerViewModel layer)
+                layers.Add(layer);
+            else if (member is FolderViewModel innerFolder)
+            {
+                layers.Add(innerFolder);
+                layers.AddRange(GetAllMembers(innerFolder, layers));
+            }
+        }
+        return layers;
+    }
+
     private bool FillPath(FolderViewModel folder, Guid guid, List<StructureMemberViewModel> toFill)
     {
         if (folder.GuidValue == guid)
