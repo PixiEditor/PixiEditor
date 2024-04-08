@@ -32,9 +32,14 @@ internal class LayoutManager
         LayersDockViewModel layersDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         ColorPickerDockViewModel colorPickerDockViewModel = new(mainViewModel.ColorsSubViewModel);
         NavigationDockViewModel navigationDockViewModel = new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
+        SwatchesDockViewModel swatchesDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
+        PaletteViewerDockViewModel paletteViewerDockViewModel = new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
+
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);
         RegisterDockable(navigationDockViewModel);
+        RegisterDockable(swatchesDockViewModel);
+        RegisterDockable(paletteViewerDockViewModel);
 
         DefaultLayout = new LayoutTree
         {
@@ -54,7 +59,12 @@ internal class LayoutManager
                         First = new DockableArea
                         {
                             Id = "ColorsArea",
-                            ActiveDockable = DockContext.CreateDockable(colorPickerDockViewModel),
+                            Dockables =
+                            [
+                                DockContext.CreateDockable(colorPickerDockViewModel),
+                                DockContext.CreateDockable(swatchesDockViewModel),
+                                DockContext.CreateDockable(paletteViewerDockViewModel)
+                            ]
                         },
                         FirstSize = 0.5,
                         SplitDirection = DockingDirection.Bottom,

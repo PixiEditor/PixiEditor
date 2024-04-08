@@ -24,7 +24,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     public string Title => $"{Document.FileName}{Index}";
     public bool CanFloat => true;
     public bool CanClose => true;
-    public object? Icon => new SurfaceImage(Document.PreviewSurface);
+    public TabCustomizationSettings TabCustomizationSettings { get; } = new(showCloseButton: true);
 
     private bool _closeRequested;
 
@@ -60,6 +60,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     public ViewportWindowViewModel(WindowViewModel owner, DocumentViewModel document) : base(owner)
     {
         Document = document;
+        TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
         RequestCloseCommand = new RelayCommand(() => Owner.OnViewportWindowCloseButtonPressed(this));
     }
 

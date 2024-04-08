@@ -4,6 +4,7 @@ using System.Reflection;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Svg.Skia;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 

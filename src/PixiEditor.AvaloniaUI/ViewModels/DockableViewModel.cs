@@ -11,9 +11,7 @@ internal abstract class DockableViewModel : ViewModelBase, IDockableContent
     public abstract string Title { get; }
     public abstract bool CanFloat { get; }
     public abstract bool CanClose { get; }
-    public abstract IImage? Icon { get; }
-
-    object? IDockableContent.Icon => Icon;
+    public TabCustomizationSettings TabCustomizationSettings { get; protected set; } = new();
 
     public DockableViewModel()
     {

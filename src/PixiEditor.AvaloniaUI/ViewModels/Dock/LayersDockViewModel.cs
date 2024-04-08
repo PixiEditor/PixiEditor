@@ -2,6 +2,7 @@
 using PixiDocks.Core.Docking;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
@@ -9,10 +10,9 @@ internal class LayersDockViewModel : DockableViewModel
 {
     public const string TabId = "Layers";
     public override string Id => TabId;
-    public override string Title => "Layers";
+    public override string Title => new LocalizedString("LAYERS_DOCKABLE_TITLE");
     public override bool CanFloat => true;
     public override bool CanClose => true;
-    public override IImage? Icon { get; } = ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/Layers.png");
 
     private DocumentManagerViewModel documentManager;
     private DocumentViewModel activeDocument;
@@ -33,6 +33,8 @@ internal class LayersDockViewModel : DockableViewModel
     {
         DocumentManager = documentManager;
         DocumentManager.ActiveDocumentChanged += DocumentManager_ActiveDocumentChanged;
+        TabCustomizationSettings.Icon =
+            ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/Layers.png");
     }
 
     private void DocumentManager_ActiveDocumentChanged(object? sender, DocumentChangedEventArgs e)

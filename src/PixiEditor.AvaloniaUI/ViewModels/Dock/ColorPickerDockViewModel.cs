@@ -13,7 +13,6 @@ internal class ColorPickerDockViewModel : DockableViewModel
     public override string Title => new LocalizedString("COLOR_PICKER_DOCKABLE_TITLE");
     public override bool CanFloat => true;
     public override bool CanClose => true;
-    public override IImage? Icon { get; } = ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/ColorPicker.png");
 
     private ColorsViewModel colorsSubViewModel;
 
@@ -26,5 +25,7 @@ internal class ColorPickerDockViewModel : DockableViewModel
     public ColorPickerDockViewModel(ColorsViewModel colorsSubVm)
     {
         ColorsSubViewModel = colorsSubVm;
+        TabCustomizationSettings.Icon =
+            ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/ColorPicker.png");
     }
 }

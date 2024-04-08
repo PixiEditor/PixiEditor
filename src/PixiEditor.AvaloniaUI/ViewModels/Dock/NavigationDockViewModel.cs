@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
+using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
@@ -10,10 +11,9 @@ internal class NavigationDockViewModel : DockableViewModel
     public const string TabId = "Navigator";
 
     public override string Id => TabId;
-    public override string Title => "Navigator";
+    public override string Title => new LocalizedString("NAVIGATOR_DOCKABLE_TITLE");
     public override bool CanFloat => true;
     public override bool CanClose => true;
-    public override IImage? Icon { get; } = ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/Navigator.png");
 
     private ColorsViewModel colorsSubViewModel;
 
@@ -35,5 +35,6 @@ internal class NavigationDockViewModel : DockableViewModel
     {
         ColorsSubViewModel = colorsSubViewModel;
         DocumentManagerSubViewModel = documentManagerViewModel;
+        TabCustomizationSettings.Icon = ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/Navigator.png");
     }
 }
