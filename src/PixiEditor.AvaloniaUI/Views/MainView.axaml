@@ -25,6 +25,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="30"/>
                 </Grid.RowDefinitions>
 
                 <tools:Toolbar Grid.Row="0" DataContext="{Binding .}" />
@@ -36,6 +37,7 @@
                 <controls:DockableAreaRegion Grid.Row="1"
                                              Root="{Binding LayoutSubViewModel.LayoutManager.ActiveLayout.Root}"
                                              Context="{Binding LayoutSubViewModel.LayoutManager.DockContext}"/>
+                <main1:ActionDisplayBar Grid.Row="2" DataContext="{Binding .}"/>
             </Grid>
         </DockPanel>
         <commandSearch:CommandSearchControl

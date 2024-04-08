@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:ViewModelMain"
+             x:Class="PixiEditor.AvaloniaUI.Views.Main.ActionDisplayBar">
+    <Design.DataContext>
+        <viewModels:ViewModelMain/>
+    </Design.DataContext>
+
+    <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition
+                        Width="*" />
+                    <ColumnDefinition
+                        Width="290" />
+                </Grid.ColumnDefinitions>
+                <DockPanel>
+                    <TextBlock
+                        ui:Translator.LocalizedString="{Binding ActiveActionDisplay}"
+                        Foreground="White"
+                        FontSize="15"
+                        Margin="10,0,0,0"
+                        VerticalAlignment="Center" />
+                    <StackPanel
+                        DockPanel.Dock="Right"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center">
+                        <TextBlock
+                            Text="{Binding ElementName=mainWindow, Path=DataContext.DocumentManagerSubViewModel.ActiveDocument.CoordinatesString}"
+                            Foreground="White"
+                            FontSize="16" />
+                    </StackPanel>
+                </DockPanel>
+                <StackPanel
+                    Margin="10,0,0,0"
+                    VerticalAlignment="Center"
+                    Grid.Row="3"
+                    Grid.Column="3"
+                    Orientation="Horizontal">
+                    <Button
+                        IsVisible="{Binding UpdateSubViewModel.UpdateReadyToInstall, FallbackValue=Hidden}"
+                        FontSize="14"
+                        Height="20"
+                        Command="{xaml:Command PixiEditor.Restart}" ui:Translator.Key="RESTART"/>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Padding="10"
+                        HorizontalAlignment="Right"
+                        Foreground="White"
+                        FontSize="14"
+                        Text="{Binding UpdateSubViewModel.VersionText}" />
+                </StackPanel>
+            </Grid>
+</UserControl>
