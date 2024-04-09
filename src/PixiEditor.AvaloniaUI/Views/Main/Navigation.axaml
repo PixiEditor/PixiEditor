@@ -20,9 +20,8 @@
               IsVisible="{Binding !!Document, ElementName=uc}"
               Margin="10" Background="Transparent"
               d:Width="8" d:Height="8">
-            <!--TODO: In WPF, delayed was True and yet viewport refreshed instantly, here I had to switch it to False so it happens.-->
             <viewportControls:FixedViewport
-                Delayed="False"
+                Delayed="True"
                 x:Name="viewport"
                 Document="{Binding Document, ElementName=uc}"
                 Background="{Binding ActiveItem.Value, ElementName=backgroundButton}"/>

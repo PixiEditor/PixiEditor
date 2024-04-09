@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -124,7 +125,23 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
         FixedViewport? viewport = (FixedViewport)args.Sender;
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+
+        if (oldDoc != null)
+        {
+            oldDoc.SizeChanged -= viewport.DocSizeChanged;
+        }
+        if (newDoc != null)
+        {
+            newDoc.SizeChanged += viewport.DocSizeChanged;
+        }
+
         viewport.PropertyChanged?.Invoke(viewport, new(nameof(TargetBitmap)));
+    }
+
+    private void DocSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
+    {
+        PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
+        Document?.Operations.AddOrUpdateViewport(GetLocation());
     }
 
     private static void OnBitmapsChange(AvaloniaPropertyChangedEventArgs<Dictionary<ChunkResolution, WriteableBitmap>> args)
@@ -137,7 +154,7 @@ internal partial class FixedViewport : UserControl, INotifyPropertyChanged
     private void OnImageSizeChanged(object sender, SizeChangedEventArgs e)
     {
         PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
-        //Document?.Operations.AddOrUpdateViewport(GetLocation()); //TODO: This causes deadlock
+        Document?.Operations.AddOrUpdateViewport(GetLocation());
     }
 }
 

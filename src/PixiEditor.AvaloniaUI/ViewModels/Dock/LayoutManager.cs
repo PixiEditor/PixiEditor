@@ -7,6 +7,7 @@ using PixiDocks.Core.Docking;
 using PixiDocks.Core.Serialization;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
+using PixiEditor.AvaloniaUI.Views.Main;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
@@ -47,7 +48,8 @@ internal class LayoutManager
             {
                 First = new DockableArea()
                 {
-                    Id = "DocumentArea"
+                    Id = "DocumentArea",
+                    FallbackContent = new CreateDocumentFallbackView()
                 },
                 FirstSize = 0.75,
                 SplitDirection = DockingDirection.Right,

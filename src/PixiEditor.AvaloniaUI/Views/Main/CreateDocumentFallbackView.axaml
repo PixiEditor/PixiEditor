@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="viewModels:ViewModelMain"
+             x:Class="PixiEditor.AvaloniaUI.Views.Main.CreateDocumentFallbackView">
+    <Design.DataContext>
+        <viewModels:ViewModelMain/>
+    </Design.DataContext>
+
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+        <TextBlock Text="Create new document" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button Content="Create" Command="{Binding FileSubViewModel.CreateFromNewFileDialog}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    </StackPanel>
+</UserControl>

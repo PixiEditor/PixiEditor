@@ -32,9 +32,6 @@ internal class SurfaceControl : Control
         set => SetValue(SurfaceProperty, value);
     }
 
-    private SKSurface _workingSurface;
-    private SKPaint _paint = new SKPaint() { BlendMode = SKBlendMode.Src };
-    private GRContext? gr;
     private RectI? nextDirtyRect;
 
     static SurfaceControl()
@@ -80,10 +77,8 @@ internal class SurfaceControl : Control
             var result = Stretch.CalculateSize(finalSize, new Size(sourceSize.X, sourceSize.Y));
             return result;
         }
-        else
-        {
-            return new Size();
-        }
+
+        return new Size();
     }
 
     public override void Render(DrawingContext context)
@@ -205,5 +200,10 @@ internal class DrawSurfaceOperation : SkiaDrawOperation
     public override bool Equals(ICustomDrawOperation? other)
     {
         return other is DrawSurfaceOperation otherOp && otherOp.Surface == Surface && otherOp.Stretch == Stretch;
+    }
+
+    public override void Dispose()
+    {
+        _paint.Dispose();
     }
 }

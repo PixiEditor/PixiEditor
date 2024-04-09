@@ -141,7 +141,22 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         [ChunkResolution.Eighth] = new Surface(new VecI(8, 8))
     };
 
-    public Surface PreviewSurface { get; set; }
+    private Surface previewSurface;
+
+    public Surface PreviewSurface
+    {
+        get => previewSurface;
+        set
+        {
+            VecI? oldSize = previewSurface?.Size;
+            SetProperty(ref previewSurface, value);
+            OnPropertyChanged(nameof(Surfaces));
+            if (oldSize != null && value != null && oldSize != value.Size)
+            {
+                RaiseSizeChanged(new DocumentSizeChangedEventArgs(this, oldSize.Value, value.Size));
+            }
+        }
+    }
 
     private VectorPath selectionPath = new VectorPath();
     public VectorPath SelectionPathBindable => selectionPath;

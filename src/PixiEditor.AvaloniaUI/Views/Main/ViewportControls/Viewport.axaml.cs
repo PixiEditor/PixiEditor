@@ -4,6 +4,7 @@ using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
+using Avalonia.Data.Core;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
@@ -11,6 +12,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers.UI;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
+using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Visuals;
@@ -305,7 +307,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     }
 
     public Panel? MainImage => zoombox != null ? (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1] : null;
-    public Scene Scene => (Scene)scene;
+    public Scene Scene => scene;
     public Grid BackgroundGrid => viewportGrid;
 
     private void ForceRefreshFinalImage()
@@ -336,17 +338,26 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private static void OnDocumentChange(AvaloniaPropertyChangedEventArgs<DocumentViewModel> e)
     {
-        DocumentViewModel? oldDoc = e.OldValue.Value;
-        DocumentViewModel? newDoc = e.NewValue.Value;
         Viewport? viewport = (Viewport)e.Sender;
+
+        DocumentViewModel? oldDoc = e.OldValue.Value;
+        if (oldDoc != null)
+        {
+            oldDoc.SizeChanged -= viewport.OnImageSizeChanged;
+        }
+        DocumentViewModel? newDoc = e.NewValue.Value;
+        if (newDoc != null)
+        {
+            newDoc.SizeChanged += viewport.OnImageSizeChanged;
+        }
+
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
-    private static void OnBitmapsChange(AvaloniaPropertyChangedEventArgs<Dictionary<ChunkResolution, WriteableBitmap>?> e)
+    private void OnImageSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
-        Viewport viewportObj = (Viewport)e.Sender;
-        viewportObj.PropertyChanged?.Invoke(viewportObj, new(nameof(TargetBitmap)));
+        PropertyChanged?.Invoke(this, new(nameof(TargetBitmap)));
     }
 
     private ChunkResolution CalculateResolution()

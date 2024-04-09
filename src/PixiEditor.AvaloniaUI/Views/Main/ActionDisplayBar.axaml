@@ -40,8 +40,7 @@
                 <StackPanel
                     Margin="10,0,0,0"
                     VerticalAlignment="Center"
-                    Grid.Row="3"
-                    Grid.Column="3"
+                    Grid.Column="1"
                     Orientation="Horizontal">
                     <Button
                         IsVisible="{Binding UpdateSubViewModel.UpdateReadyToInstall, FallbackValue=Hidden}"
