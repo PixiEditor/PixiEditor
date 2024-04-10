@@ -8,6 +8,7 @@ using Avalonia.Input;
 using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Platform.Storage;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Constants;
@@ -91,7 +92,7 @@ internal static class ClipboardController
     /// <summary>
     ///     Pastes image from clipboard into new layer.
     /// </summary>
-    public static bool TryPaste(DocumentViewModel document, DataObject data, bool pasteAsNew = false)
+    public static bool TryPaste(DocumentViewModel document, IDataObject data, bool pasteAsNew = false)
     {
         List<DataImage> images = GetImage(data);
         if (images.Count == 0)
@@ -170,7 +171,7 @@ internal static class ClipboardController
     /// <summary>
     /// Gets images from clipboard, supported PNG, Dib and Bitmap.
     /// </summary>
-    public static List<DataImage> GetImage(DataObject? data)
+    public static List<DataImage> GetImage(IDataObject? data)
     {
         List<DataImage> surfaces = new();
 
@@ -188,7 +189,8 @@ internal static class ClipboardController
             return surfaces;
         }
 
-        foreach (string? path in data.GetFileDropList())
+        var paths = data.GetFileDropList().Select(x => x.Path.AbsolutePath).ToArray();
+        foreach (string? path in paths)
         {
             if (path is null || !Importer.IsSupportedFile(path))
                 continue;
@@ -250,7 +252,7 @@ internal static class ClipboardController
         return IsImageFormat(fileArray);
     }
 
-    public static bool IsImage(DataObject? dataObject)
+    public static bool IsImage(IDataObject? dataObject)
     {
         if (dataObject == null)
             return false;
@@ -260,7 +262,7 @@ internal static class ClipboardController
             var files = dataObject.GetFileDropList();
             if (files != null)
             {
-                if (IsImageFormat(files))
+                if (IsImageFormat(files.Select(x => x.Path.AbsolutePath).ToArray()))
                 {
                     return true;
                 }
@@ -287,16 +289,16 @@ internal static class ClipboardController
         return false;
     }
 
-    private static Bitmap FromPNG(DataObject data)
+    private static Bitmap FromPNG(IDataObject data)
     {
         MemoryStream pngStream = (MemoryStream)data.Get("PNG");
         Bitmap bitmap = new Bitmap(pngStream);
         return bitmap;
     }
 
-    private static bool HasData(DataObject dataObject, params string[] formats) => formats.Any(dataObject.Contains);
+    private static bool HasData(IDataObject dataObject, params string[] formats) => formats.Any(dataObject.Contains);
     
-    private static bool TryExtractSingleImage(DataObject data, [NotNullWhen(true)] out Surface? result)
+    private static bool TryExtractSingleImage(IDataObject data, [NotNullWhen(true)] out Surface? result)
     {
         try
         {

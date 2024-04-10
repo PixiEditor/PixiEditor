@@ -137,7 +137,7 @@ internal partial class LayersManager : UserControl
             e.Handled = true;
         }
 
-        if (ClipboardController.TryPaste(ActiveDocument, (DataObject)e.Data, true))
+        if (ClipboardController.TryPaste(ActiveDocument, (IDataObject)e.Data, true))
         {
             e.Handled = true;
         }
@@ -154,7 +154,7 @@ internal partial class LayersManager : UserControl
 
         if (member == null)
         {
-            if (!ClipboardController.IsImage((DataObject)e.Data))
+            if (!ClipboardController.IsImage((IDataObject)e.Data))
             {
                 return;
             }

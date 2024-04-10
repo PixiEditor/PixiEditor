@@ -49,7 +49,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
     
     [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER", "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste")]
-    public async Task PasteReferenceLayer(DataObject data)
+    public async Task PasteReferenceLayer(IDataObject data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
 
@@ -138,9 +138,9 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPaste")]
-    public async Task<bool> CanPaste(object parameter)
+    public bool CanPaste(object parameter)
     {
-        return Owner.DocumentIsNotNull(null) && parameter is DataObject data ? ClipboardController.IsImage(data) : await ClipboardController.IsImageInClipboard();
+        return Owner.DocumentIsNotNull(null) && parameter is IDataObject data ? ClipboardController.IsImage(data) : ClipboardController.IsImageInClipboard().Result;
     }
 
     [Evaluator.CanExecute("PixiEditor.Clipboard.CanPasteColor")]
