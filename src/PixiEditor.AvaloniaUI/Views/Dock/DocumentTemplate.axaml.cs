@@ -1,8 +1,12 @@
-﻿using Avalonia.Controls;
+﻿using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using PixiEditor.AvaloniaUI.Models.Preferences;
 using PixiEditor.AvaloniaUI.ViewModels.Dock;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
+using PixiEditor.AvaloniaUI.Views.Palettes;
 
 namespace PixiEditor.AvaloniaUI.Views.Dock;
 
@@ -35,6 +39,16 @@ public partial class DocumentTemplate : UserControl
         {
             e.Handled = true;
         }
+    }
+
+    private void InputElement_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        Viewport?.ContextFlyout?.Hide();
+    }
+
+    private void MenuItem_OnClick(object? sender, PointerReleasedEventArgs e)
+    {
+        Viewport?.ContextFlyout?.Hide();
     }
 }
 

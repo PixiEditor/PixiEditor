@@ -3,6 +3,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.Input;
@@ -10,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Commands.Search;
-using PixiEditor.AvaloniaUI.Models.Commands.XAML;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.ExtensionServices;
@@ -25,6 +26,7 @@ using PixiEditor.Extensions.Palettes.Parsers;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 using Command = PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands.Command;
+using ContextMenu = PixiEditor.AvaloniaUI.Models.Commands.XAML.ContextMenu;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
