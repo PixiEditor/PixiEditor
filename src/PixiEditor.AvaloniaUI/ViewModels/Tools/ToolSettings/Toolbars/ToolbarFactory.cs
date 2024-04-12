@@ -59,7 +59,8 @@ internal static class ToolbarFactory
             Settings.ColorAttribute => new ColorSetting(name,
                 ((Color)(attribute.DefaultValue ?? Colors.White)).ToColor(), label),
             Settings.EnumAttribute => GetEnumSetting(propertyType, name, attribute),
-            Settings.FloatAttribute => new FloatSetting(name, (float)(attribute.DefaultValue ?? 0f), label),
+            Settings.FloatAttribute floatAttribute => new FloatSetting(name, (float)(attribute.DefaultValue ?? 0f), label,
+                floatAttribute.Min, floatAttribute.Max),
             Settings.SizeAttribute => new SizeSetting(name, label),
             _ => throw new NotImplementedException(
                 $"SettingsAttribute of type '{attribute.GetType().FullName}' has not been implemented")

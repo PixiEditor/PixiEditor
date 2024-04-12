@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using Avalonia.Xaml.Interactivity;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Behaviours;
@@ -77,16 +78,9 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
 
     private void RemoveFocus()
     {
-        if (!FocusNext)
-        {
-            //TODO: FocusManager is private api
-            //FocusHelper.MoveFocusToParent(AssociatedObject);
-        }
-        else
-        {
-            //TODO: Idk if it works
-            AssociatedObject.Focus(NavigationMethod.Directional);
-        }
+        var next = KeyboardNavigationHandler.GetNext(AssociatedObject, NavigationDirection.Next);
+        NavigationMethod nextMethod = FocusNext ? NavigationMethod.Directional : NavigationMethod.Unspecified;
+        next?.Focus(nextMethod);
     }
 
     private void AssociatedObjectGotKeyboardFocus(
@@ -94,14 +88,18 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
         GotFocusEventArgs e)
     {
         if (SelectOnMouseClick || e.NavigationMethod == NavigationMethod.Tab)
-            AssociatedObject.SelectAll();
+        {
+            Dispatcher.UIThread.Post(() => AssociatedObject?.SelectAll(), DispatcherPriority.Input);
+        }
     }
 
     private void AssociatedObjectGotMouseCapture(
         object? sender, PointerPressedEventArgs pointerPressedEventArgs)
     {
         if (SelectOnMouseClick)
-            AssociatedObject.SelectAll();
+        {
+            Dispatcher.UIThread.Post(() => AssociatedObject?.SelectAll(), DispatcherPriority.Input);
+        }
     }
 
     private void AssociatedObject_LostFocus(object sender, RoutedEventArgs e)

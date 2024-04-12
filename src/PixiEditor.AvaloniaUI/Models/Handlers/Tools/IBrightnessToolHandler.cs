@@ -5,9 +5,8 @@ namespace PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 
 internal interface IBrightnessToolHandler : IToolHandler
 {
-    public BrightnessMode BrightnessMode { get; set; }
-    public int ToolSize { get; set; }
+    public BrightnessMode BrightnessMode { get; }
     public bool Darken { get; }
-    public MouseButton UsedWith { get; set; }
+    public MouseButton UsedWith { get; }
     public int CorrectionFactor { get; }
 }

@@ -41,9 +41,17 @@ public static class Settings
     /// </summary>
     public class FloatAttribute : SettingsAttribute
     {
+        public float Min { get; set; } = float.NegativeInfinity;
+        public float Max { get; set; } = float.PositiveInfinity;
+
         public FloatAttribute(string labelKey) : base(labelKey) { }
 
         public FloatAttribute(string labelKey, float defaultValue) : base(labelKey, defaultValue) { }
+        public FloatAttribute(string labelKey, float defaultValue, float min, float max) : base(labelKey, defaultValue)
+        {
+            Min = min;
+            Max = max;
+        }
     }
 
     /// <summary>

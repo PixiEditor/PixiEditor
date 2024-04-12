@@ -1,5 +1,6 @@
 ﻿using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Models.Handlers;
+using PixiEditor.AvaloniaUI.Models.Handlers.Toolbars;
 using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.ChangeableDocument.Actions.Generated;
@@ -18,14 +19,14 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
     {
         IStructureMemberHandler? member = document!.SelectedStructureMember;
         IBrightnessToolHandler? tool = GetHandler<IBrightnessToolHandler>();
-        if (tool is null || member is null)
+        if (tool is null || member is null || tool.Toolbar is not IBasicToolbar toolbar)
             return ExecutionState.Error;
         if (member is not ILayerHandler layer || layer.ShouldDrawOnMask)
             return ExecutionState.Error;
 
         guidValue = member.GuidValue;
         repeat = tool.BrightnessMode == BrightnessMode.Repeat;
-        toolSize = tool.ToolSize;
+        toolSize = toolbar.ToolSize;
         correctionFactor = tool.Darken || tool.UsedWith == MouseButton.Right ? -tool.CorrectionFactor : tool.CorrectionFactor;
 
         ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat);

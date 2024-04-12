@@ -1,7 +1,10 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace PixiEditor.AvaloniaUI.Views.Input;
 
@@ -19,7 +22,16 @@ internal partial class NumberInput : UserControl
         AvaloniaProperty.Register<NumberInput, double>(
             nameof(Max), double.PositiveInfinity);
 
-    private readonly Regex regex = new Regex("^[.][0-9]+$|^[0-9]*[.]{0,1}[0-9]*$", RegexOptions.Compiled);
+    public static readonly StyledProperty<string> FormattedValueProperty = AvaloniaProperty.Register<NumberInput, string>(
+        nameof(FormattedValue), "0");
+
+    public string FormattedValue
+    {
+        get => GetValue(FormattedValueProperty);
+        set => SetValue(FormattedValueProperty, value);
+    }
+
+    private static Regex regex;
 
     public int Decimals
     {
@@ -38,16 +50,6 @@ internal partial class NumberInput : UserControl
 
     public static readonly StyledProperty<Action> OnScrollActionProperty =
         AvaloniaProperty.Register<NumberInput, Action>(nameof(OnScrollAction));
-
-    static NumberInput()
-    {
-        ValueProperty.Changed.Subscribe(OnValueChanged);
-    }
-
-    public NumberInput()
-    {
-        InitializeComponent();
-    }
 
     public double Value
     {
@@ -77,20 +79,72 @@ internal partial class NumberInput : UserControl
         set { SetValue(FocusNextProperty, value); }
     }
 
+    static NumberInput()
+    {
+        ValueProperty.Changed.Subscribe(OnValueChanged);
+        FormattedValueProperty.Changed.Subscribe(FormattedValueChanged);
+    }
+
+    public NumberInput()
+    {
+        InitializeComponent();
+    }
+
     private static void OnValueChanged(AvaloniaPropertyChangedEventArgs<double> e)
     {
         NumberInput input = (NumberInput)e.Sender;
         input.Value = (float)Math.Round(Math.Clamp(e.NewValue.Value, input.Min, input.Max), input.Decimals);
+
+        var preFormatted = FormatValue(input.Value, input.Decimals);
+        input.FormattedValue = preFormatted;
     }
 
-    private void TextBox_PreviewTextInput(object sender, TextInputEventArgs e)
+    private static string FormatValue(double value, int decimals)
     {
-        e.Handled = !regex.IsMatch((sender as TextBox).Text.Insert((sender as TextBox).SelectionStart, e.Text));
+        string separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+        string decimalString = ((float)value).ToString(CultureInfo.CurrentCulture);
+
+        string preFormatted = decimalString;
+        if (preFormatted.Contains(separator))
+        {
+            if (preFormatted.Split(separator)[1].Length > decimals)
+            {
+                preFormatted =
+                    preFormatted[
+                        ..(preFormatted.LastIndexOf(separator, StringComparison.InvariantCulture) + decimals +
+                           1)];
+            }
+
+            preFormatted = preFormatted.TrimEnd('0');
+            preFormatted = preFormatted.TrimEnd(separator.ToCharArray());
+        }
+
+        return preFormatted;
+    }
+
+    private static bool TryParse(string s, out double value)
+    {
+        s = s.Replace(",", ".");
+        return double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
+    }
+
+    private static void FormattedValueChanged(AvaloniaPropertyChangedEventArgs<string> e)
+    {
+        NumberInput input = (NumberInput)e.Sender;
+        if(ContainsInvalidCharacter(e.NewValue.Value))
+        {
+            input.FormattedValue = e.OldValue.Value;
+        }
+    }
+
+    private static bool ContainsInvalidCharacter(string text)
+    {
+        return text.Any(c => !char.IsDigit(c) && c != '.' && c != ',');
     }
 
     private void TextBox_MouseWheel(object sender, PointerWheelEventArgs e)
     {
-        int step = (int)e.Delta.Y / 100;
+        int step = (int)e.Delta.Y;
 
         double newValue = Value;
         if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
@@ -110,5 +164,18 @@ internal partial class NumberInput : UserControl
         Value = (float)Math.Round(Math.Clamp(newValue, Min, Max), Decimals);
 
         OnScrollAction?.Invoke();
+    }
+
+    private void TextBox_OnLostFocus(object? sender, RoutedEventArgs e)
+    {
+        if (TryParse(FormattedValue, out double value))
+        {
+            Value = (float)Math.Round(Math.Clamp(value, Min, Max), Decimals);
+            FormattedValue = FormatValue(Value, Decimals);
+        }
+        else
+        {
+            FormattedValue = FormatValue(Value, Decimals);
+        }
     }
 }

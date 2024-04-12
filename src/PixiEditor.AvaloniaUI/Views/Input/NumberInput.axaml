@@ -6,17 +6,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
+    xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
     mc:Ignorable="d"
-             d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput" Focusable="True">
-    <TextBox TextAlignment="Center" Focusable="True"
+             d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput" Focusable="False">
+    <TextBox TextAlignment="Center" Focusable="True" Name="TextBox"
              PointerWheelChanged="TextBox_MouseWheel"
-             TextInput="TextBox_PreviewTextInput"
-             Text="{Binding ElementName=numberInput, Path=Value}"
+             LostFocus="TextBox_OnLostFocus"
+             Text="{Binding ElementName=numberInput, Path=FormattedValue, Mode=TwoWay}"
              Padding="0" VerticalContentAlignment="Center">
         <Interaction.Behaviors>
+            <behaviours:GlobalShortcutFocusBehavior/>
             <behaviours:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"
                                              FocusNext="{Binding ElementName=numberInput, Path=FocusNext}"/>
-            <behaviours:GlobalShortcutFocusBehavior/>
         </Interaction.Behaviors>
     </TextBox>
 </UserControl>
