@@ -7,10 +7,10 @@
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
-             mc:Ignorable="d" Foreground="White" Focusable="True"
+             mc:Ignorable="d" Focusable="True"
              d:DesignHeight="30" Name="uc"
              FlowDirection="LeftToRight">
-    <Border BorderThickness="1" CornerRadius="3.5"
+    <Border BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
             x:Name="border"
             Cursor="IBeam" PointerPressed="Border_MouseLeftButtonDown"
             PointerWheelChanged="Border_MouseWheel">

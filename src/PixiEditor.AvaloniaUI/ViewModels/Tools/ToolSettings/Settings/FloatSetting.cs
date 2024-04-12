@@ -30,7 +30,6 @@ internal sealed class FloatSetting : Setting<float>
         var numbrInput = new NumberInput
         {
             Width = 40,
-            Height = 20,
             Min = Min,
             Max = Max
         };

@@ -7,13 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
-    mc:Ignorable="d"
-             d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput" Focusable="False">
+    mc:Ignorable="d" d:DesignHeight="20" d:DesignWidth="40" x:Name="numberInput" Focusable="False">
     <TextBox TextAlignment="Center" Focusable="True" Name="TextBox"
              PointerWheelChanged="TextBox_MouseWheel"
              LostFocus="TextBox_OnLostFocus"
              Text="{Binding ElementName=numberInput, Path=FormattedValue, Mode=TwoWay}"
-             Padding="0" VerticalContentAlignment="Center">
+             VerticalContentAlignment="Center">
         <Interaction.Behaviors>
             <behaviours:GlobalShortcutFocusBehavior/>
             <behaviours:TextBoxFocusBehavior SelectOnMouseClick="True" ConfirmOnEnter="True"

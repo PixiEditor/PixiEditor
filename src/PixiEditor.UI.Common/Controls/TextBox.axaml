@@ -90,7 +90,7 @@
     <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
     <Setter Property="SelectionBrush" Value="{DynamicResource ThemeControlHighlightBrush}" />
     <Setter Property="SelectionForegroundBrush" Value="{DynamicResource ThemeHighlightForegroundBrush}" />
-    <Setter Property="Padding" Value="4" />
+    <Setter Property="Padding" Value="3" />
     <Setter Property="ContextFlyout" Value="{StaticResource TextBoxContextFlyout}" />
     <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True" />
     <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
