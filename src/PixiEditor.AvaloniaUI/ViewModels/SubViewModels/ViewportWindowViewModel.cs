@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Core.Docking;
 using PixiDocks.Core.Docking.Events;
 using PixiEditor.AvaloniaUI.Helpers.UI;
+using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -60,8 +61,19 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     public ViewportWindowViewModel(WindowViewModel owner, DocumentViewModel document) : base(owner)
     {
         Document = document;
+        Document.SizeChanged += DocumentOnSizeChanged;
         TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
         RequestCloseCommand = new RelayCommand(() => Owner.OnViewportWindowCloseButtonPressed(this));
+    }
+
+    ~ViewportWindowViewModel()
+    {
+        Document.SizeChanged -= DocumentOnSizeChanged;
+    }
+
+    private void DocumentOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
+    {
+        TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
     }
 
     bool IDockableCloseEvents.OnClose()
