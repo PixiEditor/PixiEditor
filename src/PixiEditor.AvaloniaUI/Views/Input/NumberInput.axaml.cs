@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Avalonia;
@@ -125,16 +126,53 @@ internal partial class NumberInput : UserControl
     private static bool TryParse(string s, out double value)
     {
         s = s.Replace(",", ".");
-        return double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
+
+        if (double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out value))
+        {
+            return true;
+        }
+        else
+        {
+            return TryEvaluateExpression(s, out value);
+        }
+
+        return false;
+    }
+
+    private static bool TryEvaluateExpression(string s, out double value)
+    {
+        try
+        {
+            DataTable dt = new DataTable();
+            var computed = dt.Compute(s, "");
+            if (IsNumber(computed))
+            {
+                value = Convert.ChangeType(computed, typeof(double)) as double? ?? 0;
+                return true;
+            }
+
+            value = 0;
+            return false;
+        }
+        catch
+        {
+            value = 0;
+            return false;
+        }
+    }
+
+    private static bool IsNumber(object value)
+    {
+        return value is sbyte or byte or short or ushort or int or uint or long or ulong or float or double or decimal;
     }
 
     private static void FormattedValueChanged(AvaloniaPropertyChangedEventArgs<string> e)
     {
         NumberInput input = (NumberInput)e.Sender;
-        if(ContainsInvalidCharacter(e.NewValue.Value))
+        /*if(ContainsInvalidCharacter(e.NewValue.Value))
         {
             input.FormattedValue = e.OldValue.Value;
-        }
+        }*/
     }
 
     private static bool ContainsInvalidCharacter(string text)
