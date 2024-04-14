@@ -43,7 +43,7 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
     
     public bool Darken { get; private set; } = false;
 
-    int IBrightnessToolHandler.CorrectionFactor => (int)CorrectionFactor;
+    float IBrightnessToolHandler.CorrectionFactor => CorrectionFactor;
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

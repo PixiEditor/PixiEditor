@@ -22,6 +22,14 @@ internal partial class SizeInput : UserControl
     public static readonly StyledProperty<SizeUnit> UnitProperty =
         AvaloniaProperty.Register<SizeInput, SizeUnit>(nameof(Unit), defaultValue: SizeUnit.Pixel);
 
+    public static readonly StyledProperty<bool> FocusNextProperty = AvaloniaProperty.Register<SizeInput, bool>(
+        nameof(FocusNext), defaultValue: true);
+
+    public bool FocusNext
+    {
+        get => GetValue(FocusNextProperty);
+        set => SetValue(FocusNextProperty, value);
+    }
     public Action OnScrollAction
     {
         get { return GetValue(OnScrollActionProperty); }
@@ -66,8 +74,8 @@ internal partial class SizeInput : UserControl
 
     public void FocusAndSelect()
     {
-        textBox.Focus();
-        textBox.SelectAll();
+        input.Focus();
+        input.SelectAll();
     }
 
     private void Border_MouseLeftButtonDown(object? sender, PointerPressedEventArgs e)
@@ -81,10 +89,10 @@ internal partial class SizeInput : UserControl
         else
             textBox.CaretIndex = charIndex;*/
         //TODO: Above functions not found in Avalonia
-        textBox.SelectAll();
+        input.SelectAll();
         e.Handled = true;
-        if (!textBox.IsFocused)
-            textBox.Focus();
+        if (!input.IsFocused)
+            input.Focus();
     }
 
     public SizeUnit Unit

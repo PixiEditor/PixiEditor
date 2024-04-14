@@ -47,6 +47,8 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
         set { SetValue(FocusNextProperty, value); }
     }
 
+    public static IInputElement FallbackFocusElement { get; set; }
+
     protected override void OnAttached()
     {
         base.OnAttached();
@@ -78,8 +80,11 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
 
     private void RemoveFocus()
     {
-        var next = KeyboardNavigationHandler.GetNext(AssociatedObject, NavigationDirection.Next);
+        var next = FocusNext
+            ? KeyboardNavigationHandler.GetNext(AssociatedObject, NavigationDirection.Next)
+            : FallbackFocusElement;
         NavigationMethod nextMethod = FocusNext ? NavigationMethod.Directional : NavigationMethod.Unspecified;
+        if (next == AssociatedObject) return;
         next?.Focus(nextMethod);
     }
 
@@ -87,7 +92,7 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
         object sender,
         GotFocusEventArgs e)
     {
-        if (SelectOnMouseClick || e.NavigationMethod == NavigationMethod.Tab)
+        if ((e.NavigationMethod == NavigationMethod.Pointer && SelectOnMouseClick) || e.NavigationMethod == NavigationMethod.Tab)
         {
             Dispatcher.UIThread.Post(() => AssociatedObject?.SelectAll(), DispatcherPriority.Input);
         }
@@ -106,6 +111,7 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
     {
         if (DeselectOnFocusLoss)
             AssociatedObject.ClearSelection();
+
         RemoveFocus();
     }
 

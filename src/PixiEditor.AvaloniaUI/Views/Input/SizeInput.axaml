@@ -7,6 +7,7 @@
              xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
+             xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
              mc:Ignorable="d" Focusable="True"
              d:DesignHeight="30" Name="uc"
              FlowDirection="LeftToRight">
@@ -29,24 +30,18 @@
                 <ColumnDefinition Width="2"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <TextBox IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Right"
+            <input:NumberInput IsEnabled="{Binding IsEnabled, ElementName=uc}" HorizontalContentAlignment="Right"
                      BorderThickness="0" Background="Transparent"
-                     SelectionBrush="{DynamicResource ThemeControlHighlightColor}"
-                     Foreground="{Binding Foreground, ElementName=uc}" Focusable="True" CaretBrush="{Binding Foreground, ElementName=uc}"
+                     Foreground="{Binding Foreground, ElementName=uc}" Focusable="True"
                      Margin="0,0,5,0" VerticalAlignment="Center"
-                     x:Name="textBox"
-                     Text="{Binding Size, ElementName=uc, Converter={converters:ToolSizeToIntConverter}}"
-                     d:Text="22"
-                     MaxLength="6"
-                     MinWidth="43">
-                <Interaction.Behaviors>
-                    <behaviours:GlobalShortcutFocusBehavior/>
-                    <behaviours:TextBoxFocusBehavior 
-                        SelectOnMouseClick="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}" 
-                        ConfirmOnEnter="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
-                        DeselectOnFocusLoss="True"/>
-                </Interaction.Behaviors>
-            </TextBox>
+                     Decimals="0"
+                     x:Name="input"
+                     Value="{Binding Size, ElementName=uc, Mode=TwoWay}"
+                     d:Value="22"
+                     FocusNext="{Binding FocusNext, ElementName=uc}"
+                     SelectOnMouseClick="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
+                     ConfirmOnEnter="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
+                     MinWidth="43"/>
             <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"
                   d:Background="{DynamicResource ThemeAccentBrush}"/>
             <TextBlock ui:Translator.Key="{Binding Unit, ElementName=uc, Converter={converters:EnumToStringConverter}}" TextAlignment="Right"

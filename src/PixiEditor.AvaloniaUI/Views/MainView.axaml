@@ -21,7 +21,7 @@
     <Grid>
         <DockPanel>
             <main1:MainTitleBar DockPanel.Dock="Top" />
-            <Grid Focusable="True">
+            <Grid Focusable="True" Name="FocusableGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40" />
                     <RowDefinition Height="*" />

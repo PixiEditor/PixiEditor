@@ -21,7 +21,8 @@ internal sealed class SizeSetting : Setting<int>
         {
             VerticalAlignment = VerticalAlignment.Center,
             MaxSize = 9999,
-            IsEnabled = true
+            IsEnabled = true,
+            FocusNext = false
         };
 
         Binding binding = new Binding("Value")

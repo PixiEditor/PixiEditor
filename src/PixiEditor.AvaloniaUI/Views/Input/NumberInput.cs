@@ -4,12 +4,17 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Xaml.Interactivity;
+using PixiEditor.AvaloniaUI.Helpers.Behaviours;
 
 namespace PixiEditor.AvaloniaUI.Views.Input;
 
-internal partial class NumberInput : UserControl
+internal partial class NumberInput : TextBox
 {
     public static readonly StyledProperty<double> ValueProperty =
         AvaloniaProperty.Register<NumberInput, double>(
@@ -30,6 +35,24 @@ internal partial class NumberInput : UserControl
     {
         get => GetValue(FormattedValueProperty);
         set => SetValue(FormattedValueProperty, value);
+    }
+
+    public static readonly StyledProperty<bool> SelectOnMouseClickProperty = AvaloniaProperty.Register<NumberInput, bool>(
+        nameof(SelectOnMouseClick), true);
+
+    public static readonly StyledProperty<bool> ConfirmOnEnterProperty = AvaloniaProperty.Register<NumberInput, bool>(
+        nameof(ConfirmOnEnter), true);
+
+    public bool ConfirmOnEnter
+    {
+        get => GetValue(ConfirmOnEnterProperty);
+        set => SetValue(ConfirmOnEnterProperty, value);
+    }
+
+    public bool SelectOnMouseClick
+    {
+        get => GetValue(SelectOnMouseClickProperty);
+        set => SetValue(SelectOnMouseClickProperty, value);
     }
 
     private static Regex regex;
@@ -80,6 +103,15 @@ internal partial class NumberInput : UserControl
         set { SetValue(FocusNextProperty, value); }
     }
 
+    private static readonly DataTable DataTable = new DataTable();
+    private static char[] allowedChars = new char[]
+    {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '*', '/', '(', ')', '.', ',', ' ',
+        'i', 'n', 'f', 't', 'y', 'e', 'I', 'N', 'F', 'T', 'Y', 'E'
+    };
+
+    protected override Type StyleKeyOverride => typeof(TextBox);
+
     static NumberInput()
     {
         ValueProperty.Changed.Subscribe(OnValueChanged);
@@ -88,7 +120,51 @@ internal partial class NumberInput : UserControl
 
     public NumberInput()
     {
-        InitializeComponent();
+        BehaviorCollection behaviors = Interaction.GetBehaviors(this);
+        behaviors.Add(new GlobalShortcutFocusBehavior());
+        TextBoxFocusBehavior behavior = new() { DeselectOnFocusLoss = true };
+        BindTextBoxBehavior(behavior);
+        behaviors.Add(behavior);
+        Interaction.SetBehaviors(this, behaviors);
+
+        Binding binding = new Binding(nameof(FormattedValue))
+        {
+            Source = this,
+            Mode = BindingMode.TwoWay
+        };
+
+        this.Bind(TextProperty, binding);
+
+        Focusable = true;
+        TextAlignment = TextAlignment.Center;
+        VerticalAlignment = VerticalAlignment.Center;
+    }
+
+    private void BindTextBoxBehavior(TextBoxFocusBehavior behavior)
+    {
+        Binding focusNextBinding = new Binding(nameof(FocusNext))
+        {
+            Source = this,
+            Mode = BindingMode.OneWay
+        };
+
+        behavior.Bind(TextBoxFocusBehavior.FocusNextProperty, focusNextBinding);
+
+        Binding selectOnMouseClickBinding = new Binding(nameof(SelectOnMouseClick))
+        {
+            Source = this,
+            Mode = BindingMode.OneWay
+        };
+
+        behavior.Bind(TextBoxFocusBehavior.SelectOnMouseClickProperty, selectOnMouseClickBinding);
+
+        Binding confirmOnEnterBinding = new Binding(nameof(ConfirmOnEnter))
+        {
+            Source = this,
+            Mode = BindingMode.OneWay
+        };
+
+        behavior.Bind(TextBoxFocusBehavior.ConfirmOnEnterProperty, confirmOnEnterBinding);
     }
 
     private static void OnValueChanged(AvaloniaPropertyChangedEventArgs<double> e)
@@ -131,20 +207,15 @@ internal partial class NumberInput : UserControl
         {
             return true;
         }
-        else
-        {
-            return TryEvaluateExpression(s, out value);
-        }
 
-        return false;
+        return TryEvaluateExpression(s, out value);
     }
 
     private static bool TryEvaluateExpression(string s, out double value)
     {
         try
         {
-            DataTable dt = new DataTable();
-            var computed = dt.Compute(s, "");
+            var computed = DataTable.Compute(s, "");
             if (IsNumber(computed))
             {
                 value = Convert.ChangeType(computed, typeof(double)) as double? ?? 0;
@@ -169,18 +240,23 @@ internal partial class NumberInput : UserControl
     private static void FormattedValueChanged(AvaloniaPropertyChangedEventArgs<string> e)
     {
         NumberInput input = (NumberInput)e.Sender;
-        /*if(ContainsInvalidCharacter(e.NewValue.Value))
+        if(ContainsInvalidCharacter(e.NewValue.Value))
         {
             input.FormattedValue = e.OldValue.Value;
-        }*/
+        }
     }
 
     private static bool ContainsInvalidCharacter(string text)
     {
-        return text.Any(c => !char.IsDigit(c) && c != '.' && c != ',');
+        if(text == null)
+        {
+            return false;
+        }
+
+        return text.Any(c => !allowedChars.Contains(c));
     }
 
-    private void TextBox_MouseWheel(object sender, PointerWheelEventArgs e)
+    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
         int step = (int)e.Delta.Y;
 
@@ -204,8 +280,9 @@ internal partial class NumberInput : UserControl
         OnScrollAction?.Invoke();
     }
 
-    private void TextBox_OnLostFocus(object? sender, RoutedEventArgs e)
+    protected override void OnLostFocus(RoutedEventArgs e)
     {
+        base.OnLostFocus(e);
         if (TryParse(FormattedValue, out double value))
         {
             Value = (float)Math.Round(Math.Clamp(value, Min, Max), Decimals);
