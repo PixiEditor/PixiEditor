@@ -182,7 +182,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public double ZoomboxScale
     {
-        get => zoombox.Scale;
+        get => zoombox?.Scale ?? 1;
         // ReSharper disable once ValueParameterNotUsed
         set
         {
