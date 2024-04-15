@@ -51,7 +51,7 @@ internal class LayoutManager
                     Id = "DocumentArea",
                     FallbackContent = new CreateDocumentFallbackView()
                 },
-                FirstSize = 0.75,
+                FirstSize = 0.8,
                 SplitDirection = DockingDirection.Right,
                 Second = new DockableTree
                 {
@@ -68,7 +68,7 @@ internal class LayoutManager
                                 DockContext.CreateDockable(paletteViewerDockViewModel)
                             ]
                         },
-                        FirstSize = 0.5,
+                        FirstSize = 0.6,
                         SplitDirection = DockingDirection.Bottom,
                         Second = new DockableArea
                         {

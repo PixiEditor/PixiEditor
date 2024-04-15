@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -11,6 +12,35 @@ internal class Folder : StructureMember, IReadOnlyFolder
     /// </summary>
     public ImmutableList<StructureMember> Children { get; set; } = ImmutableList<StructureMember>.Empty;
     IReadOnlyList<IReadOnlyStructureMember> IReadOnlyFolder.Children => Children;
+
+    public override RectI? GetTightBounds()
+    {
+        if (Children.Count == 0)
+        {
+            return null;
+        }
+
+        var bounds = Children[0].GetTightBounds();
+        for (var i = 1; i < Children.Count; i++)
+        {
+            var childBounds = Children[i].GetTightBounds();
+            if (childBounds == null)
+            {
+                continue;
+            }
+
+            if (bounds == null)
+            {
+                bounds = childBounds;
+            }
+            else
+            {
+                bounds = bounds.Value.Union(childBounds.Value);
+            }
+        }
+
+        return bounds;
+    }
 
     /// <summary>
     /// Creates a clone of the folder, its mask and all of its children

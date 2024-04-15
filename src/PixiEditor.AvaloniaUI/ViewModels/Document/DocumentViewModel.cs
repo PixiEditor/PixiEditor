@@ -582,6 +582,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return layerGuids;
     }
 
+    /// <summary>
+    ///     Gets all selected layers extracted from selected folders.
+    /// </summary>
+    /// <param name="includeFoldersWithMask">Should folders with mask be included</param>
+    /// <returns>A list of GUIDs of selected layers</returns>
     public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false)
     {
         var result = new List<Guid>();

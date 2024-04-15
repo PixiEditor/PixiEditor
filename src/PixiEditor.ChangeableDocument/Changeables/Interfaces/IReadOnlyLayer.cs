@@ -5,5 +5,4 @@ namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 public interface IReadOnlyLayer : IReadOnlyStructureMember
 {
     public ChunkyImage Rasterize();
-    public RectI? GetTightBounds();
 }

@@ -35,12 +35,17 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <summary>
     /// Creates a new selection with the size of the document
     /// </summary>
-    public void SelectAll()
+    public void SelectAll() => Select(new RectI(VecI.Zero, Document.SizeBindable), SelectionMode.Add);
+
+    /// <summary>
+    /// Creates a new selection with the size of the document
+    /// </summary>
+    public void Select(RectI rect, SelectionMode mode = SelectionMode.New)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         Internals.ActionAccumulator.AddFinishedActions(
-            new SelectRectangle_Action(new RectI(VecI.Zero, Document.SizeBindable), SelectionMode.Add),
+            new SelectRectangle_Action(rect, mode),
             new EndSelectRectangle_Action());
     }
 

@@ -6,5 +6,4 @@ namespace PixiEditor.ChangeableDocument.Changeables;
 internal abstract class Layer : StructureMember, IReadOnlyLayer
 {
     public abstract ChunkyImage Rasterize();
-    public abstract RectI? GetTightBounds();
 }

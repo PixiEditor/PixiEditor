@@ -51,6 +51,8 @@ internal abstract class StructureMemberViewModel : ObservableObject, IStructureM
     }
 
     private bool maskIsVisible;
+    public RectI? TightBounds => Internals.Tracker.Document.FindMember(GuidValue)?.GetTightBounds();
+
     public void SetMaskIsVisible(bool maskIsVisible)
     {
         this.maskIsVisible = maskIsVisible;

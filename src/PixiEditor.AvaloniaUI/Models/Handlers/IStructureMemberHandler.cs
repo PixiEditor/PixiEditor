@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Models.Layers;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
@@ -18,6 +19,7 @@ internal interface IStructureMemberHandler : IHandler
     public float OpacityBindable { get; set; }
     public IDocument Document { get; }
     public bool IsVisibleBindable { get; set; }
+    public RectI? TightBounds { get; }
     public void SetMaskIsVisible(bool infoIsVisible);
     public void SetClipToMemberBelowEnabled(bool infoClipToMemberBelow);
     public void SetBlendMode(BlendMode infoBlendMode);

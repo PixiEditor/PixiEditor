@@ -36,7 +36,7 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
 
     public override RectI? GetTightBounds()
     {
-        return LayerImage.FindChunkAlignedMostUpToDateBounds();
+        return LayerImage.FindTightCommittedBounds();
     }
 
     /// <summary>

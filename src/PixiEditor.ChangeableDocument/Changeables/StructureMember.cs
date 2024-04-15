@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -14,6 +15,8 @@ internal abstract class StructureMember : IChangeable, IReadOnlyStructureMember,
     public BlendMode BlendMode { get; set; } = BlendMode.Normal;
     public Guid GuidValue { get; set; }
     public ChunkyImage? Mask { get; set; } = null;
+    public abstract RectI? GetTightBounds();
+
     public bool MaskIsVisible { get; set; } = true;
     IReadOnlyChunkyImage? IReadOnlyStructureMember.Mask => Mask;
     internal abstract StructureMember Clone();
