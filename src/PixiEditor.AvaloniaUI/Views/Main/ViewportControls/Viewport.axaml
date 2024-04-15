@@ -130,35 +130,9 @@
             Angle="{Binding RotateTransformAngle, ElementName=zoombox, Mode=OneWay}"
             FlipX="{Binding FlipX, ElementName=zoombox, Mode=OneWay}"
             FlipY="{Binding FlipY, ElementName=zoombox, Mode=OneWay}"
+            FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}"
             FlowDirection="LeftToRight">
-            <visuals:Scene.Styles>
-                <!--TODO: Implement-->
-                <!--<Style>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}" Value="True">
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetProperty="(Button.Opacity)"
-                                                        From="1" To="0" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.EnterActions>
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetProperty="(Button.Opacity)"
-                                                        From="0" To="1" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.ExitActions>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>-->
-            </visuals:Scene.Styles>
         </visuals:Scene>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
@@ -240,82 +214,11 @@
                 </Border>
             </zoombox:Zoombox.AdditionalContent>
         </zoombox:Zoombox>
-        <Canvas RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}"
-                DataContext="{Binding ElementName=vpUc}"
-                ZIndex="{Binding Document.ReferenceLayerViewModel.ShowHighest, Converter={converters:BoolToIntConverter}}"
-                IsHitTestVisible="{Binding Document.ReferenceLayerViewModel.IsTransforming}"
-                ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}}">
-                <visuals:SurfaceControl
-                    Focusable="False"
-                    Width="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.X}"
-                    Height="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap.Size.Y}"
-                    Surface="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, Mode=OneWay}"
-                    IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}"
-                    RenderTransformOrigin="0, 0"
-                    SizeChanged="OnReferenceImageSizeChanged"
-                    FlowDirection="LeftToRight">
-                    <visuals:SurfaceControl.RenderTransform>
-                        <TransformGroup>
-                            <MatrixTransform
-                                Matrix="{Binding Document.ReferenceLayerViewModel.ReferenceTransformMatrix}" />
-                        </TransformGroup>
-                    </visuals:SurfaceControl.RenderTransform>
-                    <visuals:SurfaceControl.Styles>
-                        <!--TODO: Implement this-->
-                        <!--<Style>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Document.ReferenceLayerViewModel.ShowHighest, Mode=OneWay}" Value="True">
-                                            <DataTrigger.EnterActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation
-                                                            Storyboard.TargetProperty="(Button.Opacity)"
-                                                            From="1" To="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" Duration="0:0:0.1" />
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.EnterActions>
-                                            <DataTrigger.ExitActions>
-                                                <BeginStoryboard>
-                                                    <Storyboard>
-                                                        <DoubleAnimation
-                                                            Storyboard.TargetProperty="(Button.Opacity)"
-                                                            From="{x:Static subviews:ReferenceLayerViewModel.TopMostOpacity}" To="1" Duration="0:0:0.1" />
-                                                    </Storyboard>
-                                                </BeginStoryboard>
-                                            </DataTrigger.ExitActions>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>-->
-                    </visuals:SurfaceControl.Styles>
-                </visuals:SurfaceControl>
-                <Canvas.Styles>
-                    <!--TODO: Implement this-->
-                    <!--<Style>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Source={vm:ToolVM ColorPickerToolViewModel}, Path=PickFromReferenceLayer, Mode=OneWay}" Value="False">
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetProperty="(Button.Opacity)"
-                                                        From="1" To="0" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.EnterActions>
-                                        <DataTrigger.ExitActions>
-                                            <BeginStoryboard>
-                                                <Storyboard>
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetProperty="(Button.Opacity)"
-                                                        From="0" To="1" Duration="0:0:0.1" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.ExitActions>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>-->
-                </Canvas.Styles>
-            </Canvas>
+        <overlays:ReferenceLayerOverlay SizeChanged="OnReferenceImageSizeChanged"
+                                        ReferenceLayer="{Binding Document.ReferenceLayerViewModel}"
+                                        ReferenceLayerScale="{Binding ReferenceLayerScale}"
+                                        FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=!PickFromReferenceLayer, Mode=OneWay}"
+                                        RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}"/>
         <Grid ZIndex="5" DataContext="{Binding ElementName=vpUc}"
               RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}">
             <symmetryOverlay:SymmetryOverlay

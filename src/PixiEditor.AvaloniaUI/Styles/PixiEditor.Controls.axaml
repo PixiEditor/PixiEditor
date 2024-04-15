@@ -8,6 +8,7 @@
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/BlendModeComboBox.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Buttons/DialogButtonTheme.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/ShortcutBoxTemplate.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Views/Overlays/ReferenceLayerOverlay.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

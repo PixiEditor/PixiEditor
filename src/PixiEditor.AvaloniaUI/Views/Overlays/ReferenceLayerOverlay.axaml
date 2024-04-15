@@ -1,0 +1,57 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ui="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
+                    xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+                    xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+                    xmlns:overlays="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays"
+                    xmlns:document="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document">
+    <ControlTheme TargetType="overlays:ReferenceLayerOverlay" x:Key="{x:Type overlays:ReferenceLayerOverlay}">
+        <Setter Property="ZIndex" Value="0"/>
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+            </Transitions>
+        </Setter>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="overlays:ReferenceLayerOverlay">
+                <Canvas
+                    IsHitTestVisible="{Binding ReferenceLayer.IsTransforming, RelativeSource={RelativeSource TemplatedParent}}"
+                    ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding ReferenceLayerScale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource TemplatedParent}}">
+                    <visuals:SurfaceControl
+                        Focusable="False"
+                        Opacity="{TemplateBinding Opacity}"
+                        Width="{Binding ReferenceLayer.ReferenceBitmap.Size.X, RelativeSource={RelativeSource TemplatedParent}}"
+                        Height="{Binding ReferenceLayer.ReferenceBitmap.Size.Y, RelativeSource={RelativeSource TemplatedParent}}"
+                        Surface="{Binding ReferenceLayer.ReferenceBitmap, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                        IsVisible="{Binding ReferenceLayer.IsVisibleBindable, RelativeSource={RelativeSource TemplatedParent}}"
+                        RenderTransformOrigin="0, 0"
+                        FlowDirection="LeftToRight">
+                        <visuals:SurfaceControl.Transitions>
+                            <Transitions>
+                                <DoubleTransition Property="Opacity" Duration="0:0:0.1"/>
+                            </Transitions>
+                        </visuals:SurfaceControl.Transitions>
+                        <visuals:SurfaceControl.RenderTransform>
+                            <TransformGroup>
+                                <MatrixTransform
+                                    Matrix="{Binding ReferenceLayer.ReferenceTransformMatrix, RelativeSource={RelativeSource TemplatedParent}}" />
+                            </TransformGroup>
+                        </visuals:SurfaceControl.RenderTransform>
+                    </visuals:SurfaceControl>
+                </Canvas>
+            </ControlTemplate>
+        </Setter>
+
+        <Style Selector="^:showHighest">
+            <Setter Property="ZIndex" Value="1"/>
+        </Style>
+
+        <Style Selector="^:showHighest /template/ visuals|SurfaceControl">
+            <Setter Property="Opacity" Value="{x:Static document:ReferenceLayerViewModel.TopMostOpacity}"/>
+        </Style>
+
+        <Style Selector="^:fadedOut">
+            <Setter Property="Opacity" Value="0"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

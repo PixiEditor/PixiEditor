@@ -89,7 +89,7 @@ internal class SurfaceControl : Control
         }
 
         var bounds = new Rect(Bounds.Size);
-        var operation = new DrawSurfaceOperation(bounds, Surface, Stretch);
+        var operation = new DrawSurfaceOperation(bounds, Surface, Stretch, Opacity);
         context.Custom(operation);
     }
 
@@ -134,12 +134,15 @@ internal class DrawSurfaceOperation : SkiaDrawOperation
     public Surface Surface { get; }
     public Stretch Stretch { get; }
 
+    public double Opacity { get; set; } = 1.0;
+
     private SKPaint _paint = new SKPaint();
 
-    public DrawSurfaceOperation(Rect bounds, Surface surface, Stretch stretch) : base(bounds)
+    public DrawSurfaceOperation(Rect bounds, Surface surface, Stretch stretch, double opacity = 1) : base(bounds)
     {
         Surface = surface;
         Stretch = stretch;
+        Opacity = opacity;
     }
 
     public override void Render(ISkiaSharpApiLease lease)
@@ -164,6 +167,7 @@ internal class DrawSurfaceOperation : SkiaDrawOperation
             canvas.DrawSurface((SKSurface)Surface.DrawingSurface.Native, new SKPoint(0, 0), _paint);
         }*/
 
+        _paint.Color = _paint.Color.WithAlpha((byte)(Opacity * 255));
         canvas.DrawSurface((SKSurface)Surface.DrawingSurface.Native, new SKPoint(0, 0), _paint);
         canvas.Restore();
     }

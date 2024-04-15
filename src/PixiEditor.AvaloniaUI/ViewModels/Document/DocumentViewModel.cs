@@ -449,7 +449,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return null;
         
         Matrix matrix = ReferenceLayerViewModel.ReferenceTransformMatrix;
-        matrix.Invert();
+        matrix = matrix.Invert();
         var transformed = matrix.Transform(new Point(pos.X, pos.Y));
 
         if (transformed.X < 0 || transformed.Y < 0 || transformed.X >= bitmap.Size.X || transformed.Y >= bitmap.Size.Y)

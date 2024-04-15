@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Animation;
 using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Rendering.SceneGraph;
@@ -6,6 +7,7 @@ using Avalonia.Skia;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.DrawingApi.Core.Numerics;
 using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
 
@@ -32,6 +34,15 @@ internal class Scene : Control
         nameof(FlipX), false);
     public static readonly StyledProperty<bool> FlipYProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(FlipY), false);
+
+    public static readonly StyledProperty<bool> FadeOutProperty = AvaloniaProperty.Register<Scene, bool>(
+        nameof(FadeOut), false);
+
+    public bool FadeOut
+    {
+        get => GetValue(FadeOutProperty);
+        set => SetValue(FadeOutProperty, value);
+    }
 
     public double Angle
     {
@@ -83,18 +94,21 @@ internal class Scene : Control
         BoundsProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
         FlipXProperty.Changed.AddClassHandler<Scene>(RequestRendering);
         FlipYProperty.Changed.AddClassHandler<Scene>(RequestRendering);
+        FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
     }
 
     public Scene()
     {
         ClipToBounds = true;
+        Transitions = new Transitions();
+        Transitions.Add(new DoubleTransition() { Property = OpacityProperty, Duration = new TimeSpan(0, 0, 0, 0, 100) });
     }
 
     public override void Render(DrawingContext context)
     {
         if (Surface == null || Document == null) return;
 
-        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, Scale, Angle, FlipX, FlipY, Bounds);
+        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, Scale, Angle, FlipX, FlipY, Bounds, Opacity);
         context.Custom(operation);
     }
 
@@ -106,6 +120,11 @@ internal class Scene : Control
     private static void RequestRendering(Scene sender, AvaloniaPropertyChangedEventArgs e)
     {
         sender.InvalidateVisual();
+    }
+
+    private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs arg2)
+    {
+        scene.Opacity = arg2.NewValue is true ? 0 : 1;
     }
 }
 
@@ -121,7 +140,8 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
     private SKPaint _paint = new SKPaint();
 
-    public DrawSceneOperation(Surface surface, DocumentViewModel document, VecI contentPosition, double scale, double angle, bool flipX, bool flipY, Rect bounds) : base(bounds)
+    public DrawSceneOperation(Surface surface, DocumentViewModel document, VecI contentPosition, double scale,
+        double angle, bool flipX, bool flipY, Rect bounds, double opacity) : base(bounds)
     {
         Surface = surface;
         Document = document;
@@ -130,6 +150,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         Angle = angle;
         FlipX = flipX;
         FlipY = flipY;
+        _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
     }
 
     public override void Render(ISkiaSharpApiLease lease)
