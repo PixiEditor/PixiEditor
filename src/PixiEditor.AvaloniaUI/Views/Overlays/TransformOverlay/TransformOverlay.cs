@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Input;
 using Avalonia;
@@ -476,9 +477,9 @@ internal class TransformOverlay : Overlay
         {
             ProportionalAngle1 = propAngle1OnStartRotate + angle, ProportionalAngle2 = propAngle2OnStartRotate + angle,
         };
-        Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
 
-        UpdateOriginPos();
+        Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
+        
         return finalCursor;
     }
 
@@ -496,7 +497,8 @@ internal class TransformOverlay : Overlay
         }
 
         var matrix = new TranslateTransform(mousePos.X, mousePos.Y).Value;
-        matrix = matrix.RotateAt((mousePos - InternalState.Origin).Angle * 180 / Math.PI - 90, mousePos.X, mousePos.Y);
+        double angle = (mousePos - InternalState.Origin).Angle * 180 / Math.PI - 90;
+        matrix = matrix.RotateAt(angle, mousePos.X, mousePos.Y);
         matrix = matrix.ScaleAt(8 / ZoomboxScale, 8 / ZoomboxScale, mousePos.X, mousePos.Y);
         rotateCursorGeometry.Transform = new MatrixTransform(matrix);
         return true;
