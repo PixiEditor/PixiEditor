@@ -1,10 +1,11 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
-using Avalonia.Threading;
+using Avalonia.Rendering.SceneGraph;
+using Avalonia.Skia;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
-using Bitmap = Avalonia.Media.Imaging.Bitmap;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 
@@ -19,10 +20,10 @@ public class CheckerBackground : Control
     public static readonly StyledProperty<int> PixelWidthProperty = AvaloniaProperty.Register<CheckerBackground, int>(
         nameof(PixelWidth));
 
-    public static readonly StyledProperty<float> PixelHeightProperty = AvaloniaProperty.Register<CheckerBackground, float>(
+    public static readonly StyledProperty<int> PixelHeightProperty = AvaloniaProperty.Register<CheckerBackground, int>(
         nameof(PixelHeight));
 
-    public float PixelHeight
+    public int PixelHeight
     {
         get => GetValue(PixelHeightProperty);
         set => SetValue(PixelHeightProperty, value);
@@ -48,24 +49,17 @@ public class CheckerBackground : Control
 
     public Bitmap? CheckerBitmap { get; set; }
 
-    private Brush? _checkerBrush;
-
 
     static CheckerBackground()
     {
         CheckerImagePathProperty.Changed.AddClassHandler<CheckerBackground>(CheckerImagePathChanged);
     }
 
-    public CheckerBackground()
-    {
-    }
-
     private static void CheckerImagePathChanged(CheckerBackground control, AvaloniaPropertyChangedEventArgs arg2)
     {
         if (arg2.NewValue is string path)
         {
-            control.CheckerBitmap = ImagePathToBitmapConverter.LoadBitmapFromRelativePath(path);
-            control.CreateCheckerPen();
+            control.CheckerBitmap = ImagePathToBitmapConverter.LoadDrawingApiBitmapFromRelativePath(path);
         }
         else
         {
@@ -73,30 +67,43 @@ public class CheckerBackground : Control
         }
     }
 
-    private void CreateCheckerPen()
-    {
-
-    }
-
-
     public override void Render(DrawingContext context)
     {
         base.Render(context);
-        if (CheckerBitmap != null)
-        {
-            float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale);
-            _checkerBrush = new ImageBrush(CheckerBitmap)
-            {
-                TileMode = TileMode.Tile,
-                DestinationRect = new RelativeRect(0, 0, checkerScale, checkerScale, RelativeUnit.Absolute),
-            };
+        DrawCheckerboardOperation drawCheckerboardOperation = new DrawCheckerboardOperation(new Rect(0, 0, PixelWidth, PixelHeight), new VecI(PixelWidth, PixelHeight), (SKBitmap)CheckerBitmap.Native, (float)Scale);
+        context.Custom(drawCheckerboardOperation);
+    }
+}
 
-            _checkerBrush.Transform = new ScaleTransform(0.5f, 0.5f);
-        }
-        context.PushRenderOptions(new RenderOptions() { BitmapInterpolationMode = BitmapInterpolationMode.None });
-        if (_checkerBrush != null)
+internal class DrawCheckerboardOperation : SkiaDrawOperation
+{
+    private SKPaint paint;
+    private SKBitmap checkerboardBitmap;
+    private VecI pixelSize;
+
+    public DrawCheckerboardOperation(Rect bounds, VecI pixelSize, SKBitmap bitmap, float scale) : base(bounds)
+    {
+        this.pixelSize = pixelSize;
+        checkerboardBitmap = bitmap;
+        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, scale) * 0.25f;
+        paint = new SKPaint()
         {
-            context.DrawRectangle(_checkerBrush, null, new Rect(new Size(PixelWidth, PixelHeight)));
-        }
+
+            Shader = SKShader.CreateBitmap(
+                checkerboardBitmap,
+                SKShaderTileMode.Repeat, SKShaderTileMode.Repeat,
+                SKMatrix.CreateScale(checkerScale, checkerScale)),
+            FilterQuality = SKFilterQuality.None
+        };
+    }
+
+    public override bool Equals(ICustomDrawOperation? other)
+    {
+        return other is DrawCheckerboardOperation operation && operation.pixelSize == pixelSize;
+    }
+
+    public override void Render(ISkiaSharpApiLease lease)
+    {
+        lease.SkCanvas.DrawRect(Bounds.ToSKRect(), paint);
     }
 }
