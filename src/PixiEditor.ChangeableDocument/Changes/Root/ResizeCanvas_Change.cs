@@ -33,8 +33,12 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
         }
 
         target.Size = newSize;
-        target.VerticalSymmetryAxisX = Math.Clamp(_originalVerAxisX, 0, target.Size.X);
-        target.HorizontalSymmetryAxisY = Math.Clamp(_originalHorAxisY, 0, target.Size.Y);
+        float normalizedX = (float)_originalVerAxisX / _originalSize.X;
+        float normalizedY = (float)_originalHorAxisY / _originalSize.Y;
+        float newVerticalSymmetryAxisX = newSize.X * normalizedX;
+        float newHorizontalSymmetryAxisY = newSize.Y * normalizedY;
+        target.VerticalSymmetryAxisX = Math.Clamp(newVerticalSymmetryAxisX, 0, target.Size.X);
+        target.HorizontalSymmetryAxisY = Math.Clamp(newHorizontalSymmetryAxisY, 0, target.Size.Y);
 
         VecI offset = anchor.FindOffsetFor(_originalSize, newSize);
 
