@@ -306,7 +306,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
     }
 
-    public Panel? MainImage => zoombox != null ? (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[1] : null;
+    public Panel? MainImage => zoombox != null ? (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[0] : null;
     public Scene Scene => scene;
     public Grid BackgroundGrid => viewportGrid;
 

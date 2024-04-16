@@ -17,6 +17,24 @@ public class GridLines : Control
     public static readonly StyledProperty<int> ColumnsProperty = AvaloniaProperty.Register<GridLines, int>(
         nameof(Columns));
 
+    public static readonly StyledProperty<int> PixelWidthProperty = AvaloniaProperty.Register<GridLines, int>(
+        nameof(PixelWidth));
+
+    public static readonly StyledProperty<int> PixelHeightProperty = AvaloniaProperty.Register<GridLines, int>(
+        nameof(PixelHeight));
+
+    public int PixelHeight
+    {
+        get => GetValue(PixelHeightProperty);
+        set => SetValue(PixelHeightProperty, value);
+    }
+
+    public int PixelWidth
+    {
+        get => GetValue(PixelWidthProperty);
+        set => SetValue(PixelWidthProperty, value);
+    }
+
     public int Columns
     {
         get => GetValue(ColumnsProperty);
@@ -49,8 +67,8 @@ public class GridLines : Control
         // Draw lines in vertical and horizontal directions, size should be relative to the scale
 
         base.Render(context);
-        double width = Bounds.Width;
-        double height = Bounds.Height;
+        double width = PixelWidth;
+        double height = PixelHeight;
 
         double columnWidth = width / Columns;
         double rowHeight = height / Rows;

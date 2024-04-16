@@ -117,6 +117,10 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
+        <visuals:CheckerBackground CheckerImagePath="/Images/CheckerTile.png"
+                                   RenderTransform="{Binding #zoombox.CanvasTransform}" RenderTransformOrigin="0,0"
+                                   PixelWidth="{Binding Document.Width}" PixelHeight="{Binding Document.Height}"
+                                   Scale="{Binding #zoombox.Scale}"/>
         <visuals:Scene
             Focusable="False" Name="scene"
             RenderTransformOrigin="0,0"
@@ -132,7 +136,6 @@
             FlipY="{Binding FlipY, ElementName=zoombox, Mode=OneWay}"
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}"
-            CheckerImagePath="/Images/CheckerTile.png"
             FlowDirection="LeftToRight">
         </visuals:Scene>
         <zoombox:Zoombox
@@ -158,18 +161,6 @@
                     RenderOptions.BitmapInterpolationMode="None">
                     <Grid>
                         <Panel Width="{Binding Document.Width}" Height="{Binding Document.Height}" />
-                        <Grid IsHitTestVisible="False"
-                              ShowGridLines="True" Width="{Binding Document.Width}" Height="{Binding Document.Height}"
-                              Panel.ZIndex="10"
-                              IsVisible="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}">
-                            <Grid.Resources>
-                                <converters:ThresholdVisibilityConverter Threshold="10"
-                                                                         x:Key="ThresholdVisibilityConverter" />
-                            </Grid.Resources>
-                            <visuals:GridLines Scale="{Binding Zoombox.Scale}"
-                                               IsVisible="{Binding Zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}"
-                                               Rows="{Binding Document.Width}" Columns="{Binding Document.Height}" />
-                        </Grid>
                         <Rectangle Stroke="{DynamicResource ThemeBackgroundBrush1}" Opacity=".8" ZIndex="2"
                                    IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}">
                             <Rectangle.StrokeThickness>
@@ -202,6 +193,21 @@
                                         ReferenceLayerScale="{Binding ReferenceLayerScale}"
                                         FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=!PickFromReferenceLayer, Mode=OneWay}"
                                         RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}"/>
+
+        <Grid IsHitTestVisible="False" RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}"
+              ShowGridLines="True"
+              Panel.ZIndex="10"
+              IsVisible="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}">
+            <Grid.Resources>
+                <converters:ThresholdVisibilityConverter Threshold="10"
+                                                         x:Key="ThresholdVisibilityConverter" />
+            </Grid.Resources>
+            <visuals:GridLines Scale="{Binding #zoombox.Scale}"
+                               PixelWidth="{Binding Document.Width}" PixelHeight="{Binding Document.Height}"
+                               IsVisible="{Binding #zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}"
+                               Rows="{Binding Document.Width}" Columns="{Binding Document.Height}" />
+        </Grid>
+
         <Grid ZIndex="5" DataContext="{Binding ElementName=vpUc}"
               RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}">
             <symmetryOverlay:SymmetryOverlay

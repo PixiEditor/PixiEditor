@@ -42,15 +42,6 @@ internal class Scene : Control
     public static readonly StyledProperty<bool> FadeOutProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(FadeOut), false);
 
-    public static readonly StyledProperty<string> CheckerImagePathProperty = AvaloniaProperty.Register<Scene, string>(
-        nameof(CheckerImagePath));
-
-    public string CheckerImagePath
-    {
-        get => GetValue(CheckerImagePathProperty);
-        set => SetValue(CheckerImagePathProperty, value);
-    }
-
     public bool FadeOut
     {
         get => GetValue(FadeOutProperty);
@@ -99,8 +90,6 @@ internal class Scene : Control
         set { SetValue(FlipYProperty, value); }
     }
 
-    private Bitmap? _checkerBitmap;
-
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleProperty, FlipXProperty,
@@ -109,7 +98,6 @@ internal class Scene : Control
         FlipXProperty.Changed.AddClassHandler<Scene>(RequestRendering);
         FlipYProperty.Changed.AddClassHandler<Scene>(RequestRendering);
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
-        CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
     }
 
     public Scene()
@@ -126,7 +114,7 @@ internal class Scene : Control
         if (Surface == null || Document == null) return;
 
         var operation = new DrawSceneOperation(Surface, Document, ContentPosition, Scale, Angle, FlipX, FlipY, Bounds,
-            Opacity, _checkerBitmap);
+            Opacity);
 
         context.Custom(operation);
     }
@@ -145,18 +133,6 @@ internal class Scene : Control
     {
         scene.Opacity = arg2.NewValue is true ? 0 : 1;
     }
-
-    private static void CheckerImagePathChanged(Scene scene, AvaloniaPropertyChangedEventArgs arg2)
-    {
-        if (arg2.NewValue is string path)
-        {
-            scene._checkerBitmap = ImagePathToBitmapConverter.LoadDrawingApiBitmapFromRelativePath(path);
-        }
-        else
-        {
-            scene._checkerBitmap = null;
-        }
-    }
 }
 
 internal class DrawSceneOperation : SkiaDrawOperation
@@ -169,13 +145,12 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public bool FlipX { get; set; }
     public bool FlipY { get; set; }
 
-    public Bitmap? CheckerBitmap { get; set; }
 
     private SKPaint _paint = new SKPaint();
     private SKPaint _checkerPaint;
 
     public DrawSceneOperation(Surface surface, DocumentViewModel document, VecI contentPosition, double scale,
-        double angle, bool flipX, bool flipY, Rect bounds, double opacity, Bitmap bitmap) : base(bounds)
+        double angle, bool flipX, bool flipY, Rect bounds, double opacity) : base(bounds)
     {
         Surface = surface;
         Document = document;
@@ -184,17 +159,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         Angle = angle;
         FlipX = flipX;
         FlipY = flipY;
-        CheckerBitmap = bitmap;
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
-        if (CheckerBitmap != null)
-        {
-            float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, CalculateFinalScale()) * 0.25f;
-            _checkerPaint = new SKPaint()
-            {
-                Shader = SKShader.CreateBitmap((SKBitmap)CheckerBitmap.Native, SKShaderTileMode.Repeat,
-                    SKShaderTileMode.Repeat, SKMatrix.CreateScale(checkerScale, checkerScale)),
-            };
-        }
     }
 
     public override void Render(ISkiaSharpApiLease lease)
@@ -231,11 +196,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
         canvas.RotateDegrees(angle, ContentPosition.X, ContentPosition.Y);
         canvas.Scale(FlipX ? -1 : 1, FlipY ? -1 : 1, ContentPosition.X, ContentPosition.Y);
         canvas.Translate(ContentPosition.X, ContentPosition.Y);
-
-        if (CheckerBitmap != null)
-        {
-            canvas.DrawRect(surfaceRectToRender.ToSkRect(), _checkerPaint);
-        }
 
         using Image snapshot = Surface.DrawingSurface.Snapshot(surfaceRectToRender);
         canvas.DrawImage((SKImage)snapshot.Native, surfaceRectToRender.X, surfaceRectToRender.Y, _paint);
