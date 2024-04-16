@@ -147,7 +147,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
 
     private SKPaint _paint = new SKPaint();
-    private SKPaint _checkerPaint;
 
     public DrawSceneOperation(Surface surface, DocumentViewModel document, VecI contentPosition, double scale,
         double angle, bool flipX, bool flipY, Rect bounds, double opacity) : base(bounds)
