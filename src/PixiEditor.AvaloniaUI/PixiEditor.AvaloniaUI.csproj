@@ -25,6 +25,7 @@
         <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
         <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
         <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)" />
+        <PackageReference Include="Avalonia.Labs.Lottie" Version="11.0.10.1" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
