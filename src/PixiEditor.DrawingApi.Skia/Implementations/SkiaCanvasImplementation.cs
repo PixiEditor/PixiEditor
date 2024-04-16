@@ -156,6 +156,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[objPtr].RotateRadians(radians, centerX, centerY);
         }
 
+        public void RotateDegrees(IntPtr objectPointer, float degrees, float centerX, float centerY)
+        {
+            ManagedInstances[objectPointer].RotateDegrees(degrees, centerX, centerY);
+        }
+
         public void DrawImage(IntPtr objPtr, Image image, RectD rect, Paint paint)
         {
             ManagedInstances[objPtr].DrawImage(

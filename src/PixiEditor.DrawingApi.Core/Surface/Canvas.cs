@@ -172,6 +172,11 @@ namespace PixiEditor.DrawingApi.Core.Surface
             DrawingBackendApi.Current.CanvasImplementation.RotateRadians(ObjectPointer, dataAngle, centerX, centerY);
         }
 
+        public void RotateDegrees(float degrees, float centerX, float centerY)
+        {
+            DrawingBackendApi.Current.CanvasImplementation.RotateDegrees(ObjectPointer, degrees, centerX, centerY);
+        }
+
         public void DrawBitmap(Bitmap bitmap, int x, int y)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawBitmap(ObjectPointer, bitmap, x, y);
