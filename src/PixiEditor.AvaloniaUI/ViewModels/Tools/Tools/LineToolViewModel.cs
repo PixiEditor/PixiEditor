@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Toolbars;
+using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 

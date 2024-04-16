@@ -7,7 +7,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Tools;
 
 internal abstract class ShapeTool : ToolViewModel, IShapeToolHandler
 {
-    public override BrushShape BrushShape => BrushShape.Pixel;
+    public override BrushShape BrushShape => BrushShape.Hidden;
 
     public override bool UsesColor => true;
 

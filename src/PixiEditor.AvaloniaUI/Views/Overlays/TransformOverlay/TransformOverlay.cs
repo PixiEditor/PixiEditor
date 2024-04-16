@@ -479,7 +479,7 @@ internal class TransformOverlay : Overlay
         };
 
         Corners = TransformUpdateHelper.UpdateShapeFromRotation(cornersOnStartRotate, InternalState.Origin, angle);
-        
+
         return finalCursor;
     }
 
