@@ -69,6 +69,7 @@ internal partial class SizeInput : UserControl
 
     protected override void OnGotFocus(GotFocusEventArgs e)
     {
+        if (input.IsFocused) return;
         FocusAndSelect();
     }
 
