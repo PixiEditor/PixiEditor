@@ -6,9 +6,11 @@ using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
-using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Skia;
 using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
@@ -24,19 +26,30 @@ internal class Scene : Control
     public static readonly StyledProperty<VecI> ContentPositionProperty = AvaloniaProperty.Register<Scene, VecI>(
         nameof(ContentPosition));
 
-    public static readonly StyledProperty<DocumentViewModel> DocumentProperty = AvaloniaProperty.Register<Scene, DocumentViewModel>(
-        nameof(Document));
+    public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
+        AvaloniaProperty.Register<Scene, DocumentViewModel>(
+            nameof(Document));
 
     public static readonly StyledProperty<double> AngleProperty = AvaloniaProperty.Register<Scene, double>(
         nameof(Angle), 0);
 
     public static readonly StyledProperty<bool> FlipXProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(FlipX), false);
+
     public static readonly StyledProperty<bool> FlipYProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(FlipY), false);
 
     public static readonly StyledProperty<bool> FadeOutProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(FadeOut), false);
+
+    public static readonly StyledProperty<string> CheckerImagePathProperty = AvaloniaProperty.Register<Scene, string>(
+        nameof(CheckerImagePath));
+
+    public string CheckerImagePath
+    {
+        get => GetValue(CheckerImagePathProperty);
+        set => SetValue(CheckerImagePathProperty, value);
+    }
 
     public bool FadeOut
     {
@@ -74,8 +87,6 @@ internal class Scene : Control
         set => SetValue(SurfaceProperty, value);
     }
 
-    public Rect FinalBounds => Bounds;
-
     public bool FlipX
     {
         get { return (bool)GetValue(FlipXProperty); }
@@ -88,27 +99,35 @@ internal class Scene : Control
         set { SetValue(FlipYProperty, value); }
     }
 
+    private Bitmap? _checkerBitmap;
+
     static Scene()
     {
-        AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleProperty, FlipXProperty, FlipYProperty, ContentPositionProperty, DocumentProperty, SurfaceProperty);
+        AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleProperty, FlipXProperty,
+            FlipYProperty, ContentPositionProperty, DocumentProperty, SurfaceProperty);
         BoundsProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
         FlipXProperty.Changed.AddClassHandler<Scene>(RequestRendering);
         FlipYProperty.Changed.AddClassHandler<Scene>(RequestRendering);
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
+        CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
     }
 
     public Scene()
     {
         ClipToBounds = true;
-        Transitions = new Transitions();
-        Transitions.Add(new DoubleTransition() { Property = OpacityProperty, Duration = new TimeSpan(0, 0, 0, 0, 100) });
+        Transitions = new Transitions
+        {
+            new DoubleTransition { Property = OpacityProperty, Duration = new TimeSpan(0, 0, 0, 0, 100) }
+        };
     }
 
     public override void Render(DrawingContext context)
     {
         if (Surface == null || Document == null) return;
 
-        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, Scale, Angle, FlipX, FlipY, Bounds, Opacity);
+        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, Scale, Angle, FlipX, FlipY, Bounds,
+            Opacity, _checkerBitmap);
+
         context.Custom(operation);
     }
 
@@ -126,6 +145,18 @@ internal class Scene : Control
     {
         scene.Opacity = arg2.NewValue is true ? 0 : 1;
     }
+
+    private static void CheckerImagePathChanged(Scene scene, AvaloniaPropertyChangedEventArgs arg2)
+    {
+        if (arg2.NewValue is string path)
+        {
+            scene._checkerBitmap = ImagePathToBitmapConverter.LoadDrawingApiBitmapFromRelativePath(path);
+        }
+        else
+        {
+            scene._checkerBitmap = null;
+        }
+    }
 }
 
 internal class DrawSceneOperation : SkiaDrawOperation
@@ -138,10 +169,13 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public bool FlipX { get; set; }
     public bool FlipY { get; set; }
 
+    public Bitmap? CheckerBitmap { get; set; }
+
     private SKPaint _paint = new SKPaint();
+    private SKPaint _checkerPaint;
 
     public DrawSceneOperation(Surface surface, DocumentViewModel document, VecI contentPosition, double scale,
-        double angle, bool flipX, bool flipY, Rect bounds, double opacity) : base(bounds)
+        double angle, bool flipX, bool flipY, Rect bounds, double opacity, Bitmap bitmap) : base(bounds)
     {
         Surface = surface;
         Document = document;
@@ -150,7 +184,17 @@ internal class DrawSceneOperation : SkiaDrawOperation
         Angle = angle;
         FlipX = flipX;
         FlipY = flipY;
+        CheckerBitmap = bitmap;
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
+        if (CheckerBitmap != null)
+        {
+            float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, CalculateFinalScale()) * 0.25f;
+            _checkerPaint = new SKPaint()
+            {
+                Shader = SKShader.CreateBitmap((SKBitmap)CheckerBitmap.Native, SKShaderTileMode.Repeat,
+                    SKShaderTileMode.Repeat, SKMatrix.CreateScale(checkerScale, checkerScale)),
+            };
+        }
     }
 
     public override void Render(ISkiaSharpApiLease lease)
@@ -178,6 +222,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         {
             angle = 360 - angle;
         }
+
         if (FlipY)
         {
             angle = 360 - angle;
@@ -186,6 +231,11 @@ internal class DrawSceneOperation : SkiaDrawOperation
         canvas.RotateDegrees(angle, ContentPosition.X, ContentPosition.Y);
         canvas.Scale(FlipX ? -1 : 1, FlipY ? -1 : 1, ContentPosition.X, ContentPosition.Y);
         canvas.Translate(ContentPosition.X, ContentPosition.Y);
+
+        if (CheckerBitmap != null)
+        {
+            canvas.DrawRect(surfaceRectToRender.ToSkRect(), _checkerPaint);
+        }
 
         using Image snapshot = Surface.DrawingSurface.Snapshot(surfaceRectToRender);
         canvas.DrawImage((SKImage)snapshot.Native, surfaceRectToRender.X, surfaceRectToRender.Y, _paint);
@@ -199,7 +249,8 @@ internal class DrawSceneOperation : SkiaDrawOperation
     {
         ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale);
         RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
-        RectI viewportBoundsInViewportSpace = (RectI)(new RectD(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height)).RoundOutwards();
+        RectI viewportBoundsInViewportSpace =
+            (RectI)(new RectD(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height)).RoundOutwards();
         RectI firstIntersectionInViewportSpace = surfaceBoundsInViewportSpace.Intersect(viewportBoundsInViewportSpace);
         ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale);
         RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();
@@ -207,10 +258,12 @@ internal class DrawSceneOperation : SkiaDrawOperation
         ShapeCorners viewportInSurfaceSpace = ViewportToSurface(viewportBoundsInViewportSpace, finalScale);
         RectD viewportBoundsInSurfaceSpace = viewportInSurfaceSpace.AABBBounds;
         RectD surfaceBoundsInSurfaceSpace = new(VecD.Zero, Surface.Size);
-        RectI secondIntersectionInSurfaceSpace = (RectI)viewportBoundsInSurfaceSpace.Intersect(surfaceBoundsInSurfaceSpace).RoundOutwards();
+        RectI secondIntersectionInSurfaceSpace =
+            (RectI)viewportBoundsInSurfaceSpace.Intersect(surfaceBoundsInSurfaceSpace).RoundOutwards();
 
         //Inflate makes sure rounding doesn't cut any pixels.
-        RectI surfaceRectToRender = firstIntersectionBoundsInSurfaceSpace.Intersect(secondIntersectionInSurfaceSpace).Inflate(1);
+        RectI surfaceRectToRender =
+            firstIntersectionBoundsInSurfaceSpace.Intersect(secondIntersectionInSurfaceSpace).Inflate(1);
         return surfaceRectToRender.Intersect(new RectI(VecI.Zero, Surface.Size)); // Clamp to surface size
     }
 
@@ -270,6 +323,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
             unscaledPoint.X = -unscaledPoint.X;
             angle = 360 - angle;
         }
+
         if (FlipY)
         {
             unscaledPoint.Y = -unscaledPoint.Y;
@@ -291,6 +345,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         {
             angle = 360 - angle;
         }
+
         if (FlipY)
         {
             angle = 360 - angle;

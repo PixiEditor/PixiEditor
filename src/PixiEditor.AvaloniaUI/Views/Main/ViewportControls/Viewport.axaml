@@ -132,6 +132,7 @@
             FlipY="{Binding FlipY, ElementName=zoombox, Mode=OneWay}"
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}"
+            CheckerImagePath="/Images/CheckerTile.png"
             FlowDirection="LeftToRight">
         </visuals:Scene>
         <zoombox:Zoombox
@@ -155,24 +156,6 @@
                     VerticalAlignment="Center"
                     DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
                     RenderOptions.BitmapInterpolationMode="None">
-                    <Border.Background>
-                        <!--TODO: Seems like DestinationRect of anything with size below and equal to 1 is tiling texture wrong-->
-                        <!--Update: Seems like it depends on screen DPI and scaling, value of 2 also produces artifacts on high DPI device-->
-                        <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
-                            <ImageBrush.Transform>
-                                <ScaleTransform ScaleX="0.5" ScaleY="0.5" />
-                            </ImageBrush.Transform>
-                            <ImageBrush.DestinationRect>
-                                <Binding Path="Scale"
-                                         RelativeSource="{RelativeSource FindAncestor, AncestorType={x:Type zoombox:Zoombox}}"
-                                         Converter="{converters:ZoomToViewportConverter}">
-                                    <Binding.ConverterParameter>
-                                        <sys:Double>16</sys:Double>
-                                    </Binding.ConverterParameter>
-                                </Binding>
-                            </ImageBrush.DestinationRect>
-                        </ImageBrush>
-                    </Border.Background>
                     <Grid>
                         <Panel Width="{Binding Document.Width}" Height="{Binding Document.Height}" />
                         <Grid IsHitTestVisible="False"

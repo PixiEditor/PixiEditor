@@ -1,10 +1,12 @@
-﻿using System.Globalization;
+﻿using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using Avalonia;
-using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia.Svg.Skia;
+using PixiEditor.AvaloniaUI.Helpers.Extensions;
+using Bitmap = Avalonia.Media.Imaging.Bitmap;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
@@ -32,6 +34,15 @@ internal class ImagePathToBitmapConverter : SingleInstanceConverter<ImagePathToB
             throw new FileNotFoundException($"Could not find asset with path {path}");
 
         return new Bitmap(AssetLoader.Open(uri));
+    }
+
+    public static DrawingApi.Core.Surface.Bitmap LoadDrawingApiBitmapFromRelativePath(string path)
+    {
+        Uri uri = new($"avares://{Assembly.GetExecutingAssembly().FullName}{path}");
+        if (!AssetLoader.Exists(uri))
+            throw new FileNotFoundException($"Could not find asset with path {path}");
+
+        return BitmapExtensions.FromStream(AssetLoader.Open(uri));
     }
 
     public static Bitmap? TryLoadBitmapFromRelativePath(string path)

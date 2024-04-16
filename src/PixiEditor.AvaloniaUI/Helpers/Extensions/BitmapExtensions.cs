@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.IO;
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
@@ -44,5 +45,12 @@ public static class BitmapExtensions
 
         source.CopyPixels(new PixelRect(0, 0, size.Width, size.Height), address, bufferSize, stride);
         return new WriteableBitmap(PixelFormats.Bgra8888, AlphaFormat.Premul, address, size, new Vector(96, 96), stride);
+    }
+
+    public static DrawingApi.Core.Surface.Bitmap FromStream(Stream stream)
+    {
+        using var memoryStream = new MemoryStream();
+        stream.CopyTo(memoryStream);
+        return DrawingApi.Core.Surface.Bitmap.Decode(memoryStream.ToArray());
     }
 }
