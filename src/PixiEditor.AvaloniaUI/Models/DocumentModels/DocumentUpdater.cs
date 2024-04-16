@@ -281,7 +281,7 @@ internal class DocumentUpdater
         {
             surf.Dispose();
             VecI size = (VecI)(info.Size * res.Multiplier());
-            doc.Surfaces[res] = new Surface(size); //TODO: Bgra8888 was here
+            doc.Surfaces[res] = new Surface(new VecI(Math.Max(size.X, 1), Math.Max(size.Y, 1))); //TODO: Bgra8888 was here
         }
 
         doc.SetSize(info.Size);
