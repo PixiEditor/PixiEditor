@@ -88,7 +88,6 @@ internal class DrawCheckerboardOperation : SkiaDrawOperation
         float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, scale) * 0.25f;
         paint = new SKPaint()
         {
-
             Shader = SKShader.CreateBitmap(
                 checkerboardBitmap,
                 SKShaderTileMode.Repeat, SKShaderTileMode.Repeat,
