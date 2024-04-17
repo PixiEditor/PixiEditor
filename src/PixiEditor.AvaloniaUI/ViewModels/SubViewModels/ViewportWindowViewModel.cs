@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Core.Docking;
@@ -65,12 +66,20 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     {
         Document = document;
         Document.SizeChanged += DocumentOnSizeChanged;
+        Document.PropertyChanged += DocumentOnPropertyChanged;
         TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
+    }
+
+    private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if(e.PropertyName == nameof(DocumentViewModel.FileName))
+            OnPropertyChanged(nameof(Title));
     }
 
     ~ViewportWindowViewModel()
     {
         Document.SizeChanged -= DocumentOnSizeChanged;
+        Document.PropertyChanged -= DocumentOnPropertyChanged;
     }
 
     private void DocumentOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
