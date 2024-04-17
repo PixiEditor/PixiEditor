@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.Input;
 using PixiDocks.Core.Docking;
@@ -113,23 +114,24 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         return $"[{Array.IndexOf(viewports, viewport) + 1}]";
     }
 
-    public void OnViewportWindowCloseButtonPressed(ViewportWindowViewModel viewport)
+    public async Task<bool> OnViewportWindowCloseButtonPressed(ViewportWindowViewModel viewport)
     {
         var viewports = Viewports.Where(vp => vp.Document == viewport.Document).ToArray();
         if (viewports.Length == 1)
         {
-            Owner.DisposeDocumentWithSaveConfirmation(viewport.Document);
+            return await Owner.DisposeDocumentWithSaveConfirmation(viewport.Document);
         }
-        else
-        {
-            Viewports.Remove(viewport);
-            foreach (var sibling in viewports)
-            {
-                sibling.IndexChanged();
-            }
 
-            ViewportClosed?.Invoke(viewport);
+        Viewports.Remove(viewport);
+
+        foreach (var sibling in viewports)
+        {
+            sibling.IndexChanged();
         }
+
+        ViewportClosed?.Invoke(viewport);
+
+        return true;
     }
 
     public void CloseViewportsForDocument(DocumentViewModel document)

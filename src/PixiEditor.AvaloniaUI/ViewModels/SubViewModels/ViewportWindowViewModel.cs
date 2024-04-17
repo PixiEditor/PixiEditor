@@ -11,25 +11,25 @@ using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 #nullable enable
-internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockableContent, IDockableCloseEvents
+internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockableContent, IDockableCloseEvents, IDockableSelectionEvents
 {
     public DocumentViewModel Document { get; }
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
     public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
 
-    public string Index => Owner.CalculateViewportIndex(this) ?? "";
+    public string Index => _index;
 
-    public RelayCommand RequestCloseCommand { get; }
-
-    public string Id => $"{Document.FileName}{Index}";
+    public string Id => id;
     public string Title => $"{Document.FileName}{Index}";
     public bool CanFloat => true;
     public bool CanClose => true;
     public TabCustomizationSettings TabCustomizationSettings { get; } = new(showCloseButton: true);
 
     private bool _closeRequested;
+    private string _index = "";
 
     private bool _flipX;
+    private string id = Guid.NewGuid().ToString();
 
     public bool FlipX
     {
@@ -55,7 +55,10 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
 
     public void IndexChanged()
     {
+        _index = Owner.CalculateViewportIndex(this) ?? "";
         OnPropertyChanged(nameof(Index));
+        OnPropertyChanged(nameof(Title));
+        OnPropertyChanged(nameof(Id));
     }
 
     public ViewportWindowViewModel(WindowViewModel owner, DocumentViewModel document) : base(owner)
@@ -63,7 +66,6 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
         Document = document;
         Document.SizeChanged += DocumentOnSizeChanged;
         TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
-        RequestCloseCommand = new RelayCommand(() => Owner.OnViewportWindowCloseButtonPressed(this));
     }
 
     ~ViewportWindowViewModel()
@@ -74,6 +76,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     private void DocumentOnSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
     {
         TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
+        OnPropertyChanged(nameof(TabCustomizationSettings));
     }
 
     bool IDockableCloseEvents.OnClose()
@@ -85,11 +88,21 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
                 await Dispatcher.UIThread.InvokeAsync(async () =>
                 {
                     _closeRequested =
-                        await Owner.Owner.DisposeDocumentWithSaveConfirmation(Document);
+                        await Owner.OnViewportWindowCloseButtonPressed(this);
                 });
             });
         }
 
         return _closeRequested;
+    }
+
+    void IDockableSelectionEvents.OnSelected()
+    {
+        Owner.ActiveWindow = this;
+    }
+
+    void IDockableSelectionEvents.OnDeselected()
+    {
+
     }
 }
