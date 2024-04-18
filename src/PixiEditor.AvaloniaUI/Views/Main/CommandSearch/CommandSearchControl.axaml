@@ -6,6 +6,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
              xmlns:search="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.Search"
+             xmlns:shortcuts="clr-namespace:PixiEditor.AvaloniaUI.Views.Shortcuts"
              mc:Ignorable="d"
              Foreground="White"
              d:DesignHeight="450" d:DesignWidth="600"
@@ -72,8 +73,7 @@
                                                        behaviours:TextBlockExtensions.BindableInlines="{Binding TextBlockContent}" />
                                         </StackPanel>
 
-                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" Classes="KeyBorder"
-                                                   HorizontalAlignment="Right" Text="{Binding Shortcut}" />
+                                        <shortcuts:ShortcutHint Grid.Column="1" VerticalAlignment="Center" Shortcut="{Binding Shortcut}" />
                                     </Grid>
                                 </Button>
                             </DataTemplate>

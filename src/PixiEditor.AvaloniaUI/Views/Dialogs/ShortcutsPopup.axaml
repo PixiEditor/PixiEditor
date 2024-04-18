@@ -11,6 +11,7 @@
                          xmlns:panels="clr-namespace:PixiEditor.AvaloniaUI.Views.Panels"
                          xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
                          xmlns:system="clr-namespace:System;assembly=System.Runtime"
+                         xmlns:shortcuts="clr-namespace:PixiEditor.AvaloniaUI.Views.Shortcuts"
                          mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
                          x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.ShortcutsPopup"
                          CloseIsHide="True"
@@ -53,28 +54,7 @@
                                                 <StackPanel Orientation="Horizontal" Margin="20,0,0,0"
                                                             IsVisible="{Binding Shortcut.Key, ConverterParameter=None, Converter={converters:EqualityBoolToIsVisibleConverter Invert=True}}"
                                                             ToolTip.Tip="{Binding Description}">
-                                                    <ItemsControl
-                                                        ItemsSource="{Binding Shortcut.Modifiers, Converter={converters:ModifierFlagToModifiersConverter}}">
-                                                        <ItemsControl.ItemTemplate>
-                                                            <DataTemplate DataType="{x:Type KeyModifiers}">
-                                                                <Border Classes="KeyBorder">
-                                                                    <TextBlock
-                                                                        ui:Translator.LocalizedString="{Binding Converter={converters:KeyToStringConverter}}"
-                                                                        Classes="KeyBorderText" />
-                                                                </Border>
-                                                            </DataTemplate>
-                                                        </ItemsControl.ItemTemplate>
-                                                        <ItemsControl.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <StackPanel Orientation="Horizontal" />
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsControl.ItemsPanel>
-                                                    </ItemsControl>
-                                                    <Border Classes="KeyBorder KeyBorderLast">
-                                                        <TextBlock
-                                                            Text="{Binding Shortcut.Key, Converter={converters:KeyToStringConverter}}"
-                                                            Classes="KeyBorderText" />
-                                                    </Border>
+                                                    <shortcuts:ShortcutHint Shortcut="{Binding Shortcut}"/>
 
                                                     <TextBlock Text="{Binding DisplayName}"
                                                                VerticalAlignment="Center"

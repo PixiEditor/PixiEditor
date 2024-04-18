@@ -13,13 +13,13 @@ public record struct KeyCombination(Key Key, KeyModifiers Modifiers)
 {
     public static KeyCombination None => new(Key.None, KeyModifiers.None);
 
-    public override string ToString() => ToString(false);
+    public override string ToString() => ToString(false, false);
 
     public KeyGesture ToKeyGesture() => new(Key, Modifiers);
 
     public KeyGesture Gesture => ToKeyGesture();
 
-    private string ToString(bool forceInvariant)
+    private string ToString(bool forceInvariant, bool showNone)
     {
         StringBuilder builder = new();
 
@@ -38,7 +38,7 @@ public record struct KeyCombination(Key Key, KeyModifiers Modifiers)
             builder.Append($"{key}+");
         }
 
-        if (Key != Key.None)
+        if (Key != Key.None || showNone)
         {
             builder.Append(InputKeyHelpers.GetKeyboardKey(Key, forceInvariant));
         }
@@ -47,5 +47,5 @@ public record struct KeyCombination(Key Key, KeyModifiers Modifiers)
         return builder.ToString();
     }
 
-    private string GetDebuggerDisplay() => ToString(true);
+    private string GetDebuggerDisplay() => ToString(true, true);
 }
