@@ -157,6 +157,12 @@ internal static class CommandSearchControlHelper
         var files = Directory.EnumerateFiles(directory)
             .Where(x => SupportedFilesHelper.IsExtensionSupported(Path.GetExtension(x)));
 
+        if (!files.Any())
+        {
+            warnings.Add($"Directory '{Path.GetFullPath(filePath).TrimEnd(Path.DirectorySeparatorChar)}' does not have any files.");
+            return Enumerable.Empty<SearchResult>();
+        }
+
         if (name is not (null or ""))
         {
             files = files.Where(x => x.Contains(name, StringComparison.OrdinalIgnoreCase));

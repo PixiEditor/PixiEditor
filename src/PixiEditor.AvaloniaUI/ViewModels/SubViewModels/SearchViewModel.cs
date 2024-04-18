@@ -37,6 +37,7 @@ internal class SearchViewModel : SubViewModel<ViewModelMain>, ISearchHandler
     public bool CanToggleSearchWindow() => !ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Busy ?? true;
 
     [Command.Basic("PixiEditor.Search.Toggle", "", "COMMAND_SEARCH", "OPEN_COMMAND_SEARCH", Key = Key.K, Modifiers = KeyModifiers.Control, CanExecute = "PixiEditor.Search.CanOpenSearchWindow")]
+    [Command.Basic("PixiEditor.Search.BrowseDirectory", "./", "BROWSE_DIRECTORY", "BROWSE_DIRECTORY", Key = Key.F, Modifiers = KeyModifiers.Control, CanExecute = "PixiEditor.Search.CanOpenSearchWindow")]
     public void ToggleSearchWindow(string searchTerm)
     {
         SelectAll = true;
