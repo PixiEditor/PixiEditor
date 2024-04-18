@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Input;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.Documents;
-using Avalonia.Controls.Metadata;
 using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -13,6 +12,7 @@ using PixiEditor.AvaloniaUI.Models.Input;
 
 namespace PixiEditor.AvaloniaUI.Models.Commands.Search;
 
+[DebuggerDisplay("{Text}, Can Execute = {CanExecute}")]
 internal abstract class SearchResult : ObservableObject
 {
     private bool isSelected;
@@ -52,7 +52,6 @@ internal abstract class SearchResult : ObservableObject
 
     public SearchResult()
     {
-
         ExecuteCommand = new RelayCommand(Execute, () => CanExecute);
     }
 

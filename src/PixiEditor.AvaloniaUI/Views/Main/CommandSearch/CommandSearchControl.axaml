@@ -50,69 +50,13 @@
                                         Command="{Binding ButtonClickedCommand, ElementName=uc}"
                                         CommandParameter="{Binding}"
                                         HorizontalContentAlignment="Stretch"
+                                        IsEnabled="{Binding CanExecute}"
                                         PointerMoved="Button_MouseMove">
-                                    <!--TODO: Implement-->
-                                    <!--<Button.Styles>
-                                        <Style Selector="Button">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border>
-                                                            <Border.Styles>
-                                                                <Style Selector="Border">
-                                                                    <Style.Triggers>
-                                                                        <DataTrigger
-                                                                            Binding="{Binding IsSelected, Mode=TwoWay}"
-                                                                            Value="False">
-                                                                            <Setter Property="Background"
-                                                                                Value="Transparent" />
-                                                                        </DataTrigger>
-                                                                        <DataTrigger
-                                                                            Binding="{Binding IsMouseSelected, Mode=TwoWay}"
-                                                                            Value="False">
-                                                                            <Setter Property="Background"
-                                                                                Value="Transparent" />
-                                                                        </DataTrigger>
-                                                                        <DataTrigger
-                                                                            Binding="{Binding IsMouseSelected, Mode=TwoWay}"
-                                                                            Value="True">
-                                                                            <Setter Property="Background"
-                                                                                Value="{StaticResource BrighterAccentColor}" />
-                                                                        </DataTrigger>
-                                                                        <DataTrigger
-                                                                            Binding="{Binding IsSelected, Mode=TwoWay}"
-                                                                            Value="True">
-                                                                            <Setter Property="Background"
-                                                                                Value="{StaticResource AlmostLightModeAccentColor}" />
-                                                                        </DataTrigger>
-                                                                        <DataTrigger Binding="{Binding CanExecute}"
-                                                                            Value="False">
-                                                                            <Setter Property="Background"
-                                                                                Value="Transparent" />
-                                                                        </DataTrigger>
-                                                                    </Style.Triggers>
-                                                                </Style>
-                                                            </Border.Styles>
-                                                            <ContentPresenter />
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
+                                    <Button.Styles>
+                                        <Style Selector="Button.keyboard">
+                                            <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}"/>
                                         </Style>
-                                    </Button.Styles>-->
-                                    <Button.Resources>
-                                        <!--<Style TargetType="TextBlock">
-                                            <Setter Property="FontSize" Value="16" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding CanExecute}" Value="True">
-                                                    <Setter Property="Foreground" Value="White" />
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding CanExecute}" Value="False">
-                                                    <Setter Property="Foreground" Value="Gray" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>-->
-                                    </Button.Resources>
+                                    </Button.Styles>
                                     <Grid VerticalAlignment="Center" x:Name="dp" Margin="5,0,10,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition />
