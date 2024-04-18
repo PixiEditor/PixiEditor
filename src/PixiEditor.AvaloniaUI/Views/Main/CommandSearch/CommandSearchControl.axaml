@@ -51,6 +51,7 @@
                                         CommandParameter="{Binding}"
                                         HorizontalContentAlignment="Stretch"
                                         IsEnabled="{Binding CanExecute}"
+                                        Classes.keyboard="{Binding IsSelected}"
                                         PointerMoved="Button_MouseMove">
                                     <Button.Styles>
                                         <Style Selector="Button.keyboard">

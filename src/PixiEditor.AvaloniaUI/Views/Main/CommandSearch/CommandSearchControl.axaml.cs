@@ -270,24 +270,7 @@ internal partial class CommandSearchControl : UserControl, INotifyPropertyChange
         SelectedResult = delta > 0 ? Results.IndexOrNext(x => x.CanExecute, newIndex) : Results.IndexOrPrevious(x => x.CanExecute, newIndex);
 
         newIndex = Results.IndexOf(SelectedResult);
-        var target = itemscontrol.ContainerFromIndex(newIndex);
-        target?.BringIntoView();
-        
-        var containers = itemscontrol.GetRealizedContainers();
-
-        foreach (var container in containers)
-        {
-            var button = container.FindDescendantOfType<Button>()!;
-            
-            if (container == target)
-            {
-                button.Classes.Add("keyboard");
-            }
-            else
-            {
-                button.Classes.Remove("keyboard");
-            }
-        }
+        itemscontrol.ContainerFromIndex(newIndex)?.BringIntoView();
     }
 
     private void Button_MouseMove(object sender, PointerEventArgs e)
