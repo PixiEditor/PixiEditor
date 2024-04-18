@@ -1,8 +1,12 @@
 ﻿using System.IO;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Media;
+using Avalonia.Styling;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
+using PixiEditor.AvaloniaUI.Views;
 
 namespace PixiEditor.AvaloniaUI.Models.Commands.Search;
 
@@ -15,7 +19,7 @@ internal class FileSearchResult : SearchResult
 
     public override string Text => asReferenceLayer ? $"As reference: ...\\{Path.GetFileName(FilePath)}" : $"...\\{Path.GetFileName(FilePath)}";
 
-    public override AvaloniaObject Description => new TextBlock { Text = FilePath, FontSize = 16 };
+    public override AvaloniaObject Description => GetDescription();
 
     public override bool CanExecute => !asReferenceLayer ||
                 CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayerFromPath"].Methods.CanExecute(FilePath);
@@ -46,6 +50,49 @@ internal class FileSearchResult : SearchResult
                 CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayerFromPath"].Methods
                     .Execute(FilePath);
             }
+        }
+    }
+
+    private TextBlock GetDescription()
+    {
+        var path = FilePath;
+        
+        var text = new TextBlock { Inlines = new InlineCollection(), FontSize = 14, TextTrimming = TextTrimming.CharacterEllipsis };
+
+        string[] split = path.Split(Path.DirectorySeparatorChar);
+        bool hasEllipsis = false;
+
+        for (var i = 0; i < split.Length; i++)
+        {
+            if (i > 3 && i < split.Length - 3)
+            {
+                if (!hasEllipsis)
+                {
+                    text.Inlines.Add("…"); // Horizontal Ellipsis
+                    text.Inlines.Add(GetSeparator());
+                    hasEllipsis = true;
+                    
+                }
+
+                continue;
+            }
+
+            string part = split[i];
+            text.Inlines.Add(part.Replace(":", string.Empty));
+            
+            if (i != split.Length - 1)
+            {
+                text.Inlines.Add(GetSeparator());
+            }
+        }
+
+        return text;
+
+        Run GetSeparator()
+        {
+            var separator = new Run(" › ") { FontWeight = FontWeight.Light }; // Single Right-Pointing Angle Quotation Mark
+
+            return separator;
         }
     }
 }
