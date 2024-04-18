@@ -96,22 +96,24 @@ internal static class CommandSearchControlHelper
         try
         {
             // add matching files
-            newResults.AddRange(MaybeParseFilePaths(query));
+            newResults.AddRange(MaybeParseFilePaths(query, warnings));
         }
         catch
         {
             // ignored
         }
 
-        // add matching recent files
-        newResults.AddRange(
-            ViewModelMain.Current.FileSubViewModel.RecentlyOpened
-                .Where(x => x.FilePath.Contains(query))
-                .Select(file => new FileSearchResult(file.FilePath)
-                {
-                    SearchTerm = query,
-                    Match = Match(file.FilePath, query)
-                }));
+        if (!query.StartsWith('.'))
+        {
+            // add matching recent files
+            newResults.AddRange(
+                ViewModelMain.Current.FileSubViewModel.RecentlyOpened
+                    .Where(x => x.FilePath.Contains(query))
+                    .Select(file => new FileSearchResult(file.FilePath)
+                    {
+                        SearchTerm = query, Match = Match(file.FilePath, query)
+                    }));
+        }
 
         return (newResults, warnings);
     }
@@ -119,13 +121,35 @@ internal static class CommandSearchControlHelper
     private static Match Match(string text, string searchTerm) =>
             Regex.Match(text, $"(.*)({Regex.Escape(searchTerm ?? string.Empty)})(.*)", RegexOptions.IgnoreCase);
 
-    private static IEnumerable<SearchResult> MaybeParseFilePaths(string query)
+    private static IEnumerable<SearchResult> MaybeParseFilePaths(string query, List<string> warnings)
     {
         var filePath = query.Trim(' ', '"', '\'');
 
-        if (filePath.StartsWith("~"))
+        if (filePath.StartsWith('~'))
             filePath = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), filePath[1..]);
 
+        if (filePath.StartsWith('.') && (filePath.Length == 1 || filePath[1] != '.'))
+        {
+            if (ViewModelMain.Current.DocumentManagerSubViewModel.ActiveDocument is { FullFilePath: { } path })
+            {
+                int skip = 1;
+                
+                path = Path.GetDirectoryName(path);
+                
+                if (filePath.Length > 1 && filePath[1] == '.')
+                {
+                    skip++;
+                    path = Path.GetDirectoryName(path);
+                }
+                
+                filePath = Path.Join(path, filePath[skip..]);
+            }
+            else
+            {
+                warnings.Add("Save current document to browse files");
+            }
+        }
+        
         if (!Path.IsPathFullyQualified(filePath))
             return Enumerable.Empty<SearchResult>();
 

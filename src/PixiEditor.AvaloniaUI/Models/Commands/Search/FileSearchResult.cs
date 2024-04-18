@@ -26,7 +26,7 @@ internal class FileSearchResult : SearchResult
     {
         FilePath = path;
         var drawing = new GeometryDrawing() { Brush = FileExtensionToColorConverter.GetBrush(FilePath) };
-        var geometry = new RectangleGeometry(new Rect(0, 0, 10, 10)) { };
+        var geometry = new RectangleGeometry(new Rect(0, 0, 10, 10)) { }; // TODO: Avalonia 11.1 introduces rounded rectangle geometry, let's make this round again then 
         drawing.Geometry = geometry;
         icon = new DrawingImage(drawing);
         this.asReferenceLayer = asReferenceLayer;
