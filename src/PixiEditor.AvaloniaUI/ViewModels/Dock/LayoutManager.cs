@@ -163,4 +163,26 @@ internal class LayoutManager
             }
         }
     }
+
+    public void ShowDockable(string id)
+    {
+        foreach (var element in ActiveLayout.Root)
+        {
+            if (element is IDockableHost dockableHost)
+            {
+                var dockable = dockableHost.Dockables.FirstOrDefault(x => x.Id == id);
+                if (dockable != null)
+                {
+                    dockableHost.ActiveDockable = dockable;
+                    return;
+                }
+            }
+        }
+
+        IDockable? created = TryCreateDockable(id);
+        if (created != null)
+        {
+            DockContext.Float(created, 0, 0);
+        }
+    }
 }

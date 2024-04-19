@@ -5,8 +5,12 @@
              xmlns:palettes="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
              xmlns:cmds="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+             xmlns:dock="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Dock"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.PaletteViewerDockView">
+    <Design.DataContext>
+        <dock:PaletteViewerDockViewModel />
+    </Design.DataContext>
     <palettes:PaletteViewer
         IsEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={x:Static ObjectConverters.IsNotNull}}"
         Colors="{Binding DocumentManagerSubViewModel.ActiveDocument.Palette}"

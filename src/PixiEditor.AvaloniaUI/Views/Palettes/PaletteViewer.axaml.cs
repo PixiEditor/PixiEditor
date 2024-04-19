@@ -31,8 +31,7 @@ internal partial class PaletteViewer : UserControl
 {
     public static readonly StyledProperty<ObservableRangeCollection<PaletteColor>> SwatchesProperty =
         AvaloniaProperty.Register<PaletteViewer, ObservableRangeCollection<PaletteColor>>(
-            nameof(Swatches),
-            default(ObservableRangeCollection<PaletteColor>));
+            nameof(Swatches));
 
     public ObservableRangeCollection<PaletteColor> Swatches
     {

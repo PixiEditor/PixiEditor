@@ -182,22 +182,9 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         new AboutPopup().Show();
     }
 
-    [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "navigation", "OPEN_NAVIGATION_WINDOW", "OPEN_NAVIGATION_WINDOW")]
-    public static void ShowDockWindow(string id)
+    [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "Navigator", "OPEN_NAVIGATION_WINDOW", "OPEN_NAVIGATION_WINDOW")]
+    public void ShowDockWindow(string id)
     {
-        //TODO: Implement this
-        /*if (MainWindow.Current?.LayoutRoot?.Manager?.Layout == null) return;
-        var anchorables = new List<LayoutAnchorable>(MainWindow.Current.LayoutRoot.Manager.Layout
-            .Descendents()
-            .OfType<LayoutAnchorable>());
-
-        foreach (var la in anchorables)
-        {
-            if (la.ContentId == id)
-            {
-                la.Show();
-                la.IsActive = true;
-            }
-        }*/
+        Owner.LayoutSubViewModel.LayoutManager.ShowDockable(id);
     }
 }
