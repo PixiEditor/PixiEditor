@@ -38,14 +38,14 @@
         <viewportControls:Viewport.ContextFlyout>
             <Flyout x:CompileBindings="True" x:DataType="subViewModels:ViewportWindowViewModel" ShowMode="Transient">
                 <Border CornerRadius="{DynamicResource ControlCornerRadius}">
-                    <Grid Height="235">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition
                                 Width="{Binding Document.Palette, Converter={converters:PaletteItemsToWidthConverter}}" />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="1" BorderThickness="0 0 1 0">
-                            <ContextMenu BorderBrush="Transparent" BorderThickness="0" Margin="0" Padding="0">
+                            <ContextMenu Name="ContextMenu" BorderBrush="Transparent" BorderThickness="0" Margin="0" Padding="0">
                                 <MenuItem PointerReleased="MenuItem_OnClick"
                                     ui:Translator.Key="SELECT_ALL"
                                     xaml:Menu.Command="PixiEditor.Selection.SelectAll" />
@@ -82,7 +82,8 @@
                             </ContextMenu>
                         </Border>
                         <ScrollViewer Margin="5" Grid.Column="0" HorizontalScrollBarVisibility="Disabled"
-                                      VerticalScrollBarVisibility="Auto">
+                                      VerticalScrollBarVisibility="Auto" MaxHeight="{Binding #ContextMenu.Items,
+                                      Converter={converters:PaletteItemsHeightConverter}}">
                             <ItemsControl ItemsSource="{Binding Document.Palette}">
                                 <ItemsControl.ItemsPanel>
                                     <ItemsPanelTemplate>
