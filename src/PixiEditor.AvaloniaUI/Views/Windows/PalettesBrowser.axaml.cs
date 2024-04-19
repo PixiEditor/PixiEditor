@@ -110,7 +110,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
 
     public static readonly StyledProperty<ObservableRangeCollection<Palette>> SortedResultsProperty =
-        AvaloniaProperty.Register<PalettesBrowser, ObservableRangeCollection<Palette>>(nameof(SortedResults), new ObservableRangeCollection<Palette>());
+        AvaloniaProperty.Register<PalettesBrowser, ObservableRangeCollection<Palette>>(nameof(SortedResults));
 
     public ObservableRangeCollection<Palette> SortedResults
     {
@@ -339,8 +339,16 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private void HandleCachePaletteCreated(Palette updatedItem)
     {
-        SortedResults.Add(updatedItem);
-        PaletteList.Palettes.Add(updatedItem);
+        if (!SortedResults.Contains(updatedItem))
+        {
+            SortedResults.Add(updatedItem);
+        }
+
+        if(!PaletteList.Palettes.Contains(updatedItem))
+        {
+            PaletteList.Palettes.Add(updatedItem);
+        }
+
         Sort();
     }
 

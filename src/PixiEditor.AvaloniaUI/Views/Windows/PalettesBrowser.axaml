@@ -26,8 +26,8 @@
         <DockPanel Background="{DynamicResource ThemeBackgroundBrush}" Grid.Row="0">
             <StackPanel HorizontalAlignment="Left" Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
                 <Label ui:Translator.Key="SORT_BY" VerticalAlignment="Center"/>
-                <ComboBox x:Name="sortingComboBox" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
-                    <ComboBoxItem IsSelected="True" ui:Translator.Key="DEFAULT"/>
+                <ComboBox x:Name="sortingComboBox" VerticalAlignment="Center" SelectedIndex="0" SelectionChanged="SortingComboBox_SelectionChanged">
+                    <ComboBoxItem ui:Translator.Key="DEFAULT"/>
                     <ComboBoxItem ui:Translator.Key="ALPHABETICAL"/>
                     <ComboBoxItem ui:Translator.Key="COLOR_COUNT"/>
                 </ComboBox>
@@ -62,8 +62,8 @@
                 </input:InputBox>
 
                 <Label Margin="10 0 0 0" ui:Translator.Key="COLORS" VerticalAlignment="Center"/>
-                <ComboBox x:Name="colorsComboBox" VerticalAlignment="Center" SelectionChanged="ColorsComboBox_SelectionChanged">
-                    <ComboBoxItem IsSelected="True" ui:Translator.Key="ANY"/>
+                <ComboBox x:Name="colorsComboBox" VerticalAlignment="Center" SelectedIndex="0" SelectionChanged="ColorsComboBox_SelectionChanged">
+                    <ComboBoxItem ui:Translator.Key="ANY"/>
                     <ComboBoxItem ui:Translator.Key="MAX"/>
                     <ComboBoxItem ui:Translator.Key="MIN"/>
                     <ComboBoxItem ui:Translator.Key="EXACT"/>
@@ -98,7 +98,7 @@
         </DockPanel>
         <Grid Grid.Row="1" Margin="10">
             <TextBlock ui:Translator.Key="COULD_NOT_LOAD_PALETTE" Foreground="White" FontSize="20" HorizontalAlignment="Center"
-                       VerticalAlignment="Center" IsVisible="{Binding !Visibility, ElementName=itemsControl}"/>
+                       VerticalAlignment="Center" IsVisible="{Binding !IsVisible, ElementName=itemsControl}"/>
             <StackPanel Panel.ZIndex="10" Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center"
                         IsVisible="{Binding ElementName=palettesBrowser, Path=SortedResults.Count, Converter={converters:CountToVisibilityConverter}}">
                 <TextBlock ui:Translator.Key="NO_PALETTES_FOUND" Foreground="White" FontSize="20" TextAlignment="Center"/>

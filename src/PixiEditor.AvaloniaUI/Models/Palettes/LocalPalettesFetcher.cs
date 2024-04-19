@@ -150,7 +150,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
     {
         string[] files = DirectoryExtensions.GetFiles(
             Paths.PathToPalettesFolder,
-            string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)),
+            string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions).Distinct()),
             SearchOption.TopDirectoryOnly);
         cachedPalettes = await ParseAll(files);
         CacheUpdated?.Invoke(RefreshType.All, null, null);
