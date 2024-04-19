@@ -220,6 +220,12 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         new CommandDebugPopup().Show();
     }
 
+    [Command.Debug("PixiEditor.Debug.OpenPointerDebugWindow", "Open pointer debug window", "Open pointer debug window")]
+    public void OpenPointerDebugWindow()
+    {
+        new PointerDebugPopup().Show();
+    }
+
     [Command.Debug("PixiEditor.Debug.OpenLocalizationDebugWindow", "OPEN_LOCALIZATION_DEBUG_WINDOW", "OPEN_LOCALIZATION_DEBUG_WINDOW")]
     public void OpenLocalizationDebugWindow()
     {

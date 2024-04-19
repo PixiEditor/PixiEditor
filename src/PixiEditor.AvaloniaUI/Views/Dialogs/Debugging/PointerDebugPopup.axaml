@@ -1,0 +1,33 @@
+﻿<dialogs:PixiEditorPopup
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
+    xmlns:debugging="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs.Debugging"
+    mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+    Width="1000" Height="800"
+    x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.PointerDebugPopup"
+    Name="uc"
+    Title="Pointer Debug Window" Padding="10">
+    <Grid RowDefinitions="*,Auto">
+        <Border CornerRadius="10" BorderThickness="1"
+                BorderBrush="{DynamicResource ThemeBorderHighBrush}"
+                Background="{DynamicResource ThemeControlLowBrush}"
+                PointerMoved="OnPointerMoved"
+                PointerEntered="OnPointerEntered">
+            <debugging:PointerDebugField Name="DebugField" PointBrush="{DynamicResource ThemeBorderHighBrush}" />
+        </Border>
+        <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0, 5, 0, 0">
+            <TextBlock HorizontalAlignment="Right" Text="{Binding #DebugField.PointCount, StringFormat='Points: {0}'}" />
+            <StackPanel Orientation="Vertical" Margin="5">
+                <TextBlock Text="{Binding #uc.PointerType, StringFormat='Pointer Type: {0}'}" />
+                <WrapPanel>
+                    <TextBlock Text="{Binding #uc.LastPoint.Pressure, StringFormat='Pressure: {0}'}" />
+                    <TextBlock Text="{Binding #uc.LastPoint.XTilt, StringFormat='X Tilt: {0}'}" />
+                    <TextBlock Text="{Binding #uc.LastPoint.YTilt, StringFormat='Y Tilt: {0}'}" />
+                </WrapPanel>
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</dialogs:PixiEditorPopup>
