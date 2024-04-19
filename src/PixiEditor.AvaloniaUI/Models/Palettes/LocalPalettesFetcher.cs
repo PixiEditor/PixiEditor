@@ -292,6 +292,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
             {
                 cachedPalettes.RemoveAt(index);
             }
+
             cachedPalettes.Add(palette);
         });
     }

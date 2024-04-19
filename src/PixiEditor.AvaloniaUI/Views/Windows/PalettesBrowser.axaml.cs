@@ -339,12 +339,12 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private void HandleCachePaletteCreated(Palette updatedItem)
     {
-        if (!SortedResults.Contains(updatedItem))
+        if (!PaletteEquals(updatedItem, SortedResults))
         {
             SortedResults.Add(updatedItem);
         }
 
-        if(!PaletteList.Palettes.Contains(updatedItem))
+        if(!PaletteEquals(updatedItem, PaletteList.Palettes))
         {
             PaletteList.Palettes.Add(updatedItem);
         }
