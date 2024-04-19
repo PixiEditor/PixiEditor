@@ -5,12 +5,12 @@
         xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions">
     <Design.PreviewWith>
-        <controls:PixiEditorPopup Width="400" Height="400" SizeToContent="Manual"/>
+        <controls:PixiEditorPopup Width="400" Height="400" SizeToContent="Manual" />
     </Design.PreviewWith>
 
     <Style Selector="controls|PixiEditorPopup">
-        <Setter Property="WindowStartupLocation" Value="CenterOwner"/>
-        <Setter Property="TransparencyLevelHint" Value="Transparent"/>
+        <Setter Property="WindowStartupLocation" Value="CenterOwner" />
+        <Setter Property="TransparencyLevelHint" Value="Transparent" />
         <Setter Property="ExtendClientAreaChromeHints" Value="NoChrome" />
         <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
         <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="36" />
@@ -18,39 +18,41 @@
         <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
         <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
-        <Setter Property="ShowInTaskbar" Value="{TemplateBinding CanMinimize}"/>
+        <Setter Property="ShowInTaskbar" Value="{TemplateBinding CanMinimize}" />
         <Setter Property="ui:Translator.UseLanguageFlowDirection" Value="True"></Setter>
         <Setter Property="Template">
             <ControlTemplate>
-                <Panel>
-                    <DockPanel>
-                        <controls:DialogTitleBar
-                            DockPanel.Dock="Top"
-                            CloseCommand="{TemplateBinding CloseCommand}"
-                            CanMinimize="{TemplateBinding CanMinimize}"
-                            CanFullscreen="{TemplateBinding CanResize}"
-                            TitleKey="{TemplateBinding Title}"/>
-                        <Grid Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True">
-                            <Interaction.Behaviors>
-                                <behaviours:ClearFocusOnClickBehavior/>
-                            </Interaction.Behaviors>
+                <VisualLayerManager>
+                    <Panel>
+                        <DockPanel>
+                            <controls:DialogTitleBar
+                                DockPanel.Dock="Top"
+                                CloseCommand="{TemplateBinding CloseCommand}"
+                                CanMinimize="{TemplateBinding CanMinimize}"
+                                CanFullscreen="{TemplateBinding CanResize}"
+                                TitleKey="{TemplateBinding Title}" />
+                            <Grid Background="{DynamicResource ThemeBackgroundBrush}" Focusable="True">
+                                <Interaction.Behaviors>
+                                    <behaviours:ClearFocusOnClickBehavior />
+                                </Interaction.Behaviors>
 
-                            <!--TODO: FocusAdorner seems not to work-->
-                            <ContentPresenter DockPanel.Dock="Bottom"
-                                              Name="PART_ContentPresenter"
-                                              Margin="{TemplateBinding Padding}"
-                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                              Content="{TemplateBinding Content}"
-                                              ContentTemplate="{TemplateBinding ContentTemplate}"  />
-                        </Grid>
-                    </DockPanel>
-                </Panel>
+                                <!--TODO: FocusAdorner seems not to work-->
+                                <ContentPresenter DockPanel.Dock="Bottom"
+                                                  Name="PART_ContentPresenter"
+                                                  Margin="{TemplateBinding Padding}"
+                                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}" />
+                            </Grid>
+                        </DockPanel>
+                    </Panel>
+                </VisualLayerManager>
             </ControlTemplate>
         </Setter>
 
         <Style Selector="^controls|PixiEditorPopup[WindowState=Maximized] /template/ Panel">
-            <Setter Property="Margin" Value="8"/>
+            <Setter Property="Margin" Value="8" />
         </Style>
     </Style>
 </Styles>
