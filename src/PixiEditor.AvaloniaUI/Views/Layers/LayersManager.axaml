@@ -108,7 +108,7 @@
                     IsEnabled="{Binding Path=DataContext.ActiveDocument, ElementName=layersManager, Converter={converters1:NotNullToVisibilityConverter}}"
                     Value="{Binding Path=DataContext.ActiveDocument.SelectedStructureMember.OpacityBindable, Mode=TwoWay, ElementName=layersManager,
                         Converter={converters1:MultiplyConverter}, ConverterParameter={StaticResource OpacityMultiplier}}"
-                    Width="35" Height="20"
+                    Width="40"
                     Margin="5,0,0,0"
                     VerticalAlignment="Center"
                     LostFocus="NumberInput_LostFocus"/>
