@@ -330,11 +330,15 @@ internal class CrashReport : IDisposable
 
     public void RestartToCrashReport()
     {
+        // TODO: IOperatingSystem interface
         Process process = new();
+
+        //TODO: Handle different name for the executable, .Desktop.exe
+        string fileName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location) + ".Desktop.exe";
 
         process.StartInfo = new()
         {
-            FileName = Path.ChangeExtension(Assembly.GetExecutingAssembly().Location, "exe"),
+            FileName = fileName,
             Arguments = $"--crash \"{Path.GetFullPath(FilePath)}\""
         };
 

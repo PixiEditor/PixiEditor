@@ -137,4 +137,9 @@ internal partial class MainWindow : Window
 
         base.OnClosing(e);
     }
+
+    private void MainWindow_Initialized(object? sender, EventArgs e)
+    {
+        AppDomain.CurrentDomain.UnhandledException += (sender, e) => Helpers.CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
+    }
 }

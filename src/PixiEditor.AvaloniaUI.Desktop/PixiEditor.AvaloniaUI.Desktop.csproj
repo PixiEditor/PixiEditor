@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <RootNamespace>PixiEditor.Avalonia.Desktop</RootNamespace>
+        <RootNamespace>PixiEditor.AvaloniaUI.Desktop</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup>

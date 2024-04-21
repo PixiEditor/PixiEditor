@@ -7,6 +7,7 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
 using PixiEditor.AvaloniaUI.Views;
+using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.ViewModels;
@@ -23,6 +24,8 @@ internal partial class CrashReportViewModel : ViewModelBase
 
     public bool IsDebugBuild { get; set; }
 
+    public RelayCommand OpenSendCrashReportCommand { get; }
+
     public CrashReportViewModel(CrashReport report)
     {
         SetIsDebug();
@@ -30,8 +33,7 @@ internal partial class CrashReportViewModel : ViewModelBase
         CrashReport = report;
         ReportText = report.ReportText;
         DocumentCount = report.GetDocumentCount();
-        //TODO: Implement
-        //OpenSendCrashReportCommand = ReactiveCommand.Create(() => new SendCrashReportWindow(CrashReport).Show());
+        OpenSendCrashReportCommand = new RelayCommand(() => new SendCrashReportDialog(CrashReport).Show());
 
         if (!IsDebugBuild)
             _ = CrashHelper.SendReportTextToWebhookAsync(report);
@@ -56,9 +58,8 @@ internal partial class CrashReportViewModel : ViewModelBase
                 {
                     "SEND", _ =>
                     {
-                        // TODO
-                        //var sendReportDialog = new SendCrashReportWindow(CrashReport);
-                        //sendReportDialog.ShowDialog();
+                        var sendReportDialog = new SendCrashReportDialog(CrashReport);
+                        sendReportDialog.ShowDialog(window);
                     }
                 },
                 "CLOSE"

@@ -1,0 +1,25 @@
+<dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
+        xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.SendCrashReportDialog"
+        MinHeight="195" MinWidth="340"
+        Height="195" Width="340"
+        ui:Translator.Key="SEND_CRASH_REPORT_TITLE">
+    <StackPanel Margin="10">
+        <TextBlock>You can find the report here:</TextBlock>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Width="140" Click="OpenInExplorer" ui:Translator.Key="OPEN_IN_EXPLORER"/>
+        </StackPanel>
+        <TextBlock TextAlignment="Center" ui:Translator.Key="CRASH_SEND_METHODS"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Click="OpenHyperlink" Tag="github" ui:Translator.Key="GITHUB"/>
+            <Button Click="OpenHyperlink" Tag="discord" ui:Translator.Key="DISCORD"/>
+            <Button Click="OpenHyperlink" Tag="email" ui:Translator.Key="EMAIL"/>
+        </StackPanel>
+        <TextBlock TextWrapping="Wrap" TextAlignment="Center" ui:Translator.Key="CRASH_REPORT_DESCRIPTION"/>
+    </StackPanel>
+</dialogs:PixiEditorPopup>

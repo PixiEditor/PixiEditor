@@ -593,5 +593,15 @@
   "SWATCHES_DOCKABLE_TITLE": "Swatches",
     "PALETTE_DOCKABLE_TITLE": "Palette",
   
-  "BROWSE_DIRECTORY": "Browse Directory"
+  "BROWSE_DIRECTORY": "Browse Directory",
+  "SEND_CRASH_REPORT_TITLE": "Send crash report",
+  "OPEN_IN_EXPLORER": "Open in explorer",
+  "CRASH_SEND_METHODS": "You can send your crash report using:",
+  "EMAIL": "E-Mail",
+  "CRASH_REPORT_DESCRIPTION": "The report contains the documents that were opened when the crash happened, feel free to review it before sending.",
+  "PIXIEDITOR_CRASHED_TITLE": "PixiEditor has crashed!",
+  "CRASH_ACTION_DESCRIPTION": "You can help the developers fix this bug by sending a crash report that was generated (you will still be able to recover the files).",
+  "SEND_REPORT": "Send report",
+  "RECOVER_FILES": "Recover files",
+  "ATTACH_DEBUGGER": "(Re)Attach debugger"
 }

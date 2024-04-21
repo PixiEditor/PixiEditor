@@ -14,6 +14,7 @@
         WindowState="Maximized"
         Name="Window"
         Icon="/Images/favicon.ico"
+        Initialized="MainWindow_Initialized"
         ui:Translator.UseLanguageFlowDirection="True"
         Title="PixiEditor">
     <views1:MainView />
