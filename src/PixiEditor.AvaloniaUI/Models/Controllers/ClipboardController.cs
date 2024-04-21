@@ -184,12 +184,17 @@ internal static class ClipboardController
             return surfaces;
         }
 
-        if (!data.Contains(DataFormats.Files))
+        var paths = data.GetFileDropList().Select(x => x.Path.AbsolutePath).ToList();
+        if(paths != null && data.TryGetRawTextPath(out string? textPath))
+        {
+            paths.Add(textPath);
+        }
+
+        if (paths == null || paths.Count == 0)
         {
             return surfaces;
         }
 
-        var paths = data.GetFileDropList().Select(x => x.Path.AbsolutePath).ToArray();
         foreach (string? path in paths)
         {
             if (path is null || !Importer.IsSupportedFile(path))
@@ -243,13 +248,36 @@ internal static class ClipboardController
     [Evaluator.CanExecute("PixiEditor.Clipboard.HasImageInClipboard")]
     public static async Task<bool> IsImageInClipboard()
     {
-        var files = await Clipboard.GetDataAsync(DataFormats.Files);
-        if (files == null)
+        var formats = await Clipboard.GetFormatsAsync();
+        if (formats == null || formats.Length == 0)
             return false;
 
-        string[] fileArray = ((IEnumerable<string>)files).ToArray();
+        bool isImage = IsImageFormat(formats);
 
-        return IsImageFormat(fileArray);
+        if (!isImage)
+        {
+            string path = await TryFindImageInFiles(formats);
+            return path != string.Empty;
+        }
+
+        return isImage;
+    }
+
+    private static async Task<string> TryFindImageInFiles(string[] formats)
+    {
+        foreach (string format in formats)
+        {
+            if (format == DataFormats.Text)
+            {
+                string text = await Clipboard.GetTextAsync();
+                if (Importer.IsSupportedFile(text))
+                {
+                    return text;
+                }
+            }
+        }
+
+        return string.Empty;
     }
 
     public static bool IsImage(IDataObject? dataObject)
@@ -291,9 +319,19 @@ internal static class ClipboardController
 
     private static Bitmap FromPNG(IDataObject data)
     {
-        MemoryStream pngStream = (MemoryStream)data.Get("PNG");
-        Bitmap bitmap = new Bitmap(pngStream);
-        return bitmap;
+        object obj = data.Get("PNG");
+        if(obj is byte[] bytes)
+        {
+            using MemoryStream stream = new MemoryStream(bytes);
+            return new Bitmap(stream);
+        }
+
+        if (obj is MemoryStream memoryStream)
+        {
+            return new Bitmap(memoryStream);
+        }
+
+        throw new InvalidDataException("PNG data is not in a supported format.");
     }
 
     private static bool HasData(IDataObject dataObject, params string[] formats) => formats.Any(dataObject.Contains);

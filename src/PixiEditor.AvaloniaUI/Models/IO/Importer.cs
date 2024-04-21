@@ -147,7 +147,7 @@ internal class Importer : ObservableObject
 
     public static bool IsSupportedFile(string path)
     {
-        return SupportedFilesHelper.IsSupportedFile(path);
+        return SupportedFilesHelper.IsSupported(path);
     }
 
     public static Surface LoadFromGZippedBytes(string path)

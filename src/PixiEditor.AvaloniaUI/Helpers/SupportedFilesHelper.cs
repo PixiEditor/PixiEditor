@@ -60,9 +60,14 @@ internal class SupportedFilesHelper
         return Path.Combine(Path.GetDirectoryName(path), filename);
     }
 
-    public static bool IsSupportedFile(string path)
+    public static bool IsSupported(string path)
     {
         var ext = Path.GetExtension(path.ToLower());
+        if (string.IsNullOrEmpty(ext))
+        {
+            ext = $".{path.ToLower()}";
+        }
+
         return IsExtensionSupported(ext);
     }
 

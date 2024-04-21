@@ -24,6 +24,13 @@ internal static class PixelFormatHelper
             return true;
         }
 
+        if (format == PixelFormats.Bgra8888)
+        {
+            alphaType = AlphaType.Unpremul;
+            colorType = ColorType.Bgra8888;
+            return true;
+        }
+
         /*if (format == PixelFormats.Bgra32)
         {
             alphaType = AlphaType.Unpremul;

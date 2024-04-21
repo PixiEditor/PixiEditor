@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
@@ -22,9 +23,29 @@ public static class DataObjectExtensions
     public static IStorageItem[] GetFileDropList(this IDataObject data)
     {
         if (!data.Contains(DataFormats.Files))
-            return Array.Empty<IStorageItem>();
+            return[];
 
         return ((IEnumerable<IStorageItem>)data.Get(DataFormats.Files)).ToArray();
+    }
+
+    public static bool TryGetRawTextPath(this IDataObject data, out string? path)
+    {
+        if (!data.Contains(DataFormats.Text))
+        {
+            path = null;
+            return false;
+        }
+
+        string text = data.GetText();
+
+        if (Directory.Exists(text) || File.Exists(text))
+        {
+            path = text;
+            return true;
+        }
+
+        path = null;
+        return false;
     }
 
     public static VecI GetVecI(this IDataObject data, string format)
