@@ -226,19 +226,25 @@ internal partial class PaletteViewer : UserControl
         dragDropGrid.IsVisible = false;
     }
 
-    private bool IsSupportedFilePresent(DragEventArgs e, out string filePath)
+    private bool IsSupportedFilePresent(DragEventArgs e, out string? filePath)
     {
         if (e.Data.Contains(DataFormats.Files))
         {
-            string[] files = (string[])e.Data.Get(DataFormats.Files);
+            IStorageItem[]? files = e.Data.GetFiles()?.ToArray();
+            if (files is null)
+            {
+                filePath = null;
+                return false;
+            }
+
             if (files is { Length: > 0 })
             {
-                var fileName = files[0];
+                IStorageItem file = files[0];
                 var foundParser = PaletteProvider.AvailableParsers.FirstOrDefault(x =>
-                    x.SupportedFileExtensions.Contains(Path.GetExtension(fileName)));
+                    x.SupportedFileExtensions.Contains(Path.GetExtension(file.Path.AbsolutePath)));
                 if (foundParser != null)
                 {
-                    filePath = fileName;
+                    filePath = file.Path.AbsolutePath;
                     return true;
                 }
             }

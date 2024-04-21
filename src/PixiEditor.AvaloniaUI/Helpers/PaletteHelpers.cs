@@ -23,7 +23,7 @@ internal static class PaletteHelpers
                     .Select(x => x.Replace(".", "*.")));
             }
 
-            string allSupportedFormatsString = string.Join(';', allSupportedFormats).Replace(".", "*.");
+            string allSupportedFormatsString = string.Join(';', allSupportedFormats);
             filePickerFileTypes.Add(new FilePickerFileType($"Palette Files ({allSupportedFormatsString}")
             {
                 Patterns = allSupportedFormats
@@ -32,8 +32,8 @@ internal static class PaletteHelpers
 
         foreach (var parser in parsers)
         {
-            string supportedFormats = string.Join(';', parser.SupportedFileExtensions);
-            filePickerFileTypes.Add(new FilePickerFileType($"{parser.FileName} ({supportedFormats})")
+            string supportedFormats = string.Join(';', parser.SupportedFileExtensions).Replace(".", "*.");
+            filePickerFileTypes.Add(new FilePickerFileType($"{parser.FileName}")
             {
                 Patterns = parser.SupportedFileExtensions
             });

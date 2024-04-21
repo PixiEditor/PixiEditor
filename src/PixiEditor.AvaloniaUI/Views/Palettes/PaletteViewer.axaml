@@ -56,8 +56,8 @@
                     </StackPanel>
                 </DockPanel>
             </StackPanel>
-            <Separator Grid.Row="1" Margin="0, 0, 0, 0" BorderBrush="{StaticResource DarkerAccentColor}" BorderThickness="2" />
-            <Grid IsVisible="False" Background="{StaticResource AccentColor}" Opacity="0.7" Grid.Row="2" Name="dragDropGrid">
+            <Separator Grid.Row="1" Margin="0, 0, 0, 0" BorderBrush="{DynamicResource ThemeControlLowBrush}" BorderThickness="2" />
+            <Grid IsVisible="False" Background="{DynamicResource ThemeControlHighlightBrush}" Opacity="0.7" Grid.Row="2" Name="dragDropGrid">
                 <TextBlock TextWrapping="Wrap" ui:Translator.Key="DROP_PALETTE" Foreground="White" FontSize="32" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             </Grid>
             <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
