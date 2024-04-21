@@ -113,14 +113,7 @@ internal class SupportedFilesHelper
 
     public static List<FilePickerFileType> BuildOpenFilter()
     {
-        var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Any).GetFormattedTypes();
-        var pixi = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Pixi).GetFormattedTypes();
-        var images = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Images).GetFormattedTypes();
-
-        var filter = new List<FilePickerFileType>();
-        filter.AddRange(any);
-        filter.AddRange(pixi);
-        filter.AddRange(images);
-        return filter;
+        var any = new FileTypeDialogDataSet(FileTypeDialogDataSet.SetKind.Any).GetFormattedTypes(true);
+        return any.ToList();
     }
 }

@@ -46,9 +46,17 @@ internal class FileTypeDialogDataSet
         this.displayName = displayName;
     }
 
-    public FilePickerFileType[] GetFormattedTypes()
+    public FilePickerFileType[] GetFormattedTypes(bool includeCommon)
     {
-        FilePickerFileType[] types = fileTypes.Select(i => i.SaveFilter).ToArray();
-        return types;
+        List<FilePickerFileType> types = new();
+        if (includeCommon)
+        {
+            FilePickerFileType common = new FilePickerFileType(displayName);
+            common.Patterns = fileTypes.SelectMany(i => i.SaveFilter.Patterns).ToArray();
+            types.Add(common);
+        }
+
+        types.AddRange(fileTypes.Select(i => i.SaveFilter));
+        return types.ToArray();
     }
 }
