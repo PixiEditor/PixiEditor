@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,11 +30,11 @@ namespace PixiEditor.AvaloniaUI.Views.Palettes;
 /// </summary>
 internal partial class PaletteViewer : UserControl
 {
-    public static readonly StyledProperty<ObservableRangeCollection<PaletteColor>> SwatchesProperty =
-        AvaloniaProperty.Register<PaletteViewer, ObservableRangeCollection<PaletteColor>>(
+    public static readonly StyledProperty<ObservableCollection<PaletteColor>> SwatchesProperty =
+        AvaloniaProperty.Register<PaletteViewer, ObservableCollection<PaletteColor>>(
             nameof(Swatches));
 
-    public ObservableRangeCollection<PaletteColor> Swatches
+    public ObservableCollection<PaletteColor> Swatches
     {
         get => GetValue(SwatchesProperty);
         set => SetValue(SwatchesProperty, value);

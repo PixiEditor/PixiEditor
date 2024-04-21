@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
@@ -22,12 +23,11 @@ internal partial class PaletteColorAdder : UserControl
         set => SetValue(HintColorProperty, value);
     }
 
-    public static readonly StyledProperty<ObservableRangeCollection<PaletteColor>> SwatchesProperty =
-        AvaloniaProperty.Register<PaletteColorAdder, ObservableRangeCollection<PaletteColor>>(
-            nameof(Swatches),
-            default(ObservableRangeCollection<PaletteColor>));
+    public static readonly StyledProperty<ObservableCollection<PaletteColor>> SwatchesProperty =
+        AvaloniaProperty.Register<PaletteColorAdder, ObservableCollection<PaletteColor>>(
+            nameof(Swatches));
 
-    public ObservableRangeCollection<PaletteColor> Swatches
+    public ObservableCollection<PaletteColor> Swatches
     {
         get => GetValue(SwatchesProperty);
         set => SetValue(SwatchesProperty, value);
@@ -87,7 +87,7 @@ internal partial class PaletteColorAdder : UserControl
         }
     }
 
-    private static void OnSwatchesChanged(AvaloniaPropertyChangedEventArgs<ObservableRangeCollection<PaletteColor>> e)
+    private static void OnSwatchesChanged(AvaloniaPropertyChangedEventArgs<ObservableCollection<PaletteColor>> e)
     {
         PaletteColorAdder adder = (PaletteColorAdder)e.Sender;
         if (adder == null || adder.Swatches == null) return;
