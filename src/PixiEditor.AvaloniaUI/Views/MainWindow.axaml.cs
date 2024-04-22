@@ -140,6 +140,9 @@ internal partial class MainWindow : Window
 
     private void MainWindow_Initialized(object? sender, EventArgs e)
     {
-        AppDomain.CurrentDomain.UnhandledException += (sender, e) => Helpers.CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject);
+        AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
+        {
+            CrashHelper.SaveCrashInfo((Exception)e.ExceptionObject, DataContext.DocumentManagerSubViewModel.Documents);
+        };
     }
 }

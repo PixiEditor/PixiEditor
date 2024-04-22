@@ -1,4 +1,4 @@
-﻿<dialogs:PixiEditorPopup x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.CrashReportDialog"
+﻿<Window x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.CrashReportDialog"
         x:ClassModifier="internal"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -8,7 +8,9 @@
         xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
         xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
         mc:Ignorable="d"
-        ui:Translator.Key="PIXIEDITOR_CRASHED_TITLE"
+        ExtendClientAreaToDecorationsHint="False"
+        ExtendClientAreaChromeHints="Default"
+        Title="PixiEditor has crashed!"
         MinWidth="480" MinHeight="195"
         x:DataType="viewModels:CrashReportViewModel"
         Width="480" Height="195">
@@ -19,21 +21,20 @@
         <StackPanel>
             <Grid Background="{DynamicResource ThemeBackgroundBrush}">
                 <StackPanel Margin="7" VerticalAlignment="Center">
-                    <!--TODO: Translate string format below-->
                     <TextBlock Text="{Binding DocumentCount, StringFormat={}{0} file(s) might be recoverable}"
                                d:Text="2 file(s) can be recovered"/>
-                    <TextBlock TextWrapping="Wrap" ui:Translator.Key="CRASH_ACTION_DESCRIPTION"/>
+                    <TextBlock TextWrapping="Wrap">You can help the developers fix this bug by sending a crash report that was generated (you will still be able to recover the files).</TextBlock>
                 </StackPanel>
             </Grid>
 
             <WrapPanel Margin="0,20,0,5" Orientation="Horizontal" HorizontalAlignment="Center">
                 <Button Command="{Binding OpenSendCrashReportCommand}"
-                        Width="120" ui:Translator.Key="SEND_REPORT"/>
+                        Width="120">Send report</Button>
                 <Button Margin="5,0,5,0" Width="120"
-                        Command="{Binding RecoverDocumentsCommand}" ui:Translator.Key="RECOVER_FILES"/>
+                        Command="{Binding RecoverDocumentsCommand}">Recover files</Button>
                 <Button IsVisible="{Binding IsDebugBuild}" Width="170"
-                        Command="{Binding AttachDebuggerCommand}" ui:Translator.Key="ATTACH_DEBUGGER"/>
+                        Command="{Binding AttachDebuggerCommand}">(Re)Attach debugger</Button>
             </WrapPanel>
         </StackPanel>
     </Grid>
-</dialogs:PixiEditorPopup>
+</Window>

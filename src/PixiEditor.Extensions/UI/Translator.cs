@@ -77,7 +77,7 @@ public class Translator : Control
 
     private static void OnLanguageChangedFlowDirection(AvaloniaObject objSender)
     {
-        objSender.SetValue(Control.FlowDirectionProperty, ILocalizationProvider.Current.CurrentLanguage.FlowDirection);
+        objSender.SetValue(Control.FlowDirectionProperty, ILocalizationProvider.Current?.CurrentLanguage.FlowDirection ?? FlowDirection.LeftToRight);
     }
 
     private static void TooltipLocalizedStringPropertyChanged(AvaloniaPropertyChangedEventArgs<LocalizedString> e)

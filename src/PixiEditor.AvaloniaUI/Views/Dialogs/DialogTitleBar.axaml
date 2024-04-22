@@ -15,10 +15,10 @@
         <Grid Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False"/>
         <TextBlock
             IsHitTestVisible="False"
-            TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" 
+            TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
             ui:Translator.Key="{Binding ElementName=uc, Path=TitleKey}"
-            Foreground="White" 
-            FontSize="15"
+            Foreground="{DynamicResource ThemeForegroundBrush}"
+            FontSize="13"
             Margin="5,0,0,0"/>
         <DockPanel IsHitTestVisible="True">
             <Button 

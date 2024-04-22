@@ -1,17 +1,14 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Web;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Markup.Xaml;
 using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
-using PixiEditor.AvaloniaUI.ViewModels;
-using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
-internal partial class SendCrashReportDialog : PixiEditorPopup
+internal partial class SendCrashReportDialog : Window
 {
     const string DiscordInviteLink = "https://discord.gg/eh8gx6vNEp";
 
@@ -40,7 +37,7 @@ internal partial class SendCrashReportDialog : PixiEditorPopup
 
         File.Copy(report.FilePath, Path.Combine(tempPath, Path.GetFileName(report.FilePath)), true);
 
-        IOperatingSystem.Current.ProcessUtility.ShellExecute(tempPath);
+        ShellExecute(tempPath);
     }
 
     private void OpenHyperlink(object sender, RoutedEventArgs e)
@@ -60,7 +57,7 @@ internal partial class SendCrashReportDialog : PixiEditorPopup
         };
 
         OpenInExplorer(null, null);
-        IOperatingSystem.Current.ProcessUtility.ShellExecute(result);
+        ShellExecute(result);
 
         string GetGitHubLink()
         {
@@ -85,5 +82,18 @@ internal partial class SendCrashReportDialog : PixiEditorPopup
 
             return builder.ToString();
         }
+    }
+
+    private void ShellExecute(string path)
+    {
+        // Cannot use IOperatingSystem.Current.ProcessUtility.ShellExecute because app crashed and IOperatingSystem.Current is null
+        // TODO: Other OS support?
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = path,
+            UseShellExecute = true
+        };
+
+        Process.Start(startInfo);
     }
 }

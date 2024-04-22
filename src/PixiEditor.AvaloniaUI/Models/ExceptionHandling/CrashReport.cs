@@ -11,9 +11,11 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Preferences;
 using PixiEditor.AvaloniaUI.ViewModels;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Parser;
 
 namespace PixiEditor.AvaloniaUI.Models.ExceptionHandling;
 
@@ -345,11 +347,11 @@ internal class CrashReport : IDisposable
         process.Start();
     }
 
-    public bool TrySave()
+    public bool TrySave(IEnumerable<DocumentViewModel> documents)
     {
         try
         {
-            Save();
+            Save(documents);
             return true;
         }
         catch
@@ -358,7 +360,7 @@ internal class CrashReport : IDisposable
         }
     }
 
-    public void Save()
+    public void Save(IEnumerable<DocumentViewModel> documents)
     {
         using FileStream zipStream = new(FilePath, FileMode.Create, FileAccess.Write);
         using ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Create);
@@ -367,17 +369,12 @@ internal class CrashReport : IDisposable
         {
             reportStream.Write(Encoding.UTF8.GetBytes(ReportText));
         }
-        //TODO: Implement
-
-        /*var vm = ViewModelMain.Current;
-        if (vm is null)
-            return;*/
 
         // Write the documents into zip
         int counter = 0;
         var originalPaths = new Dictionary<string, string>();
         //TODO: Implement
-        /*foreach (var document in vm.DocumentManagerSubViewModel.Documents)
+        foreach (var document in documents)
         {
             try
             {
@@ -395,7 +392,7 @@ internal class CrashReport : IDisposable
             }
             catch { }
             counter++;
-        }*/
+        }
 
         // Write their original paths into a separate file
         {

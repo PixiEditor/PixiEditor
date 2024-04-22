@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using ByteSizeLib;
 using Hardware.Info;
 using PixiEditor.AvaloniaUI.Models.ExceptionHandling;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.Helpers;
 
@@ -14,7 +16,7 @@ internal class CrashHelper
 {
     private readonly IHardwareInfo hwInfo;
 
-    public static void SaveCrashInfo(Exception exception)
+    public static void SaveCrashInfo(Exception exception, IEnumerable<DocumentViewModel> documents)
     {
         try
         {
@@ -26,7 +28,7 @@ internal class CrashHelper
         }
         
         var report = CrashReport.Generate(exception);
-        report.TrySave();
+        report.TrySave(documents);
         report.RestartToCrashReport();
     }
 

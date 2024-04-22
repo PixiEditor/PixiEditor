@@ -1,7 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
@@ -12,7 +14,7 @@ using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.ViewModels;
 
-internal partial class CrashReportViewModel : ViewModelBase
+internal partial class CrashReportViewModel : Window
 {
     private bool hasRecoveredDocuments = true;
 
@@ -42,31 +44,38 @@ internal partial class CrashReportViewModel : ViewModelBase
     [RelayCommand(CanExecute = nameof(CanRecoverDocuments))]
     public async Task RecoverDocuments()
     {
+        if (!hasRecoveredDocuments)
+        {
+            return;
+        }
+
         MainWindow window = MainWindow.CreateWithRecoveredDocuments(CrashReport, out var showMissingFilesDialog);
 
-        Application.Current.Run(window);
-        window.Show();
-        hasRecoveredDocuments = false;
-        
-        if (showMissingFilesDialog)
+        window.Loaded += (sender, args) =>
         {
-            var dialog = new OptionsDialog<LocalizedString>(
-                "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE",
-                new LocalizedString("CRASH_NOT_ALL_DOCUMENTS_RECOVERED"), 
-                MainWindow.Current!)
+            if (showMissingFilesDialog)
             {
+                var dialog = new OptionsDialog<LocalizedString>(
+                    "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE",
+                    new LocalizedString("CRASH_NOT_ALL_DOCUMENTS_RECOVERED"),
+                    MainWindow.Current!)
                 {
-                    "SEND", _ =>
                     {
-                        var sendReportDialog = new SendCrashReportDialog(CrashReport);
-                        sendReportDialog.ShowDialog(window);
-                    }
-                },
-                "CLOSE"
-            };
+                        "SEND", _ =>
+                        {
+                            var sendReportDialog = new SendCrashReportDialog(CrashReport);
+                            sendReportDialog.ShowDialog(window);
+                        }
+                    },
+                    "CLOSE"
+                };
 
-            await dialog.ShowDialog(true);
-        }
+                _ = dialog.ShowDialog(true);
+            }
+        };
+
+        hasRecoveredDocuments = false;
+        Application.Current.Run(window);
     }
 
     public bool CanRecoverDocuments()
