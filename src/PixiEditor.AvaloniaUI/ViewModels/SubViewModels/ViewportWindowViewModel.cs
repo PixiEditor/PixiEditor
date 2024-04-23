@@ -6,6 +6,7 @@ using PixiDocks.Core.Docking;
 using PixiDocks.Core.Docking.Events;
 using PixiEditor.AvaloniaUI.Helpers.UI;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
+using PixiEditor.AvaloniaUI.ViewModels.Dock;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -24,7 +25,9 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     public string Title => $"{Document.FileName}{Index}";
     public bool CanFloat => true;
     public bool CanClose => true;
-    public TabCustomizationSettings TabCustomizationSettings { get; } = new(showCloseButton: true);
+    public DocumentTabCustomizationSettings TabCustomizationSettings { get; } = new DocumentTabCustomizationSettings(showCloseButton: true);
+
+    TabCustomizationSettings IDockableContent.TabCustomizationSettings => TabCustomizationSettings;
 
     private bool _closeRequested;
     private string _index = "";
@@ -72,8 +75,18 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
 
     private void DocumentOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        if(e.PropertyName == nameof(DocumentViewModel.FileName))
+        if (e.PropertyName == nameof(DocumentViewModel.FileName))
+        {
             OnPropertyChanged(nameof(Title));
+        }
+        else if (e.PropertyName == nameof(DocumentViewModel.PreviewSurface))
+        {
+            TabCustomizationSettings.Icon = new SurfaceImage(Document.PreviewSurface);
+        }
+        else if (e.PropertyName == nameof(DocumentViewModel.AllChangesSaved))
+        {
+            TabCustomizationSettings.IsSaved = Document.AllChangesSaved;
+        }
     }
 
     ~ViewportWindowViewModel()

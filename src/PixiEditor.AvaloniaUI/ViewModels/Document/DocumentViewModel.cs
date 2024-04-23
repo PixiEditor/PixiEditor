@@ -611,6 +611,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return result;
     }
 
+    public void UpdateSavedState()
+    {
+        OnPropertyChanged(nameof(AllChangesSaved));
+    }
+
     private void ExtractSelectedLayers(FolderViewModel folder, List<Guid> list,
         bool includeFoldersWithMask)
     {

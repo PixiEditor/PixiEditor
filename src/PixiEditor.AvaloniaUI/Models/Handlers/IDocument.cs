@@ -50,4 +50,5 @@ internal interface IDocument : IHandler
     public void SetSize(VecI infoSize);
     public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference, bool includeCanvas, bool isTopMost);
     public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
+    public void UpdateSavedState();
 }

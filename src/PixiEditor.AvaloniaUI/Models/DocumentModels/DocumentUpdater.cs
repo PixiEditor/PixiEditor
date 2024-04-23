@@ -36,7 +36,7 @@ internal class DocumentUpdater
     public void AfterUndoBoundaryPassed()
     {
         //TODO: Make sure AllChangesSaved trigger raise property changed itself
-        //doc.OnPropertyChanged(nameof(doc.AllChangesSaved));
+        doc.UpdateSavedState();
     }
 
     /// <summary>
