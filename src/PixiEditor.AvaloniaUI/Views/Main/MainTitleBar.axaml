@@ -260,6 +260,9 @@
                 <MenuItem
                     ui:Translator.Key="OPEN_LOCALIZATION_DEBUG_WINDOW"
                     xaml:Menu.Command="PixiEditor.Debug.OpenLocalizationDebugWindow"/>
+                <MenuItem
+                    Header="Open pointer debug window"
+                    xaml:Menu.Command="PixiEditor.Debug.OpenPointerDebugWindow"/>
                 <Separator/>
                 <MenuItem
                     ui:Translator.Key="OPEN_LOCAL_APPDATA_DIR"
