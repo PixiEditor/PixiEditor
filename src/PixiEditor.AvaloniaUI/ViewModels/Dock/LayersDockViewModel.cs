@@ -10,7 +10,7 @@ internal class LayersDockViewModel : DockableViewModel
 {
     public const string TabId = "Layers";
     public override string Id => TabId;
-    public override string Title => new LocalizedString("LAYERS_DOCKABLE_TITLE");
+    public override string Title => new LocalizedString("LAYERS_TITLE");
     public override bool CanFloat => true;
     public override bool CanClose => true;
 

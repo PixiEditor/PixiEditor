@@ -11,7 +11,7 @@ internal class NavigationDockViewModel : DockableViewModel
     public const string TabId = "Navigator";
 
     public override string Id => TabId;
-    public override string Title => new LocalizedString("NAVIGATOR_DOCKABLE_TITLE");
+    public override string Title => new LocalizedString("NAVIGATION_TITLE");
     public override bool CanFloat => true;
     public override bool CanClose => true;
 

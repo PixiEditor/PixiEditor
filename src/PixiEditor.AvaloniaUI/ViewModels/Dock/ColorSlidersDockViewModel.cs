@@ -6,11 +6,11 @@ using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
-internal class ColorPickerDockViewModel : DockableViewModel
+internal class ColorSlidersDockViewModel : DockableViewModel
 {
-    public const string TabId = "ColorPicker";
+    public const string TabId = "ColorSliders";
     public override string Id => TabId;
-    public override string Title => new LocalizedString("COLOR_PICKER_TITLE");
+    public override string Title => new LocalizedString("COLOR_SLIDERS_TITLE");
     public override bool CanFloat => true;
     public override bool CanClose => true;
 
@@ -22,7 +22,7 @@ internal class ColorPickerDockViewModel : DockableViewModel
         set => SetProperty(ref colorsSubViewModel, value);
     }
 
-    public ColorPickerDockViewModel(ColorsViewModel colorsSubVm)
+    public ColorSlidersDockViewModel(ColorsViewModel colorsSubVm)
     {
         ColorsSubViewModel = colorsSubVm;
         TabCustomizationSettings.Icon =

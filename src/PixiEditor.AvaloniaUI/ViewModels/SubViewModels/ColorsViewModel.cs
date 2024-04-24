@@ -7,6 +7,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
+using ColorPicker.Models;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
@@ -46,7 +47,19 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         (LocalPalettesFetcher)PaletteProvider.DataSources.FirstOrDefault(x => x is LocalPalettesFetcher)!;
 
     private Color primaryColor = Colors.Black;
+    private Color secondaryColor = Colors.White;
+    private ColorState primaryColorState;
     private LocalPalettesFetcher _localPaletteFetcher;
+
+    public ColorState PrimaryColorState
+    {
+        get => primaryColorState;
+        set
+        {
+            primaryColorState = value;
+            OnPropertyChanged(nameof(PrimaryColorState));
+        }
+    }
 
     public Color PrimaryColor // Primary color, hooked with left mouse button
     {
@@ -60,8 +73,6 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
             }
         }
     }
-
-    private Color secondaryColor = Colors.White;
 
     public Color SecondaryColor
     {
@@ -79,6 +90,9 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     public ColorsViewModel(ViewModelMain owner)
         : base(owner)
     {
+        primaryColorState = new ColorState();
+        primaryColorState.SetARGB(PrimaryColor.A, PrimaryColor.R, PrimaryColor.G, PrimaryColor.B);
+
         ImportPaletteCommand = new AsyncRelayCommand<List<PaletteColor>>(ImportPalette, CanImportPalette);
         Owner.OnStartupEvent += OwnerOnStartupEvent;
     }

@@ -6,14 +6,17 @@
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:subViewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.SubViewModels"
              xmlns:dock="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Dock"
+             xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="dock:ColorPickerDockViewModel"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.ColorPickerDockView">
     <Design.DataContext>
         <dock:ColorPickerDockViewModel/>
     </Design.DataContext>
-    <colorPicker:StandardColorPicker
+
+    <input:SmallColorPicker
         SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
         SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
+        ColorState="{Binding ColorsSubViewModel.PrimaryColorState, Mode=TwoWay}"
         UseHintColor="False"/>
 </UserControl>

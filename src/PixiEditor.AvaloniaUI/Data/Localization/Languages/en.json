@@ -587,11 +587,6 @@
   "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE": "Add primary color to current palette",
 
   "EXPORT_SAVE_TITLE": "Choose a location to save the image",
-  "COLOR_PICKER_DOCKABLE_TITLE": "Color Picker",
-  "LAYERS_DOCKABLE_TITLE": "Layers",
-  "NAVIGATOR_DOCKABLE_TITLE": "Navigator",
-  "SWATCHES_DOCKABLE_TITLE": "Swatches",
-    "PALETTE_DOCKABLE_TITLE": "Palette",
 
   "BROWSE_DIRECTORY": "Browse Directory",
   "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Not all documents were recovered",

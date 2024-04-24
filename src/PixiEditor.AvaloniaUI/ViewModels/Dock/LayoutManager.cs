@@ -32,12 +32,14 @@ internal class LayoutManager
     {
         LayersDockViewModel layersDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         ColorPickerDockViewModel colorPickerDockViewModel = new(mainViewModel.ColorsSubViewModel);
+        ColorSlidersDockViewModel colorSldersDockViewModel = new(mainViewModel.ColorsSubViewModel);
         NavigationDockViewModel navigationDockViewModel = new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
         SwatchesDockViewModel swatchesDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         PaletteViewerDockViewModel paletteViewerDockViewModel = new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
 
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);
+        RegisterDockable(colorSldersDockViewModel);
         RegisterDockable(navigationDockViewModel);
         RegisterDockable(swatchesDockViewModel);
         RegisterDockable(paletteViewerDockViewModel);
@@ -64,6 +66,7 @@ internal class LayoutManager
                             Dockables =
                             [
                                 DockContext.CreateDockable(colorPickerDockViewModel),
+                                DockContext.CreateDockable(colorSldersDockViewModel),
                                 DockContext.CreateDockable(swatchesDockViewModel),
                                 DockContext.CreateDockable(paletteViewerDockViewModel)
                             ]

@@ -8,7 +8,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 internal class SwatchesDockViewModel : DockableViewModel
 {
     public override string Id => "Swatches";
-    public override string Title => new LocalizedString("SWATCHES_DOCKABLE_TITLE");
+    public override string Title => new LocalizedString("SWATCHES_TITLE");
     public override bool CanFloat => true;
     public override bool CanClose => true;
 
