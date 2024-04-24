@@ -22,26 +22,24 @@ internal class Command : MarkupExtension
 
     public override object ProvideValue(IServiceProvider serviceProvider)
     {
-        // if (Design.IsDesignMode)
-        // {
-        //     var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
-        //     return GetICommand(
-        //         new Commands.Command.BasicCommand(null, null)
-        //         {
-        //             InternalName = Name,
-        //             DisplayName = attribute.DisplayName,
-        //             Description = attribute.Description,
-        //             DefaultShortcut = attribute.GetShortcut(),
-        //             Shortcut = attribute.GetShortcut()
-        //         }, false);
-        // }
+        if (Design.IsDesignMode)
+        {
+            var attribute = DesignCommandHelpers.GetCommandAttribute(Name);
+            return GetICommand(
+                new Commands.Command.BasicCommand(null, null)
+                {
+                    InternalName = Name,
+                    DisplayName = attribute.DisplayName,
+                    Description = attribute.Description,
+                    DefaultShortcut = attribute.GetShortcut(),
+                    Shortcut = attribute.GetShortcut()
+                }, false);
+        }
         
         if (commandController is null)
         {
             commandController = CommandController.Current; // TODO: Find a better way to get the current CommandController
         }
-
-        Console.WriteLine($"Hello PixiEditor kakakakaka, 'commandController != null' => {commandController != null}!");
 
         var command = commandController.Commands[Name];
         return GetPixiCommand ? command : GetICommand(command, UseProvided);

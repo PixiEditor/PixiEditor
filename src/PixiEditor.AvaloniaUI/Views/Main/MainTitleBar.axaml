@@ -23,6 +23,11 @@
             <MenuItem
                 ui:Translator.Key="FILE"
                 Focusable="False">
+                <!-- TODO: Please remove in case this makes it out of the testing branch -->
+                <MenuItem
+                    Header="Create debug document"
+                    xaml:Menu.Command="PixiEditor.Debug.CreateDebugDocument"/>
+                <Separator/>
                 <MenuItem
                     ui:Translator.Key="NEW_FILE"
                     xaml:Menu.Command="PixiEditor.File.New" />
@@ -263,10 +268,6 @@
                 <MenuItem
                     Header="Open pointer debug window"
                     xaml:Menu.Command="PixiEditor.Debug.OpenPointerDebugWindow"/>
-                <Separator/>
-                <MenuItem
-                    Header="Create debug document"
-                    xaml:Menu.Command="PixiEditor.Debug.CreateDebugDocument"/>
                 <Separator/>
                 <MenuItem
                     ui:Translator.Key="OPEN_LOCAL_APPDATA_DIR"

@@ -48,9 +48,9 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     public bool HasActiveDocument => ActiveDocument != null;
 
-    public DocumentManagerViewModel(ViewModelMain owner, WindowViewModel windowViewModel) : base(owner)
+    public DocumentManagerViewModel(ViewModelMain owner) : base(owner)
     {
-        windowViewModel.ActiveViewportChanged += (_, args) => ActiveDocument = args.Document;
+        owner.WindowSubViewModel.ActiveViewportChanged += (_, args) => ActiveDocument = args.Document;
     }
 
     public void MakeActiveDocumentNull() => ActiveDocument = null;

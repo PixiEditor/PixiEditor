@@ -303,6 +303,14 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
+        
+        // TODO: this is also weird
+        if (System.OperatingSystem.IsBrowser())
+        {
+            this.AddHandler(PointerMovedEvent, Image_MouseMove, RoutingStrategies.Bubble);
+        }
+
+         // TODO: that's not how you're actually supposed to do it I think
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
     }
 
@@ -326,7 +334,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         InitializeOverlays();
         Document?.Operations.AddOrUpdateViewport(GetLocation());
-        mouseUpdateController = new MouseUpdateController(this, Image_MouseMove);
+        mouseUpdateController = new MouseUpdateController(this, args => Image_MouseMove(null, args));
     }
 
     private void InitializeOverlays()
@@ -385,6 +393,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
     {
+        Console.WriteLine($"we got some mouse button down movement {e.GetCurrentPoint(this).Properties.PointerUpdateKind}");
+        
         bool isMiddle = e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed;
         HandleMiddleMouse(isMiddle);
 
@@ -406,10 +416,16 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             MouseDownCommand.Execute(parameter);
     }
 
-    private void Image_MouseMove(PointerEventArgs e)
+    private void Image_MouseMove(object? sender, PointerEventArgs e)
     {
+        Console.WriteLine("we got some mouse movement");
+
         if (MouseMoveCommand is null)
+        {
+            Console.WriteLine("but there isn't a mouse move comment");
             return;
+        }
+
         Point pos = e.GetPosition(MainImage);
         VecD conv = new VecD(pos.X, pos.Y);
 
@@ -428,6 +444,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void Image_MouseUp(object? sender, PointerReleasedEventArgs e)
     {
+        Console.WriteLine($"we got some mouse button up movement {e.GetCurrentPoint(this).Properties.PointerUpdateKind}");
+        
         if (MouseUpCommand is null)
             return;
 

@@ -13,11 +13,11 @@ internal class LayoutViewModel : SubViewModel<ViewModelMain>
         private init => SetProperty(ref layoutManagerManager, value);
     }
 
-    public LayoutViewModel(ViewModelMain owner, WindowViewModel windowViewModel) : base(owner)
+    public LayoutViewModel(ViewModelMain owner) : base(owner)
     {
         LayoutManager = new();
-        windowViewModel.ViewportAdded += WindowSubViewModel_ViewportAdded;
-        windowViewModel.ViewportClosed += WindowSubViewModel_ViewportRemoved;
+        owner.WindowSubViewModel.ViewportAdded += WindowSubViewModel_ViewportAdded;
+        owner.WindowSubViewModel.ViewportClosed += WindowSubViewModel_ViewportRemoved;
     }
 
     private void WindowSubViewModel_ViewportAdded(ViewportWindowViewModel obj)

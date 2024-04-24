@@ -99,8 +99,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private void Owner_OnStartupEvent(object sender, System.EventArgs e)
     {
-        Console.WriteLine("Owner starutp before");
-        
         // List<string> args = StartupArgs.Args;
         // string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
         // if (file != null)
@@ -114,8 +112,6 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         //         OpenHelloTherePopup();
         //     }
         // }
-        
-        Console.WriteLine("Owner startup after");
     }
 
     [Command.Internal("PixiEditor.File.OpenRecent")]

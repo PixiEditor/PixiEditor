@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using ChunkyImageLib;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers.Collections;
@@ -17,7 +15,6 @@ using PixiEditor.AvaloniaUI.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.AvaloniaUI.ViewModels.Tools;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 
@@ -108,40 +105,26 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     }
 
     public void Setup(IServiceProvider services)
- {
+    {
         Services = services;
-
-        ShowMessage();
 
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
 
-        ShowMessage();
-
         CommandController = services.GetService<CommandController>();
-
-        ShowMessage();
 
         LocalizationProvider = services.GetRequiredService<ILocalizationProvider>();
         LocalizationProvider.LoadData();
 
-        ShowMessage();
-
         WindowSubViewModel = services.GetService<WindowViewModel>();
         LayoutSubViewModel = services.GetService<LayoutViewModel>();
-
-        ShowMessage();
 
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
 
-        ShowMessage();
-
         FileSubViewModel = services.GetService<FileViewModel>();
         ToolsSubViewModel = services.GetService<IToolsHandler>();
         ToolsSubViewModel.SelectedToolChanged += ToolsSubViewModel_SelectedToolChanged;
-
-        ShowMessage();
 
         IoSubViewModel = services.GetService<IoViewModel>();
         LayersSubViewModel = services.GetService<LayersViewModel>();
@@ -151,64 +134,32 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ColorsSubViewModel = services.GetService<ColorsViewModel>();
         ColorsSubViewModel?.SetupPaletteProviders(services);
 
-        ShowMessage();
-
         ToolsSubViewModel?.SetupTools(services);
-
-        ShowMessage();
 
         DiscordViewModel = services.GetService<DiscordViewModel>();
         UpdateSubViewModel = services.GetService<UpdateViewModel>();
         DebugSubViewModel = services.GetService<DebugViewModel>();
 
-        ShowMessage();
-
         StylusSubViewModel = services.GetService<StylusViewModel>();
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
-        ShowMessage();
-
         //AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
-
-        ShowMessage();
 
         CommandController.Init(services);
         LayoutSubViewModel.LayoutManager.InitLayout(this);
 
-        ShowMessage();
-
         MiscSubViewModel = services.GetService<MiscViewModel>();
-
-        ShowMessage();
 
         ShortcutController = new ShortcutController();
 
-        ShowMessage();
-
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
-
-        ShowMessage();
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
 
-        ShowMessage();
-
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
-        ShowMessage();
-        
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;
-        
     }
-    
-    static void ShowMessage(
-        string? message = null,
-        [CallerLineNumber] int lineNumber = 0,
-        [CallerMemberName] string? caller = null)
-    {
-        Console.WriteLine($"{message} {lineNumber} {caller}");
-    }
-    
 
     public bool DocumentIsNotNull(object property)
     {

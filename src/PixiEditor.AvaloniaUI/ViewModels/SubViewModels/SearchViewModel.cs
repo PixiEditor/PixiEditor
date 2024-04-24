@@ -49,19 +49,6 @@ internal class SearchViewModel : SubViewModel<ViewModelMain>, ISearchHandler
         {
             SearchTerm = searchTerm;
         }
-
-        try
-        {
-            Owner.FileSubViewModel.NewDocument(b => b
-                .WithSize(64, 64)
-                .WithLayer(l => l
-                    .WithName(new LocalizedString("BASE_LAYER_NAME"))
-                    .WithSurface(new Surface(new VecI(64, 64)))));
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
     }
 
     public void OpenSearchWindow(string searchTerm, bool selectAll = true)
