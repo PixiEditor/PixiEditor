@@ -69,6 +69,9 @@ internal partial class PaletteColorAdder : UserControl
 
     private void UpdateAddButton()
     {
+        if(Colors == null) return;
+        if (SelectedColor == null) return;
+
         AddButton.IsEnabled = !Colors.Contains(ToPaletteColor(SelectedColor)) && SelectedColor.A == 255;
     }
 

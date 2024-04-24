@@ -103,9 +103,25 @@ internal partial class PaletteViewer : UserControl
         set => SetValue(PaletteProviderProperty, value);
     }
 
+    public static readonly StyledProperty<bool> IsCompactProperty = AvaloniaProperty.Register<PaletteViewer, bool>(
+        nameof(IsCompact),
+        false);
+
+    public bool IsCompact
+    {
+        get => GetValue(IsCompactProperty);
+        set => SetValue(IsCompactProperty, value);
+    }
+
     public PaletteViewer()
     {
         InitializeComponent();
+        SizeChanged += OnSizeChanged;
+    }
+
+    private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
+    {
+        IsCompact = e.NewSize.Width < 240 || e.NewSize.Height < 240;
     }
 
     private void RemoveColorMenuItem_OnClick(object sender, RoutedEventArgs e)
