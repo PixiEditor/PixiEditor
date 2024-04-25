@@ -216,7 +216,7 @@ internal class TransformOverlay : Overlay
     public override void Render(DrawingContext drawingContext)
     {
         base.Render(drawingContext);
-        DrawOverlay(drawingContext, new(Bounds.Width, Bounds.Height), Corners, InternalState.Origin, ZoomboxScale);
+        DrawOverlay(drawingContext, new(Bounds.Width, Bounds.Height), Corners, InternalState.Origin, ZoomScale);
 
         if (capturedAnchor is null)
             UpdateRotationCursor(TransformHelper.ToVecD(lastPointerPos));
@@ -286,7 +286,7 @@ internal class TransformOverlay : Overlay
         leftHandle.Position = left;
         rightHandle.Position = right;
         originHandle.Position = InternalState.Origin;
-        moveHandle.Position = TransformHelper.GetHandlePos(Corners, ZoomboxScale, moveHandle.Size);
+        moveHandle.Position = TransformHelper.GetHandlePos(Corners, ZoomScale, moveHandle.Size);
 
         topLeftHandle.Draw(context);
         topRightHandle.Draw(context);
@@ -341,7 +341,7 @@ internal class TransformOverlay : Overlay
 
         VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
 
-        if(Handles.Any(x => x.IsWithinHandle(x.Position, pos, ZoomboxScale))) return;
+        if(Handles.Any(x => x.IsWithinHandle(x.Position, pos, ZoomScale))) return;
 
         if (!CanRotate(pos))
         {
@@ -388,7 +388,7 @@ internal class TransformOverlay : Overlay
             finalCursor = new Cursor(StandardCursorType.None);
         }
 
-        Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomboxScale, topLeftHandle.Size);
+        Anchor? anchor = TransformHelper.GetAnchorInPosition(pos, Corners, InternalState.Origin, ZoomScale, topLeftHandle.Size);
 
         if (isRotating)
         {
@@ -485,7 +485,7 @@ internal class TransformOverlay : Overlay
 
     private bool CanRotate(VecD mousePos)
     {
-        return !Corners.IsPointInside(mousePos) && Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomboxScale));
+        return !Corners.IsPointInside(mousePos) && Handles.All(x => !x.IsWithinHandle(x.Position, mousePos, ZoomScale));
     }
 
     private bool UpdateRotationCursor(VecD mousePos)
@@ -499,7 +499,7 @@ internal class TransformOverlay : Overlay
         var matrix = new TranslateTransform(mousePos.X, mousePos.Y).Value;
         double angle = (mousePos - InternalState.Origin).Angle * 180 / Math.PI - 90;
         matrix = matrix.RotateAt(angle, mousePos.X, mousePos.Y);
-        matrix = matrix.ScaleAt(8 / ZoomboxScale, 8 / ZoomboxScale, mousePos.X, mousePos.Y);
+        matrix = matrix.ScaleAt(8 / ZoomScale, 8 / ZoomScale, mousePos.X, mousePos.Y);
         rotateCursorGeometry.Transform = new MatrixTransform(matrix);
         return true;
     }
@@ -569,7 +569,7 @@ internal class TransformOverlay : Overlay
             if (snapPoint == originHandle)
                 continue;
 
-            if (TransformHelper.IsWithinHandle(snapPoint.Position, pos, ZoomboxScale, topHandle.Size))
+            if (TransformHelper.IsWithinHandle(snapPoint.Position, pos, ZoomScale, topHandle.Size))
             {
                 snapped = true;
                 return snapPoint.Position;

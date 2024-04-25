@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
@@ -7,6 +8,7 @@ using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Overlays;
@@ -122,6 +124,7 @@ internal class Scene : Control
         FlipYProperty.Changed.AddClassHandler<Scene>(RequestRendering);
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
+        ActiveOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
     }
 
     public Scene()
@@ -137,18 +140,53 @@ internal class Scene : Control
     {
         if (Surface == null || Document == null) return;
 
-        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, Scale, Angle, FlipX, FlipY, Bounds,
-            Opacity, (SKBitmap)checkerBitmap.Native);
+        float finalScale = CalculateFinalScale();
+        context.PushTransform(Matrix.CreateTranslation(ContentPosition.X, ContentPosition.Y));
+        context.PushTransform(Matrix.CreateScale(finalScale, finalScale));
 
+        float angle = (float)Angle;
+        if (FlipX)
+        {
+            angle = 360 - angle;
+        }
+
+        if (FlipY)
+        {
+            angle = 360 - angle;
+        }
+
+        context.PushTransform(Matrix.CreateRotation(MathUtil.AngleToRadians(angle)));
+        context.PushTransform(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
+
+        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, finalScale, Angle, FlipX, FlipY, Bounds,
+            Opacity, (SKBitmap)checkerBitmap.Native);
         context.Custom(operation);
 
         if (ActiveOverlays != null)
         {
             foreach (Overlay overlay in ActiveOverlays)
             {
+                overlay.ZoomScale = finalScale;
+                if(!overlay.IsVisible) continue;
+
                 overlay.Render(context);
             }
         }
+    }
+
+    private float CalculateFinalScale()
+    {
+        var scaleUniform = CalculateResolutionScale();
+        float scale = (float)Scale * scaleUniform;
+        return scale;
+    }
+
+    private float CalculateResolutionScale()
+    {
+        float scaleX = (float)Document.Width / Surface.Size.X;
+        float scaleY = (float)Document.Height / Surface.Size.Y;
+        var scaleUniform = Math.Min(scaleX, scaleY);
+        return scaleUniform;
     }
 
     private static void BoundsChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
@@ -164,6 +202,24 @@ internal class Scene : Control
     private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
         scene.Opacity = e.NewValue is true ? 0 : 1;
+    }
+
+    private static void ActiveOverlaysChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    {
+        scene.InvalidateVisual();
+        if (e.OldValue is ObservableCollection<Overlay> oldOverlays)
+        {
+            oldOverlays.CollectionChanged -= scene.OverlayCollectionChanged;
+        }
+        if (e.NewValue is ObservableCollection<Overlay> newOverlays)
+        {
+            newOverlays.CollectionChanged += scene.OverlayCollectionChanged;
+        }
+    }
+
+    private void OverlayCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        InvalidateVisual();
     }
 
     private static void CheckerImagePathChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
@@ -226,9 +282,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         canvas.Save();
 
-        float finalScale = CalculateFinalScale();
-
-        RectI surfaceRectToRender = FindRectToRender(finalScale);
+        RectI surfaceRectToRender = FindRectToRender((float)Scale);
 
         if (surfaceRectToRender.IsZeroOrNegativeArea)
         {
@@ -237,7 +291,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
             return;
         }
 
-        canvas.Scale(finalScale, finalScale, ContentPosition.X, ContentPosition.Y);
         float angle = (float)Angle;
         if (FlipX)
         {
@@ -248,10 +301,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
         {
             angle = 360 - angle;
         }
-
-        canvas.RotateDegrees(angle, ContentPosition.X, ContentPosition.Y);
-        canvas.Scale(FlipX ? -1 : 1, FlipY ? -1 : 1, ContentPosition.X, ContentPosition.Y);
-        canvas.Translate(ContentPosition.X, ContentPosition.Y);
 
         DrawCheckerboard(canvas, surfaceRectToRender);
 
@@ -322,21 +371,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
             BottomLeft = SurfaceToViewport(viewportRect.BottomLeft, scale),
             BottomRight = SurfaceToViewport(viewportRect.BottomRight, scale),
         };
-    }
-
-    private float CalculateFinalScale()
-    {
-        var scaleUniform = CalculateResolutionScale();
-        float scale = (float)Scale * scaleUniform;
-        return scale;
-    }
-
-    private float CalculateResolutionScale()
-    {
-        float scaleX = (float)Document.Width / Surface.Size.X;
-        float scaleY = (float)Document.Height / Surface.Size.Y;
-        var scaleUniform = Math.Min(scaleX, scaleY);
-        return scaleUniform;
     }
 
     private VecD SurfaceToViewport(VecI surfacePoint, float scale)

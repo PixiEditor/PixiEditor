@@ -110,7 +110,7 @@ internal class LineToolOverlay : Overlay
         endHandle.Position = LineEnd;
         VecD center = (LineStart + LineEnd) / 2;
         VecD size = LineEnd - LineStart;
-        moveHandle.Position = TransformHelper.GetHandlePos(new ShapeCorners(center, size), ZoomboxScale, moveHandle.Size);
+        moveHandle.Position = TransformHelper.GetHandlePos(new ShapeCorners(center, size), ZoomScale, moveHandle.Size);
 
         startHandle.Draw(context);
         endHandle.Draw(context);

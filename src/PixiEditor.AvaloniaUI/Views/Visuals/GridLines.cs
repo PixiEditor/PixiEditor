@@ -2,15 +2,12 @@
 using Avalonia.Controls;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
+using PixiEditor.AvaloniaUI.Views.Overlays;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 
-public class GridLines : Control
+public class GridLines : Overlay
 {
-    public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<GridLines, double>(
-        nameof(Scale),
-        defaultValue: 1d);
-
     public static readonly StyledProperty<int> RowsProperty = AvaloniaProperty.Register<GridLines, int>(
         nameof(Rows));
 
@@ -47,19 +44,24 @@ public class GridLines : Control
         set => SetValue(RowsProperty, value);
     }
 
-    public double Scale
-    {
-        get => GetValue(ScaleProperty);
-        set => SetValue(ScaleProperty, value);
-    }
-
     private const double PenWidth = 0.8d;
     private Pen pen1 = new(Brushes.Black, PenWidth);
     private Pen pen2 = new(Brushes.White, PenWidth);
+    private ThresholdVisibilityConverter visibilityConverter = new(){ Threshold = 10 };
 
     static GridLines()
     {
-        AffectsRender<GridLines>(ColumnsProperty, RowsProperty, ScaleProperty);
+        AffectsRender<GridLines>(ColumnsProperty, RowsProperty);
+    }
+
+    public GridLines()
+    {
+        IsHitTestVisible = false;
+    }
+
+    protected override void ZoomChanged(double newZoom)
+    {
+        IsVisible = visibilityConverter.Check(newZoom);
     }
 
     public override void Render(DrawingContext context)
@@ -73,8 +75,8 @@ public class GridLines : Control
         double columnWidth = width / Columns;
         double rowHeight = height / Rows;
 
-        pen1.Thickness = ReciprocalConverter.Convert(Scale);
-        pen2.Thickness = ReciprocalConverter.Convert(Scale, 1.2);
+        pen1.Thickness = ReciprocalConverter.Convert(ZoomScale);
+        pen2.Thickness = ReciprocalConverter.Convert(ZoomScale, 1.2);
 
         for (int i = 0; i < Columns; i++)
         {

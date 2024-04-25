@@ -11,8 +11,13 @@ internal class ThresholdVisibilityConverter
 
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
+        return Check((double)value);
+    }
+
+    public bool Check(double value)
+    {
         return CheckIfLess
-            ? (double)value < Threshold
-            : (double)value >= Threshold;
+            ? value < Threshold
+            : value >= Threshold;
     }
 }

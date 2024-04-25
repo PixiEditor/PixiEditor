@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia;
@@ -15,6 +16,7 @@ using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.Views.Overlays;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -281,21 +283,26 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public PixiEditor.Zoombox.Zoombox Zoombox => zoombox;
 
+    public ObservableCollection<Overlay> ActiveOverlays { get; } = new();
+
     public Guid GuidValue { get; } = Guid.NewGuid();
 
     private MouseUpdateController? mouseUpdateController;
+    private GridLines _gridLinesOverlay;
 
     static Viewport()
     {
         DocumentProperty.Changed.Subscribe(OnDocumentChange);
         ZoomViewportTriggerProperty.Changed.Subscribe(ZoomViewportTriggerChanged);
         CenterViewportTriggerProperty.Changed.Subscribe(CenterViewportTriggerChanged);
+        GridLinesVisibleProperty.Changed.Subscribe(GridLinesVisibleChanged);
     }
 
     public Viewport()
     {
         InitializeComponent();
 
+        _gridLinesOverlay = new GridLines();
         MainImage!.Loaded += OnImageLoaded;
         MainImage.SizeChanged += OnMainImageSizeChanged;
         Loaded += OnLoad;
@@ -353,6 +360,43 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
+    }
+
+    private static void GridLinesVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
+    {
+        Viewport? viewport = (Viewport)e.Sender;
+        if (e.NewValue.Value)
+        {
+            BindGridLines(viewport);
+            viewport.ActiveOverlays.Add(viewport._gridLinesOverlay);
+        }
+        else
+        {
+            viewport.ActiveOverlays.Remove(viewport._gridLinesOverlay);
+        }
+    }
+
+    private static void BindGridLines(Viewport viewport)
+    {
+        Binding binding = new()
+        {
+            Source = viewport.Document,
+            Path = "Width",
+            Mode = BindingMode.OneWay
+        };
+
+        viewport._gridLinesOverlay.Bind(GridLines.PixelWidthProperty, binding);
+        viewport._gridLinesOverlay.Bind(GridLines.ColumnsProperty, binding);
+
+        binding = new Binding
+        {
+            Source = viewport.Document,
+            Path = "Height",
+            Mode = BindingMode.OneWay
+        };
+
+        viewport._gridLinesOverlay.Bind(GridLines.PixelHeightProperty, binding);
+        viewport._gridLinesOverlay.Bind(GridLines.RowsProperty, binding);
     }
 
     private void OnImageSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
