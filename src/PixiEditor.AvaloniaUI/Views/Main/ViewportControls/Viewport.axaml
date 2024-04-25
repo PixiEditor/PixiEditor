@@ -118,10 +118,10 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        <visuals:CheckerBackground CheckerImagePath="/Images/CheckerTile.png"
+        <!--<visuals:CheckerBackground CheckerImagePath="/Images/CheckerTile.png"
                                    RenderTransform="{Binding #zoombox.CanvasTransform}" RenderTransformOrigin="0,0"
                                    PixelWidth="{Binding Document.Width}" PixelHeight="{Binding Document.Height}"
-                                   Scale="{Binding #zoombox.Scale}"/>
+                                   Scale="{Binding #zoombox.Scale}"/>-->
         <visuals:Scene
             Focusable="False" Name="scene"
             RenderTransformOrigin="0,0"
@@ -136,6 +136,7 @@
             FlipX="{Binding FlipX, ElementName=zoombox, Mode=OneWay}"
             FlipY="{Binding FlipY, ElementName=zoombox, Mode=OneWay}"
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
+            CheckerImagePath="/Images/CheckerTile.png"
             ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}">
         </visuals:Scene>
         <zoombox:Zoombox
@@ -202,13 +203,13 @@
                 <converters:ThresholdVisibilityConverter Threshold="10"
                                                          x:Key="ThresholdVisibilityConverter" />
             </Grid.Resources>
-            <visuals:GridLines Scale="{Binding #zoombox.Scale}"
+            <!--<visuals:GridLines Scale="{Binding #zoombox.Scale}"
                                PixelWidth="{Binding Document.Width}" PixelHeight="{Binding Document.Height}"
                                IsVisible="{Binding #zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}"
-                               Rows="{Binding Document.Width}" Columns="{Binding Document.Height}" />
+                               Rows="{Binding Document.Width}" Columns="{Binding Document.Height}" />-->
         </Grid>
 
-        <Grid ZIndex="5" DataContext="{Binding ElementName=vpUc}"
+        <!--<Grid ZIndex="5" DataContext="{Binding ElementName=vpUc}"
               RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}">
             <symmetryOverlay:SymmetryOverlay
                 Focusable="False"
@@ -266,7 +267,7 @@
                 LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
                 ZoomboxScale="{Binding #zoombox.Scale}"
                 FlowDirection="LeftToRight" />
-        </Grid>
+        </Grid>-->
         <Button
             ZIndex="99999"
             DockPanel.Dock="Bottom"

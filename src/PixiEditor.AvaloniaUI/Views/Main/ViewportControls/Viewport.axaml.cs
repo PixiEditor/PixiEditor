@@ -331,9 +331,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void InitializeOverlays()
     {
-        brushShapeOverlay.MouseEventSource = BackgroundGrid;
+        /*brushShapeOverlay.MouseEventSource = BackgroundGrid;
         brushShapeOverlay.MouseReference = MainImage;
-        brushShapeOverlay.Initialize();
+        brushShapeOverlay.Initialize();*/
     }
 
     private static void OnDocumentChange(AvaloniaPropertyChangedEventArgs<DocumentViewModel> e)

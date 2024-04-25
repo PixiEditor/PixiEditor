@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
@@ -8,6 +9,8 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.Views.Overlays;
+using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Skia;
@@ -41,6 +44,24 @@ internal class Scene : Control
 
     public static readonly StyledProperty<bool> FadeOutProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(FadeOut), false);
+
+    public static readonly StyledProperty<ObservableCollection<Overlay>> ActiveOverlaysProperty = AvaloniaProperty.Register<Scene, ObservableCollection<Overlay>>(
+        nameof(ActiveOverlays));
+
+    public static readonly StyledProperty<string> CheckerImagePathProperty = AvaloniaProperty.Register<Scene, string>(
+        nameof(CheckerImagePath));
+
+    public string CheckerImagePath
+    {
+        get => GetValue(CheckerImagePathProperty);
+        set => SetValue(CheckerImagePathProperty, value);
+    }
+
+    public ObservableCollection<Overlay> ActiveOverlays
+    {
+        get => GetValue(ActiveOverlaysProperty);
+        set => SetValue(ActiveOverlaysProperty, value);
+    }
 
     public bool FadeOut
     {
@@ -90,6 +111,8 @@ internal class Scene : Control
         set { SetValue(FlipYProperty, value); }
     }
 
+    private Bitmap? checkerBitmap;
+
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleProperty, FlipXProperty,
@@ -98,6 +121,7 @@ internal class Scene : Control
         FlipXProperty.Changed.AddClassHandler<Scene>(RequestRendering);
         FlipYProperty.Changed.AddClassHandler<Scene>(RequestRendering);
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
+        CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
     }
 
     public Scene()
@@ -114,9 +138,17 @@ internal class Scene : Control
         if (Surface == null || Document == null) return;
 
         var operation = new DrawSceneOperation(Surface, Document, ContentPosition, Scale, Angle, FlipX, FlipY, Bounds,
-            Opacity);
+            Opacity, (SKBitmap)checkerBitmap.Native);
 
         context.Custom(operation);
+
+        if (ActiveOverlays != null)
+        {
+            foreach (Overlay overlay in ActiveOverlays)
+            {
+                overlay.Render(context);
+            }
+        }
     }
 
     private static void BoundsChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
@@ -129,9 +161,21 @@ internal class Scene : Control
         sender.InvalidateVisual();
     }
 
-    private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs arg2)
+    private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
-        scene.Opacity = arg2.NewValue is true ? 0 : 1;
+        scene.Opacity = e.NewValue is true ? 0 : 1;
+    }
+
+    private static void CheckerImagePathChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is string path)
+        {
+            scene.checkerBitmap = ImagePathToBitmapConverter.LoadDrawingApiBitmapFromRelativePath(path);
+        }
+        else
+        {
+            scene.checkerBitmap = null;
+        }
     }
 }
 
@@ -145,11 +189,13 @@ internal class DrawSceneOperation : SkiaDrawOperation
     public bool FlipX { get; set; }
     public bool FlipY { get; set; }
 
+    public SKBitmap? CheckerBitmap { get; set; }
 
     private SKPaint _paint = new SKPaint();
+    private SKPaint _checkerPaint;
 
     public DrawSceneOperation(Surface surface, DocumentViewModel document, VecI contentPosition, double scale,
-        double angle, bool flipX, bool flipY, Rect bounds, double opacity) : base(bounds)
+        double angle, bool flipX, bool flipY, Rect bounds, double opacity, SKBitmap checkerBitmap) : base(bounds)
     {
         Surface = surface;
         Document = document;
@@ -158,7 +204,18 @@ internal class DrawSceneOperation : SkiaDrawOperation
         Angle = angle;
         FlipX = flipX;
         FlipY = flipY;
+        CheckerBitmap = checkerBitmap;
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
+
+        float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, scale) * 0.25f;
+        _checkerPaint = new SKPaint()
+        {
+            Shader = SKShader.CreateBitmap(
+                CheckerBitmap,
+                SKShaderTileMode.Repeat, SKShaderTileMode.Repeat,
+                SKMatrix.CreateScale(checkerScale, checkerScale)),
+            FilterQuality = SKFilterQuality.None
+        };
     }
 
     public override void Render(ISkiaSharpApiLease lease)
@@ -196,12 +253,22 @@ internal class DrawSceneOperation : SkiaDrawOperation
         canvas.Scale(FlipX ? -1 : 1, FlipY ? -1 : 1, ContentPosition.X, ContentPosition.Y);
         canvas.Translate(ContentPosition.X, ContentPosition.Y);
 
+        DrawCheckerboard(canvas, surfaceRectToRender);
+
         using Image snapshot = Surface.DrawingSurface.Snapshot(surfaceRectToRender);
         canvas.DrawImage((SKImage)snapshot.Native, surfaceRectToRender.X, surfaceRectToRender.Y, _paint);
 
         canvas.Restore();
 
         canvas.Flush();
+    }
+
+    private void DrawCheckerboard(SKCanvas canvas, RectI surfaceRectToRender)
+    {
+        if (CheckerBitmap != null)
+        {
+            canvas.DrawRect(surfaceRectToRender.ToSkRect(), _checkerPaint);
+        }
     }
 
     private RectI FindRectToRender(float finalScale)
