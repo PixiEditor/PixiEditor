@@ -10,18 +10,18 @@ public class Overlay : Decorator
 {
     public List<Handle> Handles { get; } = new();
 
-    public static readonly StyledProperty<double> ZoomboxScaleProperty =
+    public static readonly StyledProperty<double> ZoomScaleProperty =
         AvaloniaProperty.Register<Overlay, double>(nameof(ZoomScale), defaultValue: 1.0);
 
     public double ZoomScale
     {
-        get => GetValue(ZoomboxScaleProperty);
-        set => SetValue(ZoomboxScaleProperty, value);
+        get => GetValue(ZoomScaleProperty);
+        set => SetValue(ZoomScaleProperty, value);
     }
 
     public Overlay()
     {
-        ZoomboxScaleProperty.Changed.Subscribe(OnZoomboxScaleChanged);
+        ZoomScaleProperty.Changed.Subscribe(OnZoomboxScaleChanged);
     }
 
     public void AddHandle(Handle handle)

@@ -42,9 +42,7 @@ internal class LineToolOverlay : Overlay
 
     static LineToolOverlay()
     {
-        AffectsRender<LineToolOverlay>(ZoomboxScaleProperty, LineStartProperty, LineEndProperty);
-
-        ZoomboxScaleProperty.Changed.Subscribe(OnZoomboxScaleChanged);
+        AffectsRender<LineToolOverlay>(ZoomScaleProperty, LineStartProperty, LineEndProperty);
     }
 
     private Pen blackPen = new Pen(Brushes.Black, 1);
@@ -95,13 +93,9 @@ internal class LineToolOverlay : Overlay
         //mouseUpdateController?.Dispose();
     }
 
-    private static void OnZoomboxScaleChanged(AvaloniaPropertyChangedEventArgs<double> args)
+    protected override void ZoomChanged(double newZoom)
     {
-        if (args.Sender is not LineToolOverlay overlay)
-            return;
-
-        double newScale = args.NewValue.Value;
-        overlay.blackPen.Thickness = 1.0 / newScale;
+        blackPen.Thickness = 1.0 / newZoom;
     }
 
     public override void Render(DrawingContext context)

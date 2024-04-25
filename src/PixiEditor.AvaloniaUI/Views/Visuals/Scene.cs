@@ -3,7 +3,9 @@ using System.Collections.Specialized;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Rendering;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using ChunkyImageLib;
@@ -17,10 +19,11 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Skia;
 using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 
-internal class Scene : Control
+internal class Scene : Control, ICustomHitTest
 {
     public static readonly StyledProperty<Surface> SurfaceProperty = AvaloniaProperty.Register<SurfaceControl, Surface>(
         nameof(Surface));
@@ -232,6 +235,25 @@ internal class Scene : Control
         {
             scene.checkerBitmap = null;
         }
+    }
+
+    bool ICustomHitTest.HitTest(Point point)
+    {
+        //TODO: Overlays
+        return false;
+        /*if (ActiveOverlays == null) return false;
+
+        foreach (Overlay overlay in ActiveOverlays)
+        {
+            Point pointInOverlay = point - overlay.Bounds.Position;
+            if (overlay.InputHitTest(pointInOverlay) != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }*/
     }
 }
 

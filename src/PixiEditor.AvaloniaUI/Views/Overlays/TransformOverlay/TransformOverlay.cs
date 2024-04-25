@@ -107,7 +107,7 @@ internal class TransformOverlay : Overlay
 
     static TransformOverlay()
     {
-        AffectsRender<TransformOverlay>(RequestedCornersProperty, CornersProperty, ZoomboxScaleProperty, SideFreedomProperty, CornerFreedomProperty, LockRotationProperty, SnapToAnglesProperty, InternalStateProperty, ZoomboxAngleProperty, CoverWholeScreenProperty);
+        AffectsRender<TransformOverlay>(RequestedCornersProperty, CornersProperty, ZoomScaleProperty, SideFreedomProperty, CornerFreedomProperty, LockRotationProperty, SnapToAnglesProperty, InternalStateProperty, ZoomboxAngleProperty, CoverWholeScreenProperty);
 
         RequestedCornersProperty.Changed.Subscribe(OnRequestedCorners);
     }

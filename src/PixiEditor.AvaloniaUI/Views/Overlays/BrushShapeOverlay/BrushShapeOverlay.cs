@@ -11,11 +11,8 @@ using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 #nullable enable
-internal class BrushShapeOverlay : Control
+internal class BrushShapeOverlay : Overlay
 {
-    public static readonly StyledProperty<double> ZoomboxScaleProperty =
-        AvaloniaProperty.Register<BrushShapeOverlay, double>(nameof(ZoomboxScale), defaultValue: 1.0);
-
     public static readonly StyledProperty<int> BrushSizeProperty =
         AvaloniaProperty.Register<BrushShapeOverlay, int>(nameof(BrushSize), defaultValue: 1);
 
@@ -52,12 +49,6 @@ internal class BrushShapeOverlay : Control
         set => SetValue(BrushSizeProperty, value);
     }
 
-    public double ZoomboxScale
-    {
-        get => (double)GetValue(ZoomboxScaleProperty);
-        set => SetValue(ZoomboxScaleProperty, value);
-    }
-
     private Pen whitePen = new Pen(Brushes.LightGray, 1);
     private Point lastMousePos = new();
 
@@ -67,8 +58,6 @@ internal class BrushShapeOverlay : Control
     {
         AffectsRender<BrushShapeOverlay>(BrushShapeProperty);
         AffectsRender<BrushShapeOverlay>(BrushSizeProperty);
-
-        ZoomboxScaleProperty.Changed.Subscribe(OnZoomboxScaleChanged);
     }
 
     public BrushShapeOverlay()
@@ -167,6 +156,11 @@ internal class BrushShapeOverlay : Control
         }
     }
 
+    protected override void ZoomChanged(double newZoom)
+    {
+        whitePen.Thickness = 1.0 / newZoom;
+    }
+
     private static int Mod(int x, int m) => (x % m + m) % m;
 
     private static PathGeometry ConstructEllipseOutline(RectI rectangle)
@@ -236,12 +230,5 @@ internal class BrushShapeOverlay : Control
 
         var geometry = new PathGeometry() { Figures = new PathFigures() { figure }};
         return geometry;
-    }
-
-    private static void OnZoomboxScaleChanged(AvaloniaPropertyChangedEventArgs<double> e)
-    {
-        var self = (BrushShapeOverlay)e.Sender;
-        double newScale = e.NewValue.Value;
-        self.whitePen.Thickness = 1.0 / newScale;
     }
 }

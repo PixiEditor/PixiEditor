@@ -118,15 +118,10 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        <!--<visuals:CheckerBackground CheckerImagePath="/Images/CheckerTile.png"
-                                   RenderTransform="{Binding #zoombox.CanvasTransform}" RenderTransformOrigin="0,0"
-                                   PixelWidth="{Binding Document.Width}" PixelHeight="{Binding Document.Height}"
-                                   Scale="{Binding #zoombox.Scale}"/>-->
         <visuals:Scene
             Focusable="False" Name="scene"
             RenderTransformOrigin="0,0"
             ZIndex="1"
-            IsHitTestVisible="False"
             Width="{Binding RealDimensions.X, ElementName=vpUc}"
             Height="{Binding RealDimensions.Y, ElementName=vpUc}"
             Surface="{Binding TargetBitmap, ElementName=vpUc}"
@@ -197,20 +192,21 @@
                                         FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=!PickFromReferenceLayer, Mode=OneWay}"
                                         RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}"/>
 
-        <!--<Grid IsHitTestVisible="False" RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}"
-              ShowGridLines="True"
-              Panel.ZIndex="10"
-              IsVisible="{Binding GridLinesVisible, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}">
-            <Grid.Resources>
-                <converters:ThresholdVisibilityConverter Threshold="10"
-                                                         x:Key="ThresholdVisibilityConverter" />
-            </Grid.Resources>
-            <visuals:GridLines Scale="{Binding #zoombox.Scale}"
-                               PixelWidth="{Binding Document.Width}" PixelHeight="{Binding Document.Height}"
-                               IsVisible="{Binding #zoombox.Scale, Converter={StaticResource ThresholdVisibilityConverter}}"
-                               Rows="{Binding Document.Width}" Columns="{Binding Document.Height}" />
-        </Grid>-->
-
+        <!--Brush shape overlay is rendered separately, so it doesn't trigger rerender each mouse movement to scene-->
+        <!--I didn't measure it, but I thought that could impact performance-->
+        <brushShapeOverlay:BrushShapeOverlay
+            DataContext="{Binding ElementName=vpUc}"
+            RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}"
+            Name="brushShapeOverlay"
+            Focusable="False" ZIndex="6"
+            IsHitTestVisible="False"
+            IsVisible="{Binding !Document.TransformViewModel.TransformActive}"
+            ZoomScale="{Binding #zoombox.Scale}"
+            MouseEventSource="{Binding #vpUc.BackgroundGrid, Mode=OneTime}"
+            MouseReference="{Binding #vpUc.MainImage, Mode=OneTime}"
+            BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
+            BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
+            FlowDirection="LeftToRight" />
         <!--<Grid ZIndex="5" DataContext="{Binding ElementName=vpUc}"
               RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}">
             <symmetryOverlay:SymmetryOverlay

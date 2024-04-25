@@ -15,8 +15,12 @@ using PixiEditor.AvaloniaUI.Helpers.UI;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Position;
+using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.AvaloniaUI.Views.Overlays;
+using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
+using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -288,7 +292,10 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public Guid GuidValue { get; } = Guid.NewGuid();
 
     private MouseUpdateController? mouseUpdateController;
+
     private GridLines _gridLinesOverlay;
+
+    private SymmetryOverlay _symmetryOverlay;
 
     static Viewport()
     {
@@ -302,7 +309,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         InitializeComponent();
 
-        _gridLinesOverlay = new GridLines();
+        InitBuiltInOverlays();
         MainImage!.Loaded += OnImageLoaded;
         MainImage.SizeChanged += OnMainImageSizeChanged;
         Loaded += OnLoad;
@@ -311,6 +318,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         //TODO: It's weird that I had to do it this way, right click didn't raise Image_MouseUp otherwise.
         viewportGrid.AddHandler(PointerReleasedEvent, Image_MouseUp, RoutingStrategies.Tunnel);
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
+    }
+
+    private void InitBuiltInOverlays()
+    {
+        _gridLinesOverlay = new GridLines();
+        _symmetryOverlay = new SymmetryOverlay();
     }
 
     public Panel? MainImage => zoombox != null ? (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[0] : null;
@@ -338,9 +351,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void InitializeOverlays()
     {
-        /*brushShapeOverlay.MouseEventSource = BackgroundGrid;
+        brushShapeOverlay.MouseEventSource = BackgroundGrid;
         brushShapeOverlay.MouseReference = MainImage;
-        brushShapeOverlay.Initialize();*/
+        brushShapeOverlay.Initialize();
     }
 
     private static void OnDocumentChange(AvaloniaPropertyChangedEventArgs<DocumentViewModel> e)
