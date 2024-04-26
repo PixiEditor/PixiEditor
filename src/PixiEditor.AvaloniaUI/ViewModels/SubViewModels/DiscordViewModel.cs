@@ -18,6 +18,9 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         get => client != null;
         set
         {
+            client = null;
+            return;
+            
             if (Enabled != value)
             {
                 if (value)
@@ -80,6 +83,8 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
     public DiscordViewModel(ViewModelMain owner, string clientId)
         : base(owner)
     {
+        return;
+        
         Owner.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
         this.clientId = clientId;
 

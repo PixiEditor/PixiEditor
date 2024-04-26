@@ -265,6 +265,10 @@
                     xaml:Menu.Command="PixiEditor.Debug.OpenPointerDebugWindow"/>
                 <Separator/>
                 <MenuItem
+                    Header="Create debug document"
+                    xaml:Menu.Command="PixiEditor.Debug.CreateDebugDocument"/>
+                <Separator/>
+                <MenuItem
                     ui:Translator.Key="OPEN_LOCAL_APPDATA_DIR"
                     xaml:Menu.Command="PixiEditor.Debug.OpenLocalAppDataDirectory" />
                 <MenuItem

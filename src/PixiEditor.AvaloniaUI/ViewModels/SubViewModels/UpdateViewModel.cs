@@ -243,8 +243,8 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         UpdateChannels.Add(new UpdateChannel("Release", "PixiEditor", "PixiEditor"));
         UpdateChannels.Add(new UpdateChannel("Development", "PixiEditor", "PixiEditor-development-channel"));
 #else
-        string platformName = IPlatform.Current.Name;
-        UpdateChannels.Add(new UpdateChannel(platformName, "", ""));
+        //string platformName = IPlatform.Current.Name;
+        UpdateChannels.Add(new UpdateChannel("Android :)", "", ""));
 #endif
 
         string updateChannel = IPreferences.Current.GetPreference<string>("UpdateChannel");

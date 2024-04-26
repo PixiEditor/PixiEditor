@@ -99,19 +99,23 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private void Owner_OnStartupEvent(object sender, System.EventArgs e)
     {
-        List<string> args = StartupArgs.Args;
-        string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
-        if (file != null)
-        {
-            OpenFromPath(file);
-        }
-        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
-        {
-            if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
-            {
-                OpenHelloTherePopup();
-            }
-        }
+        Console.WriteLine("Owner starutp before");
+        
+        // List<string> args = StartupArgs.Args;
+        // string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
+        // if (file != null)
+        // {
+        //     OpenFromPath(file);
+        // }
+        // else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
+        // {
+        //     if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
+        //     {
+        //         OpenHelloTherePopup();
+        //     }
+        // }
+        
+        Console.WriteLine("Owner startup after");
     }
 
     [Command.Internal("PixiEditor.File.OpenRecent")]

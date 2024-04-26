@@ -248,6 +248,8 @@ internal static class ClipboardController
     [Evaluator.CanExecute("PixiEditor.Clipboard.HasImageInClipboard")]
     public static async Task<bool> IsImageInClipboard()
     {
+        return false;
+
         var formats = await Clipboard.GetFormatsAsync();
         if (formats == null || formats.Length == 0)
             return false;

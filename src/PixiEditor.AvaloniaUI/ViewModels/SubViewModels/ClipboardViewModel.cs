@@ -23,10 +23,10 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     public ClipboardViewModel(ViewModelMain owner)
         : base(owner)
     {
-        Application.Current.ForDesktopMainWindow((mainWindow) =>
-        {
-            ClipboardController.Initialize(mainWindow.Clipboard);
-        });
+        //Application.Current.ForDesktopMainWindow((mainWindow) =>
+        //{
+        //    ClipboardController.Initialize(mainWindow.Clipboard);
+        //});
     }
 
     [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = KeyModifiers.Control)]

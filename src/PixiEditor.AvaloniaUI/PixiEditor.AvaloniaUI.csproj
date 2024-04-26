@@ -62,11 +62,14 @@
       <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
       <ProjectReference Include="..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj" />
       <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
-      <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj" />
       <ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
       <ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
     </ItemGroup>
-  
+<!--  -->
+<!--  <ItemGroup Condition="'$(RuntimeIdentifier)' != 'browser-wasm'">-->
+<!--    <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj" />-->
+<!--  </ItemGroup>-->
+<!--  -->
     <ItemGroup>
       <AvaloniaResource Include="Images\**" />
       <AvaloniaResource Include="Fonts\**" />

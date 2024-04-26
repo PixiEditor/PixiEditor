@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
+using ChunkyImageLib;
 using Newtonsoft.Json;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
@@ -15,6 +16,7 @@ using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging;
 using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.Localization;
+using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.OperatingSystem;
@@ -224,6 +226,18 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     public void OpenPointerDebugWindow()
     {
         new PointerDebugPopup().Show();
+    }
+
+    [Command.Basic("PixiEditor.Debug.CreateDebugDocument", "Create debug document", "Create debug document")]
+    public void CreateDebugDocument()
+    {
+        var viewModel = Owner.FileSubViewModel;
+        
+        viewModel.NewDocument(b => b
+            .WithSize(64, 64)
+            .WithLayer(l => l
+                .WithName(new LocalizedString("BASE_LAYER_NAME"))
+                .WithSurface(new Surface(new VecI(64, 64)))));
     }
 
     [Command.Debug("PixiEditor.Debug.OpenLocalizationDebugWindow", "OPEN_LOCALIZATION_DEBUG_WINDOW", "OPEN_LOCALIZATION_DEBUG_WINDOW")]

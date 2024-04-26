@@ -1,7 +1,10 @@
 ﻿using Avalonia.Input;
+using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Handlers;
+using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
@@ -45,6 +48,19 @@ internal class SearchViewModel : SubViewModel<ViewModelMain>, ISearchHandler
         if (SearchWindowOpen)
         {
             SearchTerm = searchTerm;
+        }
+
+        try
+        {
+            Owner.FileSubViewModel.NewDocument(b => b
+                .WithSize(64, 64)
+                .WithLayer(l => l
+                    .WithName(new LocalizedString("BASE_LAYER_NAME"))
+                    .WithSurface(new Surface(new VecI(64, 64)))));
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
         }
     }
 

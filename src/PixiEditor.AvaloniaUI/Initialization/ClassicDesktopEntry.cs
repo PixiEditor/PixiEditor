@@ -19,7 +19,7 @@ using PixiEditor.Extensions.Runtime;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
 using PixiEditor.Views;
-using PixiEditor.Windows;
+// using PixiEditor.Windows;
 using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;
 
 namespace PixiEditor.AvaloniaUI.Initialization;
@@ -135,7 +135,8 @@ internal class ClassicDesktopEntry
 
     private IOperatingSystem GetActiveOperatingSystem()
     {
-        return new WindowsOperatingSystem();
+        return null;
+        // return new WindowsOperatingSystem();
     }
 
     private bool HandleNewInstance(Dispatcher? dispatcher)
