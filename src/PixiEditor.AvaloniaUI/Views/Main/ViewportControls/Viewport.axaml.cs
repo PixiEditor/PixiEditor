@@ -13,6 +13,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.Helpers.UI;
+using PixiEditor.AvaloniaUI.Models.Commands.XAML;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Position;
@@ -297,6 +298,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private GridLines gridLinesOverlay;
     private SelectionOverlay selectionOverlay;
+    private SymmetryOverlay symmetryOverlay;
 
     static Viewport()
     {
@@ -328,8 +330,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         selectionOverlay = new SelectionOverlay();
         BindSelectionOverlay();
 
+        symmetryOverlay = new SymmetryOverlay();
+        BindSymmetryOverlay();
+
         ActiveOverlays.Add(gridLinesOverlay);
         ActiveOverlays.Add(selectionOverlay);
+        ActiveOverlays.Add(symmetryOverlay);
     }
 
     public Panel? MainImage => zoombox != null ? (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[0] : null;
@@ -414,9 +420,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void BindSelectionOverlay()
     {
-        //    ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels:MainVM}, Converter={converters:IsSelectionToolConverter}}"
-        //Path="{Binding Document.SelectionPathBindable}"
-
         Binding showFillBinding = new()
         {
             Source = this,
@@ -443,6 +446,26 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         selectionOverlay.Bind(SelectionOverlay.ShowFillProperty, showFillBinding);
         selectionOverlay.Bind(SelectionOverlay.PathProperty, pathBinding);
         selectionOverlay.Bind(IsVisibleProperty, isVisibleBinding);
+    }
+
+    private void BindSymmetryOverlay()
+    {
+        Binding sizeBinding = new() { Source = this, Path = "Document.SizeBindable", Mode = BindingMode.OneWay };
+        Binding isHitTestVisibleBinding = new() { Source = this, Path = "ZoomMode", Converter = new ZoomModeToHitTestVisibleConverter(), Mode = BindingMode.OneWay };
+        Binding horizontalAxisVisibleBinding = new() { Source = this, Path = "Document.HorizontalSymmetryAxisEnabledBindable", Mode = BindingMode.OneWay };
+        Binding verticalAxisVisibleBinding = new() { Source = this, Path = "Document.VerticalSymmetryAxisEnabledBindable", Mode = BindingMode.OneWay };
+        Binding horizontalAxisYBinding = new() { Source = this, Path = "Document.HorizontalSymmetryAxisYBindable", Mode = BindingMode.OneWay };
+        Binding verticalAxisXBinding = new() { Source = this, Path = "Document.VerticalSymmetryAxisXBindable", Mode = BindingMode.OneWay };
+
+        symmetryOverlay.Bind(SymmetryOverlay.SizeProperty, sizeBinding);
+        symmetryOverlay.Bind(IsHitTestVisibleProperty, isHitTestVisibleBinding);
+        symmetryOverlay.Bind(SymmetryOverlay.HorizontalAxisVisibleProperty, horizontalAxisVisibleBinding);
+        symmetryOverlay.Bind(SymmetryOverlay.VerticalAxisVisibleProperty, verticalAxisVisibleBinding);
+        symmetryOverlay.Bind(SymmetryOverlay.HorizontalAxisYProperty, horizontalAxisYBinding);
+        symmetryOverlay.Bind(SymmetryOverlay.VerticalAxisXProperty, verticalAxisXBinding);
+        symmetryOverlay.DragCommand = (ICommand)new Command("PixiEditor.Document.DragSymmetry") { UseProvided = true }.ProvideValue(null);
+        symmetryOverlay.DragEndCommand = (ICommand)new Command("PixiEditor.Document.EndDragSymmetry") { UseProvided = true }.ProvideValue(null);
+        symmetryOverlay.DragStartCommand = (ICommand)new Command("PixiEditor.Document.StartDragSymmetry") { UseProvided = true }.ProvideValue(null);
     }
 
     private void OnImageSizeChanged(object? sender, DocumentSizeChangedEventArgs e)

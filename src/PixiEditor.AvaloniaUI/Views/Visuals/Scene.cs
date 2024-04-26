@@ -14,6 +14,7 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Overlays;
+using PixiEditor.AvaloniaUI.Views.Overlays.Pointers;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -50,8 +51,9 @@ internal class Scene : Control, ICustomHitTest
     public static readonly StyledProperty<bool> FadeOutProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(FadeOut), false);
 
-    public static readonly StyledProperty<ObservableCollection<Overlay>> ActiveOverlaysProperty = AvaloniaProperty.Register<Scene, ObservableCollection<Overlay>>(
-        nameof(ActiveOverlays));
+    public static readonly StyledProperty<ObservableCollection<Overlay>> ActiveOverlaysProperty =
+        AvaloniaProperty.Register<Scene, ObservableCollection<Overlay>>(
+            nameof(ActiveOverlays));
 
     public static readonly StyledProperty<string> CheckerImagePathProperty = AvaloniaProperty.Register<Scene, string>(
         nameof(CheckerImagePath));
@@ -117,14 +119,19 @@ internal class Scene : Control, ICustomHitTest
     }
 
     private Bitmap? checkerBitmap;
+    private bool captured;
+    private Overlay? capturedOverlay;
 
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleProperty, FlipXProperty,
             FlipYProperty, ContentPositionProperty, DocumentProperty, SurfaceProperty);
         BoundsProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
-        FlipXProperty.Changed.AddClassHandler<Scene>(RequestRendering);
-        FlipYProperty.Changed.AddClassHandler<Scene>(RequestRendering);
+        ContentPositionProperty.Changed.AddClassHandler<Scene>(Rerender);
+        ScaleProperty.Changed.AddClassHandler<Scene>(Rerender);
+        FlipXProperty.Changed.AddClassHandler<Scene>(Rerender);
+        FlipYProperty.Changed.AddClassHandler<Scene>(Rerender);
+        AngleProperty.Changed.AddClassHandler<Scene>(Rerender);
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
         ActiveOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
@@ -144,8 +151,6 @@ internal class Scene : Control, ICustomHitTest
         if (Surface == null || Document == null) return;
 
         float finalScale = CalculateFinalScale();
-        context.PushTransform(Matrix.CreateTranslation(ContentPosition.X, ContentPosition.Y));
-        context.PushTransform(Matrix.CreateScale(finalScale, finalScale));
 
         float angle = (float)Angle;
         if (FlipX)
@@ -158,23 +163,151 @@ internal class Scene : Control, ICustomHitTest
             angle = 360 - angle;
         }
 
+        context.PushTransform(Matrix.CreateTranslation(ContentPosition.X, ContentPosition.Y));
+        context.PushTransform(Matrix.CreateScale(finalScale, finalScale));
         context.PushTransform(Matrix.CreateRotation(MathUtil.AngleToRadians(angle)));
         context.PushTransform(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
 
-        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, finalScale, Angle, FlipX, FlipY, Bounds,
+        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, finalScale, Angle, FlipX, FlipY,
+            Bounds,
             Opacity, (SKBitmap)checkerBitmap.Native);
         context.Custom(operation);
+
 
         if (ActiveOverlays != null)
         {
             foreach (Overlay overlay in ActiveOverlays)
             {
                 overlay.ZoomScale = finalScale;
-                if(!overlay.IsVisible) continue;
+                if (!overlay.IsVisible) continue;
 
                 overlay.Render(context);
+                Cursor = overlay.Cursor;
             }
         }
+    }
+
+    protected override void OnPointerEntered(PointerEventArgs e)
+    {
+        base.OnPointerEntered(e);
+        if (ActiveOverlays != null)
+        {
+            if (captured)
+            {
+                capturedOverlay?.PointerEnteredOverlay(ConstructPointerArgs(e));
+            }
+            else
+            {
+                foreach (Overlay overlay in ActiveOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
+                    overlay.PointerEnteredOverlay(ConstructPointerArgs(e));
+                }
+            }
+        }
+    }
+
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        base.OnPointerMoved(e);
+        if (ActiveOverlays != null)
+        {
+            if (captured)
+            {
+                capturedOverlay?.PointerMovedOverlay(ConstructPointerArgs(e));
+            }
+            else
+            {
+                foreach (Overlay overlay in ActiveOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
+                    overlay.PointerMovedOverlay(ConstructPointerArgs(e));
+                }
+            }
+        }
+    }
+
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+        if (ActiveOverlays != null)
+        {
+            if (captured)
+            {
+                capturedOverlay?.PointerPressedOverlay(ConstructPointerArgs(e));
+            }
+            else
+            {
+                foreach (Overlay overlay in ActiveOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
+                    overlay.PointerPressedOverlay(ConstructPointerArgs(e));
+                }
+            }
+        }
+    }
+
+    protected override void OnPointerExited(PointerEventArgs e)
+    {
+        base.OnPointerExited(e);
+        if (ActiveOverlays != null)
+        {
+            foreach (Overlay overlay in ActiveOverlays)
+            {
+                if (!overlay.IsVisible) continue;
+                overlay.PointerExitedOverlay(ConstructPointerArgs(e));
+            }
+        }
+    }
+
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
+        base.OnPointerExited(e);
+        if (ActiveOverlays != null)
+        {
+            if (captured)
+            {
+                capturedOverlay?.PointerReleasedOverlay(ConstructPointerArgs(e));
+            }
+            else
+            {
+                foreach (Overlay overlay in ActiveOverlays)
+                {
+                    if (!overlay.IsVisible) continue;
+                    overlay.PointerReleasedOverlay(ConstructPointerArgs(e));
+                }
+            }
+        }
+    }
+
+    private OverlayPointerArgs ConstructPointerArgs(PointerEventArgs e)
+    {
+        return new OverlayPointerArgs
+        {
+            Point = ToCanvasSpace(e.GetPosition(this)),
+            Modifiers = e.KeyModifiers,
+            Pointer = new MouseOverlayPointer(e.Pointer, CaptureOverlay),
+            PointerButton = e.GetMouseButton(this),
+            InitialPressMouseButton = e is PointerReleasedEventArgs released ? released.InitialPressMouseButton : MouseButton.None
+        };
+    }
+
+    private VecD ToCanvasSpace(Point scenePosition)
+    {
+        Matrix transform = CalculateTransformMatrix();
+        Point transformed = transform.Invert().Transform(scenePosition);
+        return new VecD(transformed.X, transformed.Y);
+    }
+
+    private Matrix CalculateTransformMatrix()
+    {
+        Matrix transform = Matrix.Identity;
+        float finalScale = CalculateFinalScale();
+        transform = transform.Append(Matrix.CreateRotation(MathUtil.AngleToRadians((float)Angle)));
+        transform = transform.Append(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
+        transform = transform.Append(Matrix.CreateScale(finalScale, finalScale));
+        transform = transform.Append(Matrix.CreateTranslation(ContentPosition.X, ContentPosition.Y));
+        return transform;
     }
 
     private float CalculateFinalScale()
@@ -192,14 +325,31 @@ internal class Scene : Control, ICustomHitTest
         return scaleUniform;
     }
 
+    private void CaptureOverlay(Overlay? overlay, IPointer pointer)
+    {
+        if(ActiveOverlays == null) return;
+        if (overlay == null)
+        {
+            pointer.Capture(null);
+            captured = false;
+            return;
+        }
+
+        if(overlay != null && !ActiveOverlays.Contains(overlay)) return;
+
+        pointer.Capture(this);
+        capturedOverlay = overlay;
+        captured = true;
+    }
+
     private static void BoundsChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
     {
         sender.InvalidateVisual();
     }
 
-    private static void RequestRendering(Scene sender, AvaloniaPropertyChangedEventArgs e)
+    private static void Rerender(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
-        sender.InvalidateVisual();
+        scene.InvalidateVisual();
     }
 
     private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
@@ -214,6 +364,7 @@ internal class Scene : Control, ICustomHitTest
         {
             oldOverlays.CollectionChanged -= scene.OverlayCollectionChanged;
         }
+
         if (e.NewValue is ObservableCollection<Overlay> newOverlays)
         {
             newOverlays.CollectionChanged += scene.OverlayCollectionChanged;
@@ -223,6 +374,21 @@ internal class Scene : Control, ICustomHitTest
     private void OverlayCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         InvalidateVisual();
+        if(e.OldItems != null)
+        {
+            foreach (Overlay overlay in e.OldItems)
+            {
+                overlay.RefreshRequested -= InvalidateVisual;
+            }
+        }
+
+        if(e.NewItems != null)
+        {
+            foreach (Overlay overlay in e.NewItems)
+            {
+                overlay.RefreshRequested += InvalidateVisual;
+            }
+        }
     }
 
     private static void CheckerImagePathChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
@@ -239,21 +405,18 @@ internal class Scene : Control, ICustomHitTest
 
     bool ICustomHitTest.HitTest(Point point)
     {
-        //TODO: Overlays
-        return false;
-        /*if (ActiveOverlays == null) return false;
+        if (ActiveOverlays == null) return false;
 
         foreach (Overlay overlay in ActiveOverlays)
         {
-            Point pointInOverlay = point - overlay.Bounds.Position;
-            if (overlay.InputHitTest(pointInOverlay) != null)
+            VecD pointInOverlay = ToCanvasSpace(point);
+            if (overlay.TestHit(pointInOverlay))
             {
                 return true;
             }
         }
 
         return false;
-    }*/
     }
 }
 
@@ -311,17 +474,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
             canvas.Restore();
             canvas.Flush();
             return;
-        }
-
-        float angle = (float)Angle;
-        if (FlipX)
-        {
-            angle = 360 - angle;
-        }
-
-        if (FlipY)
-        {
-            angle = 360 - angle;
         }
 
         DrawCheckerboard(canvas, surfaceRectToRender);

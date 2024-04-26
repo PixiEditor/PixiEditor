@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
+using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays;
 
-public abstract class Overlay : Decorator
+public abstract class Overlay : Decorator // TODO: Maybe make it not avalonia element
 {
     public List<Handle> Handles { get; } = new();
 
@@ -18,6 +21,8 @@ public abstract class Overlay : Decorator
         get => GetValue(ZoomScaleProperty);
         set => SetValue(ZoomScaleProperty, value);
     }
+
+    public event Action? RefreshRequested;
 
     public Overlay()
     {
@@ -62,5 +67,40 @@ public abstract class Overlay : Decorator
                 handle.ZoomboxScale = e.NewValue.Value;
             }
         }
+    }
+
+    public virtual bool TestHit(VecD point)
+    {
+        return Handles.Any(handle => handle.HandleRect.ContainsInclusive(new VecD(point.X, point.Y)));
+    }
+
+    public void Refresh()
+    {
+        RefreshRequested?.Invoke(); // For scene hosted overlays
+        InvalidateVisual(); // For elements in visual tree
+    }
+
+    public virtual void PointerEnteredOverlay(OverlayPointerArgs args)
+    {
+    }
+
+    public virtual void PointerExitedOverlay(OverlayPointerArgs args)
+    {
+
+    }
+
+    public virtual void PointerMovedOverlay(OverlayPointerArgs args)
+    {
+
+    }
+
+    public virtual void PointerPressedOverlay(OverlayPointerArgs args)
+    {
+
+    }
+
+    public virtual void PointerReleasedOverlay(OverlayPointerArgs args)
+    {
+
     }
 }

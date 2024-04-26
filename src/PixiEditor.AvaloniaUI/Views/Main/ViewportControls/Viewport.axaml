@@ -120,7 +120,6 @@
         </overlays:TogglableFlyout>
         <visuals:Scene
             Focusable="False" Name="scene"
-            RenderTransformOrigin="0,0"
             ZIndex="1"
             Width="{Binding RealDimensions.X, ElementName=vpUc}"
             Height="{Binding RealDimensions.Y, ElementName=vpUc}"
@@ -221,23 +220,6 @@
                 DragCommand="{xaml:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
                 DragEndCommand="{xaml:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
                 DragStartCommand="{xaml:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
-                FlowDirection="LeftToRight" />
-            <selectionOverlay:SelectionOverlay
-                Focusable="False"
-                ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels:MainVM}, Converter={converters:IsSelectionToolConverter}}"
-                Path="{Binding Document.SelectionPathBindable}"
-                ZoomboxScale="{Binding #zoombox.Scale}"
-                FlowDirection="LeftToRight" />
-            <brushShapeOverlay:BrushShapeOverlay
-                Name="brushShapeOverlay"
-                Focusable="False"
-                IsHitTestVisible="False"
-                IsVisible="{Binding !Document.TransformViewModel.TransformActive}"
-                ZoomboxScale="{Binding #zoombox.Scale}"
-                MouseEventSource="{Binding #vpUc.BackgroundGrid, Mode=OneTime}"
-                MouseReference="{Binding #vpUc.MainImage, Mode=OneTime}"
-                BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
-                BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
                 FlowDirection="LeftToRight" />
             <transformOverlay:TransformOverlay
                 Focusable="False"

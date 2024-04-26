@@ -51,15 +51,6 @@ internal class SymmetryOverlay : Overlay
         set => SetValue(VerticalAxisVisibleProperty, value);
     }
 
-    public static readonly StyledProperty<double> ZoomboxScaleProperty =
-        AvaloniaProperty.Register<SymmetryOverlay, double>(nameof(ZoomboxScale), defaultValue: 1.0);
-
-    public double ZoomboxScale
-    {
-        get => GetValue(ZoomboxScaleProperty);
-        set => SetValue(ZoomboxScaleProperty, value);
-    }
-
     public static readonly StyledProperty<ICommand?> DragCommandProperty =
         AvaloniaProperty.Register<SymmetryOverlay, ICommand?>(nameof(DragCommand));
 
@@ -87,15 +78,9 @@ internal class SymmetryOverlay : Overlay
         set => SetValue(DragStartCommandProperty, value);
     }
 
-    static SymmetryOverlay()
-    {
-        AffectsRender<SymmetryOverlay>(HorizontalAxisVisibleProperty);
-        AffectsRender<SymmetryOverlay>(VerticalAxisVisibleProperty);
-        AffectsRender<SymmetryOverlay>(ZoomboxScaleProperty);
-
-        HorizontalAxisYProperty.Changed.Subscribe(OnPositionUpdate);
-        VerticalAxisXProperty.Changed.Subscribe(OnPositionUpdate);
-    }
+    private SymmetryAxisDirection? capturedDirection;
+    private SymmetryAxisDirection? hoveredDirection;
+    public static readonly StyledProperty<VecI> SizeProperty = AvaloniaProperty.Register<SymmetryOverlay, VecI>(nameof(Size));
 
     private const double HandleSize = 12;
     private Geometry handleGeometry = Handle.GetHandleGeometry("MarkerHandle");
@@ -110,7 +95,7 @@ internal class SymmetryOverlay : Overlay
     private Pen checkerBlack = new(new SolidColorBrush(Color.FromRgb(170, 170, 170)), 1.0) { DashStyle = new DashStyle(new[] { DashWidth, DashWidth }, 0) };
     private Pen checkerWhite = new(new SolidColorBrush(Color.FromRgb(100, 100, 100)), 1.0) { DashStyle = new DashStyle(new[] { DashWidth, DashWidth }, DashWidth) };
 
-    private double PenThickness => 1.0 / ZoomboxScale;
+    private double PenThickness => 1.0 / ZoomScale;
 
     public VecI Size    
     {
@@ -120,30 +105,16 @@ internal class SymmetryOverlay : Overlay
 
     private double horizontalAxisY;
     private double verticalAxisX;
-    private Point pointerPosition;
+    private VecD pointerPosition;
 
-    private MouseUpdateController? mouseUpdateController;
-
-    public SymmetryOverlay()
+    static SymmetryOverlay()
     {
-        Loaded += OnLoaded;
-        Unloaded += OnUnloaded;
-    }
+        AffectsRender<SymmetryOverlay>(HorizontalAxisVisibleProperty);
+        AffectsRender<SymmetryOverlay>(VerticalAxisVisibleProperty);
+        AffectsRender<SymmetryOverlay>(ZoomScaleProperty);
 
-    private void OnUnloaded(object? sender, RoutedEventArgs e)
-    {
-        mouseUpdateController?.Dispose();
-    }
-
-    private void OnLoaded(object? sender, RoutedEventArgs e)
-    {
-        mouseUpdateController = new MouseUpdateController(this, MouseMoved);
-        PointerEntered += OnPointerEntered;
-    }
-
-    private void OnPointerEntered(object? sender, PointerEventArgs e)
-    {
-        pointerPosition = e.GetPosition(this);
+        HorizontalAxisYProperty.Changed.Subscribe(OnPositionUpdate);
+        VerticalAxisXProperty.Changed.Subscribe(OnPositionUpdate);
     }
 
     public override void Render(DrawingContext drawingContext)
@@ -157,7 +128,7 @@ internal class SymmetryOverlay : Overlay
         checkerWhite.Thickness = PenThickness;
         rulerPen.Thickness = PenThickness;
 
-        handleGeometry.Transform = new ScaleTransform(HandleSize / ZoomboxScale, HandleSize / ZoomboxScale);
+        handleGeometry.Transform = new ScaleTransform(HandleSize / ZoomScale, HandleSize / ZoomScale);
 
         if (HorizontalAxisVisible)
         {
@@ -228,7 +199,7 @@ internal class SymmetryOverlay : Overlay
         string text = upper ? $"{start - horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({(start - horizontalAxisY) / Size.Y * 100:F1}%)‎" : $"{horizontalAxisY}{new LocalizedString("PIXEL_UNIT")} ({horizontalAxisY / Size.Y * 100:F1}%)‎";
 
         var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
-            ILocalizationProvider.Current.CurrentLanguage.FlowDirection, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White);
+            ILocalizationProvider.Current.CurrentLanguage.FlowDirection, new Typeface("Segeo UI"), 14.0 / ZoomScale, Brushes.White);
 
         if (Size.Y < formattedText.Height * 2.5 || horizontalAxisY == (int)Size.Y && upper || horizontalAxisY == 0 && !upper)
         {
@@ -260,7 +231,7 @@ internal class SymmetryOverlay : Overlay
         string text = right ? $"{start - verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({(start - verticalAxisX) / Size.X * 100:F1}%)‎" : $"{verticalAxisX}{new LocalizedString("PIXEL_UNIT")} ({verticalAxisX / Size.X * 100:F1}%)‎";
 
         var formattedText = new FormattedText(text, CultureInfo.GetCultureInfo("en-us"),
-            ILocalizationProvider.Current.CurrentLanguage.FlowDirection, new Typeface("Segeo UI"), 14.0 / ZoomboxScale, Brushes.White);
+            ILocalizationProvider.Current.CurrentLanguage.FlowDirection, new Typeface("Segeo UI"), 14.0 / ZoomScale, Brushes.White);
 
         if (Size.X < formattedText.Width * 2.5 || verticalAxisX == (int)Size.X && right || verticalAxisX == 0 && !right)
         {
@@ -279,20 +250,14 @@ internal class SymmetryOverlay : Overlay
         drawingContext.DrawText(formattedText, new Point(textX, RulerOffset * PenThickness - (drawBottom ? -0.7 : 0.3 + formattedText.Height) + yOffset));
     }
 
-    //TODO: I didn't find HitTestCore in Avalonia
-    /*protected override HitTestResult? HitTestCore(PointHitTestParameters hitTestParameters)
+    public override bool TestHit(VecD point)
     {
-        // prevent the line from blocking mouse input
-        var point = hitTestParameters.HitPoint;
-        if (point.X > 0 && point.Y > 0 && point.X < Size.X && point.Y < Size.Y)
-            return null;
-
-        return new PointHitTestResult(this, hitTestParameters.HitPoint);
-    }*/
+        return IsTouchingHandle(point) is not null;
+    }
 
     private SymmetryAxisDirection? IsTouchingHandle(VecD position)
     {
-        double radius = HandleSize * 4 / ZoomboxScale / 2;
+        double radius = HandleSize * 4 / ZoomScale / 2;
         VecD left = new(-radius, horizontalAxisY);
         VecD right = new(Size.X + radius, horizontalAxisY);
         VecD up = new(verticalAxisX, -radius);
@@ -307,10 +272,6 @@ internal class SymmetryOverlay : Overlay
 
     private VecD ToVecD(Point pos) => new VecD(pos.X, pos.Y);
 
-    private SymmetryAxisDirection? capturedDirection;
-    private SymmetryAxisDirection? hoveredDirection;
-    public static readonly StyledProperty<VecI> SizeProperty = AvaloniaProperty.Register<SymmetryOverlay, VecI>("Size");
-
     private void UpdateHovered(SymmetryAxisDirection? direction)
     {
         Cursor = (hoveredDirection ?? capturedDirection) switch
@@ -324,40 +285,83 @@ internal class SymmetryOverlay : Overlay
             return;
 
         hoveredDirection = direction;
-        InvalidateVisual();
+        Refresh();
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    public override void PointerPressedOverlay(OverlayPointerArgs args)
     {
-        base.OnPointerPressed(e);
-
-        MouseButton button = e.GetMouseButton(this);
-
-        if (button != MouseButton.Left)
+        if (args.PointerButton != MouseButton.Left)
             return;
 
-        var rawPoint = e.GetPosition(this);
-        var pos = ToVecD(rawPoint);
-        var dir = IsTouchingHandle(pos);
+        var dir = IsTouchingHandle(args.Point);
         if (dir is null)
             return;
         capturedDirection = dir.Value;
-        e.Pointer.Capture(this);
-        e.Handled = true;
+        args.Pointer.Capture(this);
         CallSymmetryDragStartCommand(dir.Value);
     }
 
-    protected override void OnPointerEntered(PointerEventArgs e)
+    public override void PointerEnteredOverlay(OverlayPointerArgs args)
     {
-        base.OnPointerEntered(e);
-        var pos = ToVecD(e.GetPosition(this));
-        var dir = IsTouchingHandle(pos);
+        pointerPosition = args.Point;
+        var dir = IsTouchingHandle(pointerPosition);
         UpdateHovered(dir);
     }
 
-    protected override void OnPointerExited(PointerEventArgs e)
+    public override void PointerMovedOverlay(OverlayPointerArgs args)
+    {
+        UpdateHovered(IsTouchingHandle(args.Point));
+
+        if (capturedDirection is null)
+            return;
+        if (capturedDirection == SymmetryAxisDirection.Horizontal)
+        {
+            horizontalAxisY = Math.Round(Math.Clamp(args.Point.Y, 0, Size.Y) * 2) / 2;
+
+            if (args.Modifiers.HasFlag(KeyModifiers.Shift))
+            {
+                double temp = Math.Round(horizontalAxisY / Size.Y * 8) / 8 * Size.Y;
+                horizontalAxisY = Math.Round(temp * 2) / 2;
+            }
+
+            CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, horizontalAxisY);
+        }
+        else if (capturedDirection == SymmetryAxisDirection.Vertical)
+        {
+            verticalAxisX = Math.Round(Math.Clamp(args.Point.X, 0, Size.X) * 2) / 2;
+
+            if (args.Modifiers.HasFlag(KeyModifiers.Control))
+            {
+
+                double temp = Math.Round(verticalAxisX / Size.X * 8) / 8 * Size.X;
+                verticalAxisX = Math.Round(temp * 2) / 2;
+            }
+
+            CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, verticalAxisX);
+        }
+    }
+
+    public override void PointerExitedOverlay(OverlayPointerArgs args)
     {
         UpdateHovered(null);
+    }
+
+    public override void PointerReleasedOverlay(OverlayPointerArgs e)
+    {
+        if (e.InitialPressMouseButton != MouseButton.Left)
+            return;
+
+        if (capturedDirection is null)
+            return;
+
+        e.Pointer.Capture(null);
+
+        CallSymmetryDragEndCommand((SymmetryAxisDirection)capturedDirection);
+
+        capturedDirection = null;
+        UpdateHovered(IsTouchingHandle(e.Point));
+        // Not calling invalidate visual might result in ruler not disappearing when releasing the mouse over the canvas
+        Refresh();
     }
 
     private void CallSymmetryDragCommand(SymmetryAxisDirection direction, double position)
@@ -377,68 +381,11 @@ internal class SymmetryOverlay : Overlay
             DragStartCommand.Execute(direction);
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
-    {
-        base.OnPointerReleased(e);
-        if (e.InitialPressMouseButton != MouseButton.Left)
-            return;
-
-        if (capturedDirection is null)
-            return;
-
-        e.Pointer.Capture(null);
-
-        CallSymmetryDragEndCommand((SymmetryAxisDirection)capturedDirection);
-
-        capturedDirection = null;
-        UpdateHovered(IsTouchingHandle(ToVecD(e.GetPosition(this))));
-        // Not calling invalidate visual might result in ruler not disappearing when releasing the mouse over the canvas 
-        InvalidateVisual();
-        e.Handled = true;
-    }
-
-    protected void MouseMoved(PointerEventArgs e)
-    {
-        var rawPoint = e.GetPosition(this);
-        var pos = ToVecD(rawPoint);
-        UpdateHovered(IsTouchingHandle(pos));
-
-        if (capturedDirection is null)
-            return;
-        if (capturedDirection == SymmetryAxisDirection.Horizontal)
-        {
-            horizontalAxisY = Math.Round(Math.Clamp(pos.Y, 0, Size.Y) * 2) / 2;
-
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-            {
-                double temp = Math.Round(horizontalAxisY / Size.Y * 8) / 8 * Size.Y;
-                horizontalAxisY = Math.Round(temp * 2) / 2;
-            }
-
-            CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, horizontalAxisY);
-        }
-        else if (capturedDirection == SymmetryAxisDirection.Vertical)
-        {
-            verticalAxisX = Math.Round(Math.Clamp(pos.X, 0, Size.X) * 2) / 2;
-
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
-            {
-
-                double temp = Math.Round(verticalAxisX / Size.X * 8) / 8 * Size.X;
-                verticalAxisX = Math.Round(temp * 2) / 2;
-            }
-
-            CallSymmetryDragCommand((SymmetryAxisDirection)capturedDirection, verticalAxisX);
-        }
-
-        e.Handled = true;
-    }
-
     private static void OnPositionUpdate(AvaloniaPropertyChangedEventArgs<double> e)
     {
         var self = (SymmetryOverlay)e.Sender;
         self.horizontalAxisY = self.HorizontalAxisY;
         self.verticalAxisX = self.VerticalAxisX;
-        self.InvalidateVisual();
+        self.Refresh();
     }
 }
