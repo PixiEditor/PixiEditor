@@ -19,6 +19,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Extensions.UI.Overlays;
 using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
 using Point = Avalonia.Point;
 
@@ -192,18 +193,21 @@ internal class Scene : Control, ICustomHitTest
         base.OnPointerEntered(e);
         if (ActiveOverlays != null)
         {
+            OverlayPointerArgs args = ConstructPointerArgs(e);
             if (captured)
             {
-                capturedOverlay?.PointerEnteredOverlay(ConstructPointerArgs(e));
+                capturedOverlay?.EnterPointer(args);
             }
             else
             {
                 foreach (Overlay overlay in ActiveOverlays)
                 {
                     if (!overlay.IsVisible) continue;
-                    overlay.PointerEnteredOverlay(ConstructPointerArgs(e));
+                    overlay.EnterPointer(args);
                 }
             }
+
+            e.Handled = args.Handled;
         }
     }
 
@@ -212,18 +216,22 @@ internal class Scene : Control, ICustomHitTest
         base.OnPointerMoved(e);
         if (ActiveOverlays != null)
         {
+            OverlayPointerArgs args = ConstructPointerArgs(e);
+
             if (captured)
             {
-                capturedOverlay?.PointerMovedOverlay(ConstructPointerArgs(e));
+                capturedOverlay?.MovePointer(args);
             }
             else
             {
                 foreach (Overlay overlay in ActiveOverlays)
                 {
                     if (!overlay.IsVisible) continue;
-                    overlay.PointerMovedOverlay(ConstructPointerArgs(e));
+                    overlay.MovePointer(args);
                 }
             }
+
+            e.Handled = args.Handled;
         }
     }
 
@@ -232,18 +240,22 @@ internal class Scene : Control, ICustomHitTest
         base.OnPointerPressed(e);
         if (ActiveOverlays != null)
         {
+            OverlayPointerArgs args = ConstructPointerArgs(e);
             if (captured)
             {
-                capturedOverlay?.PointerPressedOverlay(ConstructPointerArgs(e));
+                capturedOverlay?.PressPointer(args);
             }
             else
             {
                 foreach (Overlay overlay in ActiveOverlays)
                 {
+                    if(args.Handled) break;
                     if (!overlay.IsVisible) continue;
-                    overlay.PointerPressedOverlay(ConstructPointerArgs(e));
+                    overlay.PressPointer(args);
                 }
             }
+
+            e.Handled = args.Handled;
         }
     }
 
@@ -252,11 +264,15 @@ internal class Scene : Control, ICustomHitTest
         base.OnPointerExited(e);
         if (ActiveOverlays != null)
         {
+            OverlayPointerArgs args = ConstructPointerArgs(e);
             foreach (Overlay overlay in ActiveOverlays)
             {
+                if(args.Handled) break;
                 if (!overlay.IsVisible) continue;
-                overlay.PointerExitedOverlay(ConstructPointerArgs(e));
+                overlay.ExitPointer(args);
             }
+
+            e.Handled = args.Handled;
         }
     }
 
@@ -265,16 +281,19 @@ internal class Scene : Control, ICustomHitTest
         base.OnPointerExited(e);
         if (ActiveOverlays != null)
         {
+            OverlayPointerArgs args = ConstructPointerArgs(e);
+
             if (captured)
             {
-                capturedOverlay?.PointerReleasedOverlay(ConstructPointerArgs(e));
+                capturedOverlay?.ReleasePointer(args);
             }
             else
             {
                 foreach (Overlay overlay in ActiveOverlays)
                 {
+                    if(args.Handled) break;
                     if (!overlay.IsVisible) continue;
-                    overlay.PointerReleasedOverlay(ConstructPointerArgs(e));
+                    overlay.ReleasePointer(args);
                 }
             }
         }
@@ -288,7 +307,7 @@ internal class Scene : Control, ICustomHitTest
             Modifiers = e.KeyModifiers,
             Pointer = new MouseOverlayPointer(e.Pointer, CaptureOverlay),
             PointerButton = e.GetMouseButton(this),
-            InitialPressMouseButton = e is PointerReleasedEventArgs released ? released.InitialPressMouseButton : MouseButton.None
+            InitialPressMouseButton = e is PointerReleasedEventArgs released ? released.InitialPressMouseButton : MouseButton.None,
         };
     }
 

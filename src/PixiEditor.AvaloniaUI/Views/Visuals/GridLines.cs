@@ -51,7 +51,7 @@ public class GridLines : Overlay
 
     static GridLines()
     {
-        AffectsRender<GridLines>(ColumnsProperty, RowsProperty);
+        IsVisibleProperty.Changed.Subscribe(OnIsVisibleChanged);
     }
 
     public GridLines()
@@ -61,7 +61,7 @@ public class GridLines : Overlay
 
     protected override void ZoomChanged(double newZoom)
     {
-        IsVisible = visibilityConverter.Check(newZoom);
+        IsVisible = IsVisible && visibilityConverter.Check(newZoom);
     }
 
     public override void Render(DrawingContext context)
@@ -90,6 +90,14 @@ public class GridLines : Overlay
             double y = i * rowHeight;
             context.DrawLine(pen1, new Point(0, y), new Point(width, y));
             context.DrawLine(pen2, new Point(0, y), new Point(width, y));
+        }
+    }
+
+    private static void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
+    {
+        if (e.Sender is GridLines gridLines)
+        {
+            gridLines.Refresh();
         }
     }
 }

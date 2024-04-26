@@ -208,19 +208,6 @@
             FlowDirection="LeftToRight" />
         <!--<Grid ZIndex="5" DataContext="{Binding ElementName=vpUc}"
               RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}">
-            <symmetryOverlay:SymmetryOverlay
-                Focusable="False"
-                Size="{Binding Document.SizeBindable, Mode=OneWay}"
-                IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
-                ZoomboxScale="{Binding #zoombox.Scale}"
-                HorizontalAxisVisible="{Binding Document.HorizontalSymmetryAxisEnabledBindable}"
-                VerticalAxisVisible="{Binding Document.VerticalSymmetryAxisEnabledBindable}"
-                HorizontalAxisY="{Binding Document.HorizontalSymmetryAxisYBindable, Mode=OneWay}"
-                VerticalAxisX="{Binding Document.VerticalSymmetryAxisXBindable, Mode=OneWay}"
-                DragCommand="{xaml:Command PixiEditor.Document.DragSymmetry, UseProvided=True}"
-                DragEndCommand="{xaml:Command PixiEditor.Document.EndDragSymmetry, UseProvided=True}"
-                DragStartCommand="{xaml:Command PixiEditor.Document.StartDragSymmetry, UseProvided=True}"
-                FlowDirection="LeftToRight" />
             <transformOverlay:TransformOverlay
                 Focusable="False"
                 Cursor="Arrow"

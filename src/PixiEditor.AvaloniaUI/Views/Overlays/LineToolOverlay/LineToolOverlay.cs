@@ -9,6 +9,7 @@ using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.UI.Overlays;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.LineToolOverlay;
 internal class LineToolOverlay : Overlay
@@ -42,7 +43,8 @@ internal class LineToolOverlay : Overlay
 
     static LineToolOverlay()
     {
-        AffectsRender<LineToolOverlay>(ZoomScaleProperty, LineStartProperty, LineEndProperty);
+        LineStartProperty.Changed.Subscribe(RenderAffectingPropertyChanged);
+        LineEndProperty.Changed.Subscribe(RenderAffectingPropertyChanged);
     }
 
     private Pen blackPen = new Pen(Brushes.Black, 1);
@@ -52,8 +54,6 @@ internal class LineToolOverlay : Overlay
     private VecD lineEndOnMouseDown = VecD.Zero;
 
     private bool movedWhileMouseDown = false;
-
-    private MouseUpdateController mouseUpdateController;
 
     private RectangleHandle startHandle;
     private RectangleHandle endHandle;
@@ -77,20 +77,6 @@ internal class LineToolOverlay : Overlay
         moveHandle.HandlePen = blackPen;
         moveHandle.OnDrag += MoveHandleOnDrag;
         AddHandle(moveHandle);
-
-        Loaded += OnLoaded;
-        Unloaded += OnUnloaded;
-    }
-
-    private void OnLoaded(object? sender, RoutedEventArgs e)
-    {
-        //TODO: Ensure this bug doesn't happen in Avalonia, currently Handle classes are taking care of dragging events
-        //mouseUpdateController = new MouseUpdateController(this, MouseMoved);
-    }
-    
-    private void OnUnloaded(object? sender, RoutedEventArgs e)
-    {
-        //mouseUpdateController?.Dispose();
     }
 
     protected override void ZoomChanged(double newZoom)
@@ -111,23 +97,17 @@ internal class LineToolOverlay : Overlay
         moveHandle.Draw(context);
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
     {
-        base.OnPointerPressed(e);
-
-        MouseButton changedButton = e.GetMouseButton(this);
-
-        if (changedButton != MouseButton.Left)
+        if (args.PointerButton != MouseButton.Left)
             return;
 
-        VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
-
         movedWhileMouseDown = false;
-        mouseDownPos = pos;
+        mouseDownPos = args.Point;
         lineStartOnMouseDown = LineStart;
         lineEndOnMouseDown = LineEnd;
 
-        e.Pointer.Capture(this);
+        args.Pointer.Capture(this);
     }
 
     private void StartHandleOnDrag(Handle source, VecD position)
@@ -152,13 +132,20 @@ internal class LineToolOverlay : Overlay
         movedWhileMouseDown = true;
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    protected override void OnOverlayPointerReleased(OverlayPointerArgs args)
     {
-        base.OnPointerReleased(e);
-        if (e.InitialPressMouseButton != MouseButton.Left)
+        if (args.InitialPressMouseButton != MouseButton.Left)
             return;
 
         if (movedWhileMouseDown && ActionCompleted is not null && ActionCompleted.CanExecute(null))
             ActionCompleted.Execute(null);
+    }
+
+    private static void RenderAffectingPropertyChanged(AvaloniaPropertyChangedEventArgs<VecD> e)
+    {
+        if (e.Sender is LineToolOverlay overlay)
+        {
+            overlay.Refresh();
+        }
     }
 }

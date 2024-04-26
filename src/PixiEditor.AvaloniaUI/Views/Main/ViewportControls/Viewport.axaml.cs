@@ -295,10 +295,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public Guid GuidValue { get; } = Guid.NewGuid();
 
     private MouseUpdateController? mouseUpdateController;
-
-    private GridLines gridLinesOverlay;
-    private SelectionOverlay selectionOverlay;
-    private SymmetryOverlay symmetryOverlay;
+    private ViewportOverlays builtInOverlays = new();
 
     static Viewport()
     {
@@ -311,7 +308,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         InitializeComponent();
 
-        InitBuiltInOverlays();
+        builtInOverlays.Init(this);
         MainImage!.Loaded += OnImageLoaded;
         MainImage.SizeChanged += OnMainImageSizeChanged;
         Loaded += OnLoad;
@@ -322,21 +319,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
     }
 
-    private void InitBuiltInOverlays()
-    {
-        gridLinesOverlay = new GridLines();
-        BindGridLines();
 
-        selectionOverlay = new SelectionOverlay();
-        BindSelectionOverlay();
-
-        symmetryOverlay = new SymmetryOverlay();
-        BindSymmetryOverlay();
-
-        ActiveOverlays.Add(gridLinesOverlay);
-        ActiveOverlays.Add(selectionOverlay);
-        ActiveOverlays.Add(symmetryOverlay);
-    }
 
     public Panel? MainImage => zoombox != null ? (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[0] : null;
     public Scene Scene => scene;
@@ -385,87 +368,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
         oldDoc?.Operations.RemoveViewport(viewport.GuidValue);
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
-    }
-
-    private void BindGridLines()
-    {
-        Binding isVisBinding = new()
-        {
-            Source = this,
-            Path = "GridLinesVisible",
-            Mode = BindingMode.OneWay
-        };
-
-        Binding binding = new()
-        {
-            Source = Document,
-            Path = "Width",
-            Mode = BindingMode.OneWay
-        };
-
-        gridLinesOverlay.Bind(GridLines.PixelWidthProperty, binding);
-        gridLinesOverlay.Bind(GridLines.ColumnsProperty, binding);
-
-        binding = new Binding
-        {
-            Source = Document,
-            Path = "Height",
-            Mode = BindingMode.OneWay
-        };
-
-        gridLinesOverlay.Bind(GridLines.PixelHeightProperty, binding);
-        gridLinesOverlay.Bind(GridLines.RowsProperty, binding);
-        gridLinesOverlay.Bind(GridLines.IsVisibleProperty, isVisBinding);
-    }
-
-    private void BindSelectionOverlay()
-    {
-        Binding showFillBinding = new()
-        {
-            Source = this,
-            Path = "Document.ToolsSubViewModel.ActiveTool",
-            Converter = new IsSelectionToolConverter(),
-            Mode = BindingMode.OneWay
-        };
-
-        Binding pathBinding = new()
-        {
-            Source = this,
-            Path = "Document.SelectionPathBindable",
-            Mode = BindingMode.OneWay
-        };
-
-        Binding isVisibleBinding = new()
-        {
-            Source = this,
-            Path = "Document.SelectionPathBindable",
-            Mode = BindingMode.OneWay,
-            Converter = new NotNullToVisibilityConverter()
-        };
-
-        selectionOverlay.Bind(SelectionOverlay.ShowFillProperty, showFillBinding);
-        selectionOverlay.Bind(SelectionOverlay.PathProperty, pathBinding);
-        selectionOverlay.Bind(IsVisibleProperty, isVisibleBinding);
-    }
-
-    private void BindSymmetryOverlay()
-    {
-        Binding sizeBinding = new() { Source = this, Path = "Document.SizeBindable", Mode = BindingMode.OneWay };
-        Binding isHitTestVisibleBinding = new() { Source = this, Path = "ZoomMode", Converter = new ZoomModeToHitTestVisibleConverter(), Mode = BindingMode.OneWay };
-        Binding horizontalAxisVisibleBinding = new() { Source = this, Path = "Document.HorizontalSymmetryAxisEnabledBindable", Mode = BindingMode.OneWay };
-        Binding verticalAxisVisibleBinding = new() { Source = this, Path = "Document.VerticalSymmetryAxisEnabledBindable", Mode = BindingMode.OneWay };
-        Binding horizontalAxisYBinding = new() { Source = this, Path = "Document.HorizontalSymmetryAxisYBindable", Mode = BindingMode.OneWay };
-        Binding verticalAxisXBinding = new() { Source = this, Path = "Document.VerticalSymmetryAxisXBindable", Mode = BindingMode.OneWay };
-
-        symmetryOverlay.Bind(SymmetryOverlay.SizeProperty, sizeBinding);
-        symmetryOverlay.Bind(IsHitTestVisibleProperty, isHitTestVisibleBinding);
-        symmetryOverlay.Bind(SymmetryOverlay.HorizontalAxisVisibleProperty, horizontalAxisVisibleBinding);
-        symmetryOverlay.Bind(SymmetryOverlay.VerticalAxisVisibleProperty, verticalAxisVisibleBinding);
-        symmetryOverlay.Bind(SymmetryOverlay.HorizontalAxisYProperty, horizontalAxisYBinding);
-        symmetryOverlay.Bind(SymmetryOverlay.VerticalAxisXProperty, verticalAxisXBinding);
-        symmetryOverlay.DragCommand = (ICommand)new Command("PixiEditor.Document.DragSymmetry") { UseProvided = true }.ProvideValue(null);
-        symmetryOverlay.DragEndCommand = (ICommand)new Command("PixiEditor.Document.EndDragSymmetry") { UseProvided = true }.ProvideValue(null);
-        symmetryOverlay.DragStartCommand = (ICommand)new Command("PixiEditor.Document.StartDragSymmetry") { UseProvided = true }.ProvideValue(null);
     }
 
     private void OnImageSizeChanged(object? sender, DocumentSizeChangedEventArgs e)

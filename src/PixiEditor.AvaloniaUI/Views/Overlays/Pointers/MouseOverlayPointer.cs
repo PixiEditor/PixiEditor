@@ -1,5 +1,6 @@
 ﻿using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Views.Visuals;
+using PixiEditor.Extensions.UI.Overlays;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.Pointers;
 
@@ -14,8 +15,13 @@ internal class MouseOverlayPointer : IOverlayPointer
         this.captureAction = captureAction;
     }
 
-    public void Capture(Overlay? overlay)
+    public void Capture(IOverlay? overlay)
     {
-        captureAction(overlay, pointer);
+        if (overlay is not Overlay visualOverlay)
+        {
+            return;
+        }
+
+        captureAction(visualOverlay, pointer);
     }
 }

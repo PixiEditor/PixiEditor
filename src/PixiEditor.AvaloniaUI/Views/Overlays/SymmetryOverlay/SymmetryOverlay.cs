@@ -10,6 +10,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.UI.Overlays;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 #nullable enable
@@ -288,7 +289,7 @@ internal class SymmetryOverlay : Overlay
         Refresh();
     }
 
-    public override void PointerPressedOverlay(OverlayPointerArgs args)
+    protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
     {
         if (args.PointerButton != MouseButton.Left)
             return;
@@ -301,14 +302,14 @@ internal class SymmetryOverlay : Overlay
         CallSymmetryDragStartCommand(dir.Value);
     }
 
-    public override void PointerEnteredOverlay(OverlayPointerArgs args)
+    protected override void OnOverlayPointerEntered(OverlayPointerArgs args)
     {
         pointerPosition = args.Point;
         var dir = IsTouchingHandle(pointerPosition);
         UpdateHovered(dir);
     }
 
-    public override void PointerMovedOverlay(OverlayPointerArgs args)
+    protected override void OnOverlayPointerMoved(OverlayPointerArgs args)
     {
         UpdateHovered(IsTouchingHandle(args.Point));
 
@@ -341,12 +342,12 @@ internal class SymmetryOverlay : Overlay
         }
     }
 
-    public override void PointerExitedOverlay(OverlayPointerArgs args)
+    protected override void OnOverlayPointerExited(OverlayPointerArgs args)
     {
         UpdateHovered(null);
     }
 
-    public override void PointerReleasedOverlay(OverlayPointerArgs e)
+    protected override void OnOverlayPointerReleased(OverlayPointerArgs e)
     {
         if (e.InitialPressMouseButton != MouseButton.Left)
             return;

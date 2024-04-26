@@ -15,8 +15,8 @@ public abstract class Handle : IHandle
 {
     public IBrush HandleBrush { get; set; } = GetBrush("HandleBackgroundBrush");
     public IPen? HandlePen { get; set; }
-    public double ZoomboxScale { get; set; } = 1.0;
-    public Control Owner { get; set; } = null!;
+    public double ZoomScale { get; set; } = 1.0;
+    public IOverlay Owner { get; set; } = null!;
     public VecD Position { get; set; }
     public VecD Size { get; set; }
     public RectD HandleRect => new(Position, Size);
@@ -31,20 +31,20 @@ public abstract class Handle : IHandle
     private bool isPressed;
     private bool isHovered;
 
-    public Handle(Control owner)
+    public Handle(IOverlay owner)
     {
         Owner = owner;
         Position = VecD.Zero;
         Size = Application.Current.TryGetResource("HandleSize", out object size) ? new VecD((double)size) : new VecD(16);
 
-        Owner.PointerPressed += OnPointerPressed;
-        Owner.PointerMoved += OnPointerMoved;
-        Owner.PointerReleased += OnPointerReleased;
+        Owner.PointerPressedOverlay += OnPointerPressed;
+        Owner.PointerMovedOverlay += OnPointerMoved;
+        Owner.PointerReleasedOverlay += OnPointerReleased;
     }
 
     public abstract void Draw(DrawingContext context);
 
-    public virtual void OnPressed(PointerPressedEventArgs args) { }
+    public virtual void OnPressed(OverlayPointerArgs args) { }
 
     public virtual bool IsWithinHandle(VecD handlePos, VecD pos, double zoomboxScale)
     {
@@ -93,32 +93,30 @@ public abstract class Handle : IHandle
         return Brushes.Black;
     }
 
-    private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    private void OnPointerPressed(OverlayPointerArgs args)
     {
-        if (e.GetMouseButton(Owner) != MouseButton.Left)
+        if (args.PointerButton != MouseButton.Left)
         {
             return;
         }
 
-        VecD pos = TransformHelper.ToVecD(e.GetPosition(Owner));
         VecD handlePos = Position;
 
-        if (IsWithinHandle(handlePos, pos, ZoomboxScale))
+        if (IsWithinHandle(handlePos, args.Point, ZoomScale))
         {
-            e.Handled = true;
-            OnPressed(e);
-            OnPress?.Invoke(this, pos);
+            args.Handled = true;
+            OnPressed(args);
+            OnPress?.Invoke(this, args.Point);
             isPressed = true;
-            e.Pointer.Capture(Owner);
+            args.Pointer.Capture(Owner);
         }
     }
 
-    protected virtual void OnPointerMoved(object? sender, PointerEventArgs e)
+    protected virtual void OnPointerMoved(OverlayPointerArgs args)
     {
-        VecD pos = TransformHelper.ToVecD(e.GetPosition(Owner));
         VecD handlePos = Position;
 
-        bool isWithinHandle = IsWithinHandle(handlePos, pos, ZoomboxScale);
+        bool isWithinHandle = IsWithinHandle(handlePos, args.Point, ZoomScale);
 
         if (!isHovered && isWithinHandle)
         {
@@ -142,12 +140,12 @@ public abstract class Handle : IHandle
             return;
         }
 
-        OnDrag?.Invoke(this, pos);
+        OnDrag?.Invoke(this, args.Point);
     }
 
-    private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    private void OnPointerReleased(OverlayPointerArgs args)
     {
-        if (e.InitialPressMouseButton != MouseButton.Left)
+        if (args.InitialPressMouseButton != MouseButton.Left)
         {
             return;
         }
@@ -156,7 +154,7 @@ public abstract class Handle : IHandle
         {
             isPressed = false;
             OnRelease?.Invoke(this);
-            e.Pointer.Capture(null);
+            args.Pointer.Capture(null);
         }
     }
 }
