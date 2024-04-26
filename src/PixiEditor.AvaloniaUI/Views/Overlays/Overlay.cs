@@ -6,7 +6,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays;
 
-public class Overlay : Decorator
+public abstract class Overlay : Decorator
 {
     public List<Handle> Handles { get; } = new();
 

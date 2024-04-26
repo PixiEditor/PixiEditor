@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using Avalonia;
 using Avalonia.Animation;
-using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Styling;
 using PixiEditor.AvaloniaUI.Animation;
@@ -9,7 +8,7 @@ using PixiEditor.DrawingApi.Core.Surface.Vector;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay;
 #nullable enable
-internal class SelectionOverlay : Control
+internal class SelectionOverlay : Overlay
 {
     public static readonly StyledProperty<VectorPath?> PathProperty =
         AvaloniaProperty.Register<SelectionOverlay, VectorPath?>(nameof(Path));
@@ -18,15 +17,6 @@ internal class SelectionOverlay : Control
     {
         get => GetValue(PathProperty);
         set => SetValue(PathProperty, value);
-    }
-
-    public static readonly StyledProperty<double> ZoomboxScaleProperty =
-        AvaloniaProperty.Register<SelectionOverlay, double>(nameof(ZoomboxScale), defaultValue: 1.0);
-
-    public double ZoomboxScale
-    {
-        get => GetValue(ZoomboxScaleProperty);
-        set => SetValue(ZoomboxScaleProperty, value);
     }
 
     public static readonly StyledProperty<bool> ShowFillProperty =
@@ -46,7 +36,6 @@ internal class SelectionOverlay : Control
     static SelectionOverlay()
     {
         AffectsRender<SelectionOverlay>(PathProperty);
-        ZoomboxScaleProperty.Changed.Subscribe(OnZoomboxScaleChanged);
         ShowFillProperty.Changed.Subscribe(OnShowFillChanged);
     }
 
@@ -107,12 +96,10 @@ internal class SelectionOverlay : Control
         drawingContext.DrawGeometry(fillBrush, blackDashedPen, renderPath);
     }
 
-    private static void OnZoomboxScaleChanged(AvaloniaPropertyChangedEventArgs<double> args)
+    protected override void ZoomChanged(double newZoom)
     {
-        var self = (SelectionOverlay)args.Sender;
-        double newScale = args.NewValue.Value;
-        self.whitePen.Thickness = 1.0 / newScale;
-        self.blackDashedPen.Thickness = 1.0 / newScale;
+        whitePen.Thickness = 1.0 / newZoom;
+        blackDashedPen.Thickness = 1.0 / newZoom;
     }
 
     private static void OnShowFillChanged(AvaloniaPropertyChangedEventArgs<bool> args)

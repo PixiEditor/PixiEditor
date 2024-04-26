@@ -11,6 +11,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.Helpers.UI;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
@@ -20,6 +21,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.AvaloniaUI.Views.Overlays;
 using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
+using PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay;
 using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -293,16 +295,14 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private MouseUpdateController? mouseUpdateController;
 
-    private GridLines _gridLinesOverlay;
-
-    private SymmetryOverlay _symmetryOverlay;
+    private GridLines gridLinesOverlay;
+    private SelectionOverlay selectionOverlay;
 
     static Viewport()
     {
         DocumentProperty.Changed.Subscribe(OnDocumentChange);
         ZoomViewportTriggerProperty.Changed.Subscribe(ZoomViewportTriggerChanged);
         CenterViewportTriggerProperty.Changed.Subscribe(CenterViewportTriggerChanged);
-        GridLinesVisibleProperty.Changed.Subscribe(GridLinesVisibleChanged);
     }
 
     public Viewport()
@@ -322,8 +322,14 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void InitBuiltInOverlays()
     {
-        _gridLinesOverlay = new GridLines();
-        _symmetryOverlay = new SymmetryOverlay();
+        gridLinesOverlay = new GridLines();
+        BindGridLines();
+
+        selectionOverlay = new SelectionOverlay();
+        BindSelectionOverlay();
+
+        ActiveOverlays.Add(gridLinesOverlay);
+        ActiveOverlays.Add(selectionOverlay);
     }
 
     public Panel? MainImage => zoombox != null ? (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[0] : null;
@@ -375,41 +381,68 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         newDoc?.Operations.AddOrUpdateViewport(viewport.GetLocation());
     }
 
-    private static void GridLinesVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
+    private void BindGridLines()
     {
-        Viewport? viewport = (Viewport)e.Sender;
-        if (e.NewValue.Value)
+        Binding isVisBinding = new()
         {
-            BindGridLines(viewport);
-            viewport.ActiveOverlays.Add(viewport._gridLinesOverlay);
-        }
-        else
-        {
-            viewport.ActiveOverlays.Remove(viewport._gridLinesOverlay);
-        }
-    }
+            Source = this,
+            Path = "GridLinesVisible",
+            Mode = BindingMode.OneWay
+        };
 
-    private static void BindGridLines(Viewport viewport)
-    {
         Binding binding = new()
         {
-            Source = viewport.Document,
+            Source = Document,
             Path = "Width",
             Mode = BindingMode.OneWay
         };
 
-        viewport._gridLinesOverlay.Bind(GridLines.PixelWidthProperty, binding);
-        viewport._gridLinesOverlay.Bind(GridLines.ColumnsProperty, binding);
+        gridLinesOverlay.Bind(GridLines.PixelWidthProperty, binding);
+        gridLinesOverlay.Bind(GridLines.ColumnsProperty, binding);
 
         binding = new Binding
         {
-            Source = viewport.Document,
+            Source = Document,
             Path = "Height",
             Mode = BindingMode.OneWay
         };
 
-        viewport._gridLinesOverlay.Bind(GridLines.PixelHeightProperty, binding);
-        viewport._gridLinesOverlay.Bind(GridLines.RowsProperty, binding);
+        gridLinesOverlay.Bind(GridLines.PixelHeightProperty, binding);
+        gridLinesOverlay.Bind(GridLines.RowsProperty, binding);
+        gridLinesOverlay.Bind(GridLines.IsVisibleProperty, isVisBinding);
+    }
+
+    private void BindSelectionOverlay()
+    {
+        //    ShowFill="{Binding ToolsSubViewModel.ActiveTool, Source={viewModels:MainVM}, Converter={converters:IsSelectionToolConverter}}"
+        //Path="{Binding Document.SelectionPathBindable}"
+
+        Binding showFillBinding = new()
+        {
+            Source = this,
+            Path = "Document.ToolsSubViewModel.ActiveTool",
+            Converter = new IsSelectionToolConverter(),
+            Mode = BindingMode.OneWay
+        };
+
+        Binding pathBinding = new()
+        {
+            Source = this,
+            Path = "Document.SelectionPathBindable",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding isVisibleBinding = new()
+        {
+            Source = this,
+            Path = "Document.SelectionPathBindable",
+            Mode = BindingMode.OneWay,
+            Converter = new NotNullToVisibilityConverter()
+        };
+
+        selectionOverlay.Bind(SelectionOverlay.ShowFillProperty, showFillBinding);
+        selectionOverlay.Bind(SelectionOverlay.PathProperty, pathBinding);
+        selectionOverlay.Bind(IsVisibleProperty, isVisibleBinding);
     }
 
     private void OnImageSizeChanged(object? sender, DocumentSizeChangedEventArgs e)
