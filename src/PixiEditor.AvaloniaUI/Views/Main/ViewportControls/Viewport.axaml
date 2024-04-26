@@ -118,23 +118,6 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        <visuals:Scene
-            Focusable="False" Name="scene"
-            ZIndex="1"
-            Width="{Binding RealDimensions.X, ElementName=vpUc}"
-            Height="{Binding RealDimensions.Y, ElementName=vpUc}"
-            Surface="{Binding TargetBitmap, ElementName=vpUc}"
-            Scale="{Binding Scale, ElementName=zoombox, Mode=OneWay}"
-            Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
-            ContentPosition="{Binding CanvasPos, ElementName=zoombox, Mode=OneWay}"
-            Angle="{Binding RotateTransformAngle, ElementName=zoombox, Mode=OneWay}"
-            FlipX="{Binding FlipX, ElementName=zoombox, Mode=OneWay}"
-            FlipY="{Binding FlipY, ElementName=zoombox, Mode=OneWay}"
-            ActiveOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
-            FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
-            CheckerImagePath="/Images/CheckerTile.png"
-            ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}">
-        </visuals:Scene>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
@@ -185,6 +168,23 @@
                 </Border>
             </zoombox:Zoombox.AdditionalContent>
         </zoombox:Zoombox>
+        <visuals:Scene
+            Focusable="False" Name="scene"
+            ZIndex="1"
+            Width="{Binding RealDimensions.X, ElementName=vpUc}"
+            Height="{Binding RealDimensions.Y, ElementName=vpUc}"
+            Surface="{Binding TargetBitmap, ElementName=vpUc}"
+            Scale="{Binding Scale, ElementName=zoombox, Mode=OneWay}"
+            Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
+            ContentPosition="{Binding CanvasPos, ElementName=zoombox, Mode=OneWay}"
+            Angle="{Binding RotateTransformAngle, ElementName=zoombox, Mode=OneWay}"
+            FlipX="{Binding FlipX, ElementName=zoombox, Mode=OneWay}"
+            FlipY="{Binding FlipY, ElementName=zoombox, Mode=OneWay}"
+            ActiveOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
+            FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
+            CheckerImagePath="/Images/CheckerTile.png"
+            ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}">
+        </visuals:Scene>
         <overlays:ReferenceLayerOverlay SizeChanged="OnReferenceImageSizeChanged"
                                         ReferenceLayer="{Binding Document.ReferenceLayerViewModel}"
                                         ReferenceLayerScale="{Binding ReferenceLayerScale}"

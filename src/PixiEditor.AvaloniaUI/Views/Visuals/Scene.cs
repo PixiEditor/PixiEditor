@@ -190,6 +190,7 @@ internal class Scene : Control, ICustomHitTest
 
     protected override void OnPointerEntered(PointerEventArgs e)
     {
+        //TODO: Invoke on overlay that is within bounds
         base.OnPointerEntered(e);
         if (ActiveOverlays != null)
         {
@@ -213,6 +214,7 @@ internal class Scene : Control, ICustomHitTest
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
+        //TODO: Invoke on overlay that is within bounds
         base.OnPointerMoved(e);
         if (ActiveOverlays != null)
         {
@@ -261,6 +263,7 @@ internal class Scene : Control, ICustomHitTest
 
     protected override void OnPointerExited(PointerEventArgs e)
     {
+        //TODO: Invoke on overlay that is out of bounds
         base.OnPointerExited(e);
         if (ActiveOverlays != null)
         {
@@ -428,6 +431,7 @@ internal class Scene : Control, ICustomHitTest
 
         foreach (Overlay overlay in ActiveOverlays)
         {
+            if (!overlay.IsVisible) continue;
             VecD pointInOverlay = ToCanvasSpace(point);
             if (overlay.TestHit(pointInOverlay))
             {

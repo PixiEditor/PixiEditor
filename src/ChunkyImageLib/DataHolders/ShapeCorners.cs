@@ -162,6 +162,28 @@ public struct ShapeCorners
         TopRight = TopRight + delta
     };
 
+    public ShapeCorners AsScaled(float uniformScale)
+    {
+        VecD center = RectCenter;
+        VecD topLeftDelta = TopLeft - center;
+        VecD topRightDelta = TopRight - center;
+        VecD bottomLeftDelta = BottomLeft - center;
+        VecD bottomRightDelta = BottomRight - center;
+
+        topLeftDelta *= uniformScale;
+        topRightDelta *= uniformScale;
+        bottomLeftDelta *= uniformScale;
+        bottomRightDelta *= uniformScale;
+
+        return new ShapeCorners()
+        {
+            TopLeft = center + topLeftDelta,
+            TopRight = center + topRightDelta,
+            BottomLeft = center + bottomLeftDelta,
+            BottomRight = center + bottomRightDelta
+        };
+    }
+
     public static bool operator !=(ShapeCorners left, ShapeCorners right) => !(left == right);
     public static bool operator == (ShapeCorners left, ShapeCorners right)
     {

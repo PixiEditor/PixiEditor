@@ -9,6 +9,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays;
 using PixiEditor.AvaloniaUI.Views.Overlays.LineToolOverlay;
 using PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay;
 using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
+using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 
 namespace PixiEditor.AvaloniaUI.Views.Main.ViewportControls;
@@ -21,6 +22,7 @@ internal class ViewportOverlays
     private SelectionOverlay selectionOverlay;
     private SymmetryOverlay symmetryOverlay;
     private LineToolOverlay lineToolOverlay;
+    private TransformOverlay transformOverlay;
 
     public void Init(Viewport viewport)
     {
@@ -37,10 +39,14 @@ internal class ViewportOverlays
         lineToolOverlay = new LineToolOverlay();
         BindLineToolOverlay();
 
+        transformOverlay = new TransformOverlay();
+        BindTransformOverlay();
+
         Viewport.ActiveOverlays.Add(gridLinesOverlay);
         Viewport.ActiveOverlays.Add(selectionOverlay);
         Viewport.ActiveOverlays.Add(symmetryOverlay);
         Viewport.ActiveOverlays.Add(lineToolOverlay);
+        Viewport.ActiveOverlays.Add(transformOverlay);
     }
 
     private void BindGridLines()
@@ -158,5 +164,97 @@ internal class ViewportOverlays
         lineToolOverlay.Bind(LineToolOverlay.ActionCompletedProperty, actionCompletedBinding);
         lineToolOverlay.Bind(LineToolOverlay.LineStartProperty, lineStartBinding);
         lineToolOverlay.Bind(LineToolOverlay.LineEndProperty, lineEndBinding);
+    }
+
+    private void BindTransformOverlay()
+    {
+        Binding isVisibleBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.TransformActive",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding actionCompletedBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.ActionCompletedCommand",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding cornersBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.Corners",
+            Mode = BindingMode.TwoWay
+        };
+
+        Binding requestedCornersBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.RequestedCorners",
+            Mode = BindingMode.TwoWay
+        };
+
+        Binding cornerFreedomBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.CornerFreedom",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding sideFreedomBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.SideFreedom",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding lockRotationBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.LockRotation",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding coverWholeScreenBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.CoverWholeScreen",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding snapToAnglesBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.SnapToAngles",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding internalStateBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.TransformViewModel.InternalState",
+            Mode = BindingMode.TwoWay
+        };
+
+        Binding zoomboxAngleBinding = new()
+        {
+            Source = Viewport,
+            Path = "Zoombox.Angle",
+            Mode = BindingMode.OneWay
+        };
+
+        transformOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
+        transformOverlay.Bind(TransformOverlay.ActionCompletedProperty, actionCompletedBinding);
+        transformOverlay.Bind(TransformOverlay.CornersProperty, cornersBinding);
+        transformOverlay.Bind(TransformOverlay.RequestedCornersProperty, requestedCornersBinding);
+        transformOverlay.Bind(TransformOverlay.CornerFreedomProperty, cornerFreedomBinding);
+        transformOverlay.Bind(TransformOverlay.SideFreedomProperty, sideFreedomBinding);
+        transformOverlay.Bind(TransformOverlay.LockRotationProperty, lockRotationBinding);
+        transformOverlay.Bind(TransformOverlay.CoverWholeScreenProperty, coverWholeScreenBinding);
+        transformOverlay.Bind(TransformOverlay.SnapToAnglesProperty, snapToAnglesBinding);
+        transformOverlay.Bind(TransformOverlay.InternalStateProperty, internalStateBinding);
+        transformOverlay.Bind(TransformOverlay.ZoomboxAngleProperty, zoomboxAngleBinding);
     }
 }

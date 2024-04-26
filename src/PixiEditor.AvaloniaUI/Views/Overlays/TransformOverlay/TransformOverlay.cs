@@ -10,6 +10,7 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.UI.Overlays;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 #nullable enable
@@ -155,7 +156,7 @@ internal class TransformOverlay : Overlay
 
     private Geometry rotateCursorGeometry = Handle.GetHandleGeometry("RotateHandle");
 
-    private Point lastPointerPos;
+    private VecD lastPointerPos;
 
     public TransformOverlay()
     {
@@ -219,7 +220,7 @@ internal class TransformOverlay : Overlay
         DrawOverlay(drawingContext, new(Bounds.Width, Bounds.Height), Corners, InternalState.Origin, ZoomScale);
 
         if (capturedAnchor is null)
-            UpdateRotationCursor(TransformHelper.ToVecD(lastPointerPos));
+            UpdateRotationCursor(lastPointerPos);
     }
 
     private void DrawMouseInputArea(DrawingContext context, VecD size)
@@ -309,18 +310,12 @@ internal class TransformOverlay : Overlay
         context.DrawGeometry(Brushes.White, blackPen, rotateCursorGeometry);
     }
 
-    protected override void OnPointerExited(PointerEventArgs e)
-    {
-        base.OnPointerExited(e);
-        rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
-    }
-
     private void OnAnchorHandlePressed(Handle source, VecD position)
     {
         capturedAnchor = anchorMap[source];
         cornersOnStartAnchorDrag = Corners;
         originOnStartAnchorDrag = InternalState.Origin;
-        mousePosOnStartAnchorDrag = TransformHelper.ToVecD(lastPointerPos);
+        mousePosOnStartAnchorDrag = lastPointerPos;
 
         if (source == originHandle)
         {
@@ -333,24 +328,27 @@ internal class TransformOverlay : Overlay
         StartMoving(position);
     }
 
-    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    protected override void OnOverlayPointerExited(OverlayPointerArgs args)
     {
-        base.OnPointerPressed(e);
-        if (e.GetMouseButton(this) != MouseButton.Left)
+        rotateCursorGeometry.Transform = new ScaleTransform(0, 0);
+        Refresh();
+    }
+
+    protected override void OnOverlayPointerPressed(OverlayPointerArgs args)
+    {
+        if (args.PointerButton != MouseButton.Left)
             return;
 
-        VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
+        if(Handles.Any(x => x.IsWithinHandle(x.Position, args.Point, ZoomScale))) return;
 
-        if(Handles.Any(x => x.IsWithinHandle(x.Position, pos, ZoomScale))) return;
-
-        if (!CanRotate(pos))
+        if (!CanRotate(args.Point))
         {
-            StartMoving(pos);
+            StartMoving(args.Point);
         }
         else if (!LockRotation)
         {
             isRotating = true;
-            mousePosOnStartRotate = pos;
+            mousePosOnStartRotate = args.Point;
             cornersOnStartRotate = Corners;
             propAngle1OnStartRotate = InternalState.ProportionalAngle1;
             propAngle2OnStartRotate = InternalState.ProportionalAngle2;
@@ -360,16 +358,16 @@ internal class TransformOverlay : Overlay
             return;
         }
         
-        e.Pointer.Capture(this);
-        e.Handled = true;
+        args.Pointer.Capture(this);
+        args.Handled = true;
     }
 
-    protected override void OnPointerMoved(PointerEventArgs e)
+    protected override void OnOverlayPointerMoved(OverlayPointerArgs e)
     {
         Cursor finalCursor = new Cursor(StandardCursorType.Arrow);
 
-        lastPointerPos = e.GetPosition(this);
-        VecD pos = TransformHelper.ToVecD(lastPointerPos);
+        lastPointerPos = e.Point;
+        VecD pos = lastPointerPos;
 
         if (isMoving)
         {
@@ -383,7 +381,7 @@ internal class TransformOverlay : Overlay
             return;
         }
 
-        if (UpdateRotationCursor(TransformHelper.ToVecD(e.GetPosition(this))))
+        if (UpdateRotationCursor(e.Point))
         {
             finalCursor = new Cursor(StandardCursorType.None);
         }
@@ -406,12 +404,11 @@ internal class TransformOverlay : Overlay
         if (Cursor != finalCursor)
             Cursor = finalCursor;
 
-        InvalidateVisual();
+        Refresh();
     }
 
-    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    protected override void OnOverlayPointerReleased(OverlayPointerArgs e)
     {
-        base.OnPointerReleased(e);
         if (e.InitialPressMouseButton != MouseButton.Left)
             return;
 
@@ -420,11 +417,16 @@ internal class TransformOverlay : Overlay
             isRotating = false;
             e.Pointer.Capture(null);
             Cursor = new Cursor(StandardCursorType.Arrow);
-            var pos = TransformHelper.ToVecD(e.GetPosition(this));
+            var pos = e.Point;
             UpdateRotationCursor(pos);
         }
 
         StopMoving();
+    }
+
+    public override bool TestHit(VecD point)
+    {
+        return base.TestHit(point) || Corners.AsScaled(1.25f).IsPointInside(point);
     }
 
     private void OnMoveHandleReleased(Handle obj)
@@ -504,7 +506,7 @@ internal class TransformOverlay : Overlay
         return true;
     }
 
-    private void HandleCapturedAnchorMovement(PointerEventArgs e)
+    private void HandleCapturedAnchorMovement(OverlayPointerArgs e)
     {
         if (capturedAnchor is null)
             throw new InvalidOperationException("No anchor is captured");
@@ -513,7 +515,7 @@ internal class TransformOverlay : Overlay
             (TransformHelper.IsSide((Anchor)capturedAnchor) && SideFreedom == TransformSideFreedom.Locked))
             return;
 
-        VecD pos = TransformHelper.ToVecD(e.GetPosition(this));
+        VecD pos = e.Point;
 
         if (TransformHelper.IsCorner((Anchor)capturedAnchor))
         {
@@ -544,6 +546,8 @@ internal class TransformOverlay : Overlay
             pos = HandleSnap(pos, out bool snapped);
             InternalState = InternalState with { OriginWasManuallyDragged = !snapped, Origin = pos, };
         }
+
+        Refresh();
     }
 
     private void UpdateOriginPos()
