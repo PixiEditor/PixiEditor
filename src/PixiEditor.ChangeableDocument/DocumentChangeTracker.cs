@@ -317,9 +317,7 @@ public class DocumentChangeTracker : IDisposable
         if (running)
             throw new InvalidOperationException("Already currently processing");
         running = true;
-        Console.WriteLine($"Doing {actions.Count} now");
         var result = ProcessActionList(actions);
-        Console.WriteLine("We're done doing these");
         running = false;
         return result;
     }

@@ -310,7 +310,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             this.AddHandler(PointerMovedEvent, Image_MouseMove, RoutingStrategies.Bubble);
         }
 
-         // TODO: that's not how you're actually supposed to do it I think
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
     }
 
@@ -393,8 +392,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
     {
-        Console.WriteLine($"we got some mouse button down movement {e.GetCurrentPoint(this).Properties.PointerUpdateKind}");
-        
         bool isMiddle = e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed;
         HandleMiddleMouse(isMiddle);
 
@@ -418,11 +415,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void Image_MouseMove(object? sender, PointerEventArgs e)
     {
-        Console.WriteLine("we got some mouse movement");
-
         if (MouseMoveCommand is null)
         {
-            Console.WriteLine("but there isn't a mouse move comment");
             return;
         }
 
@@ -444,8 +438,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void Image_MouseUp(object? sender, PointerReleasedEventArgs e)
     {
-        Console.WriteLine($"we got some mouse button up movement {e.GetCurrentPoint(this).Properties.PointerUpdateKind}");
-        
         if (MouseUpCommand is null)
             return;
 

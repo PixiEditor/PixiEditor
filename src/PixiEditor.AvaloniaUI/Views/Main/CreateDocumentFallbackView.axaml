@@ -3,6 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
+             xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="viewModels:ViewModelMain"
              x:Class="PixiEditor.AvaloniaUI.Views.Main.CreateDocumentFallbackView">
@@ -12,6 +13,10 @@
 
     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
         <TextBlock Text="Create new document" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Button Content="Create" Command="{Binding FileSubViewModel.CreateFromNewFileDialog}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        
+        <input:SizePicker Name="sizePicker" Margin="0 8" />
+        
+        <Button Content="Create" Click="CreateDocumentClick"
+                HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </StackPanel>
 </UserControl>
