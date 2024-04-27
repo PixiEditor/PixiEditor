@@ -24,7 +24,7 @@ internal class RotateDragOperation : IDragOperation
     {
         Point pointCur = e.GetPosition(owner);
         initialClickAngle = GetAngle(new(pointCur.X, pointCur.Y));
-        initialZoomboxAngle = owner.Angle;
+        initialZoomboxAngle = owner.AngleRadians;
         rotationProcess = new LockingRotationProcess(initialZoomboxAngle);
         e.Pointer.Capture(owner);
         capturedPointer = e.Pointer;
@@ -48,7 +48,7 @@ internal class RotateDragOperation : IDragOperation
             newZoomboxAngle += initialClickAngle - clickAngle;
         else
             newZoomboxAngle += clickAngle - initialClickAngle;
-        owner.Angle = rotationProcess!.UpdateRotation(newZoomboxAngle);
+        owner.AngleRadians = rotationProcess!.UpdateRotation(newZoomboxAngle);
     }
 
     public void Terminate()

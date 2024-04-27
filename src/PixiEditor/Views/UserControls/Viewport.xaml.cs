@@ -402,7 +402,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     
     private void ResetViewportClicked(object sender, RoutedEventArgs e)
     {
-        zoombox.Angle = 0;
+        zoombox.AngleRadians = 0;
         zoombox.CenterContent();
     }
 

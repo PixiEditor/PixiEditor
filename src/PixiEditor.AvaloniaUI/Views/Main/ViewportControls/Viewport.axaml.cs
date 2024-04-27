@@ -200,15 +200,15 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(FlipYProperty, value);
     }
 
-    private double angle = 0;
+    private double angleRadians = 0;
 
-    public double Angle
+    public double AngleRadians
     {
-        get => angle;
+        get => angleRadians;
         set
         {
-            angle = value;
-            PropertyChanged?.Invoke(this, new(nameof(Angle)));
+            angleRadians = value;
+            PropertyChanged?.Invoke(this, new(nameof(AngleRadians)));
             Document?.Operations.AddOrUpdateViewport(GetLocation());
         }
     }
@@ -373,7 +373,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private ViewportInfo GetLocation()
     {
-        return new(Angle, Center, RealDimensions, Dimensions, CalculateResolution(), GuidValue, Delayed, ForceRefreshFinalImage);
+        return new(AngleRadians, Center, RealDimensions, Dimensions, CalculateResolution(), GuidValue, Delayed, ForceRefreshFinalImage);
     }
 
     private void OnReferenceImageSizeChanged(object? sender, SizeChangedEventArgs sizeChangedEventArgs)
@@ -452,7 +452,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     
     private void ResetViewportClicked(object sender, RoutedEventArgs e)
     {
-        scene.Angle = 0;
+        scene.AngleRadians = 0;
         scene.CenterContent();
     }
 

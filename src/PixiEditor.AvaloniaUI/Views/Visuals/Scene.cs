@@ -83,7 +83,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     static Scene()
     {
-        AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleProperty, FlipXProperty,
+        AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty, FlipXProperty,
             FlipYProperty, DocumentProperty, SurfaceProperty, ActiveOverlaysProperty);
 
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
@@ -107,7 +107,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         float finalScale = CalculateFinalScale();
 
-        float angle = (float)Angle;
+        float angle = (float)MathUtil.RadiansToDegrees(AngleRadians);
         if (FlipX)
         {
             angle = 360 - angle;
@@ -118,16 +118,21 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             angle = 360 - angle;
         }
 
-        var operation = new DrawSceneOperation(Surface, Document, CanvasPos, finalScale, Angle, FlipX, FlipY,
-            new Rect(CanvasPos.X, CanvasPos.Y, ContentDimensions.X * finalScale, ContentDimensions.Y * finalScale),
+        VecD dirtyDimensions = new VecD(ContentDimensions.X * finalScale, ContentDimensions.Y * finalScale);
+        VecD dirtyCenterShift = new VecD(FlipX ? -dirtyDimensions.X / 2 : dirtyDimensions.X / 2, FlipY ? -dirtyDimensions.Y / 2 : dirtyDimensions.Y / 2);
+        VecD dirtyCenter = new VecD(CanvasPos.X + dirtyCenterShift.X, CanvasPos.Y + dirtyCenterShift.Y);
+        RectD dirtyBounds = new ShapeCorners(dirtyCenter, dirtyDimensions)
+            .AsRotated(MathUtil.DegreesToRadians(angle), new VecD(CanvasPos.X, CanvasPos.Y)).AABBBounds;
+        /*dirtyBounds.Flip*/
+
+        using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, finalScale, angle, FlipX, FlipY,
+            new Rect(dirtyBounds.X, dirtyBounds.Y, dirtyBounds.Width, dirtyBounds.Height),
             Bounds,
             Opacity, (SKBitmap)checkerBitmap.Native);
         context.Custom(operation);
 
-        context.PushTransform(Matrix.CreateTranslation(CanvasPos.X, CanvasPos.Y));
-        context.PushTransform(Matrix.CreateScale(finalScale, finalScale));
-        context.PushTransform(Matrix.CreateRotation(MathUtil.AngleToRadians(angle)));
-        context.PushTransform(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
+        var matrix = CalculateTransformMatrix();
+        context.PushTransform(matrix);
 
         if (ActiveOverlays != null)
         {
@@ -295,7 +300,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         Matrix transform = Matrix.Identity;
         float finalScale = CalculateFinalScale();
-        transform = transform.Append(Matrix.CreateRotation(MathUtil.AngleToRadians((float)Angle)));
+        transform = transform.Append(Matrix.CreateRotation((float)AngleRadians));
         transform = transform.Append(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
         transform = transform.Append(Matrix.CreateScale(finalScale, finalScale));
         transform = transform.Append(Matrix.CreateTranslation(CanvasPos.X, CanvasPos.Y));
@@ -458,23 +463,12 @@ internal class DrawSceneOperation : SkiaDrawOperation
         if (surfaceRectToRender.IsZeroOrNegativeArea)
         {
             canvas.Restore();
-            canvas.Flush();
             return;
         }
 
         canvas.Scale((float)Scale, (float)Scale, (float)ContentPosition.X, (float)ContentPosition.Y);
-        float angle = (float)Angle;
-        if (FlipX)
-        {
-            angle = 360 - angle;
-        }
 
-        if (FlipY)
-        {
-            angle = 360 - angle;
-        }
-
-        canvas.RotateDegrees(angle, (float)ContentPosition.X, (float)ContentPosition.Y);
+        canvas.RotateDegrees((float)Angle, (float)ContentPosition.X, (float)ContentPosition.Y);
         canvas.Scale(FlipX ? -1 : 1, FlipY ? -1 : 1, (float)ContentPosition.X, (float)ContentPosition.Y);
         canvas.Translate((float)ContentPosition.X, (float)ContentPosition.Y);
 
@@ -484,8 +478,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
         canvas.DrawImage((SKImage)snapshot.Native, surfaceRectToRender.X, surfaceRectToRender.Y, _paint);
 
         canvas.Restore();
-
-        canvas.Flush();
     }
 
     private void DrawCheckerboard(SKCanvas canvas, RectI surfaceRectToRender)

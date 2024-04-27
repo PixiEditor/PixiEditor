@@ -146,12 +146,12 @@ public struct ShapeCorners
         TopRight = TopRight.ReflectX(verAxisX)
     };
 
-    public ShapeCorners AsRotated(double angle, VecD around) => new ShapeCorners
+    public ShapeCorners AsRotated(double angleRad, VecD around) => new ShapeCorners
     {
-        BottomLeft = BottomLeft.Rotate(angle, around),
-        BottomRight = BottomRight.Rotate(angle, around),
-        TopLeft = TopLeft.Rotate(angle, around),
-        TopRight = TopRight.Rotate(angle, around)
+        BottomLeft = BottomLeft.Rotate(angleRad, around),
+        BottomRight = BottomRight.Rotate(angleRad, around),
+        TopLeft = TopLeft.Rotate(angleRad, around),
+        TopRight = TopRight.Rotate(angleRad, around)
     };
 
     public ShapeCorners AsTranslated(VecD delta) => new ShapeCorners

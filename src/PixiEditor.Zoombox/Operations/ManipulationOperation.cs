@@ -22,9 +22,9 @@ internal class ManipulationOperation
 
     public void Start()
     {
-        updatedAngle = owner.Angle;
-        initialAngle = owner.Angle;
-        rotationProcess = new LockingRotationProcess(owner.Angle);
+        updatedAngle = owner.AngleRadians;
+        initialAngle = owner.AngleRadians;
+        rotationProcess = new LockingRotationProcess(owner.AngleRadians);
     }
 
     //TODO: Implement this
@@ -58,7 +58,7 @@ internal class ManipulationOperation
         double newAngle = startedRotating ? rotationProcess!.UpdateRotation(updatedAngle) : initialAngle;
 
         VecD originalPos = owner.ToZoomboxSpace(screenOrigin);
-        owner.Angle = newAngle;
+        owner.AngleRadians = newAngle;
         owner.Scale = newScale;
         VecD newPos = owner.ToZoomboxSpace(screenOrigin);
         VecD centerTranslation = originalPos - newPos;

@@ -10,6 +10,7 @@ internal abstract class SkiaDrawOperation : ICustomDrawOperation
 {
     public Rect Bounds { get; }
 
+
     public SkiaDrawOperation(Rect dirtyBounds)
     {
         Bounds = dirtyBounds;
@@ -17,9 +18,17 @@ internal abstract class SkiaDrawOperation : ICustomDrawOperation
 
     public abstract bool Equals(ICustomDrawOperation? other);
 
-    public virtual void Dispose() { }
+    public virtual void Dispose()
+    {
 
-    public bool HitTest(Point p) => false;
+    }
+
+    void IDisposable.Dispose()
+    {
+        Dispose();
+    }
+
+    public virtual bool HitTest(Point p) => false;
 
     public void Render(ImmediateDrawingContext context)
     {

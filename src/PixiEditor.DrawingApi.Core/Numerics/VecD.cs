@@ -45,18 +45,18 @@ public struct VecD : IEquatable<VecD>
     /// <summary>
     ///     Rotates the vector by the specified angle in radians
     /// </summary>
-    /// <param name="angle">Angle in radians</param>
+    /// <param name="angleRad">Angle in radians</param>
     /// <returns>Rotated vector</returns>
-    public VecD Rotate(double angle)
+    public VecD Rotate(double angleRad)
     {
         VecD result = new VecD();
-        result.X = X * Math.Cos(angle) - Y * Math.Sin(angle);
-        result.Y = X * Math.Sin(angle) + Y * Math.Cos(angle);
+        result.X = X * Math.Cos(angleRad) - Y * Math.Sin(angleRad);
+        result.Y = X * Math.Sin(angleRad) + Y * Math.Cos(angleRad);
         return result;
     }
-    public VecD Rotate(double angle, VecD around)
+    public VecD Rotate(double angleRad, VecD around)
     {
-        return (this - around).Rotate(angle) + around;
+        return (this - around).Rotate(angleRad) + around;
     }
     public double DistanceToLineSegment(VecD pos1, VecD pos2)
     {

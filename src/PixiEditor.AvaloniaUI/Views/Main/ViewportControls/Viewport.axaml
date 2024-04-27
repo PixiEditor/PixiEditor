@@ -54,7 +54,7 @@
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Margin="5 0" TextAlignment="Center"
-                                       Text="{Binding Path=Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport},
+                                       Text="{Binding Path=AngleRadians, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport},
              Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
                                        Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16" />
                             <Button Width="32" Height="32" ui:Translator.TooltipKey="RESET_VIEWPORT"
@@ -126,7 +126,7 @@
             UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
             Scale="{Binding ZoomboxScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
-            Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
+            AngleRadians="{Binding AngleRadians, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
@@ -208,35 +208,6 @@
             BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
             BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
             FlowDirection="LeftToRight" />
-        <!--<Grid ZIndex="5" DataContext="{Binding ElementName=vpUc}"
-              RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}">
-            <transformOverlay:TransformOverlay
-                Focusable="False"
-                Cursor="Arrow"
-                IsHitTestVisible="{Binding ZoomMode, Converter={converters:ZoomModeToHitTestVisibleConverter}}"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                IsVisible="{Binding Document.TransformViewModel.TransformActive}"
-                ActionCompleted="{Binding Document.TransformViewModel.ActionCompletedCommand}"
-                Corners="{Binding Document.TransformViewModel.Corners, Mode=TwoWay}"
-                RequestedCorners="{Binding Document.TransformViewModel.RequestedCorners, Mode=TwoWay}"
-                CornerFreedom="{Binding Document.TransformViewModel.CornerFreedom}"
-                SideFreedom="{Binding Document.TransformViewModel.SideFreedom}"
-                LockRotation="{Binding Document.TransformViewModel.LockRotation}"
-                CoverWholeScreen="{Binding Document.TransformViewModel.CoverWholeScreen}"
-                SnapToAngles="{Binding Document.TransformViewModel.SnapToAngles}"
-                InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
-                ZoomboxScale="{Binding #zoombox.Scale}"
-                ZoomboxAngle="{Binding #zoombox.Angle}" />
-            <lineToolOverlay:LineToolOverlay
-                Focusable="False"
-                IsVisible="{Binding Document.LineToolOverlayViewModel.IsEnabled}"
-                ActionCompleted="{Binding Document.LineToolOverlayViewModel.ActionCompletedCommand}"
-                LineStart="{Binding Document.LineToolOverlayViewModel.LineStart, Mode=TwoWay}"
-                LineEnd="{Binding Document.LineToolOverlayViewModel.LineEnd, Mode=TwoWay}"
-                ZoomboxScale="{Binding #zoombox.Scale}"
-                FlowDirection="LeftToRight" />
-        </Grid>-->
         <Button
             ZIndex="99999"
             DockPanel.Dock="Bottom"

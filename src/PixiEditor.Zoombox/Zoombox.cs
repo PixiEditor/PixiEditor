@@ -45,8 +45,8 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         set => SetValue(ContentDimensionsProperty, value);
     }
 
-    public static readonly StyledProperty<double> AngleProperty =
-        AvaloniaProperty.Register<Zoombox, double>(nameof(Angle), defaultValue: 0.0);
+    public static readonly StyledProperty<double> AngleRadiansProperty =
+        AvaloniaProperty.Register<Zoombox, double>(nameof(AngleRadians), defaultValue: 0.0);
 
     public static readonly StyledProperty<bool> FlipXProperty =
         AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipX), defaultValue: false);
@@ -93,10 +93,10 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         set => SetValue(ScaleProperty, value);
     }
 
-    public double Angle
+    public double AngleRadians
     {
-        get => (double)GetValue(AngleProperty);
-        set => SetValue(AngleProperty, value);
+        get => (double)GetValue(AngleRadiansProperty);
+        set => SetValue(AngleRadiansProperty, value);
     }
 
     public VecD Center
@@ -132,7 +132,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         Children =
         {
             new ScaleTransform(Scale, Scale),
-            new RotateTransform(Angle * 180 / Math.PI),
+            new RotateTransform(AngleRadians * 180 / Math.PI),
             new ScaleTransform(FlipX ? -1 : 1, FlipY ? -1 : 1),
             new TranslateTransform(CanvasX, CanvasY),
         },
@@ -141,7 +141,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     public double ScaleTransformXY => Scale;
     public double FlipTransformX => FlipX ? -1 : 1;
     public double FlipTransformY => FlipY ? -1 : 1;
-    public double RotateTransformAngle => Angle * 180 / Math.PI;
+    public double RotateTransformAngle => AngleRadians * 180 / Math.PI;
     internal const double MaxScale = 384;
 
     internal double MinScale
@@ -158,7 +158,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     public VecD ToScreenSpace(VecD p)
     {
         VecD delta = p - Center;
-        delta = delta.Rotate(Angle) * Scale;
+        delta = delta.Rotate(AngleRadians) * Scale;
         if (FlipX)
             delta.X = -delta.X;
         if (FlipY)
@@ -174,7 +174,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
             delta.X = -delta.X;
         if (FlipY)
             delta.Y = -delta.Y;
-        delta = (delta / Scale).Rotate(-Angle);
+        delta = (delta / Scale).Rotate(-AngleRadians);
         return delta + Center;
     }
 
@@ -204,7 +204,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
     {
         ZoomModeProperty.Changed.Subscribe(ZoomModeChanged);
         ScaleProperty.Changed.Subscribe(OnPropertyChange);
-        AngleProperty.Changed.Subscribe(OnPropertyChange);
+        AngleRadiansProperty.Changed.Subscribe(OnPropertyChange);
         FlipXProperty.Changed.Subscribe(OnPropertyChange);
         FlipYProperty.Changed.Subscribe(OnPropertyChange);
         CenterProperty.Changed.Subscribe(OnPropertyChange);
@@ -296,7 +296,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
             Center,
             Dimensions,
             realDim,
-            Angle));
+            AngleRadians));
     }
 
     public void CenterContent() => CenterContent(new(ContentDimensions.X, ContentDimensions.Y));
@@ -308,7 +308,7 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
             newSize.X * marginFactor / Bounds.Width,
             newSize.Y * marginFactor / Bounds.Height);
 
-        Angle = 0;
+        AngleRadians = 0;
         FlipX = false;
         FlipY = false;
         Scale = Math.Clamp(1 / scaleFactor, MinScale, MaxScale);
@@ -468,8 +468,9 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
     private static void OnPropertyChange(Zoombox zoombox)
     {
-        VecD topLeft = zoombox.ToZoomboxSpace(VecD.Zero).Rotate(zoombox.Angle);
-        VecD bottomRight = zoombox.ToZoomboxSpace(new(zoombox.Bounds.Width, zoombox.Bounds.Height)).Rotate(zoombox.Angle);
+        VecD topLeft = zoombox.ToZoomboxSpace(VecD.Zero).Rotate(zoombox.AngleRadians);
+        VecD bottomRight = zoombox.ToZoomboxSpace(new(zoombox.Bounds.Width, zoombox.Bounds.Height))
+            .Rotate(zoombox.AngleRadians);
 
         zoombox.Dimensions = (bottomRight - topLeft).Abs();
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.ScaleTransformXY)));
@@ -481,15 +482,5 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.CanvasPos)));
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.CanvasTransform)));
         zoombox.RaiseViewportEvent();
-    }
-
-    private void OnMainCanvasSizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        OnPropertyChange(this);
-    }
-
-    private void OnGridSizeChanged(object sender, SizeChangedEventArgs args)
-    {
-        OnPropertyChange(this);
     }
 }

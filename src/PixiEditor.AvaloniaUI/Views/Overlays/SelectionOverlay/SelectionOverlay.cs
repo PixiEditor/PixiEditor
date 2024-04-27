@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Media;
@@ -37,6 +38,7 @@ internal class SelectionOverlay : Overlay
     {
         AffectsRender<SelectionOverlay>(PathProperty);
         ShowFillProperty.Changed.Subscribe(OnShowFillChanged);
+        PathProperty.Changed.Subscribe(OnPathChanged);
     }
 
     private Pen whitePen = new Pen(Brushes.White, 1);
@@ -44,15 +46,16 @@ internal class SelectionOverlay : Overlay
     private Brush fillBrush = new SolidColorBrush(Color.FromArgb(80, 0, 80, 255));
 
     private static DashStyle startingFrame = new DashStyle(new double[] { 2, 4 }, 0);
-    private static DashStyle endingFrame = new DashStyle(new double[] { 2, 4 }, 6);
 
     private Geometry renderPath = new PathGeometry();
+    private Avalonia.Animation.Animation animation;
+    private CancellationTokenSource cancelAnimationToken;
 
     public SelectionOverlay()
     {
         IsHitTestVisible = false;
 
-        Avalonia.Animation.Animation animation = new Avalonia.Animation.Animation()
+        animation = new Avalonia.Animation.Animation()
         {
             Duration = new TimeSpan(0, 0, 0, 2, 0),
             IterationCount = IterationCount.Infinite,
@@ -70,8 +73,6 @@ internal class SelectionOverlay : Overlay
                 Setters = { new Setter(BlackDashedPenProperty, SelectionDashAnimator.Interpolate(cue.CueValue, 6, blackDashedPen.DashStyle.Dashes.ToArray())) }
             });
         }
-
-        animation.RunAsync(this);
     }
 
     public override void Render(DrawingContext drawingContext)
@@ -106,5 +107,19 @@ internal class SelectionOverlay : Overlay
     {
         var self = (SelectionOverlay)args.Sender;
         self.fillBrush.Opacity = args.NewValue.Value ? 1 : 0;
+    }
+
+    private static void OnPathChanged(AvaloniaPropertyChangedEventArgs<VectorPath?> args)
+    {
+        var self = (SelectionOverlay)args.Sender;
+        if (args.NewValue.HasValue && !args.NewValue.Value.IsEmpty && self.IsVisible)
+        {
+            self.cancelAnimationToken = new CancellationTokenSource();
+            self.animation.RunAsync(self, self.cancelAnimationToken.Token);
+        }
+        else if (self.cancelAnimationToken != null)
+        {
+            self.cancelAnimationToken.Cancel();
+        }
     }
 }
