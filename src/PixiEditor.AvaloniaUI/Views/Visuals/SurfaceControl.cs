@@ -138,7 +138,7 @@ internal class DrawSurfaceOperation : SkiaDrawOperation
 
     private SKPaint _paint = new SKPaint();
 
-    public DrawSurfaceOperation(Rect bounds, Surface surface, Stretch stretch, double opacity = 1) : base(bounds)
+    public DrawSurfaceOperation(Rect dirtyBounds, Surface surface, Stretch stretch, double opacity = 1) : base(dirtyBounds)
     {
         Surface = surface;
         Stretch = stretch;

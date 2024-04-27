@@ -12,7 +12,7 @@ using PixiEditor.Zoombox.Operations;
 
 namespace PixiEditor.Zoombox;
 
-public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make it content control
+public partial class Zoombox : ContentControl, INotifyPropertyChanged
 {
     public static readonly StyledProperty<ZoomboxMode> ZoomModeProperty =
         AvaloniaProperty.Register<Zoombox, ZoomboxMode>(nameof(ZoomMode), defaultValue: ZoomboxMode.Normal);
@@ -35,6 +35,16 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
     public static readonly StyledProperty<VecD> RealDimensionsProperty =
         AvaloniaProperty.Register<Zoombox, VecD>(nameof(RealDimensions));
 
+    public static readonly StyledProperty<VecD> ContentDimensionsProperty = AvaloniaProperty.Register<Zoombox, VecD>(
+        nameof(ContentDimensions),
+        defaultValue: new VecD(0, 0));
+
+    public VecD ContentDimensions
+    {
+        get => GetValue(ContentDimensionsProperty);
+        set => SetValue(ContentDimensionsProperty, value);
+    }
+
     public static readonly StyledProperty<double> AngleProperty =
         AvaloniaProperty.Register<Zoombox, double>(nameof(Angle), defaultValue: 0.0);
 
@@ -43,9 +53,6 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
 
     public static readonly StyledProperty<bool> FlipYProperty =
         AvaloniaProperty.Register<Zoombox, bool>(nameof(FlipY), defaultValue: false);
-
-    public static readonly StyledProperty<Control> AdditionalContentProperty =
-        AvaloniaProperty.Register<Zoombox, Control>(nameof(AdditionalContent));
 
     public static readonly RoutedEvent<ViewportRoutedEventArgs> ViewportMovedEvent = RoutedEvent.Register<Zoombox, ViewportRoutedEventArgs>(
         nameof(ViewportMoved), RoutingStrategies.Bubble);
@@ -110,12 +117,6 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
         set => SetValue(RealDimensionsProperty, value);
     }
 
-    public Control AdditionalContent
-    {
-        get => (Control)GetValue(AdditionalContentProperty);
-        set => SetValue(AdditionalContentProperty, value);
-    }
-
     public event EventHandler<ViewportRoutedEventArgs> ViewportMoved
     {
         add => AddHandler(ViewportMovedEvent, value);
@@ -147,31 +148,28 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
     {
         get
         {
-            double fraction = Math.Max(
-                mainCanvas.Bounds.Width / mainGrid.Bounds.Width,
-                mainCanvas.Bounds.Height / mainGrid.Bounds.Height);
+            double fraction = Math.Max(Bounds.Width / ContentDimensions.X, Bounds.Height / ContentDimensions.Y);
             return Math.Min(fraction / 8, 0.1);
         }
     }
 
     internal const double ScaleFactor = 1.09050773267; //2^(1/8)
 
-    internal VecD ToScreenSpace(VecD p)
+    public VecD ToScreenSpace(VecD p)
     {
-        if (mainCanvas == null) return p;
         VecD delta = p - Center;
         delta = delta.Rotate(Angle) * Scale;
         if (FlipX)
             delta.X = -delta.X;
         if (FlipY)
             delta.Y = -delta.Y;
-        delta += new VecD(mainCanvas.Bounds.Width / 2f, mainCanvas.Bounds.Height / 2f);
+        delta += new VecD(Bounds.Width / 2f, Bounds.Height / 2f);
         return delta;
     }
 
-    internal VecD ToZoomboxSpace(VecD mousePos)
+    public VecD ToZoomboxSpace(VecD mousePos)
     {
-        VecD delta = mousePos - new VecD(mainCanvas.Bounds.Width / 2, mainCanvas.Bounds.Height / 2);
+        VecD delta = mousePos - new VecD(Bounds.Width / 2, Bounds.Height / 2);
         if (FlipX)
             delta.X = -delta.X;
         if (FlipY)
@@ -215,7 +213,10 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
     public Zoombox()
     {
         CalculateZoomValues();
-        InitializeComponent();
+        PointerWheelChanged += OnScroll;
+        PointerPressed += OnMouseDown;
+        PointerReleased += OnMouseUp;
+        PointerMoved += OnMouseMove;
         Loaded += (_, _) => OnPropertyChange(this);
     }
 
@@ -288,7 +289,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
 
     private void RaiseViewportEvent()
     {
-        VecD realDim = new VecD(mainCanvas.Bounds.Width, mainCanvas.Bounds.Height);
+        VecD realDim = new VecD(Bounds.Width, Bounds.Height);
         RealDimensions = realDim;
         RaiseEvent(new ViewportRoutedEventArgs(
             ViewportMovedEvent,
@@ -298,14 +299,14 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
             Angle));
     }
 
-    public void CenterContent() => CenterContent(new(mainGrid.Bounds.Width, mainGrid.Bounds.Height));
+    public void CenterContent() => CenterContent(new(ContentDimensions.X, ContentDimensions.Y));
 
     public void CenterContent(VecD newSize)
     {
         const double marginFactor = 1.1;
         double scaleFactor = Math.Max(
-            newSize.X * marginFactor / mainCanvas.Bounds.Width,
-            newSize.Y * marginFactor / mainCanvas.Bounds.Height);
+            newSize.X * marginFactor / Bounds.Width,
+            newSize.Y * marginFactor / Bounds.Height);
 
         Angle = 0;
         FlipX = false;
@@ -316,7 +317,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
 
     public void ZoomIntoCenter(double delta)
     {
-        ZoomInto(new VecD(mainCanvas.Bounds.Width / 2, mainCanvas.Bounds.Height / 2), delta);
+        ZoomInto(new VecD(Bounds.Width / 2, Bounds.Height / 2), delta);
     }
 
     public void ZoomInto(VecD position, double delta)
@@ -358,7 +359,6 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
 
     private void OnMouseDown(object? sender, PointerPressedEventArgs e)
     {
-        // TODO: idk if this is correct
         MouseButton but = e.GetCurrentPoint(this).Properties.PointerUpdateKind switch
         {
             PointerUpdateKind.LeftButtonPressed => MouseButton.Left,
@@ -370,8 +370,8 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
         if (but == MouseButton.Right)
             return;
         activeMouseDownEventArgs = e;
-        activeMouseDownPos = ToVecD(e.GetPosition(mainCanvas));
-        Focus(NavigationMethod.Unspecified);
+        activeMouseDownPos = ToVecD(e.GetPosition(this));
+        Focus();
     }
 
     private void InitiateDrag(PointerEventArgs e)
@@ -405,7 +405,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
         else
         {
             if (ZoomMode == ZoomboxMode.Zoom && e.InitialPressMouseButton == MouseButton.Left)
-                ZoomInto(ToVecD(e.GetPosition(mainCanvas)), ZoomOutOnClick ? -1 : 1);
+                ZoomInto(ToVecD(e.GetPosition(this)), ZoomOutOnClick ? -1 : 1);
         }
         activeMouseDownEventArgs = null;
     }
@@ -414,7 +414,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
     {
         if (activeDragOperation is null && activeMouseDownEventArgs is not null)
         {
-            VecD cur = ToVecD(e.GetPosition(mainCanvas));
+            VecD cur = ToVecD(e.GetPosition(this));
 
             if ((cur - activeMouseDownPos).TaxicabLength > 3)
                 InitiateDrag(activeMouseDownEventArgs);
@@ -422,12 +422,12 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
         activeDragOperation?.Update(e);
     }
 
-    private void OnScroll(object sender, PointerWheelEventArgs e)
+    private void OnScroll(object? sender, PointerWheelEventArgs e)
     {
         double abs = Math.Abs(e.Delta.Y / 100.0);
         for (int i = 0; i < abs; i++)
         {
-            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), e.Delta.Y / 100.0);
+            ZoomInto(ToVecD(e.GetPosition(this)), e.Delta.Y / 100.0);
         }
     }
 
@@ -469,7 +469,7 @@ public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make 
     private static void OnPropertyChange(Zoombox zoombox)
     {
         VecD topLeft = zoombox.ToZoomboxSpace(VecD.Zero).Rotate(zoombox.Angle);
-        VecD bottomRight = zoombox.ToZoomboxSpace(new(zoombox.mainCanvas.Bounds.Width, zoombox.mainCanvas.Bounds.Height)).Rotate(zoombox.Angle);
+        VecD bottomRight = zoombox.ToZoomboxSpace(new(zoombox.Bounds.Width, zoombox.Bounds.Height)).Rotate(zoombox.Angle);
 
         zoombox.Dimensions = (bottomRight - topLeft).Abs();
         zoombox.PropertyChanged?.Invoke(zoombox, new(nameof(zoombox.ScaleTransformXY)));

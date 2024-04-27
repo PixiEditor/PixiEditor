@@ -27,29 +27,14 @@ using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 
-internal class Scene : Control, ICustomHitTest
+internal class Scene : Zoombox.Zoombox, ICustomHitTest
 {
     public static readonly StyledProperty<Surface> SurfaceProperty = AvaloniaProperty.Register<SurfaceControl, Surface>(
         nameof(Surface));
 
-    public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<Scene, double>(
-        nameof(Scale), 1);
-
-    public static readonly StyledProperty<VecI> ContentPositionProperty = AvaloniaProperty.Register<Scene, VecI>(
-        nameof(ContentPosition));
-
     public static readonly StyledProperty<DocumentViewModel> DocumentProperty =
         AvaloniaProperty.Register<Scene, DocumentViewModel>(
             nameof(Document));
-
-    public static readonly StyledProperty<double> AngleProperty = AvaloniaProperty.Register<Scene, double>(
-        nameof(Angle), 0);
-
-    public static readonly StyledProperty<bool> FlipXProperty = AvaloniaProperty.Register<Scene, bool>(
-        nameof(FlipX), false);
-
-    public static readonly StyledProperty<bool> FlipYProperty = AvaloniaProperty.Register<Scene, bool>(
-        nameof(FlipY), false);
 
     public static readonly StyledProperty<bool> FadeOutProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(FadeOut), false);
@@ -79,46 +64,16 @@ internal class Scene : Control, ICustomHitTest
         set => SetValue(FadeOutProperty, value);
     }
 
-    public double Angle
-    {
-        get => GetValue(AngleProperty);
-        set => SetValue(AngleProperty, value);
-    }
-
     public DocumentViewModel Document
     {
         get => GetValue(DocumentProperty);
         set => SetValue(DocumentProperty, value);
     }
 
-    public VecI ContentPosition
-    {
-        get => GetValue(ContentPositionProperty);
-        set => SetValue(ContentPositionProperty, value);
-    }
-
-    public double Scale
-    {
-        get => GetValue(ScaleProperty);
-        set => SetValue(ScaleProperty, value);
-    }
-
     public Surface Surface
     {
         get => GetValue(SurfaceProperty);
         set => SetValue(SurfaceProperty, value);
-    }
-
-    public bool FlipX
-    {
-        get { return (bool)GetValue(FlipXProperty); }
-        set { SetValue(FlipXProperty, value); }
-    }
-
-    public bool FlipY
-    {
-        get { return (bool)GetValue(FlipYProperty); }
-        set { SetValue(FlipYProperty, value); }
     }
 
     private Bitmap? checkerBitmap;
@@ -129,14 +84,10 @@ internal class Scene : Control, ICustomHitTest
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleProperty, FlipXProperty,
-            FlipYProperty, ContentPositionProperty, DocumentProperty, SurfaceProperty);
-        BoundsProperty.Changed.AddClassHandler<Scene>(BoundsChanged);
-        ContentPositionProperty.Changed.AddClassHandler<Scene>(Rerender);
-        ScaleProperty.Changed.AddClassHandler<Scene>(Rerender);
-        FlipXProperty.Changed.AddClassHandler<Scene>(Rerender);
-        FlipYProperty.Changed.AddClassHandler<Scene>(Rerender);
-        AngleProperty.Changed.AddClassHandler<Scene>(Rerender);
+            FlipYProperty, DocumentProperty, SurfaceProperty, ActiveOverlaysProperty);
+
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
+        SurfaceProperty.Changed.AddClassHandler<Scene>(SurfaceChanged);
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
         ActiveOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
     }
@@ -167,16 +118,16 @@ internal class Scene : Control, ICustomHitTest
             angle = 360 - angle;
         }
 
-        context.PushTransform(Matrix.CreateTranslation(ContentPosition.X, ContentPosition.Y));
-        context.PushTransform(Matrix.CreateScale(finalScale, finalScale));
-        context.PushTransform(Matrix.CreateRotation(MathUtil.AngleToRadians(angle)));
-        context.PushTransform(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
-
-        var operation = new DrawSceneOperation(Surface, Document, ContentPosition, finalScale, Angle, FlipX, FlipY,
+        var operation = new DrawSceneOperation(Surface, Document, CanvasPos, finalScale, Angle, FlipX, FlipY,
+            new Rect(CanvasPos.X, CanvasPos.Y, ContentDimensions.X * finalScale, ContentDimensions.Y * finalScale),
             Bounds,
             Opacity, (SKBitmap)checkerBitmap.Native);
         context.Custom(operation);
 
+        context.PushTransform(Matrix.CreateTranslation(CanvasPos.X, CanvasPos.Y));
+        context.PushTransform(Matrix.CreateScale(finalScale, finalScale));
+        context.PushTransform(Matrix.CreateRotation(MathUtil.AngleToRadians(angle)));
+        context.PushTransform(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
 
         if (ActiveOverlays != null)
         {
@@ -347,7 +298,7 @@ internal class Scene : Control, ICustomHitTest
         transform = transform.Append(Matrix.CreateRotation(MathUtil.AngleToRadians((float)Angle)));
         transform = transform.Append(Matrix.CreateScale(FlipX ? -1 : 1, FlipY ? -1 : 1));
         transform = transform.Append(Matrix.CreateScale(finalScale, finalScale));
-        transform = transform.Append(Matrix.CreateTranslation(ContentPosition.X, ContentPosition.Y));
+        transform = transform.Append(Matrix.CreateTranslation(CanvasPos.X, CanvasPos.Y));
         return transform;
     }
 
@@ -385,35 +336,6 @@ internal class Scene : Control, ICustomHitTest
         mouseOverOverlays.Add(overlay);
     }
 
-    private static void BoundsChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
-    {
-        sender.InvalidateVisual();
-    }
-
-    private static void Rerender(Scene scene, AvaloniaPropertyChangedEventArgs e)
-    {
-        scene.InvalidateVisual();
-    }
-
-    private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
-    {
-        scene.Opacity = e.NewValue is true ? 0 : 1;
-    }
-
-    private static void ActiveOverlaysChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
-    {
-        scene.InvalidateVisual();
-        if (e.OldValue is ObservableCollection<Overlay> oldOverlays)
-        {
-            oldOverlays.CollectionChanged -= scene.OverlayCollectionChanged;
-        }
-
-        if (e.NewValue is ObservableCollection<Overlay> newOverlays)
-        {
-            newOverlays.CollectionChanged += scene.OverlayCollectionChanged;
-        }
-    }
-
     private void OverlayCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         InvalidateVisual();
@@ -438,6 +360,23 @@ internal class Scene : Control, ICustomHitTest
     {
         Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
     }
+    private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    {
+        scene.Opacity = e.NewValue is true ? 0 : 1;
+    }
+
+    private static void ActiveOverlaysChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.OldValue is ObservableCollection<Overlay> oldOverlays)
+        {
+            oldOverlays.CollectionChanged -= scene.OverlayCollectionChanged;
+        }
+
+        if (e.NewValue is ObservableCollection<Overlay> newOverlays)
+        {
+            newOverlays.CollectionChanged += scene.OverlayCollectionChanged;
+        }
+    }
 
     private static void CheckerImagePathChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
@@ -451,21 +390,17 @@ internal class Scene : Control, ICustomHitTest
         }
     }
 
+    private static void SurfaceChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    {
+        if(e.NewValue is Surface surface)
+        {
+            scene.ContentDimensions = surface.Size;
+        }
+    }
+
     bool ICustomHitTest.HitTest(Point point)
     {
-        if (ActiveOverlays == null) return false;
-
-        foreach (Overlay overlay in ActiveOverlays)
-        {
-            if (!overlay.IsVisible) continue;
-            VecD pointInOverlay = ToCanvasSpace(point);
-            if (overlay.TestHit(pointInOverlay))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return Bounds.Contains(point);
     }
 }
 
@@ -473,19 +408,20 @@ internal class DrawSceneOperation : SkiaDrawOperation
 {
     public Surface Surface { get; set; }
     public DocumentViewModel Document { get; set; }
-    public VecI ContentPosition { get; set; }
+    public VecD ContentPosition { get; set; }
     public double Scale { get; set; }
     public double Angle { get; set; }
     public bool FlipX { get; set; }
     public bool FlipY { get; set; }
 
+    public Rect ViewportBounds { get; set; }
     public SKBitmap? CheckerBitmap { get; set; }
 
     private SKPaint _paint = new SKPaint();
     private SKPaint _checkerPaint;
 
-    public DrawSceneOperation(Surface surface, DocumentViewModel document, VecI contentPosition, double scale,
-        double angle, bool flipX, bool flipY, Rect bounds, double opacity, SKBitmap checkerBitmap) : base(bounds)
+    public DrawSceneOperation(Surface surface, DocumentViewModel document, VecD contentPosition, double scale,
+        double angle, bool flipX, bool flipY, Rect dirtyBounds, Rect viewportBounds, double opacity, SKBitmap checkerBitmap) : base(dirtyBounds)
     {
         Surface = surface;
         Document = document;
@@ -494,6 +430,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         Angle = angle;
         FlipX = flipX;
         FlipY = flipY;
+        ViewportBounds = viewportBounds;
         CheckerBitmap = checkerBitmap;
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
 
@@ -525,6 +462,22 @@ internal class DrawSceneOperation : SkiaDrawOperation
             return;
         }
 
+        canvas.Scale((float)Scale, (float)Scale, (float)ContentPosition.X, (float)ContentPosition.Y);
+        float angle = (float)Angle;
+        if (FlipX)
+        {
+            angle = 360 - angle;
+        }
+
+        if (FlipY)
+        {
+            angle = 360 - angle;
+        }
+
+        canvas.RotateDegrees(angle, (float)ContentPosition.X, (float)ContentPosition.Y);
+        canvas.Scale(FlipX ? -1 : 1, FlipY ? -1 : 1, (float)ContentPosition.X, (float)ContentPosition.Y);
+        canvas.Translate((float)ContentPosition.X, (float)ContentPosition.Y);
+
         DrawCheckerboard(canvas, surfaceRectToRender);
 
         using Image snapshot = Surface.DrawingSurface.Snapshot(surfaceRectToRender);
@@ -548,7 +501,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         ShapeCorners surfaceInViewportSpace = SurfaceToViewport(new RectI(VecI.Zero, Surface.Size), finalScale);
         RectI surfaceBoundsInViewportSpace = (RectI)surfaceInViewportSpace.AABBBounds.RoundOutwards();
         RectI viewportBoundsInViewportSpace =
-            (RectI)(new RectD(Bounds.X, Bounds.Y, Bounds.Width, Bounds.Height)).RoundOutwards();
+            (RectI)(new RectD(ViewportBounds.X, ViewportBounds.Y, ViewportBounds.Width, ViewportBounds.Height)).RoundOutwards();
         RectI firstIntersectionInViewportSpace = surfaceBoundsInViewportSpace.Intersect(viewportBoundsInViewportSpace);
         ShapeCorners firstIntersectionInSurfaceSpace = ViewportToSurface(firstIntersectionInViewportSpace, finalScale);
         RectI firstIntersectionBoundsInSurfaceSpace = (RectI)firstIntersectionInSurfaceSpace.AABBBounds.RoundOutwards();

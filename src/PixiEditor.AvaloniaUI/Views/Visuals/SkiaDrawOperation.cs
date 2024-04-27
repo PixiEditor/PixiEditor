@@ -10,9 +10,9 @@ internal abstract class SkiaDrawOperation : ICustomDrawOperation
 {
     public Rect Bounds { get; }
 
-    public SkiaDrawOperation(Rect bounds)
+    public SkiaDrawOperation(Rect dirtyBounds)
     {
-        Bounds = bounds;
+        Bounds = dirtyBounds;
     }
 
     public abstract bool Equals(ICustomDrawOperation? other);

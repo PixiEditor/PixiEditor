@@ -22,17 +22,17 @@ internal class RotateDragOperation : IDragOperation
 
     public void Start(PointerEventArgs e)
     {
-        Point pointCur = e.GetPosition(owner.mainCanvas);
+        Point pointCur = e.GetPosition(owner);
         initialClickAngle = GetAngle(new(pointCur.X, pointCur.Y));
         initialZoomboxAngle = owner.Angle;
         rotationProcess = new LockingRotationProcess(initialZoomboxAngle);
-        e.Pointer.Capture(owner.mainGrid);
+        e.Pointer.Capture(owner);
         capturedPointer = e.Pointer;
     }
 
     private double GetAngle(VecD point)
     {
-        VecD center = new(owner.mainCanvas.Bounds.Width / 2, owner.mainCanvas.Bounds.Height / 2);
+        VecD center = new(owner.Bounds.Width / 2, owner.Bounds.Height / 2);
         double angle = (point - center).Angle;
         if (double.IsNaN(angle) || double.IsInfinity(angle))
             return 0;
@@ -41,7 +41,7 @@ internal class RotateDragOperation : IDragOperation
 
     public void Update(PointerEventArgs e)
     {
-        Point pointCur = e.GetPosition(owner.mainCanvas);
+        Point pointCur = e.GetPosition(owner);
         double clickAngle = GetAngle(new(pointCur.X, pointCur.Y));
         double newZoomboxAngle = initialZoomboxAngle;
         if (owner.FlipX ^ owner.FlipY)

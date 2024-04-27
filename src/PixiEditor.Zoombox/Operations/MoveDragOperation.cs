@@ -18,14 +18,14 @@ internal class MoveDragOperation : IDragOperation
 
     public void Start(PointerEventArgs e)
     {
-        prevMousePos = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
-        e.Pointer.Capture(parent.mainGrid);
+        prevMousePos = Zoombox.ToVecD(e.GetPosition(parent));
+        e.Pointer.Capture(parent);
         capturedPointer = e.Pointer;
     }
 
     public void Update(PointerEventArgs e)
     {
-        var curMousePos = Zoombox.ToVecD(e.GetPosition(parent.mainCanvas));
+        var curMousePos = Zoombox.ToVecD(e.GetPosition(parent));
         parent.Center += parent.ToZoomboxSpace(prevMousePos) - parent.ToZoomboxSpace(curMousePos);
         prevMousePos = curMousePos;
     }

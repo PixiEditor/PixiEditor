@@ -1,32 +1,21 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Data.Core;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
-using PixiEditor.AvaloniaUI.Helpers.Converters;
+using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.UI;
-using PixiEditor.AvaloniaUI.Models.Commands.XAML;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Position;
-using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
-using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.AvaloniaUI.Views.Overlays;
-using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
-using PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay;
-using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.Zoombox;
 using Point = Avalonia.Point;
 
@@ -191,7 +180,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     public double ZoomboxScale
     {
-        get => zoombox?.Scale ?? 1;
+        get => scene?.Scale ?? 1;
         // ReSharper disable once ValueParameterNotUsed
         set
         {
@@ -287,8 +276,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         ZoomboxScale * ((Document?.ReferenceLayerViewModel.ReferenceBitmap != null && Document?.ReferenceLayerViewModel.ReferenceShapeBindable != null)
             ? (Document.ReferenceLayerViewModel.ReferenceShapeBindable.RectSize.X / (double)Document.ReferenceLayerViewModel.ReferenceBitmap.Size.X)
             : 1);
-
-    public PixiEditor.Zoombox.Zoombox Zoombox => zoombox;
 
     public ObservableCollection<Overlay> ActiveOverlays { get; } = new();
 
@@ -396,22 +383,20 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)
     {
+        if(Document is null)
+            return;
+
         bool isMiddle = e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed;
         HandleMiddleMouse(isMiddle);
 
         if (MouseDownCommand is null)
             return;
 
-        MouseButton mouseButton = e.GetCurrentPoint(this).Properties.PointerUpdateKind switch
-        {
-            PointerUpdateKind.LeftButtonPressed => MouseButton.Left,
-            PointerUpdateKind.RightButtonPressed => MouseButton.Right,
-            _ => MouseButton.Middle
-        };
+        MouseButton mouseButton = e.GetMouseButton(this);
 
-        Point pos = e.GetPosition(Scene);
-        VecD conv = new VecD(pos.X, pos.Y);
-        MouseOnCanvasEventArgs? parameter = new MouseOnCanvasEventArgs(mouseButton, conv);
+        var pos = e.GetPosition(Scene);
+        VecD scenePos = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
+        MouseOnCanvasEventArgs? parameter = new MouseOnCanvasEventArgs(mouseButton, scenePos);
 
         if (MouseDownCommand.CanExecute(parameter))
             MouseDownCommand.Execute(parameter);
@@ -422,14 +407,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         if (MouseMoveCommand is null)
             return;
         Point pos = e.GetPosition(Scene);
-        VecD conv = new VecD(pos.X, pos.Y);
+        VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
 
-        MouseButton mouseButton = e.GetCurrentPoint(this).Properties.PointerUpdateKind switch
-        {
-            PointerUpdateKind.LeftButtonPressed => MouseButton.Left,
-            PointerUpdateKind.RightButtonPressed => MouseButton.Right,
-            _ => MouseButton.Middle
-        };
+        MouseButton mouseButton = e.GetMouseButton(this);
 
         MouseOnCanvasEventArgs parameter = new(mouseButton, conv);
 
@@ -443,36 +423,37 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             return;
 
         Point pos = e.GetPosition(Scene);
-        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, new VecD(pos.X, pos.Y));
+        VecD conv = Scene.ToZoomboxSpace(new VecD(pos.X, pos.Y));
+        MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, conv);
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);
     }
 
     private void CenterZoomboxContent(object? sender, VecI args)
     {
-        zoombox.CenterContent(args);
+        scene.CenterContent(args);
     }
 
     private void ZoomZoomboxContent(object? sender, double delta)
     {
-        zoombox.ZoomIntoCenter(delta);
+        scene.ZoomIntoCenter(delta);
     }
 
     private void OnImageLoaded(object sender, EventArgs e)
     {
-        zoombox.CenterContent();
+        scene.CenterContent();
     }
 
     private void OnMainImageSizeChanged(object? sender, SizeChangedEventArgs e)
     {
-        if (zoombox.Dimensions is { X: 0, Y: 0 }) return;
-        zoombox.CenterContent(new VecD(e.NewSize.Width, e.NewSize.Height));
+        if (scene.Dimensions is { X: 0, Y: 0 }) return;
+        scene.CenterContent(new VecD(e.NewSize.Width, e.NewSize.Height));
     }
     
     private void ResetViewportClicked(object sender, RoutedEventArgs e)
     {
-        zoombox.Angle = 0;
-        zoombox.CenterContent();
+        scene.Angle = 0;
+        scene.CenterContent();
     }
 
     private static void CenterViewportTriggerChanged(AvaloniaPropertyChangedEventArgs<ExecutionTrigger<VecI>> e)
