@@ -309,8 +309,8 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         InitializeComponent();
 
         builtInOverlays.Init(this);
-        MainImage!.Loaded += OnImageLoaded;
-        MainImage.SizeChanged += OnMainImageSizeChanged;
+        Scene!.Loaded += OnImageLoaded;
+        Scene.SizeChanged += OnMainImageSizeChanged;
         Loaded += OnLoad;
         Unloaded += OnUnload;
 
@@ -319,16 +319,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         viewportGrid.AddHandler(PointerPressedEvent, Image_MouseDown, RoutingStrategies.Bubble);
     }
 
-
-
-    public Panel? MainImage => zoombox != null ? (Panel?)((Grid?)((Border?)zoombox.AdditionalContent)?.Child)?.Children[0] : null;
     public Scene Scene => scene;
     public Grid BackgroundGrid => viewportGrid;
 
     private void ForceRefreshFinalImage()
     {
         Scene.InvalidateVisual();
-        MainImage?.InvalidateVisual();
     }
 
     private void OnUnload(object? sender, RoutedEventArgs e)
@@ -347,7 +343,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private void InitializeOverlays()
     {
         brushShapeOverlay.MouseEventSource = BackgroundGrid;
-        brushShapeOverlay.MouseReference = MainImage;
+        brushShapeOverlay.MouseReference = Scene;
         brushShapeOverlay.Initialize();
     }
 
@@ -413,7 +409,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             _ => MouseButton.Middle
         };
 
-        Point pos = e.GetPosition(MainImage);
+        Point pos = e.GetPosition(Scene);
         VecD conv = new VecD(pos.X, pos.Y);
         MouseOnCanvasEventArgs? parameter = new MouseOnCanvasEventArgs(mouseButton, conv);
 
@@ -425,7 +421,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         if (MouseMoveCommand is null)
             return;
-        Point pos = e.GetPosition(MainImage);
+        Point pos = e.GetPosition(Scene);
         VecD conv = new VecD(pos.X, pos.Y);
 
         MouseButton mouseButton = e.GetCurrentPoint(this).Properties.PointerUpdateKind switch
@@ -446,7 +442,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         if (MouseUpCommand is null)
             return;
 
-        Point pos = e.GetPosition(MainImage);
+        Point pos = e.GetPosition(Scene);
         MouseOnCanvasEventArgs parameter = new(e.InitialPressMouseButton, new VecD(pos.X, pos.Y));
         if (MouseUpCommand.CanExecute(parameter))
             MouseUpCommand.Execute(parameter);

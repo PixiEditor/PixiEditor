@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using Avalonia;
@@ -8,6 +9,7 @@ using Avalonia.Media;
 using Avalonia.Rendering;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
@@ -120,8 +122,9 @@ internal class Scene : Control, ICustomHitTest
     }
 
     private Bitmap? checkerBitmap;
-    private bool captured;
     private Overlay? capturedOverlay;
+
+    private List<Overlay> mouseOverOverlays = new();
 
     static Scene()
     {
@@ -190,22 +193,15 @@ internal class Scene : Control, ICustomHitTest
 
     protected override void OnPointerEntered(PointerEventArgs e)
     {
-        //TODO: Invoke on overlay that is within bounds
         base.OnPointerEntered(e);
         if (ActiveOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
-            if (captured)
+            foreach (Overlay overlay in ActiveOverlays)
             {
-                capturedOverlay?.EnterPointer(args);
-            }
-            else
-            {
-                foreach (Overlay overlay in ActiveOverlays)
-                {
-                    if (!overlay.IsVisible) continue;
-                    overlay.EnterPointer(args);
-                }
+                if (!overlay.IsVisible || mouseOverOverlays.Contains(overlay) || !overlay.TestHit(args.Point)) continue;
+                overlay.EnterPointer(args);
+                mouseOverOverlays.Add(overlay);
             }
 
             e.Handled = args.Handled;
@@ -214,21 +210,38 @@ internal class Scene : Control, ICustomHitTest
 
     protected override void OnPointerMoved(PointerEventArgs e)
     {
-        //TODO: Invoke on overlay that is within bounds
         base.OnPointerMoved(e);
         if (ActiveOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
 
-            if (captured)
+            if (capturedOverlay != null)
             {
-                capturedOverlay?.MovePointer(args);
+                capturedOverlay.MovePointer(args);
             }
             else
             {
                 foreach (Overlay overlay in ActiveOverlays)
                 {
                     if (!overlay.IsVisible) continue;
+
+                    if (overlay.TestHit(args.Point))
+                    {
+                        if (!mouseOverOverlays.Contains(overlay))
+                        {
+                            overlay.EnterPointer(args);
+                            mouseOverOverlays.Add(overlay);
+                        }
+                    }
+                    else
+                    {
+                        if (mouseOverOverlays.Contains(overlay))
+                        {
+                            overlay.ExitPointer(args);
+                            mouseOverOverlays.Remove(overlay);
+                        }
+                    }
+
                     overlay.MovePointer(args);
                 }
             }
@@ -243,15 +256,16 @@ internal class Scene : Control, ICustomHitTest
         if (ActiveOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
-            if (captured)
+            if (capturedOverlay != null)
             {
                 capturedOverlay?.PressPointer(args);
             }
             else
             {
-                foreach (Overlay overlay in ActiveOverlays)
+                for (var i = 0; i < mouseOverOverlays.Count; i++)
                 {
-                    if(args.Handled) break;
+                    var overlay = mouseOverOverlays[i];
+                    if (args.Handled) break;
                     if (!overlay.IsVisible) continue;
                     overlay.PressPointer(args);
                 }
@@ -263,16 +277,19 @@ internal class Scene : Control, ICustomHitTest
 
     protected override void OnPointerExited(PointerEventArgs e)
     {
-        //TODO: Invoke on overlay that is out of bounds
         base.OnPointerExited(e);
         if (ActiveOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
-            foreach (Overlay overlay in ActiveOverlays)
+            for (var i = 0; i < mouseOverOverlays.Count; i++)
             {
-                if(args.Handled) break;
+                var overlay = mouseOverOverlays[i];
+                if (args.Handled) break;
                 if (!overlay.IsVisible) continue;
+
                 overlay.ExitPointer(args);
+                mouseOverOverlays.Remove(overlay);
+                i--;
             }
 
             e.Handled = args.Handled;
@@ -286,16 +303,18 @@ internal class Scene : Control, ICustomHitTest
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
 
-            if (captured)
+            if (capturedOverlay != null)
             {
-                capturedOverlay?.ReleasePointer(args);
+                capturedOverlay.ReleasePointer(args);
+                capturedOverlay = null;
             }
             else
             {
-                foreach (Overlay overlay in ActiveOverlays)
+                foreach (Overlay overlay in mouseOverOverlays)
                 {
                     if(args.Handled) break;
                     if (!overlay.IsVisible) continue;
+
                     overlay.ReleasePointer(args);
                 }
             }
@@ -353,15 +372,17 @@ internal class Scene : Control, ICustomHitTest
         if (overlay == null)
         {
             pointer.Capture(null);
-            captured = false;
+            mouseOverOverlays.Clear();
+            capturedOverlay = null;
             return;
         }
 
-        if(overlay != null && !ActiveOverlays.Contains(overlay)) return;
+        if(!ActiveOverlays.Contains(overlay)) return;
 
         pointer.Capture(this);
         capturedOverlay = overlay;
-        captured = true;
+        mouseOverOverlays.Clear();
+        mouseOverOverlays.Add(overlay);
     }
 
     private static void BoundsChanged(Scene sender, AvaloniaPropertyChangedEventArgs e)
@@ -400,7 +421,7 @@ internal class Scene : Control, ICustomHitTest
         {
             foreach (Overlay overlay in e.OldItems)
             {
-                overlay.RefreshRequested -= InvalidateVisual;
+                overlay.RefreshRequested -= QueueRender;
             }
         }
 
@@ -408,9 +429,14 @@ internal class Scene : Control, ICustomHitTest
         {
             foreach (Overlay overlay in e.NewItems)
             {
-                overlay.RefreshRequested += InvalidateVisual;
+                overlay.RefreshRequested += QueueRender;
             }
         }
+    }
+
+    private void QueueRender()
+    {
+        Dispatcher.UIThread.Post(InvalidateVisual, DispatcherPriority.Render);
     }
 
     private static void CheckerImagePathChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)

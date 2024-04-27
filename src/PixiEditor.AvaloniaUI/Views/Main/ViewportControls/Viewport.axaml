@@ -118,6 +118,23 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
+        <visuals:Scene
+            Focusable="False" Name="scene"
+            ZIndex="1"
+            Width="{Binding RealDimensions.X, ElementName=vpUc}"
+            Height="{Binding RealDimensions.Y, ElementName=vpUc}"
+            Surface="{Binding TargetBitmap, ElementName=vpUc}"
+            Scale="{Binding Scale, ElementName=zoombox, Mode=OneWay}"
+            Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
+            ContentPosition="{Binding CanvasPos, ElementName=zoombox, Mode=OneWay}"
+            Angle="{Binding RotateTransformAngle, ElementName=zoombox, Mode=OneWay}"
+            FlipX="{Binding FlipX, ElementName=zoombox, Mode=OneWay}"
+            FlipY="{Binding FlipY, ElementName=zoombox, Mode=OneWay}"
+            ActiveOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
+            FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
+            CheckerImagePath="/Images/CheckerTile.png"
+            ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}">
+        </visuals:Scene>
         <zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"
@@ -132,7 +149,7 @@
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}">
             <zoombox:Zoombox.AdditionalContent>
-                <Border
+                <!--<Border
                     d:Width="64"
                     d:Height="64"
                     HorizontalAlignment="Center"
@@ -140,7 +157,7 @@
                     DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}}"
                     RenderOptions.BitmapInterpolationMode="None">
                     <Grid>
-                        <Panel Width="{Binding Document.Width}" Height="{Binding Document.Height}" />
+
                         <Rectangle Stroke="{DynamicResource ThemeBackgroundBrush1}" Opacity=".8" ZIndex="2"
                                    IsVisible="{Binding Document.ReferenceLayerViewModel.IsVisibleBindable}">
                             <Rectangle.StrokeThickness>
@@ -165,26 +182,9 @@
                             </Rectangle.Margin>
                         </Rectangle>
                     </Grid>
-                </Border>
+                </Border>-->
             </zoombox:Zoombox.AdditionalContent>
         </zoombox:Zoombox>
-        <visuals:Scene
-            Focusable="False" Name="scene"
-            ZIndex="1"
-            Width="{Binding RealDimensions.X, ElementName=vpUc}"
-            Height="{Binding RealDimensions.Y, ElementName=vpUc}"
-            Surface="{Binding TargetBitmap, ElementName=vpUc}"
-            Scale="{Binding Scale, ElementName=zoombox, Mode=OneWay}"
-            Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
-            ContentPosition="{Binding CanvasPos, ElementName=zoombox, Mode=OneWay}"
-            Angle="{Binding RotateTransformAngle, ElementName=zoombox, Mode=OneWay}"
-            FlipX="{Binding FlipX, ElementName=zoombox, Mode=OneWay}"
-            FlipY="{Binding FlipY, ElementName=zoombox, Mode=OneWay}"
-            ActiveOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
-            FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
-            CheckerImagePath="/Images/CheckerTile.png"
-            ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, ElementName=zoombox}">
-        </visuals:Scene>
         <overlays:ReferenceLayerOverlay SizeChanged="OnReferenceImageSizeChanged"
                                         ReferenceLayer="{Binding Document.ReferenceLayerViewModel}"
                                         ReferenceLayerScale="{Binding ReferenceLayerScale}"

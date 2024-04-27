@@ -12,7 +12,7 @@ using PixiEditor.Zoombox.Operations;
 
 namespace PixiEditor.Zoombox;
 
-public partial class Zoombox : UserControl, INotifyPropertyChanged
+public partial class Zoombox : UserControl, INotifyPropertyChanged //TODO: Make it content control
 {
     public static readonly StyledProperty<ZoomboxMode> ZoomModeProperty =
         AvaloniaProperty.Register<Zoombox, ZoomboxMode>(nameof(ZoomMode), defaultValue: ZoomboxMode.Normal);
