@@ -307,7 +307,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     }
 
     public Scene Scene => scene;
-    public Grid BackgroundGrid => viewportGrid;
 
     private void ForceRefreshFinalImage()
     {
@@ -329,8 +328,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
 
     private void InitializeOverlays()
     {
-        brushShapeOverlay.MouseEventSource = BackgroundGrid;
-        brushShapeOverlay.MouseReference = Scene;
         brushShapeOverlay.Initialize();
     }
 

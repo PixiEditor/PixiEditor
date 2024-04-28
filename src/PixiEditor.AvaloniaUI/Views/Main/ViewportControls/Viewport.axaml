@@ -191,20 +191,20 @@
                                         ReferenceLayer="{Binding Document.ReferenceLayerViewModel}"
                                         ReferenceLayerScale="{Binding ReferenceLayerScale}"
                                         FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=!PickFromReferenceLayer, Mode=OneWay}"
-                                        RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}"/>
+                                        RenderTransformOrigin="0, 0" RenderTransform="{Binding #scene.CanvasTransform}"/>
 
         <!--Brush shape overlay is rendered separately, so it doesn't trigger rerender each mouse movement to scene-->
         <!--I didn't measure it, but I thought that could impact performance-->
         <brushShapeOverlay:BrushShapeOverlay
             DataContext="{Binding ElementName=vpUc}"
-            RenderTransformOrigin="0, 0" RenderTransform="{Binding #zoombox.CanvasTransform}"
+            RenderTransform="{Binding #scene.CanvasTransform}"
+            RenderTransformOrigin="0, 0"
             Name="brushShapeOverlay"
             Focusable="False" ZIndex="6"
             IsHitTestVisible="False"
             IsVisible="{Binding !Document.TransformViewModel.TransformActive}"
-            ZoomScale="{Binding #zoombox.Scale}"
-            MouseEventSource="{Binding #vpUc.BackgroundGrid, Mode=OneTime}"
-            MouseReference="{Binding #vpUc.MainImage, Mode=OneTime}"
+            ZoomScale="{Binding #scene.Scale}"
+            Scene="{Binding #scene, Mode=OneTime}"
             BrushSize="{Binding ToolsSubViewModel.ActiveBasicToolbar.ToolSize, Source={viewModels:MainVM}}"
             BrushShape="{Binding ToolsSubViewModel.ActiveTool.BrushShape, Source={viewModels:MainVM}, FallbackValue={x:Static brushShapeOverlay:BrushShape.Hidden}}"
             FlowDirection="LeftToRight" />

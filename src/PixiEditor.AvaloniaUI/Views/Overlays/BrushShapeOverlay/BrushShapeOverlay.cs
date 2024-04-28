@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using ChunkyImageLib.Operations;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
+using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
@@ -16,33 +17,24 @@ internal class BrushShapeOverlay : Overlay
     public static readonly StyledProperty<int> BrushSizeProperty =
         AvaloniaProperty.Register<BrushShapeOverlay, int>(nameof(BrushSize), defaultValue: 1);
 
-    public static readonly StyledProperty<Control?> MouseEventSourceProperty =
-        AvaloniaProperty.Register<BrushShapeOverlay, Control?>(nameof(MouseEventSource), defaultValue: null);
-
-    public static readonly StyledProperty<InputElement?> MouseReferenceProperty =
-        AvaloniaProperty.Register<BrushShapeOverlay, InputElement?>(nameof(MouseReference), defaultValue: null);
-
     public static readonly StyledProperty<BrushShape> BrushShapeProperty =
         AvaloniaProperty.Register<BrushShapeOverlay, BrushShape>(nameof(BrushShape), defaultValue: BrushShape.Circle);
+
+    public static readonly StyledProperty<Scene> SceneProperty = AvaloniaProperty.Register<BrushShapeOverlay, Scene>(
+        nameof(Scene));
+
+    public Scene Scene
+    {
+        get => GetValue(SceneProperty);
+        set => SetValue(SceneProperty, value);
+    }
 
     public BrushShape BrushShape
     {
         get => (BrushShape)GetValue(BrushShapeProperty);
         set => SetValue(BrushShapeProperty, value);
     }
-
-    public InputElement? MouseReference
-    {
-        get => (InputElement?)GetValue(MouseReferenceProperty);
-        set => SetValue(MouseReferenceProperty, value);
-    }
-
-    public Control? MouseEventSource
-    {
-        get => (Control?)GetValue(MouseEventSourceProperty);
-        set => SetValue(MouseEventSourceProperty, value);
-    }
-
+    
     public int BrushSize
     {
         get => (int)GetValue(BrushSizeProperty);
@@ -50,7 +42,7 @@ internal class BrushShapeOverlay : Overlay
     }
 
     private Pen whitePen = new Pen(Brushes.LightGray, 1);
-    private Point lastMousePos = new();
+    private VecD lastMousePos = new();
 
     private MouseUpdateController? mouseUpdateController;
 
@@ -67,25 +59,27 @@ internal class BrushShapeOverlay : Overlay
 
     private void ControlUnloaded(object? sender, RoutedEventArgs e)
     {
-        if (MouseEventSource is null)
+        if (Scene is null)
             return;
-        
+
         mouseUpdateController?.Dispose();
     }
 
     public void Initialize()
     {
-        if (MouseEventSource is null)
+        if (Scene is null)
             return;
 
-        mouseUpdateController = new MouseUpdateController(MouseEventSource, SourceMouseMove);
+        mouseUpdateController = new MouseUpdateController(Scene, SourceMouseMove);
     }
 
     private void SourceMouseMove(PointerEventArgs args)
     {
-        if (MouseReference is null || BrushShape == BrushShape.Hidden)
+        if (Scene is null || BrushShape == BrushShape.Hidden)
             return;
-        lastMousePos = args.GetPosition(MouseReference);
+
+        Point rawPoint = args.GetPosition(Scene);
+        lastMousePos = Scene.ToZoomboxSpace(new VecD(rawPoint.X, rawPoint.Y));
         InvalidateVisual();
     }
 
@@ -93,8 +87,7 @@ internal class BrushShapeOverlay : Overlay
     {
         var winRect = new Rect(
             (Point)(new Point(Math.Floor(lastMousePos.X), Math.Floor(lastMousePos.Y)) - new Point(BrushSize / 2, BrushSize / 2)),
-            new Size(BrushSize, BrushSize)
-            );
+            new Size(BrushSize, BrushSize));
         switch (BrushShape)
         {
             case BrushShape.Pixel:

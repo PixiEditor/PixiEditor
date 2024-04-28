@@ -3,12 +3,14 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using Avalonia.Media;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.Views.Visuals;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays;
 
 [PseudoClasses(":showHighest", ":fadedOut")]
-internal class ReferenceLayerOverlay : TemplatedControl
+internal class ReferenceLayerOverlay : Overlay
 {
     public static readonly StyledProperty<ReferenceLayerViewModel> ReferenceLayerProperty = AvaloniaProperty.Register<ReferenceLayerOverlay, ReferenceLayerViewModel>(
         nameof(ReferenceLayerViewModel));
@@ -41,6 +43,15 @@ internal class ReferenceLayerOverlay : TemplatedControl
     {
         ReferenceLayerProperty.Changed.Subscribe(ReferenceLayerChanged);
         FadeOutProperty.Changed.Subscribe(FadeOutChanged);
+    }
+
+    public override void Render(DrawingContext context)
+    {
+        if (ReferenceLayer != null && ReferenceLayer.ReferenceBitmap != null)
+        {
+            Rect dirtyRect = new Rect(CanvasDirtyBounds.X, CanvasDirtyBounds.Y, CanvasDirtyBounds.Width, CanvasDirtyBounds.Height);
+            DrawSurfaceOperation drawOperation = new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.Uniform, Opacity);
+        }
     }
 
     private static void ReferenceLayerChanged(AvaloniaPropertyChangedEventArgs<ReferenceLayerViewModel> obj)
