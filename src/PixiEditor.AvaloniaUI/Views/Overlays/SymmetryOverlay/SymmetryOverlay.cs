@@ -118,7 +118,7 @@ internal class SymmetryOverlay : Overlay
         VerticalAxisXProperty.Changed.Subscribe(OnPositionUpdate);
     }
 
-    public override void Render(DrawingContext drawingContext)
+    public override void RenderOverlay(DrawingContext drawingContext, RectD canvasBounds)
     {
         base.Render(drawingContext);
         if (!HorizontalAxisVisible && !VerticalAxisVisible)

@@ -84,7 +84,7 @@ internal class LineToolOverlay : Overlay
         blackPen.Thickness = 1.0 / newZoom;
     }
 
-    public override void Render(DrawingContext context)
+    public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
     {
         startHandle.Position = LineStart;
         endHandle.Position = LineEnd;

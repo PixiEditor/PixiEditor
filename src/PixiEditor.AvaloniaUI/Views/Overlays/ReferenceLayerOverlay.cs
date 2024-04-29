@@ -4,8 +4,10 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
+using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Visuals;
+using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays;
 
@@ -15,11 +17,17 @@ internal class ReferenceLayerOverlay : Overlay
     public static readonly StyledProperty<ReferenceLayerViewModel> ReferenceLayerProperty = AvaloniaProperty.Register<ReferenceLayerOverlay, ReferenceLayerViewModel>(
         nameof(ReferenceLayerViewModel));
 
-    public static readonly StyledProperty<double> ReferenceLayerScaleProperty = AvaloniaProperty.Register<ReferenceLayerOverlay, double>(
-        nameof(ReferenceLayerScale), defaultValue: 1.0f);
-
     public static readonly StyledProperty<bool> FadeOutProperty = AvaloniaProperty.Register<ReferenceLayerOverlay, bool>(
         nameof(FadeOut), defaultValue: false);
+
+    public static readonly StyledProperty<ShapeCorners> ReferenceShapeProperty = AvaloniaProperty.Register<ReferenceLayerOverlay, ShapeCorners>(
+        nameof(ReferenceShape));
+
+    public ShapeCorners ReferenceShape
+    {
+        get => GetValue(ReferenceShapeProperty);
+        set => SetValue(ReferenceShapeProperty, value);
+    }
 
     public bool FadeOut
     {
@@ -27,11 +35,9 @@ internal class ReferenceLayerOverlay : Overlay
         set => SetValue(FadeOutProperty, value);
     }
 
-    public double ReferenceLayerScale
-    {
-        get => GetValue(ReferenceLayerScaleProperty);
-        set => SetValue(ReferenceLayerScaleProperty, value);
-    }
+    public double ReferenceLayerScale => ZoomScale * ((ReferenceLayer.ReferenceBitmap != null && ReferenceShape != null)
+        ? (ReferenceShape.RectSize.X / (double)ReferenceLayer.ReferenceBitmap.Size.X)
+        : 1);
 
     public ReferenceLayerViewModel ReferenceLayer
     {
@@ -45,12 +51,13 @@ internal class ReferenceLayerOverlay : Overlay
         FadeOutProperty.Changed.Subscribe(FadeOutChanged);
     }
 
-    public override void Render(DrawingContext context)
+    public override void RenderOverlay(DrawingContext context, RectD dirtyCanvasBounds)
     {
-        if (ReferenceLayer != null && ReferenceLayer.ReferenceBitmap != null)
+        if (ReferenceLayer is { ReferenceBitmap: not null })
         {
-            Rect dirtyRect = new Rect(CanvasDirtyBounds.X, CanvasDirtyBounds.Y, CanvasDirtyBounds.Width, CanvasDirtyBounds.Height);
+            Rect dirtyRect = new Rect(dirtyCanvasBounds.X, dirtyCanvasBounds.Y, dirtyCanvasBounds.Width, dirtyCanvasBounds.Height);
             DrawSurfaceOperation drawOperation = new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.Uniform, Opacity);
+            context.Custom(drawOperation);
         }
     }
 

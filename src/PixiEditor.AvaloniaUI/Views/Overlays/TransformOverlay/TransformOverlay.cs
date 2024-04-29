@@ -214,7 +214,7 @@ internal class TransformOverlay : Overlay
         moveHandle.OnRelease += OnMoveHandleReleased;
     }
 
-    public override void Render(DrawingContext drawingContext)
+    public override void RenderOverlay(DrawingContext drawingContext, RectD canvasBounds)
     {
         base.Render(drawingContext);
         DrawOverlay(drawingContext, new(Bounds.Width, Bounds.Height), Corners, InternalState.Origin, ZoomScale);

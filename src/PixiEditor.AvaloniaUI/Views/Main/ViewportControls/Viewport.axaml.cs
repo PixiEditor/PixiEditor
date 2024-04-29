@@ -14,6 +14,7 @@ using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Overlays;
+using PixiEditor.AvaloniaUI.Views.Rendering;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Zoombox;
@@ -178,16 +179,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
         set => SetValue(ZoomModeProperty, value);
     }
 
-    public double ZoomboxScale
-    {
-        get => scene?.Scale ?? 1;
-        // ReSharper disable once ValueParameterNotUsed
-        set
-        {
-            PropertyChanged?.Invoke(this, new(nameof(ReferenceLayerScale)));
-        }
-    }
-
     public bool FlipX
     {
         get => (bool)GetValue(FlipXProperty);
@@ -271,11 +262,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
             return Document?.Surfaces.TryGetValue(CalculateResolution(), out Surface? value) == true ? value : null;
         }
     }
-
-    public double ReferenceLayerScale =>
-        ZoomboxScale * ((Document?.ReferenceLayerViewModel.ReferenceBitmap != null && Document?.ReferenceLayerViewModel.ReferenceShapeBindable != null)
-            ? (Document.ReferenceLayerViewModel.ReferenceShapeBindable.RectSize.X / (double)Document.ReferenceLayerViewModel.ReferenceBitmap.Size.X)
-            : 1);
 
     public ObservableCollection<Overlay> ActiveOverlays { get; } = new();
 
@@ -371,11 +357,6 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     private ViewportInfo GetLocation()
     {
         return new(AngleRadians, Center, RealDimensions, Dimensions, CalculateResolution(), GuidValue, Delayed, ForceRefreshFinalImage);
-    }
-
-    private void OnReferenceImageSizeChanged(object? sender, SizeChangedEventArgs sizeChangedEventArgs)
-    {
-        PropertyChanged?.Invoke(this, new(nameof(ReferenceLayerScale)));
     }
 
     private void Image_MouseDown(object? sender, PointerPressedEventArgs e)

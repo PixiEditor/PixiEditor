@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
@@ -24,7 +25,6 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     }
 
     public event Action? RefreshRequested;
-
     public event PointerEvent? PointerEnteredOverlay;
     public event PointerEvent? PointerExitedOverlay;
     public event PointerEvent? PointerMovedOverlay;
@@ -104,6 +104,8 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             }
         }
     }
+
+    public abstract void RenderOverlay(DrawingContext context, RectD canvasBounds);
 
     protected virtual void OnOverlayPointerReleased(OverlayPointerArgs args)
     {

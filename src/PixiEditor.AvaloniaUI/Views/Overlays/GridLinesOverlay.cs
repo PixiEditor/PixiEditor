@@ -1,23 +1,22 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
-using PixiEditor.AvaloniaUI.Views.Overlays;
+using PixiEditor.DrawingApi.Core.Numerics;
 
-namespace PixiEditor.AvaloniaUI.Views.Visuals;
+namespace PixiEditor.AvaloniaUI.Views.Overlays;
 
-public class GridLines : Overlay
+public class GridLinesOverlay : Overlay
 {
-    public static readonly StyledProperty<int> RowsProperty = AvaloniaProperty.Register<GridLines, int>(
+    public static readonly StyledProperty<int> RowsProperty = AvaloniaProperty.Register<GridLinesOverlay, int>(
         nameof(Rows));
 
-    public static readonly StyledProperty<int> ColumnsProperty = AvaloniaProperty.Register<GridLines, int>(
+    public static readonly StyledProperty<int> ColumnsProperty = AvaloniaProperty.Register<GridLinesOverlay, int>(
         nameof(Columns));
 
-    public static readonly StyledProperty<int> PixelWidthProperty = AvaloniaProperty.Register<GridLines, int>(
+    public static readonly StyledProperty<int> PixelWidthProperty = AvaloniaProperty.Register<GridLinesOverlay, int>(
         nameof(PixelWidth));
 
-    public static readonly StyledProperty<int> PixelHeightProperty = AvaloniaProperty.Register<GridLines, int>(
+    public static readonly StyledProperty<int> PixelHeightProperty = AvaloniaProperty.Register<GridLinesOverlay, int>(
         nameof(PixelHeight));
 
     public int PixelHeight
@@ -49,12 +48,12 @@ public class GridLines : Overlay
     private Pen pen2 = new(Brushes.White, PenWidth);
     private ThresholdVisibilityConverter visibilityConverter = new(){ Threshold = 10 };
 
-    static GridLines()
+    static GridLinesOverlay()
     {
         IsVisibleProperty.Changed.Subscribe(OnIsVisibleChanged);
     }
 
-    public GridLines()
+    public GridLinesOverlay()
     {
         IsHitTestVisible = false;
     }
@@ -64,7 +63,7 @@ public class GridLines : Overlay
         IsVisible = IsVisible && visibilityConverter.Check(newZoom);
     }
 
-    public override void Render(DrawingContext context)
+    public override void RenderOverlay(DrawingContext context, RectD canvasBounds)
     {
         // Draw lines in vertical and horizontal directions, size should be relative to the scale
 
@@ -95,7 +94,7 @@ public class GridLines : Overlay
 
     private static void OnIsVisibleChanged(AvaloniaPropertyChangedEventArgs<bool> e)
     {
-        if (e.Sender is GridLines gridLines)
+        if (e.Sender is GridLinesOverlay gridLines)
         {
             gridLines.Refresh();
         }

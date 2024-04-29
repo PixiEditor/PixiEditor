@@ -18,16 +18,17 @@ internal class ViewportOverlays
 {
     public Viewport Viewport { get; set; }
 
-    private GridLines gridLinesOverlay;
+    private GridLinesOverlay gridLinesOverlayOverlay;
     private SelectionOverlay selectionOverlay;
     private SymmetryOverlay symmetryOverlay;
     private LineToolOverlay lineToolOverlay;
     private TransformOverlay transformOverlay;
+    private ReferenceLayerOverlay referenceLayerOverlay;
 
     public void Init(Viewport viewport)
     {
         Viewport = viewport;
-        gridLinesOverlay = new GridLines();
+        gridLinesOverlayOverlay = new GridLinesOverlay();
         BindGridLines();
 
         selectionOverlay = new SelectionOverlay();
@@ -42,11 +43,39 @@ internal class ViewportOverlays
         transformOverlay = new TransformOverlay();
         BindTransformOverlay();
 
-        Viewport.ActiveOverlays.Add(gridLinesOverlay);
+        Viewport.ActiveOverlays.Add(gridLinesOverlayOverlay);
         Viewport.ActiveOverlays.Add(selectionOverlay);
         Viewport.ActiveOverlays.Add(symmetryOverlay);
         Viewport.ActiveOverlays.Add(lineToolOverlay);
         Viewport.ActiveOverlays.Add(transformOverlay);
+    }
+
+    private void BindReferenceLayerOverlay()
+    {
+        Binding referenceLayerBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.ReferenceLayerViewModel",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding referenceShapeBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.ReferenceLayerViewModel.ReferenceShapeBindable",
+            Mode = BindingMode.OneWay
+        };
+
+        Binding fadeOutBinding = new()
+        {
+            Source = Viewport,
+            Path = "!Document.ToolsSubViewModel.ColorPickerToolViewModel.PickFromReferenceLayer",
+            Mode = BindingMode.OneWay,
+        };
+
+        referenceLayerOverlay.Bind(ReferenceLayerOverlay.ReferenceLayerProperty, referenceLayerBinding);
+        referenceLayerOverlay.Bind(ReferenceLayerOverlay.ReferenceShapeProperty, referenceShapeBinding);
+        referenceLayerOverlay.Bind(ReferenceLayerOverlay.FadeOutProperty, fadeOutBinding);
     }
 
     private void BindGridLines()
@@ -65,8 +94,8 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
-        gridLinesOverlay.Bind(GridLines.PixelWidthProperty, binding);
-        gridLinesOverlay.Bind(GridLines.ColumnsProperty, binding);
+        gridLinesOverlayOverlay.Bind(GridLinesOverlay.PixelWidthProperty, binding);
+        gridLinesOverlayOverlay.Bind(GridLinesOverlay.ColumnsProperty, binding);
 
         binding = new Binding
         {
@@ -75,9 +104,9 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay
         };
 
-        gridLinesOverlay.Bind(GridLines.PixelHeightProperty, binding);
-        gridLinesOverlay.Bind(GridLines.RowsProperty, binding);
-        gridLinesOverlay.Bind(Visual.IsVisibleProperty, isVisBinding);
+        gridLinesOverlayOverlay.Bind(GridLinesOverlay.PixelHeightProperty, binding);
+        gridLinesOverlayOverlay.Bind(GridLinesOverlay.RowsProperty, binding);
+        gridLinesOverlayOverlay.Bind(Visual.IsVisibleProperty, isVisBinding);
     }
 
     private void BindSelectionOverlay()

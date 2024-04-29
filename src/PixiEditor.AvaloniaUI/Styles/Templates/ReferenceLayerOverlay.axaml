@@ -5,7 +5,7 @@
                     xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
                     xmlns:overlays="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays"
                     xmlns:document="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document">
-    <ControlTheme TargetType="overlays:ReferenceLayerOverlay" x:Key="{x:Type overlays:ReferenceLayerOverlay}">
+    <!--<ControlTheme TargetType="overlays:ReferenceLayerOverlay" x:Key="{x:Type overlays:ReferenceLayerOverlay}">
         <Setter Property="ZIndex" Value="0"/>
         <Setter Property="Transitions">
             <Transitions>
@@ -53,5 +53,5 @@
         <Style Selector="^:fadedOut">
             <Setter Property="Opacity" Value="0"/>
         </Style>
-    </ControlTheme>
+    </ControlTheme>-->
 </ResourceDictionary>

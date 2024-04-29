@@ -20,6 +20,7 @@
     xmlns:viewportControls="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.ViewportControls"
     xmlns:overlays="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays"
     xmlns:selectionOverlay="clr-namespace:PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay"
+    xmlns:rendering="clr-namespace:PixiEditor.AvaloniaUI.Views.Rendering"
     mc:Ignorable="d"
     x:Name="vpUc"
     d:DesignHeight="450"
@@ -118,7 +119,7 @@
                 </Border>
             </overlays:TogglableFlyout.Child>
         </overlays:TogglableFlyout>
-        <visuals:Scene
+        <rendering:Scene
             Focusable="False" Name="scene"
             ZIndex="1"
             Surface="{Binding TargetBitmap, ElementName=vpUc}"
@@ -187,11 +188,11 @@
                 </Border>
             </zoombox:Zoombox.AdditionalContent>
         </zoombox:Zoombox>-->
-        <overlays:ReferenceLayerOverlay SizeChanged="OnReferenceImageSizeChanged"
+        <!--<overlays:ReferenceLayerOverlay SizeChanged="OnReferenceImageSizeChanged"
                                         ReferenceLayer="{Binding Document.ReferenceLayerViewModel}"
                                         ReferenceLayerScale="{Binding ReferenceLayerScale}"
                                         FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=!PickFromReferenceLayer, Mode=OneWay}"
-                                        RenderTransformOrigin="0, 0" RenderTransform="{Binding #scene.CanvasTransform}"/>
+                                        RenderTransformOrigin="0, 0" RenderTransform="{Binding #scene.CanvasTransform}"/>-->
 
         <!--Brush shape overlay is rendered separately, so it doesn't trigger rerender each mouse movement to scene-->
         <!--I didn't measure it, but I thought that could impact performance-->

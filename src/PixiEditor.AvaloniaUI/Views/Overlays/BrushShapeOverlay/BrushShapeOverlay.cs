@@ -7,6 +7,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using ChunkyImageLib.Operations;
 using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
+using PixiEditor.AvaloniaUI.Views.Rendering;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
 
@@ -82,6 +83,8 @@ internal class BrushShapeOverlay : Overlay
         lastMousePos = Scene.ToZoomboxSpace(new VecD(rawPoint.X, rawPoint.Y));
         InvalidateVisual();
     }
+
+    public override void RenderOverlay(DrawingContext context, RectD canvasBounds) => Render(context);
 
     public override void Render(DrawingContext drawingContext)
     {
