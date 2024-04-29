@@ -19,8 +19,9 @@ using PixiEditor.AvaloniaUI.Views.Overlays;
 using PixiEditor.AvaloniaUI.Views.Overlays.Pointers;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Extensions.UI.Overlays;
-using Bitmap = Avalonia.Media.Imaging.Bitmap;
+using Bitmap = PixiEditor.DrawingApi.Core.Surface.Bitmap;
 using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
 using Point = Avalonia.Point;
 
@@ -77,8 +78,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private Bitmap? checkerBitmap;
 
-    private Brush? checkerBrush;
-
     private Overlay? capturedOverlay;
 
     private List<Overlay> mouseOverOverlays = new();
@@ -118,14 +117,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             angle = 360 - angle;
         }
 
-        VecD dirtyDimensions = new VecD(ContentDimensions.X * Scale, ContentDimensions.Y * Scale);
-        VecD dirtyCenterShift = new VecD(FlipX ? -dirtyDimensions.X / 2 : dirtyDimensions.X / 2, FlipY ? -dirtyDimensions.Y / 2 : dirtyDimensions.Y / 2);
-        VecD dirtyCenter = new VecD(CanvasPos.X + dirtyCenterShift.X, CanvasPos.Y + dirtyCenterShift.Y);
-        RectD dirtyBounds = new ShapeCorners(dirtyCenter, dirtyDimensions)
-            .AsRotated(MathUtil.DegreesToRadians(angle), new VecD(CanvasPos.X, CanvasPos.Y)).AABBBounds;
+        RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
+        Rect dirtyRect = new Rect(0, 0, Document.Width, Document.Height);
 
         using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale, angle, FlipX, FlipY,
-            new Rect(dirtyBounds.X, dirtyBounds.Y, dirtyBounds.Width, dirtyBounds.Height),
+            dirtyRect,
             Bounds,
             Opacity);
 
@@ -133,21 +129,44 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         context.PushTransform(matrix);
         context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None });
 
-        DrawCheckerboard(context);
+        float resolutionScale = CalculateResolutionScale();
+        var resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
 
+        DrawCheckerboard(context, dirtyRect, operation.SurfaceRectToRender);
+
+        resolutionTransformation.Dispose();
+        DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Background);
+
+        resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
         context.Custom(operation);
 
+        resolutionTransformation.Dispose();
+        DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Foreground);
+    }
+
+    private void DrawOverlays(DrawingContext context, RectD dirtyBounds, OverlayRenderSorting sorting)
+    {
         if (ActiveOverlays != null)
         {
             foreach (Overlay overlay in ActiveOverlays)
             {
+                if (!overlay.IsVisible || overlay.OverlayRenderSorting != sorting) continue;
                 overlay.ZoomScale = Scale;
-                if (!overlay.IsVisible) continue;
 
                 overlay.RenderOverlay(context, dirtyBounds);
                 Cursor = overlay.Cursor;
             }
         }
+    }
+
+    private void DrawCheckerboard(DrawingContext context, Rect dirtyBounds, RectI operationSurfaceRectToRender)
+    {
+        DrawCheckerBackgroundOperation checkerOperation = new DrawCheckerBackgroundOperation(
+            dirtyBounds,
+            (SKBitmap)checkerBitmap.Native,
+            (float)Scale,
+            operationSurfaceRectToRender.ToSkRect());
+        context.Custom(checkerOperation);
     }
 
     protected override void OnPointerEntered(PointerEventArgs e)
@@ -309,22 +328,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         return transform;
     }
 
-    private void DrawCheckerboard(DrawingContext context)
+    private float CalculateResolutionScale()
     {
-        if (checkerBitmap != null)
-        {
-            float checkerScale = (float)ZoomToViewportConverter.ZoomToViewport(16, Scale);
-            checkerBrush = new ImageBrush
-            {
-                Source = checkerBitmap,
-                TileMode = TileMode.Tile,
-                DestinationRect = new RelativeRect(0, 0, checkerScale, checkerScale, RelativeUnit.Absolute),
-                Transform = new ScaleTransform(0.5f, 0.5f)
-            };
-
-            Rect surfaceRect = new(0, 0, Document.Width, Document.Height);
-            context.DrawRectangle(checkerBrush, null, surfaceRect);
-        }
+        float scaleX = (float)Document.Width / Surface.Size.X;
+        float scaleY = (float)Document.Height / Surface.Size.Y;
+        var scaleUniform = Math.Min(scaleX, scaleY);
+        return scaleUniform;
     }
 
     private void CaptureOverlay(Overlay? overlay, IPointer pointer)
@@ -392,17 +401,11 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     {
         if (e.NewValue is string path)
         {
-            scene.checkerBitmap = ImagePathToBitmapConverter.LoadBitmapFromRelativePath(path);
-            scene.checkerBrush = new ImageBrush
-            {
-                Source = scene.checkerBitmap,
-                TileMode = TileMode.Tile
-            };
+            scene.checkerBitmap = ImagePathToBitmapConverter.LoadDrawingApiBitmapFromRelativePath(path);
         }
         else
         {
             scene.checkerBitmap = null;
-            scene.checkerBrush = null;
         }
     }
 
@@ -458,8 +461,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
 
         canvas.Save();
 
-        canvas.Scale(CalculateResolutionScale());
-
         if (SurfaceRectToRender.IsZeroOrNegativeArea)
         {
             canvas.Restore();
@@ -470,14 +471,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
         canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
 
         canvas.Restore();
-    }
-
-    private float CalculateResolutionScale()
-    {
-        float scaleX = (float)Document.Width / Surface.Size.X;
-        float scaleY = (float)Document.Height / Surface.Size.Y;
-        var scaleUniform = Math.Min(scaleX, scaleY);
-        return scaleUniform;
     }
 
     private RectI FindRectToRender(float finalScale)

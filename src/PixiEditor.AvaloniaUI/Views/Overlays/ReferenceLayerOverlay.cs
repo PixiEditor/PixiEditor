@@ -5,13 +5,13 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 using ChunkyImageLib.DataHolders;
+using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays;
 
-[PseudoClasses(":showHighest", ":fadedOut")]
 internal class ReferenceLayerOverlay : Overlay
 {
     public static readonly StyledProperty<ReferenceLayerViewModel> ReferenceLayerProperty = AvaloniaProperty.Register<ReferenceLayerOverlay, ReferenceLayerViewModel>(
@@ -29,21 +29,24 @@ internal class ReferenceLayerOverlay : Overlay
         set => SetValue(ReferenceShapeProperty, value);
     }
 
+    public ReferenceLayerViewModel ReferenceLayer
+    {
+        get => GetValue(ReferenceLayerProperty);
+        set => SetValue(ReferenceLayerProperty, value);
+    }
+
+
     public bool FadeOut
     {
         get => GetValue(FadeOutProperty);
         set => SetValue(FadeOutProperty, value);
     }
 
-    public double ReferenceLayerScale => ZoomScale * ((ReferenceLayer.ReferenceBitmap != null && ReferenceShape != null)
+    public double ReferenceLayerScale => ((ReferenceLayer.ReferenceBitmap != null && ReferenceShape != null)
         ? (ReferenceShape.RectSize.X / (double)ReferenceLayer.ReferenceBitmap.Size.X)
         : 1);
 
-    public ReferenceLayerViewModel ReferenceLayer
-    {
-        get => GetValue(ReferenceLayerProperty);
-        set => SetValue(ReferenceLayerProperty, value);
-    }
+    public override OverlayRenderSorting OverlayRenderSorting => ReferenceLayer.IsTopMost ? OverlayRenderSorting.Foreground : OverlayRenderSorting.Background;
 
     static ReferenceLayerOverlay()
     {
@@ -53,10 +56,14 @@ internal class ReferenceLayerOverlay : Overlay
 
     public override void RenderOverlay(DrawingContext context, RectD dirtyCanvasBounds)
     {
+        //TODO: opacity + animation + border
         if (ReferenceLayer is { ReferenceBitmap: not null })
         {
+            using var renderOptions = context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = ScaleToBitmapScalingModeConverter.Calculate(ReferenceLayerScale) });
+            using var matrix = context.PushTransform(ReferenceLayer.ReferenceTransformMatrix);
+
             Rect dirtyRect = new Rect(dirtyCanvasBounds.X, dirtyCanvasBounds.Y, dirtyCanvasBounds.Width, dirtyCanvasBounds.Height);
-            DrawSurfaceOperation drawOperation = new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.Uniform, Opacity);
+            DrawSurfaceOperation drawOperation = new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.None, Opacity);
             context.Custom(drawOperation);
         }
     }

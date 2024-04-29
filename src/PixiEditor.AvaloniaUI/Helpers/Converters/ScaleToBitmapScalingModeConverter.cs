@@ -9,6 +9,11 @@ internal class ScaleToBitmapScalingModeConverter : SingleInstanceConverter<Scale
     {
         if (value is not double scale)
             return BitmapInterpolationMode.None;
+        return Calculate(scale);
+    }
+
+    public static BitmapInterpolationMode Calculate(double scale)
+    {
         if (scale < 1)
             return BitmapInterpolationMode.HighQuality;
         return BitmapInterpolationMode.None;

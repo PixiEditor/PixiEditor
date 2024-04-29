@@ -15,6 +15,8 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
 {
     public List<Handle> Handles { get; } = new();
 
+    public virtual OverlayRenderSorting OverlayRenderSorting => OverlayRenderSorting.Foreground;
+
     public static readonly StyledProperty<double> ZoomScaleProperty =
         AvaloniaProperty.Register<Overlay, double>(nameof(ZoomScale), defaultValue: 1.0);
 
@@ -143,4 +145,10 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
             }
         }
     }
+}
+
+public enum OverlayRenderSorting
+{
+    Background,
+    Foreground
 }

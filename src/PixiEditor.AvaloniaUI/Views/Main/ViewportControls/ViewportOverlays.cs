@@ -43,7 +43,11 @@ internal class ViewportOverlays
         transformOverlay = new TransformOverlay();
         BindTransformOverlay();
 
+        referenceLayerOverlay = new ReferenceLayerOverlay();
+        BindReferenceLayerOverlay();
+
         Viewport.ActiveOverlays.Add(gridLinesOverlayOverlay);
+        Viewport.ActiveOverlays.Add(referenceLayerOverlay);
         Viewport.ActiveOverlays.Add(selectionOverlay);
         Viewport.ActiveOverlays.Add(symmetryOverlay);
         Viewport.ActiveOverlays.Add(lineToolOverlay);
@@ -52,6 +56,13 @@ internal class ViewportOverlays
 
     private void BindReferenceLayerOverlay()
     {
+        Binding isVisibleBinding = new()
+        {
+            Source = Viewport,
+            Path = "Document.ReferenceLayerViewModel.IsVisibleBindable",
+            Mode = BindingMode.OneWay
+        };
+
         Binding referenceLayerBinding = new()
         {
             Source = Viewport,
@@ -73,6 +84,7 @@ internal class ViewportOverlays
             Mode = BindingMode.OneWay,
         };
 
+        referenceLayerOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         referenceLayerOverlay.Bind(ReferenceLayerOverlay.ReferenceLayerProperty, referenceLayerBinding);
         referenceLayerOverlay.Bind(ReferenceLayerOverlay.ReferenceShapeProperty, referenceShapeBinding);
         referenceLayerOverlay.Bind(ReferenceLayerOverlay.FadeOutProperty, fadeOutBinding);
