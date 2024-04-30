@@ -62,7 +62,8 @@ internal class ReferenceLayerOverlay : Overlay
             using var renderOptions = context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = ScaleToBitmapScalingModeConverter.Calculate(ReferenceLayerScale) });
             using var matrix = context.PushTransform(ReferenceLayer.ReferenceTransformMatrix);
 
-            Rect dirtyRect = new Rect(dirtyCanvasBounds.X, dirtyCanvasBounds.Y, dirtyCanvasBounds.Width, dirtyCanvasBounds.Height);
+            RectD dirty = new RectD(0, 0, ReferenceLayer.ReferenceBitmap.Size.X, ReferenceLayer.ReferenceBitmap.Size.Y);
+            Rect dirtyRect = new Rect(dirty.X, dirty.Y, dirty.Width, dirty.Height);
             DrawSurfaceOperation drawOperation = new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.None, Opacity);
             context.Custom(drawOperation);
         }
