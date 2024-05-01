@@ -1,9 +1,13 @@
 ﻿using System.ComponentModel;
+using System.Threading;
 using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Media;
+using Avalonia.Styling;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -14,14 +18,18 @@ namespace PixiEditor.AvaloniaUI.Views.Overlays;
 
 internal class ReferenceLayerOverlay : Overlay
 {
-    public static readonly StyledProperty<ReferenceLayerViewModel> ReferenceLayerProperty = AvaloniaProperty.Register<ReferenceLayerOverlay, ReferenceLayerViewModel>(
-        nameof(ReferenceLayerViewModel));
+    private const float OpacityTransitionDuration = 0.1f;
+    public static readonly StyledProperty<ReferenceLayerViewModel> ReferenceLayerProperty =
+        AvaloniaProperty.Register<ReferenceLayerOverlay, ReferenceLayerViewModel>(
+            nameof(ReferenceLayerViewModel));
 
-    public static readonly StyledProperty<bool> FadeOutProperty = AvaloniaProperty.Register<ReferenceLayerOverlay, bool>(
-        nameof(FadeOut), defaultValue: false);
+    public static readonly StyledProperty<bool> FadeOutProperty =
+        AvaloniaProperty.Register<ReferenceLayerOverlay, bool>(
+            nameof(FadeOut), defaultValue: false);
 
-    public static readonly StyledProperty<ShapeCorners> ReferenceShapeProperty = AvaloniaProperty.Register<ReferenceLayerOverlay, ShapeCorners>(
-        nameof(ReferenceShape));
+    public static readonly StyledProperty<ShapeCorners> ReferenceShapeProperty =
+        AvaloniaProperty.Register<ReferenceLayerOverlay, ShapeCorners>(
+            nameof(ReferenceShape));
 
     public ShapeCorners ReferenceShape
     {
@@ -35,7 +43,6 @@ internal class ReferenceLayerOverlay : Overlay
         set => SetValue(ReferenceLayerProperty, value);
     }
 
-
     public bool FadeOut
     {
         get => GetValue(FadeOutProperty);
@@ -46,7 +53,9 @@ internal class ReferenceLayerOverlay : Overlay
         ? (ReferenceShape.RectSize.X / (double)ReferenceLayer.ReferenceBitmap.Size.X)
         : 1);
 
-    public override OverlayRenderSorting OverlayRenderSorting => ReferenceLayer.IsTopMost ? OverlayRenderSorting.Foreground : OverlayRenderSorting.Background;
+    public override OverlayRenderSorting OverlayRenderSorting => ReferenceLayer.IsTopMost
+        ? OverlayRenderSorting.Foreground
+        : OverlayRenderSorting.Background;
 
     static ReferenceLayerOverlay()
     {
@@ -59,12 +68,16 @@ internal class ReferenceLayerOverlay : Overlay
         //TODO: opacity + animation + border
         if (ReferenceLayer is { ReferenceBitmap: not null })
         {
-            using var renderOptions = context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = ScaleToBitmapScalingModeConverter.Calculate(ReferenceLayerScale) });
+            using var renderOptions = context.PushRenderOptions(new RenderOptions
+            {
+                BitmapInterpolationMode = ScaleToBitmapScalingModeConverter.Calculate(ReferenceLayerScale)
+            });
             using var matrix = context.PushTransform(ReferenceLayer.ReferenceTransformMatrix);
 
             RectD dirty = new RectD(0, 0, ReferenceLayer.ReferenceBitmap.Size.X, ReferenceLayer.ReferenceBitmap.Size.Y);
             Rect dirtyRect = new Rect(dirty.X, dirty.Y, dirty.Width, dirty.Height);
-            DrawSurfaceOperation drawOperation = new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.None, Opacity);
+            DrawSurfaceOperation drawOperation =
+                new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.None, Opacity);
             context.Custom(drawOperation);
         }
     }
@@ -86,12 +99,19 @@ internal class ReferenceLayerOverlay : Overlay
     private static void FadeOutChanged(AvaloniaPropertyChangedEventArgs<bool> obj)
     {
         ReferenceLayerOverlay objSender = (ReferenceLayerOverlay)obj.Sender;
-        objSender.PseudoClasses.Set(":fadedOut", obj.NewValue.Value);
+        objSender.ToggleFadeOut(obj.NewValue.Value);
+    }
+
+    private void ToggleFadeOut(bool toggle)
+    {
+        double targetOpaqueOpacity = ReferenceLayer.ShowHighest ? ReferenceLayerViewModel.TopMostOpacity : 1;
+        TransitionTo(OpacityProperty, OpacityTransitionDuration, toggle ? 0 : targetOpaqueOpacity);
     }
 
     private void ReferenceLayerOnPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        PseudoClasses.Set(":showHighest", ReferenceLayer.ShowHighest);
+        double targetOpaqueOpacity = ReferenceLayer.ShowHighest ? ReferenceLayerViewModel.TopMostOpacity : 1;
+        TransitionTo(OpacityProperty, OpacityTransitionDuration, FadeOut ? 0 : targetOpaqueOpacity);
+
     }
 }
-

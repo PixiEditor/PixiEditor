@@ -1,11 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Styling;
+using Avalonia.Threading;
 using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
+using PixiEditor.AvaloniaUI.Views.Overlays.Transitions;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
 
@@ -33,12 +38,16 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
     public event PointerEvent? PointerPressedOverlay;
     public event PointerEvent? PointerReleasedOverlay;
 
+    private readonly Dictionary<AvaloniaProperty, OverlayTransition> activeTransitions = new();
+
+    private DispatcherTimer? transitionTimer;
+
     public Overlay()
     {
         ZoomScaleProperty.Changed.Subscribe(OnZoomScaleChanged);
     }
 
-    protected virtual void ZoomChanged(double newZoom) { }
+    public abstract void RenderOverlay(DrawingContext context, RectD canvasBounds);
 
     public void Refresh()
     {
@@ -107,8 +116,55 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         }
     }
 
-    public abstract void RenderOverlay(DrawingContext context, RectD canvasBounds);
+    protected void TransitionTo(AvaloniaProperty property, double durationSeconds, double to, Easing? easing = null)
+    {
+        object? from = GetValue(property);
 
+        if (from is not double fromDouble)
+        {
+            throw new InvalidOperationException("Property must be of type double");
+        }
+
+        activeTransitions[property] = new OverlayDoubleTransition(durationSeconds, fromDouble, to, easing);
+        if (activeTransitions.Count == 1)
+        {
+            StartTransitions();
+        }
+    }
+
+    private void StartTransitions()
+    {
+        transitionTimer = new DispatcherTimer(TimeSpan.FromMilliseconds(16D), DispatcherPriority.Default, (sender, _) =>
+        {
+            ProgressTransitions(sender as DispatcherTimer);
+            Refresh();
+        });
+    }
+
+    private void ProgressTransitions(DispatcherTimer timer)
+    {
+        foreach (var transition in activeTransitions)
+        {
+            transition.Value.Progress += timer.Interval.TotalSeconds / transition.Value.DurationSeconds;
+            transition.Value.Progress = Math.Min(transition.Value.Progress, 1);
+            SetValue(transition.Key, transition.Value.Evaluate());
+        }
+
+        List<KeyValuePair<AvaloniaProperty, OverlayTransition>> transitionsToRemove = activeTransitions
+            .Where(t => t.Value.Progress >= 1).ToList();
+
+        foreach (var transition in transitionsToRemove)
+        {
+            activeTransitions.Remove(transition.Key);
+        }
+
+        if (activeTransitions.Count == 0)
+        {
+            timer.Stop();
+        }
+    }
+
+    protected virtual void ZoomChanged(double newZoom) { }
     protected virtual void OnOverlayPointerReleased(OverlayPointerArgs args)
     {
 

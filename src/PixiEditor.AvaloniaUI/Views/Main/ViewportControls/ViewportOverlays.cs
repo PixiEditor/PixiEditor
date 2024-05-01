@@ -5,6 +5,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.Models.Commands.XAML;
+using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.AvaloniaUI.Views.Overlays;
 using PixiEditor.AvaloniaUI.Views.Overlays.LineToolOverlay;
 using PixiEditor.AvaloniaUI.Views.Overlays.SelectionOverlay;
@@ -79,8 +80,8 @@ internal class ViewportOverlays
 
         Binding fadeOutBinding = new()
         {
-            Source = Viewport,
-            Path = "!Document.ToolsSubViewModel.ColorPickerToolViewModel.PickFromReferenceLayer",
+            Source = ViewModelMain.Current.ToolsSubViewModel,
+            Path = "!ActiveTool.PickFromReferenceLayer",
             Mode = BindingMode.OneWay,
         };
 

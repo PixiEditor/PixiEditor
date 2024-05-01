@@ -11,7 +11,6 @@ public interface IOverlay
     public void MovePointer(OverlayPointerArgs args);
     public void PressPointer(OverlayPointerArgs args);
     public void ReleasePointer(OverlayPointerArgs args);
-
     public void Refresh();
     public bool TestHit(VecD point);
 

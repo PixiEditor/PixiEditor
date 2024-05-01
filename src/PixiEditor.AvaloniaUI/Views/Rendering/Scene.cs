@@ -82,6 +82,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private List<Overlay> mouseOverOverlays = new();
 
+    private double sceneOpacity = 1;
+
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty, FlipXProperty,
@@ -123,7 +125,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale, angle, FlipX, FlipY,
             dirtyRect,
             Bounds,
-            Opacity);
+            sceneOpacity);
 
         var matrix = CalculateTransformMatrix();
         context.PushTransform(matrix);
@@ -381,7 +383,8 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     }
     private static void FadeOutChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
     {
-        scene.Opacity = e.NewValue is true ? 0 : 1;
+        scene.sceneOpacity = e.NewValue is true ? 0 : 1;
+        scene.InvalidateVisual();
     }
 
     private static void ActiveOverlaysChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
