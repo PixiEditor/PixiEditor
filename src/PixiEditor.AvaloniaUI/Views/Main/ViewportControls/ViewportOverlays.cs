@@ -144,7 +144,7 @@ internal class ViewportOverlays
             Source = Viewport,
             Path = "Document.SelectionPathBindable",
             Mode = BindingMode.OneWay,
-            Converter = new NotNullToVisibilityConverter()
+            Converter = new VectorPathToVisibleConverter()
         };
 
         selectionOverlay.Bind(SelectionOverlay.ShowFillProperty, showFillBinding);
@@ -154,6 +154,7 @@ internal class ViewportOverlays
 
     private void BindSymmetryOverlay()
     {
+        Binding isVisibleBinding = new() {Source = Viewport, Path = "Document.AnySymmetryAxisEnabledBindable", Mode = BindingMode.OneWay };
         Binding sizeBinding = new() { Source = Viewport, Path = "Document.SizeBindable", Mode = BindingMode.OneWay };
         Binding isHitTestVisibleBinding = new() {Source = Viewport, Path = "ZoomMode", Converter = new ZoomModeToHitTestVisibleConverter(), Mode = BindingMode.OneWay };
         Binding horizontalAxisVisibleBinding = new() {Source = Viewport, Path = "Document.HorizontalSymmetryAxisEnabledBindable", Mode = BindingMode.OneWay };
@@ -161,6 +162,7 @@ internal class ViewportOverlays
         Binding horizontalAxisYBinding = new() {Source = Viewport, Path = "Document.HorizontalSymmetryAxisYBindable", Mode = BindingMode.OneWay };
         Binding verticalAxisXBinding = new() {Source = Viewport, Path = "Document.VerticalSymmetryAxisXBindable", Mode = BindingMode.OneWay };
 
+        symmetryOverlay.Bind(Visual.IsVisibleProperty, isVisibleBinding);
         symmetryOverlay.Bind(SymmetryOverlay.SizeProperty, sizeBinding);
         symmetryOverlay.Bind(InputElement.IsHitTestVisibleProperty, isHitTestVisibleBinding);
         symmetryOverlay.Bind(SymmetryOverlay.HorizontalAxisVisibleProperty, horizontalAxisVisibleBinding);

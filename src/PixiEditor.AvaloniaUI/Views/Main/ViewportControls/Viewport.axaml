@@ -125,7 +125,6 @@
             Surface="{Binding TargetBitmap, ElementName=vpUc}"
             Document="{Binding Document, ElementName=vpUc, Mode=OneWay}"
             UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWay}"
-            Scale="{Binding ZoomboxScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             AngleRadians="{Binding AngleRadians, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
             RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=OneWayToSource}"
@@ -134,8 +133,9 @@
             ZoomOutOnClick="{Binding ZoomOutOnClick, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             FlipX="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
             FlipY="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-            ActiveOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
+            AllOverlays="{Binding ElementName=vpUc, Path=ActiveOverlays}"
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
+            DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
             ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}"/>
         <!--<zoombox:Zoombox

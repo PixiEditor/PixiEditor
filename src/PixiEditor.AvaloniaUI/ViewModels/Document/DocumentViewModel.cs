@@ -107,6 +107,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    public bool AnySymmetryAxisEnabledBindable => HorizontalSymmetryAxisEnabledBindable || VerticalSymmetryAxisEnabledBindable;
+
     private VecI size = new VecI(64, 64);
     public int Width => size.X;
     public int Height => size.Y;
@@ -511,12 +513,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         this.horizontalSymmetryAxisEnabled = horizontalSymmetryAxisEnabled;
         OnPropertyChanged(nameof(HorizontalSymmetryAxisEnabledBindable));
+        OnPropertyChanged(nameof(AnySymmetryAxisEnabledBindable));
     }
 
     public void SetVerticalSymmetryAxisEnabled(bool infoState)
     {
         verticalSymmetryAxisEnabled = infoState;
         OnPropertyChanged(nameof(VerticalSymmetryAxisEnabledBindable));
+        OnPropertyChanged(nameof(AnySymmetryAxisEnabledBindable));
     }
 
     public void SetVerticalSymmetryAxisX(double verticalSymmetryAxisX)

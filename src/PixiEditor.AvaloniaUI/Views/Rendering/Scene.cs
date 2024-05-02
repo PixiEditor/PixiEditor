@@ -39,12 +39,21 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     public static readonly StyledProperty<bool> FadeOutProperty = AvaloniaProperty.Register<Scene, bool>(
         nameof(FadeOut), false);
 
-    public static readonly StyledProperty<ObservableCollection<Overlay>> ActiveOverlaysProperty =
+    public static readonly StyledProperty<ObservableCollection<Overlay>> AllOverlaysProperty =
         AvaloniaProperty.Register<Scene, ObservableCollection<Overlay>>(
-            nameof(ActiveOverlays));
+            nameof(AllOverlays));
 
     public static readonly StyledProperty<string> CheckerImagePathProperty = AvaloniaProperty.Register<Scene, string>(
         nameof(CheckerImagePath));
+
+    public static readonly StyledProperty<Cursor> DefaultCursorProperty = AvaloniaProperty.Register<Scene, Cursor>(
+        nameof(DefaultCursor));
+
+    public Cursor DefaultCursor
+    {
+        get => GetValue(DefaultCursorProperty);
+        set => SetValue(DefaultCursorProperty, value);
+    }
 
     public string CheckerImagePath
     {
@@ -52,10 +61,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         set => SetValue(CheckerImagePathProperty, value);
     }
 
-    public ObservableCollection<Overlay> ActiveOverlays
+    public ObservableCollection<Overlay> AllOverlays
     {
-        get => GetValue(ActiveOverlaysProperty);
-        set => SetValue(ActiveOverlaysProperty, value);
+        get => GetValue(AllOverlaysProperty);
+        set => SetValue(AllOverlaysProperty, value);
     }
 
     public bool FadeOut
@@ -87,12 +96,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     static Scene()
     {
         AffectsRender<Scene>(BoundsProperty, WidthProperty, HeightProperty, ScaleProperty, AngleRadiansProperty, FlipXProperty,
-            FlipYProperty, DocumentProperty, SurfaceProperty, ActiveOverlaysProperty);
+            FlipYProperty, DocumentProperty, SurfaceProperty, AllOverlaysProperty);
 
         FadeOutProperty.Changed.AddClassHandler<Scene>(FadeOutChanged);
         SurfaceProperty.Changed.AddClassHandler<Scene>(SurfaceChanged);
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
-        ActiveOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
+        AllOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
     }
 
     public Scene()
@@ -137,6 +146,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         DrawCheckerboard(context, dirtyRect, operation.SurfaceRectToRender);
 
         resolutionTransformation.Dispose();
+
+        Cursor = DefaultCursor;
+
         DrawOverlays(context, dirtyBounds, OverlayRenderSorting.Background);
 
         resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
@@ -148,9 +160,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private void DrawOverlays(DrawingContext context, RectD dirtyBounds, OverlayRenderSorting sorting)
     {
-        if (ActiveOverlays != null)
+        if (AllOverlays != null)
         {
-            foreach (Overlay overlay in ActiveOverlays)
+            foreach (Overlay overlay in AllOverlays)
             {
                 if (!overlay.IsVisible || overlay.OverlayRenderSorting != sorting) continue;
                 overlay.ZoomScale = Scale;
@@ -174,10 +186,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnPointerEntered(PointerEventArgs e)
     {
         base.OnPointerEntered(e);
-        if (ActiveOverlays != null)
+        if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
-            foreach (Overlay overlay in ActiveOverlays)
+            foreach (Overlay overlay in AllOverlays)
             {
                 if (!overlay.IsVisible || mouseOverOverlays.Contains(overlay) || !overlay.TestHit(args.Point)) continue;
                 overlay.EnterPointer(args);
@@ -191,7 +203,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         base.OnPointerMoved(e);
-        if (ActiveOverlays != null)
+        if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
 
@@ -201,7 +213,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             }
             else
             {
-                foreach (Overlay overlay in ActiveOverlays)
+                foreach (Overlay overlay in AllOverlays)
                 {
                     if (!overlay.IsVisible) continue;
 
@@ -219,6 +231,9 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                         {
                             overlay.ExitPointer(args);
                             mouseOverOverlays.Remove(overlay);
+
+                            e.Handled = args.Handled;
+                            return;
                         }
                     }
 
@@ -233,7 +248,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        if (ActiveOverlays != null)
+        if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
             if (capturedOverlay != null)
@@ -258,7 +273,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnPointerExited(PointerEventArgs e)
     {
         base.OnPointerExited(e);
-        if (ActiveOverlays != null)
+        if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
             for (var i = 0; i < mouseOverOverlays.Count; i++)
@@ -279,7 +294,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerExited(e);
-        if (ActiveOverlays != null)
+        if (AllOverlays != null)
         {
             OverlayPointerArgs args = ConstructPointerArgs(e);
 
@@ -340,7 +355,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
     private void CaptureOverlay(Overlay? overlay, IPointer pointer)
     {
-        if(ActiveOverlays == null) return;
+        if(AllOverlays == null) return;
         if (overlay == null)
         {
             pointer.Capture(null);
@@ -349,7 +364,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
             return;
         }
 
-        if(!ActiveOverlays.Contains(overlay)) return;
+        if(!AllOverlays.Contains(overlay)) return;
 
         pointer.Capture(this);
         capturedOverlay = overlay;

@@ -47,6 +47,11 @@ public abstract class Overlay : Decorator, IOverlay // TODO: Maybe make it not a
         ZoomScaleProperty.Changed.Subscribe(OnZoomScaleChanged);
     }
 
+    ~Overlay()
+    {
+        transitionTimer?.Stop();
+    }
+
     public abstract void RenderOverlay(DrawingContext context, RectD canvasBounds);
 
     public void Refresh()
