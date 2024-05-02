@@ -57,6 +57,8 @@ internal class ReferenceLayerOverlay : Overlay
         ? OverlayRenderSorting.Foreground
         : OverlayRenderSorting.Background;
 
+    private Pen borderBen = new Pen(Brushes.Black, 2);
+
     static ReferenceLayerOverlay()
     {
         ReferenceLayerProperty.Changed.Subscribe(ReferenceLayerChanged);
@@ -65,21 +67,30 @@ internal class ReferenceLayerOverlay : Overlay
 
     public override void RenderOverlay(DrawingContext context, RectD dirtyCanvasBounds)
     {
-        //TODO: opacity + animation + border
         if (ReferenceLayer is { ReferenceBitmap: not null })
         {
             using var renderOptions = context.PushRenderOptions(new RenderOptions
             {
                 BitmapInterpolationMode = ScaleToBitmapScalingModeConverter.Calculate(ReferenceLayerScale)
             });
-            using var matrix = context.PushTransform(ReferenceLayer.ReferenceTransformMatrix);
+
+            var matrix = context.PushTransform(ReferenceLayer.ReferenceTransformMatrix);
 
             RectD dirty = new RectD(0, 0, ReferenceLayer.ReferenceBitmap.Size.X, ReferenceLayer.ReferenceBitmap.Size.Y);
             Rect dirtyRect = new Rect(dirty.X, dirty.Y, dirty.Width, dirty.Height);
             DrawSurfaceOperation drawOperation =
                 new DrawSurfaceOperation(dirtyRect, ReferenceLayer.ReferenceBitmap, Stretch.None, Opacity);
             context.Custom(drawOperation);
+
+            matrix.Dispose();
+
+            DrawBorder(context, dirtyCanvasBounds);
         }
+    }
+
+    private void DrawBorder(DrawingContext context, RectD dirtyCanvasBounds)
+    {
+        context.DrawRectangle(borderBen, new Rect(0, 0, dirtyCanvasBounds.Width, dirtyCanvasBounds.Height));
     }
 
     private static void ReferenceLayerChanged(AvaloniaPropertyChangedEventArgs<ReferenceLayerViewModel> obj)
@@ -96,10 +107,9 @@ internal class ReferenceLayerOverlay : Overlay
         }
     }
 
-    private static void FadeOutChanged(AvaloniaPropertyChangedEventArgs<bool> obj)
+    protected override void ZoomChanged(double newZoom)
     {
-        ReferenceLayerOverlay objSender = (ReferenceLayerOverlay)obj.Sender;
-        objSender.ToggleFadeOut(obj.NewValue.Value);
+        borderBen.Thickness = 2 / newZoom;
     }
 
     private void ToggleFadeOut(bool toggle)
@@ -112,6 +122,11 @@ internal class ReferenceLayerOverlay : Overlay
     {
         double targetOpaqueOpacity = ReferenceLayer.ShowHighest ? ReferenceLayerViewModel.TopMostOpacity : 1;
         TransitionTo(OpacityProperty, OpacityTransitionDuration, FadeOut ? 0 : targetOpaqueOpacity);
+    }
 
+    private static void FadeOutChanged(AvaloniaPropertyChangedEventArgs<bool> obj)
+    {
+        ReferenceLayerOverlay objSender = (ReferenceLayerOverlay)obj.Sender;
+        objSender.ToggleFadeOut(obj.NewValue.Value);
     }
 }
