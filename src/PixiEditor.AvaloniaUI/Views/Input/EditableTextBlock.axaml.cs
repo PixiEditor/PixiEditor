@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 
 namespace PixiEditor.AvaloniaUI.Views.Input;
@@ -78,10 +79,13 @@ internal partial class EditableTextBlock : UserControl
         ShortcutController.BlockShortcutExecution("EditableTextBlock");
         TextBlockVisibility = false;
         IsEditing = true;
-        //TODO: Note Previously there was a dispatcher and keyboard focus.
 
-        textBox.Focus();
-        textBox.SelectAll();
+        Dispatcher.UIThread.Post(
+            () =>
+        {
+            textBox.Focus();
+            textBox.SelectAll();
+        }, DispatcherPriority.Input);
     }
 
     public void DisableEditing()

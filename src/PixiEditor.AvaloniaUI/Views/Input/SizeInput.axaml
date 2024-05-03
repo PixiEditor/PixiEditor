@@ -41,7 +41,7 @@
                      FocusNext="{Binding FocusNext, ElementName=uc}"
                      SelectOnMouseClick="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
                      ConfirmOnEnter="{Binding BehaveLikeSmallEmbeddedField, ElementName=uc}"
-                     MinWidth="43"/>
+                     Width="43"/>
             <Grid Grid.Column="1" Background="{Binding BorderBrush, ElementName=border}"
                   d:Background="{DynamicResource ThemeAccentBrush}"/>
             <TextBlock ui:Translator.Key="{Binding Unit, ElementName=uc, Converter={converters:EnumToStringConverter}}" TextAlignment="Right"
