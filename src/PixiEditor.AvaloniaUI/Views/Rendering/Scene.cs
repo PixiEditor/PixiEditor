@@ -102,6 +102,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         SurfaceProperty.Changed.AddClassHandler<Scene>(SurfaceChanged);
         CheckerImagePathProperty.Changed.AddClassHandler<Scene>(CheckerImagePathChanged);
         AllOverlaysProperty.Changed.AddClassHandler<Scene>(ActiveOverlaysChanged);
+        DefaultCursorProperty.Changed.AddClassHandler<Scene>(DefaultCursorChanged);
     }
 
     public Scene()
@@ -432,6 +433,14 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if(e.NewValue is Surface surface)
         {
             scene.ContentDimensions = surface.Size;
+        }
+    }
+
+    private static void DefaultCursorChanged(Scene scene, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.NewValue is Cursor cursor)
+        {
+            scene.Cursor = cursor;
         }
     }
 

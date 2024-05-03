@@ -112,7 +112,7 @@ internal class TextBoxFocusBehavior : Behavior<TextBox>
         if (DeselectOnFocusLoss)
             AssociatedObject.ClearSelection();
 
-        RemoveFocus();
+        //RemoveFocus();
     }
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)

@@ -122,7 +122,7 @@ internal partial class NumberInput : TextBox
     {
         BehaviorCollection behaviors = Interaction.GetBehaviors(this);
         behaviors.Add(new GlobalShortcutFocusBehavior());
-        TextBoxFocusBehavior behavior = new() { DeselectOnFocusLoss = true };
+        TextBoxFocusBehavior behavior = new() { DeselectOnFocusLoss = true, SelectOnMouseClick = true };
         BindTextBoxBehavior(behavior);
         behaviors.Add(behavior);
         Interaction.SetBehaviors(this, behaviors);
