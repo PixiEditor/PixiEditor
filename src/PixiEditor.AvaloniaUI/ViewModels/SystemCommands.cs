@@ -20,6 +20,6 @@ public static class SystemCommands
 
     public static void CloseWindow(Window? obj)
     {
-        // TODO: Close window, this is just a placeholder, won't work
+        obj?.Close();
     }
 }

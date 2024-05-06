@@ -10,6 +10,7 @@ using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.ViewModels.Menu;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.AvaloniaUI.ViewModels.Tools;
@@ -72,6 +73,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
 
     public LayoutViewModel LayoutSubViewModel { get; set; }
+
+    public MenuBarViewModel MenuBarViewModel { get; set; } = new();
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -147,6 +150,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         CommandController.Init(services);
         LayoutSubViewModel.LayoutManager.InitLayout(this);
+        MenuBarViewModel.Init(services, CommandController);
 
         MiscSubViewModel = services.GetService<MiscViewModel>();
 
@@ -155,6 +159,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
+
 
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 

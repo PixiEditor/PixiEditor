@@ -8,8 +8,13 @@
              xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input;assembly=PixiEditor.UI.Common"
+             xmlns:menu="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Menu"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="menu:MenuBarViewModel"
              x:Class="PixiEditor.AvaloniaUI.Views.Main.MainTitleBar">
+    <Design.DataContext>
+        <menu:MenuBarViewModel/>
+    </Design.DataContext>
     <Grid>
         <dialogs:DialogTitleBar 
             DockPanel.Dock="Top"/>
@@ -19,8 +24,9 @@
                 DockPanel.Dock="Left"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Center"
+                ItemsSource="{Binding MenuEntries}"
                 Background="Transparent">
-            <MenuItem
+            <!--<MenuItem
                 ui:Translator.Key="FILE"
                 Focusable="False">
                 <MenuItem
@@ -299,7 +305,7 @@
                         ui:Translator.Key="CLEAR_RECENT_DOCUMENTS"
                         xaml:Menu.Command="PixiEditor.Debug.ClearRecentDocument"/>
                 </MenuItem>
-            </MenuItem>
+            </MenuItem>-->
         </xaml:Menu>
         <Border Width="300" Height="25"
                 Background="{DynamicResource ThemeBackgroundBrush}"

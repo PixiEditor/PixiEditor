@@ -12,6 +12,8 @@ using PixiEditor.AvaloniaUI.Models.Localization;
 using PixiEditor.AvaloniaUI.Models.Palettes;
 using PixiEditor.AvaloniaUI.Models.Preferences;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.ViewModels.Menu;
+using PixiEditor.AvaloniaUI.ViewModels.Menu.MenuBuilders;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
@@ -106,7 +108,15 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<PaletteFileParser, GimpGplParser>()
             .AddSingleton<PaletteFileParser, PixiPaletteParser>()
             // Palette data sources
-            .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>();
+            .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>()
+            .AddMenuBuilders();
+    }
+
+    private static IServiceCollection AddMenuBuilders(this IServiceCollection collection)
+    {
+        return collection
+            .AddSingleton<MenuItemBuilder, RecentFilesMenuBuilder>()
+            .AddSingleton<MenuItemBuilder, FileExitMenuBuilder>();
     }
 
     public static IServiceCollection AddExtensionServices(this IServiceCollection collection, ExtensionLoader loader) =>

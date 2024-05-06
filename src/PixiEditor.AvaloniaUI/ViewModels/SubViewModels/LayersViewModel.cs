@@ -167,7 +167,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.Layer.DuplicateSelectedLayer", "DUPLICATE_SELECTED_LAYER", "DUPLICATE_SELECTED_LAYER", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer")]
+    [Command.Basic("PixiEditor.Layer.DuplicateSelectedLayer", "DUPLICATE_SELECTED_LAYER", "DUPLICATE_SELECTED_LAYER", CanExecute = "PixiEditor.Layer.SelectedMemberIsLayer",
+        MenuItemPath = "EDIT/DUPLICATE", MenuItemOrder = 5)]
     public void DuplicateLayer()
     {
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;

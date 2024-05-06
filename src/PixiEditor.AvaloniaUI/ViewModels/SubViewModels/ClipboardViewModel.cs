@@ -29,7 +29,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         });
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = KeyModifiers.Control)]
+    [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = KeyModifiers.Control,
+        MenuItemPath = "EDIT/CUT", MenuItemOrder = 2)]
     public async Task Cut()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -39,7 +40,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         doc.Operations.DeleteSelectedPixels(true);
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Shift)]
+    [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Shift,
+        MenuItemPath = "EDIT/PASTE", MenuItemOrder = 4)]
     [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Control)]
     public void Paste(bool pasteAsNewLayer)
     {
@@ -102,7 +104,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = KeyModifiers.Control)]
+    [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = KeyModifiers.Control,
+        MenuItemPath = "EDIT/COPY", MenuItemOrder = 3)]
     public async Task Copy()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

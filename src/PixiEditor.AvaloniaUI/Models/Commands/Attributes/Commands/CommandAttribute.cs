@@ -37,6 +37,16 @@ internal partial class Command
         /// </summary>
         public string IconPath { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the path to the menu item. If null, command will not be added to menu.
+        /// </summary>
+        public string? MenuItemPath { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the order of the menu item. By default, order is 100, so commands are added to the end of the menu.
+        /// </summary>
+        public int MenuItemOrder { get; set; } = 100;
+
         protected CommandAttribute([InternalName] string internalName, string displayName, string description)
         {
             InternalName = internalName;

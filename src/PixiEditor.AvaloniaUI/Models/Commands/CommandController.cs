@@ -252,6 +252,8 @@ internal class CommandController
                                 DefaultShortcut = attribute.GetShortcut(),
                                 Shortcut = GetShortcut(name, attribute.GetShortcut(), template),
                                 Parameter = basic.Parameter,
+                                MenuItemPath = basic.MenuItemPath,
+                                MenuItemOrder = basic.MenuItemOrder,
                             });
                     }
                     else if (attribute is CommandAttribute.FilterAttribute menu)

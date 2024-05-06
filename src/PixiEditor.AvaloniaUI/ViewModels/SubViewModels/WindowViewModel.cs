@@ -144,7 +144,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "OPEN_SETTINGS", "OPEN_SETTINGS_DESCRIPTIVE", Key = Key.OemComma, Modifiers = KeyModifiers.Control)]
+    [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "OPEN_SETTINGS", "OPEN_SETTINGS_DESCRIPTIVE", Key = Key.OemComma, Modifiers = KeyModifiers.Control,
+        MenuItemPath = "EDIT/SETTINGS", MenuItemOrder = 16)]
     public static void OpenSettingsWindow(int page)
     {
         if (page < 0)

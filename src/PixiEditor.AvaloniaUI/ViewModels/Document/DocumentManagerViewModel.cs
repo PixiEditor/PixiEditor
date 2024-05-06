@@ -138,7 +138,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.EventInlet.OnSymmetryDragEnded(dir);
     }
 
-    [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png")]
+    [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png",
+        MenuItemPath = "EDIT/DELETE_SELECTED_PIXELS", MenuItemOrder = 6)]
     public void DeletePixels()
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteSelectedPixels();

@@ -41,6 +41,10 @@ internal abstract partial class Command : PixiObservableObject
         }
     }
 
+    public string? MenuItemPath { get; init; }
+
+    public int MenuItemOrder { get; init; } = 100;
+
     public event ShortcutChangedEventHandler ShortcutChanged;
     public event Action CanExecuteChanged;
 

@@ -20,7 +20,7 @@
     </Interaction.Behaviors>
     <Grid>
         <DockPanel>
-            <main1:MainTitleBar DockPanel.Dock="Top" />
+            <main1:MainTitleBar DockPanel.Dock="Top" DataContext="{Binding MenuBarViewModel}"/>
             <Grid Focusable="True" Name="FocusableGrid">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="40" />
