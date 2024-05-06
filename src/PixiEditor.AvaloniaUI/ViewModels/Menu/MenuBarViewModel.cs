@@ -17,10 +17,24 @@ internal class MenuBarViewModel : PixiObservableObject
 
     private Dictionary<string, MenuTreeItem> menuItems = new();
 
+    private readonly Dictionary<string, int> menuOrderMultiplier = new Dictionary<string, int>()
+    {
+        { "FILE", 100 },
+        { "EDIT", 200 },
+        { "SELECT", 300 },
+        { "IMAGE", 400 },
+        { "VIEW", 500 },
+        { "HELP", 600 },
+        { "DEBUG", 1000 },
+    };
+
     public void Init(IServiceProvider serviceProvider, CommandController controller)
     {
         MenuItemBuilder[] builders = serviceProvider.GetServices<MenuItemBuilder>().ToArray();
-        foreach (var command in controller.Commands.OrderBy(x => x.MenuItemOrder).ThenBy(x => x.InternalName))
+
+        var commandsWithMenuItems = controller.Commands.Where(x => !string.IsNullOrEmpty(x.MenuItemPath) && IsValid(x.MenuItemPath)).ToArray();
+
+        foreach (var command in commandsWithMenuItems.OrderBy(GetCategoryMultiplier).ThenBy(x => x.MenuItemOrder).ThenBy(x => x.InternalName))
         {
            if(string.IsNullOrEmpty(command.MenuItemPath)) continue;
 
@@ -28,6 +42,17 @@ internal class MenuBarViewModel : PixiObservableObject
         }
 
         BuildMenu(builders);
+    }
+
+    private int GetCategoryMultiplier(Command command)
+    {
+        string category = command.MenuItemPath!.Split('/')[0];
+        return menuOrderMultiplier.GetValueOrDefault(category, 9999);
+    }
+
+    private bool IsValid(string argMenuItemPath)
+    {
+        return argMenuItemPath.Split('/').Length > 1;
     }
 
     private void BuildMenu(MenuItemBuilder[] builders)
