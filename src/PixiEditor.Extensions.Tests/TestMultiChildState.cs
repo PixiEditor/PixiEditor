@@ -1,6 +1,6 @@
 ﻿using System.Collections;
-using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
-using PixiEditor.Extensions.LayoutBuilding.Elements;
+using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using PixiEditor.Extensions.FlyUI.Elements;
 
 namespace PixiEditor.Extensions.Test;
 

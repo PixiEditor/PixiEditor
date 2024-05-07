@@ -2,7 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using PixiEditor.Views;
+using PixiEditor.Extensions.UI;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 

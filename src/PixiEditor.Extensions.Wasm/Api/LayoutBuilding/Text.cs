@@ -1,6 +1,4 @@
-﻿using PixiEditor.Extensions.CommonApi.LayoutBuilding;
-
-namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
+﻿namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
 public class Text(string value) : StatelessElement
 {

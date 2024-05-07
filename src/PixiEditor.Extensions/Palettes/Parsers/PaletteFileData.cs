@@ -1,6 +1,4 @@
-﻿using PixiEditor.Extensions.Palettes;
-
-namespace PixiEditor.Models.IO;
+﻿namespace PixiEditor.Extensions.Palettes.Parsers;
 
 public class PaletteFileData
 {

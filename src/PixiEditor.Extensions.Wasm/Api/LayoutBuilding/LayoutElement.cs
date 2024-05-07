@@ -1,5 +1,5 @@
-﻿using PixiEditor.Extensions.CommonApi.LayoutBuilding;
-using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 
 namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 

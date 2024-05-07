@@ -2,7 +2,7 @@
 using Avalonia.Layout;
 using Avalonia.Media;
 using PixiEditor.Extensions;
-using PixiEditor.Extensions.LayoutBuilding.Elements;
+using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.Windowing;
 
 namespace SampleExtension.LayoutBuilder;

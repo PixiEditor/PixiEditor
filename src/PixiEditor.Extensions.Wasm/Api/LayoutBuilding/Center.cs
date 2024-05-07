@@ -1,4 +1,4 @@
-﻿using PixiEditor.Extensions.CommonApi.LayoutBuilding;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 
 namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 

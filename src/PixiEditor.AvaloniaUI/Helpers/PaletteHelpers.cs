@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Platform.Storage;
 using PixiEditor.Extensions.Palettes.Parsers;
-using PixiEditor.Models.IO;
 
 namespace PixiEditor.AvaloniaUI.Helpers;
 

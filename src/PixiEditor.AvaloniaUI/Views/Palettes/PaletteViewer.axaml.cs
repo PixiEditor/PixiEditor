@@ -21,7 +21,6 @@ using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
-using PixiEditor.Models.IO;
 
 namespace PixiEditor.AvaloniaUI.Views.Palettes;
 

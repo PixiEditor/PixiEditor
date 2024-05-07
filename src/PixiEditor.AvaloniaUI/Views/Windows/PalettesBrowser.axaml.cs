@@ -27,7 +27,6 @@ using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Extensions.Windowing;
-using PixiEditor.Models.Enums;
 using PixiEditor.OperatingSystem;
 using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
 using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;

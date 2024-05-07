@@ -1,5 +1,5 @@
 ﻿using Avalonia.Controls;
-using PixiEditor.Extensions.LayoutBuilding.Elements;
+using PixiEditor.Extensions.FlyUI.Elements;
 
 namespace PixiEditor.Extensions.Test;
 

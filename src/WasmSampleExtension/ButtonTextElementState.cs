@@ -1,4 +1,4 @@
-﻿using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 using PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
 
 namespace WasmSampleExtension;

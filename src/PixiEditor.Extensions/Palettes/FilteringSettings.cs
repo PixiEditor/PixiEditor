@@ -1,6 +1,4 @@
-﻿using PixiEditor.Models.Enums;
-
-namespace PixiEditor.Extensions.Palettes;
+﻿namespace PixiEditor.Extensions.Palettes;
 
 public sealed class FilteringSettings
 {

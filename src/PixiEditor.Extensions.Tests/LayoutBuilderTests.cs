@@ -1,10 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Interactivity;
-using PixiEditor.Extensions.CommonApi.LayoutBuilding.Events;
-using PixiEditor.Extensions.LayoutBuilding;
-using PixiEditor.Extensions.LayoutBuilding.Elements;
-using Button = PixiEditor.Extensions.LayoutBuilding.Elements.Button;
+using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using Button = PixiEditor.Extensions.FlyUI.Elements.Button;
 
 namespace PixiEditor.Extensions.Test;
 

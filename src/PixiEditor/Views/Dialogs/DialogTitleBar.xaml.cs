@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using PixiEditor.Extensions.UI;
 
 namespace PixiEditor.Views.Dialogs;
 

@@ -1,7 +1,6 @@
 ﻿using Avalonia;
-using Avalonia.Data;
 
-namespace PixiEditor.Views;
+namespace PixiEditor.Extensions.UI;
 
 public interface ICustomTranslatorElement
 {
