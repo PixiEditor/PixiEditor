@@ -2,7 +2,9 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.XAML;
@@ -41,7 +43,7 @@ internal class MenuBarViewModel : PixiObservableObject
            BuildMenuEntry(command);
         }
 
-        BuildMenu(builders);
+        BuildMenu(controller, builders);
     }
 
     private int GetCategoryMultiplier(Command command)
@@ -55,16 +57,16 @@ internal class MenuBarViewModel : PixiObservableObject
         return argMenuItemPath.Split('/').Length > 1;
     }
 
-    private void BuildMenu(MenuItemBuilder[] builders)
+    private void BuildMenu(CommandController controller, MenuItemBuilder[] builders)
     {
-        BuildSimpleItems(menuItems);
+        BuildSimpleItems(controller, menuItems);
         foreach (var builder in builders)
         {
             builder.ModifyMenuTree(MenuEntries);
         }
     }
 
-    private void BuildSimpleItems(Dictionary<string, MenuTreeItem> root, MenuItem? parent = null)
+    private void BuildSimpleItems(CommandController controller, Dictionary<string, MenuTreeItem> root, MenuItem? parent = null)
     {
         string? lastSubCommand = null;
 
@@ -75,12 +77,22 @@ internal class MenuBarViewModel : PixiObservableObject
                 Header = new LocalizedString(item.Key),
             };
 
+            CommandGroup? group = controller.CommandGroups.FirstOrDefault(x => x.IsVisibleProperty != null && x.Commands.Contains(item.Value.Command));
+
+            if (group != null)
+            {
+                menuItem.Bind(Visual.IsVisibleProperty, new Binding(group.IsVisibleProperty)
+                {
+                    Source = ViewModelMain.Current,
+                });
+            }
+
             if (item.Value.Items.Count == 0)
             {
                 Models.Commands.XAML.Menu.SetCommand(menuItem, item.Value.Command.InternalName);
 
                 string internalName = item.Value.Command.InternalName;
-                internalName = internalName.Substring(0, internalName.LastIndexOf('.'));
+                internalName = internalName[..internalName.LastIndexOf('.')];
 
                 if (lastSubCommand != null && lastSubCommand != internalName)
                 {
@@ -108,7 +120,7 @@ internal class MenuBarViewModel : PixiObservableObject
                 {
                     MenuEntries.Add(menuItem);
                 }
-                BuildSimpleItems(item.Value.Items, menuItem);
+                BuildSimpleItems(controller, item.Value.Items, menuItem);
             }
         }
     }

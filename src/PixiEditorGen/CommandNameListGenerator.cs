@@ -38,12 +38,10 @@ public class CommandNameListGenerator : IIncrementalGenerator
             {
                 if (typeof(T) == typeof(CommandMethod))
                 {
-                    return x is MethodDeclarationSyntax method && method.AttributeLists.Count > 0;
+                    return x is MethodDeclarationSyntax { AttributeLists.Count: > 0 };
                 }
-                else
-                {
-                    return x is TypeDeclarationSyntax type && type.AttributeLists.Count > 0;
-                }
+
+                return x is TypeDeclarationSyntax { AttributeLists.Count: > 0 };
             }, (context, cancelToken) =>
             {
                 var member = (MemberDeclarationSyntax)context.Node;

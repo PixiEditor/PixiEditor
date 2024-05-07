@@ -82,15 +82,15 @@ internal class CommandController
         }
     }
 
-    private static List<(string internalName, LocalizedString displayName)> FindCommandGroups(IEnumerable<Type> typesToSearchForAttributes)
+    private static List<CommandAttribute.GroupAttribute> FindCommandGroups(IEnumerable<Type> typesToSearchForAttributes)
     {
-        List<(string internalName, LocalizedString displayName)> result = new();
+        List<CommandAttribute.GroupAttribute> result = new();
 
         foreach (var type in typesToSearchForAttributes)
         {
             foreach (var group in type.GetCustomAttributes<CommandAttribute.GroupAttribute>())
             {
-                result.Add((group.InternalName, group.DisplayName));
+                result.Add(group);
             }
         }
 
@@ -120,13 +120,13 @@ internal class CommandController
         }
         catch (JsonException)
         {
-            File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true);
+            File.Move(shortcutFile.Path, $"{shortcutFile.Path}.corrupted", true);  // TODO: platform dependent
             shortcutFile = new ShortcutFile(ShortcutsPath, this);
             template = shortcutFile.LoadTemplate();
             NoticeDialog.Show("SHORTCUTS_CORRUPTED", "SHORTCUTS_CORRUPTED_TITLE");
         }
         var compiledCommandList = new CommandNameList();
-        List<(string internalName, LocalizedString displayName)> commandGroupsData = FindCommandGroups(compiledCommandList.Groups);
+        List<CommandAttribute.GroupAttribute> commandGroupsData = FindCommandGroups(compiledCommandList.Groups);
         OneToManyDictionary<string, Command> commands = new(); // internal name of the corr. group -> command in that group
 
         LoadEvaluators(serviceProvider, compiledCommandList);
@@ -137,15 +137,18 @@ internal class CommandController
 
         foreach (var (groupInternalName, storedCommands) in commands)
         {
-            var groupData = commandGroupsData.FirstOrDefault(group => group.internalName == groupInternalName);
-            if (groupData == default || groupData.internalName == "PixiEditor.Links")
+            var groupData = commandGroupsData.FirstOrDefault(group => group.InternalName == groupInternalName);
+            if (groupData == default || groupData.InternalName == "PixiEditor.Links")
             {
                 miscList.AddRange(storedCommands);
                 continue;
             }
 
-            LocalizedString groupDisplayName = groupData.displayName;
-            CommandGroups.Add(new CommandGroup(groupDisplayName, storedCommands));
+            LocalizedString groupDisplayName = groupData.DisplayName;
+            CommandGroups.Add(new CommandGroup(groupDisplayName, storedCommands)
+            {
+                IsVisibleProperty = groupData.IsVisibleMenuProperty
+            } );
         }
         
         CommandGroups.Add(new CommandGroup("MISC", miscList));
@@ -173,7 +176,7 @@ internal class CommandController
         }
     }
 
-    private void LoadTools(IServiceProvider serviceProvider, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands,
+    private void LoadTools(IServiceProvider serviceProvider, List<CommandAttribute.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands,
         ShortcutsTemplate template)
     {
         IToolsHandler toolsHandler = serviceProvider.GetService<IToolsHandler>();
@@ -215,16 +218,16 @@ internal class CommandController
             .FirstOrDefault(x => x.Commands.Contains(internalName), new Shortcut(defaultShortcut, (List<string>)null))
             .KeyCombination;
 
-    private void AddCommandToCommandsCollection(Command command, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands)
+    private void AddCommandToCommandsCollection(Command command, List<CommandAttribute.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands)
     {
-        (string internalName, string displayName) group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.internalName));
+        var group = commandGroupsData.FirstOrDefault(x => command.InternalName.StartsWith(x.InternalName));
         if (group == default)
             commands.Add("", command);
         else
-            commands.Add(group.internalName, command);
+            commands.Add(group.InternalName, command);
     }
 
-    private void LoadCommands(IServiceProvider serviceProvider, CommandNameList compiledCommandList, List<(string internalName, LocalizedString displayName)> commandGroupsData, OneToManyDictionary<string, Command> commands, ShortcutsTemplate template)
+    private void LoadCommands(IServiceProvider serviceProvider, CommandNameList compiledCommandList, List<CommandAttribute.GroupAttribute> commandGroupsData, OneToManyDictionary<string, Command> commands, ShortcutsTemplate template)
     {
         foreach (var type in compiledCommandList.Commands)
         {

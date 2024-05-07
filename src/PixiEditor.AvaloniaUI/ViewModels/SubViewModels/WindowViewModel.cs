@@ -180,7 +180,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         PalettesBrowser.Open();
     }
         
-    [Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW")]
+    [Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW",
+        MenuItemPath = "HELP/ABOUT", MenuItemOrder = 5)]
     public void OpenAboutWindow()
     {
         new AboutPopup().Show();

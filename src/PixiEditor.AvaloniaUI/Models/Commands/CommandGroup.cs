@@ -3,6 +3,7 @@ using System.Linq;
 using Avalonia.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
+using PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Input;
 using PixiEditor.Extensions.Common.Localization;
 
@@ -22,6 +23,8 @@ internal class CommandGroup : ObservableObject
     }
 
     public bool HasAssignedShortcuts { get; set; }
+
+    public string? IsVisibleProperty { get; set; }
 
     public IEnumerable<Command> Commands => commands;
 

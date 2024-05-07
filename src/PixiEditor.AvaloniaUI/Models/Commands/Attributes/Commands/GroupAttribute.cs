@@ -11,6 +11,8 @@ internal partial class Command
 
         public LocalizedString DisplayName { get; }
 
+        public string? IsVisibleMenuProperty { get; set; }
+
         /// <summary>
         /// Groups all commands that start with the name <paramref name="internalName"/>
         /// </summary>
