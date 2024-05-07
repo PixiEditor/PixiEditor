@@ -62,12 +62,16 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         MenuItemPath = "IMAGE/CLIP_CANVAS", MenuItemOrder = 2)]
     public void ClipCanvas() => ActiveDocument?.Operations.ClipCanvas();
 
-    [Command.Basic("PixiEditor.Document.FlipImageHorizontal", FlipType.Horizontal, "FLIP_IMG_HORIZONTALLY", "FLIP_IMG_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument")]
-    [Command.Basic("PixiEditor.Document.FlipImageVertical", FlipType.Vertical, "FLIP_IMG_VERTICALLY", "FLIP_IMG_VERTICALLY", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.FlipImageHorizontal", FlipType.Horizontal, "FLIP_IMG_HORIZONTALLY", "FLIP_IMG_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
+        MenuItemPath = "IMAGE/FLIP/FLIP_IMG_HORIZONTALLY", MenuItemOrder = 14)]
+    [Command.Basic("PixiEditor.Document.FlipImageVertical", FlipType.Vertical, "FLIP_IMG_VERTICALLY", "FLIP_IMG_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
+        MenuItemPath = "IMAGE/FLIP/FLIP_IMG_VERTICALLY", MenuItemOrder = 15)]
     public void FlipImage(FlipType type) => ActiveDocument?.Operations.FlipImage(type);
 
-    [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", FlipType.Horizontal, "FLIP_LAYERS_HORIZONTALLY", "FLIP_LAYERS_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument")]
-    [Command.Basic("PixiEditor.Document.FlipLayersVertical", FlipType.Vertical, "FLIP_LAYERS_VERTICALLY", "FLIP_LAYERS_VERTICALLY", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", FlipType.Horizontal, "FLIP_LAYERS_HORIZONTALLY", "FLIP_LAYERS_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
+        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_HORIZONTALLY", MenuItemOrder = 16)]
+    [Command.Basic("PixiEditor.Document.FlipLayersVertical", FlipType.Vertical, "FLIP_LAYERS_VERTICALLY", "FLIP_LAYERS_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
+        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_VERTICALLY", MenuItemOrder = 17)]
     public void FlipLayers(FlipType type)
     {
         if (ActiveDocument?.SelectedStructureMember == null)
@@ -77,19 +81,25 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     }
 
     [Command.Basic("PixiEditor.Document.Rotate90Deg", "ROT_IMG_90",
-        "ROT_IMG_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90)]
+        "ROT_IMG_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90,
+        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_90_D", MenuItemOrder = 8)]
     [Command.Basic("PixiEditor.Document.Rotate180Deg", "ROT_IMG_180",
-        "ROT_IMG_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180)]
+        "ROT_IMG_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180,
+        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_180_D", MenuItemOrder = 9)]
     [Command.Basic("PixiEditor.Document.Rotate270Deg", "ROT_IMG_-90",
-        "ROT_IMG_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270)]
+        "ROT_IMG_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270,
+        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_-90_D", MenuItemOrder = 10)]
     public void RotateImage(RotationAngle angle) => ActiveDocument?.Operations.RotateImage(angle);
 
     [Command.Basic("PixiEditor.Document.Rotate90DegLayers", "ROT_LAYERS_90",
-        "ROT_LAYERS_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90)]
+        "ROT_LAYERS_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90,
+        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_90_D", MenuItemOrder = 11)]
     [Command.Basic("PixiEditor.Document.Rotate180DegLayers", "ROT_LAYERS_180",
-        "ROT_LAYERS_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180)]
+        "ROT_LAYERS_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180,
+        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_180_D", MenuItemOrder = 12)]
     [Command.Basic("PixiEditor.Document.Rotate270DegLayers", "ROT_LAYERS_-90",
-        "ROT_LAYERS_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270)]
+        "ROT_LAYERS_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270,
+        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_-90_D", MenuItemOrder = 13)]
     public void RotateLayers(RotationAngle angle)
     {
         if (ActiveDocument?.SelectedStructureMember == null)

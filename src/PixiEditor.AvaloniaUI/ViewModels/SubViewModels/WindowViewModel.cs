@@ -49,7 +49,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         this.commandController = commandController;
     }
 
-    [Command.Basic("PixiEditor.Window.CreateNewViewport", "NEW_WINDOW_FOR_IMG", "NEW_WINDOW_FOR_IMG", IconPath = "@Images/Plus-square.png", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Window.CreateNewViewport", "NEW_WINDOW_FOR_IMG", "NEW_WINDOW_FOR_IMG", IconPath = "@Images/Plus-square.png", CanExecute = "PixiEditor.HasDocument",
+        MenuItemPath = "VIEW/NEW_WINDOW_FOR_IMG", MenuItemOrder = 0)]
     public void CreateNewViewport()
     {
         var doc = ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument;
@@ -157,13 +158,15 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         settings.Show();
     }
 
-    [Command.Basic("PixiEditor.Window.OpenStartupWindow", "OPEN_STARTUP_WINDOW", "OPEN_STARTUP_WINDOW")]
+    [Command.Basic("PixiEditor.Window.OpenStartupWindow", "OPEN_STARTUP_WINDOW", "OPEN_STARTUP_WINDOW",
+        MenuItemPath = "VIEW/OPEN_STARTUP_WINDOW", MenuItemOrder = 1)]
     public void OpenHelloThereWindow()
     {
         new HelloTherePopup(Owner.FileSubViewModel).Show(MainWindow.Current);
     }
 
-    [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW", Key = Key.F1)]
+    [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW", Key = Key.F1,
+        MenuItemPath = "VIEW/OPEN_SHORTCUT_WINDOW", MenuItemOrder = 2)]
     public void ShowShortcutWindow()
     {
         ShortcutsPopup.Show();
@@ -171,7 +174,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Window.OpenPalettesBrowserWindow", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER",
-        IconPath = "Database.png")]
+        IconPath = "Database.png", MenuItemPath = "VIEW/OPEN_PALETTE_BROWSER", MenuItemOrder = 3)]
     public void ShowPalettesBrowserWindow()
     {
         PalettesBrowser.Open();
@@ -183,6 +186,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         new AboutPopup().Show();
     }
 
+    [Command.Internal("PixiEditor.Window.ShowDockWindow")]
     [Command.Basic("PixiEditor.Window.OpenNavigationWindow", "Navigator", "OPEN_NAVIGATION_WINDOW", "OPEN_NAVIGATION_WINDOW")]
     public void ShowDockWindow(string id)
     {

@@ -6,6 +6,7 @@ using Avalonia.Styling;
 using PixiEditor.AvaloniaUI.Models.UserData;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.UI;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Menu;
 
@@ -22,10 +23,9 @@ internal class RecentFilesMenuBuilder : MenuItemBuilder
     {
         if(TryFindMenuItem(tree, "FILE", out MenuItem? fileMenuItem))
         {
-            var recentFilesMenuItem = new MenuItem
-            {
-                Header = new LocalizedString("RECENT")
-            };
+            var recentFilesMenuItem = new MenuItem();
+
+            Translator.SetKey(recentFilesMenuItem, "RECENT");
 
             Style style = new Style((selector => selector.OfType<MenuItem>()))
             {

@@ -11,6 +11,7 @@ using PixiEditor.AvaloniaUI.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.AvaloniaUI.Models.Localization;
 using PixiEditor.AvaloniaUI.Models.Palettes;
 using PixiEditor.AvaloniaUI.Models.Preferences;
+using PixiEditor.AvaloniaUI.ViewModels.Dock;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Menu;
 using PixiEditor.AvaloniaUI.ViewModels.Menu.MenuBuilders;
@@ -63,6 +64,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<SearchViewModel>()
             .AddSingleton<ISearchHandler, SearchViewModel>(x => x.GetRequiredService<SearchViewModel>())
             .AddSingleton<AdditionalContentViewModel>()
+            .AddSingleton<LayoutManager>()
             .AddSingleton<LayoutViewModel>()
             .AddSingleton(x => new ExtensionsViewModel(x.GetService<ViewModelMain>(), extensionLoader))
             // Controllers
@@ -116,7 +118,9 @@ internal static class ServiceCollectionHelpers
     {
         return collection
             .AddSingleton<MenuItemBuilder, RecentFilesMenuBuilder>()
-            .AddSingleton<MenuItemBuilder, FileExitMenuBuilder>();
+            .AddSingleton<MenuItemBuilder, FileExitMenuBuilder>()
+            .AddSingleton<MenuItemBuilder, SymmetryMenuBuilder>()
+            .AddSingleton<MenuItemBuilder, OpenDockablesMenuBuilder>();
     }
 
     public static IServiceCollection AddExtensionServices(this IServiceCollection collection, ExtensionLoader loader) =>

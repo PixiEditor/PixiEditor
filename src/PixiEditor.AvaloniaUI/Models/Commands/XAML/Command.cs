@@ -41,7 +41,7 @@ internal class Command : MarkupExtension
             commandController = CommandController.Current; // TODO: Find a better way to get the current CommandController
         }
 
-        var command = commandController.Commands[Name];
+        Commands.Command command = commandController.Commands[Name];
         return GetPixiCommand ? command : GetICommand(command, UseProvided);
     }
 
