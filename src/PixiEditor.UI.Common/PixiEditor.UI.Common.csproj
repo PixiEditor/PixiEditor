@@ -10,11 +10,6 @@
       <AvaloniaResource Include="Assets\Animations\LoadingIndicator.json" />
       <AvaloniaResource Include="Assets\ChevronDown.png" />
       <AvaloniaResource Include="Assets\PixiEditorLogo.png" />
-      <None Remove="Assets\Fonts\Oxygen-Bold.ttf" />
-      <None Remove="Assets\Fonts\Oxygen-Light.ttf" />
-      <None Remove="Assets\Fonts\Oxygen-Regular.ttf" />
-      <None Remove="Assets\Fonts\Jost-VariableFont_wght.ttf" />
-      <None Remove="Assets\Fonts\Jost-Regular.ttf" />
     </ItemGroup>
 
     <ItemGroup>

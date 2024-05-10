@@ -31,14 +31,14 @@ public class ColorHelper
         string text = "";
         if (data.Contains(DataFormats.Text))
         {
-            text = ((DataObject)data).GetText().Trim();
+            text = (data).GetText().Trim();
         }
         else
         {
             var formats = data.GetDataFormats().ToList();
             if(formats.Count > 0)
             {
-                text = ((DataObject)data).Get(formats[0]).ToString().Trim();
+                text = (data).Get(formats[0]).ToString().Trim();
             }
         }
 

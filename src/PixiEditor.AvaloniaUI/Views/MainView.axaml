@@ -7,6 +7,7 @@
              xmlns:tools="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.Tools"
              xmlns:commandSearch="clr-namespace:PixiEditor.AvaloniaUI.Views.Main.CommandSearch"
              xmlns:controls="clr-namespace:PixiDocks.Avalonia.Controls;assembly=PixiDocks.Avalonia"
+             xmlns:ui="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="PixiEditor.AvaloniaUI.Views.MainView"
              x:DataType="viewModels1:ViewModelMain">
@@ -18,7 +19,8 @@
             <InvokeCommandAction Command="{Binding StartupCommand}" />
         </EventTriggerBehavior>
     </Interaction.Behaviors>
-    <Grid>
+    <Grid DragDrop.AllowDrop="True" ui:DragDropEvents.DragEnter="MainView_DragEnter" ui:DragDropEvents.DragLeave="MainView_DragLeave"
+          ui:DragDropEvents.Drop="MainView_Drop">
         <DockPanel>
             <main1:MainTitleBar DockPanel.Dock="Top" DataContext="{Binding MenuBarViewModel}"/>
             <Grid Focusable="True" Name="FocusableGrid">

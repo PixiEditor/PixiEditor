@@ -51,7 +51,7 @@
                                   ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
                                   ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
-                <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="#C8202020" ZIndex="2">
+                <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="{DynamicResource ThemeBackgroundBrush}" ZIndex="2">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Margin="5 0" TextAlignment="Center"
