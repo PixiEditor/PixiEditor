@@ -84,13 +84,18 @@ internal class Importer : ObservableObject
         try
         {
             var doc = PixiParser.Deserialize(path).ToDocument();
-            
+
             if (associatePath)
             {
                 doc.FullFilePath = path;
             }
 
             return doc;
+        }
+        catch (DirectoryNotFoundException)
+        {
+            //TODO: Handle
+            throw new RecoverableException();
         }
         catch (InvalidFileException)
         {
