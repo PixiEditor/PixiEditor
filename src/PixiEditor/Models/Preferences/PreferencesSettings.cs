@@ -150,7 +150,7 @@ internal class PreferencesSettings : IPreferences
         return GetPreference(name, default(T));
     }
 
-    public T? GetPreference<T>(string name, T? fallbackValue)
+    public T? GetPreference<T>(string name, T? defaultValue)
     {
         if (IsLoaded == false)
         {
@@ -159,14 +159,14 @@ internal class PreferencesSettings : IPreferences
 
         try
         {
-            return GetValue(Preferences, name, fallbackValue);
+            return GetValue(Preferences, name, defaultValue);
         }
         catch (InvalidCastException)
         {
             Preferences.Remove(name);
             Save();
 
-            return fallbackValue;
+            return defaultValue;
         }
     }
 
@@ -175,7 +175,7 @@ internal class PreferencesSettings : IPreferences
         return GetLocalPreference(name, default(T));
     }
 
-    public T? GetLocalPreference<T>(string name, T? fallbackValue)
+    public T? GetLocalPreference<T>(string name, T? defaultValue)
     {
         if (IsLoaded == false)
         {
@@ -184,34 +184,43 @@ internal class PreferencesSettings : IPreferences
 
         try
         {
-            return GetValue(LocalPreferences, name, fallbackValue);
+            return GetValue(LocalPreferences, name, defaultValue);
         }
         catch (InvalidCastException)
         {
             LocalPreferences.Remove(name);
             Save();
 
-            return fallbackValue;
+            return defaultValue;
         }
     }
 
-    private T? GetValue<T>(Dictionary<string, object> dict, string name, T? fallbackValue)
+    private T? GetValue<T>(Dictionary<string, object?> dict, string name, T? defaultValue)
     {
-        if (!dict.ContainsKey(name)) return fallbackValue;
+        if (!dict.ContainsKey(name)) return defaultValue;
         var preference = dict[name];
-        if (typeof(T) == preference.GetType()) return (T)preference;
 
-        if (typeof(T).IsEnum)
+        try
         {
-            return (T)Enum.Parse(typeof(T), preference.ToString());
-        }
-        
-        if (preference.GetType() == typeof(JArray))
-        {
-            return ((JArray)preference).ToObject<T>();
-        }
+            if (preference == default) return defaultValue;
+            if (typeof(T) == preference.GetType()) return (T)preference;
 
-        return (T)Convert.ChangeType(dict[name], typeof(T));
+            if (typeof(T).IsEnum)
+            {
+                return (T)Enum.Parse(typeof(T), preference.ToString());
+            }
+
+            if (preference.GetType() == typeof(JArray))
+            {
+                return ((JArray)preference).ToObject<T>();
+            }
+
+            return (T)Convert.ChangeType(dict[name], typeof(T));
+        }
+        catch (Exception)
+        {
+            return defaultValue;
+        }
     }
 
 #nullable disable

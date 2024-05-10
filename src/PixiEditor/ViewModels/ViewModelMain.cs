@@ -12,6 +12,8 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.Autosave;
+using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Localization;
@@ -65,6 +67,8 @@ internal class ViewModelMain : ViewModelBase
 
     public DocumentManagerViewModel DocumentManagerSubViewModel { get; set; }
 
+    public AutosaveViewModel AutosaveViewModel { get; set; }
+
     public CommandController CommandController { get; set; }
 
     public ShortcutController ShortcutController { get; set; }
@@ -80,7 +84,7 @@ internal class ViewModelMain : ViewModelBase
     public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
 
     public ExtensionsViewModel ExtensionsSubViewModel { get; set; }
-
+    
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
 
@@ -107,6 +111,9 @@ internal class ViewModelMain : ViewModelBase
 
     public ActionDisplayList ActionDisplays { get; }
 
+    public Guid CurrentSessionId { get; } = Guid.NewGuid();
+    public DateTime LaunchDateTime { get; } = DateTime.Now;
+
     public ViewModelMain(IServiceProvider serviceProvider)
     {
         Current = this;
@@ -126,6 +133,7 @@ internal class ViewModelMain : ViewModelBase
         WindowSubViewModel = services.GetService<WindowViewModel>();
         DocumentManagerSubViewModel = services.GetRequiredService<DocumentManagerViewModel>();
         SelectionSubViewModel = services.GetService<SelectionViewModel>();
+        AutosaveViewModel = services.GetService<AutosaveViewModel>();
 
         OnStartupCommand = new RelayCommand(OnStartup);
         CloseWindowCommand = new RelayCommand(CloseWindow);
@@ -199,6 +207,7 @@ internal class ViewModelMain : ViewModelBase
             throw new ArgumentException();
         }
 
+        AutosaveAllForNextSession();
         ((CancelEventArgs)property).Cancel = !DisposeAllDocumentsWithSaveConfirmation();
     }
 
@@ -244,6 +253,17 @@ internal class ViewModelMain : ViewModelBase
         return true;
     }
 
+    public void AutosaveAllForNextSession()
+    {
+        if (!AutosaveViewModel.SaveSessionStateEnabled || DebugSubViewModel.ModifiedEditorData)
+            return;
+        
+        foreach (DocumentViewModel document in DocumentManagerSubViewModel.Documents)
+        {
+            document.AutosaveViewModel.AutosaveOnClose();
+        }
+    }
+
     /// <summary>
     /// Disposes the active document after showing the unsaved changes confirmation dialog.
     /// </summary>
@@ -252,16 +272,17 @@ internal class ViewModelMain : ViewModelBase
     {
         if (DocumentManagerSubViewModel.ActiveDocument is null)
             return false;
-        return DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument);
+        return DisposeDocumentWithSaveConfirmation(DocumentManagerSubViewModel.ActiveDocument, true);
     }
 
-    public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document)
+    public bool DisposeDocumentWithSaveConfirmation(DocumentViewModel document, bool respectAutosave)
     {
         const string ConfirmationDialogTitle = "UNSAVED_CHANGES";
         const string ConfirmationDialogMessage = "DOCUMENT_MODIFIED_SAVE";
 
         ConfirmationType result = ConfirmationType.No;
-        if (!document.AllChangesSaved)
+        var hasUnsavedChanges = !(document.AllChangesSaved || (document.AllChangesAutosaved && respectAutosave));
+        if (hasUnsavedChanges)
         {
             result = ConfirmationDialog.Show(ConfirmationDialogMessage, ConfirmationDialogTitle);
             if (result == ConfirmationType.Yes)
@@ -293,6 +314,7 @@ internal class ViewModelMain : ViewModelBase
 
             // document.Dispose();
             WindowSubViewModel.CloseViewportsForDocument(document);
+            document.AutosaveViewModel.OnDocumentClosed();
 
             return true;
         }

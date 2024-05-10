@@ -52,6 +52,39 @@ internal class FileSettings : SettingsGroup
     public bool DisableNewsPanel
     {
         get => disableNewsPanel;
-        set => RaiseAndUpdatePreference(ref disableNewsPanel, value, PreferencesConstants.DisableNewsPanel);
+        set => RaiseAndUpdatePreference(ref disableNewsPanel, value);
+    }
+
+    private bool saveSessionStateEnabled = GetPreference(PreferencesConstants.SaveSessionStateEnabled, PreferencesConstants.SaveSessionStateDefault);
+    
+    public bool SaveSessionStateEnabled
+    {
+        get => saveSessionStateEnabled;
+        set => RaiseAndUpdatePreference(ref saveSessionStateEnabled, value);
+    }
+    
+    private bool autosaveEnabled = GetPreference(PreferencesConstants.AutosaveEnabled, PreferencesConstants.AutosaveEnabledDefault);
+    
+    public bool AutosaveEnabled
+    {
+        get => autosaveEnabled;
+        set => RaiseAndUpdatePreference(ref autosaveEnabled, value);
+    }
+    
+    
+    private double autosavePeriodMinutes = GetPreference(PreferencesConstants.AutosavePeriodMinutes, PreferencesConstants.AutosavePeriodDefault);
+    
+    public double AutosavePeriodMinutes
+    {
+        get => autosavePeriodMinutes;
+        set => RaiseAndUpdatePreference(ref autosavePeriodMinutes, value);
+    }
+
+    private bool autosaveToDocumentPath = GetPreference(PreferencesConstants.AutosaveToDocumentPath, PreferencesConstants.AutosaveToDocumentPathDefault);
+    
+    public bool AutosaveToDocumentPath
+    {
+        get => autosaveToDocumentPath;
+        set => RaiseAndUpdatePreference(ref autosaveToDocumentPath, value);
     }
 }

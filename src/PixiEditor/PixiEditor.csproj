@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net7.0-windows</TargetFramework>
+		<TargetFramework>net8.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -19,7 +19,6 @@
     <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <ImplicitUsings>true</ImplicitUsings>
     <AssemblyVersion></AssemblyVersion>
-    <LangVersion>11</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
 	</PropertyGroup>
 
@@ -173,6 +172,14 @@
 		<None Update="Extensions\readme.txt">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<Page Update="Views\UserControls\AutosaveControl\AutosaveControl.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		  <XamlRuntime>Wpf</XamlRuntime>
+		  <SubType>Designer</SubType>
+		</Page>
+		<Page Update="Views\UserControls\AutosaveControl.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -257,6 +264,7 @@
 		<PackageReference Include="DiscordRichPresence" Version="1.1.3.18" />
 		<PackageReference Include="Hardware.Info" Version="11.0.0" />
 		<PackageReference Include="MessagePack" Version="2.5.108" />
+		<PackageReference Include="Microsoft.Diagnostics.Runtime" Version="3.1.456101" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="OneOf" Version="3.0.243" />

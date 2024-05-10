@@ -16,6 +16,7 @@ internal class ChangeExecutionController
     public VecI LastPixelPosition => lastPixelPos;
     public VecD LastPrecisePosition => lastPrecisePos;
     public bool IsChangeActive => currentSession is not null;
+    public event EventHandler? UpdateableChangeEnded;
 
     private readonly DocumentViewModel document;
     private readonly DocumentInternalParts internals;
@@ -97,6 +98,7 @@ internal class ChangeExecutionController
             throw new InvalidOperationException();
         currentSession = null;
         _queuedExecutor = null;
+        UpdateableChangeEnded?.Invoke(this, EventArgs.Empty);
     }
 
     public bool TryStopActiveExecutor()
@@ -105,6 +107,7 @@ internal class ChangeExecutionController
             return false;
         currentSession.ForceStop();
         currentSession = null;
+        UpdateableChangeEnded?.Invoke(this, EventArgs.Empty);
         return true;
     }
 

@@ -1,4 +1,5 @@
-﻿using PixiEditor.Models.Commands.Commands;
+﻿using PixiEditor.Models.Commands.CommandLog;
+using PixiEditor.Models.Commands.Commands;
 using PixiEditor.Models.Commands.Evaluators;
 
 namespace PixiEditor.Models.Commands;

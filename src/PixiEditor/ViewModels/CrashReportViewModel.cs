@@ -56,22 +56,27 @@ internal class CrashReportViewModel : ViewModelBase
 
         if (showMissingFilesDialog)
         {
-            var dialog = new OptionsDialog<LocalizedString>(
-                "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE",
-                new LocalizedString("CRASH_NOT_ALL_DOCUMENTS_RECOVERED"))
-            {
-                {
-                    "SEND", _ =>
-                    {
-                        var sendReportDialog = new SendCrashReportWindow(CrashReport);
-                        sendReportDialog.ShowDialog();
-                    }
-                },
-                "CLOSE"
-            };
-
-            dialog.ShowDialog(true);
+            ShowMissingFilesDialog(CrashReport);
         }
+    }
+
+    public static void ShowMissingFilesDialog(CrashReport crashReport)
+    {
+        var dialog = new OptionsDialog<LocalizedString>(
+            "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE",
+            new LocalizedString("CRASH_NOT_ALL_DOCUMENTS_RECOVERED"))
+        {
+            {
+                "SEND", _ =>
+                {
+                    var sendReportDialog = new SendCrashReportWindow(crashReport);
+                    sendReportDialog.ShowDialog();
+                }
+            },
+            "CLOSE"
+        };
+
+        dialog.ShowDialog(true);
     }
 
     [Conditional("DEBUG")]

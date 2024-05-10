@@ -26,8 +26,10 @@ internal class CrashReport : IDisposable
         DateTimeOffset currentTime = DateTimeOffset.Now;
 
         builder
-            .AppendLine($"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString(moreSpecific: true)} x{IntPtr.Size * 8} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss} {currentTime:zzz}")
-            .AppendLine($"Application started {GetFormatted(() => Process.GetCurrentProcess().StartTime, "yyyy.MM.dd HH:hh:ss")}, {GetFormatted(() => DateTime.Now - Process.GetCurrentProcess().StartTime, @"d\ hh\:mm\.ss")} ago")
+            .AppendLine(
+                $"PixiEditor {VersionHelpers.GetCurrentAssemblyVersionString(moreSpecific: true)} x{IntPtr.Size * 8} crashed on {currentTime:yyyy.MM.dd} at {currentTime:HH:mm:ss} {currentTime:zzz}")
+            .AppendLine(
+                $"Application started {GetFormatted(() => Process.GetCurrentProcess().StartTime, "yyyy.MM.dd HH:hh:ss")}, {GetFormatted(() => DateTime.Now - Process.GetCurrentProcess().StartTime, @"d\ hh\:mm\.ss")} ago")
             .AppendLine($"Report: {Guid.NewGuid()}\n")
             .AppendLine("-----System Information----")
             .AppendLine("General:")
@@ -48,9 +50,10 @@ internal class CrashReport : IDisposable
         }
         catch (Exception cemLogException)
         {
-            builder.AppendLine($"Error ({cemLogException.GetType().FullName}: {cemLogException.Message}) while gathering command log, skipping...");
+            builder.AppendLine(
+                $"Error ({cemLogException.GetType().FullName}: {cemLogException.Message}) while gathering command log, skipping...");
         }
-        
+
         builder.AppendLine("\n-----------State-----------");
 
         try
@@ -59,9 +62,10 @@ internal class CrashReport : IDisposable
         }
         catch (Exception stateException)
         {
-            builder.AppendLine($"Error ({stateException.GetType().FullName}: {stateException.Message}) while gathering state (Must be bug in GetPreferenceFormatted, GetFormatted or StringBuilder.AppendLine as these should not throw), skipping...");
+            builder.AppendLine(
+                $"Error ({stateException.GetType().FullName}: {stateException.Message}) while gathering state (Must be bug in GetPreferenceFormatted, GetFormatted or StringBuilder.AppendLine as these should not throw), skipping...");
         }
-        
+
         CrashHelper.AddExceptionMessage(builder, exception);
 
         string filename = $"crash-{currentTime:yyyy-MM-dd_HH-mm-ss_fff}.zip";
@@ -86,7 +90,8 @@ internal class CrashReport : IDisposable
         }
         catch (Exception cpuE)
         {
-            builder.AppendLine($"Error ({cpuE.GetType().FullName}: {cpuE.Message}) while gathering CPU information, skipping...");
+            builder.AppendLine(
+                $"Error ({cpuE.GetType().FullName}: {cpuE.Message}) while gathering CPU information, skipping...");
         }
 
         try
@@ -95,7 +100,8 @@ internal class CrashReport : IDisposable
         }
         catch (Exception gpuE)
         {
-            builder.AppendLine($"Error ({gpuE.GetType().FullName}: {gpuE.Message}) while gathering GPU information, skipping...");
+            builder.AppendLine(
+                $"Error ({gpuE.GetType().FullName}: {gpuE.Message}) while gathering GPU information, skipping...");
         }
 
         try
@@ -104,7 +110,8 @@ internal class CrashReport : IDisposable
         }
         catch (Exception memE)
         {
-            builder.AppendLine($"Error ({memE.GetType().FullName}: {memE.Message}) while gathering memory information, skipping...");
+            builder.AppendLine(
+                $"Error ({memE.GetType().FullName}: {memE.Message}) while gathering memory information, skipping...");
         }
     }
 
@@ -121,16 +128,21 @@ internal class CrashReport : IDisposable
             .AppendLine($"  Has shared toolbar enabled: {GetPreferenceFormatted("EnableSharedToolbar", true, false)}")
             .AppendLine($"  Right click mode: {GetPreferenceFormatted<RightClickMode>("RightClickMode", true)}")
             .AppendLine($"  Has Rich presence enabled: {GetPreferenceFormatted("EnableRichPresence", true, true)}")
+            .AppendLine($"  Autosaving Enabled: {GetPreferenceFormatted(PreferencesConstants.AutosaveEnabled, true, PreferencesConstants.AutosaveEnabledDefault)}")
+            .AppendLine($"  Autosaving Period: {GetPreferenceFormatted(PreferencesConstants.AutosavePeriodMinutes, true, PreferencesConstants.AutosavePeriodDefault)}")
             .AppendLine($"  Debug Mode enabled: {GetPreferenceFormatted("IsDebugModeEnabled", true, false)}")
             .AppendLine("\nUI:")
             .AppendLine($"  MainWindow not null: {GetFormatted(() => MainWindow.Current != null)}")
             .AppendLine($"  MainWindow Size: {GetFormatted(() => MainWindow.Current.RenderSize)}")
             .AppendLine($"  MainWindow State: {GetFormatted(() => MainWindow.Current.WindowState)}")
             .AppendLine("\nViewModels:")
-            .AppendLine($"  Has active updateable change: {GetFormatted(() => ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument?.UpdateableChangeActive)}")
-            .AppendLine($"  Current Tool: {GetFormattedFromViewModelMain(x => x.ToolsSubViewModel?.ActiveTool?.ToolName)}")
+            .AppendLine(
+                $"  Has active updateable change: {GetFormatted(() => ViewModelMain.Current?.DocumentManagerSubViewModel?.ActiveDocument?.UpdateableChangeActive)}")
+            .AppendLine(
+                $"  Current Tool: {GetFormattedFromViewModelMain(x => x.ToolsSubViewModel?.ActiveTool?.ToolName)}")
             .AppendLine($"  Primary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.PrimaryColor)}")
-            .AppendLine($"  Secondary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.SecondaryColor)}")
+            .AppendLine(
+                $"  Secondary Color: {GetFormattedFromViewModelMain(x => x.ColorsSubViewModel?.SecondaryColor)}")
             .Append("\nActive Document: ");
 
         try
@@ -146,7 +158,7 @@ internal class CrashReport : IDisposable
     private static void AppendActiveDocumentInfo(StringBuilder builder)
     {
         var main = ViewModelMain.Current;
-        
+
         if (main == null)
         {
             builder.AppendLine("{ ViewModelMain.Current is null }");
@@ -182,9 +194,11 @@ internal class CrashReport : IDisposable
             .AppendLine($"  Transform: {FormatObject(document.TransformViewModel)}");
     }
 
-    private static bool HasTabletDevice(TabletDeviceType type) => Tablet.TabletDevices.Cast<TabletDevice>().Any(tabletDevice => tabletDevice.Type == type);
+    private static bool HasTabletDevice(TabletDeviceType type) =>
+        Tablet.TabletDevices.Cast<TabletDevice>().Any(tabletDevice => tabletDevice.Type == type);
 
-    private static string GetPreferenceFormatted<T>(string name, bool roaming, T defaultValue = default, string? format = null)
+    private static string GetPreferenceFormatted<T>(string name, bool roaming, T defaultValue = default,
+        string? format = null)
     {
         try
         {
@@ -192,7 +206,7 @@ internal class CrashReport : IDisposable
 
             if (preferences == null)
                 return "{ Preferences are null }";
-            
+
             var value = roaming
                 ? preferences.GetPreference(name, defaultValue)
                 : preferences.GetLocalPreference(name, defaultValue);
@@ -208,7 +222,7 @@ internal class CrashReport : IDisposable
     private static string GetFormattedFromViewModelMain<T>(Func<ViewModelMain, T?> getter, string? format = null)
     {
         var main = ViewModelMain.Current;
-        
+
         if (main == null)
             return "{ ViewModelMain.Current is null }";
 
@@ -243,7 +257,7 @@ internal class CrashReport : IDisposable
         string FormatLocalizedString(LocalizedString localizedS)
         {
             return localizedS.Parameters != null
-                ? $"{localizedS.Key} @({string.Join(", ", localizedS.Parameters.Select(x => FormatObject(x, format)))})" 
+                ? $"{localizedS.Key} @({string.Join(", ", localizedS.Parameters.Select(x => FormatObject(x, format)))})"
                 : localizedS.Key;
         }
     }
@@ -265,67 +279,37 @@ internal class CrashReport : IDisposable
 
     private ZipArchive ZipFile { get; set; }
 
-    public int GetDocumentCount() => ZipFile.Entries.Where(x => x.FullName.EndsWith(".pixi")).Count();
+    public int GetDocumentCount() =>
+        ZipFile.Entries.Count(x => x.FullName.StartsWith("Documents") && x.FullName.EndsWith(".pixi"));
 
-    public bool TryRecoverDocuments(out List<RecoveredPixi> list)
-    {
-        try
-        {
-            list = RecoverDocuments();
-        }
-        catch (Exception e)
-        {
-            list = null;
-            CrashHelper.SendExceptionInfoToWebhook(e);
-            return false;
-        }
-
-        return true;
-    }
-    
     public List<RecoveredPixi> RecoverDocuments()
     {
-        List<RecoveredPixi> recoveredDocuments = new();
+        var originalPathsEntry = ZipFile.Entries.First(entry => entry.FullName == "DocumentInfo.json");
 
-        var paths = TryGetOriginalPaths();
-        if (paths == null)
+        // Load original paths
+        Dictionary<string, CrashReportAutosaveFilePathInfo> paths;
         {
-            recoveredDocuments.AddRange(
-                ZipFile.Entries
-                    .Where(x => 
-                        x.FullName.StartsWith("Documents") && 
-                        x.FullName.EndsWith(".pixi"))
-                    .Select(entry => new RecoveredPixi(null, entry)));
-
-            return recoveredDocuments;
+            using Stream stream = originalPathsEntry.Open();
+            using StreamReader reader = new(stream);
+            string json = reader.ReadToEnd();
+            paths = JsonConvert.DeserializeObject<Dictionary<string, CrashReportAutosaveFilePathInfo>>(json);
         }
 
-        recoveredDocuments.AddRange(paths.Select(path => new RecoveredPixi(path.Value, ZipFile.GetEntry($"Documents/{path.Key}"))));
+        // Load .pixi files
+        List<RecoveredPixi> recoveredDocuments = new();
+        foreach (var path in paths)
+        {
+            ZipArchiveEntry autosaved = null;
+            if (path.Value.AutosavePath != null)
+            {
+                autosaved = ZipFile.GetEntry($"Autosave/{Path.GetFileName(path.Value.AutosavePath)}");
+            }
+
+            recoveredDocuments.Add(new RecoveredPixi(path.Value, ZipFile.GetEntry($"Documents/{path.Key}"), autosaved));
+        }
 
         return recoveredDocuments;
-
-        Dictionary<string, string>? TryGetOriginalPaths()
-        {
-            var originalPathsEntry = ZipFile.Entries.FirstOrDefault(entry => entry.FullName == "DocumentInfo.json");
-
-            if (originalPathsEntry == null)
-                return null;
-            
-            try
-            {
-                using var stream = originalPathsEntry.Open();
-                using var reader = new StreamReader(stream);
-                string json = reader.ReadToEnd();
-                
-                return JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
-            }
-            catch
-            {
-                return null;
-            }
-        }
     }
-
 
     public void Dispose()
     {
@@ -374,24 +358,48 @@ internal class CrashReport : IDisposable
 
         // Write the documents into zip
         int counter = 0;
-        var originalPaths = new Dictionary<string, string>();
-        foreach (var document in vm.DocumentManagerSubViewModel.Documents)
+        Dictionary<string, CrashReportAutosaveFilePathInfo> originalPaths = new();
+        foreach (DocumentViewModel document in vm.DocumentManagerSubViewModel.Documents)
         {
             try
             {
-                string fileName = string.IsNullOrWhiteSpace(document.FullFilePath) ? "Unsaved" : Path.GetFileNameWithoutExtension(document.FullFilePath);
-                string nameInZip = $"{fileName}-{document.OpenedUTC.ToString(CultureInfo.InvariantCulture)}-{counter.ToString(CultureInfo.InvariantCulture)}.pixi"
-                    .Replace(':', '_')
-                    .Replace('/', '_');
+                string fileName = string.IsNullOrWhiteSpace(document.FullFilePath)
+                    ? "Unsaved"
+                    : Path.GetFileNameWithoutExtension(document.FullFilePath);
+                string nameInZip =
+                    $"{fileName}-{document.OpenedUTC.ToString(CultureInfo.InvariantCulture)}-{counter.ToString(CultureInfo.InvariantCulture)}.pixi"
+                        .Replace(':', '_')
+                        .Replace('/', '_');
 
                 byte[] serialized = PixiParser.Serialize(document.ToSerializable());
 
                 using Stream documentStream = archive.CreateEntry($"Documents/{nameInZip}").Open();
                 documentStream.Write(serialized);
 
-                originalPaths.Add(nameInZip, document.FullFilePath);
+                originalPaths.Add(nameInZip,
+                    new CrashReportAutosaveFilePathInfo(document.FullFilePath, document.AutosaveViewModel.LastAutosavedPath));
             }
-            catch { }
+            catch
+            {
+                // ignored
+            }
+
+            try
+            {
+                if (document.AutosaveViewModel.LastAutosavedPath != null)
+                {
+                    using var file = File.OpenRead(document.AutosaveViewModel.LastAutosavedPath);
+                    using var entry = archive
+                        .CreateEntry($"Autosave/{Path.GetFileName(document.AutosaveViewModel.LastAutosavedPath)}").Open();
+
+                    file.CopyTo(entry);
+                }
+            }
+            catch
+            {
+                // ignored
+            }
+
             counter++;
         }
 
@@ -416,27 +424,67 @@ internal class CrashReport : IDisposable
         ReportText = Encoding.UTF8.GetString(encodedReport);
     }
 
-
     public class RecoveredPixi
     {
-        public string? Path { get; }
-        
+        public CrashReportAutosaveFilePathInfo Path { get; }
+
         public ZipArchiveEntry RecoveredEntry { get; }
-        
+
+        public ZipArchiveEntry? AutosaveEntry { get; }
+
         public byte[] GetRecoveredBytes()
         {
             var buffer = new byte[RecoveredEntry.Length];
             using var stream = RecoveredEntry.Open();
 
             stream.ReadExactly(buffer);
-            
+
             return buffer;
         }
-        
-        public RecoveredPixi(string? path, ZipArchiveEntry recoveredEntry)
+
+        public byte[] GetAutosaveBytes()
+        {
+            var buffer = new byte[AutosaveEntry.Length];
+            using var stream = AutosaveEntry.Open();
+
+            stream.ReadExactly(buffer);
+
+            return buffer;
+        }
+
+        public RecoveredPixi(CrashReportAutosaveFilePathInfo path, ZipArchiveEntry recoveredEntry, ZipArchiveEntry? autosaveEntry)
         {
             Path = path;
             RecoveredEntry = recoveredEntry;
+            AutosaveEntry = autosaveEntry;
+        }
+    }
+
+    internal class CrashReportUserMessage
+    {
+        public string Message { get; set; }
+
+        public class RecoveredPixi
+        {
+            public string? Path { get; }
+
+            public ZipArchiveEntry RecoveredEntry { get; }
+
+            public byte[] GetRecoveredBytes()
+            {
+                var buffer = new byte[RecoveredEntry.Length];
+                using var stream = RecoveredEntry.Open();
+
+                stream.ReadExactly(buffer);
+
+                return buffer;
+            }
+
+            public RecoveredPixi(string? path, ZipArchiveEntry recoveredEntry)
+            {
+                Path = path;
+                RecoveredEntry = recoveredEntry;
+            }
         }
     }
 }

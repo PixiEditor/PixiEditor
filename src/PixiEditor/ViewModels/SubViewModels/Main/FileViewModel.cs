@@ -17,11 +17,14 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
+using PixiEditor.Models.DocumentModels.Autosave;
+using PixiEditor.Models.DocumentModels.Autosave.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Localization;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.Dialogs;
+using Path = System.IO.Path;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 
@@ -86,7 +89,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         RecentlyOpened.Remove(path);
-        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
+        IPreferences.Current!.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
     }
 
     private void OpenHelloTherePopup()
@@ -98,17 +101,205 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         List<string> args = StartupArgs.Args;
         string file = args.FirstOrDefault(x => Importer.IsSupportedFile(x) && File.Exists(x));
+
+        var preferences = IPreferences.Current;
+
+        try
+        {
+            if (!args.Contains("--crash"))
+            {
+                var lastCrash = preferences!.GetLocalPreference<string>(PreferencesConstants.LastCrashFile);
+
+                if (lastCrash == null)
+                {
+                    MaybeReopenTempAutosavedFiles();
+                }
+                else
+                {
+                    preferences.UpdateLocalPreference<string>(PreferencesConstants.LastCrashFile, null);
+
+                    var report = CrashReport.Parse(lastCrash);
+                    OpenFromReport(report, out bool showMissingFilesDialog);
+
+                    if (showMissingFilesDialog)
+                    {
+                        CrashReportViewModel.ShowMissingFilesDialog(report);
+                    }
+                }
+            }
+        }
+        catch (Exception exc)
+        {
+            CrashHelper.SendExceptionInfoToWebhook(exc);
+        }
+        
         if (file != null)
         {
             OpenFromPath(file);
         }
         else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
         {
-            if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
+            if (preferences!.GetPreference("ShowStartupWindow", true))
             {
                 OpenHelloTherePopup();
             }
         }
+    }
+
+    public void OpenFromReport(CrashReport report, out bool showMissingFilesDialog)
+    {
+        var documents = report.RecoverDocuments();
+        
+        var i = 0;
+
+        Exception firstException = null;
+        Exception secondException = null;
+        Exception thirdException = null;
+        
+        foreach (var document in documents)
+        {
+            try
+            {
+                OpenRecoveredDotPixi(document.Path.OriginalPath, document.Path.AutosavePath, document.Path.GetAutosaveGuid(), document.GetRecoveredBytes());
+                i++;
+            }
+            catch (Exception e)
+            {
+                firstException = e;
+                
+                try
+                {
+                    OpenFromPath(document.Path.AutosavePath, false);
+                }
+                catch (Exception deepE)
+                {
+                    secondException = deepE;
+                    
+                    try
+                    {
+                        OpenRecoveredDotPixi(document.Path.OriginalPath, document.Path.AutosavePath, document.Path.GetAutosaveGuid(), document.GetAutosaveBytes());
+                    }
+                    catch (Exception veryDeepE)
+                    {
+                        thirdException = veryDeepE;
+                    }
+                }
+            }
+
+            var exceptions = new[] { firstException, secondException, thirdException };
+            CrashHelper.SendExceptionInfoToWebhook(new AggregateException(exceptions.Where(x => x != null).ToArray()));
+        }
+
+        showMissingFilesDialog = documents.Count != i;
+    }
+
+    private void MaybeReopenTempAutosavedFiles()
+    {
+        var preferences = Owner.Preferences;
+
+        // Todo sure, no session saving, but shouldn't we still load backups in case of unexpected shutdown?
+        // it probably should be handled elsewhere
+        if (!preferences.GetPreference<bool>(PreferencesConstants.SaveSessionStateEnabled))
+            return;
+        
+        var history = preferences.GetLocalPreference<List<AutosaveHistorySession>>(PreferencesConstants.AutosaveHistory);
+        
+        // There are no autosave attempts ... but what if the user has just launched pixieditor for the first time,
+        // and it unexpectedly closed before auto saving anything. They could've still had some files open, and they won't be reopened in this session
+        // I'll say this is by design
+        if (history is null || history.Count == 0)
+            return;
+        var lastSession = history[^1];
+        if (lastSession.AutosaveEntries.Count == 0)
+            return; 
+
+        List<List<AutosaveHistoryEntry>> perDocumentHistories = ( 
+            from entry in lastSession.AutosaveEntries
+            group entry by entry.TempFileGuid into entryGroup
+            select entryGroup.OrderBy(a => a.DateTime).ToList()
+        ).ToList();
+        
+        /*bool shutdownWasUnexpected = lastSession.AutosaveEntries.All(a => a.Type != AutosaveHistoryType.OnClose);
+        if (shutdownWasUnexpected)
+        {
+            List<List<AutosaveHistoryEntry>> lastBackups = ( 
+                from entry in lastSession.AutosaveEntries
+                group entry by entry.TempFileGuid into entryGroup
+                select entryGroup.OrderBy(a => a.DateTime).ToList()
+                ).ToList();
+            // todo notify about files getting recovered after unexpected shutdown
+            // also separate this out into a function
+            return;
+        }*/
+
+        foreach (var documentHistory in perDocumentHistories)
+        {
+            AutosaveHistoryEntry lastEntry = documentHistory[^1]; 
+            try
+            {
+                if (lastEntry.Type != AutosaveHistoryType.OnClose)
+                {
+                    // unexpected shutdown happened, this file wasn't saved on close, but we supposedly have a backup
+                }
+                else
+                {
+                    switch (lastEntry.Result)
+                    {
+                        case AutosaveHistoryResult.SavedBackup:
+                            
+                            // load from autosave
+                            break;
+                        case AutosaveHistoryResult.SavedUserFile:
+                        case AutosaveHistoryResult.NothingToSave:
+                            // load from user file
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }                    
+                }
+                
+                
+                
+                string path = AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid);
+                if (!File.Exists(path))
+                {
+                    // something happened with the file? todo try to recover backup while notifying user
+                    continue;
+                }
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfoToWebhook(e);
+            }
+
+        }
+        
+        /*foreach (var file in files)
+        {
+            try
+            {
+                if (file.AutosavePath != null)
+                {
+                    var document = OpenFromPath(file.AutosavePath, false);
+                    document.FullFilePath = file.OriginalPath;
+
+                    if (file.AutosavePath != null)
+                    {
+                        document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(AutosaveHelper.GetAutosaveGuid(file.AutosavePath)!.Value, file.AutosavePath);
+                    }
+                }
+                else
+                {
+                    OpenFromPath(file.OriginalPath);
+                }
+            }
+            catch (Exception e)
+            {
+                CrashHelper.SendExceptionInfoToWebhook(e);
+            }
+        }*/
+        
+        preferences.UpdateLocalPreference(PreferencesConstants.UnsavedNextSessionFiles, Array.Empty<string>());
     }
 
     [Command.Internal("PixiEditor.File.OpenRecent")]
@@ -176,21 +367,16 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// <summary>
     /// Tries to open the passed file if it isn't already open
     /// </summary>
-    public void OpenFromPath(string path, bool associatePath = true)
+    public DocumentViewModel OpenFromPath(string path, bool associatePath = true)
     {
         if (MakeExistingDocumentActiveIfOpened(path))
-            return;
+            return null;
 
         try
         {
-            if (path.EndsWith(".pixi"))
-            {
-                OpenDotPixi(path, associatePath);
-            }
-            else
-            {
-                OpenRegularImage(path, associatePath);
-            }
+            return path.EndsWith(".pixi")
+                ? OpenDotPixi(path, associatePath)
+                : OpenRegularImage(path, associatePath);
         }
         catch (RecoverableException ex)
         {
@@ -200,36 +386,46 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("OLD_FILE_FORMAT_DESCRIPTION", "OLD_FILE_FORMAT");
         }
+
+        return null;
     }
 
     /// <summary>
     /// Opens a .pixi file from path, creates a document from it, and adds it to the system
     /// </summary>
-    private void OpenDotPixi(string path, bool associatePath = true)
+    private DocumentViewModel OpenDotPixi(string path, bool associatePath = true)
     {
-        DocumentViewModel document = Importer.ImportDocument(path, associatePath);
+        var document = Importer.ImportDocument(path, associatePath);
         AddDocumentViewModelToTheSystem(document);
         AddRecentlyOpened(document.FullFilePath);
+
+        return document;
     }
 
     /// <summary>
     /// Opens a .pixi file from path, creates a document from it, and adds it to the system
     /// </summary>
-    public void OpenRecoveredDotPixi(string? originalPath, byte[] dotPixiBytes)
+    public void OpenRecoveredDotPixi(string? originalPath, string? autosavePath, Guid? autosaveGuid, byte[] dotPixiBytes)
     {
         DocumentViewModel document = Importer.ImportDocument(dotPixiBytes, originalPath);
         document.MarkAsUnsaved();
+
+        if (autosavePath != null)
+        {
+            document.AutosaveViewModel.SetTempFileGuidAndLastSavedPath(autosaveGuid!.Value, autosavePath);
+        }
+        
         AddDocumentViewModelToTheSystem(document);
     }
 
     /// <summary>
     /// Opens a regular image file from path, creates a document from it, and adds it to the system.
     /// </summary>
-    private void OpenRegularImage(string path, bool associatePath)
+    private DocumentViewModel OpenRegularImage(string path, bool associatePath)
     {
         var image = Importer.ImportImage(path, VecI.NegativeOne);
 
-        if (image == null) return;
+        if (image == null) return null;
 
         var doc = NewDocument(b => b
             .WithSize(image.Size)
@@ -244,6 +440,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         AddRecentlyOpened(path);
+        return doc;
     }
 
     /// <summary>

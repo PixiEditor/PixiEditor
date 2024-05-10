@@ -6,6 +6,7 @@ using System.Text;
 using System.Windows.Input;
 using ByteSizeLib;
 using Hardware.Info;
+using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.DataHolders;
 using Mouse = System.Windows.Input.Mouse;
 
@@ -28,6 +29,16 @@ internal class CrashHelper
         
         var report = CrashReport.Generate(exception);
         report.TrySave();
+
+        try
+        {
+            IPreferences.Current?.UpdateLocalPreference(PreferencesConstants.LastCrashFile, report.FilePath);
+        }
+        catch
+        {
+            // ignored
+        }
+        
         report.RestartToCrashReport();
     }
 
@@ -89,7 +100,7 @@ internal class CrashHelper
             while (innerException != null)
             {
                 builder
-                    .Append("\n-----Inner exception-----\n")
+                    .Append("\n------Inner exception------\n")
                     .Append(innerException.GetType().ToString())
                     .Append(": ")
                     .Append(innerException.Message);
@@ -98,14 +109,14 @@ internal class CrashHelper
         }
 
         builder
-            .Append("\n\n-------Stack trace-------\n")
+            .Append("\n\n--------Stack trace--------\n")
             .Append(e.StackTrace);
         {
             var innerException = e.InnerException;
             while (innerException != null)
             {
                 builder
-                    .Append("\n-----Inner exception-----\n")
+                    .Append("\n------Inner exception------\n")
                     .Append(innerException.StackTrace);
                 innerException = innerException.InnerException;
             }

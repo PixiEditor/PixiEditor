@@ -20,5 +20,10 @@ public enum LocalizationKeyShowMode
     /// <summary>
     /// Shows a long string ensuring responsive layout
     /// </summary>
-    LALALA,
+    LAGLAGLAG,
+    
+    /// <summary>
+    /// Shows a short string ensuring responsive layout
+    /// </summary>
+    Short
 }

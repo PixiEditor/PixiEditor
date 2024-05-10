@@ -419,20 +419,46 @@
                             ui1:Translator.Key="CRASH"
                             cmds:Menu.Command="PixiEditor.Debug.Crash" />
                         <MenuItem
+                            ui1:Translator.Key="FREEZE"
+                            cmds:Menu.Command="PixiEditor.Debug.Freeze" />
+                        <Separator />
+                        <MenuItem
                             ui1:Translator.Key="DELETE">
                             <MenuItem
                                 ui1:Translator.Key="USER_PREFS"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteUserPreferences" />
                             <MenuItem
-                                ui1:Translator.Key="SHORTCUT_FILE"
-                                cmds:Menu.Command="PixiEditor.Debug.DeleteShortcutFile" />
-                            <MenuItem
                                 ui1:Translator.Key="EDITOR_DATA"
                                 cmds:Menu.Command="PixiEditor.Debug.DeleteEditorData" />
+                            <MenuItem
+                                ui1:Translator.Key="SHORTCUT_FILE"
+                                cmds:Menu.Command="PixiEditor.Debug.DeleteShortcutFile" />
                             <Separator/>
                             <MenuItem
                                 ui1:Translator.Key="CLEAR_RECENT_DOCUMENTS"
                                 cmds:Menu.Command="PixiEditor.Debug.ClearRecentDocument"/>
+                        </MenuItem>
+                        <MenuItem
+                            ui1:Translator.Key="BACK_UP">
+                            <MenuItem
+                                ui1:Translator.Key="USER_PREFS"
+                                cmds:Menu.Command="PixiEditor.Debug.BackupUserPreferences" />
+                            <MenuItem
+                                ui1:Translator.Key="EDITOR_DATA"
+                                cmds:Menu.Command="PixiEditor.Debug.BackupEditorData" />
+                            <MenuItem
+                                ui1:Translator.Key="SHORTCUT_FILE"
+                                cmds:Menu.Command="PixiEditor.Debug.BackupShortcutFile" />
+                            <Separator/>
+                            <MenuItem
+                                ui1:Translator.Key="LOAD_USER_PREFS_BACKUP"
+                                cmds:Menu.Command="PixiEditor.Debug.LoadUserPreferencesBackup" />
+                            <MenuItem
+                                ui1:Translator.Key="LOAD_EDITOR_DATA_BACKUP"
+                                cmds:Menu.Command="PixiEditor.Debug.LoadEditorDataBackup" />
+                            <MenuItem
+                                ui1:Translator.Key="LOAD_SHORTCUT_FILE_BACKUP"
+                                cmds:Menu.Command="PixiEditor.Debug.LoadShortcutFileBackup" />
                         </MenuItem>
                     </MenuItem>
                 </cmds:Menu>
@@ -468,6 +494,15 @@
                                    Foreground="White"/>
                     </Grid>
                 </Border>
+                <usercontrols:AutosaveControl
+                    Visibility="{Binding DocumentManagerSubViewModel.ActiveDocument, Converter={converters:NotNullToVisibilityConverter}}"
+                    AutosaveStateData="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel.AutosaveStateData}"
+                    AutosaveEnabled="{Binding DocumentManagerSubViewModel.ActiveDocument.AutosaveViewModel.CurrentDocumentAutosaveEnabled}"
+                    MinWidth="50"
+                    Height="25"
+                    Margin="5,0,0,0"
+                    VerticalAlignment="Top"
+                    WindowChrome.IsHitTestVisibleInChrome="True"/>
                 <StackPanel
                     DockPanel.Dock="Right"
                     VerticalAlignment="Top"

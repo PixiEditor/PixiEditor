@@ -73,6 +73,8 @@
   "DUMP_ALL_COMMANDS_DESCRIPTIVE": "Dump all commands to a text file",
   "CRASH": "Crash",
   "CRASH_APP": "Crash application",
+  "FREEZE": "Freeze",
+  "FREEZE_APP": "Freeze application",
   "DELETE_USR_PREFS": "Delete user preferences (Roaming AppData)",
   "DELETE_SHORTCUT_FILE": "Delete shortcut file (Roaming AppData)",
   "DELETE_EDITOR_DATA": "Delete editor data (Local AppData)",
@@ -275,10 +277,20 @@
   "CANCEL": "Cancel",
   "UNNAMED": "Unnamed",
   "OPEN_COMMAND_DEBUG_WINDOW": "Open command debug window",
+  
   "DELETE": "Delete",
   "USER_PREFS": "User preferences (Roaming)",
   "SHORTCUT_FILE": "Shortcut file (Roaming)",
   "EDITOR_DATA": "Editor data (Local)",
+  
+  "BACKUP_USER_PREFS": "Backup User preferences (Roaming)",
+  "BACKUP_SHORTCUT_FILE": "Backup Shortcut file (Roaming)",
+  "BACKUP_EDITOR_DATA": "Backup Editor data (Local)",
+
+  "LOAD_USER_PREFS_BACKUP": "Load User preferences backup (Roaming)",
+  "LOAD_SHORTCUT_FILE_BACKUP": "Load Shortcut file backup (Roaming)",
+  "LOAD_EDITOR_DATA_BACKUP": "Load Editor data backup (Local)",
+
   "MOVE_VIEWPORT_TOOLTIP": "Moves viewport. ({0})",
   "MOVE_VIEWPORT_ACTION_DISPLAY": "Click and move to pan the viewport",
   "MOVE_TOOL_TOOLTIP": "Moves selected pixels ({0}). Hold Ctrl to move all layers.",
@@ -474,7 +486,6 @@
   "SHORTCUT_ALREADY_ASSIGNED_OVERWRITE": "This shortcut is already assigned to '{0}'\nDo you want to replace the existing shortcut?",
   "UNSAVED_CHANGES": "Unsaved changes",
   "DOCUMENT_MODIFIED_SAVE": "The document has been modified. Do you want to save changes?",
-  "SESSION_UNSAVED_DATA": "{0} with unsaved data. Are you sure?",
   "PROJECT_MAINTAINERS": "Project Maintainers",
   "OTHER_AWESOME_CONTRIBUTORS": "And other awesome contributors",
   "HELP": "Help",
@@ -591,6 +602,38 @@
   "FAILED_DOWNLOADING_TITLE": "Downloading update failed",
   "FAILED_DOWNLOADING": "Failed downloading the update, you might not have enough space on the disk",
   
+  "AUTOSAVE_SAVING": "Saving...",
+  "AUTOSAVE_SAVED": "Saved.",
+  "AUTOSAVE_SAVING_IN_MINUTE": "Saving in less than a minute",
+  "AUTOSAVE_SAVING_IN": "Saving in about {0} {1}",
+  "AUTOSAVE_WAITING_FOR_SAVE": "Waiting to autosave.",
+  "AUTOSAVE_PLEASE_RESAVE": "Error while saving. Please save manually.",
+  "AUTOSAVE_FAILED_RETRYING": "Error while saving. Retrying in {0} {1}.",
+  "AUTOSAVE_DISABLED": "Autosaving paused for document.",
+  "AUTOSAVE_NOTHING_CHANGED": "Nothing changed, not saving.",
+  
+  "AUTOSAVE_TOGGLE": "Toggle autosave",
+  "AUTOSAVE_TOGGLE_DESCRIPTION": "Toggle autosave for document",
+
+  "AUTOSAVE_SETTINGS_HEADER": "Autosave",
+  "AUTOSAVE_SETTINGS_SAVE_STATE": "Restore opened files on startup",
+  "AUTOSAVE_SETTINGS_PERIOD": "Backup every",
+  "AUTOSAVE_SETTINGS_SAVE_USER_FILE": "Autosave files",
+  
   "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Could not recover all",
-  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Could not fully recover all files.\nIf you send the crash report to the developers\nthey might be able to help you."
+  "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Could not fully recover all files.\nIf you send the crash report to the developers\nthey might be able to help you.",
+  
+  "DISABLED": "Disabled",
+  
+  "MINUTE_SINGULAR": "minute",
+  "MINUTE_PLURAL": "minutes",
+  "MINUTE_UNIVERSAL": "minute(s)",
+  
+  "LOGOFF": "Sign out with unsaved data. Are you sure?",
+  "SHUTDOWN": "Shut down with unsaved data. Are you sure?",
+  "LOGOFF_TITLE": "Sign out?",
+  "SHUTDOWN_TITLE": "Shut down?",
+  
+  "BACK_UP": "Backup",
+  "SEND": "Send"
 }
