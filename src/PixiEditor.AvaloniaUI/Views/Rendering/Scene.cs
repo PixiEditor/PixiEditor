@@ -169,7 +169,7 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
                 overlay.ZoomScale = Scale;
 
                 overlay.RenderOverlay(context, dirtyBounds);
-                Cursor = overlay.Cursor;
+                Cursor = overlay.Cursor ?? DefaultCursor;
             }
         }
     }
