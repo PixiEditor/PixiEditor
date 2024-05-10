@@ -231,7 +231,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (builderInstance.ReferenceLayer is { } refLayer)
         {
             acc
-                .AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImagePbgra32Bytes.ToImmutableArray(), refLayer.ImageSize));
+                .AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImageBgra8888Bytes.ToImmutableArray(), refLayer.ImageSize));
         }
 
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);

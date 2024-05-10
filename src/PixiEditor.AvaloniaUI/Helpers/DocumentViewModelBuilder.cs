@@ -327,7 +327,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         
         public ShapeCorners Shape { get; set; }
         
-        public byte[] ImagePbgra32Bytes { get; set; }
+        public byte[] ImageBgra8888Bytes { get; set; }
 
         public ReferenceLayerBuilder WithIsVisible(bool isVisible)
         {
@@ -343,10 +343,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
         public ReferenceLayerBuilder WithSurface(Surface surface)
         {
-            // TODO: Make sure this works, there was WriteableBitmap previously
-            byte[] bytes = new byte[surface.Size.Y * surface.BytesPerPixel];
-            Marshal.Copy(surface.PixelBuffer, bytes, 0, bytes.Length);
-
+            byte[] bytes = surface.ToByteArray();
             WithImage(surface.Size, bytes);
             
             return this;
@@ -355,7 +352,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         public ReferenceLayerBuilder WithImage(VecI size, byte[] pbgraData)
         {
             ImageSize = size;
-            ImagePbgra32Bytes = pbgraData;
+            ImageBgra8888Bytes = pbgraData;
             return this;
         }
 

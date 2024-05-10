@@ -127,7 +127,7 @@ internal partial class SettingsWindowViewModel : ViewModelBase
         
         if (file is not null)
         {
-            File.Copy(CommandController.ShortcutsPath, file.Path.AbsolutePath, true);
+            File.Copy(CommandController.ShortcutsPath, file.Path.LocalPath, true);
         }
         
         // Sometimes, focus was brought back to the last edited shortcut
@@ -186,7 +186,7 @@ internal partial class SettingsWindowViewModel : ViewModelBase
             
             CommandController.Current.ResetShortcuts();
             CommandController.Current.Import(shortcuts, false);
-            File.Copy(files[0].Path.AbsolutePath, CommandController.ShortcutsPath, true);
+            File.Copy(files[0].Path.LocalPath, CommandController.ShortcutsPath, true);
             NoticeDialog.Show("SHORTCUTS_IMPORTED_SUCCESS", "SUCCESS");
         }
         
@@ -200,7 +200,7 @@ internal partial class SettingsWindowViewModel : ViewModelBase
         {
             try
             {
-                shortcuts = ShortcutFile.LoadTemplate(file.Path.AbsolutePath)?.Shortcuts.ToList();
+                shortcuts = ShortcutFile.LoadTemplate(file.Path.LocalPath)?.Shortcuts.ToList();
             }
             catch (Exception)
             {
@@ -226,7 +226,7 @@ internal partial class SettingsWindowViewModel : ViewModelBase
 
             try
             {
-                shortcuts = provider.KeysParser.Parse(file.Path.AbsolutePath, false)?.Shortcuts.ToList();
+                shortcuts = provider.KeysParser.Parse(file.Path.LocalPath, false)?.Shortcuts.ToList();
             }
             catch (RecoverableException e)
             {

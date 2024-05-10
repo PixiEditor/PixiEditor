@@ -16,7 +16,7 @@ public class FileSystemProvider : IFileSystemProvider
             return false;
         }
 
-        path = task.Result[0].Path.AbsolutePath;
+        path = task.Result[0].Path.LocalPath;
         return true;
     }
 }

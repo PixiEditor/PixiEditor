@@ -34,7 +34,7 @@ public static class SurfaceHelpers
         return result;
     }
 
-    private static unsafe byte[] ToByteArray(Surface surface, ColorType colorType = ColorType.Bgra8888, AlphaType alphaType = AlphaType.Premul)
+    public static unsafe byte[] ToByteArray(this Surface surface, ColorType colorType = ColorType.Bgra8888, AlphaType alphaType = AlphaType.Premul)
     {
         int width = surface.Size.X;
         int height = surface.Size.Y;

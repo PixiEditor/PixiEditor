@@ -663,7 +663,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
         if (file is { Count: > 0 })
         {
-            var fileName = file[0].Path.AbsolutePath;
+            var fileName = file[0].Path.LocalPath;
             await ImportPalette(fileName, parsers);
         }
     }

@@ -127,7 +127,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             {
                 var commands = Owner.CommandController.Commands;
 
-                using StreamWriter writer = new StreamWriter(pickedFile.Path.AbsolutePath);
+                using StreamWriter writer = new StreamWriter(pickedFile.Path.LocalPath);
                 foreach (var command in commands)
                 {
                     writer.WriteLine($"InternalName: {command.InternalName}");
@@ -153,7 +153,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             {
                 var commands = Owner.CommandController.Commands;
 
-                using StreamWriter writer = new StreamWriter(pickedFile.Path.AbsolutePath);
+                using StreamWriter writer = new StreamWriter(pickedFile.Path.LocalPath);
                 Dictionary<string, KeyDefinition> keyDefinitions = new Dictionary<string, KeyDefinition>();
                 foreach (var command in commands)
                 {
@@ -164,7 +164,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
 
                 writer.Write(JsonConvert.SerializeObject(keyDefinitions, Formatting.Indented));
                 writer.Close();
-                string file = await File.ReadAllTextAsync(pickedFile.Path.AbsolutePath);
+                string file = await File.ReadAllTextAsync(pickedFile.Path.LocalPath);
                 foreach (var command in commands)
                 {
                     if(command.IsDebug)
@@ -172,8 +172,8 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
                     file = file.Replace($"(provider).{command.InternalName}", "");
                 }
 
-                await File.WriteAllTextAsync(pickedFile.Path.AbsolutePath, file);
-                IOperatingSystem.Current.OpenFolder(Path.GetDirectoryName(pickedFile.Path.AbsolutePath));
+                await File.WriteAllTextAsync(pickedFile.Path.LocalPath, file);
+                IOperatingSystem.Current.OpenFolder(Path.GetDirectoryName(pickedFile.Path.LocalPath));
             }
         });
     }
@@ -195,7 +195,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
 
             if (pickedFile != null)
             {
-                string file = await File.ReadAllTextAsync(pickedFile.Path.AbsolutePath);
+                string file = await File.ReadAllTextAsync(pickedFile.Path.LocalPath);
                 var keyDefinitions = JsonConvert.DeserializeObject<Dictionary<string, KeyDefinition>>(file);
                 int emptyKeys = file.Split("\"\":").Length - 1;
                 int unknownCommands = 0;
@@ -267,7 +267,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
             {
                 Owner.LocalizationProvider.LoadDebugKeys(
                     JsonConvert.DeserializeObject<Dictionary<string, string>>(
-                        await File.ReadAllTextAsync(pickedFile.Path.AbsolutePath)),
+                        await File.ReadAllTextAsync(pickedFile.Path.LocalPath)),
                     false);
             }
         });

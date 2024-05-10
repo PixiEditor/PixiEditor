@@ -382,7 +382,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             if (filePicker is null || filePicker.Count == 0)
                 return null;
 
-            return filePicker[0].Path.AbsolutePath;
+            return filePicker[0].Path.LocalPath;
         }
 
         return null;

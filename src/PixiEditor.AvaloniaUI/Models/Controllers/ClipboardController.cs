@@ -184,7 +184,7 @@ internal static class ClipboardController
             return surfaces;
         }
 
-        var paths = data.GetFileDropList().Select(x => x.Path.AbsolutePath).ToList();
+        var paths = data.GetFileDropList().Select(x => x.Path.LocalPath).ToList();
         if(paths != null && data.TryGetRawTextPath(out string? textPath))
         {
             paths.Add(textPath);
@@ -290,7 +290,7 @@ internal static class ClipboardController
             var files = dataObject.GetFileDropList();
             if (files != null)
             {
-                if (IsImageFormat(files.Select(x => x.Path.AbsolutePath).ToArray()))
+                if (IsImageFormat(files.Select(x => x.Path.LocalPath).ToArray()))
                 {
                     return true;
                 }

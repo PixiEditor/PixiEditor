@@ -2,6 +2,7 @@
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Deprecated;
@@ -25,6 +26,7 @@ internal static class PixiParserDocumentEx
                 .WithReferenceLayer(document.ReferenceLayer, (r, builder) => builder
                     .WithIsVisible(r.Enabled)
                     .WithShape(r.Corners)
+                    .WithIsTopmost(r.Topmost)
                     .WithSurface(Surface.Load(r.ImageBytes)));
 
             BuildChildren(b, document.RootFolder.Children);

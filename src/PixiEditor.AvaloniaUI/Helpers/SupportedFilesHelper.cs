@@ -107,7 +107,7 @@ internal class SupportedFilesHelper
         if (file is null)
             return FileType.Unset;
 
-        string extension = Path.GetExtension(file.Path.AbsolutePath);
+        string extension = Path.GetExtension(file.Path.LocalPath);
         return allSupportedExtensions.Single(i => i.Extensions.Contains(extension)).FileType;
     }
 

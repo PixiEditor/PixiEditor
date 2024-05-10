@@ -145,7 +145,7 @@ internal partial class PaletteViewer : UserControl
 
             if (file is null || file.Count == 0) return;
 
-            await ImportPalette(file[0].Path.AbsolutePath);
+            await ImportPalette(file[0].Path.LocalPath);
         });
     }
 
@@ -182,7 +182,7 @@ internal partial class PaletteViewer : UserControl
 
             try
             {
-                bool saved = await foundParser.Save(file.Path.AbsolutePath, new PaletteFileData(Colors.ToArray()));
+                bool saved = await foundParser.Save(file.Path.LocalPath, new PaletteFileData(Colors.ToArray()));
                 if (!saved)
                 {
                     NoticeDialog.Show("COULD_NOT_SAVE_PALETTE", "ERROR");
@@ -256,10 +256,10 @@ internal partial class PaletteViewer : UserControl
             {
                 IStorageItem file = files[0];
                 var foundParser = PaletteProvider.AvailableParsers.FirstOrDefault(x =>
-                    x.SupportedFileExtensions.Contains(Path.GetExtension(file.Path.AbsolutePath)));
+                    x.SupportedFileExtensions.Contains(Path.GetExtension(file.Path.LocalPath)));
                 if (foundParser != null)
                 {
-                    filePath = file.Path.AbsolutePath;
+                    filePath = file.Path.LocalPath;
                     return true;
                 }
             }

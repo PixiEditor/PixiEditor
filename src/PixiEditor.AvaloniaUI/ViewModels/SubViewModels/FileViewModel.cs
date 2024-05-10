@@ -140,10 +140,10 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             var dialog = await desktop.MainWindow.StorageProvider.OpenFilePickerAsync(
                 new FilePickerOpenOptions { FileTypeFilter = filter });
 
-            if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.AbsolutePath))
+            if (dialog.Count == 0 || !Importer.IsSupportedFile(dialog[0].Path.LocalPath))
                 return;
 
-            OpenFromPath(dialog[0].Path.AbsolutePath);
+            OpenFromPath(dialog[0].Path.LocalPath);
         }
     }
 

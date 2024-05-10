@@ -76,7 +76,7 @@ internal class Exporter
 
             var fileType = SupportedFilesHelper.GetSaveFileType(true, file);
 
-            var saveResult = TrySaveUsingDataFromDialog(document, file.Path.AbsolutePath, fileType, out string fixedPath, exportSize);
+            var saveResult = TrySaveUsingDataFromDialog(document, file.Path.LocalPath, fileType, out string fixedPath, exportSize);
             if (saveResult == SaveResult.Success)
             {
                 result.Path = fixedPath;

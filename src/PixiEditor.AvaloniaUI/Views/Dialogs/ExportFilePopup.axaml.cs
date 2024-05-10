@@ -127,7 +127,7 @@ public partial class ExportFilePopup : PixiEditorPopup
                     return null;
                 }
 
-                string fileName = SupportedFilesHelper.FixFileExtension(file.Path.AbsolutePath, SaveFormat);
+                string fileName = SupportedFilesHelper.FixFileExtension(file.Path.LocalPath, SaveFormat);
 
                 return fileName;
             }
