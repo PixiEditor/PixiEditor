@@ -32,6 +32,9 @@ public static class PreferencesConstants
     [LocalPreferenceConstant]
     public const string AutosaveHistory = nameof(AutosaveHistory);
 
+    [LocalPreferenceConstant]
+    public const string UnsavedNextSessionFiles = nameof(UnsavedNextSessionFiles);
+
     [SyncedPreferenceConstant]
     public const string AutosaveToDocumentPath = nameof(AutosaveToDocumentPath);
     public const bool AutosaveToDocumentPathDefault = false;

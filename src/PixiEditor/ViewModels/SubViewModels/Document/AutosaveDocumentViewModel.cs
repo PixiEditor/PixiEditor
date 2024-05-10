@@ -88,7 +88,7 @@ internal class AutosaveDocumentViewModel : NotifyableObject
             Directory.CreateDirectory(Directory.GetParent(filePath)!.FullName);
             bool success = Exporter.TrySave(Document, filePath) == SaveResult.Success;
             if (success)
-                AddAutosaveHistoryEntry(AutosaveHistoryType.OnClose);
+                AddAutosaveHistoryEntry(AutosaveHistoryType.OnClose, AutosaveHistoryResult.SavedBackup);
             
             return success;
         }

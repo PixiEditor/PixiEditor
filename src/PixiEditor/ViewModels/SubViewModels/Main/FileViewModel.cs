@@ -204,7 +204,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         
         var history = preferences.GetLocalPreference<List<AutosaveHistorySession>>(PreferencesConstants.AutosaveHistory);
         
-        // There are no autosave attempts .. but what if the user has just launched pixieditor for the first time,
+        // There are no autosave attempts ... but what if the user has just launched pixieditor for the first time,
         // and it unexpectedly closed before auto saving anything. They could've still had some files open, and they won't be reopened in this session
         // I'll say this is by design
         if (history is null || history.Count == 0)
@@ -240,13 +240,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 if (lastEntry.Type != AutosaveHistoryType.OnClose)
                 {
                     // unexpected shutdown happened, this file wasn't saved on close, but we supposedly have a backup
-                    
                 }
                 else
                 {
                     switch (lastEntry.Result)
                     {
                         case AutosaveHistoryResult.SavedBackup:
+                            
                             // load from autosave
                             break;
                         case AutosaveHistoryResult.SavedUserFile:
@@ -260,7 +260,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
                 
                 
                 
-                string path = AutosaveHelper.GetAutosavePath(entry.TempFileGuid);
+                string path = AutosaveHelper.GetAutosavePath(lastEntry.TempFileGuid);
                 if (!File.Exists(path))
                 {
                     // something happened with the file? todo try to recover backup while notifying user
@@ -274,7 +274,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
         }
         
-        foreach (var file in files)
+        /*foreach (var file in files)
         {
             try
             {
@@ -297,7 +297,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             {
                 CrashHelper.SendExceptionInfoToWebhook(e);
             }
-        }
+        }*/
         
         preferences.UpdateLocalPreference(PreferencesConstants.UnsavedNextSessionFiles, Array.Empty<string>());
     }
