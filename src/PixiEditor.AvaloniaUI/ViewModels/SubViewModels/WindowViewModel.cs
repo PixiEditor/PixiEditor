@@ -104,7 +104,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             Owner.DocumentManagerSubViewModel.MakeActiveDocumentNull();
             return;
         }
-        ActiveWindow = Viewports.Where(viewport => viewport.Document == doc).FirstOrDefault();
+
+        ActiveWindow = Viewports.FirstOrDefault(viewport => viewport.Document == doc);
     }
 
     public string CalculateViewportIndex(ViewportWindowViewModel viewport)
