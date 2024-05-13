@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
+using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Extensions.Runtime;
@@ -40,7 +41,7 @@ public class WindowProvider : IWindowProvider
 
     public IPopupWindow CreatePopupWindow(string title, object body)
     {
-        return new PopupWindow(new PixiEditorPopup { Title = title, Content = body });
+        return new PopupWindow(new PixiEditorPopup { Title = new LocalizedString(title), Content = body });
     }
 
     public IPopupWindow GetWindow(WindowType type)

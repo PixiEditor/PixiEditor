@@ -4,15 +4,27 @@ namespace PixiEditor.Extensions.Wasm.Api.Window;
 
 public class PopupWindow : IPopupWindow
 {
-    public string Title { get; set; }
+    private int windowHandle;
+
+    internal PopupWindow(int handle)
+    {
+        windowHandle = handle;
+    }
+
+    public string Title
+    {
+        get => Interop.GetWindowTitle(windowHandle);
+        set => Interop.SetWindowTitle(windowHandle, value);
+    }
+
     public void Show()
     {
-        throw new NotImplementedException();
+        Interop.ShowWindow(windowHandle);
     }
 
     public void Close()
     {
-        throw new NotImplementedException();
+        Interop.CloseWindow(windowHandle);
     }
 
     public Task<bool?> ShowDialog()

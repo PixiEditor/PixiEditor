@@ -7,13 +7,11 @@ using PixiEditor.Extensions.Wasm.Api.FlyUI;
 
 namespace PixiEditor.Extensions.Wasm;
 
-internal class Interop
+internal static partial class Interop
 {
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void LogMessage(string message);
 
-    [MethodImpl(MethodImplOptions.InternalCall)]
-    internal static extern void CreatePopupWindow(string title, IntPtr data, int length);
 
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void SubscribeToEvent(int internalControlId, string eventName);

@@ -12,12 +12,12 @@ public class WindowProvider : IWindowProvider
         byte[] bytes = compiledControl.Serialize().ToArray();
         IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
         Marshal.Copy(bytes, 0, ptr, bytes.Length);
-        Interop.CreatePopupWindow(title, ptr, bytes.Length);
+        int handle = Interop.CreatePopupWindow(title, ptr, bytes.Length);
         Marshal.FreeHGlobal(ptr);
 
         SubscribeToEvents(compiledControl);
 
-        return new PopupWindow(); // TODO: Implement
+        return new PopupWindow(handle) { Title = title };
     }
 
     internal void LayoutStateChanged(int uniqueId, CompiledControl newLayout)

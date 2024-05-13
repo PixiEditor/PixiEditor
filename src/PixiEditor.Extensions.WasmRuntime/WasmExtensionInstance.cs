@@ -4,6 +4,8 @@ using Avalonia.Controls;
 using Avalonia.Threading;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.FlyUI.Elements;
+using PixiEditor.Extensions.WasmRuntime.Management;
+using PixiEditor.Extensions.Windowing;
 using Wasmtime;
 
 namespace PixiEditor.Extensions.WasmRuntime;
@@ -18,6 +20,7 @@ public class WasmExtensionInstance : Extension
 
     private Memory memory = null!;
     private LayoutBuilder LayoutBuilder { get; set; }
+    private ObjectManager NativeObjectManager { get; set; }
     private WasmMemoryUtility WasmMemoryUtility { get; set; }
 
     public WasmExtensionInstance(Linker linker, Store store, Module module)
@@ -29,6 +32,7 @@ public class WasmExtensionInstance : Extension
 
     public void Instantiate()
     {
+        NativeObjectManager = new ObjectManager();
         DefinePixiEditorApi();
         Linker.DefineModule(Store, Module);
 
@@ -78,7 +82,35 @@ public class WasmExtensionInstance : Extension
 
             var body = LayoutBuilder.Deserialize(arr, DuplicateResolutionTactic.ThrowException);
 
-            Api.Windowing.CreatePopupWindow(title, body.BuildNative()).Show();
+            var popupWindow = Api.Windowing.CreatePopupWindow(title, body.BuildNative());
+
+            int handle = NativeObjectManager.AddObject(popupWindow);
+            return WasmMemoryUtility.WriteInt32(handle);
+        });
+
+        Linker.DefineFunction("env", "set_window_title", (int handle, int titleOffset, int titleLength) =>
+        {
+            string title = WasmMemoryUtility.GetString(titleOffset, titleLength);
+            var window = NativeObjectManager.GetObject<PopupWindow>(memory.ReadInt32(handle));
+            window.Title = title;
+        });
+
+        Linker.DefineFunction("env", "get_window_title", (int handle) =>
+        {
+            var window = NativeObjectManager.GetObject<PopupWindow>(memory.ReadInt32(handle));
+            return WasmMemoryUtility.WriteString(window.Title);
+        });
+
+        Linker.DefineFunction("env", "show_window", (int handle) =>
+        {
+            var window = NativeObjectManager.GetObject<PopupWindow>(memory.ReadInt32(handle));
+            window.Show();
+        });
+
+        Linker.DefineFunction("env", "close_window", (int handle) =>
+        {
+            var window = NativeObjectManager.GetObject<PopupWindow>(memory.ReadInt32(handle));
+            window.Close();
         });
 
         Linker.DefineFunction("env", "subscribe_to_event", (int controlId, int eventNameOffset, int eventNameLengthOffset) =>
