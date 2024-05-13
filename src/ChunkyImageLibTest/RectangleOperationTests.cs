@@ -3,6 +3,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.Operations;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 using Xunit;
 
 namespace ChunkyImageLibTest;

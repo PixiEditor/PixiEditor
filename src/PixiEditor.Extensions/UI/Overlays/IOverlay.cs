@@ -1,5 +1,5 @@
 ﻿using Avalonia.Input;
-using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Extensions.UI.Overlays;
 
@@ -19,5 +19,5 @@ public interface IOverlay
     public event PointerEvent PointerMovedOverlay;
     public event PointerEvent PointerPressedOverlay;
     public event PointerEvent PointerReleasedOverlay;
-    public Cursor Cursor { get; set; }
+    public Cursor Cursor { get; set; } // TODO: Non Avalonia Cursor struct
 }

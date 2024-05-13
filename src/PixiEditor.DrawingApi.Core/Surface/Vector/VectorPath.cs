@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Surface.Vector;
 

@@ -3,7 +3,6 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.FlyUI.Elements;
-using PixiEditor.Extensions.Windowing;
 
 namespace SampleExtension.LayoutBuilder;
 

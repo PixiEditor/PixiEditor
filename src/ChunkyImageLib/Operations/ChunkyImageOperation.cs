@@ -1,5 +1,6 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace ChunkyImageLib.Operations;
 internal class ChunkyImageOperation : IMirroredDrawOperation

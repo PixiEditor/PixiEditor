@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.Files;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 

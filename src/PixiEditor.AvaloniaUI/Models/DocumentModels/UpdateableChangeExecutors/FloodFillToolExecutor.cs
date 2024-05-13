@@ -6,6 +6,7 @@ using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.DocumentModels.UpdateableChangeExecutors;
 #nullable enable

@@ -25,6 +25,7 @@ using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.DocumentModels.Public;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Localization;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;

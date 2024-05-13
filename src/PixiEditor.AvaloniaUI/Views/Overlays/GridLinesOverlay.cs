@@ -2,6 +2,8 @@
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays;
 

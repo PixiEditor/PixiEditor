@@ -1,6 +1,6 @@
 using System.Text;
 using PixiEditor.Extensions.CommonApi.FlyUI;
-using PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
+using PixiEditor.Extensions.Wasm.Api.FlyUI;
 
 namespace PixiEditor.Extensions.Wasm.Tests;
 

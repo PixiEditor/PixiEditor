@@ -7,6 +7,7 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.IO;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 #nullable enable

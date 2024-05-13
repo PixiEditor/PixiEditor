@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 

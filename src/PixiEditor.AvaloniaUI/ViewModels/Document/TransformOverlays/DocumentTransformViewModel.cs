@@ -9,6 +9,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Helpers;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document.TransformOverlays;
 #nullable enable

@@ -11,6 +11,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;
 

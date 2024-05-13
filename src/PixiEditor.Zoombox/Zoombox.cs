@@ -8,7 +8,9 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Metadata;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 using PixiEditor.Zoombox.Operations;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.Zoombox;
 

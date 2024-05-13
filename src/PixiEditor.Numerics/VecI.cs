@@ -1,7 +1,4 @@
-﻿using System;
-using PixiEditor.DrawingApi.Core.Surface;
-
-namespace PixiEditor.DrawingApi.Core.Numerics;
+﻿namespace PixiEditor.Numerics;
 
 public struct VecI : IEquatable<VecI>
 {
@@ -168,7 +165,7 @@ public struct VecI : IEquatable<VecI>
     {
         return new VecI((int)point.X, (int)point.Y);
     }
-    
+
     public static implicit operator Point(VecI vec)
     {
         return new(vec.X, vec.Y);

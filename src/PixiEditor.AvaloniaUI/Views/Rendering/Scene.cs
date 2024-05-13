@@ -21,6 +21,7 @@ using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Skia;
 using PixiEditor.Extensions.UI.Overlays;
+using PixiEditor.Numerics;
 using Bitmap = PixiEditor.DrawingApi.Core.Surface.Bitmap;
 using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
 using Point = Avalonia.Point;

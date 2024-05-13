@@ -9,6 +9,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 

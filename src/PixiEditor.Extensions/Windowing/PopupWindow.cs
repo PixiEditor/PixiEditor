@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Extensions.Windowing;
+﻿using PixiEditor.Extensions.CommonApi.Windowing;
+
+namespace PixiEditor.Extensions.Windowing;
 
 public class PopupWindow : IPopupWindow
 {

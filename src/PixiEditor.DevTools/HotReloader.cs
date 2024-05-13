@@ -11,6 +11,7 @@ public class HotReloader
     {
         string directory = Path.GetDirectoryName(path);
         WatchedFiles.Add(path);
+
         FileSystemWatcher watcher = new(directory, filter);
         watcher.Changed += WatcherOnChanged;
         watcher.EnableRaisingEvents = true;

@@ -5,6 +5,7 @@ using ChunkyImageLib.Operations;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Numerics;
 using Xunit;
 
 namespace ChunkyImageLibTest;

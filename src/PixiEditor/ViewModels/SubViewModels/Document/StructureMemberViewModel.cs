@@ -6,6 +6,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Enums;
+using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;

@@ -1,7 +1,4 @@
-﻿using System;
-using PixiEditor.DrawingApi.Core.Numerics;
-
-namespace PixiEditor.DrawingApi.Core.Surface;
+﻿namespace PixiEditor.Numerics;
 
 /// <summary>
 ///     Represents an ordered pair of floating-point x- and y-coordinates that defines a point in a two-dimensional

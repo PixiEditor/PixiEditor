@@ -10,6 +10,8 @@ using PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 using PixiEditor.AvaloniaUI.Views.Rendering;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 #nullable enable

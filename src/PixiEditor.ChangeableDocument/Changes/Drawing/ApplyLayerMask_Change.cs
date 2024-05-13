@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class ApplyLayerMask_Change : Change

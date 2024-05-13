@@ -1,7 +1,7 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.State;
 
-namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
+namespace PixiEditor.Extensions.Wasm.Api.FlyUI;
 
 public abstract class State : IState<CompiledControl>
 {

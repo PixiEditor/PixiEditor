@@ -10,10 +10,12 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Localization;
+using PixiEditor.Numerics;
 using PixiEditor.Views;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Overlays.SymmetryOverlay;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
+using Point = System.Windows.Point;
 
 namespace PixiEditor.Views.UserControls.Overlays.SymmetryOverlay;
 #nullable enable

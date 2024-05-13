@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
+using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Helpers;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Extensions.Windowing;
@@ -37,18 +38,18 @@ public class WindowProvider : IWindowProvider
         return this;
     }
 
-    public PopupWindow CreatePopupWindow(string title, object body)
+    public IPopupWindow CreatePopupWindow(string title, object body)
     {
         return new PopupWindow(new PixiEditorPopup { Title = title, Content = body });
     }
 
-    public PopupWindow GetWindow(WindowType type)
+    public IPopupWindow GetWindow(WindowType type)
     {
         string id = type.GetDescription();
         return GetWindow($"PixiEditor.{id}");
     }
 
-    public PopupWindow GetWindow(string windowId)
+    public IPopupWindow GetWindow(string windowId)
     {
         if (registeredWindows.TryGetValue(windowId, out Type? handler))
         {

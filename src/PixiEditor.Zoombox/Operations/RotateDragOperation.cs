@@ -1,9 +1,10 @@
 ﻿using System.Windows;
 using System.Windows.Input;
-using Avalonia;
 using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.Zoombox.Operations;
 

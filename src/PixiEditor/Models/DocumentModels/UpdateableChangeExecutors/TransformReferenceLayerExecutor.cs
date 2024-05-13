@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 internal class TransformReferenceLayerExecutor : UpdateableChangeExecutor

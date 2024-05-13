@@ -2,8 +2,8 @@
 using PixiEditor.AvaloniaUI.Models.ExtensionServices;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Runtime;
-using PixiEditor.Extensions.Windowing;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 

@@ -2,7 +2,7 @@
 using Avalonia.Layout;
 using Avalonia.Media;
 using PixiEditor.Extensions;
-using PixiEditor.Extensions.Windowing;
+using PixiEditor.Extensions.CommonApi.Windowing;
 
 namespace SampleExtension;
 

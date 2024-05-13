@@ -12,6 +12,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Models.DocumentModels;
 using PixiEditor.Models.Rendering.RenderInfos;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.Rendering;

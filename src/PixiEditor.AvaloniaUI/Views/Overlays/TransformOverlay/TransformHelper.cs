@@ -4,6 +4,8 @@ using Avalonia;
 using Avalonia.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 internal static class TransformHelper

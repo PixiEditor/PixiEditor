@@ -2,6 +2,7 @@
 using System.Windows;
 using Avalonia.Interactivity;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Zoombox;
 

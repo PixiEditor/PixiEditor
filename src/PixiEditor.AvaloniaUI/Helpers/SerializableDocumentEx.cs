@@ -5,6 +5,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections.Deprecated;
 using PixiEditor.Parser.Deprecated;

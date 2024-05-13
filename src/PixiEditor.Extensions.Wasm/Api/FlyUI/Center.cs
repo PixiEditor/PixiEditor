@@ -1,6 +1,6 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI;
 
-namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
+namespace PixiEditor.Extensions.Wasm.Api.FlyUI;
 
 public class Center : SingleChildLayoutElement
 {

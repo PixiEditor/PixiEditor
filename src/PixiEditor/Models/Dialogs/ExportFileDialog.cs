@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
+using PixiEditor.Numerics;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 

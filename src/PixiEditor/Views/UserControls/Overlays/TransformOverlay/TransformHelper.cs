@@ -2,6 +2,8 @@
 using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
+using Point = System.Windows.Point;
 
 #nullable enable
 

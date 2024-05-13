@@ -1,12 +1,12 @@
 using System.Runtime.InteropServices;
-using PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
-using PixiEditor.Extensions.Wasm.Utilities;
+using PixiEditor.Extensions.CommonApi.Windowing;
+using PixiEditor.Extensions.Wasm.Api.FlyUI;
 
 namespace PixiEditor.Extensions.Wasm.Api.Window;
 
 public class WindowProvider : IWindowProvider
 {
-    public void CreatePopupWindow(string title, LayoutElement body)
+    public PopupWindow CreatePopupWindow(string title, LayoutElement body)
     {
         CompiledControl compiledControl = body.BuildNative();
         byte[] bytes = compiledControl.Serialize().ToArray();
@@ -16,9 +16,11 @@ public class WindowProvider : IWindowProvider
         Marshal.FreeHGlobal(ptr);
 
         SubscribeToEvents(compiledControl);
+
+        return new PopupWindow(); // TODO: Implement
     }
 
-    void IWindowProvider.LayoutStateChanged(int uniqueId, CompiledControl newLayout)
+    internal void LayoutStateChanged(int uniqueId, CompiledControl newLayout)
     {
         byte[] bytes = newLayout.Serialize().ToArray();
         IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
@@ -40,5 +42,23 @@ public class WindowProvider : IWindowProvider
         {
             Interop.SubscribeToEvent(body.UniqueId, queuedEvent);
         }
+    }
+
+    public IPopupWindow CreatePopupWindow(string title, object body)
+    {
+        if(body is not LayoutElement element)
+            throw new ArgumentException("Body must be of type LayoutElement");
+
+        return CreatePopupWindow(title, element);
+    }
+
+    public IPopupWindow GetWindow(WindowType type)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IPopupWindow GetWindow(string windowId)
+    {
+        throw new NotImplementedException();
     }
 }

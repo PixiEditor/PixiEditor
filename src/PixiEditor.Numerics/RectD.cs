@@ -1,7 +1,4 @@
-﻿using System;
-using PixiEditor.DrawingApi.Core.Surface;
-
-namespace PixiEditor.DrawingApi.Core.Numerics;
+﻿namespace PixiEditor.Numerics;
 public struct RectD : IEquatable<RectD>
 {
     public static RectD Empty { get; } = new RectD();

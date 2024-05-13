@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using Avalonia;
 using Avalonia.Input;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.Models.Controllers.InputDevice;
 #nullable enable

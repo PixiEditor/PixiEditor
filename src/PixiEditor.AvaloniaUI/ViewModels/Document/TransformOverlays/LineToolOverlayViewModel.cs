@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document.TransformOverlays;
 internal class LineToolOverlayViewModel : ObservableObject, ILineOverlayHandler

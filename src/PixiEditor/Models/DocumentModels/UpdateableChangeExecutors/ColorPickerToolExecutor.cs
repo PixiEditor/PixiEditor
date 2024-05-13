@@ -1,5 +1,6 @@
 ﻿using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;

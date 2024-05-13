@@ -1,5 +1,6 @@
 ﻿using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 using HashCode = System.HashCode;
 
 namespace PixiEditor.DrawingApi.Core.Surface.ImageData;

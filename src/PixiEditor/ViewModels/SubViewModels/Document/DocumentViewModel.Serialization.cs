@@ -12,6 +12,7 @@ using PixiEditor.Extensions.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;
+using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using BlendMode = PixiEditor.Parser.BlendMode;

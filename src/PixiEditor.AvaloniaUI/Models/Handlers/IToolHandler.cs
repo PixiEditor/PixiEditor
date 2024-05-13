@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.Models.Handlers.Toolbars;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;
 

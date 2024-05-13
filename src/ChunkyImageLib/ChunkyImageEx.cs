@@ -3,6 +3,7 @@ using ChunkyImageLib.Operations;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.Numerics;
 
 namespace ChunkyImageLib;
 public static class IReadOnlyChunkyImageEx

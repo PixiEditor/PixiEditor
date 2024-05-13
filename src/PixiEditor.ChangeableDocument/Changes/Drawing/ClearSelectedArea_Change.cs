@@ -1,4 +1,5 @@
 ﻿using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class ClearSelectedArea_Change : Change

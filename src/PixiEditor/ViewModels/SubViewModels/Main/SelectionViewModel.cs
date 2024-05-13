@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Commands.Attributes.Commands;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ViewModels.SubViewModels.Main;
 

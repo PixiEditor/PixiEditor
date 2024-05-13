@@ -1,5 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Numerics;
 
@@ -195,11 +196,6 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
         values[8] = Persp2;
     }
     
-    public VecD MapPoint(int p0, int p1)
-    {
-        return DrawingBackendApi.Current.MatrixImplementation.MapPoint(this, p0, p1);   
-    }
-    
     public VecD MapPoint(VecI size) => MapPoint(size.X, size.Y);
 
     public static Matrix3X3 CreateIdentity()
@@ -330,7 +326,10 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
         };
     }
 
+    public readonly Matrix3X3 Invert() => TryInvert(out var inverse) ? inverse : Matrix3X3.Empty;
+
     public readonly bool IsInvertible => TryInvert(out _);
+
 
     /// <param name="inverse">The destination value to store the inverted matrix if the matrix can be inverted.</param>
     /// <summary>Attempts to invert the matrix, if possible the inverse matrix contains the result.</summary>
@@ -342,17 +341,20 @@ public struct Matrix3X3 : IEquatable<Matrix3X3>
     {
         return DrawingBackendApi.Current.MatrixImplementation.TryInvert(this, out inverse);
     }
-    
-    public readonly Matrix3X3 Invert() => TryInvert(out var inverse) ? inverse : Matrix3X3.Empty;
 
     public static Matrix3X3 Concat(Matrix3X3 first, Matrix3X3 second)
     {
         return DrawingBackendApi.Current.MatrixImplementation.Concat(in first, in second);
     }
-    
+
     public Matrix3X3 PostConcat(Matrix3X3 globalMatrix)
     {
         return DrawingBackendApi.Current.MatrixImplementation.PostConcat(in this, in globalMatrix);
+    }
+
+    public VecD MapPoint(int p0, int p1)
+    {
+        return DrawingBackendApi.Current.MatrixImplementation.MapPoint(this, p0, p1);
     }
 
     private static void SetSinCos(ref Matrix3X3 matrix, float sin, float cos)

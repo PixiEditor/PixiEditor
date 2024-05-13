@@ -3,6 +3,7 @@ using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;

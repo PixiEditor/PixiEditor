@@ -1,5 +1,6 @@
 ﻿using System.Windows.Markup;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Windowing;
 using PixiEditor.Views.Dialogs;
 

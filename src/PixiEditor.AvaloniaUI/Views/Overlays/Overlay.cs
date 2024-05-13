@@ -13,6 +13,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 using PixiEditor.AvaloniaUI.Views.Overlays.Transitions;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays;
 

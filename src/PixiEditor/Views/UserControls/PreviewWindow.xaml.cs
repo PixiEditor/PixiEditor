@@ -7,6 +7,8 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Controllers;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Models.Enums;
+using PixiEditor.Numerics;
+using Point = System.Windows.Point;
 
 namespace PixiEditor.Views.UserControls;
 

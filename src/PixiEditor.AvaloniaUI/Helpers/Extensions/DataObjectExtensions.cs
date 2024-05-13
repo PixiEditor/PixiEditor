@@ -5,6 +5,7 @@ using System.Linq;
 using Avalonia.Input;
 using Avalonia.Platform.Storage;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Extensions;
 

@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Extensions.Wasm.Api.Logging;
+﻿using PixiEditor.Extensions.CommonApi.Logging;
+
+namespace PixiEditor.Extensions.Wasm.Api.Logging;
 
 public class Logger : ILogger
 {

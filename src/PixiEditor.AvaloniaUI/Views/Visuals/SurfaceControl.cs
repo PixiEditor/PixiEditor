@@ -9,6 +9,7 @@ using Avalonia.Skia;
 using Avalonia.Threading;
 using ChunkyImageLib;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Visuals;
 

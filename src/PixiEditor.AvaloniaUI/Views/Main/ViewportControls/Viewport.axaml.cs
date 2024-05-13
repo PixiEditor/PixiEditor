@@ -18,6 +18,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays;
 using PixiEditor.AvaloniaUI.Views.Rendering;
 using PixiEditor.AvaloniaUI.Views.Visuals;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 using PixiEditor.Zoombox;
 using Point = Avalonia.Point;
 

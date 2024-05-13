@@ -30,6 +30,7 @@ using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Palettes;
+using PixiEditor.Numerics;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 using Point = Avalonia.Point;

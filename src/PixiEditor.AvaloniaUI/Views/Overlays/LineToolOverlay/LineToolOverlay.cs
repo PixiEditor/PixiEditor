@@ -10,6 +10,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.LineToolOverlay;
 internal class LineToolOverlay : Overlay

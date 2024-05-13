@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DocumentModels;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document;

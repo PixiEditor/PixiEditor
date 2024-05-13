@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Drawing.Text;
 using System.Printing;
 using ChunkyImageLib.Operations;
+using PixiEditor.Numerics;
 
 #nullable enable
 

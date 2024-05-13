@@ -7,6 +7,7 @@ using System.Windows.Input;
 using PixiEditor;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.Document;

@@ -23,6 +23,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Exceptions;
+using PixiEditor.Numerics;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
 

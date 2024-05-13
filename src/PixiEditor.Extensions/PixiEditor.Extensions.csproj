@@ -22,5 +22,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj" />
+      <ProjectReference Include="..\PixiEditor.Numerics\PixiEditor.Numerics.csproj" />
     </ItemGroup>
 </Project>

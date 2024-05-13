@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
+﻿namespace PixiEditor.Extensions.Wasm.Api.FlyUI;
 
 public class Text(string value) : StatelessElement
 {

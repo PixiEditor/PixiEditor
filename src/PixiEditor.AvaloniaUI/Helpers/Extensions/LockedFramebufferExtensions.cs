@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media;
 using Avalonia.Platform;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Extensions;
 

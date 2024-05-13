@@ -14,6 +14,7 @@ using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;

@@ -1,6 +1,6 @@
 ﻿using PixiEditor.Extensions.CommonApi.FlyUI.State;
 
-namespace PixiEditor.Extensions.Wasm.Api.LayoutBuilding;
+namespace PixiEditor.Extensions.Wasm.Api.FlyUI;
 
 public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<CompiledControl, TState> where TState : IState<CompiledControl>
 {

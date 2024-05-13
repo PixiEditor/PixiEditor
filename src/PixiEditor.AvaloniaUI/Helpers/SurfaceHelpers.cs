@@ -3,6 +3,7 @@ using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Helpers;
 

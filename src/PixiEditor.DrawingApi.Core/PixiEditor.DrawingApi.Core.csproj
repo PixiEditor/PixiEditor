@@ -60,4 +60,8 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'DevSteam' ">
       <Optimize>True</Optimize>
     </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.Numerics\PixiEditor.Numerics.csproj" />
+    </ItemGroup>
 </Project>

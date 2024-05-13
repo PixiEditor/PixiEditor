@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace PixiEditor.DrawingApi.Core.Numerics;
+﻿namespace PixiEditor.Numerics;
 
 public struct VecD : IEquatable<VecD>
 {
