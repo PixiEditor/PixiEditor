@@ -10,7 +10,7 @@ using Wasmtime;
 
 namespace PixiEditor.Extensions.WasmRuntime;
 
-public class WasmExtensionInstance : Extension
+public partial class WasmExtensionInstance : Extension
 {
     public Instance? Instance { get; private set; }
 
@@ -22,6 +22,8 @@ public class WasmExtensionInstance : Extension
     private LayoutBuilder LayoutBuilder { get; set; }
     private ObjectManager NativeObjectManager { get; set; }
     private WasmMemoryUtility WasmMemoryUtility { get; set; }
+
+    partial void LinkApiFunctions();
 
     public WasmExtensionInstance(Linker linker, Store store, Module module)
     {
@@ -69,7 +71,7 @@ public class WasmExtensionInstance : Extension
 
     private void DefinePixiEditorApi()
     {
-        Linker.DefineFunction("env", "log_message",(int messageOffset, int messageLength) =>
+        Linker.DefineFunction("env", "log_message", (int messageOffset, int messageLength) =>
         {
             string messageString = WasmMemoryUtility.GetString(messageOffset, messageLength);
             Console.WriteLine(messageString.ReplaceLineEndings());
