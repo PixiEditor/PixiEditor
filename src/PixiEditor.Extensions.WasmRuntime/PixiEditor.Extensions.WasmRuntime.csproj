@@ -13,6 +13,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
+      <ProjectReference Include="..\PixiEditor.WasmApi.Gen\PixiEditor.WasmApi.Gen.csproj" OutputItemType="Analyzer"/>
     </ItemGroup>
 
 </Project>

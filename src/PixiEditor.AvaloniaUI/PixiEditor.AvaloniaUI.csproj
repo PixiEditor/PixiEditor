@@ -36,8 +36,8 @@
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
         <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
         <PackageReference Include="Hardware.Info" Version="11.0.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="PixiEditor.ColorPicker.Models" Version="1.0.5" />
         <PackageReference Include="PixiEditor.Parser" Version="3.3.0" />

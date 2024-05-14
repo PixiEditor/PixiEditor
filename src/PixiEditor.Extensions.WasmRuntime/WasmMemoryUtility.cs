@@ -26,6 +26,37 @@ public class WasmMemoryUtility
         return Encoding.UTF8.GetString(span);
     }
 
+    public byte[] GetBytes(int offset, int length)
+    {
+        var span = memory.GetSpan<byte>(offset, length);
+        return span.ToArray();
+    }
+
+    public Span<byte> GetSpan(int offset, int length)
+    {
+        return memory.GetSpan<byte>(offset, length);
+    }
+
+    public int GetInt32(int offset)
+    {
+        return memory.ReadInt32(offset);
+    }
+
+    public int WriteSpan(Span<byte> span)
+    {
+        return WriteBytes(span.ToArray());
+    }
+
+    public int WriteBytes(byte[] bytes)
+    {
+        var length = bytes.Length;
+        var ptr = malloc.Invoke(length);
+
+        var span = memory.GetSpan<byte>(ptr, length);
+        bytes.CopyTo(span);
+        return ptr;
+    }
+
     public int WriteInt32(int value)
     {
         const int length = 4;
@@ -45,15 +76,5 @@ public class WasmMemoryUtility
     public void Free(int address)
     {
         free.Invoke(address);
-    }
-
-    public int WriteSpan(byte[] bytes)
-    {
-        var length = bytes.Length;
-        var ptr = malloc.Invoke(length);
-
-        var span = memory.GetSpan<byte>(ptr, length);
-        bytes.CopyTo(span);
-        return ptr;
     }
 }

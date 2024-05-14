@@ -1,48 +1,69 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading;
+﻿using System.Collections.Immutable;
+using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using PixiEditor.Api.Gen;
 
-namespace PixiEditor.Api.Gen;
+namespace PixiEditor.WasmApi.Gen;
 
-[Generator]
+[Generator(LanguageNames.CSharp)]
 public class ApiGenerator : IIncrementalGenerator
 {
+    private const string FullyQualifiedApiFunctionAttributeName =
+        "PixiEditor.Extensions.WasmRuntime.ApiFunctionAttribute";
+
     private const string ApiFunctionAttributeName = "ApiFunctionAttribute";
+
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        var methods = context.SyntaxProvider.CreateSyntaxProvider(CouldBeApiImplAsync, GetApiFunctionMethodOrNull)
+        var methods = context.SyntaxProvider.ForAttributeWithMetadataName(
+                FullyQualifiedApiFunctionAttributeName,
+                (_, _) => true,
+                GetApiFunctionMethodOrNull)
             .Where(x => x is not null)
             .Collect();
 
         context.RegisterSourceOutput(methods, GenerateLinkerCode);
     }
 
-    private void GenerateLinkerCode(SourceProductionContext ctx, ImmutableArray<IMethodSymbol?> symbols)
+    private void GenerateLinkerCode(SourceProductionContext ctx, ImmutableArray<(IMethodSymbol methodSymbol, SemanticModel SemanticModel)?> symbols)
     {
-        if (symbols.IsDefaultOrEmpty) return;
+        List<StatementSyntax> linkingMethodsCode = new List<StatementSyntax>();
 
-        List<string> linkingMethodsCode = new List<string>();
-
-        foreach (IMethodSymbol? method in symbols)
+        foreach (var symbol in symbols)
         {
-            if (method == null) continue;
+            if(!symbol.HasValue) continue;
+            if (symbol.Value.methodSymbol == null) continue;
 
-            linkingMethodsCode.Add(GenerateLinkingCodeForMethod(method));
+            linkingMethodsCode.Add(GenerateLinkingCodeForMethod(symbol.Value));
         }
 
-        ctx.AddSource($"{TargetNamespace}.{TargetClassName}.g.cs", BuildFinalCode(linkingMethodsCode));
+        // partial void LinkApiFunctions()
+        var methodDeclaration = SyntaxFactory
+            .MethodDeclaration(SyntaxFactory.ParseTypeName("void"), $"LinkApiFunctions")
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PartialKeyword))
+            .WithBody(SyntaxFactory.Block(linkingMethodsCode));
+
+        // internal partial class WasmExtensionInstance
+        var cDecl = SyntaxFactory
+            .ClassDeclaration("WasmExtensionInstance")
+            .AddModifiers(SyntaxFactory.Token(SyntaxKind.PublicKeyword), SyntaxFactory.Token(SyntaxKind.PartialKeyword))
+            .AddMembers(methodDeclaration);
+
+        // namespace PixiEditor.Extensions.WasmRuntime
+        var nspace = SyntaxFactory
+            .NamespaceDeclaration(SyntaxFactory.ParseName("PixiEditor.Extensions.WasmRuntime"))
+            .AddMembers(cDecl);
+
+        ctx.AddSource($"WasmExtensionInstance+ApiFunctions", nspace.NormalizeWhitespace().ToFullString());
     }
 
-    private string GenerateLinkingCodeForMethod(IMethodSymbol method)
+    private StatementSyntax GenerateLinkingCodeForMethod((IMethodSymbol methodSymbol, SemanticModel SemanticModel) symbol)
     {
-        AttributeData importName = method.GetAttributes().First(x => x.NamedArguments[0].Key == "Name");
-        string name = (string)importName.NamedArguments[0].Value.Value;
+        string name = $"{symbol.methodSymbol.GetAttributes()[0].ConstructorArguments[0].ToCSharpString()}";
 
-        ImmutableArray<IParameterSymbol> arguments = method.Parameters;
+        ImmutableArray<IParameterSymbol> arguments = symbol.methodSymbol.Parameters;
 
         List<string> convertedParams = new List<string>();
         foreach (var argSymbol in arguments)
@@ -52,28 +73,70 @@ public class ApiGenerator : IIncrementalGenerator
 
         ParameterListSyntax paramList = SyntaxFactory.ParseParameterList(string.Join(",", convertedParams));
 
-        SyntaxList<StatementSyntax> statements = BuildFunctionBody(method, paramList);
+        SyntaxList<StatementSyntax> statements = new SyntaxList<StatementSyntax>();
+
+        SyntaxList<StatementSyntax> variableStatements = BuildVariableStatements(arguments);
+
+
+        statements = statements.AddRange(variableStatements);
+        statements = statements.AddRange(BuildFunctionBody(symbol));
 
         BlockSyntax body = SyntaxFactory.Block(statements);
 
-        var methodExpression = SyntaxFactory.AnonymousMethodExpression(paramList, body);
+        var parameters = SyntaxFactory.ParameterList(paramList.Parameters);
 
-        SyntaxFactory.ParseStatement($"Linker.DefineFunction(\"env\", {name})
+        var define = SyntaxFactory.ParseStatement(
+            $"Linker.DefineFunction(\"env\", {name}, {parameters.ToFullString()} => \n{body.ToFullString()});");
+
+        return define;
     }
 
-    private SyntaxList<StatementSyntax> BuildFunctionBody(IMethodSymbol method, ParameterListSyntax paramList)
+    private SyntaxList<StatementSyntax> BuildVariableStatements(ImmutableArray<IParameterSymbol> arguments)
     {
         SyntaxList<StatementSyntax> syntaxes = new SyntaxList<StatementSyntax>();
-        foreach (SyntaxReference? reference in method.DeclaringSyntaxReferences)
+
+        foreach (var argSymbol in arguments)
         {
-            if (reference.GetSyntax() is StatementSyntax statementSyntax)
-                syntaxes = syntaxes.Add(statementSyntax);
+            string lowerType = argSymbol.Type.Name;
+            bool isLengthType = TypeConversionTable.IsLengthType(argSymbol);
+            string paramsString = isLengthType ? $"{argSymbol.Name}Pointer, {argSymbol.Name}Length" : $"{argSymbol.Name}Pointer";
+            syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement($"{argSymbol.Type.ToDisplayString()} {argSymbol.Name} = WasmMemoryUtility.Get{lowerType}({paramsString});"));
         }
 
         return syntaxes;
     }
 
-    private bool CouldBeApiImplAsync(SyntaxNode node, CancellationToken cancellation)
+    private SyntaxList<StatementSyntax> BuildFunctionBody((IMethodSymbol methodSymbol, SemanticModel SemanticModel) method)
+    {
+        SyntaxList<StatementSyntax> syntaxes = new SyntaxList<StatementSyntax>();
+        MethodBodyRewriter rewriter = new MethodBodyRewriter(method.SemanticModel);
+        foreach (SyntaxReference? reference in method.methodSymbol.DeclaringSyntaxReferences)
+        {
+            SyntaxNode? node = reference.GetSyntax();
+
+            if (node is not MethodDeclarationSyntax methodDeclaration)
+                continue;
+
+            var statements = methodDeclaration.Body!.Statements;
+            foreach (var statement in statements)
+            {
+                if(statement is not ReturnStatementSyntax returnStatementSyntax)
+                {
+                    var newStatement = (StatementSyntax)rewriter.Visit(statement);
+                    syntaxes = syntaxes.Add(newStatement);
+                }
+                else
+                {
+                    var returnType = method.methodSymbol.ReturnType.Name;
+                    syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement($"return WasmMemoryUtility.Write{returnType}({returnStatementSyntax.Expression.ToFullString()});"));
+                }
+            }
+        }
+
+        return syntaxes;
+    }
+
+    private static bool CouldBeApiImplAsync(SyntaxNode node, CancellationToken cancellation)
     {
         if (node is not AttributeSyntax attribute)
             return false;
@@ -83,7 +146,7 @@ public class ApiGenerator : IIncrementalGenerator
         return name is "ApiFunction" or ApiFunctionAttributeName;
     }
 
-    private string? ExtractName(NameSyntax? attributeName)
+    private static string? ExtractName(NameSyntax? attributeName)
     {
         return attributeName switch
         {
@@ -93,36 +156,12 @@ public class ApiGenerator : IIncrementalGenerator
         };
     }
 
-    private IMethodSymbol? GetApiFunctionMethodOrNull(GeneratorSyntaxContext context, CancellationToken cancelToken)
+    private static (IMethodSymbol methodSymbol, SemanticModel SemanticModel)? GetApiFunctionMethodOrNull(GeneratorAttributeSyntaxContext context,
+        CancellationToken cancelToken)
     {
-        AttributeSyntax member = (AttributeSyntax)context.Node;
-
-        if (member.Parent?.Parent is not MethodDeclarationSyntax methodDeclarationSyntax)
+        if (context.TargetSymbol is not IMethodSymbol methodSymbol)
             return null;
 
-        var symbol = context.SemanticModel.GetDeclaredSymbol(member, cancelToken);
-
-        if (symbol is IMethodSymbol methodSymbol)
-        {
-            if (methodSymbol.ReceiverType == null)
-                return null;
-
-            return methodSymbol is null || !IsApiFunction(methodSymbol) ? null : methodSymbol;
-        }
+        return (methodSymbol, context.SemanticModel);
     }
-
-    private bool IsApiFunction(IMethodSymbol methodSymbol)
-    {
-        return methodSymbol.GetAttributes().Any(x => x.AttributeClass is {
-            Name: ApiFunctionAttributeName,
-            ContainingNamespace: {
-                Name: "PixiEditor.Extensions.WasmRuntime",
-                ContainingNamespace.IsGlobalNamespace: true
-        } });
-    }
-}
-
-class ApiFunction
-{
-
 }

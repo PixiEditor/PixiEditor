@@ -63,7 +63,7 @@ public partial class WasmExtensionInstance : Extension
     {
         var elementMap = (ElementMap)Api.Services.GetService(typeof(ElementMap));
         byte[] map = elementMap.Serialize();
-        var ptr = WasmMemoryUtility.WriteSpan(map);
+        var ptr = WasmMemoryUtility.WriteBytes(map);
         Instance.GetAction<int, int>("set_element_map").Invoke(ptr, map.Length);
 
         WasmMemoryUtility.Free(ptr);

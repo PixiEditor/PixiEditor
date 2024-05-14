@@ -12,12 +12,13 @@ public static class TypeConversionTable
             return [$"int {symbol.Name}Pointer", $"int {symbol.Name}Length"];
         }
 
-        return [$"int {symbol.Name}"];
+        return [$"int {symbol.Name}Pointer"];
     }
 
-    private static bool IsLengthType(IParameterSymbol symbol)
+    public static bool IsLengthType(IParameterSymbol symbol)
     {
         return symbol.Type.Name.Equals("string", StringComparison.OrdinalIgnoreCase)
-               || symbol.Type.Name.Equals("byte[]", StringComparison.OrdinalIgnoreCase);
+               || symbol.Type.Name.Equals("byte[]", StringComparison.OrdinalIgnoreCase)
+               || symbol.Type.Name.Equals("span", StringComparison.OrdinalIgnoreCase);
     }
 }
