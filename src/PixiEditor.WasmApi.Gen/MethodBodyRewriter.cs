@@ -29,17 +29,25 @@ public class MethodBodyRewriter : CSharpSyntaxRewriter
     {
         var memberSymbol = MethodSemanticModel.GetSymbolInfo(node).Symbol;
 
-        if(memberSymbol.Kind != SymbolKind.Property && memberSymbol.Kind != SymbolKind.Field)
+        if(memberSymbol.Kind != SymbolKind.Field && memberSymbol.Kind != SymbolKind.Method)
         {
             return base.VisitMemberAccessExpression(node);
         }
 
-        if(!memberSymbol.IsStatic)
-        {
-            return base.VisitMemberAccessExpression(node);
-        }
+        string fullyQualifiedName = memberSymbol.ToDisplayString();
 
-        var fullyQualifiedName = memberSymbol.ToDisplayString();
+        if (memberSymbol is { Kind: SymbolKind.Method, IsStatic: false })
+        {
+            var genericArguments = ((IMethodSymbol)memberSymbol).TypeArguments;
+
+            var genericArgumentsString = genericArguments.Length > 0
+                ? $"<{string.Join(", ", genericArguments.Select(x => x.ToDisplayString()))}>"
+                : string.Empty;
+
+            string caller = node.Expression.ToFullString();
+
+            fullyQualifiedName = $"{caller}.{memberSymbol.Name}{genericArgumentsString}";
+        }
 
         var newMemberAccess = SyntaxFactory.ParseExpression(fullyQualifiedName);
 

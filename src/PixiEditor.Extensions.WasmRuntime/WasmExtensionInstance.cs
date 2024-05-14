@@ -71,54 +71,18 @@ public partial class WasmExtensionInstance : Extension
 
     private void DefinePixiEditorApi()
     {
+        LinkApiFunctions();
         Linker.DefineFunction("env", "log_message", (int messageOffset, int messageLength) =>
         {
             string messageString = WasmMemoryUtility.GetString(messageOffset, messageLength);
             Console.WriteLine(messageString.ReplaceLineEndings());
         });
 
-        Linker.DefineFunction("env", "create_popup_window",(int titleOffset, int titleLength, int bodyOffset, int bodyLength) =>
-        {
-            string title = WasmMemoryUtility.GetString(titleOffset, titleLength);
-            Span<byte> arr = memory.GetSpan<byte>(bodyOffset, bodyLength);
-
-            var body = LayoutBuilder.Deserialize(arr, DuplicateResolutionTactic.ThrowException);
-
-            var popupWindow = Api.Windowing.CreatePopupWindow(title, body.BuildNative());
-
-            int handle = NativeObjectManager.AddObject(popupWindow);
-            return WasmMemoryUtility.WriteInt32(handle);
-        });
-
-        Linker.DefineFunction("env", "set_window_title", (int handle, int titleOffset, int titleLength) =>
-        {
-            string title = WasmMemoryUtility.GetString(titleOffset, titleLength);
-            var window = NativeObjectManager.GetObject<PopupWindow>(memory.ReadInt32(handle));
-            window.Title = title;
-        });
-
-        Linker.DefineFunction("env", "get_window_title", (int handle) =>
-        {
-            var window = NativeObjectManager.GetObject<PopupWindow>(memory.ReadInt32(handle));
-            return WasmMemoryUtility.WriteString(window.Title);
-        });
-
-        Linker.DefineFunction("env", "show_window", (int handle) =>
-        {
-            var window = NativeObjectManager.GetObject<PopupWindow>(memory.ReadInt32(handle));
-            window.Show();
-        });
-
-        Linker.DefineFunction("env", "close_window", (int handle) =>
-        {
-            var window = NativeObjectManager.GetObject<PopupWindow>(memory.ReadInt32(handle));
-            window.Close();
-        });
-
         Linker.DefineFunction("env", "subscribe_to_event", (int controlId, int eventNameOffset, int eventNameLengthOffset) =>
         {
             string eventName = WasmMemoryUtility.GetString(eventNameOffset, eventNameLengthOffset);
 
+            // TODO: Make sure controlId is actually a id and not wasm memory address
             LayoutBuilder.ManagedElements[controlId].AddEvent(eventName, (args) =>
             {
                 var action = Instance.GetAction<int, int>("raise_element_event");

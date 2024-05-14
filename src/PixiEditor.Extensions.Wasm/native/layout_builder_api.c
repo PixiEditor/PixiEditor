@@ -8,7 +8,7 @@ __attribute((import_name("subscribe_to_event")))
 void subscribe_to_event(int32_t elementId, char* eventName, int32_t length);
 
 __attribute__((import_name("state_changed")))
-void state_changed(uint32_t elementId, uint8_t* data, int32_t length);
+void state_changed(int32_t elementId, uint8_t* data, int32_t length);
 
 void internal_subscribe_to_event(int32_t elementId, MonoString* eventName)
 {
@@ -17,7 +17,7 @@ void internal_subscribe_to_event(int32_t elementId, MonoString* eventName)
 }
 
 __attribute((export_name("raise_element_event")))
-void raise_element_event(int elementId, const char* eventName)
+void raise_element_event(int32_t elementId, const char* eventName)
 {
     MonoMethod* method = lookup_interop_method("EventRaised");
     void* args[] = { &elementId, mono_wasm_string_from_js(eventName) };
