@@ -1,6 +1,9 @@
-#include <mono-wasi/driver.h>
-#include <string.h>
 #include <assert.h>
+#include <driver.h>
+#include <string.h>
+#include <mono/metadata/object.h>
+#include <mono/metadata/exception.h>
+#include <mono/metadata/appdomain.h>
 
 #include "api.h"
 
@@ -10,7 +13,7 @@ int32_t create_popup_window(const char* title, int32_t titleLength, uint8_t* dat
 // content is byte[] from C#
 int32_t internal_create_popup_window(MonoString* title, uint8_t* data, int32_t length)
 {
-    char* title_utf8 = mono_wasm_string_get_utf8(title);
+    char* title_utf8 = mono_string_to_utf8(title);
     return create_popup_window(title_utf8, strlen(title_utf8), data, length);
 }
 
@@ -19,7 +22,7 @@ void set_window_title(int32_t windowHandle, const char* title, int32_t titleLeng
 
 void internal_set_window_title(int32_t windowHandle, MonoString* title)
 {
-    char* title_utf8 = mono_wasm_string_get_utf8(title);
+    char* title_utf8 = mono_string_to_utf8(title);
     set_window_title(windowHandle, title_utf8, strlen(title_utf8));
 }
 
@@ -28,7 +31,8 @@ char* get_window_title(int32_t windowHandle);
 
 MonoString* internal_get_window_title(int32_t windowHandle)
 {
-    return mono_wasm_string_from_js(get_window_title(windowHandle));
+    MonoString* str = mono_string_new(mono_get_root_domain(), get_window_title(windowHandle));
+    return str;
 }
 
 __attribute__((import_name("show_window")))

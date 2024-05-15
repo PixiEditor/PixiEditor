@@ -40,8 +40,13 @@ public partial class WasmExtensionInstance : Extension
 
         Instance = Linker.Instantiate(Store, Module);
         WasmMemoryUtility = new WasmMemoryUtility(Instance);
-        Instance.GetFunction("_start").Invoke();
         memory = Instance.GetMemory("memory");
+    }
+
+    protected override void OnLoaded()
+    {
+        Instance.GetAction("load").Invoke();
+        base.OnLoaded();
     }
 
     protected override void OnInitialized()
@@ -51,12 +56,6 @@ public partial class WasmExtensionInstance : Extension
         //SetElementMap();
         Instance.GetAction("initialize").Invoke();
         base.OnInitialized();
-    }
-
-    protected override void OnLoaded()
-    {
-        Instance.GetAction("load").Invoke();
-        base.OnLoaded();
     }
 
     private void SetElementMap()

@@ -2,21 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
     <OutputType>Exe</OutputType>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
     <PublishTrimmed>true</PublishTrimmed>
-    <MSBuildEnableWorkloadResolver>false</MSBuildEnableWorkloadResolver>
+    <WasmSingleFileBundle>true</WasmSingleFileBundle>
     <OutputPath>..\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\Extensions</OutputPath>
   </PropertyGroup>
 
   <Import Project="..\PixiEditor.Extensions.Wasm\build\PixiEditor.Extensions.Wasm.targets"/>
   <Import Project="..\PixiEditor.Extensions.Wasm\build\PixiEditor.Extensions.Wasm.props"/>
-  
-  <ItemGroup>
-    <!--<PackageReference Include="Microsoft.DotNet.ILCompiler.LLVM; runtime.win-x64.Microsoft.DotNet.ILCompiler.LLVM" Version="9.0.0-*" />-->
-    <PackageReference Include="Wasi.Sdk" Version="0.1.4-preview.10020" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\PixiEditor.Extensions.Wasm\PixiEditor.Extensions.Wasm.csproj" />

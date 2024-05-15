@@ -19,7 +19,7 @@ internal static partial class Interop
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void StateChanged(int uniqueId, IntPtr data, int length);
 
-    internal static void Load()
+    public static void Load()
     {
         Type extensionType = Assembly.GetEntryAssembly().ExportedTypes
             .FirstOrDefault(type => type.IsSubclassOf(typeof(WasmExtension)));
