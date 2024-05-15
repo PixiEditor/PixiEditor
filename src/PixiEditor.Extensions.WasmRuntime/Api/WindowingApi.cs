@@ -1,7 +1,7 @@
 ﻿using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.Windowing;
 
-namespace PixiEditor.Extensions.WasmRuntime;
+namespace PixiEditor.Extensions.WasmRuntime.Api;
 
 internal class WindowingApi : ApiGroupHandler
 {

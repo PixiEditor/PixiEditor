@@ -35,7 +35,7 @@ public partial class WasmExtensionInstance : Extension
     public void Instantiate()
     {
         NativeObjectManager = new ObjectManager();
-        DefinePixiEditorApi();
+        LinkApiFunctions();
         Linker.DefineModule(Store, Module);
 
         Instance = Linker.Instantiate(Store, Module);
@@ -66,48 +66,5 @@ public partial class WasmExtensionInstance : Extension
         Instance.GetAction<int, int>("set_element_map").Invoke(ptr, map.Length);
 
         WasmMemoryUtility.Free(ptr);
-    }
-
-    private void DefinePixiEditorApi()
-    {
-        LinkApiFunctions();
-        Linker.DefineFunction("env", "log_message", (int messageOffset, int messageLength) =>
-        {
-            string messageString = WasmMemoryUtility.GetString(messageOffset, messageLength);
-            Console.WriteLine(messageString.ReplaceLineEndings());
-        });
-
-        Linker.DefineFunction("env", "subscribe_to_event", (int controlId, int eventNameOffset, int eventNameLengthOffset) =>
-        {
-            string eventName = WasmMemoryUtility.GetString(eventNameOffset, eventNameLengthOffset);
-
-            // TODO: Make sure controlId is actually a id and not wasm memory address
-            LayoutBuilder.ManagedElements[controlId].AddEvent(eventName, (args) =>
-            {
-                var action = Instance.GetAction<int, int>("raise_element_event");
-                var ptr = WasmMemoryUtility.WriteString(eventName);
-
-                action.Invoke(controlId, ptr);
-
-                WasmMemoryUtility.Free(ptr);
-            });
-        });
-
-        Linker.DefineFunction("env", "state_changed", (int controlId, int bodyOffset, int bodyLength) =>
-        {
-            Span<byte> arr = memory.GetSpan<byte>(bodyOffset, bodyLength);
-
-            var element = LayoutBuilder.ManagedElements[controlId];
-            var body = LayoutBuilder.Deserialize(arr, DuplicateResolutionTactic.ReplaceRemoveChildren);
-
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                LayoutBuilder.ManagedElements[controlId] = element;
-                if (element is StatefulContainer statefulElement && body is StatefulContainer statefulBodyElement)
-                {
-                    statefulElement.State.SetState(() => statefulElement.State.Content = statefulBodyElement.State.Content);
-                }
-            });
-        });
     }
 }

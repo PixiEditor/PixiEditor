@@ -1,18 +1,22 @@
-﻿using System;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 
-namespace PixiEditor.Api.Gen;
+namespace PixiEditor.WasmApi.Gen;
 
 public static class TypeConversionTable
 {
     public static string[] ConvertTypeToFunctionParams(IParameterSymbol symbol)
     {
-        if(IsLengthType(symbol))
+        if(IsIntType(symbol.Type))
         {
-            return [$"int {symbol.Name}Pointer", $"int {symbol.Name}Length"];
+            return [$"int {symbol.Name}"];
         }
 
-        return [$"int {symbol.Name}Pointer"];
+        if(IsLengthType(symbol))
+        {
+            return[$"int {symbol.Name}Pointer", $"int {symbol.Name}Length"];
+        }
+
+        return[$"int {symbol.Name}Pointer"];
     }
 
     public static bool IsLengthType(IParameterSymbol symbol)
@@ -20,5 +24,10 @@ public static class TypeConversionTable
         return symbol.Type.Name.Equals("string", StringComparison.OrdinalIgnoreCase)
                || symbol.Type.Name.Equals("byte[]", StringComparison.OrdinalIgnoreCase)
                || symbol.Type.Name.Equals("span", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsIntType(ITypeSymbol argSymbol)
+    {
+        return argSymbol.Name.Equals("int32", StringComparison.OrdinalIgnoreCase);
     }
 }

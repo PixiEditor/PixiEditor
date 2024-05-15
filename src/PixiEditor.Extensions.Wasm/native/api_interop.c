@@ -37,7 +37,10 @@ void invoke_interop_method(MonoMethod* method, void* params)
 {
     MonoObject* exception = NULL;
     MonoObject* res = mono_runtime_invoke(method, NULL, params, &exception);
-    assert(!exception);
+    if(exception != NULL)
+    {
+        mono_print_unhandled_exception(exception);
+    }
 
     free(exception);
     free(method);

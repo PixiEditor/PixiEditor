@@ -3,7 +3,6 @@ using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using PixiEditor.Api.Gen;
 
 namespace PixiEditor.WasmApi.Gen;
 
@@ -97,10 +96,17 @@ public class ApiGenerator : IIncrementalGenerator
 
         foreach (var argSymbol in arguments)
         {
-            string lowerType = argSymbol.Type.Name;
-            bool isLengthType = TypeConversionTable.IsLengthType(argSymbol);
-            string paramsString = isLengthType ? $"{argSymbol.Name}Pointer, {argSymbol.Name}Length" : $"{argSymbol.Name}Pointer";
-            syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement($"{argSymbol.Type.ToDisplayString()} {argSymbol.Name} = WasmMemoryUtility.Get{lowerType}({paramsString});"));
+            // For some reason, int are passed as is, not as a pointer
+            if (!TypeConversionTable.IsIntType(argSymbol.Type))
+            {
+                string lowerType = argSymbol.Type.Name;
+                bool isLengthType = TypeConversionTable.IsLengthType(argSymbol);
+                string paramsString = isLengthType
+                    ? $"{argSymbol.Name}Pointer, {argSymbol.Name}Length"
+                    : $"{argSymbol.Name}Pointer";
+                syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement(
+                    $"{argSymbol.Type.ToDisplayString()} {argSymbol.Name} = WasmMemoryUtility.Get{lowerType}({paramsString});"));
+            }
         }
 
         return syntaxes;
@@ -128,7 +134,15 @@ public class ApiGenerator : IIncrementalGenerator
                 else
                 {
                     var returnType = method.methodSymbol.ReturnType.Name;
-                    syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement($"return WasmMemoryUtility.Write{returnType}({returnStatementSyntax.Expression.ToFullString()});"));
+                    string statementString =
+                        $"return WasmMemoryUtility.Write{returnType}({returnStatementSyntax.Expression.ToFullString()});";
+
+                    if (TypeConversionTable.IsIntType(method.methodSymbol.ReturnType))
+                    {
+                        statementString = $"return {returnStatementSyntax.Expression.ToFullString()};";
+                    }
+
+                    syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement(statementString));
                 }
             }
         }

@@ -1,7 +1,6 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <_WasiFilePathForFixup Include="$(MSBuildThisFileDirectory)..\native\*.c" />
-    <!--<WasiAfterRuntimeLoaded Include="attach_internal_calls" />-->
   </ItemGroup>
 
  <!-- <Target Name="GenerateLayouts" AfterTargets="Build" Inputs="bin\Debug\$(TargetFramework)\PixiEditor.Extensions.Wasm.dll" Outputs="$(RootFolder)\Layouts\">
