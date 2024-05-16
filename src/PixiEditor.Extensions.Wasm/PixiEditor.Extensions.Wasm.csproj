@@ -2,17 +2,15 @@
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
+       <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+      <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     </PropertyGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\PixiEditor.Extensions.CommonApi\PixiEditor.Extensions.CommonApi.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ClCompile Include="native\layout_builder_api.c" />
     </ItemGroup>
 
     <ItemGroup>

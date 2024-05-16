@@ -21,6 +21,6 @@ public class Logger : ILogger
 
     private void InvokeApiLog(string message)
     {
-        Interop.LogMessage(message);
+        Interop.log_message(message);
     }
 }

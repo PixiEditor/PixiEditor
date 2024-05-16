@@ -13,18 +13,18 @@ public class PopupWindow : IPopupWindow
 
     public string Title
     {
-        get => Interop.GetWindowTitle(windowHandle);
-        set => Interop.SetWindowTitle(windowHandle, value);
+        get => Interop.get_window_title(windowHandle);
+        set => Interop.set_window_title(windowHandle, value);
     }
 
     public void Show()
     {
-        Interop.ShowWindow(windowHandle);
+        Interop.show_window(windowHandle);
     }
 
     public void Close()
     {
-        Interop.CloseWindow(windowHandle);
+        Interop.close_window(windowHandle);
     }
 
     public Task<bool?> ShowDialog()

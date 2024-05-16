@@ -12,7 +12,7 @@ public class WindowProvider : IWindowProvider
         byte[] bytes = compiledControl.Serialize().ToArray();
         IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
         Marshal.Copy(bytes, 0, ptr, bytes.Length);
-        int handle = Interop.CreatePopupWindow(title, ptr, bytes.Length);
+        int handle = Interop.create_popup_window(title, ptr, bytes.Length);
         Marshal.FreeHGlobal(ptr);
 
         SubscribeToEvents(compiledControl);
@@ -25,7 +25,7 @@ public class WindowProvider : IWindowProvider
         byte[] bytes = newLayout.Serialize().ToArray();
         IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
         Marshal.Copy(bytes, 0, ptr, bytes.Length);
-        Interop.StateChanged(uniqueId, ptr, bytes.Length);
+        Interop.state_changed(uniqueId, ptr, bytes.Length);
         Marshal.FreeHGlobal(ptr);
 
         SubscribeToEvents(newLayout);
@@ -40,7 +40,7 @@ public class WindowProvider : IWindowProvider
 
         foreach (var queuedEvent in body.QueuedEvents)
         {
-            Interop.SubscribeToEvent(body.UniqueId, queuedEvent);
+            Interop.subscribe_to_event(body.UniqueId, queuedEvent);
         }
     }
 
