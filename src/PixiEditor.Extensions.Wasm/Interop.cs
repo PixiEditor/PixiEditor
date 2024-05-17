@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -15,6 +16,8 @@ internal static class Program
     }
 }
 
+[SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", 
+    Justification = "Interop is a special case, it's injected to C code and follows C naming conventions.")]
 internal static partial class Interop
 {
     [MethodImpl(MethodImplOptions.InternalCall)]
