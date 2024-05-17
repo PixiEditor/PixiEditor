@@ -53,7 +53,7 @@ public class CApiGenerator
     {
         var importedMethods = types
             .SelectMany(t => t.Methods)
-            .Where(m => m.IsStatic && m.HasPInvokeInfo)
+            .Where(m => m.IsStatic && m.ImplAttributes == MethodImplAttributes.InternalCall)
             .ToArray();
         return importedMethods;
     }
@@ -139,7 +139,7 @@ public class CApiGenerator
 
     private string BuildImportFunction(MethodDefinition method)
     {
-        string functionName = string.IsNullOrEmpty(method.PInvokeInfo.EntryPoint) ? method.Name : method.PInvokeInfo.EntryPoint;
+        string functionName = method.Name;
         var returnType = method.ReturnType;
         var parameters = method.Parameters;
 
@@ -176,7 +176,7 @@ public class CApiGenerator
     private string BuildAttachedFunction(MethodDefinition method)
     {
         StringBuilder sb = new StringBuilder();
-        string functionName = string.IsNullOrEmpty(method.PInvokeInfo.EntryPoint) ? method.Name : method.PInvokeInfo.EntryPoint;
+        string functionName = method.Name;
         var returnType = method.ReturnType;
         var parameters = method.Parameters;
 
@@ -267,7 +267,7 @@ public class CApiGenerator
 
     private static void BuildInvokeImport(MethodDefinition method, StringBuilder sb, string[] paramsToPass)
     {
-        string functionName = string.IsNullOrEmpty(method.PInvokeInfo.EntryPoint) ? method.Name : method.PInvokeInfo.EntryPoint;
+        string functionName = method.Name;
         if (method.ReturnType.FullName != "System.Void")
         {
             sb.Append("return ");
@@ -280,7 +280,7 @@ public class CApiGenerator
     private string GenerateAttachImportedFunction(MethodDefinition method)
     {
         StringBuilder sb = new StringBuilder();
-        string functionName = string.IsNullOrEmpty(method.PInvokeInfo.EntryPoint) ? method.Name : method.PInvokeInfo.EntryPoint;
+        string functionName = method.Name;
         string funcNamespace = method.DeclaringType.FullName;
         sb.Append($"mono_add_internal_call(\"{funcNamespace}::{functionName}\", internal_{functionName});");
         return sb.ToString();

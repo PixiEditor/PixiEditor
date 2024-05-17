@@ -17,14 +17,14 @@ internal static class Program
 
 internal static partial class Interop
 {
-    [DllImport("interop")]
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void log_message(string message);
 
 
-    [DllImport("interop")]
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern unsafe void subscribe_to_event(int internalControlId, string eventName);
 
-    [DllImport("interop")]
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void state_changed(int uniqueId, IntPtr data, int length);
 
 

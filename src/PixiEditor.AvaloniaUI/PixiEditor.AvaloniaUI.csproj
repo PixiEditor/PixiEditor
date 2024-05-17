@@ -96,9 +96,6 @@
     </ItemGroup>
   
     <ItemGroup>
-      <Reference Include="Microsoft.Xaml.Behaviors">
-        <HintPath>..\..\..\..\Users\flubb\.nuget\packages\microsoft.xaml.behaviors.wpf\1.1.31\lib\net5.0-windows7.0\Microsoft.Xaml.Behaviors.dll</HintPath>
-      </Reference>
       <Reference Include="PixiDocks.Avalonia">
         <HintPath>..\..\..\PixiDocks\src\PixiDocks.Avalonia\bin\Debug\net8.0\PixiDocks.Avalonia.dll</HintPath>
       </Reference>

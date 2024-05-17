@@ -1,9 +1,10 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace CGlueTestLib;
 
 internal static class Imports
 {
-    [DllImport("pixieditor")]
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void test();
 }

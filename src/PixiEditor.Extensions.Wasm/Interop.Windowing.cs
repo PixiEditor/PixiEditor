@@ -5,18 +5,18 @@ namespace PixiEditor.Extensions.Wasm;
 
 internal static partial class Interop
 {
-    [DllImport("interop")]
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern int create_popup_window(string title, IntPtr data, int length);
 
-    [DllImport("interop")]
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void set_window_title(int windowHandle, string title);
 
-    [DllImport("interop")]
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern string get_window_title(int windowHandle);
 
-    [DllImport("interop")]
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void show_window(int windowHandle);
 
-    [DllImport("interop")]
+    [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void close_window(int windowHandle);
 }
