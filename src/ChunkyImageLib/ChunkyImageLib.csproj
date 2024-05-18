@@ -6,46 +6,28 @@
     <Nullable>enable</Nullable>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Configurations>Debug;Release;Steam;DevRelease</Configurations>
-    <Platforms>AnyCPU</Platforms>
+    <Configurations>Debug;Release;</Configurations>
+    <Platforms>x64;arm64</Platforms>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)'=='Steam'">
     <Optimize>True</Optimize>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x64'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <Optimize>True</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x86'">
-    <Optimize>True</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+  <PropertyGroup Condition="'$(Configuration)'=='DevRelease'">
+    <Optimize>False</Optimize>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <TargetPlatform>x64</TargetPlatform>
   </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x64' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'DevRelease|x86' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+  
+  <PropertyGroup Condition="'$(Platform)'=='arm64'">
+    <TargetPlatform>arm64</TargetPlatform>
   </PropertyGroup>
 
   <ItemGroup>

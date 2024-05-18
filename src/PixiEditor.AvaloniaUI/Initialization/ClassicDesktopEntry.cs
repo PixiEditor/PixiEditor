@@ -18,7 +18,6 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Platform;
-using PixiEditor.Windows;
 using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;
 
 namespace PixiEditor.AvaloniaUI.Initialization;
@@ -134,7 +133,15 @@ internal class ClassicDesktopEntry
 
     private IOperatingSystem GetActiveOperatingSystem()
     {
+#if WINDOWS
         return new WindowsOperatingSystem();
+#elif LINUX
+        return new LinuxOperatingSystem();
+#elif MACOS
+        return new MacOSOperatingSystem();
+#else
+        throw new PlatformNotSupportedException("This platform is not supported");
+#endif
     }
 
     private bool HandleNewInstance(Dispatcher? dispatcher)

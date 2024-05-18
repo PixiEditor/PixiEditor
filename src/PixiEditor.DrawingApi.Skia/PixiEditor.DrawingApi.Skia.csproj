@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <Configurations>Debug;Release;Steam;DevRelease;DevSteam</Configurations>
-        <Platforms>AnyCPU;x86;x64</Platforms>
+        <Platforms>x64;</Platforms>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|AnyCPU'">

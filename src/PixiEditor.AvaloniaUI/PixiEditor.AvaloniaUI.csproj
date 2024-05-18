@@ -1,108 +1,185 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <Nullable>enable</Nullable>
-        <LangVersion>latest</LangVersion>
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <RootNamespace>PixiEditor.AvaloniaUI</RootNamespace>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <RootNamespace>PixiEditor.AvaloniaUI</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <RepositoryUrl>https://github.com/PixiEditor/PixiEditor</RepositoryUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageIcon>icon.ico</PackageIcon>
+    <ApplicationIcon>..\icon.ico</ApplicationIcon>
+    <Authors>Krzysztof Krysiński, Egor Mozgovoy, CPK, Contributors</Authors>
+    <Configurations>Debug;Release;MSIX;MSIX Debug;Steam;DevRelease;DevSteam</Configurations>
+    <Platforms>x64;arm64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64;linux-x64;linux-arm64;osx-x64;osx-arm64</RuntimeIdentifiers>
+    <ImplicitUsings>true</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>None</DebugType>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <TargetPlatform>x64</TargetPlatform>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <AvaloniaResource Include="Assets\**" />
-      <AvaloniaResource Include="Data\**"/>
-      <AvaloniaResource Include="Data\Languages\**"/>
-      <AvaloniaResource Include="Data\ShortcutActionMaps\**"/>
-      <None Remove="Images\Create-mask.svg" />
-      <AvaloniaResource Include="Images\Create-mask.svg" />
-      <None Remove="Images\Lock-alpha.svg" />
-      <AvaloniaResource Include="Images\Lock-alpha.svg" />
-      <None Remove="Images\Merge-downwards.svg" />
-      <AvaloniaResource Include="Images\Merge-downwards.svg" />
-    </ItemGroup>
+  <PropertyGroup Condition="'$(Platform)'=='arm64'">
+    <TargetPlatform>arm64</TargetPlatform>
+  </PropertyGroup>
 
-    <ItemGroup>
-        <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1" />
-        <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="Avalonia.Labs.Lottie" Version="11.0.10.1" />
-        <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
-      <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
-      <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
-        <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
-        <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
-        <PackageReference Include="ByteSize" Version="2.1.1" />
-        <PackageReference Include="CLSEncoderDecoder" Version="1.0.0" />
-        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-        <PackageReference Include="DiscordRichPresence" Version="1.2.1.24" />
-        <PackageReference Include="Hardware.Info" Version="11.0.0" />
-        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-        <PackageReference Include="PixiEditor.ColorPicker.Models" Version="1.0.5" />
-        <PackageReference Include="PixiEditor.Parser" Version="3.3.0" />
-      <PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0" />
-      <PackageReference Include="PixiEditor.ColorPicker.AvaloniaUI" Version="1.0.5" />
-    </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='MSIX Debug'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\..\..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj" />
-      <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj" />
-      <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj" />
-      <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj" />
-      <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj" />
-      <ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj" />
-      <ProjectReference Include="..\PixiEditor.Extensions.Runtime\PixiEditor.Extensions.Runtime.csproj" />
-      <ProjectReference Include="..\PixiEditor.Extensions.WasmRuntime\PixiEditor.Extensions.WasmRuntime.csproj" />
-      <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
-      <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj" />
-      <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj" />
-      <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj" />
-      <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj" />
-      <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj" />
-      <ProjectReference Include="..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj" />
-      <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj" />
-      <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj" />
-      <ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj" />
-      <ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='MSIX'">
+    <DefineConstants>TRACE;RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
   
-    <ItemGroup>
-      <AvaloniaResource Include="Images\**" />
-      <AvaloniaResource Include="Fonts\**" />
-    </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DefineConstants>TRACE;UPDATE</DefineConstants>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <WarningLevel>0</WarningLevel>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Steam'">
+    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='DevSteam'">
+    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'DevRelease' ">
+    <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
+    <Optimize>True</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
   
-    <ItemGroup>
-      <AvaloniaXaml Remove="Views\Buttons\**" />
-      <Compile Remove="Views\Buttons\**" />
-      <EmbeddedResource Remove="Views\Buttons\**" />
-      <None Remove="Views\Buttons\**" />
-    </ItemGroup>
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
+    <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj"/>
+  </ItemGroup>
   
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Fonts\feather.ttf" />
-      <UpToDateCheckInput Remove="Views\Settings\SettingsWindow.axaml" />
-      <UpToDateCheckInput Remove="Views\Settings\ShortcutsBinder.axaml" />
-      <UpToDateCheckInput Remove="Styles\Buttons\DialogButton.Template.axaml" />
-    </ItemGroup>
+  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
+    <DefineConstants>WINDOWS</DefineConstants>
+  </PropertyGroup>
   
-    <ItemGroup>
-      <AdditionalFiles Include="Views\Windows\Settings\SettingsWindow.axaml" />
-      <AdditionalFiles Include="Views\Windows\Settings\ShortcutsBinder.axaml" />
-    </ItemGroup>
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-arm64'">
+    <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj"/>
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='win-arm64'">
+    <DefineConstants>WINDOWS</DefineConstants>
+  </PropertyGroup>
   
-    <ItemGroup>
-      <Resource Include="Images\ChevronDown.png" />
-    </ItemGroup>
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
+    <ProjectReference Include="..\PixiEditor.Linux\PixiEditor.Linux.csproj"/>
+  </ItemGroup>
   
-    <ItemGroup>
-      <Reference Include="PixiDocks.Avalonia">
-        <HintPath>..\..\..\PixiDocks\src\PixiDocks.Avalonia\bin\Debug\net8.0\PixiDocks.Avalonia.dll</HintPath>
-      </Reference>
-      <Reference Include="PixiDocks.Core">
-        <HintPath>..\..\..\PixiDocks\src\PixiDocks.Core\bin\Debug\net8.0\PixiDocks.Core.dll</HintPath>
-      </Reference>
-    </ItemGroup>
+  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
+    <DefineConstants>LINUX</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-arm64'">
+    <ProjectReference Include="..\PixiEditor.Linux\PixiEditor.Linux.csproj"/>
+  </ItemGroup>
+  
+  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='linux-arm64'">
+    <DefineConstants>LINUX</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
+    <ProjectReference Include="..\PixiEditor.Mac\PixiEditor.MacOs.csproj"/>
+  </ItemGroup>
+  
+  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
+    <DefineConstants>MACOS</DefineConstants>
+  </PropertyGroup>
+  
+  <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
+    <ProjectReference Include="..\PixiEditor.Mac\PixiEditor.MacOs.csproj"/>
+  </ItemGroup>
+  
+  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
+    <DefineConstants>MACOS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Images\**"/>
+    <AvaloniaResource Include="Fonts\**"/>
+    <AvaloniaResource Include="Data\**"/>
+    <AvaloniaResource Include="Data\Languages\**"/>
+    <AvaloniaResource Include="Data\ShortcutActionMaps\**"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsyncImageLoader.Avalonia" Version="3.2.1"/>
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="Avalonia.Labs.Lottie" Version="11.0.10.1"/>
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)"/>
+    <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+    <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)"/>
+    <PackageReference Include="ByteSize" Version="2.1.1"/>
+    <PackageReference Include="CLSEncoderDecoder" Version="1.0.0"/>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2"/>
+    <PackageReference Include="DiscordRichPresence" Version="1.2.1.24"/>
+    <PackageReference Include="Hardware.Info" Version="11.0.0"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.9.2"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2"/>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
+    <PackageReference Include="PixiEditor.ColorPicker.Models" Version="1.0.5"/>
+    <PackageReference Include="PixiEditor.Parser" Version="3.3.0"/>
+    <PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.0"/>
+    <PackageReference Include="PixiEditor.ColorPicker.AvaloniaUI" Version="1.0.5"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
+    <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj"/>
+    <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj"/>
+    <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj"/>
+    <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj"/>
+    <ProjectReference Include="..\PixiEditor.DrawingApi.Skia\PixiEditor.DrawingApi.Skia.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Extensions.Runtime\PixiEditor.Extensions.Runtime.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Extensions.WasmRuntime\PixiEditor.Extensions.WasmRuntime.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj"/>
+    <ProjectReference Include="..\PixiEditor.OperatingSystem\PixiEditor.OperatingSystem.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Platform.MSStore\PixiEditor.Platform.MSStore.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Platform.Standalone\PixiEditor.Platform.Standalone.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Platform.Steam\PixiEditor.Platform.Steam.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Platform\PixiEditor.Platform.csproj"/>
+    <ProjectReference Include="..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj"/>
+    <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj"/>
+    <ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj"/>
+    <ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="PixiDocks.Avalonia">
+      <HintPath>..\..\..\PixiDocks\src\PixiDocks.Avalonia\bin\Debug\net8.0\PixiDocks.Avalonia.dll</HintPath>
+    </Reference>
+    <Reference Include="PixiDocks.Core">
+      <HintPath>..\..\..\PixiDocks\src\PixiDocks.Core\bin\Debug\net8.0\PixiDocks.Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="../../LICENSE">
@@ -112,5 +189,5 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  
+
 </Project>
