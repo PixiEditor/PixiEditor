@@ -24,18 +24,6 @@ namespace PixiEditor.AvaloniaUI.Initialization;
 
 internal class ClassicDesktopEntry
 {
-    /// <summary>The event mutex name.</summary>
-    private const string UniqueEventName = "33f1410b-2ad7-412a-a468-34fe0a85747c";
-
-    /// <summary>The unique mutex name.</summary>
-    private const string UniqueMutexName = "ab2afe27-b9ee-4f03-a1e4-c18da16a349c";
-
-    /// <summary>The event wait handle.</summary>
-    private EventWaitHandle _eventWaitHandle;
-
-    private string passedArgsFile = Path.Join(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "PixiEditor", ".passedArgs");
-
     private IClassicDesktopStyleApplicationLifetime desktop;
 
     public ClassicDesktopEntry(IClassicDesktopStyleApplicationLifetime desktop)
@@ -44,9 +32,6 @@ internal class ClassicDesktopEntry
         desktop.Startup += Start;
         desktop.ShutdownRequested += ShutdownRequested;
     }
-
-    /// <summary>The mutex.</summary>
-    private Mutex _mutex;
 
     private void Start(object? sender, ControlledApplicationLifetimeStartupEventArgs e)
     {
@@ -78,6 +63,7 @@ internal class ClassicDesktopEntry
         }
 
         Dispatcher dispatcher = Dispatcher.UIThread;
+        InitOperatingSystem();
 
 #if !STEAM
         if (!HandleNewInstance(dispatcher))
@@ -86,7 +72,6 @@ internal class ClassicDesktopEntry
         }
 #endif
 
-        InitOperatingSystem();
         var extensionLoader = InitApp();
 
         desktop.MainWindow = new MainWindow(extensionLoader);
@@ -146,79 +131,27 @@ internal class ClassicDesktopEntry
 
     private bool HandleNewInstance(Dispatcher? dispatcher)
     {
-        bool isOwned;
-        _mutex = new Mutex(true, UniqueMutexName, out isOwned);
-        _eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, UniqueEventName);
-
-        GC.KeepAlive(_mutex);
-
-        if (dispatcher == null)
-            return true;
-
-        if (isOwned)
-        {
-            var thread = new Thread(
-                () =>
-                {
-                    while (_eventWaitHandle.WaitOne())
-                    {
-                        dispatcher.Invoke(
-                            (Action)(() =>
-                            {
-                                if (desktop.MainWindow is MainWindow mainWindow)
-                                {
-                                    mainWindow.BringIntoView();
-                                    List<string> args = new List<string>();
-                                    if (File.Exists(passedArgsFile))
-                                    {
-                                        args = CommandLineHelpers.SplitCommandLine(File.ReadAllText(passedArgsFile))
-                                            .ToList();
-                                        File.Delete(passedArgsFile);
-                                    }
-
-                                    StartupArgs.Args = args;
-                                    StartupArgs.Args.Add("--openedInExisting");
-                                    ViewModelMain viewModel = (ViewModelMain)mainWindow.DataContext;
-                                    viewModel.StartupCommand.Execute(null);
-                                }
-                            }));
-                    }
-                })
-            {
-                // It is important mark it as background otherwise it will prevent app from exiting.
-                IsBackground = true
-            };
-
-            thread.Start();
-            return true;
-        }
-
-        // Notify other instance so it could bring itself to foreground.
-        File.WriteAllText(passedArgsFile, string.Join(' ', WrapSpaces(Environment.GetCommandLineArgs())));
-        _eventWaitHandle.Set();
-
-        // Terminate this instance.
-        desktop.Shutdown();
-        return false;
+        return IOperatingSystem.Current.HandleNewInstance(dispatcher, OpenInExisting, desktop);
     }
 
-    private string?[] WrapSpaces(string[] args)
+    private void OpenInExisting(string passedArgsFile)
     {
-        string?[] wrappedArgs = new string?[args.Length];
-        for (int i = 0; i < args.Length; i++)
+        if (desktop.MainWindow is MainWindow mainWindow)
         {
-            string arg = args[i];
-            if (arg.Contains(' '))
+            mainWindow.BringIntoView();
+            List<string> args = new List<string>();
+            if (File.Exists(passedArgsFile))
             {
-                wrappedArgs[i] = $"\"{arg}\"";
+                args = CommandLineHelpers.SplitCommandLine(File.ReadAllText(passedArgsFile))
+                    .ToList();
+                File.Delete(passedArgsFile);
             }
-            else
-            {
-                wrappedArgs[i] = arg;
-            }
-        }
 
-        return wrappedArgs;
+            StartupArgs.Args = args;
+            StartupArgs.Args.Add("--openedInExisting");
+            ViewModelMain viewModel = (ViewModelMain)mainWindow.DataContext;
+            viewModel.StartupCommand.Execute(null);
+        }
     }
 
     private bool ParseArgument(string pattern, string args, out Group[] groups)

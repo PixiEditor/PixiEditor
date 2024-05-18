@@ -1,4 +1,7 @@
-﻿namespace PixiEditor.OperatingSystem;
+﻿using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Threading;
+
+namespace PixiEditor.OperatingSystem;
 
 public interface IOperatingSystem
 {
@@ -20,4 +23,5 @@ public interface IOperatingSystem
 
     public void OpenUri(string uri);
     public void OpenFolder(string path);
+    public bool HandleNewInstance(Dispatcher? dispatcher, Action<string> openInExistingAction, IApplicationLifetime lifetime);
 }
