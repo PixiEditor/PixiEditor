@@ -331,9 +331,11 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 
-PixiEditor/Properties/
-
 .vscode/
 
 Builds/
 Installer/Assets
+
+GitIgnore
+
+Cache/

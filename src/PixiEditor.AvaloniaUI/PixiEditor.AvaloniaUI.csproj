@@ -23,6 +23,16 @@
     <DebugType>None</DebugType>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))">
+    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">
+    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Platform)'=='x64'">
     <TargetPlatform>x64</TargetPlatform>
   </PropertyGroup>
@@ -68,7 +78,6 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'DevRelease' ">
     <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
     <Optimize>True</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">

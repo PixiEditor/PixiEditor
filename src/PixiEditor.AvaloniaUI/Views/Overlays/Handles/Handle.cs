@@ -8,6 +8,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.TransformOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.UI.Overlays;
 using PixiEditor.Numerics;
+using Path = Avalonia.Controls.Shapes.Path;
 
 namespace PixiEditor.AvaloniaUI.Views.Overlays.Handles;
 

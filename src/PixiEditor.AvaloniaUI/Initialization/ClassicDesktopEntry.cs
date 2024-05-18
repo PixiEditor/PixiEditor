@@ -128,17 +128,17 @@ internal class ClassicDesktopEntry
 
     private void InitOperatingSystem()
     {
-        var os = GetActiveOperatingSystem();
+        IOperatingSystem.RegisterOS(GetActiveOperatingSystem());
     }
 
     private IOperatingSystem GetActiveOperatingSystem()
     {
 #if WINDOWS
-        return new WindowsOperatingSystem();
+        return new PixiEditor.Windows.WindowsOperatingSystem();
 #elif LINUX
-        return new LinuxOperatingSystem();
+        return new PixiEditor.Linux.LinuxOperatingSystem();
 #elif MACOS
-        return new MacOSOperatingSystem();
+        return new PixiEditor.MacOs.MacOSOperatingSystem();
 #else
         throw new PlatformNotSupportedException("This platform is not supported");
 #endif
