@@ -23,14 +23,23 @@
     <DebugType>None</DebugType>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))">
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
+    <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Linux')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
   </PropertyGroup>
-  <PropertyGroup Condition="$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))">
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Linux')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
+    <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
     <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
+    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='x64'">
@@ -113,7 +122,7 @@
   </PropertyGroup>
   
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
-    <ProjectReference Include="..\PixiEditor.Mac\PixiEditor.MacOs.csproj"/>
+    <ProjectReference Include="..\PixiEditor.MacOs\PixiEditor.MacOs.csproj"/>
   </ItemGroup>
   
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
@@ -121,7 +130,7 @@
   </PropertyGroup>
   
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
-    <ProjectReference Include="..\PixiEditor.Mac\PixiEditor.MacOs.csproj"/>
+    <ProjectReference Include="..\PixiEditor.MacOs\PixiEditor.MacOs.csproj"/>
   </ItemGroup>
   
   <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">

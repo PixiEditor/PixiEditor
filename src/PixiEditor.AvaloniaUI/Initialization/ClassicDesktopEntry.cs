@@ -123,7 +123,7 @@ internal class ClassicDesktopEntry
 #elif LINUX
         return new PixiEditor.Linux.LinuxOperatingSystem();
 #elif MACOS
-        return new PixiEditor.MacOs.MacOSOperatingSystem();
+        return new PixiEditor.MacOs.MacOperatingSystem();
 #else
         throw new PlatformNotSupportedException("This platform is not supported");
 #endif

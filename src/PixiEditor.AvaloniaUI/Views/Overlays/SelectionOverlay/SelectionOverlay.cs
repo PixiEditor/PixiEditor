@@ -114,7 +114,7 @@ internal class SelectionOverlay : Overlay
     private static void OnPathChanged(AvaloniaPropertyChangedEventArgs<VectorPath?> args)
     {
         var self = (SelectionOverlay)args.Sender;
-        if (args.NewValue.HasValue && !args.NewValue.Value.IsEmpty && self.IsVisible)
+        if (args.NewValue is { HasValue: true, Value.IsEmpty: false } && self.IsVisible)
         {
             self.cancelAnimationToken = new CancellationTokenSource();
             self.animation.RunAsync(self, self.cancelAnimationToken.Token);

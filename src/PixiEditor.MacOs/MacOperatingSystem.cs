@@ -21,6 +21,6 @@ public sealed class MacOperatingSystem : IOperatingSystem
 
     public bool HandleNewInstance(Dispatcher? dispatcher, Action<string> openInExistingAction, IApplicationLifetime lifetime)
     {
-        throw new NotImplementedException();
+        return true;
     }
 }
