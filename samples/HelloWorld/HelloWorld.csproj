@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
+        <OutputType>Exe</OutputType>
+        <PublishTrimmed>true</PublishTrimmed>
+        <WasmSingleFileBundle>true</WasmSingleFileBundle>
+        <OutputPath>..\..\src\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\Extensions</OutputPath>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\PixiEditor.Extensions.Wasm\PixiEditor.Extensions.Wasm.csproj" />
+    </ItemGroup>
+
+    <!--Below is not required if you use Nuget package, this sample references project directly, so it must be here-->
+    <Import Project="..\..\src\PixiEditor.Extensions.Wasm\build\PixiEditor.Extensions.Wasm.targets"/>
+    <Import Project="..\..\src\PixiEditor.Extensions.Wasm\build\PixiEditor.Extensions.Wasm.props"/>
+
+    <ItemGroup>
+        <None Remove="extension.json" />
+        <Content Include="extension.json">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+</Project>

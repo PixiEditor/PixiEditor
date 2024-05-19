@@ -38,7 +38,7 @@ public partial class WasmExtensionInstance : Extension
         NativeObjectManager = new ObjectManager();
         AsyncHandleManager = new AsyncCallsManager();
         AsyncHandleManager.OnAsyncCallCompleted += OnAsyncCallCompleted;
-        AsyncHandleManager.OnAsyncCallFaulted += AsyncHandleManagerOnOnAsyncCallFaulted;
+        AsyncHandleManager.OnAsyncCallFaulted += OnAsyncCallFaulted;
         
         LinkApiFunctions();
         Linker.DefineModule(Store, Module);
@@ -46,16 +46,6 @@ public partial class WasmExtensionInstance : Extension
         Instance = Linker.Instantiate(Store, Module);
         WasmMemoryUtility = new WasmMemoryUtility(Instance);
         memory = Instance.GetMemory("memory");
-    }
-
-    private void OnAsyncCallCompleted(int handle, int result)
-    {
-        Instance.GetAction<int, int>("async_call_completed").Invoke(handle, result);
-    }
-    
-    private void AsyncHandleManagerOnOnAsyncCallFaulted(int handle, string exceptionMessage)
-    {
-        Instance.GetAction<int, string>("async_call_faulted").Invoke(handle, exceptionMessage);
     }
 
     protected override void OnLoaded()
@@ -71,6 +61,16 @@ public partial class WasmExtensionInstance : Extension
         //SetElementMap();
         Instance.GetAction("initialize").Invoke();
         base.OnInitialized();
+    }
+    
+    private void OnAsyncCallCompleted(int handle, int result)
+    {
+        Instance.GetAction<int, int>("async_call_completed").Invoke(handle, result);
+    }
+    
+    private void OnAsyncCallFaulted(int handle, string exceptionMessage)
+    {
+        Instance.GetAction<int, string>("async_call_faulted").Invoke(handle, exceptionMessage);
     }
 
     private void SetElementMap()
