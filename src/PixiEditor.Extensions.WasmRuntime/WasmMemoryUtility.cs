@@ -21,7 +21,6 @@ public class WasmMemoryUtility
 
     public string GetString(int offset, int length)
     {
-        //TODO: memory.ReadString is a thing
         var span = memory.GetSpan<byte>(offset, length);
         return Encoding.UTF8.GetString(span);
     }

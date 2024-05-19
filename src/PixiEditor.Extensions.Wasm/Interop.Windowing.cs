@@ -19,4 +19,7 @@ internal static partial class Interop
 
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void close_window(int windowHandle);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    internal static extern int show_window_async(int windowHandle);
 }

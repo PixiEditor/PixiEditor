@@ -1,4 +1,5 @@
 using PixiEditor.Extensions.CommonApi.Windowing;
+using PixiEditor.Extensions.Wasm.Async;
 
 namespace PixiEditor.Extensions.Wasm.Api.Window;
 
@@ -27,13 +28,20 @@ public class PopupWindow : IPopupWindow
         Interop.close_window(windowHandle);
     }
 
-    public Task<bool?> ShowDialog()
+    public AsyncCall ShowDialog()
     {
-        throw new NotImplementedException();
+        int asyncHandle = Interop.show_window_async(windowHandle);
+        AsyncCall showDialogTask = Interop.AsyncHandleToTask<int>(asyncHandle);
+        return showDialogTask;
     }
 
     public double Width { get; set; }
     public double Height { get; set; }
     public bool CanResize { get; set; }
     public bool CanMinimize { get; set; }
+    
+    Task<bool?> IPopupWindow.ShowDialog()
+    {
+        throw new PlatformNotSupportedException("Task-based ShowDialog is not supproted in Wasm. Use PopupWindows.ShowDialog() with AsyncCall return type instead.");
+    }
 }

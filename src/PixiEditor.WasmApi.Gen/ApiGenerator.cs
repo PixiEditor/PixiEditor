@@ -150,26 +150,6 @@ public class ApiGenerator : IIncrementalGenerator
         return syntaxes;
     }
 
-    private static bool CouldBeApiImplAsync(SyntaxNode node, CancellationToken cancellation)
-    {
-        if (node is not AttributeSyntax attribute)
-            return false;
-
-        string? name = ExtractName(attribute.Name);
-
-        return name is "ApiFunction" or ApiFunctionAttributeName;
-    }
-
-    private static string? ExtractName(NameSyntax? attributeName)
-    {
-        return attributeName switch
-        {
-            SimpleNameSyntax ins => ins.Identifier.Text,
-            QualifiedNameSyntax qns => qns.Right.Identifier.Text,
-            _ => null
-        };
-    }
-
     private static (IMethodSymbol methodSymbol, SemanticModel SemanticModel)? GetApiFunctionMethodOrNull(GeneratorAttributeSyntaxContext context,
         CancellationToken cancelToken)
     {

@@ -11,6 +11,7 @@ internal class ApiGroupHandler
     public ExtensionServices Api { get; }
     protected LayoutBuilder LayoutBuilder { get; }
     protected ObjectManager NativeObjectManager { get; }
+    protected AsyncCallsManager AsyncHandleManager { get; }
     protected Instance? Instance { get; }
     protected WasmMemoryUtility WasmMemoryUtility { get; }
 }

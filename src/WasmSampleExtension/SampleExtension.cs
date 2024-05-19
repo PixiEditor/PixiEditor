@@ -21,7 +21,11 @@ public class SampleExtension : WasmExtension
                 )
             );
 
-        Api.WindowProvider.CreatePopupWindow("WASM SampleExtension", layout).Show();
+        var showTask = Api.WindowProvider.CreatePopupWindow("WASM SampleExtension", layout).ShowDialog();
+        showTask.Completed += result =>
+        {
+            Api.Logger.Log($"Show task completed: {result}");
+        };
     }
 }
 

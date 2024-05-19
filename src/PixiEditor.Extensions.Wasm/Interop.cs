@@ -9,12 +9,7 @@ using PixiEditor.Extensions.Wasm.Api.FlyUI;
 
 namespace PixiEditor.Extensions.Wasm;
 
-internal static class Program
-{
-    internal static void Main() {
-
-    }
-}
+internal static class Program { internal static void Main() { } } // Required for compilation
 
 [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", 
     Justification = "Interop is a special case, it's injected to C code and follows C naming conventions.")]
