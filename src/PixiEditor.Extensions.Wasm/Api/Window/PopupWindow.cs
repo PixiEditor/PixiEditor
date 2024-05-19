@@ -35,10 +35,29 @@ public class PopupWindow : IPopupWindow
         return showDialogTask;
     }
 
-    public double Width { get; set; }
-    public double Height { get; set; }
-    public bool CanResize { get; set; }
-    public bool CanMinimize { get; set; }
+    public double Width
+    {
+        get => Interop.get_window_width(windowHandle);
+        set => Interop.set_window_width(windowHandle, value);
+    }
+
+    public double Height
+    {
+        get => Interop.get_window_height(windowHandle);
+        set => Interop.set_window_height(windowHandle, value);
+    }
+
+    public bool CanResize
+    {
+        get => Interop.get_window_resizable(windowHandle);
+        set => Interop.set_window_resizable(windowHandle, value);
+    }
+
+    public bool CanMinimize
+    {
+        get => Interop.get_window_minimizable(windowHandle);
+        set => Interop.set_window_minimizable(windowHandle, value);
+    }
     
     Task<bool?> IPopupWindow.ShowDialog()
     {

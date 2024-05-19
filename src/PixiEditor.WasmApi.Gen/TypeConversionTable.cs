@@ -6,9 +6,9 @@ public static class TypeConversionTable
 {
     public static string[] ConvertTypeToFunctionParams(IParameterSymbol symbol)
     {
-        if(IsIntType(symbol.Type))
+        if(IsValuePassableType(symbol.Type, out string? typeName))
         {
-            return [$"int {symbol.Name}"];
+            return [$"{typeName} {symbol.Name}"];
         }
 
         if(IsLengthType(symbol))
@@ -26,8 +26,21 @@ public static class TypeConversionTable
                || symbol.Type.Name.Equals("span", StringComparison.OrdinalIgnoreCase);
     }
 
-    public static bool IsIntType(ITypeSymbol argSymbol)
+    public static bool IsValuePassableType(ITypeSymbol argSymbol, out string? typeName)
     {
-        return argSymbol.Name.Equals("int32", StringComparison.OrdinalIgnoreCase);
+        if (argSymbol.Name.Equals("int32", StringComparison.OrdinalIgnoreCase))
+        {
+            typeName = "int";
+            return true;
+        }
+
+        if (argSymbol.Name.Equals("double", StringComparison.OrdinalIgnoreCase))
+        {
+            typeName = "double";
+            return true;
+        }
+
+        typeName = null;
+        return false;
     }
 }

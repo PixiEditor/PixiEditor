@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <driver.h>
 #include <string.h>
+#include <stdbool.h>
 #include <mono/metadata/object.h>
 #include <mono/metadata/exception.h>
 #include <mono/metadata/appdomain.h>

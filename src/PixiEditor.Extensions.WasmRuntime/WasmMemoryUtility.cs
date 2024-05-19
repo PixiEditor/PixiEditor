@@ -71,6 +71,32 @@ public class WasmMemoryUtility
         memory.WriteString(ptr, valueWithNullTerminator);
         return ptr;
     }
+    
+    public int WriteDouble(double value)
+    {
+        const int length = 8;
+        var ptr = malloc.Invoke(length);
+        memory.WriteDouble(ptr, value);
+        return ptr;
+    }
+    
+    public double GetDouble(int offset)
+    {
+        return memory.ReadDouble(offset);
+    }
+    
+    public int WriteBoolean(bool value)
+    {
+        const int length = 1;
+        var ptr = malloc.Invoke(length);
+        memory.Write(ptr, value);
+        return ptr;
+    }
+    
+    public bool GetBoolean(int offset)
+    {
+        return memory.Read<bool>(offset);
+    }
 
     public void Free(int address)
     {

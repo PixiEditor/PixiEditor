@@ -52,4 +52,60 @@ internal class WindowingApi : ApiGroupHandler
         var window = NativeObjectManager.GetObject<PopupWindow>(handle);
         window.Close();
     }
+    
+    [ApiFunction("get_window_width")]
+    public double GetWindowWidth(int handle)
+    {
+        var window = NativeObjectManager.GetObject<PopupWindow>(handle);
+        return window.Width;
+    }
+    
+    [ApiFunction("set_window_width")]
+    public void SetWindowWidth(int handle, double width)
+    {
+        var window = NativeObjectManager.GetObject<PopupWindow>(handle);
+        window.Width = width;
+    }
+    
+    [ApiFunction("get_window_height")]
+    public double GetWindowHeight(int handle)
+    {
+        var window = NativeObjectManager.GetObject<PopupWindow>(handle);
+        return window.Height;
+    }
+    
+    [ApiFunction("set_window_height")]
+    public void SetWindowHeight(int handle, double height)
+    {
+        var window = NativeObjectManager.GetObject<PopupWindow>(handle);
+        window.Height = height;
+    }
+    
+    [ApiFunction("get_window_resizable")]
+    public bool GetWindowResizable(int handle)
+    {
+        var window = NativeObjectManager.GetObject<PopupWindow>(handle);
+        return window.CanResize;
+    }
+    
+    [ApiFunction("set_window_resizable")]
+    public void SetWindowResizable(int handle, bool resizable)
+    {
+        var window = NativeObjectManager.GetObject<PopupWindow>(handle);
+        window.CanResize = resizable;
+    }
+    
+    [ApiFunction("get_window_minimizable")]
+    public bool GetWindowMinimizable(int handle)
+    {
+        var window = NativeObjectManager.GetObject<PopupWindow>(handle);
+        return window.CanMinimize;
+    }
+    
+    [ApiFunction("set_window_minimizable")]
+    public void SetWindowMinimizable(int handle, bool minimizable)
+    {
+        var window = NativeObjectManager.GetObject<PopupWindow>(handle);
+        window.CanMinimize = minimizable;
+    }
 }

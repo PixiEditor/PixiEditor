@@ -96,8 +96,8 @@ public class ApiGenerator : IIncrementalGenerator
 
         foreach (var argSymbol in arguments)
         {
-            // For some reason, int are passed as is, not as a pointer
-            if (!TypeConversionTable.IsIntType(argSymbol.Type))
+            // For some reason, int, double are passed as is, not as a pointer
+            if (!TypeConversionTable.IsValuePassableType(argSymbol.Type, out _))
             {
                 string lowerType = argSymbol.Type.Name;
                 bool isLengthType = TypeConversionTable.IsLengthType(argSymbol);
@@ -137,7 +137,7 @@ public class ApiGenerator : IIncrementalGenerator
                     string statementString =
                         $"return WasmMemoryUtility.Write{returnType}({returnStatementSyntax.Expression.ToFullString()});";
 
-                    if (TypeConversionTable.IsIntType(method.methodSymbol.ReturnType))
+                    if (TypeConversionTable.IsValuePassableType(method.methodSymbol.ReturnType, out _))
                     {
                         statementString = $"return {returnStatementSyntax.Expression.ToFullString()};";
                     }
