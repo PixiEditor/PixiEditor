@@ -4,6 +4,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.IO;
@@ -150,7 +151,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
     {
         string[] files = DirectoryExtensions.GetFiles(
             Paths.PathToPalettesFolder,
-            string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)),
+            string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions).Distinct()),
             SearchOption.TopDirectoryOnly);
         cachedPalettes = await ParseAll(files);
         CacheUpdated?.Invoke(RefreshType.All, null, null);
