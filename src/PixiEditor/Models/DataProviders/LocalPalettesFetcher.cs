@@ -225,6 +225,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         {
             await RefreshCacheAll();
             
+            // Using try-catch to generate stack trace
             try
             {
                 throw new NullReferenceException($"The '{nameof(updated)}' was null even though the refresh type was '{refreshType}'.");
