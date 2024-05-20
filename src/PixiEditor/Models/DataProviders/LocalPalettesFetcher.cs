@@ -220,6 +220,23 @@ internal class LocalPalettesFetcher : PaletteListDataSource
             default:
                 throw new ArgumentOutOfRangeException(nameof(refreshType), refreshType, null);
         }
+
+        if (refreshType is RefreshType.Created or RefreshType.Updated && updated == null)
+        {
+            await RefreshCacheAll();
+            
+            try
+            {
+                throw new NullReferenceException($"The '{nameof(updated)}' was null even though the refresh type was '{refreshType}'.");
+            }
+            catch (Exception e)
+            {
+                await CrashHelper.SendExceptionInfoToWebhookAsync(e);
+            }
+
+            return;
+        }
+        
         CacheUpdated?.Invoke(refreshType, updated, affectedFileName);
     }
 
