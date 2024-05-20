@@ -4,6 +4,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.IO;
@@ -150,7 +151,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
     {
         string[] files = DirectoryExtensions.GetFiles(
             Paths.PathToPalettesFolder,
-            string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions)),
+            string.Join("|", AvailableParsers.SelectMany(x => x.SupportedFileExtensions).Distinct()),
             SearchOption.TopDirectoryOnly);
         cachedPalettes = await ParseAll(files);
         CacheUpdated?.Invoke(RefreshType.All, null, null);
@@ -219,6 +220,24 @@ internal class LocalPalettesFetcher : PaletteListDataSource
             default:
                 throw new ArgumentOutOfRangeException(nameof(refreshType), refreshType, null);
         }
+
+        if (refreshType is RefreshType.Created or RefreshType.Updated && updated == null)
+        {
+            await RefreshCacheAll();
+            
+            // Using try-catch to generate stack trace
+            try
+            {
+                throw new NullReferenceException($"The '{nameof(updated)}' was null even though the refresh type was '{refreshType}'.");
+            }
+            catch (Exception e)
+            {
+                await CrashHelper.SendExceptionInfoToWebhookAsync(e);
+            }
+
+            return;
+        }
+        
         CacheUpdated?.Invoke(refreshType, updated, affectedFileName);
     }
 
