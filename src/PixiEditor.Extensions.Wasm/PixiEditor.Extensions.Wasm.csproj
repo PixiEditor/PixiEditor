@@ -25,9 +25,6 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.8.3"/>
   </ItemGroup>
 
-  <Import Project="build\PixiEditor.Extensions.Wasm.targets"/>
-  <Import Project="build\PixiEditor.Extensions.Wasm.props"/>
-
   <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
     <ItemGroup>
       <_PackageFiles Include="build\**" BuildAction="Content" PackagePath="build"/>

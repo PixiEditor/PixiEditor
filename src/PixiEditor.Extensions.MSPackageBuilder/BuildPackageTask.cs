@@ -12,13 +12,9 @@ public class BuildPackageTask : Microsoft.Build.Utilities.Task
     
     public override bool Execute()
     {
-        string absoluteBuildResultDirectory = Path.GetFullPath(BuildResultDirectory);
-        string absoluteTargetDirectory = Path.GetFullPath(TargetDirectory);
-
         try
         {
-            PackageBuilder.Build(absoluteBuildResultDirectory, absoluteTargetDirectory,
-                (message) => Log.LogMessage(message, MessageImportance.Normal));
+            PackageBuilder.Build(BuildResultDirectory, TargetDirectory);
         }
         catch (Exception e)
         {

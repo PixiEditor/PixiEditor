@@ -14,8 +14,11 @@
     </ItemGroup>
   </Target>
   <UsingTask TaskName="BuildPackageTask"
-             AssemblyFile="$(MSBuildThisFileDirectory)PixiEditor.Extensions.MSPackageBuilder.dll" Condition="'$(RuntimeIdentifier)' == 'wasi-wasm'"/>
-  <Target Name="BuildPackageTask" AfterTargets="Build" Condition="'$(RuntimeIdentifier)' == 'wasi-wasm'">
-    <BuildPackageTask BuildResultDirectory="$(OutputPath)" TargetDirectory="$(OutputPath)" />
+             AssemblyFile="$(MSBuildThisFileDirectory)PixiEditor.Extensions.MSPackageBuilder.dll"
+             Condition="'$(RuntimeIdentifier)' == 'wasi-wasm'"/>
+
+  <Target Name="BuildPackageTask" AfterTargets="_WasiGenerateAppBundle" Condition="'$(RuntimeIdentifier)' == 'wasi-wasm'">
+    <Message Text="Building extension package"/>
+    <BuildPackageTask BuildResultDirectory="$(OutputPath)" TargetDirectory="$(OutputPath).." />
   </Target>
 </Project>

@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.IO.Compression;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using PixiEditor.Extensions.Metadata;
@@ -12,13 +13,15 @@ public class ExtensionLoader
     private readonly Dictionary<string, OfficialExtensionData> _officialExtensionsKeys = new Dictionary<string, OfficialExtensionData>();
     public List<Extension> LoadedExtensions { get; } = new();
     
-    public string ExtensionsFullPath { get; }
+    public string PackagesPath { get; }
+    public string UnpackedExtensionsPath { get; }
 
     private WasmRuntime.WasmRuntime _wasmRuntime = new WasmRuntime.WasmRuntime();
 
-    public ExtensionLoader(string extensionsFullPath)
+    public ExtensionLoader(string packagesPath, string unpackedExtensionsPath)
     {
-        ExtensionsFullPath = extensionsFullPath;
+        PackagesPath = packagesPath;
+        UnpackedExtensionsPath = unpackedExtensionsPath;
         ValidateExtensionFolder();
     }
     
@@ -29,14 +32,15 @@ public class ExtensionLoader
 
     public void LoadExtensions()
     {
-        var directories = Directory.GetDirectories(ExtensionsFullPath);
+        var directories = Directory.GetDirectories(PackagesPath);
         foreach (var directory in directories)
         {
-            string packageJsonPath = Path.Combine(directory, "extension.json");
-            bool isExtension = File.Exists(packageJsonPath);
-            if (isExtension)
+            foreach (var file in Directory.GetFiles(directory))
             {
-                LoadExtension(packageJsonPath);
+                if (file.EndsWith(".pixiext"))
+                {
+                    LoadExtension(file);
+                }
             }
         }
     }
@@ -81,13 +85,95 @@ public class ExtensionLoader
         }
     }
 
-    public Extension? LoadExtension(string packageJsonPath)
+    public Extension? LoadExtension(string extension)
     {
-        string json = File.ReadAllText(packageJsonPath);
+        var extZip = ZipFile.OpenRead(extension);
+        ExtensionMetadata metadata = ExtractMetadata(extZip);
+        if(IsDifferentThanCached(metadata, extension))
+        {
+            UnpackExtension(extZip, metadata);
+        }
+        
+        string extensionJson = Path.Combine(UnpackedExtensionsPath, metadata.UniqueName, "extension.json");
+        if (!File.Exists(extensionJson))
+        {
+            return null;
+        }
+            
+        return LoadExtensionFromCache(extensionJson);
+    }
+
+    public void UnpackExtension(ZipArchive extZip, ExtensionMetadata metadata)
+    {
+        string extensionPath = Path.Combine(UnpackedExtensionsPath, metadata.UniqueName);
+        if (Directory.Exists(extensionPath))
+        {
+            Directory.Delete(extensionPath, true);
+        }
+
+        extZip.ExtractToDirectory(extensionPath);
+    }
+
+    private ExtensionMetadata ExtractMetadata(ZipArchive extZip)
+    {
+        var metadataEntry = extZip.GetEntry("extension.json");
+        if (metadataEntry == null)
+        {
+            throw new FileNotFoundException("Extension metadata not found");
+        }
+
+        using var stream = metadataEntry.Open();
+        using var sr = new StreamReader(stream);
+        using var jsonTextReader = new JsonTextReader(sr);
+        var serializer = new JsonSerializer();
+        return serializer.Deserialize<ExtensionMetadata>(jsonTextReader);
+    }
+    
+    private bool IsDifferentThanCached(ExtensionMetadata metadata, string extension)
+    {
+        string extensionJson = Path.Combine(UnpackedExtensionsPath, metadata.UniqueName, "extension.json");
+        if (!File.Exists(extensionJson))
+        {
+            return true;
+        }
+
+        string json = File.ReadAllText(extensionJson);
+        ExtensionMetadata? cachedMetadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
+        
+        if(cachedMetadata is null)
+        {
+            return true;
+        }
+        
+        if (metadata.UniqueName != cachedMetadata.UniqueName)
+        {
+            return true;
+        }
+        
+        bool isDifferent = metadata.Version != cachedMetadata.Version;
+        
+        if (isDifferent)
+        {
+            return true;
+        }
+        
+        return PackageWriteTimeIsBigger(Path.Combine(UnpackedExtensionsPath, metadata.UniqueName), extension);
+    }
+
+    private bool PackageWriteTimeIsBigger(string unpackedDirectory, string extension)
+    {
+        DateTime extensionWriteTime = File.GetLastWriteTime(extension);
+        DateTime unpackedWriteTime = Directory.GetLastWriteTime(unpackedDirectory);
+        return extensionWriteTime > unpackedWriteTime;
+    }
+
+    private Extension LoadExtensionFromCache(string extension)
+    {
+        string json = File.ReadAllText(extension);
         try
         {
             var metadata = JsonConvert.DeserializeObject<ExtensionMetadata>(json);
-            string directory = Path.GetDirectoryName(packageJsonPath);
+            string directory = Path.GetDirectoryName(extension);
             ExtensionEntry? entry = GetEntry(directory);
             if (entry is null)
             {
@@ -303,9 +389,14 @@ public class ExtensionLoader
 
     private void ValidateExtensionFolder()
     {
-        if (!Directory.Exists(ExtensionsFullPath))
+        if (!Directory.Exists(PackagesPath))
         {
-            Directory.CreateDirectory(ExtensionsFullPath);
+            Directory.CreateDirectory(PackagesPath);
+        }
+        
+        if (!Directory.Exists(UnpackedExtensionsPath))
+        {
+            Directory.CreateDirectory(UnpackedExtensionsPath);
         }
     }
 

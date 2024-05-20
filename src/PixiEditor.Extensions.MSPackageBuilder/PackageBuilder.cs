@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using Newtonsoft.Json;
 
 namespace PixiEditor.Extensions.MSPackageBuilder;
 
@@ -14,8 +15,9 @@ public static class PackageBuilder
         new ElementToInclude("Localization/", false),
     };
     
-    public static void Build(string buildResultDirectory, string targetDirectory, Action<string> log)
+    public static void Build(string buildResultDirectory, string targetDirectory)
     {
+        string packageName = Path.GetFileName(buildResultDirectory);
         if (!Directory.Exists(buildResultDirectory))
         {
             throw new DirectoryNotFoundException($"Directory {buildResultDirectory} does not exist.");
@@ -25,33 +27,43 @@ public static class PackageBuilder
         {
             Directory.CreateDirectory(targetDirectory);
         }
-
+        
+        string targetTmpDirectory = Path.Combine(targetDirectory, "tmp");
+        if (Directory.Exists(targetTmpDirectory))
+        {
+            Directory.Delete(targetTmpDirectory, true);
+        }
+        
+        Directory.CreateDirectory(targetTmpDirectory);
+        
+        if(targetDirectory == buildResultDirectory)
+        {
+            throw new InvalidOperationException("Build result directory and target directory cannot be the same.");
+        }
+        
         foreach (ElementToInclude element in ElementsToInclude)
         {
-            log($"Copying {element.Path}...");
             if (element.Type == ElementToIncludeType.File)
             {
-                CopyFile(element.Path, buildResultDirectory, targetDirectory, element.IsRequired);
+                CopyFile(element.Path, buildResultDirectory, targetTmpDirectory, element.IsRequired);
             }
             else
             {
-                CopyDirectory(element.Path, buildResultDirectory, targetDirectory, element.IsRequired);
+                CopyDirectory(element.Path, buildResultDirectory, targetTmpDirectory, element.IsRequired);
             }
         } 
         
-        log("Copied all elements. Building package...");
+        SimplifiedExtensionMetadata metadata = JsonConvert.DeserializeObject<SimplifiedExtensionMetadata>(File.ReadAllText(Path.Combine(buildResultDirectory, "extension.json")));
         
-        string packagePath = Path.Combine(targetDirectory, "package.pixiext");
+        string packagePath = Path.Combine(targetDirectory, $"{metadata.UniqueName}.pixiext");
         if (File.Exists(packagePath))
         {
             File.Delete(packagePath);
         }
         
-        ZipFile.CreateFromDirectory(targetDirectory, packagePath);
+        ZipFile.CreateFromDirectory(targetTmpDirectory, packagePath);
         
-        log($"Package created at {packagePath}.");
-        
-        Directory.Delete(targetDirectory, true);
+        Directory.Delete(targetTmpDirectory, true);
     }
 
     private static void CopyFile(string elementPath, string buildResultDirectory, string targetDirectory, bool elementIsRequired)
@@ -75,7 +87,8 @@ public static class PackageBuilder
     
     private static void CopyDirectory(string elementPath, string buildResultDirectory, string targetDirectory, bool elementIsRequired)
     {
-        string[] directories = Directory.GetDirectories(buildResultDirectory, elementPath, SearchOption.AllDirectories);
+        string pattern = elementPath.EndsWith("/") ? elementPath.Substring(0, elementPath.Length - 1) : elementPath;
+        string[] directories = Directory.GetDirectories(buildResultDirectory, pattern);
         if (directories.Length == 0)
         {
             if (elementIsRequired)
@@ -116,4 +129,9 @@ enum ElementToIncludeType
 {
     File,
     Directory
+}
+
+class SimplifiedExtensionMetadata
+{
+    public string UniqueName { get; set; }
 }
