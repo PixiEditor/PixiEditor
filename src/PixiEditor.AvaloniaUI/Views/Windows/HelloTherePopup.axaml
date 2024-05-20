@@ -78,10 +78,7 @@
                     </CheckBox>
                     </Grid>
                     <StackPanel Grid.Row="0" HorizontalAlignment="Center">
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="avares://PixiEditor.UI.Common/Assets/PixiEditorLogo.png" Height="40" VerticalAlignment="Center"/>
-                            <TextBlock FontSize="40" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0">PixiEditor</TextBlock>
-                        </StackPanel>
+                        <Svg Path="/Images/PixiEditorLogoWithName.svg" Height="60" VerticalAlignment="Top"/>
                         <TextBlock HorizontalAlignment="Center" FontSize="20" FontWeight="Medium" Text="{Binding VersionText}"/>
                     </StackPanel>
 

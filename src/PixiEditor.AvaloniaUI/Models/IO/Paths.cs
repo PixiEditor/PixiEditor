@@ -8,7 +8,8 @@ public static class Paths
     public static string DataFullPath { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Data");
 
     public static string ExtensionPackagesPath { get; } = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Extensions");
-    public static string UserExtensionsPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), 
+    public static string UserExtensionsPath { get; } = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), 
         "PixiEditor", "Extensions");
 
     public static string PathToPalettesFolder { get; } = Path.Join(

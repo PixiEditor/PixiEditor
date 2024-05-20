@@ -18,7 +18,7 @@
     <Grid>
         <dialogs:DialogTitleBar 
             DockPanel.Dock="Top"/>
-        <Image DockPanel.Dock="Left" Margin="10, 0, 0, 0" HorizontalAlignment="Left" Source="/Images/PixiEditorLogo.png" Width="20" Height="20"/>
+        <Svg DockPanel.Dock="Left" Margin="10, 0, 0, 0" HorizontalAlignment="Left" Path="/Images/PixiEditorLogo.svg" Width="30" Height="30"/>
         <xaml:Menu
             Margin="40, 0, 0, 0"
                 DockPanel.Dock="Left"
