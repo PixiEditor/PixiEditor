@@ -32,15 +32,11 @@ public class ExtensionLoader
 
     public void LoadExtensions()
     {
-        var directories = Directory.GetDirectories(PackagesPath);
-        foreach (var directory in directories)
+        foreach (var file in Directory.GetFiles(PackagesPath))
         {
-            foreach (var file in Directory.GetFiles(directory))
+            if (file.EndsWith(".pixiext"))
             {
-                if (file.EndsWith(".pixiext"))
-                {
-                    LoadExtension(file);
-                }
+                LoadExtension(file);
             }
         }
     }
