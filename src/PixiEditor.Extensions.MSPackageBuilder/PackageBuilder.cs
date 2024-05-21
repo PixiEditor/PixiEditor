@@ -15,6 +15,11 @@ public static class PackageBuilder
         new ElementToInclude("Localization/", false),
     };
     
+    private static readonly string[] FilesToExclude = new[]
+    {
+        "dotnet.wasm",
+    };
+    
     public static void Build(string buildResultDirectory, string targetDirectory)
     {
         string packageName = Path.GetFileName(buildResultDirectory);
@@ -81,6 +86,11 @@ public static class PackageBuilder
 
         foreach (string file in files)
         {
+            if (FilesToExclude.Contains(Path.GetFileName(file)))
+            {
+                continue;
+            }
+            
             File.Copy(file, Path.Combine(targetDirectory, Path.GetFileName(file)), true);
         }
     }

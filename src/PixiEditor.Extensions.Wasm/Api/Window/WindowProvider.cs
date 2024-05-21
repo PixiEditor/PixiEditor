@@ -14,9 +14,8 @@ public class WindowProvider : IWindowProvider
         Marshal.Copy(bytes, 0, ptr, bytes.Length);
         int handle = Interop.create_popup_window(title, ptr, bytes.Length);
         Marshal.FreeHGlobal(ptr);
-
+        
         SubscribeToEvents(compiledControl);
-
         return new PopupWindow(handle) { Title = title };
     }
 

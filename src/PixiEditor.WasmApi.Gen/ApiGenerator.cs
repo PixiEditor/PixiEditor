@@ -137,10 +137,11 @@ public class ApiGenerator : IIncrementalGenerator
                     string statementString =
                         $"return WasmMemoryUtility.Write{returnType}({returnStatementSyntax.Expression.ToFullString()});";
 
-                    if (TypeConversionTable.IsValuePassableType(method.methodSymbol.ReturnType, out _))
+                    statementString = $"return {returnStatementSyntax.Expression.ToFullString()};";
+                    /*if (TypeConversionTable.IsValuePassableType(method.methodSymbol.ReturnType, out _))
                     {
                         statementString = $"return {returnStatementSyntax.Expression.ToFullString()};";
-                    }
+                    }*/
 
                     syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement(statementString));
                 }

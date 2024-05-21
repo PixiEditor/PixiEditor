@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HelloWorld;
+﻿namespace HelloWorld;
 
 using PixiEditor.Extensions.Wasm;
 
