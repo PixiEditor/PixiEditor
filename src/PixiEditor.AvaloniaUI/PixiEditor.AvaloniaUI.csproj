@@ -23,119 +23,29 @@
     <DebugType>None</DebugType>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-  </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Windows')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
-    <RuntimeIdentifier>win-arm64</RuntimeIdentifier>
-  </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Linux')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-  </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('Linux')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
-    <RuntimeIdentifier>linux-arm64</RuntimeIdentifier>
-  </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'X64'">
-    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
-  </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOsPlatform('OSX')) AND '$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)' == 'Arm64'">
-    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Platform)'=='x64'">
-    <TargetPlatform>x64</TargetPlatform>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Platform)'=='arm64'">
-    <TargetPlatform>arm64</TargetPlatform>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='MSIX Debug'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='MSIX'">
-    <DefineConstants>TRACE;RELEASE</DefineConstants>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DefineConstants>TRACE;UPDATE</DefineConstants>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <WarningLevel>0</WarningLevel>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Steam'">
-    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='DevSteam'">
-    <DefineConstants>TRACE;RELEASE;STEAM</DefineConstants>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)' == 'DevRelease' ">
-    <DefineConstants>TRACE;UPDATE;RELEASE</DefineConstants>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
-  
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
     <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj"/>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
-    <DefineConstants>WINDOWS</DefineConstants>
-  </PropertyGroup>
-  
+
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-arm64'">
     <ProjectReference Include="..\PixiEditor.Windows\PixiEditor.Windows.csproj"/>
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='win-arm64'">
-    <DefineConstants>WINDOWS</DefineConstants>
-  </PropertyGroup>
-  
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
     <ProjectReference Include="..\PixiEditor.Linux\PixiEditor.Linux.csproj"/>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='linux-x64'">
-    <DefineConstants>LINUX</DefineConstants>
-  </PropertyGroup>
-  
+
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='linux-arm64'">
     <ProjectReference Include="..\PixiEditor.Linux\PixiEditor.Linux.csproj"/>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='linux-arm64'">
-    <DefineConstants>LINUX</DefineConstants>
-  </PropertyGroup>
-  
+
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
     <ProjectReference Include="..\PixiEditor.MacOs\PixiEditor.MacOs.csproj"/>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-x64'">
-    <DefineConstants>MACOS</DefineConstants>
-  </PropertyGroup>
-  
+
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
     <ProjectReference Include="..\PixiEditor.MacOs\PixiEditor.MacOs.csproj"/>
   </ItemGroup>
-  
-  <PropertyGroup Condition="'$(RuntimeIdentifier)'=='osx-arm64'">
-    <DefineConstants>MACOS</DefineConstants>
-  </PropertyGroup>
 
   <ItemGroup>
     <AvaloniaResource Include="Images\**"/>
@@ -188,7 +98,7 @@
     <ProjectReference Include="..\PixiEditor.UI.Common\PixiEditor.UI.Common.csproj"/>
     <ProjectReference Include="..\PixiEditor.UpdateModule\PixiEditor.UpdateModule.csproj"/>
     <ProjectReference Include="..\PixiEditor.Zoombox\PixiEditor.Zoombox.csproj"/>
-    <ProjectReference Include="..\PixiEditorGen\PixiEditorGen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    <ProjectReference Include="..\PixiEditor.Gen\PixiEditor.Gen.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
   </ItemGroup>
 
   <ItemGroup>

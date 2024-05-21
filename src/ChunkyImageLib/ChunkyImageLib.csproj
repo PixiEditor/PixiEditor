@@ -6,30 +6,8 @@
     <Nullable>enable</Nullable>
     <WarningsAsErrors>Nullable</WarningsAsErrors>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
-    <Configurations>Debug;Release;</Configurations>
-    <Platforms>x64;arm64</Platforms>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Steam'">
-    <Optimize>True</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <Optimize>True</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='DevRelease'">
-    <Optimize>False</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Platform)'=='x64'">
-    <TargetPlatform>x64</TargetPlatform>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Platform)'=='arm64'">
-    <TargetPlatform>arm64</TargetPlatform>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="OneOf" Version="3.0.223" />
     <PackageReference Update="StyleCop.Analyzers" Version="1.2.0-beta.435">

@@ -6,13 +6,13 @@
     <OutputType>Exe</OutputType>
     <PublishTrimmed>true</PublishTrimmed>
     <WasmSingleFileBundle>true</WasmSingleFileBundle>
+    <GenerateExtensionPackage>false</GenerateExtensionPackage>
   </PropertyGroup>
 
-  <Import Project="..\PixiEditor.Extensions.Wasm\build\PixiEditor.Extensions.Wasm.targets"/>
-  <Import Project="..\PixiEditor.Extensions.Wasm\build\PixiEditor.Extensions.Wasm.props"/>
+  <Import Project="..\..\src\PixiEditor.Extensions.Wasm\build\PixiEditor.Extensions.Wasm.targets"/>
 
     <ItemGroup>
-      <ProjectReference Include="..\PixiEditor.Extensions.Wasm\PixiEditor.Extensions.Wasm.csproj" />
+      <ProjectReference Include="..\..\src\PixiEditor.Extensions.Wasm\PixiEditor.Extensions.Wasm.csproj" />
     </ItemGroup>
 
 </Project>

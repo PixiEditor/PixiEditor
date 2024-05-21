@@ -7,9 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <AvaloniaResource Include="Assets\Animations\LoadingIndicator.json" />
-      <AvaloniaResource Include="Assets\ChevronDown.png" />
-      <AvaloniaResource Include="Assets\PixiEditorLogo.png" />
+      <AvaloniaResource Include="Assets\*"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -17,38 +15,8 @@
       <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.5" />
     </ItemGroup>
-
-    <ItemGroup>
-      <UpToDateCheckInput Remove="Animations\Processing.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Accents\Base.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\DockControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\DockDockControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\DockTarget.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\DocumentContentControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\DocumentControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\DocumentDockControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\DocumentTabStrip.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\DocumentTabStripItem.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\HostWindow.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\HostWindowTitleBar.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ProportionalDockControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ProportionalStackPanelSplitter.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\RootDockControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ToolChromeControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ToolContentControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ToolControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ToolDockControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ToolPinItemControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ToolPinnedControl.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ToolTabStrip.axaml" />
-      <UpToDateCheckInput Remove="Controls\Dock\Controls\ToolTabStripItem.axaml" />
-    </ItemGroup>
-
+  
     <ItemGroup>
       <AvaloniaResource Include="Fonts\feather.ttf" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Controls\Dock\" />
     </ItemGroup>
 </Project>

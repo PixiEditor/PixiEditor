@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PixiEditor.Api.CGlueMSBuild\PixiEditor.Api.CGlueMSBuild.csproj"/>
+    <ProjectReference Include="..\..\src\PixiEditor.Api.CGlueMSBuild\PixiEditor.Api.CGlueMSBuild.csproj"/>
   </ItemGroup>
 
     <ItemGroup>

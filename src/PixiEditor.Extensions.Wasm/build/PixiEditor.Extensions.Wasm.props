@@ -2,5 +2,6 @@
   <PropertyGroup>
     <DebugType>embedded</DebugType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <GenerateExtensionPackage>true</GenerateExtensionPackage>
   </PropertyGroup>
 </Project>
