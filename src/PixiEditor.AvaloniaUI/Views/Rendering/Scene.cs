@@ -132,8 +132,10 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
 
         RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
         Rect dirtyRect = new Rect(0, 0, Document.Width, Document.Height);
+        
+        float resolutionScale = CalculateResolutionScale();
 
-        using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale, angle, FlipX, FlipY,
+        using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle, FlipX, FlipY,
             dirtyRect,
             Bounds,
             sceneOpacity);
@@ -142,7 +144,6 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         context.PushTransform(matrix);
         context.PushRenderOptions(new RenderOptions { BitmapInterpolationMode = BitmapInterpolationMode.None });
 
-        float resolutionScale = CalculateResolutionScale();
         var resolutionTransformation = context.PushTransform(Matrix.CreateScale(resolutionScale, resolutionScale));
 
         DrawCheckerboard(context, dirtyRect, operation.SurfaceRectToRender);
@@ -476,7 +477,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         Angle = angle;
         FlipX = flipX;
         FlipY = flipY;
-        ViewportBounds = viewportBounds;
+        ViewportBounds = viewportBounds.Deflate(new Thickness(200));
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
         SurfaceRectToRender = FindRectToRender((float)scale);
     }
@@ -494,7 +495,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
             canvas.Restore();
             return;
         }
-
+        
         using Image snapshot = Surface.DrawingSurface.Snapshot(SurfaceRectToRender);
         canvas.DrawImage((SKImage)snapshot.Native, SurfaceRectToRender.X, SurfaceRectToRender.Y, _paint);
 
@@ -521,15 +522,6 @@ internal class DrawSceneOperation : SkiaDrawOperation
         RectI surfaceRectToRender =
             firstIntersectionBoundsInSurfaceSpace.Intersect(secondIntersectionInSurfaceSpace).Inflate(1);
         return surfaceRectToRender.Intersect(new RectI(VecI.Zero, Surface.Size)); // Clamp to surface size
-    }
-
-    private void DrawDebugRect(SKCanvas canvas, RectD rect)
-    {
-        canvas.DrawLine((float)rect.X, (float)rect.Y, (float)rect.Right, (float)rect.Y, _paint);
-        canvas.DrawLine((float)rect.Right, (float)rect.Y, (float)rect.Right, (float)rect.Bottom, _paint);
-        canvas.DrawLine((float)rect.Right, (float)rect.Bottom, (float)rect.X, (float)rect.Bottom, _paint);
-
-        canvas.DrawLine((float)rect.X, (float)rect.Bottom, (float)rect.X, (float)rect.Y, _paint);
     }
 
     private ShapeCorners ViewportToSurface(RectI viewportRect, float scale)
