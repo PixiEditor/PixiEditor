@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.IO;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Surface.Vector;
 
@@ -10,6 +11,8 @@ namespace PixiEditor.DrawingApi.Core.Surface.Vector;
 /// <remarks>A path encapsulates compound (multiple contour) geometric paths consisting of straight line segments, quadratic curves, and cubic curves.</remarks>
 public class VectorPath : NativeObject
 {
+    public override object Native => DrawingBackendApi.Current.PathImplementation.GetNativePath(ObjectPointer);
+
     public PathFillType FillType
     {
         get => DrawingBackendApi.Current.PathImplementation.GetFillType(this);

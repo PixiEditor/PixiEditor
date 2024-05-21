@@ -3,6 +3,7 @@ using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Numerics;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations
@@ -145,6 +146,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public void AddPath(VectorPath vectorPath, VectorPath other, AddPathMode mode)
         {
             ManagedInstances[vectorPath.ObjectPointer].AddPath(ManagedInstances[other.ObjectPointer], (SKPathAddMode)mode);
+        }
+
+        public object GetNativePath(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
         }
 
         /// <summary>

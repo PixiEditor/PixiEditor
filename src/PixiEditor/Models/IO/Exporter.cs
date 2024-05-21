@@ -15,6 +15,7 @@ using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.Enums;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.IO;

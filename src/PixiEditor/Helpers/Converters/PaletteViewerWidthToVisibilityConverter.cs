@@ -8,7 +8,7 @@ internal class PaletteViewerWidthToVisibilityConverter : SingleInstanceConverter
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         bool isCompact = value is double and < 100;
-        if (parameter is string and "Hidden")
+        if (parameter is "Hidden")
         {
             return isCompact ? Visibility.Hidden : Visibility.Visible;
         }

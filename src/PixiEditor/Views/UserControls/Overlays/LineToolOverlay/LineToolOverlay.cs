@@ -5,6 +5,7 @@ using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Numerics;
 using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
 namespace PixiEditor.Views.UserControls.Overlays.LineToolOverlay;

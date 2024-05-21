@@ -6,6 +6,7 @@ using System.Windows.Media.Imaging;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Position;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Views.UserControls;

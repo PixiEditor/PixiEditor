@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Helpers;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels;
 using PixiEditor.ViewModels.SubViewModels.Document;
 

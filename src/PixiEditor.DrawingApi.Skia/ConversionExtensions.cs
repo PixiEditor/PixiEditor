@@ -3,6 +3,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Skia.Implementations;
+using PixiEditor.Numerics;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia
@@ -44,6 +45,11 @@ namespace PixiEditor.DrawingApi.Skia
         public static SKRect ToSkRect(this RectI rect)
         {
             return new SKRect(rect.Left, rect.Top, rect.Right, rect.Bottom);
+        }
+
+        public static SKRectI ToSkRectI(this RectI rect)
+        {
+            return new SKRectI(rect.Left, rect.Top, rect.Right, rect.Bottom);
         }
         
         public static SKImageInfo ToSkImageInfo(this ImageInfo info)

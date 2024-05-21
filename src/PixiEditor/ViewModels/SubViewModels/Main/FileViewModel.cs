@@ -19,6 +19,7 @@ using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Dialogs;
 using PixiEditor.Models.IO;
 using PixiEditor.Models.Localization;
+using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.Dialogs;

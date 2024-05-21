@@ -5,6 +5,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 
@@ -24,9 +25,11 @@ public static class FloodFillHelper
         {
             Guid guid = membersToFloodFill.First();
             var member = document.FindMemberOrThrow(guid);
-            if (member is IReadOnlyFolder folder)
+            if (member is IReadOnlyFolder)
                 return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
-            return new FloodFillChunkCache(((IReadOnlyLayer)member).LayerImage);
+            if (member is not IReadOnlyRasterLayer rasterLayer)
+                throw new InvalidOperationException("Member is not a raster layer");
+            return new FloodFillChunkCache(rasterLayer.LayerImage);
         }
         return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot);
     }

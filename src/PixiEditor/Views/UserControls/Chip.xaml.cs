@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
+using PixiEditor.Extensions.UI;
 using PixiEditor.Platform;
 using Brush = System.Drawing.Brush;
 

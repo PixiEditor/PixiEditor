@@ -1,5 +1,6 @@
 ﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal class DrawEllipse_UpdateableChange : UpdateableChange

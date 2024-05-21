@@ -1,8 +1,9 @@
-﻿using System.Windows;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Events;
+using PixiEditor.Numerics;
+using Point = System.Windows.Point;
 
 namespace PixiEditor.Models.Controllers;
 #nullable enable

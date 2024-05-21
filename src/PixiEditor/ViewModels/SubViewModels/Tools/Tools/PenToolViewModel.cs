@@ -7,6 +7,7 @@ using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Localization;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls;

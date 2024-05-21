@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.Numerics;
 using BlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -88,13 +89,16 @@ internal class ResizeImage_Change : Change
 
         target.ForEveryMember(member =>
         {
-            if (member is Layer layer)
+            if (member is RasterLayer layer)
             {
                 ScaleChunkyImage(layer.LayerImage);
                 var affected = layer.LayerImage.FindAffectedArea();
                 savedChunks[layer.GuidValue] = new CommittedChunkStorage(layer.LayerImage, affected.Chunks);
                 layer.LayerImage.CommitChanges();
             }
+
+            // Add support for different Layer types
+
             if (member.Mask is not null)
             {
                 ScaleChunkyImage(member.Mask);
@@ -113,7 +117,7 @@ internal class ResizeImage_Change : Change
         target.Size = originalSize;
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is RasterLayer layer)
             {
                 layer.LayerImage.EnqueueResize(originalSize);
                 layer.LayerImage.EnqueueClear();

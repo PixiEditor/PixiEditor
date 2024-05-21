@@ -3,6 +3,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Events;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Views.UserControls.SymmetryOverlay;
 

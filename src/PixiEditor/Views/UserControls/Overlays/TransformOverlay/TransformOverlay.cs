@@ -4,6 +4,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
+using Point = System.Windows.Point;
 
 namespace PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 #nullable enable

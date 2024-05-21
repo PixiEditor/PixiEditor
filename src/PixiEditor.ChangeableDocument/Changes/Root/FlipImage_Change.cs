@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
+using PixiEditor.Numerics;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
@@ -99,13 +100,14 @@ internal sealed class FlipImage_Change : Change
         {
             if (membersToFlip.Count == 0 || membersToFlip.Contains(member.GuidValue))
             {
-                if (member is Layer layer)
+                if (member is RasterLayer layer)
                 {
                     FlipImage(layer.LayerImage);
                     changes.Add(
                         new LayerImageArea_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedArea()));
                     layer.LayerImage.CommitChanges();
                 }
+                // TODO: Add support for non-raster layers
 
                 if (member.Mask is not null)
                 {

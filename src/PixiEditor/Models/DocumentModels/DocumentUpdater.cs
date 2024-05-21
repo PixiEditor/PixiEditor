@@ -14,6 +14,7 @@ using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels;
@@ -146,7 +147,7 @@ internal class DocumentUpdater
 
     private void ProcessSetReferenceLayer(SetReferenceLayer_ChangeInfo info)
     {
-        doc.ReferenceLayerViewModel.InternalSetReferenceLayer(info.ImagePbgra32Bytes, info.ImageSize, info.Shape);
+        doc.ReferenceLayerViewModel.InternalSetReferenceLayer(info.ImageRgba64Bytes, info.ImageSize, info.Shape);
     }
     
     private void ProcessReferenceLayerTopMost(ReferenceLayerTopMost_ChangeInfo info)

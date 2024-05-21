@@ -9,6 +9,7 @@ using Microsoft.Win32;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;

@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using PixiEditor.Models.IO;
 
 namespace PixiEditor.Extensions.Palettes.Parsers;
 

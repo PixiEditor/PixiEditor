@@ -5,6 +5,7 @@ using PixiEditor.ChangeableDocument.Changes.Drawing.FloodFill;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Selection.MagicWand;
 internal class MagicWandHelper

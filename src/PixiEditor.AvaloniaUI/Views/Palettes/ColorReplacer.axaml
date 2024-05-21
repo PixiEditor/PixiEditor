@@ -1,0 +1,54 @@
+﻿<UserControl x:Class="PixiEditor.AvaloniaUI.Views.Palettes.ColorReplacer"
+             x:ClassModifier="internal"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+             xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             xmlns:palettes="clr-namespace:PixiEditor.AvaloniaUI.Views.Palettes"
+             xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
+             xmlns:controls="clr-namespace:PixiEditor.UI.Common.Controls;assembly=PixiEditor.UI.Common"
+             Name="uc">
+    <Border BorderBrush="{DynamicResource ThemeBorderMidColor}"
+            Background="{DynamicResource ThemeBackgroundColor}"
+            BorderThickness="0 2 0 0" MinWidth="60" Focusable="True">
+        <Interaction.Behaviors>
+            <behaviours:ClearFocusOnClickBehavior/>
+        </Interaction.Behaviors>
+        <Grid>
+            <Grid Grid.Row="0"  VerticalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.ColumnSpan="2" Grid.RowSpan="2">
+                    <Grid IsVisible="{Binding ElementName=VisibilityCheckbox, Path=!IsChecked}"  Background="Transparent"/>
+                </Grid>
+                <controls:Shelf Name="Shelf">
+                <StackPanel Name="MiddleStackPanel" Height="40" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <palettes:PaletteColorControl Color="{Binding ElementName=uc, Path=ColorToReplace}"
+                                               Height="35"
+                                               Width="35"
+                                               ui:Translator.TooltipKey="REPLACER_TOOLTIP"
+                                               ui1:DragDropEvents.Drop="PaletteColorControl_OnDrop"
+                                               DragDrop.AllowDrop="True" />
+                    <Image Source="/Images/Arrow-right.png" Height="20" Width="20" Margin="10 0" ui:Translator.UseLanguageFlowDirection="True"/>
+                    <colorPicker:PortableColorPicker
+                        UseHintColor="True"
+                        SelectedColor="{Binding ElementName=uc, Path=NewColor, Mode=TwoWay}"
+                        HintColor="{Binding ElementName=uc, Path=HintColor}"
+                        Height="37"
+                        Width="37" Focusable="False" Margin="0 0 10 0"
+                        ui:Translator.TooltipKey="CLICK_TO_CHOOSE_COLOR"
+                        ShowAlpha="False"/>
+                    <Button Click="ReplaceButton_OnClick" ui:Translator.TooltipKey="REPLACE_COLOR"
+                            Classes="ToolButtonStyle" Cursor="Hand" Height="20" Width="20">
+                        <Button.Background>
+                            <ImageBrush Source="/Images/Replace.png"/>
+                        </Button.Background>
+                    </Button>
+                </StackPanel>
+                </controls:Shelf>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

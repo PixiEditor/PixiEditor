@@ -1,6 +1,7 @@
 ﻿using ChunkyImageLib.DataHolders;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Enums;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;

@@ -5,6 +5,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Bridge.Operations
 {
@@ -31,8 +32,10 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void RestoreToCount(IntPtr objPtr, int count);
         public void DrawColor(IntPtr objPtr, Color color, BlendMode paintBlendMode);
         public void RotateRadians(IntPtr objPtr, float radians, float centerX, float centerY);
+        public void RotateDegrees(IntPtr objectPointer, float degrees, float centerX, float centerY);
         public void DrawImage(IntPtr objPtr, Image image, RectD rect, Paint paint);
         public void DrawBitmap(IntPtr objPtr, Bitmap bitmap, int x, int y);
         public void Dispose(IntPtr objectPointer);
+        public object GetNativeCanvas(IntPtr objectPointer);
     }
 }

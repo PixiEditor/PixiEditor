@@ -43,6 +43,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         : base(owner)
     {
         isPenModeEnabled = IPreferences.Current.GetLocalPreference<bool>(nameof(IsPenModeEnabled));
+        //TODO: It's very likely, that this won't work, because I implemented AddPropertyChangedCallback in ViewModelBase instead of ObservableObject
         Owner.ToolsSubViewModel.AddPropertyChangedCallback(nameof(ToolsViewModel.ActiveTool), UpdateUseTouchGesture);
 
         UpdateUseTouchGesture();

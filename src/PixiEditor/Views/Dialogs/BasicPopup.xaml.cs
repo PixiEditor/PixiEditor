@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using PixiEditor.Extensions;
+using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.Views.Dialogs;

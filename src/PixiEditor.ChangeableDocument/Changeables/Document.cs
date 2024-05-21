@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
@@ -44,7 +45,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     /// <remarks>So yeah, welcome folks to the multithreaded world, where possibilities are endless! (and chances of objects getting
     /// edited, in between of processing you want to make exist). You might encounter ObjectDisposedException and other mighty creatures here if
     /// you are lucky enough. Have fun!</remarks>
-    public Surface? GetLayerImage(Guid layerGuid)
+    public Surface? GetLayerRasterizedImage(Guid layerGuid)
     {
         var layer = (IReadOnlyLayer?)FindMember(layerGuid);
 
@@ -52,7 +53,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
             throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
 
 
-        RectI? tightBounds = layer.LayerImage.FindChunkAlignedMostUpToDateBounds();
+        RectI? tightBounds = layer.GetTightBounds();
 
         if (tightBounds is null)
             return null;
@@ -61,7 +62,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
 
         Surface surface = new Surface(tightBounds.Value.Size);
 
-        layer.LayerImage.DrawMostUpToDateRegionOn(
+        layer.Rasterize().DrawMostUpToDateRegionOn(
             tightBounds.Value,
             ChunkResolution.Full,
             surface.DrawingSurface, VecI.Zero);
@@ -77,7 +78,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
             throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
 
 
-        return layer.LayerImage.FindChunkAlignedMostUpToDateBounds();
+        return layer.GetTightBounds();
     }
     
     public void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action) => ForEveryReadonlyMember(StructureRoot, action);

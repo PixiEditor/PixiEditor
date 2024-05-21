@@ -13,6 +13,7 @@ using PixiEditor.Models.DocumentModels.UpdateableChangeExecutors;
 using PixiEditor.Models.DocumentPassthroughActions;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Position;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 
 namespace PixiEditor.Models.DocumentModels.Public;

@@ -1,6 +1,7 @@
 ﻿using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Helpers;
 

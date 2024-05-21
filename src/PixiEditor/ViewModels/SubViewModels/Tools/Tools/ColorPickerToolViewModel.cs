@@ -6,6 +6,7 @@ using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Localization;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;

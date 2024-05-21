@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -37,12 +38,14 @@ internal abstract class ResizeBasedChangeBase : Change
         target.Size = _originalSize;
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is RasterLayer layer)
             {
                 layer.LayerImage.EnqueueResize(_originalSize);
                 deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
                 layer.LayerImage.CommitChanges();
             }
+
+            // TODO: Add support for different Layer types?
             
             if (member.Mask is null)
                 return;

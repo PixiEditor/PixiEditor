@@ -10,8 +10,10 @@ using PixiEditor.Helpers;
 using PixiEditor.Models.Controllers;
 using PixiEditor.Models.Events;
 using PixiEditor.Models.Position;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.Zoombox;
+using Point = System.Windows.Point;
 
 namespace PixiEditor.Views.UserControls;
 
@@ -402,7 +404,7 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     
     private void ResetViewportClicked(object sender, RoutedEventArgs e)
     {
-        zoombox.Angle = 0;
+        zoombox.AngleRadians = 0;
         zoombox.CenterContent();
     }
 

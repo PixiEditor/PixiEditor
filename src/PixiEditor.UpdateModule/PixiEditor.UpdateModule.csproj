@@ -1,22 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-    <Configurations>Debug;Release;Steam;DevRelease</Configurations>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|AnyCPU'">
-    <Optimize>True</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x64'">
-    <Optimize>True</Optimize>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|x86'">
-    <Optimize>True</Optimize>
+    <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
 
 </Project>

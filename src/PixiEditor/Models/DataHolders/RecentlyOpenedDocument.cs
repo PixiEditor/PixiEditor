@@ -10,6 +10,7 @@ using PixiEditor.Models.IO;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Skia;
 using PixiEditor.Exceptions;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.Models.DataHolders;
 

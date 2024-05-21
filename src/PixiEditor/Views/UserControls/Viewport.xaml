@@ -124,7 +124,7 @@
             UseTouchGestures="{Binding UseTouchGestures, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWay}"
             Scale="{Binding ZoomboxScale, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Center="{Binding Center, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
-            Angle="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
+            AngleRadians="{Binding Angle, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             RealDimensions="{Binding RealDimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             Dimensions="{Binding Dimensions, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=OneWayToSource}"
             ZoomMode="{Binding ZoomMode, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:Viewport}, Mode=TwoWay}"
@@ -302,7 +302,7 @@
                             SnapToAngles="{Binding Document.TransformViewModel.SnapToAngles}"
                             InternalState="{Binding Document.TransformViewModel.InternalState, Mode=TwoWay}"
                             ZoomboxScale="{Binding Zoombox.Scale}"
-                            ZoomboxAngle="{Binding Zoombox.Angle}" />
+                            ZoomboxAngle="{Binding Zoombox.AngleRadians}" />
                         <lineOverlay:LineToolOverlay
                             Focusable="False"
                             Visibility="{Binding Document.LineToolOverlayViewModel.IsEnabled, Converter={converters:BoolToVisibilityConverter}}"

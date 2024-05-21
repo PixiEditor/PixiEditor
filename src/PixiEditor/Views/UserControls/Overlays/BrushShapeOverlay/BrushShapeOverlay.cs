@@ -7,9 +7,11 @@ using ChunkyImageLib.Operations;
 using PixiEditor;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Models.Controllers;
+using PixiEditor.Numerics;
 using PixiEditor.Views;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
+using Point = System.Windows.Point;
 
 namespace PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
 #nullable enable

@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Root;
 
@@ -33,17 +34,24 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
         }
 
         target.Size = newSize;
-        target.VerticalSymmetryAxisX = Math.Clamp(_originalVerAxisX, 0, target.Size.X);
-        target.HorizontalSymmetryAxisY = Math.Clamp(_originalHorAxisY, 0, target.Size.Y);
+        float normalizedX = (float)_originalVerAxisX / _originalSize.X;
+        float normalizedY = (float)_originalHorAxisY / _originalSize.Y;
+        float newVerticalSymmetryAxisX = newSize.X * normalizedX;
+        float newHorizontalSymmetryAxisY = newSize.Y * normalizedY;
+        target.VerticalSymmetryAxisX = Math.Clamp(newVerticalSymmetryAxisX, 0, target.Size.X);
+        target.HorizontalSymmetryAxisY = Math.Clamp(newHorizontalSymmetryAxisY, 0, target.Size.Y);
 
         VecI offset = anchor.FindOffsetFor(_originalSize, newSize);
 
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is RasterLayer layer)
             {
                 Resize(layer.LayerImage, layer.GuidValue, newSize, offset, deletedChunks);
             }
+
+            // TODO: Check if adding support for different Layer types is necessary
+
             if (member.Mask is null)
                 return;
 

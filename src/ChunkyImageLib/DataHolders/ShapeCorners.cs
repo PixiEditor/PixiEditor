@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Numerics;
 
 namespace ChunkyImageLib.DataHolders;
 
@@ -146,12 +147,12 @@ public struct ShapeCorners
         TopRight = TopRight.ReflectX(verAxisX)
     };
 
-    public ShapeCorners AsRotated(double angle, VecD around) => new ShapeCorners
+    public ShapeCorners AsRotated(double angleRad, VecD around) => new ShapeCorners
     {
-        BottomLeft = BottomLeft.Rotate(angle, around),
-        BottomRight = BottomRight.Rotate(angle, around),
-        TopLeft = TopLeft.Rotate(angle, around),
-        TopRight = TopRight.Rotate(angle, around)
+        BottomLeft = BottomLeft.Rotate(angleRad, around),
+        BottomRight = BottomRight.Rotate(angleRad, around),
+        TopLeft = TopLeft.Rotate(angleRad, around),
+        TopRight = TopRight.Rotate(angleRad, around)
     };
 
     public ShapeCorners AsTranslated(VecD delta) => new ShapeCorners
@@ -161,6 +162,28 @@ public struct ShapeCorners
         TopLeft = TopLeft + delta,
         TopRight = TopRight + delta
     };
+
+    public ShapeCorners AsScaled(float uniformScale)
+    {
+        VecD center = RectCenter;
+        VecD topLeftDelta = TopLeft - center;
+        VecD topRightDelta = TopRight - center;
+        VecD bottomLeftDelta = BottomLeft - center;
+        VecD bottomRightDelta = BottomRight - center;
+
+        topLeftDelta *= uniformScale;
+        topRightDelta *= uniformScale;
+        bottomLeftDelta *= uniformScale;
+        bottomRightDelta *= uniformScale;
+
+        return new ShapeCorners()
+        {
+            TopLeft = center + topLeftDelta,
+            TopRight = center + topRightDelta,
+            BottomLeft = center + bottomLeftDelta,
+            BottomRight = center + bottomRightDelta
+        };
+    }
 
     public static bool operator !=(ShapeCorners left, ShapeCorners right) => !(left == right);
     public static bool operator == (ShapeCorners left, ShapeCorners right)

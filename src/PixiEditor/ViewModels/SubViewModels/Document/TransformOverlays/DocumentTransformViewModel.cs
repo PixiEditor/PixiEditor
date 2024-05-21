@@ -8,6 +8,7 @@ using PixiEditor.Extensions.Helpers;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Localization;
+using PixiEditor.Numerics;
 using PixiEditor.Views.UserControls.Overlays.TransformOverlay;
 
 namespace PixiEditor.ViewModels.SubViewModels.Document.TransformOverlays;

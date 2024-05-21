@@ -6,6 +6,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
+using PixiEditor.Numerics;
 using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia.Implementations
@@ -156,6 +157,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[objPtr].RotateRadians(radians, centerX, centerY);
         }
 
+        public void RotateDegrees(IntPtr objectPointer, float degrees, float centerX, float centerY)
+        {
+            ManagedInstances[objectPointer].RotateDegrees(degrees, centerX, centerY);
+        }
+
         public void DrawImage(IntPtr objPtr, Image image, RectD rect, Paint paint)
         {
             ManagedInstances[objPtr].DrawImage(
@@ -174,6 +180,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[objectPointer].Dispose();
             
             ManagedInstances.TryRemove(objectPointer, out _);
+        }
+
+        public object GetNativeCanvas(IntPtr objectPointer)
+        {
+            return ManagedInstances[objectPointer];
         }
     }
 }

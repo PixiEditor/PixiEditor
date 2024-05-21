@@ -8,6 +8,7 @@ using PixiEditor.Models.Controllers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Enums;
 using PixiEditor.Models.Events;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;
 using PixiEditor.ViewModels.SubViewModels.Tools;
 using PixiEditor.ViewModels.SubViewModels.Tools.Tools;

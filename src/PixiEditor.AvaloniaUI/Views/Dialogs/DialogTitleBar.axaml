@@ -1,0 +1,28 @@
+﻿<UserControl
+    x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.DialogTitleBar"
+    x:ClassModifier="internal"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+    xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
+    mc:Ignorable="d"
+    x:Name="uc"
+    Height="36"
+    d:DesignWidth="300">
+    <Grid>
+        <Grid Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False"/>
+        <TextBlock
+            IsHitTestVisible="False"
+            TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+            ui:Translator.Key="{Binding ElementName=uc, Path=TitleKey}"
+            Foreground="{DynamicResource ThemeForegroundBrush}"
+            FontSize="13"
+            Margin="5,0,0,0"/>
+        <DockPanel IsHitTestVisible="True">
+            <CaptionButtons Name="captionButtons" DockPanel.Dock="Right" />
+            <Control /><!-- dummy control to occupy dockpanel center -->
+        </DockPanel>
+    </Grid>
+</UserControl>

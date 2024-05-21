@@ -6,6 +6,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.Localization;
+using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Settings;
 using PixiEditor.ViewModels.SubViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.Views.UserControls.Overlays.BrushShapeOverlay;
@@ -26,24 +27,24 @@ internal abstract class ToolViewModel : NotifyableObject
 
     public virtual BrushShape BrushShape => BrushShape.Square;
 
-    public virtual bool HideHighlight { get; }
+                                                 public virtual bool HideHighlight { get; }
 
-    public abstract LocalizedString Tooltip { get; }
+                                                 public abstract LocalizedString Tooltip { get; }
 
-    /// <summary>
-    /// Determines if secondary color should be used if right click mode is set to secondary color
-    /// </summary>
-    public virtual bool UsesColor => false;
+                                                 /// <summary>
+                                                 /// Determines if secondary color should be used if right click mode is set to secondary color
+                                                 /// </summary>
+                                                 public virtual bool UsesColor => false;
 
-    /// <summary>
-    /// Determines if PixiEditor should switch to the Eraser when right click mode is set to erase
-    /// </summary>
-    public virtual bool IsErasable => false;
+                                                 /// <summary>
+                                                 /// Determines if PixiEditor should switch to the Eraser when right click mode is set to erase
+                                                 /// </summary>
+                                                 public virtual bool IsErasable => false;
 
-    /// <summary>
-    /// The mouse button that is being used with the tool
-    /// </summary>
-    public MouseButton UsedWith { get; set; }
+                                                 /// <summary>
+                                                 /// The mouse button that is being used with the tool
+                                                 /// </summary>
+                                                 public MouseButton UsedWith { get; set; }
 
     private LocalizedString actionDisplay = string.Empty;
     public LocalizedString ActionDisplay
