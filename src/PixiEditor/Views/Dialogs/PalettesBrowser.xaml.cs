@@ -310,8 +310,16 @@ internal partial class PalettesBrowser : Window, IPopupWindow
 
     private void HandleCachePaletteCreated(Palette updatedItem)
     {
-        SortedResults.Add(updatedItem);
-        PaletteList.Palettes.Add(updatedItem);
+        if (!SortedResults.Contains(updatedItem))
+        {
+            SortedResults.Add(updatedItem);
+        }
+
+        if(!PaletteList.Palettes.Contains(updatedItem))
+        {
+            PaletteList.Palettes.Add(updatedItem);
+        }
+
         Sort();
     }
 
