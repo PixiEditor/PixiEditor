@@ -1,6 +1,8 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Chrome;
+using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using PixiEditor.Extensions.UI;
 
@@ -50,6 +52,12 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
     public DialogTitleBar()
     {
         InitializeComponent();
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        captionButtons.Attach(VisualRoot as Window);
     }
 
     void ICustomTranslatorElement.SetTranslationBinding(AvaloniaProperty dependencyProperty, IObservable<string> binding)

@@ -11,10 +11,10 @@
 
   <ControlTheme x:Key="SimpleCaptionButton"
                 TargetType="Button">
-    <Setter Property="Background" Value="#ffe5e5e5" />
+    <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
     <!--  Reusing BorderBrush to define pressed background color, as it's not used otherwise  -->
-    <Setter Property="BorderBrush" Value="#ffcacaca" />
-    <Setter Property="Foreground" Value="Black" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ThemeControlHighBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundColor}" />
     <Setter Property="Width" Value="45" />
     <Setter Property="VerticalAlignment" Value="Stretch" />
     <Setter Property="Template">
@@ -36,7 +36,7 @@
 
   <ControlTheme x:Key="{x:Type CaptionButtons}"
                 TargetType="CaptionButtons">
-    <Setter Property="MaxHeight" Value="30" />
+    <Setter Property="MaxHeight" Value="40" />
     <Setter Property="Template">
       <ControlTemplate>
         <StackPanel VerticalAlignment="Stretch"
@@ -80,7 +80,7 @@
           </Button>
           <Button x:Name="PART_CloseButton"
                   Background="#ffe81123"
-                  BorderBrush="#fff1707a"
+                  BorderBrush="#FFBB0E1C"
                   Theme="{StaticResource SimpleCaptionButton}"
                   AutomationProperties.Name="Close">
             <Viewbox Width="11"

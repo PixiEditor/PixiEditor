@@ -21,45 +21,7 @@
             FontSize="13"
             Margin="5,0,0,0"/>
         <DockPanel IsHitTestVisible="True">
-            <Button 
-                DockPanel.Dock="Right" 
-                IsCancel="True"
-                Classes="close"
-                Theme="{StaticResource DialogButtonTheme}"
-                ui:Translator.TooltipKey="CLOSE"
-                Click="CloseWindow">
-                🗙
-            </Button>
-            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" IsVisible="{Binding ElementName=uc, Path=CanFullscreen}">
-                <Button
-                    IsVisible="{Binding !$parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
-                    DockPanel.Dock="Right"
-                    Theme="{StaticResource DialogButtonTheme}"
-                    ui:Translator.TooltipKey="MAXIMIZE"
-                    Name="maximizeButton"
-                    Click="MaximizeWindow">
-                    🗖
-                </Button>
-                <Button
-                    IsVisible="{Binding $parent[Window].WindowState, Converter={converters:IsEqualConverter}, ConverterParameter={x:Static WindowState.Maximized}}"
-                    DockPanel.Dock="Right"
-                    Name="restoreButton"
-                    Theme="{StaticResource DialogButtonTheme}"
-                    ui:Translator.TooltipKey="RESTORE"
-                    Click="RestoreWindow">
-                    🗗
-                </Button>
-            </StackPanel>
-            <Button 
-                DockPanel.Dock="Right"
-                Name="minimizeButton"
-                Theme="{StaticResource DialogButtonTheme}"
-                IsVisible="{Binding ElementName=uc, Path=CanMinimize}"
-                ui:Translator.TooltipKey="MINIMIZE"
-                Padding="0, 0, 0, 5"
-                Click="MinimizeWindow">
-                🗕
-            </Button>
+            <CaptionButtons Name="captionButtons" DockPanel.Dock="Right" />
             <Control /><!-- dummy control to occupy dockpanel center -->
         </DockPanel>
     </Grid>
