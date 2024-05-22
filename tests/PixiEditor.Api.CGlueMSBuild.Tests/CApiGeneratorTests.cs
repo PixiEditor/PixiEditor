@@ -41,6 +41,26 @@ public class CApiGeneratorTests
         Assert.Contains("__attribute__((import_name(\"subscribe_to_event\")))", sanitizedImports);
         Assert.Contains("void subscribe_to_event(int32_t internalControlId, char* eventName, int32_t eventNameLength);", sanitizedImports);
     }
+    
+    [Fact]
+    public void TestThatGenerateImportsForStringReturnTypeGeneratesConversionCorrectly()
+    {
+        CApiGenerator apiGenerator = new CApiGenerator("", (message) => { });
+        AssemblyDefinition assembly = AssemblyDefinition.ReadAssembly("TestAssets/CGlueTestLib.dll");
+        var assemblies = apiGenerator.LoadAssemblies(assembly, "TestAssets");
+
+        var importedMethods = CApiGenerator.GetImportedMethods(assemblies.SelectMany(a => a.MainModule.Types).ToArray());
+        string imports = apiGenerator.GenerateImports([importedMethods.First(x => x.Name == "string_return_method")]);
+
+        string sanitizedImports = imports.Replace("\n", "").Replace("\r", "");
+
+        Assert.Contains("__attribute__((import_name(\"string_return_method\")))", sanitizedImports);
+        Assert.Contains("char* string_return_method();", sanitizedImports);
+        Assert.Contains("MonoString* internal_string_return_method(){", sanitizedImports);
+        Assert.Contains("char* result = string_return_method();", sanitizedImports);
+        Assert.Contains("MonoString* mono_result = mono_string_new(mono_domain_get(), result)", sanitizedImports);
+        Assert.Contains("return mono_result;", sanitizedImports);
+    }
 
     [Fact]
     public void TestThatGenerateExportsGeneratesCorrectExports()
