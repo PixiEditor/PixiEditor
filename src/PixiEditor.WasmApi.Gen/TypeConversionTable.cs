@@ -43,4 +43,34 @@ public static class TypeConversionTable
         typeName = null;
         return false;
     }
+    
+    public static bool IsValuePassableReturnType(ITypeSymbol argSymbol, out string? typeName)
+    {
+        if (argSymbol.Name.Equals("int32", StringComparison.OrdinalIgnoreCase))
+        {
+            typeName = "int";
+            return true;
+        }
+
+        if (argSymbol.Name.Equals("double", StringComparison.OrdinalIgnoreCase))
+        {
+            typeName = "double";
+            return true;
+        }
+        
+        /*if (argSymbol.Name.Equals("float", StringComparison.OrdinalIgnoreCase))
+        {
+            typeName = "float";
+            return true;
+        }
+        
+        if (argSymbol.Name.Equals("string", StringComparison.OrdinalIgnoreCase))
+        {
+            typeName = "string";
+            return true;
+        }*/
+
+        typeName = null;
+        return false;
+    }
 }

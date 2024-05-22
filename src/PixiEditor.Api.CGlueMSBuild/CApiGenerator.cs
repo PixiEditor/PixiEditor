@@ -170,7 +170,7 @@ public class CApiGenerator
             }
         }
 
-        sb.AppendLine(")");
+        sb.Append(")");
     }
 
     private string BuildAttachedFunction(MethodDefinition method)

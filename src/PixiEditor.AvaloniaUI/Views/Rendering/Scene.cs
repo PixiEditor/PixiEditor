@@ -477,7 +477,7 @@ internal class DrawSceneOperation : SkiaDrawOperation
         Angle = angle;
         FlipX = flipX;
         FlipY = flipY;
-        ViewportBounds = viewportBounds.Deflate(new Thickness(200));
+        ViewportBounds = viewportBounds;
         _paint.Color = _paint.Color.WithAlpha((byte)(opacity * 255));
         SurfaceRectToRender = FindRectToRender((float)scale);
     }

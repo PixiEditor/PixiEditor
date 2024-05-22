@@ -9,7 +9,6 @@
         <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
         <Setter Property="WindowStartupLocation" Value="CenterScreen" />
         <Setter Property="ExtendClientAreaChromeHints" Value="NoChrome" />
-        <Setter Property="SystemDecorations" Value="None"/>
         <Setter Property="ExtendClientAreaToDecorationsHint" Value="True" />
         <Setter Property="ExtendClientAreaTitleBarHeightHint" Value="36" />
         <Setter Property="Template">
