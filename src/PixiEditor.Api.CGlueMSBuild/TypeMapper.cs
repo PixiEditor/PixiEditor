@@ -113,7 +113,7 @@ public static class TypeMapper
         return [];
     }
 
-    public static ConvertedParam[] CToMonoType(TypeReference parameterParameterType, string inputVarName, string outputVarName)
+    public static ConvertedParam[] ConvertCToMonoType(TypeReference parameterParameterType, string inputVarName, string outputVarName)
     {
         if (IsLengthType(parameterParameterType))
         {

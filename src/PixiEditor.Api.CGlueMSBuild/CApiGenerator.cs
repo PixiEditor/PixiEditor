@@ -156,7 +156,7 @@ public class CApiGenerator
     private static void BuildMethodDeclaration(TypeReference returnType, StringBuilder sb, string functionName,
         Collection<ParameterDefinition> parameters, bool extractLength)
     {
-        string returnTypeMapped = TypeMapper.MapToMonoType(returnType);
+        string returnTypeMapped = TypeMapper.MapToCType(returnType);
         sb.Append($"{returnTypeMapped} {functionName}(");
 
         for (int i = 0; i < parameters.Count; i++)
@@ -247,7 +247,7 @@ public class CApiGenerator
             if(TypeMapper.RequiresConversion(parameter.ParameterType))
             {
                 string varName = $"mono_{parameter.Name}";
-                ConvertedParam[] convertedParams = TypeMapper.CToMonoType(parameter.ParameterType, parameter.Name, varName);
+                ConvertedParam[] convertedParams = TypeMapper.ConvertCToMonoType(parameter.ParameterType, parameter.Name, varName);
 
                 foreach (var convertedParam in convertedParams)
                 {
@@ -268,13 +268,33 @@ public class CApiGenerator
     private static void BuildInvokeImport(MethodDefinition method, StringBuilder sb, string[] paramsToPass)
     {
         string functionName = method.Name;
+        string? returnVar = null;
         if (method.ReturnType.FullName != "System.Void")
         {
-            sb.Append("return ");
+            string returnTypeMapped = TypeMapper.MapToCType(method.ReturnType);
+            returnVar = $"{returnTypeMapped} result = ";
+            sb.Append(returnVar);
         }
         sb.Append($"{functionName}(");
         sb.Append(string.Join(", ", paramsToPass));
         sb.AppendLine(");");
+        
+        if (returnVar != null)
+        {
+            if (TypeMapper.RequiresConversion(method.ReturnType))
+            {
+                string varName = "mono_result";
+                ConvertedParam[] convertedParams = TypeMapper.ConvertCToMonoType(method.ReturnType, "result", varName);
+
+                sb.AppendLine(convertedParams[0].FullExpression);
+                returnVar = convertedParams[0].VarName;
+                sb.AppendLine($"return {returnVar};");
+            }
+            else
+            {
+                sb.AppendLine($"return result;");
+            }
+        }
     }
 
     private string GenerateAttachImportedFunction(MethodDefinition method)
