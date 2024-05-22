@@ -50,8 +50,8 @@
         <DockPanel Background="{StaticResource MainColor}" Grid.Row="1">
             <StackPanel HorizontalAlignment="Left" Margin="10" Orientation="Horizontal" VerticalAlignment="Center">
                 <Label ui:Translator.Key="SORT_BY" Style="{StaticResource BaseLabel}" VerticalAlignment="Center"/>
-                <ComboBox x:Name="sortingComboBox" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
-                    <ComboBoxItem IsSelected="True" ui:Translator.Key="DEFAULT"/>
+                <ComboBox x:Name="sortingComboBox" SelectedIndex="0" VerticalAlignment="Center" SelectionChanged="SortingComboBox_SelectionChanged">
+                    <ComboBoxItem ui:Translator.Key="DEFAULT"/>
                     <ComboBoxItem ui:Translator.Key="ALPHABETICAL"/>
                     <ComboBoxItem ui:Translator.Key="COLOR_COUNT"/>
                 </ComboBox>
