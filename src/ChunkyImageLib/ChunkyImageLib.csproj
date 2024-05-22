@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
+    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>Nullable</WarningsAsErrors>

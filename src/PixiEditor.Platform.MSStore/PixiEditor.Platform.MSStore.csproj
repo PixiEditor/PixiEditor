@@ -2,6 +2,8 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
+      <TargetFrameworks>net7.0</TargetFrameworks>
+      <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>

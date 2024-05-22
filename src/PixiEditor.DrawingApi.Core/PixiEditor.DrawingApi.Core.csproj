@@ -7,6 +7,7 @@
         <LangVersion>10</LangVersion>
         <Configurations>Debug;Release;Steam;DevRelease;DevSteam</Configurations>
         <Platforms>AnyCPU;x86;x64</Platforms>
+      <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Steam|AnyCPU'">
