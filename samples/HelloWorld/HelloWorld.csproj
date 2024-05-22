@@ -5,7 +5,8 @@
         <OutputType>Exe</OutputType>
         <PublishTrimmed>true</PublishTrimmed>
         <WasmSingleFileBundle>true</WasmSingleFileBundle>
-        <OutputPath>..\..\src\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\win-x64\Extensions</OutputPath>
+        <GenerateExtensionPackage>true</GenerateExtensionPackage>
+        <PixiExtOutputPath>..\..\src\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\win-x64\Extensions</PixiExtOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     </PropertyGroup>
     

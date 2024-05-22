@@ -19,6 +19,9 @@
 
   <Target Name="BuildPackageTask" AfterTargets="_WasiGenerateAppBundle" Condition="'$(RuntimeIdentifier)' == 'wasi-wasm' And '$(GenerateExtensionPackage)' == 'true'">
     <Message Text="Building extension package"/>
-    <BuildPackageTask BuildResultDirectory="$(OutputPath)" TargetDirectory="$(OutputPath).." />
+    <PropertyGroup Condition="'$(PixiExtOutputPath)' == ''">
+      <PixiExtOutputPath>$(OutputPath)PixiExtension</PixiExtOutputPath>
+    </PropertyGroup>
+    <BuildPackageTask BuildResultDirectory="$(OutputPath)" TargetDirectory="$(PixiExtOutputPath)" />
   </Target>
 </Project>
