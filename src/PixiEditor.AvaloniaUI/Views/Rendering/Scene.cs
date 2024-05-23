@@ -120,20 +120,12 @@ internal class Scene : Zoombox.Zoombox, ICustomHitTest
         if (Surface == null || Document == null) return;
 
         float angle = (float)MathUtil.RadiansToDegrees(AngleRadians);
-        if (FlipX)
-        {
-            angle = 360 - angle;
-        }
-
-        if (FlipY)
-        {
-            angle = 360 - angle;
-        }
-
-        RectD dirtyBounds = new RectD(0, 0, Document.Width, Document.Height);
-        Rect dirtyRect = new Rect(0, 0, Document.Width, Document.Height);
         
         float resolutionScale = CalculateResolutionScale();
+
+        RectD dirtyBounds = new RectD(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
+        Rect dirtyRect = new Rect(0, 0, Document.Width / resolutionScale, Document.Height / resolutionScale);
+        
 
         using var operation = new DrawSceneOperation(Surface, Document, CanvasPos, Scale * resolutionScale, angle, FlipX, FlipY,
             dirtyRect,

@@ -20,6 +20,6 @@ public class LocalizationSampleExtension : WasmExtension
     public override void OnInitialized()
     {
         Api.Logger.Log(new LocalizedString("LOC_SAM:HELLO_WORLD"));
-        Api.Logger.Log(new LocalizedString("LOC_SAM:HELLO_WORLD_ARGS", "John Doe"));
+        Api.Logger.Log(new LocalizedString("LOC_SAM:HELLO_NAME", "John Doe"));
     }
 }
