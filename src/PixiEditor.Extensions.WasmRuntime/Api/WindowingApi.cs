@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.FlyUI.Elements;
+﻿using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Extensions.Windowing;
 

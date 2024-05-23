@@ -1,0 +1,4 @@
+{
+  "LOC_SAM:HELLO_WORLD": "Hello World!",
+  "LOC_SAM:HELLO_WORLD_ARGS": "Hello World {0}!"
+}

@@ -31,6 +31,6 @@ public class WasmRuntime
         var store = new Store(engine);
         store.SetWasiConfiguration(wasiConfig);
         linker.DefineWasi();
-        return new WasmExtensionInstance(linker, store, module);
+        return new WasmExtensionInstance(linker, store, module, path);
     }
 }

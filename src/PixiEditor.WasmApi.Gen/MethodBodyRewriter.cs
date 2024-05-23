@@ -13,12 +13,11 @@ public class MethodBodyRewriter : CSharpSyntaxRewriter
         MethodSemanticModel = methodSemanticModel;
     }
 
-
     public override SyntaxNode? VisitIdentifierName(IdentifierNameSyntax node)
     {
         var symbol = MethodSemanticModel.GetSymbolInfo(node).Symbol;
 
-        if (symbol is not INamedTypeSymbol { Kind: SymbolKind.NamedType, TypeKind: TypeKind.Class or TypeKind.Enum } namedTypeSymbol)
+        if (symbol is not INamedTypeSymbol { Kind: SymbolKind.NamedType } namedTypeSymbol)
         {
             return base.VisitIdentifierName(node);
         }

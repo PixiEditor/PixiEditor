@@ -90,7 +90,7 @@ internal class LocalizationProvider : ILocalizationProvider
                 continue;
             }
 
-            localizationData.MergeWith(extension.Metadata.Localization.Languages, Path.GetDirectoryName(extension.Assembly.Location));
+            localizationData.MergeWith(extension.Metadata.Localization.Languages, Path.GetDirectoryName(extension.Location));
         }
     }
 

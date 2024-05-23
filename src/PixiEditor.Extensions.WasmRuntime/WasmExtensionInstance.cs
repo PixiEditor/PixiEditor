@@ -24,13 +24,18 @@ public partial class WasmExtensionInstance : Extension
     private AsyncCallsManager AsyncHandleManager { get; set; }
     private WasmMemoryUtility WasmMemoryUtility { get; set; }
 
+    private string modulePath;
+    
+    public override string Location => modulePath;
+
     partial void LinkApiFunctions();
 
-    public WasmExtensionInstance(Linker linker, Store store, Module module)
+    public WasmExtensionInstance(Linker linker, Store store, Module module, string path)
     {
         Linker = linker;
         Store = store;
         Module = module;
+        modulePath = path;
     }
 
     public void Instantiate()
