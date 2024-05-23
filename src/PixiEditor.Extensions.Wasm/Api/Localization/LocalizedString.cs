@@ -39,7 +39,7 @@ public struct LocalizedString
             return localizationKey;
         }
         
-        string translated = Interop.translate_key(localizationKey);
+        string translated = Native.translate_key(localizationKey);
         if (translated == null)
         {
             return localizationKey;

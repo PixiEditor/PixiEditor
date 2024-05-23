@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Extensions.Wasm;
 
-internal partial class Interop
+internal partial class Native
 {
     private static Dictionary<int, AsyncCall> asyncCalls = new();
     

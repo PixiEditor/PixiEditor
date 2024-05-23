@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace PixiEditor.Extensions.Wasm;
 
-internal static partial class Interop
+internal static partial class Native
 {
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern int create_popup_window(string title, IntPtr data, int length);

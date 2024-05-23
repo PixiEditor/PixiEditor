@@ -21,6 +21,6 @@ public class Logger : ILogger
 
     private void InvokeApiLog(string message)
     {
-        Interop.log_message(message);
+        Native.log_message(message);
     }
 }

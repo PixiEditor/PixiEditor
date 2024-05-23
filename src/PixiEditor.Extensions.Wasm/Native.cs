@@ -13,7 +13,7 @@ internal static class Program { internal static void Main() { } } // Required fo
 
 [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:Element should begin with upper-case letter", 
     Justification = "Interop is a special case, it's injected to C code and follows C naming conventions.")]
-internal static partial class Interop
+internal static partial class Native
 {
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void log_message(string message);
