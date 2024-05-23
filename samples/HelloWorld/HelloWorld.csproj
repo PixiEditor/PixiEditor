@@ -17,11 +17,11 @@
     <!--Below is not required if you use Nuget package, this sample references project directly, so it must be here-->
     <Import Project="..\..\src\PixiEditor.Extensions.Wasm\build\PixiEditor.Extensions.Wasm.props"/>
     <Import Project="..\..\src\PixiEditor.Extensions.Wasm\build\PixiEditor.Extensions.Wasm.targets" />
-
+    
     <ItemGroup>
         <None Remove="extension.json" />
         <Content Include="extension.json">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.Build.Framework;
+﻿using System.Diagnostics;
+using Microsoft.Build.Framework;
 
 namespace PixiEditor.Extensions.MSPackageBuilder;
 

@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <CodeAnalysisRuleSet>../Custom.ruleset</CodeAnalysisRuleSet>
-		<AvaloniaVersion>11.0.10</AvaloniaVersion>
+		    <AvaloniaVersion>11.0.10</AvaloniaVersion>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="StyleCop.Analyzers" Version="1.1.118" />
@@ -30,11 +30,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='x64'">
-    <TargetPlatform>x64</TargetPlatform>
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='arm64'">
-    <TargetPlatform>arm64</TargetPlatform>
+    <PlatformTarget>arm64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='MSIX Debug'">
