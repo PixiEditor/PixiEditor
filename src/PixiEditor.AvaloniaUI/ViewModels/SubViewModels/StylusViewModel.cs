@@ -1,7 +1,7 @@
 ﻿using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.ViewModels.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 

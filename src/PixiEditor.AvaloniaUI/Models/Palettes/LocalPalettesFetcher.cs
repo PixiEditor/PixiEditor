@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.IO.PaletteParsers.JascPalFile;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Palettes;
 using PixiEditor.Extensions.Palettes.Parsers;
 

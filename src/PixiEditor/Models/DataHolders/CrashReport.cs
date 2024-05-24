@@ -7,7 +7,7 @@ using System.Text;
 using System.Windows.Input;
 using Newtonsoft.Json;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.Enums;

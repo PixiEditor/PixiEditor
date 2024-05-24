@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace PixiEditor.Extensions.Wasm;
+namespace PixiEditor.Extensions.Wasm.Bridge;
 
 internal static partial class Native
 {

@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Extensions.Wasm.Api.Localization;
+﻿using PixiEditor.Extensions.Wasm.Bridge;
+
+namespace PixiEditor.Extensions.Wasm.Api.Localization;
 
 public struct LocalizedString
 {

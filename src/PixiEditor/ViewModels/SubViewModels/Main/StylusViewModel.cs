@@ -1,5 +1,5 @@
 ﻿using System.Windows.Input;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.Commands.Attributes;
 using PixiEditor.Models.Commands.Attributes.Commands;
 using PixiEditor.ViewModels.SubViewModels.Tools;

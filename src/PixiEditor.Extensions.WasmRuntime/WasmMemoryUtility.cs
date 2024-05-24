@@ -85,6 +85,11 @@ public class WasmMemoryUtility
         return memory.ReadDouble(offset);
     }
     
+    public float GetSingle(int offset)
+    {
+        return memory.ReadSingle(offset);
+    }
+    
     public int WriteBoolean(bool value)
     {
         const int length = 1;
@@ -96,6 +101,16 @@ public class WasmMemoryUtility
     public bool GetBoolean(int offset)
     {
         return memory.Read<bool>(offset);
+    }
+
+    public bool ConvertBoolean(int rawValue)
+    {
+        return Convert.ToBoolean(rawValue);
+    }
+
+    public int ConvertBoolean(bool rawValue)
+    {
+        return Convert.ToInt32(rawValue);
     }
 
     public void Free(int address)

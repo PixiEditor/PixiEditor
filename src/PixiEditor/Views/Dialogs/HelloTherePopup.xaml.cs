@@ -4,7 +4,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using PixiEditor.Exceptions;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 using PixiEditor.Models.Commands;
 using PixiEditor.Models.DataHolders;

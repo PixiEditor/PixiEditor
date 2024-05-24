@@ -1,4 +1,4 @@
-﻿namespace LocalizationSample;
+﻿namespace Preferences;
 
 public static class Program
 {

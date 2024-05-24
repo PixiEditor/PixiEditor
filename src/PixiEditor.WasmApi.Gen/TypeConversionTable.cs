@@ -8,6 +8,11 @@ public static class TypeConversionTable
     {
         if(IsValuePassableType(symbol.Type, out string? typeName))
         {
+            if(RequiresConversion(symbol.Type))
+            {
+                return [$"{typeName} {symbol.Name}Raw"];
+            }
+            
             return [$"{typeName} {symbol.Name}"];
         }
 
@@ -40,37 +45,24 @@ public static class TypeConversionTable
             return true;
         }
 
-        typeName = null;
-        return false;
-    }
-    
-    public static bool IsValuePassableReturnType(ITypeSymbol argSymbol, out string? typeName)
-    {
-        if (argSymbol.Name.Equals("int32", StringComparison.OrdinalIgnoreCase))
-        {
-            typeName = "int";
-            return true;
-        }
-
-        if (argSymbol.Name.Equals("double", StringComparison.OrdinalIgnoreCase))
-        {
-            typeName = "double";
-            return true;
-        }
-        
-        /*if (argSymbol.Name.Equals("float", StringComparison.OrdinalIgnoreCase))
+        if (argSymbol.Name.Equals("single", StringComparison.OrdinalIgnoreCase))
         {
             typeName = "float";
             return true;
         }
-        
-        if (argSymbol.Name.Equals("string", StringComparison.OrdinalIgnoreCase))
+
+        if (argSymbol.Name.Equals("boolean", StringComparison.OrdinalIgnoreCase))
         {
-            typeName = "string";
+            typeName = "int"; // bool is passed as int
             return true;
-        }*/
+        }
 
         typeName = null;
         return false;
+    }
+
+    public static bool RequiresConversion(ITypeSymbol argSymbolType)
+    {
+        return argSymbolType.Name.Equals("boolean", StringComparison.OrdinalIgnoreCase);
     }
 }

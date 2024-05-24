@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Helpers;
 
 namespace PixiEditor.ViewModels.SubViewModels.UserPreferences;

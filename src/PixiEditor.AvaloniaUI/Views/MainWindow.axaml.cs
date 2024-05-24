@@ -13,7 +13,7 @@ using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
 using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;

@@ -3,7 +3,7 @@ using System.IO;
 using Newtonsoft.Json;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.IO;
 

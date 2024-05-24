@@ -1,6 +1,6 @@
 ﻿using PixiEditor.Extensions.Wasm.Async;
 
-namespace PixiEditor.Extensions.Wasm;
+namespace PixiEditor.Extensions.Wasm.Bridge;
 
 internal partial class Native
 {

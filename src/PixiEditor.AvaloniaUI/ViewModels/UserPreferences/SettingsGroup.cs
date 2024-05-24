@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.UserPreferences;
 

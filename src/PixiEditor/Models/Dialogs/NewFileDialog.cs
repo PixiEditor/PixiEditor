@@ -1,4 +1,4 @@
-﻿using PixiEditor.Extensions.Common.UserPreferences;
+﻿using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Views;
 using PixiEditor.Views.Dialogs;
 

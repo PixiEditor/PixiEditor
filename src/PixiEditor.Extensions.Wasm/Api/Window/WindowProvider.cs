@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Wasm.Api.FlyUI;
+using PixiEditor.Extensions.Wasm.Bridge;
 
 namespace PixiEditor.Extensions.Wasm.Api.Window;
 

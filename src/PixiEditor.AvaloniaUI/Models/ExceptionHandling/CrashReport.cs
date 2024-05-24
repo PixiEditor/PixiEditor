@@ -14,7 +14,7 @@ using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Parser;
 
 namespace PixiEditor.AvaloniaUI.Models.ExceptionHandling;

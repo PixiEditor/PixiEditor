@@ -12,7 +12,6 @@ using PixiEditor.Models.Commands.Templates;
 using PixiEditor.Views.Dialogs;
 using PixiEditor.Exceptions;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Common.UserPreferences;
 using PixiEditor.Models.Localization;
 using PixiEditor.Models.Preferences;
 

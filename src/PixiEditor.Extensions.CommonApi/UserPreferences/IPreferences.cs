@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.Extensions.Common.UserPreferences;
+﻿namespace PixiEditor.Extensions.CommonApi.UserPreferences;
 
 public interface IPreferences
 {

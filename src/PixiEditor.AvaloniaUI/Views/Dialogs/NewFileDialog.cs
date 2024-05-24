@@ -2,7 +2,7 @@
 using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Models;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 

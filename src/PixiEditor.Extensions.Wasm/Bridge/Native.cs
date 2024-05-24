@@ -2,12 +2,11 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Events;
 using PixiEditor.Extensions.Wasm.Api.FlyUI;
 
-namespace PixiEditor.Extensions.Wasm;
+namespace PixiEditor.Extensions.Wasm.Bridge;
 
 internal static class Program { internal static void Main() { } } // Required for compilation
 

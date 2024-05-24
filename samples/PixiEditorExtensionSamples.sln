@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld", "HelloWorld\He
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalizationSample", "LocalizationSample\LocalizationSample.csproj", "{3201A287-5103-48F1-9005-E27B5025E6FA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Preferences", "Preferences\Preferences.csproj", "{EF6E6827-9827-4465-AD9B-5BE6BEE5747D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_References", "_References", "{7CC35BC4-829F-4EF4-8EB6-E1D46206E7DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,12 @@ Global
 		{3201A287-5103-48F1-9005-E27B5025E6FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3201A287-5103-48F1-9005-E27B5025E6FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3201A287-5103-48F1-9005-E27B5025E6FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF6E6827-9827-4465-AD9B-5BE6BEE5747D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF6E6827-9827-4465-AD9B-5BE6BEE5747D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF6E6827-9827-4465-AD9B-5BE6BEE5747D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF6E6827-9827-4465-AD9B-5BE6BEE5747D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2} = {7CC35BC4-829F-4EF4-8EB6-E1D46206E7DC}
 	EndGlobalSection
 EndGlobal

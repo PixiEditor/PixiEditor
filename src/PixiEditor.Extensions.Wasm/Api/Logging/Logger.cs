@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Extensions.CommonApi.Logging;
+using PixiEditor.Extensions.Wasm.Bridge;
 
 namespace PixiEditor.Extensions.Wasm.Api.Logging;
 

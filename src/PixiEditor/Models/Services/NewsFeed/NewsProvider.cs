@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Platform;
 using PixiEditor.UpdateModule;
 

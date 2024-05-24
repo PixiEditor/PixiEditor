@@ -17,7 +17,7 @@ using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging;
 using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.Localization;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;

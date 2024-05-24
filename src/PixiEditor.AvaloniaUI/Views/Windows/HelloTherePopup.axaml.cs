@@ -12,7 +12,7 @@ using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.UserData;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
-using PixiEditor.Extensions.Common.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.AvaloniaUI.Views.Windows;

@@ -105,6 +105,16 @@ public class ApiGenerator : IIncrementalGenerator
                     : $"{argSymbol.Name}Pointer";
                 syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement(
                     $"{argSymbol.Type.ToDisplayString()} {argSymbol.Name} = WasmMemoryUtility.Get{lowerType}({paramsString});"));
+                continue;
+            }
+
+            if (TypeConversionTable.RequiresConversion(argSymbol.Type))
+            {
+                string lowerType = argSymbol.Type.Name;
+                string paramsString = $"{argSymbol.Name}Raw";
+                
+                syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement(
+                    $"{argSymbol.Type.ToDisplayString()} {argSymbol.Name} = WasmMemoryUtility.Convert{lowerType}({paramsString});"));
             }
         }
 
@@ -136,9 +146,15 @@ public class ApiGenerator : IIncrementalGenerator
                     string statementString =
                         $"return WasmMemoryUtility.Write{returnType}({returnStatementSyntax.Expression.ToFullString()});";
 
-                    if (TypeConversionTable.IsValuePassableReturnType(method.methodSymbol.ReturnType, out _))
+                    if (TypeConversionTable.IsValuePassableType(method.methodSymbol.ReturnType, out _))
                     {
                         statementString = $"return {returnStatementSyntax.Expression.ToFullString()};";
+
+                        if (TypeConversionTable.RequiresConversion(method.methodSymbol.ReturnType))
+                        {
+                            statementString =
+                                $"return WasmMemoryUtility.Convert{returnType}({returnStatementSyntax.Expression.ToFullString()});";
+                        }
                     }
 
                     syntaxes = syntaxes.Add(SyntaxFactory.ParseStatement(statementString));

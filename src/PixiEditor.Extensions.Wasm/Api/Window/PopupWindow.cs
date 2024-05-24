@@ -1,5 +1,6 @@
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.Wasm.Async;
+using PixiEditor.Extensions.Wasm.Bridge;
 
 namespace PixiEditor.Extensions.Wasm.Api.Window;
 

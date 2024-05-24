@@ -1,9 +1,8 @@
 ﻿using PixiEditor.Extensions.Wasm;
-using PixiEditor.Extensions.Wasm.Api.Localization;
 
-namespace LocalizationSample;
+namespace Preferences;
 
-public class LocalizationSampleExtension : WasmExtension
+public class PreferencesSampleExtension : WasmExtension
 {
     /// <summary>
     ///     This method is called when extension is loaded.
@@ -18,7 +17,7 @@ public class LocalizationSampleExtension : WasmExtension
     /// </summary>
     public override void OnInitialized()
     {
-        Api.Logger.Log(new LocalizedString("LOC_SAM:HELLO_WORLD"));
-        Api.Logger.Log(new LocalizedString("LOC_SAM:HELLO_NAME", "John Doe"));
+        Api.Preferences.UpdatePreference("SAM_PREF:SaidHello", true);
+        Api.Preferences.Save();
     }
 }

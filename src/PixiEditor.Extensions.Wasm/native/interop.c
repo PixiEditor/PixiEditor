@@ -11,7 +11,7 @@ extern void _start(void);
 MonoMethod* lookup_interop_method(const char* method_name)
 {
     MonoMethod* method = NULL;
-    method = lookup_dotnet_method("PixiEditor.Extensions.Wasm.dll", "PixiEditor.Extensions.Wasm", "Native", method_name, -1);
+    method = lookup_dotnet_method("PixiEditor.Extensions.Wasm.dll", "PixiEditor.Extensions.Wasm.Bridge", "Native", method_name, -1);
     assert(method);
 
     return method;
