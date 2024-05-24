@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Extensions.FlyUI.Elements;
+using PixiEditor.Extensions.Metadata;
 using PixiEditor.Extensions.WasmRuntime.Management;
 using Wasmtime;
 
@@ -14,4 +15,6 @@ internal class ApiGroupHandler
     protected AsyncCallsManager AsyncHandleManager { get; }
     protected Instance? Instance { get; }
     protected WasmMemoryUtility WasmMemoryUtility { get; }
+    protected ExtensionMetadata Metadata { get; }
+    protected Extension Extension { get; }
 }

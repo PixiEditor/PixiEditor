@@ -26,4 +26,6 @@ public class MethodBodyRewriter : CSharpSyntaxRewriter
 
         return newIdentifier;
     }
+    
+    // seems like above doesn't work for elements that are after return statement, TODO: fix this
 }

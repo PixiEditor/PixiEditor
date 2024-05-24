@@ -24,6 +24,8 @@ public partial class WasmExtensionInstance : Extension
     private AsyncCallsManager AsyncHandleManager { get; set; }
     private WasmMemoryUtility WasmMemoryUtility { get; set; }
 
+    private Extension Extension => this; // api group handler needs this property
+
     private string modulePath;
     
     public override string Location => modulePath;

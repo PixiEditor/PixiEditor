@@ -49,9 +49,9 @@ internal class PreferencesSettings : IPreferences
 
         Preferences[name] = value;
 
-        if (Callbacks.ContainsKey(name))
+        if (Callbacks.TryGetValue(name, out var callback))
         {
-            foreach (var action in Callbacks[name])
+            foreach (var action in callback)
             {
                 action.Invoke(value);
             }
@@ -69,9 +69,9 @@ internal class PreferencesSettings : IPreferences
 
         LocalPreferences[name] = value;
 
-        if (Callbacks.ContainsKey(name))
+        if (Callbacks.TryGetValue(name, out var callback))
         {
-            foreach (var action in Callbacks[name])
+            foreach (var action in callback)
             {
                 action.Invoke(value);
             }

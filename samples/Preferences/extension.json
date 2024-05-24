@@ -20,6 +20,9 @@
       "website": "https://github.com/flabbet"
     }
   ],
+  "permissions": [
+    "WriteNonOwnedPreferences"
+  ],
   "license": "MIT",
   "categories": [
     "Extension"
