@@ -20,27 +20,27 @@ public class Preferences : IPreferences
 
     public void UpdateLocalPreference<T>(string name, T value)
     {
-        throw new NotImplementedException();
+        Interop.UpdateLocalUserPreference(name, value);
     }
 
     public T GetPreference<T>(string name)
     {
-        throw new NotImplementedException();
+        return Interop.GetPreference<T>(name, default);
     }
 
     public T GetPreference<T>(string name, T fallbackValue)
     {
-        throw new NotImplementedException();
+        return Interop.GetPreference<T>(name, fallbackValue);
     }
 
     public T GetLocalPreference<T>(string name)
     {
-        throw new NotImplementedException();
+        return Interop.GetLocalPreference<T>(name, default);
     }
 
     public T GetLocalPreference<T>(string name, T fallbackValue)
     {
-        throw new NotImplementedException();
+        return Interop.GetLocalPreference(name, fallbackValue);
     }
 
 

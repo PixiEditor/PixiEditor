@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Extensions.Wasm;
 
-public class ApiExportAttribute : Attribute
+internal class ApiExportAttribute : Attribute
 {
     public string ExportName { get; }
 

@@ -10,7 +10,6 @@ public class PixiEditorApi
 {
     public Logger Logger { get; }
     public WindowProvider WindowProvider { get; }
-    
     public Preferences Preferences { get; }
 
     public PixiEditorApi()

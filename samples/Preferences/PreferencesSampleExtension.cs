@@ -17,7 +17,11 @@ public class PreferencesSampleExtension : WasmExtension
     /// </summary>
     public override void OnInitialized()
     {
-        Api.Preferences.UpdatePreference("SAM_PREF:SaidHello", true);
+        int helloCount = Api.Preferences.GetPreference<int>("HelloCount");
+
+        Api.Logger.Log($"Hello count: {helloCount}");
+
+        Api.Preferences.UpdatePreference("HelloCount", helloCount + 1);
         Api.Preferences.Save();
     }
 }
