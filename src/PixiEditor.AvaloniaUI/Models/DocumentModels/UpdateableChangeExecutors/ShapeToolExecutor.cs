@@ -7,7 +7,7 @@ using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.DocumentModels.UpdateableChangeExecutors;

@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.DataHolders;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 

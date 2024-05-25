@@ -8,7 +8,7 @@ using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Models.DataHolders;
 using PixiEditor.Models.IO;

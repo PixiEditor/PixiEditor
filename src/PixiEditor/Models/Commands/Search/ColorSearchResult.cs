@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 
 namespace PixiEditor.Models.Commands.Search;
 

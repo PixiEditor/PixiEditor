@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.IO;
 

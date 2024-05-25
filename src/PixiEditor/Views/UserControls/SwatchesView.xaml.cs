@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 
 namespace PixiEditor.Views.UserControls;
 

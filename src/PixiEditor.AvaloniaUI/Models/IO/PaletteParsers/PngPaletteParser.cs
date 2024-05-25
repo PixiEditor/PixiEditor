@@ -5,8 +5,8 @@ using Avalonia.Media.Imaging;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.IO.PaletteParsers;

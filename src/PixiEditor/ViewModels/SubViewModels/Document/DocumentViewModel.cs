@@ -16,7 +16,7 @@ using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 using PixiEditor.Helpers.Collections;
 using PixiEditor.Models.Controllers;

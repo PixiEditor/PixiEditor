@@ -1,8 +1,8 @@
 ﻿using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Models.IO.PaletteParsers;

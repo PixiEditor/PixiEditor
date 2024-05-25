@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http;
 using Newtonsoft.Json;
-using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.DataHolders.Palettes;
 using PixiEditor.Models.Dialogs;
 

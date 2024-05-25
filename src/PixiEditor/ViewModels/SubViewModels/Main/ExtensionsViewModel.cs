@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.Extensions;
-using PixiEditor.Extensions.Palettes;
 using PixiEditor.Models.AppExtensions;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;

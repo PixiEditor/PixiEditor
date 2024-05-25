@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;

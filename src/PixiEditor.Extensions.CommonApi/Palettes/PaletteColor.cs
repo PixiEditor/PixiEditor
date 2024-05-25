@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.Extensions.Palettes;
+﻿namespace PixiEditor.Extensions.CommonApi.Palettes;
 
 public struct PaletteColor
 {

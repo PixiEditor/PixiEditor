@@ -1,6 +1,6 @@
 ﻿#nullable enable
 using System.IO;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Helpers;
 namespace PixiEditor.Models.DataHolders.Palettes;
 

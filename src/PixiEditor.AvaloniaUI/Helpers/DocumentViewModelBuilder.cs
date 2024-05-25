@@ -7,7 +7,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;

@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.IO;
-using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.Extensions;
 

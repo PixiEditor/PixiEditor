@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Windows.Media;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using BackendColor = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 
 namespace PixiEditor.Helpers.Converters;

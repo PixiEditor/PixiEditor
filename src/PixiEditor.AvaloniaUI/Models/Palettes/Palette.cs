@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 
 namespace PixiEditor.AvaloniaUI.Models.Palettes;
 

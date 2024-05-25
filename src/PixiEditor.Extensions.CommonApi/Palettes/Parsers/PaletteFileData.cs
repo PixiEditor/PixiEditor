@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.Extensions.Palettes.Parsers;
+﻿namespace PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 
 public class PaletteFileData
 {

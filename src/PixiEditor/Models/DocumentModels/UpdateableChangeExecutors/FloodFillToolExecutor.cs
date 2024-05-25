@@ -1,7 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Models.Enums;
 using PixiEditor.Numerics;
 using PixiEditor.ViewModels.SubViewModels.Document;

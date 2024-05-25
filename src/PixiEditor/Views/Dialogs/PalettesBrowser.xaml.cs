@@ -8,10 +8,10 @@ using System.Windows.Navigation;
 using Microsoft.Win32;
 using PixiEditor.Extensions;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.Windowing;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.Helpers;
 using PixiEditor.Models.AppExtensions.Services;
 using PixiEditor.Models.DataHolders;
@@ -22,7 +22,7 @@ using PixiEditor.Models.Enums;
 using PixiEditor.Models.IO;
 using PixiEditor.Views.UserControls;
 using PixiEditor.Views.UserControls.Palettes;
-using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
+using PaletteColor = PixiEditor.Extensions.CommonApi.Palettes.PaletteColor;
 
 namespace PixiEditor.Views.Dialogs;
 

@@ -25,6 +25,10 @@
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.8.3"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Api\Palettes\" />
+  </ItemGroup>
+
   <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
     <ItemGroup>
       <_PackageFiles Include="build\**" BuildAction="Content" PackagePath="build"/>

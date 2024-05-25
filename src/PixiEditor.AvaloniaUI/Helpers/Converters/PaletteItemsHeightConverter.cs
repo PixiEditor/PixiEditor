@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using Avalonia.Controls;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.Extensions.Palettes;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 

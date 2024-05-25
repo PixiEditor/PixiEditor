@@ -1,13 +1,12 @@
-﻿using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.Palettes.Parsers;
+﻿using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 
-namespace PixiEditor.Extensions.Palettes;
+namespace PixiEditor.Extensions.CommonApi.Palettes;
 
 public abstract class PaletteListDataSource
 {
-    public LocalizedString Name { get; set; }
+    public string Name { get; set; }
 
-    public PaletteListDataSource(LocalizedString name)
+    public PaletteListDataSource(string name)
     {
         Name = name;
         AvailableParsers = new List<PaletteFileParser>();

@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.Extensions.CommonApi;
 using PixiEditor.Extensions.CommonApi.Windowing;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;

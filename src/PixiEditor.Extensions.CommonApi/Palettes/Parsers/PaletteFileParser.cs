@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace PixiEditor.Extensions.Palettes.Parsers;
+﻿namespace PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 
 public abstract class PaletteFileParser
 {

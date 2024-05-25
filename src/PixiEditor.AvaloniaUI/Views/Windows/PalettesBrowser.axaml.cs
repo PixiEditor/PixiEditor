@@ -23,12 +23,12 @@ using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Input;
 using PixiEditor.AvaloniaUI.Views.Palettes;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.CommonApi.Palettes;
+using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.CommonApi.Windowing;
-using PixiEditor.Extensions.Palettes;
-using PixiEditor.Extensions.Palettes.Parsers;
 using PixiEditor.OperatingSystem;
-using PaletteColor = PixiEditor.Extensions.Palettes.PaletteColor;
+using PaletteColor = PixiEditor.Extensions.CommonApi.Palettes.PaletteColor;
 using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;
 
 namespace PixiEditor.AvaloniaUI.Views.Windows;
