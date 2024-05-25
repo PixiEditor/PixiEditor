@@ -8,6 +8,7 @@
         <GenerateExtensionPackage>true</GenerateExtensionPackage>
         <PixiExtOutputPath>..\..\src\PixiEditor.AvaloniaUI.Desktop\bin\Debug\net8.0\win-x64\Extensions</PixiExtOutputPath>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <RootNamespace>LocalizationSample</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,7 +17,7 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
-
+    
     <ItemGroup>
         <Content Include="Localization\*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
