@@ -61,7 +61,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     [Evaluator.CanExecute("PixiEditor.HasDocument", nameof(ActiveDocument))]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS", CanExecute = "PixiEditor.HasDocument", IconPath = "crop.png",
+    [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS", CanExecute = "PixiEditor.HasDocument", IconPath = "Crop.png",
         MenuItemPath = "IMAGE/CLIP_CANVAS", MenuItemOrder = 2)]
     public void ClipCanvas() => ActiveDocument?.Operations.ClipCanvas();
 
@@ -189,7 +189,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     }
 
     [Command.Basic("PixiEditor.Document.CenterContent", "CENTER_CONTENT", "CENTER_CONTENT", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "IMAGE/CLIP_CANVAS", MenuItemOrder = 3)]
+        MenuItemPath = "IMAGE/CENTER_CONTENT", MenuItemOrder = 3)]
     public void CenterContent()
     {
         if(ActiveDocument?.SelectedStructureMember == null)
