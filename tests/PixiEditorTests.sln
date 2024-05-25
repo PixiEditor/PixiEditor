@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.Wasm.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.WasmRuntime.Tests", "PixiEditor.Extensions.WasmRuntime.Tests\PixiEditor.Extensions.WasmRuntime.Tests.csproj", "{DA31D2E8-2AC2-41D1-921B-7571881EE85F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.MSPackageBuilder", "..\src\PixiEditor.Extensions.MSPackageBuilder\PixiEditor.Extensions.MSPackageBuilder.csproj", "{6D965165-3B4D-4C70-A559-6AD093879D5A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -102,6 +104,10 @@ Global
 		{DA31D2E8-2AC2-41D1-921B-7571881EE85F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA31D2E8-2AC2-41D1-921B-7571881EE85F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA31D2E8-2AC2-41D1-921B-7571881EE85F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D965165-3B4D-4C70-A559-6AD093879D5A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D965165-3B4D-4C70-A559-6AD093879D5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D965165-3B4D-4C70-A559-6AD093879D5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D965165-3B4D-4C70-A559-6AD093879D5A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{7F2DBBFC-FBDB-4772-806F-3B0829032DC0} = {E118E6FE-67E7-4472-A8D7-E7F470E66131}

@@ -18,7 +18,12 @@ public class LocalizationSampleExtension : WasmExtension
     /// </summary>
     public override void OnInitialized()
     {
-        Api.Logger.Log(new LocalizedString("LOC_SAM:HELLO_WORLD"));
-        Api.Logger.Log(new LocalizedString("LOC_SAM:HELLO_NAME", "John Doe"));
+        // You can either use direct key or ExtensionUniqueName:Key to access localization strings.
+        Api.Logger.Log(new LocalizedString("HELLO_WORLD"));
+        Api.Logger.Log(new LocalizedString("HELLO_NAME", "John Doe"));
+
+        // By prepending "PixiEditor:" to the key, you can access built-in PixiEditor localization strings.
+        // if you prepend any other extension unique name, you can access that extension localization strings.
+        Api.Logger.Log(new LocalizedString("PixiEditor:SHOW_IMAGE_PREVIEW_TASKBAR"));
     }
 }

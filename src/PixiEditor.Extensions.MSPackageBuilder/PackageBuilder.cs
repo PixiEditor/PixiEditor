@@ -18,7 +18,6 @@ public static class PackageBuilder
 
     public static void Build(string buildResultDirectory, string targetDirectory)
     {
-        string packageName = Path.GetFileName(buildResultDirectory);
         if (!Directory.Exists(buildResultDirectory))
         {
             throw new DirectoryNotFoundException($"Directory {buildResultDirectory} does not exist.");
@@ -41,6 +40,10 @@ public static class PackageBuilder
         {
             throw new InvalidOperationException("Build result directory and target directory cannot be the same.");
         }
+        
+        SimplifiedExtensionMetadata metadata =
+            JsonConvert.DeserializeObject<SimplifiedExtensionMetadata>(
+                File.ReadAllText(Path.Combine(buildResultDirectory, "extension.json")));
 
         foreach (ElementToInclude element in ElementsToInclude)
         {
@@ -50,13 +53,9 @@ public static class PackageBuilder
             }
             else
             {
-                CopyDirectory(element.Path, buildResultDirectory, targetTmpDirectory, element.IsRequired);
+                CopyDirectory(element.Path, buildResultDirectory, targetTmpDirectory, element.IsRequired, metadata);
             }
         }
-
-        SimplifiedExtensionMetadata metadata =
-            JsonConvert.DeserializeObject<SimplifiedExtensionMetadata>(
-                File.ReadAllText(Path.Combine(buildResultDirectory, "extension.json")));
 
         string packagePath = Path.Combine(targetDirectory, $"{metadata.UniqueName}.pixiext");
         if (File.Exists(packagePath))
@@ -95,7 +94,7 @@ public static class PackageBuilder
     }
 
     private static void CopyDirectory(string elementPath, string buildResultDirectory, string targetDirectory,
-        bool elementIsRequired)
+        bool elementIsRequired, SimplifiedExtensionMetadata metadata)
     {
         string directoryPath = Path.Combine(buildResultDirectory, elementPath);
         if (!Directory.Exists(directoryPath))
@@ -109,13 +108,43 @@ public static class PackageBuilder
             return;
         }
 
-        string targetDir = Path.Combine(targetDirectory, directoryPath);
+        string targetDir = Path.Combine(targetDirectory, elementPath);
         Directory.CreateDirectory(targetDir);
         var files = Directory.GetFiles(directoryPath);
         foreach (string file in files)
         {
-            File.Copy(file, Path.Combine(targetDir, Path.GetFileName(file)), true);
+            string destination = Path.Combine(targetDir, Path.GetFileName(file));
+            if(FileIsLocale(elementPath))
+            {
+                WriteLocale(file, destination, metadata.UniqueName);
+                return;
+            }
+            
+            File.Copy(file, destination, true);
         }
+    }
+
+    private static void WriteLocale(string file, string destination, string metadataUniqueName)
+    {
+        Dictionary<string, string> dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(file));
+        Dictionary<string, string> newDict = new();
+        foreach (KeyValuePair<string, string> pair in dict)
+        {
+            if (pair.Key.Contains(":"))
+            {
+                continue;
+            }
+            
+            newDict.Add($"{metadataUniqueName}:{pair.Key}", pair.Value);
+        }
+        
+        File.WriteAllText(destination, JsonConvert.SerializeObject(newDict));
+    }
+    
+    
+    private static bool FileIsLocale(string elementPath)
+    {
+        return elementPath.EndsWith("Localization/");
     }
 }
 

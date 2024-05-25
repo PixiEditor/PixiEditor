@@ -7,10 +7,5 @@ namespace CGlueTestLib;
 
 internal static class Exports
 {
-    [ApiExport("testExport")]
-    internal static void TestExport()
-    {
-
-    }
 
 }
