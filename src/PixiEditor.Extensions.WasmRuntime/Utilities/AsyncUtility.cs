@@ -1,8 +1,10 @@
-﻿namespace PixiEditor.Extensions.WasmRuntime.Utilities;
+﻿using PixiEditor.Extensions.CommonApi.Async;
+
+namespace PixiEditor.Extensions.WasmRuntime.Utilities;
 
 public static class AsyncUtility
 {
-    public static Task<int> ToResultFrom<T>(Task<T> task)
+    public static AsyncCall<int> ToIntResultFrom<T>(AsyncCall<T> task)
     {
         return task.ContinueWith(t =>
         {

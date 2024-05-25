@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Styling;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.Extensions.CommonApi;
+using PixiEditor.Extensions.CommonApi.Async;
 using PixiEditor.Extensions.CommonApi.Windowing;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
@@ -52,9 +53,9 @@ public partial class PixiEditorPopup : Window, IPopupWindow
         Show(MainWindow.Current);
     }
 
-    public async Task<bool?> ShowDialog()
+    public AsyncCall<bool?> ShowDialog()
     {
-        return await ShowDialog<bool?>(MainWindow.Current);
+        return AsyncCall<bool?>.FromTask(ShowDialog<bool?>(MainWindow.Current));
     }
 
     [RelayCommand]

@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.Wasm.Async;
+﻿using PixiEditor.Extensions.CommonApi.Async;
+using PixiEditor.Extensions.Wasm.Async;
 
 namespace PixiEditor.Extensions.Wasm.Bridge;
 
@@ -30,10 +31,17 @@ internal partial class Native
         asyncCalls.Remove(asyncHandle);
     }
     
-    // TODO: More types
-    public static AsyncCall AsyncHandleToTask<T>(int asyncHandle)
+    public static AsyncCall<T> CreateAsyncCall<T>(int asyncHandle)
     {
-        AsyncCall asyncCall = new(asyncHandle);
+        AsyncCall<T> asyncCall = new();
+        asyncCalls[asyncHandle] = asyncCall;
+
+        return asyncCall;
+    }
+    
+    public static AsyncCall<TResult> CreateAsyncCall<TResult, TConversionInput>(int asyncHandle, Func<TConversionInput, TResult> conversion)
+    {
+        ConvertableAsyncCall<TResult, TConversionInput> asyncCall = new(conversion);
         asyncCalls[asyncHandle] = asyncCall;
 
         return asyncCall;

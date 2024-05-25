@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.CommonApi.Windowing;
+﻿using PixiEditor.Extensions.CommonApi.Async;
+using PixiEditor.Extensions.CommonApi.Windowing;
 
 namespace PixiEditor.Extensions.Windowing;
 
@@ -20,7 +21,7 @@ public class PopupWindow : IPopupWindow
     public void Show() => _underlyingWindow.Show();
     public void Close() => _underlyingWindow.Close();
 
-    public Task<bool?> ShowDialog() => _underlyingWindow.ShowDialog();
+    public AsyncCall<bool?> ShowDialog() => _underlyingWindow.ShowDialog();
     public double Width
     {
         get => _underlyingWindow.Width;

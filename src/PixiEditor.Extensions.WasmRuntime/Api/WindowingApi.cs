@@ -1,4 +1,5 @@
 ﻿using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Extensions.CommonApi.Async;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Extensions.Windowing;
@@ -42,7 +43,7 @@ internal class WindowingApi : ApiGroupHandler
     public int ShowWindowAsync(int handle)
     {
         var window = NativeObjectManager.GetObject<PopupWindow>(handle);
-        Task<int> showDialogTask = AsyncUtility.ToResultFrom(window.ShowDialog());
+        var showDialogTask = AsyncUtility.ToIntResultFrom(window.ShowDialog());
         return AsyncHandleManager.AddAsyncCall(showDialogTask);
     }
 

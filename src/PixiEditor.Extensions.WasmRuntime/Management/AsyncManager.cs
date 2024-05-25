@@ -1,20 +1,22 @@
-﻿namespace PixiEditor.Extensions.WasmRuntime.Management;
+﻿using PixiEditor.Extensions.CommonApi.Async;
+
+namespace PixiEditor.Extensions.WasmRuntime.Management;
 
 internal delegate void AsyncCallCompleted(int asyncHandle, int resultValue); 
 internal delegate void AsyncCallFaulted(int asyncHandle, string exceptionMessage); 
 internal class AsyncCallsManager 
 {
-    private Dictionary<int, Task> asyncCalls = new();
+    private Dictionary<int, AsyncCall> asyncCalls = new();
  
     public event AsyncCallCompleted OnAsyncCallCompleted;
     public event AsyncCallFaulted OnAsyncCallFaulted;
     
-    public int AddAsyncCall(Task<int> task)
+    public int AddAsyncCall(AsyncCall<int> task)
     {
         int asyncHandle = GetNextAsyncHandle();
         task.ContinueWith(t =>
         {
-            if (t.IsFaulted)
+            if (t.Exception != null)
             {
                 OnAsyncCallFaulted?.Invoke(asyncHandle, t.Exception.Message);
             }
