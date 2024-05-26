@@ -1,12 +1,16 @@
-﻿namespace PixiEditor.Extensions.CommonApi.Async;
+﻿using System.Runtime.CompilerServices;
+
+namespace PixiEditor.Extensions.CommonApi.Async;
 
 public delegate void AsyncCallCompleted();
 public delegate void AsyncCallCompleted<T>(T result);
 public delegate void AsyncCallFailed(Exception exception);
     
+[AsyncMethodBuilder(typeof(AsyncCallAsyncMethodBuilder))]
 public class AsyncCall
 {
     private object? _result;
+    private Action continuation;
     public AsyncCallState State { get; protected set; } = AsyncCallState.Pending;
     public bool IsCompleted => State != AsyncCallState.Pending;
     public Exception? Exception { get; protected set; }
@@ -35,6 +39,7 @@ public class AsyncCall
         
         State = AsyncCallState.Failed;
         Exception = exception;
+        this.continuation?.Invoke();
         Failed?.Invoke(exception);
     }
     
@@ -47,15 +52,46 @@ public class AsyncCall
         
         State = AsyncCallState.Completed;
         Result = result;
+        this.continuation?.Invoke();
         Completed?.Invoke();
+    }
+    
+    public AsyncCallAwaiter GetAwaiter()
+    {
+        return new AsyncCallAwaiter(this);
     }
     
     protected virtual object SetResultValue(object? result)
     {
         return result;
     }
+    
+    internal void RegisterContinuation(Action cont)
+    {
+        if (State == AsyncCallState.Pending)
+        {
+            if (this.continuation is null)
+            {
+                this.continuation = cont;  
+            }
+            else
+            {
+                var prev = this.continuation;
+                this.continuation = () =>
+                {
+                    prev();
+                    cont();
+                };
+            }
+        }
+        else
+        {
+            cont();
+        }
+    }
 }
 
+[AsyncMethodBuilder(typeof(AsyncCallAsyncMethodBuilder<>))]
 public class AsyncCall<TResult> : AsyncCall
 {
     public new TResult Result
@@ -69,6 +105,11 @@ public class AsyncCall<TResult> : AsyncCall
     public AsyncCall()
     {
         base.Completed += () => Completed?.Invoke(Result);
+    }
+    
+    public AsyncCallAwaiter<TResult> GetAwaiter()
+    {
+        return new AsyncCallAwaiter<TResult>(this);
     }
     
     public Task<TResult> AsTask()

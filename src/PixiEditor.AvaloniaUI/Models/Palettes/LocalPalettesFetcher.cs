@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.Models.IO.PaletteParsers.JascPalFile;
+using PixiEditor.Extensions.CommonApi.Async;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
@@ -47,7 +48,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         });
     }
 
-    public override async Task<List<IPalette>> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
+    public override async AsyncCall<List<IPalette>> FetchPaletteList(int startIndex, int count, FilteringSettings filtering)
     {
         if (cachedPalettes == null)
         {

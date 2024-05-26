@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Extensions.CommonApi.Palettes;
+﻿using PixiEditor.Extensions.CommonApi.Async;
+
+namespace PixiEditor.Extensions.CommonApi.Palettes;
 
 public interface IPaletteProvider
 {
@@ -9,7 +11,7 @@ public interface IPaletteProvider
     /// <param name="items">Max amount of palettes to fetch.</param>
     /// <param name="filtering">Filtering settings for fetching.</param>
     /// <returns>List of palettes.</returns>
-    public Task<List<IPalette>> FetchPalettes(int startIndex, int items, FilteringSettings filtering);
+    public AsyncCall<List<IPalette>> FetchPalettes(int startIndex, int items, FilteringSettings filtering);
 
     /// <summary>
     ///     Adds a palette to the provider. This means that the palette will be saved in local storage.
@@ -17,7 +19,7 @@ public interface IPaletteProvider
     /// <param name="palette">Palette to save.</param>
     /// <param name="overwrite">If true and palette with the same name exists, it will be overwritten. If false and palette with the same name exists, it will not be added.</param>
     /// <returns>True if adding palette was successful.</returns>
-    public Task<bool> AddPalette(IPalette palette, bool overwrite = false);
+    public AsyncCall<bool> AddPalette(IPalette palette, bool overwrite = false);
 
     /// <summary>
     ///     Registers a palette list data source. This means that the provider will use the data source to fetch palettes.
