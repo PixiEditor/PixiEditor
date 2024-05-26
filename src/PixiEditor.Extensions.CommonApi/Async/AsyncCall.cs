@@ -10,7 +10,7 @@ public delegate void AsyncCallFailed(Exception exception);
 public class AsyncCall
 {
     private object? _result;
-    private Action continuation;
+    protected Action continuation;
     public AsyncCallState State { get; protected set; } = AsyncCallState.Pending;
     public bool IsCompleted => State != AsyncCallState.Pending;
     public Exception? Exception { get; protected set; }
@@ -129,6 +129,7 @@ public class AsyncCall<TResult> : AsyncCall
         
         State = AsyncCallState.Completed;
         Result = result;
+        continuation?.Invoke();
         Completed?.Invoke(result);
     }
     
