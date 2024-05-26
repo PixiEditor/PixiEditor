@@ -1,0 +1,13 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Styles.Resources>
+        <ResourceDictionary>
+            <FontFamily x:Key="PixiPerfectIcons">avares://PixiEditor.UI.Common/Fonts/pixiperfect.ttf#pixiperfect</FontFamily>
+        </ResourceDictionary>
+    </Styles.Resources>
+    
+    <Style Selector="TextBlock.icon-add-reference">
+        <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}"/>
+        <Setter Property="Text" Value="&#xE900;"/>
+    </Style>
+</Styles>

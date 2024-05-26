@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <AvaloniaResource Include="Assets\*"/>
+      <AvaloniaResource Include="Fonts\pixiperfect.ttf" />
     </ItemGroup>
 
     <ItemGroup>
