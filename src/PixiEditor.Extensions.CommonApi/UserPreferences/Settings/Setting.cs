@@ -9,18 +9,32 @@ public abstract class Setting<T> : INotifyPropertyChanged
     private readonly IPreferences preferences;
     private event PropertyChangedEventHandler PropertyChanged;
 
+    /// <summary>
+    /// The name of the preference
+    /// </summary>
     public string Name { get; }
 
+    /// <summary>
+    /// The value of the preference
+    /// </summary>
     public T? Value
     {
         get => GetValue(preferences, FallbackValue);
         set => SetValue(preferences, value);
     }
 
+    /// <summary>
+    /// The value used if the preference has not been set before
+    /// </summary>
     public T? FallbackValue { get; }
 
+    /// <summary>
+    /// Called when the value of the preference has changed
+    /// </summary>
     public event SettingChangedHandler<T> ValueChanged; 
 
+    /// <param name="name">The name of the preference</param>
+    /// <param name="fallbackValue">The value used if the preference has not been set before</param>
     public Setting(string name, T? fallbackValue = default)
     {
         Name = name;
@@ -30,8 +44,18 @@ public abstract class Setting<T> : INotifyPropertyChanged
         preferences.AddCallback<T>(Name, SettingChangeCallback);
     }
 
+    /// <summary>
+    /// Gets the value of the preference or the <see cref="fallbackValue"/> if the preference has not been set before. Note: This will ignore the <see cref="FallbackValue"/> set in the setting constructor
+    /// </summary>
+    /// <param name="fallbackValue">The value used if the preference has not been set before</param>
+    /// <returns>Either the value of the preference or <see cref="fallbackValue"/></returns>
     public T GetValueOrDefault(T fallbackValue) => GetValue(preferences, fallbackValue);
 
+    /// <summary>
+    /// Gets the value of the preference as <typeparamref name="T"/> instead of the type defined by the setting.
+    /// </summary>
+    /// <param name="fallbackValue">The value used if the preference has not been set before</param>
+    /// <returns>Either the value of the preference as <typeparamref name="T"/> or <see cref="fallbackValue"/></returns>
     public T? As<T>(T? fallbackValue = default) => GetValue(preferences, fallbackValue);
 
     protected abstract TAny? GetValue<TAny>(IPreferences preferences, TAny fallbackValue);
