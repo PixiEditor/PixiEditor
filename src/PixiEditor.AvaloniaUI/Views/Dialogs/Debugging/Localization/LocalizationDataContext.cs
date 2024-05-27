@@ -40,7 +40,7 @@ internal class LocalizationDataContext : PixiObservableObject
         {
             if (SetProperty(ref apiKey, value))
             {
-                PixiEditorSettings.PoEditorApiKey.Value = value;
+                PixiEditorSettings.Debug.PoEditorApiKey.Value = value;
             }
         }
     }
@@ -76,7 +76,7 @@ internal class LocalizationDataContext : PixiObservableObject
     public LocalizationDataContext()
     {
         dispatcher = Dispatcher.UIThread;
-        apiKey = PixiEditorSettings.PoEditorApiKey.Value;
+        apiKey = PixiEditorSettings.Debug.PoEditorApiKey.Value;
         LoadApiKeyCommand = new RelayCommand(LoadApiKey, () => !string.IsNullOrWhiteSpace(apiKey));
         ApplyLanguageCommand =
             new RelayCommand(ApplyLanguage, () => loggedIn && SelectedLanguage != null);

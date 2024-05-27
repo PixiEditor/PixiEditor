@@ -22,7 +22,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.Tools", "TOOLS")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 {
-    private RightClickMode rightClickMode = PixiEditorSettings.RightClickMode.As<RightClickMode>();
+    private RightClickMode rightClickMode = PixiEditorSettings.Tools.RightClickMode.As<RightClickMode>();
     public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();
 
     public IToolHandler? LastActionTool { get; private set; }
@@ -34,14 +34,14 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             if (SetProperty(ref rightClickMode, value))
             {
-                PixiEditorSettings.RightClickMode.Value = value;
+                PixiEditorSettings.Tools.RightClickMode.Value = value;
             }
         }
     }
 
     public bool EnableSharedToolbar
     {
-        get => PixiEditorSettings.EnableSharedToolbar.Value;
+        get => PixiEditorSettings.Tools.EnableSharedToolbar.Value;
         set
         {
             if (EnableSharedToolbar == value)
@@ -49,7 +49,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 return;
             }
 
-            PixiEditorSettings.EnableSharedToolbar.Value = value;
+            PixiEditorSettings.Tools.EnableSharedToolbar.Value = value;
             OnPropertyChanged(nameof(EnableSharedToolbar));
         }
     }

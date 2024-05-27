@@ -106,7 +106,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
         RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
-        _newsDisabled = PixiEditorSettings.DisableNewsPanel.Value;
+        _newsDisabled = PixiEditorSettings.StartupWindow.DisableNewsPanel.Value;
 
         NewsProvider = new NewsProvider();
 
@@ -116,7 +116,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
         int newsWidth = 300;
 
-        NewsPanelCollapsed = PixiEditorSettings.NewsPanelCollapsed.Value;
+        NewsPanelCollapsed = PixiEditorSettings.StartupWindow.NewsPanelCollapsed.Value;
 
         if (_newsDisabled || NewsPanelCollapsed)
         {
@@ -159,7 +159,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
             Enumerable.Last<ColumnDefinition>(helloTherePopup.grid.ColumnDefinitions).Width = new GridLength(300);
         }
 
-        PixiEditorSettings.NewsPanelCollapsed.Value = e.NewValue.Value;
+        PixiEditorSettings.StartupWindow.NewsPanelCollapsed.Value = e.NewValue.Value;
     }
 
     private void RecentlyOpened_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

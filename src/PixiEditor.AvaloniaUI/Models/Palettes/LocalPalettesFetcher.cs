@@ -39,9 +39,9 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         watcher.Created += FileSystemChanged;
 
         watcher.EnableRaisingEvents = true;
-        cachedFavoritePalettes = PixiEditorSettings.FavouritePalettes.AsList();
+        cachedFavoritePalettes = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
 
-        PixiEditorSettings.FavouritePalettes.AddListCallback(updated =>
+        PixiEditorSettings.Palettes.FavouritePalettes.AddListCallback(updated =>
         {
             cachedFavoritePalettes = updated;
             cachedPalettes.ForEach(x => x.IsFavourite = cachedFavoritePalettes.Contains(x.Name));

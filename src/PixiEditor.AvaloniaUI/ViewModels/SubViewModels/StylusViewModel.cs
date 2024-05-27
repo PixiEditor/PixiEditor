@@ -23,7 +23,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         {
             if (SetProperty(ref isPenModeEnabled, value))
             {
-                PixiEditorSettings.IsPenModeEnabled.Value = value;
+                PixiEditorSettings.Tools.IsPenModeEnabled.Value = value;
                 UpdateUseTouchGesture();
             }
         }
@@ -40,7 +40,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
     public StylusViewModel(ViewModelMain owner)
         : base(owner)
     {
-        isPenModeEnabled = PixiEditorSettings.IsPenModeEnabled.Value;
+        isPenModeEnabled = PixiEditorSettings.Tools.IsPenModeEnabled.Value;
         Owner.ToolsSubViewModel.AddPropertyChangedCallback(nameof(ToolsViewModel.ActiveTool), UpdateUseTouchGesture);
 
         UpdateUseTouchGesture();

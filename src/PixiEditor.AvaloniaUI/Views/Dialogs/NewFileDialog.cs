@@ -8,9 +8,9 @@ namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
 internal class NewFileDialog : CustomDialog
 {
-    private int width = PixiEditorSettings.DefaultNewFileWidth.Value;
+    private int width = PixiEditorSettings.File.DefaultNewFileWidth.Value;
     
-    private int height = PixiEditorSettings.DefaultNewFileHeight.Value;
+    private int height = PixiEditorSettings.File.DefaultNewFileHeight.Value;
 
     public int Width
     {

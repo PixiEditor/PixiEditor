@@ -18,7 +18,7 @@ internal class NewsProvider
 
     public NewsProvider()
     {
-        _lastCheckedIds = PixiEditorSettings.LastCheckedNewsIds.AsList();
+        _lastCheckedIds = PixiEditorSettings.StartupWindow.LastCheckedNewsIds.AsList();
     }
 
     public async Task<List<News>?> FetchNewsAsync()
@@ -60,6 +60,6 @@ internal class NewsProvider
             }
         }
 
-        PixiEditorSettings.LastCheckedNewsIds.Value = _lastCheckedIds;
+        PixiEditorSettings.StartupWindow.LastCheckedNewsIds.Value = _lastCheckedIds;
     }
 }

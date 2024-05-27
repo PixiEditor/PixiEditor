@@ -71,8 +71,8 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         : base(owner)
     {
         SetDebug();
-        PixiEditorSettings.IsDebugModeEnabled.ValueChanged += UpdateDebugMode;
-        UpdateDebugMode(null, PixiEditorSettings.IsDebugModeEnabled.Value);
+        PixiEditorSettings.Debug.IsDebugModeEnabled.ValueChanged += UpdateDebugMode;
+        UpdateDebugMode(null, PixiEditorSettings.Debug.IsDebugModeEnabled.Value);
     }
 
     public static void OpenFolder(string path)
@@ -218,7 +218,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     public void ClearRecentDocuments()
     {
         Owner.FileSubViewModel.RecentlyOpened.Clear();
-        PixiEditorSettings.RecentlyOpened.Value = [];
+        PixiEditorSettings.File.RecentlyOpened.Value = [];
     }
 
     [Command.Debug("PixiEditor.Debug.OpenCommandDebugWindow", "OPEN_CMD_DEBUG_WINDOW", "OPEN_CMD_DEBUG_WINDOW",

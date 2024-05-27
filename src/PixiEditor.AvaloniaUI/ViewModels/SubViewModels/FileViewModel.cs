@@ -57,7 +57,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             HasRecent = true;
         }
 
-        PixiEditorSettings.MaxOpenedRecently.ValueChanged += (_, value) => UpdateMaxRecentlyOpened(value);
+        PixiEditorSettings.File.MaxOpenedRecently.ValueChanged += (_, value) => UpdateMaxRecentlyOpened(value);
     }
 
     public void AddRecentlyOpened(string path)
@@ -71,14 +71,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             RecentlyOpened.Insert(0, path);
         }
 
-        int maxCount = PixiEditorSettings.MaxOpenedRecently.Value;
+        int maxCount = PixiEditorSettings.File.MaxOpenedRecently.Value;
 
         while (RecentlyOpened.Count > maxCount)
         {
             RecentlyOpened.RemoveAt(RecentlyOpened.Count - 1);
         }
 
-        PixiEditorSettings.RecentlyOpened.Value = RecentlyOpened.Select(x => x.FilePath);
+        PixiEditorSettings.File.RecentlyOpened.Value = RecentlyOpened.Select(x => x.FilePath);
     }
 
     [Command.Internal("PixiEditor.File.RemoveRecent")]
@@ -90,7 +90,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         RecentlyOpened.Remove(path);
-        PixiEditorSettings.RecentlyOpened.Value = RecentlyOpened.Select(x => x.FilePath);
+        PixiEditorSettings.File.RecentlyOpened.Value = RecentlyOpened.Select(x => x.FilePath);
     }
 
     private void OpenHelloTherePopup()
@@ -108,7 +108,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
         {
-            if (PixiEditorSettings.ShowStartupWindow.Value)
+            if (PixiEditorSettings.StartupWindow.ShowStartupWindow.Value)
             {
                 OpenHelloTherePopup();
             }
@@ -123,7 +123,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("FILE_NOT_FOUND", "FAILED_TO_OPEN_FILE");
             RecentlyOpened.Remove(path);
-            PixiEditorSettings.RecentlyOpened.Value = RecentlyOpened.Select(x => x.FilePath);
+            PixiEditorSettings.File.RecentlyOpened.Value = RecentlyOpened.Select(x => x.FilePath);
             return;
         }
 
@@ -418,7 +418,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
     {
-        var paths = PixiEditorSettings.RecentlyOpened.Value.Take(PixiEditorSettings.MaxOpenedRecently.Value);
+        var paths = PixiEditorSettings.File.RecentlyOpened.Value.Take(PixiEditorSettings.File.MaxOpenedRecently.Value);
         List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();
 
         foreach (string path in paths)

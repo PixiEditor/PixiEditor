@@ -151,7 +151,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     public FilteringSettings Filtering => filteringSettings ??=
         new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter, ShowOnlyFavourites,
-            PixiEditorSettings.FavouritePalettes.AsList());
+            PixiEditorSettings.Palettes.FavouritePalettes.AsList());
 
     private char[] separators = new char[] { ' ', ',' };
 
@@ -208,7 +208,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
             LocalPalettesFetcher.CacheUpdated -= LocalCacheRefreshed;
         };
 
-        PixiEditorSettings.FavouritePalettes.ValueChanged += OnFavouritePalettesChanged;
+        PixiEditorSettings.Palettes.FavouritePalettes.ValueChanged += OnFavouritePalettesChanged;
     }
 
     public async Task<bool?> ShowDialog()
@@ -248,7 +248,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private void OnFavouritePalettesChanged(Setting<IEnumerable<string>> setting, IEnumerable<string> value)
     {
-        Filtering.Favourites = PixiEditorSettings.FavouritePalettes.AsList();
+        Filtering.Favourites = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
     }
 
     public static PalettesBrowser Open()
@@ -353,7 +353,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
     private async void ToggleFavourite(Palette palette)
     {
         palette.IsFavourite = !palette.IsFavourite;
-        var favouritePalettes = PixiEditorSettings.FavouritePalettes.AsList();
+        var favouritePalettes = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
 
         if (palette.IsFavourite && !favouritePalettes.Contains(palette.Name))
         {
@@ -364,13 +364,13 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
             favouritePalettes.RemoveAll(x => x == palette.Name);
         }
 
-        PixiEditorSettings.FavouritePalettes.Value = favouritePalettes;
+        PixiEditorSettings.Palettes.FavouritePalettes.Value = favouritePalettes;
         await UpdatePaletteList();
     }
 
     private bool IsPaletteFavourite(string name)
     {
-        var favouritePalettes = PixiEditorSettings.FavouritePalettes.AsList();
+        var favouritePalettes = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
         return favouritePalettes.Contains(name);
     }
 
@@ -391,11 +391,11 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private static void RemoveFavouritePalette(Palette palette)
     {
-        var favouritePalettes = PixiEditorSettings.FavouritePalettes.AsList();
+        var favouritePalettes = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
         if (favouritePalettes.Contains(palette.Name))
         {
             favouritePalettes.Remove(palette.Name);
-            PixiEditorSettings.FavouritePalettes.Value = favouritePalettes;
+            PixiEditorSettings.Palettes.FavouritePalettes.Value = favouritePalettes;
         }
     }
 
@@ -628,7 +628,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private static void UpdateRenamedFavourite(string old, string newName)
     {
-        var favourites = PixiEditorSettings.FavouritePalettes.AsList();
+        var favourites = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
 
         if (favourites.Contains(old))
         {
@@ -636,7 +636,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
             favourites.Add(newName);
         }
 
-        PixiEditorSettings.FavouritePalettes.Value = favourites;
+        PixiEditorSettings.Palettes.FavouritePalettes.Value = favourites;
     }
 
     private void BrowseOnLospec_OnClick(object sender, RoutedEventArgs e)
@@ -678,6 +678,6 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
-        PixiEditorSettings.FavouritePalettes.ValueChanged -= OnFavouritePalettesChanged;
+        PixiEditorSettings.Palettes.FavouritePalettes.ValueChanged -= OnFavouritePalettesChanged;
     }
 }

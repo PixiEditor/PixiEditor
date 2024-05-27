@@ -38,8 +38,8 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         Owner.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
         this.clientId = clientId;
 
-        Enabled = PixiEditorSettings.EnableRichPresence.Value;
-        PixiEditorSettings.EnableRichPresence.ValueChanged += (_, value) => Enabled = value;
+        Enabled = PixiEditorSettings.Discord.EnableRichPresence.Value;
+        PixiEditorSettings.Discord.EnableRichPresence.ValueChanged += (_, value) => Enabled = value;
         AppDomain.CurrentDomain.ProcessExit += (_, _) => Enabled = false;
     }
 
@@ -70,22 +70,22 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         {
             richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
 
-            richPresence.Details = PixiEditorSettings.ShowDocumentName.Value
+            richPresence.Details = PixiEditorSettings.Discord.ShowDocumentName.Value
                 ? $"Editing {document.FileName.Limit(128)}" : "Editing an image";
 
             string state = string.Empty;
 
-            if (PixiEditorSettings.ShowDocumentSize.Value)
+            if (PixiEditorSettings.Discord.ShowDocumentSize.Value)
             {
                 state = $"{document.Width}x{document.Height}";
             }
 
-            if (PixiEditorSettings.ShowDocumentSize.Value && PixiEditorSettings.ShowLayerCount.Value)
+            if (PixiEditorSettings.Discord.ShowDocumentSize.Value && PixiEditorSettings.Discord.ShowLayerCount.Value)
             {
                 state += ", ";
             }
 
-            if (PixiEditorSettings.ShowLayerCount.Value)
+            if (PixiEditorSettings.Discord.ShowLayerCount.Value)
             {
                 int count = CountLayers(document.StructureRoot);
                 state += count == 1 ? "1 layer" : $"{count} layers";

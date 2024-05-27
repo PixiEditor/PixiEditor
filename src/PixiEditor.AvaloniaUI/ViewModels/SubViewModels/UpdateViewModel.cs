@@ -55,7 +55,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         : base(owner)
     {
         Owner.OnStartupEvent += Owner_OnStartupEvent;
-        PixiEditorSettings.UpdateChannel.ValueChanged += (_, value) =>
+        PixiEditorSettings.Update.UpdateChannel.ValueChanged += (_, value) =>
         {
             string prevChannel = UpdateChecker.Channel.ApiUrl;
             UpdateChecker.Channel = GetUpdateChannel(value);
@@ -217,7 +217,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     [Conditional("UPDATE")]
     private async void ConditionalUPDATE()
     {
-        if (PixiEditorSettings.CheckUpdatesOnStartup.Value)
+        if (PixiEditorSettings.Update.CheckUpdatesOnStartup.Value)
         {
             try
             {
@@ -247,7 +247,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         UpdateChannels.Add(new UpdateChannel(platformName, "", ""));
 #endif
 
-        string updateChannel = PixiEditorSettings.UpdateChannel.Value;
+        string updateChannel = PixiEditorSettings.Update.UpdateChannel.Value;
 
         string version = VersionHelpers.GetCurrentAssemblyVersionString();
         UpdateChecker = new UpdateChecker(version, GetUpdateChannel(updateChannel));
