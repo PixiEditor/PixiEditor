@@ -24,7 +24,9 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
 
     [Settings.Enum("SCOPE_LABEL")]
     public DocumentScope DocumentScope => GetValue<DocumentScope>();
-    
+
+    public override string IconKey => "icon-magic-wand";
+
     public MagicWandToolViewModel()
     {
         Toolbar = ToolbarFactory.Create(this);

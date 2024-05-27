@@ -16,8 +16,4 @@
       <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
       <PackageReference Include="Avalonia.Xaml.Behaviors" Version="11.0.5" />
     </ItemGroup>
-  
-    <ItemGroup>
-      <AvaloniaResource Include="Fonts\feather.ttf" />
-    </ItemGroup>
 </Project>

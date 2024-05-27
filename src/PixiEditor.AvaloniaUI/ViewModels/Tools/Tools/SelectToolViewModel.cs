@@ -17,6 +17,8 @@ internal class SelectToolViewModel : ToolViewModel, ISelectToolHandler
     private string defaultActionDisplay = "SELECT_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "SELECT_TOOL_NAME";
 
+    public override string IconKey => "icon-rectangle-selection";
+
     public SelectToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;

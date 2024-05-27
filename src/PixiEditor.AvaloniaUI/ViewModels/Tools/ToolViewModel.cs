@@ -23,7 +23,7 @@ internal abstract class ToolViewModel : ObservableObject, IToolHandler
     public abstract string ToolNameLocalizationKey { get; }
     public virtual LocalizedString DisplayName => new LocalizedString(ToolNameLocalizationKey);
 
-    public virtual string ImagePath => $"/Images/Tools/{ToolName}Image.png";
+    public virtual string IconKey => $"icon-{ToolName.ToLower()}";
 
     public virtual BrushShape BrushShape => BrushShape.Square;
 

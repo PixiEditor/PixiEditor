@@ -24,6 +24,8 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
 
     public bool ConsiderAllLayers { get; private set; }
 
+    public override string IconKey => "icon-bucket";
+
     public FloodFillToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;

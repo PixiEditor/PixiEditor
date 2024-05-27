@@ -12,7 +12,7 @@ internal interface IToolHandler : IHandler
     public LocalizedString DisplayName => new LocalizedString(ToolNameLocalizationKey);
     public string ToolName => GetType().Name.Replace("Tool", string.Empty).Replace("ViewModel", string.Empty);
     public string ToolNameLocalizationKey { get; }
-    public string ImagePath => $"/Images/Tools/{ToolName}Image.png";
+    public string IconKey => $"icon-{ToolName.ToLower()}";
     //public virtual BrushShape BrushShape => BrushShape.Square;
 
     public bool HideHighlight { get; }

@@ -22,6 +22,8 @@ internal class ZoomToolViewModel : ToolViewModel
 
     public override bool StopsLinkedToolOnUse => false;
 
+    public override string IconKey => "icon-zoom-in";
+
     public ZoomToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;

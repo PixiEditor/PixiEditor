@@ -21,6 +21,8 @@ internal class EllipseToolViewModel : ShapeTool, IEllipseToolHandler
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
     public bool DrawCircle { get; private set; }
 
+    public override string IconKey => "icon-circle";
+
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)

@@ -28,6 +28,8 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
 
     public override BrushShape BrushShape => BrushShape.Circle;
 
+    public override string IconKey => "icon-sun";
+
     BrightnessMode IBrightnessToolHandler.BrightnessMode
     {
         get => BrightnessMode;

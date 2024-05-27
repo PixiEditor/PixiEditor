@@ -21,6 +21,9 @@ internal class RectangleToolViewModel : ShapeTool, IRectangleToolHandler
 
     public bool Filled { get; set; } = false;
     public bool DrawSquare { get; private set; } = false;
+
+    public override string IconKey => "icon-square";
+
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {
         if (shiftIsDown)

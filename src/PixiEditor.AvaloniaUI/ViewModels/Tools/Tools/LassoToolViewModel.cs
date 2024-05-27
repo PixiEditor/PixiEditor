@@ -46,6 +46,7 @@ internal class LassoToolViewModel : ToolViewModel, ILassoToolHandler
     public override LocalizedString Tooltip => new LocalizedString("LASSO_TOOL_TOOLTIP", Shortcut);
 
     public override string ToolNameLocalizationKey => "LASSO_TOOL";
+    public string IconKey => "icon-lasso";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
     [Settings.Enum("MODE_LABEL")]

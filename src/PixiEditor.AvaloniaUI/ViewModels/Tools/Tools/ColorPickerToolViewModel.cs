@@ -27,6 +27,8 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
     public override string ToolNameLocalizationKey => "COLOR_PICKER_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
+    public override string IconKey => "icon-color-picker";
+
     public override LocalizedString Tooltip => new("COLOR_PICKER_TOOLTIP", Shortcut);
 
     private bool pickFromCanvas = true;

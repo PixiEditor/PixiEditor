@@ -200,7 +200,7 @@ internal class CommandController
                 InternalName = internalName,
                 DisplayName = displayName,
                 Description = displayName,
-                IconPath = $"@{toolInstance.ImagePath}",
+                IconPath = $"@{toolInstance.IconKey}",
                 IconEvaluator = IconEvaluator.Default,
                 TransientKey = toolAttr.Transient,
                 DefaultShortcut = toolAttr.GetShortcut(),

@@ -25,6 +25,8 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     private bool removeSelection = false;
 
+    public override string IconKey => "icon-mouse-pointer";
+
     public MoveToolViewModel()
     {
         ActionDisplay = defaultActionDisplay;

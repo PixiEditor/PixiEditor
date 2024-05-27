@@ -37,6 +37,8 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged))]
         public bool PixelPerfectEnabled => GetValue<bool>();
 
+        public override string IconKey => "icon-edit";
+
         public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {
             ActionDisplay = new LocalizedString("PEN_TOOL_ACTION_DISPLAY", Shortcut);

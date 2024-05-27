@@ -14,6 +14,8 @@ internal class RotateViewportToolViewModel : ToolViewModel
     public override bool StopsLinkedToolOnUse => false;
     public override LocalizedString Tooltip => new LocalizedString("ROTATE_VIEWPORT_TOOLTIP", Shortcut);
 
+    public override string IconKey => "icon-rotate-view";
+
     public RotateViewportToolViewModel()
     {
     }
