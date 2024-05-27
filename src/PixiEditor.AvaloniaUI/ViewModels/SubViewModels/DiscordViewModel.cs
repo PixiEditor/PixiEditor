@@ -3,7 +3,7 @@ using DiscordRPC;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
@@ -32,62 +32,14 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         }
     }
 
-    private bool showDocumentName = IPreferences.Current.GetPreference(nameof(ShowDocumentName), false);
-
-    public bool ShowDocumentName
-    {
-        get => showDocumentName;
-        set
-        {
-            if (showDocumentName != value)
-            {
-                showDocumentName = value;
-                UpdatePresence(currentDocument);
-            }
-        }
-    }
-
-    private bool showDocumentSize = IPreferences.Current.GetPreference(nameof(ShowDocumentSize), true);
-
-    public bool ShowDocumentSize
-    {
-        get => showDocumentSize;
-        set
-        {
-            if (showDocumentSize != value)
-            {
-                showDocumentSize = value;
-                UpdatePresence(currentDocument);
-            }
-        }
-    }
-
-    private bool showLayerCount = IPreferences.Current.GetPreference(nameof(ShowLayerCount), true);
-
-    public bool ShowLayerCount
-    {
-        get => showLayerCount;
-        set
-        {
-            if (showLayerCount != value)
-            {
-                showLayerCount = value;
-                UpdatePresence(currentDocument);
-            }
-        }
-    }
-
     public DiscordViewModel(ViewModelMain owner, string clientId)
         : base(owner)
     {
         Owner.DocumentManagerSubViewModel.ActiveDocumentChanged += DocumentChanged;
         this.clientId = clientId;
 
-        Enabled = IPreferences.Current.GetPreference("EnableRichPresence", true);
-        IPreferences.Current.AddCallback("EnableRichPresence", x => Enabled = (bool)x);
-        IPreferences.Current.AddCallback(nameof(ShowDocumentName), x => ShowDocumentName = (bool)x);
-        IPreferences.Current.AddCallback(nameof(ShowDocumentSize), x => ShowDocumentSize = (bool)x);
-        IPreferences.Current.AddCallback(nameof(ShowLayerCount), x => ShowLayerCount = (bool)x);
+        Enabled = PixiEditorSettings.EnableRichPresence.Value;
+        PixiEditorSettings.EnableRichPresence.ValueChanged += (_, value) => Enabled = value;
         AppDomain.CurrentDomain.ProcessExit += (_, _) => Enabled = false;
     }
 
@@ -118,22 +70,22 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         {
             richPresence.WithTimestamps(new Timestamps(document.OpenedUTC));
 
-            richPresence.Details = ShowDocumentName
+            richPresence.Details = PixiEditorSettings.ShowDocumentName.Value
                 ? $"Editing {document.FileName.Limit(128)}" : "Editing an image";
 
             string state = string.Empty;
 
-            if (ShowDocumentSize)
+            if (PixiEditorSettings.ShowDocumentSize.Value)
             {
                 state = $"{document.Width}x{document.Height}";
             }
 
-            if (ShowDocumentSize && ShowLayerCount)
+            if (PixiEditorSettings.ShowDocumentSize.Value && PixiEditorSettings.ShowLayerCount.Value)
             {
                 state += ", ";
             }
 
-            if (ShowLayerCount)
+            if (PixiEditorSettings.ShowLayerCount.Value)
             {
                 int count = CountLayers(document.StructureRoot);
                 state += count == 1 ? "1 layer" : $"{count} layers";

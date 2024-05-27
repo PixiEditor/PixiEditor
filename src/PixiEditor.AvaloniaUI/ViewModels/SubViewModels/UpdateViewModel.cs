@@ -11,7 +11,7 @@ using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 using PixiEditor.Platform;
 using PixiEditor.UpdateModule;
 
@@ -55,15 +55,15 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         : base(owner)
     {
         Owner.OnStartupEvent += Owner_OnStartupEvent;
-        IPreferences.Current.AddCallback<string>("UpdateChannel", val =>
+        PixiEditorSettings.UpdateChannel.ValueChanged += (_, value) =>
         {
             string prevChannel = UpdateChecker.Channel.ApiUrl;
-            UpdateChecker.Channel = GetUpdateChannel(val);
+            UpdateChecker.Channel = GetUpdateChannel(value);
             if (prevChannel != UpdateChecker.Channel.ApiUrl)
             {
                 ConditionalUPDATE();
             }
-        });
+        };
         InitUpdateChecker();
     }
 
@@ -217,7 +217,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     [Conditional("UPDATE")]
     private async void ConditionalUPDATE()
     {
-        if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
+        if (PixiEditorSettings.CheckUpdatesOnStartup.Value)
         {
             try
             {
@@ -247,7 +247,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         UpdateChannels.Add(new UpdateChannel(platformName, "", ""));
 #endif
 
-        string updateChannel = IPreferences.Current.GetPreference<string>("UpdateChannel");
+        string updateChannel = PixiEditorSettings.UpdateChannel.Value;
 
         string version = VersionHelpers.GetCurrentAssemblyVersionString();
         UpdateChecker = new UpdateChecker(version, GetUpdateChannel(updateChannel));

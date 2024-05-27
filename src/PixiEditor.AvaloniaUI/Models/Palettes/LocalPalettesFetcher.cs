@@ -8,7 +8,7 @@ using PixiEditor.AvaloniaUI.Models.IO.PaletteParsers.JascPalFile;
 using PixiEditor.Extensions.CommonApi.Async;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 
 namespace PixiEditor.AvaloniaUI.Models.Palettes;
 
@@ -39,11 +39,11 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         watcher.Created += FileSystemChanged;
 
         watcher.EnableRaisingEvents = true;
-        cachedFavoritePalettes = IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
+        cachedFavoritePalettes = PixiEditorSettings.FavouritePalettes.AsList();
 
-        IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, updated =>
+        PixiEditorSettings.FavouritePalettes.AddListCallback(updated =>
         {
-            cachedFavoritePalettes = (List<string>)updated;
+            cachedFavoritePalettes = updated;
             cachedPalettes.ForEach(x => x.IsFavourite = cachedFavoritePalettes.Contains(x.Name));
         });
     }
