@@ -3,6 +3,7 @@ using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
@@ -35,6 +36,6 @@ internal class NavigationDockViewModel : DockableViewModel
     {
         ColorsSubViewModel = colorsSubViewModel;
         DocumentManagerSubViewModel = documentManagerViewModel;
-        TabCustomizationSettings.Icon = ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/Navigator.png");
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIconControl(PixiPerfectIcons.Compass);
     }
 }

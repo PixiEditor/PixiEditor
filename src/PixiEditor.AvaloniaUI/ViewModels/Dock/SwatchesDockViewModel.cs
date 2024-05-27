@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
@@ -23,6 +24,6 @@ internal class SwatchesDockViewModel : DockableViewModel
     public SwatchesDockViewModel(DocumentManagerViewModel documentManagerViewModel)
     {
         DocumentManagerSubViewModel = documentManagerViewModel;
-        TabCustomizationSettings.Icon = ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/Swatches.png");
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIconControl(PixiPerfectIcons.Grid);
     }
 }

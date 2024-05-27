@@ -43,7 +43,7 @@
             <system:String x:Key="icon-exit">&#xE923;</system:String>
             <system:String x:Key="icon-eye-off">&#xE924;</system:String>
             <system:String x:Key="icon-eye">&#xE925;</system:String>
-            <system:String x:Key="icon-file-90">&#xE926;</system:String>
+            <system:String x:Key="icon-file-minus90">&#xE926;</system:String>
             <system:String x:Key="icon-file-plus">&#xE927;</system:String>
             <system:String x:Key="icon-file-text">&#xE928;</system:String>
             <system:String x:Key="icon-file">&#xE929;</system:String>

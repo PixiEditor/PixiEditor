@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
@@ -32,6 +33,7 @@ internal class PaletteViewerDockViewModel : DockableViewModel
         ColorsSubViewModel = colorsSubViewModel;
         DocumentManagerSubViewModel = documentManagerViewModel;
 
-        TabCustomizationSettings.Icon = ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/PaletteViewer.png");
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIconControl(PixiPerfectIcons.ColorPalette);
+
     }
 }

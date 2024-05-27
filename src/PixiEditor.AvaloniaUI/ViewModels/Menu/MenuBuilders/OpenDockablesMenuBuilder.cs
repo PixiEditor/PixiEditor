@@ -38,12 +38,25 @@ internal class OpenDockablesMenuBuilder : MenuItemBuilder
                         .ProvideValue(null);
                 dockableItem.CommandParameter = dockable.Id;
 
-                dockableItem.Icon = new Image()
+                if (dockable.TabCustomizationSettings.Icon is IImage image)
                 {
-                    Source = (IImage?)dockable.TabCustomizationSettings?.Icon,
-                    Width = Models.Commands.XAML.Menu.IconDimensions,
-                    Height = Models.Commands.XAML.Menu.IconDimensions
-                };
+                    dockableItem.Icon = new Image()
+                    {
+                        Source = image,
+                        Width = Models.Commands.XAML.Menu.IconDimensions,
+                        Height = Models.Commands.XAML.Menu.IconDimensions,
+                    };
+                }
+                else if(dockable.TabCustomizationSettings.Icon is TextBlock tb)
+                {
+                    dockableItem.Icon = new TextBlock()
+                    {
+                        Text = tb.Text,
+                        FontSize = Models.Commands.XAML.Menu.IconFontSize,
+                        FontFamily = tb.FontFamily,
+                    };
+                }
+                
                 dockablesItem.Items.Add(dockableItem);
             }
         }

@@ -3,6 +3,7 @@ using PixiDocks.Core.Docking;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
@@ -33,8 +34,7 @@ internal class LayersDockViewModel : DockableViewModel
     {
         DocumentManager = documentManager;
         DocumentManager.ActiveDocumentChanged += DocumentManager_ActiveDocumentChanged;
-        TabCustomizationSettings.Icon =
-            ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/Layers.png");
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIconControl(PixiPerfectIcons.Layers);
     }
 
     private void DocumentManager_ActiveDocumentChanged(object? sender, DocumentChangedEventArgs e)

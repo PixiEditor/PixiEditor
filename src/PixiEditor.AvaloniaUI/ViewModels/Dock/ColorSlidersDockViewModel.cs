@@ -3,6 +3,7 @@ using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
@@ -25,7 +26,6 @@ internal class ColorSlidersDockViewModel : DockableViewModel
     public ColorSlidersDockViewModel(ColorsViewModel colorsSubVm)
     {
         ColorsSubViewModel = colorsSubVm;
-        TabCustomizationSettings.Icon =
-            ImagePathToBitmapConverter.TryLoadBitmapFromRelativePath("/Images/Dockables/ColorPicker.png");
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIconControl(PixiPerfectIcons.ColorSliders);
     }
 }
