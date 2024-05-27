@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 
 namespace PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 
+[DebuggerDisplay("{GetDebuggerDisplay(),nq}")]
 public abstract class Setting<T> : INotifyPropertyChanged
 {
     private readonly IPreferences preferences;
@@ -16,6 +18,8 @@ public abstract class Setting<T> : INotifyPropertyChanged
     }
 
     public T? FallbackValue { get; }
+
+    public event SettingChangedHandler<T> ValueChanged; 
 
     public Setting(string name, T? fallbackValue = default)
     {
@@ -40,7 +44,37 @@ public abstract class Setting<T> : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, PropertyChangedConstants.ValueChangedPropertyArgs);
     }
 
-    public event SettingChangedHandler<T> ValueChanged; 
+    private string GetDebuggerDisplay()
+    {
+        string value;
+
+        try
+        {
+            value = Value.ToString();
+        }
+        catch (Exception e)
+        {
+            value = $"<{e.GetType()}: {e.Message}>";
+        }
+
+        if (typeof(T) == typeof(string))
+        {
+            value = $"""
+                     "{value}"
+                     """;
+        }
+
+        var type = typeof(T).ToString();
+        
+        string preferenceType = this switch
+        {
+            LocalSetting<T> => "local",
+            SyncedSetting<T> => "synced",
+            _ => "<undefined>"
+        };
+
+        return $"{preferenceType} {Name}: {type} = {value}";
+    }
     
     event PropertyChangedEventHandler INotifyPropertyChanged.PropertyChanged
     {
