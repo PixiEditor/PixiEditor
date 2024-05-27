@@ -58,7 +58,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools
                 setting.Value = 1;
             }
             
-            if (!PixiEditorSettings.EnableRichPresence.Value)
+            if (!PixiEditorSettings.EnableSharedToolbar.Value)
             {
                 return;
             }
