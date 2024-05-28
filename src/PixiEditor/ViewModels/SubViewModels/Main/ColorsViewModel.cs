@@ -348,7 +348,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>
 
     public void SetupPaletteProviders(IServiceProvider services)
     {
-        PaletteProvider = (PaletteProvider)services.GetService<IPaletteProvider>();
+        PaletteProvider = (PaletteProvider)services.GetService<PaletteProvider>();
         PaletteProvider.AvailableParsers =
             new WpfObservableRangeCollection<PaletteFileParser>(services.GetServices<PaletteFileParser>());
         var dataSources = services.GetServices<PaletteListDataSource>();

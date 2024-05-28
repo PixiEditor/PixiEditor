@@ -152,6 +152,13 @@ public class AsyncCall<TResult> : AsyncCall
         Failed += (exception) => asyncCall.SetException(exception);
         return asyncCall;
     }
+    
+    public static AsyncCall<TResult> FromResult(TResult result)
+    {
+        AsyncCall<TResult> asyncCall = new AsyncCall<TResult>();
+        asyncCall.SetResult(result);
+        return asyncCall;
+    }
 
     public static AsyncCall<TResult> FromTask(Task<TResult> task)
     {

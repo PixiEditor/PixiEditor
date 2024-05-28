@@ -100,6 +100,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IToolHandler, BrightnessToolViewModel>(x => (BrightnessToolViewModel)x.GetService<IBrightnessToolHandler>())
             .AddSingleton<IToolHandler, ZoomToolViewModel>()
             // Palette Parsers
+            .AddSingleton<PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()
             .AddSingleton<PaletteFileParser, ClsFileParser>()
             .AddSingleton<PaletteFileParser, DeluxePaintParser>()
@@ -126,7 +127,6 @@ internal static class ServiceCollectionHelpers
 
     public static IServiceCollection AddExtensionServices(this IServiceCollection collection, ExtensionLoader loader) =>
         collection.AddSingleton<IWindowProvider, WindowProvider>(x => new WindowProvider(loader, x))
-            .AddSingleton<IPaletteProvider, PaletteProvider>()
             .AddSingleton<ElementMap>(x =>
             {
                 ElementMap elementMap = new ElementMap();

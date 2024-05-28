@@ -12,6 +12,7 @@ public static class PackageBuilder
     {
         new ElementToInclude("extension.json", true), new ElementToInclude("AppBundle/*.wasm", true),
         new ElementToInclude("Localization/", false),
+        new ElementToInclude("Resources/", false),
     };
 
     private static readonly string[] FilesToExclude = new[] { "dotnet.wasm", };

@@ -10,7 +10,7 @@ using PixiEditor.Platform;
 
 namespace PixiEditor.AvaloniaUI.Models.ExtensionServices;
 
-internal sealed class PaletteProvider : IPaletteProvider
+internal sealed class PaletteProvider
 {
     public ObservableCollection<PaletteFileParser> AvailableParsers { get; set; }
     public ObservableCollection<PaletteListDataSource> DataSources => dataSources;
@@ -21,6 +21,13 @@ internal sealed class PaletteProvider : IPaletteProvider
         dataSources = new ObservableCollection<PaletteListDataSource>();
     }
 
+    /// <summary>
+    ///     Fetches palettes from the provider.
+    /// </summary>
+    /// <param name="startIndex">Starting fetch index. Palettes before said index won't be fetched.</param>
+    /// <param name="items">Max amount of palettes to fetch.</param>
+    /// <param name="filtering">Filtering settings for fetching.</param>
+    /// <returns>List of palettes.</returns>
     public async AsyncCall<List<IPalette>> FetchPalettes(int startIndex, int items, FilteringSettings filtering)
     {
         List<IPalette> allPalettes = new();
@@ -33,6 +40,12 @@ internal sealed class PaletteProvider : IPaletteProvider
         return allPalettes;
     }
 
+    /// <summary>
+    ///     Adds a palette to the provider. This means that the palette will be saved in local storage.
+    /// </summary>
+    /// <param name="palette">Palette to save.</param>
+    /// <param name="overwrite">If true and palette with the same name exists, it will be overwritten. If false and palette with the same name exists, it will not be added.</param>
+    /// <returns>True if adding palette was successful.</returns>
     public async AsyncCall<bool> AddPalette(IPalette palette, bool overwrite = false)
     {
         LocalPalettesFetcher localPalettesFetcher = dataSources.OfType<LocalPalettesFetcher>().FirstOrDefault();
