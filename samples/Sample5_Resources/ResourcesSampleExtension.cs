@@ -22,5 +22,11 @@ public class ResourcesSampleExtension : WasmExtension
         // By default, you can't access any files from the file system, however you can access files from the Resources folder.
         // This folder contains files that you put in the Resources folder in the extension project.
         Api.Logger.Log(File.ReadAllText("Resources/ExampleFile.txt"));
+
+        Api.Logger.Log("Writing to file...");
+
+        File.WriteAllText("Resources/ExampleFile.txt", "Hello from extension!");
+
+        Api.Logger.Log(File.ReadAllText("Resources/ExampleFile.txt"));
     }
 }
