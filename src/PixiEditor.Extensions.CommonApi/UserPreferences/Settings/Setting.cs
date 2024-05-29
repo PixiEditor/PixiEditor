@@ -35,7 +35,7 @@ public abstract class Setting<T> : INotifyPropertyChanged
 
     /// <param name="name">The name of the preference</param>
     /// <param name="fallbackValue">The value used if the preference has not been set before</param>
-    public Setting(string name, T? fallbackValue = default)
+    protected Setting(string name, T? fallbackValue = default)
     {
         Name = name;
         FallbackValue = fallbackValue;

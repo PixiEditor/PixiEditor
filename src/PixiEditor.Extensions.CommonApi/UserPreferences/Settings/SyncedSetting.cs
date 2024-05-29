@@ -1,7 +1,7 @@
 ﻿namespace PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
 
 /// <summary>
-/// A preference which may be synced accross multiple devices
+/// A preference which may be synced across multiple devices
 /// </summary>
 /// <param name="name">The name of the preference</param>
 /// <param name="fallbackValue">A optional fallback value which will be used if the setting has not been set before set before</param>
