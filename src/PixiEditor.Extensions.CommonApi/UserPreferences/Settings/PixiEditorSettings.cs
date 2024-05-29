@@ -2,26 +2,26 @@
 
 public static class PixiEditorSettings
 {
-    public class Palettes
+    public static class Palettes
     {
         public static LocalSetting<IEnumerable<string>> FavouritePalettes { get; } = new(nameof(FavouritePalettes));
     }
 
-    public class Update
+    public static class Update
     {
         public static SyncedSetting<bool> CheckUpdatesOnStartup { get; } = new(nameof(CheckUpdatesOnStartup), true);
 
         public static SyncedSetting<string> UpdateChannel { get; } = new(nameof(UpdateChannel));
     }
 
-    public class Debug
+    public static class Debug
     {
         public static SyncedSetting<bool> IsDebugModeEnabled { get; } = new(nameof(IsDebugModeEnabled));
 
         public static LocalSetting<string> PoEditorApiKey { get; } = new("POEditor_API_Key");
     }
     
-    public class Tools
+    public static class Tools
     {
         public static SyncedSetting<bool> EnableSharedToolbar { get; } = new(nameof(EnableSharedToolbar));
 
@@ -31,7 +31,7 @@ public static class PixiEditorSettings
         public static SyncedSetting<bool> IsPenModeEnabled { get; } = new(nameof(IsPenModeEnabled));
     }
 
-    public class File
+    public static class File
     {
         public static SyncedSetting<int> DefaultNewFileWidth { get; } = new(nameof(DefaultNewFileWidth), 64);
 
@@ -42,7 +42,7 @@ public static class PixiEditorSettings
         public static SyncedSetting<int> MaxOpenedRecently { get; } = new(nameof(MaxOpenedRecently), 8);
     }
     
-    public class StartupWindow
+    public static class StartupWindow
     {
         public static SyncedSetting<bool> ShowStartupWindow { get; } = new(nameof(ShowStartupWindow), true);
 
@@ -54,7 +54,7 @@ public static class PixiEditorSettings
     }
     
     
-    public class Discord
+    public static class Discord
     {
         public static SyncedSetting<bool> EnableRichPresence { get; } = new(nameof(EnableRichPresence));
 
