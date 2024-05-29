@@ -1,4 +1,18 @@
-﻿namespace PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+﻿using System.Runtime.CompilerServices;
+
+namespace PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+
+/// <summary>
+/// A static class for creating a LocalSetting from the property name
+/// </summary>
+public static class SyncedSetting
+{
+    public static SyncedSetting<T> Owned<T>(T? fallbackValue = default, [CallerMemberName] string name = "") =>
+        new(name, fallbackValue);
+    
+    public static SyncedSetting<T> NonOwned<T>(string prefix, T? fallbackValue = default, [CallerMemberName] string name = "") =>
+        new($"{prefix}:{name}", fallbackValue);
+}
 
 /// <summary>
 /// A preference which may be synced across multiple devices
