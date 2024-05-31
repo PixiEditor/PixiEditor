@@ -16,5 +16,5 @@ internal class ApiGroupHandler
     protected Instance? Instance { get; }
     protected WasmMemoryUtility WasmMemoryUtility { get; }
     protected ExtensionMetadata Metadata { get; }
-    protected Extension Extension { get; }
+    protected WasmExtensionInstance Extension { get; }
 }

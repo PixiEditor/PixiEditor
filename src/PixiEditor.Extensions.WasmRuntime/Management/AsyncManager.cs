@@ -37,6 +37,23 @@ internal class AsyncCallsManager
         asyncCalls.Remove(asyncHandle);
     }
     
+    public async AsyncCall<T> InvokeAsync<T>(Action<int> invokeAction)
+    {
+        int asyncHandle = GetNextAsyncHandle();
+        AsyncCall<T> task = new();
+        asyncCalls[asyncHandle] = task;
+        invokeAction(asyncHandle);
+        return await task;
+    }
+    
+    public void SetAsyncCallResult<T>(int asyncHandle, T result)
+    {
+        if (asyncCalls.TryGetValue(asyncHandle, out AsyncCall asyncCall))
+        {
+            asyncCall.SetResult(result);
+        }
+    }
+
     private int GetNextAsyncHandle()
     {
         int asyncHandle = 0;

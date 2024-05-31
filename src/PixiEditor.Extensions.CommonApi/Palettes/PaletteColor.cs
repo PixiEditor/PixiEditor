@@ -1,12 +1,21 @@
-﻿namespace PixiEditor.Extensions.CommonApi.Palettes;
+﻿using ProtoBuf;
 
+namespace PixiEditor.Extensions.CommonApi.Palettes;
+
+[ProtoContract]
 public struct PaletteColor
 {
     public static PaletteColor Empty => new(0, 0, 0);
     public static PaletteColor Black => new(0, 0, 0);
     public static PaletteColor White => new(255, 255, 255);
+    
+    [ProtoMember(1)]
     public byte R { get; set; }
+    
+    [ProtoMember(2)]
     public byte G { get; set; }
+    
+    [ProtoMember(3)]
     public byte B { get; set; }
 
     public string Hex => $"#{R:X2}{G:X2}{B:X2}";

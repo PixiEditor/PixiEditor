@@ -369,7 +369,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
 
     public void SetupPaletteProviders(IServiceProvider services)
     {
-        PaletteProvider = services.GetService<PaletteProvider>();
+        PaletteProvider = (PaletteProvider)services.GetService<IPalettesProvider>();
         PaletteProvider.AvailableParsers =
             new ObservableCollection<PaletteFileParser>(services.GetServices<PaletteFileParser>());
         var dataSources = services.GetServices<PaletteListDataSource>();

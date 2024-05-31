@@ -10,7 +10,7 @@ using PixiEditor.Platform;
 
 namespace PixiEditor.AvaloniaUI.Models.ExtensionServices;
 
-internal sealed class PaletteProvider
+internal sealed class PaletteProvider : IPalettesProvider
 {
     public ObservableCollection<PaletteFileParser> AvailableParsers { get; set; }
     public ObservableCollection<PaletteListDataSource> DataSources => dataSources;
@@ -33,8 +33,17 @@ internal sealed class PaletteProvider
         List<IPalette> allPalettes = new();
         foreach (PaletteListDataSource dataSource in dataSources)
         {
-            var palettes = await dataSource.FetchPaletteList(startIndex, items, filtering);
-            allPalettes.AddRange(palettes);
+            try
+            {
+                var palettes = await dataSource.FetchPaletteList(startIndex, items, filtering);
+                allPalettes.AddRange(palettes);
+            }
+            catch
+            {
+#if DEBUG
+                throw;
+#endif
+            }
         }
 
         return allPalettes;

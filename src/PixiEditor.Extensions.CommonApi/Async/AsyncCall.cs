@@ -9,6 +9,8 @@ public delegate void AsyncCallFailed(Exception exception);
 [AsyncMethodBuilder(typeof(AsyncCallAsyncMethodBuilder))]
 public class AsyncCall
 {
+    private List<AsyncCallCompleted> completedCalls = new List<AsyncCallCompleted>();
+    private List<AsyncCallFailed> failedCalls = new List<AsyncCallFailed>();
     private object? _result;
     protected Action continuation;
     public AsyncCallState State { get; protected set; } = AsyncCallState.Pending;
@@ -27,8 +29,42 @@ public class AsyncCall
         }
     }
     
-    public event AsyncCallCompleted Completed;
-    public event AsyncCallFailed Failed;
+    public event AsyncCallCompleted Completed
+    {
+        add
+        {
+            if (State == AsyncCallState.Completed)
+            {
+                value();
+            }
+            else
+            {
+                completedCalls.Add(value);
+            }
+        }
+        remove
+        {
+            completedCalls.Remove(value);
+        }
+    }
+    public event AsyncCallFailed Failed
+    {
+        add
+        {
+            if (State == AsyncCallState.Failed)
+            {
+                value(Exception);
+            }
+            else
+            {
+                failedCalls.Add(value);
+            }
+        }
+        remove
+        {
+            failedCalls.Remove(value);
+        }
+    }
     
     public void SetException(Exception exception)
     {
@@ -40,9 +76,10 @@ public class AsyncCall
         State = AsyncCallState.Failed;
         Exception = exception;
         this.continuation?.Invoke();
-        Failed?.Invoke(exception);
+
+        InvokeFailed(exception);
     }
-    
+
     public void SetResult(object? result)
     {
         if (State != AsyncCallState.Pending)
@@ -53,7 +90,7 @@ public class AsyncCall
         State = AsyncCallState.Completed;
         Result = result;
         this.continuation?.Invoke();
-        Completed?.Invoke();
+        InvokeCompleted();
     }
     
     public AsyncCallAwaiter GetAwaiter()
@@ -64,6 +101,22 @@ public class AsyncCall
     protected virtual object SetResultValue(object? result)
     {
         return result;
+    }
+
+    private void InvokeCompleted()
+    {
+        foreach (var completedCall in completedCalls)
+        {
+            completedCall();
+        }
+    }
+    
+    private void InvokeFailed(Exception exception)
+    {
+        foreach (var failedCall in failedCalls)
+        {
+            failedCall(exception);
+        }
     }
     
     internal void RegisterContinuation(Action cont)
@@ -94,17 +147,38 @@ public class AsyncCall
 [AsyncMethodBuilder(typeof(AsyncCallAsyncMethodBuilder<>))]
 public class AsyncCall<TResult> : AsyncCall
 {
+    private List<AsyncCallCompleted<TResult>> completedCalls = new List<AsyncCallCompleted<TResult>>();
     public new TResult Result
     {
         get => (TResult) base.Result;
         protected set => base.Result = value;
     }
     
-    public new event AsyncCallCompleted<TResult> Completed;
+    public new event AsyncCallCompleted<TResult> Completed
+    {
+        add
+        {
+            if (State == AsyncCallState.Completed)
+            {
+                value(Result);
+            }
+            else
+            {
+                completedCalls.Add(value);
+            }
+        }
+        remove
+        {
+            completedCalls.Remove(value);
+        }
+    }
     
     public AsyncCall()
     {
-        base.Completed += () => Completed?.Invoke(Result);
+        base.Completed += () =>
+        {
+            InvokeCompleted(Result);
+        };
     }
     
     public AsyncCallAwaiter<TResult> GetAwaiter()
@@ -130,7 +204,7 @@ public class AsyncCall<TResult> : AsyncCall
         State = AsyncCallState.Completed;
         Result = result;
         continuation?.Invoke();
-        Completed?.Invoke(result);
+        InvokeCompleted(result);
     }
     
     public AsyncCall<T> ContinueWith<T>(Func<AsyncCall<TResult>, T> action)
@@ -175,6 +249,14 @@ public class AsyncCall<TResult> : AsyncCall
             }
         });
         return asyncCall;
+    }
+    
+    private void InvokeCompleted(TResult result)
+    {
+        foreach (var completedCall in completedCalls)
+        {
+            completedCall(result);
+        }
     }
 }
 

@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
       <PackageReference Include="Wasmtime" Version="16.0.0" />
     </ItemGroup>
 

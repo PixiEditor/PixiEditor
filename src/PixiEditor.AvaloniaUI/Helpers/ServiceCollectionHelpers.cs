@@ -100,7 +100,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IToolHandler, BrightnessToolViewModel>(x => (BrightnessToolViewModel)x.GetService<IBrightnessToolHandler>())
             .AddSingleton<IToolHandler, ZoomToolViewModel>()
             // Palette Parsers
-            .AddSingleton<PaletteProvider>()
+            .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()
             .AddSingleton<PaletteFileParser, ClsFileParser>()
             .AddSingleton<PaletteFileParser, DeluxePaintParser>()

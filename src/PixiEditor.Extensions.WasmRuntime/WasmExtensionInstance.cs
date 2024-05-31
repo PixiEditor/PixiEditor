@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Avalonia.Controls;
 using Avalonia.Threading;
+using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Management;
@@ -13,6 +14,7 @@ namespace PixiEditor.Extensions.WasmRuntime;
 public partial class WasmExtensionInstance : Extension
 {
     public Instance? Instance { get; private set; }
+    internal WasmMemoryUtility WasmMemoryUtility { get; set; }
 
     private Linker Linker { get; }
     private Store Store { get; }
@@ -20,11 +22,10 @@ public partial class WasmExtensionInstance : Extension
 
     private Memory memory = null!;
     private LayoutBuilder LayoutBuilder { get; set; }
-    private ObjectManager NativeObjectManager { get; set; }
-    private AsyncCallsManager AsyncHandleManager { get; set; }
-    private WasmMemoryUtility WasmMemoryUtility { get; set; }
+    internal ObjectManager NativeObjectManager { get; set; }
+    internal AsyncCallsManager AsyncHandleManager { get; set; }
 
-    private Extension Extension => this; // api group handler needs this property
+    private WasmExtensionInstance Extension => this; // api group handler needs this property
 
     private string modulePath;
     

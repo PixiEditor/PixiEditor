@@ -40,6 +40,14 @@ public class WasmMemoryUtility
     {
         return memory.ReadInt32(offset);
     }
+    
+    public int Write<T>(T arg) where T : unmanaged
+    {
+        var length = Marshal.SizeOf<T>();
+        var ptr = malloc.Invoke(length);
+        memory.Write(ptr, arg);
+        return ptr;
+    }
 
     public int WriteSpan(Span<byte> span)
     {

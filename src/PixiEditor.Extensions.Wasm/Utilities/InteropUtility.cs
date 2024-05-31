@@ -10,4 +10,11 @@ public static class InteropUtility
         Marshal.Copy(array, 0, ptr, array.Length);
         return ptr;
     }
+
+    public static byte[] IntPtrToByteArray(IntPtr ptr, int length)
+    {
+        byte[] array = new byte[length];
+        Marshal.Copy(ptr, array, 0, length);
+        return array;
+    }
 }

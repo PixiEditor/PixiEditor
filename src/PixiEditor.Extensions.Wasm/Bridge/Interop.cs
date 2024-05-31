@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.Extensions.Wasm.Bridge;
+﻿using PixiEditor.Extensions.CommonApi.Palettes;
 
-internal static class Interop
+namespace PixiEditor.Extensions.Wasm.Bridge;
+
+internal static partial class Interop
 {
     public static void UpdateUserPreference<T>(string name, T value)
     {
