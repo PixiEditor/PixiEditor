@@ -3,7 +3,7 @@ using DiscordRPC;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 

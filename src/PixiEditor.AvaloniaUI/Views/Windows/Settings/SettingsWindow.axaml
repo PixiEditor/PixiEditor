@@ -13,7 +13,7 @@
     xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
     xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
     xmlns:markupExtensions="clr-namespace:PixiEditor.AvaloniaUI.Helpers.MarkupExtensions"
-    xmlns:preferences="clr-namespace:PixiEditor.AvaloniaUI.Models.Preferences"
+    xmlns:preferences="clr-namespace:PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;assembly=PixiEditor.Extensions.CommonApi"
     xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
     xmlns:settings="clr-namespace:PixiEditor.AvaloniaUI.Views.Windows.Settings"
     mc:Ignorable="d"

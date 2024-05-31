@@ -14,7 +14,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
@@ -22,7 +22,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.Tools", "TOOLS")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 {
-    private RightClickMode rightClickMode = PixiEditorSettings.Tools.RightClickMode.As<RightClickMode>();
+    private RightClickMode rightClickMode = PixiEditorSettings.Tools.RightClickMode.Value;
     public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();
 
     public IToolHandler? LastActionTool { get; private set; }

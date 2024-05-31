@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+﻿namespace PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 
 public static class PixiEditorSettings
 {
@@ -27,8 +27,7 @@ public static class PixiEditorSettings
     {
         public static SyncedSetting<bool> EnableSharedToolbar { get; } = SyncedSetting.NonOwned<bool>(PixiEditor);
 
-        // TODO: Use RightClickMode
-        public static SyncedSetting<object> RightClickMode { get; } = SyncedSetting.NonOwned<object>(PixiEditor, 0);
+        public static SyncedSetting<RightClickMode> RightClickMode { get; } = SyncedSetting.NonOwned<RightClickMode>(PixiEditor);
         
         public static SyncedSetting<bool> IsPenModeEnabled { get; } = SyncedSetting.NonOwned<bool>(PixiEditor);
     }

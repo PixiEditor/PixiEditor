@@ -26,6 +26,7 @@ using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.OperatingSystem;
 using PaletteColor = PixiEditor.Extensions.CommonApi.Palettes.PaletteColor;

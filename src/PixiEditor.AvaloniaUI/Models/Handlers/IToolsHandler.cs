@@ -4,6 +4,7 @@ using PixiEditor.AvaloniaUI.Models.Events;
 using PixiEditor.AvaloniaUI.Models.Preferences;
 using PixiEditor.AvaloniaUI.ViewModels.Tools;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;
