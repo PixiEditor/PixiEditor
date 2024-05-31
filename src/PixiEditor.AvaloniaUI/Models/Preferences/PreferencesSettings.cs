@@ -42,6 +42,8 @@ internal class PreferencesSettings : IPreferences
 
     public void UpdatePreference<T>(string name, T value)
     {
+        name = TrimPrefix(name);
+
         if (IsLoaded == false)
         {
             Init();
@@ -62,6 +64,8 @@ internal class PreferencesSettings : IPreferences
 
     public void UpdateLocalPreference<T>(string name, T value)
     {
+        name = TrimPrefix(name);
+
         if (IsLoaded == false)
         {
             Init();
@@ -95,6 +99,8 @@ internal class PreferencesSettings : IPreferences
 
     public void AddCallback(string name, Action<object> action)
     {
+        name = TrimPrefix(name);
+
         if (action == null)
         {
             throw new ArgumentNullException(nameof(action));
@@ -111,6 +117,8 @@ internal class PreferencesSettings : IPreferences
 
     public void AddCallback<T>(string name, Action<T> action)
     {
+        name = TrimPrefix(name);
+
         if (action == null)
         {
             throw new ArgumentNullException(nameof(action));
@@ -121,6 +129,8 @@ internal class PreferencesSettings : IPreferences
 
     public void RemoveCallback(string name, Action<object> action)
     {
+        name = TrimPrefix(name);
+
         if (action == null)
         {
             throw new ArgumentNullException(nameof(action));
@@ -134,6 +144,8 @@ internal class PreferencesSettings : IPreferences
 
     public void RemoveCallback<T>(string name, Action<T> action)
     {
+        name = TrimPrefix(name);
+
         if (action == null)
         {
             throw new ArgumentNullException(nameof(action));
@@ -146,11 +158,15 @@ internal class PreferencesSettings : IPreferences
 
     public T? GetPreference<T>(string name)
     {
+        name = TrimPrefix(name);
+
         return GetPreference(name, default(T));
     }
 
     public T? GetPreference<T>(string name, T? fallbackValue)
     {
+        name = TrimPrefix(name);
+
         if (IsLoaded == false)
         {
             Init();
@@ -171,11 +187,15 @@ internal class PreferencesSettings : IPreferences
 
     public T? GetLocalPreference<T>(string name)
     {
+        name = TrimPrefix(name);
+
         return GetLocalPreference(name, default(T));
     }
 
     public T? GetLocalPreference<T>(string name, T? fallbackValue)
     {
+        name = TrimPrefix(name);
+        
         if (IsLoaded == false)
         {
             Init();
@@ -196,6 +216,8 @@ internal class PreferencesSettings : IPreferences
 
     private T? GetValue<T>(Dictionary<string, object> dict, string name, T? fallbackValue)
     {
+        name = TrimPrefix(name);
+        
         if (!dict.ContainsKey(name)) return fallbackValue;
         var preference = dict[name];
         if (typeof(T) == preference.GetType()) return (T)preference;
@@ -250,4 +272,8 @@ internal class PreferencesSettings : IPreferences
 
         return new Dictionary<string, object>();
     }
+
+    private const string Prefix = "PixiEditor:";
+
+    private string TrimPrefix(string value) => value.StartsWith("PixiEditor:") ? value[Prefix.Length..] : value;
 }
