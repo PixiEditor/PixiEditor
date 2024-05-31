@@ -10,4 +10,8 @@
       <Folder Include="Preferences\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\PixiEditor.Extensions.CommonApi.Diagnostics\PixiEditor.Extensions.CommonApi.Diagnostics.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+  
 </Project>
