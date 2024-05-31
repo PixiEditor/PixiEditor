@@ -14,9 +14,6 @@ public class UseGenericEnumerableForListArrayDiagnostic : DiagnosticAnalyzer
     private const string ListNamespace = "System.Collections.Generic";
     private const string ListName = "List";
     
-    private const string SettingNamespace = "PixiEditor.Extensions.CommonApi.UserPreferences.Settings";
-    private static string[] settingNames = ["SyncedSetting", "LocalSetting"];
-
     public const string DiagnosticId = "UseGenericEnumerableForListArray";
     
     public static DiagnosticDescriptor UseGenericEnumerableForListArrayDescriptor { get; } =
@@ -36,9 +33,9 @@ public class UseGenericEnumerableForListArrayDiagnostic : DiagnosticAnalyzer
         var semanticModel = context.SemanticModel;
         
         var name = (GenericNameSyntax)context.Node;
-        var symbol = semanticModel.GetTypeInfo(name, context.CancellationToken);
+        var typeInfo = semanticModel.GetTypeInfo(name, context.CancellationToken);
 
-        if (symbol.Type?.ContainingNamespace.ToString() != SettingNamespace || !settingNames.Contains(symbol.Type.Name))
+        if (!DiagnosticHelpers.IsSettingType(typeInfo))
         {
             return;
         }
