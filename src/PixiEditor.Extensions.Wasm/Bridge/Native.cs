@@ -23,6 +23,9 @@ internal static partial class Native
 
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void state_changed(int uniqueId, IntPtr data, int length);
+    
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern string get_extension_unique_name();
 
 
     // No need for [ApiExport] since this is a part of built-in C interop file.

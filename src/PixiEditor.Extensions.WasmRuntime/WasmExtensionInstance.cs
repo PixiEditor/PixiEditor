@@ -5,6 +5,7 @@ using Avalonia.Threading;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.FlyUI;
 using PixiEditor.Extensions.FlyUI.Elements;
+using PixiEditor.Extensions.WasmRuntime.Api.Modules;
 using PixiEditor.Extensions.WasmRuntime.Management;
 using PixiEditor.Extensions.Windowing;
 using Wasmtime;
@@ -19,8 +20,7 @@ public partial class WasmExtensionInstance : Extension
     private Linker Linker { get; }
     private Store Store { get; }
     private Module Module { get; }
-
-    private Memory memory = null!;
+    
     private LayoutBuilder LayoutBuilder { get; set; }
     internal ObjectManager NativeObjectManager { get; set; }
     internal AsyncCallsManager AsyncHandleManager { get; set; }
@@ -28,6 +28,7 @@ public partial class WasmExtensionInstance : Extension
     private WasmExtensionInstance Extension => this; // api group handler needs this property
 
     private string modulePath;
+    private List<ApiModule> modules = new();
     
     public override string Location => modulePath;
 
@@ -53,7 +54,6 @@ public partial class WasmExtensionInstance : Extension
 
         Instance = Linker.Instantiate(Store, Module);
         WasmMemoryUtility = new WasmMemoryUtility(Instance);
-        memory = Instance.GetMemory("memory");
     }
 
     protected override void OnLoaded()
@@ -64,6 +64,7 @@ public partial class WasmExtensionInstance : Extension
 
     protected override void OnInitialized()
     {
+        modules.Add(new PreferencesModule(this, Api.Preferences));
         LayoutBuilder = new LayoutBuilder((ElementMap)Api.Services.GetService(typeof(ElementMap)));
 
         //SetElementMap();
@@ -89,5 +90,16 @@ public partial class WasmExtensionInstance : Extension
         Instance.GetAction<int, int>("set_element_map").Invoke(ptr, map.Length);
 
         WasmMemoryUtility.Free(ptr);
+    }
+
+    public T? GetModule<T>() where T : ApiModule
+    {
+        var module = modules.FirstOrDefault(x => x.GetType() == typeof(T));
+        if (module == null)
+        {
+            return default;
+        }
+
+        return (T)module;
     }
 }

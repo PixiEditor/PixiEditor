@@ -41,7 +41,7 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         watcher.EnableRaisingEvents = true;
         cachedFavoritePalettes = IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
 
-        IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, updated =>
+        IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, (_, updated) =>
         {
             cachedFavoritePalettes = (List<string>)updated;
             cachedPalettes.ForEach(x => x.IsFavourite = cachedFavoritePalettes.Contains(x.Name));

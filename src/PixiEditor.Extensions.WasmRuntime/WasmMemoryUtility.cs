@@ -98,6 +98,14 @@ public class WasmMemoryUtility
         return memory.ReadSingle(offset);
     }
     
+    public int WriteSingle(float value)
+    {
+        const int length = 4;
+        var ptr = malloc.Invoke(length);
+        memory.WriteSingle(ptr, value);
+        return ptr;
+    }
+    
     public int WriteBoolean(bool value)
     {
         const int length = 1;

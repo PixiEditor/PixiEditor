@@ -1,4 +1,5 @@
-﻿using PixiEditor.Extensions.Metadata;
+﻿using PixiEditor.Extensions.CommonApi.Utilities;
+using PixiEditor.Extensions.Metadata;
 
 namespace PixiEditor.Extensions.WasmRuntime.Utilities;
 
@@ -55,19 +56,7 @@ internal static class PreferencesUtility
             throw new ArgumentNullException(nameof(name));
         }
         
-        string[] splitted = name.Split(":");
-        
-        string finalName = $"{extension.Metadata.UniqueName}:{name}";
-        
-        if (splitted.Length == 2)
-        {
-            finalName = name;
-            
-            if(splitted[0].Equals("pixieditor", StringComparison.CurrentCultureIgnoreCase)) 
-            {
-                finalName = splitted[1];
-            }
-        }
+        string finalName = PrefixedNameUtility.ToPixiEditorRelativePreferenceName(extension.Metadata.UniqueName, name);
 
         if (getLocalPreference)
         {

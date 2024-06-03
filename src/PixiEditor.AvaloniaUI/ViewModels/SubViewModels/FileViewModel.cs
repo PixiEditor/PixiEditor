@@ -399,7 +399,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void UpdateMaxRecentlyOpened(object parameter)
+    private void UpdateMaxRecentlyOpened(string name, object parameter)
     {
         int newAmount = (int)parameter;
 

@@ -55,7 +55,7 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
         : base(owner)
     {
         Owner.OnStartupEvent += Owner_OnStartupEvent;
-        IPreferences.Current.AddCallback<string>("UpdateChannel", val =>
+        IPreferences.Current.AddCallback<string>("UpdateChannel", (_, val) =>
         {
             string prevChannel = UpdateChecker.Channel.ApiUrl;
             UpdateChecker.Channel = GetUpdateChannel(val);

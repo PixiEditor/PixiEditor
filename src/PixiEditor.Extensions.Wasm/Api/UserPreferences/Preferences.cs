@@ -59,7 +59,7 @@ public class Preferences : IPreferences
     /// <returns>Preference value.</returns>
     public T GetPreference<T>(string name, T fallbackValue)
     {
-        return Interop.GetPreference<T>(name, fallbackValue);
+        return Interop.GetPreference(name, fallbackValue);
     }
 
     /// <summary>
@@ -85,24 +85,24 @@ public class Preferences : IPreferences
         return Interop.GetLocalPreference(name, fallbackValue);
     }
     
-    public void AddCallback(string name, Action<object> action)
+    public void AddCallback(string name, Action<string, object> action)
     {
-        
+        Interop.AddPreferenceCallback(name, action);
     }
 
-    public void AddCallback<T>(string name, Action<T> action)
+    public void AddCallback<T>(string name, Action<string, T> action)
     {
-        throw new NotImplementedException();
+        Interop.AddPreferenceCallback(name, action);
     }
 
-    public void RemoveCallback(string name, Action<object> action)
+    public void RemoveCallback(string name, Action<string, object> action)
     {
-        throw new NotImplementedException();
+        Interop.RemovePreferenceCallback(name, action);
     }
 
-    public void RemoveCallback<T>(string name, Action<T> action)
+    public void RemoveCallback<T>(string name, Action<string, T> action)
     {
-        throw new NotImplementedException();
+        Interop.RemovePreferenceCallback(name, action);
     }
 
     void IPreferences.Init() { }

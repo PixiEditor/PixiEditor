@@ -72,7 +72,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     {
         SetDebug();
         preferences.AddCallback<bool>("IsDebugModeEnabled", UpdateDebugMode);
-        UpdateDebugMode(preferences.GetPreference<bool>("IsDebugModeEnabled"));
+        UpdateDebugMode("IsDebugModeEnabled", preferences.GetPreference<bool>("IsDebugModeEnabled"));
     }
 
     public static void OpenFolder(string path)
@@ -315,7 +315,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     [Conditional("DEBUG")]
     private static void SetDebug() => IsDebugBuild = true;
 
-    private void UpdateDebugMode(bool setting)
+    private void UpdateDebugMode(string name, bool setting)
     {
         IsDebugModeEnabled = setting;
         UseDebug = IsDebugBuild || IsDebugModeEnabled;

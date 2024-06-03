@@ -1,4 +1,6 @@
-﻿using PixiEditor.Extensions.Metadata;
+﻿using PixiEditor.Extensions.CommonApi.Utilities;
+using PixiEditor.Extensions.Metadata;
+using PixiEditor.Extensions.WasmRuntime.Api.Modules;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 
 namespace PixiEditor.Extensions.WasmRuntime.Api;
@@ -139,5 +141,17 @@ internal class PreferencesApi : ApiGroupHandler
     {
         var result = PreferencesUtility.GetPreference(Extension, name, fallbackValue, true);
         return result;
+    }
+    
+    [ApiFunction("add_preference_callback")]
+    public void AddPreferenceCallback(string name)
+    {
+        Extension.GetModule<PreferencesModule>().AddPreferenceCallback(name);
+    }
+    
+    [ApiFunction("remove_preference_callback")]
+    public void RemovePreferenceCallback(string name)
+    {
+        Extension.GetModule<PreferencesModule>().RemovePreferenceCallback(name);
     }
 }

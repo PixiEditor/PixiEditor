@@ -84,10 +84,10 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         this.clientId = clientId;
 
         Enabled = IPreferences.Current.GetPreference("EnableRichPresence", true);
-        IPreferences.Current.AddCallback("EnableRichPresence", x => Enabled = (bool)x);
-        IPreferences.Current.AddCallback(nameof(ShowDocumentName), x => ShowDocumentName = (bool)x);
-        IPreferences.Current.AddCallback(nameof(ShowDocumentSize), x => ShowDocumentSize = (bool)x);
-        IPreferences.Current.AddCallback(nameof(ShowLayerCount), x => ShowLayerCount = (bool)x);
+        IPreferences.Current.AddCallback("EnableRichPresence", (_, x) => Enabled = (bool)x);
+        IPreferences.Current.AddCallback(nameof(ShowDocumentName), (_, x) => ShowDocumentName = (bool)x);
+        IPreferences.Current.AddCallback(nameof(ShowDocumentSize), (_, x) => ShowDocumentSize = (bool)x);
+        IPreferences.Current.AddCallback(nameof(ShowLayerCount), (_, x) => ShowLayerCount = (bool)x);
         AppDomain.CurrentDomain.ProcessExit += (_, _) => Enabled = false;
     }
 

@@ -246,7 +246,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
         return palette != null && palette.Source.GetType() == typeof(LocalPalettesFetcher);
     }
 
-    private void OnFavouritePalettesChanged(object obj)
+    private void OnFavouritePalettesChanged(string preferenceName, object value)
     {
         Filtering.Favourites =
             IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);

@@ -17,10 +17,10 @@ public class PreferencesSampleExtension : WasmExtension
     /// </summary>
     public override void OnInitialized()
     {
+        Api.Preferences.AddCallback<int>("HelloCount", (name, value) => Api.Logger.Log($"Hello count changed to {value}!"));
+        
         // Internally this preference will have name "yourCompany.Samples.Preferences:HelloCount".
         int helloCount = Api.Preferences.GetPreference<int>("HelloCount");
-
-        Api.Logger.Log($"Hello count: {helloCount}");
 
         Api.Preferences.UpdatePreference("HelloCount", helloCount + 1);
 

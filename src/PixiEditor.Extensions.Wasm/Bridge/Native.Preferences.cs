@@ -1,9 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace PixiEditor.Extensions.Wasm.Bridge;
 
 internal static partial class Native
 {
+    public static event Action<string, object> PreferenceUpdated;
     
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern void save_preferences();
@@ -67,4 +69,48 @@ internal static partial class Native
     
     [MethodImpl(MethodImplOptions.InternalCall)]
     public static extern double get_local_preference_double(string name, double fallbackDouble);
+    
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern void add_preference_callback(string name);
+    
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern void remove_preference_callback(string name);
+    
+    [ApiExport("string_preference_updated")]
+    public static void OnStringPreferenceUpdated(string name, string value)
+    {
+        PreferenceUpdated?.Invoke(name, value);
+    }
+    
+    [ApiExport("int32_preference_updated")]
+    public static void OnIntPreferenceUpdated(string name, int value)
+    {
+        PreferenceUpdated?.Invoke(name, value);
+    }
+    
+    [ApiExport("bool_preference_updated")]
+    public static void OnBoolPreferenceUpdated(string name, bool value)
+    {
+        PreferenceUpdated?.Invoke(name, value);
+    }
+    
+    [ApiExport("float_preference_updated")]
+    public static void OnFloatPreferenceUpdated(string name, float value)
+    {
+        PreferenceUpdated?.Invoke(name, value);
+    }
+    
+    [ApiExport("double_preference_updated")]
+    public static void OnDoublePreferenceUpdated(string name, double value)
+    {
+        PreferenceUpdated?.Invoke(name, value);
+    }
+    
+    [ApiExport("byte_array_preference_updated")]
+    public static void OnByteArrayPreferenceUpdated(string name, IntPtr ptr, int length)
+    {
+        var bytes = new byte[length];
+        Marshal.Copy(ptr, bytes, 0, length);
+        PreferenceUpdated?.Invoke(name, bytes);
+    }
 }
