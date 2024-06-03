@@ -112,16 +112,22 @@ public static class PackageBuilder
         string targetDir = Path.Combine(targetDirectory, elementPath);
         Directory.CreateDirectory(targetDir);
         var files = Directory.GetFiles(directoryPath);
+        var directories = Directory.GetDirectories(directoryPath);
         foreach (string file in files)
         {
             string destination = Path.Combine(targetDir, Path.GetFileName(file));
             if(FileIsLocale(elementPath))
             {
                 WriteLocale(file, destination, metadata.UniqueName);
-                return;
+                continue;
             }
             
             File.Copy(file, destination, true);
+        }
+        
+        foreach (string directory in directories)
+        {
+            CopyDirectory(Path.Combine(elementPath, new DirectoryInfo(directory).Name), buildResultDirectory, targetDirectory, elementIsRequired, metadata);
         }
     }
 
