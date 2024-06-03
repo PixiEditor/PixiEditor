@@ -70,22 +70,26 @@ internal class PreferencesModule : ApiModule
         }
         
         string typeName = value.GetType().Name.ToLower();
-        var callbackAction = Extension.Instance.GetAction<int, int>($"{typeName}_preference_updated");
         int namePtr = Extension.WasmMemoryUtility.WriteString(preferenceName);
-        int valuePtr = WriteValue(value);
-        
-        callbackAction.Invoke(namePtr, valuePtr);
+        InvokePrimitiveCallbackAction(typeName, value, namePtr);
     }
 
-    private int WriteValue(object value)
+    private void InvokePrimitiveCallbackAction(string typeName, object value, int namePtr)
     {
-        return value switch
+        switch (value)
         {
-            int intValue => intValue,
-            bool boolValue => Extension.WasmMemoryUtility.WriteBoolean(boolValue),
-            float floatValue => Extension.WasmMemoryUtility.WriteSingle(floatValue),
-            double doubleValue => Extension.WasmMemoryUtility.WriteDouble(doubleValue),
-            _ => throw new ArgumentException("Unsupported preference value type.")
-        };
+            case int intValue:
+                Extension.Instance.GetAction<int, int>("int32_preference_updated").Invoke(namePtr, intValue);
+                break;
+            case bool boolValue:
+                Extension.Instance.GetAction<int, int>("bool_preference_updated").Invoke(namePtr, Convert.ToInt32(boolValue));
+                break;
+            case float floatValue:
+                Extension.Instance.GetAction<int, float>("float_preference_updated").Invoke(namePtr, floatValue);
+                break;
+            case double doubleValue:
+                Extension.Instance.GetAction<int, double>("double_preference_updated").Invoke(namePtr, doubleValue);
+                break;
+        }
     }
 }

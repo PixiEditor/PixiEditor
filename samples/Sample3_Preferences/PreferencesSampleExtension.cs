@@ -18,11 +18,19 @@ public class PreferencesSampleExtension : WasmExtension
     public override void OnInitialized()
     {
         Api.Preferences.AddCallback<int>("HelloCount", (name, value) => Api.Logger.Log($"Hello count changed to {value}!"));
+        Api.Preferences.AddCallback<double>("TestDouble", (name, value) => Api.Logger.Log($"Test double changed to {value}!"));
+        Api.Preferences.AddCallback<string>("TestString", (name, value) => Api.Logger.Log($"Test string changed to {value}!"));
+        Api.Preferences.AddCallback<bool>("TestBool", (name, value) => Api.Logger.Log($"Test bool changed to {value}!"));
+        Api.Preferences.AddCallback<byte[]>("TestByteArray", (name, value) => Api.Logger.Log($"Test byte array changed to {value}!"));
         
         // Internally this preference will have name "yourCompany.Samples.Preferences:HelloCount".
         int helloCount = Api.Preferences.GetPreference<int>("HelloCount");
 
         Api.Preferences.UpdatePreference("HelloCount", helloCount + 1);
+        
+        Api.Preferences.UpdatePreference("TestDouble", 3.14);
+        Api.Preferences.UpdatePreference("TestString", "Hello, World!");
+        Api.Preferences.UpdatePreference("TestBool", true);
 
         // This will overwrite built-in PixiEditor preference. Extension must have WriteNonOwnedPreferences permission.
         // Prepending "PixiEditor:" to preference name will access built-in PixiEditor preferences. If you set it to other extension unique name,
