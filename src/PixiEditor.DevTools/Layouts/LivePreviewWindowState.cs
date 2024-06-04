@@ -1,4 +1,6 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Events;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.IO;
 using PixiEditor.Extensions.Runtime;

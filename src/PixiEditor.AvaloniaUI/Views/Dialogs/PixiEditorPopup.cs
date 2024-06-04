@@ -46,6 +46,9 @@ public partial class PixiEditorPopup : Window, IPopupWindow
     public PixiEditorPopup()
     {
         CloseCommand = new RelayCommand(ClosePopup);
+#if DEBUG
+        this.AttachDevTools();
+#endif
     }
 
     public override void Show()
