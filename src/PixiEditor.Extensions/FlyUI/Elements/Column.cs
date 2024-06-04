@@ -29,7 +29,6 @@ public class Column : MultiChildLayoutElement
                 foreach (LayoutElement? item in e.NewItems)
                 {
                     var newChild = item.BuildNative();
-                    DockPanel.SetDock(newChild, Dock.Top);
                     panel.Children.Add(newChild);
                 }
             }
@@ -51,7 +50,7 @@ public class Column : MultiChildLayoutElement
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Stretch
         };
-
+        
         panel.Children.AddRange(Children.Select(x => x.BuildNative()));
 
         return panel;

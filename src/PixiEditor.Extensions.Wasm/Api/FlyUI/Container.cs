@@ -6,11 +6,11 @@ public class Container : SingleChildLayoutElement
 {
     public Edges Margin { get; set; }
     public Color BackgroundColor { get; set; }
-    
+
     public double Width { get; set; }
     public double Height { get; set; }
 
-    public Container(LayoutElement child = null, Edges margin = default, Color backgroundColor = default, double width = double.NaN, double height = double.NaN)
+    public Container(LayoutElement child = null, Edges margin = default, Color backgroundColor = default, double width = -1, double height = -1)
     {
         Margin = margin;
         BackgroundColor = backgroundColor;

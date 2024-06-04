@@ -1,8 +1,10 @@
-﻿using Avalonia;
+﻿using System.Collections.Immutable;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Extensions;
 using PixiEditor.Extensions.FlyUI.Converters;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
@@ -21,6 +23,8 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
     public override Control BuildNative()
     {
         Panel panel = new Panel();
+        
+        panel.ClipToBounds = true;
         
         if(Child != null)
         {
@@ -55,8 +59,8 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
         
         panel.Bind(Layoutable.MarginProperty, marginBinding);
         panel.Bind(Panel.BackgroundProperty, backgroundColorBinding);
-        panel.Bind(Panel.WidthProperty, widthBinding);
-        panel.Bind(Panel.HeightProperty, heightBinding);
+        panel.Bind(Layoutable.WidthProperty, widthBinding);
+        panel.Bind(Layoutable.HeightProperty, heightBinding);
         
         return panel;
     }
@@ -77,11 +81,14 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
         yield return Height;
     }
 
-    public void DeserializeProperties(IEnumerable<object> values)
+    public void DeserializeProperties(ImmutableList<object> values)
     {
-        Margin = new Edges((double)values.ElementAt(0), (double)values.ElementAt(1), (double)values.ElementAt(2), (double)values.ElementAt(3));
-        BackgroundColor = new Color((byte)values.ElementAt(4), (byte)values.ElementAt(5), (byte)values.ElementAt(6), (byte)values.ElementAt(7));
-        Width = (double)values.ElementAt(8);
-        Height = (double)values.ElementAt(9);
+        Margin = new Edges((double)values.ElementAtOrDefault(0), (double)values.ElementAtOrDefault(1), (double)values.ElementAtOrDefault(2), (double)values.ElementAtOrDefault(3));
+        BackgroundColor = new Color((byte)values.ElementAtOrDefault(4), (byte)values.ElementAtOrDefault(5), (byte)values.ElementAtOrDefault(6), (byte)values.ElementAtOrDefault(7));
+        Width = (double)values.ElementAtOrDefault(8, double.NaN);
+        Height = (double)values.ElementAtOrDefault(9, double.NaN);
+        
+        Width = Width < 0 ? double.NaN : Width;
+        Height = Height < 0 ? double.NaN : Height;
     }
 }

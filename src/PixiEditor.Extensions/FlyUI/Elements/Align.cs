@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System.Collections.Immutable;
+using Avalonia.Controls;
 using Avalonia.Layout;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
@@ -64,13 +65,13 @@ public class Align : SingleChildLayoutElement, IPropertyDeserializable
         };
     }
 
-    public void DeserializeProperties(IEnumerable<object> values)
+    public void DeserializeProperties(ImmutableList<object> values)
     {
-        Alignment = (Alignment)(int)values.FirstOrDefault();
+        Alignment = (Alignment)values.FirstOrDefault();
     }
     
     IEnumerable<object> IPropertyDeserializable.GetProperties()
     {
-        yield return (int)Alignment;
+        yield return Alignment;
     }
 }

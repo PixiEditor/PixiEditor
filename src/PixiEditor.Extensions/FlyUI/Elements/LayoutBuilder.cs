@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Immutable;
+using System.Text;
 using Avalonia.Controls;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.FlyUI.Exceptions;
@@ -98,7 +99,7 @@ public class LayoutBuilder
 
         if (element is IPropertyDeserializable deserializableProperties)
         {
-            deserializableProperties.DeserializeProperties(properties);
+            deserializableProperties.DeserializeProperties(properties.ToImmutableList());
         }
 
         if (element is IChildHost customChildrenDeserializable)
