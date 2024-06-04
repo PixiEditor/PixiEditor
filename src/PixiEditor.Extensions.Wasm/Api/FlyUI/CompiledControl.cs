@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 
 namespace PixiEditor.Extensions.Wasm.Api.FlyUI;
@@ -92,7 +94,7 @@ public class CompiledControl
                 byte b => new byte[] { b },
                 char c => BitConverter.GetBytes(c),
                 string s => Encoding.UTF8.GetBytes(s),
-                null => Array.Empty<byte>(),
+                null => [],
                 _ => throw new Exception($"Unknown unmanaged type: {property.value.GetType()}")
             });
         }

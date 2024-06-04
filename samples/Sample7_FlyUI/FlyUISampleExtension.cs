@@ -7,6 +7,11 @@ public class FlyUiSampleExtension : WasmExtension
     public override void OnInitialized()
     {
         WindowContentElement content = new WindowContentElement();
-        Api.WindowProvider.CreatePopupWindow("Sample Window", content).Show();
+        var popup = Api.WindowProvider.CreatePopupWindow("Sample Window", content);
+
+        popup.Width = 800;
+        popup.Height = 720;
+        
+        popup.Show();
     }
 }

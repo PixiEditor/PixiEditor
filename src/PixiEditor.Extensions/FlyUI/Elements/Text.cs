@@ -9,10 +9,11 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 public class Text : StatelessElement, IPropertyDeserializable
 {
+    private TextWrap _textWrap = TextWrap.None;
     private string _value = null!;
+ 
     public string Value { get => _value; set => SetField(ref _value, value); }
-    
-    public TextWrap TextWrap { get; set; } = TextWrap.None;
+    public TextWrap TextWrap { get => _textWrap; set => SetField(ref _textWrap, value); }
 
     public Text()
     {
