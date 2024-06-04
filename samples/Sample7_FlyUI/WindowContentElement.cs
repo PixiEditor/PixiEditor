@@ -24,7 +24,8 @@ public class WindowContentElement : StatelessElement
                     new Container(
                         margin: Edges.Symmetric(25, 0), 
                         backgroundColor: Color.FromRgba(25, 25, 25, 255), 
-                        height: 200)
+                        child: new Column(
+                            new Image("/Pizza.png")))
                 )
             )
         );

@@ -25,9 +25,9 @@ public class CompiledControl
         Properties.Add((value, typeof(T)));
     }
 
-    public void AddProperty(string value, Type type)
+    public void AddStringProperty(string value)
     {
-        Properties.Add((value, type));
+        Properties.Add((value, typeof(string)));
     }
 
     public void AddChild(CompiledControl child)

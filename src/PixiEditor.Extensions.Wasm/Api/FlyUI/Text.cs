@@ -11,7 +11,7 @@ public class Text(string value, TextWrap wrap = TextWrap.None) : StatelessElemen
     public override CompiledControl BuildNative()
     {
         CompiledControl text = new CompiledControl(UniqueId, "Text");
-        text.AddProperty(Value, typeof(string));
+        text.AddStringProperty(Value);
         text.AddProperty((int)TextWrap);
 
         BuildPendingEvents(text);

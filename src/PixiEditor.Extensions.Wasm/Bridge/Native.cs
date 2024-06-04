@@ -57,4 +57,7 @@ internal static partial class Native
             element.RaiseEvent(eventName ?? "", new ElementEventArgs());
         }
     }
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern string to_resources_full_path(string value);
 }
