@@ -47,7 +47,7 @@ public class CompiledControl
     private List<byte> Serialize(List<byte> bytes)
     {
         // TODO: Make it more efficient
-
+        
         byte[] uniqueIdBytes = BitConverter.GetBytes(UniqueId);
         bytes.AddRange(uniqueIdBytes);
         byte[] idLengthBytes = BitConverter.GetBytes(ControlTypeId.Length);
@@ -58,6 +58,7 @@ public class CompiledControl
         bytes.AddRange(SerializeProperties());
         bytes.AddRange(BitConverter.GetBytes(Children.Count));
         SerializeChildren(bytes);
+        
         return bytes;
     }
 

@@ -21,7 +21,6 @@ public class PreferencesSampleExtension : WasmExtension
         Api.Preferences.AddCallback<double>("TestDouble", (name, value) => Api.Logger.Log($"Test double changed to {value}!"));
         Api.Preferences.AddCallback<string>("TestString", (name, value) => Api.Logger.Log($"Test string changed to {value}!"));
         Api.Preferences.AddCallback<bool>("TestBool", (name, value) => Api.Logger.Log($"Test bool changed to {value}!"));
-        Api.Preferences.AddCallback<byte[]>("TestByteArray", (name, value) => Api.Logger.Log($"Test byte array changed to {value}!"));
         
         // Internally this preference will have name "yourCompany.Samples.Preferences:HelloCount".
         int helloCount = Api.Preferences.GetPreference<int>("HelloCount");

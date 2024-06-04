@@ -20,7 +20,11 @@ public class LayoutBuilder
     public ILayoutElement<Control> Deserialize(Span<byte> layoutSpan, DuplicateResolutionTactic duplicatedIdTactic)
     {
         int offset = 0;
+        return DeserializeInternal(layoutSpan, duplicatedIdTactic, ref offset);
+    }
 
+    private ILayoutElement<Control> DeserializeInternal(Span<byte> layoutSpan, DuplicateResolutionTactic duplicatedIdTactic, ref int offset)
+    {
         int uniqueId = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
 
@@ -75,7 +79,7 @@ public class LayoutBuilder
         var children = new List<ILayoutElement<Control>>();
         for (int i = 0; i < childrenCount; i++)
         {
-            children.Add(Deserialize(layoutSpan[offset..], duplicatedIdTactic));
+            children.Add(DeserializeInternal(layoutSpan, duplicatedIdTactic, ref offset));
         }
 
         return children;
