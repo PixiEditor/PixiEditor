@@ -6,6 +6,7 @@
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
              xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
+             xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              Name="uc"
              x:Class="PixiEditor.AvaloniaUI.Views.Main.Navigation">
@@ -60,7 +61,7 @@
                 </TextBlock.Text>
             </TextBlock>
         </StackPanel>
-        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,5,0" ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
+        <Grid Grid.Row="2" HorizontalAlignment="Right" Margin="0,0,5,0" ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding ElementName=backgroundButton, Path=ActiveItem.ScalingMode}">
             <StackPanel Orientation="Horizontal">
                 <input:ListSwitchButton x:Name="formatButton" Margin="0,0,5,0" Height="20">
                     <input:ListSwitchButton.Items>

@@ -120,12 +120,12 @@
                                                         Margin="10"
                                                         Stretch="Uniform"
                                                         x:Name="image">
-                                                        <ui1:RenderOptionsBindable.BitmapInterpolationMode>
+                                                        <ui:RenderOptionsBindable.BitmapInterpolationMode>
                                                             <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
                                                                 <Binding Path="PreviewBitmap.Size.X"/>
                                                                 <Binding ElementName="image" Path="Width"/>
                                                             </MultiBinding>
-                                                        </ui1:RenderOptionsBindable.BitmapInterpolationMode>
+                                                        </ui:RenderOptionsBindable.BitmapInterpolationMode>
                                                     </visuals:SurfaceControl>
                                                     <Border Grid.Row="1" Height="8" Width="8" x:Name="extensionBorder" Margin="5"
                                                             Background="{Binding FileExtension, Converter={converters:FileExtensionToColorConverter}}" 

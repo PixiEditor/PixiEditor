@@ -2,7 +2,7 @@
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 
-namespace PixiEditor.AvaloniaUI.Helpers.UI;
+namespace PixiEditor.Extensions.UI;
 
 public class RenderOptionsBindable
 {

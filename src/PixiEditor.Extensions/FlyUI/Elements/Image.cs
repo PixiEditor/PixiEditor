@@ -4,9 +4,11 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Layout;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Extensions;
 using PixiEditor.Extensions.FlyUI.Converters;
+using PixiEditor.Extensions.UI;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
@@ -16,15 +18,29 @@ public class Image : StatelessElement, IPropertyDeserializable
     private double _width = -1;
     private double _height = -1;
     private FillMode _fillMode = FillMode.Uniform;
+    private FilterQuality _filterQuality = FilterQuality.None;
+    private Avalonia.Controls.Image _image = null!;
     
     public string Source { get => _source; set => SetField(ref _source, value); }
     public double Width { get => _width; set => SetField(ref _width, value); }
     public double Height { get => _height; set => SetField(ref _height, value); }
     public FillMode FillMode { get => _fillMode; set => SetField(ref _fillMode, value); }
+
+    public FilterQuality FilterQuality
+    {
+        get => _filterQuality;
+        set
+        {
+            if (SetField(ref _filterQuality, value) && _image != null)
+            {
+                RenderOptions.SetBitmapInterpolationMode(_image, (BitmapInterpolationMode)(byte)FilterQuality);
+            }
+        }
+    }
     
     public override Control BuildNative()
     {
-        Avalonia.Controls.Image image = new();
+        _image = new();
         
         Binding sourceBinding = new()
         {
@@ -52,12 +68,13 @@ public class Image : StatelessElement, IPropertyDeserializable
             Converter = new EnumToEnumConverter<FillMode, Stretch>()
         };
         
-        image.Bind(Avalonia.Controls.Image.SourceProperty, sourceBinding);
-        image.Bind(Layoutable.WidthProperty, widthBinding);
-        image.Bind(Layoutable.HeightProperty, heightBinding);
-        image.Bind(Avalonia.Controls.Image.StretchProperty, fillModeBinding);
+        _image.Bind(Avalonia.Controls.Image.SourceProperty, sourceBinding);
+        _image.Bind(Layoutable.WidthProperty, widthBinding);
+        _image.Bind(Layoutable.HeightProperty, heightBinding);
+        _image.Bind(Avalonia.Controls.Image.StretchProperty, fillModeBinding);
+        RenderOptions.SetBitmapInterpolationMode(_image, (BitmapInterpolationMode)(byte)FilterQuality);
         
-        return image;
+        return _image;
     }
 
 
@@ -68,7 +85,8 @@ public class Image : StatelessElement, IPropertyDeserializable
         yield return Width;
         yield return Height;
         
-        yield return (int)FillMode;
+        yield return FillMode;
+        yield return FilterQuality;
     }
 
     public void DeserializeProperties(ImmutableList<object> values)
@@ -82,6 +100,7 @@ public class Image : StatelessElement, IPropertyDeserializable
         Width = Width < 0 ? double.NaN : Width;
         Height = Height < 0 ? double.NaN : Height;
         
-        FillMode = (FillMode)valuesList.ElementAtOrDefault(3, (int)FillMode.Uniform);
+        FillMode = (FillMode)valuesList.ElementAtOrDefault(3, FillMode.Uniform);
+        FilterQuality = (FilterQuality)valuesList.ElementAtOrDefault(4, FilterQuality.Unspecified);
     }
 }

@@ -137,7 +137,7 @@
             FadeOut="{Binding Source={viewModels:ToolVM ColorPickerToolViewModel}, Path=PickOnlyFromReferenceLayer, Mode=OneWay}"
             DefaultCursor="{Binding Source={viewModels:MainVM}, Path=ToolsSubViewModel.ToolCursor, Mode=OneWay}"
             CheckerImagePath="/Images/CheckerTile.png"
-            ui1:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}"/>
+            ui:RenderOptionsBindable.BitmapInterpolationMode="{Binding Scale, Converter={converters:ScaleToBitmapScalingModeConverter}, RelativeSource={RelativeSource Self}}"/>
         <!--<zoombox:Zoombox
             Tag="{Binding ElementName=vpUc}"
             x:Name="zoombox"

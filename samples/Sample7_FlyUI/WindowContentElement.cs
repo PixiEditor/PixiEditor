@@ -25,7 +25,7 @@ public class WindowContentElement : StatelessElement
                         margin: Edges.Symmetric(25, 0), 
                         backgroundColor: Color.FromRgba(25, 25, 25, 255),
                         child: new Column(
-                            new Image("/Pizza.png")))
+                            new Image("/Pizza.png", filterQuality: FilterQuality.None)))
                 )
             )
         );
