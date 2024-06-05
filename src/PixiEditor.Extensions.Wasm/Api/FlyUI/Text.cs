@@ -23,9 +23,9 @@ public class Text : StatelessElement
     public override CompiledControl BuildNative()
     {
         CompiledControl text = new CompiledControl(UniqueId, "Text");
-        text.AddStringProperty(Value);
-        text.AddProperty((int)TextWrap);
-        text.AddProperty((int)FontStyle);
+        text.AddProperty(Value);
+        text.AddProperty(TextWrap);
+        text.AddProperty(FontStyle);
         text.AddProperty(FontSize);
 
         BuildPendingEvents(text);

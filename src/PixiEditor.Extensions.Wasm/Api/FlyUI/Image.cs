@@ -41,11 +41,11 @@ public class Image : StatelessElement
     {
         CompiledControl image = new CompiledControl(UniqueId, "Image");
         
-        image.AddStringProperty(Source);
+        image.AddProperty(Source);
         image.AddProperty(Width);
         image.AddProperty(Height);
-        image.AddProperty((int)FillMode);
-        image.AddProperty((byte)FilterQuality);
+        image.AddProperty(FillMode);
+        image.AddProperty(FilterQuality);
         
         BuildPendingEvents(image);
         return image;

@@ -2,6 +2,7 @@
 using System.Text;
 using Avalonia.Controls;
 using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.FlyUI.Exceptions;
 using PixiEditor.Extensions.Helpers;
 
@@ -38,7 +39,7 @@ public class LayoutBuilder
         int propertiesCount = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
 
-        List<object> properties = DeserializeProperties(layoutSpan, propertiesCount, ref offset);
+        List<object> properties = DeserializeProperties(layoutSpan, propertiesCount, ref offset, elementMap);
 
         int childrenCount = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
         offset += int32Size;
@@ -48,7 +49,7 @@ public class LayoutBuilder
         return BuildLayoutElement(uniqueId, controlTypeId, properties, children, duplicatedIdTactic);
     }
 
-    private static List<object> DeserializeProperties(Span<byte> layoutSpan, int propertiesCount, ref int offset)
+    private static List<object> DeserializeProperties(Span<byte> layoutSpan, int propertiesCount, ref int offset, ElementMap map)
     {
         var properties = new List<object>();
         for (int i = 0; i < propertiesCount; i++)
@@ -64,6 +65,32 @@ public class LayoutBuilder
                 string value = Encoding.UTF8.GetString(layoutSpan[offset..(offset + stringLength)]);
                 offset += stringLength;
                 properties.Add(value);
+            }
+            else if (type == typeof(byte[]))
+            {
+                int wellKnownStructNameLength = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
+                offset += int32Size;
+                
+                string wellKnownStructName = Encoding.UTF8.GetString(layoutSpan[offset..(offset + wellKnownStructNameLength)]);
+                offset += wellKnownStructNameLength;
+                
+                int structSize = BitConverter.ToInt32(layoutSpan[offset..(offset + int32Size)]);
+                offset += int32Size;
+                
+                byte[] value = layoutSpan[offset..(offset + structSize)].ToArray();
+                
+                offset += structSize;
+                
+                map.WellKnownStructs.TryGetValue(wellKnownStructName, out Type? structType);
+                if (structType == null)
+                {
+                    throw new Exception($"Struct type {wellKnownStructName} not found in map");
+                }
+                
+                IStructProperty prop = (IStructProperty)Activator.CreateInstance(structType);
+                prop.Deserialize(value);
+                
+                properties.Add(prop);
             }
             else
             {

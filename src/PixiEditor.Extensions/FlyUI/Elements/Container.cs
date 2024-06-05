@@ -83,10 +83,10 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
 
     public void DeserializeProperties(ImmutableList<object> values)
     {
-        Margin = new Edges((double)values.ElementAtOrDefault(0), (double)values.ElementAtOrDefault(1), (double)values.ElementAtOrDefault(2), (double)values.ElementAtOrDefault(3));
-        BackgroundColor = new Color((byte)values.ElementAtOrDefault(4), (byte)values.ElementAtOrDefault(5), (byte)values.ElementAtOrDefault(6), (byte)values.ElementAtOrDefault(7));
-        Width = (double)values.ElementAtOrDefault(8, double.NaN);
-        Height = (double)values.ElementAtOrDefault(9, double.NaN);
+        Margin = (Edges)values.ElementAtOrDefault(0, default(Edges));
+        BackgroundColor = (Color)values.ElementAtOrDefault(1, default(Color));
+        Width = (double)values.ElementAtOrDefault(2, double.NaN);
+        Height = (double)values.ElementAtOrDefault(3, double.NaN);
         
         Width = Width < 0 ? double.NaN : Width;
         Height = Height < 0 ? double.NaN : Height;

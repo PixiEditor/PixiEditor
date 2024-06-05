@@ -46,4 +46,10 @@ internal static partial class Native
 
     [MethodImpl(MethodImplOptions.InternalCall)]
     internal static extern int show_window_async(int windowHandle);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern int get_built_in_window(int type);
+
+    [MethodImpl(MethodImplOptions.InternalCall)]
+    public static extern int get_window(string windowId);
 }

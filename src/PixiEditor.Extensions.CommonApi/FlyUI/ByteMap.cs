@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.Extensions.CommonApi.FlyUI;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+
+namespace PixiEditor.Extensions.CommonApi.FlyUI;
 
 public static class ByteMap
 {
@@ -40,6 +42,10 @@ public static class ByteMap
         {
             return 8;
         }
+        if(type == typeof(byte[]))
+        {
+            return 9;
+        }
 
         throw new Exception($"Unknown unmanaged type: {type}");
     }
@@ -57,6 +63,7 @@ public static class ByteMap
             6 => typeof(byte),
             7 => typeof(char),
             8 => typeof(string),
+            9 => typeof(byte[]),
             _ => throw new Exception($"Unknown unmanaged type id: {id}")
         };
     }

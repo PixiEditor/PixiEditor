@@ -22,15 +22,9 @@ public class Container : SingleChildLayoutElement
     public override CompiledControl BuildNative()
     {
         CompiledControl container = new CompiledControl(UniqueId, "Container");
-        container.AddProperty(Margin.Left);
-        container.AddProperty(Margin.Top);
-        container.AddProperty(Margin.Right);
-        container.AddProperty(Margin.Bottom);
-        
-        container.AddProperty(BackgroundColor.R);
-        container.AddProperty(BackgroundColor.G);
-        container.AddProperty(BackgroundColor.B);
-        container.AddProperty(BackgroundColor.A);
+        container.AddProperty(Margin);
+
+        container.AddProperty(BackgroundColor);
         
         container.AddProperty(Width);
         container.AddProperty(Height);

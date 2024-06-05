@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.Wasm.Api.FlyUI;
 
@@ -14,18 +15,40 @@ public class CompiledControl
     internal List<string> QueuedEvents => _buildQueuedEvents;
 
     private List<string> _buildQueuedEvents = new List<string>();
+
     public CompiledControl(int uniqueId, string controlTypeId)
     {
         ControlTypeId = controlTypeId;
         UniqueId = uniqueId;
     }
 
-    public void AddProperty<T>(T value) where T : unmanaged
+    public void AddProperty<T>(T value)
     {
-        Properties.Add((value, typeof(T)));
+        InternalAddProperty(value);
     }
 
-    public void AddStringProperty(string value)
+    private void InternalAddProperty(object value)
+    {
+        if (value is string s)
+        {
+            AddStringProperty(s);
+        }
+        else if (value is Enum enumProp)
+        {
+            var enumValue = Convert.ChangeType(value, enumProp.GetTypeCode());
+            Properties.Add((enumValue, enumValue.GetType()));
+        }
+        else if (value is IStructProperty structProperty)
+        {
+            Properties.Add((value, typeof(byte[])));
+        }
+        else
+        {
+            Properties.Add((value, value.GetType()));
+        }
+    }
+
+    private void AddStringProperty(string value)
     {
         Properties.Add((value, typeof(string)));
     }
@@ -49,7 +72,7 @@ public class CompiledControl
     private List<byte> Serialize(List<byte> bytes)
     {
         // TODO: Make it more efficient
-        
+
         byte[] uniqueIdBytes = BitConverter.GetBytes(UniqueId);
         bytes.AddRange(uniqueIdBytes);
         byte[] idLengthBytes = BitConverter.GetBytes(ControlTypeId.Length);
@@ -60,7 +83,7 @@ public class CompiledControl
         bytes.AddRange(SerializeProperties());
         bytes.AddRange(BitConverter.GetBytes(Children.Count));
         SerializeChildren(bytes);
-        
+
         return bytes;
     }
 
@@ -94,12 +117,26 @@ public class CompiledControl
                 byte b => new byte[] { b },
                 char c => BitConverter.GetBytes(c),
                 string s => Encoding.UTF8.GetBytes(s),
+                IStructProperty structProperty => GetWellKnownStructBytes(structProperty),
                 null => [],
                 _ => throw new Exception($"Unknown unmanaged type: {property.value.GetType()}")
             });
         }
 
         return result;
+    }
+
+    private static List<byte> GetWellKnownStructBytes(IStructProperty structProperty)
+    {
+        List<byte> bytes = new List<byte>(BitConverter.GetBytes(structProperty.GetType().Name.Length));
+        bytes.AddRange(Encoding.UTF8.GetBytes(structProperty.GetType().Name));
+
+        byte[] structBytes = structProperty.Serialize();
+        
+        bytes.AddRange(BitConverter.GetBytes(structBytes.Length));
+        bytes.AddRange(structBytes);
+        
+        return bytes;
     }
 
     internal void AddEvent(string eventName)

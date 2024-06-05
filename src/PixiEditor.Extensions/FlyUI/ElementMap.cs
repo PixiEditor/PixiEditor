@@ -2,15 +2,18 @@
 using System.Text;
 using Avalonia.Controls;
 using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.FlyUI;
 
 public class ElementMap
 {
     public IReadOnlyDictionary<string, Type> ControlMap => controlMap;
+    public IReadOnlyDictionary<string, Type> WellKnownStructs => wellKnownStructs;
 
     // TODO: Code generation
     private Dictionary<string, Type> controlMap = new Dictionary<string, Type>();
+    private Dictionary<string, Type> wellKnownStructs = new Dictionary<string, Type>();
 
     public ElementMap()
     {
@@ -19,10 +22,16 @@ public class ElementMap
 
     public void AddElementsFromAssembly(Assembly assembly)
     {
-        var types = assembly.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(ILayoutElement<Control>)));
-        foreach (var type in types)
+        var layoutElementTypes = assembly.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(ILayoutElement<Control>)));
+        foreach (var type in layoutElementTypes)
         {
             controlMap.Add(type.Name, type); // TODO: Extension unique name prefix?
+        }
+        
+        var structTypes = assembly.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(IStructProperty)));
+        foreach (var type in structTypes)
+        {
+            wellKnownStructs.Add(type.Name, type);
         }
     }
 

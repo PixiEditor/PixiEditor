@@ -44,7 +44,7 @@ public class WindowProvider : IWindowProvider
         return new PopupWindow(new PixiEditorPopup { Title = new LocalizedString(title), Content = body });
     }
 
-    public IPopupWindow GetWindow(WindowType type)
+    public IPopupWindow GetWindow(BuiltInWindowType type)
     {
         string id = type.GetDescription();
         return GetWindow($"PixiEditor.{id}");

@@ -2,7 +2,7 @@
 
 namespace PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
-public struct Edges
+public struct Edges : IStructProperty
 {
     public double Left { get; set; }
     public double Top { get; set; }
@@ -45,5 +45,25 @@ public struct Edges
     public static Edges operator /(Edges a, double b)
     {
         return new Edges(a.Left / b, a.Top / b, a.Right / b, a.Bottom / b);
+    }
+
+    byte[] IStructProperty.Serialize()
+    {
+        byte[] data = new byte[32];
+        
+        BitConverter.GetBytes(Left).CopyTo(data, 0);
+        BitConverter.GetBytes(Top).CopyTo(data, 8);
+        BitConverter.GetBytes(Right).CopyTo(data, 16);
+        BitConverter.GetBytes(Bottom).CopyTo(data, 24);
+        
+        return data;
+    }
+
+    void IStructProperty.Deserialize(byte[] data)
+    {
+        Left = BitConverter.ToDouble(data, 0);
+        Top = BitConverter.ToDouble(data, 8);
+        Right = BitConverter.ToDouble(data, 16);
+        Bottom = BitConverter.ToDouble(data, 24);
     }
 }

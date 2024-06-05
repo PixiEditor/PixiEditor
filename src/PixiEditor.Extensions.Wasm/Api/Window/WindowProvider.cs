@@ -52,13 +52,15 @@ public class WindowProvider : IWindowProvider
         return CreatePopupWindow(title, element);
     }
 
-    public IPopupWindow GetWindow(WindowType type)
+    public IPopupWindow GetWindow(BuiltInWindowType type)
     {
-        throw new NotImplementedException();
+        int handle = Native.get_built_in_window((int)type);
+        return new PopupWindow(handle);
     }
 
     public IPopupWindow GetWindow(string windowId)
     {
-        throw new NotImplementedException();
+        int handle = Native.get_window(windowId);
+        return new PopupWindow(handle);
     }
 }
