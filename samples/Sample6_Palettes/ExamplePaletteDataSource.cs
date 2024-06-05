@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using PixiEditor.Extensions.CommonApi.Async;
 using PixiEditor.Extensions.CommonApi.Palettes;
-using PixiEditor.Extensions.Wasm;
+using PixiEditor.Extensions.Sdk;
 
 namespace PalettesSample;
 

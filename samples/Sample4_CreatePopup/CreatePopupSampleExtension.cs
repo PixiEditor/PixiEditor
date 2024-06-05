@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
-using PixiEditor.Extensions.Wasm;
-using PixiEditor.Extensions.Wasm.Api.FlyUI;
+using PixiEditor.Extensions.Sdk;
+using PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 namespace CreatePopupSample;
 

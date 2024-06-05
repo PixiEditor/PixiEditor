@@ -1,4 +1,4 @@
-namespace PixiEditor.Extensions.WasmRuntime.Tests;
+namespace PixiEditor.Extensions.SdkRuntime.Tests;
 
 public class UnitTest1
 {

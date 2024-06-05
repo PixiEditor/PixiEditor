@@ -70,7 +70,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.AvaloniaUI.Brows
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PixiEditor.AvaloniaUI.Desktop", "PixiEditor.AvaloniaUI.Desktop\PixiEditor.AvaloniaUI.Desktop.csproj", "{8F4FFC91-BE9F-4476-A372-FBD952865F15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.Wasm", "PixiEditor.Extensions.Wasm\PixiEditor.Extensions.Wasm.csproj", "{71907779-F1D1-4AA6-BA11-E990DB089841}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.Sdk", "PixiEditor.Extensions.Sdk\PixiEditor.Extensions.Sdk.csproj", "{71907779-F1D1-4AA6-BA11-E990DB089841}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.WasmRuntime", "PixiEditor.Extensions.WasmRuntime\PixiEditor.Extensions.WasmRuntime.csproj", "{B30622ED-9177-4930-8E64-2B2352D4D8DC}"
 EndProject

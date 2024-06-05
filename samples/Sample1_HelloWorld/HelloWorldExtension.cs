@@ -1,6 +1,6 @@
 ﻿namespace HelloWorld;
 
-using PixiEditor.Extensions.Wasm;
+using PixiEditor.Extensions.Sdk;
 
 public class HelloWorldExtension : WasmExtension
 {

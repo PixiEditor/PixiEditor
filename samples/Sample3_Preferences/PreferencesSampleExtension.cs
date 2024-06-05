@@ -1,4 +1,4 @@
-﻿using PixiEditor.Extensions.Wasm;
+﻿using PixiEditor.Extensions.Sdk;
 
 namespace Preferences;
 

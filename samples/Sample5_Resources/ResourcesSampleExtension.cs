@@ -1,5 +1,5 @@
 ﻿using System.IO;
-using PixiEditor.Extensions.Wasm;
+using PixiEditor.Extensions.Sdk;
 
 namespace ResourcesSample;
 

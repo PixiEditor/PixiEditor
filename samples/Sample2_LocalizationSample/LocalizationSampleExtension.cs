@@ -1,5 +1,5 @@
-﻿using PixiEditor.Extensions.Wasm;
-using PixiEditor.Extensions.Wasm.Api.Localization;
+﻿using PixiEditor.Extensions.Sdk;
+using PixiEditor.Extensions.Sdk.Api.Localization;
 
 namespace LocalizationSample;
 

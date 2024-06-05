@@ -11,7 +11,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PixiEditor.Extensions.Runtime\PixiEditor.Extensions.Runtime.csproj" />
-      <ProjectReference Include="..\PixiEditor.Extensions.Wasm\PixiEditor.Extensions.Wasm.csproj" />
+      <ProjectReference Include="..\\.csproj" />
       <ProjectReference Include="..\PixiEditor.Extensions\PixiEditor.Extensions.csproj" />
     </ItemGroup>
 

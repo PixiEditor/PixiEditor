@@ -1,8 +1,6 @@
-﻿using PixiEditor.Extensions.CommonApi.FlyUI;
-using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
-using PixiEditor.Extensions.Wasm.Api.FlyUI;
-using PixiEditor.Extensions.Wasm.Api.Localization;
-using PixiEditor.Extensions.Wasm.Api.Window;
+﻿using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Sdk.Api.FlyUI;
+using PixiEditor.Extensions.Sdk.Api.Window;
 
 namespace FlyUISample;
 

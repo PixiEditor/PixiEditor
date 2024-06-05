@@ -153,19 +153,19 @@ public class LayoutBuilderTests
         var native = testStatefulElement.BuildNative();
 
         Assert.IsType<ContentPresenter>(native);
-        Assert.IsType<DockPanel>((native as ContentPresenter).Content);
-        DockPanel panel = (native as ContentPresenter).Content as DockPanel;
+        Assert.IsType<StackPanel>((native as ContentPresenter).Content);
+        StackPanel panel = (native as ContentPresenter).Content as StackPanel;
 
         Assert.Equal(2, panel.Children.Count);
 
         Assert.IsType<Avalonia.Controls.Button>(panel.Children[0]);
-        Assert.IsType<DockPanel>(panel.Children[1]);
+        Assert.IsType<StackPanel>(panel.Children[1]);
 
-        Assert.Empty((panel.Children[1] as DockPanel).Children);
+        Assert.Empty((panel.Children[1] as StackPanel).Children);
         Assert.Empty(testStatefulElement.State.Rows);
 
         Avalonia.Controls.Button button = (Avalonia.Controls.Button)panel.Children[0];
-        DockPanel innerPanel = (DockPanel)panel.Children[1];
+        StackPanel innerPanel = (StackPanel)panel.Children[1];
 
         button.RaiseEvent(new RoutedEventArgs(Avalonia.Controls.Button.ClickEvent));
 

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.Wasm", "..\src\PixiEditor.Extensions.Wasm\PixiEditor.Extensions.Wasm.csproj", "{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.Sdk", "..\src\PixiEditor.Extensions.Sdk\PixiEditor.Extensions.Sdk.csproj", "{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample1_HelloWorld", "Sample1_HelloWorld\Sample1_HelloWorld.csproj", "{82A85041-A666-42DB-8F84-7D91EF9A5C9D}"
 EndProject
