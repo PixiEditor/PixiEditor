@@ -15,7 +15,8 @@ public class WindowContentElement : StatelessElement
                     new Center(
                         new Text(
                             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae neque nibh. Duis sed pharetra dolor. Donec dui sapien, aliquam id sodales in, ornare et urna. Mauris nunc odio, sagittis eget lectus at, imperdiet ornare quam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod pellentesque blandit. Vestibulum sagittis, ligula non finibus lobortis, dolor lacus consectetur turpis, id facilisis ligula dolor vitae augue.",
-                            wrap: TextWrap.Wrap)
+                            wrap: TextWrap.Wrap,
+                            fontSize: 16)
                     ),
                     new Align(
                         alignment: Alignment.CenterRight,

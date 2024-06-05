@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Media;
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
+using PixiEditor.Extensions.Extensions;
 using PixiEditor.Extensions.FlyUI.Converters;
 using FontStyle = PixiEditor.Extensions.CommonApi.FlyUI.Properties.FontStyle;
 
@@ -14,20 +15,23 @@ public class Text : StatelessElement, IPropertyDeserializable
     private TextWrap _textWrap = TextWrap.None;
     private string _value = null!;
     private FontStyle _fontStyle = FontStyle.Normal;
+    private double _fontSize = 12;
  
     public string Value { get => _value; set => SetField(ref _value, value); }
     public TextWrap TextWrap { get => _textWrap; set => SetField(ref _textWrap, value); }
     public FontStyle FontStyle { get => _fontStyle; set => SetField(ref _fontStyle, value); }
+    public double FontSize { get => _fontSize; set => SetField(ref _fontSize, value); }
 
     public Text()
     {
     }
 
-    public Text(string value = "", TextWrap textWrap = TextWrap.None, FontStyle fontStyle = FontStyle.Normal)
+    public Text(string value = "", TextWrap textWrap = TextWrap.None, FontStyle fontStyle = FontStyle.Normal, double fontSize = 12)
     {
         Value = value;
         TextWrap = textWrap;
         FontStyle = fontStyle;
+        FontSize = fontSize;
     }
 
     public override Control BuildNative()
@@ -53,9 +57,16 @@ public class Text : StatelessElement, IPropertyDeserializable
             Converter = new EnumToEnumConverter<FontStyle, Avalonia.Media.FontStyle>(),
         };
         
+        Binding fontSizeBinding = new()
+        {
+            Source = this,
+            Path = nameof(FontSize),
+        };
+        
         textBlock.Bind(TextBlock.TextProperty, valueBinding);
         textBlock.Bind(TextBlock.TextWrappingProperty, textWrapBinding);
-        textBlock.Bind(TextBlock.FontStyleProperty, fontStyleBinding); //TODO: Inter font doesn't work
+        textBlock.Bind(TextBlock.FontStyleProperty, fontStyleBinding);
+        textBlock.Bind(TextBlock.FontSizeProperty, fontSizeBinding);
         return textBlock;
     }
 
@@ -64,6 +75,7 @@ public class Text : StatelessElement, IPropertyDeserializable
         yield return Value;
         yield return TextWrap;
         yield return FontStyle;
+        yield return FontSize;
     }
 
     void IPropertyDeserializable.DeserializeProperties(ImmutableList<object> values)
@@ -71,5 +83,6 @@ public class Text : StatelessElement, IPropertyDeserializable
         Value = (string)values.ElementAtOrDefault(0);
         TextWrap = (TextWrap)values.ElementAtOrDefault(1);
         FontStyle = (FontStyle)values.ElementAtOrDefault(2);
+        FontSize = (double)values.ElementAtOrDefault(3, 12.0);
     }
 }
