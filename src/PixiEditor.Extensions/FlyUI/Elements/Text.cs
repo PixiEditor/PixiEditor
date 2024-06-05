@@ -55,7 +55,7 @@ public class Text : StatelessElement, IPropertyDeserializable
         
         textBlock.Bind(TextBlock.TextProperty, valueBinding);
         textBlock.Bind(TextBlock.TextWrappingProperty, textWrapBinding);
-        textBlock.Bind(TextBlock.FontStyleProperty, fontStyleBinding);
+        textBlock.Bind(TextBlock.FontStyleProperty, fontStyleBinding); //TODO: Inter font doesn't work
         return textBlock;
     }
 
