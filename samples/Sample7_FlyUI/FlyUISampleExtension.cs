@@ -2,7 +2,7 @@
 
 namespace FlyUISample;
 
-public class FlyUiSampleExtension : WasmExtension
+public class FlyUiSampleExtension : PixiEditorExtension
 {
     public override void OnInitialized()
     {

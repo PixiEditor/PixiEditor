@@ -16,7 +16,7 @@ public abstract class StatefulElement<TState> : LayoutElement, IStatefulElement<
                 state.StateChanged += () =>
                 {
                     CompiledControl newLayout = BuildNative();
-                    WasmExtension.Api.WindowProvider.LayoutStateChanged(UniqueId, newLayout);
+                    PixiEditorExtension.Api.WindowProvider.LayoutStateChanged(UniqueId, newLayout);
                 };
             }
 

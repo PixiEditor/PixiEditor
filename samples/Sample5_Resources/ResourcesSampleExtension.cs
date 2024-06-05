@@ -3,7 +3,7 @@ using PixiEditor.Extensions.Sdk;
 
 namespace ResourcesSample;
 
-public class ResourcesSampleExtension : WasmExtension
+public class ResourcesSampleExtension : PixiEditorExtension
 {
     /// <summary>
     ///     This method is called when extension is loaded.

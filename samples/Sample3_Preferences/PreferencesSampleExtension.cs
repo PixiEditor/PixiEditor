@@ -2,7 +2,7 @@
 
 namespace Preferences;
 
-public class PreferencesSampleExtension : WasmExtension
+public class PreferencesSampleExtension : PixiEditorExtension
 {
     /// <summary>
     ///     This method is called when extension is loaded.

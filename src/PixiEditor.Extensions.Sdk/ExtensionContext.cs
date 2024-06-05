@@ -2,5 +2,5 @@
 
 public static class ExtensionContext
 {
-    public static WasmExtension Active { get; set; } = null!;
+    public static PixiEditorExtension Active { get; set; } = null!;
 }

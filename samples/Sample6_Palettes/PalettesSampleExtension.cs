@@ -3,7 +3,7 @@ using PixiEditor.Extensions.Sdk;
 
 namespace PalettesSample;
 
-public class PalettesSampleExtension : WasmExtension
+public class PalettesSampleExtension : PixiEditorExtension
 {
     /// <summary>
     ///     This method is called when extension is loaded.

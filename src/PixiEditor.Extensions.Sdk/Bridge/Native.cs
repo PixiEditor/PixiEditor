@@ -32,13 +32,13 @@ internal static partial class Native
     internal static void Load()
     {
         Type extensionType = Assembly.GetEntryAssembly().ExportedTypes
-            .FirstOrDefault(type => type.IsSubclassOf(typeof(WasmExtension)));
+            .FirstOrDefault(type => type.IsSubclassOf(typeof(PixiEditorExtension)));
 
         Debug.Assert(extensionType != null, "extensionType != null");
 
         log_message($"Loading extension {extensionType.FullName}");
 
-        WasmExtension extension = (WasmExtension)Activator.CreateInstance(extensionType);
+        PixiEditorExtension extension = (PixiEditorExtension)Activator.CreateInstance(extensionType);
         ExtensionContext.Active = extension;
         extension.OnLoaded();
     }

@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.Extensions.Sdk;
 
-public abstract class WasmExtension
+public abstract class PixiEditorExtension
 {
     public static PixiEditorApi Api { get; } = new PixiEditorApi();
     

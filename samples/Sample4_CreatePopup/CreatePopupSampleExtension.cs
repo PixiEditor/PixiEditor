@@ -4,7 +4,7 @@ using PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 namespace CreatePopupSample;
 
-public class CreatePopupSampleExtension : WasmExtension
+public class CreatePopupSampleExtension : PixiEditorExtension
 {
     /// <summary>
     ///     This method is called when extension is loaded.

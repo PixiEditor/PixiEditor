@@ -3,7 +3,7 @@ using PixiEditor.Extensions.Sdk.Api.Localization;
 
 namespace LocalizationSample;
 
-public class LocalizationSampleExtension : WasmExtension
+public class LocalizationSampleExtension : PixiEditorExtension
 {
     /// <summary>
     ///     This method is called when extension is loaded.
