@@ -2,11 +2,13 @@
 using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 using PixiEditor.Extensions.Wasm.Api.FlyUI;
 using PixiEditor.Extensions.Wasm.Api.Localization;
+using PixiEditor.Extensions.Wasm.Api.Window;
 
 namespace FlyUISample;
 
 public class WindowContentElement : StatelessElement
 {
+    public PopupWindow Window { get; set; }
     public override CompiledControl BuildNative()
     {
         Layout layout = new Layout(body:
@@ -23,10 +25,20 @@ public class WindowContentElement : StatelessElement
                         child: new Text("- Paulo Coelho, The Alchemist (1233)", fontStyle: FontStyle.Italic)
                     ),
                     new Container(
-                        margin: Edges.Symmetric(25, 0), 
+                        margin: Edges.Symmetric(25, 0),
                         backgroundColor: Color.FromRgba(25, 25, 25, 255),
                         child: new Column(
-                            new Image("/Pizza.png", filterQuality: FilterQuality.None)))
+                            new Image(
+                                "/Pizza.png",
+                                filterQuality: FilterQuality.None,
+                                width: 256, height: 256))
+                    ),
+                    new Center(
+                        new Button(
+                            child: new Text("Close"), onClick: _ =>
+                            {
+                                Window.Close();
+                            }))
                 )
             )
         );
