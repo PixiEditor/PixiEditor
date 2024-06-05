@@ -15,6 +15,7 @@ public class Container : SingleChildLayoutElement, IPropertyDeserializable
     private Color _backgroundColor = Colors.Transparent;
     private double _width = double.NaN;
     private double _height = double.NaN;
+    private Edges _cornerRadius = Edges.All(0);
     public Edges Margin { get => _margin; set => SetField(ref _margin, value); }
     public Color BackgroundColor { get => _backgroundColor; set => SetField(ref _backgroundColor, value); }
     public double Width { get => _width; set => SetField(ref _width, value); }
