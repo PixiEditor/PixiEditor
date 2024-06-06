@@ -1,8 +1,4 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
- <!-- <Target Name="GenerateLayouts" AfterTargets="Build" Inputs="bin\Debug\$(TargetFramework)\PixiEditor.Extensions.Sdk.dll" Outputs="$(RootFolder)\Layouts\">
-    <Exec  ConsoleToMSBuild="true"
-          Command="..\PixiEditor.Extensions.MSBuildLayoutCompiler\bin\Debug\net8.0\PixiEditor.Extensions.MSBuildLayoutCompiler.exe $(OutputPath)\$(MSBuildProjectName).dll $(OutputPath)\Layouts\"/>
-  </Target>-->
 
   <UsingTask TaskName="GenerateCGlueTask"
              AssemblyFile="$(MSBuildThisFileDirectory)PixiEditor.Api.CGlueMSBuild.dll" Condition="'$(RuntimeIdentifier)' == 'wasi-wasm'"/>

@@ -36,7 +36,7 @@ public class PaletteFileData
         for (int i = 0; i < Colors.Length; i++)
         {
             PaletteColor color = Colors[i];
-            colors[i] = new PaletteColor(color.R, color.G, color.B);
+            colors[i] = new PaletteColor((byte)color.R, (byte)color.G, (byte)color.B);
         }
 
         return colors;

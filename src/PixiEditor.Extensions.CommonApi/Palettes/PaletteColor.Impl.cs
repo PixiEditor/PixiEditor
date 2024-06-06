@@ -1,32 +1,45 @@
-﻿using ProtoBuf;
+﻿namespace PixiEditor.Extensions.CommonApi.Palettes;
 
-namespace PixiEditor.Extensions.CommonApi.Palettes;
-
-[ProtoContract]
-public struct PaletteColor
+public partial class PaletteColor
 {
-    public static PaletteColor Empty => new(0, 0, 0);
-    public static PaletteColor Black => new(0, 0, 0);
-    public static PaletteColor White => new(255, 255, 255);
-    
-    [ProtoMember(1)]
-    public byte R { get; set; }
-    
-    [ProtoMember(2)]
-    public byte G { get; set; }
-    
-    [ProtoMember(3)]
-    public byte B { get; set; }
+    public static PaletteColor Empty => new PaletteColor(0, 0, 0);
+    public static PaletteColor Black => new PaletteColor(0, 0, 0);
+    public static PaletteColor White => new PaletteColor(255, 255, 255);
 
-    public string Hex => $"#{R:X2}{G:X2}{B:X2}";
-
-    public PaletteColor(byte r, byte g, byte b)
+    public byte R
     {
-        R = r;
-        G = g;
-        B = b;
+        get => (byte)RValue;
+        set => RValue = value;
     }
 
+    public byte G
+    {
+        get => (byte)GValue;
+        set => GValue = value;
+    }
+    
+    public byte B
+    {
+        get => (byte)BValue;
+        set => BValue = value;
+    }
+    
+    public string Hex => $"#{R:X2}{G:X2}{B:X2}";
+    
+    public PaletteColor(byte r, byte g, byte b)
+    {
+        RValue = r;
+        GValue = g;
+        BValue = b;
+    }
+    
+    public PaletteColor(uint r, uint g, uint b)
+    {
+        RValue = (byte)r;
+        GValue = (byte)g;
+        BValue = (byte)b;
+    }
+    
     public override string ToString()
     {
         return Hex;
