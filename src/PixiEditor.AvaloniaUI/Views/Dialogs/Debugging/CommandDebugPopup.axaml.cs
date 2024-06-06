@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Media;
+using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
@@ -76,9 +77,9 @@ public partial class CommandDebugPopup : PixiEditorPopup
         {
             if (image == null && command.IconEvaluator == IconEvaluator.Default)
             {
-                var expected = IconEvaluator.GetDefaultPath(command);
+                var expected = IconEvaluators.GetDefaultPath(command);
 
-                if (string.IsNullOrWhiteSpace(command.IconPath))
+                if (string.IsNullOrWhiteSpace(command.Icon))
                 {
                     Info(
                         $"Default evaluator has not found a image (No icon path provided). Expected at '{expected}'\n");
@@ -100,9 +101,9 @@ public partial class CommandDebugPopup : PixiEditorPopup
             Info($"Uses custom icon evaluator ({command.IconEvaluator.Name})\n");
         }
 
-        if (!string.IsNullOrWhiteSpace(command.IconPath))
+        if (!string.IsNullOrWhiteSpace(command.Icon))
         {
-            Info($"Has custom icon path: '{command.IconPath}'\n");
+            Info($"Has custom icon path: '{command.Icon}'\n");
         }
 
         return inlines;

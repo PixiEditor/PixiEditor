@@ -7,6 +7,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -28,7 +29,7 @@ internal class BrightnessToolViewModel : ToolViewModel, IBrightnessToolHandler
 
     public override BrushShape BrushShape => BrushShape.Circle;
 
-    public override string IconKey => "icon-sun";
+    public override string Icon => PixiPerfectIcons.Sun;
 
     BrightnessMode IBrightnessToolHandler.BrightnessMode
     {

@@ -10,6 +10,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -27,7 +28,7 @@ internal class ColorPickerToolViewModel : ToolViewModel, IColorPickerHandler
     public override string ToolNameLocalizationKey => "COLOR_PICKER_TOOL";
     public override BrushShape BrushShape => BrushShape.Pixel;
 
-    public override string IconKey => "icon-picker";
+    public override string Icon => PixiPerfectIcons.Picker;
 
     public override LocalizedString Tooltip => new("COLOR_PICKER_TOOLTIP", Shortcut);
 

@@ -7,6 +7,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -46,7 +47,7 @@ internal class LassoToolViewModel : ToolViewModel, ILassoToolHandler
     public override LocalizedString Tooltip => new LocalizedString("LASSO_TOOL_TOOLTIP", Shortcut);
 
     public override string ToolNameLocalizationKey => "LASSO_TOOL";
-    public string IconKey => "icon-lasso";
+    public string Icon => PixiPerfectIcons.Lasso;
     public override BrushShape BrushShape => BrushShape.Pixel;
 
     [Settings.Enum("MODE_LABEL")]

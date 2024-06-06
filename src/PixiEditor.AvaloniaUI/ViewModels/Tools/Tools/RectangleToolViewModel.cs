@@ -4,6 +4,7 @@ using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -22,7 +23,7 @@ internal class RectangleToolViewModel : ShapeTool, IRectangleToolHandler
     public bool Filled { get; set; } = false;
     public bool DrawSquare { get; private set; } = false;
 
-    public override string IconKey => "icon-square";
+    public override string Icon => PixiPerfectIcons.Square;
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

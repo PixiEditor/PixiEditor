@@ -1,7 +1,10 @@
 ﻿using System.Globalization;
+using System.Reflection;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Search;
@@ -10,44 +13,56 @@ namespace PixiEditor.AvaloniaUI.Helpers;
 
 internal static class IconEvaluators
 {
-    /*TODO: Segoe is Windows only*/
-    private static readonly FontFamily segeoMdl2 = new FontFamily("Segoe MDL2 Assets");
+    public static Dictionary<string, Bitmap> images = new();
 
-    [Evaluator.Icon("PixiEditor.FontIcon")]
-    public static IImage GetFontIcon(object parameter)
+    [Evaluator.Icon("PixiEditor.BitmapIcon")]
+    public static IImage GetBitmapIcon(object parameter)
     {
-        string symbolCode = GetIconName(parameter);
+        string path = GetDefaultPath(parameter as Command);
 
-        var textBlock = new TextBlock
-        {
-            FontFamily = segeoMdl2,
-            Foreground = Brushes.White,
-            Text = char.ConvertFromUtf32(int.Parse(symbolCode, NumberStyles.HexNumber)),
-        };
+        var image = images.GetValueOrDefault(path);
+        if (image is not null)
+            return image;
+            
+        Uri uri = new($"avares://{Assembly.GetExecutingAssembly().GetName().Name}/{path}");
+        if (!AssetLoader.Exists(uri))
+            return null;
+            
+        image = new Bitmap(AssetLoader.Open(uri));
+        images.Add(path, image);
 
-        var brush = new VisualBrush
-        {
-            Visual = textBlock,
-            Stretch = Stretch.Uniform
-        };
-
-        var drawing = new GeometryDrawing
-        {
-            Brush = brush,
-            Geometry = new RectangleGeometry(
-                new Rect(0, 0, 32, 32))
-        };
-
-        return new DrawingImage(drawing);
+        return image;
     }
-
-    private static string GetIconName(object parameter)
+    
+    public static string GetDefaultPath(Command command)
     {
-        return parameter switch
+        string path;
+
+        if (command.Icon != null)
         {
-            Command command => command.IconPath,
-            CommandSearchResult cmdResult => cmdResult.Command.IconPath,
-            _ => throw new NotImplementedException($"Parameter typeof {parameter.GetType()} has not been implemented yet.")
-        };
+            if (command.Icon.StartsWith('@'))
+            {
+                path = command.Icon[1..];
+            }
+            else if (command.Icon.StartsWith('$'))
+            {
+                path = $"Images/Commands/{command.Icon[1..].Replace('.', '/')}.png";
+            }
+            else
+            {
+                path = $"Images/{command.Icon}";
+            }
+        }
+        else
+        {
+            path = $"Images/Commands/{command.InternalName.Replace('.', '/')}.png";
+        }
+
+        if (path.StartsWith("/"))
+        {
+            path = path[1..];
+        }
+
+        return path;
     }
 }

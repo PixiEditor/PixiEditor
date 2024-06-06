@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -13,7 +14,7 @@ internal class MoveViewportToolViewModel : ToolViewModel
     public override bool HideHighlight => true;
     public override LocalizedString Tooltip => new LocalizedString("MOVE_VIEWPORT_TOOLTIP", Shortcut);
 
-    public override string IconKey => "icon-move-view";
+    public override string Icon => PixiPerfectIcons.MoveView;
 
     public override bool StopsLinkedToolOnUse => false;
 

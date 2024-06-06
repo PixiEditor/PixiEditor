@@ -60,10 +60,10 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.TransformSelectedArea(false);
     }
 
-    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectLeft", "NUDGE_SELECTED_LEFT", "NUDGE_SELECTED_LEFT", Key = Key.Left, Parameter = new int[] { -1, 0 }, IconPath = "E76B", IconEvaluator = "PixiEditor.FontIcon", CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
-    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectRight", "NUDGE_SELECTED_RIGHT", "NUDGE_SELECTED_RIGHT", Key = Key.Right, Parameter = new int[] { 1, 0 }, IconPath = "E76C", IconEvaluator = "PixiEditor.FontIcon", CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
-    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectUp", "NUDGE_SELECTED_UP", "NUDGE_SELECTED_UP", Key = Key.Up, Parameter = new int[] { 0, -1 }, IconPath = "E70E", IconEvaluator = "PixiEditor.FontIcon", CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
-    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectDown", "NUDGE_SELECTED_DOWN", "NUDGE_SELECTED_DOWN", Key = Key.Down, Parameter = new int[] { 0, 1 }, IconPath = "E70D", IconEvaluator = "PixiEditor.FontIcon", CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectLeft", "NUDGE_SELECTED_LEFT", "NUDGE_SELECTED_LEFT", Key = Key.Left, Parameter = new int[] { -1, 0 }, Icon = "E76B", CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectRight", "NUDGE_SELECTED_RIGHT", "NUDGE_SELECTED_RIGHT", Key = Key.Right, Parameter = new int[] { 1, 0 }, Icon = "E76C", CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectUp", "NUDGE_SELECTED_UP", "NUDGE_SELECTED_UP", Key = Key.Up, Parameter = new int[] { 0, -1 }, Icon = "E70E", CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
+    [Command.Basic("PixiEditor.Selection.NudgeSelectedObjectDown", "NUDGE_SELECTED_DOWN", "NUDGE_SELECTED_DOWN", Key = Key.Down, Parameter = new int[] { 0, 1 }, Icon = "E70D", CanExecute = "PixiEditor.Selection.CanNudgeSelectedObject")]
     public void NudgeSelectedObject(int[] dist)
     {
         VecI distance = new(dist[0], dist[1]);

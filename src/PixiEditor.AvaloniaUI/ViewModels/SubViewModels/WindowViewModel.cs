@@ -49,7 +49,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         this.commandController = commandController;
     }
 
-    [Command.Basic("PixiEditor.Window.CreateNewViewport", "NEW_WINDOW_FOR_IMG", "NEW_WINDOW_FOR_IMG", IconPath = "@Images/Plus-square.png", CanExecute = "PixiEditor.HasDocument",
+    [Command.Basic("PixiEditor.Window.CreateNewViewport", "NEW_WINDOW_FOR_IMG", "NEW_WINDOW_FOR_IMG", Icon = "@Images/Plus-square.png", CanExecute = "PixiEditor.HasDocument",
         MenuItemPath = "VIEW/NEW_WINDOW_FOR_IMG", MenuItemOrder = 0)]
     public void CreateNewViewport()
     {
@@ -66,7 +66,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
             viewport.CenterViewportTrigger.Execute(this, viewport.Document.SizeBindable);
     }
     
-    [Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY", "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument", IconPath = "FlipHorizontal.png")]
+    [Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY", "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument", Icon = "FlipHorizontal.png")]
     public void FlipViewportHorizontally()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
@@ -75,7 +75,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         }
     }
     
-    [Command.Basic("PixiEditor.Window.FlipVertically", "FLIP_VIEWPORT_VERTICALLY", "FLIP_VIEWPORT_VERTICALLY", CanExecute = "PixiEditor.HasDocument", IconPath = "FlipVertical.png")]
+    [Command.Basic("PixiEditor.Window.FlipVertically", "FLIP_VIEWPORT_VERTICALLY", "FLIP_VIEWPORT_VERTICALLY", CanExecute = "PixiEditor.HasDocument", Icon = "FlipVertical.png")]
     public void FlipViewportVertically()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
@@ -175,7 +175,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Window.OpenPalettesBrowserWindow", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER",
-        IconPath = "Database.png", MenuItemPath = "VIEW/OPEN_PALETTE_BROWSER", MenuItemOrder = 3)]
+        Icon = "Database.png", MenuItemPath = "VIEW/OPEN_PALETTE_BROWSER", MenuItemOrder = 3)]
     public void ShowPalettesBrowserWindow()
     {
         PalettesBrowser.Open();

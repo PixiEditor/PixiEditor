@@ -26,6 +26,7 @@ using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
@@ -302,9 +303,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
     }
 
-    [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control, IconPath = "Save.png",
+    [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control, Icon = PixiPerfectIcons.Save,
         MenuItemPath = "FILE/SAVE_PIXI", MenuItemOrder = 3)]
-    [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, IconPath = "Save.png",
+    [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, Icon = PixiPerfectIcons.Save,
         MenuItemPath = "FILE/SAVE_AS_PIXI", MenuItemOrder = 4)]
     public async Task<bool> SaveActiveDocument(bool asNew)
     {

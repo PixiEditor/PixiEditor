@@ -33,9 +33,9 @@ internal partial class Command
         public string IconEvaluator { get; set; }
 
         /// <summary>
-        /// Gets or sets path to the icon. Must be bitmap image
+        /// Gets or sets the icon.
         /// </summary>
-        public string IconPath { get; set; }
+        public string Icon { get; set; }
 
         /// <summary>
         ///     Gets or sets the path to the menu item. If null, command will not be added to menu.

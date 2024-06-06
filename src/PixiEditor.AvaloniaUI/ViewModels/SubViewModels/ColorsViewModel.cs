@@ -160,7 +160,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         await ImportLospecPalette();
     }
 
-    [Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER", CanExecute = "PixiEditor.HasDocument", IconPath = "Globe.png")]
+    [Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER", CanExecute = "PixiEditor.HasDocument", Icon = "Globe.png")]
     public void OpenPalettesBrowser() 
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -350,7 +350,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         PrimaryColor = color.ToColor();
     }
 
-    [Command.Basic("PixIEditor.Colors.AddPrimaryToPalettes", "ADD_PRIMARY_COLOR_TO_PALETTE", "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "CopyAdd.png")]
+    [Command.Basic("PixIEditor.Colors.AddPrimaryToPalettes", "ADD_PRIMARY_COLOR_TO_PALETTE", "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", Icon = "CopyAdd.png")]
     public void AddPrimaryColorToPalette()
     {
         var palette = Owner.DocumentManagerSubViewModel.ActiveDocument.Palette;

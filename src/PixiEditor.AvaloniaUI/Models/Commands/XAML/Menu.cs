@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Input;
 
@@ -7,7 +8,7 @@ namespace PixiEditor.AvaloniaUI.Models.Commands.XAML;
 
 internal class Menu : global::Avalonia.Controls.Menu
 {
-    public const double IconDimensions = 21;
+    public const double IconDimensions = 16;
     public const double IconFontSize = 16;
     
     public static readonly AttachedProperty<string> CommandProperty =
@@ -41,7 +42,9 @@ internal class Menu : global::Avalonia.Controls.Menu
         {
             Source = command.GetIcon(),
             Width = IconDimensions, Height = IconDimensions,
-            Opacity = canExecute ? 1 : 0.75
+            Opacity = canExecute ? 1 : 0.75,
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center
         };
 
         icon.PropertyChanged += async (sender, args) =>

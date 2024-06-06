@@ -28,6 +28,6 @@ internal class ColorPickerDockViewModel : DockableViewModel
     public ColorPickerDockViewModel(ColorsViewModel colorsSubVm)
     {
         ColorsSubViewModel = colorsSubVm;
-        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIconControl(PixiPerfectIcons.ColorPicker);
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.ColorPicker);
     }
 }

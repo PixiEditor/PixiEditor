@@ -61,7 +61,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     [Evaluator.CanExecute("PixiEditor.HasDocument", nameof(ActiveDocument))]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS", CanExecute = "PixiEditor.HasDocument", IconPath = "Crop.png",
+    [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS", CanExecute = "PixiEditor.HasDocument", Icon = "Crop.png",
         MenuItemPath = "IMAGE/CLIP_CANVAS", MenuItemOrder = 2)]
     public void ClipCanvas() => ActiveDocument?.Operations.ClipCanvas();
 
@@ -111,7 +111,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument?.Operations.RotateImage(angle, ActiveDocument.GetSelectedMembers());
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS", "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
+    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS", "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", Icon = "SymmetryVertical.png")]
     public void ToggleVerticalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -119,7 +119,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.VerticalSymmetryAxisEnabledBindable ^= true;
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS", "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryHorizontal.png")]
+    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS", "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", Icon = "SymmetryHorizontal.png")]
     public void ToggleHorizontalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -152,7 +152,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.EventInlet.OnSymmetryDragEnded(dir);
     }
 
-    [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png",
+    [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, Icon = "Tools/EraserImage.png",
         MenuItemPath = "EDIT/DELETE_SELECTED_PIXELS", MenuItemOrder = 6)]
     public void DeletePixels()
     {

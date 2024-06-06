@@ -14,15 +14,15 @@ internal class MiscViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Internal("PixiEditor.Links.OpenHyperlink")]
-    [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/introduction", "DOCUMENTATION", "OPEN_DOCUMENTATION", IconPath = "Globe.png",
+    [Command.Basic("PixiEditor.Links.OpenDocumentation", "https://pixieditor.net/docs/introduction", "DOCUMENTATION", "OPEN_DOCUMENTATION", Icon = "Globe.png",
         MenuItemPath = "HELP/DOCUMENTATION", MenuItemOrder = 0)]
-    [Command.Basic("PixiEditor.Links.OpenWebsite", "https://pixieditor.net", "WEBSITE", "OPEN_WEBSITE", IconPath = "Globe.png",
+    [Command.Basic("PixiEditor.Links.OpenWebsite", "https://pixieditor.net", "WEBSITE", "OPEN_WEBSITE", Icon = "Globe.png",
         MenuItemPath = "HELP/WEBSITE", MenuItemOrder = 1)]
-    [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "REPOSITORY", "OPEN_REPOSITORY", IconPath = "Globe.png",
+    [Command.Basic("PixiEditor.Links.OpenRepository", "https://github.com/PixiEditor/PixiEditor", "REPOSITORY", "OPEN_REPOSITORY", Icon = "Globe.png",
         MenuItemPath = "HELP/REPOSITORY", MenuItemOrder = 2)]
-    [Command.Basic("PixiEditor.Links.OpenLicense", "LICENSE", "LICENSE", "OPEN_LICENSE", IconPath = "Globe.png",
+    [Command.Basic("PixiEditor.Links.OpenLicense", "LICENSE", "LICENSE", "OPEN_LICENSE", Icon = "Globe.png",
         MenuItemPath = "HELP/LICENSE", MenuItemOrder = 3)]
-    [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_LICENSES", "OPEN_THIRD_PARTY_LICENSES", IconPath = "Globe.png",
+    [Command.Basic("PixiEditor.Links.OpenOtherLicenses", "THIRD_PARTY_LICENSES.txt", "THIRD_PARTY_LICENSES", "OPEN_THIRD_PARTY_LICENSES", Icon = "Globe.png",
         MenuItemPath = "HELP/THIRD_PARTY_LICENSES", MenuItemOrder = 4)]
     public static void OpenUri(string uri)
     {

@@ -16,7 +16,7 @@ internal abstract partial class Command : PixiObservableObject
 
     public string InternalName { get; init; }
 
-    public string IconPath { get; init; }
+    public string Icon { get; init; }
 
     public IconEvaluator IconEvaluator { get; init; }
 

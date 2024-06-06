@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -22,7 +23,7 @@ internal class ZoomToolViewModel : ToolViewModel
 
     public override bool StopsLinkedToolOnUse => false;
 
-    public override string IconKey => "icon-zoom-in";
+    public override string Icon => PixiPerfectIcons.ZoomIn;
 
     public ZoomToolViewModel()
     {
