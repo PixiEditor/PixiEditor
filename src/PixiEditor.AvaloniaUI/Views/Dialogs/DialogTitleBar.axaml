@@ -11,17 +11,18 @@
     x:Name="uc"
     Height="36"
     d:DesignWidth="300">
-    <Grid>
+    <Grid DataContext="{Binding ElementName=uc}">
         <Grid Background="{DynamicResource ThemeBackgroundBrush1}" IsHitTestVisible="False"/>
         <TextBlock
             IsHitTestVisible="False"
             TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
-            ui:Translator.Key="{Binding ElementName=uc, Path=TitleKey}"
+            ui:Translator.Key="{Binding Path=TitleKey}"
             Foreground="{DynamicResource ThemeForegroundBrush}"
             FontSize="13"
             Margin="5,0,0,0"/>
         <DockPanel IsHitTestVisible="True">
             <CaptionButtons Name="captionButtons" DockPanel.Dock="Right" />
+            <ContentPresenter DockPanel.Dock="Right" IsVisible="{Binding !!AdditionalElement}" Content="{Binding Path=AdditionalElement}"/>
             <Control /><!-- dummy control to occupy dockpanel center -->
         </DockPanel>
     </Grid>
