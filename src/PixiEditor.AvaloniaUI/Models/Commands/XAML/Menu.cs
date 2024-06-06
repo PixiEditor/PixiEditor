@@ -8,8 +8,8 @@ namespace PixiEditor.AvaloniaUI.Models.Commands.XAML;
 
 internal class Menu : global::Avalonia.Controls.Menu
 {
-    public const double IconDimensions = 16;
-    public const double IconFontSize = 16;
+    public const double IconDimensions = 18;
+    public const double IconFontSize = 18;
     
     public static readonly AttachedProperty<string> CommandProperty =
         AvaloniaProperty.RegisterAttached<Menu, MenuItem, string>(nameof(Command));

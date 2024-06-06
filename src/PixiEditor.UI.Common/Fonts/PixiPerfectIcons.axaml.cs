@@ -47,22 +47,22 @@ public static class PixiPerfectIcons
     public const string Exit = "\ue923";
     public const string EyeOff = "\ue924";
     public const string Eye = "\ue925";
-    public const string FileMinus90 = "\ue926";
+    public const string RotateFileMinus90 = "\ue926";
     public const string FilePlus = "\ue927";
     public const string FileText = "\ue928";
     public const string File = "\ue929";
-    public const string File90 = "\ue92a";
-    public const string File180 = "\ue92b";
+    public const string RotateFile90 = "\ue92a";
+    public const string RotateFile180 = "\ue92b";
 
     public const string FolderPlus = "\ue92c";
     public const string Folder = "\ue92d";
     public const string Globe = "\ue92e";
     public const string Grid = "\ue92f";
     public const string Home = "\ue930";
-    public const string ImageMinus90 = "\ue931";
+    public const string RotateImageMinus90 = "\ue931";
     public const string Image = "\ue932";
-    public const string Image90 = "\ue933";
-    public const string Image180 = "\ue934";
+    public const string RotateImage90 = "\ue933";
+    public const string RotateImage180 = "\ue934";
     public const string Info = "\ue935";
     public const string Intersect = "\ue936";
     public const string Invert = "\ue937";
@@ -111,6 +111,7 @@ public static class PixiPerfectIcons
     public const string Cut = "\u25a1"; // TODO: Create a cut icon
     public const string PasteReferenceLayer = "\u25a1"; // TODO: Create a paste reference layer icon
     public const string PasteAsNewLayer = "\u25a1"; // TODO: Create a paste as new layer icon
+    public const string CopyAdd = "\u25a1"; // TODO: Create a copy add icon
 
     public static IImage ToIcon(string unicode, double size = 64)
     {

@@ -274,7 +274,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "FILE/NEW_FILE", MenuItemOrder = 0)]
+        MenuItemPath = "FILE/NEW_FILE", MenuItemOrder = 0, Icon = PixiPerfectIcons.File)]
     public async Task CreateFromNewFileDialog()
     {
         Window mainWindow = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow;

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Input;
@@ -9,6 +10,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Windows;
+using PixiEditor.UI.Common.Fonts;
 using Command = PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands.Command;
 using SettingsWindow = PixiEditor.AvaloniaUI.Views.Windows.Settings.SettingsWindow;
 
@@ -49,7 +51,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         this.commandController = commandController;
     }
 
-    [Command.Basic("PixiEditor.Window.CreateNewViewport", "NEW_WINDOW_FOR_IMG", "NEW_WINDOW_FOR_IMG", Icon = "@Images/Plus-square.png", CanExecute = "PixiEditor.HasDocument",
+    [Command.Basic("PixiEditor.Window.CreateNewViewport", "NEW_WINDOW_FOR_IMG", "NEW_WINDOW_FOR_IMG",
+        Icon = PixiPerfectIcons.PlusSquare, CanExecute = "PixiEditor.HasDocument",
         MenuItemPath = "VIEW/NEW_WINDOW_FOR_IMG", MenuItemOrder = 0)]
     public void CreateNewViewport()
     {
@@ -59,14 +62,16 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         CreateNewViewport(doc);
     }
     
-    [Command.Basic("PixiEditor.Window.CenterActiveViewport", "CENTER_ACTIVE_VIEWPORT", "CENTER_ACTIVE_VIEWPORT", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Window.CenterActiveViewport", "CENTER_ACTIVE_VIEWPORT", "CENTER_ACTIVE_VIEWPORT", CanExecute = "PixiEditor.HasDocument",
+        Icon = PixiPerfectIcons.Center)]
     public void CenterCurrentViewport()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
             viewport.CenterViewportTrigger.Execute(this, viewport.Document.SizeBindable);
     }
     
-    [Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY", "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument", Icon = "FlipHorizontal.png")]
+    [Command.Basic("PixiEditor.Window.FlipHorizontally", "FLIP_VIEWPORT_HORIZONTALLY", "FLIP_VIEWPORT_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
+        Icon = PixiPerfectIcons.XFlip)]
     public void FlipViewportHorizontally()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)
@@ -75,7 +80,8 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
         }
     }
     
-    [Command.Basic("PixiEditor.Window.FlipVertically", "FLIP_VIEWPORT_VERTICALLY", "FLIP_VIEWPORT_VERTICALLY", CanExecute = "PixiEditor.HasDocument", Icon = "FlipVertical.png")]
+    [Command.Basic("PixiEditor.Window.FlipVertically", "FLIP_VIEWPORT_VERTICALLY", "FLIP_VIEWPORT_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
+        Icon = PixiPerfectIcons.YFlip)]
     public void FlipViewportVertically()
     {
         if (ActiveWindow is ViewportWindowViewModel viewport)

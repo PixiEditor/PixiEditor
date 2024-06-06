@@ -19,6 +19,7 @@ using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.Localization;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.OperatingSystem;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
@@ -87,17 +88,17 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     }
     
 
-    [Command.Debug("PixiEditor.Debug.IO.OpenLocalAppDataDirectory", @"PixiEditor", "OPEN_LOCAL_APPDATA_DIR", "OPEN_LOCAL_APPDATA_DIR", Icon = "Folder.png",
-        MenuItemPath = "DEBUG/OPEN_LOCAL_APPDATA_DIR", MenuItemOrder = 3)]
-    [Command.Debug("PixiEditor.Debug.IO.OpenCrashReportsDirectory", @"PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR", "OPEN_CRASH_REPORTS_DIR", Icon = "Folder.png",
-        MenuItemPath = "DEBUG/OPEN_CRASH_REPORTS_DIR", MenuItemOrder = 4)]
+    [Command.Debug("PixiEditor.Debug.IO.OpenLocalAppDataDirectory", @"PixiEditor", "OPEN_LOCAL_APPDATA_DIR", "OPEN_LOCAL_APPDATA_DIR",
+        MenuItemPath = "DEBUG/OPEN_LOCAL_APPDATA_DIR", MenuItemOrder = 3, Icon = PixiPerfectIcons.Folder)]
+    [Command.Debug("PixiEditor.Debug.IO.OpenCrashReportsDirectory", @"PixiEditor\crash_logs", "OPEN_CRASH_REPORTS_DIR", "OPEN_CRASH_REPORTS_DIR",
+        MenuItemPath = "DEBUG/OPEN_CRASH_REPORTS_DIR", MenuItemOrder = 4, Icon = PixiPerfectIcons.Folder)]
     public static void OpenLocalAppDataFolder(string subDirectory)
     {
         var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), subDirectory);
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.IO.OpenRoamingAppDataDirectory", @"PixiEditor", "OPEN_ROAMING_APPDATA_DIR", "OPEN_ROAMING_APPDATA_DIR", Icon = "Folder.png",
+    [Command.Debug("PixiEditor.Debug.IO.OpenRoamingAppDataDirectory", @"PixiEditor", "OPEN_ROAMING_APPDATA_DIR", "OPEN_ROAMING_APPDATA_DIR", Icon = PixiPerfectIcons.Folder,
         MenuItemPath = "DEBUG/OPEN_ROAMING_APPDATA_DIR", MenuItemOrder = 5)]
     public static void OpenAppDataFolder(string subDirectory)
     {
@@ -105,7 +106,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         OpenFolder(path);
     }
 
-    [Command.Debug("PixiEditor.Debug.IO.OpenTempDirectory", @"PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR", Icon = "Folder.png",
+    [Command.Debug("PixiEditor.Debug.IO.OpenTempDirectory", @"PixiEditor", "OPEN_TEMP_DIR", "OPEN_TEMP_DIR", Icon = PixiPerfectIcons.Folder,
         MenuItemPath = "DEBUG/OPEN_TEMP_DIR", MenuItemOrder = 6)]
     public static void OpenTempFolder(string subDirectory)
     {
@@ -273,7 +274,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         });
     }
 
-    [Command.Debug("PixiEditor.Debug.IO.OpenInstallDirectory", "OPEN_INSTALLATION_DIR", "OPEN_INSTALLATION_DIR", Icon = "Folder.png",
+    [Command.Debug("PixiEditor.Debug.IO.OpenInstallDirectory", "OPEN_INSTALLATION_DIR", "OPEN_INSTALLATION_DIR", Icon = PixiPerfectIcons.Folder,
         MenuItemPath = "DEBUG/OPEN_INSTALLATION_DIR", MenuItemOrder = 8)]
     public static void OpenInstallLocation()
     {

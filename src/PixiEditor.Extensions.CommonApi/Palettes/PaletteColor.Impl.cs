@@ -40,6 +40,10 @@ public partial class PaletteColor
         BValue = (byte)b;
     }
     
+    public PaletteColor()
+    {
+    }
+    
     public override string ToString()
     {
         return Hex;
