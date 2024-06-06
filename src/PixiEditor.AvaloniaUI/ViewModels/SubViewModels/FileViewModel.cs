@@ -132,7 +132,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.Open", "OPEN", "OPEN_FILE", Key = Key.O, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "FILE/OPEN_FILE", MenuItemOrder = 1)]
+        MenuItemPath = "FILE/OPEN_FILE", MenuItemOrder = 1, Icon = PixiPerfectIcons.FileText)]
     public async Task OpenFromOpenFileDialog()
     {
         var filter = SupportedFilesHelper.BuildOpenFilter();
@@ -353,7 +353,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     /// <param name="parameter">CommandProperty.</param>
     [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "FILE/EXPORT_IMG", MenuItemOrder = 5)]
+        MenuItemPath = "FILE/EXPORT_IMG", MenuItemOrder = 5, Icon = PixiPerfectIcons.Image)]
     public async Task ExportFile()
     {
         try

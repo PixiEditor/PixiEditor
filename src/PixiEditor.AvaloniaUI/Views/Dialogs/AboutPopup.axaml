@@ -11,12 +11,12 @@
         x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.AboutPopup"
         Name="aboutPopup"
         CanResize="True"
-        Width="440" Height="510"
-        MaxWidth="440" MaxHeight="510"
+        Width="440" Height="520"
+        MaxWidth="440" MaxHeight="520"
         Title="ABOUT">
     <StackPanel DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical" DockPanel.Dock="Bottom" Margin="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
-                <Image Source="../../Images/PixiEditorLogo.png" Height="40" VerticalAlignment="Center"/>
+                <Svg Path="../../Images/PixiEditorLogo.svg" Height="40" VerticalAlignment="Center"/>
                 <TextBlock FontSize="40" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0">PixiEditor</TextBlock>
             </StackPanel>
             <TextBlock Foreground="{DynamicResource ThemeForegroundBrush}" HorizontalAlignment="Center" FontSize="20" FontWeight="Medium" ui:Translator.LocalizedString="{Binding VersionText}"/>

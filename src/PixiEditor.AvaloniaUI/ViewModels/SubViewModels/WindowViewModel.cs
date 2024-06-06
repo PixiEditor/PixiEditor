@@ -153,7 +153,7 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Window.OpenSettingsWindow", "OPEN_SETTINGS", "OPEN_SETTINGS_DESCRIPTIVE", Key = Key.OemComma, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "EDIT/SETTINGS", MenuItemOrder = 16)]
+        MenuItemPath = "EDIT/SETTINGS", MenuItemOrder = 16, Icon = PixiPerfectIcons.Settings)]
     public static void OpenSettingsWindow(int page)
     {
         if (page < 0)
@@ -166,29 +166,22 @@ internal class WindowViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Window.OpenStartupWindow", "OPEN_STARTUP_WINDOW", "OPEN_STARTUP_WINDOW",
-        MenuItemPath = "VIEW/OPEN_STARTUP_WINDOW", MenuItemOrder = 1)]
+        Icon = PixiPerfectIcons.Home, MenuItemPath = "VIEW/OPEN_STARTUP_WINDOW", MenuItemOrder = 1)]
     public void OpenHelloThereWindow()
     {
         new HelloTherePopup(Owner.FileSubViewModel).Show(MainWindow.Current);
     }
 
     [Command.Basic("PixiEditor.Window.OpenShortcutWindow", "OPEN_SHORTCUT_WINDOW", "OPEN_SHORTCUT_WINDOW", Key = Key.F1,
-        MenuItemPath = "VIEW/OPEN_SHORTCUT_WINDOW", MenuItemOrder = 2)]
+        Icon = PixiPerfectIcons.Book, MenuItemPath = "VIEW/OPEN_SHORTCUT_WINDOW", MenuItemOrder = 2)]
     public void ShowShortcutWindow()
     {
         ShortcutsPopup.Show();
         ShortcutsPopup.Activate();
     }
-
-    [Command.Basic("PixiEditor.Window.OpenPalettesBrowserWindow", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER",
-        Icon = "Database.png", MenuItemPath = "VIEW/OPEN_PALETTE_BROWSER", MenuItemOrder = 3)]
-    public void ShowPalettesBrowserWindow()
-    {
-        PalettesBrowser.Open();
-    }
         
     [Command.Basic("PixiEditor.Window.OpenAboutWindow", "OPEN_ABOUT_WINDOW", "OPEN_ABOUT_WINDOW",
-        MenuItemPath = "HELP/ABOUT", MenuItemOrder = 5)]
+        Icon = PixiPerfectIcons.Info, MenuItemPath = "HELP/ABOUT", MenuItemOrder = 5)]
     public void OpenAboutWindow()
     {
         new AboutPopup().Show();

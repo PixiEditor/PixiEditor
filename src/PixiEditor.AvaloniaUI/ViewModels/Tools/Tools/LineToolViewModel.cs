@@ -24,7 +24,7 @@ internal class LineToolViewModel : ShapeTool, ILineToolHandler
     public override string ToolNameLocalizationKey => "LINE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
 
-    public override string Icon => PixiPerfectIcons.Eraser;
+    public override string Icon => PixiPerfectIcons.Line;
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();

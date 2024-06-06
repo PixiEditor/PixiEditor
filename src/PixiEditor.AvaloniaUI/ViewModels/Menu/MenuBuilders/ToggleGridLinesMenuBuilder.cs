@@ -6,6 +6,7 @@ using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.Views.Input;
 using PixiEditor.Extensions.UI;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Menu.MenuBuilders;
 
@@ -20,7 +21,7 @@ internal class ToggleGridLinesMenuBuilder : MenuItemBuilder
             Translator.SetKey(gridLinesItem, "TOGGLE_GRIDLINES");
             gridLinesItem.Icon = new Image()
             {
-                Source = ImagePathToBitmapConverter.LoadBitmapFromRelativePath("/Images/Commands/PixiEditor/View/ToggleGrid.png"),
+                Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Grid),
                 Width = Models.Commands.XAML.Menu.IconDimensions,
                 Height = Models.Commands.XAML.Menu.IconDimensions
             };

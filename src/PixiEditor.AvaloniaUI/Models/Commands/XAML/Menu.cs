@@ -1,6 +1,8 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Input;
 
@@ -42,18 +44,9 @@ internal class Menu : global::Avalonia.Controls.Menu
         {
             Source = command.GetIcon(),
             Width = IconDimensions, Height = IconDimensions,
-            Opacity = canExecute ? 1 : 0.75,
+            Stretch = Stretch.Uniform,
             VerticalAlignment = VerticalAlignment.Center,
-            HorizontalAlignment = HorizontalAlignment.Center
-        };
-
-        icon.PropertyChanged += async (sender, args) =>
-        {
-            bool canExecute = command.CanExecute();
-            if (args.Property.Name == nameof(icon.IsVisible))
-            {
-                icon.Opacity = canExecute ? 1 : 0.75;
-            }
+            HorizontalAlignment = HorizontalAlignment.Center,
         };
 
         item.Command = Command.GetICommand(command, false);

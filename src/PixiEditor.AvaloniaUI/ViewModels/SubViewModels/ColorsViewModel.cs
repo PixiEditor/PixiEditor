@@ -162,7 +162,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
     }
 
     [Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER", CanExecute = "PixiEditor.HasDocument", 
-        Icon = PixiPerfectIcons.Database)]
+        Icon = PixiPerfectIcons.Database, MenuItemPath = "VIEW/OPEN_PALETTE_BROWSER", MenuItemOrder = 3)]
     public void OpenPalettesBrowser() 
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

@@ -27,7 +27,7 @@ internal class IconEvaluator : Evaluator<IImage>
         {
             string symbolCode = command.Icon;
 
-            return PixiPerfectIcons.ToIcon(symbolCode, 64);
+            return PixiPerfectIcons.ToIcon(symbolCode);
         }
     }
 }

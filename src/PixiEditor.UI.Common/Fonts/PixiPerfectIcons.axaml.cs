@@ -1,6 +1,8 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Media;
+using PixiEditor.UI.Common.Rendering;
 
 namespace PixiEditor.UI.Common.Fonts;
 
@@ -108,36 +110,14 @@ public static class PixiPerfectIcons
     public const string YSymmetry = "\uE960";
     public const string ZoomIn = "\uE961";
     public const string ZoomOut = "\uE962";
-    public const string Cut = "\u25a1"; // TODO: Create a cut icon
     public const string PasteReferenceLayer = "\u25a1"; // TODO: Create a paste reference layer icon
     public const string PasteAsNewLayer = "\u25a1"; // TODO: Create a paste as new layer icon
     public const string CopyAdd = "\u25a1"; // TODO: Create a copy add icon
 
-    public static IImage ToIcon(string unicode, double size = 64)
+    public static IImage ToIcon(string unicode, double size = 18)
     {
         if(string.IsNullOrEmpty(unicode)) return null;
 
-        var textBlock = new TextBlock
-        {
-            FontFamily = pixiPerfectFontFamily,
-            Foreground = Brushes.White,
-            Text = unicode,
-            FontSize = size,
-        };
-
-        var brush = new VisualBrush
-        {
-            Visual = textBlock,
-            Stretch = Stretch.Uniform,
-        };
-
-        var drawing = new GeometryDrawing
-        {
-            Brush = brush,
-            Geometry = new RectangleGeometry(
-                new Rect(0, 0, 64, 64)),
-        };
-
-        return new DrawingImage(drawing);
+        return new IconImage(unicode, pixiPerfectFontFamily, size, Colors.White);
     }
 }

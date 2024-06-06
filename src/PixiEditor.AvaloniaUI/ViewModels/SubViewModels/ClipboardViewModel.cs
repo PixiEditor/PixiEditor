@@ -32,7 +32,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "EDIT/CUT", MenuItemOrder = 2, Icon = PixiPerfectIcons.Cut)]
+        MenuItemPath = "EDIT/CUT", MenuItemOrder = 2, Icon = PixiPerfectIcons.Scissors)]
     public async Task Cut()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
