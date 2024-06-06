@@ -17,7 +17,7 @@ namespace PixiEditor.Extensions.CommonApi.Palettes
             => global::ProtoBuf.Extensible.GetExtensionObject(ref __pbn__extensionData, createIfMissing);
 
         [global::ProtoBuf.ProtoMember(1)]
-        public global::System.Collections.Generic.List<ExtensionPalette> Palettes { get; } = new global::System.Collections.Generic.List<ExtensionPalette>();
+        public global::System.Collections.Generic.List<ExtensionPalette> Palettes { get; set; } = new global::System.Collections.Generic.List<ExtensionPalette>();
 
     }
 

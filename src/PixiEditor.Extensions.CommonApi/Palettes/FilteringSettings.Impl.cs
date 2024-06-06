@@ -1,29 +1,7 @@
-﻿using ProtoBuf;
+﻿namespace PixiEditor.Extensions.CommonApi.Palettes;
 
-namespace PixiEditor.Extensions.CommonApi.Palettes;
-
-[ProtoContract]
-public sealed class FilteringSettings
+public partial class FilteringSettings
 {
-    [ProtoMember(1)]
-    public ColorsNumberMode ColorsNumberMode { get; set; }
-    
-    [ProtoMember(2)]
-    public int ColorsCount { get; set; }
-    
-    [ProtoMember(3)]
-    public string Name { get; set; }
-    
-    [ProtoMember(4)]
-    public bool ShowOnlyFavourites { get; set; }
-    
-    [ProtoMember(5)]
-    public List<string> Favourites { get; set; }
-    
-    public FilteringSettings()
-    {
-    }
-
     public FilteringSettings(ColorsNumberMode colorsNumberMode, int colorsCount, string name, bool showOnlyFavourites, List<string> favourites)
     {
         ColorsNumberMode = colorsNumberMode;

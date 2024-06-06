@@ -2,21 +2,8 @@
 
 namespace PixiEditor.Extensions.CommonApi.Palettes;
 
-[ProtoContract]
-public class FetchPaletteListQuery
+public partial class FetchPaletteListQuery
 {
-    [ProtoMember(1)] 
-    public string DataSourceName { get; set; }
-
-    [ProtoMember(2)] 
-    public int StartIndex { get; set; }
-
-    [ProtoMember(3)] 
-    public int Items { get; set; }
-
-    [ProtoMember(4)] 
-    public FilteringSettings Filtering { get; set; }
-
     public FetchPaletteListQuery()
     {
     }
