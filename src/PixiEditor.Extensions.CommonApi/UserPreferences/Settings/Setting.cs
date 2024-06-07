@@ -64,7 +64,7 @@ public abstract class Setting<T> : INotifyPropertyChanged
 
     protected abstract void SetValue(IPreferences preferences, T? value);
 
-    private void SettingChangeCallback(T newValue)
+    private void SettingChangeCallback(string name, T newValue)
     {
         ValueChanged?.Invoke(this, newValue);
         PropertyChanged?.Invoke(this, PropertyChangedConstants.ValueChangedPropertyArgs);

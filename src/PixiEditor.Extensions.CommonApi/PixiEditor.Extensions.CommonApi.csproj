@@ -58,11 +58,6 @@
     </ItemGroup>
   
     <ItemGroup>
-<<<<<<< HEAD
-      <ProjectReference Include="..\PixiEditor.Extensions.CommonApi.Diagnostics\PixiEditor.Extensions.CommonApi.Diagnostics.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    </ItemGroup>
-  
-=======
       <PackageReference Include="protobuf-net" Version="3.2.30" />
     </ItemGroup>
   
@@ -104,6 +99,4 @@
     </ItemGroup>
 
   </Target>
-
->>>>>>> refs/heads/avalonia-rewrite
 </Project>
