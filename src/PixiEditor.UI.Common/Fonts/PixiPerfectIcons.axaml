@@ -67,8 +67,8 @@
             <system:String x:Key="icon-lock">&#xE93B;</system:String>
             <system:String x:Key="icon-log-out">&#xE93C;</system:String>
             <system:String x:Key="icon-magic-wand">&#xE93D;</system:String>
-            <system:String x:Key="icon-minimize-2">&#xE93E;</system:String>
-            <system:String x:Key="icon-minimize">&#xE93F;</system:String>
+            <system:String x:Key="icon-minimize">&#xE93E;</system:String>
+            <system:String x:Key="icon-merge">&#xE93F;</system:String>
             <system:String x:Key="icon-mouse-pointer">&#xE940;</system:String>
             <system:String x:Key="icon-move-view">&#xE942;</system:String>
             <system:String x:Key="icon-new-mask">&#xE943;</system:String>

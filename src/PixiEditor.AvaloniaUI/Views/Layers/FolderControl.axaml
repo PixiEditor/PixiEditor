@@ -11,6 +11,8 @@
              xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
              xmlns:helpers="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
+             xmlns:input1="clr-namespace:PixiEditor.AvaloniaUI.Views.Input;assembly=PixiEditor.UI.Common"
+             xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
              mc:Ignorable="d" 
              Focusable="True"
              d:DesignHeight="35" 
@@ -62,14 +64,14 @@
                                     </ImageBrush.Transform>
                                 </ImageBrush>
                             </Border.Background>
-                            <Image Source="{Binding Folder.PreviewBitmap, ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30">
+                            <visuals:SurfaceControl Surface="{Binding Folder.PreviewSurface, ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30">
                                 <ui:RenderOptionsBindable.BitmapInterpolationMode>
                                     <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                        <Binding Path="Folder.PreviewBitmap.PixelSize.Width" ElementName="folderControl"/>
+                                        <Binding Path="Folder.PreviewSurface.Size.X" ElementName="folderControl"/>
                                         <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Bounds.Width"/>
                                     </MultiBinding>
                                 </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                            </Image>
+                            </visuals:SurfaceControl>
                         </Border>
                         <Border 
                             Width="32" Height="32" 
@@ -86,7 +88,7 @@
                                 </ImageBrush>
                             </Border.Background>
                             <Grid IsHitTestVisible="False">
-                                <Image Source="{Binding Folder.MaskPreviewBitmap,ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30"
+                                <visuals:SurfaceControl Surface="{Binding Folder.MaskPreviewSurface, ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30"
                                     RenderOptions.BitmapInterpolationMode="None" IsHitTestVisible="False"/>
                                 <Path 
                                 Data="M 2 0 L 10 8 L 18 0 L 20 2 L 12 10 L 20 18 L 18 20 L 10 12 L 2 20 L 0 18 L 8 10 L 0 2 Z" 
@@ -135,23 +137,19 @@
             <ContextMenu>
                 <MenuItem ui:Translator.Key="DELETE" Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}"/>
                 <MenuItem ui:Translator.Key="RENAME" Click="RenameMenuItem_Click"/>
-                <!--TODO: Add checkable menu item-->
-                <!--<MenuItem
-                    IsCheckable="True" 
-                    IsChecked="{Binding PlacementTarget.Tag.Folder.ClipToMemberBelowEnabledBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                    ui:Translator.Key="CLIP_TO_BELOW"/>-->
+                <input1:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Folder.ClipToMemberBelowEnabledBindable, Mode=TwoWay}" 
+                    ui:Translator.Key="CLIP_TO_BELOW"/>
                 <Separator/>
                 <MenuItem ui:Translator.Key="MOVE_UPWARDS" Command="{xaml:Command PixiEditor.Layer.MoveSelectedMemberUpwards}"/>
                 <MenuItem ui:Translator.Key="MOVE_DOWNWARDS" Command="{xaml:Command PixiEditor.Layer.MoveSelectedMemberDownwards}"/>
                 <Separator/>
                 <MenuItem ui:Translator.Key="CREATE_MASK" Command="{xaml:Command PixiEditor.Layer.CreateMask}"/>
                 <MenuItem ui:Translator.Key="DELETE_MASK" Command="{xaml:Command PixiEditor.Layer.DeleteMask}"/>
-                <!--TODO: Add checkable menu item-->
-                <!--<MenuItem
-                    IsCheckable="True" 
-                    IsChecked="{Binding PlacementTarget.Tag.Folder.MaskIsVisibleBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                    IsEnabled="{Binding PlacementTarget.Tag.Folder.HasMaskBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                    ui:Translator.Key="ENABLE_MASK"/>-->
+                <input1:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Folder.MaskIsVisibleBindable, Mode=TwoWay}" 
+                    IsEnabled="{Binding $parent[UserControl].Folder.HasMaskBindable}"
+                    ui:Translator.Key="ENABLE_MASK"/>
                 <Separator/>
                 <MenuItem ui:Translator.Key="MERGE_SELECTED" Command="{xaml:Command PixiEditor.Layer.MergeSelected}"/>
                 <MenuItem ui:Translator.Key="MERGE_WITH_ABOVE" Command="{xaml:Command PixiEditor.Layer.MergeWithAbove}"/>

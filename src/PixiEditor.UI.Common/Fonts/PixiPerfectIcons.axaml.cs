@@ -74,8 +74,8 @@ public static class PixiPerfectIcons
     public const string Lock = "\uE93B";
     public const string LogOut = "\uE93C";
     public const string MagicWand = "\uE93D";
-    public const string Minimize2 = "\uE93E";
-    public const string Minimize = "\uE93F";
+    public const string Minimize = "\uE93E";
+    public const string Merge = "\uE93F";
     public const string MousePointer = "\uE940";
     public const string MoveView = "\uE942";
     public const string NewMask = "\uE943";
