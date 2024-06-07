@@ -25,9 +25,7 @@ public class UseOwnedFix : CodeFixProvider
         
         var syntax = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<PropertyDeclarationSyntax>().First();
 
-        var title = "Use .Owned() method";
-        // TODO: equivalenceKey only works for types with the same name. Is there some way to make this generic?
-        var action = CodeAction.Create(title, c => CreateChangedDocument(context.Document, syntax, c), title);
+        var action = CodeAction.Create(UseOwnedDiagnostic.Title, c => CreateChangedDocument(context.Document, syntax, c), UseOwnedDiagnostic.Title);
         
         context.RegisterCodeFix(action, diagnostic);
     }
@@ -54,11 +52,8 @@ public class UseOwnedFix : CodeFixProvider
     private static ArgumentListSyntax SkipArgument(ArgumentListSyntax original)
     {
         var list = new SeparatedSyntaxList<ArgumentSyntax>();
-        
-        foreach (var argument in original.Arguments.Skip(1))
-        {
-            list.Add(argument);
-        }
+
+        list = original.Arguments.Skip(1).Aggregate(list, (current, argument) => current.Add(argument));
 
         return SyntaxFactory.ArgumentList(list);
     }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System;
+using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -8,14 +9,14 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace PixiEditor.Extensions.CommonApi.Diagnostics.Diagnostics;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public class UseOwnedDiagnostic : DiagnosticAnalyzer
+public class UseNonOwnedDiagnostic : DiagnosticAnalyzer
 {
-    public const string DiagnosticId = "UseOwned";
+    public const string DiagnosticId = "UseNonOwned";
 
-    public const string Title = "Use .Owned() method";
-
-    public static readonly DiagnosticDescriptor Descriptor = new(DiagnosticId, Title,
-        "Use {0}.Owned{1}() to declare a Setting using the property name", DiagnosticConstants.Category,
+    public const string Title = "Use .NonOwned() method";
+    
+    public static readonly DiagnosticDescriptor Descriptor = new(DiagnosticId, "Use .NonOwned() method",
+        "Use {0}.NonOwned{1}() to declare a Setting using the property name that is owned by another extension", DiagnosticConstants.Category,
         DiagnosticSeverity.Info, true);
     
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
@@ -33,7 +34,7 @@ public class UseOwnedDiagnostic : DiagnosticAnalyzer
         var semantics = context.SemanticModel;
         var declaration = (PropertyDeclarationSyntax)context.Node;
 
-        var typeInfo = semantics.GetTypeInfo(declaration.Type, context.CancellationToken);
+        var typeInfo = ModelExtensions.GetTypeInfo(semantics, declaration.Type, context.CancellationToken);
 
         if (!DiagnosticHelpers.IsSettingType(typeInfo))
         {
@@ -49,10 +50,20 @@ public class UseOwnedDiagnostic : DiagnosticAnalyzer
         var nameArgument = arguments.First();
 
         var operation = semantics.GetOperation(nameArgument.Expression);
-        var constant = operation?.ConstantValue.Value as string;
-        var declarationName = declaration.Identifier.ValueText;
 
-        if (constant != declarationName)
+        if (operation?.ConstantValue.Value is not string constant)
+        {
+            return;
+        }
+        
+        if (DiagnosticHelpers.GetKey(constant) is not { } key)
+        {
+            return;
+        }
+        
+        var declarationName = declaration.Identifier.ValueText;
+        
+        if (key != declarationName)
         {
             return;
         }
@@ -63,8 +74,8 @@ public class UseOwnedDiagnostic : DiagnosticAnalyzer
 
         var settingType = ((GenericNameSyntax)declaration.Type).TypeArgumentList.Arguments.First();
         if (fallbackValueArgument == null || !SymbolEqualityComparer.Default.Equals(
-                semantics.GetTypeInfo(fallbackValueArgument.Expression).Type,
-                semantics.GetTypeInfo(settingType).Type))
+                ModelExtensions.GetTypeInfo(semantics, fallbackValueArgument.Expression).Type,
+                ModelExtensions.GetTypeInfo(semantics, settingType).Type))
         {
             genericType = $"<{settingType}>";
         }
