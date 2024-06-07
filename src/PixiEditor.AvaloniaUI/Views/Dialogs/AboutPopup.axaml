@@ -30,7 +30,7 @@
                 <Label  Margin="10 0 0 0" FontSize="14">
                     <TextBlock ui1:Hyperlink.Url="https://github.com/flabbet" >
                         <Run Text="Krzysztof Krysiński (flabbet)"/>
-                        <Run Text="" FontFamily="{DynamicResource Feather}"/>
+                        <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                     </TextBlock>
                 </Label>
             </StackPanel>
@@ -43,7 +43,7 @@
                 <Label Margin="10 0 0 0" FontSize="14">
                     <TextBlock ui1:Hyperlink.Url="https://github.com/equbuxu" >
                         <Run Text="Egor Mozgovoy (Equbuxu)"/>
-                        <Run Text="" FontFamily="{DynamicResource Feather}"/>
+                        <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                     </TextBlock>
                 </Label>
             </StackPanel>
@@ -56,7 +56,7 @@
                 <Label Margin="10 0 0 0" FontSize="14">
                     <TextBlock ui1:Hyperlink.Url="https://github.com/CPKreuz" >
                         <Run Text="Philip Kreuz (cpk)"/>
-                        <Run Text="" FontFamily="{DynamicResource Feather}"/>
+                        <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                     </TextBlock>
                 </Label>
             </StackPanel>
@@ -64,7 +64,7 @@
             <Label Margin="20 10 0 0" FontSize="14">
                 <TextBlock ui1:Hyperlink.Url="https://github.com/PixiEditor/PixiEditor/graphs/contributors">
                     <Run ui:Translator.Key="OTHER_AWESOME_CONTRIBUTORS" />
-                    <Run Text="" FontFamily="{DynamicResource Feather}"/>
+                    <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                 </TextBlock>
             </Label>
 
@@ -73,21 +73,21 @@
             <Label Margin="20 10 0 0" FontSize="14">
                 <TextBlock ui1:Hyperlink.Url="LICENSE">
                     <Run ui:Translator.Key="LICENSE"/>
-                    <Run Text="" FontFamily="{DynamicResource Feather}"/>
+                    <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                 </TextBlock>
             </Label>
 
             <Label Margin="20 10 0 0" FontSize="14">
                 <TextBlock ui1:Hyperlink.Url="THIRD_PARTY_LICENSES.txt">
                     <Run ui:Translator.Key="THIRD_PARTY_LICENSES"/>
-                    <Run Text="" FontFamily="{DynamicResource Feather}"/>
+                    <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                 </TextBlock>
             </Label>
 
             <Label Margin="20 10 0 0" FontSize="14">
                 <TextBlock ui1:Hyperlink.Url="https://pixieditor.net/docs/introduction">
                     <Run ui:Translator.Key="DOCUMENTATION" />
-                    <Run Text="" FontFamily="{DynamicResource Feather}"/>
+                    <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
                 </TextBlock>
             </Label>
 

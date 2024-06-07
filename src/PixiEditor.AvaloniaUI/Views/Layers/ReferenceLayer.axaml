@@ -39,11 +39,11 @@
                         <Grid Cursor="Hand" IsVisible="{Binding ElementName=visibilityCheckbox, Path=!IsChecked}"
                               Background="Transparent">
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" DockPanel.Dock="Left">
-                                <Image Margin="5 0 5 0" Width="20" Source="/Images/Add-reference.png"
+                                <TextBlock Margin="5 0 5 0" VerticalAlignment="Center" FontSize="24" Text="{DynamicResource icon-add-reference}" Classes="pixi-icon"
                                        IsVisible="{Binding Document.ReferenceLayerViewModel.ReferenceBitmap, ElementName=uc, Converter={converters:NullToVisibilityConverter}}" />
 
                                 <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}"
-                                           Margin="0 0 5 0" Foreground="White"
+                                           Margin="0 0 5 0" Foreground="{DynamicResource ThemeForegroundBrush}"
                                            FontSize="15" VerticalAlignment="Center"
                                            ui:Translator.Key="ADD_REFERENCE_LAYER" />
                             </StackPanel>

@@ -59,7 +59,8 @@ public static class PixiPerfectIcons
     public const string FolderPlus = "\ue92c";
     public const string Folder = "\ue92d";
     public const string Globe = "\ue92e";
-    public const string Grid = "\ue92f";
+    public const string Swatches = "\ue92f";
+    public const string Grid = "\uE941";
     public const string Home = "\ue930";
     public const string RotateImageMinus90 = "\ue931";
     public const string Image = "\ue932";
@@ -113,6 +114,7 @@ public static class PixiPerfectIcons
     public const string PasteReferenceLayer = "\u25a1"; // TODO: Create a paste reference layer icon
     public const string PasteAsNewLayer = "\u25a1"; // TODO: Create a paste as new layer icon
     public const string CopyAdd = "\u25a1"; // TODO: Create a copy add icon
+    public static string Pen => "\uE971";
 
     public static IImage ToIcon(string unicode, double size = 18)
     {

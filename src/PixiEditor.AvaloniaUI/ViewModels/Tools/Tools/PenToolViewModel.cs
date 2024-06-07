@@ -38,7 +38,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged))]
         public bool PixelPerfectEnabled => GetValue<bool>();
 
-        public override string Icon => PixiPerfectIcons.Edit;
+        public override string Icon => PixiPerfectIcons.Pen;
 
         public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {

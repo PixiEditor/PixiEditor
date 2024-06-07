@@ -103,6 +103,9 @@
             <system:String x:Key="icon-y-symmetry">&#xE960;</system:String>
             <system:String x:Key="icon-zoom-in">&#xE961;</system:String>
             <system:String x:Key="icon-zoom-out">&#xE962;</system:String>
+            <system:String x:Key="icon-pen">&#xE971;</system:String>
+            <system:String x:Key="icon-link">&#xE96B;</system:String>
+            
             <system:String x:Key="icon-copy-add">&#x25a1;</system:String>
             <system:String x:Key="icon-paste-reference-layer">&#x25a1;</system:String>
             <system:String x:Key="icon-paste-as-new-layer">&#x25a1;</system:String>
@@ -110,6 +113,10 @@
     </Styles.Resources>
     
     <Style Selector="TextBlock.pixi-icon">
+        <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}"/>
+    </Style>
+    
+    <Style Selector="Run.pixi-icon">
         <Setter Property="FontFamily" Value="{DynamicResource PixiPerfectIcons}"/>
     </Style>
     

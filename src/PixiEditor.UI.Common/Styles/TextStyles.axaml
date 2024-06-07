@@ -32,7 +32,6 @@
 
     <Style Selector="TextBlock.hyperlink:pointerover">
         <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}"/>
-        <Setter Property="TextDecorations" Value="Underline"/>
         <Setter Property="Cursor" Value="Hand"/>
     </Style>
 </Styles>
