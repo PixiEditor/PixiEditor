@@ -20,6 +20,10 @@
             <system:String x:Key="icon-chevron-down">&#xE90C;</system:String>
             <system:String x:Key="icon-chevron-left">&#xE90D;</system:String>
             <system:String x:Key="icon-chevron-right">&#xE90E;</system:String>
+            <system:String x:Key="icon-chevrons-down">&#xE964;</system:String>
+            <system:String x:Key="icon-chevrons-left">&#xE964;</system:String>
+            <system:String x:Key="icon-chevrons-right">&#xE966;</system:String>
+            <system:String x:Key="icon-chevrons-up">&#xE967;</system:String>
             <system:String x:Key="icon-chevron-up">&#xE90F;</system:String>
             <system:String x:Key="icon-circle">&#xE910;</system:String>
             <system:String x:Key="icon-clock">&#xE911;</system:String>
@@ -105,10 +109,16 @@
             <system:String x:Key="icon-zoom-out">&#xE962;</system:String>
             <system:String x:Key="icon-pen">&#xE971;</system:String>
             <system:String x:Key="icon-link">&#xE96B;</system:String>
+            <system:String x:Key="icon-search">&#xE976;</system:String>
+            <system:String x:Key="icon-hard-drive">&#xE96C;</system:String>
+            <system:String x:Key="icon-copy-add">&#xe921;</system:String>
+            <system:String x:Key="icon-check">&#xe96a;</system:String>
             
-            <system:String x:Key="icon-copy-add">&#x25a1;</system:String>
-            <system:String x:Key="icon-paste-reference-layer">&#x25a1;</system:String>
-            <system:String x:Key="icon-paste-as-new-layer">&#x25a1;</system:String>
+            <system:String x:Key="icon-paste-reference-layer">&#xe977;</system:String>
+            <system:String x:Key="icon-paste-as-new-layer">&#xe978;</system:String>
+            <system:String x:Key="icon-star">&#x25a1;</system:String>
+            <system:String x:Key="icon-star-filled">&#xfffd;</system:String>
+            <system:String x:Key="icon-reset">R</system:String>
         </ResourceDictionary>
     </Styles.Resources>
     
@@ -129,7 +139,7 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
     
-    <Style Selector="Button.pixi-icon:pointerover ContentPresenter">
+    <Style Selector="Button.pixi-icon:pointerover">
         <Setter Property="Background" Value="Transparent"/>
     </Style>
     
@@ -140,5 +150,9 @@
         <Setter Property="Padding" Value="0"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <Style Selector="ToggleButton.pixi-icon:checked">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}"/>
     </Style>
 </Styles>

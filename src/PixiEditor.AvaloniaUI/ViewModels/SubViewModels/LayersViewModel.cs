@@ -110,7 +110,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             doc.Operations.DeleteStructureMembers(selected);
     }
 
-    [Command.Basic("PixiEditor.Layer.NewFolder", "NEW_FOLDER", "CREATE_NEW_FOLDER", CanExecute = "PixiEditor.Layer.CanCreateNewMember", Icon = "Folder-add.png")]
+    [Command.Basic("PixiEditor.Layer.NewFolder", "NEW_FOLDER", "CREATE_NEW_FOLDER", CanExecute = "PixiEditor.Layer.CanCreateNewMember",
+        Icon = PixiPerfectIcons.FolderPlus)]
     public void NewFolder()
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
@@ -118,7 +119,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.CreateStructureMember(StructureMemberType.Folder);
     }
 
-    [Command.Basic("PixiEditor.Layer.NewLayer", "NEW_LAYER", "CREATE_NEW_LAYER", CanExecute = "PixiEditor.Layer.CanCreateNewMember", Key = Key.N, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, Icon = "Layer-add.png")]
+    [Command.Basic("PixiEditor.Layer.NewLayer", "NEW_LAYER", "CREATE_NEW_LAYER", CanExecute = "PixiEditor.Layer.CanCreateNewMember", Key = Key.N, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, 
+        Icon = PixiPerfectIcons.FilePlus)]
     public void NewLayer()
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is not { } doc)
@@ -237,7 +239,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.Layer.ActiveLayerHasNoMask")]
     public bool ActiveLayerHasNoMask() => !Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember?.HasMaskBindable ?? false;
 
-    [Command.Basic("PixiEditor.Layer.CreateMask", "CREATE_MASK", "CREATE_MASK", CanExecute = "PixiEditor.Layer.ActiveLayerHasNoMask", Icon = "Create-mask.png")]
+    [Command.Basic("PixiEditor.Layer.CreateMask", "CREATE_MASK", "CREATE_MASK", CanExecute = "PixiEditor.Layer.ActiveLayerHasNoMask", 
+        Icon = PixiPerfectIcons.CreateMask)]
     public void CreateMask()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -247,7 +250,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc!.Operations.CreateMask(member);
     }
 
-    [Command.Basic("PixiEditor.Layer.DeleteMask", "DELETE_MASK", "DELETE_MASK", CanExecute = "PixiEditor.Layer.ActiveLayerHasMask", Icon = "PixiPerfectIcons.Trash")]
+    [Command.Basic("PixiEditor.Layer.DeleteMask", "DELETE_MASK", "DELETE_MASK", CanExecute = "PixiEditor.Layer.ActiveLayerHasMask", Icon = PixiPerfectIcons.Trash)]
     public void DeleteMask()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -332,7 +335,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
     [Command.Basic("PixiEditor.Layer.MergeWithAbove", "MERGE_WITH_ABOVE", "MERGE_WITH_ABOVE_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.HasMemberAbove")]
     public void MergeWithAbove() => MergeSelectedWith(true);
 
-    [Command.Basic("PixiEditor.Layer.MergeWithBelow", "MERGE_WITH_BELOW", "MERGE_WITH_BELOW_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.HasMemberBelow", Icon = "Merge-downwards.png")]
+    [Command.Basic("PixiEditor.Layer.MergeWithBelow", "MERGE_WITH_BELOW", "MERGE_WITH_BELOW_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.HasMemberBelow", 
+        Icon = PixiPerfectIcons.Merge)]
     public void MergeWithBelow() => MergeSelectedWith(false);
 
     [Evaluator.CanExecute("PixiEditor.Layer.ReferenceLayerExists")]
@@ -393,7 +397,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return null;
     }
 
-    [Command.Basic("PixiEditor.Layer.DeleteReferenceLayer", "DELETE_REFERENCE_LAYER", "DELETE_REFERENCE_LAYER", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", Icon = "PixiPerfectIcons.Trash")]
+    [Command.Basic("PixiEditor.Layer.DeleteReferenceLayer", "DELETE_REFERENCE_LAYER", "DELETE_REFERENCE_LAYER", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", Icon = PixiPerfectIcons.Trash)]
     public void DeleteReferenceLayer()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -403,7 +407,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.Operations.DeleteReferenceLayer();
     }
 
-    [Command.Basic("PixiEditor.Layer.TransformReferenceLayer", "TRANSFORM_REFERENCE_LAYER", "TRANSFORM_REFERENCE_LAYER", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", Icon = "crop.png")]
+    [Command.Basic("PixiEditor.Layer.TransformReferenceLayer", "TRANSFORM_REFERENCE_LAYER", "TRANSFORM_REFERENCE_LAYER", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", 
+        Icon = PixiPerfectIcons.Crop)]
     public void TransformReferenceLayer()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -423,7 +428,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc.ReferenceLayerViewModel.IsTopMost = !doc.ReferenceLayerViewModel.IsTopMost;
     }
 
-    [Command.Basic("PixiEditor.Layer.ResetReferenceLayerPosition", "RESET_REFERENCE_LAYER_POS", "RESET_REFERENCE_LAYER_POS", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", Icon = "Layout.png")]
+    [Command.Basic("PixiEditor.Layer.ResetReferenceLayerPosition", "RESET_REFERENCE_LAYER_POS", "RESET_REFERENCE_LAYER_POS", CanExecute = "PixiEditor.Layer.ReferenceLayerExists", 
+        Icon = PixiPerfectIcons.Reset)]
     public void ResetReferenceLayerPosition()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

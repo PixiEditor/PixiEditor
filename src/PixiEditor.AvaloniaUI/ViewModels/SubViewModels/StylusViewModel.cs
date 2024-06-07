@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.ViewModels.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
@@ -46,7 +47,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         UpdateUseTouchGesture();
     }
 
-    [Command.Basic("PixiEditor.Stylus.TogglePenMode", "TOGGLE_PEN_MODE", "TOGGLE_PEN_MODE", Icon = "penMode.png")]
+    [Command.Basic("PixiEditor.Stylus.TogglePenMode", "TOGGLE_PEN_MODE", "TOGGLE_PEN_MODE", Icon = PixiPerfectIcons.Edit)]
     public void TogglePenMode()
     {
         IsPenModeEnabled = !IsPenModeEnabled;

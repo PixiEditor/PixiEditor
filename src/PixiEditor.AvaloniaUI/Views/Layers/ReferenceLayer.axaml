@@ -94,7 +94,7 @@
                         <Button Cursor="Hand" DockPanel.Dock="Right"
                                 Command="{cmds:Command PixiEditor.Layer.ResetReferenceLayerPosition}"
                                 Classes="pixi-icon"
-                                Content="R"
+                                Content="{DynamicResource icon-reset}"
                                 Margin="2, 0, 0, 0"
                                 ui:Translator.TooltipKey="RESET_REFERENCE_LAYER_POS"
                                 RenderOptions.BitmapInterpolationMode="HighQuality"

@@ -112,7 +112,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument?.Operations.RotateImage(angle, ActiveDocument.GetSelectedMembers());
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS", "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", Icon = "SymmetryVertical.png")]
+    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS", "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", 
+        Icon = PixiPerfectIcons.YSymmetry)]
     public void ToggleVerticalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -120,7 +121,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.VerticalSymmetryAxisEnabledBindable ^= true;
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS", "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", Icon = "SymmetryHorizontal.png")]
+    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS", "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", 
+        Icon = PixiPerfectIcons.XSymmetry)]
     public void ToggleHorizontalSymmetryAxis()
     {
         if (ActiveDocument is null)

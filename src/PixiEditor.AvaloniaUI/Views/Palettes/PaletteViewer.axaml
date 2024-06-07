@@ -18,7 +18,7 @@
                   ui1:DragDropEvents.DragLeave="Grid_PreviewDragLeave"
                   ui1:DragDropEvents.Drop="Grid_Drop">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="40" />
+                    <RowDefinition Height="35" />
                     <RowDefinition Height="5" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
@@ -37,7 +37,7 @@
                                     Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="BROWSE_PALETTES"/>
                             <Button Classes="pixi-icon"
                                     Cursor="Hand" Height="24" Width="24" ui:Translator.TooltipKey="LOAD_PALETTE"
-                                    Content="{DynamicResource icon-folder}"
+                                    Content="{DynamicResource icon-hard-drive}"
                                     Click="ImportPalette_OnClick"/>
                             <Button Height="24" Width="24" Classes="pixi-icon"
                                     Content="{DynamicResource icon-save}"

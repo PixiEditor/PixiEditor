@@ -293,7 +293,7 @@
                           IsVisible="{Binding !NewsPanelCollapsed}">
                 <Border Padding="5" BorderThickness="3 0 0 0" BorderBrush="{DynamicResource ThemeBackgroundBrush}">
                     <Grid>
-                        <indicators1:LoadingIndicator IsVisible="{Binding IsFetchingNews}"/>
+                        <indicators1:LoadingIndicator IsVisible="{Binding IsFetchingNews}" Width="100" Height="100"/>
                         <TextBlock ui:Translator.Key="FAILED_FETCH_NEWS" FontSize="20"
                                    VerticalAlignment="Center" TextAlignment="Center"
                                    IsVisible="{Binding Path=FailedFetchingNews}"/>

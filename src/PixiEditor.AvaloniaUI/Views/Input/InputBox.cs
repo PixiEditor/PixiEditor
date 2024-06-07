@@ -30,6 +30,8 @@ internal class InputBox : TextBox
 
     public event EventHandler<InputBoxEventArgs> OnSubmit;
 
+    protected override Type StyleKeyOverride => typeof(TextBox);
+
     protected override void OnLostFocus(RoutedEventArgs e)
     {
         OnSubmit?.Invoke(this, new InputBoxEventArgs(Text));

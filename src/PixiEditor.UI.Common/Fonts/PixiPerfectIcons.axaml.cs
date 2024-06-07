@@ -111,9 +111,10 @@ public static class PixiPerfectIcons
     public const string YSymmetry = "\uE960";
     public const string ZoomIn = "\uE961";
     public const string ZoomOut = "\uE962";
-    public const string PasteReferenceLayer = "\u25a1"; // TODO: Create a paste reference layer icon
-    public const string PasteAsNewLayer = "\u25a1"; // TODO: Create a paste as new layer icon
-    public const string CopyAdd = "\u25a1"; // TODO: Create a copy add icon
+    public const string PasteReferenceLayer = "\ue977";
+    public const string PasteAsNewLayer = "\ue978";
+    public const string CopyAdd = "\ue921";
+    public const string Reset = "R"; // TODO: Create a reset icon
     public static string Pen => "\uE971";
 
     public static IImage ToIcon(string unicode, double size = 18)
