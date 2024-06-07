@@ -14,7 +14,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
@@ -22,7 +22,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.Tools", "TOOLS")]
 internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
 {
-    private RightClickMode rightClickMode;
+    private RightClickMode rightClickMode = PixiEditorSettings.Tools.RightClickMode.Value;
     public ZoomToolViewModel? ZoomTool => GetTool<ZoomToolViewModel>();
 
     public IToolHandler? LastActionTool { get; private set; }
@@ -34,14 +34,14 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
         {
             if (SetProperty(ref rightClickMode, value))
             {
-                IPreferences.Current.UpdatePreference(nameof(RightClickMode), value);
+                PixiEditorSettings.Tools.RightClickMode.Value = value;
             }
         }
     }
 
     public bool EnableSharedToolbar
     {
-        get => IPreferences.Current.GetPreference<bool>(nameof(EnableSharedToolbar));
+        get => PixiEditorSettings.Tools.EnableSharedToolbar.Value;
         set
         {
             if (EnableSharedToolbar == value)
@@ -49,7 +49,7 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
                 return;
             }
 
-            IPreferences.Current.UpdatePreference(nameof(EnableSharedToolbar), value);
+            PixiEditorSettings.Tools.EnableSharedToolbar.Value = value;
             OnPropertyChanged(nameof(EnableSharedToolbar));
         }
     }
@@ -92,7 +92,6 @@ internal class ToolsViewModel : SubViewModel<ViewModelMain>, IToolsHandler
     public ToolsViewModel(ViewModelMain owner)
         : base(owner)
     {
-        rightClickMode = IPreferences.Current.GetPreference<RightClickMode>(nameof(RightClickMode));
     }
 
     public void SetupTools(IServiceProvider services)

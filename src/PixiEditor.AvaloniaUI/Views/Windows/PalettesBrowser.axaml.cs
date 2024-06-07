@@ -25,7 +25,8 @@ using PixiEditor.AvaloniaUI.Views.Palettes;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.OperatingSystem;
 using PaletteColor = PixiEditor.Extensions.CommonApi.Palettes.PaletteColor;
@@ -151,7 +152,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     public FilteringSettings Filtering => filteringSettings ??=
         new FilteringSettings(ColorsNumberMode, ColorsNumber, NameFilter, ShowOnlyFavourites,
-            IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes, new List<string>()));
+            PixiEditorSettings.Palettes.FavouritePalettes.AsList());
 
     private char[] separators = new char[] { ' ', ',' };
 
@@ -208,7 +209,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
             LocalPalettesFetcher.CacheUpdated -= LocalCacheRefreshed;
         };
 
-        IPreferences.Current.AddCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
+        PixiEditorSettings.Palettes.FavouritePalettes.ValueChanged += OnFavouritePalettesChanged;
     }
 
     public async Task<bool?> ShowDialog()
@@ -246,10 +247,9 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
         return palette != null && palette.Source.GetType() == typeof(LocalPalettesFetcher);
     }
 
-    private void OnFavouritePalettesChanged(string preferenceName, object value)
+    private void OnFavouritePalettesChanged(Setting<IEnumerable<string>> setting, IEnumerable<string> value)
     {
-        Filtering.Favourites =
-            IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
+        Filtering.Favourites = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
     }
 
     public static PalettesBrowser Open()
@@ -354,7 +354,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
     private async void ToggleFavourite(Palette palette)
     {
         palette.IsFavourite = !palette.IsFavourite;
-        var favouritePalettes = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes, new List<string>());
+        var favouritePalettes = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
 
         if (palette.IsFavourite && !favouritePalettes.Contains(palette.Name))
         {
@@ -365,13 +365,13 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
             favouritePalettes.RemoveAll(x => x == palette.Name);
         }
 
-        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favouritePalettes);
+        PixiEditorSettings.Palettes.FavouritePalettes.Value = favouritePalettes;
         await UpdatePaletteList();
     }
 
     private bool IsPaletteFavourite(string name)
     {
-        var favouritePalettes = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes, new List<string>());
+        var favouritePalettes = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
         return favouritePalettes.Contains(name);
     }
 
@@ -392,12 +392,11 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private static void RemoveFavouritePalette(Palette palette)
     {
-        var favouritePalettes =
-            IPreferences.Current.GetLocalPreference<List<string>>(PreferencesConstants.FavouritePalettes);
-        if (favouritePalettes != null && favouritePalettes.Contains(palette.Name))
+        var favouritePalettes = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
+        if (favouritePalettes.Contains(palette.Name))
         {
             favouritePalettes.Remove(palette.Name);
-            IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favouritePalettes);
+            PixiEditorSettings.Palettes.FavouritePalettes.Value = favouritePalettes;
         }
     }
 
@@ -631,9 +630,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private static void UpdateRenamedFavourite(string old, string newName)
     {
-        var favourites = IPreferences.Current.GetLocalPreference(
-            PreferencesConstants.FavouritePalettes,
-            new List<string>());
+        var favourites = PixiEditorSettings.Palettes.FavouritePalettes.AsList();
 
         if (favourites.Contains(old))
         {
@@ -641,7 +638,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
             favourites.Add(newName);
         }
 
-        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favourites);
+        PixiEditorSettings.Palettes.FavouritePalettes.Value = favourites;
     }
 
     private void BrowseOnLospec_OnClick(object sender, RoutedEventArgs e)
@@ -683,6 +680,6 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
     protected override void OnClosing(WindowClosingEventArgs e)
     {
         base.OnClosing(e);
-        IPreferences.Current.RemoveCallback(PreferencesConstants.FavouritePalettes, OnFavouritePalettesChanged);
+        PixiEditorSettings.Palettes.FavouritePalettes.ValueChanged -= OnFavouritePalettesChanged;
     }
 }

@@ -16,7 +16,7 @@ using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.ViewModels;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.Localization;
@@ -40,7 +40,7 @@ internal class LocalizationDataContext : PixiObservableObject
         {
             if (SetProperty(ref apiKey, value))
             {
-                IPreferences.Current.UpdateLocalPreference("POEditor_API_Key", apiKey);
+                PixiEditorSettings.Debug.PoEditorApiKey.Value = value;
             }
         }
     }
@@ -76,7 +76,7 @@ internal class LocalizationDataContext : PixiObservableObject
     public LocalizationDataContext()
     {
         dispatcher = Dispatcher.UIThread;
-        apiKey = IPreferences.Current.GetLocalPreference<string>("POEditor_API_Key");
+        apiKey = PixiEditorSettings.Debug.PoEditorApiKey.Value;
         LoadApiKeyCommand = new RelayCommand(LoadApiKey, () => !string.IsNullOrWhiteSpace(apiKey));
         ApplyLanguageCommand =
             new RelayCommand(ApplyLanguage, () => loggedIn && SelectedLanguage != null);

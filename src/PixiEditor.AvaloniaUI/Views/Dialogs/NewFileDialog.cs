@@ -2,15 +2,15 @@
 using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Models;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
 internal class NewFileDialog : CustomDialog
 {
-    private int height = IPreferences.Current.GetPreference("DefaultNewFileHeight", Constants.DefaultCanvasSize);
-
-    private int width = IPreferences.Current.GetPreference("DefaultNewFileWidth", Constants.DefaultCanvasSize);
+    private int width = PixiEditorSettings.File.DefaultNewFileWidth.Value;
+    
+    private int height = PixiEditorSettings.File.DefaultNewFileHeight.Value;
 
     public int Width
     {

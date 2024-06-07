@@ -12,7 +12,7 @@ using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.UserData;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.Views.Dialogs;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.AvaloniaUI.Views.Windows;
@@ -106,7 +106,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
         RecentlyOpenedEmpty = RecentlyOpened.Count == 0;
         RecentlyOpened.CollectionChanged += RecentlyOpened_CollectionChanged;
 
-        _newsDisabled = IPreferences.Current.GetPreference<bool>(PreferencesConstants.DisableNewsPanel);
+        _newsDisabled = PixiEditorSettings.StartupWindow.DisableNewsPanel.Value;
 
         NewsProvider = new NewsProvider();
 
@@ -116,7 +116,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
         int newsWidth = 300;
 
-        NewsPanelCollapsed = IPreferences.Current.GetPreference<bool>(PreferencesConstants.NewsPanelCollapsed);
+        NewsPanelCollapsed = PixiEditorSettings.StartupWindow.NewsPanelCollapsed.Value;
 
         if (_newsDisabled || NewsPanelCollapsed)
         {
@@ -159,7 +159,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
             Enumerable.Last<ColumnDefinition>(helloTherePopup.grid.ColumnDefinitions).Width = new GridLength(300);
         }
 
-        IPreferences.Current.UpdatePreference(PreferencesConstants.NewsPanelCollapsed, e.NewValue.Value);
+        PixiEditorSettings.StartupWindow.NewsPanelCollapsed.Value = e.NewValue.Value;
     }
 
     private void RecentlyOpened_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

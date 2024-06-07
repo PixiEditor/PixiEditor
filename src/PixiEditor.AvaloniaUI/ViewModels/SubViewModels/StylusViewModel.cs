@@ -1,7 +1,7 @@
 ﻿using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.ViewModels.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
@@ -23,7 +23,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
         {
             if (SetProperty(ref isPenModeEnabled, value))
             {
-                IPreferences.Current.UpdateLocalPreference(nameof(IsPenModeEnabled), value);
+                PixiEditorSettings.Tools.IsPenModeEnabled.Value = value;
                 UpdateUseTouchGesture();
             }
         }
@@ -40,7 +40,7 @@ internal class StylusViewModel : SubViewModel<ViewModelMain>
     public StylusViewModel(ViewModelMain owner)
         : base(owner)
     {
-        isPenModeEnabled = IPreferences.Current.GetLocalPreference<bool>(nameof(IsPenModeEnabled));
+        isPenModeEnabled = PixiEditorSettings.Tools.IsPenModeEnabled.Value;
         Owner.ToolsSubViewModel.AddPropertyChangedCallback(nameof(ToolsViewModel.ActiveTool), UpdateUseTouchGesture);
 
         UpdateUseTouchGesture();

@@ -21,7 +21,7 @@ using PixiEditor.AvaloniaUI.Views.Dialogs;
 using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.OperatingSystem;
@@ -57,7 +57,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             HasRecent = true;
         }
 
-        IPreferences.Current.AddCallback(PreferencesConstants.MaxOpenedRecently, UpdateMaxRecentlyOpened);
+        PixiEditorSettings.File.MaxOpenedRecently.ValueChanged += (_, value) => UpdateMaxRecentlyOpened(value);
     }
 
     public void AddRecentlyOpened(string path)
@@ -71,14 +71,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             RecentlyOpened.Insert(0, path);
         }
 
-        int maxCount = IPreferences.Current.GetPreference(PreferencesConstants.MaxOpenedRecently, PreferencesConstants.MaxOpenedRecentlyDefault);
+        int maxCount = PixiEditorSettings.File.MaxOpenedRecently.Value;
 
         while (RecentlyOpened.Count > maxCount)
         {
             RecentlyOpened.RemoveAt(RecentlyOpened.Count - 1);
         }
 
-        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
+        PixiEditorSettings.File.RecentlyOpened.Value = RecentlyOpened.Select(x => x.FilePath);
     }
 
     [Command.Internal("PixiEditor.File.RemoveRecent")]
@@ -90,7 +90,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
 
         RecentlyOpened.Remove(path);
-        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
+        PixiEditorSettings.File.RecentlyOpened.Value = RecentlyOpened.Select(x => x.FilePath);
     }
 
     private void OpenHelloTherePopup()
@@ -108,7 +108,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
         {
-            if (IPreferences.Current.GetPreference("ShowStartupWindow", true))
+            if (PixiEditorSettings.StartupWindow.ShowStartupWindow.Value)
             {
                 OpenHelloTherePopup();
             }
@@ -123,7 +123,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             NoticeDialog.Show("FILE_NOT_FOUND", "FAILED_TO_OPEN_FILE");
             RecentlyOpened.Remove(path);
-            IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, RecentlyOpened.Select(x => x.FilePath));
+            PixiEditorSettings.File.RecentlyOpened.Value = RecentlyOpened.Select(x => x.FilePath);
             return;
         }
 
@@ -399,10 +399,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    private void UpdateMaxRecentlyOpened(string name, object parameter)
+    private void UpdateMaxRecentlyOpened(int newAmount)
     {
-        int newAmount = (int)parameter;
-
         if (newAmount >= RecentlyOpened.Count)
         {
             return;
@@ -420,9 +418,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
 
     private List<RecentlyOpenedDocument> GetRecentlyOpenedDocuments()
     {
-        IEnumerable<string> paths = IPreferences.Current.GetLocalPreference(nameof(RecentlyOpened), new JArray()).ToObject<string[]>()
-            .Take(IPreferences.Current.GetPreference(PreferencesConstants.MaxOpenedRecently, 8));
-
+        var paths = PixiEditorSettings.File.RecentlyOpened.Value.Take(PixiEditorSettings.File.MaxOpenedRecently.Value);
         List<RecentlyOpenedDocument> documents = new List<RecentlyOpenedDocument>();
 
         foreach (string path in paths)

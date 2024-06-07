@@ -14,6 +14,7 @@ using PixiEditor.AvaloniaUI.Models.Preferences;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;

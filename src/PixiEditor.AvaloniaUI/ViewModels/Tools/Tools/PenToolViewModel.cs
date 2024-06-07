@@ -8,7 +8,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Tools.ToolSettings.Toolbars;
 using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools
@@ -58,7 +58,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools
                 setting.Value = 1;
             }
             
-            if (!IPreferences.Current.GetPreference<bool>("EnableSharedToolbar"))
+            if (!PixiEditorSettings.Tools.EnableSharedToolbar.Value)
             {
                 return;
             }

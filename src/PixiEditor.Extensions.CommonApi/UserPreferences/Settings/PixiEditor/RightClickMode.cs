@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace PixiEditor.AvaloniaUI.Models.Preferences;
+namespace PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 
 public enum RightClickMode
 {

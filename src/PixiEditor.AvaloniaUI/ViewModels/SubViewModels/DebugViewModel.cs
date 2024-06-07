@@ -17,7 +17,8 @@ using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging;
 using PixiEditor.AvaloniaUI.Views.Dialogs.Debugging.Localization;
 using PixiEditor.Extensions.Common.Localization;
-using PixiEditor.Extensions.CommonApi.UserPreferences;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings;
+using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.OperatingSystem;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
@@ -67,12 +68,12 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    public DebugViewModel(ViewModelMain owner, IPreferences preferences)
+    public DebugViewModel(ViewModelMain owner)
         : base(owner)
     {
         SetDebug();
-        preferences.AddCallback<bool>("IsDebugModeEnabled", UpdateDebugMode);
-        UpdateDebugMode("IsDebugModeEnabled", preferences.GetPreference<bool>("IsDebugModeEnabled"));
+        PixiEditorSettings.Debug.IsDebugModeEnabled.ValueChanged += UpdateDebugMode;
+        UpdateDebugMode(null, PixiEditorSettings.Debug.IsDebugModeEnabled.Value);
     }
 
     public static void OpenFolder(string path)
@@ -218,7 +219,7 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     public void ClearRecentDocuments()
     {
         Owner.FileSubViewModel.RecentlyOpened.Clear();
-        IPreferences.Current.UpdateLocalPreference(PreferencesConstants.RecentlyOpened, Array.Empty<object>());
+        PixiEditorSettings.File.RecentlyOpened.Value = [];
     }
 
     [Command.Debug("PixiEditor.Debug.OpenCommandDebugWindow", "OPEN_CMD_DEBUG_WINDOW", "OPEN_CMD_DEBUG_WINDOW",
@@ -315,9 +316,9 @@ internal class DebugViewModel : SubViewModel<ViewModelMain>
     [Conditional("DEBUG")]
     private static void SetDebug() => IsDebugBuild = true;
 
-    private void UpdateDebugMode(string name, bool setting)
+    private void UpdateDebugMode(Setting<bool> setting, bool value)
     {
-        IsDebugModeEnabled = setting;
+        IsDebugModeEnabled = value;
         UseDebug = IsDebugBuild || IsDebugModeEnabled;
     }
 }
