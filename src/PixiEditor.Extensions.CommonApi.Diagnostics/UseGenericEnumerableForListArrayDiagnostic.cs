@@ -19,7 +19,7 @@ public class UseGenericEnumerableForListArrayDiagnostic : DiagnosticAnalyzer
     public static DiagnosticDescriptor UseGenericEnumerableForListArrayDescriptor { get; } =
         new(DiagnosticId, "Use IEnumerable<T> in Setting instead of List/Array",
             "Use IEnumerable<{0}> instead of {1} to allow passing any IEnumerable<{0}> for the value. Use the {2} extension from PixiEditor.Extensions.CommonApi.UserPreferences.Settings to access the Setting as a {1}.",
-            "PixiEditor.CommonAPI", DiagnosticSeverity.Warning, true);
+            "PixiEditor.CommonAPI", DiagnosticSeverity.Info, true);
 
     public override void Initialize(AnalysisContext context)
     {

@@ -16,7 +16,7 @@ public class UseOwnedDiagnostic : DiagnosticAnalyzer
     public const string DiagnosticId = "UseOwned";
 
     public static readonly DiagnosticDescriptor Descriptor = new(DiagnosticId, "Use .Owned() method",
-        "Use {0}.Owned{1}{2} to declare a Setting using the property name", DiagnosticConstants.Category,
+        "Use {0}.Owned{1}() to declare a Setting using the property name", DiagnosticConstants.Category,
         DiagnosticSeverity.Info, true);
     
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
@@ -31,11 +31,6 @@ public class UseOwnedDiagnostic : DiagnosticAnalyzer
 
     private static void AnalyzeDeclaration(SyntaxNodeAnalysisContext context)
     {
-        // var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "DiagnosticsThing");
-        // Directory.CreateDirectory(path);
-        // var file = Path.Combine(path, Guid.NewGuid().ToString());
-        // TODO: Please remove /\
-        
         var semantics = context.SemanticModel;
         var declaration = (PropertyDeclarationSyntax)context.Node;
 
@@ -83,7 +78,6 @@ public class UseOwnedDiagnostic : DiagnosticAnalyzer
             typeInfo.Type?.Name, // LocalSetting or Synced Setting
             genericType);
         
-        // TODO: Codefix please too
         context.ReportDiagnostic(diagnostic);
     }
 }
