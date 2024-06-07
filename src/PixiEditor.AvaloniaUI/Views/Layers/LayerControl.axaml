@@ -49,7 +49,7 @@
                 </Grid.ColumnDefinitions>
                 <CheckBox Classes="ImageCheckBox" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center"
-                      IsChecked="{Binding Path=Layer.IsVisibleBindable, ElementName=uc}"
+                      IsChecked="{Binding Path=Layer.IsVisibleBindable, ElementName=uc, Mode=TwoWay}"
                       Grid.Column="0" Height="16" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
                     <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>

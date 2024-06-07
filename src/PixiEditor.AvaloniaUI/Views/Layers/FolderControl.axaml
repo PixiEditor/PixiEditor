@@ -40,7 +40,7 @@
                 <RowDefinition Height="10"/>
             </Grid.RowDefinitions>
             <Grid DragDrop.AllowDrop="True" helpers:DragDropEvents.DragEnter="Grid_DragEnter" helpers:DragDropEvents.Drop="Grid_Drop_Top" helpers:DragDropEvents.DragLeave="Grid_DragLeave" Grid.Row="0" Grid.ColumnSpan="3" Background="Transparent" Panel.ZIndex="3"/>
-            <Grid IsVisible="True" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True" Panel.ZIndex="2" Background="Transparent" helpers:DragDropEvents.DragEnter="Grid_CenterEnter" helpers:DragDropEvents.Drop="Grid_Drop_Center" helpers:DragDropEvents.DragLeave="Grid_CenterLeave" />
+            <Grid IsVisible="True" Margin="20, 0, 0,0" x:Name="middleDropGrid" Grid.Row="1" DragDrop.AllowDrop="True" Panel.ZIndex="2" Background="Transparent" helpers:DragDropEvents.DragEnter="Grid_CenterEnter" helpers:DragDropEvents.Drop="Grid_Drop_Center" helpers:DragDropEvents.DragLeave="Grid_CenterLeave" />
             <Grid x:Name="centerGrid" Grid.Row="0" Grid.RowSpan="3" Background="Transparent">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="24"/>
@@ -48,7 +48,7 @@
                 </Grid.ColumnDefinitions>
                 <CheckBox Classes="ImageCheckBox" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center"
-                      IsChecked="{Binding Path=Folder.IsVisibleBindable, ElementName=folderControl}" Grid.Column="0" Height="16"/>
+                      IsChecked="{Binding Path=Folder.IsVisibleBindable, ElementName=folderControl, Mode=TwoWay}" Grid.Column="0" Height="16"/>
 
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
                     <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>
@@ -123,7 +123,7 @@
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
-                    <Image Source="/Images/Folder.png" Height="20" Margin="0,0,10,0" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{DynamicResource icon-folder}" Classes="pixi-icon" FontSize="20" Margin="0,0,10,0" HorizontalAlignment="Right"/>
                 </StackPanel>
             </Grid>
             <Grid

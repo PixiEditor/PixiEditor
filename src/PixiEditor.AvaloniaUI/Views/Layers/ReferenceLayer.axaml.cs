@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System.ComponentModel;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Models.Commands;
@@ -21,11 +22,38 @@ internal partial class ReferenceLayer : UserControl
         get => GetValue(DocumentProperty);
         set => SetValue(DocumentProperty, value);
     }
+    
+    static ReferenceLayer()
+    {
+        DocumentProperty.Changed.Subscribe(OnDocumentChanged);
+    }
 
     public ReferenceLayer()
     {
         command = CommandController.Current.Commands["PixiEditor.Clipboard.PasteReferenceLayer"];
         InitializeComponent();
+    }
+    
+    private static void OnDocumentChanged(AvaloniaPropertyChangedEventArgs<DocumentViewModel> e)
+    {
+        ReferenceLayer referenceLayer = (ReferenceLayer)e.Sender;
+        if (e.OldValue.HasValue && e.OldValue.Value != null)
+        {
+            e.OldValue.Value.ReferenceLayerViewModel.PropertyChanged -= referenceLayer.OnDocumentPropertyChanged;
+        }
+        
+        if (e.NewValue.HasValue && e.NewValue.Value != null)
+        {
+            e.NewValue.Value.ReferenceLayerViewModel.PropertyChanged += referenceLayer.OnDocumentPropertyChanged;
+        }
+    }
+
+    private void OnDocumentPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(ReferenceLayerViewModel.IsTopMost))
+        {
+            PseudoClasses.Set(":topmost", Document.ReferenceLayerViewModel.IsTopMost);
+        }
     }
 
     private void ReferenceLayer_DragEnter(object sender, DragEventArgs e)

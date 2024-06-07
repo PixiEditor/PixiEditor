@@ -12,8 +12,16 @@
              xmlns:viewModels="clr-namespace:PixiEditor.AvaloniaUI.ViewModels"
              xmlns:ui1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
              xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+             xmlns:layers="clr-namespace:PixiEditor.AvaloniaUI.Views.Layers"
              mc:Ignorable="d"
              d:DesignHeight="60" d:DesignWidth="350" VerticalAlignment="Center" x:Name="uc">
+    <UserControl.Styles>
+        <Style Selector=":topmost Button#topmostBtn">
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="180" />
+            </Setter>
+        </Style>
+    </UserControl.Styles>
     <Border BorderThickness="0 2 0 0" MinWidth="60"
             Focusable="True" DragDrop.AllowDrop="True"
             ui1:DragDropEvents.DragEnter="ReferenceLayer_DragEnter"
@@ -59,17 +67,12 @@
                         </Grid>
                         <Button Cursor="Hand" DockPanel.Dock="Left"
                                 Command="{cmds:Command PixiEditor.Layer.ToggleReferenceLayerTopMost}"
-                                Classes="ImageButtonStyle"
+                                Name="topmostBtn"
+                                Classes="pixi-icon"
+                                Content="{DynamicResource icon-reference-layer}"
                                 ToolTip.Tip="{Binding Document.ReferenceLayerViewModel.IsTopMost, ElementName=uc, Converter={converters:BoolToValueConverter FalseValue='localized:PUT_REFERENCE_LAYER_ABOVE', TrueValue='localized:PUT_REFERENCE_LAYER_BELOW'}}"
                                 RenderOptions.BitmapInterpolationMode="HighQuality"
-                                Width="20" Height="20" HorizontalAlignment="Right">
-                            <Button.Background>
-                                <ImageBrush
-                                    Source="{Binding Document.ReferenceLayerViewModel.IsTopMost, ElementName=uc, Converter={converters:BoolToBitmapValueConverter
-                                    FalseValue='/Images/ReferenceLayerBelow.png',
-                                    TrueValue='/Images/ReferenceLayerAbove.png'}}" />
-                            </Button.Background>
-                        </Button>
+                                Width="24" Height="24" HorizontalAlignment="Right"/>
                         <Border
                             HorizontalAlignment="Left" DockPanel.Dock="Left"
                             Width="30" Height="30"
@@ -83,34 +86,26 @@
                         </Border>
                         <Button Cursor="Hand" Grid.Column="1" DockPanel.Dock="Right"
                                 Command="{cmds:Command PixiEditor.Layer.DeleteReferenceLayer}"
-                                Classes="ImageButtonStyle"
+                                Classes="pixi-icon"
                                 RenderOptions.BitmapInterpolationMode="HighQuality"
                                 Margin="3,0,5,0"
-                                Width="20" Height="20" HorizontalAlignment="Right">
-                            <Button.Background>
-                                <ImageBrush Source="/Images/Trash.png" />
-                            </Button.Background>
-                        </Button>
+                                Content="{DynamicResource icon-trash}"
+                                Width="24" Height="24" HorizontalAlignment="Right"/>
                         <Button Cursor="Hand" DockPanel.Dock="Right"
                                 Command="{cmds:Command PixiEditor.Layer.ResetReferenceLayerPosition}"
-                                Classes="ImageButtonStyle"
+                                Classes="pixi-icon"
+                                Content="R"
+                                Margin="2, 0, 0, 0"
                                 ui:Translator.TooltipKey="RESET_REFERENCE_LAYER_POS"
                                 RenderOptions.BitmapInterpolationMode="HighQuality"
-                                Width="20" Height="20" HorizontalAlignment="Right">
-                            <Button.Background>
-                                <ImageBrush Source="/Images/Layout.png" />
-                            </Button.Background>
-                        </Button>
+                                Width="24" Height="24" HorizontalAlignment="Right"/>
                         <Button Cursor="Hand" DockPanel.Dock="Right"
                                 Command="{cmds:Command PixiEditor.Layer.TransformReferenceLayer}"
-                                Classes="ImageButtonStyle"
+                                Classes="pixi-icon"
+                                Content="{DynamicResource icon-crop}"
                                 ui:Translator.TooltipKey="TRANSFORM_REFERENCE_LAYER"
                                 RenderOptions.BitmapInterpolationMode="HighQuality"
-                                Width="20" Height="20" HorizontalAlignment="Right">
-                            <Button.Background>
-                                <ImageBrush Source="/Images/Crop.png" />
-                            </Button.Background>
-                        </Button>
+                                Width="24" Height="24" HorizontalAlignment="Right"/>
                         <TextBlock IsEnabled="{Binding ElementName=uc, Path=IsEnabled}" HorizontalAlignment="Center"
                                    Margin="0 0 5 0" Foreground="White"
                                    FontSize="15" VerticalAlignment="Center" ui:Translator.Key="REFERENCE" />
