@@ -1,8 +1,8 @@
 ﻿namespace HelloWorld;
 
-using PixiEditor.Extensions.Wasm;
+using PixiEditor.Extensions.Sdk;
 
-public class HelloWorldExtension : WasmExtension
+public class HelloWorldExtension : PixiEditorExtension
 {
     /// <summary>
     ///     This method is called when extension is loaded.

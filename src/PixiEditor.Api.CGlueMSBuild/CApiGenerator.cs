@@ -44,7 +44,7 @@ public class CApiGenerator
     {
         var exportedMethods = types
             .SelectMany(t => t.Methods)
-            .Where(m => m.IsStatic && m.CustomAttributes.Any(a => a.AttributeType.FullName == "PixiEditor.Extensions.Wasm.ApiExportAttribute"))
+            .Where(m => m.IsStatic && m.CustomAttributes.Any(a => a.AttributeType.FullName == "PixiEditor.Extensions.Sdk.ApiExportAttribute"))
             .ToArray();
         return exportedMethods;
     }
@@ -113,7 +113,7 @@ public class CApiGenerator
 
     private string BuildExportFunction(MethodDefinition method)
     {
-        string exportName = method.CustomAttributes.First(a => a.AttributeType.FullName == "PixiEditor.Extensions.Wasm.ApiExportAttribute").ConstructorArguments[0].Value.ToString();
+        string exportName = method.CustomAttributes.First(a => a.AttributeType.FullName == "PixiEditor.Extensions.Sdk.ApiExportAttribute").ConstructorArguments[0].Value.ToString();
         StringBuilder sb = new StringBuilder();
         sb.Append($"__attribute__((export_name(\"{exportName}\")))");
         sb.AppendLine();

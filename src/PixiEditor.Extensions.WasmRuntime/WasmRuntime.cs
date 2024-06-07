@@ -19,6 +19,13 @@ public class WasmRuntime
         wasiConfig.WithInheritedStandardError().WithInheritedStandardInput().WithInheritedStandardOutput()
             .WithInheritedArgs().WithInheritedEnvironment();
 
+        string resourcesPath = Path.Combine(Path.GetDirectoryName(path), "Resources");
+
+        if (Directory.Exists(resourcesPath))
+        {
+            wasiConfig.WithPreopenedDirectory(resourcesPath, "Resources/");
+        }
+
         using var config = new Config().WithDebugInfo(true)
             .WithCraneliftDebugVerifier(true)
             .WithReferenceTypes(true)

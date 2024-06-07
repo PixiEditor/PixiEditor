@@ -1,7 +1,7 @@
 ﻿{
   "displayName": "Sample Extension - Preferences",
   "uniqueName": "yourCompany.Samples.Preferences",
-  "description": "Sample localization extension for PixiEditor",
+  "description": "Sample preferences extension for PixiEditor",
   "version": "1.0.0",
   "author": {
     "name": "PixiEditor",

@@ -8,6 +8,7 @@ using Avalonia.Data;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.XAML;
+using PixiEditor.AvaloniaUI.ViewModels.SubViewModels.AdditionalContent;
 using PixiEditor.Extensions.Common.Localization;
 using Command = PixiEditor.AvaloniaUI.Models.Commands.Commands.Command;
 
@@ -15,6 +16,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Menu;
 
 internal class MenuBarViewModel : PixiObservableObject
 {
+    public AdditionalContentViewModel AdditionalContentSubViewModel { get; set; }
     public ObservableCollection<MenuItem> MenuEntries { get; set; } = new();
 
     private Dictionary<string, MenuTreeItem> menuItems = new();
@@ -29,6 +31,11 @@ internal class MenuBarViewModel : PixiObservableObject
         { "HELP", 600 },
         { "DEBUG", 1000 },
     };
+
+    public MenuBarViewModel(AdditionalContentViewModel? additionalContentSubViewModel)
+    {
+        AdditionalContentSubViewModel = additionalContentSubViewModel;
+    }
 
     public void Init(IServiceProvider serviceProvider, CommandController controller)
     {

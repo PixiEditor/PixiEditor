@@ -1,9 +1,12 @@
-﻿using Avalonia.Controls;
+﻿using System.Collections.Immutable;
+using Avalonia.Controls;
 using Avalonia.Layout;
+using PixiEditor.Extensions.CommonApi.FlyUI;
+using PixiEditor.Extensions.CommonApi.FlyUI.Properties;
 
 namespace PixiEditor.Extensions.FlyUI.Elements;
 
-public class Align : SingleChildLayoutElement
+public class Align : SingleChildLayoutElement, IPropertyDeserializable
 {
     public Alignment Alignment { get; set; }
 
@@ -61,17 +64,14 @@ public class Align : SingleChildLayoutElement
             _ => throw new ArgumentOutOfRangeException(nameof(alignment), alignment, null)
         };
     }
-}
 
-public enum Alignment
-{
-    TopLeft,
-    TopCenter,
-    TopRight,
-    CenterLeft,
-    Center,
-    CenterRight,
-    BottomLeft,
-    BottomCenter,
-    BottomRight
+    public void DeserializeProperties(ImmutableList<object> values)
+    {
+        Alignment = (Alignment)values.FirstOrDefault();
+    }
+    
+    IEnumerable<object> IPropertyDeserializable.GetProperties()
+    {
+        yield return Alignment;
+    }
 }

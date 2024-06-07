@@ -5,11 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <OutputType>Library</OutputType>
     <LangVersion>default</LangVersion>
-    <OutputPath>../PixiEditor.Extensions.Wasm/build/</OutputPath>
+    <OutputPath>../PixiEditor.Extensions.Sdk/build/</OutputPath>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <DebugType>None</DebugType>
+    
   </PropertyGroup>
 
   <ItemGroup>

@@ -422,6 +422,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     public async Task UpdatePaletteList()
     {
+        if (IsFetching) return;
         IsFetching = true;
         _lastScrolledOffset = -1;
         PaletteList?.Palettes?.Clear();

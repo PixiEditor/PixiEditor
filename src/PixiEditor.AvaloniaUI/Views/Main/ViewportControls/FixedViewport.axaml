@@ -7,6 +7,7 @@
              xmlns:converters1="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
              xmlns:ui="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
              xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+             xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
              mc:Ignorable="d"
              x:Name="uc"
              HorizontalAlignment="Center"
@@ -19,11 +20,11 @@
         Surface="{Binding TargetBitmap, ElementName=uc}"
         Stretch="Uniform"
         SizeChanged="OnImageSizeChanged">
-        <ui:RenderOptionsBindable.BitmapInterpolationMode>
+        <ui1:RenderOptionsBindable.BitmapInterpolationMode>
             <MultiBinding Converter="{converters1:WidthToBitmapScalingModeConverter}">
                 <Binding ElementName="uc" Path="TargetBitmap.Size.X"/>
                 <Binding ElementName="mainImage" Path="Bounds.Width"/>
             </MultiBinding>
-        </ui:RenderOptionsBindable.BitmapInterpolationMode>
+        </ui1:RenderOptionsBindable.BitmapInterpolationMode>
     </visuals:SurfaceControl>
 </UserControl>

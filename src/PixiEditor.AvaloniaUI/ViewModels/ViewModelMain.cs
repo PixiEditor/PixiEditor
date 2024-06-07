@@ -74,7 +74,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public LayoutViewModel LayoutSubViewModel { get; set; }
 
-    public MenuBarViewModel MenuBarViewModel { get; set; } = new();
+    public MenuBarViewModel MenuBarViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -147,6 +147,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         RegistrySubViewModel = services.GetService<RegistryViewModel>();
 
         AdditionalContentSubViewModel = services.GetService<AdditionalContentViewModel>();
+        MenuBarViewModel = new MenuBarViewModel(AdditionalContentSubViewModel);
 
         CommandController.Init(services);
         LayoutSubViewModel.LayoutManager.InitLayout(this);

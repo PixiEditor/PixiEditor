@@ -8,7 +8,7 @@ namespace PixiEditor.Extensions.FlyUI.Elements;
 
 public class Column : MultiChildLayoutElement
 {
-    private DockPanel panel;
+    private StackPanel panel;
 
     public Column()
     {
@@ -29,7 +29,6 @@ public class Column : MultiChildLayoutElement
                 foreach (LayoutElement? item in e.NewItems)
                 {
                     var newChild = item.BuildNative();
-                    DockPanel.SetDock(newChild, Dock.Top);
                     panel.Children.Add(newChild);
                 }
             }
@@ -45,19 +44,14 @@ public class Column : MultiChildLayoutElement
 
     public override Control BuildNative()
     {
-        panel = new DockPanel
+        panel = new StackPanel()
         {
-            LastChildFill = true,
+            Orientation = Orientation.Vertical,
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Stretch
         };
-
+        
         panel.Children.AddRange(Children.Select(x => x.BuildNative()));
-
-        foreach (var child in panel.Children)
-        {
-            DockPanel.SetDock(child, Dock.Top);
-        }
 
         return panel;
     }

@@ -7,7 +7,7 @@ using PixiEditor.Models.DataProviders;
 
 namespace PixiEditor.Models.AppExtensions.Services;
 
-internal sealed class PaletteProvider : IPaletteProvider
+internal sealed class PaletteProvider
 {
     public WpfObservableRangeCollection<PaletteFileParser> AvailableParsers { get; set; }
     public WpfObservableRangeCollection<PaletteListDataSource> DataSources => dataSources;

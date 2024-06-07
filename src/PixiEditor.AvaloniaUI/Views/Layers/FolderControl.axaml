@@ -63,12 +63,12 @@
                                 </ImageBrush>
                             </Border.Background>
                             <Image Source="{Binding Folder.PreviewBitmap, ElementName=folderControl}" Stretch="Uniform" Width="30" Height="30">
-                                <helpers:RenderOptionsBindable.BitmapInterpolationMode>
+                                <ui:RenderOptionsBindable.BitmapInterpolationMode>
                                     <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
                                         <Binding Path="Folder.PreviewBitmap.PixelSize.Width" ElementName="folderControl"/>
                                         <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Bounds.Width"/>
                                     </MultiBinding>
-                                </helpers:RenderOptionsBindable.BitmapInterpolationMode>
+                                </ui:RenderOptionsBindable.BitmapInterpolationMode>
                             </Image>
                         </Border>
                         <Border 

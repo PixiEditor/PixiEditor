@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using System.Collections.Immutable;
+using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using PixiEditor.Extensions.CommonApi.FlyUI;
 using PixiEditor.Extensions.CommonApi.FlyUI.State;
@@ -106,7 +107,7 @@ public abstract class StatefulElement<TState> : LayoutElement, /*IPropertyDeseri
         {
             // TODO: Find a way to only apply changed properties, current solution shouldn't be a problem for most cases, but this
             // might cause unnecessary redraws, binding fires and other stuff that might be expensive if we have a lot of elements
-            propertyDeserializable.DeserializeProperties(fromProps.GetProperties());
+            propertyDeserializable.DeserializeProperties(fromProps.GetProperties().ToImmutableList());
         }
     }
 

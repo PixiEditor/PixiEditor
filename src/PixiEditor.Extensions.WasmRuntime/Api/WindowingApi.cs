@@ -1,5 +1,6 @@
 ﻿using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Async;
+using PixiEditor.Extensions.CommonApi.Windowing;
 using PixiEditor.Extensions.FlyUI.Elements;
 using PixiEditor.Extensions.WasmRuntime.Utilities;
 using PixiEditor.Extensions.Windowing;
@@ -16,6 +17,21 @@ internal class WindowingApi : ApiGroupHandler
 
         int handle = NativeObjectManager.AddObject(popupWindow);
         return handle;
+    }
+    
+    [ApiFunction("get_built_in_window")]
+    public int OpenBuiltInWindow(int type)
+    {
+        var windowType = (BuiltInWindowType)type;
+        var window = Api.Windowing.GetWindow(windowType);
+        return NativeObjectManager.AddObject(window);
+    }
+    
+    [ApiFunction("get_window")]
+    public int OpenWindow(string windowId)
+    {
+        var window = Api.Windowing.GetWindow(windowId);
+        return NativeObjectManager.AddObject(window);
     }
 
     [ApiFunction("set_window_title")]

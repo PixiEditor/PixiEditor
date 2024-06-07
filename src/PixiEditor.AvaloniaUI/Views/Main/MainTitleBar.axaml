@@ -13,19 +13,28 @@
              x:DataType="menu:MenuBarViewModel"
              x:Class="PixiEditor.AvaloniaUI.Views.Main.MainTitleBar">
     <Design.DataContext>
-        <menu:MenuBarViewModel/>
+        <menu:MenuBarViewModel />
     </Design.DataContext>
     <Grid>
-        <dialogs:DialogTitleBar 
-            DockPanel.Dock="Top"/>
-        <Svg DockPanel.Dock="Left" Margin="10, 0, 0, 0" HorizontalAlignment="Left" Path="/Images/PixiEditorLogo.svg" Width="20" Height="20"/>
+        <dialogs:DialogTitleBar
+            DockPanel.Dock="Top">
+            <dialogs:DialogTitleBar.AdditionalElement>
+                <Border BorderThickness="1" BorderBrush="{DynamicResource AccentColor}"
+                        Padding="5 0" CornerRadius="5" Height="25"
+                        IsVisible="{Binding Path=AdditionalContentSubViewModel.IsSupporterPackAvailable}">
+                    <TextBlock VerticalAlignment="Center" ui:Translator.Key="PixiEditor.SupporterPack:AWESOME_SUPPORTER" />
+                </Border>
+            </dialogs:DialogTitleBar.AdditionalElement>
+        </dialogs:DialogTitleBar>
+        <Svg DockPanel.Dock="Left" Margin="10, 0, 0, 0" HorizontalAlignment="Left" Path="/Images/PixiEditorLogo.svg"
+             Width="20" Height="20" />
         <xaml:Menu
             Margin="40, 0, 0, 0"
-                DockPanel.Dock="Left"
-                HorizontalAlignment="Left"
-                VerticalAlignment="Center"
-                ItemsSource="{Binding MenuEntries}"
-                Background="Transparent"/>
+            DockPanel.Dock="Left"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center"
+            ItemsSource="{Binding MenuEntries}"
+            Background="Transparent" />
         <Border Width="300" Height="25"
                 Background="{DynamicResource ThemeBackgroundBrush}"
                 CornerRadius="5" BorderThickness="1"
@@ -33,23 +42,23 @@
                 Cursor="IBeam">
             <Border.Styles>
                 <Style Selector="Border">
-                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
                 </Style>
                 <Style Selector="Border:pointerover">
-                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}" />
                 </Style>
             </Border.Styles>
             <Interaction.Behaviors>
                 <EventTriggerBehavior
                     EventName="PointerPressed">
                     <InvokeCommandAction
-                        Command="{xaml:Command PixiEditor.Search.Toggle}"/>
+                        Command="{xaml:Command PixiEditor.Search.Toggle}" />
                 </EventTriggerBehavior>
             </Interaction.Behaviors>
             <Grid Margin="5,0" VerticalAlignment="Center">
-                <TextBlock ui:Translator.Key="SEARCH"/>
+                <TextBlock ui:Translator.Key="SEARCH" />
                 <TextBlock Text="{xaml:ShortcutBinding PixiEditor.Search.Toggle}"
-                           HorizontalAlignment="Right"/>
+                           HorizontalAlignment="Right" />
             </Grid>
         </Border>
     </Grid>

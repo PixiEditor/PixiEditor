@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using PixiEditor.Extensions.Wasm;
-using PixiEditor.Extensions.Wasm.Api.FlyUI;
+using PixiEditor.Extensions.Sdk;
+using PixiEditor.Extensions.Sdk.Api.FlyUI;
 
 namespace CreatePopupSample;
 
-public class CreatePopupSampleExtension : WasmExtension
+public class CreatePopupSampleExtension : PixiEditorExtension
 {
     /// <summary>
     ///     This method is called when extension is loaded.

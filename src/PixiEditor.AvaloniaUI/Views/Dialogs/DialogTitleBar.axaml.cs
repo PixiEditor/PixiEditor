@@ -22,6 +22,8 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
     public static readonly StyledProperty<ICommand?> CloseCommandProperty =
         AvaloniaProperty.Register<DialogTitleBar, ICommand?>(nameof(CloseCommand));
 
+    public static readonly StyledProperty<Control> AdditionalElementProperty = AvaloniaProperty.Register<DialogTitleBar, Control>("AdditionalElement");
+
     public ICommand? CloseCommand
     {
         get => GetValue(CloseCommandProperty);
@@ -48,7 +50,13 @@ internal partial class DialogTitleBar : UserControl, ICustomTranslatorElement
         get => GetValue(CanFullscreenProperty);
         set => SetValue(CanFullscreenProperty, value);
     }
-    
+
+    public Control AdditionalElement
+    {
+        get { return (Control)GetValue(AdditionalElementProperty); }
+        set { SetValue(AdditionalElementProperty, value); }
+    }
+
     public DialogTitleBar()
     {
         InitializeComponent();

@@ -27,7 +27,7 @@ public class WindowProvider : IWindowProvider
         return new PopupWindow(new BasicPopup { Title = title, Body = body });
     }
 
-    public PopupWindow GetWindow(WindowType type)
+    public PopupWindow GetWindow(BuiltInWindowType type)
     {
         return GetWindow($"PixiEditor.{type}");
     }

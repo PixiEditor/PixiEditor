@@ -40,6 +40,14 @@ public class WasmMemoryUtility
     {
         return memory.ReadInt32(offset);
     }
+    
+    public int Write<T>(T arg) where T : unmanaged
+    {
+        var length = Marshal.SizeOf<T>();
+        var ptr = malloc.Invoke(length);
+        memory.Write(ptr, arg);
+        return ptr;
+    }
 
     public int WriteSpan(Span<byte> span)
     {
@@ -88,6 +96,14 @@ public class WasmMemoryUtility
     public float GetSingle(int offset)
     {
         return memory.ReadSingle(offset);
+    }
+    
+    public int WriteSingle(float value)
+    {
+        const int length = 4;
+        var ptr = malloc.Invoke(length);
+        memory.WriteSingle(ptr, value);
+        return ptr;
     }
     
     public int WriteBoolean(bool value)

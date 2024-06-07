@@ -96,6 +96,6 @@ public class CApiGeneratorTests
         string sanitizedImports = attachCode.Replace("\n", "").Replace("\r", "");
 
         Assert.Contains("void attach_imported_functions()", sanitizedImports);
-        Assert.Contains("mono_add_internal_call(\"PixiEditor.Extensions.Wasm.Interop::subscribe_to_event\", internal_subscribe_to_event);", sanitizedImports);
+        Assert.Contains("mono_add_internal_call(\"PixiEditor.Extensions.Sdk.Bridge.Native::subscribe_to_event\", internal_subscribe_to_event);", sanitizedImports);
     }
 }

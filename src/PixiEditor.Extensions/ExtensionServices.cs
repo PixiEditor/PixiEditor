@@ -10,9 +10,10 @@ public class ExtensionServices
 {
     public IServiceProvider Services { get; private set; }
     public IWindowProvider? Windowing => Services.GetService<IWindowProvider>();
-    public IPaletteProvider? PaletteProvider => Services.GetService<IPaletteProvider>();
     public IFileSystemProvider? FileSystem => Services.GetService<IFileSystemProvider>();
     public IPreferences? Preferences => Services.GetService<IPreferences>();
+    
+    public IPalettesProvider? Palettes => Services.GetService<IPalettesProvider>();
 
     public ExtensionServices(IServiceProvider services)
     {

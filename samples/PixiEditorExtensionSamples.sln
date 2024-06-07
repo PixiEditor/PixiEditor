@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.Wasm", "..\src\PixiEditor.Extensions.Wasm\PixiEditor.Extensions.Wasm.csproj", "{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixiEditor.Extensions.Sdk", "..\src\PixiEditor.Extensions.Sdk\PixiEditor.Extensions.Sdk.csproj", "{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample1_HelloWorld", "Sample1_HelloWorld\Sample1_HelloWorld.csproj", "{82A85041-A666-42DB-8F84-7D91EF9A5C9D}"
 EndProject
@@ -14,6 +14,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_References", "_References", "{7CC35BC4-829F-4EF4-8EB6-E1D46206E7DC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample4_CreatePopup", "Sample4_CreatePopup\Sample4_CreatePopup.csproj", "{93ADCE51-F671-4374-84AC-5AB07A098F27}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample5_Resources", "Sample5_Resources\Sample5_Resources.csproj", "{51E1742D-132F-4CE9-9313-67FF1AC785D6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample6_Palettes", "Sample6_Palettes\Sample6_Palettes.csproj", "{6FF1D3AB-358A-4D78-8877-DACC01D34B87}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample7_FlyUI", "Sample7_FlyUI\Sample7_FlyUI.csproj", "{432A224A-8035-47C1-AC41-6715021B3AA3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +50,18 @@ Global
 		{93ADCE51-F671-4374-84AC-5AB07A098F27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93ADCE51-F671-4374-84AC-5AB07A098F27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93ADCE51-F671-4374-84AC-5AB07A098F27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51E1742D-132F-4CE9-9313-67FF1AC785D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51E1742D-132F-4CE9-9313-67FF1AC785D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51E1742D-132F-4CE9-9313-67FF1AC785D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51E1742D-132F-4CE9-9313-67FF1AC785D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FF1D3AB-358A-4D78-8877-DACC01D34B87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FF1D3AB-358A-4D78-8877-DACC01D34B87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FF1D3AB-358A-4D78-8877-DACC01D34B87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FF1D3AB-358A-4D78-8877-DACC01D34B87}.Release|Any CPU.Build.0 = Release|Any CPU
+		{432A224A-8035-47C1-AC41-6715021B3AA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{432A224A-8035-47C1-AC41-6715021B3AA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{432A224A-8035-47C1-AC41-6715021B3AA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{432A224A-8035-47C1-AC41-6715021B3AA3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{FD9B4C32-4D2E-410E-BC6B-787779BEB6E2} = {7CC35BC4-829F-4EF4-8EB6-E1D46206E7DC}

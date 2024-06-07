@@ -59,7 +59,6 @@
     <PackageReference Include="Avalonia.Headless" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Labs.Lottie" Version="11.0.10.1"/>
     <PackageReference Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)"/>
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)"/>
     <PackageReference Include="Avalonia.Svg.Skia" Version="11.0.0.18"/>
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
@@ -115,10 +114,6 @@
     <Content Include="../../THIRD_PARTY_LICENSES.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Fonts\" />
   </ItemGroup>
 
 </Project>

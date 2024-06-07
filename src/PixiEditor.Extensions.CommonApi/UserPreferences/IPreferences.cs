@@ -14,7 +14,7 @@ public interface IPreferences
     /// </summary>
     /// <param name="name">The name of the setting</param>
     /// <param name="action">The action that will be executed when the setting changes</param>
-    public void AddCallback(string name, Action<object> action);
+    public void AddCallback(string name, Action<string, object> action);
 
     /// <summary>
     /// Adds a callback that will be executed when the setting called <paramref name="name"/> changes.
@@ -22,10 +22,10 @@ public interface IPreferences
     /// <typeparam name="T">The <see cref="Type"/> of the setting</typeparam>
     /// <param name="name">The name of the setting</param>
     /// <param name="action">The action that will be executed when the setting changes</param>
-    public void AddCallback<T>(string name, Action<T> action);
+    public void AddCallback<T>(string name, Action<string, T> action);
 
-    public void RemoveCallback(string name, Action<object> action);
-    public void RemoveCallback<T>(string name, Action<T> action);
+    public void RemoveCallback(string name, Action<string, object> action);
+    public void RemoveCallback<T>(string name, Action<string, T> action);
 
     /// <summary>
     /// Initializes the preferences.

@@ -276,7 +276,7 @@ internal partial class SettingsWindowViewModel : ViewModelBase
         Commands = new(CommandController.Current.CommandGroups.Select(x => new GroupSearchResult(x)));
         UpdateSearchResults();
         SettingsSubViewModel = new SettingsViewModel(this);
-        ViewModelMain.Current.Preferences.AddCallback("IsDebugModeEnabled", _ => UpdateSearchResults());
+        ViewModelMain.Current.Preferences.AddCallback("IsDebugModeEnabled", (_, _) => UpdateSearchResults());
         VisibleGroups = Commands.Count(x => x.IsVisible);
     }
 
