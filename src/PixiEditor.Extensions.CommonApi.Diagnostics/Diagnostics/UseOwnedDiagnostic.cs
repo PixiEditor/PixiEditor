@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace PixiEditor.Extensions.CommonApi.Diagnostics;
+namespace PixiEditor.Extensions.CommonApi.Diagnostics.Diagnostics;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class UseOwnedDiagnostic : DiagnosticAnalyzer

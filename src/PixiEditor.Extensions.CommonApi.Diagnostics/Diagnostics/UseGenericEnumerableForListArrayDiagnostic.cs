@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace PixiEditor.Extensions.CommonApi.Diagnostics;
+namespace PixiEditor.Extensions.CommonApi.Diagnostics.Diagnostics;
 
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class UseGenericEnumerableForListArrayDiagnostic : DiagnosticAnalyzer

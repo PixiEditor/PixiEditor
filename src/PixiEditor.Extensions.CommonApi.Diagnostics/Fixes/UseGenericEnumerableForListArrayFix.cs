@@ -9,8 +9,9 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.CodeFixes;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using PixiEditor.Extensions.CommonApi.Diagnostics.Diagnostics;
 
-namespace PixiEditor.Extensions.CommonApi.Diagnostics;
+namespace PixiEditor.Extensions.CommonApi.Diagnostics.Fixes;
 
 [ExportCodeFixProvider(LanguageNames.CSharp, Name = nameof(UseGenericEnumerableForListArrayFix))]
 [Shared]
