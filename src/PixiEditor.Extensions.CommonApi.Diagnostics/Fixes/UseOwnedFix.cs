@@ -32,6 +32,17 @@ public class UseOwnedFix : CodeFixProvider
 
     private static async Task<Document> CreateChangedDocument(Document document, PropertyDeclarationSyntax declaration, CancellationToken token)
     {
+        var invocationExpression = GetNewInvocation(declaration);
+        var root = await document.GetSyntaxRootAsync(token);
+
+        var newRoot = root!.ReplaceNode(declaration.Initializer.Value, invocationExpression);
+
+        // TODO: The initializer part does not have it's generic type replaced
+        return document.WithSyntaxRoot(newRoot);
+    }
+
+    private static InvocationExpressionSyntax GetNewInvocation(PropertyDeclarationSyntax declaration)
+    {
         var settingType = (GenericNameSyntax)declaration.Type;
         var originalInvocation = (BaseObjectCreationExpressionSyntax)declaration.Initializer!.Value;
         
@@ -40,13 +51,7 @@ public class UseOwnedFix : CodeFixProvider
         
         var accessExpression = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, classIdentifier, ownedIdentifier);
         var invocationExpression = SyntaxFactory.InvocationExpression(accessExpression, SkipArgument(originalInvocation.ArgumentList!));
-
-        var root = await document.GetSyntaxRootAsync(token);
-
-        var newRoot = root!.ReplaceNode(declaration.Initializer.Value, invocationExpression);
-
-        // TODO: The initializer part does not have it's generic type replaced
-        return document.WithSyntaxRoot(newRoot);
+        return invocationExpression;
     }
 
     private static ArgumentListSyntax SkipArgument(ArgumentListSyntax original)

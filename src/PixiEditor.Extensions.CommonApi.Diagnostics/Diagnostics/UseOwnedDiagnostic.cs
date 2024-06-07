@@ -41,22 +41,19 @@ public class UseOwnedDiagnostic : DiagnosticAnalyzer
         }
         
         // TODO: Also handle => new()
-        if (declaration.Initializer is not { Value: BaseObjectCreationExpressionSyntax { ArgumentList.Arguments: { Count: > 0 } arguments } initializerExpression })
+        if (declaration.Initializer is not { Value: BaseObjectCreationExpressionSyntax { ArgumentList.Arguments: { Count: > 0 } arguments } initializerExpression } ||
+            DoesNotMatch(semantics, arguments, declaration))
         {
             return;
         }
 
-        var nameArgument = arguments.First();
+        var diagnostic = GetDiagnostic(arguments, declaration, semantics, initializerExpression, typeInfo);
+        context.ReportDiagnostic(diagnostic);
+    }
 
-        var operation = semantics.GetOperation(nameArgument.Expression);
-        var constant = operation?.ConstantValue.Value as string;
-        var declarationName = declaration.Identifier.ValueText;
-
-        if (constant != declarationName)
-        {
-            return;
-        }
-        
+    private static Diagnostic GetDiagnostic(SeparatedSyntaxList<ArgumentSyntax> arguments, PropertyDeclarationSyntax declaration,
+        SemanticModel semantics, BaseObjectCreationExpressionSyntax initializerExpression, TypeInfo typeInfo)
+    {
         var genericType = string.Empty;
 
         var fallbackValueArgument = arguments.Skip(1).FirstOrDefault();
@@ -72,7 +69,16 @@ public class UseOwnedDiagnostic : DiagnosticAnalyzer
         var diagnostic = Diagnostic.Create(Descriptor, initializerExpression.GetLocation(),
             typeInfo.Type?.Name, // LocalSetting or Synced Setting
             genericType);
-        
-        context.ReportDiagnostic(diagnostic);
+        return diagnostic;
+    }
+
+    private static bool DoesNotMatch(SemanticModel semantics, SeparatedSyntaxList<ArgumentSyntax> arguments, PropertyDeclarationSyntax declaration)
+    {
+        var nameArgument = arguments.First();
+        var operation = semantics.GetOperation(nameArgument.Expression);
+        var constant = operation?.ConstantValue.Value as string;
+        var declarationName = declaration.Identifier.ValueText;
+
+        return constant != declarationName;
     }
 }

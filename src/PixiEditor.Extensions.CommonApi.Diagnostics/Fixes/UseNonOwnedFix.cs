@@ -34,6 +34,18 @@ public class UseNonOwnedFix : CodeFixProvider
     private static async Task<Document> CreateChangedDocument(Document document, PropertyDeclarationSyntax declaration,
         CancellationToken token)
     {
+        var invocationExpression = await GetNewInvocation(document, declaration, token);
+        var root = await document.GetSyntaxRootAsync(token);
+
+        var newRoot = root!.ReplaceNode(declaration.Initializer!.Value, invocationExpression);
+
+        // TODO: The initializer part does not have it's generic type replaced
+        return document.WithSyntaxRoot(newRoot);
+    }
+
+    private static async Task<InvocationExpressionSyntax> GetNewInvocation(Document document, PropertyDeclarationSyntax declaration,
+        CancellationToken token)
+    {
         var settingType = (GenericNameSyntax)declaration.Type;
         var originalInvocation = (BaseObjectCreationExpressionSyntax)declaration.Initializer!.Value;
 
@@ -47,13 +59,7 @@ public class UseNonOwnedFix : CodeFixProvider
         var arguments = SkipArgumentAndAdd(originalInvocation.ArgumentList!, prefixArgument);
 
         var invocationExpression = SyntaxFactory.InvocationExpression(accessExpression, arguments);
-
-        var root = await document.GetSyntaxRootAsync(token);
-
-        var newRoot = root!.ReplaceNode(declaration.Initializer.Value, invocationExpression);
-
-        // TODO: The initializer part does not have it's generic type replaced
-        return document.WithSyntaxRoot(newRoot);
+        return invocationExpression;
     }
 
     private static async ValueTask<ArgumentSyntax> GetPrefixArgument(Document document, CancellationToken token,

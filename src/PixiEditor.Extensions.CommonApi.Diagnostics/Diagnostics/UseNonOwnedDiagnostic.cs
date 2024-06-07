@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -42,32 +41,20 @@ public class UseNonOwnedDiagnostic : DiagnosticAnalyzer
         }
         
         // TODO: Also handle => new()
-        if (declaration.Initializer is not { Value: BaseObjectCreationExpressionSyntax { ArgumentList.Arguments: { Count: > 0 } arguments } initializerExpression })
+        if (declaration.Initializer is not { Value: BaseObjectCreationExpressionSyntax { ArgumentList.Arguments: { Count: > 0 } arguments } initializerExpression } ||
+            DoesNotMatch(semantics, arguments, declaration))
         {
             return;
         }
+        
+        var diagnostic = GetDiagnostic(arguments, declaration, semantics, initializerExpression, typeInfo);
 
-        var nameArgument = arguments.First();
+        context.ReportDiagnostic(diagnostic);
+    }
 
-        var operation = semantics.GetOperation(nameArgument.Expression);
-
-        if (operation?.ConstantValue.Value is not string constant)
-        {
-            return;
-        }
-        
-        if (DiagnosticHelpers.GetKey(constant) is not { } key)
-        {
-            return;
-        }
-        
-        var declarationName = declaration.Identifier.ValueText;
-        
-        if (key != declarationName)
-        {
-            return;
-        }
-        
+    private static Diagnostic GetDiagnostic(SeparatedSyntaxList<ArgumentSyntax> arguments, PropertyDeclarationSyntax declaration,
+        SemanticModel semantics, BaseObjectCreationExpressionSyntax initializerExpression, TypeInfo typeInfo)
+    {
         var genericType = string.Empty;
 
         var fallbackValueArgument = arguments.Skip(1).FirstOrDefault();
@@ -83,7 +70,23 @@ public class UseNonOwnedDiagnostic : DiagnosticAnalyzer
         var diagnostic = Diagnostic.Create(Descriptor, initializerExpression.GetLocation(),
             typeInfo.Type?.Name, // LocalSetting or Synced Setting
             genericType);
+        return diagnostic;
+    }
+
+    private static bool DoesNotMatch(SemanticModel semantics, SeparatedSyntaxList<ArgumentSyntax> arguments,
+        PropertyDeclarationSyntax declaration)
+    {
+        var nameArgument = arguments.First();
+
+        var operation = semantics.GetOperation(nameArgument.Expression);
+
+        if (operation?.ConstantValue.Value is not string constant || DiagnosticHelpers.GetKey(constant) is not { } key)
+        {
+            return true;
+        }
         
-        context.ReportDiagnostic(diagnostic);
+        var declarationName = declaration.Identifier.ValueText;
+        
+        return key != declarationName;
     }
 }
