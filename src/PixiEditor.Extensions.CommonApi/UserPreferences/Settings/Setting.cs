@@ -58,7 +58,7 @@ public abstract class Setting<T> : INotifyPropertyChanged
     /// </summary>
     /// <param name="fallbackValue">The value used if the preference has not been set before</param>
     /// <returns>Either the value of the preference as <typeparamref name="T"/> or <see cref="fallbackValue"/></returns>
-    public T? As<T>(T? fallbackValue = default) => GetValue(preferences, fallbackValue);
+    public TAny? As<TAny>(TAny? fallbackValue = default) => GetValue(preferences, fallbackValue);
 
     protected abstract TAny? GetValue<TAny>(IPreferences preferences, TAny fallbackValue);
 
@@ -109,7 +109,7 @@ public abstract class Setting<T> : INotifyPropertyChanged
     }
 }
 
-// Generic types would create a instance for every type combination.
+// Generic types would create an instance for every type combination.
 file static class PropertyChangedConstants
 {
     public static readonly PropertyChangedEventArgs ValueChangedPropertyArgs = new("Value");
