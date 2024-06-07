@@ -40,7 +40,6 @@ public class UseNonOwnedDiagnostic : DiagnosticAnalyzer
             return;
         }
         
-        // TODO: Also handle => new()
         if (declaration.Initializer is not { Value: BaseObjectCreationExpressionSyntax { ArgumentList.Arguments: { Count: > 0 } arguments } initializerExpression } ||
             DoesNotMatch(semantics, arguments, declaration))
         {
