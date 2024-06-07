@@ -111,45 +111,52 @@ internal class UpdateViewModel : SubViewModel<ViewModelMain>
     private void AskToInstall()
     {
 #if RELEASE || DEVRELEASE
-            if (IPreferences.Current.GetPreference("CheckUpdatesOnStartup", true))
-            {
-                string dir = AppDomain.CurrentDomain.BaseDirectory;
-                
-                UpdateDownloader.CreateTempDirectory();
-                if(UpdateChecker.LatestReleaseInfo == null || string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName)) return;
-                bool updateFileExists = File.Exists(
-                    Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
-                string exePath = Path.Join(UpdateDownloader.DownloadLocation,
-                    $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe");
+        if (!PixiEditorSettings.Update.CheckUpdatesOnStartup.Value)
+        {
+            return;
+        }
 
-                bool updateExeExists = File.Exists(exePath);
+        string dir = AppDomain.CurrentDomain.BaseDirectory;
 
-                if (updateExeExists && !UpdateChecker.VersionDifferent(UpdateChecker.LatestReleaseInfo.TagName, UpdateChecker.CurrentVersionTag))
-                {
-                    File.Delete(exePath);
-                    updateExeExists = false;
-                }
+        UpdateDownloader.CreateTempDirectory();
+        if(UpdateChecker.LatestReleaseInfo == null || string.IsNullOrEmpty(UpdateChecker.LatestReleaseInfo.TagName)) return;
+        bool updateFileExists = File.Exists(
+            Path.Join(UpdateDownloader.DownloadLocation, $"update-{UpdateChecker.LatestReleaseInfo.TagName}.zip"));
+        string exePath = Path.Join(UpdateDownloader.DownloadLocation,
+            $"update-{UpdateChecker.LatestReleaseInfo.TagName}.exe");
 
-                string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+        bool updateExeExists = File.Exists(exePath);
 
-                if (updateFileExists || updateExeExists)
-                {
-                    ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
-                    var result = ConfirmationDialog.Show("UPDATE_READY", "NEW_UPDATE");
-                    result.Wait();
-                    if (result.Result == ConfirmationType.Yes)
-                    {
-                        if (updateFileExists && File.Exists(updaterPath))
-                        {
-                            InstallHeadless(updaterPath);
-                        }
-                        else if (updateExeExists)
-                        {
-                            OpenExeInstaller(exePath);
-                        }
-                    }
-                }
-            }
+        if (updateExeExists && !UpdateChecker.VersionDifferent(UpdateChecker.LatestReleaseInfo.TagName, UpdateChecker.CurrentVersionTag))
+        {
+            File.Delete(exePath);
+            updateExeExists = false;
+        }
+
+        string updaterPath = Path.Join(dir, "PixiEditor.UpdateInstaller.exe");
+
+        if (!updateFileExists && !updateExeExists)
+        {
+            return;
+        }
+
+        ViewModelMain.Current.UpdateSubViewModel.UpdateReadyToInstall = true;
+        var result = ConfirmationDialog.Show("UPDATE_READY", "NEW_UPDATE");
+        result.Wait();
+        
+        if (result.Result != ConfirmationType.Yes)
+        {
+            return;
+        }
+
+        if (updateFileExists && File.Exists(updaterPath))
+        {
+            InstallHeadless(updaterPath);
+        }
+        else if (updateExeExists)
+        {
+            OpenExeInstaller(exePath);
+        }
 #endif
     }
 
