@@ -114,7 +114,10 @@ public static class PixiPerfectIcons
     public const string PasteReferenceLayer = "\ue977";
     public const string PasteAsNewLayer = "\ue978";
     public const string CopyAdd = "\ue921";
+    
     public const string Reset = "R"; // TODO: Create a reset icon
+    public const string ToggleLayerVisible = "\u25a1;"; // TODO: Create a toggle layer visible icon
+    public const string ToggleMask = "\u25a1;"; // TODO: Create a toggle mask icon
     public static string Pen => "\uE971";
 
     public static IImage ToIcon(string unicode, double size = 18)

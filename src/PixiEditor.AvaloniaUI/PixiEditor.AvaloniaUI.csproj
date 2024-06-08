@@ -116,4 +116,26 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\Copy.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\Cut.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\Paste.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\CenterContent.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate180Deg.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate270Deg.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate90Deg.png" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate90DegLayers.png" />
+    <UpToDateCheckInput Remove="Images\News\Article.png" />
+    <UpToDateCheckInput Remove="Images\News\Misc.png" />
+    <UpToDateCheckInput Remove="Images\News\NewVersion.png" />
+    <UpToDateCheckInput Remove="Images\News\OfficialAnnouncement.png" />
+    <UpToDateCheckInput Remove="Images\News\YouTube.png" />
+  </ItemGroup>
+
 </Project>

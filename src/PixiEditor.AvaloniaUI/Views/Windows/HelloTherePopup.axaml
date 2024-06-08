@@ -56,11 +56,13 @@
                                             </VisualBrush.Visual>
                                         </VisualBrush>
                                     </StackPanel.Background>
-                                    <Image Focusable="False" Cursor="Hand" x:Name="checkboxImage" Source="/Images/Chevron-right.png">
-                                        <Image.RenderTransform>
+                                    <TextBlock Focusable="False" Cursor="Hand" x:Name="checkboxImage" 
+                                               Classes="pixi-icon"
+                                               Text="{DynamicResource icon-chevron-right}">
+                                        <TextBlock.RenderTransform>
                                             <RotateTransform Angle="180" CenterX="19" CenterY="20"/>
-                                        </Image.RenderTransform>
-                                    </Image>
+                                        </TextBlock.RenderTransform>
+                                    </TextBlock>
                                     <ContentPresenter Focusable="False"/>
                                 </StackPanel>
 

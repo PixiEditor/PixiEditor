@@ -133,8 +133,9 @@
                         </StackPanel>
                     </StackPanel>
                     <WrapPanel Orientation="Vertical" Margin="0,3,3,3">
-                        <Image
-                            Source="/Images/Lock-alpha.png" Width="14" Height="14"
+                        <TextBlock
+                            Text="{DynamicResource icon-alpha-lock}" FontSize="14" Width="14" Height="14"
+                            Classes="pixi-icon"
                             IsVisible="{Binding Layer.LockTransparencyBindable, ElementName=uc}"/>
                     </WrapPanel>
                 </StackPanel>

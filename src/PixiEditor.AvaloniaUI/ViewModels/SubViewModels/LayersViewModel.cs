@@ -260,7 +260,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc!.Operations.DeleteMask(member);
     }
 
-    [Command.Basic("PixiEditor.Layer.ToggleMask", "TOGGLE_MASK", "TOGGLE_MASK", CanExecute = "PixiEditor.Layer.ActiveLayerHasMask")]
+    [Command.Basic("PixiEditor.Layer.ToggleMask", "TOGGLE_MASK", "TOGGLE_MASK", CanExecute = "PixiEditor.Layer.ActiveLayerHasMask",
+        Icon = PixiPerfectIcons.ToggleMask)]
     public void ToggleMask()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -282,7 +283,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         doc!.Operations.ApplyMask(member);
     }
 
-    [Command.Basic("PixiEditor.Layer.ToggleVisible", "TOGGLE_VISIBILITY", "TOGGLE_VISIBILITY", CanExecute = "PixiEditor.HasDocument")]
+    [Command.Basic("PixiEditor.Layer.ToggleVisible", "TOGGLE_VISIBILITY", "TOGGLE_VISIBILITY", CanExecute = "PixiEditor.HasDocument",
+        Icon = PixiPerfectIcons.ToggleLayerVisible)]
     public void ToggleVisible()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
