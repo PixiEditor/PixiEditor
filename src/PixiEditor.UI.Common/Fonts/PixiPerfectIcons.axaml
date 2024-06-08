@@ -119,6 +119,11 @@
             <system:String x:Key="icon-star">&#x25a1;</system:String>
             <system:String x:Key="icon-star-filled">&#xfffd;</system:String>
             <system:String x:Key="icon-reset">R</system:String>
+            <system:String x:Key="icon-message">&#xE96F;</system:String>
+            <system:String x:Key="icon-download">&#xE969;</system:String>
+            <system:String x:Key="icon-youtube">&#xE975;</system:String>
+            <system:String x:Key="icon-misc">&#xE968;</system:String>
+            <system:String x:Key="icon-write">&#xE970;</system:String>
         </ResourceDictionary>
     </Styles.Resources>
     

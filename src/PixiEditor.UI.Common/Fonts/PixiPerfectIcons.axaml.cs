@@ -114,6 +114,11 @@ public static class PixiPerfectIcons
     public const string PasteReferenceLayer = "\ue977";
     public const string PasteAsNewLayer = "\ue978";
     public const string CopyAdd = "\ue921";
+    public const string Message = "\uE96F";
+    public const string Download = "\uE969";
+    public const string YouTube = "\uE975";
+    public const string Write = "\uE968";
+    public const string Misc = "\uE970";
     
     public const string Reset = "R"; // TODO: Create a reset icon
     public const string ToggleLayerVisible = "\u25a1;"; // TODO: Create a toggle layer visible icon

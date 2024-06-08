@@ -20,9 +20,10 @@
                     </StackPanel>
                 </Border>
             </Grid>
-            <StackPanel Margin="8 0" Orientation="Horizontal">
-                <Image Margin="0 0 5 0" Width="25"
-                       Source="{Binding ElementName=newsItem, Path=News.ResolvedIconUrl, Converter={converters:ImagePathToBitmapConverter}}" />
+            <StackPanel Margin="5 0" Spacing="2" Orientation="Horizontal">
+                <TextBlock Padding="0" Width="25" Height="25" Classes="pixi-icon"
+                           FontSize="24"
+                       Text="{Binding ElementName=newsItem, Path=News.ResolvedIcon}" />
                 <Label VerticalAlignment="Center" HorizontalAlignment="Center">
                     <TextBlock Width="200" TextTrimming="CharacterEllipsis" MaxHeight="50"
                                ui:Hyperlink.Url="{Binding ElementName=newsItem, Path=News.Url}"
