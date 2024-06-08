@@ -1,0 +1,45 @@
+"AppBuild"
+{
+	"AppID" "2218560" // PixiEditor AppID
+	"Desc" "PixiEditor build" // internal description for this build
+
+	"ContentRoot" ".\\" // root content folder, relative to location of this file
+
+	"Depots"
+	{
+		"2218561" // PixiEditor - x64
+		{
+			"BuildOutput" ".\\output_x64\\" // build output folder for build logs and build cache files
+			"InstallScript" "..\\InstallScript.vdf"
+			"FileMapping"
+			{
+				"LocalPath" ".\\content_x64\\*" // all files from content_x64 folder
+				"DepotPath" "." // mapped into the root of the depot
+				"recursive" "1" // include all subfolders
+			}
+			"FileMapping"
+			{
+				// copy install script into depot root folder
+				"LocalPath" ".\\InstallScript.vdf"
+				"DepotPath" "."
+			}
+		}
+		"2218562" // PixiEditor - x86
+		{
+			"BuildOutput" ".\\output_x86\\" // build output folder for build logs and build cache files
+			"InstallScript" "..\\InstallScript.vdf"
+			"FileMapping"
+			{
+				"LocalPath" ".\\content_x86\\*" // all files from content_x86 folder
+				"DepotPath" "." // mapped into the root of the depot
+				"recursive" "1" // include all subfolders
+			}
+			"FileMapping"
+			{
+				// copy install script into depot root folder
+				"LocalPath" ".\\InstallScript.vdf"
+				"DepotPath" "."
+			}
+		}
+	}
+}
