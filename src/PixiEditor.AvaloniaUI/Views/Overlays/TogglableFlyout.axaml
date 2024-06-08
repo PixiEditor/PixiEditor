@@ -8,31 +8,32 @@
              d:DesignHeight="380" d:DesignWidth="200" Name="togglableFlyout">
     <Border Background="Transparent">
         <StackPanel Orientation="Vertical">
-            <Border HorizontalAlignment="Right" Background="#C8202020" CornerRadius="5" Padding="5" x:Name="btnBorder">
+            <Border HorizontalAlignment="Right" Background="{DynamicResource ThemeBackgroundTranslucentBrush}" CornerRadius="5" Padding="5" x:Name="btnBorder">
                 <ToggleButton Padding="0" Margin="0"
                               x:Name="toggleButton" BorderThickness="0" Width="24" Height="24" Background="Transparent">
                     <ToggleButton.Template>
                         <ControlTemplate TargetType="{x:Type ToggleButton}">
                             <Grid>
                                 <Grid.Styles>
-                                    <Style Selector="Grid Image#btnBg">
+                                    <Style Selector="Grid TextBlock#btnBg">
                                         <Setter Property="RenderTransform" Value="rotate(0)"/>
                                     </Style>
-                                    <Style Selector="ToggleButton:checked Image#btnBg">
+                                    <Style Selector="ToggleButton:checked TextBlock#btnBg">
                                         <Setter Property="RenderTransform" Value="rotate(180deg)"/>
                                     </Style>
                                 </Grid.Styles>
-                                <Image Focusable="False" Width="24" Cursor="Hand" x:Name="btnBg"
-                                       Source="{Binding ElementName=togglableFlyout, Path=IconPath, Converter={converters:ImagePathToBitmapConverter}}">
-                                    <Image.Transitions>
+                                <TextBlock Focusable="False" FontSize="24" Width="24" Cursor="Hand" x:Name="btnBg"
+                                           Classes="pixi-icon"
+                                       Text="{Binding ElementName=togglableFlyout, Path=Icon}">
+                                    <TextBlock.Transitions>
                                         <Transitions>
                                             <TransformOperationsTransition Duration="0:0:0.15" Property="RenderTransform" />
                                         </Transitions>
-                                    </Image.Transitions>
-                                    <Image.RenderTransform>
+                                    </TextBlock.Transitions>
+                                    <TextBlock.RenderTransform>
                                         <RotateTransform Angle="0" CenterX="12" CenterY="12"/>
-                                    </Image.RenderTransform>
-                                </Image>
+                                    </TextBlock.RenderTransform>
+                                </TextBlock>
                                 <ContentPresenter/>
                             </Grid>
                             <!--<ControlTemplate.Triggers>

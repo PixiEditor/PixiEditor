@@ -47,11 +47,11 @@
                                         PassEventArgsToCommand="True"/>
             </EventTriggerBehavior>-->
         </Interaction.Behaviors>
-        <overlays:TogglableFlyout Margin="5" IconPath="/Images/Settings.png"
+        <overlays:TogglableFlyout Margin="5" Icon="{DynamicResource icon-tool}"
                                   ui:Translator.TooltipKey="VIEWPORT_SETTINGS"
                                   ZIndex="2" HorizontalAlignment="Right" VerticalAlignment="Top">
             <overlays:TogglableFlyout.Child>
-                <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="{DynamicResource ThemeBackgroundBrush}" ZIndex="2">
+                <Border BorderThickness="1" CornerRadius="5" Padding="5" Background="{DynamicResource ThemeBackgroundTranslucentBrush}" ZIndex="2">
                     <StackPanel Orientation="Vertical">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Margin="5 0" TextAlignment="Center"
@@ -59,61 +59,40 @@
              Converter={converters:RadiansToDegreesConverter}, StringFormat={}{0}°}"
                                        Width="35" Foreground="White" VerticalAlignment="Center" FontSize="16" />
                             <Button Width="32" Height="32" ui:Translator.TooltipKey="RESET_VIEWPORT"
-                                    Classes="OverlayButton"
+                                    Classes="OverlayButton pixi-icon"
                                     Click="ResetViewportClicked"
-                                    Cursor="Hand">
-                                <Button.Content>
-                                    <Image Width="28" Height="28" Source="/Images/Layout.png" />
-                                </Button.Content>
-                            </Button>
+                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                    BorderThickness="1"
+                                    Content="{DynamicResource icon-reset}"
+                                    Cursor="Hand"/>
                         </StackPanel>
                         <Separator />
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                             <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="TOGGLE_VERTICAL_SYMMETRY"
-                                          Classes="OverlayToggleButton"
+                                          Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.VerticalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                          Cursor="Hand">
-                                <ToggleButton.Content>
-                                    <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png" />
-                                </ToggleButton.Content>
-                            </ToggleButton>
+                                          Content="{DynamicResource icon-y-symmetry}"
+                                          Cursor="Hand"/>
                             <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
                                           ui:Translator.TooltipKey="TOGGLE_HORIZONTAL_SYMMETRY"
-                                          Classes="OverlayToggleButton"
+                                          Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding Document.HorizontalSymmetryAxisEnabledBindable, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                          Cursor="Hand">
-                                <ToggleButton.Content>
-                                    <Image Width="28" Height="28" Source="/Images/SymmetryVertical.png">
-                                        <Image.RenderTransform>
-                                            <RotateTransform Angle="90" />
-                                        </Image.RenderTransform>
-                                    </Image>
-                                </ToggleButton.Content>
-                            </ToggleButton>
+                                            Content="{DynamicResource icon-x-symmetry}"
+                                          Cursor="Hand"/>
                         </StackPanel>
                         <Separator />
                         <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                             <ToggleButton Width="32" Height="32" ui:Translator.TooltipKey="FLIP_VIEWPORT_HORIZONTALLY"
-                                          Classes="OverlayToggleButton"
+                                          Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipX, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                          Cursor="Hand">
-                                <ToggleButton.Content>
-                                    <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png" />
-                                </ToggleButton.Content>
-                            </ToggleButton>
+                                          Content="{DynamicResource icon-x-flip}"
+                                          Cursor="Hand"/>
                             <ToggleButton Margin="10 0 0 0" Width="32" Height="32"
                                           ui:Translator.TooltipKey="FLIP_VIEWPORT_VERTICALLY"
-                                          Classes="OverlayToggleButton"
+                                          Classes="OverlayToggleButton pixi-icon"
                                           IsChecked="{Binding FlipY, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=viewportControls:Viewport}, Mode=TwoWay}"
-                                          Cursor="Hand">
-                                <ToggleButton.Content>
-                                    <Image Width="28" Height="28" Source="/Images/FlipHorizontal.png">
-                                        <Image.RenderTransform>
-                                            <RotateTransform Angle="90" />
-                                        </Image.RenderTransform>
-                                    </Image>
-                                </ToggleButton.Content>
-                            </ToggleButton>
+                                            Content="{DynamicResource icon-y-flip}"
+                                          Cursor="Hand"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
