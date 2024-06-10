@@ -168,6 +168,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DocumentTransformViewModel TransformViewModel { get; }
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
+    public AnimationDataViewModel AnimationDataViewModel { get; }
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
@@ -178,6 +179,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ILayerHandlerFactory LayerHandlerFactory { get; }
     public IFolderHandlerFactory FolderHandlerFactory { get; }
     IReferenceLayerHandler IDocument.ReferenceLayerHandler => ReferenceLayerViewModel;
+    IAnimationHandler IDocument.AnimationHandler => AnimationDataViewModel;
 
 
     private DocumentViewModel()
@@ -191,6 +193,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         LayerHandlerFactory = new LayerHandlerFactory(this);
         FolderHandlerFactory = new FolderHandlerFactory(this);
+        AnimationDataViewModel = new(this, Internals);
 
         StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
 

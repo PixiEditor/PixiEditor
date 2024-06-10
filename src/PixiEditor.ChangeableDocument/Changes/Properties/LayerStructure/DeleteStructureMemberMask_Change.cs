@@ -1,6 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
-namespace PixiEditor.ChangeableDocument.Changes.Properties;
+namespace PixiEditor.ChangeableDocument.Changes.Properties.LayerStructure;
 
 internal class DeleteStructureMemberMask_Change : Change
 {

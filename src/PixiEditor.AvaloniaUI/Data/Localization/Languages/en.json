@@ -592,5 +592,6 @@
   "CRASH_NOT_ALL_DOCUMENTS_RECOVERED_TITLE": "Not all documents were recovered",
   "CRASH_NOT_ALL_DOCUMENTS_RECOVERED": "Could not recover all documents. Git gud at saving your work.",
   "SEND": "Send report",
-  "OPEN_DOCKABLE_MENU": "Open Tab"
+  "OPEN_DOCKABLE_MENU": "Open Tab",
+  "TIMELINE_TITLE": "Timeline",
 }

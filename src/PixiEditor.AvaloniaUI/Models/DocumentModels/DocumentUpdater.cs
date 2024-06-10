@@ -1,21 +1,19 @@
-﻿using System.Collections.Generic;
-using Avalonia.Media.Imaging;
-using ChunkyImageLib;
+﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Layers;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.DocumentModels;
@@ -48,6 +46,7 @@ internal class DocumentUpdater
         if (arbitraryInfo is null)
             return;
 
+        //TODO: Find a more elegant way to do this
         switch (arbitraryInfo)
         {
             case CreateStructureMember_ChangeInfo info:
@@ -128,7 +127,12 @@ internal class DocumentUpdater
             case ClearSoftSelectedMembers_PassthroughAction info:
                 ProcessClearSoftSelectedMembers(info);
                 break;
-                
+            case CreateRasterClip_ChangeInfo info:
+                ProcessCreateRasterClip(info);
+                break;
+            case DeleteClip_ChangeInfo info:
+                ProcessDeleteClip(info);
+                break;
         }
     }
 
@@ -394,5 +398,15 @@ internal class DocumentUpdater
 
         // TODO: Make sure property changed events are raised internally
         //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Move));
+    }
+    
+    private void ProcessCreateRasterClip(CreateRasterClip_ChangeInfo info)
+    {
+        doc.AnimationHandler.Clips.Add(new RasterClipViewModel(info.TargetLayerGuid, info.Frame, 1));
+    }
+    
+    private void ProcessDeleteClip(DeleteClip_ChangeInfo info)
+    {
+        doc.AnimationHandler.Clips.RemoveAt(info.IndexOfDeletedClip);
     }
 }

@@ -21,6 +21,7 @@ internal interface IDocument : IHandler
     public VecI SizeBindable { get; }
     public IStructureMemberHandler? SelectedStructureMember { get; }
     public IReferenceLayerHandler ReferenceLayerHandler { get; }
+    public IAnimationHandler AnimationHandler { get; }
     public VectorPath SelectionPathBindable { get; }
     public IFolderHandler StructureRoot { get; }
     public Dictionary<ChunkResolution, Surface> Surfaces { get; set; }

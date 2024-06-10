@@ -25,7 +25,6 @@ internal class LayoutManager
 
     public LayoutManager()
     {
-
     }
 
     public void InitLayout(ViewModelMain mainViewModel)
@@ -33,9 +32,12 @@ internal class LayoutManager
         LayersDockViewModel layersDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         ColorPickerDockViewModel colorPickerDockViewModel = new(mainViewModel.ColorsSubViewModel);
         ColorSlidersDockViewModel colorSldersDockViewModel = new(mainViewModel.ColorsSubViewModel);
-        NavigationDockViewModel navigationDockViewModel = new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
+        NavigationDockViewModel navigationDockViewModel =
+            new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
         SwatchesDockViewModel swatchesDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
-        PaletteViewerDockViewModel paletteViewerDockViewModel = new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
+        PaletteViewerDockViewModel paletteViewerDockViewModel =
+            new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
+        TimelineDockViewModel timelineDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
 
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);
@@ -43,15 +45,25 @@ internal class LayoutManager
         RegisterDockable(navigationDockViewModel);
         RegisterDockable(swatchesDockViewModel);
         RegisterDockable(paletteViewerDockViewModel);
+        RegisterDockable(timelineDockViewModel);
 
         DefaultLayout = new LayoutTree
         {
             Root = new DockableTree
             {
-                First = new DockableArea()
+                First = new DockableTree()
                 {
-                    Id = "DocumentArea",
-                    FallbackContent = new CreateDocumentFallbackView()
+                    First = new DockableArea()
+                    {
+                        Id = "DocumentArea", FallbackContent = new CreateDocumentFallbackView()
+                    },
+                    FirstSize = 0.75,
+                    SplitDirection = DockingDirection.Bottom,
+                    Second = new DockableArea
+                    {
+                        Id = "TimelineArea", 
+                        ActiveDockable = DockContext.CreateDockable(timelineDockViewModel)
+                    }
                 },
                 FirstSize = 0.8,
                 SplitDirection = DockingDirection.Right,
@@ -75,16 +87,14 @@ internal class LayoutManager
                         SplitDirection = DockingDirection.Bottom,
                         Second = new DockableArea
                         {
-                            Id = "LayersArea",
-                            ActiveDockable = DockContext.CreateDockable(layersDockViewModel)
+                            Id = "LayersArea", ActiveDockable = DockContext.CreateDockable(layersDockViewModel)
                         },
                     },
                     FirstSize = 0.66,
                     SplitDirection = DockingDirection.Bottom,
                     Second = new DockableArea
                     {
-                        Id = "NavigatorArea",
-                        ActiveDockable = DockContext.CreateDockable(navigationDockViewModel)
+                        Id = "NavigatorArea", ActiveDockable = DockContext.CreateDockable(navigationDockViewModel)
                     }
                 }
             }
@@ -139,13 +149,15 @@ internal class LayoutManager
     private DockableArea? TryFindArea(string name)
     {
         DockableArea? result = null;
-        foreach(var element in ActiveLayout.Root)
+        foreach (var element in ActiveLayout.Root)
         {
             if (element is DockableArea area && area.Id == name)
             {
                 result = area;
             }
-        };
+        }
+
+        ;
 
         return result;
     }

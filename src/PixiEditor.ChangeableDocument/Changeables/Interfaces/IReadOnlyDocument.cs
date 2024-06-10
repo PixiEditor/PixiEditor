@@ -15,6 +15,8 @@ public interface IReadOnlyDocument
     /// The selection of the document
     /// </summary>
     IReadOnlySelection Selection { get; }
+    
+    IReadOnlyAnimationData AnimationData { get; }
 
     /// <summary>
     /// The size of the document

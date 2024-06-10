@@ -4,6 +4,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
+using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
@@ -90,6 +91,18 @@ internal class AffectedAreasGatherer
                 case StructureMemberMaskIsVisible_ChangeInfo info:
                     AddAllToMainImage(info.GuidValue, false);
                     AddAllToImagePreviews(info.GuidValue, true);
+                    break;
+                case CreateRasterClip_ChangeInfo info:
+                    if (info.CloneFromExisting)
+                    {
+                        AddAllToMainImage(info.TargetLayerGuid);
+                        AddAllToImagePreviews(info.TargetLayerGuid);
+                    }
+                    else
+                    {
+                        AddWholeCanvasToMainImage();
+                        AddWholeCanvasToImagePreviews(info.TargetLayerGuid);
+                    }
                     break;
             }
         }

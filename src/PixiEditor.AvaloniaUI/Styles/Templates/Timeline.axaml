@@ -1,0 +1,60 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:animations="clr-namespace:PixiEditor.AvaloniaUI.Views.Animations"
+                    xmlns:document="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
+                    xmlns:handlers="clr-namespace:PixiEditor.AvaloniaUI.Models.Handlers">
+    <Design.PreviewWith>
+        <animations:Timeline>
+            <animations:Timeline.Clips>
+                <document:RasterClipViewModel Duration="100"/>
+            </animations:Timeline.Clips>
+        </animations:Timeline>
+    </Design.PreviewWith>
+
+    <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <ToggleButton Content="Play"/>
+                    
+                    <DockPanel Grid.Row="1" LastChildFill="True">
+                        <TextBlock Text="0" DockPanel.Dock="Left"/>
+                        <TextBlock Text="{Binding Clips.Count, RelativeSource={RelativeSource TemplatedParent}}" DockPanel.Dock="Right"/>
+                        <Slider Margin="10 0" Maximum="{Binding Clips.Count, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    </DockPanel>
+                    
+                    <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{TemplateBinding Clips}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="handlers:IClipHandler">
+                                    <Border BorderBrush="Black" BorderThickness="1" Margin="2">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{Binding StartFrame}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Duration}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+</ResourceDictionary>

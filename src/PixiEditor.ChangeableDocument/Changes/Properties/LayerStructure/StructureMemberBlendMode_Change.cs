@@ -1,7 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.Enums;
 
-namespace PixiEditor.ChangeableDocument.Changes.Properties;
+namespace PixiEditor.ChangeableDocument.Changes.Properties.LayerStructure;
 internal class StructureMemberBlendMode_Change : Change
 {
     private BlendMode originalBlendMode;

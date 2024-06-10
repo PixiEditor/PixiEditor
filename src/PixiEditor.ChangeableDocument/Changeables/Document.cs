@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
@@ -9,6 +10,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
 {
     IReadOnlyFolder IReadOnlyDocument.StructureRoot => StructureRoot;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;
+    IReadOnlyAnimationData IReadOnlyDocument.AnimationData => AnimationData;
     IReadOnlyStructureMember? IReadOnlyDocument.FindMember(Guid guid) => FindMember(guid);
     bool IReadOnlyDocument.TryFindMember(Guid guid, [NotNullWhen(true)] out IReadOnlyStructureMember? member) => TryFindMember(guid, out member);
     IReadOnlyList<IReadOnlyStructureMember> IReadOnlyDocument.FindMemberPath(Guid guid) => FindMemberPath(guid);
@@ -24,6 +26,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
     internal Selection Selection { get; } = new();
     internal ReferenceLayer? ReferenceLayer { get; set; }
+    internal AnimationData AnimationData { get; } = new();
     public VecI Size { get; set; } = DefaultSize;
     public bool HorizontalSymmetryAxisEnabled { get; set; }
     public bool VerticalSymmetryAxisEnabled { get; set; }

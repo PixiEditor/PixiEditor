@@ -138,4 +138,11 @@
     <UpToDateCheckInput Remove="Images\News\YouTube.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Views\Dock\TimelineDockView.axaml.cs">
+      <DependentUpon>TimelineDockView.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

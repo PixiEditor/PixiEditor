@@ -75,6 +75,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
     public LayoutViewModel LayoutSubViewModel { get; set; }
 
     public MenuBarViewModel MenuBarViewModel { get; set; }
+    public AnimationsViewModel AnimationsSubViewModel { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -160,7 +161,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         ToolsSubViewModel?.SetupToolsTooltipShortcuts(services);
 
         SearchSubViewModel = services.GetService<SearchViewModel>();
-
+        
+        AnimationsSubViewModel = services.GetService<AnimationsViewModel>();
 
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 

@@ -1,7 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
-namespace PixiEditor.ChangeableDocument.Changes.Properties;
+namespace PixiEditor.ChangeableDocument.Changes.Properties.LayerStructure;
 internal class LayerLockTransparency_Change : Change
 {
     private readonly Guid layerGuid;
