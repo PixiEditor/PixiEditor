@@ -447,9 +447,10 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || doc.ReferenceLayerViewModel.IsTopMost)
         {
-            return ImagePathToBitmapConverter.LoadBitmapFromRelativePath("/Images/ReferenceLayerBelow.png");
+            
+            return PixiPerfectIcons.ToIcon(PixiPerfectIcons.ReferenceLayer);
         }
 
-        return ImagePathToBitmapConverter.LoadBitmapFromRelativePath("/Images/ReferenceLayerAbove.png");
+        return PixiPerfectIcons.ToIcon(PixiPerfectIcons.ReferenceLayer, 18, 180);
     }
 }

@@ -131,4 +131,11 @@ public static class PixiPerfectIcons
 
         return new IconImage(unicode, pixiPerfectFontFamily, size, Colors.White);
     }
+    
+    public static IImage ToIcon(string unicode, double size, double rotation)
+    {
+        if(string.IsNullOrEmpty(unicode)) return null;
+
+        return new IconImage(unicode, pixiPerfectFontFamily, size, Colors.White, rotation);
+    }
 }
