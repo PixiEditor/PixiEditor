@@ -10,6 +10,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.UserPreferences.Settings.PixiEditor;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools
 {
@@ -37,7 +38,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools
         [Settings.Bool("PIXEL_PERFECT_SETTING", Notify = nameof(PixelPerfectChanged))]
         public bool PixelPerfectEnabled => GetValue<bool>();
 
-        public override string IconKey => "icon-edit";
+        public override string Icon => PixiPerfectIcons.Pen;
 
         public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
         {

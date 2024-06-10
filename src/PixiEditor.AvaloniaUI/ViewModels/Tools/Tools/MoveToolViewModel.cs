@@ -10,6 +10,7 @@ using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.Vector;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -25,7 +26,7 @@ internal class MoveToolViewModel : ToolViewModel, IMoveToolHandler
 
     private bool removeSelection = false;
 
-    public override string IconKey => "icon-mouse-pointer";
+    public override string Icon => PixiPerfectIcons.MousePointer;
 
     public MoveToolViewModel()
     {

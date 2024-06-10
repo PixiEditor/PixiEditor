@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
+using Avalonia.Interactivity;
 using Avalonia.Media;
+using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Evaluators;
@@ -18,18 +21,20 @@ public partial class CommandDebugPopup : PixiEditorPopup
 
     private static Brush errorBrush = new SolidColorBrush(Color.FromRgb(230, 34, 57));
 
-    internal static readonly StyledProperty<IEnumerable<CommandDebug>> CommandsProperty = AvaloniaProperty.Register<CommandDebugPopup, IEnumerable<CommandDebug>>(
+    internal static readonly StyledProperty<ObservableCollection<CommandDebug>> CommandsProperty = AvaloniaProperty.Register<CommandDebugPopup, ObservableCollection<CommandDebug>>(
         "Commands");
 
-    internal IEnumerable<CommandDebug> Commands
+    internal ObservableCollection<CommandDebug> Commands
     {
         get => GetValue(CommandsProperty);
         set => SetValue(CommandsProperty, value);
     }
 
+    private List<CommandDebug> allCommands = new List<CommandDebug>();
+
     public CommandDebugPopup()
     {
-        var debugCommands = new List<CommandDebug>();
+        allCommands = new List<CommandDebug>();
 
         foreach (var command in CommandController.Current.Commands)
         {
@@ -54,10 +59,11 @@ public partial class CommandDebugPopup : PixiEditorPopup
                 comments.Inlines.Add(inline);
             }
 
-            debugCommands.Add(new CommandDebug(command, comments, image, issues));
+            allCommands.Add(new CommandDebug(command, comments, image, issues));
         }
 
-        Commands = debugCommands.OrderByDescending(x => x.Issues).ThenBy(x => x.Command.InternalName).ToArray();
+        Commands = new ObservableCollection<CommandDebug>(allCommands.OrderByDescending(x => x.Issues)
+            .ThenBy(x => x.Command.InternalName));
 
         InitializeComponent();
     }
@@ -76,9 +82,9 @@ public partial class CommandDebugPopup : PixiEditorPopup
         {
             if (image == null && command.IconEvaluator == IconEvaluator.Default)
             {
-                var expected = IconEvaluator.GetDefaultPath(command);
+                var expected = IconEvaluators.GetDefaultPath(command);
 
-                if (string.IsNullOrWhiteSpace(command.IconPath))
+                if (string.IsNullOrWhiteSpace(command.Icon))
                 {
                     Info(
                         $"Default evaluator has not found a image (No icon path provided). Expected at '{expected}'\n");
@@ -100,9 +106,9 @@ public partial class CommandDebugPopup : PixiEditorPopup
             Info($"Uses custom icon evaluator ({command.IconEvaluator.Name})\n");
         }
 
-        if (!string.IsNullOrWhiteSpace(command.IconPath))
+        if (!string.IsNullOrWhiteSpace(command.Icon))
         {
-            Info($"Has custom icon path: '{command.IconPath}'\n");
+            Info($"Has custom icon path: '{command.Icon}'\n");
         }
 
         return inlines;
@@ -130,6 +136,36 @@ public partial class CommandDebugPopup : PixiEditorPopup
             Comments = comments;
             Image = image;
             Issues = issues;
+        }
+    }
+
+    private void ShowOnlyWithIssues_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
+    {
+        if (sender is CheckBox checkBox)
+        {
+            if (checkBox.IsChecked == true)
+            {
+                Commands = new ObservableCollection<CommandDebug>(Commands.Where(x => x.Issues > 0));
+            }
+            else
+            {
+                Commands = new ObservableCollection<CommandDebug>(allCommands);
+            }
+        }
+    }
+
+    private void ShowOnlyWithoutIcons_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
+    {
+        if (sender is CheckBox checkBox)
+        {
+            if (checkBox.IsChecked == true)
+            {
+                Commands = new ObservableCollection<CommandDebug>(Commands.Where(x => x.Image == null));
+            }
+            else
+            {
+                Commands = new ObservableCollection<CommandDebug>(allCommands);
+            }
         }
     }
 }

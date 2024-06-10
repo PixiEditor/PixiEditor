@@ -32,12 +32,12 @@
                                   TextElement.Foreground="{TemplateBinding Foreground}" />
             </ControlTemplate>
         </Setter>
-        <Style Selector="^:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+        <Style Selector="^:pointerover">
             <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundColor}" />
             <Setter Property="Cursor" Value="Hand" />
         </Style>
-        <Style Selector="^:pressed  /template/ ContentPresenter#PART_ContentPresenter">
+        <Style Selector="^:pressed">
             <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
             <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundColor}" />
         </Style>

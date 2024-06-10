@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -17,7 +18,7 @@ internal class SelectToolViewModel : ToolViewModel, ISelectToolHandler
     private string defaultActionDisplay = "SELECT_TOOL_ACTION_DISPLAY_DEFAULT";
     public override string ToolNameLocalizationKey => "SELECT_TOOL_NAME";
 
-    public override string IconKey => "icon-rectangle-selection";
+    public override string Icon => PixiPerfectIcons.RectangleSelection;
 
     public SelectToolViewModel()
     {

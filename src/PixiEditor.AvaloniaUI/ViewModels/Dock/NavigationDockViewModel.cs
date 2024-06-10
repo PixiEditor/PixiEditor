@@ -36,6 +36,6 @@ internal class NavigationDockViewModel : DockableViewModel
     {
         ColorsSubViewModel = colorsSubViewModel;
         DocumentManagerSubViewModel = documentManagerViewModel;
-        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIconControl(PixiPerfectIcons.Compass);
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Compass);
     }
 }

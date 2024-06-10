@@ -4,6 +4,7 @@ using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -21,7 +22,7 @@ internal class EllipseToolViewModel : ShapeTool, IEllipseToolHandler
     public override LocalizedString Tooltip => new LocalizedString("ELLIPSE_TOOL_TOOLTIP", Shortcut);
     public bool DrawCircle { get; private set; }
 
-    public override string IconKey => "icon-circle";
+    public override string Icon => PixiPerfectIcons.Circle;
 
     public override void ModifierKeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown)
     {

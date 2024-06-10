@@ -26,6 +26,7 @@ using PixiEditor.Extensions.Exceptions;
 using PixiEditor.Numerics;
 using PixiEditor.OperatingSystem;
 using PixiEditor.Parser;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
@@ -131,7 +132,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.Open", "OPEN", "OPEN_FILE", Key = Key.O, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "FILE/OPEN_FILE", MenuItemOrder = 1)]
+        MenuItemPath = "FILE/OPEN_FILE", MenuItemOrder = 1, Icon = PixiPerfectIcons.FileText)]
     public async Task OpenFromOpenFileDialog()
     {
         var filter = SupportedFilesHelper.BuildOpenFilter();
@@ -273,7 +274,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "FILE/NEW_FILE", MenuItemOrder = 0)]
+        MenuItemPath = "FILE/NEW_FILE", MenuItemOrder = 0, Icon = PixiPerfectIcons.File)]
     public async Task CreateFromNewFileDialog()
     {
         Window mainWindow = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow;
@@ -302,9 +303,9 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
     }
 
-    [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control, IconPath = "Save.png",
+    [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control, Icon = PixiPerfectIcons.Save,
         MenuItemPath = "FILE/SAVE_PIXI", MenuItemOrder = 3)]
-    [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, IconPath = "Save.png",
+    [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, Icon = PixiPerfectIcons.Save,
         MenuItemPath = "FILE/SAVE_AS_PIXI", MenuItemOrder = 4)]
     public async Task<bool> SaveActiveDocument(bool asNew)
     {
@@ -352,7 +353,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     /// </summary>
     /// <param name="parameter">CommandProperty.</param>
     [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "FILE/EXPORT_IMG", MenuItemOrder = 5)]
+        MenuItemPath = "FILE/EXPORT_IMG", MenuItemOrder = 5, Icon = PixiPerfectIcons.Image)]
     public async Task ExportFile()
     {
         try

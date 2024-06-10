@@ -12,6 +12,7 @@
              xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
              xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
              xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+             xmlns:input1="clr-namespace:PixiEditor.AvaloniaUI.Views.Input;assembly=PixiEditor.UI.Common"
              mc:Ignorable="d" 
              Focusable="True"
              d:DesignHeight="35" d:DesignWidth="250" Name="uc"
@@ -48,7 +49,7 @@
                 </Grid.ColumnDefinitions>
                 <CheckBox Classes="ImageCheckBox" VerticalAlignment="Center"
                       IsThreeState="False" HorizontalAlignment="Center"
-                      IsChecked="{Binding Path=Layer.IsVisibleBindable, ElementName=uc}"
+                      IsChecked="{Binding Path=Layer.IsVisibleBindable, ElementName=uc, Mode=TwoWay}"
                       Grid.Column="0" Height="16" />
                 <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Left">
                     <Rectangle Width="{Binding Path=(helpers:TreeViewItemHelper.Indent).Value, Mode=OneWay, RelativeSource={RelativeSource AncestorType=ItemsPresenter}}" Fill="Transparent" StrokeThickness="0"/>
@@ -132,8 +133,9 @@
                         </StackPanel>
                     </StackPanel>
                     <WrapPanel Orientation="Vertical" Margin="0,3,3,3">
-                        <Image
-                            Source="/Images/Lock-alpha.png" Width="14" Height="14"
+                        <TextBlock
+                            Text="{DynamicResource icon-alpha-lock}" FontSize="14" Width="14" Height="14"
+                            Classes="pixi-icon"
                             IsVisible="{Binding Layer.LockTransparencyBindable, ElementName=uc}"/>
                     </WrapPanel>
                 </StackPanel>
@@ -163,27 +165,22 @@
                 <MenuItem ui:Translator.Key="DUPLICATE" Command="{xaml:Command PixiEditor.Layer.DuplicateSelectedLayer}"/>
                 <MenuItem ui:Translator.Key="DELETE" Command="{xaml:Command PixiEditor.Layer.DeleteAllSelected}"/>
                 <MenuItem ui:Translator.Key="RENAME" Click="RenameMenuItem_Click"/>
-                <!--TODO: Add checkable menu item-->
-                <!--<MenuItem
-                    IsCheckable="True" 
-                    IsChecked="{Binding PlacementTarget.Tag.Layer.ClipToMemberBelowEnabledBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                <input1:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Layer.ClipToMemberBelowEnabledBindable, Mode=TwoWay}" 
                     ui:Translator.Key="CLIP_TO_BELOW"/>
-                <MenuItem
-                    IsCheckable="True" 
-                    IsChecked="{Binding PlacementTarget.Tag.Layer.LockTransparencyBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                    ui:Translator.Key="LOCK_TRANSPARENCY"/>-->
+                <input1:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Layer.LockTransparencyBindable, Mode=TwoWay}" 
+                    ui:Translator.Key="LOCK_TRANSPARENCY"/>
                 <Separator/>
                 <MenuItem ui:Translator.Key="MOVE_UPWARDS" Command="{xaml:Command PixiEditor.Layer.MoveSelectedMemberUpwards}"/>
                 <MenuItem ui:Translator.Key="MOVE_DOWNWARDS" Command="{xaml:Command PixiEditor.Layer.MoveSelectedMemberDownwards}"/>
                 <Separator/>
                 <MenuItem ui:Translator.Key="CREATE_MASK" Command="{xaml:Command PixiEditor.Layer.CreateMask}"/>
                 <MenuItem ui:Translator.Key="DELETE_MASK" Command="{xaml:Command PixiEditor.Layer.DeleteMask}"/>
-                <!--TODO: Add checkable menu item-->
-                <!--<MenuItem
-                    IsCheckable="True" 
-                    IsChecked="{Binding PlacementTarget.Tag.Layer.MaskIsVisibleBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
-                    IsEnabled="{Binding PlacementTarget.Tag.Layer.HasMaskBindable, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                    ui:Translator.Key="ENABLE_MASK"/>-->
+                <input1:ToggleableMenuItem
+                    IsChecked="{Binding $parent[UserControl].Layer.MaskIsVisibleBindable, Mode=TwoWay}" 
+                    IsEnabled="{Binding $parent[UserControl].Layer.HasMaskBindable}"
+                    ui:Translator.Key="ENABLE_MASK"/>
                 <MenuItem ui:Translator.Key="APPLY_MASK" Command="{xaml:Command PixiEditor.Layer.ApplyMask}"/>
                 <Separator/>
                 <MenuItem ui:Translator.Key="MERGE_SELECTED" Command="{xaml:Command PixiEditor.Layer.MergeSelected}"/>

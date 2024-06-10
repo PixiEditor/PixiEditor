@@ -10,6 +10,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 #nullable enable
@@ -61,20 +62,20 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     [Evaluator.CanExecute("PixiEditor.HasDocument", nameof(ActiveDocument))]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS", CanExecute = "PixiEditor.HasDocument", IconPath = "Crop.png",
-        MenuItemPath = "IMAGE/CLIP_CANVAS", MenuItemOrder = 2)]
+    [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS", CanExecute = "PixiEditor.HasDocument",
+        Icon = PixiPerfectIcons.Crop, MenuItemPath = "IMAGE/CLIP_CANVAS", MenuItemOrder = 2)]
     public void ClipCanvas() => ActiveDocument?.Operations.ClipCanvas();
 
     [Command.Basic("PixiEditor.Document.FlipImageHorizontal", FlipType.Horizontal, "FLIP_IMG_HORIZONTALLY", "FLIP_IMG_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "IMAGE/FLIP/FLIP_IMG_HORIZONTALLY", MenuItemOrder = 14)]
+        MenuItemPath = "IMAGE/FLIP/FLIP_IMG_HORIZONTALLY", MenuItemOrder = 14, Icon = PixiPerfectIcons.XFlip)]
     [Command.Basic("PixiEditor.Document.FlipImageVertical", FlipType.Vertical, "FLIP_IMG_VERTICALLY", "FLIP_IMG_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "IMAGE/FLIP/FLIP_IMG_VERTICALLY", MenuItemOrder = 15)]
+        MenuItemPath = "IMAGE/FLIP/FLIP_IMG_VERTICALLY", MenuItemOrder = 15, Icon = PixiPerfectIcons.YFlip)]
     public void FlipImage(FlipType type) => ActiveDocument?.Operations.FlipImage(type);
 
     [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", FlipType.Horizontal, "FLIP_LAYERS_HORIZONTALLY", "FLIP_LAYERS_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_HORIZONTALLY", MenuItemOrder = 16)]
+        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_HORIZONTALLY", MenuItemOrder = 16, Icon = PixiPerfectIcons.XSelectedFlip)]
     [Command.Basic("PixiEditor.Document.FlipLayersVertical", FlipType.Vertical, "FLIP_LAYERS_VERTICALLY", "FLIP_LAYERS_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_VERTICALLY", MenuItemOrder = 17)]
+        MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_VERTICALLY", MenuItemOrder = 17, Icon = PixiPerfectIcons.YSelectedFlip)]
     public void FlipLayers(FlipType type)
     {
         if (ActiveDocument?.SelectedStructureMember == null)
@@ -85,24 +86,24 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
     [Command.Basic("PixiEditor.Document.Rotate90Deg", "ROT_IMG_90",
         "ROT_IMG_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90,
-        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_90_D", MenuItemOrder = 8)]
+        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_90_D", MenuItemOrder = 8, Icon = PixiPerfectIcons.RotateImage90)]
     [Command.Basic("PixiEditor.Document.Rotate180Deg", "ROT_IMG_180",
         "ROT_IMG_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180,
-        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_180_D", MenuItemOrder = 9)]
+        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_180_D", MenuItemOrder = 9, Icon = PixiPerfectIcons.RotateImage180)]
     [Command.Basic("PixiEditor.Document.Rotate270Deg", "ROT_IMG_-90",
         "ROT_IMG_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270,
-        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_-90_D", MenuItemOrder = 10)]
+        MenuItemPath = "IMAGE/ROTATION/ROT_IMG_-90_D", MenuItemOrder = 10, Icon = PixiPerfectIcons.RotateImageMinus90)]
     public void RotateImage(RotationAngle angle) => ActiveDocument?.Operations.RotateImage(angle);
 
     [Command.Basic("PixiEditor.Document.Rotate90DegLayers", "ROT_LAYERS_90",
         "ROT_LAYERS_90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D90,
-        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_90_D", MenuItemOrder = 11)]
+        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_90_D", MenuItemOrder = 11, Icon = PixiPerfectIcons.RotateFile90)]
     [Command.Basic("PixiEditor.Document.Rotate180DegLayers", "ROT_LAYERS_180",
         "ROT_LAYERS_180", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D180,
-        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_180_D", MenuItemOrder = 12)]
+        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_180_D", MenuItemOrder = 12, Icon = PixiPerfectIcons.RotateFile180)]
     [Command.Basic("PixiEditor.Document.Rotate270DegLayers", "ROT_LAYERS_-90",
         "ROT_LAYERS_-90", CanExecute = "PixiEditor.HasDocument", Parameter = RotationAngle.D270,
-        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_-90_D", MenuItemOrder = 13)]
+        MenuItemPath = "IMAGE/ROTATION/ROT_LAYERS_-90_D", MenuItemOrder = 13, Icon = PixiPerfectIcons.RotateFileMinus90)]
     public void RotateLayers(RotationAngle angle)
     {
         if (ActiveDocument?.SelectedStructureMember == null)
@@ -111,7 +112,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument?.Operations.RotateImage(angle, ActiveDocument.GetSelectedMembers());
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS", "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryVertical.png")]
+    [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS", "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", 
+        Icon = PixiPerfectIcons.YSymmetry)]
     public void ToggleVerticalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -119,7 +121,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.VerticalSymmetryAxisEnabledBindable ^= true;
     }
 
-    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS", "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", IconPath = "SymmetryHorizontal.png")]
+    [Command.Basic("PixiEditor.Document.ToggleHorizontalSymmetryAxis", "TOGGLE_HOR_SYMMETRY_AXIS", "TOGGLE_HOR_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", 
+        Icon = PixiPerfectIcons.XSymmetry)]
     public void ToggleHorizontalSymmetryAxis()
     {
         if (ActiveDocument is null)
@@ -152,7 +155,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         ActiveDocument.EventInlet.OnSymmetryDragEnded(dir);
     }
 
-    [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, IconPath = "Tools/EraserImage.png",
+    [Command.Basic("PixiEditor.Document.DeletePixels", "DELETE_PIXELS", "DELETE_PIXELS_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.Delete, 
+        Icon = PixiPerfectIcons.Eraser,
         MenuItemPath = "EDIT/DELETE_SELECTED_PIXELS", MenuItemOrder = 6)]
     public void DeletePixels()
     {
@@ -161,9 +165,9 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
 
 
     [Command.Basic("PixiEditor.Document.ResizeDocument", false, "RESIZE_DOCUMENT", "RESIZE_DOCUMENT", CanExecute = "PixiEditor.HasDocument", Key = Key.I, Modifiers = KeyModifiers.Control | KeyModifiers.Shift,
-        MenuItemPath = "IMAGE/RESIZE_IMAGE", MenuItemOrder = 0)]
+        Icon = PixiPerfectIcons.Resize, MenuItemPath = "IMAGE/RESIZE_IMAGE", MenuItemOrder = 0)]
     [Command.Basic("PixiEditor.Document.ResizeCanvas", true, "RESIZE_CANVAS", "RESIZE_CANVAS", CanExecute = "PixiEditor.HasDocument", Key = Key.C, Modifiers = KeyModifiers.Control | KeyModifiers.Shift,
-        MenuItemPath = "IMAGE/RESIZE_CANVAS", MenuItemOrder = 1)]
+        Icon = PixiPerfectIcons.CanvasResize, MenuItemPath = "IMAGE/RESIZE_CANVAS", MenuItemOrder = 1)]
     public async Task OpenResizePopup(bool canvas)
     {
         DocumentViewModel? doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -189,7 +193,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
     }
 
     [Command.Basic("PixiEditor.Document.CenterContent", "CENTER_CONTENT", "CENTER_CONTENT", CanExecute = "PixiEditor.HasDocument",
-        MenuItemPath = "IMAGE/CENTER_CONTENT", MenuItemOrder = 3)]
+        Icon = PixiPerfectIcons.Center, MenuItemPath = "IMAGE/CENTER_CONTENT", MenuItemOrder = 3)]
     public void CenterContent()
     {
         if(ActiveDocument?.SelectedStructureMember == null)

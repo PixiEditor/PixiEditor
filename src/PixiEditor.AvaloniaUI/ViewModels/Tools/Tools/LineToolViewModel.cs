@@ -6,6 +6,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -22,6 +23,8 @@ internal class LineToolViewModel : ShapeTool, ILineToolHandler
 
     public override string ToolNameLocalizationKey => "LINE_TOOL";
     public override LocalizedString Tooltip => new LocalizedString("LINE_TOOL_TOOLTIP", Shortcut);
+
+    public override string Icon => PixiPerfectIcons.Line;
 
     [Settings.Inherited]
     public int ToolSize => GetValue<int>();

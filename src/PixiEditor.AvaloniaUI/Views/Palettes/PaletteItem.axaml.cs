@@ -1,12 +1,15 @@
-﻿using System.Windows.Input;
+﻿using System.ComponentModel;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Interactivity;
 using PixiEditor.AvaloniaUI.Models.Palettes;
 using PixiEditor.AvaloniaUI.Views.Input;
 
 namespace PixiEditor.AvaloniaUI.Views.Palettes;
 
+[PseudoClasses(":favourite")]
 internal partial class PaletteItem : UserControl
 {
     public Palette Palette
@@ -51,6 +54,10 @@ internal partial class PaletteItem : UserControl
 
     public event EventHandler<EditableTextBlock.TextChangedEventArgs> OnRename;
 
+    static PaletteItem()
+    {
+        PaletteProperty.Changed.Subscribe(OnPaletteChanged);
+    }
 
     public PaletteItem()
     {
@@ -65,5 +72,27 @@ internal partial class PaletteItem : UserControl
     private void RenameButton_Click(object sender, RoutedEventArgs e)
     {
         titleTextBlock.IsEditing = true;
+    }
+    
+    private static void OnPaletteChanged(AvaloniaPropertyChangedEventArgs<Palette> e)
+    {
+        PaletteItem paletteItem = (PaletteItem)e.Sender;
+        if(e.OldValue.Value != null)
+        {
+            e.OldValue.Value.PropertyChanged -= paletteItem.Palette_PropertyChanged;
+        }
+        if(e.NewValue.Value != null)
+        {
+            e.NewValue.Value.PropertyChanged += paletteItem.Palette_PropertyChanged;
+            paletteItem.PseudoClasses.Set(":favourite", e.NewValue.Value.IsFavourite);
+        }
+    }
+
+    private void Palette_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(Palette.IsFavourite))
+        {
+            PseudoClasses.Set(":favourite", Palette.IsFavourite);
+        }
     }
 }

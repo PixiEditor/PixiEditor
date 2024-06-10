@@ -33,7 +33,7 @@ internal class PaletteViewerDockViewModel : DockableViewModel
         ColorsSubViewModel = colorsSubViewModel;
         DocumentManagerSubViewModel = documentManagerViewModel;
 
-        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIconControl(PixiPerfectIcons.ColorPalette);
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.ColorPalette);
 
     }
 }

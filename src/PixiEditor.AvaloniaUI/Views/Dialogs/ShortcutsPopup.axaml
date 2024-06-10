@@ -38,7 +38,7 @@
                         <system:Int32>2</system:Int32>
                     </ui1:Hyperlink.CommandParameter>
                     <Run ui:Translator.Key="EDIT"/>
-                    <Run Text="" FontFamily="{DynamicResource Feather}"/>
+                    <Run Text="{DynamicResource icon-link}" Classes="pixi-icon"/>
             </TextBlock>
             <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
                 <DockPanel HorizontalAlignment="Center" Margin="2">

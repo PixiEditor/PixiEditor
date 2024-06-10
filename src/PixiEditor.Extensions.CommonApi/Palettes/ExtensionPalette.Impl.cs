@@ -10,4 +10,8 @@ public partial class ExtensionPalette : IPalette
         Colors = colors;
         Source = source;
     }
+    
+    public ExtensionPalette()
+    {
+    }
 }

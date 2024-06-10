@@ -9,6 +9,7 @@ namespace PixiEditor.AvaloniaUI.Models.Palettes;
 internal class Palette : ObservableObject, IPalette
 {
     private string _name = "";
+    private bool _isFavourite;
 
     public string Name
     {
@@ -29,7 +30,11 @@ internal class Palette : ObservableObject, IPalette
         }
     }
 
-    public bool IsFavourite { get; set; }
+    public bool IsFavourite
+    {
+        get => _isFavourite;
+        set => SetProperty(ref _isFavourite, value);
+    }
 
     public PaletteListDataSource Source { get; }
 

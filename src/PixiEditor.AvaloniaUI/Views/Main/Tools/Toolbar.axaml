@@ -11,60 +11,31 @@
                 Orientation="Horizontal">
                 <Button
                     Margin="12.5,0,0,0"
-                    Width="24" Height="24"
+                    Width="36" Height="36"
+                    Classes="pixi-icon"
                     Command="{cmds:Command PixiEditor.Undo.Undo}"
-                    Classes="ImageButtonStyle"
                     ui:Translator.TooltipKey="UNDO">
-                    <Button.Background>
-                        <ImageBrush Source="/Images/Undo.png" />
-                    </Button.Background>
+                    <TextBlock Text="{DynamicResource icon-undo}" FontSize="20"/>
                 </Button>
                 <Button
 				Command="{cmds:Command PixiEditor.Undo.Redo}"
-                Width="24" Height="24"
-                Classes="ImageButtonStyle"
+                Width="36" Height="36"
+                Classes="pixi-icon" 
                 Margin="0, 0, 5, 0"
 				ui:Translator.TooltipKey="REDO">
-                    <Button.Background>
-                        <ImageBrush Source="/Images/Redo.png"/>
-                    </Button.Background>
+                    <TextBlock Text="{DynamicResource icon-redo}" FontSize="20"/>
                 </Button>
                 <ToggleButton
 				Width="30"
 				BorderThickness="0"
 				ui:Translator.TooltipKey="PEN_MODE"
 				Focusable="False"
+                Classes="pixi-icon"
+                Content="{DynamicResource icon-edit}"
+                FontSize="20"
                 IsChecked="{Binding StylusSubViewModel.IsPenModeEnabled}">
-                    <ToggleButton.Styles>
-                        <Style Selector="ToggleButton">
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border BorderBrush="{TemplateBinding BorderBrush}"
-                                            Background="{TemplateBinding Background}" Focusable="False">
-                                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" Focusable="False"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                            <!--TODO: Implement-->
-                            <!--<Style.Triggers>
-                                <Trigger Property="IsChecked" Value="False">
-                                    <Setter Property="Background" Value="Transparent"/>
-                                </Trigger>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#404040"/>
-                                </Trigger>
-                                <Trigger Property="IsChecked" Value="True">
-                                    <Setter Property="Background" Value="#707070"/>
-                                </Trigger>
-                            </Style.Triggers>-->
-                        </Style>
-                    </ToggleButton.Styles>
-                    <Image Height="20" Source="/Images/penMode.png"/>
                 </ToggleButton>
-                <Grid Margin="5,5,10,5" Background="{StaticResource BrighterAccentColor}" Width="5"/>
+                <Grid Margin="5,5,10,5" Background="{DynamicResource ThemeBackgroundBrush2}" Width="5"/>
                 <Label Classes="BaseLabel" FontSize="12"
                    VerticalAlignment="Center" ui:Translator.Key="{Binding ToolsSubViewModel.ActiveTool.DisplayName.Key}"
                    ui:Translator.TooltipLocalizedString="{Binding ToolsSubViewModel.ActiveTool.ActionDisplay}"

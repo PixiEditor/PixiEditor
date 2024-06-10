@@ -27,7 +27,7 @@
         </Button.Template>
         <Button.Content>
             <TextBlock Classes="pixi-icon" FontSize="30" HorizontalAlignment="Center" VerticalAlignment="Center"
-                       Text="{Binding Path=IconKey, Converter={converters:KeyToResourceConverter}}"/>
+                       Text="{Binding Path=Icon}"/>
         </Button.Content>
     </Button>
 </UserControl>

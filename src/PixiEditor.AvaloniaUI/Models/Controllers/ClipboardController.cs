@@ -65,15 +65,14 @@ internal static class ClipboardController
 
         using (ImgData pngData = actuallySurface.DrawingSurface.Snapshot().Encode())
         {
-            // Stream should not be disposed
-            MemoryStream pngStream = new MemoryStream();
+            using MemoryStream pngStream = new MemoryStream();
             await pngData.AsStream().CopyToAsync(pngStream);
 
-            data.Set(ClipboardDataFormats.Png, pngStream); // PNG, supports transparency
+            data.Set(ClipboardDataFormats.Png, pngStream.ToArray()); // PNG, supports transparency
 
             pngStream.Position = 0;
             Directory.CreateDirectory(Path.GetDirectoryName(TempCopyFilePath)!);
-            using FileStream fileStream = new FileStream(TempCopyFilePath, FileMode.Create, FileAccess.Write);
+            await using FileStream fileStream = new FileStream(TempCopyFilePath, FileMode.Create, FileAccess.Write);
             await pngStream.CopyToAsync(fileStream);
             data.SetFileDropList(new [] { TempCopyFilePath });
         }

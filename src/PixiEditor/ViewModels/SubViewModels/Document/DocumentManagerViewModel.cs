@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Windows.Input;
 using ChunkyImageLib.Operations;
 using PixiEditor.ChangeableDocument.Enums;
@@ -49,7 +50,8 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>
     [Evaluator.CanExecute("PixiEditor.HasDocument")]
     public bool DocumentNotNull() => ActiveDocument != null;
 
-    [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS", CanExecute = "PixiEditor.HasDocument", IconPath = "crop.png")]
+    [Command.Basic("PixiEditor.Document.ClipCanvas", "CLIP_CANVAS", "CLIP_CANVAS", CanExecute = "PixiEditor.HasDocument", 
+        IconPath = "crop.png")]
     public void ClipCanvas() => ActiveDocument?.Operations.ClipCanvas();
 
     [Command.Basic("PixiEditor.Document.FlipImageHorizontal", FlipType.Horizontal, "FLIP_IMG_HORIZONTALLY", "FLIP_IMG_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument")]

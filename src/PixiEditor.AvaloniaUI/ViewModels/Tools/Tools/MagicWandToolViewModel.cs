@@ -8,6 +8,7 @@ using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -25,7 +26,7 @@ internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
     [Settings.Enum("SCOPE_LABEL")]
     public DocumentScope DocumentScope => GetValue<DocumentScope>();
 
-    public override string IconKey => "icon-magic-wand";
+    public override string Icon => PixiPerfectIcons.MagicWand;
 
     public MagicWandToolViewModel()
     {

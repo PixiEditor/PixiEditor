@@ -19,10 +19,6 @@
 
     </Style>
 
-    <Style Selector="CheckBox.ImageCheckBox">
-
-    </Style>
-
     <Style Selector="Button.ImageButtonStyle">
         <Setter Property="Template">
             <ControlTemplate>
@@ -34,18 +30,20 @@
     </Style>
 
     <Style Selector="CheckBox.ImageCheckBox">
+        <Setter Property="Content" Value="{DynamicResource icon-eye-off}"/>
         <Setter Property="Template">
-            <ControlTemplate TargetType="{x:Type CheckBox}">
-                <StackPanel Orientation="Horizontal">
-                    <Image Cursor="Hand" x:Name="checkboxImage" Source="../Images/Eye-off.png" />
-                    <ContentPresenter />
-                </StackPanel>
-            </ControlTemplate>
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border Cursor="Hand" Background="{TemplateBinding Background}">
+                        <TextBlock Text="{TemplateBinding Content}" FontSize="16" Classes="pixi-icon"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
         </Setter>
     </Style>
 
-    <Style Selector="CheckBox.ImageCheckBox:checked Image">
-        <Setter Property="Source" Value="../Images/Eye.png" />
+    <Style Selector="CheckBox.ImageCheckBox:checked">
+        <Setter Property="Content" Value="{DynamicResource icon-eye}"/>
     </Style>
 
     <Style Selector="ToggleButton.ExpandCollapseToggleStyle">

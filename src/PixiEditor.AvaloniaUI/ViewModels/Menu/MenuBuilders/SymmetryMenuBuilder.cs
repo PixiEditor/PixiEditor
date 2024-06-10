@@ -6,6 +6,7 @@ using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.Views.Input;
 using PixiEditor.Extensions.UI;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Menu.MenuBuilders;
 
@@ -21,7 +22,7 @@ internal class SymmetryMenuBuilder : MenuItemBuilder
             Translator.SetKey(horizontalSymmetryItem, "HORIZONTAL_LINE_SYMMETRY");
             horizontalSymmetryItem.Icon = new Image()
             {
-                Source = ImagePathToBitmapConverter.LoadBitmapFromRelativePath("/Images/SymmetryHorizontal.png"),
+                Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.XSymmetry),
                 Width = Models.Commands.XAML.Menu.IconDimensions,
                 Height = Models.Commands.XAML.Menu.IconDimensions
             };
@@ -33,7 +34,7 @@ internal class SymmetryMenuBuilder : MenuItemBuilder
             Translator.SetKey(verticalSymmetryItem, "VERTICAL_LINE_SYMMETRY");
             verticalSymmetryItem.Icon = new Image()
             {
-                Source = ImagePathToBitmapConverter.LoadBitmapFromRelativePath("/Images/SymmetryVertical.png"),
+                Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.YSymmetry),
                 Width = Models.Commands.XAML.Menu.IconDimensions,
                 Height = Models.Commands.XAML.Menu.IconDimensions
             };

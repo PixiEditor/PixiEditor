@@ -24,6 +24,7 @@ using PixiEditor.AvaloniaUI.Views.Windows;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Extensions.CommonApi.Palettes.Parsers;
+using PixiEditor.UI.Common.Fonts;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
 using Command = PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands.Command;
@@ -160,7 +161,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         await ImportLospecPalette();
     }
 
-    [Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER", CanExecute = "PixiEditor.HasDocument", IconPath = "Globe.png")]
+    [Command.Basic("PixiEditor.Colors.OpenPaletteBrowser", "OPEN_PALETTE_BROWSER", "OPEN_PALETTE_BROWSER", CanExecute = "PixiEditor.HasDocument", 
+        Icon = PixiPerfectIcons.Database, MenuItemPath = "VIEW/OPEN_PALETTE_BROWSER", MenuItemOrder = 3)]
     public void OpenPalettesBrowser() 
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -315,7 +317,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         }
     }
 
-    [Command.Basic("PixiEditor.Colors.Swap", "SWAP_COLORS", "SWAP_COLORS_DESCRIPTIVE", Key = Key.X)]
+    [Command.Basic("PixiEditor.Colors.Swap", "SWAP_COLORS", "SWAP_COLORS_DESCRIPTIVE", Key = Key.X,
+        Icon = PixiPerfectIcons.ColorsSwap)]
     public void SwapColors(object parameter)
     {
         (PrimaryColor, SecondaryColor) = (SecondaryColor, PrimaryColor);
@@ -350,7 +353,8 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         PrimaryColor = color.ToColor();
     }
 
-    [Command.Basic("PixIEditor.Colors.AddPrimaryToPalettes", "ADD_PRIMARY_COLOR_TO_PALETTE", "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", IconPath = "CopyAdd.png")]
+    [Command.Basic("PixIEditor.Colors.AddPrimaryToPalettes", "ADD_PRIMARY_COLOR_TO_PALETTE", "ADD_PRIMARY_COLOR_TO_PALETTE_DESCRIPTIVE", CanExecute = "PixiEditor.HasDocument", 
+        Icon = PixiPerfectIcons.CopyAdd)]
     public void AddPrimaryColorToPalette()
     {
         var palette = Owner.DocumentManagerSubViewModel.ActiveDocument.Palette;

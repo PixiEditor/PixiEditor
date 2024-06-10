@@ -1,5 +1,8 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Input;
 
@@ -7,8 +10,8 @@ namespace PixiEditor.AvaloniaUI.Models.Commands.XAML;
 
 internal class Menu : global::Avalonia.Controls.Menu
 {
-    public const double IconDimensions = 21;
-    public const double IconFontSize = 16;
+    public const double IconDimensions = 18;
+    public const double IconFontSize = 18;
     
     public static readonly AttachedProperty<string> CommandProperty =
         AvaloniaProperty.RegisterAttached<Menu, MenuItem, string>(nameof(Command));
@@ -41,16 +44,9 @@ internal class Menu : global::Avalonia.Controls.Menu
         {
             Source = command.GetIcon(),
             Width = IconDimensions, Height = IconDimensions,
-            Opacity = canExecute ? 1 : 0.75
-        };
-
-        icon.PropertyChanged += async (sender, args) =>
-        {
-            bool canExecute = command.CanExecute();
-            if (args.Property.Name == nameof(icon.IsVisible))
-            {
-                icon.Opacity = canExecute ? 1 : 0.75;
-            }
+            Stretch = Stretch.Uniform,
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Center,
         };
 
         item.Command = Command.GetICommand(command, false);

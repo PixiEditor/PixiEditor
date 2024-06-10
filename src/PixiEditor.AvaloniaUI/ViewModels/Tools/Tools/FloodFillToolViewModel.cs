@@ -5,6 +5,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.BrushShapeOverlay;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Tools.Tools;
 
@@ -24,7 +25,7 @@ internal class FloodFillToolViewModel : ToolViewModel, IFloodFillToolHandler
 
     public bool ConsiderAllLayers { get; private set; }
 
-    public override string IconKey => "icon-bucket";
+    public override string Icon => PixiPerfectIcons.Bucket;
 
     public FloodFillToolViewModel()
     {

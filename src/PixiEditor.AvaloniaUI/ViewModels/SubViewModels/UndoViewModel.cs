@@ -1,6 +1,7 @@
 ﻿using Avalonia.Input;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Evaluators;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
@@ -16,7 +17,7 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
     ///     Redo last action.
     /// </summary>
     [Command.Basic("PixiEditor.Undo.Redo", "REDO", "REDO_DESCRIPTIVE", CanExecute = "PixiEditor.Undo.CanRedo", Key = Key.Y, Modifiers = KeyModifiers.Control,
-        IconPath = "Redo.png", MenuItemPath = "EDIT/REDO", MenuItemOrder = 1)]
+        Icon = PixiPerfectIcons.Redo, MenuItemPath = "EDIT/REDO", MenuItemOrder = 1)]
     public void Redo()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -29,7 +30,7 @@ internal class UndoViewModel : SubViewModel<ViewModelMain>
     ///     Undo last action.
     /// </summary>
     [Command.Basic("PixiEditor.Undo.Undo", "UNDO", "UNDO_DESCRIPTIVE", CanExecute = "PixiEditor.Undo.CanUndo", Key = Key.Z, Modifiers = KeyModifiers.Control,
-        IconPath = "Undo.png", MenuItemPath = "EDIT/UNDO", MenuItemOrder = 0)]
+        Icon = PixiPerfectIcons.Undo, MenuItemPath = "EDIT/UNDO", MenuItemOrder = 0)]
     public void Undo()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

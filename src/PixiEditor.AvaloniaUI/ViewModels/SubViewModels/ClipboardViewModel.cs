@@ -15,6 +15,7 @@ using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 #nullable enable
@@ -31,7 +32,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Clipboard.Cut", "CUT", "CUT_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.X, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "EDIT/CUT", MenuItemOrder = 2)]
+        MenuItemPath = "EDIT/CUT", MenuItemOrder = 2, Icon = PixiPerfectIcons.Scissors)]
     public async Task Cut()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -42,8 +43,9 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Shift,
-        MenuItemPath = "EDIT/PASTE", MenuItemOrder = 4)]
-    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Control)]
+        MenuItemPath = "EDIT/PASTE", MenuItemOrder = 4, Icon = PixiPerfectIcons.Paste)]
+    [Command.Basic("PixiEditor.Clipboard.PasteAsNewLayer", true, "PASTE_AS_NEW_LAYER", "PASTE_AS_NEW_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Control,
+        Icon = PixiPerfectIcons.PasteAsNewLayer)]
     public void Paste(bool pasteAsNewLayer)
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null) 
@@ -51,7 +53,8 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         ClipboardController.TryPasteFromClipboard(Owner.DocumentManagerSubViewModel.ActiveDocument, pasteAsNewLayer);
     }
     
-    [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER", "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste")]
+    [Command.Basic("PixiEditor.Clipboard.PasteReferenceLayer", "PASTE_REFERENCE_LAYER", "PASTE_REFERENCE_LAYER_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste",
+        Icon = PixiPerfectIcons.PasteReferenceLayer)]
     public async Task PasteReferenceLayer(IDataObject data)
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
@@ -106,7 +109,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
     }
 
     [Command.Basic("PixiEditor.Clipboard.Copy", "COPY", "COPY_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty", Key = Key.C, Modifiers = KeyModifiers.Control,
-        MenuItemPath = "EDIT/COPY", MenuItemOrder = 3)]
+        MenuItemPath = "EDIT/COPY", MenuItemOrder = 3, Icon = PixiPerfectIcons.Copy)]
     public async Task Copy()
     {
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;

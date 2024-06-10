@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Views;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Extensions.UI;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Menu.MenuBuilders;
 
@@ -15,7 +16,13 @@ internal class FileExitMenuBuilder : MenuItemBuilder
             var exitMenuItem = new MenuItem
             {
                 Command = SystemCommands.CloseWindowCommand,
-                CommandParameter = MainWindow.Current
+                CommandParameter = MainWindow.Current,
+                Icon = new Image()
+                {
+                    Source = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Exit),
+                    Width = Models.Commands.XAML.Menu.IconDimensions,
+                    Height = Models.Commands.XAML.Menu.IconDimensions
+                }
             };
 
             Translator.SetKey(exitMenuItem, "EXIT");

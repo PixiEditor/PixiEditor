@@ -14,13 +14,13 @@ public partial class TogglableFlyout : UserControl
         set { SetValue(ChildProperty, value); }
     }
 
-    public static readonly StyledProperty<string> IconPathProperty =
-        AvaloniaProperty.Register<TogglableFlyout, string>(nameof(IconPath));
+    public static readonly StyledProperty<string> IconProperty =
+        AvaloniaProperty.Register<TogglableFlyout, string>(nameof(Icon));
 
-    public string IconPath
+    public string Icon
     {
-        get { return (string)GetValue(IconPathProperty); }
-        set { SetValue(IconPathProperty, value); }
+        get { return (string)GetValue(IconProperty); }
+        set { SetValue(IconProperty, value); }
     }
     
     public TogglableFlyout()
