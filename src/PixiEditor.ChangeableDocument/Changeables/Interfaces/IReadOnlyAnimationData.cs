@@ -2,6 +2,6 @@
 
 public interface IReadOnlyAnimationData
 {
-    public int CurrentFrame { get; }
-    public IReadOnlyList<IReadOnlyClip> Clips { get; }
+    public int ActiveFrame { get; }
+    public IReadOnlyList<IReadOnlyKeyFrame> KeyFrames { get; }
 }

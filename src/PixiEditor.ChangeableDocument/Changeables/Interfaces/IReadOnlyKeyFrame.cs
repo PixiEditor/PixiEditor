@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-public interface IReadOnlyClip
+public interface IReadOnlyKeyFrame
 {
     public int StartFrame { get; }
     public int Duration { get; }

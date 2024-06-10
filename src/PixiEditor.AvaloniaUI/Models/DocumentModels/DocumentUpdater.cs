@@ -127,11 +127,14 @@ internal class DocumentUpdater
             case ClearSoftSelectedMembers_PassthroughAction info:
                 ProcessClearSoftSelectedMembers(info);
                 break;
-            case CreateRasterClip_ChangeInfo info:
-                ProcessCreateRasterClip(info);
+            case CreateRasterKeyFrame_ChangeInfo info:
+                ProcessCreateRasterKeyFrame(info);
                 break;
-            case DeleteClip_ChangeInfo info:
-                ProcessDeleteClip(info);
+            case DeleteKeyFrame_ChangeInfo info:
+                ProcessDeleteKeyFrame(info);
+                break;
+            case ActiveFrame_ChangeInfo info:
+                ProcessActiveFrame(info);
                 break;
         }
     }
@@ -400,13 +403,18 @@ internal class DocumentUpdater
         //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Move));
     }
     
-    private void ProcessCreateRasterClip(CreateRasterClip_ChangeInfo info)
+    private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
     {
-        doc.AnimationHandler.Clips.Add(new RasterClipViewModel(info.TargetLayerGuid, info.Frame, 1));
+        doc.AnimationHandler.KeyFrames.Add(new RasterKeyFrameViewModel(info.TargetLayerGuid, info.Frame, 1));
     }
     
-    private void ProcessDeleteClip(DeleteClip_ChangeInfo info)
+    private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
     {
-        doc.AnimationHandler.Clips.RemoveAt(info.IndexOfDeletedClip);
+        doc.AnimationHandler.KeyFrames.RemoveAt(info.IndexOfDeletedClip);
+    }
+    
+    private void ProcessActiveFrame(ActiveFrame_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetActiveFrame(info.ActiveFrame);
     }
 }

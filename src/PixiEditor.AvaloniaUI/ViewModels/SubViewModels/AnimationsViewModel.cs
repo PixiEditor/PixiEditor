@@ -22,7 +22,48 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         
         activeDocument.AnimationDataViewModel.AddRasterClip(
             activeDocument.SelectedStructureMember.GuidValue, 
-            activeDocument.AnimationDataViewModel.Clips.Count,
+            activeDocument.AnimationDataViewModel.KeyFrames.Count,
             false);
+    }
+    
+    [Command.Internal("PixiEditor.Document.StartChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]
+    public void StartChangeActiveFrame(int newActiveFrame)
+    {
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
+            return;
+        
+        Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.StartChangeActiveFrame();
+        Owner.DocumentManagerSubViewModel.ActiveDocument.Tools.UseActiveFrame(newActiveFrame);
+    }
+    
+    [Command.Internal("PixiEditor.Document.ChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]
+    public void ChangeActiveFrame(double newActiveFrame)
+    {
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
+            return;
+        
+        int intNewActiveFrame = (int)newActiveFrame;
+        
+        Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.ChangeActiveFrame(intNewActiveFrame);
+    }
+
+    [Command.Internal("PixiEditor.Document.EndChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]
+    public void EndChangeActiveFrame()
+    {
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
+            return;
+        
+        Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.EndChangeActiveFrame();
+    }
+    
+    [Command.Internal("PixiEditor.Animation.ActiveFrameSet")]
+    public void ActiveFrameSet(double value)
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        
+        if (document is null)
+            return;
+
+        document.Operations.SetActiveFrame((int)value);
     }
 }

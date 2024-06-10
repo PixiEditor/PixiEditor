@@ -92,7 +92,7 @@ internal class AffectedAreasGatherer
                     AddAllToMainImage(info.GuidValue, false);
                     AddAllToImagePreviews(info.GuidValue, true);
                     break;
-                case CreateRasterClip_ChangeInfo info:
+                case CreateRasterKeyFrame_ChangeInfo info:
                     if (info.CloneFromExisting)
                     {
                         AddAllToMainImage(info.TargetLayerGuid);
@@ -103,6 +103,10 @@ internal class AffectedAreasGatherer
                         AddWholeCanvasToMainImage();
                         AddWholeCanvasToImagePreviews(info.TargetLayerGuid);
                     }
+                    break;
+                case ActiveFrame_ChangeInfo info:
+                    AddWholeCanvasToMainImage();
+                    AddWholeCanvasToEveryImagePreview();
                     break;
             }
         }

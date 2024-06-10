@@ -4,60 +4,60 @@ namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
 public class AnimationData : IReadOnlyAnimationData
 {
-    private int _currentFrame;
+    private int _activeFrame;
 
-    public int CurrentFrame
+    public int ActiveFrame
     {
-        get => _currentFrame;
+        get => _activeFrame;
         set
         {
             int lastFrame = value;
             if (value < 0)
             {
-                _currentFrame = 0;
+                _activeFrame = 0;
             }
             else
             {
-                _currentFrame = value;
+                _activeFrame = value;
             }
             
             OnPreviewFrameChanged(lastFrame);
         }
     }
     
-    public List<Clip> Clips { get; set; } = new List<Clip>();
-    IReadOnlyList<IReadOnlyClip> IReadOnlyAnimationData.Clips => Clips;
+    public List<KeyFrame> KeyFrames { get; set; } = new List<KeyFrame>();
+    IReadOnlyList<IReadOnlyKeyFrame> IReadOnlyAnimationData.KeyFrames => KeyFrames;
     
     public void ChangePreviewFrame(int frame)
     {
-        CurrentFrame = frame;
+        ActiveFrame = frame;
     }
     
     private void OnPreviewFrameChanged(int lastFrame)
     {
-        if (Clips == null)
+        if (KeyFrames == null)
         {
             return;
         }
         
-        foreach (var clip in Clips)
+        foreach (var keyFrame in KeyFrames)
         {
-            if (IsWithinRange(clip, CurrentFrame))
+            if (IsWithinRange(keyFrame, ActiveFrame))
             {
-                if (!IsWithinRange(clip, lastFrame))
+                if (!IsWithinRange(keyFrame, lastFrame))
                 {
-                    clip.Deactivated(CurrentFrame);
+                    keyFrame.Deactivated(ActiveFrame);
                 }
                 else
                 {
-                    clip.ActiveFrameChanged(CurrentFrame);   
+                    keyFrame.ActiveFrameChanged(ActiveFrame);   
                 }
             }
         }
     }
 
-    private bool IsWithinRange(Clip clip, int frame)
+    private bool IsWithinRange(KeyFrame keyFrame, int frame)
     {
-        return frame >= clip.StartFrame && frame < clip.StartFrame + clip.Duration;
+        return frame >= keyFrame.StartFrame && frame < keyFrame.StartFrame + keyFrame.Duration;
     }
 }

@@ -5,11 +5,14 @@
              xmlns:document="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
              xmlns:dock="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Dock"
              xmlns:animations="clr-namespace:PixiEditor.AvaloniaUI.Views.Animations"
+             xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="dock:TimelineDockViewModel"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.TimelineDockView">
     <Design.DataContext>
         <dock:TimelineDockViewModel />
     </Design.DataContext>
-    <animations:Timeline Clips="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.Clips}"/>
+    <animations:Timeline 
+        KeyFrames="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.KeyFrames}" 
+        ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Mode=TwoWay}"/>
 </UserControl>

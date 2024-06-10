@@ -2,7 +2,7 @@
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
-public class AnimationClipViewModel(int startFrame, int duration) : IClipHandler
+public class KeyFrameViewModel(int startFrame, int duration) : IKeyFrameHandler
 {
     public int StartFrame { get; } = startFrame;
     public int Duration { get; } = duration;

@@ -2,12 +2,15 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:animations="clr-namespace:PixiEditor.AvaloniaUI.Views.Animations"
                     xmlns:document="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document"
-                    xmlns:handlers="clr-namespace:PixiEditor.AvaloniaUI.Models.Handlers">
+                    xmlns:handlers="clr-namespace:PixiEditor.AvaloniaUI.Models.Handlers"
+                    xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
+                    xmlns:commands="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands"
+                    xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML">
     <Design.PreviewWith>
         <animations:Timeline>
-            <animations:Timeline.Clips>
-                <document:RasterClipViewModel Duration="100"/>
-            </animations:Timeline.Clips>
+            <animations:Timeline.KeyFrames>
+                <document:RasterKeyFrameViewModel Duration="100"/>
+            </animations:Timeline.KeyFrames>
         </animations:Timeline>
     </Design.PreviewWith>
 
@@ -21,23 +24,37 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     
-                    <ToggleButton Content="Play"/>
+                    <ToggleButton Content="Play" Name="PART_PlayToggle"/>
                     
                     <DockPanel Grid.Row="1" LastChildFill="True">
-                        <TextBlock Text="0" DockPanel.Dock="Left"/>
-                        <TextBlock Text="{Binding Clips.Count, RelativeSource={RelativeSource TemplatedParent}}" DockPanel.Dock="Right"/>
-                        <Slider Margin="10 0" Maximum="{Binding Clips.Count, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <Slider Margin="10 0" TickFrequency="1" TickPlacement="BottomRight" 
+                                SmallChange="1"
+                                LargeChange="10"
+                                IsSnapToTickEnabled="True"
+                                Name="ActiveFrameSlider"
+                                Minimum="0"
+                                Maximum="{Binding KeyFrames.Count, RelativeSource={RelativeSource TemplatedParent}}">
+                            <Interaction.Behaviors>
+                                <behaviours:SliderUpdateBehavior
+                                    Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActiveFrame, Mode=OneWay}"
+                                    DragStarted="{xaml:Command PixiEditor.Document.StartChangeActiveFrame}"
+                                    DragValueChanged="{xaml:Command PixiEditor.Document.ChangeActiveFrame, UseProvided=True}"
+                                    DragEnded="{xaml:Command PixiEditor.Document.EndChangeActiveFrame}"
+                                    SetValueCommand="{xaml:Command PixiEditor.Animation.ActiveFrameSet, UseProvided=True}"
+                                    ValueFromSlider="{Binding ElementName=ActiveFrameSlider, Path=Value, Mode=TwoWay}" />
+                            </Interaction.Behaviors>
+                        </Slider>
                     </DockPanel>
                     
                     <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{TemplateBinding Clips}">
+                        <ItemsControl ItemsSource="{TemplateBinding KeyFrames}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="handlers:IClipHandler">
+                                <DataTemplate DataType="handlers:IKeyFrameHandler">
                                     <Border BorderBrush="Black" BorderThickness="1" Margin="2">
                                         <Grid>
                                             <Grid.ColumnDefinitions>

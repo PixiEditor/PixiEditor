@@ -1,5 +1,5 @@
 ﻿namespace PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
-public record DeleteClip_ChangeInfo(
+public record DeleteKeyFrame_ChangeInfo(
     int Frame,
     int IndexOfDeletedClip) : IChangeInfo;

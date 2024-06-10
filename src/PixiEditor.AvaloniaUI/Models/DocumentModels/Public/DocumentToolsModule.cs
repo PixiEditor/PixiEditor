@@ -16,6 +16,7 @@ internal class DocumentToolsModule
     }
 
     public void UseSymmetry(SymmetryAxisDirection dir) => Internals.ChangeController.TryStartExecutor(new SymmetryExecutor(dir));
+    public void UseActiveFrame(int activeFrame) => Internals.ChangeController.TryStartExecutor(new AnimationFrameExecutor(activeFrame));
 
     public void UseOpacitySlider() => Internals.ChangeController.TryStartExecutor<StructureMemberOpacityExecutor>();
 

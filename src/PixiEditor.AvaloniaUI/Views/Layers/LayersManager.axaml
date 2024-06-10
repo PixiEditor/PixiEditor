@@ -110,7 +110,7 @@
                                 DragStarted="{xaml:Command PixiEditor.Layer.OpacitySliderDragStarted}"
                                 DragValueChanged="{xaml:Command PixiEditor.Layer.OpacitySliderDragged, UseProvided=True}"
                                 DragEnded="{xaml:Command PixiEditor.Layer.OpacitySliderDragEnded}"
-                                SetOpacity="{xaml:Command PixiEditor.Layer.OpacitySliderSet, UseProvided=True}"
+                                SetValueCommand="{xaml:Command PixiEditor.Layer.OpacitySliderSet, UseProvided=True}"
                                 ValueFromSlider="{Binding ElementName=opacitySlider, Path=Value, Mode=TwoWay}" />
                     </Interaction.Behaviors>
                 </Slider>

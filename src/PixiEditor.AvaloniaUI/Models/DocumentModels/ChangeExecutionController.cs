@@ -200,4 +200,19 @@ internal class ChangeExecutionController
     {
         currentSession?.OnSelectedObjectNudged(distance);
     }
+
+    public void ActiveAnimationFrameStartedInlet()
+    {
+        currentSession?.OnActiveAnimationFrameStarted();
+    }
+    
+    public void ActiveAnimationFrameChangedInlet(int newFrame)
+    {
+        currentSession?.ActiveFrameChanged(newFrame);
+    }
+    
+    public void ActiveAnimationFrameEndedInlet()
+    {
+        currentSession?.OnActiveAnimationFrameEnded();
+    }
 }

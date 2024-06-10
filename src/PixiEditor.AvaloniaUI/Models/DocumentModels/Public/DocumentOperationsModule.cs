@@ -604,4 +604,14 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         Internals.ActionAccumulator.AddFinishedActions(new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
     }
+
+    public void SetActiveFrame(int value)
+    {
+        if (Internals.ChangeController.IsChangeActive || value is < 0)
+            return;
+        
+        Internals.ActionAccumulator.AddFinishedActions(
+            new ActiveFrame_Action(value),
+            new EndActiveFrame_Action());
+    }
 }

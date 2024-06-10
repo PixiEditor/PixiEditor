@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.AvaloniaUI.Models.Handlers;
 
-public interface IRasterClipHandler : IClipHandler
+public interface IRasterKeyFrameHandler : IKeyFrameHandler
 {
     public Guid TargetLayerGuid { get; }
 }

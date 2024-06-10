@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
-public abstract class Clip : IReadOnlyClip
+public abstract class KeyFrame : IReadOnlyKeyFrame
 {
     public int StartFrame { get; set; }
     public int Duration { get; } = 1;

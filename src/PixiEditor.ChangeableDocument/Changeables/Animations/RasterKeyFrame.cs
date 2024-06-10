@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
-internal class RasterClip : Clip
+internal class RasterKeyFrame : KeyFrame
 {
     public Guid TargetLayerGuid { get; set; }
     public ChunkyImage Image { get; set; }
@@ -8,7 +8,7 @@ internal class RasterClip : Clip
     
     private ChunkyImage originalLayerImage;
 
-    public RasterClip(Guid targetLayerGuid, int startFrame, Document document, ChunkyImage? cloneFrom = null)
+    public RasterKeyFrame(Guid targetLayerGuid, int startFrame, Document document, ChunkyImage? cloneFrom = null)
     {
         TargetLayerGuid = targetLayerGuid;
         StartFrame = startFrame;

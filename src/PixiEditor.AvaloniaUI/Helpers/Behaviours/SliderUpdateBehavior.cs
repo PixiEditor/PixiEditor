@@ -47,13 +47,13 @@ internal class SliderUpdateBehavior : Behavior<Slider>
         set => SetValue(DragStartedProperty, value);
     }
 
-    public static readonly StyledProperty<ICommand> SetOpacityProperty = AvaloniaProperty.Register<SliderUpdateBehavior, ICommand>(
-        nameof(SetOpacity));
+    public static readonly StyledProperty<ICommand> SetValueCommandProperty = AvaloniaProperty.Register<SliderUpdateBehavior, ICommand>(
+        nameof(SetValueCommand));
 
-    public ICommand SetOpacity
+    public ICommand SetValueCommand
     {
-        get => GetValue(SetOpacityProperty);
-        set => SetValue(SetOpacityProperty, value);
+        get => GetValue(SetValueCommandProperty);
+        set => SetValue(SetValueCommandProperty, value);
     }
 
     public static readonly StyledProperty<double> ValueFromSliderProperty = AvaloniaProperty.Register<SliderUpdateBehavior, double>(
@@ -76,7 +76,7 @@ internal class SliderUpdateBehavior : Behavior<Slider>
     private bool bindingValueChangedWhileDragging = false;
     private double bindingValueWhileDragging = 0.0;
 
-    private bool skipSetOpacity;
+    private bool skipSetValue;
     
     protected override void OnAttached()
     {
@@ -130,26 +130,26 @@ internal class SliderUpdateBehavior : Behavior<Slider>
             if (obj.DragValueChanged is not null && obj.DragValueChanged.CanExecute(e.NewValue.Value))
                 obj.DragValueChanged.Execute(e.NewValue.Value);
         }
-        else if (!obj.skipSetOpacity)
+        else if (!obj.skipSetValue)
         {
-            if (obj.SetOpacity is not null && obj.SetOpacity.CanExecute(e.NewValue.Value))
-                obj.SetOpacity.Execute(e.NewValue.Value);
+            if (obj.SetValueCommand is not null && obj.SetValueCommand.CanExecute(e.NewValue.Value))
+                obj.SetValueCommand.Execute(e.NewValue.Value);
         }
     }
 
     private static void OnBindingValuePropertyChange(AvaloniaPropertyChangedEventArgs<double> args)
     {
         SliderUpdateBehavior obj = (SliderUpdateBehavior)args.Sender;
-        obj.skipSetOpacity = true;
+        obj.skipSetValue = true;
         if (obj.dragging)
         {
             obj.bindingValueChangedWhileDragging = true;
             obj.bindingValueWhileDragging = args.NewValue.Value;
-            obj.skipSetOpacity = false;
+            obj.skipSetValue = false;
             return;
         }
         obj.ValueFromSlider = args.NewValue.Value;
-        obj.skipSetOpacity = false;
+        obj.skipSetValue = false;
     }
 
     private void Thumb_DragCompleted(object sender, VectorEventArgs e)

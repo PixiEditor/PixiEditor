@@ -26,16 +26,16 @@ internal class CreateRasterClip_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        indexOfCreatedClip = target.AnimationData.Clips.Count;
-        target.AnimationData.Clips.Add(new RasterClip(_targetLayerGuid, _frame, target, _cloneFromExisting ? _layer.LayerImage : null));
+        indexOfCreatedClip = target.AnimationData.KeyFrames.Count;
+        target.AnimationData.KeyFrames.Add(new RasterKeyFrame(_targetLayerGuid, _frame, target, _cloneFromExisting ? _layer.LayerImage : null));
         target.AnimationData.ChangePreviewFrame(_frame);
         ignoreInUndo = false;
-        return new CreateRasterClip_ChangeInfo(_targetLayerGuid, _frame, indexOfCreatedClip, _cloneFromExisting);
+        return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, indexOfCreatedClip, _cloneFromExisting);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        target.AnimationData.Clips.RemoveAt(indexOfCreatedClip);
-        return new DeleteClip_ChangeInfo(_frame, indexOfCreatedClip);
+        target.AnimationData.KeyFrames.RemoveAt(indexOfCreatedClip);
+        return new DeleteKeyFrame_ChangeInfo(_frame, indexOfCreatedClip);
     }
 }

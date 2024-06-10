@@ -1,6 +1,6 @@
 ﻿namespace PixiEditor.AvaloniaUI.Models.Handlers;
 
-public interface IClipHandler
+public interface IKeyFrameHandler
 {
     public int StartFrame { get; }
     public int Duration { get; }
