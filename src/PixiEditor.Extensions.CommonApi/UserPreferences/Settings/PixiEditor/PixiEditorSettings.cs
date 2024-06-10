@@ -38,7 +38,7 @@ public static class PixiEditorSettings
 
         public static SyncedSetting<int> DefaultNewFileHeight { get; } = SyncedSetting.NonOwned(PixiEditor, 64);
         
-        public static LocalSetting<IEnumerable<string>> RecentlyOpened { get; } = LocalSetting.NonOwned<IEnumerable<string>>(PixiEditor);
+        public static LocalSetting<IEnumerable<string>> RecentlyOpened { get; } = LocalSetting.NonOwned<IEnumerable<string>>(PixiEditor, []);
     
         public static SyncedSetting<int> MaxOpenedRecently { get; } = SyncedSetting.NonOwned(PixiEditor, 8);
     }
