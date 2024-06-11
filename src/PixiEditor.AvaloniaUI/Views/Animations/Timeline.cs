@@ -25,6 +25,16 @@ public class Timeline : TemplatedControl
     public static readonly StyledProperty<bool> IsPlayingProperty = AvaloniaProperty.Register<Timeline, bool>(
         nameof(IsPlaying));
 
+    public static readonly StyledProperty<ICommand> NewKeyFrameCommandProperty =
+        AvaloniaProperty.Register<Timeline, ICommand>(
+            nameof(NewKeyFrameCommand));
+
+    public ICommand NewKeyFrameCommand
+    {
+        get => GetValue(NewKeyFrameCommandProperty);
+        set => SetValue(NewKeyFrameCommandProperty, value);
+    }
+
     public bool IsPlaying
     {
         get => GetValue(IsPlayingProperty);

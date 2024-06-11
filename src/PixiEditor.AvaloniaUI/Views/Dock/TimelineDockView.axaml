@@ -14,5 +14,6 @@
     </Design.DataContext>
     <animations:Timeline 
         KeyFrames="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.KeyFrames}" 
-        ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Mode=TwoWay}"/>
+        ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Mode=TwoWay}"
+        NewKeyFrameCommand="{xaml:Command PixiEditor.Animation.CreateRasterKeyFrame}"/>
 </UserControl>

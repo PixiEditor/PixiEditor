@@ -10,7 +10,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         
     }
     
-    [Command.Debug("PixiEditor.Animations.CreateRasterClip", "Create Raster Clip", "Create a raster clip")]
+    [Command.Basic("PixiEditor.Animation.CreateRasterKeyFrame", "Create Raster Key Frame", "Create a raster key frame")]
     public void CreateRasterClip()
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;

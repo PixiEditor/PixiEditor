@@ -23,9 +23,16 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
-                    
-                    <ToggleButton Content="Play" Name="PART_PlayToggle"/>
-                    
+
+                    <DockPanel Grid.Row="0" LastChildFill="True">
+                        <Button DockPanel.Dock="Left" Classes="pixi-icon"
+                                Content="{DynamicResource icon-plus-square}"
+                                Command="{TemplateBinding NewKeyFrameCommand}"/>
+                        <Panel>
+                            <ToggleButton HorizontalAlignment="Center" Content="Play" Name="PART_PlayToggle"/>
+                        </Panel>
+                    </DockPanel>
+
                     <DockPanel Grid.Row="1" LastChildFill="True">
                         <Slider Margin="10 0" TickFrequency="1" TickPlacement="BottomRight" 
                                 SmallChange="1"

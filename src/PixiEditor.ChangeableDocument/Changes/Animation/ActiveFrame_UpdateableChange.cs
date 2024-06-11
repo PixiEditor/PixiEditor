@@ -33,7 +33,7 @@ internal class ActiveFrame_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        ignoreInUndo = originalFrame == newFrame;
+        ignoreInUndo = true;
         target.AnimationData.ActiveFrame = newFrame;
         return new ActiveFrame_ChangeInfo(newFrame);
     }
