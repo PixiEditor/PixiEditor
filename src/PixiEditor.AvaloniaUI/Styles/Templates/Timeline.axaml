@@ -5,7 +5,8 @@
                     xmlns:handlers="clr-namespace:PixiEditor.AvaloniaUI.Models.Handlers"
                     xmlns:behaviours="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Behaviours"
                     xmlns:commands="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands"
-                    xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML">
+                    xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
+                    xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters">
     <Design.PreviewWith>
         <animations:Timeline>
             <animations:Timeline.KeyFrames>
@@ -40,7 +41,7 @@
                                 IsSnapToTickEnabled="True"
                                 Name="ActiveFrameSlider"
                                 Minimum="0"
-                                Maximum="{Binding KeyFrames.Count, RelativeSource={RelativeSource TemplatedParent}}">
+                                Maximum="{Binding KeyFrames.FrameCount, RelativeSource={RelativeSource TemplatedParent}}">
                             <Interaction.Behaviors>
                                 <behaviours:SliderUpdateBehavior
                                     Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActiveFrame, Mode=OneWay}"
@@ -54,27 +55,13 @@
                     </DockPanel>
                     
                     <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{TemplateBinding KeyFrames}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="handlers:IKeyFrameHandler">
-                                    <Border BorderBrush="Black" BorderThickness="1" Margin="2">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding StartFrame}"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Duration}"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <TreeView ItemsSource="{TemplateBinding KeyFrames}">
+                            <TreeView.ItemTemplate>
+                                <TreeDataTemplate ItemsSource="{Binding Children}">
+                                    <TextBlock Text="{Binding StartFrame}"/>
+                                </TreeDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
                     </ScrollViewer>
                 </Grid>
             </ControlTemplate>

@@ -1,0 +1,23 @@
+﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
+
+namespace PixiEditor.AvaloniaUI.ViewModels.Document;
+
+public class KeyFrameCollection : ObservableCollection<KeyFrameViewModel>
+{
+    public KeyFrameCollection()
+    {
+
+    }
+
+    public void NotifyCollectionChanged()
+    {
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(FrameCount)));
+    }
+
+    public int FrameCount
+    {
+        get => Items.Count == 0 ? 0 : Items.Max(x => x.StartFrame + x.Duration);
+    }
+}

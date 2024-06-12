@@ -1,9 +1,12 @@
-﻿using PixiEditor.AvaloniaUI.Models.Handlers;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
-public class KeyFrameViewModel(int startFrame, int duration) : IKeyFrameHandler
+public abstract class KeyFrameViewModel(int startFrame, int duration, Guid layerGuid, Guid id) : ObservableObject, IKeyFrameHandler
 {
-    public int StartFrame { get; } = startFrame;
-    public int Duration { get; } = duration;
+    public virtual int StartFrame { get; } = startFrame;
+    public virtual int Duration { get; } = duration;
+    public Guid LayerGuid { get; } = layerGuid;
+    public Guid Id { get; } = id;
 }

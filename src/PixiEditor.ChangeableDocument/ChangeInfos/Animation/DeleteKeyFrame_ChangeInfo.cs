@@ -2,4 +2,4 @@
 
 public record DeleteKeyFrame_ChangeInfo(
     int Frame,
-    int IndexOfDeletedClip) : IChangeInfo;
+    Guid DeletedKeyFrameId) : IChangeInfo;

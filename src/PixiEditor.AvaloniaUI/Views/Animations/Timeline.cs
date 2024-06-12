@@ -4,10 +4,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.Views.Animations;
@@ -15,8 +13,8 @@ namespace PixiEditor.AvaloniaUI.Views.Animations;
 [TemplatePart("PART_PlayToggle", typeof(ToggleButton))]
 public class Timeline : TemplatedControl
 {
-    public static readonly StyledProperty<ObservableCollection<IKeyFrameHandler>> KeyFramesProperty =
-        AvaloniaProperty.Register<Timeline, ObservableCollection<IKeyFrameHandler>>(
+    public static readonly StyledProperty<KeyFrameCollection> KeyFramesProperty =
+        AvaloniaProperty.Register<Timeline, KeyFrameCollection>(
             nameof(KeyFrames));
 
     public static readonly StyledProperty<int> ActiveFrameProperty =
@@ -41,7 +39,7 @@ public class Timeline : TemplatedControl
         set => SetValue(IsPlayingProperty, value);
     }
 
-    public ObservableCollection<IKeyFrameHandler> KeyFrames
+    public KeyFrameCollection KeyFrames
     {
         get => GetValue(KeyFramesProperty);
         set => SetValue(KeyFramesProperty, value);

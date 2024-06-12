@@ -2,17 +2,14 @@
 
 internal class RasterKeyFrame : KeyFrame
 {
-    public Guid TargetLayerGuid { get; set; }
     public ChunkyImage Image { get; set; }
     public Document Document { get; set; }
-    
+
     private ChunkyImage originalLayerImage;
 
     public RasterKeyFrame(Guid targetLayerGuid, int startFrame, Document document, ChunkyImage? cloneFrom = null)
+        : base(targetLayerGuid, startFrame)
     {
-        TargetLayerGuid = targetLayerGuid;
-        StartFrame = startFrame;
-        
         Image = cloneFrom?.CloneFromCommitted() ?? new ChunkyImage(document.Size);
 
         Document = document;
@@ -20,7 +17,7 @@ internal class RasterKeyFrame : KeyFrame
     
     public override void ActiveFrameChanged(int atFrame)
     {
-        if (Document.TryFindMember<RasterLayer>(TargetLayerGuid, out var layer))
+        if (Document.TryFindMember<RasterLayer>(LayerGuid, out var layer))
         {
             originalLayerImage = layer.LayerImage;
             layer.LayerImage = Image;
@@ -29,7 +26,7 @@ internal class RasterKeyFrame : KeyFrame
 
     public override void Deactivated(int atFrame)
     {
-        if (Document.TryFindMember<RasterLayer>(TargetLayerGuid, out var layer))
+        if (Document.TryFindMember<RasterLayer>(LayerGuid, out var layer))
         {
             layer.LayerImage = originalLayerImage;
         }

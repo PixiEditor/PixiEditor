@@ -2,5 +2,5 @@
 
 public interface IRasterKeyFrameHandler : IKeyFrameHandler
 {
-    public Guid TargetLayerGuid { get; }
+
 }

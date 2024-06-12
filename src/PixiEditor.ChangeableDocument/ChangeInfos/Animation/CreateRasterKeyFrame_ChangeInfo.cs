@@ -3,5 +3,5 @@
 public record CreateRasterKeyFrame_ChangeInfo(
     Guid TargetLayerGuid,
     int Frame,
-    int IndexOfCreatedClip,
+    Guid KeyFrameId,
     bool CloneFromExisting) : IChangeInfo;

@@ -4,10 +4,9 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
 public class RasterKeyFrameViewModel : KeyFrameViewModel, IRasterKeyFrameHandler
 {
-    public Guid TargetLayerGuid { get; }
-    
-    public RasterKeyFrameViewModel(Guid targetLayerGuid, int startFrame, int duration) : base(startFrame, duration)
+    public RasterKeyFrameViewModel(Guid targetLayerGuid, int startFrame, int duration, Guid id) : base(startFrame, duration, targetLayerGuid, id)
     {
-        TargetLayerGuid = targetLayerGuid;
+
     }
+
 }

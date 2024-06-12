@@ -197,7 +197,7 @@ internal partial class HelloTherePopup : PixiEditorPopup
 
     private async void HelloTherePopup_OnLoaded(object sender, RoutedEventArgs e)
     {
-        //return; // TODO
+        // TODO: Fetching news freezes input when no internet is present
         if(_newsDisabled) return;
 
         try

@@ -24,13 +24,71 @@ public class AnimationData : IReadOnlyAnimationData
             OnPreviewFrameChanged(lastFrame);
         }
     }
-    
-    public List<KeyFrame> KeyFrames { get; set; } = new List<KeyFrame>();
-    IReadOnlyList<IReadOnlyKeyFrame> IReadOnlyAnimationData.KeyFrames => KeyFrames;
+
+    public IReadOnlyList<IReadOnlyKeyFrame> KeyFrames => keyFrames;
+
+    private List<KeyFrame> keyFrames = new List<KeyFrame>();
     
     public void ChangePreviewFrame(int frame)
     {
         ActiveFrame = frame;
+    }
+
+    public void AddKeyFrame(KeyFrame keyFrame)
+    {
+        Guid id = keyFrame.LayerGuid;
+        if (TryFindKeyFrame(id, out GroupKeyFrame group))
+        {
+            group.Children.Add(keyFrame);
+        }
+        else
+        {
+            GroupKeyFrame createdGroup = new GroupKeyFrame(id, keyFrame.StartFrame);
+            createdGroup.Children.Add(keyFrame);
+            keyFrames.Add(createdGroup);
+        }
+    }
+
+    public void RemoveKeyFrame(Guid createdKeyFrameId)
+    {
+        TryFindKeyFrame<KeyFrame>(createdKeyFrameId, out _, (frame, parent) =>
+        {
+            if (parent != null)
+            {
+                parent.Children.Remove(frame);
+            }
+        });
+    }
+
+    private bool TryFindKeyFrame<T>(Guid id, out T foundKeyFrame, Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : KeyFrame
+    {
+        return TryFindKeyFrame(keyFrames, null, id, out foundKeyFrame, onFound);
+    }
+
+    private bool TryFindKeyFrame<T>(List<KeyFrame> root, GroupKeyFrame parent, Guid id, out T result, Action<KeyFrame, GroupKeyFrame?> onFound) where T : KeyFrame
+    {
+        for (var i = 0; i < root.Count; i++)
+        {
+            var frame = root[i];
+            if (frame is T targetFrame && targetFrame.Id.Equals(id))
+            {
+                result = targetFrame;
+                onFound?.Invoke(frame, parent);
+                return true;
+            }
+
+            if (frame is GroupKeyFrame { Children.Count: > 0 } group)
+            {
+                bool found = TryFindKeyFrame(group.Children, group, id, out result, onFound);
+                if (found)
+                {
+                    return true;
+                }
+            }
+        }
+
+        result = null;
+        return false;
     }
     
     private void OnPreviewFrameChanged(int lastFrame)
@@ -39,18 +97,30 @@ public class AnimationData : IReadOnlyAnimationData
         {
             return;
         }
-        
-        foreach (var keyFrame in KeyFrames)
+
+        NotifyKeyFrames(lastFrame, keyFrames);
+    }
+
+    private void NotifyKeyFrames(int lastFrame, List<KeyFrame> root)
+    {
+        foreach (var keyFrame in root)
         {
-            if (IsWithinRange(keyFrame, ActiveFrame))
+            if (keyFrame is GroupKeyFrame group)
             {
-                if (!IsWithinRange(keyFrame, lastFrame))
+                NotifyKeyFrames(lastFrame, group.Children);
+            }
+            else
+            {
+                if (IsWithinRange(keyFrame, ActiveFrame))
                 {
-                    keyFrame.Deactivated(ActiveFrame);
-                }
-                else
-                {
-                    keyFrame.ActiveFrameChanged(ActiveFrame);   
+                    if (!IsWithinRange(keyFrame, lastFrame))
+                    {
+                        keyFrame.Deactivated(ActiveFrame);
+                    }
+                    else
+                    {
+                        keyFrame.ActiveFrameChanged(ActiveFrame);
+                    }
                 }
             }
         }

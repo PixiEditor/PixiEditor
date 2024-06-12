@@ -9,8 +9,8 @@ internal class CreateRasterClip_Change : Change
     private readonly int _frame;
     private readonly bool _cloneFromExisting;
     private RasterLayer? _layer;
-    private int indexOfCreatedClip;
-    
+    private Guid createdKeyFrameId;
+
     [GenerateMakeChangeAction]
     public CreateRasterClip_Change(Guid targetLayerGuid, int frame, bool cloneFromExisting = false)
     {
@@ -26,16 +26,18 @@ internal class CreateRasterClip_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        indexOfCreatedClip = target.AnimationData.KeyFrames.Count;
-        target.AnimationData.KeyFrames.Add(new RasterKeyFrame(_targetLayerGuid, _frame, target, _cloneFromExisting ? _layer.LayerImage : null));
+        var keyFrame =
+            new RasterKeyFrame(_targetLayerGuid, _frame, target, _cloneFromExisting ? _layer.LayerImage : null);
+        createdKeyFrameId = keyFrame.Id;
+        target.AnimationData.AddKeyFrame(keyFrame);
         target.AnimationData.ChangePreviewFrame(_frame);
         ignoreInUndo = false;
-        return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, indexOfCreatedClip, _cloneFromExisting);
+        return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, _cloneFromExisting);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        target.AnimationData.KeyFrames.RemoveAt(indexOfCreatedClip);
-        return new DeleteKeyFrame_ChangeInfo(_frame, indexOfCreatedClip);
+        target.AnimationData.RemoveKeyFrame(createdKeyFrameId);
+        return new DeleteKeyFrame_ChangeInfo(_frame, createdKeyFrameId);
     }
 }

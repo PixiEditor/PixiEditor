@@ -405,12 +405,12 @@ internal class DocumentUpdater
     
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
     {
-        doc.AnimationHandler.KeyFrames.Add(new RasterKeyFrameViewModel(info.TargetLayerGuid, info.Frame, 1));
+        doc.AnimationHandler.AddKeyFrame(new RasterKeyFrameViewModel(info.TargetLayerGuid, info.Frame, 1, info.KeyFrameId));
     }
     
     private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
     {
-        doc.AnimationHandler.KeyFrames.RemoveAt(info.IndexOfDeletedClip);
+        doc.AnimationHandler.RemoveKeyFrame(info.DeletedKeyFrameId);
     }
     
     private void ProcessActiveFrame(ActiveFrame_ChangeInfo info)

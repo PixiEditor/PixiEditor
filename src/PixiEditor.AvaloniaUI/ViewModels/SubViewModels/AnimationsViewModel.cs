@@ -1,4 +1,5 @@
 ﻿using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 
@@ -18,11 +19,17 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         {
             return;
         }
+
+        int newFrame = 0;
+
+        if (activeDocument.AnimationDataViewModel.TryFindKeyFrame(activeDocument.SelectedStructureMember.GuidValue, out KeyFrameGroupViewModel group))
+        {
+            newFrame = group.StartFrame + group.Duration;
+        }
         
-        
-        activeDocument.AnimationDataViewModel.AddRasterClip(
+        activeDocument.AnimationDataViewModel.CreateRasterKeyFrame(
             activeDocument.SelectedStructureMember.GuidValue, 
-            activeDocument.AnimationDataViewModel.KeyFrames.Count,
+            newFrame,
             false);
     }
     
