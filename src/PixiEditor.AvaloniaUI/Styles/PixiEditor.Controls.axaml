@@ -11,6 +11,7 @@
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/DocumentTabTemplate.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/Timeline.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/KeyFrame.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/TimelineSlider.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

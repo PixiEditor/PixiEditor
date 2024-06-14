@@ -218,10 +218,10 @@ internal class MemberPreviewUpdater
                 member.PreviewSurface?.Dispose();
                 member.PreviewSurface = null;
 
-                keyFrame?.Preview?.Dispose();
+                keyFrame?.PreviewSurface?.Dispose();
                 if (keyFrame != null)
                 {
-                    keyFrame.Preview = null;
+                    keyFrame.PreviewSurface = null;
                 }
             }
             else
@@ -229,16 +229,16 @@ internal class MemberPreviewUpdater
                 if (member.PreviewSurface is not null && member.PreviewSurface.Size.X == newSize.Value.previewSize.X && member.PreviewSurface.Size.Y == newSize.Value.previewSize.Y)
                 {
                     member.PreviewSurface!.DrawingSurface.Canvas.Clear();
-                    keyFrame?.Preview?.DrawingSurface.Canvas.Clear();
+                    keyFrame?.PreviewSurface?.DrawingSurface.Canvas.Clear();
                 }
                 else
                 {
                     member.PreviewSurface?.Dispose();
                     member.PreviewSurface = new Surface(newSize.Value.previewSize); // TODO: premul bgra8888 was here
-                    keyFrame?.Preview?.Dispose();
+                    keyFrame?.PreviewSurface?.Dispose();
                     if (keyFrame != null)
                     {
-                        keyFrame.Preview = new Surface(newSize.Value.previewSize);
+                        keyFrame.PreviewSurface = new Surface(newSize.Value.previewSize);
                     }
                 }
             }
@@ -567,15 +567,15 @@ internal class MemberPreviewUpdater
     
     private void RenderAnimationFramePreview(IStructureMemberHandler memberVM, IKeyFrameHandler keyFrame)
     {
-        if (keyFrame.Preview is null)
+        if (keyFrame.PreviewSurface is null)
         {
             if(memberVM.PreviewSurface is not null)
-                keyFrame.Preview = new Surface(memberVM.PreviewSurface.Size);
+                keyFrame.PreviewSurface = new Surface(memberVM.PreviewSurface.Size);
             else
                 return;
         }
 
-        keyFrame.Preview.DrawingSurface.Canvas.DrawSurface(memberVM.PreviewSurface.DrawingSurface, VecI.Zero, ReplacingPaint);
+        keyFrame.PreviewSurface.DrawingSurface.Canvas.DrawSurface(memberVM.PreviewSurface.DrawingSurface, VecI.Zero, ReplacingPaint);
     }
 
     private void RenderMaskPreviews(

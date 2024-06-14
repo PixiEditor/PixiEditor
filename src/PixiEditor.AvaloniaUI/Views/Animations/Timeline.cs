@@ -27,6 +27,15 @@ public class Timeline : TemplatedControl
         AvaloniaProperty.Register<Timeline, ICommand>(
             nameof(NewKeyFrameCommand));
 
+    public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<Timeline, double>(
+        nameof(Scale), 100);
+
+    public double Scale
+    {
+        get => GetValue(ScaleProperty);
+        set => SetValue(ScaleProperty, value);
+    }
+
     public ICommand NewKeyFrameCommand
     {
         get => GetValue(NewKeyFrameCommandProperty);

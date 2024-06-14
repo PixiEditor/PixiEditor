@@ -119,7 +119,6 @@ public class AnimationData : IReadOnlyAnimationData
                     }
                     else
                     {
-                        Console.WriteLine($"{ActiveFrame}");
                         keyFrame.ActiveFrameChanged(ActiveFrame);
                     }
                 }

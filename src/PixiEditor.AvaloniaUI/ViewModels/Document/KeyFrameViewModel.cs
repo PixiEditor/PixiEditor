@@ -6,12 +6,12 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
 public abstract class KeyFrameViewModel(int startFrame, int duration, Guid layerGuid, Guid id) : ObservableObject, IKeyFrameHandler
 {
-    private Surface? preview;
+    private Surface? previewSurface;
     
-    public Surface? Preview
+    public Surface? PreviewSurface
     {
-        get => preview;
-        set => SetProperty(ref preview, value);
+        get => previewSurface;
+        set => SetProperty(ref previewSurface, value);
     }
     
     public virtual int StartFrame { get; } = startFrame;

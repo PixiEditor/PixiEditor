@@ -25,7 +25,7 @@
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <DockPanel Grid.Row="0" LastChildFill="True">
+                    <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Grid.Row="0" LastChildFill="True">
                         <Button DockPanel.Dock="Left" Classes="pixi-icon"
                                 Content="{DynamicResource icon-plus-square}"
                                 Command="{TemplateBinding NewKeyFrameCommand}" />
@@ -33,19 +33,30 @@
                         <Button DockPanel.Dock="Left" Classes="pixi-icon"
                                 Content="{DynamicResource icon-duplicate}"
                                 Command="{TemplateBinding DuplicateKeyFrameCommand}" />
+                        <TextBlock DockPanel.Dock="Left" Text="Scale:" />
+                        <Slider Minimum="1" Maximum="100" Value="{TemplateBinding Scale, Mode=TwoWay}" Width="100" />
+                        <TextBlock Text="{Binding Scale, RelativeSource={RelativeSource TemplatedParent}}" />
                         <Panel>
                             <ToggleButton HorizontalAlignment="Center" Content="Play" Name="PART_PlayToggle" />
                         </Panel>
                     </DockPanel>
 
-                    <DockPanel Grid.Row="1" LastChildFill="True">
-                        <Slider Margin="10 0" TickFrequency="1" TickPlacement="BottomRight"
+                    <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Grid.Row="1" LastChildFill="True">
+                        <animations:TimelineSlider Margin="10 0" TickFrequency="1" TickPlacement="TopLeft"
                                 SmallChange="1"
                                 LargeChange="10"
                                 IsSnapToTickEnabled="True"
                                 Name="ActiveFrameSlider"
-                                Minimum="0"
-                                Maximum="{Binding KeyFrames.FrameCount, RelativeSource={RelativeSource TemplatedParent}}">
+                                Minimum="0">
+                            <animations:TimelineSlider.Maximum>
+                                <MultiBinding>
+                                    <MultiBinding.Converter>
+                                        <converters:TimelineSliderWidthToMaximumConverter />
+                                    </MultiBinding.Converter>
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Bounds.Width" />
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Scale" />
+                                </MultiBinding>
+                            </animations:TimelineSlider.Maximum>
                             <Interaction.Behaviors>
                                 <behaviours:SliderUpdateBehavior
                                     Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActiveFrame, Mode=OneWay}"
@@ -55,13 +66,14 @@
                                     SetValueCommand="{xaml:Command PixiEditor.Animation.ActiveFrameSet, UseProvided=True}"
                                     ValueFromSlider="{Binding ElementName=ActiveFrameSlider, Path=Value, Mode=TwoWay}" />
                             </Interaction.Behaviors>
-                        </Slider>
+                        </animations:TimelineSlider>
                     </DockPanel>
 
                     <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto">
                         <TreeView ItemsSource="{TemplateBinding KeyFrames}">
                             <TreeView.ItemContainerTheme>
                                 <ControlTheme TargetType="TreeViewItem">
+                                    <Setter Property="ClipToBounds" Value="False"/>
                                     <Setter Property="Template">
                                         <ControlTemplate>
                                             <StackPanel>
@@ -88,7 +100,7 @@
                             </TreeView.ItemContainerTheme>
                             <TreeView.ItemTemplate>
                                 <TreeDataTemplate ItemsSource="{Binding Children}">
-                                    <animations:KeyFrame Item="{Binding}" />
+                                    <animations:KeyFrame Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}" Item="{Binding}" />
                                 </TreeDataTemplate>
                             </TreeView.ItemTemplate>
                             <TreeView.ItemsPanel>
