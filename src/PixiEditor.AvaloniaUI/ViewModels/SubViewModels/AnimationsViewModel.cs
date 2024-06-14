@@ -16,7 +16,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     public void CreateRasterKeyFrame(bool duplicate)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (activeDocument == null)
+        if (activeDocument == null || activeDocument.SelectedStructureMember is null)
         {
             return;
         }

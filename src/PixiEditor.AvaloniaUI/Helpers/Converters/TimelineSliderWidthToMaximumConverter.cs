@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using Avalonia;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
@@ -16,9 +17,9 @@ internal class TimelineSliderWidthToMaximumConverter : SingleInstanceMultiValueC
             throw new ArgumentException("TimelineSliderWidthToMaximumConverter requires 2 values");
         }
 
-        if (values[0] is double width && values[1] is double scale)
+        if (values[0] is Rect bounds && values[1] is double scale)
         {
-            return width / scale;
+            return (bounds.Width) / scale;
         }
 
         return 0;

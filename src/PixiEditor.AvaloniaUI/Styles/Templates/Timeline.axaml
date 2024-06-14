@@ -18,14 +18,18 @@
     <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid>
+                <Grid  Background="{DynamicResource ThemeBackgroundBrush1}">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
 
-                    <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Grid.Row="0" LastChildFill="True">
+                    <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" LastChildFill="True">
                         <Button DockPanel.Dock="Left" Classes="pixi-icon"
                                 Content="{DynamicResource icon-plus-square}"
                                 Command="{TemplateBinding NewKeyFrameCommand}" />
@@ -41,19 +45,20 @@
                         </Panel>
                     </DockPanel>
 
-                    <DockPanel Background="{DynamicResource ThemeBackgroundBrush1}" Grid.Row="1" LastChildFill="True">
-                        <animations:TimelineSlider Margin="10 0" TickFrequency="1" TickPlacement="TopLeft"
-                                SmallChange="1"
-                                LargeChange="10"
-                                IsSnapToTickEnabled="True"
-                                Name="ActiveFrameSlider"
-                                Minimum="0">
+                    <DockPanel Grid.Column="1" Grid.Row="1"
+                               LastChildFill="True">
+                        <animations:TimelineSlider Margin="0 0" TickFrequency="1" TickPlacement="TopLeft"
+                                                   SmallChange="1"
+                                                   LargeChange="10"
+                                                   IsSnapToTickEnabled="True"
+                                                   Name="ActiveFrameSlider"
+                                                   Minimum="0">
                             <animations:TimelineSlider.Maximum>
                                 <MultiBinding>
                                     <MultiBinding.Converter>
                                         <converters:TimelineSliderWidthToMaximumConverter />
                                     </MultiBinding.Converter>
-                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Bounds.Width" />
+                                    <Binding Path="VisualParent.Bounds" RelativeSource="{RelativeSource Self}" />
                                     <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Scale" />
                                 </MultiBinding>
                             </animations:TimelineSlider.Maximum>
@@ -69,45 +74,45 @@
                         </animations:TimelineSlider>
                     </DockPanel>
 
-                    <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto">
+                    <ScrollViewer Background="{DynamicResource ThemeBackgroundBrush}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" HorizontalScrollBarVisibility="Auto">
                         <TreeView ItemsSource="{TemplateBinding KeyFrames}">
                             <TreeView.ItemContainerTheme>
                                 <ControlTheme TargetType="TreeViewItem">
-                                    <Setter Property="ClipToBounds" Value="False"/>
+                                    <Setter Property="ClipToBounds" Value="False" />
                                     <Setter Property="Template">
                                         <ControlTemplate>
-                                            <StackPanel>
-                                                <ItemsPresenter Name="PART_ItemsPresenter"
-                                                                IsVisible="True">
+                                            <StackPanel Orientation="Horizontal">
+                                                <ContentPresenter Name="PART_HeaderPresenter" Margin="0" Padding="0"
+                                                                  Background="Transparent"
+                                                                  HorizontalContentAlignment="{TemplateBinding HorizontalAlignment}"
+                                                                  Content="{TemplateBinding Header}"
+                                                                  ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                                  Focusable="False" />
+                                                <ItemsPresenter Name="PART_ItemsPresenter">
                                                     <ItemsPresenter.ItemsPanel>
                                                         <ItemsPanelTemplate>
                                                             <StackPanel Orientation="Horizontal" />
                                                         </ItemsPanelTemplate>
                                                     </ItemsPresenter.ItemsPanel>
                                                 </ItemsPresenter>
-                                                <ContentPresenter Name="PART_HeaderPresenter"
-                                                                  Grid.Column="1"
-                                                                  Background="Transparent"
-                                                                  Padding="{TemplateBinding Padding}"
-                                                                  HorizontalContentAlignment="{TemplateBinding HorizontalAlignment}"
-                                                                  Content="{TemplateBinding Header}"
-                                                                  ContentTemplate="{TemplateBinding HeaderTemplate}"
-                                                                  Focusable="False" />
                                             </StackPanel>
                                         </ControlTemplate>
                                     </Setter>
                                 </ControlTheme>
                             </TreeView.ItemContainerTheme>
-                            <TreeView.ItemTemplate>
-                                <TreeDataTemplate ItemsSource="{Binding Children}">
-                                    <animations:KeyFrame Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}" Item="{Binding}" />
+                            <TreeView.DataTemplates>
+                                <TreeDataTemplate DataType="document:KeyFrameGroupViewModel"
+                                                  ItemsSource="{Binding Children}">
+                                    <Grid Width="200">
+                                        <TextBlock Text="{Binding StartFrame}" />
+                                    </Grid>
                                 </TreeDataTemplate>
-                            </TreeView.ItemTemplate>
-                            <TreeView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </TreeView.ItemsPanel>
+                                <DataTemplate DataType="document:RasterKeyFrameViewModel">
+                                    <animations:KeyFrame Margin="0 10"
+                                        Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                        Item="{Binding}" />
+                                </DataTemplate>
+                            </TreeView.DataTemplates>
                         </TreeView>
                     </ScrollViewer>
                 </Grid>
