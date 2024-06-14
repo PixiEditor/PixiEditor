@@ -39,8 +39,10 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, bool cloneFromExisting)
     {
         if (!Document.UpdateableChangeActive)
-            Internals.ActionAccumulator.AddFinishedActions(new CreateRasterClip_Action(targetLayerGuid, frame,
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new CreateRasterKeyFrame_Action(targetLayerGuid, frame,
                 cloneFromExisting));
+        }
     }
 
     public void SetActiveFrame(int newFrame)
@@ -74,20 +76,25 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             parent.Children.Remove(frame);
         });
     }
+    
+    public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler
+    {
+        return TryFindKeyFrame<T>(keyFrames, null, guid, out keyFrameHandler, null);
+    }
 
     // TODO: Use the same structure functions as layers
-    public bool TryFindKeyFrame<T>(Guid id, out T foundKeyFrame,
-        Action<KeyFrameViewModel, KeyFrameGroupViewModel?> onFound = null) where T : KeyFrameViewModel
+    public bool TryFindKeyFrame<T>(Guid id, out T? foundKeyFrame,
+        Action<IKeyFrameHandler, IKeyFrameGroupHandler?> onFound = null) where T : IKeyFrameHandler
     {
         return TryFindKeyFrame(keyFrames, null, id, out foundKeyFrame, onFound);
     }
 
-    private bool TryFindKeyFrame<T>(IList<KeyFrameViewModel> root, KeyFrameGroupViewModel parent, Guid id, out T result,
-        Action<KeyFrameViewModel, KeyFrameGroupViewModel?> onFound) where T : KeyFrameViewModel
+    private bool TryFindKeyFrame<T>(IReadOnlyCollection<IKeyFrameHandler> root, IKeyFrameGroupHandler parent, Guid id, out T? result,
+        Action<IKeyFrameHandler, IKeyFrameGroupHandler?> onFound) where T : IKeyFrameHandler
     {
         for (var i = 0; i < root.Count; i++)
         {
-            var frame = root[i];
+            var frame = root.ElementAt(i);
             if (frame is T targetFrame && targetFrame.Id.Equals(id))
             {
                 result = targetFrame;
@@ -95,7 +102,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 return true;
             }
 
-            if (frame is KeyFrameGroupViewModel { Children.Count: > 0 } group)
+            if (frame is IKeyFrameGroupHandler { Children.Count: > 0 } group)
             {
                 bool found = TryFindKeyFrame(group.Children, group, id, out result, onFound);
                 if (found)
@@ -105,7 +112,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             }
         }
 
-        result = null;
+        result = default;
         return false;
     }
 }

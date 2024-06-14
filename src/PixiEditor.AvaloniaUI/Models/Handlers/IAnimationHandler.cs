@@ -1,8 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using PixiEditor.AvaloniaUI.ViewModels.Document;
-using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-
-namespace PixiEditor.AvaloniaUI.Models.Handlers;
+﻿namespace PixiEditor.AvaloniaUI.Models.Handlers;
 
 public interface IAnimationHandler
 {
@@ -10,6 +6,7 @@ public interface IAnimationHandler
     public int ActiveFrameBindable { get; set; }
     public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, bool cloneFromExisting);
     public void SetActiveFrame(int newFrame);
+    public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler;
     internal void AddKeyFrame(IKeyFrameHandler keyFrame);
     internal void RemoveKeyFrame(Guid keyFrameId);
 }

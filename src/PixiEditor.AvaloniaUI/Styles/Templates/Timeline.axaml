@@ -10,7 +10,7 @@
     <Design.PreviewWith>
         <animations:Timeline>
             <animations:Timeline.KeyFrames>
-                <document:RasterKeyFrameViewModel Duration="100"/>
+                <document:RasterKeyFrameViewModel Duration="100" />
             </animations:Timeline.KeyFrames>
         </animations:Timeline>
     </Design.PreviewWith>
@@ -20,26 +20,26 @@
             <ControlTemplate>
                 <Grid>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
                     <DockPanel Grid.Row="0" LastChildFill="True">
                         <Button DockPanel.Dock="Left" Classes="pixi-icon"
                                 Content="{DynamicResource icon-plus-square}"
-                                Command="{TemplateBinding NewKeyFrameCommand}"/>
-                        
+                                Command="{TemplateBinding NewKeyFrameCommand}" />
+
                         <Button DockPanel.Dock="Left" Classes="pixi-icon"
                                 Content="{DynamicResource icon-duplicate}"
-                                Command="{TemplateBinding DuplicateKeyFrameCommand}"/>
+                                Command="{TemplateBinding DuplicateKeyFrameCommand}" />
                         <Panel>
-                            <ToggleButton HorizontalAlignment="Center" Content="Play" Name="PART_PlayToggle"/>
+                            <ToggleButton HorizontalAlignment="Center" Content="Play" Name="PART_PlayToggle" />
                         </Panel>
                     </DockPanel>
 
                     <DockPanel Grid.Row="1" LastChildFill="True">
-                        <Slider Margin="10 0" TickFrequency="1" TickPlacement="BottomRight" 
+                        <Slider Margin="10 0" TickFrequency="1" TickPlacement="BottomRight"
                                 SmallChange="1"
                                 LargeChange="10"
                                 IsSnapToTickEnabled="True"
@@ -57,14 +57,45 @@
                             </Interaction.Behaviors>
                         </Slider>
                     </DockPanel>
-                    
+
                     <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto">
                         <TreeView ItemsSource="{TemplateBinding KeyFrames}">
+                            <TreeView.ItemContainerTheme>
+                                <ControlTheme TargetType="TreeViewItem">
+                                    <Setter Property="Template">
+                                        <ControlTemplate>
+                                            <StackPanel>
+                                                <ItemsPresenter Name="PART_ItemsPresenter"
+                                                                IsVisible="True">
+                                                    <ItemsPresenter.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <StackPanel Orientation="Horizontal" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsPresenter.ItemsPanel>
+                                                </ItemsPresenter>
+                                                <ContentPresenter Name="PART_HeaderPresenter"
+                                                                  Grid.Column="1"
+                                                                  Background="Transparent"
+                                                                  Padding="{TemplateBinding Padding}"
+                                                                  HorizontalContentAlignment="{TemplateBinding HorizontalAlignment}"
+                                                                  Content="{TemplateBinding Header}"
+                                                                  ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                                                  Focusable="False" />
+                                            </StackPanel>
+                                        </ControlTemplate>
+                                    </Setter>
+                                </ControlTheme>
+                            </TreeView.ItemContainerTheme>
                             <TreeView.ItemTemplate>
                                 <TreeDataTemplate ItemsSource="{Binding Children}">
-                                    <TextBlock Text="{Binding StartFrame}"/>
+                                    <animations:KeyFrame Item="{Binding}" />
                                 </TreeDataTemplate>
                             </TreeView.ItemTemplate>
+                            <TreeView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </TreeView.ItemsPanel>
                         </TreeView>
                     </ScrollViewer>
                 </Grid>

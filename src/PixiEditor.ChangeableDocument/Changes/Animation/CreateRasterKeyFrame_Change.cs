@@ -3,7 +3,7 @@ using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Animation;
 
-internal class CreateRasterClip_Change : Change
+internal class CreateRasterKeyFrame_Change : Change
 {
     private readonly Guid _targetLayerGuid;
     private readonly int _frame;
@@ -12,7 +12,7 @@ internal class CreateRasterClip_Change : Change
     private Guid createdKeyFrameId;
 
     [GenerateMakeChangeAction]
-    public CreateRasterClip_Change(Guid targetLayerGuid, int frame, bool cloneFromExisting = false)
+    public CreateRasterKeyFrame_Change(Guid targetLayerGuid, int frame, bool cloneFromExisting = false)
     {
         _targetLayerGuid = targetLayerGuid;
         _frame = frame;
@@ -30,7 +30,6 @@ internal class CreateRasterClip_Change : Change
             new RasterKeyFrame(_targetLayerGuid, _frame, target, _cloneFromExisting ? _layer.LayerImage : null);
         createdKeyFrameId = keyFrame.Id;
         target.AnimationData.AddKeyFrame(keyFrame);
-        target.AnimationData.ChangePreviewFrame(_frame);
         ignoreInUndo = false;
         return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, _cloneFromExisting);
     }

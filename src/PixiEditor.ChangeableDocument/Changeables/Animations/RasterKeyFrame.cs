@@ -19,7 +19,6 @@ internal class RasterKeyFrame : KeyFrame
     {
         if (Document.TryFindMember<RasterLayer>(LayerGuid, out var layer))
         {
-            originalLayerImage = layer.LayerImage;
             layer.LayerImage = Image;
         }
     }
@@ -28,7 +27,7 @@ internal class RasterKeyFrame : KeyFrame
     {
         if (Document.TryFindMember<RasterLayer>(LayerGuid, out var layer))
         {
-            layer.LayerImage = originalLayerImage;
+            //layer.LayerImage = originalLayerImage;
         }
     }
 }

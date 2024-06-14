@@ -29,11 +29,6 @@ public class AnimationData : IReadOnlyAnimationData
 
     private List<KeyFrame> keyFrames = new List<KeyFrame>();
     
-    public void ChangePreviewFrame(int frame)
-    {
-        ActiveFrame = frame;
-    }
-
     public void AddKeyFrame(KeyFrame keyFrame)
     {
         Guid id = keyFrame.LayerGuid;
@@ -59,13 +54,18 @@ public class AnimationData : IReadOnlyAnimationData
             }
         });
     }
+    
+    public bool FindKeyFrame(Guid id, out IReadOnlyKeyFrame keyFrame)
+    {
+        return TryFindKeyFrame(id, out keyFrame, null);
+    }
 
-    private bool TryFindKeyFrame<T>(Guid id, out T foundKeyFrame, Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : KeyFrame
+    private bool TryFindKeyFrame<T>(Guid id, out T? foundKeyFrame, Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : IReadOnlyKeyFrame
     {
         return TryFindKeyFrame(keyFrames, null, id, out foundKeyFrame, onFound);
     }
 
-    private bool TryFindKeyFrame<T>(List<KeyFrame> root, GroupKeyFrame parent, Guid id, out T result, Action<KeyFrame, GroupKeyFrame?> onFound) where T : KeyFrame
+    private bool TryFindKeyFrame<T>(List<KeyFrame> root, GroupKeyFrame parent, Guid id, out T? result, Action<KeyFrame, GroupKeyFrame?> onFound) where T : IReadOnlyKeyFrame
     {
         for (var i = 0; i < root.Count; i++)
         {
@@ -87,7 +87,7 @@ public class AnimationData : IReadOnlyAnimationData
             }
         }
 
-        result = null;
+        result = default;
         return false;
     }
     
@@ -119,6 +119,7 @@ public class AnimationData : IReadOnlyAnimationData
                     }
                     else
                     {
+                        Console.WriteLine($"{ActiveFrame}");
                         keyFrame.ActiveFrameChanged(ActiveFrame);
                     }
                 }

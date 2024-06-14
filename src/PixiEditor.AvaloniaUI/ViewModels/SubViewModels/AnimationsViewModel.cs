@@ -13,7 +13,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     
     [Command.Basic("PixiEditor.Animation.CreateRasterKeyFrame", "Create Raster Key Frame", "Create a raster key frame", Parameter = false)]
     [Command.Basic("PixiEditor.Animation.DuplicateRasterKeyFrame", "Duplicate Raster Key Frame", "Duplicate a raster key frame", Parameter = true)]
-    public void CreateRasterClip(bool duplicate)
+    public void CreateRasterKeyFrame(bool duplicate)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (activeDocument == null)
@@ -32,6 +32,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             activeDocument.SelectedStructureMember.GuidValue, 
             newFrame,
             duplicate);
+        
+        activeDocument.Operations.SetActiveFrame(newFrame);
     }
     
     [Command.Internal("PixiEditor.Document.StartChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]

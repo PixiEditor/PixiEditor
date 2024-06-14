@@ -10,6 +10,7 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Rendering.RenderInfos;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -209,21 +210,36 @@ internal class MemberPreviewUpdater
         {
             IStructureMemberHandler member = doc.StructureHelper.FindOrThrow(guid);
 
+            bool hasAnimation = doc.AnimationHandler.FindKeyFrame<IKeyFrameGroupHandler>(guid, out IKeyFrameGroupHandler? animationGroup);
+            IKeyFrameHandler? keyFrame = hasAnimation ? animationGroup!.Children.ElementAtOrDefault(doc.AnimationHandler.ActiveFrameBindable) : null;
+
             if (newSize is null)
             {
                 member.PreviewSurface?.Dispose();
                 member.PreviewSurface = null;
+
+                keyFrame?.Preview?.Dispose();
+                if (keyFrame != null)
+                {
+                    keyFrame.Preview = null;
+                }
             }
             else
             {
                 if (member.PreviewSurface is not null && member.PreviewSurface.Size.X == newSize.Value.previewSize.X && member.PreviewSurface.Size.Y == newSize.Value.previewSize.Y)
                 {
                     member.PreviewSurface!.DrawingSurface.Canvas.Clear();
+                    keyFrame?.Preview?.DrawingSurface.Canvas.Clear();
                 }
                 else
                 {
                     member.PreviewSurface?.Dispose();
                     member.PreviewSurface = new Surface(newSize.Value.previewSize); // TODO: premul bgra8888 was here
+                    keyFrame?.Preview?.Dispose();
+                    if (keyFrame != null)
+                    {
+                        keyFrame.Preview = new Surface(newSize.Value.previewSize);
+                    }
                 }
             }
 
@@ -474,6 +490,19 @@ internal class MemberPreviewUpdater
             if (memberVM is ILayerHandler)
             {
                 RenderLayerMainPreview((IReadOnlyLayer)member, memberVM, affArea.Value, position, scaling);
+
+                if (doc.AnimationHandler.FindKeyFrame(guid, out IKeyFrameHandler? keyFrame))
+                {
+                    if (keyFrame is IKeyFrameGroupHandler group)
+                    {
+                        if (group.Children.Count > doc.AnimationHandler.ActiveFrameBindable)
+                        {
+                            var target = group.Children[doc.AnimationHandler.ActiveFrameBindable];
+                            RenderAnimationFramePreview(memberVM, target);
+                        }
+                    }
+                }
+                
                 infos.Add(new PreviewDirty_RenderInfo(guid));
             }
             else if (memberVM is IFolderHandler)
@@ -534,6 +563,19 @@ internal class MemberPreviewUpdater
         }
 
         memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
+    }
+    
+    private void RenderAnimationFramePreview(IStructureMemberHandler memberVM, IKeyFrameHandler keyFrame)
+    {
+        if (keyFrame.Preview is null)
+        {
+            if(memberVM.PreviewSurface is not null)
+                keyFrame.Preview = new Surface(memberVM.PreviewSurface.Size);
+            else
+                return;
+        }
+
+        keyFrame.Preview.DrawingSurface.Canvas.DrawSurface(memberVM.PreviewSurface.DrawingSurface, VecI.Zero, ReplacingPaint);
     }
 
     private void RenderMaskPreviews(

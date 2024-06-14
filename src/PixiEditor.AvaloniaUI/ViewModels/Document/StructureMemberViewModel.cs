@@ -120,9 +120,9 @@ internal abstract class StructureMemberViewModel : ObservableObject, IStructureM
 
     private float opacity;
 
-    public void SetOpacity(float opacity)
+    public void SetOpacity(float newOpacity)
     {
-        this.opacity = opacity;
+        this.opacity = newOpacity;
         OnPropertyChanged(nameof(OpacityBindable));
     }
     public float OpacityBindable

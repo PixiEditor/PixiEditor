@@ -10,6 +10,7 @@
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/ShortcutBoxTemplate.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/DocumentTabTemplate.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/Timeline.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/KeyFrame.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

@@ -70,7 +70,7 @@ public class Timeline : TemplatedControl
 
     public Timeline()
     {
-        _playTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000 / 8f) };
+        _playTimer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000 / 8f) };
         _playTimer.Tick += PlayTimerOnTick;
     }
 
