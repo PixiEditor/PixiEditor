@@ -33,6 +33,15 @@ public class Timeline : TemplatedControl
         set => SetValue(NewKeyFrameCommandProperty, value);
     }
 
+    public static readonly StyledProperty<ICommand> DuplicateKeyFrameCommandProperty = AvaloniaProperty.Register<Timeline, ICommand>(
+        "DuplicateKeyFrameCommand");
+
+    public ICommand DuplicateKeyFrameCommand
+    {
+        get => GetValue(DuplicateKeyFrameCommandProperty);
+        set => SetValue(DuplicateKeyFrameCommandProperty, value);
+    }
+
     public bool IsPlaying
     {
         get => GetValue(IsPlayingProperty);
@@ -61,7 +70,7 @@ public class Timeline : TemplatedControl
 
     public Timeline()
     {
-        _playTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000 / 60f) };
+        _playTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1000 / 8f) };
         _playTimer.Tick += PlayTimerOnTick;
     }
 
@@ -80,7 +89,7 @@ public class Timeline : TemplatedControl
     {
         ActiveFrame++;
         
-        if (ActiveFrame >= KeyFrames.Count)
+        if (ActiveFrame >= KeyFrames.FrameCount)
         {
             ActiveFrame = 0;
         }

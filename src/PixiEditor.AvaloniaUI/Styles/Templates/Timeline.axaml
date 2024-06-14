@@ -29,6 +29,10 @@
                         <Button DockPanel.Dock="Left" Classes="pixi-icon"
                                 Content="{DynamicResource icon-plus-square}"
                                 Command="{TemplateBinding NewKeyFrameCommand}"/>
+                        
+                        <Button DockPanel.Dock="Left" Classes="pixi-icon"
+                                Content="{DynamicResource icon-duplicate}"
+                                Command="{TemplateBinding DuplicateKeyFrameCommand}"/>
                         <Panel>
                             <ToggleButton HorizontalAlignment="Center" Content="Play" Name="PART_PlayToggle"/>
                         </Panel>
