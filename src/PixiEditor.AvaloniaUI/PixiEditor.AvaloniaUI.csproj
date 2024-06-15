@@ -80,6 +80,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj"/>
+    <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj" />
+    <ProjectReference Include="..\PixiEditor.AnimationRenderer.FFmpeg\PixiEditor.AnimationRenderer.FFmpeg.csproj" />
     <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj"/>
     <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj"/>
     <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj"/>

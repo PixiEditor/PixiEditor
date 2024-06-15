@@ -53,6 +53,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
 
     private string coordinatesString = "";
+
     public string CoordinatesString
     {
         get => coordinatesString;
@@ -60,6 +61,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     }
 
     private string? fullFilePath = null;
+
     public string? FullFilePath
     {
         get => fullFilePath;
@@ -69,13 +71,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             OnPropertyChanged(nameof(FileName));
         }
     }
-    
+
     public string FileName
     {
         get => fullFilePath is null ? new LocalizedString("UNNAMED") : Path.GetFileName(fullFilePath);
     }
 
     private Guid? lastChangeOnSave = null;
+
     public bool AllChangesSaved
     {
         get
@@ -87,28 +90,33 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DateTime OpenedUTC { get; } = DateTime.UtcNow;
 
     private bool horizontalSymmetryAxisEnabled;
+
     public bool HorizontalSymmetryAxisEnabledBindable
     {
         get => horizontalSymmetryAxisEnabled;
         set
         {
             if (!Internals.ChangeController.IsChangeActive)
-                Internals.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Horizontal, value));
+                Internals.ActionAccumulator.AddFinishedActions(
+                    new SymmetryAxisState_Action(SymmetryAxisDirection.Horizontal, value));
         }
     }
 
     private bool verticalSymmetryAxisEnabled;
+
     public bool VerticalSymmetryAxisEnabledBindable
     {
         get => verticalSymmetryAxisEnabled;
         set
         {
             if (!Internals.ChangeController.IsChangeActive)
-                Internals.ActionAccumulator.AddFinishedActions(new SymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
+                Internals.ActionAccumulator.AddFinishedActions(
+                    new SymmetryAxisState_Action(SymmetryAxisDirection.Vertical, value));
         }
     }
 
-    public bool AnySymmetryAxisEnabledBindable => HorizontalSymmetryAxisEnabledBindable || VerticalSymmetryAxisEnabledBindable;
+    public bool AnySymmetryAxisEnabledBindable =>
+        HorizontalSymmetryAxisEnabledBindable || VerticalSymmetryAxisEnabledBindable;
 
     private VecI size = new VecI(64, 64);
     public int Width => size.X;
@@ -124,7 +132,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     private readonly HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
 
     public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
-    public bool PointerDragChangeInProgress => Internals.ChangeController.IsChangeActive && Internals.ChangeController.LeftMousePressed;
+
+    public bool PointerDragChangeInProgress =>
+        Internals.ChangeController.IsChangeActive && Internals.ChangeController.LeftMousePressed;
+
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
     public bool HasSavedRedo => Internals.Tracker.HasSavedRedo;
 
@@ -133,8 +144,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DocumentToolsModule Tools { get; }
     public DocumentOperationsModule Operations { get; }
     public DocumentEventsModule EventInlet { get; }
-    public ActionDisplayList ActionDisplays { get; } = new(() => ViewModelMain.Current.NotifyToolActionDisplayChanged());
+
+    public ActionDisplayList ActionDisplays { get; } =
+        new(() => ViewModelMain.Current.NotifyToolActionDisplayChanged());
+
     public IStructureMemberHandler? SelectedStructureMember { get; private set; } = null;
+
     //TODO: It was DrawingSurface before, check if it's correct
     public Dictionary<ChunkResolution, Surface> Surfaces { get; set; } = new()
     {
@@ -201,7 +216,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
 
         LineToolOverlayViewModel = new();
-        LineToolOverlayViewModel.LineMoved += (_, args) => Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
+        LineToolOverlayViewModel.LineMoved += (_, args) =>
+            Internals.ChangeController.LineOverlayMovedInlet(args.Item1, args.Item2);
 
         VecI previewSize = StructureMemberViewModel.CalculatePreviewSize(SizeBindable);
         PreviewSurface = new Surface(new VecI(previewSize.X, previewSize.Y));
@@ -223,8 +239,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         var acc = viewModel.Internals.ActionAccumulator;
 
-        viewModel.Internals.ChangeController.SymmetryDraggedInlet(new SymmetryAxisDragInfo(SymmetryAxisDirection.Horizontal, builderInstance.Height / 2));
-        viewModel.Internals.ChangeController.SymmetryDraggedInlet(new SymmetryAxisDragInfo(SymmetryAxisDirection.Vertical, builderInstance.Width / 2));
+        viewModel.Internals.ChangeController.SymmetryDraggedInlet(
+            new SymmetryAxisDragInfo(SymmetryAxisDirection.Horizontal, builderInstance.Height / 2));
+        viewModel.Internals.ChangeController.SymmetryDraggedInlet(
+            new SymmetryAxisDragInfo(SymmetryAxisDirection.Vertical, builderInstance.Width / 2));
 
         acc.AddActions(
             new SymmetryAxisPosition_Action(SymmetryAxisDirection.Horizontal, (double)builderInstance.Height / 2),
@@ -235,7 +253,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (builderInstance.ReferenceLayer is { } refLayer)
         {
             acc
-                .AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImageBgra8888Bytes.ToImmutableArray(), refLayer.ImageSize));
+                .AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImageBgra8888Bytes.ToImmutableArray(),
+                    refLayer.ImageSize));
         }
 
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
@@ -251,15 +270,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
         {
             acc.AddActions(
-                new CreateStructureMember_Action(parentGuid, member.GuidValue, 0, member is DocumentViewModelBuilder.LayerBuilder ? StructureMemberType.Layer : StructureMemberType.Folder),
+                new CreateStructureMember_Action(parentGuid, member.GuidValue, 0,
+                    member is DocumentViewModelBuilder.LayerBuilder
+                        ? StructureMemberType.Layer
+                        : StructureMemberType.Folder),
                 new StructureMemberName_Action(member.GuidValue, member.Name)
             );
 
             if (!member.IsVisible)
                 acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.GuidValue));
-            
+
             acc.AddActions(new StructureMemberBlendMode_Action(member.BlendMode, member.GuidValue));
-            
+
             acc.AddActions(new StructureMemberClipToMemberBelow_Action(member.ClipToMemberBelow, member.GuidValue));
 
             if (member is DocumentViewModelBuilder.LayerBuilder layerBuilder)
@@ -269,9 +291,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
             if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
             {
-                PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY, false);
+                PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY,
+                    false);
             }
-            
+
             acc.AddActions(
                 new StructureMemberOpacity_Action(member.GuidValue, member.Opacity),
                 new EndStructureMemberOpacity_Action());
@@ -296,10 +319,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             }
         }
 
-        void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX, int offsetY, bool onMask)
+        void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX,
+            int offsetY, bool onMask)
         {
             acc.AddActions(
-                new PasteImage_Action(surface.Surface, new(new RectD(new VecD(offsetX, offsetY), new(width, height))), guid, true, onMask),
+                new PasteImage_Action(surface.Surface, new(new RectD(new VecD(offsetX, offsetY), new(width, height))),
+                    guid, true, onMask),
                 new EndPasteImage_Action());
         }
 
@@ -333,7 +358,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// Tries rendering the whole document
     /// </summary>
     /// <returns><see cref="Error"/> if the ChunkyImage was disposed, otherwise a <see cref="Surface"/> of the rendered document</returns>
-    public OneOf<Error, Surface> MaybeRenderWholeImage()
+    public OneOf<Error, Surface> TryRenderWholeImage()
     {
         try
         {
@@ -343,13 +368,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 for (int j = 0; j < sizeInChunks.Y; j++)
                 {
-                    var maybeChunk = ChunkRenderer.MergeWholeStructure(new(i, j), ChunkResolution.Full, Internals.Tracker.Document.StructureRoot);
+                    var maybeChunk = ChunkRenderer.MergeWholeStructure(new(i, j), ChunkResolution.Full,
+                        Internals.Tracker.Document.StructureRoot);
                     if (maybeChunk.IsT1)
                         continue;
                     using Chunk chunk = maybeChunk.AsT0;
-                    finalSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
-                } 
+                    finalSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface,
+                        i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
+                }
             }
+
             return finalSurface;
         }
         catch (ObjectDisposedException)
@@ -362,7 +390,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// Takes the selected area and converts it into a surface
     /// </summary>
     /// <returns><see cref="Error"/> on error, <see cref="None"/> for empty <see cref="Surface"/>, <see cref="Surface"/> otherwise.</returns>
-    public OneOf<Error, None, (Surface, RectI)> MaybeExtractSelectedArea(IStructureMemberHandler? layerToExtractFrom = null)
+    public OneOf<Error, None, (Surface, RectI)> MaybeExtractSelectedArea(
+        IStructureMemberHandler? layerToExtractFrom = null)
     {
         layerToExtractFrom ??= SelectedStructureMember;
         if (layerToExtractFrom is not LayerViewModel layerVm)
@@ -385,6 +414,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             return new Error();
         }
+
         if (memberImageBounds is null)
             return new None();
         bounds = bounds.Intersect(memberImageBounds.Value);
@@ -407,6 +437,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             output.Dispose();
             return new Error();
         }
+
         output.DrawingSurface.Canvas.Restore();
 
         return (output, bounds);
@@ -418,7 +449,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// <param name="includeReference">Should the color be picked from the reference layer</param>
     /// <param name="includeCanvas">Should the color be picked from the canvas</param>
     /// <param name="referenceTopmost">Is the reference layer topmost. (Only affects the result is includeReference and includeCanvas are set.)</param>
-    public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas, bool referenceTopmost = false)
+    public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas,
+        bool referenceTopmost = false)
     {
         if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
             includeReference = false;
@@ -435,12 +467,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 return ColorHelpers.BlendColors(referenceColor, canvasColor);
             }
 
-            byte referenceAlpha = canvasColor.A == 0 ? referenceColor.A : (byte)(referenceColor.A * ReferenceLayerViewModel.TopMostOpacity);
+            byte referenceAlpha = canvasColor.A == 0
+                ? referenceColor.A
+                : (byte)(referenceColor.A * ReferenceLayerViewModel.TopMostOpacity);
 
             referenceColor = new Color(referenceColor.R, referenceColor.G, referenceColor.B, referenceAlpha);
             return ColorHelpers.BlendColors(canvasColor, referenceColor);
-
         }
+
         if (includeCanvas)
             return PickColorFromCanvas((VecI)pos, scope);
         if (includeReference)
@@ -453,7 +487,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Surface? bitmap = ReferenceLayerViewModel.ReferenceBitmap;
         if (bitmap is null)
             return null;
-        
+
         Matrix matrix = ReferenceLayerViewModel.ReferenceTransformMatrix;
         matrix = matrix.Invert();
         var transformed = matrix.Transform(new Point(pos.X, pos.Y));
@@ -474,7 +508,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full, Internals.Tracker.Document.StructureRoot, new RectI(pos, VecI.One))
+                return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full,
+                        Internals.Tracker.Document.StructureRoot, new RectI(pos, VecI.One))
                     .Match<Color>(
                         (Chunk chunk) =>
                         {
@@ -501,6 +536,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     }
 
     #region Internal Methods
+
     // these are intended to only be called from DocumentUpdater
 
     public void RaiseLayersChanged(LayersChangedEventArgs args) => LayersChanged?.Invoke(this, args);
@@ -573,8 +609,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     }
 
     public void ClearSoftSelectedMembers() => softSelectedStructureMembers.Clear();
-    public void AddSoftSelectedMember(IStructureMemberHandler member) => softSelectedStructureMembers.Add((StructureMemberViewModel)member);
-    public void RemoveSoftSelectedMember(StructureMemberViewModel member) => softSelectedStructureMembers.Remove(member);
+
+    public void AddSoftSelectedMember(IStructureMemberHandler member) =>
+        softSelectedStructureMembers.Add((StructureMemberViewModel)member);
+
+    public void RemoveSoftSelectedMember(StructureMemberViewModel member) =>
+        softSelectedStructureMembers.Remove(member);
+
     #endregion
 
     /// <summary>
@@ -604,7 +645,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             var foundMember = StructureHelper.Find(member);
             if (foundMember != null)
             {
-                if (foundMember is LayerViewModel layer && selectedMembers.Contains(foundMember.GuidValue) && !result.Contains(layer.GuidValue))
+                if (foundMember is LayerViewModel layer && selectedMembers.Contains(foundMember.GuidValue) &&
+                    !result.Contains(layer.GuidValue))
                 {
                     result.Add(layer.GuidValue);
                 }
@@ -616,6 +658,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 }
             }
         }
+
         return result;
     }
 
@@ -640,6 +683,53 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
                 ExtractSelectedLayers(childFolder, list, includeFoldersWithMask);
             }
+        }
+    }
+
+    public void RenderFrames(string tempRenderingPath)
+    {
+        if (AnimationDataViewModel.KeyFrames.Count == 0)
+            return;
+
+        if (!Directory.Exists(tempRenderingPath))
+        {
+            Directory.CreateDirectory(tempRenderingPath);
+        }
+        else
+        {
+            ClearTempFolder(tempRenderingPath);
+        }
+
+        var keyFrames = AnimationDataViewModel.KeyFrames;
+        var firstFrame = keyFrames.Min(x => x.StartFrame);
+        var lastFrame = keyFrames.Max(x => x.StartFrame + x.Duration);
+
+        int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
+        
+        for (int i = firstFrame; i < lastFrame; i++)
+        {
+            Internals.Tracker.ProcessActionsSync(new[] { new ActiveFrame_Action(i) });
+            var surface = TryRenderWholeImage();
+            if (surface.IsT0)
+            {
+                continue;
+            }
+
+            using var stream = new FileStream(Path.Combine(tempRenderingPath, $"{i}.png"), FileMode.Create);
+            surface.AsT1.DrawingSurface.Snapshot().Encode().SaveTo(stream);
+            stream.Position = 0;
+        }
+        
+        Internals.Tracker.ProcessActionsSync(new[] { new ActiveFrame_Action(activeFrame) });
+    }
+
+    private static void ClearTempFolder(string tempRenderingPath)
+    {
+        string[] files = Directory.GetFiles(tempRenderingPath);
+        for (var i = 0; i < files.Length; i++)
+        {
+            var file = files[i];
+            File.Delete(file);
         }
     }
 }

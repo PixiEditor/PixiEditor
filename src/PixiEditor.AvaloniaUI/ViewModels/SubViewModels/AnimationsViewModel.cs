@@ -1,4 +1,6 @@
-﻿using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
+﻿using PixiEditor.AnimationRenderer.Core;
+using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
+using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
@@ -6,9 +8,22 @@ namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.Animations", "ANIMATIONS")]
 internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 {
-    public AnimationsViewModel(ViewModelMain owner) : base(owner)
+    private IAnimationRenderer animationRenderer;
+    public AnimationsViewModel(ViewModelMain owner, IAnimationRenderer renderer) : base(owner)
     {
+        animationRenderer = renderer;
+    }
+    
+    [Command.Basic("PixiEditor.Animations.RenderAnimation", "Render Animation (MP4)", "Renders the animation as an MP4 file")]
+    public async Task RenderAnimation()
+    {
+        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
         
+        if (document is null)
+            return;
+        
+        document.RenderFrames(Paths.TempRenderingPath);
+        await animationRenderer.RenderAsync(Paths.TempRenderingPath);
     }
     
     [Command.Basic("PixiEditor.Animation.CreateRasterKeyFrame", "Create Raster Key Frame", "Create a raster key frame", Parameter = false)]

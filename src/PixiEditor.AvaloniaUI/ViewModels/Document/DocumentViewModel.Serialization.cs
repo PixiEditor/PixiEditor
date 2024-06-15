@@ -34,7 +34,7 @@ internal partial class DocumentViewModel
         {
             Width = Width, Height = Height,
             Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
-            RootFolder = root, PreviewImage = (MaybeRenderWholeImage().Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
+            RootFolder = root, PreviewImage = (TryRenderWholeImage().Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
             ReferenceLayer = GetReferenceLayer(doc)
         };
 

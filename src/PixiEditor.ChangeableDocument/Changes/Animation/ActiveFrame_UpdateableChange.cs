@@ -8,7 +8,6 @@ internal class ActiveFrame_UpdateableChange : UpdateableChange
     private int originalFrame;
     
     [GenerateUpdateableChangeActions]
-
     public ActiveFrame_UpdateableChange(int activeFrame)
     {
         newFrame = activeFrame;

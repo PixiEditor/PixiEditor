@@ -118,7 +118,7 @@ internal class Exporter
             return TrySaveAsPixi(document, pathWithExtension);
         }
         
-        var maybeBitmap = document.MaybeRenderWholeImage();
+        var maybeBitmap = document.TryRenderWholeImage();
         if (maybeBitmap.IsT0)
             return SaveResult.ConcurrencyError;
         var bitmap = maybeBitmap.AsT1;

@@ -1,6 +1,8 @@
 ﻿using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.AnimationRenderer.Core;
+using PixiEditor.AnimationRenderer.FFmpeg;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.ExtensionServices;
@@ -113,6 +115,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<PaletteFileParser, PixiPaletteParser>()
             // Palette data sources
             .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>()
+            .AddSingleton<IAnimationRenderer, FFMpegRenderer>()
             .AddMenuBuilders();
     }
 
