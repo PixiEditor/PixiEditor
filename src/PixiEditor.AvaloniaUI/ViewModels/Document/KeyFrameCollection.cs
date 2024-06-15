@@ -9,7 +9,7 @@ public class KeyFrameCollection : ObservableCollection<KeyFrameViewModel>
 {
     public KeyFrameCollection()
     {
-
+        
     }
 
     public void NotifyCollectionChanged()

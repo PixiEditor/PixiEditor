@@ -5,37 +5,41 @@
                     xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters">
     <ControlTheme TargetType="animations:KeyFrame" x:Key="{x:Type animations:KeyFrame}">
-        <Setter Property="ClipToBounds" Value="False"/>
+        <Setter Property="ClipToBounds" Value="False" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Border CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource ThemeBackgroundBrush1}" Height="20" ClipToBounds="False"
-                      BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1">
-                    <Border.Width>
-                        <MultiBinding Converter="{converters:DurationToWidthConverter}">
-                            <Binding Path="Item.Duration" RelativeSource="{RelativeSource TemplatedParent}"/>
-                            <Binding Path="Scale" RelativeSource="{RelativeSource TemplatedParent}"/>
-                        </MultiBinding>
-                    </Border.Width>
-                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Margin="0, 0, 0, 0" Width="30" Height="30" BorderThickness="1" VerticalAlignment="Center"
-                            HorizontalAlignment="Center" BorderBrush="{DynamicResource ThemeBorderMidBrush}" 
-                            RenderOptions.BitmapInterpolationMode="None">
-                        <Border.Background>
-                            <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
-                                <ImageBrush.Transform>
-                                    <ScaleTransform ScaleX="0.4" ScaleY="0.4"/>
-                                </ImageBrush.Transform>
-                            </ImageBrush>
-                        </Border.Background>
-                        <visuals:SurfaceControl Surface="{Binding Item.PreviewSurface, RelativeSource={RelativeSource TemplatedParent}}" Stretch="Uniform" Width="30" Height="30">
-                            <ui:RenderOptionsBindable.BitmapInterpolationMode>
-                                <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
-                                    <Binding Path="Item.PreviewSurface.Size.X" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                    <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Bounds.Width"/>
-                                </MultiBinding>
-                            </ui:RenderOptionsBindable.BitmapInterpolationMode>
-                        </visuals:SurfaceControl>
+                <Grid>
+                    <Border CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Background="{DynamicResource ThemeBackgroundBrush1}" Height="20" ClipToBounds="False"
+                            BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1">
+                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Width="30" Height="30"
+                                BorderThickness="1" VerticalAlignment="Center"
+                                HorizontalAlignment="Left" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                RenderOptions.BitmapInterpolationMode="None">
+                            <Border.Background>
+                                <ImageBrush Source="/Images/CheckerTile.png" TileMode="Tile">
+                                    <ImageBrush.Transform>
+                                        <ScaleTransform ScaleX="0.4" ScaleY="0.4" />
+                                    </ImageBrush.Transform>
+                                </ImageBrush>
+                            </Border.Background>
+                            <visuals:SurfaceControl
+                                Surface="{Binding Item.PreviewSurface, RelativeSource={RelativeSource TemplatedParent}}"
+                                Stretch="Uniform" Width="30" Height="30">
+                                <ui:RenderOptionsBindable.BitmapInterpolationMode>
+                                    <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
+                                        <Binding Path="Item.PreviewSurface.Size.X"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding RelativeSource="{RelativeSource Mode=Self}" Path="Bounds.Width" />
+                                    </MultiBinding>
+                                </ui:RenderOptionsBindable.BitmapInterpolationMode>
+                            </visuals:SurfaceControl>
+                        </Border>
                     </Border>
-                </Border>
+                    
+                    <Panel HorizontalAlignment="Right" Name="PART_ResizePanelRight" Width="5" Cursor="SizeWestEast" Background="Transparent" ZIndex="1"/>
+                    <Panel HorizontalAlignment="Left" Name="PART_ResizePanelLeft" Width="5" Cursor="SizeWestEast" Background="Transparent" ZIndex="1"/>
+                </Grid>
             </ControlTemplate>
         </Setter>
     </ControlTheme>

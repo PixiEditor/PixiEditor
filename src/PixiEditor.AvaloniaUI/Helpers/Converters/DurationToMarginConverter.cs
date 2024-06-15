@@ -1,8 +1,9 @@
 ﻿using System.Globalization;
+using Avalonia;
 
 namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
-internal class DurationToWidthConverter : SingleInstanceMultiValueConverter<DurationToWidthConverter>
+internal class DurationToMarginConverter : SingleInstanceMultiValueConverter<DurationToMarginConverter>
 {
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
@@ -19,7 +20,7 @@ internal class DurationToWidthConverter : SingleInstanceMultiValueConverter<Dura
         
         if(values[0] is int duration && values[1] is double scale)
         {
-            return duration * scale;
+            return new Thickness(duration * scale, 0, 0, 0);
         }
         
         return 0;
