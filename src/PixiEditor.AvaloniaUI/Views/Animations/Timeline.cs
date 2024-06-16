@@ -29,6 +29,8 @@ internal class Timeline : TemplatedControl
 
     public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<Timeline, double>(
         nameof(Scale), 100);
+    
+    public static readonly StyledProperty<int> FpsProperty = AvaloniaProperty.Register<Timeline, int>(nameof(Fps), 60);
 
     public double Scale
     {
@@ -70,17 +72,24 @@ internal class Timeline : TemplatedControl
         set { SetValue(ActiveFrameProperty, value); }
     }
 
+    public int Fps
+    {
+        get { return (int)GetValue(FpsProperty); }
+        set { SetValue(FpsProperty, value); }
+    }
+
     private ToggleButton? _playToggle;
     private DispatcherTimer _playTimer;
 
     static Timeline()
     {
         IsPlayingProperty.Changed.Subscribe(IsPlayingChanged);
+        FpsProperty.Changed.Subscribe(FpsChanged);
     }
 
     public Timeline()
     {
-        _playTimer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000 / 8f) };
+        _playTimer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / Fps) };
         _playTimer.Tick += PlayTimerOnTick;
     }
 
@@ -149,5 +158,15 @@ internal class Timeline : TemplatedControl
         {
             timeline._playTimer.Stop();
         }
+    }
+    
+    private static void FpsChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Sender is not Timeline timeline)
+        {
+            return;
+        }
+
+        timeline._playTimer.Interval = TimeSpan.FromMilliseconds(1000f / timeline.Fps);
     }
 }

@@ -2,8 +2,10 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.VisualTree;
+using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.Views.Animations;
@@ -52,6 +54,20 @@ internal class KeyFrame : TemplatedControl
         PointerPressed += CapturePointer;
         PointerMoved += DragOnPointerMoved;
         PointerCaptureLost += UpdateKeyFrame;
+
+        if (Item is not KeyFrameGroupViewModel)
+        {
+            MultiBinding marginBinding = new MultiBinding
+            {
+                Converter = new DurationToMarginConverter(),
+                Bindings =
+                {
+                    new Binding("StartFrameBindable") { Source = Item }, new Binding("Scale") { Source = this },
+                },
+            };
+
+            this.FindAncestorOfType<TreeViewItem>().Bind(MarginProperty, marginBinding);
+        }
     }
     
     private void CapturePointer(object? sender, PointerPressedEventArgs e)

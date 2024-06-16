@@ -7,7 +7,8 @@
                     xmlns:commands="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands"
                     xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
                     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
-                    xmlns:ui="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI">
+                    xmlns:ui="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
+                    xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input">
     <Design.PreviewWith>
         <animations:Timeline>
             <animations:Timeline.KeyFrames>
@@ -41,6 +42,7 @@
                         <TextBlock DockPanel.Dock="Left" Text="Scale:" />
                         <Slider Minimum="1" Maximum="100" Value="{TemplateBinding Scale, Mode=TwoWay}" Width="100" />
                         <TextBlock Text="{Binding Scale, RelativeSource={RelativeSource TemplatedParent}}" />
+                        <input:NumberInput Min="1" Value="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                         <Panel>
                             <ToggleButton HorizontalAlignment="Center" Content="Play" Name="PART_PlayToggle" />
                         </Panel>
@@ -81,7 +83,7 @@
                                 <TreeView.ItemContainerTheme>
                                     <ControlTheme TargetType="TreeViewItem">
                                         <Setter Property="ClipToBounds" Value="False"/>
-                                        <Setter Property="Margin" Value="0 5"></Setter>
+                                        <Setter Property="Margin" Value="0, 5"/>
                                         <Setter Property="Template">
                                             <ControlTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -107,7 +109,7 @@
                                 <TreeView.DataTemplates>
                                     <TreeDataTemplate DataType="document:KeyFrameGroupViewModel"
                                                       ItemsSource="{Binding Children}">
-                                        <Grid Width="200">
+                                        <Grid Width="200" Margin="0, 5">
                                             <TextBlock Text="{Binding StartFrameBindable}" />
                                         </Grid>
                                     </TreeDataTemplate>
@@ -121,12 +123,6 @@
                                                     <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" Path="Scale" />
                                                 </MultiBinding>
                                             </animations:KeyFrame.Width>
-                                            <animations:KeyFrame.Margin>
-                                                <MultiBinding Converter="{converters:DurationToMarginConverter}">
-                                                    <Binding Path="Item.StartFrameBindable" RelativeSource="{RelativeSource Self}" />
-                                                    <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" Path="Scale" />
-                                                </MultiBinding>
-                                            </animations:KeyFrame.Margin>
                                         </animations:KeyFrame>
                                     </DataTemplate>
                                 </TreeView.DataTemplates>
