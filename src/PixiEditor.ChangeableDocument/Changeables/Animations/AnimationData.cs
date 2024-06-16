@@ -11,7 +11,7 @@ public class AnimationData : IReadOnlyAnimationData
         get => _activeFrame;
         set
         {
-            int lastFrame = value;
+            int lastFrame = _activeFrame;
             if (value < 0)
             {
                 _activeFrame = 0;
@@ -111,9 +111,9 @@ public class AnimationData : IReadOnlyAnimationData
             }
             else
             {
-                if (IsWithinRange(keyFrame, ActiveFrame))
+                if (IsWithinRange(keyFrame, lastFrame))
                 {
-                    if (!IsWithinRange(keyFrame, lastFrame))
+                    if (!IsWithinRange(keyFrame, ActiveFrame))
                     {
                         keyFrame.Deactivated(ActiveFrame);
                     }
