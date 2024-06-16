@@ -80,13 +80,8 @@
                             <TreeView ItemsSource="{TemplateBinding KeyFrames}">
                                 <TreeView.ItemContainerTheme>
                                     <ControlTheme TargetType="TreeViewItem">
-                                        <Setter Property="ClipToBounds" Value="False" />
-                                        <Setter Property="Margin">
-                                            <MultiBinding Converter="{converters:DurationToMarginConverter}">
-                                                <Binding Path="DataContext.StartFrameBindable" RelativeSource="{RelativeSource Self}" />
-                                                <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" Path="Scale" />
-                                            </MultiBinding>
-                                        </Setter>
+                                        <Setter Property="ClipToBounds" Value="False"/>
+                                        <Setter Property="Margin" Value="0 5"></Setter>
                                         <Setter Property="Template">
                                             <ControlTemplate>
                                                 <StackPanel Orientation="Horizontal">
@@ -117,7 +112,7 @@
                                         </Grid>
                                     </TreeDataTemplate>
                                     <DataTemplate DataType="document:RasterKeyFrameViewModel">
-                                        <animations:KeyFrame Margin="0 10"
+                                        <animations:KeyFrame
                                                              Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                              Item="{Binding}">
                                             <animations:KeyFrame.Width>
@@ -126,6 +121,12 @@
                                                     <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" Path="Scale" />
                                                 </MultiBinding>
                                             </animations:KeyFrame.Width>
+                                            <animations:KeyFrame.Margin>
+                                                <MultiBinding Converter="{converters:DurationToMarginConverter}">
+                                                    <Binding Path="Item.StartFrameBindable" RelativeSource="{RelativeSource Self}" />
+                                                    <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" Path="Scale" />
+                                                </MultiBinding>
+                                            </animations:KeyFrame.Margin>
                                         </animations:KeyFrame>
                                     </DataTemplate>
                                 </TreeView.DataTemplates>

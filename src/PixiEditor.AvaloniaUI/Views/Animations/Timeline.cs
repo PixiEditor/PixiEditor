@@ -42,8 +42,9 @@ internal class Timeline : TemplatedControl
         set => SetValue(NewKeyFrameCommandProperty, value);
     }
 
-    public static readonly StyledProperty<ICommand> DuplicateKeyFrameCommandProperty = AvaloniaProperty.Register<Timeline, ICommand>(
-        "DuplicateKeyFrameCommand");
+    public static readonly StyledProperty<ICommand> DuplicateKeyFrameCommandProperty =
+        AvaloniaProperty.Register<Timeline, ICommand>(
+            "DuplicateKeyFrameCommand");
 
     public ICommand DuplicateKeyFrameCommand
     {
@@ -87,20 +88,22 @@ internal class Timeline : TemplatedControl
     {
         base.OnApplyTemplate(e);
         _playToggle = e.NameScope.Find<ToggleButton>("PART_PlayToggle");
-        
+
         if (_playToggle != null)
         {
             _playToggle.Click += PlayToggleOnClick;
         }
     }
-    
+
     private void PlayTimerOnTick(object? sender, EventArgs e)
     {
-        ActiveFrame++;
-        
-        if (ActiveFrame >= KeyFrames.FrameCount - 1)
+        if (ActiveFrame >= KeyFrames.FrameCount)
         {
             ActiveFrame = 0;
+        }
+        else
+        {
+            ActiveFrame++;
         }
     }
 
@@ -120,17 +123,17 @@ internal class Timeline : TemplatedControl
             IsPlaying = false;
         }
     }
-    
+
     public void Play()
     {
         IsPlaying = true;
     }
-    
+
     public void Pause()
     {
         IsPlaying = false;
     }
-    
+
     private static void IsPlayingChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is not Timeline timeline)

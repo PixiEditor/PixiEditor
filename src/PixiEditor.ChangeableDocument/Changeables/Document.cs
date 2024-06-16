@@ -26,12 +26,17 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     internal Folder StructureRoot { get; } = new() { GuidValue = Guid.Empty };
     internal Selection Selection { get; } = new();
     internal ReferenceLayer? ReferenceLayer { get; set; }
-    internal AnimationData AnimationData { get; } = new();
+    internal AnimationData AnimationData { get; }
     public VecI Size { get; set; } = DefaultSize;
     public bool HorizontalSymmetryAxisEnabled { get; set; }
     public bool VerticalSymmetryAxisEnabled { get; set; }
     public double HorizontalSymmetryAxisY { get; set; }
     public double VerticalSymmetryAxisX { get; set; }
+    
+    public Document()
+    {
+        AnimationData = new AnimationData(this);
+    }
 
     public void Dispose()
     {

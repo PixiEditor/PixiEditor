@@ -1,4 +1,5 @@
 ﻿using FFMpegCore;
+using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using PixiEditor.AnimationRenderer.Core;
 
@@ -21,7 +22,8 @@ public class FFMpegRenderer : IAnimationRenderer
             .OutputToFile($"{framesPath}/output.mp4", true, options =>
             {
                 options.WithVideoCodec(VideoCodec.LibX264)
-                    .WithFramerate(frameRate);
+                    .WithFramerate(frameRate)
+                    .ForcePixelFormat("yuv420p");
             })
             .ProcessAsynchronously();
     }

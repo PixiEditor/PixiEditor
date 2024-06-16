@@ -57,6 +57,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         {
             keyFrame.SetStartFrame(newStartFrame);
             keyFrame.SetDuration(newDuration);
+            keyFrames.NotifyCollectionChanged();
         }
     }
 
@@ -84,6 +85,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         {
             parent.Children.Remove(frame);
         });
+        
+        keyFrames.NotifyCollectionChanged();
     }
     
     public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler

@@ -27,6 +27,10 @@ internal class ActiveFrame_UpdateableChange : UpdateableChange
     
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
+        if (target.AnimationData.ActiveFrame == newFrame)
+        {
+            return new None();
+        }
         target.AnimationData.ActiveFrame = newFrame;
         return new ActiveFrame_ChangeInfo(newFrame);
     }
@@ -34,6 +38,11 @@ internal class ActiveFrame_UpdateableChange : UpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         ignoreInUndo = true;
+        if (target.AnimationData.ActiveFrame == newFrame)
+        {
+            return new None();
+        }
+        
         target.AnimationData.ActiveFrame = newFrame;
         return new ActiveFrame_ChangeInfo(newFrame);
     }

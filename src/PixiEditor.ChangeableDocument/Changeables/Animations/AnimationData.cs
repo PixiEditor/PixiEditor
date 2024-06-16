@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
-public class AnimationData : IReadOnlyAnimationData
+internal class AnimationData : IReadOnlyAnimationData
 {
     private int _activeFrame;
 
@@ -20,7 +20,7 @@ public class AnimationData : IReadOnlyAnimationData
             {
                 _activeFrame = value;
             }
-            
+
             OnPreviewFrameChanged(lastFrame);
         }
     }
@@ -28,7 +28,13 @@ public class AnimationData : IReadOnlyAnimationData
     public IReadOnlyList<IReadOnlyKeyFrame> KeyFrames => keyFrames;
 
     private List<KeyFrame> keyFrames = new List<KeyFrame>();
+    private readonly Document document;
     
+    public AnimationData(Document document)
+    {
+        this.document = document;
+    }
+
     public void AddKeyFrame(KeyFrame keyFrame)
     {
         Guid id = keyFrame.LayerGuid;
@@ -38,7 +44,7 @@ public class AnimationData : IReadOnlyAnimationData
         }
         else
         {
-            GroupKeyFrame createdGroup = new GroupKeyFrame(id, keyFrame.StartFrame);
+            GroupKeyFrame createdGroup = new GroupKeyFrame(id, keyFrame.StartFrame, document);
             createdGroup.Children.Add(keyFrame);
             keyFrames.Add(createdGroup);
         }
@@ -54,18 +60,20 @@ public class AnimationData : IReadOnlyAnimationData
             }
         });
     }
-    
+
     public bool TryFindKeyFrame<T>(Guid id, out T keyFrame) where T : IReadOnlyKeyFrame
     {
         return TryFindKeyFrameCallback(id, out keyFrame, null);
     }
 
-    private bool TryFindKeyFrameCallback<T>(Guid id, out T? foundKeyFrame, Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : IReadOnlyKeyFrame
+    private bool TryFindKeyFrameCallback<T>(Guid id, out T? foundKeyFrame,
+        Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : IReadOnlyKeyFrame
     {
         return TryFindKeyFrame(keyFrames, null, id, out foundKeyFrame, onFound);
     }
 
-    private bool TryFindKeyFrame<T>(List<KeyFrame> root, GroupKeyFrame parent, Guid id, out T? result, Action<KeyFrame, GroupKeyFrame?> onFound) where T : IReadOnlyKeyFrame
+    private bool TryFindKeyFrame<T>(List<KeyFrame> root, GroupKeyFrame parent, Guid id, out T? result,
+        Action<KeyFrame, GroupKeyFrame?> onFound) where T : IReadOnlyKeyFrame
     {
         for (var i = 0; i < root.Count; i++)
         {
@@ -90,7 +98,7 @@ public class AnimationData : IReadOnlyAnimationData
         result = default;
         return false;
     }
-    
+
     private void OnPreviewFrameChanged(int lastFrame)
     {
         if (KeyFrames == null)
@@ -105,29 +113,27 @@ public class AnimationData : IReadOnlyAnimationData
     {
         foreach (var keyFrame in root)
         {
+            bool isWithinRange = keyFrame.IsWithinRange(ActiveFrame);
+            if (keyFrame.IsWithinRange(lastFrame))
+            {
+                if (!isWithinRange)
+                {
+                    keyFrame.Deactivated(ActiveFrame);
+                }
+                else
+                {
+                    keyFrame.ActiveFrameChanged(ActiveFrame);
+                }
+            }
+            else if (isWithinRange)
+            {
+                keyFrame.ActiveFrameChanged(ActiveFrame);
+            }
+            
             if (keyFrame is GroupKeyFrame group)
             {
                 NotifyKeyFrames(lastFrame, group.Children);
             }
-            else
-            {
-                if (IsWithinRange(keyFrame, lastFrame))
-                {
-                    if (!IsWithinRange(keyFrame, ActiveFrame))
-                    {
-                        keyFrame.Deactivated(ActiveFrame);
-                    }
-                    else
-                    {
-                        keyFrame.ActiveFrameChanged(ActiveFrame);
-                    }
-                }
-            }
         }
-    }
-
-    private bool IsWithinRange(KeyFrame keyFrame, int frame)
-    {
-        return frame >= keyFrame.StartFrame && frame < keyFrame.StartFrame + keyFrame.Duration;
     }
 }
