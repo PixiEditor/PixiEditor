@@ -51,6 +51,15 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         OnPropertyChanged(nameof(ActiveFrameBindable));
     }
 
+    public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration)
+    {
+        if(TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        {
+            keyFrame.SetStartFrame(newStartFrame);
+            keyFrame.SetDuration(newDuration);
+        }
+    }
+
     public void AddKeyFrame(IKeyFrameHandler keyFrame)
     {
         Guid id = keyFrame.LayerGuid;
@@ -61,7 +70,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         else
         {
             KeyFrameGroupViewModel createdGroup =
-                new KeyFrameGroupViewModel(keyFrame.StartFrame, keyFrame.Duration, id, id);
+                new KeyFrameGroupViewModel(keyFrame.StartFrameBindable, keyFrame.DurationBindable, id, id, Document, Internals);
             createdGroup.Children.Add((KeyFrameViewModel)keyFrame);
             keyFrames.Add(createdGroup);
         }

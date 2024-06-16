@@ -11,7 +11,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 namespace PixiEditor.AvaloniaUI.Views.Animations;
 
 [TemplatePart("PART_PlayToggle", typeof(ToggleButton))]
-public class Timeline : TemplatedControl
+internal class Timeline : TemplatedControl
 {
     public static readonly StyledProperty<KeyFrameCollection> KeyFramesProperty =
         AvaloniaProperty.Register<Timeline, KeyFrameCollection>(
@@ -98,7 +98,7 @@ public class Timeline : TemplatedControl
     {
         ActiveFrame++;
         
-        if (ActiveFrame >= KeyFrames.FrameCount)
+        if (ActiveFrame >= KeyFrames.FrameCount - 1)
         {
             ActiveFrame = 0;
         }

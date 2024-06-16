@@ -2,11 +2,12 @@
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;
 
-public interface IKeyFrameHandler
+internal interface IKeyFrameHandler
 {
     public Surface? PreviewSurface { get; set; }
-    public int StartFrame { get; }
-    public int Duration { get; }
+    public int StartFrameBindable { get; }
+    public int DurationBindable { get; }
     public Guid LayerGuid { get; }
     public Guid Id { get; }
+    public IDocument Document { get; }
 }

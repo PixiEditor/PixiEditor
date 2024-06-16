@@ -10,7 +10,7 @@ namespace PixiEditor.AvaloniaUI.Views.Animations;
 
 [TemplatePart("PART_ResizePanelRight", typeof(InputElement))]
 [TemplatePart("PART_ResizePanelLeft", typeof(InputElement))]
-public class KeyFrame : TemplatedControl
+internal class KeyFrame : TemplatedControl
 {
     public static readonly StyledProperty<KeyFrameViewModel> ItemProperty = AvaloniaProperty.Register<KeyFrame, KeyFrameViewModel>(
         nameof(Item));
@@ -45,9 +45,13 @@ public class KeyFrame : TemplatedControl
 
         _resizePanelLeft.PointerPressed += CapturePointer;
         _resizePanelLeft.PointerMoved += ResizePanelLeftOnPointerMoved;
+        
+        _resizePanelLeft.PointerCaptureLost += UpdateKeyFrame;
+        _resizePanelRight.PointerCaptureLost += UpdateKeyFrame;
 
         PointerPressed += CapturePointer;
         PointerMoved += DragOnPointerMoved;
+        PointerCaptureLost += UpdateKeyFrame;
     }
     
     private void CapturePointer(object? sender, PointerPressedEventArgs e)
@@ -58,7 +62,7 @@ public class KeyFrame : TemplatedControl
         }
         
         e.Pointer.Capture(sender as IInputElement);
-        clickFrameOffset = Item.StartFrame - (int)Math.Floor(e.GetPosition(this.FindAncestorOfType<Canvas>()).X / Scale);
+        clickFrameOffset = Item.StartFrameBindable - (int)Math.Floor(e.GetPosition(this.FindAncestorOfType<Grid>()).X / Scale);
         e.Handled = true;
     }
 
@@ -71,7 +75,7 @@ public class KeyFrame : TemplatedControl
         
         if (e.GetCurrentPoint(_resizePanelRight).Properties.IsLeftButtonPressed)
         {
-            Item.Duration = MousePosToFrame(e) - Item.StartFrame;
+            Item.ChangeFrameLength(Item.StartFrameBindable, MousePosToFrame(e) - Item.StartFrameBindable);
         }
         
         e.Handled = true;
@@ -88,15 +92,13 @@ public class KeyFrame : TemplatedControl
         {
             int frame = MousePosToFrame(e);
             
-            
-            if (frame >= Item.StartFrame + Item.Duration)
+            if (frame >= Item.StartFrameBindable + Item.DurationBindable)
             {
-                frame = Item.StartFrame + Item.Duration - 1;
+                frame = Item.StartFrameBindable + Item.DurationBindable - 1;
             }
             
-            int oldStartFrame = Item.StartFrame;
-            Item.StartFrame = frame;
-            Item.Duration += oldStartFrame - Item.StartFrame;
+            int oldStartFrame = Item.StartFrameBindable;
+            Item.ChangeFrameLength(frame, Item.DurationBindable + oldStartFrame - frame);
         }
         
         e.Handled = true;
@@ -112,13 +114,13 @@ public class KeyFrame : TemplatedControl
         if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
             var frame = MousePosToFrame(e, false);
-            Item.StartFrame = frame + clickFrameOffset;
+            Item.ChangeFrameLength(frame + clickFrameOffset, Item.DurationBindable);
         }
     }
 
     private int MousePosToFrame(PointerEventArgs e, bool round = true)
     {
-        double x = e.GetPosition(this.FindAncestorOfType<Canvas>()).X;
+        double x = e.GetPosition(this.FindAncestorOfType<Grid>()).X;
         int frame;
         if (round)
         {
@@ -129,6 +131,17 @@ public class KeyFrame : TemplatedControl
             frame = (int)Math.Floor(x / Scale);
         }
         
+        frame = Math.Max(0, frame);
         return frame;
+    }
+    
+    private void UpdateKeyFrame(object? sender, PointerCaptureLostEventArgs e)
+    {
+        if (Item is null || e.Source is not KeyFrame)
+        {
+            return;
+        }
+        
+        Item.EndChangeFrameLength();
     }
 }

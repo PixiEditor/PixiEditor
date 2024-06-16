@@ -11,7 +11,7 @@
     <Design.PreviewWith>
         <animations:Timeline>
             <animations:Timeline.KeyFrames>
-                <document:RasterKeyFrameViewModel Duration="100" />
+                <document:RasterKeyFrameViewModel DurationBindable="100" />
             </animations:Timeline.KeyFrames>
         </animations:Timeline>
     </Design.PreviewWith>
@@ -83,7 +83,7 @@
                                         <Setter Property="ClipToBounds" Value="False" />
                                         <Setter Property="Margin">
                                             <MultiBinding Converter="{converters:DurationToMarginConverter}">
-                                                <Binding Path="DataContext.StartFrame" RelativeSource="{RelativeSource Self}" />
+                                                <Binding Path="DataContext.StartFrameBindable" RelativeSource="{RelativeSource Self}" />
                                                 <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" Path="Scale" />
                                             </MultiBinding>
                                         </Setter>
@@ -113,7 +113,7 @@
                                     <TreeDataTemplate DataType="document:KeyFrameGroupViewModel"
                                                       ItemsSource="{Binding Children}">
                                         <Grid Width="200">
-                                            <TextBlock Text="{Binding StartFrame}" />
+                                            <TextBlock Text="{Binding StartFrameBindable}" />
                                         </Grid>
                                     </TreeDataTemplate>
                                     <DataTemplate DataType="document:RasterKeyFrameViewModel">
@@ -122,7 +122,7 @@
                                                              Item="{Binding}">
                                             <animations:KeyFrame.Width>
                                                 <MultiBinding Converter="{converters:DurationToWidthConverter}">
-                                                    <Binding Path="Duration" />
+                                                    <Binding Path="DurationBindable" />
                                                     <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" Path="Scale" />
                                                 </MultiBinding>
                                             </animations:KeyFrame.Width>

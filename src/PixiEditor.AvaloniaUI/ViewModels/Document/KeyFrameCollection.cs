@@ -5,7 +5,7 @@ using PixiEditor.AvaloniaUI.Models.Handlers;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
-public class KeyFrameCollection : ObservableCollection<KeyFrameViewModel>
+internal class KeyFrameCollection : ObservableCollection<KeyFrameViewModel>
 {
     public KeyFrameCollection()
     {
@@ -19,6 +19,6 @@ public class KeyFrameCollection : ObservableCollection<KeyFrameViewModel>
 
     public int FrameCount
     {
-        get => Items.Count == 0 ? 0 : Items.Max(x => x.StartFrame + x.Duration);
+        get => Items.Count == 0 ? 0 : Items.Max(x => x.StartFrameBindable + x.DurationBindable);
     }
 }

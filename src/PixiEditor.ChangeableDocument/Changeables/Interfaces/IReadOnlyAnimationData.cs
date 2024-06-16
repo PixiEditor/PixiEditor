@@ -4,5 +4,5 @@ public interface IReadOnlyAnimationData
 {
     public int ActiveFrame { get; }
     public IReadOnlyList<IReadOnlyKeyFrame> KeyFrames { get; }
-    public bool FindKeyFrame(Guid id, out IReadOnlyKeyFrame keyFrame);
+    public bool TryFindKeyFrame<T>(Guid id, out T keyFrame) where T : IReadOnlyKeyFrame;
 }

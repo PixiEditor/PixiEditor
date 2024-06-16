@@ -28,7 +28,15 @@ internal class CreateRasterKeyFrame_Change : Change
     {
         var keyFrame =
             new RasterKeyFrame(_targetLayerGuid, _frame, target, _cloneFromExisting ? _layer.LayerImage : null);
-        createdKeyFrameId = keyFrame.Id;
+        if (firstApply)
+        {
+            createdKeyFrameId = keyFrame.Id;
+        }
+        else
+        {
+            keyFrame.Id = createdKeyFrameId;
+        }
+
         target.AnimationData.AddKeyFrame(keyFrame);
         ignoreInUndo = false;
         return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, _cloneFromExisting);

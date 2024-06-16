@@ -701,8 +701,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         var keyFrames = AnimationDataViewModel.KeyFrames;
-        var firstFrame = keyFrames.Min(x => x.StartFrame);
-        var lastFrame = keyFrames.Max(x => x.StartFrame + x.Duration);
+        var firstFrame = keyFrames.Min(x => x.StartFrameBindable);
+        var lastFrame = keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
 
         int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
         

@@ -1,48 +1,102 @@
 ﻿using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
+using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
-public abstract class KeyFrameViewModel(int startFrame, int duration, Guid layerGuid, Guid id) : ObservableObject, IKeyFrameHandler
+internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
 {
     private Surface? previewSurface;
-    private int _startFrame = startFrame;
-    private int _duration = duration;
-    
+    private int startFrameBindable;
+    private int durationBindable;
+
+    public DocumentViewModel Document { get; }
+    protected DocumentInternalParts Internals { get; }
+
+    IDocument IKeyFrameHandler.Document => Document;
+
     public Surface? PreviewSurface
     {
         get => previewSurface;
         set => SetProperty(ref previewSurface, value);
     }
 
-    public virtual int StartFrame
+    public virtual int StartFrameBindable
     {
-        get => _startFrame;
+        get => startFrameBindable;
         set
         {
             if (value < 0)
             {
                 value = 0;
             }
-            
-            SetProperty(ref _startFrame, value);
+
+            if (!Document.UpdateableChangeActive)
+            {
+                Internals.ActionAccumulator.AddFinishedActions(
+                    new KeyFrameLength_Action(Id, value, DurationBindable),
+                    new EndKeyFrameLength_Action());
+            }
         }
     }
-    public virtual int Duration
+
+    public virtual int DurationBindable
     {
-        get => _duration;
+        get => durationBindable;
         set
         {
             if (value < 1)
             {
                 value = 1;
             }
-            
-            SetProperty(ref _duration, value);
+
+            if (!Document.UpdateableChangeActive)
+            {
+                Internals.ActionAccumulator.AddFinishedActions(
+                    new KeyFrameLength_Action(Id, StartFrameBindable, value),
+                    new EndKeyFrameLength_Action());
+            }
         }
     }
 
-    public Guid LayerGuid { get; } = layerGuid;
-    public Guid Id { get; } = id;
+    public Guid LayerGuid { get; }
+    public Guid Id { get; }
+
+    protected KeyFrameViewModel(int startFrame, int duration, Guid layerGuid, Guid id,
+        DocumentViewModel document, DocumentInternalParts internalParts)
+    {
+        startFrameBindable = startFrame;
+        durationBindable = duration;
+        LayerGuid = layerGuid;
+        Id = id;
+        Document = document;
+        Internals = internalParts;
+    }
+
+    public void SetStartFrame(int newStartFrame)
+    {
+        startFrameBindable = newStartFrame;
+        OnPropertyChanged(nameof(StartFrameBindable));
+    }
+
+    public void SetDuration(int newDuration)
+    {
+        durationBindable = newDuration;
+        OnPropertyChanged(nameof(DurationBindable));
+    }
+    
+    public void ChangeFrameLength(int newStartFrame, int newDuration)
+    {
+        newStartFrame = Math.Max(0, newStartFrame);
+        newDuration = Math.Max(1, newDuration);
+        Internals.ActionAccumulator.AddActions(
+            new KeyFrameLength_Action(Id, newStartFrame, newDuration));
+    }
+    
+    public void EndChangeFrameLength()
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new EndKeyFrameLength_Action());
+    }
 }

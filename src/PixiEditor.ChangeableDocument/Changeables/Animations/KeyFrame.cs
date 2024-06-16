@@ -7,7 +7,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
     public int StartFrame { get; set; }
     public int Duration { get; set; }
     public Guid LayerGuid { get; }
-    public Guid Id { get; protected init; }
+    public Guid Id { get; set; }
 
     protected KeyFrame(Guid layerGuid, int startFrame)
     {

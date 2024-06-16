@@ -31,17 +31,12 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     public void CreateRasterKeyFrame(bool duplicate)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (activeDocument == null || activeDocument.SelectedStructureMember is null)
+        if (activeDocument?.SelectedStructureMember is null)
         {
             return;
         }
 
-        int newFrame = 0;
-
-        if (activeDocument.AnimationDataViewModel.TryFindKeyFrame(activeDocument.SelectedStructureMember.GuidValue, out KeyFrameGroupViewModel group))
-        {
-            newFrame = group.StartFrame + group.Duration;
-        }
+        int newFrame = activeDocument.AnimationDataViewModel.ActiveFrameBindable;
         
         activeDocument.AnimationDataViewModel.CreateRasterKeyFrame(
             activeDocument.SelectedStructureMember.GuidValue, 

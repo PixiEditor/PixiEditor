@@ -136,6 +136,9 @@ internal class DocumentUpdater
             case ActiveFrame_ChangeInfo info:
                 ProcessActiveFrame(info);
                 break;
+            case KeyFrameLength_ChangeInfo info:
+                ProcessKeyFrameLength(info);
+                break;
         }
     }
 
@@ -405,7 +408,8 @@ internal class DocumentUpdater
     
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)
     {
-        doc.AnimationHandler.AddKeyFrame(new RasterKeyFrameViewModel(info.TargetLayerGuid, info.Frame, 1, info.KeyFrameId));
+        doc.AnimationHandler.AddKeyFrame(new RasterKeyFrameViewModel(info.TargetLayerGuid, info.Frame, 1, info.KeyFrameId, 
+            (DocumentViewModel)doc, helper));
     }
     
     private void ProcessDeleteKeyFrame(DeleteKeyFrame_ChangeInfo info)
@@ -416,5 +420,10 @@ internal class DocumentUpdater
     private void ProcessActiveFrame(ActiveFrame_ChangeInfo info)
     {
         doc.AnimationHandler.SetActiveFrame(info.ActiveFrame);
+    }
+    
+    private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetFrameLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
     }
 }

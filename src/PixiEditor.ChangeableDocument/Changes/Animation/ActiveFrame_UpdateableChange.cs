@@ -11,6 +11,7 @@ internal class ActiveFrame_UpdateableChange : UpdateableChange
     public ActiveFrame_UpdateableChange(int activeFrame)
     {
         newFrame = activeFrame;
+        originalFrame = activeFrame;
     }
     
     [UpdateChangeMethod]

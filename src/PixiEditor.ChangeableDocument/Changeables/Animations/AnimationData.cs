@@ -32,7 +32,7 @@ public class AnimationData : IReadOnlyAnimationData
     public void AddKeyFrame(KeyFrame keyFrame)
     {
         Guid id = keyFrame.LayerGuid;
-        if (TryFindKeyFrame(id, out GroupKeyFrame group))
+        if (TryFindKeyFrameCallback(id, out GroupKeyFrame group))
         {
             group.Children.Add(keyFrame);
         }
@@ -46,7 +46,7 @@ public class AnimationData : IReadOnlyAnimationData
 
     public void RemoveKeyFrame(Guid createdKeyFrameId)
     {
-        TryFindKeyFrame<KeyFrame>(createdKeyFrameId, out _, (frame, parent) =>
+        TryFindKeyFrameCallback<KeyFrame>(createdKeyFrameId, out _, (frame, parent) =>
         {
             if (parent != null)
             {
@@ -55,12 +55,12 @@ public class AnimationData : IReadOnlyAnimationData
         });
     }
     
-    public bool FindKeyFrame(Guid id, out IReadOnlyKeyFrame keyFrame)
+    public bool TryFindKeyFrame<T>(Guid id, out T keyFrame) where T : IReadOnlyKeyFrame
     {
-        return TryFindKeyFrame(id, out keyFrame, null);
+        return TryFindKeyFrameCallback(id, out keyFrame, null);
     }
 
-    private bool TryFindKeyFrame<T>(Guid id, out T? foundKeyFrame, Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : IReadOnlyKeyFrame
+    private bool TryFindKeyFrameCallback<T>(Guid id, out T? foundKeyFrame, Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : IReadOnlyKeyFrame
     {
         return TryFindKeyFrame(keyFrames, null, id, out foundKeyFrame, onFound);
     }
