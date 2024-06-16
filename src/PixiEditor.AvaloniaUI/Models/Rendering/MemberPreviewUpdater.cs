@@ -211,7 +211,7 @@ internal class MemberPreviewUpdater
             IStructureMemberHandler member = doc.StructureHelper.FindOrThrow(guid);
 
             bool hasAnimation = doc.AnimationHandler.FindKeyFrame<IKeyFrameGroupHandler>(guid, out IKeyFrameGroupHandler? animationGroup);
-            IKeyFrameHandler? keyFrame = hasAnimation ? animationGroup!.Children.ElementAtOrDefault(doc.AnimationHandler.ActiveFrameBindable) : null;
+            IKeyFrameHandler? keyFrame = hasAnimation ? animationGroup!.Children.FirstOrDefault(x => IsWithinRange(x, doc.AnimationHandler.ActiveFrameBindable)) : null;
 
             if (newSize is null)
             {
@@ -495,11 +495,9 @@ internal class MemberPreviewUpdater
                 {
                     if (keyFrame is IKeyFrameGroupHandler group)
                     {
-                        if (group.Children.Count > doc.AnimationHandler.ActiveFrameBindable)
-                        {
-                            var target = group.Children[doc.AnimationHandler.ActiveFrameBindable];
+                        var target = group.Children.FirstOrDefault(x => IsWithinRange(x, doc.AnimationHandler.ActiveFrameBindable));
+                        if (target is not null)
                             RenderAnimationFramePreview(memberVM, target);
-                        }
                     }
                 }
                 
@@ -515,6 +513,11 @@ internal class MemberPreviewUpdater
                 throw new ArgumentOutOfRangeException();
             }
         }
+    }
+    
+    private static bool IsWithinRange(IKeyFrameHandler keyFrame, int frame)
+    {
+        return keyFrame.StartFrameBindable <= frame && frame < keyFrame.StartFrameBindable + keyFrame.DurationBindable;
     }
 
     /// <summary>
