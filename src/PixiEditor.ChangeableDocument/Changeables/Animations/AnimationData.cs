@@ -11,17 +11,9 @@ internal class AnimationData : IReadOnlyAnimationData
         get => _activeFrame;
         set
         {
-            int lastFrame = _activeFrame;
-            if (value < 0)
-            {
-                _activeFrame = 0;
-            }
-            else
-            {
-                _activeFrame = value;
-            }
+            _activeFrame = value < 0 ? 0 : value;
 
-            OnPreviewFrameChanged(lastFrame);
+            OnPreviewFrameChanged();
         }
     }
 
@@ -29,6 +21,7 @@ internal class AnimationData : IReadOnlyAnimationData
 
     private List<KeyFrame> keyFrames = new List<KeyFrame>();
     private readonly Document document;
+    private List<KeyFrame> lastActiveKeyFrames = new List<KeyFrame>();
     
     public AnimationData(Document document)
     {
@@ -48,22 +41,31 @@ internal class AnimationData : IReadOnlyAnimationData
             createdGroup.Children.Add(keyFrame);
             keyFrames.Add(createdGroup);
         }
+        
+        keyFrame.KeyFrameChanged += KeyFrameChanged;
+        
+        UpdateKeyFrames(keyFrames);
     }
 
     public void RemoveKeyFrame(Guid createdKeyFrameId)
     {
         TryFindKeyFrameCallback<KeyFrame>(createdKeyFrameId, out _, (frame, parent) =>
         {
-            if (parent != null)
-            {
-                parent.Children.Remove(frame);
-            }
+            frame.KeyFrameChanged -= KeyFrameChanged;
+            parent?.Children.Remove(frame);
         });
+        
+        UpdateKeyFrames(keyFrames);
     }
 
     public bool TryFindKeyFrame<T>(Guid id, out T keyFrame) where T : IReadOnlyKeyFrame
     {
         return TryFindKeyFrameCallback(id, out keyFrame, null);
+    }
+    
+    private void KeyFrameChanged()
+    {
+        UpdateKeyFrames(keyFrames);
     }
 
     private bool TryFindKeyFrameCallback<T>(Guid id, out T? foundKeyFrame,
@@ -99,26 +101,27 @@ internal class AnimationData : IReadOnlyAnimationData
         return false;
     }
 
-    private void OnPreviewFrameChanged(int lastFrame)
+    private void OnPreviewFrameChanged()
     {
         if (KeyFrames == null)
         {
             return;
         }
 
-        NotifyKeyFrames(lastFrame, keyFrames);
+        UpdateKeyFrames(keyFrames);
     }
 
-    private void NotifyKeyFrames(int lastFrame, List<KeyFrame> root)
+    private void UpdateKeyFrames(List<KeyFrame> root)
     {
         foreach (var keyFrame in root)
         {
             bool isWithinRange = keyFrame.IsWithinRange(ActiveFrame);
-            if (keyFrame.IsWithinRange(lastFrame))
+            if (lastActiveKeyFrames.Contains(keyFrame))
             {
                 if (!isWithinRange)
                 {
                     keyFrame.Deactivated(ActiveFrame);
+                    lastActiveKeyFrames.Remove(keyFrame);
                 }
                 else
                 {
@@ -128,11 +131,12 @@ internal class AnimationData : IReadOnlyAnimationData
             else if (isWithinRange)
             {
                 keyFrame.ActiveFrameChanged(ActiveFrame);
+                lastActiveKeyFrames.Add(keyFrame);
             }
             
             if (keyFrame is GroupKeyFrame group)
             {
-                NotifyKeyFrames(lastFrame, group.Children);
+                UpdateKeyFrames(group.Children);
             }
         }
     }

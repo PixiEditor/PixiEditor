@@ -6,6 +6,8 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
 {
     private int startFrame;
     private int duration;
+    
+    public event Action KeyFrameChanged;
 
     public virtual int StartFrame
     {
@@ -18,6 +20,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
             }
 
             startFrame = value;
+            KeyFrameChanged?.Invoke();
         }
     }
 
@@ -32,6 +35,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
             }
 
             duration = value;
+            KeyFrameChanged?.Invoke();
         }
     }
     

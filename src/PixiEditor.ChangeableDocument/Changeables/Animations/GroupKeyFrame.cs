@@ -24,7 +24,7 @@ internal class GroupKeyFrame : KeyFrame
         //if(atFrame >= EndFrame) return;
         if (document.TryFindMember<RasterLayer>(LayerGuid, out var layer))
         {
-            layer.LayerImage = originalLayerImage;
+           layer.LayerImage = originalLayerImage;
         }
     }
 
