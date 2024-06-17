@@ -11,7 +11,6 @@ internal class ActiveFrame_UpdateableChange : UpdateableChange
     public ActiveFrame_UpdateableChange(int activeFrame)
     {
         newFrame = activeFrame;
-        originalFrame = activeFrame;
     }
     
     [UpdateChangeMethod]
@@ -22,6 +21,7 @@ internal class ActiveFrame_UpdateableChange : UpdateableChange
     
     public override bool InitializeAndValidate(Document target)
     {
+        originalFrame = target.AnimationData.ActiveFrame;
         return true;
     }
     
@@ -37,7 +37,7 @@ internal class ActiveFrame_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        ignoreInUndo = true;
+        ignoreInUndo = false;
         if (target.AnimationData.ActiveFrame == newFrame)
         {
             return new None();
