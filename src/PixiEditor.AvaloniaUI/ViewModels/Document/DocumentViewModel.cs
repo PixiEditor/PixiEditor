@@ -19,9 +19,11 @@ using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Document.TransformOverlays;
 using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
+using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -686,6 +688,34 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
+    public Image[] RenderFrames()
+    {
+        if (AnimationDataViewModel.KeyFrames.Count == 0)
+            return[];
+
+        var keyFrames = AnimationDataViewModel.KeyFrames;
+        var firstFrame = keyFrames.Min(x => x.StartFrameBindable);
+        var lastFrame = keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
+
+        int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
+
+        Image[] images = new Image[lastFrame - firstFrame];
+        for (int i = firstFrame; i < lastFrame; i++)
+        {
+            Internals.Tracker.ProcessActionsSync(new List<IAction> { new ActiveFrame_Action(i), new EndActiveFrame_Action() });
+            var surface = TryRenderWholeImage();
+            if (surface.IsT0)
+            {
+                continue;
+            }
+            
+            images[i] = surface.AsT1.DrawingSurface.Snapshot();
+        }
+
+        Internals.Tracker.ProcessActionsSync(new List<IAction> { new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action() });
+        return images;
+    }
+
     public void RenderFrames(string tempRenderingPath)
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
@@ -708,7 +738,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            Internals.Tracker.ProcessActionsSync(new[] { new ActiveFrame_Action(i) });
+            Internals.Tracker.ProcessActionsSync(new List<IAction> { new ActiveFrame_Action(i), new EndActiveFrame_Action() });
             var surface = TryRenderWholeImage();
             if (surface.IsT0)
             {
@@ -720,7 +750,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             stream.Position = 0;
         }
         
-        Internals.Tracker.ProcessActionsSync(new[] { new ActiveFrame_Action(activeFrame) });
+        Internals.Tracker.ProcessActionsSync(new List<IAction> { new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action() });
     }
 
     private static void ClearTempFolder(string tempRenderingPath)

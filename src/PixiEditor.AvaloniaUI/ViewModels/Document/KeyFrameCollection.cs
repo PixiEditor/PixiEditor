@@ -1,11 +1,9 @@
 ﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using PixiEditor.AvaloniaUI.Models.Handlers;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
-internal class KeyFrameCollection : ObservableCollection<KeyFrameViewModel>
+internal class KeyFrameCollection : ObservableCollection<KeyFrameGroupViewModel>
 {
     public KeyFrameCollection()
     {

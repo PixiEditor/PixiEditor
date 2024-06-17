@@ -9,14 +9,6 @@
                     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
                     xmlns:ui="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
                     xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input">
-    <Design.PreviewWith>
-        <animations:Timeline>
-            <animations:Timeline.KeyFrames>
-                <document:RasterKeyFrameViewModel DurationBindable="100" />
-            </animations:Timeline.KeyFrames>
-        </animations:Timeline>
-    </Design.PreviewWith>
-
     <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
         <Setter Property="Template">
             <ControlTemplate>

@@ -33,7 +33,6 @@
                                 <InvokeCommandAction Command="{Binding SetBestPercentageCommand, ElementName=saveFilePopup}"/>
                             </EventTriggerBehavior>
                         </Interaction.Behaviors>
-                        <TextBlock Text="&#xE869;" FontFamily="{DynamicResource Feather}"/>
                     </TextBlock>
             </Grid>
         </Border>
