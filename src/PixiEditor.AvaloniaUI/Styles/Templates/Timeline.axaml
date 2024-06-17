@@ -42,7 +42,8 @@
                         <TextBlock DockPanel.Dock="Left" Text="Scale:" />
                         <Slider Minimum="1" Maximum="100" Value="{TemplateBinding Scale, Mode=TwoWay}" Width="100" />
                         <TextBlock Text="{Binding Scale, RelativeSource={RelativeSource TemplatedParent}}" />
-                        <input:NumberInput Min="1" Value="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                        <input:NumberInput Min="1"
+                                           Value="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                         <Panel>
                             <ToggleButton HorizontalAlignment="Center" Content="Play" Name="PART_PlayToggle" />
                         </Panel>
@@ -50,7 +51,7 @@
 
                     <DockPanel Grid.Column="1" Grid.Row="1"
                                LastChildFill="True">
-                        <animations:TimelineSlider Margin="0 0" TickFrequency="1" TickPlacement="TopLeft"
+                        <animations:TimelineSlider Margin="20, 0" TickFrequency="1" TickPlacement="TopLeft"
                                                    SmallChange="1"
                                                    LargeChange="10"
                                                    IsSnapToTickEnabled="True"
@@ -77,56 +78,61 @@
                         </animations:TimelineSlider>
                     </DockPanel>
 
-                    <ScrollViewer Background="{DynamicResource ThemeBackgroundBrush}" Grid.Column="0"
-                                  Grid.ColumnSpan="2" Grid.Row="2" HorizontalScrollBarVisibility="Auto">
-                            <TreeView ItemsSource="{TemplateBinding KeyFrames}">
-                                <TreeView.ItemContainerTheme>
-                                    <ControlTheme TargetType="TreeViewItem">
-                                        <Setter Property="ClipToBounds" Value="False"/>
-                                        <Setter Property="Margin" Value="0, 5"/>
-                                        <Setter Property="Template">
-                                            <ControlTemplate>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <ContentPresenter Name="PART_HeaderPresenter" Margin="0"
-                                                                      Padding="0"
-                                                                      Background="Transparent"
-                                                                      HorizontalContentAlignment="{TemplateBinding HorizontalAlignment}"
-                                                                      Content="{TemplateBinding Header}"
-                                                                      ContentTemplate="{TemplateBinding HeaderTemplate}"
-                                                                      Focusable="False" />
-                                                    <ItemsPresenter Name="PART_ItemsPresenter">
-                                                        <ItemsPresenter.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <Grid/>
-                                                            </ItemsPanelTemplate>
-                                                        </ItemsPresenter.ItemsPanel>
-                                                    </ItemsPresenter>
-                                                </StackPanel>
-                                            </ControlTemplate>
-                                        </Setter>
-                                    </ControlTheme>
-                                </TreeView.ItemContainerTheme>
-                                <TreeView.DataTemplates>
-                                    <TreeDataTemplate DataType="document:KeyFrameGroupViewModel"
-                                                      ItemsSource="{Binding Children}">
-                                        <Grid Width="200" Margin="0, 5">
-                                            <TextBlock Text="{Binding StartFrameBindable}" />
-                                        </Grid>
-                                    </TreeDataTemplate>
-                                    <DataTemplate DataType="document:RasterKeyFrameViewModel">
-                                        <animations:KeyFrame
-                                                             Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
-                                                             Item="{Binding}">
-                                            <animations:KeyFrame.Width>
-                                                <MultiBinding Converter="{converters:DurationToWidthConverter}">
-                                                    <Binding Path="DurationBindable" />
-                                                    <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" Path="Scale" />
-                                                </MultiBinding>
-                                            </animations:KeyFrame.Width>
-                                        </animations:KeyFrame>
+                    <ScrollViewer Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2"
+                                  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ItemsControl
+                                ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ItemsControl.DataTemplates>
+                                    <DataTemplate DataType="document:KeyFrameGroupViewModel">
+                                        <animations:TimelineGroupHeader Height="70" Item="{Binding}" />
                                     </DataTemplate>
-                                </TreeView.DataTemplates>
-                            </TreeView>
+                                </ItemsControl.DataTemplates>
+                            </ItemsControl>
+                            <ScrollViewer Background="{DynamicResource ThemeBackgroundBrush}"
+                                          Grid.Column="1" VerticalScrollBarVisibility="Disabled"
+                                          HorizontalScrollBarVisibility="Auto">
+                                <ItemsControl
+                                    ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <ItemsControl.DataTemplates>
+                                        <DataTemplate DataType="document:KeyFrameGroupViewModel">
+                                            <ItemsControl Padding="0 5" ClipToBounds="False" Height="70"
+                                                          ItemsSource="{Binding Children}">
+                                                <ItemsControl.ItemContainerTheme>
+                                                    <ControlTheme TargetType="ContentPresenter">
+                                                        <Setter Property="HorizontalAlignment" Value="Left" />
+                                                        <Setter Property="ZIndex" Value="{Binding StartFrameBindable}" />
+                                                    </ControlTheme>
+                                                </ItemsControl.ItemContainerTheme>
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <Grid Margin="30, 0, 0, 0"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                            </ItemsControl>
+                                        </DataTemplate>
+                                        <DataTemplate DataType="document:RasterKeyFrameViewModel">
+                                            <animations:KeyFrame
+                                                Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                Item="{Binding}">
+                                                <animations:KeyFrame.Width>
+                                                    <MultiBinding Converter="{converters:DurationToWidthConverter}">
+                                                        <Binding Path="DurationBindable" />
+                                                        <Binding
+                                                            RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}"
+                                                            Path="Scale" />
+                                                    </MultiBinding>
+                                                </animations:KeyFrame.Width>
+                                            </animations:KeyFrame>
+                                        </DataTemplate>
+                                    </ItemsControl.DataTemplates>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
                     </ScrollViewer>
                 </Grid>
             </ControlTemplate>

@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
@@ -66,7 +67,8 @@ internal class KeyFrame : TemplatedControl
                 },
             };
 
-            this.FindAncestorOfType<TreeViewItem>().Bind(MarginProperty, marginBinding);
+            ContentPresenter contentPresenter = this.FindAncestorOfType<ContentPresenter>();
+            contentPresenter.Bind(MarginProperty, marginBinding);
         }
     }
     

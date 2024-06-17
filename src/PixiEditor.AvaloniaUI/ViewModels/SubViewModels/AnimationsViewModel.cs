@@ -36,7 +36,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        int newFrame = activeDocument.AnimationDataViewModel.ActiveFrameBindable;
+        int newFrame = GetActiveFrame(activeDocument, activeDocument.SelectedStructureMember.GuidValue);
         
         activeDocument.AnimationDataViewModel.CreateRasterKeyFrame(
             activeDocument.SelectedStructureMember.GuidValue, 
@@ -45,7 +45,21 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         
         activeDocument.Operations.SetActiveFrame(newFrame);
     }
-    
+
+    private static int GetActiveFrame(DocumentViewModel activeDocument, Guid targetLayer)
+    {
+        int active = activeDocument.AnimationDataViewModel.ActiveFrameBindable;
+        if (activeDocument.AnimationDataViewModel.TryFindKeyFrame<KeyFrameGroupViewModel>(targetLayer, out KeyFrameGroupViewModel groupViewModel))
+        {
+            if(active == groupViewModel.StartFrameBindable + groupViewModel.DurationBindable - 1)
+            {
+                return groupViewModel.StartFrameBindable + groupViewModel.DurationBindable;
+            }
+        }
+        
+        return active;
+    }
+
     [Command.Internal("PixiEditor.Document.StartChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]
     public void StartChangeActiveFrame(int newActiveFrame)
     {

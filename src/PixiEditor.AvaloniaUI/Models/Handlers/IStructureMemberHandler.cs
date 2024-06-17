@@ -1,4 +1,5 @@
-﻿using Avalonia.Media.Imaging;
+﻿using System.ComponentModel;
+using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -28,4 +29,5 @@ internal interface IStructureMemberHandler : IHandler
     public void SetOpacity(float infoOpacity);
     public void SetIsVisible(bool infoIsVisible);
     public void SetName(string infoName);
+    event PropertyChangedEventHandler PropertyChanged;
 }
