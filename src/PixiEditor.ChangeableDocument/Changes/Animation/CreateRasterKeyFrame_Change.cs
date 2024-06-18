@@ -45,6 +45,6 @@ internal class CreateRasterKeyFrame_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.AnimationData.RemoveKeyFrame(createdKeyFrameId);
-        return new DeleteKeyFrame_ChangeInfo(_frame, createdKeyFrameId);
+        return new DeleteKeyFrame_ChangeInfo(createdKeyFrameId);
     }
 }

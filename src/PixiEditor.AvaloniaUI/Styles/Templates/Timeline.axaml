@@ -31,6 +31,11 @@
                         <Button DockPanel.Dock="Left" Classes="pixi-icon"
                                 Content="{DynamicResource icon-duplicate}"
                                 Command="{TemplateBinding DuplicateKeyFrameCommand}" />
+                        <Button DockPanel.Dock="Left" Classes="pixi-icon"
+                                Content="{DynamicResource icon-trash}"
+                                Command="{TemplateBinding DeleteKeyFrameCommand}" 
+                                IsEnabled="{Binding !!SelectedKeyFrame, RelativeSource={RelativeSource TemplatedParent}}"
+                                CommandParameter="{Binding SelectedKeyFrame.Id, RelativeSource={RelativeSource TemplatedParent}}"/>
                         <TextBlock DockPanel.Dock="Left" Text="Scale:" />
                         <Slider Minimum="1" Maximum="100" Value="{TemplateBinding Scale, Mode=TwoWay}" Width="100" />
                         <TextBlock Text="{Binding Scale, RelativeSource={RelativeSource TemplatedParent}}" />
@@ -88,6 +93,13 @@
                             <ScrollViewer Background="{DynamicResource ThemeBackgroundBrush}"
                                           Grid.Column="1" VerticalScrollBarVisibility="Disabled"
                                           HorizontalScrollBarVisibility="Auto">
+                                <Interaction.Behaviors>
+                                    <EventTriggerBehavior EventName="PointerPressed">
+                                        <InvokeCommandAction Command="{Binding SelectKeyFrameCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                             CommandParameter="{x:Null}"/>
+                                    </EventTriggerBehavior>
+                                </Interaction.Behaviors>
                                 <ItemsControl
                                     ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ItemsControl.DataTemplates>
@@ -102,7 +114,7 @@
                                                 </ItemsControl.ItemContainerTheme>
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
-                                                        <Grid Margin="30, 0, 0, 0"/>
+                                                        <Grid Margin="30, 0, 0, 0" />
                                                     </ItemsPanelTemplate>
                                                 </ItemsControl.ItemsPanel>
                                             </ItemsControl>
@@ -119,6 +131,24 @@
                                                             Path="Scale" />
                                                     </MultiBinding>
                                                 </animations:KeyFrame.Width>
+                                                <animations:KeyFrame.IsSelected>
+                                                    <MultiBinding>
+                                                        <MultiBinding.Converter>
+                                                            <converters:AreEqualConverter />
+                                                        </MultiBinding.Converter>
+                                                        <Binding Path="SelectedKeyFrame" RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" />
+                                                        <Binding
+                                                            RelativeSource="{RelativeSource Self}"
+                                                            Path="Item" />
+                                                    </MultiBinding>
+                                                </animations:KeyFrame.IsSelected>
+                                                <Interaction.Behaviors>
+                                                    <EventTriggerBehavior EventName="PointerPressed">
+                                                        <InvokeCommandAction Command="{Binding SelectKeyFrameCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                                             CommandParameter="{Binding}"/>
+                                                    </EventTriggerBehavior>
+                                                </Interaction.Behaviors>
                                             </animations:KeyFrame>
                                         </DataTemplate>
                                     </ItemsControl.DataTemplates>

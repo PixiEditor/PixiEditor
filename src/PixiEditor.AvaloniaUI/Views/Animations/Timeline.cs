@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
@@ -6,6 +7,7 @@ using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.Views.Animations;
@@ -32,6 +34,15 @@ internal class Timeline : TemplatedControl
     
     public static readonly StyledProperty<int> FpsProperty = AvaloniaProperty.Register<Timeline, int>(nameof(Fps), 60);
 
+    public static readonly StyledProperty<KeyFrameViewModel> SelectedKeyFrameProperty = AvaloniaProperty.Register<Timeline, KeyFrameViewModel>(
+        "SelectedKeyFrame");
+
+    public KeyFrameViewModel SelectedKeyFrame
+    {
+        get => GetValue(SelectedKeyFrameProperty);
+        set => SetValue(SelectedKeyFrameProperty, value);
+    }
+
     public double Scale
     {
         get => GetValue(ScaleProperty);
@@ -46,8 +57,17 @@ internal class Timeline : TemplatedControl
 
     public static readonly StyledProperty<ICommand> DuplicateKeyFrameCommandProperty =
         AvaloniaProperty.Register<Timeline, ICommand>(
-            "DuplicateKeyFrameCommand");
+            nameof(DuplicateKeyFrameCommand));
 
+    public static readonly StyledProperty<ICommand> DeleteKeyFrameCommandProperty = AvaloniaProperty.Register<Timeline, ICommand>(
+        nameof(DeleteKeyFrameCommand));
+
+    public ICommand DeleteKeyFrameCommand
+    {
+        get => GetValue(DeleteKeyFrameCommandProperty);
+        set => SetValue(DeleteKeyFrameCommandProperty, value);
+    }
+    
     public ICommand DuplicateKeyFrameCommand
     {
         get => GetValue(DuplicateKeyFrameCommandProperty);
@@ -78,6 +98,8 @@ internal class Timeline : TemplatedControl
         set { SetValue(FpsProperty, value); }
     }
 
+    public ICommand SelectKeyFrameCommand { get; }
+
     private ToggleButton? _playToggle;
     private DispatcherTimer _playTimer;
 
@@ -85,12 +107,17 @@ internal class Timeline : TemplatedControl
     {
         IsPlayingProperty.Changed.Subscribe(IsPlayingChanged);
         FpsProperty.Changed.Subscribe(FpsChanged);
+        KeyFramesProperty.Changed.Subscribe(OnKeyFramesChanged);
     }
 
     public Timeline()
     {
         _playTimer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / Fps) };
         _playTimer.Tick += PlayTimerOnTick;
+        SelectKeyFrameCommand = new RelayCommand<KeyFrameViewModel>(keyFrame =>
+        {
+            SelectedKeyFrame = keyFrame;
+        });
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -168,5 +195,38 @@ internal class Timeline : TemplatedControl
         }
 
         timeline._playTimer.Interval = TimeSpan.FromMilliseconds(1000f / timeline.Fps);
+    }
+    
+    private static void OnKeyFramesChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Sender is not Timeline timeline)
+        {
+            return;
+        }
+
+        if(e.OldValue is KeyFrameCollection oldCollection)
+        {
+            oldCollection.KeyFrameAdded -= timeline.KeyFrames_KeyFrameAdded;
+            oldCollection.KeyFrameRemoved -= timeline.KeyFrames_KeyFrameRemoved;
+        }
+        
+        if(e.NewValue is KeyFrameCollection newCollection)
+        {
+            newCollection.KeyFrameAdded += timeline.KeyFrames_KeyFrameAdded;
+            newCollection.KeyFrameRemoved += timeline.KeyFrames_KeyFrameRemoved;
+        }
+    }
+    
+    private void KeyFrames_KeyFrameAdded(KeyFrameViewModel keyFrame)
+    {
+        SelectedKeyFrame = keyFrame;
+    }
+    
+    private void KeyFrames_KeyFrameRemoved(KeyFrameViewModel keyFrame)
+    {
+        if (SelectedKeyFrame == keyFrame)
+        {
+            SelectedKeyFrame = null;
+        }
     }
 }

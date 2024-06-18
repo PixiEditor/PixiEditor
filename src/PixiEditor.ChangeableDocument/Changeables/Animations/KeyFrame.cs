@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
-public abstract class KeyFrame : IReadOnlyKeyFrame
+public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
 {
     private int startFrame;
     private int duration;
@@ -58,5 +58,12 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
     public virtual bool IsWithinRange(int frame)
     {
         return frame >= StartFrame && frame < EndFrame;
+    }
+
+    public abstract KeyFrame Clone();
+
+    public virtual void Dispose()
+    {
+        
     }
 }

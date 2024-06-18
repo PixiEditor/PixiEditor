@@ -9,17 +9,17 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid>
-                    <Border CornerRadius="{DynamicResource ControlCornerRadius}"
+                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Name="MainBorder"
                             Background="{DynamicResource ThemeBackgroundBrush1}" Height="20"
                             BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1">
                         <Grid>
                             <Panel HorizontalAlignment="Right" Name="PART_ResizePanelRight" Width="5" Cursor="SizeWestEast" Background="Transparent" ZIndex="1"/>
-                            <Panel Margin="-20, 0, 0, 0" HorizontalAlignment="Left" Name="PART_ResizePanelLeft" Width="5" Cursor="SizeWestEast" Background="Transparent" ZIndex="1"/>
+                            <Panel Margin="-35, 0, 0, 0" HorizontalAlignment="Left" Name="PART_ResizePanelLeft" Width="5" Cursor="SizeWestEast" Background="Transparent" ZIndex="1"/>
                         </Grid>
                     </Border>
                     
                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Width="60" Height="60" Margin="-30, 0, 0, 0"
-                            BorderThickness="1" VerticalAlignment="Center" IsHitTestVisible="False"
+                            BorderThickness="1" VerticalAlignment="Center" IsHitTestVisible="True" Name="PreviewBorder"
                             HorizontalAlignment="Left" BorderBrush="{DynamicResource ThemeBorderMidBrush}"
                             RenderOptions.BitmapInterpolationMode="None">
                         <Border.Background>
@@ -44,6 +44,14 @@
                 </Grid>
             </ControlTemplate>
         </Setter>
+        
+        <Style Selector="^:selected /template/ Border#MainBorder">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Color}" />
+        </Style>
+        
+        <Style Selector="^:selected /template/ Border#PreviewBorder">
+            <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Color}" />
+        </Style>
     </ControlTheme>
 
 </ResourceDictionary>

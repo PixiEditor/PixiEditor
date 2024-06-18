@@ -20,4 +20,15 @@ internal class RasterKeyFrame : KeyFrame
             layer.LayerImage = Image;
         }
     }
+
+    public override KeyFrame Clone()
+    {
+        var image = Image.CloneFromCommitted();
+        return new RasterKeyFrame(LayerGuid, StartFrame, Document, image) { Id = this.Id };
+    }
+
+    public override void Dispose()
+    {
+        Image.Dispose();
+    }
 }

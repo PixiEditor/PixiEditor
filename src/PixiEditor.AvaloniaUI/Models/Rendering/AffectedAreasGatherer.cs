@@ -112,6 +112,10 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     break;
+                case DeleteKeyFrame_ChangeInfo info:
+                    AddWholeCanvasToMainImage();
+                    AddWholeCanvasToEveryImagePreview();
+                    break;
             }
         }
     }

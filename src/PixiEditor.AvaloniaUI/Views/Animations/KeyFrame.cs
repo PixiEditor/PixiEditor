@@ -13,12 +13,22 @@ namespace PixiEditor.AvaloniaUI.Views.Animations;
 
 [TemplatePart("PART_ResizePanelRight", typeof(InputElement))]
 [TemplatePart("PART_ResizePanelLeft", typeof(InputElement))]
+[PseudoClasses(":selected")]
 internal class KeyFrame : TemplatedControl
 {
     public static readonly StyledProperty<KeyFrameViewModel> ItemProperty = AvaloniaProperty.Register<KeyFrame, KeyFrameViewModel>(
         nameof(Item));
 
     public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<KeyFrame, double>(nameof(Scale), 100);
+
+    public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<KeyFrame, bool>(
+        nameof(IsSelected));
+
+    public bool IsSelected
+    {
+        get => GetValue(IsSelectedProperty);
+        set => SetValue(IsSelectedProperty, value);
+    }
 
     public KeyFrameViewModel Item
     {
@@ -36,6 +46,11 @@ internal class KeyFrame : TemplatedControl
     private InputElement _resizePanelLeft;
 
     private int clickFrameOffset;
+    
+    static KeyFrame()
+    {
+        IsSelectedProperty.Changed.Subscribe(IsSelectedChanged);
+    }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
@@ -161,5 +176,15 @@ internal class KeyFrame : TemplatedControl
         }
         
         Item.EndChangeFrameLength();
+    }
+    
+    private static void IsSelectedChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Sender is not KeyFrame keyFrame)
+        {
+            return;
+        }
+
+        keyFrame.PseudoClasses.Set(":selected", keyFrame.IsSelected);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
@@ -45,6 +46,14 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
+    public void DeleteKeyFrame(Guid keyFrameId)
+    {
+        if (!Document.UpdateableChangeActive)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new DeleteKeyFrame_Action(keyFrameId));
+        }
+    }
+    
     public void SetActiveFrame(int newFrame)
     {
         _activeFrameBindable = newFrame;
@@ -64,19 +73,19 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public void AddKeyFrame(IKeyFrameHandler keyFrame)
     {
         Guid id = keyFrame.LayerGuid;
-        if (TryFindKeyFrame(id, out KeyFrameGroupViewModel group))
+        if (TryFindKeyFrame(id, out KeyFrameGroupViewModel foundGroup))
         {
-            group.Children.Add((KeyFrameViewModel)keyFrame);
+            foundGroup.Children.Add((KeyFrameViewModel)keyFrame);
         }
         else
         {
-            KeyFrameGroupViewModel createdGroup =
+            var group =
                 new KeyFrameGroupViewModel(keyFrame.StartFrameBindable, keyFrame.DurationBindable, id, id, Document, Internals);
-            createdGroup.Children.Add((KeyFrameViewModel)keyFrame);
-            keyFrames.Add(createdGroup);
+            group.Children.Add((KeyFrameViewModel)keyFrame);
+            keyFrames.Add(group);
         }
 
-        keyFrames.NotifyCollectionChanged();
+        keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Add, (KeyFrameViewModel)keyFrame);
     }
 
     public void RemoveKeyFrame(Guid keyFrameId)
@@ -84,9 +93,9 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         TryFindKeyFrame<KeyFrameViewModel>(keyFrameId, out _, (frame, parent) =>
         {
             parent.Children.Remove(frame);
+            keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (KeyFrameViewModel)frame);
         });
         
-        keyFrames.NotifyCollectionChanged();
     }
     
     public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler

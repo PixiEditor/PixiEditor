@@ -50,6 +50,16 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         activeDocument.Operations.SetActiveFrame(newFrame);
     }
     
+    [Command.Basic("PixiEditor.Animation.DeleteKeyFrame", "Delete Key Frame", "Delete a key frame")]
+    public void DeleteKeyFrame(Guid keyFrameId)
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        if (activeDocument is null || !activeDocument.AnimationDataViewModel.FindKeyFrame<KeyFrameViewModel>(keyFrameId, out _))
+            return;
+        
+        activeDocument.AnimationDataViewModel.DeleteKeyFrame(keyFrameId);
+    }
+    
     [Command.Basic("PixiEditor.Animation.ExportSpriteSheet", "Export Sprite Sheet", "Export the sprite sheet")]
     public async Task ExportSpriteSheet()
     {

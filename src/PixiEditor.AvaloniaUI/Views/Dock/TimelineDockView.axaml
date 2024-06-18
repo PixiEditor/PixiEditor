@@ -16,5 +16,6 @@
         KeyFrames="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.KeyFrames}" 
         ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Mode=TwoWay}"
         NewKeyFrameCommand="{xaml:Command PixiEditor.Animation.CreateRasterKeyFrame}"
-        DuplicateKeyFrameCommand="{xaml:Command PixiEditor.Animation.DuplicateRasterKeyFrame}"/>
+        DuplicateKeyFrameCommand="{xaml:Command PixiEditor.Animation.DuplicateRasterKeyFrame}"
+        DeleteKeyFrameCommand="{xaml:Command PixiEditor.Animation.DeleteKeyFrame, UseProvided=True}"/>
 </UserControl>

@@ -32,4 +32,15 @@ internal class GroupKeyFrame : KeyFrame
     {
         return frame >= StartFrame && frame < EndFrame + 1;
     }
+
+    public override KeyFrame Clone()
+    {
+        var clone = new GroupKeyFrame(LayerGuid, StartFrame, document) { Id = this.Id };
+        foreach (var child in Children)
+        {
+            clone.Children.Add(child.Clone());
+        }
+
+        return clone;
+    }
 }
