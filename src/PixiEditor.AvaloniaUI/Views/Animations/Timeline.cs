@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
@@ -120,6 +121,16 @@ internal class Timeline : TemplatedControl
         });
     }
 
+    public void Play()
+    {
+        IsPlaying = true;
+    }
+
+    public void Pause()
+    {
+        IsPlaying = false;
+    }
+    
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
@@ -160,14 +171,25 @@ internal class Timeline : TemplatedControl
         }
     }
 
-    public void Play()
+    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
-        IsPlaying = true;
-    }
+        base.OnPointerWheelChanged(e);
+        
+        double newScale = Scale;
+        
+        int ticks = e.KeyModifiers.HasFlag(KeyModifiers.Control) ? 1 : 10;
 
-    public void Pause()
-    {
-        IsPlaying = false;
+        if (e.Delta.Y > 0)
+        {
+            newScale += ticks;
+        }
+        else
+        {
+            newScale -= ticks;
+        }
+        
+        newScale = Math.Clamp(newScale, 1, 900);
+        Scale = newScale;
     }
 
     private static void IsPlayingChanged(AvaloniaPropertyChangedEventArgs e)

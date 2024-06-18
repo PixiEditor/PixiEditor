@@ -36,8 +36,6 @@
                                 Command="{TemplateBinding DeleteKeyFrameCommand}" 
                                 IsEnabled="{Binding !!SelectedKeyFrame, RelativeSource={RelativeSource TemplatedParent}}"
                                 CommandParameter="{Binding SelectedKeyFrame.Id, RelativeSource={RelativeSource TemplatedParent}}"/>
-                        <TextBlock DockPanel.Dock="Left" Text="Scale:" />
-                        <Slider Minimum="1" Maximum="100" Value="{TemplateBinding Scale, Mode=TwoWay}" Width="100" />
                         <TextBlock Text="{Binding Scale, RelativeSource={RelativeSource TemplatedParent}}" />
                         <input:NumberInput Min="1"
                                            Value="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
