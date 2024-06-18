@@ -11,6 +11,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
     private Surface? previewSurface;
     private int startFrameBindable;
     private int durationBindable;
+    private bool isVisibleBindable = true;
 
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
@@ -61,6 +62,18 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
         }
     }
 
+    public virtual bool IsVisible
+    {
+        get => isVisibleBindable;
+        set
+        {
+            if(!Document.UpdateableChangeActive)
+            {
+                Internals.ActionAccumulator.AddFinishedActions(new KeyFrameVisibility_Action(Id, value));
+            }
+        }
+    }
+
     public Guid LayerGuid { get; }
     public Guid Id { get; }
 
@@ -98,5 +111,11 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
     public void EndChangeFrameLength()
     {
         Internals.ActionAccumulator.AddFinishedActions(new EndKeyFrameLength_Action());
+    }
+
+    public virtual void SetVisibility(bool isVisible)
+    {
+        isVisibleBindable = isVisible;
+        OnPropertyChanged(nameof(IsVisible));
     }
 }

@@ -69,6 +69,15 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             keyFrames.NotifyCollectionChanged();
         }
     }
+    
+    public void SetKeyFrameVisibility(Guid keyFrameId, bool isVisible)
+    {
+        if(TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        {
+            keyFrame.SetVisibility(isVisible);
+            keyFrames.NotifyCollectionChanged();
+        }
+    }
 
     public void AddKeyFrame(IKeyFrameHandler keyFrame)
     {

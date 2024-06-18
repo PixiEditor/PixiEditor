@@ -7,6 +7,7 @@ internal interface IAnimationHandler
     public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, bool cloneFromExisting);
     public void SetActiveFrame(int newFrame);
     public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration);
+    public void SetKeyFrameVisibility(Guid infoKeyFrameId, bool infoIsVisible);
     public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler;
     internal void AddKeyFrame(IKeyFrameHandler keyFrame);
     internal void RemoveKeyFrame(Guid keyFrameId);

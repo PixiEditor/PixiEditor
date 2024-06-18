@@ -6,6 +6,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
 {
     private int startFrame;
     private int duration;
+    private bool isVisible = true;
     
     public event Action KeyFrameChanged;
 
@@ -44,6 +45,17 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
     public Guid LayerGuid { get; }
     public Guid Id { get; set; }
 
+    public bool IsVisible
+    {
+        get => isVisible;
+        set
+        {
+            isVisible = value;
+            OnVisibilityChanged();
+            KeyFrameChanged?.Invoke();
+        }
+    }
+
     protected KeyFrame(Guid layerGuid, int startFrame)
     {
         LayerGuid = layerGuid;
@@ -51,7 +63,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
         duration = 1;
         Id = Guid.NewGuid();
     }
-
+    
     public virtual void ActiveFrameChanged(int atFrame) { }
     public virtual void Deactivated(int atFrame) { }
 
@@ -62,8 +74,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
 
     public abstract KeyFrame Clone();
 
-    public virtual void Dispose()
-    {
-        
-    }
+    public virtual void Dispose() { }
+    
+    protected virtual void OnVisibilityChanged() { }
 }

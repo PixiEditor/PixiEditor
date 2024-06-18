@@ -517,7 +517,7 @@ internal class MemberPreviewUpdater
     
     private static bool IsWithinRange(IKeyFrameHandler keyFrame, int frame)
     {
-        return keyFrame.StartFrameBindable <= frame && frame < keyFrame.StartFrameBindable + keyFrame.DurationBindable;
+        return keyFrame.IsVisible && keyFrame.StartFrameBindable <= frame && frame < keyFrame.StartFrameBindable + keyFrame.DurationBindable;
     }
 
     /// <summary>

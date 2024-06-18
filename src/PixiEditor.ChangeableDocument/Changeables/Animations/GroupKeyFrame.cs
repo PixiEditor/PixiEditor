@@ -4,6 +4,7 @@ internal class GroupKeyFrame : KeyFrame
 {
     private ChunkyImage originalLayerImage;
     private Document document;
+    private bool isVisible = true;
     public List<KeyFrame> Children { get; } = new List<KeyFrame>();
     public override int Duration => Children.Count > 0 ? Children.Max(x => x.StartFrame + x.Duration) - StartFrame : 0;
     public override int StartFrame => Children.Count > 0 ? Children.Min(x => x.StartFrame) : 0;
@@ -16,6 +17,14 @@ internal class GroupKeyFrame : KeyFrame
         if (document.TryFindMember<RasterLayer>(LayerGuid, out var layer))
         {
             originalLayerImage = layer.LayerImage;
+        }
+    }
+
+    protected override void OnVisibilityChanged()
+    {
+        foreach (var child in Children)
+        {
+            child.IsVisible = IsVisible;
         }
     }
 

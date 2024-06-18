@@ -139,6 +139,9 @@ internal class DocumentUpdater
             case KeyFrameLength_ChangeInfo info:
                 ProcessKeyFrameLength(info);
                 break;
+            case KeyFrameVisibility_ChangeInfo info:
+                ProcessKeyFrameVisibility(info);
+                break;
         }
     }
 
@@ -425,5 +428,10 @@ internal class DocumentUpdater
     private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)
     {
         doc.AnimationHandler.SetFrameLength(info.KeyFrameGuid, info.StartFrame, info.Duration);
+    }
+    
+    private void ProcessKeyFrameVisibility(KeyFrameVisibility_ChangeInfo info)
+    {
+        doc.AnimationHandler.SetKeyFrameVisibility(info.KeyFrameId, info.IsVisible);
     }
 }

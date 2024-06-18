@@ -115,25 +115,36 @@ internal class AnimationData : IReadOnlyAnimationData
     {
         foreach (var keyFrame in root)
         {
-            bool isWithinRange = keyFrame.IsWithinRange(ActiveFrame);
-            if (lastActiveKeyFrames.Contains(keyFrame))
+            if (!keyFrame.IsVisible)
             {
-                if (!isWithinRange)
+                if (lastActiveKeyFrames.Contains(keyFrame))
                 {
                     keyFrame.Deactivated(ActiveFrame);
                     lastActiveKeyFrames.Remove(keyFrame);
                 }
-                else
+            }
+            else
+            {
+                bool isWithinRange = keyFrame.IsWithinRange(ActiveFrame);
+                if (lastActiveKeyFrames.Contains(keyFrame))
+                {
+                    if (!isWithinRange)
+                    {
+                        keyFrame.Deactivated(ActiveFrame);
+                        lastActiveKeyFrames.Remove(keyFrame);
+                    }
+                    else
+                    {
+                        keyFrame.ActiveFrameChanged(ActiveFrame);
+                    }
+                }
+                else if (isWithinRange)
                 {
                     keyFrame.ActiveFrameChanged(ActiveFrame);
+                    lastActiveKeyFrames.Add(keyFrame);
                 }
             }
-            else if (isWithinRange)
-            {
-                keyFrame.ActiveFrameChanged(ActiveFrame);
-                lastActiveKeyFrames.Add(keyFrame);
-            }
-            
+
             if (keyFrame is GroupKeyFrame group)
             {
                 UpdateKeyFrames(group.Children);

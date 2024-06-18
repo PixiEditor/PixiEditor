@@ -36,7 +36,6 @@
                                 Command="{TemplateBinding DeleteKeyFrameCommand}" 
                                 IsEnabled="{Binding !!SelectedKeyFrame, RelativeSource={RelativeSource TemplatedParent}}"
                                 CommandParameter="{Binding SelectedKeyFrame.Id, RelativeSource={RelativeSource TemplatedParent}}"/>
-                        <TextBlock Text="{Binding Scale, RelativeSource={RelativeSource TemplatedParent}}" />
                         <input:NumberInput Min="1"
                                            Value="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                         <Panel>
@@ -84,7 +83,8 @@
                                 ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
                                 <ItemsControl.DataTemplates>
                                     <DataTemplate DataType="document:KeyFrameGroupViewModel">
-                                        <animations:TimelineGroupHeader Height="70" Item="{Binding}" />
+                                        <animations:TimelineGroupHeader Height="70" 
+                                                                        Item="{Binding}" />
                                     </DataTemplate>
                                 </ItemsControl.DataTemplates>
                             </ItemsControl>
@@ -120,6 +120,7 @@
                                         <DataTemplate DataType="document:RasterKeyFrameViewModel">
                                             <animations:KeyFrame
                                                 Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                IsEnabled="{Binding IsVisible}"
                                                 Item="{Binding}">
                                                 <animations:KeyFrame.Width>
                                                     <MultiBinding Converter="{converters:DurationToWidthConverter}">

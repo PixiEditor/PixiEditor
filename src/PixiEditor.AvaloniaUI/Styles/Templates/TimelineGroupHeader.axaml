@@ -8,7 +8,10 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Border BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1">
-                    <TextBlock Text="{Binding Item.LayerName, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <CheckBox Classes="ImageCheckBox" IsChecked="{Binding Item.IsVisible, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <TextBlock Text="{Binding Item.LayerName, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </StackPanel>
                 </Border>
             </ControlTemplate>
         </Setter>

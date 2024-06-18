@@ -52,6 +52,10 @@
         <Style Selector="^:selected /template/ Border#PreviewBorder">
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Color}" />
         </Style>
+        
+        <Style Selector="^:disabled">
+            <Setter Property="Opacity" Value="0.5" />
+        </Style>
     </ControlTheme>
 
 </ResourceDictionary>

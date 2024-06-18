@@ -9,5 +9,6 @@ internal interface IKeyFrameHandler
     public int DurationBindable { get; }
     public Guid LayerGuid { get; }
     public Guid Id { get; }
+    public bool IsVisible { get; }
     public IDocument Document { get; }
 }
