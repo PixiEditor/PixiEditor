@@ -8,7 +8,8 @@
                     xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
                     xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters"
                     xmlns:ui="clr-namespace:PixiEditor.AvaloniaUI.Helpers.UI"
-                    xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input">
+                    xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
+                    xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <ControlTheme TargetType="animations:Timeline" x:Key="{x:Type animations:Timeline}">
         <Setter Property="Template">
             <ControlTemplate>
@@ -51,7 +52,7 @@
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
 
-                            <ItemsControl Grid.Column="0"
+                            <ItemsControl Grid.Column="0" Margin="0, 35"
                                           ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
                                 <ItemsControl.DataTemplates>
                                     <DataTemplate DataType="document:KeyFrameGroupViewModel">
@@ -87,7 +88,7 @@
                                                 <MultiBinding.Converter>
                                                     <converters:TimelineSliderWidthToMaximumConverter />
                                                 </MultiBinding.Converter>
-                                                <Binding Path="VisualParent.Bounds"
+                                                <Binding Path="Bounds"
                                                          RelativeSource="{RelativeSource Self}" />
                                                 <Binding RelativeSource="{RelativeSource TemplatedParent}"
                                                          Path="Scale" />
@@ -133,7 +134,13 @@
                                                 Item="{Binding}">
                                                 <animations:KeyFrame.Width>
                                                     <MultiBinding Converter="{converters:DurationToWidthConverter}">
+                                                        <MultiBinding.ConverterParameter>
+                                                            <!--TimelineSlider TimelineTickBar margin * 2-->
+                                                            <system:Double>60</system:Double>
+                                                        </MultiBinding.ConverterParameter>
                                                         <Binding Path="DurationBindable" />
+                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=ItemsPresenter}"
+                                                                 Path="Bounds.Width"/>
                                                         <Binding
                                                             RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}"
                                                             Path="Scale" />

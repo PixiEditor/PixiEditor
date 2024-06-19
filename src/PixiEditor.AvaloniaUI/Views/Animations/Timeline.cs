@@ -193,6 +193,8 @@ internal class Timeline : TemplatedControl
         
         newScale = Math.Clamp(newScale, 1, 900);
         Scale = newScale;
+        
+        e.Handled = true;
     }
 
     private static void IsPlayingChanged(AvaloniaPropertyChangedEventArgs e)

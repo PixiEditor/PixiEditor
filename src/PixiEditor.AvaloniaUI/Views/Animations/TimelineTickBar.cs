@@ -38,8 +38,10 @@ public class TimelineTickBar : Control
     {
         double width = Bounds.Width;
         double height = Bounds.Height;
+        
+        int max = (int)Math.Floor((Bounds.Width + Bounds.X * 2) / Scale);
 
-        double frameWidth = Scale;
+        double frameWidth = width / max;
         int largeTickInterval = possibleLargeTickIntervals[0];
         
         foreach (int interval in possibleLargeTickIntervals)
@@ -59,8 +61,6 @@ public class TimelineTickBar : Control
 
         Pen largeTickPen = new Pen(Fill);
         Pen smallTickPen = new Pen(Fill, 0.5);
-        
-        int max = (int)Math.Ceiling(width / frameWidth);
         
         for (int i = 0; i <= max; i += largeTickInterval)
         {
