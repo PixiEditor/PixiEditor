@@ -13,5 +13,6 @@ public class TimelineSlider : Slider
         get => GetValue(ScaleProperty);
         set => SetValue(ScaleProperty, value);
     }
+    
     protected override Type StyleKeyOverride => typeof(TimelineSlider);
 }

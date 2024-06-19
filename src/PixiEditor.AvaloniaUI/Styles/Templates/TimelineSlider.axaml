@@ -18,32 +18,25 @@
         <Style Selector="^:horizontal">
             <Setter Property="MinWidth" Value="40" />
             <Setter Property="MinHeight" Value="20" />
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
             <Setter Property="Template">
                 <ControlTemplate>
                     <Grid Name="grid">
-                        <Border Margin="6, 0" CornerRadius="4" Background="{DynamicResource ThemeControlLowBrush}"
-                                Height="6"
+                        <Border Background="{DynamicResource ThemeControlLowBrush}"
+                                Height="35"
                                 VerticalAlignment="Center">
                         </Border>
                         <Canvas Margin="-6,-1">
                             <Rectangle IsVisible="false" x:Name="PART_SelectionRange" Height="4.0"
                                        StrokeThickness="1.0" />
                         </Canvas>
-                        <TickBar
+                        <animations:TimelineTickBar
                             Name="TopTickBar"
-                            Ticks="{TemplateBinding Ticks}"
-                            TickFrequency="{TemplateBinding Slider.TickFrequency}"
-                            Orientation="{TemplateBinding Slider.Orientation}"
-                            Minimum="{TemplateBinding Slider.Minimum}"
-                            Maximum="{TemplateBinding Slider.Maximum}"
-                            Height="15"
-                            Margin="0,0,0,4"
-                            VerticalAlignment="Center"
-                            Placement="Top"
-                            Fill="{DynamicResource ThemeBackgroundBrush2}" />
+                            Scale="{TemplateBinding Scale}"
+                            Margin="30, 0"
+                            Fill="White" />
                         <Track Name="PART_Track"
                                Grid.Row="1"
+                               Margin="15, 0"
                                IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
                                Orientation="Horizontal">
                             <Track.DecreaseButton>
@@ -54,12 +47,12 @@
                                 <RepeatButton Name="PART_IncreaseButton"
                                               Theme="{StaticResource SliderRepeatTrackTheme}" />
                             </Track.IncreaseButton>
-                            <Thumb Name="thumb"
-                                   MinWidth="20"
+                            <Thumb Name="thumb" VerticalAlignment="Top"
+                                   MinWidth="30"
                                    MinHeight="20">
                                 <Thumb.Template>
                                     <ControlTemplate>
-                                        <Border Background="{DynamicResource ThemeAccentBrush}" Width="20"
+                                        <Border Background="{DynamicResource ThemeAccentBrush}" Width="30"
                                                 Height="18"
                                                 CornerRadius="4">
                                             <TextBlock

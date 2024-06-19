@@ -14,6 +14,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 namespace PixiEditor.AvaloniaUI.Views.Animations;
 
 [TemplatePart("PART_PlayToggle", typeof(ToggleButton))]
+[TemplatePart("PART_TimelineSlider", typeof(TimelineSlider))]
 internal class Timeline : TemplatedControl
 {
     public static readonly StyledProperty<KeyFrameCollection> KeyFramesProperty =
@@ -103,6 +104,7 @@ internal class Timeline : TemplatedControl
 
     private ToggleButton? _playToggle;
     private DispatcherTimer _playTimer;
+    private TimelineSlider? _timelineSlider;
 
     static Timeline()
     {
@@ -140,6 +142,9 @@ internal class Timeline : TemplatedControl
         {
             _playToggle.Click += PlayToggleOnClick;
         }
+        
+        _timelineSlider = e.NameScope.Find<TimelineSlider>("PART_TimelineSlider");
+        _timelineSlider.PointerWheelChanged += TimelineSliderOnPointerWheelChanged;
     }
 
     private void PlayTimerOnTick(object? sender, EventArgs e)
@@ -170,11 +175,9 @@ internal class Timeline : TemplatedControl
             IsPlaying = false;
         }
     }
-
-    protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+    
+    private void TimelineSliderOnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
     {
-        base.OnPointerWheelChanged(e);
-        
         double newScale = Scale;
         
         int ticks = e.KeyModifiers.HasFlag(KeyModifiers.Control) ? 1 : 10;
@@ -183,7 +186,7 @@ internal class Timeline : TemplatedControl
         {
             newScale += ticks;
         }
-        else
+        else if (e.Delta.Y < 0)
         {
             newScale -= ticks;
         }
