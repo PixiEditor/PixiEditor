@@ -71,7 +71,7 @@
                                     <Binding RelativeSource="{RelativeSource TemplatedParent}"
                                              Path="Scale" />
                                     <Binding RelativeSource="{RelativeSource TemplatedParent}"
-                                             Path="ScrollOffset"/>
+                                             Path="ScrollOffset" />
                                 </MultiBinding>
                             </animations:TimelineSlider.Maximum>
                             <Interaction.Behaviors>
@@ -84,6 +84,22 @@
                                     ValueFromSlider="{Binding ElementName=PART_TimelineSlider, Path=Value, Mode=TwoWay}" />
                             </Interaction.Behaviors>
                         </animations:TimelineSlider>
+
+                        <Panel Grid.Row="1" Grid.Column="1" Margin="29, -16, 0, 0" VerticalAlignment="Stretch"
+                               ZIndex="11" HorizontalAlignment="Left">
+                            <Border Width="2" Background="{DynamicResource ThemeAccentBrush}">
+                                <Border.Margin>
+                                    <MultiBinding Converter="{converters:TimelineSliderValueToMarginConverter}">
+                                        <Binding Path="ActiveFrame"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="Scale"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="ScrollOffset"
+                                                 RelativeSource="{RelativeSource TemplatedParent}" />
+                                    </MultiBinding>
+                                </Border.Margin>
+                            </Border>
+                        </Panel>
 
                         <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden"
                                       Name="PART_TimelineHeaderScroll"
@@ -130,9 +146,10 @@
                                                 </ItemsControl.ItemContainerTheme>
                                                 <ItemsControl.ItemsPanel>
                                                     <ItemsPanelTemplate>
-                                                        <Grid Margin="{Binding  Path=MinLeftOffset,
+                                                        <Grid
+                                                            Margin="{Binding  Path=MinLeftOffset,
                                                         RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline},
-                                                        Converter={converters:DoubleToThicknessConverter}, ConverterParameter=LR}"/>
+                                                        Converter={converters:DoubleToThicknessConverter}, ConverterParameter=LR}" />
                                                     </ItemsPanelTemplate>
                                                 </ItemsControl.ItemsPanel>
                                             </ItemsControl>
