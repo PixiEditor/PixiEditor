@@ -36,12 +36,11 @@ public class TimelineTickBar : Control
 
     public override void Render(DrawingContext context)
     {
-        double width = Bounds.Width;
         double height = Bounds.Height;
         
         int max = (int)Math.Floor((Bounds.Width + Bounds.X * 2) / Scale);
 
-        double frameWidth = width / max;
+        double frameWidth = Scale;
         int largeTickInterval = possibleLargeTickIntervals[0];
         
         foreach (int interval in possibleLargeTickIntervals)

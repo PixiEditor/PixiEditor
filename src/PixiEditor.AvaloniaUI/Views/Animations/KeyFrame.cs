@@ -6,6 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.VisualTree;
+using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 
@@ -78,8 +79,9 @@ internal class KeyFrame : TemplatedControl
                 Converter = new DurationToMarginConverter(),
                 Bindings =
                 {
-                    new Binding("StartFrameBindable") { Source = Item }, new Binding("Scale") { Source = this },
-                },
+                    new Binding("StartFrameBindable") { Source = Item }, 
+                    new Binding("Scale") { Source = this },
+                }
             };
 
             ContentPresenter contentPresenter = this.FindAncestorOfType<ContentPresenter>();
@@ -95,7 +97,7 @@ internal class KeyFrame : TemplatedControl
         }
         
         e.Pointer.Capture(sender as IInputElement);
-        clickFrameOffset = Item.StartFrameBindable - (int)Math.Floor(e.GetPosition(this.FindAncestorOfType<Grid>()).X / Scale);
+        clickFrameOffset = Item.StartFrameBindable - (int)Math.Floor(e.GetPosition(this.FindAncestorOfType<Border>()).X / Scale);
         e.Handled = true;
     }
 
@@ -153,7 +155,7 @@ internal class KeyFrame : TemplatedControl
 
     private int MousePosToFrame(PointerEventArgs e, bool round = true)
     {
-        double x = e.GetPosition(this.FindAncestorOfType<Grid>()).X;
+        double x = e.GetPosition(this.FindAncestorOfType<Border>()).X;
         int frame;
         if (round)
         {

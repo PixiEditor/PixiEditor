@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:animations="clr-namespace:PixiEditor.AvaloniaUI.Views.Animations">
+                    xmlns:animations="clr-namespace:PixiEditor.AvaloniaUI.Views.Animations"
+                    xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters">
 
     <ControlTheme x:Key="SliderRepeatTrackTheme"
                   TargetType="RepeatButton">
@@ -34,10 +35,10 @@
                             Scale="{TemplateBinding Scale}"
                             Margin="30, 0"
                             Fill="White" />
-                        <Track Name="PART_Track"
-                               Grid.Row="1"
-                               Margin="15, 0"
+                        <animations:TimelineSliderTrack Name="PART_Track"
                                IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
+                               Margin="15, 0"
+                               ScaleFactor="{TemplateBinding Scale}"
                                Orientation="Horizontal">
                             <Track.DecreaseButton>
                                 <RepeatButton Name="PART_DecreaseButton"
@@ -63,7 +64,7 @@
                                     </ControlTemplate>
                                 </Thumb.Template>
                             </Thumb>
-                        </Track>
+                        </animations:TimelineSliderTrack>
                     </Grid>
                 </ControlTemplate>
             </Setter>

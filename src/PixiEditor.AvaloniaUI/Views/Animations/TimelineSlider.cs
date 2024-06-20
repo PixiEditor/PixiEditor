@@ -1,5 +1,9 @@
 ﻿using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace PixiEditor.AvaloniaUI.Views.Animations;
 
@@ -15,4 +19,82 @@ public class TimelineSlider : Slider
     }
     
     protected override Type StyleKeyOverride => typeof(TimelineSlider);
+    
+    private Button _increaseButton;
+    private Button _decreaseButton;
+    private Track _track;
+    
+    private bool _isDragging;
+    private IDisposable? _decreaseButtonPressDispose;
+    private IDisposable? _decreaseButtonReleaseDispose;
+    private IDisposable? _increaseButtonSubscription;
+    private IDisposable? _increaseButtonReleaseDispose;
+    private IDisposable? _pointerMovedDispose;
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        _decreaseButtonPressDispose?.Dispose();
+        _decreaseButtonReleaseDispose?.Dispose();
+        _increaseButtonSubscription?.Dispose();
+        _increaseButtonReleaseDispose?.Dispose();
+        _pointerMovedDispose?.Dispose();
+        
+        _increaseButton = e.NameScope.Find<Button>("PART_IncreaseButton");
+        _decreaseButton = e.NameScope.Find<Button>("PART_DecreaseButton");
+        _track = e.NameScope.Find<Track>("PART_Track");
+        
+        if (_track != null)
+        {
+            _track.IgnoreThumbDrag = true;
+        }
+
+        if (_decreaseButton != null)
+        {
+            _decreaseButtonPressDispose = _decreaseButton.AddDisposableHandler(PointerPressedEvent, TrackPressed, RoutingStrategies.Tunnel);
+            _decreaseButtonReleaseDispose = _decreaseButton.AddDisposableHandler(PointerReleasedEvent, TrackReleased, RoutingStrategies.Tunnel);
+        }
+
+        if (_increaseButton != null)
+        {
+            _increaseButtonSubscription = _increaseButton.AddDisposableHandler(PointerPressedEvent, TrackPressed, RoutingStrategies.Tunnel);
+            _increaseButtonReleaseDispose = _increaseButton.AddDisposableHandler(PointerReleasedEvent, TrackReleased, RoutingStrategies.Tunnel);
+        }
+
+        _pointerMovedDispose = this.AddDisposableHandler(PointerMovedEvent, TrackMoved, RoutingStrategies.Tunnel);
+    }
+    
+    private void TrackPressed(object? sender, PointerPressedEventArgs e)
+    {
+        _isDragging = true;
+        MoveToPoint(e.GetCurrentPoint(_track));
+    }
+    
+    private void TrackReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        _isDragging = false;
+    }
+    
+    private void TrackMoved(object? sender, PointerEventArgs e)
+    {
+        if (!IsEnabled)
+        {
+            _isDragging = false;
+            return;
+        }
+
+        if (_isDragging)
+        {
+            MoveToPoint(e.GetCurrentPoint(_track));
+        }
+    }
+    
+    private void MoveToPoint(PointerPoint point)
+    {
+        const double marginLeft = 15;
+        
+        double x = point.Position.X - marginLeft;
+        int value = (int)Math.Round(x / Scale);
+        
+        Value = value;
+    }
 }

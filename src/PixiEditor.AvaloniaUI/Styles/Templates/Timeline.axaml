@@ -19,12 +19,8 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="200" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
 
-                    <DockPanel Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" LastChildFill="True">
+                    <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="True">
                         <Button DockPanel.Dock="Left" Classes="pixi-icon"
                                 Content="{DynamicResource icon-plus-square}"
                                 Command="{TemplateBinding NewKeyFrameCommand}" />
@@ -44,136 +40,138 @@
                         </Panel>
                     </DockPanel>
 
-                    <ScrollViewer Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2" Name="VerticalScroll"
-                                  HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="200" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" /> <!-- For the timeline slider -->
+                            <RowDefinition Height="*" />    <!-- For the keyframes and headers -->
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" /> <!-- For the headers -->
+                            <ColumnDefinition Width="*" />    <!-- For the timeline slider and keyframes -->
+                        </Grid.ColumnDefinitions>
+                        <ScrollViewer HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
+                                      Name="PART_TimelineSliderScroll"
+                                      Grid.Row="0" Grid.Column="1">
+                            <animations:TimelineSlider TickFrequency="1" Height="35" ClipToBounds="False"
+                                                           TickPlacement="TopLeft" VerticalAlignment="Top"
+                                                           SmallChange="1" ZIndex="10"
+                                                           LargeChange="10"
+                                                           Scale="{Binding Scale, RelativeSource={RelativeSource TemplatedParent}}"
+                                                           IsSnapToTickEnabled="True"
+                                                           Name="PART_TimelineSlider"
+                                                           Minimum="0">
+                                    <animations:TimelineSlider.Maximum>
+                                        <MultiBinding>
+                                            <MultiBinding.Converter>
+                                                <converters:TimelineSliderWidthToMaximumConverter />
+                                            </MultiBinding.Converter>
+                                            <Binding Path="Bounds"
+                                                     RelativeSource="{RelativeSource Self}" />
+                                            <Binding RelativeSource="{RelativeSource TemplatedParent}"
+                                                     Path="Scale" />
+                                        </MultiBinding>
+                                    </animations:TimelineSlider.Maximum>
+                                    <Interaction.Behaviors>
+                                        <behaviours:SliderUpdateBehavior
+                                            Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActiveFrame, Mode=OneWay}"
+                                            DragStarted="{xaml:Command PixiEditor.Document.StartChangeActiveFrame}"
+                                            DragValueChanged="{xaml:Command PixiEditor.Document.ChangeActiveFrame, UseProvided=True}"
+                                            DragEnded="{xaml:Command PixiEditor.Document.EndChangeActiveFrame}"
+                                            SetValueCommand="{xaml:Command PixiEditor.Animation.ActiveFrameSet, UseProvided=True}"
+                                            ValueFromSlider="{Binding ElementName=PART_TimelineSlider, Path=Value, Mode=TwoWay}" />
+                                    </Interaction.Behaviors>
+                                </animations:TimelineSlider>
+                        </ScrollViewer>
 
-                            <ItemsControl Grid.Column="0" Margin="0, 35"
-                                          ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
-                                <ItemsControl.DataTemplates>
-                                    <DataTemplate DataType="document:KeyFrameGroupViewModel">
-                                        <animations:TimelineGroupHeader Height="70"
-                                                                        Item="{Binding}" />
-                                    </DataTemplate>
-                                </ItemsControl.DataTemplates>
-                            </ItemsControl>
-                            <ScrollViewer Background="{DynamicResource ThemeBackgroundBrush}"
-                                          Grid.Column="1" VerticalScrollBarVisibility="Disabled"
-                                          Name="HorizontalScroll"
-                                          HorizontalScrollBarVisibility="Auto">
-                                <Interaction.Behaviors>
-                                    <EventTriggerBehavior EventName="PointerPressed">
-                                        <InvokeCommandAction
-                                            Command="{Binding SelectKeyFrameCommand,
-                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
-                                            CommandParameter="{x:Null}" />
-                                    </EventTriggerBehavior>
-                                </Interaction.Behaviors>
-                                <Grid VerticalAlignment="Top" HorizontalAlignment="Stretch">
-                                    <animations:TimelineSlider TickFrequency="1" Height="35" ClipToBounds="False"
-                                                               TickPlacement="TopLeft" VerticalAlignment="Top"
-                                                               SmallChange="1" ZIndex="10"
-                                                               LargeChange="10"
-                                                               Margin="{Binding #VerticalScroll.Offset, Converter={converters:OffsetToNegatingMarginConverter}}"
-                                                               Scale="{Binding Scale, RelativeSource={RelativeSource TemplatedParent}}"
-                                                               IsSnapToTickEnabled="True"
-                                                               Name="PART_TimelineSlider"
-                                                               Minimum="0">
-                                        <animations:TimelineSlider.Maximum>
-                                            <MultiBinding>
-                                                <MultiBinding.Converter>
-                                                    <converters:TimelineSliderWidthToMaximumConverter />
-                                                </MultiBinding.Converter>
-                                                <Binding Path="Bounds"
-                                                         RelativeSource="{RelativeSource Self}" />
-                                                <Binding RelativeSource="{RelativeSource TemplatedParent}"
-                                                         Path="Scale" />
-                                            </MultiBinding>
-                                        </animations:TimelineSlider.Maximum>
-                                        <Interaction.Behaviors>
-                                            <behaviours:SliderUpdateBehavior
-                                                Binding="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActiveFrame, Mode=OneWay}"
-                                                DragStarted="{xaml:Command PixiEditor.Document.StartChangeActiveFrame}"
-                                                DragValueChanged="{xaml:Command PixiEditor.Document.ChangeActiveFrame, UseProvided=True}"
-                                                DragEnded="{xaml:Command PixiEditor.Document.EndChangeActiveFrame}"
-                                                SetValueCommand="{xaml:Command PixiEditor.Animation.ActiveFrameSet, UseProvided=True}"
-                                                ValueFromSlider="{Binding ElementName=PART_TimelineSlider, Path=Value, Mode=TwoWay}" />
-                                        </Interaction.Behaviors>
-                                    </animations:TimelineSlider>
-                                     <ItemsControl
-                                         Margin="0, 35, 0, 0"
-                                    ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Hidden"
+                                        Name="PART_TimelineHeaderScroll"
+                                      Grid.Row="1" Grid.Column="0">
+                            <StackPanel Orientation="Vertical" Background="{DynamicResource ThemeBackgroundBrush1}">
+                                <ItemsControl Margin="0, 35"
+                                              ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ItemsControl.DataTemplates>
                                         <DataTemplate DataType="document:KeyFrameGroupViewModel">
-                                            <ItemsControl Padding="0 5" ClipToBounds="False" Height="70"
-                                                          BorderThickness="0, 0, 0, 1"
-                                                          BorderBrush="{DynamicResource ThemeBorderMidBrush}"
-                                                          ItemsSource="{Binding Children}">
-                                                <ItemsControl.ItemContainerTheme>
-                                                    <ControlTheme TargetType="ContentPresenter">
-                                                        <Setter Property="HorizontalAlignment" Value="Left" />
-                                                        <Setter Property="ZIndex"
-                                                                Value="{Binding StartFrameBindable}" />
-                                                    </ControlTheme>
-                                                </ItemsControl.ItemContainerTheme>
-                                                <ItemsControl.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <Grid Margin="30, 0, 0, 0" />
-                                                    </ItemsPanelTemplate>
-                                                </ItemsControl.ItemsPanel>
-                                            </ItemsControl>
-                                        </DataTemplate>
-                                        <DataTemplate DataType="document:RasterKeyFrameViewModel">
-                                            <animations:KeyFrame
-                                                Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
-                                                IsEnabled="{Binding IsVisible}"
-                                                Item="{Binding}">
-                                                <animations:KeyFrame.Width>
-                                                    <MultiBinding Converter="{converters:DurationToWidthConverter}">
-                                                        <MultiBinding.ConverterParameter>
-                                                            <!--TimelineSlider TimelineTickBar margin * 2-->
-                                                            <system:Double>60</system:Double>
-                                                        </MultiBinding.ConverterParameter>
-                                                        <Binding Path="DurationBindable" />
-                                                        <Binding RelativeSource="{RelativeSource FindAncestor, AncestorType=ItemsPresenter}"
-                                                                 Path="Bounds.Width"/>
-                                                        <Binding
-                                                            RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}"
-                                                            Path="Scale" />
-                                                    </MultiBinding>
-                                                </animations:KeyFrame.Width>
-                                                <animations:KeyFrame.IsSelected>
-                                                    <MultiBinding>
-                                                        <MultiBinding.Converter>
-                                                            <converters:AreEqualConverter />
-                                                        </MultiBinding.Converter>
-                                                        <Binding Path="SelectedKeyFrame"
-                                                                 RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" />
-                                                        <Binding
-                                                            RelativeSource="{RelativeSource Self}"
-                                                            Path="Item" />
-                                                    </MultiBinding>
-                                                </animations:KeyFrame.IsSelected>
-                                                <Interaction.Behaviors>
-                                                    <EventTriggerBehavior EventName="PointerPressed">
-                                                        <InvokeCommandAction
-                                                            Command="{Binding SelectKeyFrameCommand,
-                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
-                                                            CommandParameter="{Binding}" />
-                                                    </EventTriggerBehavior>
-                                                </Interaction.Behaviors>
-                                            </animations:KeyFrame>
+                                            <animations:TimelineGroupHeader Height="70"
+                                                                            Item="{Binding}" />
                                         </DataTemplate>
                                     </ItemsControl.DataTemplates>
                                 </ItemsControl>
-                                </Grid>
-                            </ScrollViewer>
-                        </Grid>
+                            </StackPanel>
+                        </ScrollViewer>
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Grid.Row="1"
+                                        Name="PART_TimelineKeyFramesScroll" Grid.Column="1">
+                        <Border Background="{DynamicResource ThemeBackgroundBrush}">
+                            <Interaction.Behaviors>
+                                <EventTriggerBehavior EventName="PointerPressed">
+                                    <InvokeCommandAction
+                                        Command="{Binding SelectKeyFrameCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                        CommandParameter="{x:Null}" />
+                                </EventTriggerBehavior>
+                            </Interaction.Behaviors>
+                            <ItemsControl
+                                Margin="0, 35, 0, 0"
+                                ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ItemsControl.DataTemplates>
+                                    <DataTemplate DataType="document:KeyFrameGroupViewModel">
+                                        <ItemsControl Padding="0 5" ClipToBounds="False" Height="70"
+                                                      BorderThickness="0, 0, 0, 1"
+                                                      BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                                      ItemsSource="{Binding Children}">
+                                            <ItemsControl.ItemContainerTheme>
+                                                <ControlTheme TargetType="ContentPresenter">
+                                                    <Setter Property="HorizontalAlignment" Value="Left" />
+                                                    <Setter Property="ZIndex"
+                                                            Value="{Binding StartFrameBindable}" />
+                                                </ControlTheme>
+                                            </ItemsControl.ItemContainerTheme>
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <Grid Margin="30, 0, 0, 0" />
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                    </DataTemplate>
+                                    <DataTemplate DataType="document:RasterKeyFrameViewModel">
+                                        <animations:KeyFrame
+                                            Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                            IsEnabled="{Binding IsVisible}"
+                                            Item="{Binding}">
+                                            <animations:KeyFrame.Width>
+                                                <MultiBinding Converter="{converters:DurationToWidthConverter}">
+                                                    <Binding Path="DurationBindable" />
+                                                    <Binding
+                                                        RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}"
+                                                        Path="Scale" />
+                                                </MultiBinding>
+                                            </animations:KeyFrame.Width>
+                                            <animations:KeyFrame.IsSelected>
+                                                <MultiBinding>
+                                                    <MultiBinding.Converter>
+                                                        <converters:AreEqualConverter />
+                                                    </MultiBinding.Converter>
+                                                    <Binding Path="SelectedKeyFrame"
+                                                             RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" />
+                                                    <Binding
+                                                        RelativeSource="{RelativeSource Self}"
+                                                        Path="Item" />
+                                                </MultiBinding>
+                                            </animations:KeyFrame.IsSelected>
+                                            <Interaction.Behaviors>
+                                                <EventTriggerBehavior EventName="PointerPressed">
+                                                    <InvokeCommandAction
+                                                        Command="{Binding SelectKeyFrameCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                        CommandParameter="{Binding}" />
+                                                </EventTriggerBehavior>
+                                            </Interaction.Behaviors>
+                                        </animations:KeyFrame>
+                                    </DataTemplate>
+                                </ItemsControl.DataTemplates>
+                            </ItemsControl>
+                        </Border>
                     </ScrollViewer>
+                    </Grid>
                 </Grid>
             </ControlTemplate>
         </Setter>

@@ -18,9 +18,9 @@ internal class DurationToMarginConverter : SingleInstanceMultiValueConverter<Dur
             throw new ArgumentException("DurationToWidthConverter requires 2 values");
         }
         
-        if(values[0] is int duration && values[1] is double scale)
+        if(values[0] is int startFrame && values[1] is double scale)
         {
-            return new Thickness(duration * scale, 0, 0, 0);
+            return new Thickness(startFrame * scale, 0, 0, 0);
         }
         
         return 0;

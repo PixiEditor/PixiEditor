@@ -12,18 +12,15 @@ internal class DurationToWidthConverter : SingleInstanceMultiValueConverter<Dura
 
     public override object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (values.Count != 3)
+        if (values.Count != 2)
         {
             return 0;
             throw new ArgumentException("DurationToWidthConverter requires 2 values");
         }
         
-        if(values[0] is int duration && values[1] is double width && values[2] is double scale && parameter is double margin)
+        if(values[0] is int duration && values[1] is double scale)
         {
-            int max = (int)Math.Floor((width) / scale);
-
-            double frameWidth = (width - margin) / max;
-            return frameWidth * duration;
+            return scale * duration;
         }
         
         return 0;
