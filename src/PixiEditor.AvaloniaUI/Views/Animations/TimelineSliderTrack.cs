@@ -44,21 +44,7 @@ internal class TimelineSliderTrack : Track
             double thumbPosition = scaledValue - Offset.X;
 
             Thumb.Arrange(new Rect(thumbPosition, 0, thumbLength, finalSize.Height));
-            
-            Rect decreaseButtonRect = new Rect(0, 0, thumbPosition, finalSize.Height);
-            Rect increaseButtonRect = new Rect(thumbPosition + thumbLength, 0, finalSize.Width - thumbPosition - thumbLength, finalSize.Height);
-            if (decreaseButtonRect.Width < 0)
-            {
-                decreaseButtonRect = new Rect(0, 0, 0, 0);
-            }
-            
-            if (increaseButtonRect.Width < 0)
-            {
-                increaseButtonRect = new Rect(0, 0, 0, 0);
-            }
-            
-            DecreaseButton?.Arrange(decreaseButtonRect);
-            IncreaseButton?.Arrange(increaseButtonRect);
+            IncreaseButton?.Arrange(new Rect(0, 0, finalSize.Width, finalSize.Height));
         }
 
         return finalSize;

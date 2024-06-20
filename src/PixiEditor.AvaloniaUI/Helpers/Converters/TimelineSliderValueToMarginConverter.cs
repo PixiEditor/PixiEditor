@@ -19,7 +19,7 @@ internal class TimelineSliderValueToMarginConverter : SingleInstanceMultiValueCo
 
         if (values[0] is int frame && values[1] is double scale && values[2] is Vector offset)
         {
-            return new Thickness(frame * scale + offset.X, 0, 0, 0);
+            return new Thickness(frame * scale - offset.X, 0, 0, 0);
         }
 
         return new Thickness();

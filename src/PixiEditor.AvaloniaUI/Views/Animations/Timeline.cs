@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
@@ -36,11 +34,12 @@ internal class Timeline : TemplatedControl
 
     public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<Timeline, double>(
         nameof(Scale), 100);
-    
+
     public static readonly StyledProperty<int> FpsProperty = AvaloniaProperty.Register<Timeline, int>(nameof(Fps), 60);
 
-    public static readonly StyledProperty<KeyFrameViewModel> SelectedKeyFrameProperty = AvaloniaProperty.Register<Timeline, KeyFrameViewModel>(
-        "SelectedKeyFrame");
+    public static readonly StyledProperty<KeyFrameViewModel> SelectedKeyFrameProperty =
+        AvaloniaProperty.Register<Timeline, KeyFrameViewModel>(
+            "SelectedKeyFrame");
 
     public static readonly StyledProperty<Vector> ScrollOffsetProperty = AvaloniaProperty.Register<Timeline, Vector>(
         "ScrollOffset");
@@ -73,8 +72,9 @@ internal class Timeline : TemplatedControl
         AvaloniaProperty.Register<Timeline, ICommand>(
             nameof(DuplicateKeyFrameCommand));
 
-    public static readonly StyledProperty<ICommand> DeleteKeyFrameCommandProperty = AvaloniaProperty.Register<Timeline, ICommand>(
-        nameof(DeleteKeyFrameCommand));
+    public static readonly StyledProperty<ICommand> DeleteKeyFrameCommandProperty =
+        AvaloniaProperty.Register<Timeline, ICommand>(
+            nameof(DeleteKeyFrameCommand));
 
     public static readonly StyledProperty<double> MinLeftOffsetProperty = AvaloniaProperty.Register<Timeline, double>(
         nameof(MinLeftOffset), 30);
@@ -90,7 +90,7 @@ internal class Timeline : TemplatedControl
         get => GetValue(DeleteKeyFrameCommandProperty);
         set => SetValue(DeleteKeyFrameCommandProperty, value);
     }
-    
+
     public ICommand DuplicateKeyFrameCommand
     {
         get => GetValue(DuplicateKeyFrameCommandProperty);
@@ -139,7 +139,8 @@ internal class Timeline : TemplatedControl
 
     public Timeline()
     {
-        _playTimer = new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / Fps) };
+        _playTimer =
+            new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / Fps) };
         _playTimer.Tick += PlayTimerOnTick;
         SelectKeyFrameCommand = new RelayCommand<KeyFrameViewModel>(keyFrame =>
         {
@@ -156,7 +157,7 @@ internal class Timeline : TemplatedControl
     {
         IsPlaying = false;
     }
-    
+
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
         base.OnApplyTemplate(e);
@@ -166,15 +167,15 @@ internal class Timeline : TemplatedControl
         {
             _playToggle.Click += PlayToggleOnClick;
         }
-        
+
         _contentBorder = e.NameScope.Find<Border>("PART_ContentBorder");
-        
+
         _timelineSlider = e.NameScope.Find<TimelineSlider>("PART_TimelineSlider");
         _timelineSlider.PointerWheelChanged += TimelineSliderOnPointerWheelChanged;
-        
+
         _timelineKeyFramesScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineKeyFramesScroll");
         _timelineHeaderScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineHeaderScroll");
-        
+
         _timelineKeyFramesScroll.ScrollChanged += TimelineKeyFramesScrollOnScrollChanged;
     }
 
@@ -218,13 +219,13 @@ internal class Timeline : TemplatedControl
             IsPlaying = false;
         }
     }
-    
+
     private void TimelineSliderOnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
     {
         double newScale = Scale;
-        
+
         int ticks = e.KeyModifiers.HasFlag(KeyModifiers.Control) ? 1 : 10;
-        
+
         int towardsFrame = MousePosToFrame(e);
 
         if (e.Delta.Y > 0)
@@ -238,15 +239,25 @@ internal class Timeline : TemplatedControl
         
         newScale = Math.Clamp(newScale, 1, 900);
         Scale = newScale;
-        
-        Dispatcher.UIThread.Post(() =>
+
+        Dispatcher.UIThread.Post(
+            () =>
         {
-            //ScrollOffset = new Vector(towardsFrame * Scale, 0);
-        });
-        
+            double mouseXInViewport = e.GetPosition(_timelineKeyFramesScroll).X;
+            
+            double currentFrameUnderMouse = towardsFrame;
+            double newOffsetX = currentFrameUnderMouse * newScale - mouseXInViewport + MinLeftOffset; // Where the new scroll position should be
+
+            // Clamp the new offset within the scrollable range
+            newOffsetX = Math.Clamp(newOffsetX, 0, _timelineKeyFramesScroll.ScrollBarMaximum.X);
+
+            // Update the scroll offset
+            ScrollOffset = new Vector(newOffsetX, 0);
+        }, DispatcherPriority.Render);
+
         e.Handled = true;
     }
-    
+
     private int MousePosToFrame(PointerEventArgs e, bool round = true)
     {
         double x = e.GetPosition(_contentBorder).X;
@@ -260,7 +271,7 @@ internal class Timeline : TemplatedControl
         {
             frame = (int)Math.Floor(x / Scale);
         }
-        
+
         frame = Math.Max(0, frame);
         return frame;
     }
@@ -281,7 +292,7 @@ internal class Timeline : TemplatedControl
             timeline._playTimer.Stop();
         }
     }
-    
+
     private static void FpsChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is not Timeline timeline)
@@ -291,7 +302,7 @@ internal class Timeline : TemplatedControl
 
         timeline._playTimer.Interval = TimeSpan.FromMilliseconds(1000f / timeline.Fps);
     }
-    
+
     private static void OnKeyFramesChanged(AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is not Timeline timeline)
@@ -299,24 +310,24 @@ internal class Timeline : TemplatedControl
             return;
         }
 
-        if(e.OldValue is KeyFrameCollection oldCollection)
+        if (e.OldValue is KeyFrameCollection oldCollection)
         {
             oldCollection.KeyFrameAdded -= timeline.KeyFrames_KeyFrameAdded;
             oldCollection.KeyFrameRemoved -= timeline.KeyFrames_KeyFrameRemoved;
         }
-        
-        if(e.NewValue is KeyFrameCollection newCollection)
+
+        if (e.NewValue is KeyFrameCollection newCollection)
         {
             newCollection.KeyFrameAdded += timeline.KeyFrames_KeyFrameAdded;
             newCollection.KeyFrameRemoved += timeline.KeyFrames_KeyFrameRemoved;
         }
     }
-    
+
     private void KeyFrames_KeyFrameAdded(KeyFrameViewModel keyFrame)
     {
         SelectedKeyFrame = keyFrame;
     }
-    
+
     private void KeyFrames_KeyFrameRemoved(KeyFrameViewModel keyFrame)
     {
         if (SelectedKeyFrame == keyFrame)

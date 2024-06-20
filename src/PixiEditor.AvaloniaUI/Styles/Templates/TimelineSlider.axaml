@@ -44,16 +44,12 @@
                                ScaleFactor="{TemplateBinding Scale}"
                                Offset="{TemplateBinding Offset}"
                                Orientation="Horizontal">
-                            <Track.DecreaseButton>
-                                <RepeatButton Name="PART_DecreaseButton"
-                                              Theme="{StaticResource SliderRepeatTrackTheme}" />
-                            </Track.DecreaseButton>
                             <Track.IncreaseButton>
                                 <RepeatButton Name="PART_IncreaseButton"
                                               Theme="{StaticResource SliderRepeatTrackTheme}" />
                             </Track.IncreaseButton>
                             <Thumb Name="thumb" VerticalAlignment="Top"
-                                   MinWidth="30"
+                                   MinWidth="30" IsHitTestVisible="False"
                                    MinHeight="20">
                                 <Thumb.Template>
                                     <ControlTemplate>

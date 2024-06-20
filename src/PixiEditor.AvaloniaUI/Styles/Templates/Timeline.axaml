@@ -85,8 +85,8 @@
                             </Interaction.Behaviors>
                         </animations:TimelineSlider>
 
-                        <Panel Grid.Row="1" Grid.Column="1" Margin="29, -16, 0, 0" VerticalAlignment="Stretch"
-                               ZIndex="11" HorizontalAlignment="Left">
+                        <Panel ClipToBounds="True" Grid.Row="1" Grid.Column="1" Margin="29, -16, 0, 0" VerticalAlignment="Stretch"
+                               ZIndex="11" HorizontalAlignment="Left" IsHitTestVisible="False">
                             <Border Width="2" Background="{DynamicResource ThemeAccentBrush}">
                                 <Border.Margin>
                                     <MultiBinding Converter="{converters:TimelineSliderValueToMarginConverter}">
@@ -117,7 +117,7 @@
                             </StackPanel>
                         </ScrollViewer>
                         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
-                                      Grid.Row="1"
+                                      Grid.Row="1" Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                                       Name="PART_TimelineKeyFramesScroll" Grid.Column="1">
                             <Border Background="{DynamicResource ThemeBackgroundBrush}" Name="PART_ContentBorder">
                                 <Interaction.Behaviors>

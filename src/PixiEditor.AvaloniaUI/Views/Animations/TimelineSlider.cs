@@ -38,12 +38,9 @@ public class TimelineSlider : Slider
     }
 
     private Button _increaseButton;
-    private Button _decreaseButton;
     private Track _track;
     
     private bool _isDragging;
-    private IDisposable? _decreaseButtonPressDispose;
-    private IDisposable? _decreaseButtonReleaseDispose;
     private IDisposable? _increaseButtonSubscription;
     private IDisposable? _increaseButtonReleaseDispose;
     private IDisposable? _pointerMovedDispose;
@@ -55,25 +52,16 @@ public class TimelineSlider : Slider
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
-        _decreaseButtonPressDispose?.Dispose();
-        _decreaseButtonReleaseDispose?.Dispose();
         _increaseButtonSubscription?.Dispose();
         _increaseButtonReleaseDispose?.Dispose();
         _pointerMovedDispose?.Dispose();
         
         _increaseButton = e.NameScope.Find<Button>("PART_IncreaseButton");
-        _decreaseButton = e.NameScope.Find<Button>("PART_DecreaseButton");
         _track = e.NameScope.Find<Track>("PART_Track");
         
         if (_track != null)
         {
             _track.IgnoreThumbDrag = true;
-        }
-
-        if (_decreaseButton != null)
-        {
-            _decreaseButtonPressDispose = _decreaseButton.AddDisposableHandler(PointerPressedEvent, TrackPressed, RoutingStrategies.Tunnel);
-            _decreaseButtonReleaseDispose = _decreaseButton.AddDisposableHandler(PointerReleasedEvent, TrackReleased, RoutingStrategies.Tunnel);
         }
 
         if (_increaseButton != null)
