@@ -16,7 +16,6 @@ namespace PixiEditor.AvaloniaUI.Views.Animations;
 [TemplatePart("PART_PlayToggle", typeof(ToggleButton))]
 [TemplatePart("PART_TimelineSlider", typeof(TimelineSlider))]
 [TemplatePart("PART_ContentGrid", typeof(Grid))]
-[TemplatePart("PART_TimelineSliderScroll", typeof(ScrollViewer))]
 [TemplatePart("PART_TimelineKeyFramesScroll", typeof(ScrollViewer))]
 [TemplatePart("PART_TimelineHeaderScroll", typeof(ScrollViewer))]
 internal class Timeline : TemplatedControl
@@ -77,6 +76,15 @@ internal class Timeline : TemplatedControl
     public static readonly StyledProperty<ICommand> DeleteKeyFrameCommandProperty = AvaloniaProperty.Register<Timeline, ICommand>(
         nameof(DeleteKeyFrameCommand));
 
+    public static readonly StyledProperty<double> MinLeftOffsetProperty = AvaloniaProperty.Register<Timeline, double>(
+        nameof(MinLeftOffset), 30);
+
+    public double MinLeftOffset
+    {
+        get => GetValue(MinLeftOffsetProperty);
+        set => SetValue(MinLeftOffsetProperty, value);
+    }
+
     public ICommand DeleteKeyFrameCommand
     {
         get => GetValue(DeleteKeyFrameCommandProperty);
@@ -117,9 +125,8 @@ internal class Timeline : TemplatedControl
 
     private ToggleButton? _playToggle;
     private DispatcherTimer _playTimer;
-    private Grid? _contentGrid;
+    private Border? _contentBorder;
     private TimelineSlider? _timelineSlider;
-    private ScrollViewer? _timelineSliderScroll;
     private ScrollViewer? _timelineKeyFramesScroll;
     private ScrollViewer? _timelineHeaderScroll;
 
@@ -160,12 +167,11 @@ internal class Timeline : TemplatedControl
             _playToggle.Click += PlayToggleOnClick;
         }
         
-        _contentGrid = e.NameScope.Find<Grid>("PART_ContentGrid");
+        _contentBorder = e.NameScope.Find<Border>("PART_ContentBorder");
         
         _timelineSlider = e.NameScope.Find<TimelineSlider>("PART_TimelineSlider");
         _timelineSlider.PointerWheelChanged += TimelineSliderOnPointerWheelChanged;
         
-        _timelineSliderScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineSliderScroll");
         _timelineKeyFramesScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineKeyFramesScroll");
         _timelineHeaderScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineHeaderScroll");
         
@@ -179,7 +185,8 @@ internal class Timeline : TemplatedControl
             return;
         }
 
-        _timelineSliderScroll!.Offset = new Vector(scrollViewer.Offset.X, 0);
+        ScrollOffset = new Vector(scrollViewer.Offset.X, 0);
+        _timelineSlider.Offset = new Vector(scrollViewer.Offset.X, 0);
         _timelineHeaderScroll!.Offset = new Vector(0, scrollViewer.Offset.Y);
     }
 
@@ -234,7 +241,7 @@ internal class Timeline : TemplatedControl
         
         Dispatcher.UIThread.Post(() =>
         {
-            ScrollOffset = new Vector(towardsFrame * Scale, 0);
+            //ScrollOffset = new Vector(towardsFrame * Scale, 0);
         });
         
         e.Handled = true;
@@ -242,7 +249,8 @@ internal class Timeline : TemplatedControl
     
     private int MousePosToFrame(PointerEventArgs e, bool round = true)
     {
-        double x = e.GetPosition(_contentGrid).X;
+        double x = e.GetPosition(_contentBorder).X;
+        x -= MinLeftOffset;
         int frame;
         if (round)
         {

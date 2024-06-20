@@ -19,6 +19,7 @@
         <Style Selector="^:horizontal">
             <Setter Property="MinWidth" Value="40" />
             <Setter Property="MinHeight" Value="20" />
+            <Setter Property="ClipToBounds" Value="True"/>
             <Setter Property="Template">
                 <ControlTemplate>
                     <Grid Name="grid">
@@ -32,13 +33,16 @@
                         </Canvas>
                         <animations:TimelineTickBar
                             Name="TopTickBar"
+                            ClipToBounds="True"
                             Scale="{TemplateBinding Scale}"
-                            Margin="30, 0"
+                            Offset="{TemplateBinding Offset}"
+                            MinLeftOffset="{TemplateBinding MinLeftOffset}"
                             Fill="White" />
                         <animations:TimelineSliderTrack Name="PART_Track"
                                IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
-                               Margin="15, 0"
+                               Margin="15, 0, 0, 0"
                                ScaleFactor="{TemplateBinding Scale}"
+                               Offset="{TemplateBinding Offset}"
                                Orientation="Horizontal">
                             <Track.DecreaseButton>
                                 <RepeatButton Name="PART_DecreaseButton"

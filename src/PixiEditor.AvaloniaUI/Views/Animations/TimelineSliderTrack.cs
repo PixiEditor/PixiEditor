@@ -10,6 +10,15 @@ internal class TimelineSliderTrack : Track
     public static readonly StyledProperty<double> ScaleFactorProperty =
         AvaloniaProperty.Register<TimelineSliderTrack, double>(nameof(ScaleFactor), defaultValue: 1.0);
 
+    public static readonly StyledProperty<Vector> OffsetProperty = AvaloniaProperty.Register<TimelineSliderTrack, Vector>(
+        "Offset");
+
+    public Vector Offset
+    {
+        get => GetValue(OffsetProperty);
+        set => SetValue(OffsetProperty, value);
+    }
+
     public double ScaleFactor
     {
         get => GetValue(ScaleFactorProperty);
@@ -17,6 +26,11 @@ internal class TimelineSliderTrack : Track
     }
 
     protected override Type StyleKeyOverride => typeof(Track);
+
+    static TimelineSliderTrack()
+    {
+        AffectsArrange<TimelineSliderTrack>(ScaleFactorProperty, OffsetProperty);
+    }
 
     // Override the ArrangeOverride method
     protected override Size ArrangeOverride(Size finalSize)
@@ -27,7 +41,7 @@ internal class TimelineSliderTrack : Track
             double scaledValue = Value * ScaleFactor;
             double thumbLength = Orientation == Orientation.Horizontal ? Thumb.DesiredSize.Width : Thumb.DesiredSize.Height;
             
-            double thumbPosition = scaledValue;
+            double thumbPosition = scaledValue - Offset.X;
 
             Thumb.Arrange(new Rect(thumbPosition, 0, thumbLength, finalSize.Height));
             

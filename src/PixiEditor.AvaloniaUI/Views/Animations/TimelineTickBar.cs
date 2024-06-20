@@ -14,6 +14,8 @@ public class TimelineTickBar : Control
 
     public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<TimelineTickBar, double>(
         "Scale");
+    
+    public static readonly StyledProperty<Vector> OffsetProperty = AvaloniaProperty.Register<TimelineTickBar, Vector>("Offset");
 
     public double Scale
     {
@@ -27,18 +29,32 @@ public class TimelineTickBar : Control
         set => SetValue(FillProperty, value);
     }
 
+    public Vector Offset
+    {
+        get { return (Vector)GetValue(OffsetProperty); }
+        set { SetValue(OffsetProperty, value); }
+    }
+
+    public double MinLeftOffset
+    {
+        get { return (double)GetValue(MinLeftOffsetProperty); }
+        set { SetValue(MinLeftOffsetProperty, value); }
+    }
+
     static TimelineTickBar()
     {
-        AffectsRender<TimelineTickBar>(ScaleProperty, FillProperty);
+        AffectsRender<TimelineTickBar>(ScaleProperty, FillProperty, OffsetProperty);
     }
     
     private readonly int[] possibleLargeTickIntervals = { 1, 5, 10, 50, 100 };
+    public static readonly StyledProperty<double> MinLeftOffsetProperty = AvaloniaProperty.Register<TimelineTickBar, double>("MinOffset");
 
     public override void Render(DrawingContext context)
     {
         double height = Bounds.Height;
         
-        int max = (int)Math.Floor((Bounds.Width + Bounds.X * 2) / Scale);
+        int visibleMin = (int)Math.Floor(Offset.X / Scale);
+        int visibleMax = (int)Math.Ceiling((Offset.X + Bounds.Width) / Scale);
 
         double frameWidth = Scale;
         int largeTickInterval = possibleLargeTickIntervals[0];
@@ -61,9 +77,11 @@ public class TimelineTickBar : Control
         Pen largeTickPen = new Pen(Fill);
         Pen smallTickPen = new Pen(Fill, 0.5);
         
-        for (int i = 0; i <= max; i += largeTickInterval)
+        int largeStart = visibleMin - (visibleMin % largeTickInterval);
+        
+        for (int i = largeStart; i <= visibleMax; i += largeTickInterval)
         {
-            double x = i * frameWidth;
+            double x = i * frameWidth - Offset.X + MinLeftOffset;
             context.DrawLine(largeTickPen, new Point(x, height), new Point(x, height * 0.55f));
             var text = new FormattedText(i.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
                 Typeface.Default, 12, Fill);
@@ -73,14 +91,15 @@ public class TimelineTickBar : Control
             
             context.DrawText(text, textPosition);
         }
-
-        // Draw small ticks
-        for (int i = 0; i <= max; i += smallTickInterval)
+        
+        int smallStart = visibleMin - (visibleMin % smallTickInterval);
+        
+        for (int i = smallStart; i <= visibleMax; i += smallTickInterval)
         {
             if (i % largeTickInterval == 0)
                 continue;
 
-            double x = i * frameWidth;
+            double x = i * frameWidth - Offset.X + MinLeftOffset;
             context.DrawLine(smallTickPen, new Point(x, height), new Point(x, height * 0.7f));
         }
     }

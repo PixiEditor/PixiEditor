@@ -12,6 +12,17 @@ public class TimelineSlider : Slider
     public static readonly StyledProperty<double> ScaleProperty = AvaloniaProperty.Register<TimelineSlider, double>(
         nameof(Scale), 100);
 
+    public static readonly StyledProperty<Vector> OffsetProperty = AvaloniaProperty.Register<TimelineSlider, Vector>(
+        nameof(Offset), new Vector(0, 0));
+    
+    public static readonly StyledProperty<double> MinLeftOffsetProperty = AvaloniaProperty.Register<TimelineSlider, double>("MinLeftOffset");
+
+    public Vector Offset
+    {
+        get => GetValue(OffsetProperty);
+        set => SetValue(OffsetProperty, value);
+    }
+
     public double Scale
     {
         get => GetValue(ScaleProperty);
@@ -19,7 +30,13 @@ public class TimelineSlider : Slider
     }
     
     protected override Type StyleKeyOverride => typeof(TimelineSlider);
-    
+
+    public double MinLeftOffset
+    {
+        get { return (double)GetValue(MinLeftOffsetProperty); }
+        set { SetValue(MinLeftOffsetProperty, value); }
+    }
+
     private Button _increaseButton;
     private Button _decreaseButton;
     private Track _track;
@@ -30,6 +47,11 @@ public class TimelineSlider : Slider
     private IDisposable? _increaseButtonSubscription;
     private IDisposable? _increaseButtonReleaseDispose;
     private IDisposable? _pointerMovedDispose;
+
+    static TimelineSlider()
+    {
+        AffectsRender<TimelineSlider>(ScaleProperty, OffsetProperty, MinLeftOffsetProperty);
+    }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
     {
@@ -92,7 +114,7 @@ public class TimelineSlider : Slider
     {
         const double marginLeft = 15;
         
-        double x = point.Position.X - marginLeft;
+        double x = point.Position.X - marginLeft + Offset.X;
         int value = (int)Math.Round(x / Scale);
         
         Value = value;
