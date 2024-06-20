@@ -119,7 +119,7 @@
                         <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"
                                       Grid.Row="1" Offset="{Binding ScrollOffset, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
                                       Name="PART_TimelineKeyFramesScroll" Grid.Column="1">
-                            <Border Background="{DynamicResource ThemeBackgroundBrush}" Name="PART_ContentBorder">
+                            <Grid Background="{DynamicResource ThemeBackgroundBrush}" Name="PART_ContentGrid">
                                 <Interaction.Behaviors>
                                     <EventTriggerBehavior EventName="PointerPressed">
                                         <InvokeCommandAction
@@ -191,7 +191,7 @@
                                         </DataTemplate>
                                     </ItemsControl.DataTemplates>
                                 </ItemsControl>
-                            </Border>
+                            </Grid>
                         </ScrollViewer>
                     </Grid>
                 </Grid>

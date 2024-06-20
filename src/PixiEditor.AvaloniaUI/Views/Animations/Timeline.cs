@@ -125,10 +125,11 @@ internal class Timeline : TemplatedControl
 
     private ToggleButton? _playToggle;
     private DispatcherTimer _playTimer;
-    private Border? _contentBorder;
+    private Grid? _contentGrid;
     private TimelineSlider? _timelineSlider;
     private ScrollViewer? _timelineKeyFramesScroll;
     private ScrollViewer? _timelineHeaderScroll;
+    private Control? extendingElement;
 
     static Timeline()
     {
@@ -168,7 +169,7 @@ internal class Timeline : TemplatedControl
             _playToggle.Click += PlayToggleOnClick;
         }
 
-        _contentBorder = e.NameScope.Find<Border>("PART_ContentBorder");
+        _contentGrid = e.NameScope.Find<Grid>("PART_ContentGrid");
 
         _timelineSlider = e.NameScope.Find<TimelineSlider>("PART_TimelineSlider");
         _timelineSlider.PointerWheelChanged += TimelineSliderOnPointerWheelChanged;
@@ -177,6 +178,10 @@ internal class Timeline : TemplatedControl
         _timelineHeaderScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineHeaderScroll");
 
         _timelineKeyFramesScroll.ScrollChanged += TimelineKeyFramesScrollOnScrollChanged;
+        
+        extendingElement = new Control();
+        extendingElement.SetValue(MarginProperty, new Thickness(0, 0, 0, 0));
+        _contentGrid.Children.Add(extendingElement);
     }
 
     private void TimelineKeyFramesScrollOnScrollChanged(object? sender, ScrollChangedEventArgs e)
@@ -239,19 +244,26 @@ internal class Timeline : TemplatedControl
         
         newScale = Math.Clamp(newScale, 1, 900);
         Scale = newScale;
+        
+        double mouseXInViewport = e.GetPosition(_timelineKeyFramesScroll).X;
+            
+        double currentFrameUnderMouse = towardsFrame;
+        double newOffsetX = currentFrameUnderMouse * newScale - mouseXInViewport + MinLeftOffset;
+
+        if (towardsFrame * 1.5f > KeyFrames.FrameCount)
+        {
+            extendingElement.Margin = new Thickness(newOffsetX * 1.25f, 0, 0, 0);
+        }
+        else
+        {
+            extendingElement.Margin = new Thickness(0, 0, 0, 0);
+        }
 
         Dispatcher.UIThread.Post(
             () =>
         {
-            double mouseXInViewport = e.GetPosition(_timelineKeyFramesScroll).X;
-            
-            double currentFrameUnderMouse = towardsFrame;
-            double newOffsetX = currentFrameUnderMouse * newScale - mouseXInViewport + MinLeftOffset; // Where the new scroll position should be
-
-            // Clamp the new offset within the scrollable range
             newOffsetX = Math.Clamp(newOffsetX, 0, _timelineKeyFramesScroll.ScrollBarMaximum.X);
-
-            // Update the scroll offset
+            
             ScrollOffset = new Vector(newOffsetX, 0);
         }, DispatcherPriority.Render);
 
@@ -260,7 +272,7 @@ internal class Timeline : TemplatedControl
 
     private int MousePosToFrame(PointerEventArgs e, bool round = true)
     {
-        double x = e.GetPosition(_contentBorder).X;
+        double x = e.GetPosition(_contentGrid).X;
         x -= MinLeftOffset;
         int frame;
         if (round)
