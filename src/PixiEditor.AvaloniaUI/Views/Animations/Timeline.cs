@@ -18,6 +18,8 @@ namespace PixiEditor.AvaloniaUI.Views.Animations;
 [TemplatePart("PART_TimelineHeaderScroll", typeof(ScrollViewer))]
 internal class Timeline : TemplatedControl
 {
+    private const float MarginMultiplier = 1.5f;
+    
     public static readonly StyledProperty<KeyFrameCollection> KeyFramesProperty =
         AvaloniaProperty.Register<Timeline, KeyFrameCollection>(
             nameof(KeyFrames));
@@ -250,9 +252,9 @@ internal class Timeline : TemplatedControl
         double currentFrameUnderMouse = towardsFrame;
         double newOffsetX = currentFrameUnderMouse * newScale - mouseXInViewport + MinLeftOffset;
 
-        if (towardsFrame * 1.5f > KeyFrames.FrameCount)
+        if (towardsFrame * MarginMultiplier > KeyFrames.FrameCount)
         {
-            extendingElement.Margin = new Thickness(newOffsetX * 1.25f, 0, 0, 0);
+            extendingElement.Margin = new Thickness(newOffsetX * 50, 0, 0, 0);
         }
         else
         {
