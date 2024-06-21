@@ -7,6 +7,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.Input;
+using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 
 namespace PixiEditor.AvaloniaUI.Views.Animations;
@@ -132,6 +133,8 @@ internal class Timeline : TemplatedControl
     private ScrollViewer? _timelineKeyFramesScroll;
     private ScrollViewer? _timelineHeaderScroll;
     private Control? extendingElement;
+    
+    private Vector clickPos;
 
     static Timeline()
     {
@@ -180,6 +183,9 @@ internal class Timeline : TemplatedControl
         _timelineHeaderScroll = e.NameScope.Find<ScrollViewer>("PART_TimelineHeaderScroll");
 
         _timelineKeyFramesScroll.ScrollChanged += TimelineKeyFramesScrollOnScrollChanged;
+        _contentGrid.PointerPressed += ContentOnPointerPressed;
+        _contentGrid.PointerMoved += ContentOnPointerMoved;
+        _contentGrid.PointerCaptureLost += ContentOnPointerLost;
         
         extendingElement = new Control();
         extendingElement.SetValue(MarginProperty, new Thickness(0, 0, 0, 0));
@@ -193,7 +199,7 @@ internal class Timeline : TemplatedControl
             return;
         }
 
-        ScrollOffset = new Vector(scrollViewer.Offset.X, 0);
+        ScrollOffset = new Vector(scrollViewer.Offset.X, scrollViewer.Offset.Y);
         _timelineSlider.Offset = new Vector(scrollViewer.Offset.X, 0);
         _timelineHeaderScroll!.Offset = new Vector(0, scrollViewer.Offset.Y);
     }
@@ -258,7 +264,7 @@ internal class Timeline : TemplatedControl
         }
         else
         {
-            extendingElement.Margin = new Thickness(0, 0, 0, 0);
+            extendingElement.Margin = new Thickness(_timelineKeyFramesScroll.Viewport.Width, 0, 0, 0);
         }
 
         Dispatcher.UIThread.Post(
@@ -270,6 +276,59 @@ internal class Timeline : TemplatedControl
         }, DispatcherPriority.Render);
 
         e.Handled = true;
+    }
+    
+    private void ContentOnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.Source is not Grid content)
+        {
+            return;
+        }
+
+        if (e.GetMouseButton(content) == MouseButton.Middle)
+        {
+            Cursor = new Cursor(StandardCursorType.SizeAll);
+            e.Pointer.Capture(content);
+            clickPos = e.GetPosition(content);
+
+            if (_timelineKeyFramesScroll.ScrollBarMaximum.X == ScrollOffset.X)
+            {
+                extendingElement.Margin = new Thickness(_timelineKeyFramesScroll.Viewport.Width, 0, 0, 0);
+            }
+            
+            e.Handled = true;
+        }
+    }
+    
+    private void ContentOnPointerMoved(object? sender, PointerEventArgs e)
+    {
+        if (e.Source is not Grid content)
+        {
+            return;
+        }
+
+        if (e.GetCurrentPoint(content).Properties.IsMiddleButtonPressed)
+        {
+            double deltaX = clickPos.X - e.GetPosition(content).X;
+            double deltaY = clickPos.Y - e.GetPosition(content).Y;
+            double newOffsetX = ScrollOffset.X + deltaX;
+            double newOffsetY = ScrollOffset.Y + deltaY;
+            newOffsetX = Math.Clamp(newOffsetX, 0, _timelineKeyFramesScroll.ScrollBarMaximum.X);
+            newOffsetY = Math.Clamp(newOffsetY, 0, _timelineKeyFramesScroll.ScrollBarMaximum.Y);
+            ScrollOffset = new Vector(newOffsetX, newOffsetY);
+            
+            extendingElement.Margin += new Thickness(deltaX, 0, 0, 0);
+        }
+    }
+    
+    private void ContentOnPointerLost(object? sender, PointerCaptureLostEventArgs e)
+    {
+        if (e.Source is not Grid content)
+        {
+            return;
+        }
+
+        Cursor = new Cursor(StandardCursorType.Arrow);
     }
 
     private int MousePosToFrame(PointerEventArgs e, bool round = true)

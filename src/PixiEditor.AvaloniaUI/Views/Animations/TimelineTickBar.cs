@@ -79,21 +79,16 @@ public class TimelineTickBar : Control
         
         int largeStart = visibleMin - (visibleMin % largeTickInterval);
         
-        for (int i = largeStart; i <= visibleMax; i += largeTickInterval)
-        {
-            double x = i * frameWidth - Offset.X + MinLeftOffset;
-            context.DrawLine(largeTickPen, new Point(x, height), new Point(x, height * 0.55f));
-            var text = new FormattedText(i.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
-                Typeface.Default, 12, Fill);
-            
-            double textCenter = text.WidthIncludingTrailingWhitespace / 2;
-            Point textPosition = new Point(x - textCenter, height * 0.05);
-            
-            context.DrawText(text, textPosition);
-        }
+        RenderBigTicks(context, largeStart, visibleMax, largeTickInterval, frameWidth, largeTickPen, height);
         
         int smallStart = visibleMin - (visibleMin % smallTickInterval);
         
+        RenderMinTicks(context, smallStart, visibleMax, smallTickInterval, largeTickInterval, frameWidth, smallTickPen, height);
+    }
+
+    private void RenderMinTicks(DrawingContext context, int smallStart, int visibleMax, int smallTickInterval,
+        int largeTickInterval, double frameWidth, Pen smallTickPen, double height)
+    {
         for (int i = smallStart; i <= visibleMax; i += smallTickInterval)
         {
             if (i % largeTickInterval == 0)
@@ -101,6 +96,24 @@ public class TimelineTickBar : Control
 
             double x = i * frameWidth - Offset.X + MinLeftOffset;
             context.DrawLine(smallTickPen, new Point(x, height), new Point(x, height * 0.7f));
+        }
+    }
+
+    private void RenderBigTicks(DrawingContext context, int largeStart, int visibleMax, int largeTickInterval,
+        double frameWidth, Pen largeTickPen, double height)
+    {
+        for (int i = largeStart; i <= visibleMax; i += largeTickInterval)
+        {
+            double x = i * frameWidth - Offset.X + MinLeftOffset;
+            context.DrawLine(largeTickPen, new Point(x, height), new Point(x, height * 0.55f));
+            
+            var text = new FormattedText(i.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
+                Typeface.Default, 12, Fill);
+            
+            double textCenter = text.WidthIncludingTrailingWhitespace / 2;
+            Point textPosition = new Point(x - textCenter, height * 0.05);
+            
+            context.DrawText(text, textPosition);
         }
     }
 }
