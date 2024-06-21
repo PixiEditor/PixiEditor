@@ -46,11 +46,38 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
-    public void DeleteKeyFrame(Guid keyFrameId)
+    public void DeleteKeyFrames(List<Guid> keyFrameIds)
     {
         if (!Document.UpdateableChangeActive)
         {
-            Internals.ActionAccumulator.AddFinishedActions(new DeleteKeyFrame_Action(keyFrameId));
+            for (var i = 0; i < keyFrameIds.Count; i++)
+            {
+                var id = keyFrameIds[i];
+                if(i == keyFrameIds.Count - 1)
+                {
+                    Internals.ActionAccumulator.AddFinishedActions(new DeleteKeyFrame_Action(id));
+                }
+                else
+                {
+                    Internals.ActionAccumulator.AddActions(new DeleteKeyFrame_Action(id));
+                }
+            }
+        }
+    }
+    
+    public void ChangeKeyFramesStartPos(Guid[] infoIds, int infoDelta)
+    {
+        if (!Document.UpdateableChangeActive)
+        {
+            Internals.ActionAccumulator.AddActions(new KeyFramesStartPos_Action(infoIds.ToList(), infoDelta));
+        }
+    }
+    
+    public void EndKeyFramesStartPos()
+    {
+        if (!Document.UpdateableChangeActive)
+        {
+            Internals.ActionAccumulator.AddFinishedActions(new EndKeyFramesStartPos_Action());
         }
     }
     
@@ -104,7 +131,46 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             parent.Children.Remove(frame);
             keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (KeyFrameViewModel)frame);
         });
+    }
+
+    public void AddSelectedKeyFrame(Guid keyFrameId)
+    {
+        if (TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        {
+            keyFrame.IsSelected = true;
+        }
+    }
+
+    public void RemoveSelectedKeyFrame(Guid keyFrameId)
+    {
+        if (TryFindKeyFrame(keyFrameId, out KeyFrameViewModel keyFrame))
+        {
+            keyFrame.IsSelected = false;
+        }
+    }
+
+    public void ClearSelectedKeyFrames()
+    {
+        var selectedFrames = keyFrames.SelectChildrenBy<KeyFrameViewModel>(x => x.IsSelected);
+        foreach (var frame in selectedFrames)
+        {
+            frame.IsSelected = false;
+        }
+    }
+
+    public void RemoveKeyFrames(List<Guid> keyFrameIds)
+    {
+        List<KeyFrameViewModel> framesToRemove = new List<KeyFrameViewModel>();
+        foreach (var keyFrame in keyFrameIds)
+        {
+            TryFindKeyFrame<KeyFrameViewModel>(keyFrame, out _, (frame, parent) =>
+            {
+                parent.Children.Remove(frame);
+                framesToRemove.Add((KeyFrameViewModel)frame);
+            });
+        }
         
+        keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, framesToRemove);
     }
     
     public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler

@@ -142,6 +142,15 @@ internal class DocumentUpdater
             case KeyFrameVisibility_ChangeInfo info:
                 ProcessKeyFrameVisibility(info);
                 break;
+            case AddSelectedKeyFrame_PassthroughAction info:
+                ProcessAddSelectedKeyFrame(info);
+                break;
+            case RemoveSelectedKeyFrame_PassthroughAction info:
+                ProcessRemoveSelectedKeyFrame(info);
+                break;
+            case ClearSelectedKeyFrames_PassthroughAction info:
+                ClearSelectedKeyFrames(info);
+                break;
         }
     }
 
@@ -433,5 +442,20 @@ internal class DocumentUpdater
     private void ProcessKeyFrameVisibility(KeyFrameVisibility_ChangeInfo info)
     {
         doc.AnimationHandler.SetKeyFrameVisibility(info.KeyFrameId, info.IsVisible);
+    }
+    
+    private void ProcessAddSelectedKeyFrame(AddSelectedKeyFrame_PassthroughAction info)
+    {
+        doc.AnimationHandler.AddSelectedKeyFrame(info.KeyFrameGuid);
+    }
+    
+    private void ProcessRemoveSelectedKeyFrame(RemoveSelectedKeyFrame_PassthroughAction info)
+    {
+        doc.AnimationHandler.RemoveSelectedKeyFrame(info.KeyFrameGuid);
+    }
+    
+    private void ClearSelectedKeyFrames(ClearSelectedKeyFrames_PassthroughAction info)
+    {
+        doc.AnimationHandler.ClearSelectedKeyFrames();
     }
 }

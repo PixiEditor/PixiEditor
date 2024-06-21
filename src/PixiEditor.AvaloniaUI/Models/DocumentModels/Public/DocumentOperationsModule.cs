@@ -318,6 +318,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// Clears the soft selection
     /// </summary>
     public void ClearSoftSelectedMembers() => Internals.ActionAccumulator.AddActions(new ClearSoftSelectedMembers_PassthroughAction());
+    
+    public void AddSelectedKeyFrame(Guid keyFrameGuid) => Internals.ActionAccumulator.AddActions(new AddSelectedKeyFrame_PassthroughAction(keyFrameGuid));
+    
+    public void RemoveSelectedKeyFrame(Guid keyFrameGuid) => Internals.ActionAccumulator.AddActions(new RemoveSelectedKeyFrame_PassthroughAction(keyFrameGuid));
+    
+    public void ClearSelectedKeyFrames() => Internals.ActionAccumulator.AddActions(new ClearSelectedKeyFrames_PassthroughAction());
 
     /// <summary>
     /// Undo last change

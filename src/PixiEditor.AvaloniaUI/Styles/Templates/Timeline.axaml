@@ -31,8 +31,8 @@
                         <Button DockPanel.Dock="Left" Classes="pixi-icon"
                                 Content="{DynamicResource icon-trash}"
                                 Command="{TemplateBinding DeleteKeyFrameCommand}"
-                                IsEnabled="{Binding !!SelectedKeyFrame, RelativeSource={RelativeSource TemplatedParent}}"
-                                CommandParameter="{Binding SelectedKeyFrame.Id, RelativeSource={RelativeSource TemplatedParent}}" />
+                                IsEnabled="{Binding SelectedKeyFrames.Count, RelativeSource={RelativeSource TemplatedParent}}"
+                                CommandParameter="{Binding SelectedKeyFrames, RelativeSource={RelativeSource TemplatedParent}}" />
                         <input:NumberInput Min="1"
                                            Value="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                         <Panel>
@@ -123,7 +123,7 @@
                                 <Interaction.Behaviors>
                                     <EventTriggerBehavior EventName="PointerPressed">
                                         <InvokeCommandAction
-                                            Command="{Binding SelectKeyFrameCommand,
+                                            Command="{Binding ClearSelectedKeyFramesCommand,
                                                         RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                             CommandParameter="{x:Null}" />
                                     </EventTriggerBehavior>
@@ -158,6 +158,7 @@
                                             <animations:KeyFrame
                                                 Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                 IsEnabled="{Binding IsVisible}"
+                                                IsSelected="{Binding IsSelected, Mode=TwoWay}"
                                                 Item="{Binding}">
                                                 <animations:KeyFrame.Width>
                                                     <MultiBinding Converter="{converters:DurationToWidthConverter}">
@@ -167,22 +168,22 @@
                                                             Path="Scale" />
                                                     </MultiBinding>
                                                 </animations:KeyFrame.Width>
-                                                <animations:KeyFrame.IsSelected>
-                                                    <MultiBinding>
-                                                        <MultiBinding.Converter>
-                                                            <converters:AreEqualConverter />
-                                                        </MultiBinding.Converter>
-                                                        <Binding Path="SelectedKeyFrame"
-                                                                 RelativeSource="{RelativeSource FindAncestor, AncestorType=animations:Timeline}" />
-                                                        <Binding
-                                                            RelativeSource="{RelativeSource Self}"
-                                                            Path="Item" />
-                                                    </MultiBinding>
-                                                </animations:KeyFrame.IsSelected>
                                                 <Interaction.Behaviors>
                                                     <EventTriggerBehavior EventName="PointerPressed">
                                                         <InvokeCommandAction
-                                                            Command="{Binding SelectKeyFrameCommand,
+                                                            Command="{Binding PressedKeyFrameCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                            PassEventArgsToCommand="True" />
+                                                    </EventTriggerBehavior>
+                                                    <EventTriggerBehavior EventName="PointerMoved">
+                                                        <InvokeCommandAction
+                                                            Command="{Binding DraggedKeyFrameCommand,
+                                                        RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
+                                                            PassEventArgsToCommand="True" />
+                                                    </EventTriggerBehavior>
+                                                    <EventTriggerBehavior EventName="PointerCaptureLost">
+                                                        <InvokeCommandAction
+                                                            Command="{Binding ReleasedKeyFrameCommand,
                                                         RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                             CommandParameter="{Binding}" />
                                                     </EventTriggerBehavior>
@@ -191,6 +192,10 @@
                                         </DataTemplate>
                                     </ItemsControl.DataTemplates>
                                 </ItemsControl>
+                                
+                                <Rectangle Name="PART_SelectionRectangle" HorizontalAlignment="Left" VerticalAlignment="Top"
+                                           IsVisible="False" ZIndex="100" Stroke="{DynamicResource ThemeAccent2Brush}" StrokeThickness="1"
+                                           Fill="{DynamicResource ThemeControlHighlightBrush}" Opacity="0.25"/>
                             </Grid>
                         </ScrollViewer>
                     </Grid>

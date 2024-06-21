@@ -12,6 +12,7 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
     private int startFrameBindable;
     private int durationBindable;
     private bool isVisibleBindable = true;
+    private bool isSelected;
 
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
@@ -76,6 +77,12 @@ internal abstract class KeyFrameViewModel : ObservableObject, IKeyFrameHandler
 
     public Guid LayerGuid { get; }
     public Guid Id { get; }
+
+    public bool IsSelected
+    {
+        get => isSelected;
+        set => SetProperty(ref isSelected, value);
+    }
 
     protected KeyFrameViewModel(int startFrame, int duration, Guid layerGuid, Guid id,
         DocumentViewModel document, DocumentInternalParts internalParts)

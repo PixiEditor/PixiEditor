@@ -11,4 +11,7 @@ internal interface IAnimationHandler
     public bool FindKeyFrame<T>(Guid guid, out T keyFrameHandler) where T : IKeyFrameHandler;
     internal void AddKeyFrame(IKeyFrameHandler keyFrame);
     internal void RemoveKeyFrame(Guid keyFrameId);
+    public void AddSelectedKeyFrame(Guid keyFrameId);
+    public void RemoveSelectedKeyFrame(Guid keyFrameId);
+    public void ClearSelectedKeyFrames();
 }

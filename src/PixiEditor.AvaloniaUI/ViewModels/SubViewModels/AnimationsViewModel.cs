@@ -50,14 +50,44 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         activeDocument.Operations.SetActiveFrame(newFrame);
     }
     
-    [Command.Basic("PixiEditor.Animation.DeleteKeyFrame", "Delete Key Frame", "Delete a key frame")]
-    public void DeleteKeyFrame(Guid keyFrameId)
+    [Command.Basic("PixiEditor.Animation.DeleteKeyFrames", "Delete key frames", "Delete key frames")]
+    public void DeleteKeyFrames(IList<KeyFrameViewModel> keyFrames)
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        if (activeDocument is null || !activeDocument.AnimationDataViewModel.FindKeyFrame<KeyFrameViewModel>(keyFrameId, out _))
+
+        if (activeDocument is null)
             return;
         
-        activeDocument.AnimationDataViewModel.DeleteKeyFrame(keyFrameId);
+        List<Guid> keyFrameIds = keyFrames.Select(x => x.Id).ToList();
+        
+        for(int i = 0; i < keyFrameIds.Count; i++)
+        {
+            if(!activeDocument.AnimationDataViewModel.TryFindKeyFrame<KeyFrameViewModel>(keyFrameIds[i], out _))
+            {
+                keyFrameIds.RemoveAt(i);
+                i--;   
+            }
+        }
+        
+        activeDocument.AnimationDataViewModel.DeleteKeyFrames(keyFrameIds);
+    }
+
+    [Command.Internal("PixiEditor.Animation.ChangeKeyFramesStartPos")]
+    public void ChangeKeyFramesStartPos((Guid[] ids, int delta, bool end) info)
+    {
+        var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+
+        if (activeDocument is null)
+            return;
+
+        if (!info.end)
+        {
+            activeDocument.AnimationDataViewModel.ChangeKeyFramesStartPos(info.ids, info.delta);
+        }
+        else
+        {
+            activeDocument.AnimationDataViewModel.EndKeyFramesStartPos();
+        }
     }
     
     [Command.Basic("PixiEditor.Animation.ExportSpriteSheet", "Export Sprite Sheet", "Export the sprite sheet")]

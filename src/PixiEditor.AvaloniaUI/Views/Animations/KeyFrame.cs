@@ -68,9 +68,9 @@ internal class KeyFrame : TemplatedControl
         _resizePanelLeft.PointerCaptureLost += UpdateKeyFrame;
         _resizePanelRight.PointerCaptureLost += UpdateKeyFrame;
 
-        PointerPressed += CapturePointer;
+        /*PointerPressed += CapturePointer;
         PointerMoved += DragOnPointerMoved;
-        PointerCaptureLost += UpdateKeyFrame;
+        PointerCaptureLost += UpdateKeyFrame;*/
 
         if (Item is not KeyFrameGroupViewModel)
         {
@@ -141,7 +141,7 @@ internal class KeyFrame : TemplatedControl
     
     private void DragOnPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (Item is null)
+        /*if (Item is null)
         {
             return;
         }
@@ -150,7 +150,7 @@ internal class KeyFrame : TemplatedControl
         {
             var frame = MousePosToFrame(e, false);
             Item.ChangeFrameLength(frame + clickFrameOffset, Item.DurationBindable);
-        }
+        }*/
     }
 
     private int MousePosToFrame(PointerEventArgs e, bool round = true)
