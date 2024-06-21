@@ -128,7 +128,7 @@
                                             CommandParameter="{x:Null}" />
                                     </EventTriggerBehavior>
                                 </Interaction.Behaviors>
-                                <ItemsControl ClipToBounds="False"
+                                <ItemsControl ClipToBounds="False" Name="PART_KeyFramesHost"
                                               Margin="0, 35, 0, 0"
                                               ItemsSource="{Binding KeyFrames, RelativeSource={RelativeSource TemplatedParent}}">
                                     <ItemsControl.DataTemplates>
@@ -194,8 +194,8 @@
                                 </ItemsControl>
                                 
                                 <Rectangle Name="PART_SelectionRectangle" HorizontalAlignment="Left" VerticalAlignment="Top"
-                                           IsVisible="False" ZIndex="100" Stroke="{DynamicResource ThemeAccent2Brush}" StrokeThickness="1"
-                                           Fill="{DynamicResource ThemeControlHighlightBrush}" Opacity="0.25"/>
+                                           IsVisible="False" ZIndex="100"
+                                           Fill="{DynamicResource SelectionFillBrush}" Opacity="1"/>
                             </Grid>
                         </ScrollViewer>
                     </Grid>

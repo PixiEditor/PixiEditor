@@ -33,6 +33,8 @@
             <Color x:Key="GlyphColor">#444</Color>
             <Color x:Key="GlyphBackground">White</Color>
             <Color x:Key="ThumbColor">#606060</Color>
+            
+            <Color x:Key="SelectionFillColor">#510051ff</Color>
 
             <Color x:Key="NotificationCardBackgroundColor">#303030</Color>
 
@@ -67,6 +69,8 @@
             <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
             <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource GlyphColor}"/>
             <SolidColorBrush x:Key="ThumbBrush" Color="{StaticResource ThumbColor}"/>
+            
+            <SolidColorBrush x:Key="SelectionFillBrush" Color="{StaticResource SelectionFillColor}"/>
 
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
             <CornerRadius x:Key="ControlCornerRadiusTop">5, 5, 0, 0</CornerRadius>

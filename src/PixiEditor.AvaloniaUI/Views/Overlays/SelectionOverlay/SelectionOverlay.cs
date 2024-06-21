@@ -57,6 +57,11 @@ internal class SelectionOverlay : Overlay
     {
         IsHitTestVisible = false;
 
+        if (Application.Current.Styles.TryGetResource("SelectionFillBrush", Application.Current.ActualThemeVariant, out var fillBrush))
+        {
+            this.fillBrush = (Brush)fillBrush;
+        }
+
         animation = new Avalonia.Animation.Animation()
         {
             Duration = new TimeSpan(0, 0, 0, 2, 0),

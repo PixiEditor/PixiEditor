@@ -9,6 +9,7 @@ using Avalonia.Controls.Shapes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -22,6 +23,7 @@ namespace PixiEditor.AvaloniaUI.Views.Animations;
 [TemplatePart("PART_TimelineKeyFramesScroll", typeof(ScrollViewer))]
 [TemplatePart("PART_TimelineHeaderScroll", typeof(ScrollViewer))]
 [TemplatePart("PART_SelectionRectangle", typeof(Rectangle))]
+[TemplatePart("PART_KeyFramesHost", typeof(ItemsControl))]
 internal class Timeline : TemplatedControl, INotifyPropertyChanged
 {
     private const float MarginMultiplier = 1.5f;
@@ -145,6 +147,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
     private ScrollViewer? _timelineHeaderScroll;
     private Control? extendingElement;
     private Rectangle _selectionRectangle;
+    private ItemsControl? _keyFramesHost;
     
     private Vector clickPos;
     
@@ -167,63 +170,12 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         _playTimer =
             new DispatcherTimer(DispatcherPriority.Render) { Interval = TimeSpan.FromMilliseconds(1000f / Fps) };
         _playTimer.Tick += PlayTimerOnTick;
-        PressedKeyFrameCommand = new RelayCommand<PointerPressedEventArgs>((e) =>
-        {
-            shouldClearNextSelection = !e.KeyModifiers.HasFlag(KeyModifiers.Control);
-            KeyFrame target = null;
-            if (e.Source is Control obj)
-            {
-                if(obj is KeyFrame frame) target = frame;
-                else if (obj.TemplatedParent is KeyFrame keyFrame) target = keyFrame;
-            }
-            
-            e.Pointer.Capture(target);
-            clickedKeyFrame = target.Item;
-            dragStartFrame = MousePosToFrame(e);
-            e.Handled = true;
-        });
-        ClearSelectedKeyFramesCommand = new RelayCommand<KeyFrameViewModel>((keyFrame) =>
-        {
-            ClearSelectedKeyFrames();
-        });
-        DraggedKeyFrameCommand = new RelayCommand<PointerEventArgs>((e) =>
-        {
-            if(clickedKeyFrame == null) return;
-            
-            int frameUnderMouse = MousePosToFrame(e);
-            int delta = frameUnderMouse - dragStartFrame;
-
-            if (delta != 0)
-            {
-                if (!clickedKeyFrame.IsSelected)
-                {
-                    SelectKeyFrame(clickedKeyFrame);
-                }
-                
-                dragged = true;
-                if (DragAllSelectedKeyFrames(delta))
-                {
-                    dragStartFrame += delta;
-                }
-            }
-        });
-        ReleasedKeyFrameCommand = new RelayCommand<KeyFrameViewModel>((e) =>
-        {
-            if (!dragged)
-            {
-                SelectKeyFrame(e, shouldClearNextSelection);
-                shouldClearNextSelection = true;
-            }
-            else
-            {
-                EndDragging();
-            }
-            
-            dragged = false;
-            clickedKeyFrame = null;
-        });
+        PressedKeyFrameCommand = new RelayCommand<PointerPressedEventArgs>(KeyFramePressed);
+        ClearSelectedKeyFramesCommand = new RelayCommand<KeyFrameViewModel>(ClearSelectedKeyFrames);
+        DraggedKeyFrameCommand = new RelayCommand<PointerEventArgs>(KeyFramesDragged);
+        ReleasedKeyFrameCommand = new RelayCommand<KeyFrameViewModel>(KeyFramesReleased);
     }
-
+    
     public void SelectKeyFrame(KeyFrameViewModel? keyFrame, bool clearSelection = true)
     {
         if (clearSelection)
@@ -232,14 +184,6 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         }
 
         keyFrame?.Document.AnimationDataViewModel.AddSelectedKeyFrame(keyFrame.Id);
-    }
-
-    private void ClearSelectedKeyFrames()
-    {
-        foreach (var keyFrame in SelectedKeyFrames)
-        {
-            keyFrame.Document.AnimationDataViewModel.RemoveSelectedKeyFrame(keyFrame.Id);
-        }
     }
 
     public bool DragAllSelectedKeyFrames(int delta)
@@ -293,6 +237,76 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         extendingElement = new Control();
         extendingElement.SetValue(MarginProperty, new Thickness(0, 0, 0, 0));
         _contentGrid.Children.Add(extendingElement);
+        
+        _keyFramesHost = e.NameScope.Find<ItemsControl>("PART_KeyFramesHost");
+    }
+    
+    private void KeyFramesReleased(KeyFrameViewModel? e)
+    {
+        if (!dragged)
+        {
+            SelectKeyFrame(e, shouldClearNextSelection);
+            shouldClearNextSelection = true;
+        }
+        else
+        {
+            EndDragging();
+        }
+
+        dragged = false;
+        clickedKeyFrame = null;
+    }
+
+    private void KeyFramesDragged(PointerEventArgs? e)
+    {
+        if (clickedKeyFrame == null) return;
+
+        int frameUnderMouse = MousePosToFrame(e);
+        int delta = frameUnderMouse - dragStartFrame;
+
+        if (delta != 0)
+        {
+            if (!clickedKeyFrame.IsSelected)
+            {
+                SelectKeyFrame(clickedKeyFrame);
+            }
+
+            dragged = true;
+            if (DragAllSelectedKeyFrames(delta))
+            {
+                dragStartFrame += delta;
+            }
+        }
+    }
+
+    private void ClearSelectedKeyFrames(KeyFrameViewModel? keyFrame)
+    {
+        ClearSelectedKeyFrames();
+    }
+
+    private void KeyFramePressed(PointerPressedEventArgs? e)
+    {
+        shouldClearNextSelection = !e.KeyModifiers.HasFlag(KeyModifiers.Control);
+        KeyFrame target = null;
+        if (e.Source is Control obj)
+        {
+            if (obj is KeyFrame frame)
+                target = frame;
+            else if (obj.TemplatedParent is KeyFrame keyFrame) target = keyFrame;
+        }
+
+        e.Pointer.Capture(target);
+        clickedKeyFrame = target.Item;
+        dragStartFrame = MousePosToFrame(e);
+        e.Handled = true;
+    }
+
+    private void ClearSelectedKeyFrames()
+    {
+        foreach (var keyFrame in SelectedKeyFrames)
+        {
+            keyFrame.Document.AnimationDataViewModel.RemoveSelectedKeyFrame(keyFrame.Id);
+        }
     }
 
     private void TimelineKeyFramesScrollOnScrollChanged(object? sender, ScrollChangedEventArgs e)
@@ -454,6 +468,23 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         _selectionRectangle.Height = Math.Abs(height);
         Thickness margin = new Thickness(Math.Min(clickPos.X, x), Math.Min(clickPos.Y, y), 0, 0);
         _selectionRectangle.Margin = margin;
+        ClearSelectedKeyFrames();
+
+        SelectAllWithinBounds(_selectionRectangle.Bounds);
+    }
+
+    private void SelectAllWithinBounds(Rect bounds)
+    {
+        var frames = _keyFramesHost.ItemsPanelRoot.GetVisualDescendants().OfType<KeyFrame>();
+        foreach (var frame in frames)
+        {
+            var translated = frame.TranslatePoint(new Point(0, 0), _contentGrid);
+            Rect frameBounds = new Rect(translated.Value.X, translated.Value.Y, frame.Bounds.Width, frame.Bounds.Height);
+            if (bounds.Contains(frameBounds))
+            {
+                SelectKeyFrame(frame.Item, false);
+            }
+        }
     }
 
     private void ContentOnPointerLost(object? sender, PointerCaptureLostEventArgs e)

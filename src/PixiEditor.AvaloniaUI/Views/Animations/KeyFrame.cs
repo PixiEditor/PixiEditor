@@ -45,8 +45,6 @@ internal class KeyFrame : TemplatedControl
     
     private InputElement _resizePanelRight;
     private InputElement _resizePanelLeft;
-
-    private int clickFrameOffset;
     
     static KeyFrame()
     {
@@ -67,10 +65,6 @@ internal class KeyFrame : TemplatedControl
         
         _resizePanelLeft.PointerCaptureLost += UpdateKeyFrame;
         _resizePanelRight.PointerCaptureLost += UpdateKeyFrame;
-
-        /*PointerPressed += CapturePointer;
-        PointerMoved += DragOnPointerMoved;
-        PointerCaptureLost += UpdateKeyFrame;*/
 
         if (Item is not KeyFrameGroupViewModel)
         {
@@ -97,7 +91,6 @@ internal class KeyFrame : TemplatedControl
         }
         
         e.Pointer.Capture(sender as IInputElement);
-        clickFrameOffset = Item.StartFrameBindable - (int)Math.Floor(e.GetPosition(this.FindAncestorOfType<Border>()).X / Scale);
         e.Handled = true;
     }
 
@@ -138,20 +131,6 @@ internal class KeyFrame : TemplatedControl
         
         e.Handled = true;
     }
-    
-    private void DragOnPointerMoved(object? sender, PointerEventArgs e)
-    {
-        /*if (Item is null)
-        {
-            return;
-        }
-        
-        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-        {
-            var frame = MousePosToFrame(e, false);
-            Item.ChangeFrameLength(frame + clickFrameOffset, Item.DurationBindable);
-        }*/
-    }
 
     private int MousePosToFrame(PointerEventArgs e, bool round = true)
     {
@@ -172,7 +151,7 @@ internal class KeyFrame : TemplatedControl
     
     private void UpdateKeyFrame(object? sender, PointerCaptureLostEventArgs e)
     {
-        if (Item is null || e.Source is not KeyFrame)
+        if (Item is null)
         {
             return;
         }
