@@ -3,44 +3,45 @@ using System.Linq;
 using Avalonia.Platform.Storage;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Files;
+using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.Models.IO;
 
 internal class FileTypeDialogDataSet
 {
     public enum SetKind { Any, Pixi, Images }
-    IEnumerable<FileTypeDialogData> fileTypes;
+    IEnumerable<IoFileType> fileTypes;
     string displayName;
 
-    public FileTypeDialogDataSet(SetKind kind, IEnumerable<FileTypeDialogData> fileTypes = null)
+    public FileTypeDialogDataSet(SetKind kind, IEnumerable<IoFileType> fileTypes = null)
     {
         if (fileTypes == null)
             fileTypes = SupportedFilesHelper.GetAllSupportedFileTypes(true);
         var allSupportedExtensions = fileTypes;
         if (kind == SetKind.Any)
         {
-            Init("Any", allSupportedExtensions);
+            Init(new LocalizedString("ANY"), allSupportedExtensions);
         }
         else if (kind == SetKind.Pixi)
         {
-            Init("PixiEditor Files", new[] { new FileTypeDialogData(FileType.Pixi) });
+            Init(new LocalizedString("PIXI_FILE"), new[] { PixiFileType.PixiFile });
         }
         else if (kind == SetKind.Images)
         {
-            Init("Image Files", allSupportedExtensions, FileType.Pixi);
+            Init(new LocalizedString("IMAGE_FILES"), allSupportedExtensions, PixiFileType.PixiFile);
         }
     }
 
-    public FileTypeDialogDataSet(string displayName, IEnumerable<FileTypeDialogData> fileTypes, FileType? fileTypeToSkip = null)
+    public FileTypeDialogDataSet(string displayName, IEnumerable<IoFileType> fileTypes, IoFileType? fileTypeToSkip = null)
     {
         Init(displayName, fileTypes, fileTypeToSkip);
     }
 
-    private void Init(string displayName, IEnumerable<FileTypeDialogData> fileTypes, FileType? fileTypeToSkip = null)
+    private void Init(string displayName, IEnumerable<IoFileType> fileTypes, IoFileType? fileTypeToSkip = null)
     {
         var copy = fileTypes.ToList();
-        if (fileTypeToSkip.HasValue)
-            copy.RemoveAll(i => i.FileType == fileTypeToSkip.Value);
+        if (fileTypeToSkip != null)
+            copy.RemoveAll(i => i == fileTypeToSkip);
         this.fileTypes = copy;
 
         this.displayName = displayName;

@@ -1,19 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Avalonia.Media;
 using Avalonia.Platform.Storage;
-using PixiEditor.AvaloniaUI.Models.Files;
+using PixiEditor.AvaloniaUI.Models.IO;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.Numerics;
 
-namespace PixiEditor.AvaloniaUI.Models.IO;
+namespace PixiEditor.AvaloniaUI.Models.Files;
 
-internal class FileTypeDialogData
+internal abstract class IoFileType
 {
-    public FileType FileType { get; set; }
-
     /// <summary>
     /// Gets or sets file type extensions e.g. {jpg,jpeg}
     /// </summary>
-    public List<string> Extensions { get; set; }
-
+    public abstract string[] Extensions { get; }
+    
     /// <summary>
     /// Gets file type's main extensions e.g. jpeg
     /// </summary>
@@ -22,21 +21,9 @@ internal class FileTypeDialogData
     /// <summary>
     /// Gets or sets name displayed before extension e.g. JPEG Files
     /// </summary>
-    public string DisplayName { get; set; }
+    public abstract string DisplayName { get; }
 
-    public FileTypeDialogData(FileType fileType)
-    {
-        FileType = fileType;
-        Extensions = new List<string>();
-        Extensions.Add("." + FileType.ToString().ToLower());
-        if (FileType == FileType.Jpeg)
-            Extensions.Add(".jpg");
-
-        if (fileType == FileType.Pixi)
-            DisplayName = "PixiEditor Files";
-        else
-            DisplayName = FileType.ToString() + " Images";
-    }
+    public virtual SolidColorBrush EditorColor { get; } = new SolidColorBrush(Color.FromRgb(100, 100, 100));
 
     public FilePickerFileType SaveFilter
     {
@@ -50,9 +37,11 @@ internal class FileTypeDialogData
     {
         get { return Extensions.Select(GetExtensionFormattedForDialog).ToList(); }
     }
-
+    
     string GetExtensionFormattedForDialog(string extension)
     {
         return "*" + extension;
     }
+
+    public abstract SaveResult TrySave(string pathWithExtension, DocumentViewModel document, VecI? exportSize = null);
 }

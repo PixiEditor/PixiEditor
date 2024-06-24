@@ -202,13 +202,17 @@ public class Translator : Control
         {
             window.Bind(Window.TitleProperty, valueObservable);
         }
-        else if (d is ContentControl contentControl)
-        {
-            contentControl.Bind(ContentControl.ContentProperty, valueObservable);
-        }
         else if (d is HeaderedSelectingItemsControl menuItem)
         {
             menuItem.Bind(HeaderedSelectingItemsControl.HeaderProperty, valueObservable);
+        }
+        else if (d is HeaderedContentControl headeredContentControl)
+        {
+            headeredContentControl.Bind(HeaderedContentControl.HeaderProperty, valueObservable);
+        }
+        else if (d is ContentControl contentControl)
+        {
+            contentControl.Bind(ContentControl.ContentProperty, valueObservable);
         }
 #if DEBUG
         else

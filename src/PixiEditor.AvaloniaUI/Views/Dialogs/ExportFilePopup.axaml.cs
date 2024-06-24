@@ -8,7 +8,7 @@ using PixiEditor.Extensions.Common.Localization;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
-public partial class ExportFilePopup : PixiEditorPopup
+internal partial class ExportFilePopup : PixiEditorPopup
 {
     public int SaveWidth
     {
@@ -29,9 +29,9 @@ public partial class ExportFilePopup : PixiEditorPopup
         set => SetValue(SavePathProperty, value);
     }
 
-    public FileType SaveFormat
+    public IoFileType SaveFormat
     {
-        get => (FileType)GetValue(SaveFormatProperty);
+        get => (IoFileType)GetValue(SaveFormatProperty);
         set => SetValue(SaveFormatProperty, value);
     }
 
@@ -47,8 +47,8 @@ public partial class ExportFilePopup : PixiEditorPopup
     public static readonly StyledProperty<string?> SavePathProperty =
         AvaloniaProperty.Register<ExportFilePopup, string?>(nameof(SavePath), "");
 
-    public static readonly StyledProperty<FileType> SaveFormatProperty =
-        AvaloniaProperty.Register<ExportFilePopup, FileType>(nameof(SaveFormat), FileType.Png);
+    public static readonly StyledProperty<IoFileType> SaveFormatProperty =
+        AvaloniaProperty.Register<ExportFilePopup, IoFileType>(nameof(SaveFormat), new PngFileType());
 
     public static readonly StyledProperty<AsyncRelayCommand> ExportCommandProperty =
         AvaloniaProperty.Register<ExportFilePopup, AsyncRelayCommand>(
@@ -122,7 +122,7 @@ public partial class ExportFilePopup : PixiEditorPopup
             if (string.IsNullOrEmpty(file.Name) == false)
             {
                 SaveFormat = SupportedFilesHelper.GetSaveFileType(false, file);
-                if (SaveFormat == FileType.Unset)
+                if (SaveFormat == null)
                 {
                     return null;
                 }

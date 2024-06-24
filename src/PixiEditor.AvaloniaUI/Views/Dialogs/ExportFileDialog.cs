@@ -9,7 +9,7 @@ namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
 internal class ExportFileDialog : CustomDialog
 {
-    FileType _chosenFormat;
+    IoFileType _chosenFormat;
 
     private int fileHeight;
 
@@ -61,7 +61,7 @@ internal class ExportFileDialog : CustomDialog
         }
     }
 
-    public FileType ChosenFormat
+    public IoFileType ChosenFormat
     {
         get => _chosenFormat;
         set

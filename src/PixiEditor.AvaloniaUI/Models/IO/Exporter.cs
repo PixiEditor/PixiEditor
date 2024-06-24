@@ -1,20 +1,12 @@
-﻿using System.IO;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Runtime.InteropServices;
-using System.Security;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.Helpers;
-using PixiEditor.AvaloniaUI.Helpers.Extensions;
 using PixiEditor.AvaloniaUI.Models.Files;
-using PixiEditor.AvaloniaUI.Models.IO.FileEncoders;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
@@ -92,7 +84,7 @@ internal class Exporter
     /// <summary>
     /// Takes data as returned by SaveFileDialog and attempts to use it to save the document
     /// </summary>
-    public static SaveResult TrySaveUsingDataFromDialog(DocumentViewModel document, string pathFromDialog, FileType fileTypeFromDialog, out string finalPath, VecI? exportSize = null)
+    public static SaveResult TrySaveUsingDataFromDialog(DocumentViewModel document, string pathFromDialog, IoFileType fileTypeFromDialog, out string finalPath, VecI? exportSize = null)
     {
         finalPath = SupportedFilesHelper.FixFileExtension(pathFromDialog, fileTypeFromDialog);
         var saveResult = TrySave(document, finalPath, exportSize);
@@ -113,30 +105,10 @@ internal class Exporter
 
         var typeFromPath = SupportedFilesHelper.ParseImageFormat(Path.GetExtension(pathWithExtension));
 
-        if (typeFromPath == FileType.Pixi)
-        {
-            return TrySaveAsPixi(document, pathWithExtension);
-        }
-        
-        var maybeBitmap = document.TryRenderWholeImage();
-        if (maybeBitmap.IsT0)
-            return SaveResult.ConcurrencyError;
-        var bitmap = maybeBitmap.AsT1;
-
-        EncodedImageFormat mappedFormat = typeFromPath.ToEncodedImageFormat();
-
-        if (mappedFormat == EncodedImageFormat.Unknown)
-        {
+        if (typeFromPath is null)
             return SaveResult.UnknownError;
-        }
-
-        UniversalFileEncoder encoder = new(mappedFormat);
-
-        return TrySaveAs(encoder, pathWithExtension, bitmap, exportSize);
-    }
-
-    static Exporter()
-    {
+        
+        return typeFromPath.TrySave(pathWithExtension, document, exportSize);
     }
 
     public static void SaveAsGZippedBytes(string path, Surface surface)
@@ -165,63 +137,5 @@ internal class Exporter
         using FileStream outputStream = new(path, FileMode.Create);
         using GZipStream compressedStream = new GZipStream(outputStream, CompressionLevel.Fastest);
         compressedStream.Write(bytes);
-    }
-
-    /// <summary>
-    /// Saves image to PNG file. Messes with the passed bitmap.
-    /// </summary>
-    private static SaveResult TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap, VecI? exportSize)
-    {
-        try
-        {
-            if (exportSize is not null && exportSize != bitmap.Size)
-                bitmap = bitmap.ResizeNearestNeighbor((VecI)exportSize);
-
-            if (!encoder.SupportsTransparency)
-                bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, DrawingApi.Core.Surface.BlendMode.Multiply);
-
-            using var stream = new FileStream(savePath, FileMode.Create);
-            encoder.SaveAsync(stream, bitmap);
-        }
-        catch (SecurityException)
-        {
-            return SaveResult.SecurityError;
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return SaveResult.SecurityError;
-        }
-        catch (IOException)
-        {
-            return SaveResult.IoError;
-        }
-        catch
-        {
-            return SaveResult.UnknownError;
-        }
-
-        return SaveResult.Success;
-    }
-    
-    private static SaveResult TrySaveAsPixi(DocumentViewModel document, string pathWithExtension)
-    {
-        try
-        {
-            Parser.PixiParser.Serialize(document.ToSerializable(), pathWithExtension);
-        }
-        catch (UnauthorizedAccessException e)
-        {
-            return SaveResult.SecurityError;
-        }
-        catch (IOException)
-        {
-            return SaveResult.IoError;
-        }
-        catch
-        {
-            return SaveResult.UnknownError;
-        }
-
-        return SaveResult.Success;
     }
 }

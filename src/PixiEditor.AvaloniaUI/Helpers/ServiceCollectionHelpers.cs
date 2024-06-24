@@ -6,6 +6,7 @@ using PixiEditor.AnimationRenderer.FFmpeg;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.ExtensionServices;
+using PixiEditor.AvaloniaUI.Models.Files;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Handlers.Tools;
 using PixiEditor.AvaloniaUI.Models.IO.PaletteParsers;
@@ -102,6 +103,12 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IBrightnessToolHandler, BrightnessToolViewModel>()
             .AddSingleton<IToolHandler, BrightnessToolViewModel>(x => (BrightnessToolViewModel)x.GetService<IBrightnessToolHandler>())
             .AddSingleton<IToolHandler, ZoomToolViewModel>()
+            // File types
+            .AddSingleton<IoFileType, PixiFileType>()
+            .AddSingleton<IoFileType, PngFileType>()
+            .AddSingleton<IoFileType, JpegFileType>()
+            .AddSingleton<IoFileType, BmpFileType>()
+            .AddSingleton<IoFileType, GifFileType>()
             // Palette Parsers
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()

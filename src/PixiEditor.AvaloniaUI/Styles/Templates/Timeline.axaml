@@ -81,7 +81,7 @@
                                     DragValueChanged="{xaml:Command PixiEditor.Document.ChangeActiveFrame, UseProvided=True}"
                                     DragEnded="{xaml:Command PixiEditor.Document.EndChangeActiveFrame}"
                                     SetValueCommand="{xaml:Command PixiEditor.Animation.ActiveFrameSet, UseProvided=True}"
-                                    ValueFromSlider="{Binding ElementName=PART_TimelineSlider, Path=Value, Mode=TwoWay}" />
+                                    ValueFromSlider="{Binding ElementName=PART_TimelineSlider, Path=PixiFile, Mode=TwoWay}" />
                             </Interaction.Behaviors>
                         </animations:TimelineSlider>
 

@@ -3,11 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Collections;
 using PixiEditor.AvaloniaUI.Models.Commands;
 using PixiEditor.AvaloniaUI.Models.Controllers;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
+using PixiEditor.AvaloniaUI.Models.Files;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Menu;
@@ -114,6 +116,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
         Preferences = services.GetRequiredService<IPreferences>();
         Preferences.Init();
+        
+        SupportedFilesHelper.InitFileTypes(services.GetServices<IoFileType>());
 
         CommandController = services.GetService<CommandController>();
 
@@ -163,7 +167,7 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         SearchSubViewModel = services.GetService<SearchViewModel>();
         
         AnimationsSubViewModel = services.GetService<AnimationsViewModel>();
-
+        
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 
         DocumentManagerSubViewModel.ActiveDocumentChanged += OnActiveDocumentChanged;

@@ -8,33 +8,34 @@
         SizeToContent="WidthAndHeight"
         Name="saveFilePopup"
         x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.ExportFilePopup"
+        x:ClassModifier="internal"
         Title="EXPORT_IMAGE">
     <DockPanel Background="{DynamicResource ThemeBackgroundBrush}">
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" IsDefault="True"
                 Margin="15" ui1:Translator.Key="EXPORT" Command="{Binding ExportCommand, ElementName=saveFilePopup}" />
 
         <Border HorizontalAlignment="Center" Margin="15,30,15,0" Background="{DynamicResource ThemeBackgroundBrush1}"
-                VerticalAlignment="Stretch" CornerRadius="10">
-            <Grid MinHeight="205" MinWidth="240">
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-                <input:SizePicker Margin="0,15,0,0"
-                                         x:Name="sizePicker"
-                                         IsSizeUnitSelectionVisible="True"
-                                         VerticalAlignment="Top"
-                                         ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
-                                         ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
-                    <TextBlock Grid.Row="1" Margin="5,0,5,10" VerticalAlignment="Bottom" Classes="hyperlink" TextWrapping="Wrap"
-                               Width="220" TextAlignment="Center" Text="{Binding SizeHint, Mode=OneTime, ElementName=saveFilePopup}">
-                        <Interaction.Behaviors>
-                            <EventTriggerBehavior EventName="PointerPressed">
-                                <InvokeCommandAction Command="{Binding SetBestPercentageCommand, ElementName=saveFilePopup}"/>
-                            </EventTriggerBehavior>
-                        </Interaction.Behaviors>
-                    </TextBlock>
-            </Grid>
+                    VerticalAlignment="Stretch" CornerRadius="10">
+                    <Grid MinHeight="205" MinWidth="240">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <input:SizePicker Margin="0,15,0,0"
+                                          x:Name="sizePicker"
+                                          IsSizeUnitSelectionVisible="True"
+                                          VerticalAlignment="Top"
+                                          ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
+                                          ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
+                        <TextBlock Grid.Row="1" Margin="5,0,5,10" VerticalAlignment="Bottom" Classes="hyperlink" TextWrapping="Wrap"
+                                   Width="220" TextAlignment="Center" Text="{Binding SizeHint, Mode=OneTime, ElementName=saveFilePopup}">
+                            <Interaction.Behaviors>
+                                <EventTriggerBehavior EventName="PointerPressed">
+                                    <InvokeCommandAction Command="{Binding SetBestPercentageCommand, ElementName=saveFilePopup}"/>
+                                </EventTriggerBehavior>
+                            </Interaction.Behaviors>
+                        </TextBlock>
+                    </Grid>
         </Border>
     </DockPanel>
 </dialogs:PixiEditorPopup>

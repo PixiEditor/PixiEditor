@@ -15,16 +15,14 @@ internal class FileExtensionToColorConverter :
     static FileExtensionToColorConverter()
     {
         extensionsToBrushes = new Dictionary<string, SolidColorBrush>();
-        AssignFormatToBrush(FileType.Unset, UnknownBrush);
-        AssignFormatToBrush(FileType.Pixi, ColorBrush(226, 1, 45));
-        AssignFormatToBrush(FileType.Png, ColorBrush(56, 108, 254));
-        AssignFormatToBrush(FileType.Jpeg, ColorBrush(36, 179, 66));
-        AssignFormatToBrush(FileType.Bmp, ColorBrush(255, 140, 0));
-        AssignFormatToBrush(FileType.Gif, ColorBrush(180, 0, 255));
-    }
-    static void AssignFormatToBrush(FileType format, SolidColorBrush brush)
-    {
-        SupportedFilesHelper.GetFileTypeDialogData(format).Extensions.ForEach(i => extensionsToBrushes[i] = brush);
+
+        foreach (var fileTypes in SupportedFilesHelper.FileTypes)
+        {
+            foreach (var ext in fileTypes.Extensions)
+            {
+                extensionsToBrushes[ext] = fileTypes.EditorColor;   
+            }
+        }
     }
 
     public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
