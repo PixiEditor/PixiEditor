@@ -355,6 +355,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         lastChangeOnSave = Guid.NewGuid();
         OnPropertyChanged(nameof(AllChangesSaved));
     }
+    
 
     /// <summary>
     /// Tries rendering the whole document

@@ -1,41 +1,82 @@
 <dialogs:PixiEditorPopup xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
-        xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
-        xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
-        CanResize="False"
-        CanMinimize="False"
-        SizeToContent="WidthAndHeight"
-        Name="saveFilePopup"
-        x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.ExportFilePopup"
-        x:ClassModifier="internal"
-        Title="EXPORT_IMAGE">
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:dialogs="clr-namespace:PixiEditor.AvaloniaUI.Views.Dialogs"
+                         xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
+                         xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
+                         xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+                         CanResize="False"
+                         CanMinimize="False"
+                         SizeToContent="WidthAndHeight"
+                         Name="saveFilePopup"
+                         x:Class="PixiEditor.AvaloniaUI.Views.Dialogs.ExportFilePopup"
+                         x:ClassModifier="internal"
+                         Title="EXPORT_IMAGE">
     <DockPanel Background="{DynamicResource ThemeBackgroundBrush}">
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" IsDefault="True"
-                Margin="15" ui1:Translator.Key="EXPORT" Command="{Binding ExportCommand, ElementName=saveFilePopup}" />
+                ui1:Translator.Key="EXPORT" Command="{Binding ExportCommand, ElementName=saveFilePopup}" />
 
-        <Border HorizontalAlignment="Center" Margin="15,30,15,0" Background="{DynamicResource ThemeBackgroundBrush1}"
-                    VerticalAlignment="Stretch" CornerRadius="10">
-                    <Grid MinHeight="205" MinWidth="240">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Stretch"  Orientation="Vertical"
+                    Margin="0,15,0,0">
+            <StackPanel Spacing="5" Orientation="Horizontal" HorizontalAlignment="Center">
+                <RadioButton GroupName="ExportType" Content="Image" IsChecked="True" IsDefault="True"/>
+                <RadioButton GroupName="ExportType" Content="Animation" />
+                <RadioButton GroupName="ExportType" Content="SpriteSheet" />
+            </StackPanel>
+
+            <Border Margin="15, 30" Padding="10"
+                    Background="{DynamicResource ThemeBackgroundBrush1}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}">
+                <Grid MinHeight="205" MinWidth="400">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="160"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition Height="Auto"/>
+                            <RowDefinition />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <input:SizePicker Margin="0,15,0,0"
-                                          x:Name="sizePicker"
-                                          IsSizeUnitSelectionVisible="True"
-                                          VerticalAlignment="Top"
-                                          ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
-                                          ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
-                        <TextBlock Grid.Row="1" Margin="5,0,5,10" VerticalAlignment="Bottom" Classes="hyperlink" TextWrapping="Wrap"
-                                   Width="220" TextAlignment="Center" Text="{Binding SizeHint, Mode=OneTime, ElementName=saveFilePopup}">
+                        <input:SizePicker
+                            x:Name="sizePicker"
+                            IsSizeUnitSelectionVisible="True"
+                            VerticalAlignment="Top"
+                            ChosenHeight="{Binding Path=SaveHeight, Mode=TwoWay, ElementName=saveFilePopup}"
+                            ChosenWidth="{Binding Path=SaveWidth, Mode=TwoWay, ElementName=saveFilePopup}" />
+                        <TextBlock Grid.Row="1" Margin="5, 0" VerticalAlignment="Bottom" Classes="hyperlink"
+                                   TextWrapping="Wrap"
+                                   Width="220" TextAlignment="Center"
+                                   Text="{Binding SizeHint, Mode=OneTime, ElementName=saveFilePopup}">
                             <Interaction.Behaviors>
                                 <EventTriggerBehavior EventName="PointerPressed">
-                                    <InvokeCommandAction Command="{Binding SetBestPercentageCommand, ElementName=saveFilePopup}"/>
+                                    <InvokeCommandAction
+                                        Command="{Binding SetBestPercentageCommand, ElementName=saveFilePopup}" />
                                 </EventTriggerBehavior>
                             </Interaction.Behaviors>
                         </TextBlock>
                     </Grid>
-        </Border>
+                    <Grid Grid.Column="1">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                        <TextBlock Text="Export Preview"/>
+                        <Border Grid.Row="1" BorderThickness="1" Height="200" Width="150">
+                            <Border RenderOptions.BitmapInterpolationMode="None">
+                                <visuals:SurfaceControl x:Name="surfaceControl"
+                                                        Surface="{Binding ExportPreview, ElementName=saveFilePopup}"
+                                                        Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                        RenderOptions.BitmapInterpolationMode="None">
+                                    <visuals:SurfaceControl.Background>
+                                        <ImageBrush Source="/Images/CheckerTile.png" 
+                                                    TileMode="Tile" DestinationRect="0, 0, 25, 25"/>
+                                    </visuals:SurfaceControl.Background>
+                                </visuals:SurfaceControl>
+                            </Border>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Border>
+        </StackPanel>
     </DockPanel>
 </dialogs:PixiEditorPopup>

@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.Files;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
@@ -18,11 +19,14 @@ internal class ExportFileDialog : CustomDialog
     private int fileWidth;
 
     private string suggestedName;
+    
+    private DocumentViewModel document;
 
-    public ExportFileDialog(Window owner, VecI size) : base(owner)
+    public ExportFileDialog(Window owner, VecI size, DocumentViewModel doc) : base(owner)
     {
         FileWidth = size.X;
         FileHeight = size.Y;
+        document = doc;
     }
 
     public int FileWidth
@@ -86,7 +90,7 @@ internal class ExportFileDialog : CustomDialog
     }
     public override async Task<bool> ShowDialog()
     {
-        ExportFilePopup popup = new ExportFilePopup(FileWidth, FileHeight) { SuggestedName = SuggestedName };
+        ExportFilePopup popup = new ExportFilePopup(FileWidth, FileHeight, document) { SuggestedName = SuggestedName };
         bool result = await popup.ShowDialog<bool>(OwnerWindow);
 
         if (result)

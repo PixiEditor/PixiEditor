@@ -1,10 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Platform.Storage;
+using ChunkyImageLib;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Files;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
@@ -57,6 +60,15 @@ internal partial class ExportFilePopup : PixiEditorPopup
     public static readonly StyledProperty<string> SuggestedNameProperty = AvaloniaProperty.Register<ExportFilePopup, string>(
         nameof(SuggestedName));
 
+    public static readonly StyledProperty<Surface> ExportPreviewProperty = AvaloniaProperty.Register<ExportFilePopup, Surface>(
+        nameof(ExportPreview));
+
+    public Surface ExportPreview
+    {
+        get => GetValue(ExportPreviewProperty);
+        set => SetValue(ExportPreviewProperty, value);
+    }
+
     public string SuggestedName
     {
         get => GetValue(SuggestedNameProperty);
@@ -76,8 +88,16 @@ internal partial class ExportFilePopup : PixiEditorPopup
     }
 
     public string SizeHint => new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
+    
+    private DocumentViewModel document;
 
-    public ExportFilePopup(int imageWidth, int imageHeight)
+    static ExportFilePopup()
+    {
+        SaveWidthProperty.Changed.Subscribe(RerenderPreview);
+        SaveHeightProperty.Changed.Subscribe(RerenderPreview);
+    }
+
+    public ExportFilePopup(int imageWidth, int imageHeight, DocumentViewModel document)
     {
         SaveWidth = imageWidth;
         SaveHeight = imageHeight;
@@ -91,6 +111,22 @@ internal partial class ExportFilePopup : PixiEditorPopup
 
         SetBestPercentageCommand = new RelayCommand(SetBestPercentage);
         ExportCommand = new AsyncRelayCommand(Export);
+        this.document = document;
+        RenderPreview();
+    }
+    
+    private void RenderPreview()
+    {
+        if (document == null)
+        {
+            return;
+        }
+        
+        var rendered = document.TryRenderWholeImage();
+        if (rendered.IsT1)
+        {
+            ExportPreview = rendered.AsT1.ResizeNearestNeighbor(new VecI(SaveWidth, SaveHeight));
+        }
     }
 
     private async Task Export()
@@ -152,5 +188,13 @@ internal partial class ExportFilePopup : PixiEditorPopup
         sizePicker.ChosenPercentageSize = GetBestPercentage();
         sizePicker.PercentageRb.IsChecked = true;
         sizePicker.PercentageLostFocus();
+    }
+    
+    private static void RerenderPreview(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Sender is ExportFilePopup popup)
+        {
+            popup.RenderPreview();
+        }
     }
 }

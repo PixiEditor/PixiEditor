@@ -21,6 +21,15 @@ internal class SurfaceControl : Control
     public static readonly StyledProperty<Stretch> StretchProperty = AvaloniaProperty.Register<SurfaceControl, Stretch>(
         nameof(Stretch), Stretch.Uniform);
 
+    public static readonly StyledProperty<IBrush> BackgroundProperty = AvaloniaProperty.Register<SurfaceControl, IBrush>(
+        nameof(Background));
+
+    public IBrush Background
+    {
+        get => GetValue(BackgroundProperty);
+        set => SetValue(BackgroundProperty, value);
+    }
+
     public Stretch Stretch
     {
         get => GetValue(StretchProperty);
@@ -87,6 +96,11 @@ internal class SurfaceControl : Control
         if (Surface == null)
         {
             return;
+        }
+        
+        if (Background != null)
+        {
+            context.FillRectangle(Background, new Rect(0,0, Bounds.Width, Bounds.Height));
         }
 
         var bounds = new Rect(Bounds.Size);
