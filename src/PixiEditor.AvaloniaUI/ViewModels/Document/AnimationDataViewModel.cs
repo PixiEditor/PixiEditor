@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
+using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.ChangeableDocument.Actions.Generated;
@@ -11,6 +12,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 {
     private int _activeFrameBindable;
+    private int _frameRate = 60;
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
     public IReadOnlyCollection<IKeyFrameHandler> KeyFrames => keyFrames;
@@ -30,6 +32,18 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 new EndActiveFrame_Action());
         }
     }
+
+    public IAnimationRenderer Renderer { get; set; }
+
+    public int FrameRate
+    {
+        get => _frameRate;
+        set
+        {
+            _frameRate = value;
+            OnPropertyChanged(nameof(FrameRate));
+        }
+    } 
 
     public AnimationDataViewModel(DocumentViewModel document, DocumentInternalParts internals)
     {

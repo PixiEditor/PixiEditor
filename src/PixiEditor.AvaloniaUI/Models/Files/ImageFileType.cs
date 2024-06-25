@@ -12,8 +12,10 @@ namespace PixiEditor.AvaloniaUI.Models.Files;
 internal abstract class ImageFileType : IoFileType
 {
     public abstract EncodedImageFormat EncodedImageFormat { get; }
+    
+    public override FileTypeDialogDataSet.SetKind SetKind { get; } = FileTypeDialogDataSet.SetKind.Image;
 
-    public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, VecI? exportSize = null)
+    public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig exportConfig)
     {
         var maybeBitmap = document.TryRenderWholeImage();
         if (maybeBitmap.IsT0)
@@ -28,16 +30,17 @@ internal abstract class ImageFileType : IoFileType
         }
 
         UniversalFileEncoder encoder = new(mappedFormat);
-        return TrySaveAs(encoder, pathWithExtension, bitmap, exportSize);
+        return TrySaveAs(encoder, pathWithExtension, bitmap, exportConfig);
     }
     
     /// <summary>
     /// Saves image to PNG file. Messes with the passed bitmap.
     /// </summary>
-    private static SaveResult TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap, VecI? exportSize)
+    private static SaveResult TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap, ExportConfig config)
     {
         try
         {
+            VecI? exportSize = config.ExportSize;
             if (exportSize is not null && exportSize != bitmap.Size)
                 bitmap = bitmap.ResizeNearestNeighbor((VecI)exportSize);
 

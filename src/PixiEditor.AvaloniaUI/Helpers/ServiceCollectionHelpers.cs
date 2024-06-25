@@ -122,7 +122,6 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<PaletteFileParser, PixiPaletteParser>()
             // Palette data sources
             .AddSingleton<PaletteListDataSource, LocalPalettesFetcher>()
-            .AddSingleton<IAnimationRenderer, FFMpegRenderer>()
             .AddMenuBuilders();
     }
 

@@ -9,14 +9,22 @@ namespace PixiEditor.AvaloniaUI.Models.IO;
 
 internal class FileTypeDialogDataSet
 {
-    public enum SetKind { Any, Pixi, Images }
+    [Flags]
+    public enum SetKind
+    {
+        None = 0,
+        Pixi = 1 << 0,
+        Image = 1 << 1,
+        Video = 1 << 2,
+        Any = ~0
+    }
     IEnumerable<IoFileType> fileTypes;
     string displayName;
 
     public FileTypeDialogDataSet(SetKind kind, IEnumerable<IoFileType> fileTypes = null)
     {
         if (fileTypes == null)
-            fileTypes = SupportedFilesHelper.GetAllSupportedFileTypes(true);
+            fileTypes = SupportedFilesHelper.GetAllSupportedFileTypes(SetKind.Any);
         var allSupportedExtensions = fileTypes;
         if (kind == SetKind.Any)
         {
@@ -26,9 +34,13 @@ internal class FileTypeDialogDataSet
         {
             Init(new LocalizedString("PIXI_FILE"), new[] { PixiFileType.PixiFile });
         }
-        else if (kind == SetKind.Images)
+        else if (kind == SetKind.Image)
         {
             Init(new LocalizedString("IMAGE_FILES"), allSupportedExtensions, PixiFileType.PixiFile);
+        }
+        else if (kind == SetKind.Video)
+        {
+            Init(new LocalizedString("VIDEO_FILES"), allSupportedExtensions);
         }
     }
 

@@ -1,7 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Avalonia.Controls;
+using PixiEditor.AnimationRenderer.FFmpeg;
 using PixiEditor.AvaloniaUI.Models.Dialogs;
 using PixiEditor.AvaloniaUI.Models.Files;
+using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
@@ -21,6 +23,8 @@ internal class ExportFileDialog : CustomDialog
     private string suggestedName;
     
     private DocumentViewModel document;
+    
+    public ExportConfig ExportConfig { get; set; } = new ExportConfig();
 
     public ExportFileDialog(Window owner, VecI size, DocumentViewModel doc) : base(owner)
     {
@@ -88,6 +92,7 @@ internal class ExportFileDialog : CustomDialog
             }
         }
     }
+    
     public override async Task<bool> ShowDialog()
     {
         ExportFilePopup popup = new ExportFilePopup(FileWidth, FileHeight, document) { SuggestedName = SuggestedName };
@@ -99,6 +104,14 @@ internal class ExportFileDialog : CustomDialog
             FileHeight = popup.SaveHeight;
             FilePath = popup.SavePath;
             ChosenFormat = popup.SaveFormat;
+            
+            ExportConfig.ExportSize = new VecI(FileWidth, FileHeight);
+            ExportConfig.AnimationRenderer = ChosenFormat is VideoFileType ? new FFMpegRenderer()
+            {
+                Size = new VecI(FileWidth, FileHeight),
+                OutputFormat = ChosenFormat.PrimaryExtension.Replace(".", ""),
+                FrameRate = 60
+            } : null;
         }
 
         return result;

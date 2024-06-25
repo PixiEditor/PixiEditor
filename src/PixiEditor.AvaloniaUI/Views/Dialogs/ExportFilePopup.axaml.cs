@@ -1,11 +1,14 @@
 ﻿using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.Input;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Files;
+using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
 
@@ -13,6 +16,43 @@ namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
 internal partial class ExportFilePopup : PixiEditorPopup
 {
+    public static readonly StyledProperty<int> SaveHeightProperty =
+        AvaloniaProperty.Register<ExportFilePopup, int>(nameof(SaveHeight), 32);
+
+    public static readonly StyledProperty<int> SaveWidthProperty =
+        AvaloniaProperty.Register<ExportFilePopup, int>(nameof(SaveWidth), 32);
+
+    public static readonly StyledProperty<RelayCommand> SetBestPercentageCommandProperty =
+        AvaloniaProperty.Register<ExportFilePopup, RelayCommand>(nameof(SetBestPercentageCommand));
+
+    public static readonly StyledProperty<string?> SavePathProperty =
+        AvaloniaProperty.Register<ExportFilePopup, string?>(nameof(SavePath), "");
+
+    public static readonly StyledProperty<IoFileType> SaveFormatProperty =
+        AvaloniaProperty.Register<ExportFilePopup, IoFileType>(nameof(SaveFormat), new PngFileType());
+
+    public static readonly StyledProperty<AsyncRelayCommand> ExportCommandProperty =
+        AvaloniaProperty.Register<ExportFilePopup, AsyncRelayCommand>(
+            nameof(ExportCommand));
+
+    public static readonly StyledProperty<string> SuggestedNameProperty =
+        AvaloniaProperty.Register<ExportFilePopup, string>(
+            nameof(SuggestedName));
+
+    public static readonly StyledProperty<Surface> ExportPreviewProperty =
+        AvaloniaProperty.Register<ExportFilePopup, Surface>(
+            nameof(ExportPreview));
+
+    public static readonly StyledProperty<int> SelectedExportIndexProperty =
+        AvaloniaProperty.Register<ExportFilePopup, int>(
+            nameof(SelectedExportIndex), 0);
+
+    public int SelectedExportIndex
+    {
+        get => GetValue(SelectedExportIndexProperty);
+        set => SetValue(SelectedExportIndexProperty, value);
+    }
+
     public int SaveWidth
     {
         get => (int)GetValue(SaveWidthProperty);
@@ -38,31 +78,6 @@ internal partial class ExportFilePopup : PixiEditorPopup
         set => SetValue(SaveFormatProperty, value);
     }
 
-    public static readonly StyledProperty<int> SaveHeightProperty =
-        AvaloniaProperty.Register<ExportFilePopup, int>(nameof(SaveHeight), 32);
-
-    public static readonly StyledProperty<int> SaveWidthProperty =
-        AvaloniaProperty.Register<ExportFilePopup, int>(nameof(SaveWidth), 32);
-
-    public static readonly StyledProperty<RelayCommand> SetBestPercentageCommandProperty =
-        AvaloniaProperty.Register<ExportFilePopup, RelayCommand>(nameof(SetBestPercentageCommand));
-
-    public static readonly StyledProperty<string?> SavePathProperty =
-        AvaloniaProperty.Register<ExportFilePopup, string?>(nameof(SavePath), "");
-
-    public static readonly StyledProperty<IoFileType> SaveFormatProperty =
-        AvaloniaProperty.Register<ExportFilePopup, IoFileType>(nameof(SaveFormat), new PngFileType());
-
-    public static readonly StyledProperty<AsyncRelayCommand> ExportCommandProperty =
-        AvaloniaProperty.Register<ExportFilePopup, AsyncRelayCommand>(
-            nameof(ExportCommand));
-
-    public static readonly StyledProperty<string> SuggestedNameProperty = AvaloniaProperty.Register<ExportFilePopup, string>(
-        nameof(SuggestedName));
-
-    public static readonly StyledProperty<Surface> ExportPreviewProperty = AvaloniaProperty.Register<ExportFilePopup, Surface>(
-        nameof(ExportPreview));
-
     public Surface ExportPreview
     {
         get => GetValue(ExportPreviewProperty);
@@ -87,14 +102,19 @@ internal partial class ExportFilePopup : PixiEditorPopup
         set => SetValue(SetBestPercentageCommandProperty, value);
     }
 
+    public bool IsVideoExport => SelectedExportIndex == 1;
     public string SizeHint => new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
-    
+
     private DocumentViewModel document;
+    private Image[] videoPreviewFrames = [];
+    private DispatcherTimer videoPreviewTimer = new DispatcherTimer();
+    private int activeFrame = 0;
 
     static ExportFilePopup()
     {
         SaveWidthProperty.Changed.Subscribe(RerenderPreview);
         SaveHeightProperty.Changed.Subscribe(RerenderPreview);
+        SelectedExportIndexProperty.Changed.Subscribe(RerenderPreview);
     }
 
     public ExportFilePopup(int imageWidth, int imageHeight, DocumentViewModel document)
@@ -112,16 +132,50 @@ internal partial class ExportFilePopup : PixiEditorPopup
         SetBestPercentageCommand = new RelayCommand(SetBestPercentage);
         ExportCommand = new AsyncRelayCommand(Export);
         this.document = document;
+
         RenderPreview();
     }
-    
+
     private void RenderPreview()
     {
         if (document == null)
         {
             return;
         }
-        
+
+        videoPreviewTimer.Stop();
+        if (IsVideoExport)
+        {
+            videoPreviewFrames = document.RenderFrames(surface =>
+            {
+                if (SaveWidth != surface.Size.X || SaveHeight != surface.Size.Y)
+                {
+                    return surface.ResizeNearestNeighbor(new VecI(SaveWidth, SaveHeight));
+                }
+
+                return surface;
+            });
+            videoPreviewTimer = new DispatcherTimer(DispatcherPriority.Normal)
+            {
+                Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRate)
+            };
+            videoPreviewTimer.Tick += (_, _) =>
+            {
+                if (videoPreviewFrames.Length > 0)
+                {
+                    ExportPreview.DrawingSurface.Canvas.Clear();
+                    ExportPreview.DrawingSurface.Canvas.DrawImage(videoPreviewFrames[activeFrame], 0, 0);
+                    activeFrame = (activeFrame + 1) % videoPreviewFrames.Length;
+                }
+                else
+                {
+                    videoPreviewTimer.Stop();
+                }
+            };
+            
+            videoPreviewTimer.Start();
+        }
+
         var rendered = document.TryRenderWholeImage();
         if (rendered.IsT1)
         {
@@ -147,8 +201,12 @@ internal partial class ExportFilePopup : PixiEditorPopup
         {
             Title = new LocalizedString("EXPORT_SAVE_TITLE"),
             SuggestedFileName = SuggestedName,
-            SuggestedStartLocation = await GetTopLevel(this).StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents),
-            FileTypeChoices = SupportedFilesHelper.BuildSaveFilter(false),
+            SuggestedStartLocation =
+                await GetTopLevel(this).StorageProvider.TryGetWellKnownFolderAsync(WellKnownFolder.Documents),
+            FileTypeChoices =
+                SupportedFilesHelper.BuildSaveFilter(SelectedExportIndex == 1
+                    ? FileTypeDialogDataSet.SetKind.Video
+                    : FileTypeDialogDataSet.SetKind.Image),
             ShowOverwritePrompt = true
         };
 
@@ -157,7 +215,10 @@ internal partial class ExportFilePopup : PixiEditorPopup
         {
             if (string.IsNullOrEmpty(file.Name) == false)
             {
-                SaveFormat = SupportedFilesHelper.GetSaveFileType(false, file);
+                SaveFormat = SupportedFilesHelper.GetSaveFileType(
+                    SelectedExportIndex == 1
+                        ? FileTypeDialogDataSet.SetKind.Video
+                        : FileTypeDialogDataSet.SetKind.Image, file);
                 if (SaveFormat == null)
                 {
                     return null;
@@ -168,6 +229,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 return fileName;
             }
         }
+
         return null;
     }
 
@@ -189,7 +251,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         sizePicker.PercentageRb.IsChecked = true;
         sizePicker.PercentageLostFocus();
     }
-    
+
     private static void RerenderPreview(AvaloniaPropertyChangedEventArgs e)
     {
         if (e.Sender is ExportFilePopup popup)

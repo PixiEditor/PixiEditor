@@ -1,13 +1,18 @@
-﻿using FFMpegCore;
+﻿using System.Drawing;
+using FFMpegCore;
 using FFMpegCore.Arguments;
 using FFMpegCore.Enums;
 using PixiEditor.AnimationRenderer.Core;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AnimationRenderer.FFmpeg;
 
 public class FFMpegRenderer : IAnimationRenderer
 {
-    public async Task<bool> RenderAsync(string framesPath, int frameRate = 60)
+    public int FrameRate { get; set; } = 60;
+    public string OutputFormat { get; set; } = "mp4";
+    public VecI Size { get; set; } 
+    public async Task<bool> RenderAsync(string framesPath, string outputPath)
     {
         string[] frames = Directory.GetFiles(framesPath, "*.png");
         if (frames.Length == 0)
@@ -15,16 +20,57 @@ public class FFMpegRenderer : IAnimationRenderer
             return false;
         }
         
+        string[] finalFrames = new string[frames.Length];
+
+        for (int i = 0; i < frames.Length; i++)
+        {
+            if(int.TryParse(Path.GetFileNameWithoutExtension(frames[i]), out int frameNumber))
+            {
+                finalFrames[frameNumber] = frames[i];
+            }
+        }
+        
         GlobalFFOptions.Configure(new FFOptions() { BinaryFolder = @"C:\ProgramData\chocolatey\lib\ffmpeg\tools\ffmpeg\bin" });
         
+        float duration = finalFrames.Length / (float)FrameRate;
+
+        if (RequiresPaletteGeneration())
+        {
+            GeneratePalette(finalFrames, framesPath);
+        }
+        
         return await FFMpegArguments
-            .FromConcatInput(frames)
-            .OutputToFile($"{framesPath}/output.mp4", true, options =>
+            .FromConcatInput(finalFrames, options =>
             {
-                options.WithVideoCodec(VideoCodec.LibX264)
-                    .WithFramerate(frameRate)
-                    .ForcePixelFormat("yuv420p");
+                options.WithFramerate(FrameRate);
+            })
+            .AddFileInput(Path.Combine(framesPath, "palette.png"))
+            .OutputToFile(outputPath, true, options =>
+            {
+                options.WithCustomArgument($"-filter_complex \"[0:v]fps={FrameRate},scale={Size.X}:{Size.Y}:flags=lanczos[x];[x][1:v]paletteuse\"") // Apply the palette
+                    .WithCustomArgument($"-vsync 0"); // Ensure each input frame gets displayed exactly once
             })
             .ProcessAsynchronously();
+    }
+
+    private bool RequiresPaletteGeneration()
+    {
+        return OutputFormat == "gif";
+    }
+
+    private void GeneratePalette(string[] frames, string path)
+    {
+        string palettePath = Path.Combine(path, "palette.png");
+        FFMpegArguments
+            .FromConcatInput(frames, options =>
+            {
+                options.WithFramerate(FrameRate);
+            })
+            .OutputToFile(palettePath, true, options =>
+            {
+                options
+                    .WithCustomArgument($"-vf \"palettegen\"");
+            })
+            .ProcessSynchronously();
     }
 }

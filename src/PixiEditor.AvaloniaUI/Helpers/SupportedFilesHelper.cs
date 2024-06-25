@@ -62,25 +62,23 @@ internal class SupportedFilesHelper
         return fileData;
     }
 
-    public static List<IoFileType> GetAllSupportedFileTypes(bool includePixi)
+    public static List<IoFileType> GetAllSupportedFileTypes(FileTypeDialogDataSet.SetKind setKind)
     {
-        var allExts = FileTypes.ToList();
-        if (!includePixi)
-            allExts.RemoveAll(item => item is PixiFileType);
+        var allExts = FileTypes.Where(x => x.SetKind.HasFlag(setKind)).ToList();
         return allExts;
     }
 
-    public static List<FilePickerFileType> BuildSaveFilter(bool includePixi)
+    public static List<FilePickerFileType> BuildSaveFilter(FileTypeDialogDataSet.SetKind setKind = FileTypeDialogDataSet.SetKind.Any)
     {
-        var allSupportedExtensions = GetAllSupportedFileTypes(includePixi);
+        var allSupportedExtensions = GetAllSupportedFileTypes(setKind);
         var filter = allSupportedExtensions.Select(i => i.SaveFilter).ToList();
 
         return filter;
     }
 
-    public static IoFileType GetSaveFileType(bool includePixi, IStorageFile file)
+    public static IoFileType GetSaveFileType(FileTypeDialogDataSet.SetKind setKind, IStorageFile file)
     {
-        var allSupportedExtensions = GetAllSupportedFileTypes(includePixi);
+        var allSupportedExtensions = GetAllSupportedFileTypes(setKind);
 
         if (file is null)
             return null;

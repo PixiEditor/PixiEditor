@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj" />
+      <ProjectReference Include="..\PixiEditor.Numerics\PixiEditor.Numerics.csproj" />
     </ItemGroup>
 
     <ItemGroup>

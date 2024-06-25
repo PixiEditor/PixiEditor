@@ -10,6 +10,5 @@ internal class BmpFileType : ImageFileType
     public override string[] Extensions { get; } = new[] { ".bmp" };
     public override string DisplayName => new LocalizedString("BMP_FILE");
     public override EncodedImageFormat EncodedImageFormat { get; } = EncodedImageFormat.Bmp;
-
     public override SolidColorBrush EditorColor { get; } = new SolidColorBrush(new Color(255, 255, 140, 0));
 }

@@ -12,22 +12,8 @@ namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 [Command.Group("PixiEditor.Animations", "ANIMATIONS")]
 internal class AnimationsViewModel : SubViewModel<ViewModelMain>
 {
-    private IAnimationRenderer animationRenderer;
-    public AnimationsViewModel(ViewModelMain owner, IAnimationRenderer renderer) : base(owner)
+    public AnimationsViewModel(ViewModelMain owner) : base(owner)
     {
-        animationRenderer = renderer;
-    }
-    
-    [Command.Basic("PixiEditor.Animations.RenderAnimation", "Render Animation (MP4)", "Renders the animation as an MP4 file")]
-    public async Task RenderAnimation()
-    {
-        var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
-        
-        if (document is null)
-            return;
-        
-        document.RenderFrames(Paths.TempRenderingPath);
-        await animationRenderer.RenderAsync(Paths.TempRenderingPath);
     }
     
     [Command.Basic("PixiEditor.Animation.CreateRasterKeyFrame", "Create Raster Key Frame", "Create a raster key frame", Parameter = false)]
@@ -110,7 +96,6 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             int y = i / grid.columns;
             surface.DrawingSurface.Canvas.DrawImage(images[i], x * document.Width, y * document.Height);
         }
-        
         surface.SaveToDesktop();
     }
 

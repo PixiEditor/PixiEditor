@@ -104,7 +104,7 @@ internal class AffectedAreasGatherer
                         AddWholeCanvasToImagePreviews(info.TargetLayerGuid);
                     }
                     break;
-                case ActiveFrame_ChangeInfo info:
+                case ActiveFrame_ChangeInfo:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     break;
@@ -112,11 +112,11 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     break;
-                case DeleteKeyFrame_ChangeInfo info:
+                case DeleteKeyFrame_ChangeInfo:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     break;
-                case KeyFrameVisibility_ChangeInfo info:
+                case KeyFrameVisibility_ChangeInfo:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     break;

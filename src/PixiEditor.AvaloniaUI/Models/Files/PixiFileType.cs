@@ -14,7 +14,9 @@ internal class PixiFileType : IoFileType
 
     public override SolidColorBrush EditorColor { get;  } = new SolidColorBrush(new Color(255, 226, 1, 45));
 
-    public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, VecI? exportSize = null)
+    public override FileTypeDialogDataSet.SetKind SetKind { get; } = FileTypeDialogDataSet.SetKind.Pixi;
+
+    public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config)
     {
         try
         {

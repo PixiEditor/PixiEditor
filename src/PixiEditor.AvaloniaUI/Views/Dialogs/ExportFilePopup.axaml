@@ -14,15 +14,19 @@
     <DockPanel Background="{DynamicResource ThemeBackgroundBrush}">
         <Button DockPanel.Dock="Bottom" HorizontalAlignment="Center" IsDefault="True"
                 ui1:Translator.Key="EXPORT" Command="{Binding ExportCommand, ElementName=saveFilePopup}" />
-
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Stretch"  Orientation="Vertical"
                     Margin="0,15,0,0">
-            <StackPanel Spacing="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                <RadioButton GroupName="ExportType" Content="Image" IsChecked="True" IsDefault="True"/>
-                <RadioButton GroupName="ExportType" Content="Animation" />
-                <RadioButton GroupName="ExportType" Content="SpriteSheet" />
-            </StackPanel>
-
+            <TabControl SelectedIndex="{Binding SelectedExportIndex, ElementName=saveFilePopup}">
+                <TabControl.Items>
+                    <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER">
+                        
+                    </TabItem>
+                    <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER">
+                        
+                    </TabItem>
+                    <TabItem ui1:Translator.Key="EXPORT_SPRITESHEET_HEADER"/>
+                </TabControl.Items>
+            </TabControl>
             <Border Margin="15, 30" Padding="10"
                     Background="{DynamicResource ThemeBackgroundBrush1}"
                     CornerRadius="{DynamicResource ControlCornerRadius}">
@@ -33,10 +37,10 @@
                     </Grid.ColumnDefinitions>
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
-                        <input:SizePicker
+                        <input:SizePicker Grid.Row="0"
                             x:Name="sizePicker"
                             IsSizeUnitSelectionVisible="True"
                             VerticalAlignment="Top"

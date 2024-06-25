@@ -107,7 +107,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         {
             OpenFromPath(file);
         }
-        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) && !args.Contains("--openedInExisting"))
+        else if ((Owner.DocumentManagerSubViewModel.Documents.Count == 0 && !args.Contains("--crash")) &&
+                 !args.Contains("--openedInExisting"))
         {
             if (PixiEditorSettings.StartupWindow.ShowStartupWindow.Value)
             {
@@ -149,7 +150,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
     }
 
-    [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD", "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard")]
+    [Command.Basic("PixiEditor.File.OpenFileFromClipboard", "OPEN_FILE_FROM_CLIPBOARD",
+        "OPEN_FILE_FROM_CLIPBOARD_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.HasImageInClipboard")]
     public async Task OpenFromClipboard()
     {
         var images = await ClipboardController.GetImagesFromClipboard();
@@ -170,12 +172,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     {
         foreach (DocumentViewModel document in Owner.DocumentManagerSubViewModel.Documents)
         {
-            if (document.FullFilePath is not null && System.IO.Path.GetFullPath(document.FullFilePath) == System.IO.Path.GetFullPath(path))
+            if (document.FullFilePath is not null &&
+                System.IO.Path.GetFullPath(document.FullFilePath) == System.IO.Path.GetFullPath(path))
             {
                 Owner.WindowSubViewModel.MakeDocumentViewportActive(document);
                 return true;
             }
         }
+
         return false;
     }
 
@@ -273,11 +277,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         AddRecentlyOpened(path);
     }
 
-    [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N, Modifiers = KeyModifiers.Control,
+    [Command.Basic("PixiEditor.File.New", "NEW_IMAGE", "CREATE_NEW_IMAGE", Key = Key.N,
+        Modifiers = KeyModifiers.Control,
         MenuItemPath = "FILE/NEW_FILE", MenuItemOrder = 0, Icon = PixiPerfectIcons.File)]
     public async Task CreateFromNewFileDialog()
     {
-        Window mainWindow = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime).MainWindow;
+        Window mainWindow = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)
+            .MainWindow;
         NewFileDialog newFile = new NewFileDialog(mainWindow);
         if (await newFile.ShowDialog())
         {
@@ -303,9 +309,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         Owner.WindowSubViewModel.MakeDocumentViewportActive(doc);
     }
 
-    [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control, Icon = PixiPerfectIcons.Save,
+    [Command.Basic("PixiEditor.File.Save", false, "SAVE", "SAVE_IMAGE", CanExecute = "PixiEditor.HasDocument",
+        Key = Key.S, Modifiers = KeyModifiers.Control, Icon = PixiPerfectIcons.Save,
         MenuItemPath = "FILE/SAVE_PIXI", MenuItemOrder = 3)]
-    [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument", Key = Key.S, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, Icon = PixiPerfectIcons.Save,
+    [Command.Basic("PixiEditor.File.SaveAsNew", true, "SAVE_AS", "SAVE_IMAGE_AS", CanExecute = "PixiEditor.HasDocument",
+        Key = Key.S, Modifiers = KeyModifiers.Control | KeyModifiers.Shift, Icon = PixiPerfectIcons.Save,
         MenuItemPath = "FILE/SAVE_AS_PIXI", MenuItemOrder = 4)]
     public async Task<bool> SaveActiveDocument(bool asNew)
     {
@@ -320,7 +328,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         string finalPath = null;
         if (asNew || string.IsNullOrEmpty(document.FullFilePath))
         {
-            var result = await Exporter.TrySaveWithDialog(document);
+            var result = await Exporter.TrySaveWithDialog(document, ExportConfig.Empty);
             if (result.Result == DialogSaveResult.Cancelled)
                 return false;
             if (result.Result != DialogSaveResult.Success)
@@ -334,12 +342,13 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            var result = Exporter.TrySave(document, document.FullFilePath);
+            var result = Exporter.TrySave(document, document.FullFilePath, ExportConfig.Empty);
             if (result != SaveResult.Success)
             {
                 ShowSaveError((DialogSaveResult)result);
                 return false;
             }
+
             finalPath = document.FullFilePath;
         }
 
@@ -352,7 +361,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
     ///     Generates export dialog or saves directly if save data is known.
     /// </summary>
     /// <param name="parameter">CommandProperty.</param>
-    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument", Key = Key.E, Modifiers = KeyModifiers.Control,
+    [Command.Basic("PixiEditor.File.Export", "EXPORT", "EXPORT_IMAGE", CanExecute = "PixiEditor.HasDocument",
+        Key = Key.E, Modifiers = KeyModifiers.Control,
         MenuItemPath = "FILE/EXPORT_IMG", MenuItemOrder = 5, Icon = PixiPerfectIcons.Image)]
     public async Task ExportFile()
     {
@@ -362,11 +372,14 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             if (doc is null)
                 return;
 
-            ExportFileDialog info = new ExportFileDialog(MainWindow.Current, doc.SizeBindable, doc) 
-                { SuggestedName = Path.GetFileNameWithoutExtension(doc.FileName) };
+            ExportFileDialog info = new ExportFileDialog(MainWindow.Current, doc.SizeBindable, doc)
+            {
+                SuggestedName = Path.GetFileNameWithoutExtension(doc.FileName)
+            };
             if (await info.ShowDialog())
             {
-                SaveResult result = Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, out string finalPath, new(info.FileWidth, info.FileHeight));
+                SaveResult result = Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat,
+                    out string finalPath, info.ExportConfig);
                 if (result == SaveResult.Success)
                     IOperatingSystem.Current.OpenFolder(finalPath);
                 else
@@ -408,7 +421,8 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        List<RecentlyOpenedDocument> recentlyOpenedDocuments = new List<RecentlyOpenedDocument>(RecentlyOpened.Take(newAmount));
+        List<RecentlyOpenedDocument> recentlyOpenedDocuments =
+            new List<RecentlyOpenedDocument>(RecentlyOpened.Take(newAmount));
 
         RecentlyOpened.Clear();
 

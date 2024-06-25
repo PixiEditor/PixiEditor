@@ -689,7 +689,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
     }
 
-    public Image[] RenderFrames()
+    public Image[] RenderFrames(Func<Surface, Surface> processFrameAction = null)
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
             return[];
@@ -710,6 +710,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 continue;
             }
             
+            if (processFrameAction is not null)
+            {
+                surface = processFrameAction(surface.AsT1);
+            }
+            
             images[i] = surface.AsT1.DrawingSurface.Snapshot();
         }
 
@@ -717,10 +722,10 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return images;
     }
 
-    public void RenderFrames(string tempRenderingPath)
+    public bool RenderFrames(string tempRenderingPath, Func<Surface, Surface> processFrameAction = null)
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
-            return;
+            return false;
 
         if (!Directory.Exists(tempRenderingPath))
         {
@@ -743,15 +748,20 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             var surface = TryRenderWholeImage();
             if (surface.IsT0)
             {
-                continue;
+                return false;
             }
-
+            
+            if (processFrameAction is not null)
+            {
+                surface = processFrameAction(surface.AsT1);
+            }
             using var stream = new FileStream(Path.Combine(tempRenderingPath, $"{i}.png"), FileMode.Create);
             surface.AsT1.DrawingSurface.Snapshot().Encode().SaveTo(stream);
             stream.Position = 0;
         }
         
         Internals.Tracker.ProcessActionsSync(new List<IAction> { new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action() });
+        return true;
     }
 
     private static void ClearTempFolder(string tempRenderingPath)

@@ -24,6 +24,8 @@ internal abstract class IoFileType
     public abstract string DisplayName { get; }
 
     public virtual SolidColorBrush EditorColor { get; } = new SolidColorBrush(Color.FromRgb(100, 100, 100));
+    
+    public abstract FileTypeDialogDataSet.SetKind SetKind { get; }
 
     public FilePickerFileType SaveFilter
     {
@@ -43,5 +45,5 @@ internal abstract class IoFileType
         return "*" + extension;
     }
 
-    public abstract SaveResult TrySave(string pathWithExtension, DocumentViewModel document, VecI? exportSize = null);
+    public abstract SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig config);
 }

@@ -50,7 +50,7 @@ internal class Exporter
     /// <summary>
     /// Attempts to save file using a SaveFileDialog
     /// </summary>
-    public static async Task<ExporterResult> TrySaveWithDialog(DocumentViewModel document, VecI? exportSize = null)
+    public static async Task<ExporterResult> TrySaveWithDialog(DocumentViewModel document, ExportConfig exportConfig)
     {
         ExporterResult result = new(DialogSaveResult.UnknownError, null);
 
@@ -58,7 +58,7 @@ internal class Exporter
         {
             var file = await desktop.MainWindow.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
             {
-                FileTypeChoices = SupportedFilesHelper.BuildSaveFilter(true), DefaultExtension = "pixi"
+                FileTypeChoices = SupportedFilesHelper.BuildSaveFilter(), DefaultExtension = "pixi"
             });
 
             if (file is null)
@@ -67,9 +67,9 @@ internal class Exporter
                 return result;
             }
 
-            var fileType = SupportedFilesHelper.GetSaveFileType(true, file);
+            var fileType = SupportedFilesHelper.GetSaveFileType(FileTypeDialogDataSet.SetKind.Any, file);
 
-            var saveResult = TrySaveUsingDataFromDialog(document, file.Path.LocalPath, fileType, out string fixedPath, exportSize);
+            var saveResult = TrySaveUsingDataFromDialog(document, file.Path.LocalPath, fileType, out string fixedPath, exportConfig);
             if (saveResult == SaveResult.Success)
             {
                 result.Path = fixedPath;
@@ -84,10 +84,10 @@ internal class Exporter
     /// <summary>
     /// Takes data as returned by SaveFileDialog and attempts to use it to save the document
     /// </summary>
-    public static SaveResult TrySaveUsingDataFromDialog(DocumentViewModel document, string pathFromDialog, IoFileType fileTypeFromDialog, out string finalPath, VecI? exportSize = null)
+    public static SaveResult TrySaveUsingDataFromDialog(DocumentViewModel document, string pathFromDialog, IoFileType fileTypeFromDialog, out string finalPath, ExportConfig exportConfig)
     {
         finalPath = SupportedFilesHelper.FixFileExtension(pathFromDialog, fileTypeFromDialog);
-        var saveResult = TrySave(document, finalPath, exportSize);
+        var saveResult = TrySave(document, finalPath, exportConfig);
         if (saveResult != SaveResult.Success)
             finalPath = "";
 
@@ -97,7 +97,7 @@ internal class Exporter
     /// <summary>
     /// Attempts to save the document into the given location, filetype is inferred from path
     /// </summary>
-    public static SaveResult TrySave(DocumentViewModel document, string pathWithExtension, VecI? exportSize = null)
+    public static SaveResult TrySave(DocumentViewModel document, string pathWithExtension, ExportConfig exportConfig)
     {
         string directory = Path.GetDirectoryName(pathWithExtension);
         if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
@@ -108,7 +108,7 @@ internal class Exporter
         if (typeFromPath is null)
             return SaveResult.UnknownError;
         
-        return typeFromPath.TrySave(pathWithExtension, document, exportSize);
+        return typeFromPath.TrySave(pathWithExtension, document, exportConfig);
     }
 
     public static void SaveAsGZippedBytes(string path, Surface surface)
