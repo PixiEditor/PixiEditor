@@ -111,7 +111,9 @@ internal class ExportFileDialog : CustomDialog
                 Size = new VecI(FileWidth, FileHeight),
                 OutputFormat = ChosenFormat.PrimaryExtension.Replace(".", ""),
                 FrameRate = 60
-            } : null;
+            }
+            : null;
+            ExportConfig.ExportAsSpriteSheet = popup.IsSpriteSheetExport;
         }
 
         return result;

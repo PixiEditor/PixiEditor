@@ -694,13 +694,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         if (AnimationDataViewModel.KeyFrames.Count == 0)
             return [];
 
-        var keyFrames = AnimationDataViewModel.KeyFrames;
-        var firstFrame = keyFrames.Min(x => x.StartFrameBindable);
-        var lastFrame = keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
+        int firstFrame = AnimationDataViewModel.FirstFrame;
+        int framesCount = AnimationDataViewModel.FramesCount;
+        int lastFrame = firstFrame + framesCount;
 
         int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
 
-        Image[] images = new Image[lastFrame - firstFrame];
+        Image[] images = new Image[framesCount];
         for (int i = firstFrame; i < lastFrame; i++)
         {
             Internals.Tracker.ProcessActionsSync(new List<IAction>
@@ -727,6 +727,43 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action()
         });
         return images;
+    }
+
+    /// <summary>
+    ///     Render frames progressively and disposes the surface after processing.
+    /// </summary>
+    /// <param name="processFrameAction">Action to perform on rendered frame</param>
+    public void RenderFramesProgressive(Action<Surface, int> processFrameAction)
+    {
+        if (AnimationDataViewModel.KeyFrames.Count == 0)
+            return;
+
+        int firstFrame = AnimationDataViewModel.FirstFrame;
+        int framesCount = AnimationDataViewModel.FramesCount;
+        int lastFrame = firstFrame + framesCount;
+
+        int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
+
+        for (int i = firstFrame; i < lastFrame; i++)
+        {
+            Internals.Tracker.ProcessActionsSync(new List<IAction>
+            {
+                new ActiveFrame_Action(i), new EndActiveFrame_Action()
+            });
+            var surface = TryRenderWholeImage();
+            if (surface.IsT0)
+            {
+                continue;
+            }
+
+            processFrameAction(surface.AsT1, i - firstFrame);
+            surface.AsT1.Dispose();
+        }
+
+        Internals.Tracker.ProcessActionsSync(new List<IAction>
+        {
+            new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action()
+        });
     }
 
     public bool RenderFrames(string tempRenderingPath, Func<Surface, Surface> processFrameAction = null)

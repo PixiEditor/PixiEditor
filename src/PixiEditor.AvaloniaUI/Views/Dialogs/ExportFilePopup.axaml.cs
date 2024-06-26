@@ -115,6 +115,9 @@ internal partial class ExportFilePopup : PixiEditorPopup
     }
 
     public bool IsVideoExport => SelectedExportIndex == 1;
+
+    public bool IsSpriteSheetExport => SelectedExportIndex == 2;
+
     public string SizeHint => new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
 
     private DocumentViewModel document;
@@ -207,20 +210,30 @@ internal partial class ExportFilePopup : PixiEditorPopup
         }
         else
         {
-            var rendered = document.TryRenderWholeImage();
-            if (rendered.IsT1)
-            {
-                VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
-                ExportPreview = rendered.AsT1.ResizeNearestNeighbor(previewSize);
-                rendered.AsT1.Dispose();
-                IsGeneratingPreview = false;
-            }
+            RenderImagePreview();
+        }
+    }
+
+    private void RenderImagePreview()
+    {
+        if (IsSpriteSheetExport)
+        {
+            //GenerateSpriteSheetPreview();
+        }
+
+        var rendered = document.TryRenderWholeImage();
+        if (rendered.IsT1)
+        {
+            VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
+            ExportPreview = rendered.AsT1.ResizeNearestNeighbor(previewSize);
+            rendered.AsT1.Dispose();
+            IsGeneratingPreview = false;
         }
     }
 
     private void StartRenderAnimationJob()
     {
-        if (cancellationTokenSource.Token != null && cancellationTokenSource.Token.CanBeCanceled)
+        if (cancellationTokenSource.Token is { CanBeCanceled: true })
         {
             cancellationTokenSource.Cancel();
         }
@@ -230,28 +243,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         Task.Run(
             () =>
             {
-                videoPreviewFrames = document.RenderFrames(surface =>
-                {
-                    return Dispatcher.UIThread.Invoke(() =>
-                    {
-                        Surface original = surface;
-                        if (SaveWidth != surface.Size.X || SaveHeight != surface.Size.Y)
-                        {
-                            original = surface.ResizeNearestNeighbor(new VecI(SaveWidth, SaveHeight));
-                            surface.Dispose();
-                        }
-
-                        VecI previewSize = CalculatePreviewSize(original.Size);
-                        if (previewSize != original.Size)
-                        {
-                            var resized = original.ResizeNearestNeighbor(previewSize);
-                            original.Dispose();
-                            return resized;
-                        }
-
-                        return original;
-                    });
-                });
+                videoPreviewFrames = document.RenderFrames(ProcessFrame);
             }, cancellationTokenSource.Token).ContinueWith(_ =>
         {
             Dispatcher.UIThread.Invoke(() =>
@@ -267,6 +259,29 @@ internal partial class ExportFilePopup : PixiEditorPopup
             });
 
             videoPreviewTimer.Start();
+        });
+    }
+
+    private Surface ProcessFrame(Surface surface)
+    {
+        return Dispatcher.UIThread.Invoke(() =>
+        {
+            Surface original = surface;
+            if (SaveWidth != surface.Size.X || SaveHeight != surface.Size.Y)
+            {
+                original = surface.ResizeNearestNeighbor(new VecI(SaveWidth, SaveHeight));
+                surface.Dispose();
+            }
+
+            VecI previewSize = CalculatePreviewSize(original.Size);
+            if (previewSize != original.Size)
+            {
+                var resized = original.ResizeNearestNeighbor(previewSize);
+                original.Dispose();
+                return resized;
+            }
+
+            return original;
         });
     }
 

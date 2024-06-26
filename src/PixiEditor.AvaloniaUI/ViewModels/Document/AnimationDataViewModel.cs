@@ -43,7 +43,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             _frameRate = value;
             OnPropertyChanged(nameof(FrameRate));
         }
-    } 
+    }
+
+    public int FirstFrame => keyFrames.Min(x => x.StartFrameBindable);
+    public int LastFrame => keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
+    public int FramesCount => LastFrame - FirstFrame; 
 
     public AnimationDataViewModel(DocumentViewModel document, DocumentInternalParts internals)
     {

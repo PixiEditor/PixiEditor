@@ -170,7 +170,7 @@ internal class DrawSurfaceOperation : SkiaDrawOperation
         // preview updater is disposing the surface and creating a new one, but it should also
         // update the control to use the new surface, debugging at SurfaceControl Render() never returns disposed surface.
         // Probably some kind of race condition between dispose and render queue.
-        if (Surface == null || Surface.IsDisposed) 
+        if (Surface == null || Surface.IsDisposed)
         {
             return;
         }
