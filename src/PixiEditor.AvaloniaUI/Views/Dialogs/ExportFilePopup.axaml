@@ -66,9 +66,9 @@
                         </Grid.RowDefinitions>
                         
                         <TextBlock Text="Export Preview"/>
-                        <indicators:LoadingIndicator Grid.Row="1" IsVisible="{Binding IsPreviewGenerating, ElementName=saveFilePopup}"
+                        <indicators:LoadingIndicator Grid.Row="1" IsVisible="{Binding IsGeneratingPreview, ElementName=saveFilePopup}"
                                           Margin="0, 10, 0, 0"/>
-                        <Border Grid.Row="1" BorderThickness="1" Height="200" Width="150" IsVisible="{Binding !IsPreviewGenerating, ElementName=saveFilePopup}">
+                        <Border Grid.Row="1" BorderThickness="1" Height="200" Width="150" IsVisible="{Binding !IsGeneratingPreview, ElementName=saveFilePopup}">
                             <Border RenderOptions.BitmapInterpolationMode="None">
                                 <visuals:SurfaceControl x:Name="surfaceControl"
                                                         Surface="{Binding ExportPreview, ElementName=saveFilePopup}"

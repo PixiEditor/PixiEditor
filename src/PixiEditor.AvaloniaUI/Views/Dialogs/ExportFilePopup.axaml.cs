@@ -49,6 +49,16 @@ internal partial class ExportFilePopup : PixiEditorPopup
         AvaloniaProperty.Register<ExportFilePopup, int>(
             nameof(SelectedExportIndex), 0);
 
+    public static readonly StyledProperty<bool> IsGeneratingPreviewProperty =
+        AvaloniaProperty.Register<ExportFilePopup, bool>(
+            nameof(IsGeneratingPreview), false);
+
+    public bool IsGeneratingPreview
+    {
+        get => GetValue(IsGeneratingPreviewProperty);
+        set => SetValue(IsGeneratingPreviewProperty, value);
+    }
+
     public int SelectedExportIndex
     {
         get => GetValue(SelectedExportIndexProperty);
@@ -106,27 +116,12 @@ internal partial class ExportFilePopup : PixiEditorPopup
 
     public bool IsVideoExport => SelectedExportIndex == 1;
     public string SizeHint => new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
-    public bool IsPreviewGenerating
-    {
-        get
-        {
-            return isPreviewGenerating;
-        }
-        private set
-        {
-            isPreviewGenerating = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPreviewGenerating)));
-        }
-    }
 
     private DocumentViewModel document;
     private Image[] videoPreviewFrames = [];
     private DispatcherTimer videoPreviewTimer = new DispatcherTimer();
     private int activeFrame = 0;
     private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-    private bool isPreviewGenerating = false;
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
 
     static ExportFilePopup()
     {
@@ -201,8 +196,8 @@ internal partial class ExportFilePopup : PixiEditorPopup
         {
             return;
         }
-        
-        IsPreviewGenerating = true;
+
+        IsGeneratingPreview = true;
 
         videoPreviewTimer.Stop();
         if (IsVideoExport)
@@ -218,7 +213,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
                 ExportPreview = rendered.AsT1.ResizeNearestNeighbor(previewSize);
                 rendered.AsT1.Dispose();
-                IsPreviewGenerating = false;
+                IsGeneratingPreview = false;
             }
         }
     }
@@ -267,9 +262,10 @@ internal partial class ExportFilePopup : PixiEditorPopup
                     ExportPreview?.Dispose();
                     ExportPreview = new Surface(previewSize);
                 }
+
+                IsGeneratingPreview = false;
             });
 
-            IsPreviewGenerating = false;
             videoPreviewTimer.Start();
         });
     }
