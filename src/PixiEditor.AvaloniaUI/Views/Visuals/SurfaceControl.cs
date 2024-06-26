@@ -21,8 +21,9 @@ internal class SurfaceControl : Control
     public static readonly StyledProperty<Stretch> StretchProperty = AvaloniaProperty.Register<SurfaceControl, Stretch>(
         nameof(Stretch), Stretch.Uniform);
 
-    public static readonly StyledProperty<IBrush> BackgroundProperty = AvaloniaProperty.Register<SurfaceControl, IBrush>(
-        nameof(Background));
+    public static readonly StyledProperty<IBrush> BackgroundProperty =
+        AvaloniaProperty.Register<SurfaceControl, IBrush>(
+            nameof(Background));
 
     public IBrush Background
     {
@@ -46,7 +47,6 @@ internal class SurfaceControl : Control
 
     static SurfaceControl()
     {
-        AffectsRender<SurfaceControl>(StretchProperty, SurfaceProperty);
         AffectsMeasure<SurfaceControl>(StretchProperty, SurfaceProperty);
         BoundsProperty.Changed.AddClassHandler<SurfaceControl>(BoundsChanged);
         SurfaceProperty.Changed.AddClassHandler<SurfaceControl>(Rerender);
@@ -93,14 +93,14 @@ internal class SurfaceControl : Control
 
     public override void Render(DrawingContext context)
     {
-        if (Surface == null)
+        if (Surface == null || Surface.IsDisposed)
         {
             return;
         }
-        
+
         if (Background != null)
         {
-            context.FillRectangle(Background, new Rect(0,0, Bounds.Width, Bounds.Height));
+            context.FillRectangle(Background, new Rect(0, 0, Bounds.Width, Bounds.Height));
         }
 
         var bounds = new Rect(Bounds.Size);
@@ -135,6 +135,7 @@ internal class SurfaceControl : Control
         {
             oldSurface.Changed -= sender.SurfaceChanged;
         }
+
         if (e.NewValue is Surface newSurface)
         {
             newSurface.Changed += sender.SurfaceChanged;
@@ -153,7 +154,8 @@ internal class DrawSurfaceOperation : SkiaDrawOperation
 
     private SKPaint _paint = new SKPaint();
 
-    public DrawSurfaceOperation(Rect dirtyBounds, Surface surface, Stretch stretch, double opacity = 1) : base(dirtyBounds)
+    public DrawSurfaceOperation(Rect dirtyBounds, Surface surface, Stretch stretch, double opacity = 1) :
+        base(dirtyBounds)
     {
         Surface = surface;
         Stretch = stretch;
@@ -163,7 +165,12 @@ internal class DrawSurfaceOperation : SkiaDrawOperation
     public override void Render(ISkiaSharpApiLease lease)
     {
         SKCanvas canvas = lease.SkCanvas;
-        if (Surface == null)
+        // TODO: When changing frames, for some reason disposed surface is trying to render
+        // I couldn't trace what is causing the rerender and why disposed surface is passed,
+        // preview updater is disposing the surface and creating a new one, but it should also
+        // update the control to use the new surface, debugging at SurfaceControl Render() never returns disposed surface.
+        // Probably some kind of race condition between dispose and render queue.
+        if (Surface == null || Surface.IsDisposed) 
         {
             return;
         }

@@ -17,6 +17,8 @@ public class Surface : IDisposable
     public DrawingSurface DrawingSurface { get; }
     public int BytesPerPixel { get; }
     public VecI Size { get; }
+    
+    public bool IsDisposed => disposed;
 
     public event SurfaceChangedEventHandler? Changed;
 

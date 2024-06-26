@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
@@ -105,12 +106,27 @@ internal partial class ExportFilePopup : PixiEditorPopup
 
     public bool IsVideoExport => SelectedExportIndex == 1;
     public string SizeHint => new LocalizedString("EXPORT_SIZE_HINT", GetBestPercentage());
+    public bool IsPreviewGenerating
+    {
+        get
+        {
+            return isPreviewGenerating;
+        }
+        private set
+        {
+            isPreviewGenerating = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(IsPreviewGenerating)));
+        }
+    }
 
     private DocumentViewModel document;
     private Image[] videoPreviewFrames = [];
     private DispatcherTimer videoPreviewTimer = new DispatcherTimer();
     private int activeFrame = 0;
     private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+    private bool isPreviewGenerating = false;
+    
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     static ExportFilePopup()
     {
@@ -185,6 +201,8 @@ internal partial class ExportFilePopup : PixiEditorPopup
         {
             return;
         }
+        
+        IsPreviewGenerating = true;
 
         videoPreviewTimer.Stop();
         if (IsVideoExport)
@@ -200,6 +218,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
                 ExportPreview = rendered.AsT1.ResizeNearestNeighbor(previewSize);
                 rendered.AsT1.Dispose();
+                IsPreviewGenerating = false;
             }
         }
     }
@@ -250,6 +269,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
                 }
             });
 
+            IsPreviewGenerating = false;
             videoPreviewTimer.Start();
         });
     }

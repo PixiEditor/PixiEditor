@@ -4,6 +4,7 @@
                          xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input"
                          xmlns:ui1="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions"
                          xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+                         xmlns:indicators="clr-namespace:PixiEditor.AvaloniaUI.Views.Indicators"
                          CanResize="False"
                          CanMinimize="False"
                          SizeToContent="WidthAndHeight"
@@ -65,7 +66,9 @@
                         </Grid.RowDefinitions>
                         
                         <TextBlock Text="Export Preview"/>
-                        <Border Grid.Row="1" BorderThickness="1" Height="200" Width="150">
+                        <indicators:LoadingIndicator Grid.Row="1" IsVisible="{Binding IsPreviewGenerating, ElementName=saveFilePopup}"
+                                          Margin="0, 10, 0, 0"/>
+                        <Border Grid.Row="1" BorderThickness="1" Height="200" Width="150" IsVisible="{Binding !IsPreviewGenerating, ElementName=saveFilePopup}">
                             <Border RenderOptions.BitmapInterpolationMode="None">
                                 <visuals:SurfaceControl x:Name="surfaceControl"
                                                         Surface="{Binding ExportPreview, ElementName=saveFilePopup}"
