@@ -210,6 +210,7 @@ public class Surface : IDisposable
         disposed = true;
         drawingPaint.Dispose();
         nearestNeighborReplacingPaint.Dispose();
+        DrawingSurface.Dispose();
         Marshal.FreeHGlobal(PixelBuffer);
         GC.SuppressFinalize(this);
     }

@@ -355,7 +355,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         lastChangeOnSave = Guid.NewGuid();
         OnPropertyChanged(nameof(AllChangesSaved));
     }
-    
+
 
     /// <summary>
     /// Tries rendering the whole document
@@ -692,7 +692,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public Image[] RenderFrames(Func<Surface, Surface> processFrameAction = null)
     {
         if (AnimationDataViewModel.KeyFrames.Count == 0)
-            return[];
+            return [];
 
         var keyFrames = AnimationDataViewModel.KeyFrames;
         var firstFrame = keyFrames.Min(x => x.StartFrameBindable);
@@ -703,22 +703,29 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Image[] images = new Image[lastFrame - firstFrame];
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            Internals.Tracker.ProcessActionsSync(new List<IAction> { new ActiveFrame_Action(i), new EndActiveFrame_Action() });
+            Internals.Tracker.ProcessActionsSync(new List<IAction>
+            {
+                new ActiveFrame_Action(i), new EndActiveFrame_Action()
+            });
             var surface = TryRenderWholeImage();
             if (surface.IsT0)
             {
                 continue;
             }
-            
+
             if (processFrameAction is not null)
             {
                 surface = processFrameAction(surface.AsT1);
             }
-            
+
             images[i] = surface.AsT1.DrawingSurface.Snapshot();
+            surface.AsT1.Dispose();
         }
 
-        Internals.Tracker.ProcessActionsSync(new List<IAction> { new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action() });
+        Internals.Tracker.ProcessActionsSync(new List<IAction>
+        {
+            new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action()
+        });
         return images;
     }
 
@@ -741,26 +748,33 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var lastFrame = keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
 
         int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
-        
+
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            Internals.Tracker.ProcessActionsSync(new List<IAction> { new ActiveFrame_Action(i), new EndActiveFrame_Action() });
+            Internals.Tracker.ProcessActionsSync(new List<IAction>
+            {
+                new ActiveFrame_Action(i), new EndActiveFrame_Action()
+            });
             var surface = TryRenderWholeImage();
             if (surface.IsT0)
             {
                 return false;
             }
-            
+
             if (processFrameAction is not null)
             {
                 surface = processFrameAction(surface.AsT1);
             }
+
             using var stream = new FileStream(Path.Combine(tempRenderingPath, $"{i}.png"), FileMode.Create);
             surface.AsT1.DrawingSurface.Snapshot().Encode().SaveTo(stream);
             stream.Position = 0;
         }
-        
-        Internals.Tracker.ProcessActionsSync(new List<IAction> { new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action() });
+
+        Internals.Tracker.ProcessActionsSync(new List<IAction>
+        {
+            new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action()
+        });
         return true;
     }
 

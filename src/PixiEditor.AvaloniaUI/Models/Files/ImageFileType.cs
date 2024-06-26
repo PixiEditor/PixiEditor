@@ -15,7 +15,7 @@ internal abstract class ImageFileType : IoFileType
     
     public override FileTypeDialogDataSet.SetKind SetKind { get; } = FileTypeDialogDataSet.SetKind.Image;
 
-    public override SaveResult TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig exportConfig)
+    public override async Task<SaveResult> TrySave(string pathWithExtension, DocumentViewModel document, ExportConfig exportConfig)
     {
         var maybeBitmap = document.TryRenderWholeImage();
         if (maybeBitmap.IsT0)
@@ -30,13 +30,13 @@ internal abstract class ImageFileType : IoFileType
         }
 
         UniversalFileEncoder encoder = new(mappedFormat);
-        return TrySaveAs(encoder, pathWithExtension, bitmap, exportConfig);
+        return await TrySaveAs(encoder, pathWithExtension, bitmap, exportConfig);
     }
     
     /// <summary>
     /// Saves image to PNG file. Messes with the passed bitmap.
     /// </summary>
-    private static SaveResult TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap, ExportConfig config)
+    private static async Task<SaveResult> TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap, ExportConfig config)
     {
         try
         {
@@ -47,8 +47,8 @@ internal abstract class ImageFileType : IoFileType
             if (!encoder.SupportsTransparency)
                 bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, DrawingApi.Core.Surface.BlendMode.Multiply);
 
-            using var stream = new FileStream(savePath, FileMode.Create);
-            encoder.SaveAsync(stream, bitmap);
+            await using var stream = new FileStream(savePath, FileMode.Create);
+            await encoder.SaveAsync(stream, bitmap);
         }
         catch (SecurityException)
         {

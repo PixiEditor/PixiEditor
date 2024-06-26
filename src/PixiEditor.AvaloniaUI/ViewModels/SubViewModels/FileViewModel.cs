@@ -342,7 +342,7 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
         }
         else
         {
-            var result = Exporter.TrySave(document, document.FullFilePath, ExportConfig.Empty);
+            var result = await Exporter.TrySaveAsync(document, document.FullFilePath, ExportConfig.Empty);
             if (result != SaveResult.Success)
             {
                 ShowSaveError((DialogSaveResult)result);
@@ -378,12 +378,11 @@ internal class FileViewModel : SubViewModel<ViewModelMain>
             };
             if (await info.ShowDialog())
             {
-                SaveResult result = Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat,
-                    out string finalPath, info.ExportConfig);
-                if (result == SaveResult.Success)
-                    IOperatingSystem.Current.OpenFolder(finalPath);
+                var result = await Exporter.TrySaveUsingDataFromDialog(doc, info.FilePath, info.ChosenFormat, info.ExportConfig);
+                if (result.result == SaveResult.Success)
+                    IOperatingSystem.Current.OpenFolder(result.finalPath);
                 else
-                    ShowSaveError((DialogSaveResult)result);
+                    ShowSaveError((DialogSaveResult)result.result);
             }
         }
         catch (RecoverableException e)

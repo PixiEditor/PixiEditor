@@ -109,6 +109,7 @@ internal static class ServiceCollectionHelpers
             .AddSingleton<IoFileType, JpegFileType>()
             .AddSingleton<IoFileType, BmpFileType>()
             .AddSingleton<IoFileType, GifFileType>()
+            .AddSingleton<IoFileType, Mp4FileType>()
             // Palette Parsers
             .AddSingleton<IPalettesProvider, PaletteProvider>()
             .AddSingleton<PaletteFileParser, JascFileParser>()

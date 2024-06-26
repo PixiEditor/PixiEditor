@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using ChunkyImageLib;
@@ -8,9 +9,9 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Files;
 using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.Numerics;
+using Image = PixiEditor.DrawingApi.Core.Surface.ImageData.Image;
 
 namespace PixiEditor.AvaloniaUI.Views.Dialogs;
 
@@ -109,6 +110,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
     private Image[] videoPreviewFrames = [];
     private DispatcherTimer videoPreviewTimer = new DispatcherTimer();
     private int activeFrame = 0;
+    private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
     static ExportFilePopup()
     {
@@ -132,8 +134,49 @@ internal partial class ExportFilePopup : PixiEditorPopup
         SetBestPercentageCommand = new RelayCommand(SetBestPercentage);
         ExportCommand = new AsyncRelayCommand(Export);
         this.document = document;
+        videoPreviewTimer = new DispatcherTimer(DispatcherPriority.Normal)
+        {
+            Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRate)
+        };
+        videoPreviewTimer.Tick += OnVideoPreviewTimerOnTick;
 
         RenderPreview();
+    }
+
+    protected override void OnClosing(WindowClosingEventArgs e)
+    {
+        base.OnClosing(e);
+        videoPreviewTimer.Stop();
+        videoPreviewTimer.Tick -= OnVideoPreviewTimerOnTick;
+        videoPreviewTimer = null;
+        cancellationTokenSource.Dispose();
+
+        if (ExportPreview != null)
+        {
+            ExportPreview.Dispose();
+        }
+
+        if (videoPreviewFrames != null)
+        {
+            foreach (var frame in videoPreviewFrames)
+            {
+                frame.Dispose();
+            }
+        }
+    }
+
+    private void OnVideoPreviewTimerOnTick(object? o, EventArgs eventArgs)
+    {
+        if (videoPreviewFrames.Length > 0)
+        {
+            ExportPreview.DrawingSurface.Canvas.Clear();
+            ExportPreview.DrawingSurface.Canvas.DrawImage(videoPreviewFrames[activeFrame], 0, 0);
+            activeFrame = (activeFrame + 1) % videoPreviewFrames.Length;
+        }
+        else
+        {
+            videoPreviewTimer.Stop();
+        }
     }
 
     private void RenderPreview()
@@ -146,41 +189,88 @@ internal partial class ExportFilePopup : PixiEditorPopup
         videoPreviewTimer.Stop();
         if (IsVideoExport)
         {
-            videoPreviewFrames = document.RenderFrames(surface =>
-            {
-                if (SaveWidth != surface.Size.X || SaveHeight != surface.Size.Y)
-                {
-                    return surface.ResizeNearestNeighbor(new VecI(SaveWidth, SaveHeight));
-                }
-
-                return surface;
-            });
-            videoPreviewTimer = new DispatcherTimer(DispatcherPriority.Normal)
-            {
-                Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRate)
-            };
-            videoPreviewTimer.Tick += (_, _) =>
-            {
-                if (videoPreviewFrames.Length > 0)
-                {
-                    ExportPreview.DrawingSurface.Canvas.Clear();
-                    ExportPreview.DrawingSurface.Canvas.DrawImage(videoPreviewFrames[activeFrame], 0, 0);
-                    activeFrame = (activeFrame + 1) % videoPreviewFrames.Length;
-                }
-                else
-                {
-                    videoPreviewTimer.Stop();
-                }
-            };
-            
-            videoPreviewTimer.Start();
+            StartRenderAnimationJob();
+            videoPreviewTimer.Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRate);
         }
-
-        var rendered = document.TryRenderWholeImage();
-        if (rendered.IsT1)
+        else
         {
-            ExportPreview = rendered.AsT1.ResizeNearestNeighbor(new VecI(SaveWidth, SaveHeight));
+            var rendered = document.TryRenderWholeImage();
+            if (rendered.IsT1)
+            {
+                VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
+                ExportPreview = rendered.AsT1.ResizeNearestNeighbor(previewSize);
+                rendered.AsT1.Dispose();
+            }
         }
+    }
+
+    private void StartRenderAnimationJob()
+    {
+        if (cancellationTokenSource.Token != null && cancellationTokenSource.Token.CanBeCanceled)
+        {
+            cancellationTokenSource.Cancel();
+        }
+
+        cancellationTokenSource = new CancellationTokenSource();
+
+        Task.Run(
+            () =>
+            {
+                videoPreviewFrames = document.RenderFrames(surface =>
+                {
+                    return Dispatcher.UIThread.Invoke(() =>
+                    {
+                        Surface original = surface;
+                        if (SaveWidth != surface.Size.X || SaveHeight != surface.Size.Y)
+                        {
+                            original = surface.ResizeNearestNeighbor(new VecI(SaveWidth, SaveHeight));
+                            surface.Dispose();
+                        }
+
+                        VecI previewSize = CalculatePreviewSize(original.Size);
+                        if (previewSize != original.Size)
+                        {
+                            var resized = original.ResizeNearestNeighbor(previewSize);
+                            original.Dispose();
+                            return resized;
+                        }
+
+                        return original;
+                    });
+                });
+            }, cancellationTokenSource.Token).ContinueWith(_ =>
+        {
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                VecI previewSize = CalculatePreviewSize(new VecI(SaveWidth, SaveHeight));
+                if (previewSize != ExportPreview.Size)
+                {
+                    ExportPreview?.Dispose();
+                    ExportPreview = new Surface(previewSize);
+                }
+            });
+
+            videoPreviewTimer.Start();
+        });
+    }
+
+    private VecI CalculatePreviewSize(VecI imageSize)
+    {
+        VecI maxPreviewSize = new VecI(150, 200);
+        if (imageSize.X > maxPreviewSize.X || imageSize.Y > maxPreviewSize.Y)
+        {
+            float scaleX = maxPreviewSize.X / (float)imageSize.X;
+            float scaleY = maxPreviewSize.Y / (float)imageSize.Y;
+
+            float scale = Math.Min(scaleX, scaleY);
+
+            int newWidth = (int)(imageSize.X * scale);
+            int newHeight = (int)(imageSize.Y * scale);
+
+            return new VecI(newWidth, newHeight);
+        }
+
+        return imageSize;
     }
 
     private async Task Export()
