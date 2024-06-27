@@ -45,8 +45,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
     }
 
-    public int FirstFrame => keyFrames.Min(x => x.StartFrameBindable);
-    public int LastFrame => keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
+    public int FirstFrame => keyFrames.Count > 0 ? keyFrames.Min(x => x.StartFrameBindable) : 0;
+    public int LastFrame => keyFrames.Count > 0 ? keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable) : 0;
     public int FramesCount => LastFrame - FirstFrame; 
 
     public AnimationDataViewModel(DocumentViewModel document, DocumentInternalParts internals)

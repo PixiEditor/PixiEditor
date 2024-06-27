@@ -13,9 +13,9 @@ internal abstract class VideoFileType : IoFileType
         
         document.RenderFrames(Paths.TempRenderingPath, surface =>
         {
-            if (config.ExportSize is not null && config.ExportSize != surface.Size)
+            if (config.ExportSize != surface.Size)
             {
-                return surface.ResizeNearestNeighbor(config.ExportSize ?? surface.Size);
+                return surface.ResizeNearestNeighbor(config.ExportSize);
             }
 
             return surface;

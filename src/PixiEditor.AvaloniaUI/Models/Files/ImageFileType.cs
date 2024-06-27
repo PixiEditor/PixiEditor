@@ -7,6 +7,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.Models.Files;
@@ -24,7 +25,7 @@ internal abstract class ImageFileType : IoFileType
         if (exportConfig.ExportAsSpriteSheet)
         {
             finalSurface = GenerateSpriteSheet(document, exportConfig);
-            if(finalSurface == null)
+            if (finalSurface == null)
                 return SaveResult.UnknownError;
         }
         else
@@ -32,7 +33,13 @@ internal abstract class ImageFileType : IoFileType
             var maybeBitmap = document.TryRenderWholeImage();
             if (maybeBitmap.IsT0)
                 return SaveResult.ConcurrencyError;
+            
             finalSurface = maybeBitmap.AsT1;
+            if (maybeBitmap.AsT1.Size != exportConfig.ExportSize)
+            {
+                finalSurface = finalSurface.ResizeNearestNeighbor(exportConfig.ExportSize);
+                maybeBitmap.AsT1.Dispose();
+            }
         }
 
         EncodedImageFormat mappedFormat = EncodedImageFormat;
@@ -43,9 +50,9 @@ internal abstract class ImageFileType : IoFileType
         }
 
         UniversalFileEncoder encoder = new(mappedFormat);
-        var result = await TrySaveAs(encoder, pathWithExtension, finalSurface, exportConfig);
+        var result = await TrySaveAs(encoder, pathWithExtension, finalSurface);
         finalSurface.Dispose();
-        
+
         return result;
     }
 
@@ -54,38 +61,38 @@ internal abstract class ImageFileType : IoFileType
         if (document is null)
             return null;
 
-        int framesCount = document.AnimationDataViewModel.FramesCount;
+        var (rows, columns) = (config.SpriteSheetRows, config.SpriteSheetColumns);
+        
+        rows = Math.Max(1, rows);
+        columns = Math.Max(1, columns);
 
-        int rows, columns;
-        if(config.SpriteSheetRows == 0 || config.SpriteSheetColumns == 0)
-            (rows, columns) = SpriteSheetUtility.CalculateGridDimensionsAuto(framesCount);
-        else
-            (rows, columns) = (config.SpriteSheetRows, config.SpriteSheetColumns);
-
-        Surface surface = new Surface(new VecI(document.Width * columns, document.Height * rows));
+        Surface surface = new Surface(new VecI(config.ExportSize.X * columns, config.ExportSize.Y * rows));
 
         document.RenderFramesProgressive((frame, index) =>
         {
             int x = index % columns;
             int y = index / columns;
-            surface!.DrawingSurface.Canvas.DrawSurface(frame.DrawingSurface, x * document.Width, y * document.Height);
+            Surface target = frame;
+            if (config.ExportSize != frame.Size)
+            {
+               target =
+                    frame.ResizeNearestNeighbor(new VecI(config.ExportSize.X, config.ExportSize.Y));
+            }
+            
+            surface!.DrawingSurface.Canvas.DrawSurface(target.DrawingSurface, x * config.ExportSize.X, y * config.ExportSize.Y);
+            target.Dispose();
         });
-        
+
         return surface;
     }
 
     /// <summary>
     /// Saves image to PNG file. Messes with the passed bitmap.
     /// </summary>
-    private static async Task<SaveResult> TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap,
-        ExportConfig config)
+    private static async Task<SaveResult> TrySaveAs(IFileEncoder encoder, string savePath, Surface bitmap)
     {
         try
         {
-            VecI? exportSize = config.ExportSize;
-            if (exportSize is not null && exportSize != bitmap.Size)
-                bitmap = bitmap.ResizeNearestNeighbor((VecI)exportSize);
-
             if (!encoder.SupportsTransparency)
                 bitmap.DrawingSurface.Canvas.DrawColor(Colors.White, DrawingApi.Core.Surface.BlendMode.Multiply);
 

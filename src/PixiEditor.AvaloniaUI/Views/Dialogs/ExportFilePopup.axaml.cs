@@ -53,6 +53,26 @@ internal partial class ExportFilePopup : PixiEditorPopup
         AvaloniaProperty.Register<ExportFilePopup, bool>(
             nameof(IsGeneratingPreview), false);
 
+    public static readonly StyledProperty<int> SpriteSheetColumnsProperty =
+        AvaloniaProperty.Register<ExportFilePopup, int>(
+            nameof(SpriteSheetColumns), 1);
+
+    public static readonly StyledProperty<int> SpriteSheetRowsProperty =
+        AvaloniaProperty.Register<ExportFilePopup, int>(
+            nameof(SpriteSheetRows), 1);
+
+    public int SpriteSheetRows
+    {
+        get => GetValue(SpriteSheetRowsProperty);
+        set => SetValue(SpriteSheetRowsProperty, value);
+    }
+
+    public int SpriteSheetColumns
+    {
+        get => GetValue(SpriteSheetColumnsProperty);
+        set => SetValue(SpriteSheetColumnsProperty, value);
+    }
+
     public bool IsGeneratingPreview
     {
         get => GetValue(IsGeneratingPreviewProperty);
@@ -130,6 +150,8 @@ internal partial class ExportFilePopup : PixiEditorPopup
     {
         SaveWidthProperty.Changed.Subscribe(RerenderPreview);
         SaveHeightProperty.Changed.Subscribe(RerenderPreview);
+        SpriteSheetColumnsProperty.Changed.Subscribe(RerenderPreview);
+        SpriteSheetRowsProperty.Changed.Subscribe(RerenderPreview);
         SelectedExportIndexProperty.Changed.Subscribe(RerenderPreview);
     }
 
@@ -153,6 +175,12 @@ internal partial class ExportFilePopup : PixiEditorPopup
             Interval = TimeSpan.FromMilliseconds(1000f / document.AnimationDataViewModel.FrameRate)
         };
         videoPreviewTimer.Tick += OnVideoPreviewTimerOnTick;
+
+        int framesCount = document.AnimationDataViewModel.FramesCount;
+
+        var (rows, columns) = SpriteSheetUtility.CalculateGridDimensionsAuto(framesCount);
+        SpriteSheetColumns = columns;
+        SpriteSheetRows = rows;
 
         RenderPreview();
     }
@@ -218,16 +246,42 @@ internal partial class ExportFilePopup : PixiEditorPopup
     {
         if (IsSpriteSheetExport)
         {
-            //GenerateSpriteSheetPreview();
+            GenerateSpriteSheetPreview();
+        }
+        else
+        {
+            var rendered = document.TryRenderWholeImage();
+            if (rendered.IsT1)
+            {
+                VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
+                ExportPreview = rendered.AsT1.ResizeNearestNeighbor(previewSize);
+                rendered.AsT1.Dispose();
+            }
         }
 
-        var rendered = document.TryRenderWholeImage();
-        if (rendered.IsT1)
+        IsGeneratingPreview = false;
+    }
+
+    private void GenerateSpriteSheetPreview()
+    {
+        int clampedColumns = Math.Max(SpriteSheetColumns, 1);
+        int clampedRows = Math.Max(SpriteSheetRows, 1);
+        
+        VecI previewSize = CalculatePreviewSize(new VecI(SaveWidth * clampedColumns, SaveHeight * clampedRows));
+        VecI singleFrameSize = new VecI(previewSize.X / Math.Max(clampedColumns, 1), previewSize.Y / Math.Max(clampedRows, 1));
+        if (previewSize != ExportPreview.Size)
         {
-            VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);
-            ExportPreview = rendered.AsT1.ResizeNearestNeighbor(previewSize);
-            rendered.AsT1.Dispose();
-            IsGeneratingPreview = false;
+            ExportPreview?.Dispose();
+            ExportPreview = new Surface(previewSize);
+
+            document.RenderFramesProgressive((frame, index) =>
+            {
+                int x = index % clampedColumns;
+                int y = index / clampedColumns;
+                var resized = frame.ResizeNearestNeighbor(new VecI(singleFrameSize.X, singleFrameSize.Y));
+                ExportPreview!.DrawingSurface.Canvas.DrawSurface(resized.DrawingSurface, x * singleFrameSize.X, y * singleFrameSize.Y);
+                resized.Dispose();
+            });
         }
     }
 

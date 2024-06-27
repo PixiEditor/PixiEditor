@@ -27,8 +27,8 @@
                     </TabItem>
                     <TabItem ui1:Translator.Key="EXPORT_SPRITESHEET_HEADER">
                         <StackPanel>
-                            <input:NumberInput Min="0" />
-                            <input:NumberInput Min="0" />
+                            <input:NumberInput Min="0" Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetRows, Mode=TwoWay}"/>
+                            <input:NumberInput Min="0" Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetColumns, Mode=TwoWay}"/>
                         </StackPanel>
                     </TabItem>
                 </TabControl.Items>

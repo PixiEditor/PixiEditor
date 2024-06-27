@@ -26,6 +26,6 @@ public static class SpriteSheetUtility
             }
         }
 
-        return (optimalRows, optimalColumns);
+        return (Math.Max(optimalRows, 1), Math.Max(optimalColumns, 1));
     }
 }

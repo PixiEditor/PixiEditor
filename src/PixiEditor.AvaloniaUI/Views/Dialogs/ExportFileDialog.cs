@@ -110,10 +110,12 @@ internal class ExportFileDialog : CustomDialog
             {
                 Size = new VecI(FileWidth, FileHeight),
                 OutputFormat = ChosenFormat.PrimaryExtension.Replace(".", ""),
-                FrameRate = 60
+                FrameRate = document.AnimationDataViewModel.FrameRate
             }
             : null;
             ExportConfig.ExportAsSpriteSheet = popup.IsSpriteSheetExport;
+            ExportConfig.SpriteSheetColumns = popup.SpriteSheetColumns;
+            ExportConfig.SpriteSheetRows = popup.SpriteSheetRows;
         }
 
         return result;

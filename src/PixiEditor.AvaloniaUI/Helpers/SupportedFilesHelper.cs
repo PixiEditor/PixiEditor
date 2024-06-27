@@ -64,7 +64,7 @@ internal class SupportedFilesHelper
 
     public static List<IoFileType> GetAllSupportedFileTypes(FileTypeDialogDataSet.SetKind setKind)
     {
-        var allExts = FileTypes.Where(x => x.SetKind.HasFlag(setKind)).ToList();
+        var allExts = FileTypes.Where(x => setKind.HasFlag(x.SetKind)).ToList();
         return allExts;
     }
 
