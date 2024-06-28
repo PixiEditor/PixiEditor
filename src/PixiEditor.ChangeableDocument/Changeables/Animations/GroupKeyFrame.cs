@@ -1,6 +1,9 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System.Collections.Immutable;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-internal class GroupKeyFrame : KeyFrame
+namespace PixiEditor.ChangeableDocument.Changeables.Animations;
+
+internal class GroupKeyFrame : KeyFrame, IKeyFrameChildrenContainer
 {
     private ChunkyImage originalLayerImage;
     private Document document;
@@ -8,6 +11,8 @@ internal class GroupKeyFrame : KeyFrame
     public List<KeyFrame> Children { get; } = new List<KeyFrame>();
     public override int Duration => Children.Count > 0 ? Children.Max(x => x.StartFrame + x.Duration) - StartFrame : 0;
     public override int StartFrame => Children.Count > 0 ? Children.Min(x => x.StartFrame) : 0;
+
+    IReadOnlyList<IReadOnlyKeyFrame> IKeyFrameChildrenContainer.Children => Children;
 
     public GroupKeyFrame(Guid layerGuid, int startFrame, Document document) : base(layerGuid, startFrame)
     {

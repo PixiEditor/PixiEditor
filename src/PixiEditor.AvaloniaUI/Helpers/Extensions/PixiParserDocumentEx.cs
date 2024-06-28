@@ -28,7 +28,8 @@ internal static class PixiParserDocumentEx
                     .WithIsVisible(r.Enabled)
                     .WithShape(r.Corners)
                     .WithIsTopmost(r.Topmost)
-                    .WithSurface(Surface.Load(r.ImageBytes)));
+                    .WithSurface(Surface.Load(r.ImageBytes)))
+                .WithAnimationData(document.AnimationData, document.RootFolder);
 
             BuildChildren(b, document.RootFolder.Children);
         });
@@ -65,6 +66,7 @@ internal static class PixiParserDocumentEx
         {
             builder
                 .WithName(layer.Name)
+                .WithGuid(layer.Guid)
                 .WithVisibility(layer.Enabled)
                 .WithOpacity(layer.Opacity)
                 .WithBlendMode((PixiEditor.ChangeableDocument.Enums.BlendMode)(int)layer.BlendMode)
@@ -75,11 +77,12 @@ internal static class PixiParserDocumentEx
                     (x, m) => x.WithVisibility(m.Enabled).WithSurface(m.Width, m.Height,
                         x => x.WithImage(m.ImageBytes, m.OffsetX, m.OffsetY)));
 
-            if (layer.Width > 0 && layer.Height > 0)
+            if (layer is { Width: > 0, Height: > 0 })
             {
                 builder.WithSurface(x => x.WithImage(layer.ImageBytes, 0, 0));
             }
         }
+        
     }
     
     public static SKBitmap RenderOldDocument(this SerializableDocument document)

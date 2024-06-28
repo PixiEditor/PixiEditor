@@ -18,18 +18,37 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Stretch" Orientation="Vertical"
                     Margin="0,15,0,0">
             <TabControl SelectedIndex="{Binding SelectedExportIndex, ElementName=saveFilePopup}">
+                <TabControl.Styles>
+                    <Style Selector="TabControl">
+                        <Setter Property="HorizontalAlignment" Value="Center" />
+                    </Style>
+                    <Style Selector="TabItem:selected">
+                        <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+                    </Style>
+                </TabControl.Styles>
                 <TabControl.Items>
                     <TabItem IsSelected="True" ui1:Translator.Key="EXPORT_IMAGE_HEADER">
-
                     </TabItem>
                     <TabItem ui1:Translator.Key="EXPORT_ANIMATION_HEADER">
 
                     </TabItem>
                     <TabItem ui1:Translator.Key="EXPORT_SPRITESHEET_HEADER">
-                        <StackPanel>
-                            <input:NumberInput Min="0" Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetRows, Mode=TwoWay}"/>
-                            <input:NumberInput Min="0" Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetColumns, Mode=TwoWay}"/>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="50" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock ui1:Translator.Key="ROWS" Grid.Row="0" Grid.Column="0"/>
+                            <input:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="0"
+                                               Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetRows, Mode=TwoWay}" />
+                            <TextBlock ui1:Translator.Key="COLUMNS" Grid.Row="1" Grid.Column="0"/>
+                            <input:NumberInput Min="0" Width="50" Grid.Column="1" Grid.Row="1"
+                                               Value="{Binding ElementName=saveFilePopup, Path=SpriteSheetColumns, Mode=TwoWay}" />
+                        </Grid>
                     </TabItem>
                 </TabControl.Items>
             </TabControl>

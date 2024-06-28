@@ -1,9 +1,13 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-internal class RasterKeyFrame : KeyFrame
+namespace PixiEditor.ChangeableDocument.Changeables.Animations;
+
+internal class RasterKeyFrame : KeyFrame, IReadOnlyRasterKeyFrame
 {
     public ChunkyImage Image { get; set; }
     public Document Document { get; set; }
+    
+    IReadOnlyChunkyImage IReadOnlyRasterKeyFrame.Image => Image;
     
     public RasterKeyFrame(Guid targetLayerGuid, int startFrame, Document document, ChunkyImage? cloneFrom = null)
         : base(targetLayerGuid, startFrame)

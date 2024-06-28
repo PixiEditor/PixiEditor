@@ -186,6 +186,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
     {
         localizationProvider = ViewModelMain.Current.LocalizationProvider;
         localizationProvider.OnLanguageChanged += LocalizationProviderOnOnLanguageChanged;
+        SortedResults = new ObservableRangeCollection<Palette>();
         MinWidth = DetermineWidth();
         
         PaletteProvider = vm.PaletteProvider;
@@ -244,7 +245,7 @@ internal partial class PalettesBrowser : PixiEditorPopup, IPopupWindow
 
     private bool CanDeletePalette(Palette palette)
     {
-        return palette != null && palette.Source.GetType() == typeof(LocalPalettesFetcher);
+        return palette != null && palette.Source != null && palette.Source.GetType() == typeof(LocalPalettesFetcher);
     }
 
     private void OnFavouritePalettesChanged(Setting<IEnumerable<string>> setting, IEnumerable<string> value)

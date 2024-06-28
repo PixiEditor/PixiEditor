@@ -5,6 +5,7 @@ using System.Linq;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.IO.FileEncoders;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Bridge;
@@ -16,6 +17,7 @@ using PixiEditor.Numerics;
 using PixiEditor.Parser;
 using PixiEditor.Parser.Collections;
 using BlendMode = PixiEditor.Parser.BlendMode;
+using IKeyFrameChildrenContainer = PixiEditor.ChangeableDocument.Changeables.Interfaces.IKeyFrameChildrenContainer;
 using PixiDocument = PixiEditor.Parser.Document;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -35,7 +37,8 @@ internal partial class DocumentViewModel
             Width = Width, Height = Height,
             Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
             RootFolder = root, PreviewImage = (TryRenderWholeImage().Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
-            ReferenceLayer = GetReferenceLayer(doc)
+            ReferenceLayer = GetReferenceLayer(doc),
+            AnimationData = ToAnimationData(doc.AnimationData)
         };
 
         return document;
@@ -160,4 +163,65 @@ internal partial class DocumentViewModel
 
     private ColorCollection ToCollection(IList<PaletteColor> collection) =>
         new(collection.Select(x => Color.FromArgb(255, x.R, x.G, x.B)));
+
+    private AnimationData ToAnimationData(IReadOnlyAnimationData animationData)
+    {
+        var animData = new AnimationData();
+        animData.KeyFrameGroups = new List<KeyFrameGroup>();
+        BuildKeyFrames(animationData.KeyFrames, animData);
+        
+        return animData;
+    }
+
+    private static void BuildKeyFrames(IReadOnlyList<IReadOnlyKeyFrame> root, AnimationData animationData)
+    {
+        foreach (var keyFrame in root)
+        {
+            if(keyFrame is IKeyFrameChildrenContainer container)
+            {
+                KeyFrameGroup group = new();
+                group.LayerGuid = keyFrame.LayerGuid;
+                group.Enabled = keyFrame.IsVisible;
+                
+                foreach (var child in container.Children)
+                {
+                    if (child is IKeyFrameChildrenContainer groupKeyFrame)
+                    {
+                        BuildKeyFrames(groupKeyFrame.Children, null);
+                    }
+                    else if (child is IReadOnlyRasterKeyFrame rasterKeyFrame)
+                    {
+                        BuildRasterKeyFrame(rasterKeyFrame, group);
+                    }
+                }
+                
+                animationData?.KeyFrameGroups.Add(group);
+            }
+        }
+    }
+
+    private static void BuildRasterKeyFrame(IReadOnlyRasterKeyFrame rasterKeyFrame, KeyFrameGroup group)
+    {
+        var bounds = rasterKeyFrame.Image.FindChunkAlignedMostUpToDateBounds();
+
+        DrawingSurface surface = null;
+                        
+        if (bounds != null)
+        {
+            surface = DrawingBackendApi.Current.SurfaceImplementation.Create(
+                new ImageInfo(bounds.Value.Width, bounds.Value.Height));
+
+            rasterKeyFrame.Image.DrawMostUpToDateRegionOn(
+                new RectI(0, 0, bounds.Value.Width, bounds.Value.Height), ChunkResolution.Full, surface,
+                new VecI(0, 0));
+        }
+
+        group.Children.Add(new RasterKeyFrame()
+        {
+            LayerGuid = rasterKeyFrame.LayerGuid,
+            StartFrame = rasterKeyFrame.StartFrame,
+            Duration = rasterKeyFrame.Duration,
+            ImageBytes = surface?.Snapshot().Encode().AsSpan().ToArray(),
+        });
+    }
 }

@@ -263,6 +263,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
         AddMembers(viewModel.StructureRoot.GuidValue, builderInstance.Children);
+        AddAnimationData(builderInstance.AnimationData);
 
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());
         viewModel.MarkAsSaved();
@@ -340,6 +341,32 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 }
 
                 AddMember(parentGuid, child);
+            }
+        }
+
+        void AddAnimationData(List<KeyFrameBuilder> data)
+        {
+            foreach (var keyFrame in data)
+            {
+                if (keyFrame is RasterKeyFrameBuilder rasterKeyFrameBuilder)
+                {
+                    acc.AddActions(
+                        new CreateRasterKeyFrame_Action(
+                            rasterKeyFrameBuilder.LayerGuid,
+                            rasterKeyFrameBuilder.StartFrame,
+                            false),
+                        new ActiveFrame_Action(rasterKeyFrameBuilder.StartFrame),
+                        new EndActiveFrame_Action());
+                    
+                    PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface, rasterKeyFrameBuilder.Surface.Surface.Size.X,
+                        rasterKeyFrameBuilder.Surface.Surface.Size.Y, 0, 0, false);
+                    
+                    acc.AddFinishedActions();
+                }
+                else if(keyFrame is GroupKeyFrameBuilder groupKeyFrameBuilder)
+                {
+                    AddAnimationData(groupKeyFrameBuilder.Children);
+                }
             }
         }
     }

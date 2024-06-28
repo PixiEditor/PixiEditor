@@ -203,6 +203,14 @@ internal class LocalPalettesFetcher : PaletteListDataSource
         Palette updated = null;
         string affectedFileName = null;
 
+        if (cachedPalettes == null)
+        {
+            await RefreshCacheAll();
+            return;
+        }
+        
+        
+
         switch (refreshType)
         {
             case RefreshType.All:
