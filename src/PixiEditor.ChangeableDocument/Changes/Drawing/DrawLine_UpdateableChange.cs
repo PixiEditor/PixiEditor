@@ -15,10 +15,11 @@ internal class DrawLine_UpdateableChange : UpdateableChange
     private StrokeCap caps;
     private readonly bool drawOnMask;
     private CommittedChunkStorage? savedChunks;
+    private int frame;
 
     [GenerateUpdateableChangeActions]
     public DrawLine_UpdateableChange
-        (Guid memberGuid, VecI from, VecI to, int strokeWidth, Color color, StrokeCap caps, bool drawOnMask)
+        (Guid memberGuid, VecI from, VecI to, int strokeWidth, Color color, StrokeCap caps, bool drawOnMask, int frame)
     {
         this.memberGuid = memberGuid;
         this.from = from;
@@ -27,6 +28,7 @@ internal class DrawLine_UpdateableChange : UpdateableChange
         this.color = color;
         this.caps = caps;
         this.drawOnMask = drawOnMask;
+        this.frame = frame;
     }
 
     [UpdateChangeMethod]
@@ -46,7 +48,7 @@ internal class DrawLine_UpdateableChange : UpdateableChange
 
     private AffectedArea CommonApply(Document target)
     {
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         var oldAffected = image.FindAffectedArea();
         image.CancelChanges();
         if (from != to)
@@ -75,7 +77,7 @@ internal class DrawLine_UpdateableChange : UpdateableChange
             return new None();
         }
 
-        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         var affected = CommonApply(target);
         if (savedChunks is not null)
             throw new InvalidOperationException("Trying to save chunks while there are saved chunks already");
@@ -89,7 +91,7 @@ internal class DrawLine_UpdateableChange : UpdateableChange
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull
-            (target, memberGuid, drawOnMask, ref savedChunks);
+            (target, memberGuid, drawOnMask, frame, ref savedChunks);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, affected, drawOnMask);
     }
 

@@ -36,6 +36,7 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
     }
 
     IReadOnlyChunkyImage IReadOnlyRasterLayer.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
+    void IReadOnlyRasterLayer.SetLayerImageAtFrame(int frame, IReadOnlyChunkyImage newLayerImage) => SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
     
     public ChunkyImage GetLayerImageAtFrame(int frame)
     {
@@ -82,6 +83,20 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
             BlendMode = BlendMode,
             LockTransparency = LockTransparency
         };
+    }
+
+    public void SetLayerImageAtFrame(int frame, ChunkyImage newLayerImage)
+    {
+        ImageFrame existingFrame = frameImages.FirstOrDefault(x => x.IsInFrame(frame));
+        if (existingFrame is not null)
+        {
+            existingFrame.Image.Dispose();
+            existingFrame.Image = newLayerImage;
+        }
+        else
+        {
+            frameImages.Add(new ImageFrame(frame, frame, newLayerImage));
+        }
     }
 }
 

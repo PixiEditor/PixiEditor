@@ -60,22 +60,24 @@ internal class CombineStructureMembersOnto_Change : Change
         foreach (var guid in layersToCombine)
         {
             var layer = target.FindMemberOrThrow<RasterLayer>(guid);
-            chunksToCombine.UnionWith(layer.LayerImage.FindAllChunks());
+            var layerImage = layer.GetLayerImageAtFrame(frame);
+            chunksToCombine.UnionWith(layerImage.FindAllChunks());
         }
 
-        toDrawOn.LayerImage.EnqueueClear();
+        var toDrawOnImage = toDrawOn.GetLayerImageAtFrame(frame);
+        toDrawOnImage.EnqueueClear();
         foreach (var chunk in chunksToCombine)
         {
             OneOf<Chunk, EmptyChunk> combined = ChunkRenderer.MergeChosenMembers(chunk, ChunkResolution.Full, target.StructureRoot, frame, layersToCombine);
             if (combined.IsT0)
             {
-                toDrawOn.LayerImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
+                toDrawOnImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
                 combined.AsT0.Dispose();
             }
         }
-        var affArea = toDrawOn.LayerImage.FindAffectedArea();
-        originalChunks = new CommittedChunkStorage(toDrawOn.LayerImage, affArea.Chunks);
-        toDrawOn.LayerImage.CommitChanges();
+        var affArea = toDrawOnImage.FindAffectedArea();
+        originalChunks = new CommittedChunkStorage(toDrawOnImage, affArea.Chunks);
+        toDrawOnImage.CommitChanges();
 
         ignoreInUndo = false;
         return new LayerImageArea_ChangeInfo(targetLayer, affArea);
@@ -84,7 +86,7 @@ internal class CombineStructureMembersOnto_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var toDrawOn = target.FindMemberOrThrow<RasterLayer>(targetLayer);
-        var affectedArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.LayerImage, ref originalChunks);
+        var affectedArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.GetLayerImageAtFrame(frame), ref originalChunks);
         return new LayerImageArea_ChangeInfo(targetLayer, affectedArea);
     }
 

@@ -19,13 +19,15 @@ internal sealed class RotateImage_Change : Change
     private double originalVerAxisX;
     private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
-
+    int frame;
+    
     [GenerateMakeChangeAction]
-    public RotateImage_Change(RotationAngle rotation, List<Guid>? membersToRotate)
+    public RotateImage_Change(RotationAngle rotation, List<Guid>? membersToRotate, int frame)
     {
         this.rotation = rotation;
         membersToRotate ??= new List<Guid>();
         this.membersToRotate = membersToRotate;
+        this.frame = frame;
     }
     
     public override bool InitializeAndValidate(Document target)
@@ -142,7 +144,7 @@ internal sealed class RotateImage_Change : Change
             {
                 if (member is RasterLayer layer)
                 {
-                    Resize(layer.LayerImage, layer.GuidValue, deletedChunks, changes);
+                    Resize(layer.GetLayerImageAtFrame(frame), layer.GuidValue, deletedChunks, changes);
                 }
 
                 // TODO: Add support for different Layer types
@@ -175,7 +177,7 @@ internal sealed class RotateImage_Change : Change
         {
             if (member is RasterLayer layer)
             {
-                Resize(layer.LayerImage, layer.GuidValue, deletedChunks, null);
+                Resize(layer.GetLayerImageAtFrame(frame), layer.GuidValue, deletedChunks, null);
             }
 
             if (member.Mask is null)
@@ -216,10 +218,11 @@ internal sealed class RotateImage_Change : Change
             if(membersToRotate.Count > 0 && !membersToRotate.Contains(member.GuidValue)) return;
             if (member is RasterLayer layer)
             {
-                layer.LayerImage.EnqueueResize(originalSize);
-                deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
-                revertChanges.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, layer.LayerImage.FindAffectedArea()));
-                layer.LayerImage.CommitChanges();
+                var layerImage = layer.GetLayerImageAtFrame(frame);
+                layerImage.EnqueueResize(originalSize);
+                deletedChunks[layer.GuidValue].ApplyChunksToImage(layerImage);
+                revertChanges.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, layerImage.FindAffectedArea()));
+                layerImage.CommitChanges();
             }
 
             if (member.Mask is null)

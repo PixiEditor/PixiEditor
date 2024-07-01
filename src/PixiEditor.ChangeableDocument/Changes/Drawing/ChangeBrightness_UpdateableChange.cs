@@ -15,19 +15,22 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
     private readonly List<VecI> positions = new();
     private bool ignoreUpdate = false;
     private readonly bool repeat;
+    private int frame;
 
     private List<VecI> ellipseLines;
     
     private CommittedChunkStorage? savedChunks;
 
     [GenerateUpdateableChangeActions]
-    public ChangeBrightness_UpdateableChange(Guid layerGuid, VecI pos, float correctionFactor, int strokeWidth, bool repeat)
+    public ChangeBrightness_UpdateableChange(Guid layerGuid, VecI pos, float correctionFactor, int strokeWidth, bool repeat, int frame)
     {
         this.layerGuid = layerGuid;
         this.correctionFactor = correctionFactor;
         this.strokeWidth = strokeWidth;
         this.repeat = repeat;
-
+        this.frame = frame;
+        // TODO: pos is unused, check if it should be added to positions
+        
         ellipseLines = EllipseHelper.SplitEllipseIntoLines((EllipseHelper.GenerateEllipseFromRect(new RectI(0, 0, strokeWidth, strokeWidth))));
     }
 
@@ -44,7 +47,8 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         if (!DrawingChangeHelper.IsValidForDrawing(target, layerGuid, false))
             return false;
         RasterLayer layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
-        DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, layer.LayerImage, layerGuid, false);
+        var layerImage = layer.GetLayerImageAtFrame(frame);
+        DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, layerImage, layerGuid, false);
         return true;
     }
 
@@ -55,11 +59,12 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         VecI pos = positions[^1];
         RasterLayer layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
 
-        int queueLength = layer.LayerImage.QueueLength;
+        var layerImage = layer.GetLayerImageAtFrame(frame);
+        int queueLength = layerImage.QueueLength;
         
-        ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, layer.LayerImage);
+        ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, layerImage);
         
-        var affected = layer.LayerImage.FindAffectedArea(queueLength);
+        var affected = layerImage.FindAffectedArea(queueLength);
         
         return new LayerImageArea_ChangeInfo(layerGuid, affected);
     }
@@ -67,6 +72,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
     private static void ChangeBrightness(
         List<VecI> circleLines, int circleDiameter, VecI offset, float correctionFactor, bool repeat, ChunkyImage layerImage)
     {
+        // TODO: Circle diameter is unused, check if it should be used
 
         for (var i = 0; i < circleLines.Count - 1; i++)
         {
@@ -96,18 +102,20 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         if (savedChunks is not null)
             throw new InvalidOperationException("Trying to apply while there are saved chunks");
         
+        var layerImage = layer.GetLayerImageAtFrame(frame);
+        
         if (!firstApply)
         {
-            DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, layer.LayerImage, layerGuid, false);
+            DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, layerImage, layerGuid, false);
             foreach (VecI pos in positions)
             {
-                ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, layer.LayerImage);
+                ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, layerImage);
             }
         }
 
-        var affArea = layer.LayerImage.FindAffectedArea();
-        savedChunks = new CommittedChunkStorage(layer.LayerImage, affArea.Chunks);
-        layer.LayerImage.CommitChanges();
+        var affArea = layerImage.FindAffectedArea();
+        savedChunks = new CommittedChunkStorage(layerImage, affArea.Chunks);
+        layerImage.CommitChanges();
         if (firstApply)
             return new None();
         return new LayerImageArea_ChangeInfo(layerGuid, affArea);
@@ -115,7 +123,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, layerGuid, false, ref savedChunks);
+        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, layerGuid, false, frame, ref savedChunks);
         return new LayerImageArea_ChangeInfo(layerGuid, affected);
     }
 }

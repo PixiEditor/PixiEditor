@@ -23,6 +23,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
     private VectorPath? originalPath;
 
     private bool hasEnqueudImages = false;
+    private int frame;
 
     private static Paint RegularPaint { get; } = new () { BlendMode = BlendMode.SrcOver };
 
@@ -31,12 +32,14 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         IEnumerable<Guid> membersToTransform,
         ShapeCorners corners,
         bool keepOriginal,
-        bool transformMask)
+        bool transformMask,
+        int frame)
     {
         this.membersToTransform = membersToTransform.Select(static a => a).ToArray();
         this.corners = corners;
         this.keepOriginal = keepOriginal;
         this.drawOnMask = transformMask;
+        this.frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -59,7 +62,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         images = new();
         foreach (var guid in membersToTransform)
         {
-            ChunkyImage image = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask);
+            ChunkyImage image = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask, frame);
             var extracted = ExtractArea(image, originalPath, roundedTightBounds);
             if (extracted.IsT0)
                 continue;
@@ -130,7 +133,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         List<IChangeInfo> infos = new();
         foreach (var (guid, (image, pos)) in images!)
         {
-            ChunkyImage memberImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask);
+            ChunkyImage memberImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask, frame);
             var area = DrawImage(target, guid, image, pos, memberImage);
             savedChunks[guid] = new(memberImage, memberImage.FindAffectedArea().Chunks);
             memberImage.CommitChanges();
@@ -149,7 +152,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         List<IChangeInfo> infos = new();
         foreach (var (guid, (image, pos)) in images!)
         {
-            ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask);
+            ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, guid, drawOnMask, frame);
             infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, DrawImage(target, guid, image, pos, targetImage), drawOnMask).AsT1);
         }
         infos.Add(SelectionChangeHelper.DoSelectionTransform(target, originalPath!, originalTightBounds, corners));
@@ -162,7 +165,7 @@ internal class TransformSelectedArea_UpdateableChange : UpdateableChange
         foreach (var (guid, storage) in savedChunks!)
         {
             var storageCopy = storage;
-            var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, guid, drawOnMask, ref storageCopy);
+            var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, guid, drawOnMask, frame, ref storageCopy);
             infos.Add(DrawingChangeHelper.CreateAreaChangeInfo(guid, chunks, drawOnMask).AsT1);
         }
 

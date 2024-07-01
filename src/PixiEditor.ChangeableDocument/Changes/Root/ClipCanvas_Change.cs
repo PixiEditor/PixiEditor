@@ -7,7 +7,9 @@ namespace PixiEditor.ChangeableDocument.Changes.Root;
 internal class ClipCanvas_Change : ResizeBasedChangeBase
 {
     [GenerateMakeChangeAction]
-    public ClipCanvas_Change() { }
+    public ClipCanvas_Change(int frame) : base(frame)
+    {
+    }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
@@ -16,7 +18,7 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
         {
             if (member is Layer layer)
             {
-                var layerBounds = layer.GetTightBounds();
+                var layerBounds = layer.GetTightBounds(frame);
                 if (layerBounds.HasValue)
                 {
                     bounds ??= layerBounds.Value;
@@ -41,7 +43,7 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
         {
             if (member is RasterLayer layer)
             {
-                Resize(layer.LayerImage, layer.GuidValue, newBounds.Size, -newBounds.Pos, deletedChunks);
+                Resize(layer.GetLayerImageAtFrame(frame), layer.GuidValue, newBounds.Size, -newBounds.Pos, deletedChunks);
             }
             
             if (member.Mask is null)

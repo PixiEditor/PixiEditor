@@ -15,15 +15,17 @@ internal class ResizeImage_Change : Change
     private VecI originalSize;
     private double originalHorAxisY;
     private double originalVerAxisX;
+    private int frame;
     
     private Dictionary<Guid, CommittedChunkStorage> savedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> savedMaskChunks = new();
 
     [GenerateMakeChangeAction]
-    public ResizeImage_Change(VecI size, ResamplingMethod method)
+    public ResizeImage_Change(VecI size, ResamplingMethod method, int frame)
     {
         this.newSize = size;
         this.method = method;
+        this.frame = frame;
     }
     
     public override bool InitializeAndValidate(Document target)
@@ -91,10 +93,11 @@ internal class ResizeImage_Change : Change
         {
             if (member is RasterLayer layer)
             {
-                ScaleChunkyImage(layer.LayerImage);
-                var affected = layer.LayerImage.FindAffectedArea();
-                savedChunks[layer.GuidValue] = new CommittedChunkStorage(layer.LayerImage, affected.Chunks);
-                layer.LayerImage.CommitChanges();
+                var layerImage = layer.GetLayerImageAtFrame(frame);
+                ScaleChunkyImage(layerImage);
+                var affected = layerImage.FindAffectedArea();
+                savedChunks[layer.GuidValue] = new CommittedChunkStorage(layerImage, affected.Chunks);
+                layerImage.CommitChanges();
             }
 
             // Add support for different Layer types
@@ -119,10 +122,11 @@ internal class ResizeImage_Change : Change
         {
             if (member is RasterLayer layer)
             {
-                layer.LayerImage.EnqueueResize(originalSize);
-                layer.LayerImage.EnqueueClear();
-                savedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
-                layer.LayerImage.CommitChanges();
+                var layerImage = layer.GetLayerImageAtFrame(frame);
+                layerImage.EnqueueResize(originalSize);
+                layerImage.EnqueueClear();
+                savedChunks[layer.GuidValue].ApplyChunksToImage(layerImage);
+                layerImage.CommitChanges();
             }
             
             if (member.Mask is not null)

@@ -13,14 +13,16 @@ internal class MagicWand_Change : Change
     private VecI point;
     private readonly List<Guid> memberGuids;
     private readonly SelectionMode mode;
+    private int frame;
 
     [GenerateMakeChangeAction]
-    public MagicWand_Change(List<Guid> memberGuids, VecI point, SelectionMode mode)
+    public MagicWand_Change(List<Guid> memberGuids, VecI point, SelectionMode mode, int frame)
     {
         path.MoveTo(point);
         this.mode = mode;
         this.memberGuids = memberGuids;
         this.point = point;
+        this.frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -39,7 +41,7 @@ internal class MagicWand_Change : Change
                 membersToReference.Add(member.GuidValue);
         });
 
-        path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, target);
+        path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, target, frame);
 
         ignoreInUndo = false;
         return CommonApply(target);

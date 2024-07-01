@@ -11,13 +11,15 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
     private Dictionary<Guid, CommittedChunkStorage?> originalLayerChunks = new();
     
     private List<IChangeInfo> _tempChanges = new();
+    private int frame;
 
     [GenerateUpdateableChangeActions]
-    public ShiftLayer_UpdateableChange(List<Guid> layerGuids, VecI delta, bool keepOriginal)
+    public ShiftLayer_UpdateableChange(List<Guid> layerGuids, VecI delta, bool keepOriginal, int frame)
     {
         this.delta = delta;
         this.layerGuids = layerGuids;
         this.keepOriginal = keepOriginal;
+        this.frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -50,9 +52,9 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         List<IChangeInfo> changes = new List<IChangeInfo>();
         foreach (var layerGuid in layerGuids)
         {
-            var area = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
+            var area = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta, frame);
             // TODO: Add support for different Layer types
-            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).LayerImage;
+            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).GetLayerImageAtFrame(frame);
             
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, area));
             
@@ -70,7 +72,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
 
         foreach (var layerGuid in layerGuids)
         {
-            var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta);
+            var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta, frame);
             _tempChanges.Add(new LayerImageArea_ChangeInfo(layerGuid, chunks));
         }
         
@@ -82,7 +84,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         List<IChangeInfo> changes = new List<IChangeInfo>();
         foreach (var layerGuid in layerGuids)
         {
-            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).LayerImage;
+            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).GetLayerImageAtFrame(frame);
             CommittedChunkStorage? originalChunks = originalLayerChunks[layerGuid];
             var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));

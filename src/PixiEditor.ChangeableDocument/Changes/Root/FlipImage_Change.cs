@@ -13,12 +13,14 @@ internal sealed class FlipImage_Change : Change
 {
     private readonly FlipType flipType;
     private List<Guid> membersToFlip;
+    private int frame;
 
     [GenerateMakeChangeAction]
-    public FlipImage_Change(FlipType flipType, List<Guid>? membersToFlip = null)
+    public FlipImage_Change(FlipType flipType, int frame, List<Guid>? membersToFlip = null)
     {
         this.flipType = flipType;
         membersToFlip ??= new List<Guid>();
+        this.frame = frame;
         this.membersToFlip = membersToFlip;
     }
     
@@ -102,10 +104,11 @@ internal sealed class FlipImage_Change : Change
             {
                 if (member is RasterLayer layer)
                 {
-                    FlipImage(layer.LayerImage);
+                    var image = layer.GetLayerImageAtFrame(frame);
+                    FlipImage(image);
                     changes.Add(
-                        new LayerImageArea_ChangeInfo(member.GuidValue, layer.LayerImage.FindAffectedArea()));
-                    layer.LayerImage.CommitChanges();
+                        new LayerImageArea_ChangeInfo(member.GuidValue, image.FindAffectedArea()));
+                    image.CommitChanges();
                 }
                 // TODO: Add support for non-raster layers
 

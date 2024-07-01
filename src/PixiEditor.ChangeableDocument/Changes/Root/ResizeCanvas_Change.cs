@@ -11,7 +11,7 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
     private readonly ResizeAnchor anchor;
 
     [GenerateMakeChangeAction]
-    public ResizeCanvas_Change(VecI size, ResizeAnchor anchor)
+    public ResizeCanvas_Change(VecI size, ResizeAnchor anchor, int frame) : base(frame)
     {
         newSize = size;
         this.anchor = anchor;
@@ -47,7 +47,7 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
         {
             if (member is RasterLayer layer)
             {
-                Resize(layer.LayerImage, layer.GuidValue, newSize, offset, deletedChunks);
+                Resize(layer.GetLayerImageAtFrame(frame), layer.GuidValue, newSize, offset, deletedChunks);
             }
 
             // TODO: Check if adding support for different Layer types is necessary

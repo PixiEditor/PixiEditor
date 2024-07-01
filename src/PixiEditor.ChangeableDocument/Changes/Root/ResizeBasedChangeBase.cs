@@ -11,6 +11,12 @@ internal abstract class ResizeBasedChangeBase : Change
     protected double _originalVerAxisX;
     protected Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     protected Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
+    protected int frame;
+    
+    public ResizeBasedChangeBase(int frame)
+    {
+        this.frame = frame;
+    }
     
     public override bool InitializeAndValidate(Document target)
     {
@@ -40,9 +46,10 @@ internal abstract class ResizeBasedChangeBase : Change
         {
             if (member is RasterLayer layer)
             {
-                layer.LayerImage.EnqueueResize(_originalSize);
-                deletedChunks[layer.GuidValue].ApplyChunksToImage(layer.LayerImage);
-                layer.LayerImage.CommitChanges();
+                var layerImage = layer.GetLayerImageAtFrame(frame);
+                layerImage.EnqueueResize(_originalSize);
+                deletedChunks[layer.GuidValue].ApplyChunksToImage(layerImage);
+                layerImage.CommitChanges();
             }
 
             // TODO: Add support for different Layer types?

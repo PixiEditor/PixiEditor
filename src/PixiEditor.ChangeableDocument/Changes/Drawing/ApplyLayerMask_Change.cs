@@ -8,11 +8,13 @@ internal class ApplyLayerMask_Change : Change
     private readonly Guid layerGuid;
     private CommittedChunkStorage? savedMask;
     private CommittedChunkStorage? savedLayer;
+    private int frame;
 
     [GenerateMakeChangeAction]
-    public ApplyLayerMask_Change(Guid layerGuid)
+    public ApplyLayerMask_Change(Guid layerGuid, int frame)
     {
         this.layerGuid = layerGuid;
+        this.frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -21,7 +23,8 @@ internal class ApplyLayerMask_Change : Change
         if (!target.TryFindMember<RasterLayer>(layerGuid, out var layer) || layer.Mask is null)
             return false;
 
-        savedLayer = new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindCommittedChunks());
+        var layerImage = layer.GetLayerImageAtFrame(frame);
+        savedLayer = new CommittedChunkStorage(layerImage, layerImage.FindCommittedChunks());
         savedMask = new CommittedChunkStorage(layer.Mask, layer.Mask.FindCommittedChunks());
         return true;
     }
@@ -32,15 +35,16 @@ internal class ApplyLayerMask_Change : Change
         if (layer.Mask is null)
             throw new InvalidOperationException("Cannot apply layer mask, no mask");
 
+        var layerImage = layer.GetLayerImageAtFrame(frame);
         ChunkyImage newLayerImage = new ChunkyImage(target.Size);
         newLayerImage.AddRasterClip(layer.Mask);
-        newLayerImage.EnqueueDrawChunkyImage(VecI.Zero, layer.LayerImage);
+        newLayerImage.EnqueueDrawChunkyImage(VecI.Zero, layerImage);
         newLayerImage.CommitChanges();
 
-        var affectedChunks = layer.LayerImage.FindAllChunks();
+        var affectedChunks = layerImage.FindAllChunks();
         // use a temp value to ensure that LayerImage always stays in a valid state
-        var toDispose = layer.LayerImage;
-        layer.LayerImage = newLayerImage;
+        var toDispose = layerImage;
+        layer.SetLayerImageAtFrame(frame, newLayerImage);
         toDispose.Dispose();
 
         var toDisposeMask = layer.Mask;
@@ -69,9 +73,11 @@ internal class ApplyLayerMask_Change : Change
         newMask.CommitChanges();
         layer.Mask = newMask;
 
-        savedLayer.ApplyChunksToImage(layer.LayerImage);
-        var affectedChunksLayer = layer.LayerImage.FindAffectedArea();
-        layer.LayerImage.CommitChanges();
+        var layerImage = layer.GetLayerImageAtFrame(frame);
+        
+        savedLayer.ApplyChunksToImage(layerImage);
+        var affectedChunksLayer = layerImage.FindAffectedArea();
+        layerImage.CommitChanges();
 
         return new List<IChangeInfo>
         {

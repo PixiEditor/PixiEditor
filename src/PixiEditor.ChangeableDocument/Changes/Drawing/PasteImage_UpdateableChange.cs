@@ -11,12 +11,13 @@ internal class PasteImage_UpdateableChange : UpdateableChange
     private readonly bool drawOnMask;
     private readonly Surface imageToPaste;
     private CommittedChunkStorage? savedChunks;
+    private int frame;
     private static Paint RegularPaint { get; } = new Paint() { BlendMode = BlendMode.SrcOver };
 
     private bool hasEnqueudImage = false;
 
     [GenerateUpdateableChangeActions]
-    public PasteImage_UpdateableChange(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipsSymmetriesEtc, bool isDrawingOnMask)
+    public PasteImage_UpdateableChange(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipsSymmetriesEtc, bool isDrawingOnMask, int frame)
     {
         this.corners = corners;
         this.memberGuid = memberGuid;
@@ -53,7 +54,7 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         var chunks = DrawImage(target, targetImage);
         savedChunks?.Dispose();
         savedChunks = new(targetImage, targetImage.FindAffectedArea().Chunks);
@@ -65,13 +66,13 @@ internal class PasteImage_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
-        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        ChunkyImage targetImage = DrawingChangeHelper.GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, DrawImage(target, targetImage), drawOnMask);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, ref savedChunks);
+        var chunks = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, memberGuid, drawOnMask, frame, ref savedChunks);
         return DrawingChangeHelper.CreateAreaChangeInfo(memberGuid, chunks, drawOnMask);
     }
 

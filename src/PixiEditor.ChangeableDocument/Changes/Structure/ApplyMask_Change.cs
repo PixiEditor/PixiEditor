@@ -10,13 +10,15 @@ internal sealed class ApplyMask_Change : Change
     private Guid structureMemberGuid;
 
     private CommittedChunkStorage? savedChunks;
+    private int frame;
 
     [GenerateMakeChangeAction]
-    public ApplyMask_Change(Guid structureMemberGuid)
+    public ApplyMask_Change(Guid structureMemberGuid, int frame)
     {
         this.structureMemberGuid = structureMemberGuid;
+        this.frame = frame;
     }
-        
+
     public override bool InitializeAndValidate(Document target)
     {
         var member = target.FindMember(structureMemberGuid);
@@ -25,21 +27,25 @@ internal sealed class ApplyMask_Change : Change
         return isValid;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         var layer = target.FindMemberOrThrow<RasterLayer>(structureMemberGuid)!;
-        layer!.LayerImage.EnqueueApplyMask(layer.Mask!);
+        var layerImage = layer.GetLayerImageAtFrame(frame);
+        layerImage.EnqueueApplyMask(layer.Mask!);
         ignoreInUndo = false;
-        var layerInfo = new LayerImageArea_ChangeInfo(structureMemberGuid, layer.LayerImage.FindAffectedArea());
-        savedChunks = new CommittedChunkStorage(layer.LayerImage, layerInfo.Area.Chunks);
-        
-        layer.LayerImage.CommitChanges();
+        var layerInfo = new LayerImageArea_ChangeInfo(structureMemberGuid, layerImage.FindAffectedArea());
+        savedChunks = new CommittedChunkStorage(layerImage, layerInfo.Area.Chunks);
+
+        layerImage.CommitChanges();
         return layerInfo;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, structureMemberGuid, false, ref savedChunks);
+        var affected =
+            DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(target, structureMemberGuid, false, frame,
+                ref savedChunks);
         return new LayerImageArea_ChangeInfo(structureMemberGuid, affected);
     }
 }

@@ -7,18 +7,21 @@ internal class CreateRasterKeyFrame_Change : Change
 {
     private readonly Guid _targetLayerGuid;
     private readonly int _frame;
-    private readonly bool _cloneFromExisting;
+    private readonly Guid? cloneFrom;
+    private int? cloneFromFrame;
     private RasterLayer? _layer;
     private Guid createdKeyFrameId;
 
     [GenerateMakeChangeAction]
     public CreateRasterKeyFrame_Change(Guid targetLayerGuid, Guid newKeyFrameGuid, int frame,
-        bool cloneFromExisting = false)
+        int? cloneFromFrame = null,
+        Guid? cloneFromExisting = null)
     {
         _targetLayerGuid = targetLayerGuid;
         _frame = frame;
-        _cloneFromExisting = cloneFromExisting;
+        cloneFrom = cloneFromExisting;
         createdKeyFrameId = newKeyFrameGuid;
+        this.cloneFromFrame = cloneFromFrame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -29,12 +32,15 @@ internal class CreateRasterKeyFrame_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
+        var cloneFromImage = cloneFrom.HasValue
+            ? target.FindMemberOrThrow<RasterLayer>(cloneFrom.Value).GetLayerImageAtFrame(cloneFromFrame ?? 0)
+            : null;
         var keyFrame =
-            new RasterKeyFrame(_targetLayerGuid, _frame, target, _cloneFromExisting ? _layer.LayerImage : null);
+            new RasterKeyFrame(_targetLayerGuid, _frame, target, cloneFromImage);
         keyFrame.Id = createdKeyFrameId;
         target.AnimationData.AddKeyFrame(keyFrame);
         ignoreInUndo = false;
-        return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, _cloneFromExisting);
+        return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, cloneFrom.HasValue);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)

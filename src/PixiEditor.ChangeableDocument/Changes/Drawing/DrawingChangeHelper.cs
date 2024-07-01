@@ -4,9 +4,9 @@ using PixiEditor.DrawingApi.Core.Numerics;
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
 internal static class DrawingChangeHelper
 {
-    public static AffectedArea ApplyStoredChunksDisposeAndSetToNull(Document target, Guid memberGuid, bool drawOnMask, ref CommittedChunkStorage? storage)
+    public static AffectedArea ApplyStoredChunksDisposeAndSetToNull(Document target, Guid memberGuid, bool drawOnMask, int frame, ref CommittedChunkStorage? storage)
     {
-        var image = GetTargetImageOrThrow(target, memberGuid, drawOnMask);
+        var image = GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         return ApplyStoredChunksDisposeAndSetToNull(image, ref storage);
     }
 

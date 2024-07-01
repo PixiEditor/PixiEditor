@@ -9,10 +9,12 @@ internal class CenterContent_Change : Change
     private VecI _oldOffset;
     private List<Guid> affectedLayers;
     private Dictionary<Guid, CommittedChunkStorage>? originalLayerChunks;
+    private int frame;
 
     [GenerateMakeChangeAction]
-    public CenterContent_Change(List<Guid> layers)
+    public CenterContent_Change(List<Guid> layers, int frame)
     {
+        this.frame = frame;
         affectedLayers = layers;
     }
     
@@ -42,7 +44,7 @@ internal class CenterContent_Change : Change
         foreach (var layerGuid in affectedLayers)
         {
             Layer layer = document.FindMemberOrThrow<Layer>(layerGuid);
-            RectI? tightBounds = layer.GetTightBounds();
+            RectI? tightBounds = layer.GetTightBounds(frame);
             if (tightBounds.HasValue)
             {
                 currentBounds = currentBounds.HasValue ? currentBounds.Value.Union(tightBounds.Value) : tightBounds;
@@ -68,13 +70,14 @@ internal class CenterContent_Change : Change
         foreach (var layerGuid in affectedLayers)
         {
             RasterLayer layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
-            var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, false, shift);
+            var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, false, shift, frame);
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, chunks));
 
             // TODO: Adding support for non-raster layer should be easy, add
             
-            originalLayerChunks[layerGuid] = new CommittedChunkStorage(layer.LayerImage, layer.LayerImage.FindAffectedArea().Chunks);
-            layer.LayerImage.CommitChanges();
+            var image = layer.GetLayerImageAtFrame(frame);
+            originalLayerChunks[layerGuid] = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
+            image.CommitChanges();
         }
 
         ignoreInUndo = shift.TaxicabLength == 0;
@@ -86,7 +89,7 @@ internal class CenterContent_Change : Change
         List<IChangeInfo> changes = new List<IChangeInfo>();
         foreach (var layerGuid in affectedLayers)
         {
-            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).LayerImage;
+            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).GetLayerImageAtFrame(frame);
             CommittedChunkStorage? originalChunks = originalLayerChunks?[layerGuid];
             var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));
