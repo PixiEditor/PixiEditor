@@ -350,12 +350,20 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 if (keyFrame is RasterKeyFrameBuilder rasterKeyFrameBuilder)
                 {
+                    if (rasterKeyFrameBuilder.Id == default)
+                    {
+                        rasterKeyFrameBuilder.Id = Guid.NewGuid();
+                    }
+                    
                     acc.AddActions(
                         new CreateRasterKeyFrame_Action(
                             rasterKeyFrameBuilder.LayerGuid,
+                            rasterKeyFrameBuilder.Id,
                             rasterKeyFrameBuilder.StartFrame,
                             false),
-                        new ActiveFrame_Action(rasterKeyFrameBuilder.StartFrame),
+                        new KeyFrameLength_Action(rasterKeyFrameBuilder.Id, rasterKeyFrameBuilder.StartFrame, rasterKeyFrameBuilder.Duration),
+                        new EndKeyFrameLength_Action(),
+                        new ActiveFrame_Action(rasterKeyFrameBuilder.StartFrame + rasterKeyFrameBuilder.Duration),
                         new EndActiveFrame_Action());
                     
                     PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface, rasterKeyFrameBuilder.Surface.Surface.Size.X,
