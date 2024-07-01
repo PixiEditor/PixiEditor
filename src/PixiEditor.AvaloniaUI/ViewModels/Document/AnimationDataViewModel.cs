@@ -58,7 +58,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     {
         if (!Document.UpdateableChangeActive)
         {
-            Internals.ActionAccumulator.AddFinishedActions(new CreateRasterKeyFrame_Action(targetLayerGuid, new Guid(), frame,
+            Internals.ActionAccumulator.AddFinishedActions(new CreateRasterKeyFrame_Action(targetLayerGuid, Guid.NewGuid(), frame,
                 cloneFromExisting));
         }
     }
