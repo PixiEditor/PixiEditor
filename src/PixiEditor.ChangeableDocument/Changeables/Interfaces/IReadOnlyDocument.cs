@@ -49,7 +49,7 @@ public interface IReadOnlyDocument
     void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action);
     
     public Surface? GetLayerRasterizedImage(Guid layerGuid, int frame);
-    public RectI? GetChunkAlignedLayerBounds(Guid layerGuid);
+    public RectI? GetChunkAlignedLayerBounds(Guid layerGuid, int frame);
 
     /// <summary>
     /// Finds the member with the <paramref name="guid"/> or returns null if not found

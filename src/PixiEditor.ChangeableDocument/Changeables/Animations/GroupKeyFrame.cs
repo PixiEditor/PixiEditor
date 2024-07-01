@@ -18,11 +18,6 @@ internal class GroupKeyFrame : KeyFrame, IKeyFrameChildrenContainer
     {
         Id = layerGuid;
         this.document = document;
-        
-        if (document.TryFindMember<RasterLayer>(LayerGuid, out var layer))
-        {
-            originalLayerImage = layer.LayerImage;
-        }
     }
 
     protected override void OnVisibilityChanged()

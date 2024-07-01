@@ -61,7 +61,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
             throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
 
 
-        RectI? tightBounds = layer.GetTightBounds();
+        RectI? tightBounds = layer.GetTightBounds(frame);
 
         if (tightBounds is null)
             return null;
@@ -78,7 +78,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         return surface;
     }
 
-    public RectI? GetChunkAlignedLayerBounds(Guid layerGuid)
+    public RectI? GetChunkAlignedLayerBounds(Guid layerGuid, int frame)
     {
         var layer = (IReadOnlyLayer?)FindMember(layerGuid);
 
@@ -86,7 +86,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
             throw new ArgumentException(@"The given guid does not belong to a layer.", nameof(layerGuid));
 
 
-        return layer.GetTightBounds();
+        return layer.GetTightBounds(frame);
     }
     
     public void ForEveryReadonlyMember(Action<IReadOnlyStructureMember> action) => ForEveryReadonlyMember(StructureRoot, action);

@@ -120,7 +120,7 @@ internal partial class DocumentViewModel
     {
         var result = document.GetLayerRasterizedImage(layer.GuidValue, 0);
 
-        var tightBounds = document.GetChunkAlignedLayerBounds(layer.GuidValue);
+        var tightBounds = document.GetChunkAlignedLayerBounds(layer.GuidValue, 0);
         using var data = result?.DrawingSurface.Snapshot().Encode();
         byte[] bytes = data?.AsSpan().ToArray();
         var serializable = new ImageLayer

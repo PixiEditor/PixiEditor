@@ -52,7 +52,7 @@ internal abstract class StructureMemberViewModel : ObservableObject, IStructureM
     }
 
     private bool maskIsVisible;
-    public RectI? TightBounds => Internals.Tracker.Document.FindMember(GuidValue)?.GetTightBounds();
+    public RectI? TightBounds => Internals.Tracker.Document.FindMember(GuidValue)?.GetTightBounds(Document.AnimationDataViewModel.ActiveFrameBindable);
 
     public void SetMaskIsVisible(bool maskIsVisible)
     {

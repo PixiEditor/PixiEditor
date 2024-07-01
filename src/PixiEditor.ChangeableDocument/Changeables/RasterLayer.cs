@@ -10,23 +10,17 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
     // Don't forget to update CreateLayer_ChangeInfo, DocumentUpdater.ProcessCreateStructureMember and Layer.Clone when adding new properties
     public bool LockTransparency { get; set; } = false;
 
-    public ChunkyImage LayerImage
-    {
-         get
-    }
-    IReadOnlyChunkyImage IReadOnlyRasterLayer.LayerImage => LayerImage;
-    IReadOnlyChunkyImage IChunkyImageProperty.LayerImage => LayerImage;
-    
+
     private List<ImageFrame> frameImages = new();
-    
+
     public RasterLayer(VecI size)
     {
         frameImages.Add(new ImageFrame(0, 0, new(size)));
     }
 
-    public RasterLayer(ChunkyImage image)
+    public RasterLayer(List<ImageFrame> frames)
     {
-        LayerImage = image;
+        frameImages = frames;
     }
 
     /// <summary>
@@ -34,7 +28,6 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
     /// </summary>
     public override void Dispose()
     {
-        LayerImage.Dispose();
         Mask?.Dispose();
         foreach (var frame in frameImages)
         {
@@ -42,21 +35,28 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
         }
     }
 
+    IReadOnlyChunkyImage IReadOnlyRasterLayer.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
+    
+    public ChunkyImage GetLayerImageAtFrame(int frame)
+    {
+        return Rasterize(frame);
+    }
+
     public override ChunkyImage Rasterize(KeyFrameTime frameTime)
     {
         if (frameImages.Count == 0)
         {
-            return LayerImage;
+            return frameImages[0].Image;
         }
-        
+
         ImageFrame frame = frameImages.FirstOrDefault(x => x.IsInFrame(frameTime.Frame));
-        
-        return frame?.Image ?? LayerImage;
+
+        return frame?.Image ?? frameImages[0].Image;
     }
 
-    public override RectI? GetTightBounds()
+    public override RectI? GetTightBounds(int frame)
     {
-        return LayerImage.FindTightCommittedBounds();
+        return Rasterize(frame).FindTightCommittedBounds();
     }
 
     /// <summary>
@@ -64,7 +64,13 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
     /// </summary>
     internal override RasterLayer Clone()
     {
-        return new RasterLayer(LayerImage.CloneFromCommitted())
+        List<ImageFrame> clonedFrames = new();
+        foreach (var frame in frameImages)
+        {
+            clonedFrames.Add(new ImageFrame(frame.StartFrame, frame.EndFrame, frame.Image.CloneFromCommitted()));
+        }
+        
+        return new RasterLayer(clonedFrames)
         {
             GuidValue = GuidValue,
             IsVisible = IsVisible,
@@ -81,17 +87,17 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
 
 class ImageFrame
 {
-    int StartFrame { get; set; }
-    int EndFrame { get; set; }
+    public int StartFrame { get; set; }
+    public int EndFrame { get; set; }
     public ChunkyImage Image { get; set; }
-    
+
     public ImageFrame(int startFrame, int endFrame, ChunkyImage image)
     {
         StartFrame = startFrame;
         EndFrame = endFrame;
         Image = image;
     }
-    
+
     public bool IsInFrame(int frame)
     {
         return frame >= StartFrame && frame <= EndFrame;

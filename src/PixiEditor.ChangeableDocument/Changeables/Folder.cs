@@ -14,17 +14,17 @@ internal class Folder : StructureMember, IReadOnlyFolder
     public ImmutableList<StructureMember> Children { get; set; } = ImmutableList<StructureMember>.Empty;
     IReadOnlyList<IReadOnlyStructureMember> IReadOnlyFolder.Children => Children;
 
-    public override RectI? GetTightBounds()
+    public override RectI? GetTightBounds(int frame)
     {
         if (Children.Count == 0)
         {
             return null;
         }
 
-        var bounds = Children[0].GetTightBounds();
+        var bounds = Children[0].GetTightBounds(frame);
         for (var i = 1; i < Children.Count; i++)
         {
-            var childBounds = Children[i].GetTightBounds();
+            var childBounds = Children[i].GetTightBounds(frame);
             if (childBounds == null)
             {
                 continue;

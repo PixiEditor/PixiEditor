@@ -22,7 +22,7 @@ internal static class DrawingChangeHelper
         return area;
     }
 
-    public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask)
+    public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)
     {
         // TODO: Figure out if this should work only for raster layers or should rasterize any
         var member = target.FindMemberOrThrow(memberGuid);
@@ -44,7 +44,7 @@ internal static class DrawingChangeHelper
             throw new InvalidOperationException("Trying to draw on a non-raster layer member");
         }
         
-        return layer.LayerImage;
+        return layer.GetLayerImageAtFrame(frame);
     }
 
     public static void ApplyClipsSymmetriesEtc(Document target, ChunkyImage targetImage, Guid targetMemberGuid, bool drawOnMask)

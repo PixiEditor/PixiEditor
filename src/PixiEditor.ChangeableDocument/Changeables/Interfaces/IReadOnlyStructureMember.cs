@@ -46,5 +46,5 @@ public interface IReadOnlyStructureMember
     ///     The tight bounds of the member. The bounds are the smallest rectangle that contains all the pixels of the member.
     /// </summary>
     /// <returns>The tight bounds of the member</returns>
-    public RectI? GetTightBounds();
+    public RectI? GetTightBounds(int frame);
 }

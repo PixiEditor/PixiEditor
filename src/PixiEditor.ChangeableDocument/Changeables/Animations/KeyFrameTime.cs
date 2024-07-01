@@ -2,14 +2,12 @@
 
 public record KeyFrameTime
 {
-    public KeyFrameTime(int Frame, float NormalizedTime)
+    public KeyFrameTime(int Frame)
     {
         this.Frame = Frame;
-        this.NormalizedTime = NormalizedTime;
     }
 
     public int Frame { get; init; }
-    public float NormalizedTime { get; init; }
     
-    public static implicit operator KeyFrameTime(int frame) => new KeyFrameTime(frame, 0);
+    public static implicit operator KeyFrameTime(int frame) => new KeyFrameTime(frame);
 }

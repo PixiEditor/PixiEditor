@@ -444,7 +444,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         RectI? memberImageBounds;
         try
         {
-            memberImageBounds = layer.LayerImage.FindChunkAlignedMostUpToDateBounds();
+            // TODO: Make sure it must be GetLayerImageAtFrame rather than Rasterize()
+            memberImageBounds = layer.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable).FindChunkAlignedMostUpToDateBounds();
         }
         catch (ObjectDisposedException)
         {
@@ -466,7 +467,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         output.DrawingSurface.Canvas.ClipPath(clipPath);
         try
         {
-            layer.LayerImage.DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);
+            layer.GetLayerImageAtFrame(AnimationDataViewModel.ActiveFrameBindable).DrawMostUpToDateRegionOn(bounds, ChunkResolution.Full, output.DrawingSurface, VecI.Zero);
         }
         catch (ObjectDisposedException)
         {
