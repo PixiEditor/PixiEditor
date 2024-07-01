@@ -159,7 +159,7 @@ internal partial class Navigation : UserControl
 
         ColorCursorPosition = newPos;
 
-        var color = Document.PickColor(new(x, y), DocumentScope.AllLayers, false, true);
+        var color = Document.PickColor(new(x, y), DocumentScope.AllLayers, false, true, Document.AnimationDataViewModel.ActiveFrameBindable);
         ColorCursorColor = Color.FromArgb(color.A, color.R, color.G, color.B);
     }
 }

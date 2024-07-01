@@ -4,24 +4,10 @@ namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
 internal class AnimationData : IReadOnlyAnimationData
 {
-    private int _activeFrame;
-
-    public int ActiveFrame
-    {
-        get => _activeFrame;
-        set
-        {
-            _activeFrame = value < 0 ? 0 : value;
-
-            OnPreviewFrameChanged();
-        }
-    }
-
     public IReadOnlyList<IReadOnlyKeyFrame> KeyFrames => keyFrames;
 
     private List<KeyFrame> keyFrames = new List<KeyFrame>();
     private readonly Document document;
-    private List<KeyFrame> lastActiveKeyFrames = new List<KeyFrame>();
     
     public AnimationData(Document document)
     {
@@ -41,21 +27,14 @@ internal class AnimationData : IReadOnlyAnimationData
             createdGroup.Children.Add(keyFrame);
             keyFrames.Add(createdGroup);
         }
-        
-        keyFrame.KeyFrameChanged += KeyFrameChanged;
-        
-        UpdateKeyFrames(keyFrames);
     }
 
     public void RemoveKeyFrame(Guid createdKeyFrameId)
     {
         TryFindKeyFrameCallback<KeyFrame>(createdKeyFrameId, out _, (frame, parent) =>
         {
-            frame.KeyFrameChanged -= KeyFrameChanged;
             parent?.Children.Remove(frame);
         });
-        
-        UpdateKeyFrames(keyFrames);
     }
 
     public bool TryFindKeyFrame<T>(Guid id, out T keyFrame) where T : IReadOnlyKeyFrame
@@ -63,11 +42,6 @@ internal class AnimationData : IReadOnlyAnimationData
         return TryFindKeyFrameCallback(id, out keyFrame, null);
     }
     
-    private void KeyFrameChanged()
-    {
-        UpdateKeyFrames(keyFrames);
-    }
-
     private bool TryFindKeyFrameCallback<T>(Guid id, out T? foundKeyFrame,
         Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : IReadOnlyKeyFrame
     {
@@ -99,56 +73,5 @@ internal class AnimationData : IReadOnlyAnimationData
 
         result = default;
         return false;
-    }
-
-    private void OnPreviewFrameChanged()
-    {
-        if (KeyFrames == null)
-        {
-            return;
-        }
-
-        UpdateKeyFrames(keyFrames);
-    }
-
-    private void UpdateKeyFrames(List<KeyFrame> root)
-    {
-        foreach (var keyFrame in root)
-        {
-            if (!keyFrame.IsVisible)
-            {
-                if (lastActiveKeyFrames.Contains(keyFrame))
-                {
-                    keyFrame.Deactivated(ActiveFrame);
-                    lastActiveKeyFrames.Remove(keyFrame);
-                }
-            }
-            else
-            {
-                bool isWithinRange = keyFrame.IsWithinRange(ActiveFrame);
-                if (lastActiveKeyFrames.Contains(keyFrame))
-                {
-                    if (!isWithinRange)
-                    {
-                        keyFrame.Deactivated(ActiveFrame);
-                        lastActiveKeyFrames.Remove(keyFrame);
-                    }
-                    else
-                    {
-                        keyFrame.ActiveFrameChanged(ActiveFrame);
-                    }
-                }
-                else if (isWithinRange)
-                {
-                    keyFrame.ActiveFrameChanged(ActiveFrame);
-                    lastActiveKeyFrames.Add(keyFrame);
-                }
-            }
-
-            if (keyFrame is GroupKeyFrame group)
-            {
-                UpdateKeyFrames(group.Children);
-            }
-        }
     }
 }

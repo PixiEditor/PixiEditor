@@ -46,7 +46,4 @@ internal class DocumentEventsModule
     public void OnSymmetryDragStarted(SymmetryAxisDirection dir) => Internals.ChangeController.SymmetryDragStartedInlet(dir);
     public void OnSymmetryDragged(SymmetryAxisDragInfo info) => Internals.ChangeController.SymmetryDraggedInlet(info);
     public void OnSymmetryDragEnded(SymmetryAxisDirection dir) => Internals.ChangeController.SymmetryDragEndedInlet(dir);
-    public void StartChangeActiveFrame() => Internals.ChangeController.ActiveAnimationFrameStartedInlet();
-    public void ChangeActiveFrame(int activeFrame) => Internals.ChangeController.ActiveAnimationFrameChangedInlet(activeFrame);
-    public void EndChangeActiveFrame() => Internals.ChangeController.ActiveAnimationFrameEndedInlet();
 }

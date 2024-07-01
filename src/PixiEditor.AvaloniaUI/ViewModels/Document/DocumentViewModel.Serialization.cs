@@ -36,7 +36,7 @@ internal partial class DocumentViewModel
         {
             Width = Width, Height = Height,
             Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
-            RootFolder = root, PreviewImage = (TryRenderWholeImage().Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
+            RootFolder = root, PreviewImage = (TryRenderWholeImage(AnimationDataViewModel.ActiveFrameBindable).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
             ReferenceLayer = GetReferenceLayer(doc),
             AnimationData = ToAnimationData(doc.AnimationData)
         };
@@ -118,7 +118,7 @@ internal partial class DocumentViewModel
     
     private static ImageLayer ToSerializable(IReadOnlyLayer layer, IReadOnlyDocument document)
     {
-        var result = document.GetLayerRasterizedImage(layer.GuidValue);
+        var result = document.GetLayerRasterizedImage(layer.GuidValue, 0);
 
         var tightBounds = document.GetChunkAlignedLayerBounds(layer.GuidValue);
         using var data = result?.DrawingSurface.Snapshot().Encode();

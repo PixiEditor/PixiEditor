@@ -362,9 +362,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                             rasterKeyFrameBuilder.StartFrame,
                             false),
                         new KeyFrameLength_Action(rasterKeyFrameBuilder.Id, rasterKeyFrameBuilder.StartFrame, rasterKeyFrameBuilder.Duration),
-                        new EndKeyFrameLength_Action(),
-                        new ActiveFrame_Action(rasterKeyFrameBuilder.StartFrame + rasterKeyFrameBuilder.Duration),
-                        new EndActiveFrame_Action());
+                        new EndKeyFrameLength_Action());
                     
                     PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface, rasterKeyFrameBuilder.Surface.Surface.Size.X,
                         rasterKeyFrameBuilder.Surface.Surface.Size.Y, 0, 0, false);
@@ -396,7 +394,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// Tries rendering the whole document
     /// </summary>
     /// <returns><see cref="Error"/> if the ChunkyImage was disposed, otherwise a <see cref="Surface"/> of the rendered document</returns>
-    public OneOf<Error, Surface> TryRenderWholeImage()
+    public OneOf<Error, Surface> TryRenderWholeImage(int frame)
     {
         try
         {
@@ -407,7 +405,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 for (int j = 0; j < sizeInChunks.Y; j++)
                 {
                     var maybeChunk = ChunkRenderer.MergeWholeStructure(new(i, j), ChunkResolution.Full,
-                        Internals.Tracker.Document.StructureRoot);
+                        Internals.Tracker.Document.StructureRoot, frame);
                     if (maybeChunk.IsT1)
                         continue;
                     using Chunk chunk = maybeChunk.AsT0;
@@ -487,7 +485,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// <param name="includeReference">Should the color be picked from the reference layer</param>
     /// <param name="includeCanvas">Should the color be picked from the canvas</param>
     /// <param name="referenceTopmost">Is the reference layer topmost. (Only affects the result is includeReference and includeCanvas are set.)</param>
-    public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas,
+    public Color PickColor(VecD pos, DocumentScope scope, bool includeReference, bool includeCanvas, int frame,
         bool referenceTopmost = false)
     {
         if (scope == DocumentScope.SingleLayer && includeReference && includeCanvas)
@@ -495,7 +493,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         if (includeCanvas && includeReference)
         {
-            Color canvasColor = PickColorFromCanvas((VecI)pos, scope);
+            Color canvasColor = PickColorFromCanvas((VecI)pos, scope, frame);
             Color? potentialReferenceColor = PickColorFromReferenceLayer(pos);
             if (potentialReferenceColor is not { } referenceColor)
                 return canvasColor;
@@ -514,7 +512,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         if (includeCanvas)
-            return PickColorFromCanvas((VecI)pos, scope);
+            return PickColorFromCanvas((VecI)pos, scope, frame);
         if (includeReference)
             return PickColorFromReferenceLayer(pos) ?? Colors.Transparent;
         return Colors.Transparent;
@@ -536,7 +534,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return bitmap.GetSRGBPixel(new VecI((int)transformed.X, (int)transformed.Y));
     }
 
-    public Color PickColorFromCanvas(VecI pos, DocumentScope scope)
+    public Color PickColorFromCanvas(VecI pos, DocumentScope scope, int frame)
     {
         // there is a tiny chance that the image might get disposed by another thread
         try
@@ -547,7 +545,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
                 return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full,
-                        Internals.Tracker.Document.StructureRoot, new RectI(pos, VecI.One))
+                        Internals.Tracker.Document.StructureRoot, frame, new RectI(pos, VecI.One))
                     .Match<Color>(
                         (Chunk chunk) =>
                         {
@@ -565,7 +563,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             IReadOnlyStructureMember? maybeMember = Internals.Tracker.Document.FindMember(layerVm.GuidValue);
             if (maybeMember is not IReadOnlyLayer layer)
                 return Colors.Transparent;
-            return layer.Rasterize().GetMostUpToDatePixel(pos);
+            return layer.Rasterize(frame).GetMostUpToDatePixel(pos);
         }
         catch (ObjectDisposedException)
         {
@@ -738,11 +736,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Image[] images = new Image[framesCount];
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            Internals.Tracker.ProcessActionsSync(new List<IAction>
-            {
-                new ActiveFrame_Action(i), new EndActiveFrame_Action()
-            });
-            var surface = TryRenderWholeImage();
+            var surface = TryRenderWholeImage(i);
             if (surface.IsT0)
             {
                 continue;
@@ -757,10 +751,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             surface.AsT1.Dispose();
         }
 
-        Internals.Tracker.ProcessActionsSync(new List<IAction>
-        {
-            new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action()
-        });
         return images;
     }
 
@@ -781,11 +771,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            Internals.Tracker.ProcessActionsSync(new List<IAction>
-            {
-                new ActiveFrame_Action(i), new EndActiveFrame_Action()
-            });
-            var surface = TryRenderWholeImage();
+            var surface = TryRenderWholeImage(i);
             if (surface.IsT0)
             {
                 continue;
@@ -794,11 +780,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             processFrameAction(surface.AsT1, i - firstFrame);
             surface.AsT1.Dispose();
         }
-
-        Internals.Tracker.ProcessActionsSync(new List<IAction>
-        {
-            new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action()
-        });
     }
 
     public bool RenderFrames(string tempRenderingPath, Func<Surface, Surface> processFrameAction = null)
@@ -819,15 +800,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         var firstFrame = keyFrames.Min(x => x.StartFrameBindable);
         var lastFrame = keyFrames.Max(x => x.StartFrameBindable + x.DurationBindable);
 
-        int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
-
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            Internals.Tracker.ProcessActionsSync(new List<IAction>
-            {
-                new ActiveFrame_Action(i), new EndActiveFrame_Action()
-            });
-            var surface = TryRenderWholeImage();
+            var surface = TryRenderWholeImage(i);
             if (surface.IsT0)
             {
                 return false;
@@ -843,10 +818,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             stream.Position = 0;
         }
 
-        Internals.Tracker.ProcessActionsSync(new List<IAction>
-        {
-            new ActiveFrame_Action(activeFrame), new EndActiveFrame_Action()
-        });
         return true;
     }
 

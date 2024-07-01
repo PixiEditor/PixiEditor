@@ -17,14 +17,6 @@ internal class RasterKeyFrame : KeyFrame, IReadOnlyRasterKeyFrame
         Document = document;
     }
     
-    public override void ActiveFrameChanged(int atFrame)
-    {
-        if (Document.TryFindMember<RasterLayer>(LayerGuid, out var layer))
-        {
-            layer.LayerImage = Image;
-        }
-    }
-
     public override KeyFrame Clone()
     {
         var image = Image.CloneFromCommitted();

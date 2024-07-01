@@ -50,7 +50,7 @@ internal interface IDocument : IHandler
     public void SetVerticalSymmetryAxisEnabled(bool infoState);
     public void UpdateSelectionPath(VectorPath infoNewPath);
     public void SetSize(VecI infoSize);
-    public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference, bool includeCanvas, bool isTopMost);
+    public Color PickColor(VecD controllerLastPrecisePosition, DocumentScope scope, bool includeReference, bool includeCanvas, int frame, bool isTopMost);
     public List<Guid> ExtractSelectedLayers(bool includeFoldersWithMask = false);
     public void UpdateSavedState();
 }

@@ -250,7 +250,7 @@ internal partial class ExportFilePopup : PixiEditorPopup
         }
         else
         {
-            var rendered = document.TryRenderWholeImage();
+            var rendered = document.TryRenderWholeImage(0);
             if (rendered.IsT1)
             {
                 VecI previewSize = CalculatePreviewSize(rendered.AsT1.Size);

@@ -33,15 +33,6 @@ internal class GroupKeyFrame : KeyFrame, IKeyFrameChildrenContainer
         }
     }
 
-    public override void Deactivated(int atFrame)
-    {
-        //if(atFrame >= EndFrame) return;
-        if (document.TryFindMember<RasterLayer>(LayerGuid, out var layer))
-        {
-           layer.LayerImage = originalLayerImage;
-        }
-    }
-
     public override bool IsWithinRange(int frame)
     {
         return frame >= StartFrame && frame < EndFrame + 1;

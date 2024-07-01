@@ -53,7 +53,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     /// <remarks>So yeah, welcome folks to the multithreaded world, where possibilities are endless! (and chances of objects getting
     /// edited, in between of processing you want to make exist). You might encounter ObjectDisposedException and other mighty creatures here if
     /// you are lucky enough. Have fun!</remarks>
-    public Surface? GetLayerRasterizedImage(Guid layerGuid)
+    public Surface? GetLayerRasterizedImage(Guid layerGuid, int frame)
     {
         var layer = (IReadOnlyLayer?)FindMember(layerGuid);
 
@@ -70,7 +70,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
 
         Surface surface = new Surface(tightBounds.Value.Size);
 
-        layer.Rasterize().DrawMostUpToDateRegionOn(
+        layer.Rasterize(frame).DrawMostUpToDateRegionOn(
             tightBounds.Value,
             ChunkResolution.Full,
             surface.DrawingSurface, VecI.Zero);

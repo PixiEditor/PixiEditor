@@ -26,7 +26,7 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
         includeReference = tool.PickFromReferenceLayer && document!.ReferenceLayerHandler.ReferenceBitmap is not null;
         includeCanvas = tool.PickFromCanvas;
         
-        colorsViewModel.PrimaryColor = document.PickColor(controller.LastPrecisePosition, scope, includeReference, includeCanvas, document.ReferenceLayerHandler.IsTopMost);
+        colorsViewModel.PrimaryColor = document.PickColor(controller.LastPrecisePosition, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
         return ExecutionState.Success;
     }
 
@@ -34,12 +34,12 @@ internal class ColorPickerToolExecutor : UpdateableChangeExecutor
     {
         if (!includeReference)
             return;
-        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.ReferenceLayerHandler.IsTopMost);
+        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
     }
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.ReferenceLayerHandler.IsTopMost);
+        colorsViewModel.PrimaryColor = document.PickColor(pos, scope, includeReference, includeCanvas, document.AnimationHandler.ActiveFrameBindable, document.ReferenceLayerHandler.IsTopMost);
     }
 
     public override void OnLeftMouseButtonUp()

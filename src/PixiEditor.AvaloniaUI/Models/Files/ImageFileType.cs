@@ -30,7 +30,7 @@ internal abstract class ImageFileType : IoFileType
         }
         else
         {
-            var maybeBitmap = document.TryRenderWholeImage();
+            var maybeBitmap = document.TryRenderWholeImage(0);
             if (maybeBitmap.IsT0)
                 return SaveResult.ConcurrencyError;
             

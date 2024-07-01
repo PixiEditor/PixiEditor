@@ -62,7 +62,4 @@ internal abstract class UpdateableChangeExecutor
     public virtual void OnMidChangeUndo() { }
     public virtual void OnMidChangeRedo() { }
     public virtual void OnSelectedObjectNudged(VecI distance) { }
-    public virtual void OnActiveAnimationFrameStarted() { }
-    public virtual void ActiveFrameChanged(int newActiveFrame) { }
-    public virtual void OnActiveAnimationFrameEnded() { }
 }

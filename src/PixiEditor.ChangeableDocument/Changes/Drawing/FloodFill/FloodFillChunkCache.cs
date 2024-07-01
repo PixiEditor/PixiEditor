@@ -14,6 +14,7 @@ internal class FloodFillChunkCache : IDisposable
     private readonly HashSet<Guid>? membersToRender;
     private readonly IReadOnlyFolder? structureRoot;
     private readonly IReadOnlyChunkyImage? image;
+    private readonly int frame;
 
     private readonly Dictionary<VecI, OneOf<Chunk, EmptyChunk>> acquiredChunks = new();
 
@@ -22,10 +23,11 @@ internal class FloodFillChunkCache : IDisposable
         this.image = image;
     }
 
-    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyFolder structureRoot)
+    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyFolder structureRoot, int frame)
     {
         this.membersToRender = membersToRender;
         this.structureRoot = structureRoot;
+        this.frame = frame;
     }
 
     public bool ChunkExistsInStorage(VecI pos)
@@ -38,15 +40,15 @@ internal class FloodFillChunkCache : IDisposable
     public OneOf<Chunk, EmptyChunk> GetChunk(VecI pos)
     {
         // the chunk was already acquired before, return cached
-        if (acquiredChunks.ContainsKey(pos))
-            return acquiredChunks[pos];
+        if (acquiredChunks.TryGetValue(pos, out var foundChunk))
+            return foundChunk;
 
         // need to get the chunk by merging multiple members
         if (image is null)
         {
             if (structureRoot is null || membersToRender is null)
                 throw new InvalidOperationException();
-            var chunk = ChunkRenderer.MergeChosenMembers(pos, ChunkResolution.Full, structureRoot, membersToRender);
+            var chunk = ChunkRenderer.MergeChosenMembers(pos, ChunkResolution.Full, structureRoot, frame, membersToRender);
             acquiredChunks[pos] = chunk;
             return chunk;
         }

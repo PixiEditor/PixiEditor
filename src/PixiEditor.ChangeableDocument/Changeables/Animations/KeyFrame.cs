@@ -64,9 +64,6 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
         Id = Guid.NewGuid();
     }
     
-    public virtual void ActiveFrameChanged(int atFrame) { }
-    public virtual void Deactivated(int atFrame) { }
-
     public virtual bool IsWithinRange(int frame)
     {
         return frame >= StartFrame && frame < EndFrame;

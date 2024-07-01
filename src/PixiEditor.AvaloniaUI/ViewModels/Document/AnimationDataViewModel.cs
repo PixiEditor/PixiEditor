@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
+using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -27,9 +28,7 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             if (Document.UpdateableChangeActive)
                 return;
 
-            Internals.ActionAccumulator.AddFinishedActions(
-                new ActiveFrame_Action(value),
-                new EndActiveFrame_Action());
+            Internals.ActionAccumulator.AddActions(new SetActiveFrame_PassthroughAction(value));
         }
     }
 

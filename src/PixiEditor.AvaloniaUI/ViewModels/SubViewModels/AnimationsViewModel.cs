@@ -98,7 +98,6 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
         
         Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.StartChangeActiveFrame();
-        Owner.DocumentManagerSubViewModel.ActiveDocument.Tools.UseActiveFrame(newActiveFrame);
     }
     
     [Command.Internal("PixiEditor.Document.ChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]

@@ -9,15 +9,17 @@ internal class CombineStructureMembersOnto_Change : Change
     private HashSet<Guid> membersToMerge;
 
     private HashSet<Guid> layersToCombine = new();
+    private int frame;
 
     private Guid targetLayer;
     private CommittedChunkStorage? originalChunks;
 
     [GenerateMakeChangeAction]
-    public CombineStructureMembersOnto_Change(HashSet<Guid> membersToMerge, Guid targetLayer)
+    public CombineStructureMembersOnto_Change(HashSet<Guid> membersToMerge, Guid targetLayer, int frame)
     {
         this.membersToMerge = new HashSet<Guid>(membersToMerge);
         this.targetLayer = targetLayer;
+        this.frame = frame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -64,7 +66,7 @@ internal class CombineStructureMembersOnto_Change : Change
         toDrawOn.LayerImage.EnqueueClear();
         foreach (var chunk in chunksToCombine)
         {
-            OneOf<Chunk, EmptyChunk> combined = ChunkRenderer.MergeChosenMembers(chunk, ChunkResolution.Full, target.StructureRoot, layersToCombine);
+            OneOf<Chunk, EmptyChunk> combined = ChunkRenderer.MergeChosenMembers(chunk, ChunkResolution.Full, target.StructureRoot, frame, layersToCombine);
             if (combined.IsT0)
             {
                 toDrawOn.LayerImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);

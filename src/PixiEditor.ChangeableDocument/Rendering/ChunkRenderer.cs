@@ -21,13 +21,13 @@ public static class ChunkRenderer
         return (RectI?)rect.Scale(multiplier).Translate(-pixelChunkPos).RoundOutwards();
     }
 
-    public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root, RectI? globalClippingRect = null)
+    public static OneOf<Chunk, EmptyChunk> MergeWholeStructure(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root, int frame, RectI? globalClippingRect = null)
     {
         using RenderingContext context = new();
         try
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
-            return MergeFolderContents(context, chunkPos, resolution, root, new All(), transformedClippingRect);
+            return MergeFolderContents(context, chunkPos, resolution, root, frame, new All(), transformedClippingRect);
         }
         catch (ObjectDisposedException)
         {
@@ -35,13 +35,13 @@ public static class ChunkRenderer
         }
     }
 
-    public static OneOf<Chunk, EmptyChunk> MergeChosenMembers(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root, HashSet<Guid> members, RectI? globalClippingRect = null)
+    public static OneOf<Chunk, EmptyChunk> MergeChosenMembers(VecI chunkPos, ChunkResolution resolution, IReadOnlyFolder root, int frame, HashSet<Guid> members, RectI? globalClippingRect = null)
     {
         using RenderingContext context = new();
         try
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
-            return MergeFolderContents(context, chunkPos, resolution, root, members, transformedClippingRect);
+            return MergeFolderContents(context, chunkPos, resolution, root, frame, members, transformedClippingRect);
         }
         catch (ObjectDisposedException)
         {
@@ -53,6 +53,7 @@ public static class ChunkRenderer
         RenderingContext context,
         Chunk targetChunk,
         VecI chunkPos,
+        int frame,
         ChunkResolution resolution,
         IReadOnlyLayer layer,
         OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk,
@@ -77,7 +78,7 @@ public static class ChunkRenderer
             targetChunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
         }
 
-        if (!layer.Rasterize().DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
+        if (!layer.Rasterize(frame).DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
@@ -107,6 +108,7 @@ public static class ChunkRenderer
         RenderingContext context,
         Chunk targetChunk,
         VecI chunkPos,
+        int frame,
         ChunkResolution resolution,
         IReadOnlyLayer layer,
         OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk,
@@ -116,7 +118,7 @@ public static class ChunkRenderer
             return new EmptyChunk();
 
         if (layer.Mask is not null && layer.MaskIsVisible)
-            return RenderLayerWithMask(context, targetChunk, chunkPos, resolution, layer, clippingChunk, transformedClippingRect);
+            return RenderLayerWithMask(context, targetChunk, chunkPos, frame, resolution, layer, clippingChunk, transformedClippingRect);
 
         context.UpdateFromMember(layer);
         Chunk renderingResult = Chunk.Create(resolution);
@@ -127,7 +129,7 @@ public static class ChunkRenderer
             targetChunk.Surface.DrawingSurface.Canvas.Save();
             targetChunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
         }
-        if (!layer.Rasterize().DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
+        if (!layer.Rasterize(frame).DrawMostUpToDateChunkOn(chunkPos, resolution, renderingResult.Surface.DrawingSurface, VecI.Zero, context.ReplacingPaintWithOpacity))
         {
             renderingResult.Dispose();
             return new EmptyChunk();
@@ -145,12 +147,12 @@ public static class ChunkRenderer
         return renderingResult;
     }
 
-    private static void RenderLayer(
-        RenderingContext context,
+    private static void RenderLayer(RenderingContext context,
         Chunk targetChunk,
         VecI chunkPos,
         ChunkResolution resolution,
         IReadOnlyLayer layer,
+        int frame,
         OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk,
         RectI? transformedClippingRect)
     {
@@ -158,7 +160,7 @@ public static class ChunkRenderer
             return;
         if (layer.Mask is not null && layer.MaskIsVisible)
         {
-            var result = RenderLayerWithMask(context, targetChunk, chunkPos, resolution, layer, clippingChunk, transformedClippingRect);
+            var result = RenderLayerWithMask(context, targetChunk, chunkPos, frame, resolution, layer, clippingChunk, transformedClippingRect);
             if (result.IsT1)
                 result.AsT1.Dispose();
             return;
@@ -166,7 +168,7 @@ public static class ChunkRenderer
         // clipping chunk requires a temp chunk anyway so we could as well reuse the code from RenderLayerSaveResult
         if (clippingChunk.IsT2)
         {
-            var result = RenderLayerSaveResult(context, targetChunk, chunkPos, resolution, layer, clippingChunk, transformedClippingRect);
+            var result = RenderLayerSaveResult(context, targetChunk, chunkPos, frame, resolution, layer, clippingChunk, transformedClippingRect);
             if (result.IsT1)
                 result.AsT1.Dispose();
             return;
@@ -178,7 +180,7 @@ public static class ChunkRenderer
             targetChunk.Surface.DrawingSurface.Canvas.Save();
             targetChunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
         }
-        layer.Rasterize().DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.DrawingSurface, VecI.Zero, context.BlendModeOpacityPaint);
+        layer.Rasterize(frame).DrawMostUpToDateChunkOn(chunkPos, resolution, targetChunk.Surface.DrawingSurface, VecI.Zero, context.BlendModeOpacityPaint);
         if (transformedClippingRect is not null)
             targetChunk.Surface.DrawingSurface.Canvas.Restore();
     }
@@ -189,6 +191,7 @@ public static class ChunkRenderer
         VecI chunkPos,
         ChunkResolution resolution,
         IReadOnlyFolder folder,
+        int frame,
         OneOf<FilledChunk, EmptyChunk, Chunk> clippingChunk,
         OneOf<All, HashSet<Guid>> membersToMerge,
         RectI? transformedClippingRect)
@@ -202,7 +205,7 @@ public static class ChunkRenderer
         )
             return new EmptyChunk();
 
-        OneOf<Chunk, EmptyChunk> maybeContents = MergeFolderContents(context, chunkPos, resolution, folder, membersToMerge, transformedClippingRect);
+        OneOf<Chunk, EmptyChunk> maybeContents = MergeFolderContents(context, chunkPos, resolution, folder, frame, membersToMerge, transformedClippingRect);
         if (maybeContents.IsT1)
             return new EmptyChunk();
         Chunk contents = maybeContents.AsT0;
@@ -245,6 +248,7 @@ public static class ChunkRenderer
         VecI chunkPos,
         ChunkResolution resolution,
         IReadOnlyFolder folder,
+        int frame,
         OneOf<All, HashSet<Guid>> membersToMerge,
         RectI? transformedClippingRect)
     {
@@ -279,12 +283,12 @@ public static class ChunkRenderer
             {
                 if (needToSaveClippingChunk)
                 {
-                    OneOf<EmptyChunk, Chunk> result = RenderLayerSaveResult(context, targetChunk, chunkPos, resolution, layer, clippingChunk, transformedClippingRect);
+                    OneOf<EmptyChunk, Chunk> result = RenderLayerSaveResult(context, targetChunk, chunkPos, frame, resolution, layer, clippingChunk, transformedClippingRect);
                     clippingChunk = result.IsT0 ? result.AsT0 : result.AsT1;
                 }
                 else
                 {
-                    RenderLayer(context, targetChunk, chunkPos, resolution, layer, clippingChunk, transformedClippingRect);
+                    RenderLayer(context, targetChunk, chunkPos, resolution, layer, frame, clippingChunk, transformedClippingRect);
                 }
                 continue;
             }
@@ -300,12 +304,12 @@ public static class ChunkRenderer
                 OneOf<All, HashSet<Guid>> innerMembersToMerge = shouldRenderAllChildren ? new All() : membersToMerge;
                 if (needToSaveClippingChunk)
                 {
-                    OneOf<EmptyChunk, Chunk> result = RenderFolder(context, targetChunk, chunkPos, resolution, innerFolder, clippingChunk, innerMembersToMerge, transformedClippingRect);
+                    OneOf<EmptyChunk, Chunk> result = RenderFolder(context, targetChunk, chunkPos, resolution, innerFolder, frame, clippingChunk, innerMembersToMerge, transformedClippingRect);
                     clippingChunk = result.IsT0 ? result.AsT0 : result.AsT1;
                 }
                 else
                 {
-                    RenderFolder(context, targetChunk, chunkPos, resolution, innerFolder, clippingChunk, innerMembersToMerge, transformedClippingRect);
+                    RenderFolder(context, targetChunk, chunkPos, resolution, innerFolder, frame, clippingChunk, innerMembersToMerge, transformedClippingRect);
                 }
             }
         }

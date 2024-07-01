@@ -7,7 +7,4 @@ public interface IReadOnlyKeyFrame
     public Guid LayerGuid { get; }
     public Guid Id { get; }
     public bool IsVisible { get; }
-    
-    public void ActiveFrameChanged(int atFrame);
-    public void Deactivated(int atFrame);
 }

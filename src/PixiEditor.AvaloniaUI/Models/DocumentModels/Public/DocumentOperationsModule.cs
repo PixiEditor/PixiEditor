@@ -319,6 +319,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     public void ClearSoftSelectedMembers() => Internals.ActionAccumulator.AddActions(new ClearSoftSelectedMembers_PassthroughAction());
     
+    public void SetActiveFrame(int newFrame) => Internals.ActionAccumulator.AddActions(new SetActiveFrame_PassthroughAction(newFrame));
     public void AddSelectedKeyFrame(Guid keyFrameGuid) => Internals.ActionAccumulator.AddActions(new AddSelectedKeyFrame_PassthroughAction(keyFrameGuid));
     
     public void RemoveSelectedKeyFrame(Guid keyFrameGuid) => Internals.ActionAccumulator.AddActions(new RemoveSelectedKeyFrame_PassthroughAction(keyFrameGuid));
@@ -389,7 +390,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         Internals.ActionAccumulator.AddActions(
             new CreateStructureMember_Action(parent.GuidValue, newGuid, index, StructureMemberType.Layer),
             new StructureMemberName_Action(newGuid, child.NameBindable),
-            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid));
+            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid, Document.AnimationHandler.ActiveFrameBindable));
         foreach (var member in members)
             Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
         Internals.ActionAccumulator.AddActions(new ChangeBoundary_Action());
@@ -609,15 +610,5 @@ internal class DocumentOperationsModule : IDocumentOperations
         inverse.AddRect(new RectI(new(0, 0), Document.SizeBindable));
 
         Internals.ActionAccumulator.AddFinishedActions(new SetSelection_Action(inverse.Op(selection, VectorPathOp.Difference)));
-    }
-
-    public void SetActiveFrame(int value)
-    {
-        if (Internals.ChangeController.IsChangeActive || value is < 0)
-            return;
-        
-        Internals.ActionAccumulator.AddFinishedActions(
-            new ActiveFrame_Action(value),
-            new EndActiveFrame_Action());
     }
 }
