@@ -128,7 +128,7 @@ internal static class ClipboardController
             return true;
         }
 
-        document.Operations.PasteImagesAsLayers(images);
+        document.Operations.PasteImagesAsLayers(images, document.AnimationDataViewModel.ActiveFrameBindable);
         return true;
     }
 

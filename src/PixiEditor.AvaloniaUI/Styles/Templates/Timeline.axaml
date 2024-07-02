@@ -60,7 +60,7 @@
                             MinLeftOffset="{Binding MinLeftOffset, RelativeSource={RelativeSource TemplatedParent}}"
                             IsSnapToTickEnabled="True"
                             Name="PART_TimelineSlider"
-                            Minimum="0">
+                            Minimum="1">
                             <animations:TimelineSlider.Maximum>
                                 <MultiBinding>
                                     <MultiBinding.Converter>
@@ -92,6 +92,7 @@
                                     <MultiBinding Converter="{converters:TimelineSliderValueToMarginConverter}">
                                         <Binding Path="ActiveFrame"
                                                  RelativeSource="{RelativeSource TemplatedParent}" />
+                                        <Binding Path="Minimum" ElementName="PART_TimelineSlider"/>
                                         <Binding Path="Scale"
                                                  RelativeSource="{RelativeSource TemplatedParent}" />
                                         <Binding Path="ScrollOffset"
@@ -159,6 +160,7 @@
                                                 Scale="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=animations:Timeline}}"
                                                 IsEnabled="{Binding IsVisible}"
                                                 IsSelected="{Binding IsSelected, Mode=TwoWay}"
+                                                Min="{Binding ElementName=PART_TimelineSlider, Path=Minimum}"
                                                 Item="{Binding}">
                                                 <animations:KeyFrame.Width>
                                                     <MultiBinding Converter="{converters:DurationToWidthConverter}">

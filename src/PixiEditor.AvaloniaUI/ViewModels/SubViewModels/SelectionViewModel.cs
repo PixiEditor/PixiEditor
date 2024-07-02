@@ -84,7 +84,10 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     [Command.Filter("PixiEditor.Selection.ToMaskMenu", "SELECTION_TO_MASK", "SELECTION_TO_MASK", Key = Key.M, Modifiers = KeyModifiers.Control)]
     public void SelectionToMask(SelectionMode mode)
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.SelectionToMask(mode);
+        if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
+            return;
+        
+        Owner.DocumentManagerSubViewModel.ActiveDocument.Operations.SelectionToMask(mode, Owner.DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable);
     }
 
     [Command.Basic("PixiEditor.Selection.CropToSelection", "CROP_TO_SELECTION", "CROP_TO_SELECTION_DESCRIPTIVE", CanExecute = "PixiEditor.Selection.IsNotEmpty",
@@ -93,7 +96,7 @@ internal class SelectionViewModel : SubViewModel<ViewModelMain>
     {
         var document = Owner.DocumentManagerSubViewModel.ActiveDocument;
         
-        document!.Operations.CropToSelection();
+        document!.Operations.CropToSelection(document.AnimationDataViewModel.ActiveFrameBindable);
     }
 
     [Evaluator.CanExecute("PixiEditor.Selection.CanNudgeSelectedObject")]

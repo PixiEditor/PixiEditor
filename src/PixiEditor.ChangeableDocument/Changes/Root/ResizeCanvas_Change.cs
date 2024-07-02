@@ -11,7 +11,7 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
     private readonly ResizeAnchor anchor;
 
     [GenerateMakeChangeAction]
-    public ResizeCanvas_Change(VecI size, ResizeAnchor anchor, int frame) : base(frame)
+    public ResizeCanvas_Change(VecI size, ResizeAnchor anchor)
     {
         newSize = size;
         this.anchor = anchor;
@@ -21,11 +21,12 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
     {
         if (newSize.X < 1 || newSize.Y < 1)
             return false;
-        
+
         return base.InitializeAndValidate(target);
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         if (_originalSize == newSize)
         {
@@ -47,7 +48,10 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
         {
             if (member is RasterLayer layer)
             {
-                Resize(layer.GetLayerImageAtFrame(frame), layer.GuidValue, newSize, offset, deletedChunks);
+                layer.ForEveryFrame(img =>
+                {
+                    Resize(img, layer.GuidValue, newSize, offset, deletedChunks);
+                });
             }
 
             // TODO: Check if adding support for different Layer types is necessary
@@ -57,7 +61,7 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
 
             Resize(member.Mask, member.GuidValue, newSize, offset, deletedMaskChunks);
         });
-        
+
         ignoreInUndo = false;
         return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
     }

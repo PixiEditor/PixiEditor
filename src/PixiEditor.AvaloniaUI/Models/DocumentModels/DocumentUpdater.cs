@@ -133,7 +133,7 @@ internal class DocumentUpdater
             case DeleteKeyFrame_ChangeInfo info:
                 ProcessDeleteKeyFrame(info);
                 break;
-            case ActiveFrame_ChangeInfo info:
+            case SetActiveFrame_PassthroughAction info:
                 ProcessActiveFrame(info);
                 break;
             case KeyFrameLength_ChangeInfo info:
@@ -429,9 +429,9 @@ internal class DocumentUpdater
         doc.AnimationHandler.RemoveKeyFrame(info.DeletedKeyFrameId);
     }
     
-    private void ProcessActiveFrame(ActiveFrame_ChangeInfo info)
+    private void ProcessActiveFrame(SetActiveFrame_PassthroughAction info)
     {
-        doc.AnimationHandler.SetActiveFrame(info.ActiveFrame);
+        doc.AnimationHandler.SetActiveFrame(info.Frame);
     }
     
     private void ProcessKeyFrameLength(KeyFrameLength_ChangeInfo info)

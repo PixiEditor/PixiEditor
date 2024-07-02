@@ -55,10 +55,13 @@ internal class MemberPreviewUpdater
 
         Dictionary<Guid, (VecI previewSize, RectI tightBounds)?>? changedMainPreviewBounds = null;
         Dictionary<Guid, (VecI previewSize, RectI tightBounds)?>? changedMaskPreviewBounds = null;
+        
+        int atFrame = doc.AnimationHandler.ActiveFrameBindable;
+        
         await Task.Run(() =>
         {
-            changedMainPreviewBounds = FindChangedTightBounds(false);
-            changedMaskPreviewBounds = FindChangedTightBounds(true);
+            changedMainPreviewBounds = FindChangedTightBounds(atFrame, false);
+            changedMaskPreviewBounds = FindChangedTightBounds(atFrame, true);
         }).ConfigureAwait(true);
 
         RecreatePreviewBitmaps(changedMainPreviewBounds!, changedMaskPreviewBounds!);
@@ -94,9 +97,11 @@ internal class MemberPreviewUpdater
         AddAreasToAccumulator(chunkGatherer);
         if (!rerenderPreviews)
             return new List<IRenderInfo>();
+        
+        int frame = doc.AnimationHandler.ActiveFrameBindable;
 
-        var changedMainPreviewBounds = FindChangedTightBounds(false);
-        var changedMaskPreviewBounds = FindChangedTightBounds(true);
+        var changedMainPreviewBounds = FindChangedTightBounds(frame, false);
+        var changedMaskPreviewBounds = FindChangedTightBounds(frame, true);
 
         RecreatePreviewBitmaps(changedMainPreviewBounds, changedMaskPreviewBounds);
         var renderInfos = Render(changedMainPreviewBounds, changedMaskPreviewBounds);
@@ -162,7 +167,7 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Looks at the accumulated areas and determines which members need to have their preview bitmaps resized or deleted
     /// </summary>
-    private Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> FindChangedTightBounds(bool forMasks)
+    private Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> FindChangedTightBounds(int atFrame, bool forMasks)
     {
         // VecI? == null stands for "layer is empty, the preview needs to be deleted"
         Dictionary<Guid, (VecI previewSize, RectI tightBounds)?> newPreviewBitmapSizes = new();
@@ -181,7 +186,7 @@ internal class MemberPreviewUpdater
                 continue;
             }
 
-            RectI? tightBounds = GetOrFindMemberTightBounds(member, area, forMasks);
+            RectI? tightBounds = GetOrFindMemberTightBounds(member, atFrame, area, forMasks);
             RectI? maybeLastBounds = targetLastBounds.TryGetValue(guid, out RectI lastBounds) ? lastBounds : null;
             if (tightBounds == maybeLastBounds)
                 continue;
@@ -271,7 +276,7 @@ internal class MemberPreviewUpdater
     /// Returns the previosly known committed tight bounds if there are no reasons to believe they have changed (based on the passed <paramref name="currentlyAffectedArea"/>).
     /// Otherwise, calculates the new bounds via <see cref="FindLayerTightBounds"/> and returns them.
     /// </summary>
-    private RectI? GetOrFindMemberTightBounds(IReadOnlyStructureMember member, AffectedArea currentlyAffectedArea, bool forMask)
+    private RectI? GetOrFindMemberTightBounds(IReadOnlyStructureMember member, int atFrame, AffectedArea currentlyAffectedArea, bool forMask)
     {
         if (forMask && member.Mask is null)
             throw new InvalidOperationException();
@@ -291,8 +296,8 @@ internal class MemberPreviewUpdater
 
         return member switch
         {
-            IReadOnlyLayer layer => FindLayerTightBounds(layer, forMask),
-            IReadOnlyFolder folder => FindFolderTightBounds(folder, forMask),
+            IReadOnlyLayer layer => FindLayerTightBounds(layer, atFrame, forMask),
+            IReadOnlyFolder folder => FindFolderTightBounds(folder, atFrame, forMask),
             _ => throw new ArgumentOutOfRangeException()
         };
     }
@@ -300,7 +305,7 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Finds the current committed tight bounds for a layer.
     /// </summary>
-    private RectI? FindLayerTightBounds(IReadOnlyLayer layer, bool forMask)
+    private RectI? FindLayerTightBounds(IReadOnlyLayer layer, int frame, bool forMask)
     {
         if (layer.Mask is null && forMask)
             throw new InvalidOperationException();
@@ -310,16 +315,16 @@ internal class MemberPreviewUpdater
 
         if (layer is IReadOnlyRasterLayer raster)
         {
-            return FindImageTightBoundsFast(raster.LayerImage);
+            return FindImageTightBoundsFast(raster.GetLayerImageAtFrame(frame));
         }
 
-        return layer.GetTightBounds();
+        return layer.GetTightBounds(frame);
     }
 
     /// <summary>
     /// Finds the current committed tight bounds for a folder recursively.
     /// </summary>
-    private RectI? FindFolderTightBounds(IReadOnlyFolder folder, bool forMask)
+    private RectI? FindFolderTightBounds(IReadOnlyFolder folder, int frame, bool forMask)
     {
         if (forMask)
         {
@@ -334,9 +339,9 @@ internal class MemberPreviewUpdater
             RectI? curBounds = null;
             
             if (child is IReadOnlyLayer childLayer)
-                curBounds = FindLayerTightBounds(childLayer, false);
+                curBounds = FindLayerTightBounds(childLayer, frame, false);
             else if (child is IReadOnlyFolder childFolder)
-                curBounds = FindFolderTightBounds(childFolder, false);
+                curBounds = FindFolderTightBounds(childFolder, frame, false);
 
             if (combinedBounds is null)
                 combinedBounds = curBounds;
@@ -428,7 +433,7 @@ internal class MemberPreviewUpdater
                 _ => ChunkResolution.Eighth,
             };
             var pos = chunkPos * resolution.PixelSize();
-            var rendered = ChunkRenderer.MergeWholeStructure(chunkPos, resolution, internals.Tracker.Document.StructureRoot);
+            var rendered = ChunkRenderer.MergeWholeStructure(chunkPos, resolution, internals.Tracker.Document.StructureRoot, doc.AnimationHandler.ActiveFrameBindable);
             doc.PreviewSurface.DrawingSurface.Canvas.Save();
             doc.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
             doc.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)cumulative.GlobalArea);
@@ -534,7 +539,7 @@ internal class MemberPreviewUpdater
             var pos = chunk * ChunkResolution.Full.PixelSize();
             // drawing in full res here is kinda slow
             // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
-            OneOf<Chunk, EmptyChunk> rendered = ChunkRenderer.MergeWholeStructure(chunk, ChunkResolution.Full, folder);
+            OneOf<Chunk, EmptyChunk> rendered = ChunkRenderer.MergeWholeStructure(chunk, ChunkResolution.Full, folder, doc.AnimationHandler.ActiveFrameBindable);
             if (rendered.IsT0)
             {
                 memberVM.PreviewSurface.DrawingSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
@@ -561,7 +566,7 @@ internal class MemberPreviewUpdater
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
-            if (!layer.Rasterize().DrawCommittedChunkOn(chunk, ChunkResolution.Full, memberVM.PreviewSurface.DrawingSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
+            if (!layer.Rasterize(doc.AnimationHandler.ActiveFrameBindable).DrawCommittedChunkOn(chunk, ChunkResolution.Full, memberVM.PreviewSurface.DrawingSurface, pos, scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
                 memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize, ChunkyImage.FullChunkSize, ClearPaint);
         }
 

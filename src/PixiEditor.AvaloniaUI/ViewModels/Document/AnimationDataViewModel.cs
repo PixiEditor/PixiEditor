@@ -12,7 +12,7 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
 internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
 {
-    private int _activeFrameBindable;
+    private int _activeFrameBindable = 1;
     private int _frameRate = 60;
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
@@ -54,12 +54,12 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         Internals = internals;
     }
 
-    public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, bool cloneFromExisting)
+    public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null)
     {
         if (!Document.UpdateableChangeActive)
         {
             Internals.ActionAccumulator.AddFinishedActions(new CreateRasterKeyFrame_Action(targetLayerGuid, Guid.NewGuid(), frame,
-                cloneFromExisting));
+                frameToCopyFrom ?? -1, toCloneFrom ?? Guid.Empty));
         }
     }
 

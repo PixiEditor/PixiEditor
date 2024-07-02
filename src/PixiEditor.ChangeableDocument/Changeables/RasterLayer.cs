@@ -15,7 +15,7 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
 
     public RasterLayer(VecI size)
     {
-        frameImages.Add(new ImageFrame(0, 0, new(size)));
+        frameImages.Add(new ImageFrame(Guid.NewGuid(), 0, 0, new(size)));
     }
 
     public RasterLayer(List<ImageFrame> frames)
@@ -37,15 +37,30 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
 
     IReadOnlyChunkyImage IReadOnlyRasterLayer.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
     void IReadOnlyRasterLayer.SetLayerImageAtFrame(int frame, IReadOnlyChunkyImage newLayerImage) => SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
-    
+
+    void IReadOnlyRasterLayer.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
+
+    public void ForEveryFrame(Action<ChunkyImage> action)
+    {
+        foreach (var frame in frameImages)
+        {
+            action(frame.Image);
+        }
+    }
+
     public ChunkyImage GetLayerImageAtFrame(int frame)
     {
         return Rasterize(frame);
     }
+    
+    public ChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid)
+    {
+        return frameImages.FirstOrDefault(x => x.KeyFrameGuid == keyFrameGuid)?.Image ?? frameImages[0].Image;
+    }
 
     public override ChunkyImage Rasterize(KeyFrameTime frameTime)
     {
-        if (frameImages.Count == 0)
+        if (frameTime.Frame == 0 || frameImages.Count == 1)
         {
             return frameImages[0].Image;
         }
@@ -53,6 +68,12 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
         ImageFrame frame = frameImages.FirstOrDefault(x => x.IsInFrame(frameTime.Frame));
 
         return frame?.Image ?? frameImages[0].Image;
+    }
+
+    public override void RemoveKeyFrame(Guid keyFrameGuid)
+    {
+        // Remove all in case I'm the lucky winner of guid collision
+        frameImages.RemoveAll(x => x.KeyFrameGuid == keyFrameGuid);
     }
 
     public override RectI? GetTightBounds(int frame)
@@ -68,7 +89,7 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
         List<ImageFrame> clonedFrames = new();
         foreach (var frame in frameImages)
         {
-            clonedFrames.Add(new ImageFrame(frame.StartFrame, frame.EndFrame, frame.Image.CloneFromCommitted()));
+            clonedFrames.Add(new ImageFrame(frame.KeyFrameGuid, frame.StartFrame, frame.Duration, frame.Image.CloneFromCommitted()));
         }
         
         return new RasterLayer(clonedFrames)
@@ -93,28 +114,34 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
             existingFrame.Image.Dispose();
             existingFrame.Image = newLayerImage;
         }
-        else
-        {
-            frameImages.Add(new ImageFrame(frame, frame, newLayerImage));
-        }
+    }
+
+
+    public void AddFrame(Guid keyFrameGuid, int startFrame, int duration, ChunkyImage frameImg)
+    {
+        ImageFrame newFrame = new(keyFrameGuid, startFrame, duration, frameImg);
+        frameImages.Add(newFrame);
     }
 }
 
 class ImageFrame
 {
     public int StartFrame { get; set; }
-    public int EndFrame { get; set; }
+    public int Duration { get; set; }
     public ChunkyImage Image { get; set; }
+    
+    public Guid KeyFrameGuid { get; set; }
 
-    public ImageFrame(int startFrame, int endFrame, ChunkyImage image)
+    public ImageFrame(Guid keyFrameGuid, int startFrame, int duration, ChunkyImage image)
     {
         StartFrame = startFrame;
-        EndFrame = endFrame;
+        Duration = duration;
         Image = image;
+        KeyFrameGuid = keyFrameGuid;
     }
 
     public bool IsInFrame(int frame)
     {
-        return frame >= StartFrame && frame <= EndFrame;
+        return frame >= StartFrame && frame < StartFrame + Duration;
     }
 }

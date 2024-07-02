@@ -8,8 +8,6 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
     private int duration;
     private bool isVisible = true;
     
-    public event Action KeyFrameChanged;
-
     public virtual int StartFrame
     {
         get => startFrame;
@@ -21,7 +19,6 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
             }
 
             startFrame = value;
-            KeyFrameChanged?.Invoke();
         }
     }
 
@@ -36,7 +33,6 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
             }
 
             duration = value;
-            KeyFrameChanged?.Invoke();
         }
     }
     
@@ -52,7 +48,6 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
         {
             isVisible = value;
             OnVisibilityChanged();
-            KeyFrameChanged?.Invoke();
         }
     }
 

@@ -58,7 +58,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         if (toolViewModel!.Snap)
             pos = ShapeToolExecutor<IShapeToolHandler>.Get45IncrementedPosition(startPos, pos);
         curPos = pos;
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, pos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, startPos, pos, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnLeftMouseButtonUp()
@@ -77,7 +77,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
     {
         if (!transforming)
             return;
-        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, (VecI)start, (VecI)end, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new DrawLine_Action(memberGuid, (VecI)start, (VecI)end, strokeWidth, strokeColor, StrokeCap.Butt, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnSelectedObjectNudged(VecI distance)

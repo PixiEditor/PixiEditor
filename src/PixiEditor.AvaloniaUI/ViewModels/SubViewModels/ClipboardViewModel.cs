@@ -39,7 +39,7 @@ internal class ClipboardViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return;
         await Copy();
-        doc.Operations.DeleteSelectedPixels(true);
+        doc.Operations.DeleteSelectedPixels(doc.AnimationDataViewModel.ActiveFrameBindable, true);
     }
 
     [Command.Basic("PixiEditor.Clipboard.Paste", false, "PASTE", "PASTE_DESCRIPTIVE", CanExecute = "PixiEditor.Clipboard.CanPaste", Key = Key.V, Modifiers = KeyModifiers.Shift,

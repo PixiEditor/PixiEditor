@@ -13,45 +13,46 @@ internal sealed class RotateImage_Change : Change
 {
     private readonly RotationAngle rotation;
     private List<Guid> membersToRotate;
-    
+
     private VecI originalSize;
     private double originalHorAxisY;
     private double originalVerAxisX;
     private Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
-    int frame;
-    
+    private int? frame;
+
     [GenerateMakeChangeAction]
     public RotateImage_Change(RotationAngle rotation, List<Guid>? membersToRotate, int frame)
     {
         this.rotation = rotation;
         membersToRotate ??= new List<Guid>();
         this.membersToRotate = membersToRotate;
-        this.frame = frame;
+        this.frame = frame < 0 ? null : frame;
     }
-    
+
     public override bool InitializeAndValidate(Document target)
     {
         if (membersToRotate.Count > 0)
         {
             membersToRotate = target.ExtractLayers(membersToRotate);
-            
+
             foreach (var layer in membersToRotate)
             {
                 if (!target.HasMember(layer)) return false;
-            }  
+            }
         }
-        
+
         originalSize = target.Size;
         originalHorAxisY = target.HorizontalSymmetryAxisY;
         originalVerAxisX = target.VerticalSymmetryAxisX;
         return true;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         var changes = Rotate(target);
-        
+
         ignoreInUndo = false;
         return changes;
     }
@@ -71,21 +72,18 @@ internal sealed class RotateImage_Change : Change
 
         int originalWidth = bounds.Width;
         int originalHeight = bounds.Height;
-        
+
         int newWidth = rotation == RotationAngle.D180 ? originalWidth : originalHeight;
         int newHeight = rotation == RotationAngle.D180 ? originalHeight : originalWidth;
 
         VecI oldSize = new VecI(originalWidth, originalHeight);
         VecI newSize = new VecI(newWidth, newHeight);
-        
-        using Paint paint = new()
-        {
-            BlendMode = DrawingApi.Core.Surface.BlendMode.Src
-        };
-        
+
+        using Paint paint = new() { BlendMode = DrawingApi.Core.Surface.BlendMode.Src };
+
         using Surface originalSurface = new(oldSize);
         img.DrawMostUpToDateRegionOn(
-            bounds, 
+            bounds,
             ChunkResolution.Full,
             originalSurface.DrawingSurface,
             VecI.Zero);
@@ -103,14 +101,14 @@ internal sealed class RotateImage_Change : Change
                 translationX = 0;
                 break;
         }
-        
+
         flipped.DrawingSurface.Canvas.Save();
         flipped.DrawingSurface.Canvas.Translate(translationX, translationY);
         flipped.DrawingSurface.Canvas.RotateRadians(RotationAngleToRadians(rotation), 0, 0);
         flipped.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
         flipped.DrawingSurface.Canvas.Restore();
 
-        if (membersToRotate.Count == 0) 
+        if (membersToRotate.Count == 0)
         {
             img.EnqueueResize(newSize);
         }
@@ -144,7 +142,17 @@ internal sealed class RotateImage_Change : Change
             {
                 if (member is RasterLayer layer)
                 {
-                    Resize(layer.GetLayerImageAtFrame(frame), layer.GuidValue, deletedChunks, changes);
+                    if (frame != null)
+                    {
+                        Resize(layer.GetLayerImageAtFrame(frame.Value), layer.GuidValue, deletedChunks, changes);
+                    }
+                    else
+                    {
+                        layer.ForEveryFrame(img =>
+                        {
+                            Resize(img, layer.GuidValue, deletedChunks, changes);
+                        });
+                    }
                 }
 
                 // TODO: Add support for different Layer types
@@ -177,7 +185,17 @@ internal sealed class RotateImage_Change : Change
         {
             if (member is RasterLayer layer)
             {
-                Resize(layer.GetLayerImageAtFrame(frame), layer.GuidValue, deletedChunks, null);
+                if (frame != null)
+                {
+                    Resize(layer.GetLayerImageAtFrame(frame.Value), layer.GuidValue, deletedChunks, null);
+                }
+                else
+                {
+                    layer.ForEveryFrame(img =>
+                    {
+                        Resize(img, layer.GuidValue, deletedChunks, null);
+                    });
+                }
             }
 
             if (member.Mask is null)
@@ -188,7 +206,7 @@ internal sealed class RotateImage_Change : Change
 
         return new Size_ChangeInfo(newSize, target.VerticalSymmetryAxisX, target.HorizontalSymmetryAxisY);
     }
-    
+
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         if (membersToRotate.Count == 0)
@@ -215,10 +233,10 @@ internal sealed class RotateImage_Change : Change
         List<IChangeInfo> revertChanges = new List<IChangeInfo>();
         target.ForEveryMember((member) =>
         {
-            if(membersToRotate.Count > 0 && !membersToRotate.Contains(member.GuidValue)) return;
+            if (membersToRotate.Count > 0 && !membersToRotate.Contains(member.GuidValue)) return;
             if (member is RasterLayer layer)
             {
-                var layerImage = layer.GetLayerImageAtFrame(frame);
+                var layerImage = layer.GetLayerImageAtFrame(frame.Value);
                 layerImage.EnqueueResize(originalSize);
                 deletedChunks[layer.GuidValue].ApplyChunksToImage(layerImage);
                 revertChanges.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, layerImage.FindAffectedArea()));

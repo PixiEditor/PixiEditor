@@ -41,14 +41,14 @@ internal class TransformSelectedAreaExecutor : UpdateableChangeExecutor
         document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, Type == ExecutorType.Regular);
         membersToTransform = members.Select(static a => a.GuidValue).ToArray();
         internals!.ActionAccumulator.AddActions(
-            new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false));
+            new TransformSelectedArea_Action(membersToTransform, corners, tool.KeepOriginalImage, false, document.AnimationHandler.ActiveFrameBindable));
         return ExecutionState.Success;
     }
 
     public override void OnTransformMoved(ShapeCorners corners)
     {
         internals!.ActionAccumulator.AddActions(
-            new TransformSelectedArea_Action(membersToTransform!, corners, tool!.KeepOriginalImage, false));
+            new TransformSelectedArea_Action(membersToTransform!, corners, tool!.KeepOriginalImage, false, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);

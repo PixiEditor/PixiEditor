@@ -29,7 +29,7 @@ internal class TimelineSliderTrack : Track
 
     static TimelineSliderTrack()
     {
-        AffectsArrange<TimelineSliderTrack>(ScaleFactorProperty, OffsetProperty);
+        AffectsArrange<TimelineSliderTrack>(ScaleFactorProperty, OffsetProperty, MinimumProperty);
     }
 
     // Override the ArrangeOverride method
@@ -38,7 +38,7 @@ internal class TimelineSliderTrack : Track
         base.ArrangeOverride(finalSize);
         if (Thumb != null)
         {
-            double scaledValue = Value * ScaleFactor;
+            double scaledValue = (Value - Minimum) * ScaleFactor;
             double thumbLength = Orientation == Orientation.Horizontal ? Thumb.DesiredSize.Width : Thumb.DesiredSize.Height;
             
             double thumbPosition = scaledValue - Offset.X;

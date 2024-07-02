@@ -33,7 +33,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             nameof(KeyFrames));
 
     public static readonly StyledProperty<int> ActiveFrameProperty =
-        AvaloniaProperty.Register<Timeline, int>(nameof(ActiveFrame));
+        AvaloniaProperty.Register<Timeline, int>(nameof(ActiveFrame), 1);
 
     public static readonly StyledProperty<bool> IsPlayingProperty = AvaloniaProperty.Register<Timeline, bool>(
         nameof(IsPlaying));
@@ -323,9 +323,9 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     private void PlayTimerOnTick(object? sender, EventArgs e)
     {
-        if (ActiveFrame >= KeyFrames.FrameCount)
+        if (ActiveFrame >= KeyFrames.FrameCount + 1)
         {
-            ActiveFrame = 0;
+            ActiveFrame = 1;
         }
         else
         {
@@ -512,7 +512,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
             frame = (int)Math.Floor(x / Scale);
         }
 
-        frame = Math.Max(0, frame);
+        frame = Math.Max(1, frame);
         return frame;
     }
 

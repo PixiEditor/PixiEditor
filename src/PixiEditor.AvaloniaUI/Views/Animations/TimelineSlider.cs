@@ -103,7 +103,7 @@ public class TimelineSlider : Slider
         const double marginLeft = 15;
         
         double x = point.Position.X - marginLeft + Offset.X;
-        int value = (int)Math.Round(x / Scale);
+        int value = (int)Math.Round(x / Scale) + (int)Minimum;
         
         Value = value;
     }

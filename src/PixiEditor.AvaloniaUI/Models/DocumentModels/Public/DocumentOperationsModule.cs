@@ -64,15 +64,15 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// Deletes selected pixels
     /// </summary>
     /// <param name="clearSelection">Should the selection be cleared</param>
-    public void DeleteSelectedPixels(bool clearSelection = false)
+    public void DeleteSelectedPixels(int frame, bool clearSelection = false)
     {
         var member = Document.SelectedStructureMember;
         if (Internals.ChangeController.IsChangeActive || member is null)
             return;
-        bool drawOnMask = member is ILayerHandler layer ? layer.ShouldDrawOnMask : true;
+        bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return;
-        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.GuidValue, drawOnMask));
+        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.GuidValue, drawOnMask, frame));
         if (clearSelection)
             Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
         Internals.ActionAccumulator.AddFinishedActions();
@@ -117,7 +117,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// Pastes the <paramref name="images"/> as new layers
     /// </summary>
     /// <param name="images">The images to paste</param>
-    public void PasteImagesAsLayers(List<DataImage> images)
+    public void PasteImagesAsLayers(List<DataImage> images, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
@@ -134,7 +134,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         foreach (var imageWithName in images)
         {
             var layerGuid = Internals.StructureHelper.CreateNewStructureMember(StructureMemberType.Layer, Path.GetFileName(imageWithName.name));
-            DrawImage(imageWithName.image, new ShapeCorners(new RectD(imageWithName.position, imageWithName.image.Size)), layerGuid, true, false, false);
+            DrawImage(imageWithName.image, new ShapeCorners(new RectD(imageWithName.position, imageWithName.image.Size)),
+                layerGuid, true, false, frame, false);
         }
         Internals.ActionAccumulator.AddFinishedActions();
     }
@@ -244,12 +245,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// </summary>
     /// <param name="oldColor">The color to replace</param>
     /// <param name="newColor">The new color</param>
-    public void ReplaceColor(PaletteColor oldColor, PaletteColor newColor)
+    public void ReplaceColor(PaletteColor oldColor, PaletteColor newColor, int frame)
     {
         if (Internals.ChangeController.IsChangeActive || oldColor == newColor)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor.ToColor(), newColor.ToColor()));
+        Internals.ActionAccumulator.AddFinishedActions(new ReplaceColor_Action(oldColor.ToColor(), newColor.ToColor(), frame));
         ReplaceInPalette(oldColor, newColor);
     }
 
@@ -288,12 +289,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <summary>
     /// Applies the mask to the image
     /// </summary>
-    public void ApplyMask(IStructureMemberHandler member)
+    public void ApplyMask(IStructureMemberHandler member, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.GuidValue), new DeleteStructureMemberMask_Action(member.GuidValue));
+        Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.GuidValue, frame), new DeleteStructureMemberMask_Action(member.GuidValue));
     }
 
     /// <summary>
@@ -440,8 +441,8 @@ internal class DocumentOperationsModule : IDocumentOperations
             Internals.ChangeController.TryStopActiveExecutor();
     }
 
-    public void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask) =>
-        DrawImage(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, true);
+    public void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, int frame) =>
+        DrawImage(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, frame, true);
 
     /// <summary>
     /// Draws a image on the member with the <paramref name="memberGuid"/>
@@ -452,12 +453,12 @@ internal class DocumentOperationsModule : IDocumentOperations
     /// <param name="ignoreClipSymmetriesEtc">Ignore selection clipping and symmetry (See DrawingChangeHelper.ApplyClipsSymmetriesEtc of UpdateableDocument)</param>
     /// <param name="drawOnMask">Draw on the mask or on the image</param>
     /// <param name="finish">Is this a finished action</param>
-    private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, bool finish)
+    private void DrawImage(Surface image, ShapeCorners corners, Guid memberGuid, bool ignoreClipSymmetriesEtc, bool drawOnMask, int atFrame, bool finish)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         Internals.ActionAccumulator.AddActions(
-            new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask),
+            new PasteImage_Action(image, corners, memberGuid, ignoreClipSymmetriesEtc, drawOnMask, atFrame, default),
             new EndPasteImage_Action());
         if (finish)
             Internals.ActionAccumulator.AddFinishedActions();
@@ -470,52 +471,52 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
-        Internals.ActionAccumulator.AddFinishedActions(new ClipCanvas_Action());
+        Internals.ActionAccumulator.AddFinishedActions(new ClipCanvas_Action(Document.AnimationHandler.ActiveFrameBindable));
     }
 
     /// <summary>
     /// Flips the image on the <paramref name="flipType"/> axis
     /// </summary>
-    public void FlipImage(FlipType flipType) => FlipImage(flipType, null);
+    public void FlipImage(FlipType flipType, int frame) => FlipImage(flipType, null, frame);
 
     /// <summary>
     /// Flips the members with the Guids of <paramref name="membersToFlip"/> on the <paramref name="flipType"/> axis
     /// </summary>
-    public void FlipImage(FlipType flipType, List<Guid> membersToFlip)
+    public void FlipImage(FlipType flipType, List<Guid> membersToFlip, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, membersToFlip));
+        Internals.ActionAccumulator.AddFinishedActions(new FlipImage_Action(flipType, frame, membersToFlip));
     }
 
     /// <summary>
     /// Rotates the image
     /// </summary>
     /// <param name="rotation">The degrees to rotate the image by</param>
-    public void RotateImage(RotationAngle rotation) => RotateImage(rotation, null);
+    public void RotateImage(RotationAngle rotation) => RotateImage(rotation, null, -1);
 
     /// <summary>
     /// Rotates the members with the Guids of <paramref name="membersToRotate"/>
     /// </summary>
     /// <param name="rotation">The degrees to rotate the members by</param>
-    public void RotateImage(RotationAngle rotation, List<Guid> membersToRotate)
+    public void RotateImage(RotationAngle rotation, List<Guid> membersToRotate, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation, membersToRotate));
+        Internals.ActionAccumulator.AddFinishedActions(new RotateImage_Action(rotation, membersToRotate, frame));
     }
     
     /// <summary>
     /// Puts the content of the image in the middle of the canvas
     /// </summary>
-    public void CenterContent(IReadOnlyList<Guid> structureMembers)
+    public void CenterContent(IReadOnlyList<Guid> structureMembers, int frame)
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
 
-        Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList()));
+        Internals.ActionAccumulator.AddFinishedActions(new CenterContent_Action(structureMembers.ToList(), frame));
     }
 
     /// <summary>
@@ -572,7 +573,7 @@ internal class DocumentOperationsModule : IDocumentOperations
             );
     }
 
-    public void SelectionToMask(SelectionMode mode)
+    public void SelectionToMask(SelectionMode mode, int frame)
     {
         if (Document.SelectedStructureMember is not { } member || Document.SelectionPathBindable.IsEmpty)
             return;
@@ -582,10 +583,10 @@ internal class DocumentOperationsModule : IDocumentOperations
             Internals.ActionAccumulator.AddActions(new CreateStructureMemberMask_Action(member.GuidValue));
         }
         
-        Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.GuidValue, mode));
+        Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.GuidValue, mode, frame));
     }
 
-    public void CropToSelection(bool clearSelection = true)
+    public void CropToSelection(int frame, bool clearSelection = true)
     {
         var bounds = Document.SelectionPathBindable.TightBounds;
         if (Document.SelectionPathBindable.IsEmpty || bounds.Width <= 0 || bounds.Height <= 0)

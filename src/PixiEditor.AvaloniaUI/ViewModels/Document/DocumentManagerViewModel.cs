@@ -70,7 +70,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         MenuItemPath = "IMAGE/FLIP/FLIP_IMG_HORIZONTALLY", MenuItemOrder = 14, Icon = PixiPerfectIcons.XFlip)]
     [Command.Basic("PixiEditor.Document.FlipImageVertical", FlipType.Vertical, "FLIP_IMG_VERTICALLY", "FLIP_IMG_VERTICALLY", CanExecute = "PixiEditor.HasDocument",
         MenuItemPath = "IMAGE/FLIP/FLIP_IMG_VERTICALLY", MenuItemOrder = 15, Icon = PixiPerfectIcons.YFlip)]
-    public void FlipImage(FlipType type) => ActiveDocument?.Operations.FlipImage(type);
+    public void FlipImage(FlipType type) => ActiveDocument?.Operations.FlipImage(type, activeDocument.AnimationDataViewModel.ActiveFrameBindable);
 
     [Command.Basic("PixiEditor.Document.FlipLayersHorizontal", FlipType.Horizontal, "FLIP_LAYERS_HORIZONTALLY", "FLIP_LAYERS_HORIZONTALLY", CanExecute = "PixiEditor.HasDocument",
         MenuItemPath = "IMAGE/FLIP/FLIP_LAYERS_HORIZONTALLY", MenuItemOrder = 16, Icon = PixiPerfectIcons.XSelectedFlip)]
@@ -81,7 +81,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         if (ActiveDocument?.SelectedStructureMember == null)
             return;
 
-        ActiveDocument?.Operations.FlipImage(type, ActiveDocument.GetSelectedMembers());
+        ActiveDocument?.Operations.FlipImage(type, ActiveDocument.GetSelectedMembers(), activeDocument.AnimationDataViewModel.ActiveFrameBindable);
     }
 
     [Command.Basic("PixiEditor.Document.Rotate90Deg", "ROT_IMG_90",
@@ -109,7 +109,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         if (ActiveDocument?.SelectedStructureMember == null)
             return;
         
-        ActiveDocument?.Operations.RotateImage(angle, ActiveDocument.GetSelectedMembers());
+        ActiveDocument?.Operations.RotateImage(angle, ActiveDocument.GetSelectedMembers(), activeDocument.AnimationDataViewModel.ActiveFrameBindable);
     }
 
     [Command.Basic("PixiEditor.Document.ToggleVerticalSymmetryAxis", "TOGGLE_VERT_SYMMETRY_AXIS", "TOGGLE_VERT_SYMMETRY_AXIS", CanExecute = "PixiEditor.HasDocument", 
@@ -160,7 +160,7 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         MenuItemPath = "EDIT/DELETE_SELECTED_PIXELS", MenuItemOrder = 6)]
     public void DeletePixels()
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteSelectedPixels();
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.Operations.DeleteSelectedPixels(activeDocument.AnimationDataViewModel.ActiveFrameBindable);
     }
 
 
@@ -199,6 +199,6 @@ internal class DocumentManagerViewModel : SubViewModel<ViewModelMain>, IDocument
         if(ActiveDocument?.SelectedStructureMember == null)
             return;
         
-        ActiveDocument.Operations.CenterContent(ActiveDocument.GetSelectedMembers());
+        ActiveDocument.Operations.CenterContent(ActiveDocument.GetSelectedMembers(), activeDocument.AnimationDataViewModel.ActiveFrameBindable);
     }
 }

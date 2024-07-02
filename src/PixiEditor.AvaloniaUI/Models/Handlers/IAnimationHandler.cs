@@ -4,7 +4,7 @@ internal interface IAnimationHandler
 {
     public IReadOnlyCollection<IKeyFrameHandler> KeyFrames { get; }
     public int ActiveFrameBindable { get; set; }
-    public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, bool cloneFromExisting);
+    public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null);
     public void SetActiveFrame(int newFrame);
     public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration);
     public void SetKeyFrameVisibility(Guid infoKeyFrameId, bool infoIsVisible);

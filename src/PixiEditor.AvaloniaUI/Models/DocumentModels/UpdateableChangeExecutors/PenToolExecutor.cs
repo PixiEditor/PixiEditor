@@ -41,8 +41,8 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         colorsHandler.AddSwatch(new PaletteColor(color.R, color.G, color.B));
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, toolSize, false, drawOnMask),
-            true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask)
+            false => new LineBasedPen_Action(guidValue, color, controller!.LastPixelPosition, toolSize, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            true => new PixelPerfectPen_Action(guidValue, controller!.LastPixelPosition, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);
 
@@ -53,8 +53,8 @@ internal class PenToolExecutor : UpdateableChangeExecutor
     {
         IAction? action = pixelPerfect switch
         {
-            false => new LineBasedPen_Action(guidValue, color, pos, toolSize, false, drawOnMask),
-            true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask)
+            false => new LineBasedPen_Action(guidValue, color, pos, toolSize, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable),
+            true => new PixelPerfectPen_Action(guidValue, pos, color, drawOnMask, document!.AnimationHandler.ActiveFrameBindable)
         };
         internals!.ActionAccumulator.AddActions(action);
     }

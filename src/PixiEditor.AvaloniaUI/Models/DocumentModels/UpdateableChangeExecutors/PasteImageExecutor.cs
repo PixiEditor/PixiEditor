@@ -50,7 +50,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
         }
 
         ShapeCorners corners = new(new RectD(pos, image.Size));
-        internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask, document.AnimationHandler.ActiveFrameBindable, default));
         document.TransformHandler.ShowTransform(DocumentTransformMode.Scale_Rotate_Shear_Perspective, true, corners, true);
 
         return ExecutionState.Success;
@@ -58,7 +58,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
 
     public override void OnTransformMoved(ShapeCorners corners)
     {
-        internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new PasteImage_Action(image, corners, memberGuid.Value, false, drawOnMask, document!.AnimationHandler.ActiveFrameBindable, default));
     }
 
     public override void OnSelectedObjectNudged(VecI distance) => document!.TransformHandler.Nudge(distance);

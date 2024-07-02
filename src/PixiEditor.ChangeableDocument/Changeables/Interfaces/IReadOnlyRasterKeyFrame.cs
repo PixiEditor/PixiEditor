@@ -2,5 +2,5 @@
 
 public interface IReadOnlyRasterKeyFrame : IReadOnlyKeyFrame
 {
-    public IReadOnlyChunkyImage Image { get; }
+    IReadOnlyChunkyImage Image { get; }
 }

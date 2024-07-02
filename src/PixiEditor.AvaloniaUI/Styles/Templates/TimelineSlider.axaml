@@ -37,12 +37,14 @@
                             Scale="{TemplateBinding Scale}"
                             Offset="{TemplateBinding Offset}"
                             MinLeftOffset="{TemplateBinding MinLeftOffset}"
-                            Fill="White" />
+                            MinValue="{TemplateBinding Minimum}"
+                            Fill="{DynamicResource ThemeForegroundBrush}" />
                         <animations:TimelineSliderTrack Name="PART_Track"
                                IsDirectionReversed="{TemplateBinding IsDirectionReversed}"
                                Margin="15, 0, 0, 0"
                                ScaleFactor="{TemplateBinding Scale}"
                                Offset="{TemplateBinding Offset}"
+                               Minimum="{TemplateBinding Minimum}"
                                Orientation="Horizontal">
                             <Track.IncreaseButton>
                                 <RepeatButton Name="PART_IncreaseButton"

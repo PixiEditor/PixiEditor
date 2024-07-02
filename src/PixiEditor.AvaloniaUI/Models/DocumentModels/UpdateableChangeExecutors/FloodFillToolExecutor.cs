@@ -37,14 +37,14 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
         color = colorsVM.PrimaryColor;
         var pos = controller!.LastPixelPosition;
 
-        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
 
         return ExecutionState.Success;
     }
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, drawOnMask));
+        internals!.ActionAccumulator.AddActions(new FloodFill_Action(memberGuid, pos, color, considerAllLayers, drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     public override void OnLeftMouseButtonUp()

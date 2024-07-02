@@ -25,6 +25,15 @@ internal class KeyFrame : TemplatedControl
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<KeyFrame, bool>(
         nameof(IsSelected));
 
+    public static readonly StyledProperty<double> MinProperty = AvaloniaProperty.Register<KeyFrame, double>(
+        nameof(Min), 1);
+
+    public double Min
+    {
+        get => GetValue(MinProperty);
+        set => SetValue(MinProperty, value);
+    }
+
     public bool IsSelected
     {
         get => GetValue(IsSelectedProperty);
@@ -74,6 +83,7 @@ internal class KeyFrame : TemplatedControl
                 Bindings =
                 {
                     new Binding("StartFrameBindable") { Source = Item }, 
+                    new Binding("Min") { Source = this },
                     new Binding("Scale") { Source = this },
                 }
             };

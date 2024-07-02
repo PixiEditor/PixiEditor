@@ -17,6 +17,15 @@ public class TimelineTickBar : Control
     
     public static readonly StyledProperty<Vector> OffsetProperty = AvaloniaProperty.Register<TimelineTickBar, Vector>("Offset");
 
+    public static readonly StyledProperty<int> MinValueProperty = AvaloniaProperty.Register<TimelineTickBar, int>(
+        nameof(MinValue), 1);
+
+    public int MinValue
+    {
+        get => GetValue(MinValueProperty);
+        set => SetValue(MinValueProperty, value);
+    }
+
     public double Scale
     {
         get => GetValue(ScaleProperty);
@@ -107,7 +116,7 @@ public class TimelineTickBar : Control
             double x = i * frameWidth - Offset.X + MinLeftOffset;
             context.DrawLine(largeTickPen, new Point(x, height), new Point(x, height * 0.55f));
             
-            var text = new FormattedText(i.ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
+            var text = new FormattedText((i + MinValue).ToString(), CultureInfo.CurrentCulture, FlowDirection.LeftToRight,
                 Typeface.Default, 12, Fill);
             
             double textCenter = text.WidthIncludingTrailingWhitespace / 2;

@@ -30,7 +30,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
         toolSize = toolbar.ToolSize;
         correctionFactor = tool.Darken || tool.UsedWith == MouseButton.Right ? -tool.CorrectionFactor : tool.CorrectionFactor;
 
-        ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat);
+        ChangeBrightness_Action action = new(guidValue, controller!.LastPixelPosition, correctionFactor, toolSize, repeat, document.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
 
         return ExecutionState.Success;
@@ -38,7 +38,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
 
     public override void OnPixelPositionChange(VecI pos)
     {
-        ChangeBrightness_Action action = new(guidValue, pos, correctionFactor, toolSize, repeat);
+        ChangeBrightness_Action action = new(guidValue, pos, correctionFactor, toolSize, repeat, document!.AnimationHandler.ActiveFrameBindable);
         internals!.ActionAccumulator.AddActions(action);
     }
 

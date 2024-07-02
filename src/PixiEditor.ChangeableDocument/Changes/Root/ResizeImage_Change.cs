@@ -15,24 +15,22 @@ internal class ResizeImage_Change : Change
     private VecI originalSize;
     private double originalHorAxisY;
     private double originalVerAxisX;
-    private int frame;
-    
+
     private Dictionary<Guid, CommittedChunkStorage> savedChunks = new();
     private Dictionary<Guid, CommittedChunkStorage> savedMaskChunks = new();
 
     [GenerateMakeChangeAction]
-    public ResizeImage_Change(VecI size, ResamplingMethod method, int frame)
+    public ResizeImage_Change(VecI size, ResamplingMethod method)
     {
         this.newSize = size;
         this.method = method;
-        this.frame = frame;
     }
-    
+
     public override bool InitializeAndValidate(Document target)
     {
         if (newSize.X < 1 || newSize.Y < 1)
             return false;
-        
+
         originalSize = target.Size;
         originalHorAxisY = target.HorizontalSymmetryAxisY;
         originalVerAxisX = target.VerticalSymmetryAxisX;
@@ -53,31 +51,28 @@ internal class ResizeImage_Change : Change
     {
         using Surface originalSurface = new(originalSize);
         image.DrawMostUpToDateRegionOn(
-            new(VecI.Zero, originalSize), 
+            new(VecI.Zero, originalSize),
             ChunkResolution.Full,
             originalSurface.DrawingSurface,
             VecI.Zero);
-        
+
         bool downscaling = newSize.LengthSquared < originalSize.LengthSquared;
         FilterQuality quality = ToFilterQuality(method, downscaling);
-        using Paint paint = new()
-        {
-            FilterQuality = quality, 
-            BlendMode = BlendMode.Src,
-        };
+        using Paint paint = new() { FilterQuality = quality, BlendMode = BlendMode.Src, };
 
         using Surface newSurface = new(newSize);
         newSurface.DrawingSurface.Canvas.Save();
         newSurface.DrawingSurface.Canvas.Scale(newSize.X / (float)originalSize.X, newSize.Y / (float)originalSize.Y);
         newSurface.DrawingSurface.Canvas.DrawSurface(originalSurface.DrawingSurface, 0, 0, paint);
         newSurface.DrawingSurface.Canvas.Restore();
-        
+
         image.EnqueueResize(newSize);
         image.EnqueueClear();
         image.EnqueueDrawImage(VecI.Zero, newSurface);
     }
-    
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         if (originalSize == newSize)
         {
@@ -93,11 +88,13 @@ internal class ResizeImage_Change : Change
         {
             if (member is RasterLayer layer)
             {
-                var layerImage = layer.GetLayerImageAtFrame(frame);
-                ScaleChunkyImage(layerImage);
-                var affected = layerImage.FindAffectedArea();
-                savedChunks[layer.GuidValue] = new CommittedChunkStorage(layerImage, affected.Chunks);
-                layerImage.CommitChanges();
+                layer.ForEveryFrame(img =>
+                {
+                    ScaleChunkyImage(img);
+                    var affected = img.FindAffectedArea();
+                    savedChunks[layer.GuidValue] = new CommittedChunkStorage(img, affected.Chunks);
+                    img.CommitChanges();
+                });
             }
 
             // Add support for different Layer types
@@ -122,13 +119,15 @@ internal class ResizeImage_Change : Change
         {
             if (member is RasterLayer layer)
             {
-                var layerImage = layer.GetLayerImageAtFrame(frame);
-                layerImage.EnqueueResize(originalSize);
-                layerImage.EnqueueClear();
-                savedChunks[layer.GuidValue].ApplyChunksToImage(layerImage);
-                layerImage.CommitChanges();
+                layer.ForEveryFrame(layerImage =>
+                {
+                    layerImage.EnqueueResize(originalSize);
+                    layerImage.EnqueueClear();
+                    savedChunks[layer.GuidValue].ApplyChunksToImage(layerImage);
+                    layerImage.CommitChanges();
+                });
             }
-            
+
             if (member.Mask is not null)
             {
                 member.Mask.EnqueueResize(originalSize);
@@ -144,7 +143,7 @@ internal class ResizeImage_Change : Change
         foreach (var stored in savedChunks)
             stored.Value.Dispose();
         savedChunks = new();
-        
+
         foreach (var stored in savedMaskChunks)
             stored.Value.Dispose();
         savedMaskChunks = new();

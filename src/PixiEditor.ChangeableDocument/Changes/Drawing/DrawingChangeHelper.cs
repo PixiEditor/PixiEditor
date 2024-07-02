@@ -2,15 +2,25 @@
 using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
+
 internal static class DrawingChangeHelper
 {
-    public static AffectedArea ApplyStoredChunksDisposeAndSetToNull(Document target, Guid memberGuid, bool drawOnMask, int frame, ref CommittedChunkStorage? storage)
+    public static AffectedArea ApplyStoredChunksDisposeAndSetToNull(Document target, Guid memberGuid, bool drawOnMask,
+        int frame, ref CommittedChunkStorage? storage)
     {
         var image = GetTargetImageOrThrow(target, memberGuid, drawOnMask, frame);
         return ApplyStoredChunksDisposeAndSetToNull(image, ref storage);
     }
 
-    public static AffectedArea ApplyStoredChunksDisposeAndSetToNull(ChunkyImage image, ref CommittedChunkStorage? storage)
+    public static AffectedArea ApplyStoredChunksDisposeAndSetToNull(Document target, Guid memberGuid, bool drawOnMask,
+        Guid targetKeyFrameGuid, ref CommittedChunkStorage? savedChunks)
+    {
+        var image = GetTargetImageOrThrow(target, memberGuid, drawOnMask, targetKeyFrameGuid);
+        return ApplyStoredChunksDisposeAndSetToNull(image, ref savedChunks);
+    }
+
+    public static AffectedArea ApplyStoredChunksDisposeAndSetToNull(ChunkyImage image,
+        ref CommittedChunkStorage? storage)
     {
         if (storage is null)
             throw new InvalidOperationException("No stored chunks to apply");
@@ -22,18 +32,18 @@ internal static class DrawingChangeHelper
         return area;
     }
 
-    public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)
+    public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask,
+        Guid targetKeyFrameGuid)
     {
-        // TODO: Figure out if this should work only for raster layers or should rasterize any
         var member = target.FindMemberOrThrow(memberGuid);
-        
+
         if (drawOnMask)
         {
             if (member.Mask is null)
                 throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
             return member.Mask;
         }
-        
+
         if (member is Folder)
         {
             throw new InvalidOperationException("Trying to draw on a folder");
@@ -43,11 +53,37 @@ internal static class DrawingChangeHelper
         {
             throw new InvalidOperationException("Trying to draw on a non-raster layer member");
         }
-        
+
+        return layer.GetLayerImageByKeyFrameGuid(targetKeyFrameGuid);
+    }
+
+    public static ChunkyImage GetTargetImageOrThrow(Document target, Guid memberGuid, bool drawOnMask, int frame)
+    {
+        // TODO: Figure out if this should work only for raster layers or should rasterize any
+        var member = target.FindMemberOrThrow(memberGuid);
+
+        if (drawOnMask)
+        {
+            if (member.Mask is null)
+                throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
+            return member.Mask;
+        }
+
+        if (member is Folder)
+        {
+            throw new InvalidOperationException("Trying to draw on a folder");
+        }
+
+        if (member is not RasterLayer layer)
+        {
+            throw new InvalidOperationException("Trying to draw on a non-raster layer member");
+        }
+
         return layer.GetLayerImageAtFrame(frame);
     }
 
-    public static void ApplyClipsSymmetriesEtc(Document target, ChunkyImage targetImage, Guid targetMemberGuid, bool drawOnMask)
+    public static void ApplyClipsSymmetriesEtc(Document target, ChunkyImage targetImage, Guid targetMemberGuid,
+        bool drawOnMask)
     {
         if (!target.Selection.SelectionPath.IsEmpty)
             targetImage.SetClippingPath(target.Selection.SelectionPath);
@@ -79,7 +115,8 @@ internal static class DrawingChangeHelper
         };
     }
 
-    public static OneOf<None, IChangeInfo, List<IChangeInfo>> CreateAreaChangeInfo(Guid memberGuid, AffectedArea affectedArea, bool drawOnMask) =>
+    public static OneOf<None, IChangeInfo, List<IChangeInfo>> CreateAreaChangeInfo(Guid memberGuid,
+        AffectedArea affectedArea, bool drawOnMask) =>
         drawOnMask switch
         {
             false => new LayerImageArea_ChangeInfo(memberGuid, affectedArea),

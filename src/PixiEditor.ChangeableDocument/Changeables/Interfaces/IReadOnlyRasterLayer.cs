@@ -7,4 +7,5 @@ public interface IReadOnlyRasterLayer : ITransparencyLockable
     /// </summary>
     IReadOnlyChunkyImage GetLayerImageAtFrame(int frame);
     void SetLayerImageAtFrame(int frame, IReadOnlyChunkyImage image);
+    public void ForEveryFrame(Action<IReadOnlyChunkyImage> action);
 }

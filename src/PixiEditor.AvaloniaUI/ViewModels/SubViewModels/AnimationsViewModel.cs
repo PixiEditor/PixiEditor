@@ -27,11 +27,14 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         }
 
         int newFrame = GetActiveFrame(activeDocument, activeDocument.SelectedStructureMember.GuidValue);
-        
+       
+        Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.GuidValue : Guid.Empty;
+        int frameToCopyFrom = duplicate ? activeDocument.AnimationDataViewModel.ActiveFrameBindable : -1;
+
         activeDocument.AnimationDataViewModel.CreateRasterKeyFrame(
-            activeDocument.SelectedStructureMember.GuidValue, 
+            activeDocument.SelectedStructureMember.GuidValue,
             newFrame,
-            duplicate);
+            toCloneFrom);
         
         activeDocument.Operations.SetActiveFrame(newFrame);
     }
@@ -96,8 +99,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
     {
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
             return;
-        
-        Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.StartChangeActiveFrame();
+        // TODO: same as below
+        //Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.StartChangeActiveFrame();
     }
     
     [Command.Internal("PixiEditor.Document.ChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]
@@ -107,8 +110,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
         
         int intNewActiveFrame = (int)newActiveFrame;
-        
-        Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.ChangeActiveFrame(intNewActiveFrame);
+        // TODO: Check if this should be implemented
+        //Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.ChangeActiveFrame(intNewActiveFrame);
     }
 
     [Command.Internal("PixiEditor.Document.EndChangeActiveFrame", CanExecute = "PixiEditor.HasDocument")]
@@ -117,7 +120,7 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         if (Owner.DocumentManagerSubViewModel.ActiveDocument is null)
             return;
         
-        Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.EndChangeActiveFrame();
+        //Owner.DocumentManagerSubViewModel.ActiveDocument.EventInlet.EndChangeActiveFrame();
     }
     
     [Command.Internal("PixiEditor.Animation.ActiveFrameSet")]

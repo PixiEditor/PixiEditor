@@ -11,13 +11,11 @@ internal abstract class ResizeBasedChangeBase : Change
     protected double _originalVerAxisX;
     protected Dictionary<Guid, CommittedChunkStorage> deletedChunks = new();
     protected Dictionary<Guid, CommittedChunkStorage> deletedMaskChunks = new();
-    protected int frame;
-    
-    public ResizeBasedChangeBase(int frame)
+
+    public ResizeBasedChangeBase()
     {
-        this.frame = frame;
     }
-    
+
     public override bool InitializeAndValidate(Document target)
     {
         _originalSize = target.Size;
@@ -25,11 +23,12 @@ internal abstract class ResizeBasedChangeBase : Change
         _originalVerAxisX = target.VerticalSymmetryAxisX;
         return true;
     }
-    
+
     /// <summary>
     /// Notice: this commits image changes, you won't have a chance to revert or set ignoreInUndo to true
     /// </summary>
-    protected virtual void Resize(ChunkyImage img, Guid memberGuid, VecI size, VecI offset, Dictionary<Guid, CommittedChunkStorage> deletedChunksDict)
+    protected virtual void Resize(ChunkyImage img, Guid memberGuid, VecI size, VecI offset,
+        Dictionary<Guid, CommittedChunkStorage> deletedChunksDict)
     {
         img.EnqueueResize(size);
         img.EnqueueClear();
@@ -38,7 +37,7 @@ internal abstract class ResizeBasedChangeBase : Change
         deletedChunksDict.Add(memberGuid, new CommittedChunkStorage(img, img.FindAffectedArea().Chunks));
         img.CommitChanges();
     }
-    
+
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         target.Size = _originalSize;
@@ -46,14 +45,16 @@ internal abstract class ResizeBasedChangeBase : Change
         {
             if (member is RasterLayer layer)
             {
-                var layerImage = layer.GetLayerImageAtFrame(frame);
-                layerImage.EnqueueResize(_originalSize);
-                deletedChunks[layer.GuidValue].ApplyChunksToImage(layerImage);
-                layerImage.CommitChanges();
+                layer.ForEveryFrame(img =>
+                {
+                    img.EnqueueResize(_originalSize);
+                    deletedChunks[layer.GuidValue].ApplyChunksToImage(img);
+                    img.CommitChanges();
+                });
             }
 
             // TODO: Add support for different Layer types?
-            
+
             if (member.Mask is null)
                 return;
             member.Mask.EnqueueResize(_originalSize);
@@ -68,7 +69,7 @@ internal abstract class ResizeBasedChangeBase : Change
 
         return new Size_ChangeInfo(_originalSize, _originalVerAxisX, _originalHorAxisY);
     }
-    
+
     private void DisposeDeletedChunks()
     {
         foreach (var stored in deletedChunks)
@@ -79,7 +80,7 @@ internal abstract class ResizeBasedChangeBase : Change
             stored.Value.Dispose();
         deletedMaskChunks = new();
     }
-    
+
     public override void Dispose()
     {
         DisposeDeletedChunks();

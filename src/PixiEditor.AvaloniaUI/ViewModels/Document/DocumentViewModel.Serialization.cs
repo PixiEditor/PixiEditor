@@ -36,7 +36,7 @@ internal partial class DocumentViewModel
         {
             Width = Width, Height = Height,
             Swatches = ToCollection(Swatches), Palette = ToCollection(Palette),
-            RootFolder = root, PreviewImage = (TryRenderWholeImage(AnimationDataViewModel.ActiveFrameBindable).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
+            RootFolder = root, PreviewImage = (TryRenderWholeImage(0).Value as Surface)?.DrawingSurface.Snapshot().Encode().AsSpan().ToArray(),
             ReferenceLayer = GetReferenceLayer(doc),
             AnimationData = ToAnimationData(doc.AnimationData)
         };

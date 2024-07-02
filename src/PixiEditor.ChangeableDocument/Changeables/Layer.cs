@@ -7,4 +7,5 @@ namespace PixiEditor.ChangeableDocument.Changeables;
 internal abstract class Layer : StructureMember, IReadOnlyLayer
 {
     public abstract ChunkyImage Rasterize(KeyFrameTime frameTime);
+    public abstract void RemoveKeyFrame(Guid keyFrameGuid);
 }

@@ -9,7 +9,7 @@ internal class Crop_Change : ResizeBasedChangeBase
     private RectI rect;
     
     [GenerateMakeChangeAction]
-    public Crop_Change(RectI rect, int frame) : base(frame)
+    public Crop_Change(RectI rect)
     {
         this.rect = rect;
     }
@@ -36,7 +36,10 @@ internal class Crop_Change : ResizeBasedChangeBase
         {
             if (member is RasterLayer layer)
             {
-                Resize(layer.GetLayerImageAtFrame(frame), layer.GuidValue, rect.Size, rect.Pos * -1, deletedChunks);
+                layer.ForEveryFrame(frame =>
+                {
+                    Resize(frame, layer.GuidValue, rect.Size, rect.Pos * -1, deletedChunks);
+                });
             }
             if (member.Mask is null)
                 return;

@@ -33,6 +33,11 @@ internal class AnimationData : IReadOnlyAnimationData
     {
         TryFindKeyFrameCallback<KeyFrame>(createdKeyFrameId, out _, (frame, parent) =>
         {
+            if (document.TryFindMember<Layer>(frame.LayerGuid, out Layer? layer))
+            {
+                layer.RemoveKeyFrame(frame.Id);
+            }
+            
             parent?.Children.Remove(frame);
         });
     }

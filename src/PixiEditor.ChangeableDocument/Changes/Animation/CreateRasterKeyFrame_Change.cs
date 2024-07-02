@@ -14,14 +14,14 @@ internal class CreateRasterKeyFrame_Change : Change
 
     [GenerateMakeChangeAction]
     public CreateRasterKeyFrame_Change(Guid targetLayerGuid, Guid newKeyFrameGuid, int frame,
-        int? cloneFromFrame = null,
-        Guid? cloneFromExisting = null)
+        int cloneFromFrame = -1,
+        Guid cloneFromExisting = default)
     {
         _targetLayerGuid = targetLayerGuid;
         _frame = frame;
-        cloneFrom = cloneFromExisting;
+        cloneFrom = cloneFromExisting != default ? cloneFromExisting : null;
         createdKeyFrameId = newKeyFrameGuid;
-        this.cloneFromFrame = cloneFromFrame;
+        this.cloneFromFrame = cloneFromFrame < 0 ? null : cloneFromFrame;
     }
 
     public override bool InitializeAndValidate(Document target)
@@ -35,9 +35,11 @@ internal class CreateRasterKeyFrame_Change : Change
         var cloneFromImage = cloneFrom.HasValue
             ? target.FindMemberOrThrow<RasterLayer>(cloneFrom.Value).GetLayerImageAtFrame(cloneFromFrame ?? 0)
             : null;
+        
+        RasterLayer targetLayer = target.FindMemberOrThrow<RasterLayer>(_targetLayerGuid);
+        
         var keyFrame =
-            new RasterKeyFrame(_targetLayerGuid, _frame, target, cloneFromImage);
-        keyFrame.Id = createdKeyFrameId;
+            new RasterKeyFrame(createdKeyFrameId, targetLayer, _frame, target, cloneFromImage);
         target.AnimationData.AddKeyFrame(keyFrame);
         ignoreInUndo = false;
         return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, cloneFrom.HasValue);

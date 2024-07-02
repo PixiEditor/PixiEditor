@@ -295,7 +295,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
             {
                 PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY,
-                    false);
+                    false, 0);
             }
 
             acc.AddActions(
@@ -311,7 +311,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 if (!member.Mask.IsVisible)
                     acc.AddActions(new StructureMemberMaskIsVisible_Action(member.Mask.IsVisible, member.GuidValue));
 
-                PasteImage(member.GuidValue, member.Mask.Surface, maskSurface.Size.X, maskSurface.Size.Y, 0, 0, true);
+                PasteImage(member.GuidValue, member.Mask.Surface, maskSurface.Size.X, maskSurface.Size.Y, 0, 0, true, 0);
             }
 
             acc.AddFinishedActions();
@@ -323,11 +323,11 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         }
 
         void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX,
-            int offsetY, bool onMask)
+            int offsetY, bool onMask, int frame, Guid? keyFrameGuid = default)
         {
             acc.AddActions(
                 new PasteImage_Action(surface.Surface, new(new RectD(new VecD(offsetX, offsetY), new(width, height))),
-                    guid, true, onMask),
+                    guid, true, onMask, frame, keyFrameGuid ?? default),
                 new EndPasteImage_Action());
         }
 
@@ -359,13 +359,12 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                         new CreateRasterKeyFrame_Action(
                             rasterKeyFrameBuilder.LayerGuid,
                             rasterKeyFrameBuilder.Id,
-                            rasterKeyFrameBuilder.StartFrame,
-                            false),
+                            rasterKeyFrameBuilder.StartFrame, -1, default),
                         new KeyFrameLength_Action(rasterKeyFrameBuilder.Id, rasterKeyFrameBuilder.StartFrame, rasterKeyFrameBuilder.Duration),
                         new EndKeyFrameLength_Action());
                     
                     PasteImage(rasterKeyFrameBuilder.LayerGuid, rasterKeyFrameBuilder.Surface, rasterKeyFrameBuilder.Surface.Surface.Size.X,
-                        rasterKeyFrameBuilder.Surface.Surface.Size.Y, 0, 0, false);
+                        rasterKeyFrameBuilder.Surface.Surface.Size.Y, 0, 0, false, rasterKeyFrameBuilder.StartFrame, rasterKeyFrameBuilder.Id);
                     
                     acc.AddFinishedActions();
                 }
@@ -732,8 +731,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         int framesCount = AnimationDataViewModel.FramesCount;
         int lastFrame = firstFrame + framesCount;
 
-        int activeFrame = AnimationDataViewModel.ActiveFrameBindable;
-
         Image[] images = new Image[framesCount];
         for (int i = firstFrame; i < lastFrame; i++)
         {
@@ -748,7 +745,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 surface = processFrameAction(surface.AsT1);
             }
 
-            images[i] = surface.AsT1.DrawingSurface.Snapshot();
+            images[i - firstFrame] = surface.AsT1.DrawingSurface.Snapshot();
             surface.AsT1.Dispose();
         }
 

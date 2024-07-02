@@ -280,7 +280,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (member is null || !member.HasMaskBindable)
             return;
         
-        doc!.Operations.ApplyMask(member);
+        doc!.Operations.ApplyMask(member, doc.AnimationDataViewModel.ActiveFrameBindable);
     }
 
     [Command.Basic("PixiEditor.Layer.ToggleVisible", "TOGGLE_VISIBILITY", "TOGGLE_VISIBILITY", CanExecute = "PixiEditor.HasDocument",

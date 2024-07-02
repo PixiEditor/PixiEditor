@@ -22,12 +22,12 @@ internal class RectangleToolExecutor : ShapeToolExecutor<IRectangleToolHandler>
             rect = RectI.FromTwoPixels(startPos, curPos);
         lastRect = rect;
 
-        internals!.ActionAccumulator.AddActions(new DrawRectangle_Action(memberGuid, new ShapeData(rect.Center, rect.Size, 0, strokeWidth, strokeColor, fillColor), drawOnMask));
+        internals!.ActionAccumulator.AddActions(new DrawRectangle_Action(memberGuid, new ShapeData(rect.Center, rect.Size, 0, strokeWidth, strokeColor, fillColor), drawOnMask, document!.AnimationHandler.ActiveFrameBindable));
     }
 
     protected override void DrawShape(VecI currentPos, bool first) => DrawRectangle(currentPos, first);
 
-    protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) => new DrawRectangle_Action(memberGuid, data, drawOnMask);
+    protected override IAction TransformMovedAction(ShapeData data, ShapeCorners corners) => new DrawRectangle_Action(memberGuid, data, drawOnMask, document!.AnimationHandler.ActiveFrameBindable);
 
     protected override IAction EndDrawAction() => new EndDrawRectangle_Action();
 }

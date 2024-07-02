@@ -110,7 +110,7 @@ internal class ColorsViewModel : SubViewModel<ViewModelMain>, IColorsHandler
         var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         if (doc is null || colors.oldColor == colors.newColor)
             return;
-        doc.Operations.ReplaceColor(colors.oldColor, colors.newColor);
+        doc.Operations.ReplaceColor(colors.oldColor, colors.newColor, doc.AnimationDataViewModel.ActiveFrameBindable);
     }
 
     [Command.Basic("PixiEditor.Colors.ReplaceSecondaryByPrimaryColor", false, "REPLACE_SECONDARY_BY_PRIMARY", "REPLACE_SECONDARY_BY_PRIMARY", IconEvaluator = "PixiEditor.Colors.ReplaceColorIcon")]
