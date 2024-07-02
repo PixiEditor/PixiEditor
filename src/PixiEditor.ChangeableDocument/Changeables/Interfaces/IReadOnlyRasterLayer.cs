@@ -6,6 +6,8 @@ public interface IReadOnlyRasterLayer : ITransparencyLockable
     /// The chunky image of the layer
     /// </summary>
     IReadOnlyChunkyImage GetLayerImageAtFrame(int frame);
+
+    public IReadOnlyChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid);
     void SetLayerImageAtFrame(int frame, IReadOnlyChunkyImage image);
     public void ForEveryFrame(Action<IReadOnlyChunkyImage> action);
 }

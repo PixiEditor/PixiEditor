@@ -31,7 +31,7 @@
                         </Border.Background>
                         <visuals:SurfaceControl
                             Surface="{Binding Item.PreviewSurface, RelativeSource={RelativeSource TemplatedParent}}"
-                            Stretch="Uniform" Width="30" Height="30">
+                            Stretch="Uniform" Width="60" Height="60">
                             <ui:RenderOptionsBindable.BitmapInterpolationMode>
                                 <MultiBinding Converter="{converters:WidthToBitmapScalingModeConverter}">
                                     <Binding Path="Item.PreviewSurface.Size.X"

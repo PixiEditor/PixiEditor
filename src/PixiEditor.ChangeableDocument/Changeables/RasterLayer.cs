@@ -36,6 +36,7 @@ internal class RasterLayer : Layer, IReadOnlyRasterLayer
     }
 
     IReadOnlyChunkyImage IReadOnlyRasterLayer.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);
+    IReadOnlyChunkyImage IReadOnlyRasterLayer.GetLayerImageByKeyFrameGuid(Guid keyFrameGuid) => GetLayerImageByKeyFrameGuid(keyFrameGuid);
     void IReadOnlyRasterLayer.SetLayerImageAtFrame(int frame, IReadOnlyChunkyImage newLayerImage) => SetLayerImageAtFrame(frame, (ChunkyImage)newLayerImage);
 
     void IReadOnlyRasterLayer.ForEveryFrame(Action<IReadOnlyChunkyImage> action) => ForEveryFrame(action);
