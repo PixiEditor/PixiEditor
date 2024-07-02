@@ -10,7 +10,7 @@ internal class RasterKeyFrame : KeyFrame, IReadOnlyRasterKeyFrame
     private ChunkyImage targetImage;
     
     public RasterKeyFrame(Guid id, RasterLayer layer, int startFrame, Document document, ChunkyImage? cloneFrom = null)
-        : base(layer.GuidValue, startFrame)
+        : base(layer, startFrame)
     {
         Id = id;
         targetLayer = layer;
@@ -24,10 +24,6 @@ internal class RasterKeyFrame : KeyFrame, IReadOnlyRasterKeyFrame
     {
         var image = targetImage.CloneFromCommitted();
         return new RasterKeyFrame(Id, targetLayer, StartFrame, Document, image);
-    }
-
-    public override void Dispose()
-    {
     }
 
     public IReadOnlyChunkyImage Image => targetImage;

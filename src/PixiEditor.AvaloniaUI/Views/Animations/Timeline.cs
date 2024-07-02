@@ -323,7 +323,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     private void PlayTimerOnTick(object? sender, EventArgs e)
     {
-        if (ActiveFrame >= KeyFrames.FrameCount + 1)
+        if (ActiveFrame >= KeyFrames.FrameCount)
         {
             ActiveFrame = 1;
         }
@@ -505,11 +505,11 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
         int frame;
         if (round)
         {
-            frame = (int)Math.Round(x / Scale);
+            frame = (int)Math.Round(x / Scale) + 1;
         }
         else
         {
-            frame = (int)Math.Floor(x / Scale);
+            frame = (int)Math.Floor(x / Scale) + 1;
         }
 
         frame = Math.Max(1, frame);

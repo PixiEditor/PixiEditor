@@ -7,4 +7,5 @@ public interface IReadOnlyKeyFrame
     public Guid LayerGuid { get; }
     public Guid Id { get; }
     public bool IsVisible { get; }
+    public IReadOnlyLayer TargetLayer { get; }
 }

@@ -7,4 +7,5 @@ public interface IReadOnlyLayer : IReadOnlyStructureMember
 {
     public ChunkyImage Rasterize(KeyFrameTime frameTime);
     public void RemoveKeyFrame(Guid keyFrameGuid);
+    public void SetKeyFrameLength(Guid keyFrameGuid, int startFrame, int duration);
 }

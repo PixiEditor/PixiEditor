@@ -14,28 +14,15 @@ internal class GroupKeyFrame : KeyFrame, IKeyFrameChildrenContainer
 
     IReadOnlyList<IReadOnlyKeyFrame> IKeyFrameChildrenContainer.Children => Children;
 
-    public GroupKeyFrame(Guid layerGuid, int startFrame, Document document) : base(layerGuid, startFrame)
+    public GroupKeyFrame(IReadOnlyLayer layer, int startFrame, Document document) : base(layer, startFrame)
     {
-        Id = layerGuid;
+        Id = layer.GuidValue;
         this.document = document;
-    }
-
-    protected override void OnVisibilityChanged()
-    {
-        foreach (var child in Children)
-        {
-            child.IsVisible = IsVisible;
-        }
-    }
-
-    public override bool IsWithinRange(int frame)
-    {
-        return frame >= StartFrame && frame < EndFrame + 1;
     }
 
     public override KeyFrame Clone()
     {
-        var clone = new GroupKeyFrame(LayerGuid, StartFrame, document) { Id = this.Id };
+        var clone = new GroupKeyFrame(TargetLayer, StartFrame, document) { Id = this.Id };
         foreach (var child in Children)
         {
             clone.Children.Add(child.Clone());

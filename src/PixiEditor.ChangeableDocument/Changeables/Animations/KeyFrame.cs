@@ -2,7 +2,7 @@
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
-public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
+public abstract class KeyFrame : IReadOnlyKeyFrame
 {
     private int startFrame;
     private int duration;
@@ -19,6 +19,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
             }
 
             startFrame = value;
+            TargetLayer.SetKeyFrameLength(Id, startFrame, Duration);
         }
     }
 
@@ -33,6 +34,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
             }
 
             duration = value;
+            TargetLayer.SetKeyFrameLength(Id, StartFrame, Duration);
         }
     }
     
@@ -47,26 +49,19 @@ public abstract class KeyFrame : IReadOnlyKeyFrame, IDisposable
         set
         {
             isVisible = value;
-            OnVisibilityChanged();
         }
     }
 
-    protected KeyFrame(Guid layerGuid, int startFrame)
+    public IReadOnlyLayer TargetLayer { get; }
+
+    protected KeyFrame(IReadOnlyLayer layer, int startFrame)
     {
-        LayerGuid = layerGuid;
+        TargetLayer = layer;
+        LayerGuid = layer.GuidValue;
         this.startFrame = startFrame;
         duration = 1;
         Id = Guid.NewGuid();
     }
     
-    public virtual bool IsWithinRange(int frame)
-    {
-        return frame >= StartFrame && frame < EndFrame;
-    }
-
     public abstract KeyFrame Clone();
-
-    public virtual void Dispose() { }
-    
-    protected virtual void OnVisibilityChanged() { }
 }

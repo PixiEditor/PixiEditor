@@ -23,7 +23,8 @@ internal class AnimationData : IReadOnlyAnimationData
         }
         else
         {
-            GroupKeyFrame createdGroup = new GroupKeyFrame(id, keyFrame.StartFrame, document);
+            var layer = document.FindMemberOrThrow<Layer>(id);
+            GroupKeyFrame createdGroup = new GroupKeyFrame(layer, keyFrame.StartFrame, document);
             createdGroup.Children.Add(keyFrame);
             keyFrames.Add(createdGroup);
         }

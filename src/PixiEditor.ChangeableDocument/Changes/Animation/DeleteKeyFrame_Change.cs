@@ -38,9 +38,4 @@ internal class DeleteKeyFrame_Change : Change
         target.AnimationData.AddKeyFrame(clonedKeyFrame.Clone());
         return new CreateRasterKeyFrame_ChangeInfo(clonedKeyFrame.LayerGuid, clonedKeyFrame.StartFrame, clonedKeyFrame.Id, false);   
     }
-
-    public override void Dispose()
-    {
-        clonedKeyFrame.Dispose();
-    }
 }

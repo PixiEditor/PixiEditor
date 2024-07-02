@@ -8,4 +8,5 @@ internal abstract class Layer : StructureMember, IReadOnlyLayer
 {
     public abstract ChunkyImage Rasterize(KeyFrameTime frameTime);
     public abstract void RemoveKeyFrame(Guid keyFrameGuid);
+    public abstract void SetKeyFrameLength(Guid keyFrameGuid, int startFrame, int duration);
 }

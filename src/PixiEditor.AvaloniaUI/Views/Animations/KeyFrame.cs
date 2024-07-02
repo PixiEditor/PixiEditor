@@ -148,14 +148,14 @@ internal class KeyFrame : TemplatedControl
         int frame;
         if (round)
         {
-            frame = (int)Math.Round(x / Scale);
+            frame = (int)Math.Round(x / Scale) + 1;
         }
         else
         {
-            frame = (int)Math.Floor(x / Scale);
+            frame = (int)Math.Floor(x / Scale) + 1;
         }
         
-        frame = Math.Max(0, frame);
+        frame = Math.Max(1, frame);
         return frame;
     }
     
