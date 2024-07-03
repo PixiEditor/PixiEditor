@@ -26,10 +26,30 @@
                         <TextBlock Grid.ColumnSpan="3" Grid.Row="0" Text="{TemplateBinding DisplayName}"
                                    FontWeight="Bold" />
                         <Grid Grid.Row="1">
-
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.5*" />
+                                <ColumnDefinition Width="0.5*" />
+                            </Grid.ColumnDefinitions>
+                            
+                            <ItemsControl ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
+                                <ItemsControl.ItemContainerTheme>
+                                    <ControlTheme TargetType="ContentPresenter">
+                                        <Setter Property="DataContext" Value="."/>
+                                    </ControlTheme>
+                                </ItemsControl.ItemContainerTheme>
+                            </ItemsControl>
+                            <ItemsControl Grid.Column="1" ItemsSource="{TemplateBinding Outputs}" ClipToBounds="False">
+                                <ItemsControl.ItemContainerTheme>
+                                    <ControlTheme TargetType="ContentPresenter">
+                                        <Setter Property="DataContext" Value="."/>
+                                    </ControlTheme>
+                                </ItemsControl.ItemContainerTheme>
+                            </ItemsControl>
                         </Grid>
                         <Border CornerRadius="{DynamicResource ControlCornerRadius}" Grid.Row="2">
-                            <visuals:SurfaceControl Width="50" Height="50" RenderOptions.BitmapInterpolationMode="None">
+                            <visuals:SurfaceControl Width="50" Height="50"
+                                                    Surface="{TemplateBinding ResultPreview}"
+                                                    RenderOptions.BitmapInterpolationMode="None">
                                 <visuals:SurfaceControl.Background>
                                     <ImageBrush Source="/Images/CheckerTile.png"
                                                 TileMode="Tile" DestinationRect="0, 0, 25, 25" />

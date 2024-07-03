@@ -138,6 +138,7 @@
     <UpToDateCheckInput Remove="Images\News\NewVersion.png" />
     <UpToDateCheckInput Remove="Images\News\OfficialAnnouncement.png" />
     <UpToDateCheckInput Remove="Images\News\YouTube.png" />
+    <UpToDateCheckInput Remove="Styles\Templates\NodeProperties\ImageNodePropertyView.axaml" />
   </ItemGroup>
 
   <ItemGroup>

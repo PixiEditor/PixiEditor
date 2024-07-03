@@ -1,13 +1,12 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes"
-                    xmlns:nodes1="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document.Nodes">
+                    xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes">
     <ControlTheme TargetType="nodes:NodeGraphView" x:Key="{x:Type nodes:NodeGraphView}">
         <Setter Property="ZoomMode" Value="Move" />
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Background="Transparent">
-                    <ItemsControl
+                    <ItemsControl ClipToBounds="False"
                         ItemsSource="{TemplateBinding Nodes}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -28,7 +27,11 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <nodes:NodeView
-                                    DataContext="{Binding}" />
+                                    DisplayName="{Binding DisplayName}" 
+                                    Inputs="{Binding Inputs}"
+                                    Outputs="{Binding Outputs}"
+                                    ResultPreview="{Binding ResultPreview}"
+                                    />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemContainerTheme>
