@@ -72,6 +72,10 @@ internal class SurfaceControl : Control
         {
             result = Stretch.CalculateSize(availableSize, new Size(source.Size.X, source.Size.Y));
         }
+        else
+        {
+            result = Stretch.CalculateSize(availableSize, new Size(Width, Height));
+        }
 
         return result;
     }
@@ -87,20 +91,24 @@ internal class SurfaceControl : Control
             var result = Stretch.CalculateSize(finalSize, new Size(sourceSize.X, sourceSize.Y));
             return result;
         }
+        else
+        {
+            return Stretch.CalculateSize(finalSize, new Size(Width, Height));
+        }
 
         return new Size();
     }
 
     public override void Render(DrawingContext context)
     {
-        if (Surface == null || Surface.IsDisposed)
-        {
-            return;
-        }
-
         if (Background != null)
         {
             context.FillRectangle(Background, new Rect(0, 0, Bounds.Width, Bounds.Height));
+        }
+        
+        if (Surface == null || Surface.IsDisposed)
+        {
+            return;
         }
 
         var bounds = new Rect(Bounds.Size);

@@ -1,0 +1,45 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes"
+                    xmlns:nodes1="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Document.Nodes">
+    <ControlTheme TargetType="nodes:NodeGraphView" x:Key="{x:Type nodes:NodeGraphView}">
+        <Setter Property="ZoomMode" Value="Move" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="Transparent">
+                    <ItemsControl
+                        ItemsSource="{TemplateBinding Nodes}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas RenderTransformOrigin="0, 0">
+                                    <Canvas.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform
+                                                ScaleX="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                ScaleY="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                            <TranslateTransform
+                                                X="{Binding CanvasX, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                Y="{Binding CanvasY, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                        </TransformGroup>
+                                    </Canvas.RenderTransform>
+                                </Canvas>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <nodes:NodeView
+                                    DataContext="{Binding}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemContainerTheme>
+                            <ControlTheme TargetType="ContentPresenter">
+                                <Setter Property="Canvas.Left" Value="{Binding X}" />
+                                <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                            </ControlTheme>
+                        </ItemsControl.ItemContainerTheme>
+                    </ItemsControl>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

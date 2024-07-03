@@ -1,0 +1,44 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes"
+                    xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals">
+    <ControlTheme TargetType="nodes:NodeView" x:Key="{x:Type nodes:NodeView}">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="Margin" Value="5" />
+        <Setter Property="Padding" Value="5" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        Margin="{TemplateBinding Margin}"
+                        Padding="{TemplateBinding Padding}">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.ColumnSpan="3" Grid.Row="0" Text="{TemplateBinding DisplayName}"
+                                   FontWeight="Bold" />
+                        <Grid Grid.Row="1">
+
+                        </Grid>
+                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Grid.Row="2">
+                            <visuals:SurfaceControl Width="50" Height="50" RenderOptions.BitmapInterpolationMode="None">
+                                <visuals:SurfaceControl.Background>
+                                    <ImageBrush Source="/Images/CheckerTile.png"
+                                                TileMode="Tile" DestinationRect="0, 0, 25, 25" />
+                                </visuals:SurfaceControl.Background>
+                            </visuals:SurfaceControl>
+                        </Border>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

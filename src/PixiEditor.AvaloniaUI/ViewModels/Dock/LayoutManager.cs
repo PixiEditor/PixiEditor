@@ -38,6 +38,8 @@ internal class LayoutManager
         PaletteViewerDockViewModel paletteViewerDockViewModel =
             new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
         TimelineDockViewModel timelineDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
+        
+        NodeGraphDockViewModel nodeGraphDockViewModel = new();
 
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);
@@ -46,7 +48,8 @@ internal class LayoutManager
         RegisterDockable(swatchesDockViewModel);
         RegisterDockable(paletteViewerDockViewModel);
         RegisterDockable(timelineDockViewModel);
-
+        RegisterDockable(nodeGraphDockViewModel);
+        
         DefaultLayout = new LayoutTree
         {
             Root = new DockableTree
@@ -55,7 +58,8 @@ internal class LayoutManager
                 {
                     First = new DockableArea()
                     {
-                        Id = "DocumentArea", FallbackContent = new CreateDocumentFallbackView()
+                        Id = "DocumentArea", FallbackContent = new CreateDocumentFallbackView(),
+                        Dockables = [ DockContext.CreateDockable(nodeGraphDockViewModel) ]
                     },
                     FirstSize = 0.75,
                     SplitDirection = DockingDirection.Bottom,

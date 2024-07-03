@@ -13,6 +13,8 @@
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/KeyFrame.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/TimelineSlider.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/TimelineGroupHeader.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/NodeGraphView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/NodeView.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
