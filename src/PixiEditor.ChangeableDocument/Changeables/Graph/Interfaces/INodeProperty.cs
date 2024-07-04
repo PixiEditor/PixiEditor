@@ -1,4 +1,4 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
 public interface INodeProperty
 {

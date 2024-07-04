@@ -17,16 +17,16 @@ internal class StructureMemberBlendMode_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember(targetGuid, out var member) || member.BlendMode == newBlendMode)
+        if (!target.TryFindMember(targetGuid, out var member) || member.BlendMode.Value == newBlendMode)
             return false;
-        originalBlendMode = member.BlendMode;
+        originalBlendMode = member.BlendMode.Value;
         return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         var member = target.FindMemberOrThrow(targetGuid);
-        member.BlendMode = newBlendMode;
+        member.BlendMode.Value = newBlendMode;
         ignoreInUndo = false;
         return new StructureMemberBlendMode_ChangeInfo(targetGuid, newBlendMode);
     }
@@ -34,7 +34,7 @@ internal class StructureMemberBlendMode_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var member = target.FindMemberOrThrow(targetGuid);
-        member.BlendMode = originalBlendMode;
+        member.BlendMode.Value = originalBlendMode;
         return new StructureMemberBlendMode_ChangeInfo(targetGuid, originalBlendMode);
     }
 

@@ -54,12 +54,12 @@ internal class CombineStructureMembersOnto_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         //TODO: Add support for different Layer types
-        var toDrawOn = target.FindMemberOrThrow<RasterLayer>(targetLayer);
+        var toDrawOn = target.FindMemberOrThrow<ImageNode>(targetLayer);
 
         var chunksToCombine = new HashSet<VecI>();
         foreach (var guid in layersToCombine)
         {
-            var layer = target.FindMemberOrThrow<RasterLayer>(guid);
+            var layer = target.FindMemberOrThrow<ImageNode>(guid);
             var layerImage = layer.GetLayerImageAtFrame(frame);
             chunksToCombine.UnionWith(layerImage.FindAllChunks());
         }
@@ -68,7 +68,7 @@ internal class CombineStructureMembersOnto_Change : Change
         toDrawOnImage.EnqueueClear();
         foreach (var chunk in chunksToCombine)
         {
-            OneOf<Chunk, EmptyChunk> combined = ChunkRenderer.MergeChosenMembers(chunk, ChunkResolution.Full, target.StructureRoot, frame, layersToCombine);
+            OneOf<Chunk, EmptyChunk> combined = ChunkRenderer.MergeChosenMembers(chunk, ChunkResolution.Full, target.NodeGraph, frame, layersToCombine);
             if (combined.IsT0)
             {
                 toDrawOnImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
@@ -85,7 +85,7 @@ internal class CombineStructureMembersOnto_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var toDrawOn = target.FindMemberOrThrow<RasterLayer>(targetLayer);
+        var toDrawOn = target.FindMemberOrThrow<ImageNode>(targetLayer);
         var affectedArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.GetLayerImageAtFrame(frame), ref originalChunks);
         return new LayerImageArea_ChangeInfo(targetLayer, affectedArea);
     }

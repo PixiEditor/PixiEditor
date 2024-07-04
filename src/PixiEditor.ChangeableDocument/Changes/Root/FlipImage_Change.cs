@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -100,24 +101,24 @@ internal sealed class FlipImage_Change : Change
 
         target.ForEveryMember(member =>
         {
-            if (membersToFlip.Count == 0 || membersToFlip.Contains(member.GuidValue))
+            if (membersToFlip.Count == 0 || membersToFlip.Contains(member.Id))
             {
-                if (member is RasterLayer layer)
+                if (member is ImageLayerNode layer)
                 {
                     var image = layer.GetLayerImageAtFrame(frame);
                     FlipImage(image);
                     changes.Add(
-                        new LayerImageArea_ChangeInfo(member.GuidValue, image.FindAffectedArea()));
+                        new LayerImageArea_ChangeInfo(member.Id, image.FindAffectedArea()));
                     image.CommitChanges();
                 }
                 // TODO: Add support for non-raster layers
 
-                if (member.Mask is not null)
+                if (member.Mask.Value is not null)
                 {
-                    FlipImage(member.Mask);
+                    FlipImage(member.Mask.Value);
                     changes.Add(
-                        new MaskArea_ChangeInfo(member.GuidValue, member.Mask.FindAffectedArea()));
-                    member.Mask.CommitChanges();
+                        new MaskArea_ChangeInfo(member.Id, member.Mask.Value.FindAffectedArea()));
+                    member.Mask.Value.CommitChanges();
                 }
             }
         });

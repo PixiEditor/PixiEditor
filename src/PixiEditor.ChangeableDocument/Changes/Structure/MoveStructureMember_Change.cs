@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -24,16 +25,16 @@ internal class MoveStructureMember_Change : Change
     {
         var (member, curFolder) = document.FindChildAndParent(memberGuid);
         var targetFolder = document.FindMember(targetFolderGuid);
-        if (member is null || curFolder is null || targetFolder is not Folder)
+        if (member is null || curFolder is null || targetFolder is not FolderNode)
             return false;
-        originalFolderGuid = curFolder.GuidValue;
+        originalFolderGuid = curFolder.Id;
         originalFolderIndex = curFolder.Children.IndexOf(member);
         return true;
     }
 
     private static void Move(Document document, Guid memberGuid, Guid targetFolderGuid, int targetIndex)
     {
-        var targetFolder = document.FindMemberOrThrow<Folder>(targetFolderGuid);
+        var targetFolder = document.FindMemberOrThrow<FolderNode>(targetFolderGuid);
         var (member, curFolder) = document.FindChildAndParentOrThrow(memberGuid);
 
         curFolder.Children = curFolder.Children.Remove(member);

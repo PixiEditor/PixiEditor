@@ -17,15 +17,15 @@ internal class StructureMemberName_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember(targetMember, out var member) || member.Name == newName)
+        if (!target.TryFindMember(targetMember, out var member) || member.LayerName == newName)
             return false;
-        originalName = member.Name;
+        originalName = member.LayerName;
         return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        target.FindMemberOrThrow(targetMember).Name = newName;
+        target.FindMemberOrThrow(targetMember).LayerName = newName;
 
         ignoreInUndo = false;
         return new StructureMemberName_ChangeInfo(targetMember, newName);
@@ -35,7 +35,7 @@ internal class StructureMemberName_Change : Change
     {
         if (originalName is null)
             throw new InvalidOperationException("No name to revert to");
-        target.FindMemberOrThrow(targetMember).Name = originalName;
+        target.FindMemberOrThrow(targetMember).LayerName = originalName;
         return new StructureMemberName_ChangeInfo(targetMember, originalName);
     }
 

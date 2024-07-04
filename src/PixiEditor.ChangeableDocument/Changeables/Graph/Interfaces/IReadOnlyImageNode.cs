@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public interface IReadOnlyRasterLayer : ITransparencyLockable
+namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+
+public interface IReadOnlyImageNode : IReadOnlyLayerNode, ITransparencyLockable
 {
     /// <summary>
     /// The chunky image of the layer

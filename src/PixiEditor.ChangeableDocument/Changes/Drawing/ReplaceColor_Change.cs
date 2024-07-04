@@ -1,4 +1,5 @@
-﻿using PixiEditor.DrawingApi.Core.ColorsImpl;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
@@ -31,16 +32,16 @@ internal class ReplaceColor_Change : Change
         List<IChangeInfo> infos = new();
         target.ForEveryMember(member =>
         {
-            if (member is not RasterLayer layer)
+            if (member is not ImageLayerNode layer)
                 return;
             //TODO: Add support for replacing in different Layer types
             var layerImage = layer.GetLayerImageAtFrame(frame);
             layerImage.EnqueueReplaceColor(oldColor, newColor);
             var affArea = layerImage.FindAffectedArea();
             CommittedChunkStorage storage = new(layerImage, affArea.Chunks);
-            savedChunks[layer.GuidValue] = storage;
+            savedChunks[layer.Id] = storage;
             layerImage.CommitChanges();
-            infos.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, affArea));
+            infos.Add(new LayerImageArea_ChangeInfo(layer.Id, affArea));
         });
         ignoreInUndo = !savedChunks.Any();
         return infos;
@@ -53,11 +54,11 @@ internal class ReplaceColor_Change : Change
         List<IChangeInfo> infos = new();
         target.ForEveryMember(member =>
         {
-            if (member is not RasterLayer layer)
+            if (member is not ImageLayerNode layer)
                 return;
-            CommittedChunkStorage? storage = savedChunks[member.GuidValue];
+            CommittedChunkStorage? storage = savedChunks[member.Id];
             var affArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(layer.GetLayerImageAtFrame(frame), ref storage);
-            infos.Add(new LayerImageArea_ChangeInfo(layer.GuidValue, affArea));
+            infos.Add(new LayerImageArea_ChangeInfo(layer.Id, affArea));
         });
         savedChunks = null;
         return infos;

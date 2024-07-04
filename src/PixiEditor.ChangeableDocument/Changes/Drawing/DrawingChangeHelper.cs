@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Drawing;
@@ -41,15 +42,15 @@ internal static class DrawingChangeHelper
         {
             if (member.Mask is null)
                 throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
-            return member.Mask;
+            return member.Mask.Value;
         }
 
-        if (member is Folder)
+        if (member is FolderNode)
         {
             throw new InvalidOperationException("Trying to draw on a folder");
         }
 
-        if (member is not RasterLayer layer)
+        if (member is not ImageLayerNode layer)
         {
             throw new InvalidOperationException("Trying to draw on a non-raster layer member");
         }
@@ -66,15 +67,15 @@ internal static class DrawingChangeHelper
         {
             if (member.Mask is null)
                 throw new InvalidOperationException("Trying to draw on a mask that doesn't exist");
-            return member.Mask;
+            return member.Mask.Value;
         }
 
-        if (member is Folder)
+        if (member is FolderNode)
         {
             throw new InvalidOperationException("Trying to draw on a folder");
         }
 
-        if (member is not RasterLayer layer)
+        if (member is not ImageLayerNode layer)
         {
             throw new InvalidOperationException("Trying to draw on a non-raster layer member");
         }
@@ -108,9 +109,9 @@ internal static class DrawingChangeHelper
         return drawOnMask switch
         {
             // If it should draw on the mask, the mask can't be null
-            true when member.Mask is null => false,
+            true when member.Mask.Value is null => false,
             // If it should not draw on the mask, the member can't be a folder
-            false when member is Folder => false,
+            false when member is FolderNode => false,
             _ => true
         };
     }

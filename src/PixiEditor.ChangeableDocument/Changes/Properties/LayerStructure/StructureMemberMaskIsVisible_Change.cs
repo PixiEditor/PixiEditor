@@ -16,17 +16,17 @@ internal class StructureMemberMaskIsVisible_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember(memberGuid, out var member) || member.MaskIsVisible == newMaskIsVisible)
+        if (!target.TryFindMember(memberGuid, out var member) || member.MaskIsVisible.Value == newMaskIsVisible)
             return false;
         
-        originalMaskIsVisible = member.MaskIsVisible;
+        originalMaskIsVisible = member.MaskIsVisible.Value;
         return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         var member = target.FindMemberOrThrow(memberGuid);
-        member.MaskIsVisible = newMaskIsVisible;
+        member.MaskIsVisible.Value = newMaskIsVisible;
         ignoreInUndo = false;
         return new StructureMemberMaskIsVisible_ChangeInfo(memberGuid, newMaskIsVisible);
     }
@@ -34,7 +34,7 @@ internal class StructureMemberMaskIsVisible_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var member = target.FindMemberOrThrow(memberGuid);
-        member.MaskIsVisible = originalMaskIsVisible;
+        member.MaskIsVisible.Value = originalMaskIsVisible;
         return new StructureMemberMaskIsVisible_ChangeInfo(memberGuid, originalMaskIsVisible);
     }
 

@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
@@ -18,7 +19,7 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
         RectI? bounds = null;
         target.ForEveryMember((member) =>
         {
-            if (member is Layer layer)
+            if (member is LayerNode layer)
             {
                 var layerBounds = layer.GetTightBounds(frameToClip);
                 if (layerBounds.HasValue)
@@ -43,18 +44,18 @@ internal class ClipCanvas_Change : ResizeBasedChangeBase
         
         target.ForEveryMember((member) =>
         {
-            if (member is RasterLayer layer)
+            if (member is ImageLayerNode layer)
             {
                 layer.ForEveryFrame(img =>
                 {
-                    Resize(img, layer.GuidValue, newBounds.Size, -newBounds.Pos, deletedChunks);
+                    Resize(img, layer.Id, newBounds.Size, -newBounds.Pos, deletedChunks);
                 });
             }
             
             if (member.Mask is null)
                 return;
             
-            Resize(member.Mask, member.GuidValue, newBounds.Size, -newBounds.Pos, deletedMaskChunks);
+            Resize(member.Mask.Value, member.Id, newBounds.Size, -newBounds.Pos, deletedMaskChunks);
         });
 
         ignoreInUndo = false;

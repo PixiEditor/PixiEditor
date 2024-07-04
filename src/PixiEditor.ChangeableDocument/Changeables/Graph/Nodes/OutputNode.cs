@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class OutputNode : Node
 {
@@ -13,8 +15,8 @@ public class OutputNode : Node
         return Input.Value != null;
     }
     
-    public override void OnExecute(int frame)
+    public override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
-        
+        return Input.Value;
     }
 }

@@ -131,9 +131,9 @@ internal class AffectedAreasGatherer
     {
         if (!tracker.Document.TryFindMember(memberGuid, out var member))
             return;
-        if (member.Mask is not null)
+        if (member.Mask.Value is not null)
         {
-            var chunks = member.Mask.FindAllChunks();
+            var chunks = member.Mask.Value.FindAllChunks();
             AddToMaskPreview(memberGuid, new AffectedArea(chunks));
         }
         if (member is IReadOnlyFolder folder)

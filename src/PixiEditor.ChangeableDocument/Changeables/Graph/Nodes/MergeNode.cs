@@ -1,4 +1,5 @@
-﻿using PixiEditor.Numerics;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -20,7 +21,7 @@ public class MergeNode : Node
         return Top.Value != null || Bottom.Value != null;
     }
 
-    public override void OnExecute(int frame)
+    public override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
         VecI size = Top.Value?.CommittedSize ?? Bottom.Value.CommittedSize;
         
@@ -37,5 +38,7 @@ public class MergeNode : Node
         }
         
         Output.Value.CommitChanges();
+        
+        return Output.Value;
     }
 }

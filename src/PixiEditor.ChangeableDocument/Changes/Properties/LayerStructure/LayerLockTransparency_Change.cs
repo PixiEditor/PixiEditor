@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 
 namespace PixiEditor.ChangeableDocument.Changes.Properties.LayerStructure;
@@ -17,7 +18,7 @@ internal class LayerLockTransparency_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember<Layer>(layerGuid, out var layer))
+        if (!target.TryFindNode(layerGuid, out Node layer))
             return false;
 
         if (layer is not ITransparencyLockable lockable)
@@ -31,14 +32,14 @@ internal class LayerLockTransparency_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        ((ITransparencyLockable)target.FindMemberOrThrow<Layer>(layerGuid)).LockTransparency = newValue;
+        ((ITransparencyLockable)target.FindNodeOrThrow<Node>(layerGuid)).LockTransparency = newValue;
         ignoreInUndo = false;
         return new LayerLockTransparency_ChangeInfo(layerGuid, newValue);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        ((ITransparencyLockable)target.FindMemberOrThrow<Layer>(layerGuid)).LockTransparency = originalValue;
+        ((ITransparencyLockable)target.FindNodeOrThrow<Node>(layerGuid)).LockTransparency = originalValue;
         return new LayerLockTransparency_ChangeInfo(layerGuid, originalValue);
     }
 

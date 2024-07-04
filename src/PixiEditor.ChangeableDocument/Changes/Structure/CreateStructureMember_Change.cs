@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
@@ -27,13 +28,13 @@ internal class CreateStructureMember_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply, out bool ignoreInUndo)
     {
-        var folder = document.FindMemberOrThrow<Folder>(parentFolderGuid);
+        var folder = document.FindMemberOrThrow<FolderNode>(parentFolderGuid);
 
-        StructureMember member = type switch
+        StructureNode member = type switch
         {
             // TODO: Add support for other types
-            StructureMemberType.Layer => new RasterLayer(document.Size) { GuidValue = newMemberGuid },
-            StructureMemberType.Folder => new Folder() { GuidValue = newMemberGuid },
+            StructureMemberType.Layer => new ImageLayerNode(document.Size) { Id = newMemberGuid },
+            StructureMemberType.Folder => new FolderNode() { Id = newMemberGuid },
             _ => throw new NotSupportedException(),
         };
 

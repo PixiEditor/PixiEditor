@@ -16,9 +16,9 @@ internal class StructureMemberIsVisible_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember(targetMember, out var member) || member.IsVisible == newIsVisible)
+        if (!target.TryFindMember(targetMember, out var member) || member.IsVisible.Value == newIsVisible)
             return false;
-        originalIsVisible = member.IsVisible;
+        originalIsVisible = member.IsVisible.Value;
         return true;
     }
 
@@ -26,13 +26,13 @@ internal class StructureMemberIsVisible_Change : Change
     {
         // don't record layer/folder visibility changes - it's just more convenient this way
         ignoreInUndo = true;
-        target.FindMemberOrThrow(targetMember).IsVisible = newIsVisible;
+        target.FindMemberOrThrow(targetMember).IsVisible.Value = newIsVisible;
         return new StructureMemberIsVisible_ChangeInfo(targetMember, newIsVisible);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        target.FindMemberOrThrow(targetMember).IsVisible = originalIsVisible!.Value;
+        target.FindMemberOrThrow(targetMember).IsVisible.Value = originalIsVisible!.Value;
         return new StructureMemberIsVisible_ChangeInfo(targetMember, (bool)originalIsVisible);
     }
 }

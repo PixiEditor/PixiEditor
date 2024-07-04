@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
@@ -43,23 +44,23 @@ internal abstract class ResizeBasedChangeBase : Change
         target.Size = _originalSize;
         target.ForEveryMember((member) =>
         {
-            if (member is RasterLayer layer)
+            if (member is ImageLayerNode layer)
             {
                 layer.ForEveryFrame(img =>
                 {
                     img.EnqueueResize(_originalSize);
-                    deletedChunks[layer.GuidValue].ApplyChunksToImage(img);
+                    deletedChunks[layer.Id].ApplyChunksToImage(img);
                     img.CommitChanges();
                 });
             }
 
             // TODO: Add support for different Layer types?
 
-            if (member.Mask is null)
+            if (member.Mask.Value is null)
                 return;
-            member.Mask.EnqueueResize(_originalSize);
-            deletedMaskChunks[member.GuidValue].ApplyChunksToImage(member.Mask);
-            member.Mask.CommitChanges();
+            member.Mask.Value.EnqueueResize(_originalSize);
+            deletedMaskChunks[member.Id].ApplyChunksToImage(member.Mask.Value);
+            member.Mask.Value.CommitChanges();
         });
 
         target.HorizontalSymmetryAxisY = _originalHorAxisY;

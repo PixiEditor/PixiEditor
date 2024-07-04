@@ -27,7 +27,7 @@ public static class FloodFillHelper
             var member = document.FindMemberOrThrow(guid);
             if (member is IReadOnlyFolder)
                 return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot, frame);
-            if (member is not IReadOnlyRasterLayer rasterLayer)
+            if (member is not IReadOnlyImageNode rasterLayer)
                 throw new InvalidOperationException("Member is not a raster layer");
             return new FloodFillChunkCache(rasterLayer.GetLayerImageAtFrame(frame));
         }

@@ -437,7 +437,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return new None();
 
         //TODO: Make sure it's not needed for other layer types
-        IReadOnlyRasterLayer? layer = (IReadOnlyRasterLayer?)Internals.Tracker.Document.FindMember(layerVm.GuidValue);
+        IReadOnlyImageNode? layer = (IReadOnlyImageNode?)Internals.Tracker.Document.FindMember(layerVm.GuidValue);
         if (layer is null)
             return new Error();
 

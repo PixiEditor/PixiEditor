@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -46,8 +47,8 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
     {
         if (!DrawingChangeHelper.IsValidForDrawing(target, layerGuid, false))
             return false;
-        RasterLayer layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
-        var layerImage = layer.GetLayerImageAtFrame(frame);
+        ImageLayerNode node = target.FindMemberOrThrow<ImageLayerNode>(layerGuid);
+        var layerImage = node.GetLayerImageAtFrame(frame);
         DrawingChangeHelper.ApplyClipsSymmetriesEtc(target, layerImage, layerGuid, false);
         return true;
     }
@@ -57,9 +58,9 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
         if (ignoreUpdate)
             return new None();
         VecI pos = positions[^1];
-        RasterLayer layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
+        ImageLayerNode node = target.FindMemberOrThrow<ImageLayerNode>(layerGuid);
 
-        var layerImage = layer.GetLayerImageAtFrame(frame);
+        var layerImage = node.GetLayerImageAtFrame(frame);
         int queueLength = layerImage.QueueLength;
         
         ChangeBrightness(ellipseLines, strokeWidth, pos + new VecI(-strokeWidth / 2), correctionFactor, repeat, layerImage);
@@ -96,7 +97,7 @@ internal class ChangeBrightness_UpdateableChange : UpdateableChange
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
+        var layer = target.FindMemberOrThrow<ImageLayerNode>(layerGuid);
         ignoreInUndo = false;
 
         if (savedChunks is not null)

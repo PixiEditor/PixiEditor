@@ -37,8 +37,8 @@ internal class MagicWand_Change : Change
 
         target.ForEveryReadonlyMember(member =>
         {
-            if (memberGuids.Contains(member.GuidValue))
-                membersToReference.Add(member.GuidValue);
+            if (memberGuids.Contains(member.Id))
+                membersToReference.Add(member.Id);
         });
 
         path = MagicWandHelper.DoMagicWandFloodFill(point, membersToReference, target, frame);

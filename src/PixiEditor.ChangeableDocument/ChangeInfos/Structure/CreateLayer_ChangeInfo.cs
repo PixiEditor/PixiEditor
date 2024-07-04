@@ -22,7 +22,7 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
 
     public bool LockTransparency { get; }
 
-    internal static CreateLayer_ChangeInfo FromLayer(Guid parentGuid, int index, Layer layer)
+    /*internal static CreateLayer_ChangeInfo FromLayer(Guid parentGuid, int index, Layer layer)
     {
         return new CreateLayer_ChangeInfo(
             parentGuid,
@@ -37,5 +37,5 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
             layer.MaskIsVisible,
             layer is ITransparencyLockable { LockTransparency: true }
             );
-    }
+    }*/
 }

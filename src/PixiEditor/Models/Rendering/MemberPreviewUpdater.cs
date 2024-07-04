@@ -177,7 +177,7 @@ internal class MemberPreviewUpdater
             if (member is null)
                 continue;
 
-            if (forMasks && member.Mask is null)
+            if (forMasks && member.Mask.Value is null)
             {
                 newPreviewBitmapSizes.Add(guid, null);
                 continue;

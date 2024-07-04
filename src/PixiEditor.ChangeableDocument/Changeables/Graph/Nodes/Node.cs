@@ -1,22 +1,25 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 
-public abstract class Node(string name) : IReadOnlyNode
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+
+public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
 {
     private List<InputProperty> inputs = new();
     private List<OutputProperty> outputs = new();
-    
+
     private List<IReadOnlyNode> _connectedNodes = new();
-    
-    public string Name { get; } = name;
-    
+
+    public Guid Id { get; internal set; } = id ?? Guid.NewGuid();
+
     public IReadOnlyCollection<InputProperty> InputProperties => inputs;
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
-    public IReadOnlyCollection<IReadOnlyNode> ConnectedNodes => _connectedNodes;
+    public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes => _connectedNodes;
 
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
 
-    public void Execute(int frame)
+    public ChunkyImage? Execute(KeyFrameTime frameTime)
     {
         foreach (var output in outputs)
         {
@@ -25,20 +28,83 @@ public abstract class Node(string name) : IReadOnlyNode
                 connection.Value = output.Value;
             }
         }
-        
-        OnExecute(frame);
+
+        return OnExecute(frameTime);
     }
 
-    public abstract void OnExecute(int frame);
+    public abstract ChunkyImage? OnExecute(KeyFrameTime frameTime);
     public abstract bool Validate();
-    
+    public void RemoveKeyFrame(Guid keyFrameGuid);
+    public void SetKeyFrameLength(Guid keyFrameGuid, int startFrame, int duration);
+    public void AddFrame<T>(Guid keyFrameGuid, int startFrame, int duration, T value);
+
+    public void TraverseBackwards(Func<IReadOnlyNode, bool> action)
+    {
+        var visited = new HashSet<IReadOnlyNode>();
+        var queueNodes = new Queue<IReadOnlyNode>();
+        queueNodes.Enqueue(this);
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add(node))
+            {
+                continue;
+            }
+
+            if (!action(node))
+            {
+                return;
+            }
+
+            foreach (var inputProperty in node.InputProperties)
+            {
+                if (inputProperty.Connection != null)
+                {
+                    queueNodes.Enqueue(inputProperty.Node);
+                }
+            }
+        }
+    }
+
+    public void TraverseForwards(Func<IReadOnlyNode, bool> action)
+    {
+        var visited = new HashSet<IReadOnlyNode>();
+        var queueNodes = new Queue<IReadOnlyNode>();
+        queueNodes.Enqueue(this);
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add(node))
+            {
+                continue;
+            }
+
+            if (!action(node))
+            {
+                return;
+            }
+
+            foreach (var outputProperty in node.OutputProperties)
+            {
+                foreach (var outputNode in ConnectedOutputNodes)
+                {
+                    queueNodes.Enqueue(outputNode);
+                }
+            }
+        }
+    }
+
     protected InputProperty<T> CreateInput<T>(string name, T defaultValue)
     {
         var property = new InputProperty<T>(this, name, defaultValue);
         inputs.Add(property);
         return property;
     }
-    
+
     protected OutputProperty<T> CreateOutput<T>(string name, T defaultValue)
     {
         var property = new OutputProperty<T>(this, name, defaultValue);
@@ -46,5 +112,24 @@ public abstract class Node(string name) : IReadOnlyNode
         property.Connected += (input, _) => _connectedNodes.Add(input.Node);
         property.Disconnected += (input, _) => _connectedNodes.Remove(input.Node);
         return property;
+    }
+
+    public virtual void Dispose()
+    {
+        foreach (var input in inputs)
+        {
+            if (input.Value is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
+
+        foreach (var output in outputs)
+        {
+            if (output.Value is IDisposable disposable)
+            {
+                disposable.Dispose();
+            }
+        }
     }
 }

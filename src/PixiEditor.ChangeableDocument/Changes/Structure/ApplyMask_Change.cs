@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changes.Drawing;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changes.Drawing;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
@@ -22,7 +23,7 @@ internal sealed class ApplyMask_Change : Change
     public override bool InitializeAndValidate(Document target)
     {
         var member = target.FindMember(structureMemberGuid);
-        bool isValid = member is not (null or Folder) && member.Mask is not null;
+        bool isValid = member is not (null or FolderNode) && member.Mask.Value is not null;
 
         return isValid;
     }
@@ -30,9 +31,9 @@ internal sealed class ApplyMask_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
-        var layer = target.FindMemberOrThrow<RasterLayer>(structureMemberGuid)!;
+        var layer = target.FindMemberOrThrow<ImageLayerNode>(structureMemberGuid)!;
         var layerImage = layer.GetLayerImageAtFrame(frame);
-        layerImage.EnqueueApplyMask(layer.Mask!);
+        layerImage.EnqueueApplyMask(layer.Mask.Value!);
         ignoreInUndo = false;
         var layerInfo = new LayerImageArea_ChangeInfo(structureMemberGuid, layerImage.FindAffectedArea());
         savedChunks = new CommittedChunkStorage(layerImage, layerInfo.Area.Chunks);

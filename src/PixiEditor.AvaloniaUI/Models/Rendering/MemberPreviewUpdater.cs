@@ -311,7 +311,7 @@ internal class MemberPreviewUpdater
         if (layer.Mask is not null && forMask)
             return FindImageTightBoundsFast(layer.Mask);
 
-        if (layer is IReadOnlyRasterLayer raster)
+        if (layer is IReadOnlyImageNode raster)
         {
             return FindImageTightBoundsFast(raster.GetLayerImageAtFrame(frame));
         }
@@ -510,7 +510,7 @@ internal class MemberPreviewUpdater
                     {
                         foreach (var child in group.Children)
                         {
-                            if (member is IReadOnlyRasterLayer rasterLayer) 
+                            if (member is IReadOnlyImageNode rasterLayer) 
                             {
                                 RenderAnimationFramePreview(rasterLayer, child, affArea.Value);
                             }
@@ -589,7 +589,7 @@ internal class MemberPreviewUpdater
         memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
     }
 
-    private void RenderAnimationFramePreview(IReadOnlyRasterLayer layer, IKeyFrameHandler keyFrameVM, AffectedArea area)
+    private void RenderAnimationFramePreview(IReadOnlyImageNode node, IKeyFrameHandler keyFrameVM, AffectedArea area)
     {
         if (keyFrameVM.PreviewSurface is null)
         {
@@ -602,7 +602,7 @@ internal class MemberPreviewUpdater
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
-            if (!layer.GetLayerImageByKeyFrameGuid(keyFrameVM.Id).DrawCommittedChunkOn(chunk, ChunkResolution.Full,
+            if (!node.GetLayerImageByKeyFrameGuid(keyFrameVM.Id).DrawCommittedChunkOn(chunk, ChunkResolution.Full,
                     keyFrameVM.PreviewSurface!.DrawingSurface, pos, ReplacingPaint))
             {
                 keyFrameVM.PreviewSurface!.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,

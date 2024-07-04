@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 
 namespace PixiEditor.ChangeableDocument.Changes.Animation;
@@ -9,7 +10,7 @@ internal class CreateRasterKeyFrame_Change : Change
     private readonly int _frame;
     private readonly Guid? cloneFrom;
     private int? cloneFromFrame;
-    private RasterLayer? _layer;
+    private ImageLayerNode? _layer;
     private Guid createdKeyFrameId;
 
     [GenerateMakeChangeAction]
@@ -33,13 +34,13 @@ internal class CreateRasterKeyFrame_Change : Change
         out bool ignoreInUndo)
     {
         var cloneFromImage = cloneFrom.HasValue
-            ? target.FindMemberOrThrow<RasterLayer>(cloneFrom.Value).GetLayerImageAtFrame(cloneFromFrame ?? 0)
+            ? target.FindMemberOrThrow<ImageLayerNode>(cloneFrom.Value).GetLayerImageAtFrame(cloneFromFrame ?? 0)
             : null;
         
-        RasterLayer targetLayer = target.FindMemberOrThrow<RasterLayer>(_targetLayerGuid);
+        ImageLayerNode targetNode = target.FindMemberOrThrow<ImageLayerNode>(_targetLayerGuid);
         
         var keyFrame =
-            new RasterKeyFrame(createdKeyFrameId, targetLayer, _frame, target, cloneFromImage);
+            new RasterKeyFrame(createdKeyFrameId, targetNode, _frame, target, cloneFromImage);
         target.AnimationData.AddKeyFrame(keyFrame);
         ignoreInUndo = false;
         return new CreateRasterKeyFrame_ChangeInfo(_targetLayerGuid, _frame, createdKeyFrameId, cloneFrom.HasValue);

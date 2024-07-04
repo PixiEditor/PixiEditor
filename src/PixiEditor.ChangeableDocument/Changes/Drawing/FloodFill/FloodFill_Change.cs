@@ -41,7 +41,7 @@ internal class FloodFill_Change : Change
         VectorPath? selection = target.Selection.SelectionPath.IsEmpty ? null : target.Selection.SelectionPath;
         HashSet<Guid> membersToReference = new();
         if (referenceAll)
-            target.ForEveryReadonlyMember(member => membersToReference.Add(member.GuidValue));
+            target.ForEveryReadonlyMember(member => membersToReference.Add(member.Id));
         else
             membersToReference.Add(memberGuid);
         var floodFilledChunks = FloodFillHelper.FloodFill(membersToReference, target, selection, pos, color, frame);

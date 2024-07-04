@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
@@ -54,7 +55,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         {
             var area = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, keepOriginal, delta, frame);
             // TODO: Add support for different Layer types
-            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).GetLayerImageAtFrame(frame);
+            var image = target.FindMemberOrThrow<ImageLayerNode>(layerGuid).GetLayerImageAtFrame(frame);
             
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, area));
             
@@ -84,7 +85,7 @@ internal class ShiftLayer_UpdateableChange : UpdateableChange
         List<IChangeInfo> changes = new List<IChangeInfo>();
         foreach (var layerGuid in layerGuids)
         {
-            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).GetLayerImageAtFrame(frame);
+            var image = target.FindMemberOrThrow<ImageLayerNode>(layerGuid).GetLayerImageAtFrame(frame);
             CommittedChunkStorage? originalChunks = originalLayerChunks[layerGuid];
             var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));

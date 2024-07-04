@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
@@ -19,7 +21,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
             }
 
             startFrame = value;
-            TargetLayer.SetKeyFrameLength(Id, startFrame, Duration);
+            TargetNode.SetKeyFrameLength(Id, startFrame, Duration);
         }
     }
 
@@ -34,7 +36,7 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
             }
 
             duration = value;
-            TargetLayer.SetKeyFrameLength(Id, StartFrame, Duration);
+            TargetNode.SetKeyFrameLength(Id, StartFrame, Duration);
         }
     }
     
@@ -52,12 +54,14 @@ public abstract class KeyFrame : IReadOnlyKeyFrame
         }
     }
 
-    public IReadOnlyLayer TargetLayer { get; }
+    public Node TargetNode { get; }
+    
+    IReadOnlyNode IReadOnlyKeyFrame.TargetNode => TargetNode;
 
-    protected KeyFrame(IReadOnlyLayer layer, int startFrame)
+    protected KeyFrame(Node node, int startFrame)
     {
-        TargetLayer = layer;
-        LayerGuid = layer.GuidValue;
+        TargetNode = node;
+        LayerGuid = node.Id;
         this.startFrame = startFrame;
         duration = 1;
         Id = Guid.NewGuid();

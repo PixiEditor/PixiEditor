@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
@@ -20,24 +21,24 @@ internal class ApplyLayerMask_Change : Change
     public override bool InitializeAndValidate(Document target)
     {
         //TODO: Check if support for different Layer types is needed here.
-        if (!target.TryFindMember<RasterLayer>(layerGuid, out var layer) || layer.Mask is null)
+        if (!target.TryFindMember<ImageLayerNode>(layerGuid, out var layer) || layer.Mask.Value is null)
             return false;
 
         var layerImage = layer.GetLayerImageAtFrame(frame);
         savedLayer = new CommittedChunkStorage(layerImage, layerImage.FindCommittedChunks());
-        savedMask = new CommittedChunkStorage(layer.Mask, layer.Mask.FindCommittedChunks());
+        savedMask = new CommittedChunkStorage(layer.Mask.Value, layer.Mask.Value.FindCommittedChunks());
         return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        var layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
+        var layer = target.FindMemberOrThrow<ImageLayerNode>(layerGuid);
         if (layer.Mask is null)
             throw new InvalidOperationException("Cannot apply layer mask, no mask");
 
         var layerImage = layer.GetLayerImageAtFrame(frame);
         ChunkyImage newLayerImage = new ChunkyImage(target.Size);
-        newLayerImage.AddRasterClip(layer.Mask);
+        newLayerImage.AddRasterClip(layer.Mask.Value);
         newLayerImage.EnqueueDrawChunkyImage(VecI.Zero, layerImage);
         newLayerImage.CommitChanges();
 
@@ -47,8 +48,8 @@ internal class ApplyLayerMask_Change : Change
         layer.SetLayerImageAtFrame(frame, newLayerImage);
         toDispose.Dispose();
 
-        var toDisposeMask = layer.Mask;
-        layer.Mask = null;
+        var toDisposeMask = layer.Mask.Value;
+        layer.Mask.Value = null;
         toDisposeMask.Dispose();
 
         ignoreInUndo = false;
@@ -61,7 +62,7 @@ internal class ApplyLayerMask_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
+        var layer = target.FindMemberOrThrow<ImageLayerNode>(layerGuid);
         if (layer.Mask is not null)
             throw new InvalidOperationException("Cannot restore layer mask, it already has one");
         if (savedLayer is null || savedMask is null)
@@ -71,7 +72,7 @@ internal class ApplyLayerMask_Change : Change
         savedMask.ApplyChunksToImage(newMask);
         var affectedChunksMask = newMask.FindAffectedArea();
         newMask.CommitChanges();
-        layer.Mask = newMask;
+        layer.Mask.Value = newMask;
 
         var layerImage = layer.GetLayerImageAtFrame(frame);
         

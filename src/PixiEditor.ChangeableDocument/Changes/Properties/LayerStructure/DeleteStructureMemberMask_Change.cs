@@ -18,7 +18,7 @@ internal class DeleteStructureMemberMask_Change : Change
         if (!target.TryFindMember(memberGuid, out var member) || member.Mask is null)
             return false;
         
-        storedMask = member.Mask.CloneFromCommitted();
+        storedMask = member.Mask.Value.CloneFromCommitted();
         return true;
     }
 
@@ -27,8 +27,8 @@ internal class DeleteStructureMemberMask_Change : Change
         var member = target.FindMemberOrThrow(memberGuid);
         if (member.Mask is null)
             throw new InvalidOperationException("Cannot delete the mask; Target member has no mask");
-        member.Mask.Dispose();
-        member.Mask = null;
+        member.Mask.Value.Dispose();
+        member.Mask.Value = null;
 
         ignoreInUndo = false;
         return new StructureMemberMask_ChangeInfo(memberGuid, false);
@@ -39,7 +39,7 @@ internal class DeleteStructureMemberMask_Change : Change
         var member = target.FindMemberOrThrow(memberGuid);
         if (member.Mask is not null)
             throw new InvalidOperationException("Cannot revert mask deletion; The target member already has a mask");
-        member.Mask = storedMask!.CloneFromCommitted();
+        member.Mask.Value = storedMask!.CloneFromCommitted();
 
         return new StructureMemberMask_ChangeInfo(memberGuid, true);
     }

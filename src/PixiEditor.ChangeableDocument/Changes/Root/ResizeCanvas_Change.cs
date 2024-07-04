@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
@@ -46,20 +47,20 @@ internal class ResizeCanvas_Change : ResizeBasedChangeBase
 
         target.ForEveryMember((member) =>
         {
-            if (member is RasterLayer layer)
+            if (member is ImageLayerNode layer)
             {
                 layer.ForEveryFrame(img =>
                 {
-                    Resize(img, layer.GuidValue, newSize, offset, deletedChunks);
+                    Resize(img, layer.Id, newSize, offset, deletedChunks);
                 });
             }
 
             // TODO: Check if adding support for different Layer types is necessary
 
-            if (member.Mask is null)
+            if (member.Mask.Value is null)
                 return;
 
-            Resize(member.Mask, member.GuidValue, newSize, offset, deletedMaskChunks);
+            Resize(member.Mask.Value, member.Id, newSize, offset, deletedMaskChunks);
         });
 
         ignoreInUndo = false;

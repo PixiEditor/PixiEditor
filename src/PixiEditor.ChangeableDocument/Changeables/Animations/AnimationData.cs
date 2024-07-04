@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
@@ -23,8 +24,8 @@ internal class AnimationData : IReadOnlyAnimationData
         }
         else
         {
-            var layer = document.FindMemberOrThrow<Layer>(id);
-            GroupKeyFrame createdGroup = new GroupKeyFrame(layer, keyFrame.StartFrame, document);
+            var node = document.FindNodeOrThrow<Node>(id);
+            GroupKeyFrame createdGroup = new GroupKeyFrame(node, keyFrame.StartFrame, document);
             createdGroup.Children.Add(keyFrame);
             keyFrames.Add(createdGroup);
         }
@@ -34,9 +35,9 @@ internal class AnimationData : IReadOnlyAnimationData
     {
         TryFindKeyFrameCallback<KeyFrame>(createdKeyFrameId, out _, (frame, parent) =>
         {
-            if (document.TryFindMember<Layer>(frame.LayerGuid, out Layer? layer))
+            if (document.TryFindNode<Node>(frame.LayerGuid, out Node? node))
             {
-                layer.RemoveKeyFrame(frame.Id);
+                node.RemoveKeyFrame(frame.Id);
             }
             
             parent?.Children.Remove(frame);

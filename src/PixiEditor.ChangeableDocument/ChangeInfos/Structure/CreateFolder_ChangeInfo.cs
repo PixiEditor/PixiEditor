@@ -22,7 +22,7 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
 
     public ImmutableList<CreateStructureMember_ChangeInfo> Children { get; }
 
-    internal static CreateFolder_ChangeInfo FromFolder(Guid parentGuid, int index, Folder folder)
+    /*internal static CreateFolder_ChangeInfo FromFolder(Guid parentGuid, int index, Folder folder)
     {
         var builder = ImmutableList.CreateBuilder<CreateStructureMember_ChangeInfo>();
         for (int i = 0; i < folder.Children.Count; i++)
@@ -49,5 +49,5 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
             folder.MaskIsVisible,
             builder.ToImmutable()
             );
-    }
+    }*/
 }

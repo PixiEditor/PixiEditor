@@ -1,4 +1,6 @@
-﻿namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+
+namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 public interface IReadOnlyKeyFrame
 {
@@ -7,5 +9,5 @@ public interface IReadOnlyKeyFrame
     public Guid LayerGuid { get; }
     public Guid Id { get; }
     public bool IsVisible { get; }
-    public IReadOnlyLayer TargetLayer { get; }
+    public IReadOnlyNode TargetNode { get; }
 }

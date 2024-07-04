@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changes.Drawing;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changes.Drawing;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
@@ -43,7 +44,7 @@ internal class CenterContent_Change : Change
         RectI? currentBounds = null;
         foreach (var layerGuid in affectedLayers)
         {
-            Layer layer = document.FindMemberOrThrow<Layer>(layerGuid);
+            LayerNode layer = document.FindMemberOrThrow<LayerNode>(layerGuid);
             RectI? tightBounds = layer.GetTightBounds(frame);
             if (tightBounds.HasValue)
             {
@@ -69,13 +70,13 @@ internal class CenterContent_Change : Change
         
         foreach (var layerGuid in affectedLayers)
         {
-            RasterLayer layer = target.FindMemberOrThrow<RasterLayer>(layerGuid);
+            ImageLayerNode node = target.FindMemberOrThrow<ImageLayerNode>(layerGuid);
             var chunks = ShiftLayerHelper.DrawShiftedLayer(target, layerGuid, false, shift, frame);
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, chunks));
 
             // TODO: Adding support for non-raster layer should be easy, add
             
-            var image = layer.GetLayerImageAtFrame(frame);
+            var image = node.GetLayerImageAtFrame(frame);
             originalLayerChunks[layerGuid] = new CommittedChunkStorage(image, image.FindAffectedArea().Chunks);
             image.CommitChanges();
         }
@@ -89,7 +90,7 @@ internal class CenterContent_Change : Change
         List<IChangeInfo> changes = new List<IChangeInfo>();
         foreach (var layerGuid in affectedLayers)
         {
-            var image = target.FindMemberOrThrow<RasterLayer>(layerGuid).GetLayerImageAtFrame(frame);
+            var image = target.FindMemberOrThrow<ImageLayerNode>(layerGuid).GetLayerImageAtFrame(frame);
             CommittedChunkStorage? originalChunks = originalLayerChunks?[layerGuid];
             var affected = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(image, ref originalChunks);
             changes.Add(new LayerImageArea_ChangeInfo(layerGuid, affected));

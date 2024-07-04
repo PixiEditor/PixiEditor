@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Root;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -86,25 +87,25 @@ internal class ResizeImage_Change : Change
 
         target.ForEveryMember(member =>
         {
-            if (member is RasterLayer layer)
+            if (member is ImageLayerNode layer)
             {
                 layer.ForEveryFrame(img =>
                 {
                     ScaleChunkyImage(img);
                     var affected = img.FindAffectedArea();
-                    savedChunks[layer.GuidValue] = new CommittedChunkStorage(img, affected.Chunks);
+                    savedChunks[layer.Id] = new CommittedChunkStorage(img, affected.Chunks);
                     img.CommitChanges();
                 });
             }
 
             // Add support for different Layer types
 
-            if (member.Mask is not null)
+            if (member.Mask.Value is not null)
             {
-                ScaleChunkyImage(member.Mask);
-                var affected = member.Mask.FindAffectedArea();
-                savedMaskChunks[member.GuidValue] = new CommittedChunkStorage(member.Mask, affected.Chunks);
-                member.Mask.CommitChanges();
+                ScaleChunkyImage(member.Mask.Value);
+                var affected = member.Mask.Value.FindAffectedArea();
+                savedMaskChunks[member.Id] = new CommittedChunkStorage(member.Mask.Value, affected.Chunks);
+                member.Mask.Value.CommitChanges();
             }
         });
 
@@ -117,23 +118,23 @@ internal class ResizeImage_Change : Change
         target.Size = originalSize;
         target.ForEveryMember((member) =>
         {
-            if (member is RasterLayer layer)
+            if (member is ImageLayerNode layer)
             {
                 layer.ForEveryFrame(layerImage =>
                 {
                     layerImage.EnqueueResize(originalSize);
                     layerImage.EnqueueClear();
-                    savedChunks[layer.GuidValue].ApplyChunksToImage(layerImage);
+                    savedChunks[layer.Id].ApplyChunksToImage(layerImage);
                     layerImage.CommitChanges();
                 });
             }
 
-            if (member.Mask is not null)
+            if (member.Mask.Value is not null)
             {
-                member.Mask.EnqueueResize(originalSize);
-                member.Mask.EnqueueClear();
-                savedMaskChunks[member.GuidValue].ApplyChunksToImage(member.Mask);
-                member.Mask.CommitChanges();
+                member.Mask.Value.EnqueueResize(originalSize);
+                member.Mask.Value.EnqueueClear();
+                savedMaskChunks[member.Id].ApplyChunksToImage(member.Mask.Value);
+                member.Mask.Value.CommitChanges();
             }
         });
 

@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Animations;
 
@@ -6,16 +7,16 @@ internal class RasterKeyFrame : KeyFrame, IReadOnlyRasterKeyFrame
 {
     public Document Document { get; set; }
 
-    private RasterLayer targetLayer;
+    private ImageLayerNode targetNode;
     private ChunkyImage targetImage;
     
-    public RasterKeyFrame(Guid id, RasterLayer layer, int startFrame, Document document, ChunkyImage? cloneFrom = null)
-        : base(layer, startFrame)
+    public RasterKeyFrame(Guid id, ImageLayerNode node, int startFrame, Document document, ChunkyImage? cloneFrom = null)
+        : base(node, startFrame)
     {
         Id = id;
-        targetLayer = layer;
+        targetNode = node;
         targetImage = cloneFrom?.CloneFromCommitted() ?? new ChunkyImage(document.Size);
-        layer.AddFrame(Id, startFrame, 1, targetImage);
+        node.AddFrame(Id, startFrame, 1, targetImage);
 
         Document = document;
     }
@@ -23,7 +24,7 @@ internal class RasterKeyFrame : KeyFrame, IReadOnlyRasterKeyFrame
     public override KeyFrame Clone()
     {
         var image = targetImage.CloneFromCommitted();
-        return new RasterKeyFrame(Id, targetLayer, StartFrame, Document, image);
+        return new RasterKeyFrame(Id, targetNode, StartFrame, Document, image);
     }
 
     public IReadOnlyChunkyImage Image => targetImage;
