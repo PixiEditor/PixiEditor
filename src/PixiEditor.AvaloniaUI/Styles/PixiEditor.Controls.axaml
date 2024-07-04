@@ -15,10 +15,13 @@
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/TimelineGroupHeader.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/NodeGraphView.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/NodeView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/NodeSocket.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/ConnectionView.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>
 
     <StyleInclude Source="avares://PixiEditor.AvaloniaUI/Styles/PortingWipStyles.axaml"/>
     <StyleInclude Source="avares://PixiEditor.AvaloniaUI/Styles/ToolPickerButton.Styles.axaml"/>
+    <StyleInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/NodePropertyViewTemplate.axaml"/>
 </Styles>

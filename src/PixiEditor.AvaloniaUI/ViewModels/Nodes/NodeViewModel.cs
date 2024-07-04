@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Avalonia;
 using ChunkyImageLib;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;

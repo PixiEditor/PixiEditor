@@ -1,8 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.VisualTree;
 using ChunkyImageLib;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
+using PixiEditor.AvaloniaUI.Views.Nodes.Properties;
 
 namespace PixiEditor.AvaloniaUI.Views.Nodes;
 
@@ -42,5 +45,17 @@ public class NodeView : TemplatedControl
     {
         get => GetValue(DisplayNameProperty);
         set => SetValue(DisplayNameProperty, value);
+    }
+
+    public Point GetSocketPoint(NodePropertyViewModel property, Canvas canvas)
+    {
+        NodePropertyView propertyView = this.GetVisualDescendants().OfType<NodePropertyView>().FirstOrDefault(x => x.DataContext == property);
+        
+        if (propertyView is null)
+        {
+            return default;
+        }
+
+        return propertyView.GetSocketPoint(property.IsInput, canvas);
     }
 }

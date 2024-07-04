@@ -6,7 +6,7 @@ public class ImageNodePropertyViewModel : NodePropertyViewModel<Surface>
 {
     public ImageNodePropertyViewModel(NodeViewModel node) : base(node)
     {
-        base.PropertyChanged += (sender, args) =>
+        this.PropertyChanged += (sender, args) =>
         {
             if (args.PropertyName == nameof(Value))
             {

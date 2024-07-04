@@ -1,0 +1,15 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes">
+
+    <ControlTheme TargetType="nodes:ConnectionView" x:Key="{x:Type nodes:ConnectionView}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                    <Line Stroke="{DynamicResource ThemeForegroundBrush}" StrokeThickness="2"
+                          StartPoint="{Binding StartPoint, RelativeSource={RelativeSource TemplatedParent}}"
+                          EndPoint="{Binding EndPoint, RelativeSource={RelativeSource TemplatedParent}}" />
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+</ResourceDictionary>

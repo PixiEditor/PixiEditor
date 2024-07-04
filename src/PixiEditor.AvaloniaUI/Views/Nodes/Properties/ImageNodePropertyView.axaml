@@ -6,8 +6,5 @@
                              xmlns:chunkyImageLib="clr-namespace:ChunkyImageLib;assembly=ChunkyImageLib"
                              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450" ClipToBounds="False"
                              x:Class="PixiEditor.AvaloniaUI.Views.Nodes.Properties.ImageNodePropertyView">
-    <StackPanel Orientation="Horizontal">
-        <Ellipse Margin="-10, 0, 0, 0" Width="10" Height="10" Fill="Red"/>
         <Button Content="Open Image (temp)" Click="Button_OnClick"/>
-    </StackPanel>
 </properties:NodePropertyView>

@@ -146,6 +146,13 @@
       <DependentUpon>TimelineDockView.axaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\Nodes\Properties\NodeSocket.cs">
+      <DependentUpon>NodeSocket.axaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Views\Nodes\ConnectionView.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
 </Project>

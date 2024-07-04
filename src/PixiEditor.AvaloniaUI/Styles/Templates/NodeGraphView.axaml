@@ -7,7 +7,7 @@
             <ControlTemplate>
                 <Grid Background="Transparent">
                     <ItemsControl ClipToBounds="False"
-                        ItemsSource="{TemplateBinding Nodes}">
+                                  ItemsSource="{TemplateBinding Nodes}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <Canvas RenderTransformOrigin="0, 0">
@@ -27,11 +27,10 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <nodes:NodeView
-                                    DisplayName="{Binding DisplayName}" 
+                                    DisplayName="{Binding DisplayName}"
                                     Inputs="{Binding Inputs}"
                                     Outputs="{Binding Outputs}"
-                                    ResultPreview="{Binding ResultPreview}"
-                                    />
+                                    ResultPreview="{Binding ResultPreview}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemContainerTheme>
@@ -40,6 +39,32 @@
                                 <Setter Property="Canvas.Top" Value="{Binding Y}" />
                             </ControlTheme>
                         </ItemsControl.ItemContainerTheme>
+                    </ItemsControl>
+                    <ItemsControl
+                        ItemsSource="{TemplateBinding Connections}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Canvas RenderTransformOrigin="0, 0">
+                                    <Canvas.RenderTransform>
+                                        <TransformGroup>
+                                            <ScaleTransform
+                                                ScaleX="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                ScaleY="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                            <TranslateTransform
+                                                X="{Binding CanvasX, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                Y="{Binding CanvasY, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                        </TransformGroup>
+                                    </Canvas.RenderTransform>
+                                </Canvas>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <nodes:ConnectionView
+                                    InputProperty="{Binding InputProperty}"
+                                    OutputProperty="{Binding OutputProperty}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Grid>
             </ControlTemplate>
