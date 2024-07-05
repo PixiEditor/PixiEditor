@@ -1,18 +1,30 @@
 ﻿<Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:properties="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes.Properties">
-    
+
     <Style Selector="properties|NodePropertyView">
         <Setter Property="ClipToBounds" Value="False" />
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Margin="-10, 0">
-                    <Grid.ColumnDefinitions>10, *, 10</Grid.ColumnDefinitions>
-                    <properties:NodeSocket Name="PART_InputSocket" IsVisible="{Binding DataContext.IsInput, 
-                    RelativeSource={RelativeSource TemplatedParent}}"/>
-                    <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}"/>
-                    <properties:NodeSocket Grid.Column="2" Name="PART_OutputSocket" IsVisible="{Binding !DataContext.IsInput,
-                    RelativeSource={RelativeSource TemplatedParent}}"/>
+                    <Grid.ColumnDefinitions>10*, *, 10*</Grid.ColumnDefinitions>
+                    <properties:NodeSocket Name="PART_InputSocket"
+                                           Label="{Binding DataContext.Name, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsVisible="{Binding DataContext.IsInput, 
+                    RelativeSource={RelativeSource TemplatedParent}}">
+                        <properties:NodeSocket.IsInput>
+                            <x:Boolean>True</x:Boolean>
+                        </properties:NodeSocket.IsInput>
+                    </properties:NodeSocket>
+                    <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}" />
+                    <properties:NodeSocket Grid.Column="2" Name="PART_OutputSocket"
+                                           Label="{Binding DataContext.Name, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsVisible="{Binding !DataContext.IsInput,
+                    RelativeSource={RelativeSource TemplatedParent}}">
+                        <properties:NodeSocket.IsInput>
+                            <x:Boolean>False</x:Boolean>
+                        </properties:NodeSocket.IsInput>
+                    </properties:NodeSocket>
                 </Grid>
             </ControlTemplate>
         </Setter>

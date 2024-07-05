@@ -4,6 +4,8 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.VisualTree;
 using ChunkyImageLib;
+using PixiEditor.AvaloniaUI.Models.Handlers;
+using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.AvaloniaUI.Views.Nodes.Properties;
 
@@ -14,10 +16,10 @@ public class NodeView : TemplatedControl
     public static readonly StyledProperty<string> DisplayNameProperty = AvaloniaProperty.Register<NodeView, string>(
         nameof(DisplayName), "Node");
 
-    public static readonly StyledProperty<ObservableCollection<NodePropertyViewModel>> InputsProperty = AvaloniaProperty.Register<NodeView, ObservableCollection<NodePropertyViewModel>>(
+    public static readonly StyledProperty<ObservableRangeCollection<INodePropertyHandler>> InputsProperty = AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
         nameof(Inputs));
     
-    public static readonly StyledProperty<ObservableCollection<NodePropertyViewModel>> OutputsProperty = AvaloniaProperty.Register<NodeView, ObservableCollection<NodePropertyViewModel>>(
+    public static readonly StyledProperty<ObservableRangeCollection<INodePropertyHandler>> OutputsProperty = AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
         nameof(Outputs));
 
     public static readonly StyledProperty<Surface> ResultPreviewProperty = AvaloniaProperty.Register<NodeView, Surface>(
@@ -29,13 +31,13 @@ public class NodeView : TemplatedControl
         set => SetValue( ResultPreviewProperty, value);
     }
 
-    public ObservableCollection<NodePropertyViewModel> Outputs
+    public ObservableRangeCollection<INodePropertyHandler> Outputs
     {
         get => GetValue(OutputsProperty);
         set => SetValue(OutputsProperty, value);
     }
 
-    public ObservableCollection<NodePropertyViewModel> Inputs
+    public ObservableRangeCollection<INodePropertyHandler> Inputs
     {
         get => GetValue(InputsProperty);
         set => SetValue(InputsProperty, value);
@@ -47,7 +49,7 @@ public class NodeView : TemplatedControl
         set => SetValue(DisplayNameProperty, value);
     }
 
-    public Point GetSocketPoint(NodePropertyViewModel property, Canvas canvas)
+    public Point GetSocketPoint(INodePropertyHandler property, Canvas canvas)
     {
         NodePropertyView propertyView = this.GetVisualDescendants().OfType<NodePropertyView>().FirstOrDefault(x => x.DataContext == property);
         

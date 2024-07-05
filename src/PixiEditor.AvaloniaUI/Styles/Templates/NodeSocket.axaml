@@ -5,7 +5,11 @@
     <ControlTheme TargetType="properties:NodeSocket" x:Key="{x:Type properties:NodeSocket}">
         <Setter Property="Template">
             <ControlTemplate>
-                <Ellipse Width="10" Height="10" Fill="Red"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{TemplateBinding Label}" IsVisible="{Binding !IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    <Ellipse Width="10" Height="10" Fill="Red" />
+                    <TextBlock Text="{TemplateBinding Label}" IsVisible="{Binding IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
+                </StackPanel>
             </ControlTemplate>
         </Setter>
     </ControlTheme>

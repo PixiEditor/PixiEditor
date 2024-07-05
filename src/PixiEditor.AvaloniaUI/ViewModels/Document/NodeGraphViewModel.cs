@@ -70,12 +70,12 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
    
                foreach (var input in node.Inputs)
                {
-                   if (input.Connection == null)
+                   if (input.ConnectedOutput == null)
                    {
                        continue;
                    }
    
-                   queueNodes.Enqueue(input.Connection.Node);
+                   queueNodes.Enqueue(input.ConnectedOutput.Node);
                }
            }
    

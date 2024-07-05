@@ -1,4 +1,6 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using System.Collections.Immutable;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Numerics;
 
@@ -31,7 +33,11 @@ internal class CreateNode_Change : Change
         node.Id = id;
         target.NodeGraph.AddNode(node);
         ignoreInUndo = false;
-        return new CreateNode_ChangeInfo(nodeType.Name, node.Position, id);
+        
+        var inputInfos = CreatePropertyInfos(node.InputProperties, true);
+        var outputInfos = CreatePropertyInfos(node.OutputProperties, false);
+        
+        return new CreateNode_ChangeInfo(nodeType.Name, node.Position, id, inputInfos, outputInfos);
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
@@ -40,5 +46,10 @@ internal class CreateNode_Change : Change
         target.NodeGraph.RemoveNode(node);
         
         return new DeleteNode_ChangeInfo(id);
+    }
+    
+    private ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<INodeProperty> properties, bool isInput)
+    {
+        return properties.Select(p => new NodePropertyInfo(p.Name, p.ValueType, isInput, id)).ToImmutableArray();
     }
 }

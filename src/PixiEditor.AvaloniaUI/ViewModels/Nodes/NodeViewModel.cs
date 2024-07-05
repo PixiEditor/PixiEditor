@@ -3,6 +3,7 @@ using Avalonia;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
 using PixiEditor.AvaloniaUI.Models.Handlers;
+using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;
@@ -11,8 +12,8 @@ public class NodeViewModel : ObservableObject, INodeHandler
 {
     private string nodeName;
     private VecD position;
-    private ObservableCollection<IInputPropertyHandler> inputs = new();
-    private ObservableCollection<IOutputPropertyHandler> outputs = new();
+    private ObservableRangeCollection<INodePropertyHandler> inputs = new();
+    private ObservableRangeCollection<INodePropertyHandler> outputs = new();
     private Surface resultPreview;
 
     protected Guid id;
@@ -46,13 +47,13 @@ public class NodeViewModel : ObservableObject, INodeHandler
         set => SetProperty(ref position, value);
     }
 
-    public ObservableCollection<IInputPropertyHandler> Inputs
+    public ObservableRangeCollection<INodePropertyHandler> Inputs
     {
         get => inputs;
         set => SetProperty(ref inputs, value);
     }
 
-    public ObservableCollection<IOutputPropertyHandler> Outputs
+    public ObservableRangeCollection<INodePropertyHandler> Outputs
     {
         get => outputs;
         set => SetProperty(ref outputs, value);
@@ -86,7 +87,7 @@ public class NodeViewModel : ObservableObject, INodeHandler
 
             foreach (var inputProperty in node.Inputs)
             {
-                if (inputProperty.Connection != null)
+                if (inputProperty.ConnectedOutput != null)
                 {
                     queueNodes.Enqueue(inputProperty.Node);
                 }
@@ -116,7 +117,7 @@ public class NodeViewModel : ObservableObject, INodeHandler
 
             foreach (var outputProperty in node.Outputs)
             {
-                foreach (var connection in outputProperty.Connections)
+                foreach (var connection in outputProperty.ConnectedInputs)
                 {
                     queueNodes.Enqueue(connection.Node);
                 }

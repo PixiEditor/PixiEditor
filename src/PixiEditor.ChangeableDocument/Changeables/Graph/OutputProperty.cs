@@ -10,8 +10,10 @@ public class OutputProperty : IOutputProperty
     private List<IInputProperty> _connections = new();
     private object _value;
     public string Name { get; }
-
     public Node Node { get; }
+
+    public Type ValueType { get; }
+
     IReadOnlyNode INodeProperty.Node => Node;
 
     public object Value
@@ -32,12 +34,12 @@ public class OutputProperty : IOutputProperty
     public event InputConnectedEvent Connected;
     public event InputConnectedEvent Disconnected;
 
-    internal OutputProperty(Node node, string name, object defaultValue)
+    internal OutputProperty(Node node, string name, object defaultValue, Type valueType)
     {
         Name = name;
         Value = defaultValue;
-        _connections = new List<IInputProperty>();
         Node = node;
+        ValueType = valueType;
     }
 
     public void ConnectTo(IInputProperty property)
@@ -69,7 +71,7 @@ public class OutputProperty : IOutputProperty
      
         object value = Value is ICloneable cloneableValue ? cloneableValue.Clone() : Value;
         
-        var newOutput = new OutputProperty(clone, Name, value);
+        var newOutput = new OutputProperty(clone, Name, value, ValueType);
         foreach (var connection in Connections)
         {
             newOutput.ConnectTo(connection);
@@ -87,7 +89,7 @@ public class OutputProperty<T> : OutputProperty, INodeProperty<T>
         set => base.Value = value;
     }
 
-    internal OutputProperty(Node node, string name, T defaultValue) : base(node, name, defaultValue)
+    internal OutputProperty(Node node, string name, T defaultValue) : base(node, name, defaultValue, typeof(T))
     {
     }
 }

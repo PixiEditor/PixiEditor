@@ -1,5 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using System.Collections.Immutable;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
@@ -16,7 +18,10 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
         Guid guidValue,
         bool hasMask,
         bool maskIsVisible,
-        bool lockTransparency) : base(parentGuid, index, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask, maskIsVisible)
+        bool lockTransparency,
+        ImmutableArray<NodePropertyInfo> inputs,
+        ImmutableArray<NodePropertyInfo> outputs) : 
+        base(parentGuid, index, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask, maskIsVisible, inputs, outputs)
     {
         LockTransparency = lockTransparency;
     }

@@ -1,7 +1,10 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using System.Collections.Immutable;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -46,14 +49,38 @@ internal class CreateStructureMember_Change : Change
         AppendMember(backgroundInput, member);
 
         ignoreInUndo = false;
+
+        CreateNode_ChangeInfo changeInfo = new CreateNode_ChangeInfo(
+            member.MemberName, 
+            new VecD(0, 0),
+            member.Id, 
+            CreatePropertyInfos(member.InputProperties, true),
+            CreatePropertyInfos(member.OutputProperties, false));
+        
+        List<IChangeInfo> changes = new()
+        {
+            changeInfo,
+            CreateChangeInfo(member)
+        };
+
+        return changes; 
+    }
+    
+    private IChangeInfo CreateChangeInfo(StructureNode member)
+    {
         return type switch
         {
-            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid, parentFolderIndex,
+             StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid, parentFolderIndex,
                 (LayerNode)member),
             StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentFolderGuid, parentFolderIndex,
                 (FolderNode)member),
             _ => throw new NotSupportedException(),
         };
+    }
+
+    private ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<INodeProperty> properties, bool isInput)
+    {
+        return properties.Select(p => new NodePropertyInfo(p.Name, p.ValueType, isInput, newMemberGuid)).ToImmutableArray();
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
@@ -69,7 +96,7 @@ internal class CreateStructureMember_Change : Change
         child.Dispose();
 
         document.NodeGraph.RemoveNode(child);
-        
+
         childBackgroundConnection?.ConnectTo(backgroundInput.Background);
 
         return new DeleteStructureMember_ChangeInfo(newMemberGuid, parentFolderGuid);

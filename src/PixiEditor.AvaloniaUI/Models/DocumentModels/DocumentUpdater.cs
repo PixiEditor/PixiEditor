@@ -1,4 +1,6 @@
-﻿using ChunkyImageLib;
+﻿using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
@@ -355,8 +357,6 @@ internal class DocumentUpdater
         memberVM.SetMaskIsVisible(info.MaskIsVisible);
         memberVM.SetBlendMode(info.BlendMode);
         
-        doc.NodeGraphHandler.AddNode(memberVM);
-
         //parentFolderVM.Children.Insert(info.Index, memberVM);
 
         /*if (info is CreateFolder_ChangeInfo folderInfo)
@@ -471,7 +471,25 @@ internal class DocumentUpdater
     private void ProcessCreateNode(CreateNode_ChangeInfo info)
     {
         NodeViewModel node = new NodeViewModel(info.NodeName, info.Id, info.Position);
+        List<INodePropertyHandler> inputs = CreateProperties(info.Inputs, node, true);
+        List<INodePropertyHandler> outputs = CreateProperties(info.Outputs, node, false);
+        node.Inputs.AddRange(inputs);
+        node.Outputs.AddRange(outputs);
         doc.NodeGraphHandler.AddNode(node);
+    }
+    
+    private List<INodePropertyHandler> CreateProperties(ImmutableArray<NodePropertyInfo> source, NodeViewModel node, bool isInput)
+    {
+        List<INodePropertyHandler> inputs = new();
+        foreach (var input in source)
+        {
+            var prop = NodePropertyViewModel.CreateFromType(input.ValueType, node);
+            prop.Name = input.Name;
+            prop.IsInput = isInput;
+            inputs.Add(prop);
+        }
+        
+        return inputs;
     }
     
     private void ProcessDeleteNode(DeleteNode_ChangeInfo info)

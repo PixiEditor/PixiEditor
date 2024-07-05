@@ -1,11 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.VisualTree;
+﻿using Avalonia;
 using PixiEditor.AvaloniaUI.Models.Handlers;
-using PixiEditor.AvaloniaUI.ViewModels.Nodes;
-using PixiEditor.AvaloniaUI.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.AvaloniaUI.Views.Nodes;
 

@@ -5,11 +5,14 @@ public interface INodeProperty
     public string Name { get; }
     public object Value { get; set; }
     public IReadOnlyNode Node { get; }
+    public Type ValueType { get; }
 }
 
 public interface INodeProperty<T> : INodeProperty
 {
     public new T Value { get; set; }
+
+    Type INodeProperty.ValueType => typeof(T);
 }
 
 public interface IInputProperty : INodeProperty
