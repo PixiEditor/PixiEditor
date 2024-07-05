@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
 
@@ -13,7 +14,8 @@ internal class CreateStructureMember_Change : Change
     private StructureMemberType type;
 
     [GenerateMakeChangeAction]
-    public CreateStructureMember_Change(Guid parentFolder, Guid newGuid, int parentFolderIndex, StructureMemberType type)
+    public CreateStructureMember_Change(Guid parentFolder, Guid newGuid, int parentFolderIndex,
+        StructureMemberType type)
     {
         this.parentFolderGuid = parentFolder;
         this.parentFolderIndex = parentFolderIndex;
@@ -23,13 +25,12 @@ internal class CreateStructureMember_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        return target.HasMember(parentFolderGuid);
+        return target.TryFindNode<Node>(parentFolderGuid, out var targetNode) && targetNode is IBackgroundInput;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document document, bool firstApply,
+        out bool ignoreInUndo)
     {
-        var folder = document.FindMemberOrThrow<FolderNode>(parentFolderGuid);
-
         StructureNode member = type switch
         {
             // TODO: Add support for other types
@@ -38,27 +39,55 @@ internal class CreateStructureMember_Change : Change
             _ => throw new NotSupportedException(),
         };
 
-        /*folder.Children = folder.Children.Insert(parentFolderIndex, member);
+        document.TryFindNode<Node>(parentFolderGuid, out var parentNode);
+        document.NodeGraph.AddNode(member);
+
+        IBackgroundInput backgroundInput = (IBackgroundInput)parentNode;
+        AppendMember(backgroundInput, member);
 
         ignoreInUndo = false;
         return type switch
         {
-            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid, parentFolderIndex, (Layer)member),
-            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentFolderGuid, parentFolderIndex, (Folder)member),
+            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid, parentFolderIndex,
+                (LayerNode)member),
+            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentFolderGuid, parentFolderIndex,
+                (FolderNode)member),
             _ => throw new NotSupportedException(),
-        };*/
-        
-        ignoreInUndo = false;
-        return new None();
+        };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
-        FolderNode folder = document.FindMemberOrThrow<FolderNode>(parentFolderGuid);
+        var container = document.FindNodeOrThrow<Node>(parentFolderGuid);
+        if (container is not IBackgroundInput backgroundInput)
+        {
+            throw new InvalidOperationException("Parent folder is not a valid container.");
+        }
+
         StructureNode child = document.FindMemberOrThrow(newMemberGuid);
+        var childBackgroundConnection = child.Background.Connection;
         child.Dispose();
-        //folder.Children = folder.Children.RemoveAt(folder.Children.FindIndex(member => member.GuidValue == newMemberGuid));
+
+        document.NodeGraph.RemoveNode(child);
+        
+        childBackgroundConnection?.ConnectTo(backgroundInput.Background);
 
         return new DeleteStructureMember_ChangeInfo(newMemberGuid, parentFolderGuid);
+    }
+
+    private static void AppendMember(IBackgroundInput backgroundInput, StructureNode member)
+    {
+        IOutputProperty? previouslyConnected = null;
+        if (backgroundInput.Background.Connection != null)
+        {
+            previouslyConnected = backgroundInput.Background.Connection;
+        }
+
+        member.Output.ConnectTo(backgroundInput.Background);
+
+        if (previouslyConnected != null)
+        {
+            member.Background.Connection = previouslyConnected;
+        }
     }
 }

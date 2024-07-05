@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -18,6 +19,7 @@ public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
 
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
+    public VecD Position { get; set; }
 
     public ChunkyImage? Execute(KeyFrameTime frameTime)
     {

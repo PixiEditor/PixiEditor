@@ -26,6 +26,7 @@ using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.Enums;
@@ -258,15 +259,18 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         if (builderInstance.ReferenceLayer is { } refLayer)
         {
-            acc
-                .AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImageBgra8888Bytes.ToImmutableArray(),
+            acc.AddActions(new SetReferenceLayer_Action(refLayer.Shape, refLayer.ImageBgra8888Bytes.ToImmutableArray(),
                     refLayer.ImageSize));
         }
 
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
-
-        AddMembers(viewModel.NodeGraph.OutputNode.Id, builderInstance.Children);
+        
+        Guid outputNodeGuid = Guid.NewGuid();
+        
+        acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
+        
+        AddMembers(outputNodeGuid, builderInstance.Children);
         AddAnimationData(builderInstance.AnimationData);
 
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());

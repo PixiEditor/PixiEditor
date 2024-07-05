@@ -4,7 +4,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public class FolderNode : StructureNode, IReadOnlyFolderNode
+public class FolderNode : StructureNode, IReadOnlyFolderNode 
 {
     public override bool Validate()
     {
@@ -44,6 +44,11 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
       }
 
       return bounds;*/
+    }
+
+    public void InsertStructureMember(StructureNode structureMember)
+    {
+       
     }
 
     /// <summary>

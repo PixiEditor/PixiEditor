@@ -14,8 +14,12 @@ internal class DocumentStructureModule
     public IStructureMemberHandler FindOrThrow(Guid guid) => Find(guid) ?? throw new ArgumentException("Could not find member with guid " + guid.ToString());
     public IStructureMemberHandler? Find(Guid guid)
     {
-        List<IStructureMemberHandler>? list = FindPath(guid);
-        return list.Count > 0 ? list[0] : null;
+        return FindNode<IStructureMemberHandler>(guid); 
+    }
+    
+    public T? FindNode<T>(Guid guid) where T : class, INodeHandler
+    {
+        return doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
     }
 
     public IStructureMemberHandler? FindFirstWhere(Predicate<IStructureMemberHandler> predicate)

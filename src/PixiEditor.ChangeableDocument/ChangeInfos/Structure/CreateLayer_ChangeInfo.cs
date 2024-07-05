@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
@@ -22,20 +23,20 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
 
     public bool LockTransparency { get; }
 
-    /*internal static CreateLayer_ChangeInfo FromLayer(Guid parentGuid, int index, Layer layer)
+    internal static CreateLayer_ChangeInfo FromLayer(Guid parentGuid, int index, LayerNode layer)
     {
         return new CreateLayer_ChangeInfo(
             parentGuid,
             index,
-            layer.Opacity,
-            layer.IsVisible,
-            layer.ClipToMemberBelow,
-            layer.Name,
-            layer.BlendMode,
-            layer.GuidValue,
-            layer.Mask is not null,
-            layer.MaskIsVisible,
+            layer.Opacity.Value,
+            layer.IsVisible.Value,
+            layer.ClipToMemberBelow.Value,
+            layer.MemberName,
+            layer.BlendMode.Value,
+            layer.Id,
+            layer.Mask.Value is not null,
+            layer.MaskIsVisible.Value,
             layer is ITransparencyLockable { LockTransparency: true }
             );
-    }*/
+    }
 }

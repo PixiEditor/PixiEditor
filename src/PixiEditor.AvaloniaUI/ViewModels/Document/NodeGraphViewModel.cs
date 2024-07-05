@@ -9,11 +9,30 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
-    public INodeHandler? OutputNode { get; }
+    public INodeHandler? OutputNode { get; private set; }
 
     public NodeGraphViewModel(DocumentViewModel documentViewModel)
     {
         DocumentViewModel = documentViewModel;
+    }
+    
+    public void AddNode(INodeHandler node)
+    {
+        if(OutputNode == null)
+        {
+            OutputNode = node; // TODO: this is not really correct yet, a way to check what node type is added is needed
+        }
+        
+        AllNodes.Add(node);
+    }
+    
+    public void RemoveNode(Guid nodeId)
+    {
+        var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
+        if (node != null)
+        {
+            AllNodes.Remove(node);
+        }
     }
 
     public bool TryTraverse(Func<INodeHandler, bool> func)

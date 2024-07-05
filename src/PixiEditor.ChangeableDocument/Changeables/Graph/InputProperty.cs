@@ -10,7 +10,7 @@ public class InputProperty : IInputProperty
     public Node Node { get; }
     IReadOnlyNode INodeProperty.Node => Node;
     
-    public IOutputProperty Connection { get; set; }
+    public IOutputProperty? Connection { get; set; }
     
     internal InputProperty(Node node, string name, object defaultValue)
     {

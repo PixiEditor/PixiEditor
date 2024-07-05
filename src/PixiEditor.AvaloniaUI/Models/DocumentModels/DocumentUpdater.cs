@@ -5,10 +5,12 @@ using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Properties;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root;
 using PixiEditor.ChangeableDocument.ChangeInfos.Root.ReferenceLayerChangeInfos;
@@ -150,6 +152,12 @@ internal class DocumentUpdater
                 break;
             case ClearSelectedKeyFrames_PassthroughAction info:
                 ClearSelectedKeyFrames(info);
+                break;
+            case CreateNode_ChangeInfo info:
+                ProcessCreateNode(info);
+                break;
+            case DeleteNode_ChangeInfo info:
+                ProcessDeleteNode(info);
                 break;
         }
     }
@@ -324,8 +332,6 @@ internal class DocumentUpdater
 
     private void ProcessCreateStructureMember(CreateStructureMember_ChangeInfo info)
     {
-        IFolderHandler? parentFolderVM = (IFolderHandler)doc.StructureHelper.FindOrThrow(info.ParentGuid);
-
         IStructureMemberHandler memberVM;
         if (info is CreateLayer_ChangeInfo layerInfo)
         {
@@ -348,16 +354,19 @@ internal class DocumentUpdater
         memberVM.SetHasMask(info.HasMask);
         memberVM.SetMaskIsVisible(info.MaskIsVisible);
         memberVM.SetBlendMode(info.BlendMode);
+        
+        doc.NodeGraphHandler.AddNode(memberVM);
 
         //parentFolderVM.Children.Insert(info.Index, memberVM);
 
-        if (info is CreateFolder_ChangeInfo folderInfo)
+        /*if (info is CreateFolder_ChangeInfo folderInfo)
         {
             foreach (CreateStructureMember_ChangeInfo childInfo in folderInfo.Children)
             {
                 ProcessCreateStructureMember(childInfo);
             }
         }
+        */
 
         if (doc.SelectedStructureMember is not null)
         {
@@ -457,5 +466,16 @@ internal class DocumentUpdater
     private void ClearSelectedKeyFrames(ClearSelectedKeyFrames_PassthroughAction info)
     {
         doc.AnimationHandler.ClearSelectedKeyFrames();
+    }
+    
+    private void ProcessCreateNode(CreateNode_ChangeInfo info)
+    {
+        NodeViewModel node = new NodeViewModel(info.NodeName, info.Id, info.Position);
+        doc.NodeGraphHandler.AddNode(node);
+    }
+    
+    private void ProcessDeleteNode(DeleteNode_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.RemoveNode(info.Id);
     }
 }

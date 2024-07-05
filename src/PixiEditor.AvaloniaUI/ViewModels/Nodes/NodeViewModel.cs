@@ -11,11 +11,23 @@ public class NodeViewModel : ObservableObject, INodeHandler
 {
     private string nodeName;
     private VecD position;
-    private ObservableCollection<IInputPropertyHandler> inputs;
-    private ObservableCollection<IOutputPropertyHandler> outputs;
+    private ObservableCollection<IInputPropertyHandler> inputs = new();
+    private ObservableCollection<IOutputPropertyHandler> outputs = new();
     private Surface resultPreview;
 
     protected Guid id;
+
+    public NodeViewModel()
+    {
+        
+    }
+
+    public NodeViewModel(string nodeName, Guid id, VecD position)
+    {
+        this.nodeName = nodeName;
+        this.id = id;
+        this.position = position;
+    }
 
     public Guid Id
     {

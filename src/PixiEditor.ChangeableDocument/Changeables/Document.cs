@@ -133,14 +133,34 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     }
 
     /// <summary>
+    ///     Checks if a node in NodeGraph with the given <paramref name="id"/> exists.
+    /// </summary>
+    /// <param name="id">The <see cref="Node.Id"/> of the node.</param>
+    /// <returns>True if the node exists, otherwise false.</returns>
+    public bool HasNode(Guid id)
+    {
+        return NodeGraph.Nodes.Any(x => x.Id == id);
+    }
+    
+    /// <summary>
+    ///     Checks if a node in NodeGraph with the given <paramref name="id"/> exists and is of type <typeparamref name="T"/>.
+    /// </summary>
+    /// <param name="id">The <see cref="Node.Id"/> of the node.</param>
+    /// <typeparam name="T">The type of the node.</typeparam>
+    /// <returns>True if the node exists and is of type <typeparamref name="T"/>, otherwise false.</returns>
+    public bool HasNode<T>(Guid id) where T : Node
+    {
+        return NodeGraph.Nodes.Any(x => x.Id == id && x is T);
+    }
+
+    /// <summary>
     /// Checks if a member with the <paramref name="guid"/> exists
     /// </summary>
     /// <param name="guid">The <see cref="StructureNode.Id"/> of the member</param>
     /// <returns>True if the member can be found, otherwise false</returns>
     public bool HasMember(Guid guid)
     {
-        var list = FindMemberPath(guid);
-        return list.Count > 0;
+        return HasNode<StructureNode>(guid); 
     }
 
     /// <summary>
@@ -183,8 +203,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     /// <param name="guid">The <see cref="StructureNode.Id"/> of the member</param>
     public StructureNode? FindMember(Guid guid)
     {
-        var list = FindMemberPath(guid);
-        return list.Count > 0 ? list[0] : null;
+        return FindNode<StructureNode>(guid);
     }
 
     /// <summary>
@@ -196,8 +215,12 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     {
         return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid);
     }
-    
-   
+
+    public T FindNode<T>(Guid guid) where T : Node
+    {
+        return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
+    }
+
     /// <summary>
     ///     Tries to find the node with the given <paramref name="id"/> and returns true if it was found.
     /// </summary>
@@ -219,15 +242,8 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     /// <returns>True if the member could be found, otherwise false</returns>
     public bool TryFindMember(Guid guid, [NotNullWhen(true)] out StructureNode? member)
     {
-        var list = FindMemberPath(guid);
-        if (list.Count == 0)
-        {
-            member = null;
-            return false;
-        }
-
-        member = list[0];
-        return true;
+        member = FindMember(guid);
+        return member != null; 
     }
 
     /// <summary>
@@ -249,7 +265,6 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         member = cast;
         return true;
     }
-
 
 
     /// <summary>
@@ -295,7 +310,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         FillNodePath(NodeGraph.OutputNode, guid, list);
         return list;
     }
-    
+
     /// <summary>
     /// Finds the path to the member with <paramref name="guid"/>, the first element will be the member
     /// </summary>

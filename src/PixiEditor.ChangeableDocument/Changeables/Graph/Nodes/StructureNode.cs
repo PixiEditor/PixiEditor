@@ -5,7 +5,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public abstract class StructureNode : Node, IReadOnlyStructureNode
+public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundInput
 {
     public InputProperty<ChunkyImage?> Background { get; }
     public InputProperty<float> Opacity { get; } 
