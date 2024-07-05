@@ -38,7 +38,7 @@ internal class CreateStructureMember_Change : Change
             _ => throw new NotSupportedException(),
         };
 
-        folder.Children = folder.Children.Insert(parentFolderIndex, member);
+        /*folder.Children = folder.Children.Insert(parentFolderIndex, member);
 
         ignoreInUndo = false;
         return type switch
@@ -46,15 +46,18 @@ internal class CreateStructureMember_Change : Change
             StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid, parentFolderIndex, (Layer)member),
             StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentFolderGuid, parentFolderIndex, (Folder)member),
             _ => throw new NotSupportedException(),
-        };
+        };*/
+        
+        ignoreInUndo = false;
+        return new None();
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
     {
-        Folder folder = document.FindMemberOrThrow<Folder>(parentFolderGuid);
-        StructureMember child = document.FindMemberOrThrow(newMemberGuid);
+        FolderNode folder = document.FindMemberOrThrow<FolderNode>(parentFolderGuid);
+        StructureNode child = document.FindMemberOrThrow(newMemberGuid);
         child.Dispose();
-        folder.Children = folder.Children.RemoveAt(folder.Children.FindIndex(member => member.GuidValue == newMemberGuid));
+        //folder.Children = folder.Children.RemoveAt(folder.Children.FindIndex(member => member.GuidValue == newMemberGuid));
 
         return new DeleteStructureMember_ChangeInfo(newMemberGuid, parentFolderGuid);
     }

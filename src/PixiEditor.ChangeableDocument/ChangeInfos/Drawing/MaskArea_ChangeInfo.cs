@@ -2,4 +2,4 @@
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
 
-public record class MaskArea_ChangeInfo(Guid GuidValue, AffectedArea Area) : IChangeInfo;
+public record class MaskArea_ChangeInfo(Guid Id, AffectedArea Area) : IChangeInfo;

@@ -87,7 +87,7 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
 
             if (PixiEditorSettings.Discord.ShowLayerCount.Value)
             {
-                int count = CountLayers(document.StructureRoot);
+                int count = CountLayers(document.NodeGraph);
                 state += count == 1 ? "1 layer" : $"{count} layers";
             }
 
@@ -97,16 +97,16 @@ internal class DiscordViewModel : SubViewModel<ViewModelMain>, IDisposable
         client.SetPresence(richPresence);
     }
 
-    private int CountLayers(FolderViewModel folder)
+    private int CountLayers(NodeGraphViewModel graph)
     {
-        int counter = 0;
-        foreach (var child in folder.Children)
+        int counter = 0; //TODO: Implement this
+        /*foreach (var child in folder.Children)
         {
             if (child is LayerViewModel)
                 counter++;
             else if (child is FolderViewModel innerFolder)
                 counter += CountLayers(innerFolder);
-        }
+        }*/
         return counter;
     }
 

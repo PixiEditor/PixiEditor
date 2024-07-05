@@ -20,22 +20,23 @@ internal class DocumentStructureModule
 
     public IStructureMemberHandler? FindFirstWhere(Predicate<IStructureMemberHandler> predicate)
     {
-        return FindFirstWhere(predicate, doc.StructureRoot);
+        return FindFirstWhere(predicate, doc.NodeGraphHandler);
     }
-    private IStructureMemberHandler? FindFirstWhere(Predicate<IStructureMemberHandler> predicate, IFolderHandler folderVM)
+    private IStructureMemberHandler? FindFirstWhere(Predicate<IStructureMemberHandler> predicate, INodeGraphHandler graphVM)
     {
-        foreach (IStructureMemberHandler? child in folderVM.Children)
+        IStructureMemberHandler? result = null;
+        graphVM.TryTraverse(node =>
         {
-            if (predicate(child))
-                return child;
-            if (child is IFolderHandler innerFolderVM)
+            if (node is IStructureMemberHandler structureMemberNode && predicate(structureMemberNode))
             {
-                IStructureMemberHandler? result = FindFirstWhere(predicate, innerFolderVM);
-                if (result is not null)
-                    return result;
+                result = structureMemberNode;
+                return false;
             }
-        }
-        return null;
+
+            return true;
+        });
+        
+        return result;
     }
 
     public (IStructureMemberHandler?, IFolderHandler?) FindChildAndParent(Guid childGuid)
@@ -59,10 +60,9 @@ internal class DocumentStructureModule
     }
     public List<IStructureMemberHandler> FindPath(Guid guid)
     {
-        List<IStructureMemberHandler>? list = new List<IStructureMemberHandler>();
-        if (FillPath(doc.StructureRoot, guid, list))
-            list.Add(doc.StructureRoot);
-        return list;
+        List<INodeHandler>? list = new List<INodeHandler>();
+        FillPath(doc.NodeGraphHandler.OutputNode, guid, list);
+        return list.Cast<IStructureMemberHandler>().ToList();
     }
     
     /// <summary>
@@ -72,52 +72,43 @@ internal class DocumentStructureModule
     public List<ILayerHandler> GetAllLayers()
     {
         List<ILayerHandler> layers = new List<ILayerHandler>();
-        foreach (IStructureMemberHandler? member in doc.StructureRoot.Children)
+        
+        doc.NodeGraphHandler.TryTraverse(node =>
         {
-            if (member is ILayerHandler layer)
+            if (node is ILayerHandler layer)
                 layers.Add(layer);
-            else if (member is IFolderHandler folder)
-                layers.AddRange(GetAllLayers(folder, layers));
-        }
+            return true;
+        });
         
         return layers;
     }
     
-    private List<ILayerHandler> GetAllLayers(IFolderHandler folder, List<ILayerHandler> layers)
+    private bool FillPath(INodeHandler node, Guid guid, List<INodeHandler> toFill)
     {
-        foreach (IStructureMemberHandler? member in folder.Children)
-        {
-            if (member is ILayerHandler layer)
-                layers.Add(layer);
-            else if (member is IFolderHandler innerFolder)
-                layers.AddRange(GetAllLayers(innerFolder, layers));
-        }
-        return layers;
-    }
-
-    private bool FillPath(IFolderHandler folder, Guid guid, List<IStructureMemberHandler> toFill)
-    {
-        if (folder.GuidValue == guid)
+        if (node.Id == guid)
         {
             return true;
         }
-        foreach (IStructureMemberHandler? member in folder.Children)
+
+        if (node is IStructureMemberHandler structureNode)
         {
-            if (member is ILayerHandler childLayer && childLayer.GuidValue == guid)
+            toFill.Add(structureNode);
+        }
+
+        bool found = false;
+
+        node.TraverseBackwards(newNode =>
+        {
+            if (newNode is IStructureMemberHandler strNode && newNode.Id == guid)
             {
-                toFill.Add(member);
-                return true;
+                toFill.Add(strNode);
+                found = true;
+                return false;
             }
 
-            if (member is IFolderHandler childFolder)
-            {
-                if (FillPath(childFolder, guid, toFill))
-                {
-                    toFill.Add(childFolder);
-                    return true;
-                }
-            }
-        }
-        return false;
+            return true;
+        });
+
+        return found;
     }
 }

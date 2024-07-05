@@ -20,12 +20,13 @@ internal class DocumentStructureHelper
     private string GetUniqueName(string name, IFolderHandler folder)
     {
         int count = 1;
-        foreach (var child in folder.Children)
+        //TODO: implement this
+        /*foreach (var child in folder.Children)
         {
             string childName = child.NameBindable;
             if (childName.StartsWith(name))
                 count++;
-        }
+        }*/
         return $"{name} {count}";
     }
 
@@ -36,8 +37,8 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member on top
-            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(doc.StructureRoot.GuidValue, guid, doc.StructureRoot.Children.Count, type));
-            name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), doc.StructureRoot);
+            //internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(doc.StructureRoot.Id, guid, doc.StructureRoot.Children.Count, type));
+            //name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), doc.StructureRoot);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
@@ -47,7 +48,7 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member inside folder on top
-            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.GuidValue, guid, folder.Children.Count, type));
+            //internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.Id, guid, folder.Children.Count, type));
             name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), folder);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
@@ -58,11 +59,11 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member above the layer
-            List<IStructureMemberHandler> path = doc.StructureHelper.FindPath(layer.GuidValue);
+            List<IStructureMemberHandler> path = doc.StructureHelper.FindPath(layer.Id);
             if (path.Count < 2)
                 throw new InvalidOperationException("Couldn't find a path to the selected member");
             IFolderHandler parent = (IFolderHandler)path[1];
-            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.GuidValue, guid, parent.Children.IndexOf(layer) + 1, type));
+            //internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, parent.Children.IndexOf(layer) + 1, type));
             name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), parent);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
@@ -76,35 +77,35 @@ internal class DocumentStructureHelper
     {
         if (memberToMoveIntoPath[0] is not IFolderHandler folder || memberToMoveIntoPath.Contains(memberToMovePath[0]))
             return;
-        int index = folder.Children.Count;
-        if (memberToMoveIntoPath[0].GuidValue == memberToMovePath[1].GuidValue) // member is already in this folder
-            index--;
-        internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, folder.GuidValue, index));
+        //int index = folder.Children.Count;
+        if (memberToMoveIntoPath[0].Id == memberToMovePath[1].Id) // member is already in this folder
+            //index--;
+        //internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].Id, folder.Id, index));
         return;
     }
 
     private void HandleMoveAboveBelow(List<IStructureMemberHandler> memberToMovePath, List<IStructureMemberHandler> memberToMoveRelativeToPath, bool above)
     {
         IFolderHandler targetFolder = (IFolderHandler)memberToMoveRelativeToPath[1];
-        if (memberToMovePath[1].GuidValue == memberToMoveRelativeToPath[1].GuidValue)
+        if (memberToMovePath[1].Id == memberToMoveRelativeToPath[1].Id)
         { // members are in the same folder
-            int indexOfMemberToMove = targetFolder.Children.IndexOf(memberToMovePath[0]);
-            int indexOfMemberToMoveAbove = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
-            int index = indexOfMemberToMoveAbove;
-            if (above)
-                index++;
-            if (indexOfMemberToMove < indexOfMemberToMoveAbove)
-                index--;
-            internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, targetFolder.GuidValue, index));
+            //int indexOfMemberToMove = targetFolder.Children.IndexOf(memberToMovePath[0]);
+            //int indexOfMemberToMoveAbove = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
+            //int index = indexOfMemberToMoveAbove;
+           // if (above)
+           //     index++;
+           // if (indexOfMemberToMove < indexOfMemberToMoveAbove)
+           //     index--;
+          //  internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].Id, targetFolder.Id, index));
         }
         else
         { // members are in different folders
             if (memberToMoveRelativeToPath.Contains(memberToMovePath[0]))
                 return;
-            int index = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
-            if (above)
-                index++;
-            internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].GuidValue, targetFolder.GuidValue, index));
+          //  int index = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
+         //   if (above)
+          //      index++;
+          //  internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMovePath[0].Id, targetFolder.Id, index));
         }
     }
 
@@ -128,13 +129,13 @@ internal class DocumentStructureHelper
             case StructureMemberPlacement.BelowOutsideFolder:
                 {
                     IFolderHandler refFolder = (IFolderHandler)refPath[1];
-                    int refIndexInParent = refFolder.Children.IndexOf(refPath[0]);
-                    if (refIndexInParent > 0 || refPath.Count == 2)
+                 //   int refIndexInParent = refFolder.Children.IndexOf(refPath[0]);
+                  //  if (refIndexInParent > 0 || refPath.Count == 2)
                     {
                         HandleMoveAboveBelow(memberPath, refPath, false);
                         break;
                     }
-                    HandleMoveAboveBelow(memberPath, doc.StructureHelper.FindPath(refPath[1].GuidValue), false);
+                    HandleMoveAboveBelow(memberPath, doc.StructureHelper.FindPath(refPath[1].Id), false);
                 }
                 break;
         }

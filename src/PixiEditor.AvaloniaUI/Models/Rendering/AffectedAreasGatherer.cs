@@ -3,6 +3,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.ChangeableDocument;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
@@ -43,27 +44,27 @@ internal class AffectedAreasGatherer
                     if (info.Area.Chunks is null)
                         throw new InvalidOperationException("Chunks must not be null");
                     AddToMainImage(info.Area);
-                    AddToImagePreviews(info.GuidValue, info.Area, true);
-                    AddToMaskPreview(info.GuidValue, info.Area);
+                    AddToImagePreviews(info.Id, info.Area, true);
+                    AddToMaskPreview(info.Id, info.Area);
                     break;
                 case LayerImageArea_ChangeInfo info:
                     if (info.Area.Chunks is null)
                         throw new InvalidOperationException("Chunks must not be null");
                     AddToMainImage(info.Area);
-                    AddToImagePreviews(info.GuidValue, info.Area);
+                    AddToImagePreviews(info.Id, info.Area);
                     break;
                 case CreateStructureMember_ChangeInfo info:
-                    AddAllToMainImage(info.GuidValue, 0);
-                    AddAllToImagePreviews(info.GuidValue, 0);
-                    AddAllToMaskPreview(info.GuidValue);
+                    AddAllToMainImage(info.Id, 0);
+                    AddAllToImagePreviews(info.Id, 0);
+                    AddAllToMaskPreview(info.Id);
                     break;
                 case DeleteStructureMember_ChangeInfo info:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToImagePreviews(info.ParentGuid);
                     break;
                 case MoveStructureMember_ChangeInfo info:
-                    AddAllToMainImage(info.GuidValue, ActiveFrame);
-                    AddAllToImagePreviews(info.GuidValue, ActiveFrame, true);
+                    AddAllToMainImage(info.Id, ActiveFrame);
+                    AddAllToImagePreviews(info.Id, ActiveFrame, true);
                     if (info.ParentFromGuid != info.ParentToGuid)
                         AddWholeCanvasToImagePreviews(info.ParentFromGuid);
                     break;
@@ -74,28 +75,28 @@ internal class AffectedAreasGatherer
                     break;
                 case StructureMemberMask_ChangeInfo info:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToMaskPreview(info.GuidValue);
-                    AddWholeCanvasToImagePreviews(info.GuidValue, true);
+                    AddWholeCanvasToMaskPreview(info.Id);
+                    AddWholeCanvasToImagePreviews(info.Id, true);
                     break;
                 case StructureMemberBlendMode_ChangeInfo info:
-                    AddAllToMainImage(info.GuidValue, ActiveFrame);
-                    AddAllToImagePreviews(info.GuidValue, ActiveFrame, true);
+                    AddAllToMainImage(info.Id, ActiveFrame);
+                    AddAllToImagePreviews(info.Id, ActiveFrame, true);
                     break;
                 case StructureMemberClipToMemberBelow_ChangeInfo info:
-                    AddAllToMainImage(info.GuidValue, ActiveFrame);
-                    AddAllToImagePreviews(info.GuidValue, ActiveFrame, true);
+                    AddAllToMainImage(info.Id, ActiveFrame);
+                    AddAllToImagePreviews(info.Id, ActiveFrame, true);
                     break;
                 case StructureMemberOpacity_ChangeInfo info:
-                    AddAllToMainImage(info.GuidValue, ActiveFrame);
-                    AddAllToImagePreviews(info.GuidValue, ActiveFrame, true);
+                    AddAllToMainImage(info.Id, ActiveFrame);
+                    AddAllToImagePreviews(info.Id, ActiveFrame, true);
                     break;
                 case StructureMemberIsVisible_ChangeInfo info:
-                    AddAllToMainImage(info.GuidValue, ActiveFrame);
-                    AddAllToImagePreviews(info.GuidValue, ActiveFrame, true);
+                    AddAllToMainImage(info.Id, ActiveFrame);
+                    AddAllToImagePreviews(info.Id, ActiveFrame, true);
                     break;
                 case StructureMemberMaskIsVisible_ChangeInfo info:
-                    AddAllToMainImage(info.GuidValue, ActiveFrame, false);
-                    AddAllToImagePreviews(info.GuidValue, ActiveFrame, true);
+                    AddAllToMainImage(info.Id, ActiveFrame, false);
+                    AddAllToImagePreviews(info.Id, ActiveFrame, true);
                     break;
                 case CreateRasterKeyFrame_ChangeInfo info:
                     if (info.CloneFromExisting)
@@ -132,27 +133,27 @@ internal class AffectedAreasGatherer
     private void AddAllToImagePreviews(Guid memberGuid, int frame, bool ignoreSelf = false)
     {
         var member = tracker.Document.FindMember(memberGuid);
-        if (member is IReadOnlyLayer layer)
+        if (member is IReadOnlyLayerNode layer)
         {
-            var chunks = layer.Rasterize(frame).FindAllChunks();
+            var chunks = layer.Execute(frame).FindAllChunks();
             AddToImagePreviews(memberGuid, new AffectedArea(chunks), ignoreSelf);
         }
-        else if (member is IReadOnlyFolder folder)
+        else if (member is IReadOnlyFolderNode folder)
         {
             AddWholeCanvasToImagePreviews(memberGuid, ignoreSelf);
-            foreach (var child in folder.Children)
-                AddAllToImagePreviews(child.GuidValue, frame);
+            /*foreach (var child in folder.Children)
+                AddAllToImagePreviews(child.Id, frame);*/
         }
     }
 
     private void AddAllToMainImage(Guid memberGuid, int frame, bool useMask = true)
     {
         var member = tracker.Document.FindMember(memberGuid);
-        if (member is IReadOnlyLayer layer)
+        if (member is IReadOnlyLayerNode layer)
         {
-            var chunks = layer.Rasterize(frame).FindAllChunks();
-            if (layer.Mask is not null && layer.MaskIsVisible && useMask)
-                chunks.IntersectWith(layer.Mask.FindAllChunks());
+            var chunks = layer.Execute(frame).FindAllChunks();
+            if (layer.Mask.Value is not null && layer.MaskIsVisible.Value && useMask)
+                chunks.IntersectWith(layer.Mask.Value.FindAllChunks());
             AddToMainImage(new AffectedArea(chunks));
         }
         else
@@ -165,18 +166,18 @@ internal class AffectedAreasGatherer
     {
         if (!tracker.Document.TryFindMember(memberGuid, out var member))
             return;
-        if (member.Mask is not null)
+        if (member.Mask.Value is not null)
         {
-            var chunks = member.Mask.FindAllChunks();
+            var chunks = member.Mask.Value.FindAllChunks();
             AddToMaskPreview(memberGuid, new AffectedArea(chunks));
         }
-        if (member is IReadOnlyFolder folder)
+        if (member is IReadOnlyFolderNode folder)
         {
-            foreach (var child in folder.Children)
-                AddAllToMaskPreview(child.GuidValue);
+            /*foreach (var child in folder.Children)
+                AddAllToMaskPreview(child.Id);
+        */
         }
     }
-
 
     private void AddToMainImage(AffectedArea area)
     {
@@ -193,15 +194,15 @@ internal class AffectedAreasGatherer
         for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
         {
             var member = path[i];
-            if (!ImagePreviewAreas.ContainsKey(member.GuidValue))
+            if (!ImagePreviewAreas.ContainsKey(member.Id))
             {
-                ImagePreviewAreas[member.GuidValue] = new AffectedArea(area);
+                ImagePreviewAreas[member.Id] = new AffectedArea(area);
             }
             else
             {
-                var temp = ImagePreviewAreas[member.GuidValue];
+                var temp = ImagePreviewAreas[member.Id];
                 temp.UnionWith(area);
-                ImagePreviewAreas[member.GuidValue] = temp;
+                ImagePreviewAreas[member.Id] = temp;
             }
         }
     }
@@ -235,9 +236,9 @@ internal class AffectedAreasGatherer
         for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
         {
             var member = path[i];
-            if (!ImagePreviewAreas.ContainsKey(member.GuidValue))
-                ImagePreviewAreas[member.GuidValue] = new AffectedArea();
-            ImagePreviewAreas[member.GuidValue] = AddWholeArea(ImagePreviewAreas[member.GuidValue]);
+            if (!ImagePreviewAreas.ContainsKey(member.Id))
+                ImagePreviewAreas[member.Id] = new AffectedArea();
+            ImagePreviewAreas[member.Id] = AddWholeArea(ImagePreviewAreas[member.Id]);
         }
     }
 
@@ -251,15 +252,15 @@ internal class AffectedAreasGatherer
 
     private void AddWholeCanvasToEveryImagePreview()
     {
-        tracker.Document.ForEveryReadonlyMember((member) => AddWholeCanvasToImagePreviews(member.GuidValue));
+        tracker.Document.ForEveryReadonlyMember((member) => AddWholeCanvasToImagePreviews(member.Id));
     }
 
     private void AddWholeCanvasToEveryMaskPreview()
     {
         tracker.Document.ForEveryReadonlyMember((member) => 
         {
-            if (member.Mask is not null)
-                AddWholeCanvasToMaskPreview(member.GuidValue);
+            if (member.Mask.Value is not null)
+                AddWholeCanvasToMaskPreview(member.Id);
         });
     }
 

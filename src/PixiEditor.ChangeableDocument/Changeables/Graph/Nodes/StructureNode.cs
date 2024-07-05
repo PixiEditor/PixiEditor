@@ -17,7 +17,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode
     
     public OutputProperty<ChunkyImage?> Output { get; }
     
-    public string LayerName { get; set; } = string.Empty;
+    public string MemberName { get; set; } = string.Empty;
 
     protected StructureNode(Guid? id = null) : base(id)
     {

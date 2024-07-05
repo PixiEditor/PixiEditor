@@ -13,10 +13,12 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
+        return Background.Value;
     }
 
     public override RectI? GetTightBounds(KeyFrameTime frameTime)
     {
+        return Background.Value?.FindTightCommittedBounds();
         /*if (Children.Count == 0)
       {
           return null;

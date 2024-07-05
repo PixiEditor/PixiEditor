@@ -26,13 +26,13 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
             return;
         }
 
-        int newFrame = GetActiveFrame(activeDocument, activeDocument.SelectedStructureMember.GuidValue);
+        int newFrame = GetActiveFrame(activeDocument, activeDocument.SelectedStructureMember.Id);
        
-        Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.GuidValue : Guid.Empty;
+        Guid toCloneFrom = duplicate ? activeDocument.SelectedStructureMember.Id : Guid.Empty;
         int frameToCopyFrom = duplicate ? activeDocument.AnimationDataViewModel.ActiveFrameBindable : -1;
 
         activeDocument.AnimationDataViewModel.CreateRasterKeyFrame(
-            activeDocument.SelectedStructureMember.GuidValue,
+            activeDocument.SelectedStructureMember.Id,
             newFrame,
             toCloneFrom);
         

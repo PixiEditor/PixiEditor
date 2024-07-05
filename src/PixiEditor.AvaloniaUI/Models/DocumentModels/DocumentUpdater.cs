@@ -181,7 +181,7 @@ internal class DocumentUpdater
 
     private void ProcessRemoveSoftSelectedMember(RemoveSoftSelectedMember_PassthroughAction info)
     {
-        IStructureMemberHandler? member = doc.StructureHelper.Find(info.GuidValue);
+        IStructureMemberHandler? member = doc.StructureHelper.Find(info.Id);
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         if (member.Selection != StructureMemberSelectionType.Soft)
@@ -206,7 +206,7 @@ internal class DocumentUpdater
 
     private void ProcessAddSoftSelectedMember(AddSoftSelectedMember_PassthroughAction info)
     {
-        IStructureMemberHandler? member = doc.StructureHelper.Find(info.GuidValue);
+        IStructureMemberHandler? member = doc.StructureHelper.Find(info.Id);
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         member.Selection = StructureMemberSelectionType.Soft;
@@ -216,7 +216,7 @@ internal class DocumentUpdater
 
     private void ProcessSetSelectedMember(SetSelectedMember_PassthroughAction info)
     {
-        IStructureMemberHandler? member = doc.StructureHelper.Find(info.GuidValue);
+        IStructureMemberHandler? member = doc.StructureHelper.Find(info.Id);
         if (member is null || member.Selection == StructureMemberSelectionType.Hard)
             return;
         
@@ -232,13 +232,13 @@ internal class DocumentUpdater
 
     private void ProcessMaskIsVisible(StructureMemberMaskIsVisible_ChangeInfo info)
     {
-        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.GuidValue);
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.Id);
         member.SetMaskIsVisible(info.IsVisible);
     }
 
     private void ProcessClipToMemberBelow(StructureMemberClipToMemberBelow_ChangeInfo info)
     {
-        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.GuidValue);
+        IStructureMemberHandler? member = doc.StructureHelper.FindOrThrow(info.Id);
         member.SetClipToMemberBelowEnabled(info.ClipToMemberBelow);
     }
 
@@ -265,19 +265,19 @@ internal class DocumentUpdater
 
     private void ProcessLayerLockTransparency(LayerLockTransparency_ChangeInfo info)
     {
-        ILayerHandler? layer = (ILayerHandler)doc.StructureHelper.FindOrThrow(info.GuidValue);
+        ILayerHandler? layer = (ILayerHandler)doc.StructureHelper.FindOrThrow(info.Id);
         layer.SetLockTransparency(info.LockTransparency);
     }
 
     private void ProcessStructureMemberBlendMode(StructureMemberBlendMode_ChangeInfo info)
     {
-        IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.GuidValue);
+        IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.Id);
         memberVm.SetBlendMode(info.BlendMode);
     }
 
     private void ProcessStructureMemberMask(StructureMemberMask_ChangeInfo info)
     {
-        IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.GuidValue);
+        IStructureMemberHandler? memberVm = doc.StructureHelper.FindOrThrow(info.Id);
 
         memberVm.SetHasMask(info.HasMask);
         // TODO: Make sure HasMask raises property changed internally
@@ -288,12 +288,12 @@ internal class DocumentUpdater
 
     private void ProcessRefreshViewport(RefreshViewport_PassthroughAction info)
     {
-        helper.State.Viewports[info.Info.GuidValue] = info.Info;
+        helper.State.Viewports[info.Info.Id] = info.Info;
     }
 
     private void ProcessRemoveViewport(RemoveViewport_PassthroughAction info)
     {
-        helper.State.Viewports.Remove(info.GuidValue);
+        helper.State.Viewports.Remove(info.Id);
     }
 
     private void ProcessSize(Size_ChangeInfo info)
@@ -329,12 +329,12 @@ internal class DocumentUpdater
         IStructureMemberHandler memberVM;
         if (info is CreateLayer_ChangeInfo layerInfo)
         {
-            memberVM = doc.LayerHandlerFactory.CreateLayerHandler(helper, info.GuidValue);
+            memberVM = doc.LayerHandlerFactory.CreateLayerHandler(helper, info.Id);
             ((ILayerHandler)memberVM).SetLockTransparency(layerInfo.LockTransparency);
         }
         else if (info is CreateFolder_ChangeInfo)
         {
-            memberVM = doc.FolderHandlerFactory.CreateFolderHandler(helper, info.GuidValue);
+            memberVM = doc.FolderHandlerFactory.CreateFolderHandler(helper, info.Id);
         }
         else
         {
@@ -349,7 +349,7 @@ internal class DocumentUpdater
         memberVM.SetMaskIsVisible(info.MaskIsVisible);
         memberVM.SetBlendMode(info.BlendMode);
 
-        parentFolderVM.Children.Insert(info.Index, memberVM);
+        //parentFolderVM.Children.Insert(info.Index, memberVM);
 
         if (info is CreateFolder_ChangeInfo folderInfo)
         {
@@ -373,49 +373,49 @@ internal class DocumentUpdater
         /*doc.OnPropertyChanged(nameof(doc.SelectedStructureMember));
         doc.OnPropertyChanged(nameof(memberVM.Selection));*/
 
-        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Add));
+        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Add));
     }
 
     private void ProcessDeleteStructureMember(DeleteStructureMember_ChangeInfo info)
     {
-        (IStructureMemberHandler memberVM, IFolderHandler folderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
-        folderVM.Children.Remove(memberVM);
+        (IStructureMemberHandler memberVM, IFolderHandler folderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.Id);
+        //folderVM.Children.Remove(memberVM);
         if (doc.SelectedStructureMember == memberVM)
             doc.SetSelectedMember(null);
         doc.ClearSoftSelectedMembers();
         // TODO: Make sure property changed events are raised internally
-        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Remove));
+        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Remove));
     }
 
     private void ProcessUpdateStructureMemberIsVisible(StructureMemberIsVisible_ChangeInfo info)
     {
-        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
+        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
         memberVM.SetIsVisible(info.IsVisible);
     }
 
     private void ProcessUpdateStructureMemberName(StructureMemberName_ChangeInfo info)
     {
-        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
+        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
         memberVM.SetName(info.Name);
     }
 
     private void ProcessUpdateStructureMemberOpacity(StructureMemberOpacity_ChangeInfo info)
     {
-        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.GuidValue);
+        IStructureMemberHandler? memberVM = doc.StructureHelper.FindOrThrow(info.Id);
         memberVM.SetOpacity(info.Opacity);
     }
 
     private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
     {
-        (IStructureMemberHandler memberVM, IFolderHandler curFolderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.GuidValue);
+        /*(IStructureMemberHandler memberVM, IFolderHandler curFolderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.Id);
 
         IFolderHandler? targetFolderVM = (IFolderHandler)doc.StructureHelper.FindOrThrow(info.ParentToGuid);
 
         curFolderVM.Children.Remove(memberVM);
-        targetFolderVM.Children.Insert(info.NewIndex, memberVM);
+        targetFolderVM.Children.Insert(info.NewIndex, memberVM);*/
 
         // TODO: Make sure property changed events are raised internally
-        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.GuidValue, LayerAction.Move));
+        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Move));
     }
     
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)

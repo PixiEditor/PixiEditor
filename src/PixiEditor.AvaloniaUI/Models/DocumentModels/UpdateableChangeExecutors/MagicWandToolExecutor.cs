@@ -27,7 +27,7 @@ internal class MagicWandToolExecutor : UpdateableChangeExecutor
         memberGuids = members;
         considerAllLayers = magicWand.DocumentScope == DocumentScope.AllLayers;
         if (considerAllLayers)
-            memberGuids = document!.StructureHelper.GetAllLayers().Select(x => x.GuidValue).ToList();
+            memberGuids = document!.StructureHelper.GetAllLayers().Select(x => x.Id).ToList();
         var pos = controller!.LastPixelPosition;
 
         internals!.ActionAccumulator.AddActions(new MagicWand_Action(memberGuids, pos, mode, document!.AnimationHandler.ActiveFrameBindable));

@@ -7,6 +7,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.IO.FileEncoders;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -30,7 +31,7 @@ internal partial class DocumentViewModel
         
         var doc = Internals.Tracker.Document;
 
-        AddMembers(doc.StructureRoot.Children, doc, root);
+        //AddMembers(doc.StructureRoot.Children, doc, root);
 
         var document = new PixiDocument
         {
@@ -84,53 +85,53 @@ internal partial class DocumentViewModel
         };
     }
 
-    private static void AddMembers(IEnumerable<IReadOnlyStructureMember> members, IReadOnlyDocument document, Folder parent)
+    private static void AddMembers(IEnumerable<IReadOnlyStructureNode> members, IReadOnlyDocument document, Folder parent)
     {
         foreach (var member in members)
         {
-            if (member is IReadOnlyFolder readOnlyFolder)
+            if (member is IReadOnlyFolderNode readOnlyFolder)
             {
                 var folder = ToSerializable(readOnlyFolder);
 
-                AddMembers(readOnlyFolder.Children, document, folder);
+                //AddMembers(readOnlyFolder.Children, document, folder);
 
                 parent.Children.Add(folder);
             }
-            else if (member is IReadOnlyLayer readOnlyLayer)
+            else if (member is IReadOnlyLayerNode readOnlyLayer)
             {
                 parent.Children.Add(ToSerializable(readOnlyLayer, document));
             }
         }
     }
     
-    private static Folder ToSerializable(IReadOnlyFolder folder)
+    private static Folder ToSerializable(IReadOnlyFolderNode folder)
     {
         return new Folder
         {
-            Name = folder.Name,
-            BlendMode = (BlendMode)(int)folder.BlendMode,
-            Enabled = folder.IsVisible,
-            Opacity = folder.Opacity,
-            ClipToMemberBelow = folder.ClipToMemberBelow,
-            Mask = GetMask(folder.Mask, folder.MaskIsVisible)
+            Name = folder.MemberName,
+            BlendMode = (BlendMode)(int)folder.BlendMode.Value,
+            Enabled = folder.IsVisible.Value,
+            Opacity = folder.Opacity.Value,
+            ClipToMemberBelow = folder.ClipToMemberBelow.Value,
+            Mask = GetMask(folder.Mask.Value, folder.MaskIsVisible.Value)
         };
     }
     
-    private static ImageLayer ToSerializable(IReadOnlyLayer layer, IReadOnlyDocument document)
+    private static ImageLayer ToSerializable(IReadOnlyLayerNode layer, IReadOnlyDocument document)
     {
-        var result = document.GetLayerRasterizedImage(layer.GuidValue, 0);
+        var result = document.GetLayerRasterizedImage(layer.Id, 0);
 
-        var tightBounds = document.GetChunkAlignedLayerBounds(layer.GuidValue, 0);
+        var tightBounds = document.GetChunkAlignedLayerBounds(layer.Id, 0);
         using var data = result?.DrawingSurface.Snapshot().Encode();
         byte[] bytes = data?.AsSpan().ToArray();
         var serializable = new ImageLayer
         {
             Width = result?.Size.X ?? 0, Height = result?.Size.Y ?? 0, OffsetX = tightBounds?.X ?? 0, OffsetY = tightBounds?.Y ?? 0,
-            Enabled = layer.IsVisible, BlendMode = (BlendMode)(int)layer.BlendMode, ImageBytes = bytes,
-            ClipToMemberBelow = layer.ClipToMemberBelow, Name = layer.Name,
-            Guid = layer.GuidValue,
+            Enabled = layer.IsVisible.Value, BlendMode = (BlendMode)(int)layer.BlendMode.Value, ImageBytes = bytes,
+            ClipToMemberBelow = layer.ClipToMemberBelow.Value, Name = layer.MemberName,
+            Guid = layer.Id,
             LockAlpha = layer is ITransparencyLockable { LockTransparency: true },
-            Opacity = layer.Opacity, Mask = GetMask(layer.Mask, layer.MaskIsVisible)
+            Opacity = layer.Opacity.Value, Mask = GetMask(layer.Mask.Value, layer.MaskIsVisible.Value)
         };
 
         return serializable;

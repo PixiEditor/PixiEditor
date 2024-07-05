@@ -5,7 +5,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 public interface IReadOnlyNode
 {
     public Guid Id { get; }
-    public string NodeName { get; }
     public IReadOnlyCollection<IInputProperty> InputProperties { get; }
     public IReadOnlyCollection<IOutputProperty> OutputProperties { get; }
     public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes { get; }

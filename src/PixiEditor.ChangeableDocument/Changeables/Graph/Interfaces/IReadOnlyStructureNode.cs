@@ -12,6 +12,6 @@ public interface IReadOnlyStructureNode : IReadOnlyNode
     public InputProperty<BlendMode> BlendMode { get; }
     public InputProperty<ChunkyImage?> Mask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
-    public string LayerName { get; set; }
+    public string MemberName { get; set; }
     public RectI? GetTightBounds(KeyFrameTime frameTime);
 }

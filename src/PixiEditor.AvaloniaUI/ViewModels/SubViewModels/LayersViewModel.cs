@@ -62,7 +62,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (member is null)
             return;
 
-        member.Document.Operations.DeleteStructureMember(member.GuidValue);
+        member.Document.Operations.DeleteStructureMember(member.Id);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.HasSelectedMembers")]
@@ -93,8 +93,8 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         if (doc is null)
             return members;
         if (doc.SelectedStructureMember is not null)
-            members.Add(doc.SelectedStructureMember.GuidValue);
-        members.AddRange(doc.SoftSelectedStructureMembers.Select(static member => member.GuidValue));
+            members.Add(doc.SelectedStructureMember.Id);
+        members.AddRange(doc.SoftSelectedStructureMembers.Select(static member => member.Id));
         return members;
     }
 
@@ -169,7 +169,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
         if (document?.SelectedStructureMember != null)
         {
-            document.Operations.SetMemberOpacity(document.SelectedStructureMember.GuidValue, (float)value);
+            document.Operations.SetMemberOpacity(document.SelectedStructureMember.Id, (float)value);
         }
     }
 
@@ -180,7 +180,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         if (member is not LayerViewModel layerVM)
             return;
-        member.Document.Operations.DuplicateLayer(member.GuidValue);
+        member.Document.Operations.DuplicateLayer(member.Id);
     }
 
     [Evaluator.CanExecute("PixiEditor.Layer.SelectedMemberIsLayer")]
@@ -196,7 +196,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = doc?.SelectedStructureMember;
         if (member is null)
             return false;
-        var path = doc!.StructureHelper.FindPath(member.GuidValue);
+        var path = doc!.StructureHelper.FindPath(member.Id);
         if (path.Count < 2)
             return false;
         var parent = (FolderViewModel)path[1];
@@ -214,7 +214,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = Owner.DocumentManagerSubViewModel.ActiveDocument?.SelectedStructureMember;
         if (member is null)
             return;
-        var path = doc!.StructureHelper.FindPath(member.GuidValue);
+        var path = doc!.StructureHelper.FindPath(member.Id);
         if (path.Count < 2)
             return;
         var parent = (FolderViewModel)path[1];
@@ -223,13 +223,13 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         {
             if (curIndex == parent.Children.Count - 1)
                 return;
-            doc.Operations.MoveStructureMember(member.GuidValue, parent.Children[curIndex + 1].GuidValue, StructureMemberPlacement.Above);
+            doc.Operations.MoveStructureMember(member.Id, parent.Children[curIndex + 1].Id, StructureMemberPlacement.Above);
         }
         else
         {
             if (curIndex == 0)
                 return;
-            doc.Operations.MoveStructureMember(member.GuidValue, parent.Children[curIndex - 1].GuidValue, StructureMemberPlacement.Below);
+            doc.Operations.MoveStructureMember(member.Id, parent.Children[curIndex - 1].Id, StructureMemberPlacement.Below);
         }
     }
 
@@ -319,11 +319,11 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 
     public void MergeSelectedWith(bool above)
     {
-        var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        /*var doc = Owner.DocumentManagerSubViewModel.ActiveDocument;
         var member = doc?.SelectedStructureMember;
         if (doc is null || member is null)
             return;
-        var (child, parent) = doc.StructureHelper.FindChildAndParent(member.GuidValue);
+        var (child, parent) = doc.StructureHelper.FindChildAndParent(member.Id);
         if (child is null || parent is null)
             return;
         int index = parent.Children.IndexOf(child);
@@ -331,7 +331,7 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
             return;
         if (above && index == parent.Children.Count - 1)
             return;
-        doc.Operations.MergeStructureMembers(new List<Guid> { member.GuidValue, above ? parent.Children[index + 1].GuidValue : parent.Children[index - 1].GuidValue });
+        doc.Operations.MergeStructureMembers(new List<Guid> { member.Id, above ? parent.Children[index + 1].Id : parent.Children[index - 1].GuidValue });*/
     }
 
     [Command.Basic("PixiEditor.Layer.MergeWithAbove", "MERGE_WITH_ABOVE", "MERGE_WITH_ABOVE_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.HasMemberAbove")]

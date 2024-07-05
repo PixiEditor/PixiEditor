@@ -7,7 +7,7 @@
             <ControlTemplate>
                 <Grid Background="Transparent">
                     <ItemsControl ClipToBounds="False"
-                                  ItemsSource="{TemplateBinding Nodes}">
+                                  ItemsSource="{Binding NodeGraph.AllNodes, RelativeSource={RelativeSource TemplatedParent}}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <Canvas RenderTransformOrigin="0, 0">
@@ -27,7 +27,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <nodes:NodeView
-                                    DisplayName="{Binding DisplayName}"
+                                    DisplayName="{Binding NodeName}"
                                     Inputs="{Binding Inputs}"
                                     Outputs="{Binding Outputs}"
                                     ResultPreview="{Binding ResultPreview}" />
@@ -35,13 +35,13 @@
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemContainerTheme>
                             <ControlTheme TargetType="ContentPresenter">
-                                <Setter Property="Canvas.Left" Value="{Binding X}" />
-                                <Setter Property="Canvas.Top" Value="{Binding Y}" />
+                                <Setter Property="Canvas.Left" Value="{Binding Position.X}" />
+                                <Setter Property="Canvas.Top" Value="{Binding Position.Y}" />
                             </ControlTheme>
                         </ItemsControl.ItemContainerTheme>
                     </ItemsControl>
                     <ItemsControl
-                        ItemsSource="{TemplateBinding Connections}">
+                        ItemsSource="{Binding NodeGraph.Connections, RelativeSource={RelativeSource TemplatedParent}}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <Canvas RenderTransformOrigin="0, 0">

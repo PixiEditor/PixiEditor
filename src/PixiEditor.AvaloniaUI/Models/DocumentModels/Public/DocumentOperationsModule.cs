@@ -72,7 +72,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         bool drawOnMask = member is not ILayerHandler layer || layer.ShouldDrawOnMask;
         if (drawOnMask && !member.HasMaskBindable)
             return;
-        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.GuidValue, drawOnMask, frame));
+        Internals.ActionAccumulator.AddActions(new ClearSelectedArea_Action(member.Id, drawOnMask, frame));
         if (clearSelection)
             Internals.ActionAccumulator.AddActions(new ClearSelection_Action());
         Internals.ActionAccumulator.AddFinishedActions();
@@ -272,8 +272,8 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsChangeActive)
             return;
         if (!member.MaskIsVisibleBindable)
-            Internals.ActionAccumulator.AddActions(new StructureMemberMaskIsVisible_Action(true, member.GuidValue));
-        Internals.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(member.GuidValue));
+            Internals.ActionAccumulator.AddActions(new StructureMemberMaskIsVisible_Action(true, member.Id));
+        Internals.ActionAccumulator.AddFinishedActions(new CreateStructureMemberMask_Action(member.Id));
     }
 
     /// <summary>
@@ -283,7 +283,7 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsChangeActive)
             return;
-        Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.GuidValue));
+        Internals.ActionAccumulator.AddFinishedActions(new DeleteStructureMemberMask_Action(member.Id));
     }
     
     /// <summary>
@@ -294,7 +294,7 @@ internal class DocumentOperationsModule : IDocumentOperations
         if (Internals.ChangeController.IsChangeActive)
             return;
         
-        Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.GuidValue, frame), new DeleteStructureMemberMask_Action(member.GuidValue));
+        Internals.ActionAccumulator.AddFinishedActions(new ApplyMask_Action(member.Id, frame), new DeleteStructureMemberMask_Action(member.Id));
     }
 
     /// <summary>
@@ -384,14 +384,14 @@ internal class DocumentOperationsModule : IDocumentOperations
         var (child, parent) = Document.StructureHelper.FindChildAndParent(members[0]);
         if (child is null || parent is null)
             return;
-        int index = parent.Children.IndexOf(child);
+        //int index = parent.Children.IndexOf(child);
         Guid newGuid = Guid.NewGuid();
 
         //make a new layer, put combined image onto it, delete layers that were merged
-        Internals.ActionAccumulator.AddActions(
-            new CreateStructureMember_Action(parent.GuidValue, newGuid, index, StructureMemberType.Layer),
+        /*Internals.ActionAccumulator.AddActions(
+            new CreateStructureMember_Action(parent.Id, newGuid, index, StructureMemberType.Layer),
             new StructureMemberName_Action(newGuid, child.NameBindable),
-            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid, Document.AnimationHandler.ActiveFrameBindable));
+            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid, Document.AnimationHandler.ActiveFrameBindable));*/
         foreach (var member in members)
             Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
         Internals.ActionAccumulator.AddActions(new ChangeBoundary_Action());
@@ -580,10 +580,10 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         if (!Document.SelectedStructureMember.HasMaskBindable)
         {
-            Internals.ActionAccumulator.AddActions(new CreateStructureMemberMask_Action(member.GuidValue));
+            Internals.ActionAccumulator.AddActions(new CreateStructureMemberMask_Action(member.Id));
         }
         
-        Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.GuidValue, mode, frame));
+        Internals.ActionAccumulator.AddFinishedActions(new SelectionToMask_Action(member.Id, mode, frame));
     }
 
     public void CropToSelection(int frame, bool clearSelection = true)

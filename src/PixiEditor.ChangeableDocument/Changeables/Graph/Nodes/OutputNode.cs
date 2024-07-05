@@ -5,7 +5,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class OutputNode : Node
 {
     public InputProperty<ChunkyImage?> Input { get; } 
-    public OutputNode(string name) : base(name)
+    public OutputNode()
     {
         Input = CreateInput<ChunkyImage>("Input", null);
     }

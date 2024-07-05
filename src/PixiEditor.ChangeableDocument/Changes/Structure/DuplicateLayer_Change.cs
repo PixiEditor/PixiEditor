@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 internal class DuplicateLayer_Change : Change
@@ -13,7 +14,7 @@ internal class DuplicateLayer_Change : Change
     }
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember<Layer>(layerGuid, out Layer? layer))
+        if (!target.TryFindMember<LayerNode>(layerGuid, out LayerNode? layer))
             return false;
         duplicateGuid = Guid.NewGuid();
         return true;
@@ -21,23 +22,28 @@ internal class DuplicateLayer_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
-        (Layer existingLayer, Folder parent) = ((Layer, Folder))target.FindChildAndParentOrThrow(layerGuid);
+        (LayerNode existingLayer, FolderNode parent) = ((LayerNode, FolderNode))target.FindChildAndParentOrThrow(layerGuid);
 
-        Layer clone = (Layer)existingLayer.Clone();
-        clone.GuidValue = duplicateGuid;
+        LayerNode clone = (LayerNode)existingLayer.Clone();
+        clone.Id = duplicateGuid;
 
-        int index = parent.Children.IndexOf(existingLayer);
+        /*int index = parent.Children.IndexOf(existingLayerNode);
         parent.Children = parent.Children.Insert(index, clone);
 
         ignoreInUndo = false;
-        return CreateLayer_ChangeInfo.FromLayer(parent.GuidValue, index, clone);
+        return CreateLayer_ChangeInfo.FromLayer(parent.Id, index, clone);*/
+//TODO: Implement
+        ignoreInUndo = false;
+        return new None();
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var (member, parent) = target.FindChildAndParentOrThrow(duplicateGuid);
+        /*var (member, parent) = target.FindChildAndParentOrThrow(duplicateGuid);
         parent.Children = parent.Children.Remove(member);
         member.Dispose();
-        return new DeleteStructureMember_ChangeInfo(duplicateGuid, parent.GuidValue);
+        return new DeleteStructureMember_ChangeInfo(duplicateGuid, parent.Id);*/
+
+        return new None();
     }
 }

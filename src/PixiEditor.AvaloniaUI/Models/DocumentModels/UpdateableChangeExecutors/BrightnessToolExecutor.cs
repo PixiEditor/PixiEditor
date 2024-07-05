@@ -25,7 +25,7 @@ internal class BrightnessToolExecutor : UpdateableChangeExecutor
         if (member is not ILayerHandler layer || layer.ShouldDrawOnMask)
             return ExecutionState.Error;
 
-        guidValue = member.GuidValue;
+        guidValue = member.Id;
         repeat = tool.BrightnessMode == BrightnessMode.Repeat;
         toolSize = toolbar.ToolSize;
         correctionFactor = tool.Darken || tool.UsedWith == MouseButton.Right ? -tool.CorrectionFactor : tool.CorrectionFactor;

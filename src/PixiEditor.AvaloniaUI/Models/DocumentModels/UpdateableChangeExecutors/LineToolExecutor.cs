@@ -42,7 +42,7 @@ internal class LineToolExecutor : UpdateableChangeExecutor
         startPos = controller!.LastPixelPosition;
         strokeColor = colorsVM.PrimaryColor;
         strokeWidth = toolViewModel.ToolSize;
-        memberGuid = member.GuidValue;
+        memberGuid = member.Id;
 
         colorsVM.AddSwatch(new PaletteColor(strokeColor.R, strokeColor.G, strokeColor.B));
 

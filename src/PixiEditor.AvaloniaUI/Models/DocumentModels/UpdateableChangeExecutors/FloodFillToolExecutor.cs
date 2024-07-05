@@ -32,7 +32,7 @@ internal class FloodFillToolExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
 
         colorsVM.AddSwatch(new PaletteColor(color.R, color.G, color.B));
-        memberGuid = member.GuidValue;
+        memberGuid = member.Id;
         considerAllLayers = fillTool.ConsiderAllLayers;
         color = colorsVM.PrimaryColor;
         var pos = controller!.LastPixelPosition;

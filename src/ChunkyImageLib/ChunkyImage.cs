@@ -40,7 +40,7 @@ namespace ChunkyImageLib;
 ///     - Any other blend mode: the latest chunks contain only the things drawn by the queued operations.
 ///         They need to be drawn over the committed chunks to obtain the final image. In this case, operations won't have access to the existing pixels. 
 /// </summary>
-public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
+public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
 {
     private struct LatestChunkData
     {
@@ -1313,5 +1313,15 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
         }
 
         disposed = true;
+    }
+
+    public object Clone()
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            ChunkyImage clone = CloneFromCommitted();
+            return clone;
+        }
     }
 }

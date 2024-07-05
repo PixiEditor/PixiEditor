@@ -1,4 +1,5 @@
 ﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
@@ -25,13 +26,13 @@ public static class FloodFillHelper
         {
             Guid guid = membersToFloodFill.First();
             var member = document.FindMemberOrThrow(guid);
-            if (member is IReadOnlyFolder)
-                return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot, frame);
+            if (member is IReadOnlyFolderNode)
+                return new FloodFillChunkCache(membersToFloodFill, document.NodeGraph, frame);
             if (member is not IReadOnlyImageNode rasterLayer)
                 throw new InvalidOperationException("Member is not a raster layer");
             return new FloodFillChunkCache(rasterLayer.GetLayerImageAtFrame(frame));
         }
-        return new FloodFillChunkCache(membersToFloodFill, document.StructureRoot, frame);
+        return new FloodFillChunkCache(membersToFloodFill, document.NodeGraph, frame);
     }
 
     public static Dictionary<VecI, Chunk> FloodFill(

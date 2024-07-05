@@ -8,6 +8,7 @@ using Avalonia.Media.Imaging;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using ChunkyImageLib.Operations;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Helpers.Collections;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
@@ -24,6 +25,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.Enums;
@@ -143,7 +145,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
     public bool HasSavedRedo => Internals.Tracker.HasSavedRedo;
 
-    public FolderViewModel StructureRoot { get; }
+    public NodeGraphViewModel NodeGraph { get; }
     public DocumentStructureModule StructureHelper { get; }
     public DocumentToolsModule Tools { get; }
     public DocumentOperationsModule Operations { get; }
@@ -191,7 +193,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
-    IFolderHandler IDocument.StructureRoot => StructureRoot;
+    INodeGraphHandler IDocument.NodeGraphHandler => NodeGraph;
     IDocumentOperations IDocument.Operations => Operations;
     ITransformHandler IDocument.TransformHandler => TransformViewModel;
     ILineOverlayHandler IDocument.LineToolOverlayHandler => LineToolOverlayViewModel;
@@ -214,7 +216,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         FolderHandlerFactory = new FolderHandlerFactory(this);
         AnimationDataViewModel = new(this, Internals);
 
-        StructureRoot = new FolderViewModel(this, Internals, Internals.Tracker.Document.StructureRoot.GuidValue);
+        NodeGraph = new NodeGraphViewModel(this);
 
         TransformViewModel = new(this);
         TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);
@@ -264,7 +266,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
-        AddMembers(viewModel.StructureRoot.GuidValue, builderInstance.Children);
+        AddMembers(viewModel.NodeGraph.OutputNode.Id, builderInstance.Children);
         AddAnimationData(builderInstance.AnimationData);
 
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());
@@ -275,52 +277,52 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
         {
             acc.AddActions(
-                new CreateStructureMember_Action(parentGuid, member.GuidValue, 0,
+                new CreateStructureMember_Action(parentGuid, member.Id, 0,
                     member is DocumentViewModelBuilder.LayerBuilder
                         ? StructureMemberType.Layer
                         : StructureMemberType.Folder),
-                new StructureMemberName_Action(member.GuidValue, member.Name)
+                new StructureMemberName_Action(member.Id, member.Name)
             );
 
             if (!member.IsVisible)
-                acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.GuidValue));
+                acc.AddActions(new StructureMemberIsVisible_Action(member.IsVisible, member.Id));
 
-            acc.AddActions(new StructureMemberBlendMode_Action(member.BlendMode, member.GuidValue));
+            acc.AddActions(new StructureMemberBlendMode_Action(member.BlendMode, member.Id));
 
-            acc.AddActions(new StructureMemberClipToMemberBelow_Action(member.ClipToMemberBelow, member.GuidValue));
+            acc.AddActions(new StructureMemberClipToMemberBelow_Action(member.ClipToMemberBelow, member.Id));
 
             if (member is DocumentViewModelBuilder.LayerBuilder layerBuilder)
             {
-                acc.AddActions(new LayerLockTransparency_Action(layerBuilder.GuidValue, layerBuilder.LockAlpha));
+                acc.AddActions(new LayerLockTransparency_Action(layerBuilder.Id, layerBuilder.LockAlpha));
             }
 
             if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
             {
-                PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY,
+                PasteImage(member.Id, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY,
                     false, 0);
             }
 
             acc.AddActions(
-                new StructureMemberOpacity_Action(member.GuidValue, member.Opacity),
+                new StructureMemberOpacity_Action(member.Id, member.Opacity),
                 new EndStructureMemberOpacity_Action());
 
             if (member.HasMask)
             {
                 var maskSurface = member.Mask.Surface.Surface;
 
-                acc.AddActions(new CreateStructureMemberMask_Action(member.GuidValue));
+                acc.AddActions(new CreateStructureMemberMask_Action(member.Id));
 
                 if (!member.Mask.IsVisible)
-                    acc.AddActions(new StructureMemberMaskIsVisible_Action(member.Mask.IsVisible, member.GuidValue));
+                    acc.AddActions(new StructureMemberMaskIsVisible_Action(member.Mask.IsVisible, member.Id));
 
-                PasteImage(member.GuidValue, member.Mask.Surface, maskSurface.Size.X, maskSurface.Size.Y, 0, 0, true, 0);
+                PasteImage(member.Id, member.Mask.Surface, maskSurface.Size.X, maskSurface.Size.Y, 0, 0, true, 0);
             }
 
             acc.AddFinishedActions();
 
             if (member is DocumentViewModelBuilder.FolderBuilder { Children: not null } folder)
             {
-                AddMembers(member.GuidValue, folder.Children);
+                AddMembers(member.Id, folder.Children);
             }
         }
 
@@ -337,9 +339,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         {
             foreach (var child in builders.Reverse())
             {
-                if (child.GuidValue == default)
+                if (child.Id == default)
                 {
-                    child.GuidValue = Guid.NewGuid();
+                    child.Id = Guid.NewGuid();
                 }
 
                 AddMember(parentGuid, child);
@@ -405,13 +407,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 for (int j = 0; j < sizeInChunks.Y; j++)
                 {
-                    var maybeChunk = ChunkRenderer.MergeWholeStructure(new(i, j), ChunkResolution.Full,
+                    // TODO: Implement this
+                    /*var maybeChunk = ChunkRenderer.MergeWholeStructure(new(i, j), ChunkResolution.Full,
                         Internals.Tracker.Document.StructureRoot, frame);
                     if (maybeChunk.IsT1)
                         continue;
                     using Chunk chunk = maybeChunk.AsT0;
                     finalSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface,
-                        i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
+                        i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);*/
                 }
             }
 
@@ -437,7 +440,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             return new None();
 
         //TODO: Make sure it's not needed for other layer types
-        IReadOnlyImageNode? layer = (IReadOnlyImageNode?)Internals.Tracker.Document.FindMember(layerVm.GuidValue);
+        IReadOnlyImageNode? layer = (IReadOnlyImageNode?)Internals.Tracker.Document.FindMember(layerVm.Id);
         if (layer is null)
             return new Error();
 
@@ -546,7 +549,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full,
+                /*return ChunkRenderer.MergeWholeStructure(chunkPos, ChunkResolution.Full,
                         Internals.Tracker.Document.StructureRoot, frame, new RectI(pos, VecI.One))
                     .Match<Color>(
                         (Chunk chunk) =>
@@ -557,15 +560,17 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                             return color;
                         },
                         _ => Colors.Transparent
-                    );
+                    );*/
+                // TODO: Implement this
+                return Colors.Transparent;
             }
 
             if (SelectedStructureMember is not LayerViewModel layerVm)
                 return Colors.Transparent;
-            IReadOnlyStructureMember? maybeMember = Internals.Tracker.Document.FindMember(layerVm.GuidValue);
-            if (maybeMember is not IReadOnlyLayer layer)
+            IReadOnlyStructureNode? maybeMember = Internals.Tracker.Document.FindMember(layerVm.Id);
+            if (maybeMember is not IReadOnlyLayerNode layer)
                 return Colors.Transparent;
-            return layer.Rasterize(frame).GetMostUpToDatePixel(pos);
+            return layer.Execute(frame).GetMostUpToDatePixel(pos);
         }
         catch (ObjectDisposedException)
         {
@@ -663,9 +668,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         List<Guid> layerGuids = new List<Guid>();
         if (SelectedStructureMember is not null)
-            layerGuids.Add(SelectedStructureMember.GuidValue);
+            layerGuids.Add(SelectedStructureMember.Id);
 
-        layerGuids.AddRange(softSelectedStructureMembers.Select(x => x.GuidValue));
+        layerGuids.AddRange(softSelectedStructureMembers.Select(x => x.Id));
         return layerGuids;
     }
 
@@ -683,15 +688,15 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             var foundMember = StructureHelper.Find(member);
             if (foundMember != null)
             {
-                if (foundMember is LayerViewModel layer && selectedMembers.Contains(foundMember.GuidValue) &&
-                    !result.Contains(layer.GuidValue))
+                if (foundMember is LayerViewModel layer && selectedMembers.Contains(foundMember.Id) &&
+                    !result.Contains(layer.Id))
                 {
-                    result.Add(layer.GuidValue);
+                    result.Add(layer.Id);
                 }
-                else if (foundMember is FolderViewModel folder && selectedMembers.Contains(foundMember.GuidValue))
+                else if (foundMember is FolderViewModel folder && selectedMembers.Contains(foundMember.Id))
                 {
-                    if (includeFoldersWithMask && folder.HasMaskBindable && !result.Contains(folder.GuidValue))
-                        result.Add(folder.GuidValue);
+                    if (includeFoldersWithMask && folder.HasMaskBindable && !result.Contains(folder.Id))
+                        result.Add(folder.Id);
                     ExtractSelectedLayers(folder, result, includeFoldersWithMask);
                 }
             }
@@ -710,14 +715,14 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         foreach (var member in folder.Children)
         {
-            if (member is LayerViewModel layer && !list.Contains(layer.GuidValue))
+            if (member is LayerViewModel layer && !list.Contains(layer.Id))
             {
-                list.Add(layer.GuidValue);
+                list.Add(layer.Id);
             }
             else if (member is FolderViewModel childFolder)
             {
-                if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.GuidValue))
-                    list.Add(childFolder.GuidValue);
+                if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.Id))
+                    list.Add(childFolder.Id);
 
                 ExtractSelectedLayers(childFolder, list, includeFoldersWithMask);
             }

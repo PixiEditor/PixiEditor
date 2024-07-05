@@ -38,7 +38,7 @@ internal partial class LayersManager : UserControl
         {
             if (control.Layer is not null && control.Layer.Selection == StructureMemberSelectionType.None)
             {
-                control.Layer.Document.Operations.SetSelectedMember(control.Layer.GuidValue);
+                control.Layer.Document.Operations.SetSelectedMember(control.Layer.Id);
                 control.Layer.Document.Operations.ClearSoftSelectedMembers();
             }
         }
@@ -79,7 +79,7 @@ internal partial class LayersManager : UserControl
         {
             if (control.Folder is not null && control.Folder.Selection == StructureMemberSelectionType.None)
             {
-                control.Folder.Document.Operations.SetSelectedMember(control.Folder.GuidValue);
+                control.Folder.Document.Operations.SetSelectedMember(control.Folder.Id);
                 control.Folder.Document.Operations.ClearSoftSelectedMembers();
             }
         }
@@ -132,8 +132,9 @@ internal partial class LayersManager : UserControl
 
         if (droppedGuid is not null && ActiveDocument is not null)
         {
-            ActiveDocument.Operations.MoveStructureMember((Guid)droppedGuid,
-                ActiveDocument.StructureRoot.Children[0].GuidValue, StructureMemberPlacement.Below);
+            // TODO: Implement this
+            /*ActiveDocument.Operations.MoveStructureMember((Guid)droppedGuid,
+                ActiveDocument.NodeGraph.Children[0].GuidValue, StructureMemberPlacement.Below);*/
             e.Handled = true;
         }
 
@@ -191,7 +192,7 @@ internal partial class LayersManager : UserControl
                 action(child);
             if (matches == 2)
                 return 2;
-            if (child.GuidValue == bound1 || child.GuidValue == bound2)
+            if (child.Id == bound1 || child.Id == bound2)
             {
                 matches++;
                 if (matches == 1)
@@ -213,28 +214,29 @@ internal partial class LayersManager : UserControl
             if (memberVM.Selection == StructureMemberSelectionType.Hard)
                 return;
             else if (memberVM.Selection == StructureMemberSelectionType.Soft)
-                ActiveDocument.Operations.RemoveSoftSelectedMember(memberVM.GuidValue);
+                ActiveDocument.Operations.RemoveSoftSelectedMember(memberVM.Id);
             else if (memberVM.Selection == StructureMemberSelectionType.None)
-                ActiveDocument.Operations.AddSoftSelectedMember(memberVM.GuidValue);
+                ActiveDocument.Operations.AddSoftSelectedMember(memberVM.Id);
         }
         else if (pointerPressedEventArgs.KeyModifiers.HasFlag(KeyModifiers.Shift))
         {
-            if (ActiveDocument.SelectedStructureMember is null || ActiveDocument.SelectedStructureMember.GuidValue == memberVM.GuidValue)
+            // TODO: Implement this
+            /*if (ActiveDocument.SelectedStructureMember is null || ActiveDocument.SelectedStructureMember.GuidValue == memberVM.GuidValue)
                 return;
             ActiveDocument.Operations.ClearSoftSelectedMembers();
             TraverseRange(
                 ActiveDocument.SelectedStructureMember.GuidValue,
                 memberVM.GuidValue,
-                ActiveDocument.StructureRoot,
+                ActiveDocument.NodeGraph,
                 static member =>
                 {
                     if (member.Selection == StructureMemberSelectionType.None)
                         member.Document.Operations.AddSoftSelectedMember(member.GuidValue);
-                });
+                });*/
         }
         else
         {
-            ActiveDocument.Operations.SetSelectedMember(memberVM.GuidValue);
+            ActiveDocument.Operations.SetSelectedMember(memberVM.Id);
             ActiveDocument.Operations.ClearSoftSelectedMembers();
         }
     }

@@ -129,9 +129,9 @@ internal partial class LayerControl : UserControl
         object droppedLayer = droppedMemberDataObject.Get(LayerControlDataName);
         object droppedFolder = droppedMemberDataObject.Get(AvaloniaUI.Views.Layers.FolderControl.FolderControlDataName);
         if (droppedLayer is LayerControl layer)
-            return layer.Layer.GuidValue;
+            return layer.Layer.Id;
         else if (droppedFolder is AvaloniaUI.Views.Layers.FolderControl folder)
-            return folder.Folder.GuidValue;
+            return folder.Folder.Id;
         return null;
     }
 
@@ -142,7 +142,7 @@ internal partial class LayerControl : UserControl
         Guid? droppedMemberGuid = ExtractMemberGuid(dataObj);
         if (droppedMemberGuid is null)
             return;
-        Layer.Document.Operations.MoveStructureMember((Guid)droppedMemberGuid, Layer.GuidValue, placement);
+        Layer.Document.Operations.MoveStructureMember((Guid)droppedMemberGuid, Layer.Id, placement);
     }
 
     private void Grid_Drop_Top(object sender, DragEventArgs e)

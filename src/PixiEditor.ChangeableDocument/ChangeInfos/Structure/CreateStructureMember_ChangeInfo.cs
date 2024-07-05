@@ -10,7 +10,7 @@ public abstract record class CreateStructureMember_ChangeInfo(
     bool ClipToMemberBelow,
     string Name,
     BlendMode BlendMode,
-    Guid GuidValue,
+    Guid Id,
     bool HasMask,
     bool MaskIsVisible
 ) : IChangeInfo;

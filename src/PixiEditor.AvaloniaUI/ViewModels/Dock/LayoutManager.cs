@@ -39,7 +39,7 @@ internal class LayoutManager
             new(mainViewModel.ColorsSubViewModel, mainViewModel.DocumentManagerSubViewModel);
         TimelineDockViewModel timelineDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         
-        NodeGraphDockViewModel nodeGraphDockViewModel = new();
+        NodeGraphDockViewModel nodeGraphDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
 
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);

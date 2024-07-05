@@ -143,7 +143,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
         [NotNull] public MaskBuilder Mask => maskBuilder ??= new MaskBuilder();
 
-        public Guid GuidValue { get; set; }
+        public Guid Id { get; set; }
 
         public StructureMemberBuilder()
         {
@@ -194,7 +194,7 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
         public StructureMemberBuilder WithGuid(Guid guid)
         {
-            GuidValue = guid;
+            Id = guid;
             return this;
         }
 

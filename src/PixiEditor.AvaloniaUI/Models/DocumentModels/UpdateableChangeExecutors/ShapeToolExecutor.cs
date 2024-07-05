@@ -47,7 +47,7 @@ internal abstract class ShapeToolExecutor<T> : UpdateableChangeExecutor where T 
         startPos = controller!.LastPixelPosition;
         strokeColor = colorsVM.PrimaryColor;
         strokeWidth = toolbar.ToolSize;
-        memberGuid = member.GuidValue;
+        memberGuid = member.Id;
 
         colorsVM.AddSwatch(new PaletteColor(strokeColor.R, strokeColor.G, strokeColor.B));
         DrawShape(startPos, true);

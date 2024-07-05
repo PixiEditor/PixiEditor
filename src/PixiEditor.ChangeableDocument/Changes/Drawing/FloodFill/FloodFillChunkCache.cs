@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -12,7 +13,7 @@ internal class FloodFillChunkCache : IDisposable
     private Paint ReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src };
 
     private readonly HashSet<Guid>? membersToRender;
-    private readonly IReadOnlyFolder? structureRoot;
+    private readonly IReadOnlyNodeGraph? graph;
     private readonly IReadOnlyChunkyImage? image;
     private readonly int frame;
 
@@ -23,10 +24,10 @@ internal class FloodFillChunkCache : IDisposable
         this.image = image;
     }
 
-    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyFolder structureRoot, int frame)
+    public FloodFillChunkCache(HashSet<Guid> membersToRender, IReadOnlyNodeGraph graph, int frame)
     {
         this.membersToRender = membersToRender;
-        this.structureRoot = structureRoot;
+        this.graph = graph;
         this.frame = frame;
     }
 
@@ -44,14 +45,15 @@ internal class FloodFillChunkCache : IDisposable
             return foundChunk;
 
         // need to get the chunk by merging multiple members
-        if (image is null)
+        //TODO: Implement
+        /*if (image is null)
         {
-            if (structureRoot is null || membersToRender is null)
+            if (graph is null || membersToRender is null)
                 throw new InvalidOperationException();
-            var chunk = ChunkRenderer.MergeChosenMembers(pos, ChunkResolution.Full, structureRoot, frame, membersToRender);
+            var chunk = ChunkRenderer.MergeChosenMembers(pos, ChunkResolution.Full, graph, frame, membersToRender);
             acquiredChunks[pos] = chunk;
             return chunk;
-        }
+        }*/
 
         // there is only a single image, just get the chunk from it
         if (!image.LatestOrCommittedChunkExists(pos))

@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
@@ -12,10 +13,10 @@ internal class RenderingContext : IDisposable
     public Paint BlendModeOpacityPaint = new () { BlendMode = DrawingApiBlendMode.SrcOver };
     public Paint ReplacingPaintWithOpacity = new () { BlendMode = DrawingApiBlendMode.Src };
 
-    public void UpdateFromMember(IReadOnlyStructureMember member)
+    public void UpdateFromMember(IReadOnlyStructureNode member)
     {
-        Color opacityColor = new(255, 255, 255, (byte)Math.Round(member.Opacity * 255));
-        DrawingApiBlendMode blendMode = GetDrawingBlendMode(member.BlendMode);
+        Color opacityColor = new(255, 255, 255, (byte)Math.Round(member.Opacity.Value * 255));
+        DrawingApiBlendMode blendMode = GetDrawingBlendMode(member.BlendMode.Value);
 
         BlendModeOpacityPaint.Color = opacityColor;
         BlendModeOpacityPaint.BlendMode = blendMode;

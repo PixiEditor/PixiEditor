@@ -34,9 +34,21 @@ public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
 
     public abstract ChunkyImage? OnExecute(KeyFrameTime frameTime);
     public abstract bool Validate();
-    public void RemoveKeyFrame(Guid keyFrameGuid);
-    public void SetKeyFrameLength(Guid keyFrameGuid, int startFrame, int duration);
-    public void AddFrame<T>(Guid keyFrameGuid, int startFrame, int duration, T value);
+
+    public void RemoveKeyFrame(Guid keyFrameGuid)
+    {
+        // TODO: Implement
+    }
+
+    public void SetKeyFrameLength(Guid keyFrameGuid, int startFrame, int duration)
+    {
+        // TODO: Implement
+    }
+
+    public void AddFrame<T>(Guid keyFrameGuid, int startFrame, int duration, T value)
+    {
+        // TODO: Implement
+    }
 
     public void TraverseBackwards(Func<IReadOnlyNode, bool> action)
     {
@@ -131,5 +143,25 @@ public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
                 disposable.Dispose();
             }
         }
+    }
+    
+    public virtual Node Clone()
+    {
+        var clone = (Node)MemberwiseClone();
+        clone.Id = Guid.NewGuid();
+        clone.inputs = new List<InputProperty>();
+        clone.outputs = new List<OutputProperty>();
+        clone._connectedNodes = new List<IReadOnlyNode>();
+        foreach (var input in inputs)
+        {
+            var newInput = input.Clone(clone);
+            clone.inputs.Add(newInput);
+        }
+        foreach (var output in outputs)
+        {
+            var newOutput = output.Clone(clone);
+            clone.outputs.Add(newOutput);
+        }
+        return clone;
     }
 }

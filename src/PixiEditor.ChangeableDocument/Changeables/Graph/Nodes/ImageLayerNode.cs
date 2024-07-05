@@ -28,7 +28,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override ChunkyImage OnExecute(KeyFrameTime frame)
     {
-        // TODO: actual rendering
+        var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame));
+        return imageFrame?.Image ?? frames[0].Image;
     }
 
     public override void Dispose()

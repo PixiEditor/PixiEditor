@@ -9,10 +9,9 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;
 
-internal interface IStructureMemberHandler : IHandler
+internal interface IStructureMemberHandler : INodeHandler
 {
     public bool HasMaskBindable { get; }
-    public Guid GuidValue { get; }
     public string NameBindable { get; set; }
     public Surface? MaskPreviewSurface { get; set; }
     public Surface? PreviewSurface { get; set; }

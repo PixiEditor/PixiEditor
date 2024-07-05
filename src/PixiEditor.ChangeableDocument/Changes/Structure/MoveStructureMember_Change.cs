@@ -28,17 +28,19 @@ internal class MoveStructureMember_Change : Change
         if (member is null || curFolder is null || targetFolder is not FolderNode)
             return false;
         originalFolderGuid = curFolder.Id;
-        originalFolderIndex = curFolder.Children.IndexOf(member);
+        // TODO: this too:
+        // originalFolderIndex = curFolder.Children.IndexOf(member);
         return true;
     }
 
     private static void Move(Document document, Guid memberGuid, Guid targetFolderGuid, int targetIndex)
     {
-        var targetFolder = document.FindMemberOrThrow<FolderNode>(targetFolderGuid);
+        // TODO: Implement
+        /*var targetFolder = document.FindMemberOrThrow<FolderNode>(targetFolderGuid);
         var (member, curFolder) = document.FindChildAndParentOrThrow(memberGuid);
 
         curFolder.Children = curFolder.Children.Remove(member);
-        targetFolder.Children = targetFolder.Children.Insert(targetIndex, member);
+        targetFolder.Children = targetFolder.Children.Insert(targetIndex, member);*/
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)

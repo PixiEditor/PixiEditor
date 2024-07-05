@@ -3,7 +3,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes"
+             xmlns:dock="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Dock"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="dock:NodeGraphDockViewModel"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.NodeGraphDockView">
-    <nodes:NodeGraphView/>
+    <Design.DataContext>
+        <dock:NodeGraphDockViewModel/>
+    </Design.DataContext>
+    <nodes:NodeGraphView NodeGraph="{Binding DocumentManagerSubViewModel.ActiveDocument.NodeGraph}"/>
 </UserControl>

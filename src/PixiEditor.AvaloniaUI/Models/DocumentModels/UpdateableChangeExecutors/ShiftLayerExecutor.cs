@@ -27,13 +27,13 @@ internal class ShiftLayerExecutor : UpdateableChangeExecutor
 
         if (tool.MoveAllLayers)
         {
-            _affectedMemberGuids.AddRange(document.StructureHelper.GetAllLayers().Select(x => x.GuidValue));
+            _affectedMemberGuids.AddRange(document.StructureHelper.GetAllLayers().Select(x => x.Id));
         }
         else
         {
             if (member != null)
-                _affectedMemberGuids.Add(member.GuidValue);
-            _affectedMemberGuids.AddRange(document!.SoftSelectedStructureMembers.Select(x => x.GuidValue));
+                _affectedMemberGuids.Add(member.Id);
+            _affectedMemberGuids.AddRange(document!.SoftSelectedStructureMembers.Select(x => x.Id));
         }
 
         RemoveDrawOnMaskLayers(_affectedMemberGuids);

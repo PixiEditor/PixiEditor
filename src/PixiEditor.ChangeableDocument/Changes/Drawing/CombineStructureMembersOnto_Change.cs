@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.Numerics;
 
@@ -31,42 +32,43 @@ internal class CombineStructureMembersOnto_Change : Change
             if (!target.TryFindMember(guid, out var member))
                 return false;
             
-            if (member is Layer layer)
-                layersToCombine.Add(layer.GuidValue);
-            else if (member is Folder innerFolder)
+            if (member is LayerNode layer)
+                layersToCombine.Add(layer.Id);
+            else if (member is FolderNode innerFolder)
                 AddChildren(innerFolder, layersToCombine);
         }
 
         return true;
     }
 
-    private void AddChildren(Folder folder, HashSet<Guid> collection)
+    private void AddChildren(FolderNode folder, HashSet<Guid> collection)
     {
-        foreach (var child in folder.Children)
+        //TODO: Implement
+        /*foreach (var child in folder.Children)
         {
-            if (child is Layer layer)
-                collection.Add(layer.GuidValue);
-            else if (child is Folder innerFolder)
+            if (child is LayerNode layer)
+                collection.Add(layer.Id);
+            else if (child is FolderNode innerFolder)
                 AddChildren(innerFolder, collection);
-        }
+        }*/
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         //TODO: Add support for different Layer types
-        var toDrawOn = target.FindMemberOrThrow<ImageNode>(targetLayer);
+        var toDrawOn = target.FindMemberOrThrow<ImageLayerNode>(targetLayer);
 
         var chunksToCombine = new HashSet<VecI>();
         foreach (var guid in layersToCombine)
         {
-            var layer = target.FindMemberOrThrow<ImageNode>(guid);
+            var layer = target.FindMemberOrThrow<ImageLayerNode>(guid);
             var layerImage = layer.GetLayerImageAtFrame(frame);
             chunksToCombine.UnionWith(layerImage.FindAllChunks());
         }
 
         var toDrawOnImage = toDrawOn.GetLayerImageAtFrame(frame);
         toDrawOnImage.EnqueueClear();
-        foreach (var chunk in chunksToCombine)
+        /*foreach (var chunk in chunksToCombine)
         {
             OneOf<Chunk, EmptyChunk> combined = ChunkRenderer.MergeChosenMembers(chunk, ChunkResolution.Full, target.NodeGraph, frame, layersToCombine);
             if (combined.IsT0)
@@ -74,7 +76,7 @@ internal class CombineStructureMembersOnto_Change : Change
                 toDrawOnImage.EnqueueDrawImage(chunk * ChunkyImage.FullChunkSize, combined.AsT0.Surface);
                 combined.AsT0.Dispose();
             }
-        }
+        }*/
         var affArea = toDrawOnImage.FindAffectedArea();
         originalChunks = new CommittedChunkStorage(toDrawOnImage, affArea.Chunks);
         toDrawOnImage.CommitChanges();
@@ -85,7 +87,7 @@ internal class CombineStructureMembersOnto_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        var toDrawOn = target.FindMemberOrThrow<ImageNode>(targetLayer);
+        var toDrawOn = target.FindMemberOrThrow<ImageLayerNode>(targetLayer);
         var affectedArea = DrawingChangeHelper.ApplyStoredChunksDisposeAndSetToNull(toDrawOn.GetLayerImageAtFrame(frame), ref originalChunks);
         return new LayerImageArea_ChangeInfo(targetLayer, affectedArea);
     }

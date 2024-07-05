@@ -33,7 +33,7 @@ internal class PenToolExecutor : UpdateableChangeExecutor
         if (!drawOnMask && member is not ILayerHandler)
             return ExecutionState.Error;
 
-        guidValue = member.GuidValue;
+        guidValue = member.Id;
         color = colorsHandler.PrimaryColor;
         toolSize = toolbar.ToolSize;
         pixelPerfect = penTool.PixelPerfectEnabled;

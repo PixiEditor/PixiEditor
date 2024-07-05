@@ -7,5 +7,5 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 internal class FolderViewModel : StructureMemberViewModel, IFolderHandler
 {
     public ObservableCollection<IStructureMemberHandler> Children { get; } = new();
-    public FolderViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid guidValue) : base(doc, internals, guidValue) { }
+    public FolderViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid id) : base(doc, internals, id) { }
 }

@@ -19,6 +19,16 @@ public class InputProperty : IInputProperty
         Node = node;
     }
 
+    public InputProperty Clone(Node forNode)
+    {
+        if(Value is ICloneable cloneable)
+            return new InputProperty(forNode, Name, cloneable.Clone());
+        
+        if(!Value.GetType().IsPrimitive && Value.GetType() != typeof(string))
+            throw new InvalidOperationException("Value is not cloneable and not a primitive type");
+        
+        return new InputProperty(forNode, Name, Value);
+    }
 }
 
 

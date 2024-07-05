@@ -1,51 +1,114 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia;
 using ChunkyImageLib;
+using CommunityToolkit.Mvvm.ComponentModel;
+using PixiEditor.AvaloniaUI.Models.Handlers;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;
 
-public class NodeViewModel : ViewModelBase
+public class NodeViewModel : ObservableObject, INodeHandler
 {
-    private string name;
-    private double x;
-    private double y;
-    private ObservableCollection<NodePropertyViewModel> inputs;
-    private ObservableCollection<NodePropertyViewModel> outputs;
+    private string nodeName;
+    private VecD position;
+    private ObservableCollection<IInputPropertyHandler> inputs;
+    private ObservableCollection<IOutputPropertyHandler> outputs;
     private Surface resultPreview;
-    
-    public string Name
+
+    protected Guid id;
+
+    public Guid Id
     {
-        get => name;
-        set => SetProperty(ref name, value);
+        get => id;
     }
-    
-    public double X
+
+    public string NodeName
     {
-        get => x;
-        set => SetProperty(ref x, value);
+        get => nodeName;
+        set => SetProperty(ref nodeName, value);
     }
-    
-    public double Y
+
+    public VecD Position
     {
-        get => y;
-        set => SetProperty(ref y, value);
+        get => position;
+        set => SetProperty(ref position, value);
     }
-    
-    public ObservableCollection<NodePropertyViewModel> Inputs
+
+    public ObservableCollection<IInputPropertyHandler> Inputs
     {
         get => inputs;
         set => SetProperty(ref inputs, value);
     }
-    
-    public ObservableCollection<NodePropertyViewModel> Outputs
+
+    public ObservableCollection<IOutputPropertyHandler> Outputs
     {
         get => outputs;
         set => SetProperty(ref outputs, value);
     }
-    
+
     public Surface ResultPreview
     {
         get => resultPreview;
         set => SetProperty(ref resultPreview, value);
+    }
+
+    public void TraverseBackwards(Func<INodeHandler, bool> func)
+    {
+        var visited = new HashSet<INodeHandler>();
+        var queueNodes = new Queue<INodeHandler>();
+        queueNodes.Enqueue(this);
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add(node))
+            {
+                continue;
+            }
+
+            if (!func(node))
+            {
+                return;
+            }
+
+            foreach (var inputProperty in node.Inputs)
+            {
+                if (inputProperty.Connection != null)
+                {
+                    queueNodes.Enqueue(inputProperty.Node);
+                }
+            }
+        }
+    }
+
+    public void TraverseForwards(Func<INodeHandler, bool> func)
+    {
+        var visited = new HashSet<INodeHandler>();
+        var queueNodes = new Queue<INodeHandler>();
+        queueNodes.Enqueue(this);
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add(node))
+            {
+                continue;
+            }
+
+            if (!func(node))
+            {
+                return;
+            }
+
+            foreach (var outputProperty in node.Outputs)
+            {
+                foreach (var connection in outputProperty.Connections)
+                {
+                    queueNodes.Enqueue(connection.Node);
+                }
+            }
+        }
     }
 }

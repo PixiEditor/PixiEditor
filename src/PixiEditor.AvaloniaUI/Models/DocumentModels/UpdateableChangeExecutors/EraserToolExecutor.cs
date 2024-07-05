@@ -35,7 +35,7 @@ internal class EraserToolExecutor : UpdateableChangeExecutor
             return ExecutionState.Error;
 
 
-        guidValue = member.GuidValue;
+        guidValue = member.Id;
         color = GetHandler<IColorsHandler>().PrimaryColor;
         toolSize = toolbar.ToolSize;
 

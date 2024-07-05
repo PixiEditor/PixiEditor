@@ -18,7 +18,7 @@ internal class LayerViewModel : StructureMemberViewModel, ILayerHandler
         set
         {
             if (!Document.UpdateableChangeActive)
-                Internals.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(GuidValue, value));
+                Internals.ActionAccumulator.AddFinishedActions(new LayerLockTransparency_Action(Id, value));
         }
     }
 
@@ -35,7 +35,13 @@ internal class LayerViewModel : StructureMemberViewModel, ILayerHandler
         }
     }
 
-    public LayerViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid guidValue) : base(doc, internals, guidValue)
+    public LayerViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid id) : base(doc, internals, id)
     {
+        NodeName = NameBindable;
+        PropertyChanged += (sender, args) =>
+        {
+            if (args.PropertyName == nameof(NameBindable))
+                NodeName = NameBindable;
+        };
     }
 }

@@ -9,7 +9,7 @@ public class MergeNode : Node
     public InputProperty<ChunkyImage?> Bottom { get; }
     public OutputProperty<ChunkyImage> Output { get; }
     
-    public MergeNode(string name) : base(name)
+    public MergeNode() 
     {
         Top = CreateInput<ChunkyImage>("Top", null);
         Bottom = CreateInput<ChunkyImage>("Bottom", null);

@@ -23,7 +23,7 @@ internal interface IDocument : IHandler
     public IReferenceLayerHandler ReferenceLayerHandler { get; }
     public IAnimationHandler AnimationHandler { get; }
     public VectorPath SelectionPathBindable { get; }
-    public IFolderHandler StructureRoot { get; }
+    public INodeGraphHandler NodeGraphHandler { get; }
     public Dictionary<ChunkResolution, Surface> Surfaces { get; set; }
     public DocumentStructureModule StructureHelper { get; }
     public Surface PreviewSurface { get; set; }

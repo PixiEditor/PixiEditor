@@ -46,7 +46,7 @@ internal class PasteImageExecutor : UpdateableChangeExecutor
                     return ExecutionState.Error;
             }
             
-            memberGuid = member.GuidValue;
+            memberGuid = member.Id;
         }
 
         ShapeCorners corners = new(new RectD(pos, image.Size));
