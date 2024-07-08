@@ -7,7 +7,7 @@
             <ControlTemplate>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{TemplateBinding Label}" IsVisible="{Binding !IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
-                    <Ellipse Width="10" Height="10" Fill="Red" />
+                    <Ellipse Width="10" Height="10" Fill="Red" Name="PART_ConnectPort"/>
                     <TextBlock Text="{TemplateBinding Label}" IsVisible="{Binding IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
                 </StackPanel>
             </ControlTemplate>

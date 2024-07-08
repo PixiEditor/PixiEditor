@@ -11,9 +11,9 @@ public class MergeNode : Node
     
     public MergeNode() 
     {
-        Top = CreateInput<ChunkyImage>("Top", null);
-        Bottom = CreateInput<ChunkyImage>("Bottom", null);
-        Output = CreateOutput<ChunkyImage>("Output", null);
+        Top = CreateInput<ChunkyImage>("Top", "TOP", null);
+        Bottom = CreateInput<ChunkyImage>("Bottom", "BOTTOM", null);
+        Output = CreateOutput<ChunkyImage>("Output", "OUTPUT", null);
     }
     
     public override bool Validate()

@@ -34,8 +34,8 @@ internal class CreateNode_Change : Change
         target.NodeGraph.AddNode(node);
         ignoreInUndo = false;
         
-        var inputInfos = CreatePropertyInfos(node.InputProperties, true);
-        var outputInfos = CreatePropertyInfos(node.OutputProperties, false);
+        var inputInfos = CreateNode_ChangeInfo.CreatePropertyInfos(node.InputProperties, true, id);
+        var outputInfos = CreateNode_ChangeInfo.CreatePropertyInfos(node.OutputProperties, false, id);
         
         return new CreateNode_ChangeInfo(nodeType.Name, node.Position, id, inputInfos, outputInfos);
     }
@@ -46,10 +46,5 @@ internal class CreateNode_Change : Change
         target.NodeGraph.RemoveNode(node);
         
         return new DeleteNode_ChangeInfo(id);
-    }
-    
-    private ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<INodeProperty> properties, bool isInput)
-    {
-        return properties.Select(p => new NodePropertyInfo(p.Name, p.ValueType, isInput, id)).ToImmutableArray();
     }
 }

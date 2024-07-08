@@ -1,8 +1,10 @@
 ﻿using System.Collections.Immutable;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+
 public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
 {
     public CreateFolder_ChangeInfo(
@@ -15,7 +17,11 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
         BlendMode blendMode,
         Guid guidValue,
         bool hasMask,
-        bool maskIsVisible) : base(parentGuid, index, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask, maskIsVisible)
+        bool maskIsVisible,
+        ImmutableArray<NodePropertyInfo> Inputs,
+        ImmutableArray<NodePropertyInfo> Outputs
+    ) : base(parentGuid, index, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
+        maskIsVisible, Inputs, Outputs)
     {
     }
 
@@ -31,6 +37,7 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
             folder.BlendMode.Value,
             folder.Id,
             folder.Mask.Value is not null,
-            folder.MaskIsVisible.Value);
+            folder.MaskIsVisible.Value, CreatePropertyInfos(folder.InputProperties, true, folder.Id),
+            CreatePropertyInfos(folder.OutputProperties, false, folder.Id));
     }
 }

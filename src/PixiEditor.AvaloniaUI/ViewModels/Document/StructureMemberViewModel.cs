@@ -23,7 +23,12 @@ internal abstract class StructureMemberViewModel : NodeViewModel, IStructureMemb
 
     private string name = "";
 
-    public void SetName(string name)
+    public StructureMemberViewModel()
+    {
+        
+    }
+
+    public virtual void SetName(string name)
     {
         this.name = name;
         OnPropertyChanged(nameof(NameBindable));

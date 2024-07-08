@@ -112,16 +112,21 @@ public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
         }
     }
 
-    protected InputProperty<T> CreateInput<T>(string name, T defaultValue)
+    protected InputProperty<T> CreateInput<T>(string propName, string displayName, T defaultValue)
     {
-        var property = new InputProperty<T>(this, name, defaultValue);
+        var property = new InputProperty<T>(this, propName, displayName, defaultValue);
+        if (InputProperties.Any(x => x.InternalPropertyName == propName))
+        {
+            throw new InvalidOperationException($"Input with name {propName} already exists.");
+        }
+
         inputs.Add(property);
         return property;
     }
 
-    protected OutputProperty<T> CreateOutput<T>(string name, T defaultValue)
+    protected OutputProperty<T> CreateOutput<T>(string propName, string displayName, T defaultValue)
     {
-        var property = new OutputProperty<T>(this, name, defaultValue);
+        var property = new OutputProperty<T>(this, propName, displayName, defaultValue);
         outputs.Add(property);
         property.Connected += (input, _) => _connectedNodes.Add(input.Node);
         property.Disconnected += (input, _) => _connectedNodes.Remove(input.Node);

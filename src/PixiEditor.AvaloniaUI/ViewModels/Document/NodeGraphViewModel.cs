@@ -35,6 +35,17 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         }
     }
 
+    public void SetConnection(NodeConnectionViewModel connection)
+    {
+        var existingInputConnection = Connections.FirstOrDefault(x => x.InputProperty == connection.InputProperty);
+        if (existingInputConnection != null)
+        {
+            Connections.Remove(existingInputConnection);
+        }
+        
+        Connections.Add(connection);
+    }
+
     public bool TryTraverse(Func<INodeHandler, bool> func)
     {
         if (OutputNode == null) return false;

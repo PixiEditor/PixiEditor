@@ -9,7 +9,8 @@ public class OutputProperty : IOutputProperty
 {
     private List<IInputProperty> _connections = new();
     private object _value;
-    public string Name { get; }
+    public string InternalPropertyName { get; }
+    public string DisplayName { get; }
     public Node Node { get; }
 
     public Type ValueType { get; }
@@ -34,9 +35,10 @@ public class OutputProperty : IOutputProperty
     public event InputConnectedEvent Connected;
     public event InputConnectedEvent Disconnected;
 
-    internal OutputProperty(Node node, string name, object defaultValue, Type valueType)
+    internal OutputProperty(Node node, string internalName, string displayName, object defaultValue, Type valueType)
     {
-        Name = name;
+        InternalPropertyName = internalName;
+        DisplayName = displayName;
         Value = defaultValue;
         Node = node;
         ValueType = valueType;
@@ -71,7 +73,7 @@ public class OutputProperty : IOutputProperty
      
         object value = Value is ICloneable cloneableValue ? cloneableValue.Clone() : Value;
         
-        var newOutput = new OutputProperty(clone, Name, value, ValueType);
+        var newOutput = new OutputProperty(clone, InternalPropertyName, DisplayName, value, ValueType);
         foreach (var connection in Connections)
         {
             newOutput.ConnectTo(connection);
@@ -89,7 +91,7 @@ public class OutputProperty<T> : OutputProperty, INodeProperty<T>
         set => base.Value = value;
     }
 
-    internal OutputProperty(Node node, string name, T defaultValue) : base(node, name, defaultValue, typeof(T))
+    internal OutputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node, internalName, displayName, defaultValue, typeof(T))
     {
     }
 }

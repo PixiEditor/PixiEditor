@@ -8,7 +8,7 @@ public class OutputNode : Node, IBackgroundInput
     public InputProperty<ChunkyImage?> Input { get; } 
     public OutputNode()
     {
-        Input = CreateInput<ChunkyImage>("Input", null);
+        Input = CreateInput<ChunkyImage>("Background", "INPUT", null);
     }
     
     public override bool Validate()

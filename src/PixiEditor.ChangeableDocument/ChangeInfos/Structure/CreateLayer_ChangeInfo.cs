@@ -1,10 +1,12 @@
 ﻿using System.Collections.Immutable;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+
 public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
 {
     public CreateLayer_ChangeInfo(
@@ -20,8 +22,9 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
         bool maskIsVisible,
         bool lockTransparency,
         ImmutableArray<NodePropertyInfo> inputs,
-        ImmutableArray<NodePropertyInfo> outputs) : 
-        base(parentGuid, index, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask, maskIsVisible, inputs, outputs)
+        ImmutableArray<NodePropertyInfo> outputs) :
+        base(parentGuid, index, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
+            maskIsVisible, inputs, outputs)
     {
         LockTransparency = lockTransparency;
     }
@@ -41,7 +44,9 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
             layer.Id,
             layer.Mask.Value is not null,
             layer.MaskIsVisible.Value,
-            layer is ITransparencyLockable { LockTransparency: true }
-            );
+            layer is ITransparencyLockable { LockTransparency: true },
+            CreatePropertyInfos(layer.InputProperties, true, layer.Id),
+            CreatePropertyInfos(layer.OutputProperties, false, layer.Id)
+        );
     }
 }

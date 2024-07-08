@@ -4,7 +4,8 @@ namespace PixiEditor.AvaloniaUI.Models.Handlers;
 
 public interface INodePropertyHandler
 {
-    public string Name { get; set; }
+    public string PropertyName { get; set; }
+    public string DisplayName { get; set; }
     public object Value { get; set; }
     public bool IsInput { get; }
     public INodePropertyHandler? ConnectedOutput { get; set; }

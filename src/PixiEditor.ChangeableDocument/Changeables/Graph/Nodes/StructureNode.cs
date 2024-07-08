@@ -21,15 +21,15 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     protected StructureNode(Guid? id = null) : base(id)
     {
-        Background = CreateInput<ChunkyImage?>("Background", null);
-        Opacity = CreateInput<float>("Opacity", 1);
-        IsVisible = CreateInput<bool>("IsVisible", true);
-        ClipToMemberBelow = CreateInput<bool>("ClipToMemberBelow", false);
-        BlendMode = CreateInput<BlendMode>("BlendMode", Enums.BlendMode.Normal);
-        Mask = CreateInput<ChunkyImage?>("Mask", null);
-        MaskIsVisible = CreateInput<bool>("MaskIsVisible", true);
+        Background = CreateInput<ChunkyImage?>("Background", "BACKGROUND", null);
+        Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
+        IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
+        ClipToMemberBelow = CreateInput<bool>("ClipToMemberBelow", "CLIP_TO_MEMBER_BELOW", false);
+        BlendMode = CreateInput<BlendMode>("BlendMode", "BLEND_MODE", Enums.BlendMode.Normal);
+        Mask = CreateInput<ChunkyImage?>("Mask", "MASK", null);
+        MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
         
-        Output = CreateOutput<ChunkyImage?>("Output", null);
+        Output = CreateOutput<ChunkyImage?>("Output", "OUTPUT", null);
     }
     
     public abstract override ChunkyImage? OnExecute(KeyFrameTime frameTime);

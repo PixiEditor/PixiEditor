@@ -7,7 +7,8 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;
 
 public abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHandler
 {
-    private string name;
+    private string propertyName;
+    private string displayName;
     private object value;
     private INodeHandler node;
     private bool isInput;
@@ -15,10 +16,10 @@ public abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHandle
     private ObservableCollection<INodePropertyHandler> connectedInputs = new();
     private INodePropertyHandler? connectedOutput;
     
-    public string Name
+    public string DisplayName
     {
-        get => name;
-        set => SetProperty(ref name, value);
+        get => displayName;
+        set => SetProperty(ref displayName, value);
     }
     
     public object Value
@@ -49,6 +50,12 @@ public abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHandle
     {
         get => node;
         set => SetProperty(ref node, value);
+    }
+
+    public string PropertyName
+    {
+        get => propertyName;
+        set => SetProperty(ref propertyName, value);
     }
 
     public NodePropertyViewModel(INodeHandler node)

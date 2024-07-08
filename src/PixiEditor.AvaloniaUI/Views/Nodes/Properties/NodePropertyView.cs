@@ -35,7 +35,12 @@ public abstract class NodePropertyView : UserControl
             return default;
         }
         
-        Point? point = socket.TranslatePoint(new Point(socket.Bounds.Width / 2, socket.Bounds.Height / 2), canvas);
+        if(socket.ConnectPort is null)
+        {
+            return default;
+        }
+        
+        Point? point = socket.ConnectPort.TranslatePoint(new Point(socket.ConnectPort.Bounds.Width / 2, socket.ConnectPort.Bounds.Height / 2), canvas);
         
         return point ?? default;
     }

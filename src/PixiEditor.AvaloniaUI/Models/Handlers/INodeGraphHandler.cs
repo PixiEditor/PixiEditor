@@ -11,4 +11,5 @@ public interface INodeGraphHandler
    public bool TryTraverse(Func<INodeHandler, bool> func);
    public void AddNode(INodeHandler node);
    public void RemoveNode(Guid nodeId);
+   public void SetConnection(NodeConnectionViewModel connection);
 }

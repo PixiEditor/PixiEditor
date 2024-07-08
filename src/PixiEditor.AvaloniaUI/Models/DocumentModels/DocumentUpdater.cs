@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers;
@@ -8,7 +7,7 @@ using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
-using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
 using PixiEditor.ChangeableDocument.ChangeInfos.Drawing;
@@ -54,6 +53,15 @@ internal class DocumentUpdater
         switch (arbitraryInfo)
         {
             case CreateStructureMember_ChangeInfo info:
+                if (info is CreateLayer_ChangeInfo layerChangeInfo)
+                {
+                    ProcessCreateNode<LayerViewModel>(info);
+                }
+                else if (info is CreateFolder_ChangeInfo folderChangeInfo)
+                {
+                    ProcessCreateNode<FolderViewModel>(info);
+                }
+
                 ProcessCreateStructureMember(info);
                 break;
             case DeleteStructureMember_ChangeInfo info:
@@ -156,10 +164,13 @@ internal class DocumentUpdater
                 ClearSelectedKeyFrames(info);
                 break;
             case CreateNode_ChangeInfo info:
-                ProcessCreateNode(info);
+                ProcessCreateNode<NodeViewModel>(info);
                 break;
             case DeleteNode_ChangeInfo info:
                 ProcessDeleteNode(info);
+                break;
+            case ConnectProperty_ChangeInfo info:
+                ProcessConnectProperty(info);
                 break;
         }
     }
@@ -468,9 +479,10 @@ internal class DocumentUpdater
         doc.AnimationHandler.ClearSelectedKeyFrames();
     }
     
-    private void ProcessCreateNode(CreateNode_ChangeInfo info)
+    private void ProcessCreateNode<T>(CreateNode_ChangeInfo info) where T : NodeViewModel, new()
     {
-        NodeViewModel node = new NodeViewModel(info.NodeName, info.Id, info.Position);
+        T node = new T() { NodeName = info.NodeName, Id = info.Id, Position = info.Position };
+
         List<INodePropertyHandler> inputs = CreateProperties(info.Inputs, node, true);
         List<INodePropertyHandler> outputs = CreateProperties(info.Outputs, node, false);
         node.Inputs.AddRange(inputs);
@@ -484,7 +496,8 @@ internal class DocumentUpdater
         foreach (var input in source)
         {
             var prop = NodePropertyViewModel.CreateFromType(input.ValueType, node);
-            prop.Name = input.Name;
+            prop.DisplayName = input.DisplayName;
+            prop.PropertyName = input.PropertyName;
             prop.IsInput = isInput;
             inputs.Add(prop);
         }
@@ -495,5 +508,20 @@ internal class DocumentUpdater
     private void ProcessDeleteNode(DeleteNode_ChangeInfo info)
     {
         doc.NodeGraphHandler.RemoveNode(info.Id);
+    }
+    
+    private void ProcessConnectProperty(ConnectProperty_ChangeInfo info)
+    {
+        NodeViewModel outputNode = doc.StructureHelper.FindNode<NodeViewModel>(info.SourceNodeId);
+        NodeViewModel inputNode = doc.StructureHelper.FindNode<NodeViewModel>(info.TargetNodeId);
+        NodeConnectionViewModel connection = new NodeConnectionViewModel()
+        {
+            InputNode = inputNode,
+            OutputNode = outputNode,
+            InputProperty = inputNode.FindInputProperty(info.TargetProperty),
+            OutputProperty = outputNode.FindOutputProperty(info.SourceProperty)
+        };
+        
+        doc.NodeGraphHandler.SetConnection(connection);
     }
 }

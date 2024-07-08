@@ -19,4 +19,8 @@ public abstract record class CreateStructureMember_ChangeInfo(
     bool MaskIsVisible,
     ImmutableArray<NodePropertyInfo> InputProperties,
     ImmutableArray<NodePropertyInfo> OutputProperties
-) : CreateNode_ChangeInfo(Name, VecD.Zero, Id, InputProperties, OutputProperties);
+) : CreateNode_ChangeInfo(Name, new VecD(-100, 0), Id, InputProperties, OutputProperties)
+{
+    public ImmutableArray<NodePropertyInfo> InputProperties { get; init; } = InputProperties;
+    public ImmutableArray<NodePropertyInfo> OutputProperties { get; init; } = OutputProperties;
+}

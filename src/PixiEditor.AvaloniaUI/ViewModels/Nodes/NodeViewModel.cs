@@ -33,6 +33,7 @@ public class NodeViewModel : ObservableObject, INodeHandler
     public Guid Id
     {
         get => id;
+        init => id = value;
     }
 
     public string NodeName
@@ -123,5 +124,15 @@ public class NodeViewModel : ObservableObject, INodeHandler
                 }
             }
         }
+    }
+
+    public NodePropertyViewModel FindInputProperty(string propName)
+    {
+        return Inputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
+    }
+    
+    public NodePropertyViewModel FindOutputProperty(string propName)
+    {
+        return Outputs.FirstOrDefault(x => x.PropertyName == propName) as NodePropertyViewModel;
     }
 }

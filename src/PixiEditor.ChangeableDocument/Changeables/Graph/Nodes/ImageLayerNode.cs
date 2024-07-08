@@ -12,7 +12,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public ImageLayerNode(VecI size)
     {
-        LockTransparency = CreateInput<bool>("LockTransparency", false);
+        LockTransparency = CreateInput<bool>("LockTransparency", "LOCK_TRANSPARENCY", false);
         frames.Add(new ImageFrame(Guid.NewGuid(), 0, 0, new(size)));
     }
 

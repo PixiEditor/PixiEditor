@@ -6,6 +6,11 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 #nullable enable
 internal class LayerViewModel : StructureMemberViewModel, ILayerHandler
 {
+    public LayerViewModel()
+    {
+        
+    }
+    
     bool lockTransparency;
     public void SetLockTransparency(bool lockTransparency)
     {
@@ -35,13 +40,13 @@ internal class LayerViewModel : StructureMemberViewModel, ILayerHandler
         }
     }
 
+    public override void SetName(string name)
+    {
+        base.SetName(name);
+        NodeName = NameBindable;
+    }
+
     public LayerViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid id) : base(doc, internals, id)
     {
-        NodeName = NameBindable;
-        PropertyChanged += (sender, args) =>
-        {
-            if (args.PropertyName == nameof(NameBindable))
-                NodeName = NameBindable;
-        };
     }
 }

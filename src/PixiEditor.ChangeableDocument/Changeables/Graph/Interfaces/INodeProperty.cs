@@ -2,7 +2,8 @@
 
 public interface INodeProperty
 {
-    public string Name { get; }
+    public string InternalPropertyName { get; }
+    public string DisplayName { get; }
     public object Value { get; set; }
     public IReadOnlyNode Node { get; }
     public Type ValueType { get; }

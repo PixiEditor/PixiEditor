@@ -1,10 +1,8 @@
-﻿using System.Collections.Immutable;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
-using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -46,24 +44,18 @@ internal class CreateStructureMember_Change : Change
         document.NodeGraph.AddNode(member);
 
         IBackgroundInput backgroundInput = (IBackgroundInput)parentNode;
-        AppendMember(backgroundInput, member);
-
-        ignoreInUndo = false;
-
-        CreateNode_ChangeInfo changeInfo = new CreateNode_ChangeInfo(
-            member.MemberName, 
-            new VecD(0, 0),
-            member.Id, 
-            CreatePropertyInfos(member.InputProperties, true),
-            CreatePropertyInfos(member.OutputProperties, false));
+        List<ConnectProperty_ChangeInfo> connectPropertyChangeInfo = AppendMember(backgroundInput, member);
         
         List<IChangeInfo> changes = new()
         {
-            changeInfo,
-            CreateChangeInfo(member)
+            CreateChangeInfo(member),
         };
+        
+        changes.AddRange(connectPropertyChangeInfo);
 
-        return changes; 
+        ignoreInUndo = false;
+        
+        return changes;
     }
     
     private IChangeInfo CreateChangeInfo(StructureNode member)
@@ -76,11 +68,6 @@ internal class CreateStructureMember_Change : Change
                 (FolderNode)member),
             _ => throw new NotSupportedException(),
         };
-    }
-
-    private ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<INodeProperty> properties, bool isInput)
-    {
-        return properties.Select(p => new NodePropertyInfo(p.Name, p.ValueType, isInput, newMemberGuid)).ToImmutableArray();
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document document)
@@ -102,8 +89,9 @@ internal class CreateStructureMember_Change : Change
         return new DeleteStructureMember_ChangeInfo(newMemberGuid, parentFolderGuid);
     }
 
-    private static void AppendMember(IBackgroundInput backgroundInput, StructureNode member)
+    private static List<ConnectProperty_ChangeInfo> AppendMember(IBackgroundInput backgroundInput, StructureNode member)
     {
+        List<ConnectProperty_ChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;
         if (backgroundInput.Background.Connection != null)
         {
@@ -115,6 +103,11 @@ internal class CreateStructureMember_Change : Change
         if (previouslyConnected != null)
         {
             member.Background.Connection = previouslyConnected;
+            changes.Add(new ConnectProperty_ChangeInfo(previouslyConnected.Node.Id, member.Id, previouslyConnected.InternalPropertyName, member.Background.InternalPropertyName));
         }
+        
+        changes.Add(new ConnectProperty_ChangeInfo(member.Id, backgroundInput.Background.Node.Id, member.Output.InternalPropertyName, backgroundInput.Background.InternalPropertyName));
+        
+        return changes;
     }
 }
