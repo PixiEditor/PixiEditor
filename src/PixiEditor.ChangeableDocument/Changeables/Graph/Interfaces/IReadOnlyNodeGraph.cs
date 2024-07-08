@@ -7,4 +7,5 @@ public interface IReadOnlyNodeGraph
     public void AddNode(IReadOnlyNode node);
     public void RemoveNode(IReadOnlyNode node);
     public bool TryTraverse(Action<IReadOnlyNode> action);
+    public ChunkyImage? Execute(int frame);
 }

@@ -23,11 +23,11 @@ public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
 
     public ChunkyImage? Execute(KeyFrameTime frameTime)
     {
-        foreach (var output in outputs)
+        foreach (var input in inputs)
         {
-            foreach (var connection in output.Connections)
+            if (input.Connection != null)
             {
-                connection.Value = output.Value;
+                input.Value = input.Connection.Value;
             }
         }
 

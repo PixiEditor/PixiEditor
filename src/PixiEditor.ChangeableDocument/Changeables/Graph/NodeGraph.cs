@@ -33,22 +33,6 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         _nodes.Remove(node);
     }
 
-    public ChunkyImage Execute()
-    {
-        if (OutputNode == null) return null;
-
-        var queue = CalculateExecutionQueue(OutputNode);
-
-        while (queue.Count > 0)
-        {
-            var node = queue.Dequeue();
-
-            node.Execute(0);
-        }
-
-        return OutputNode.Input.Value;
-    }
-
     private Queue<IReadOnlyNode> CalculateExecutionQueue(OutputNode outputNode)
     {
         // backwards breadth-first search
@@ -107,5 +91,21 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         }
         
         return true;
+    }
+
+    public ChunkyImage? Execute(int frame)
+    {
+        if (OutputNode == null) return null;
+
+        var queue = CalculateExecutionQueue(OutputNode);
+
+        while (queue.Count > 0)
+        {
+            var node = queue.Dequeue();
+
+            node.Execute(frame);
+        }
+
+        return OutputNode.Input.Value;
     }
 }
