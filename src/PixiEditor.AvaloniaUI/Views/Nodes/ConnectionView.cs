@@ -1,14 +1,18 @@
-﻿using Avalonia;
+﻿using System.ComponentModel;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
+using PixiEditor.Numerics;
+using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.Views.Nodes;
 
-public class ConnectionView : TemplatedControl
+internal class ConnectionView : TemplatedControl
 {
     public static readonly StyledProperty<NodePropertyViewModel> InputPropertyProperty =
         AvaloniaProperty.Register<ConnectionView, NodePropertyViewModel>(
@@ -23,6 +27,9 @@ public class ConnectionView : TemplatedControl
     
     public static readonly StyledProperty<Point> EndPointProperty = AvaloniaProperty.Register<ConnectionView, Point>(
         nameof(EndPoint));
+
+    public static readonly StyledProperty<VecD> InputNodePositionProperty = AvaloniaProperty.Register<ConnectionView, VecD>("InputNodePosition");
+    public static readonly StyledProperty<VecD> OutputNodePositionProperty = AvaloniaProperty.Register<ConnectionView, VecD>("OutputNodePosition");
 
     public Point StartPoint
     {
@@ -48,12 +55,26 @@ public class ConnectionView : TemplatedControl
         set => SetValue(OutputPropertyProperty, value);
     }
 
+    public VecD InputNodePosition
+    {
+        get { return (VecD)GetValue(InputNodePositionProperty); }
+        set { SetValue(InputNodePositionProperty, value); }
+    }
+
+    public VecD OutputNodePosition
+    {
+        get { return (VecD)GetValue(OutputNodePositionProperty); }
+        set { SetValue(OutputNodePositionProperty, value); }
+    }
+
 
     static ConnectionView()
     {
         AffectsRender<ConnectionView>(InputPropertyProperty, OutputPropertyProperty);
         InputPropertyProperty.Changed.Subscribe(OnInputPropertyChanged);
         OutputPropertyProperty.Changed.Subscribe(OnOutputPropertyChanged);
+        InputNodePositionProperty.Changed.Subscribe(OnInputNodePositionChanged);
+        OutputNodePositionProperty.Changed.Subscribe(OnOutputNodePositionChanged);
     }
 
     protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -103,5 +124,17 @@ public class ConnectionView : TemplatedControl
     {
         ConnectionView connectionView = args.Sender as ConnectionView;
         connectionView.EndPoint = connectionView.CalculateSocketPoint(args.NewValue);
+    }
+    
+    private static void OnInputNodePositionChanged(AvaloniaPropertyChangedEventArgs<VecD> args)
+    {
+        ConnectionView connectionView = args.Sender as ConnectionView;
+        connectionView.StartPoint = connectionView.CalculateSocketPoint(connectionView.InputProperty);
+    }
+    
+    private static void OnOutputNodePositionChanged(AvaloniaPropertyChangedEventArgs<VecD> args)
+    {
+        ConnectionView connectionView = args.Sender as ConnectionView;
+        connectionView.EndPoint = connectionView.CalculateSocketPoint(connectionView.OutputProperty);
     }
 }

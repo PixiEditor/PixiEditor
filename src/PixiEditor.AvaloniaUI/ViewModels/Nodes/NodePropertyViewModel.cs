@@ -1,11 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using Avalonia;
+using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes.Properties;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;
 
-public abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHandler
+internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHandler
 {
     private string propertyName;
     private string displayName;
@@ -78,7 +79,7 @@ public abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHandle
     }
 }
 
-public abstract class NodePropertyViewModel<T> : NodePropertyViewModel
+internal abstract class NodePropertyViewModel<T> : NodePropertyViewModel
 {
     private T nodeValue;
     

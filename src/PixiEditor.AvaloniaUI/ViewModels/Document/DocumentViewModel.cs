@@ -21,6 +21,7 @@ using PixiEditor.AvaloniaUI.Models.Position;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.Models.Tools;
 using PixiEditor.AvaloniaUI.ViewModels.Document.TransformOverlays;
+using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
@@ -191,6 +192,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
     public AnimationDataViewModel AnimationDataViewModel { get; }
+    public NodeGraphManagerViewModel NodeGraphManagerViewModel { get; }
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
@@ -217,7 +219,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         FolderHandlerFactory = new FolderHandlerFactory(this);
         AnimationDataViewModel = new(this, Internals);
 
-        NodeGraph = new NodeGraphViewModel(this);
+        NodeGraph = new NodeGraphViewModel(this, Internals);
 
         TransformViewModel = new(this);
         TransformViewModel.TransformMoved += (_, args) => Internals.ChangeController.TransformMovedInlet(args);

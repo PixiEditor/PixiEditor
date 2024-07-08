@@ -1,6 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 
@@ -10,12 +13,15 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
     public INodeHandler? OutputNode { get; private set; }
+    
+    private DocumentInternalParts Internals { get; }
 
-    public NodeGraphViewModel(DocumentViewModel documentViewModel)
+    public NodeGraphViewModel(DocumentViewModel documentViewModel, DocumentInternalParts internals)
     {
         DocumentViewModel = documentViewModel;
+        Internals = internals;
     }
-    
+
     public void AddNode(INodeHandler node)
     {
         if(OutputNode == null)
@@ -45,7 +51,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         
         Connections.Add(connection);
     }
-
+    
     public bool TryTraverse(Func<INodeHandler, bool> func)
     {
         if (OutputNode == null) return false;
@@ -92,5 +98,15 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
    
            finalQueue.Reverse();
            return new Queue<INodeHandler>(finalQueue);
-       } 
+       }
+
+    public void SetNodePosition(INodeHandler node, VecD newPos)
+    {
+        Internals.ActionAccumulator.AddActions(new NodePosition_Action(node.Id, newPos));
+    }
+    
+    public void EndChangeNodePosition()
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new EndNodePosition_Action());
+    }
 }

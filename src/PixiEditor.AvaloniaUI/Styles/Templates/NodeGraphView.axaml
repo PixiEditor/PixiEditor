@@ -27,20 +27,30 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <nodes:NodeView
+                                    Node="{Binding}"
                                     DisplayName="{Binding NodeName}"
                                     Inputs="{Binding Inputs}"
                                     Outputs="{Binding Outputs}"
+                                    IsSelected="{Binding IsSelected}"
+                                    SelectNodeCommand="{Binding SelectNodeCommand, 
+                                    RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    StartDragCommand="{Binding StartDraggingCommand,
+                                        RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    DragCommand="{Binding DraggedCommand,
+                                        RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                    EndDragCommand="{Binding EndDragCommand,
+                                        RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
                                     ResultPreview="{Binding ResultPreview}" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.ItemContainerTheme>
                             <ControlTheme TargetType="ContentPresenter">
-                                <Setter Property="Canvas.Left" Value="{Binding Position.X}" />
-                                <Setter Property="Canvas.Top" Value="{Binding Position.Y}" />
+                                <Setter Property="Canvas.Left" Value="{Binding PositionBindable.X}" />
+                                <Setter Property="Canvas.Top" Value="{Binding PositionBindable.Y}" />
                             </ControlTheme>
                         </ItemsControl.ItemContainerTheme>
                     </ItemsControl>
-                    <ItemsControl
+                    <ItemsControl Name="PART_Connections"
                         ItemsSource="{Binding NodeGraph.Connections, RelativeSource={RelativeSource TemplatedParent}}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -61,6 +71,8 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <nodes:ConnectionView
+                                    InputNodePosition="{Binding InputNode.PositionBindable}"
+                                    OutputNodePosition="{Binding OutputNode.PositionBindable}"
                                     InputProperty="{Binding InputProperty}"
                                     OutputProperty="{Binding OutputProperty}" />
                             </DataTemplate>

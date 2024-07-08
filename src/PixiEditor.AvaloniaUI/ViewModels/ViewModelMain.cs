@@ -78,6 +78,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
 
     public MenuBarViewModel MenuBarViewModel { get; set; }
     public AnimationsViewModel AnimationsSubViewModel { get; set; }
+    
+    public NodeGraphManagerViewModel NodeGraphManager { get; set; }
 
     public IPreferences Preferences { get; set; }
     public ILocalizationProvider LocalizationProvider { get; set; }
@@ -167,6 +169,8 @@ internal partial class ViewModelMain : ViewModelBase, ICommandsHandler
         SearchSubViewModel = services.GetService<SearchViewModel>();
         
         AnimationsSubViewModel = services.GetService<AnimationsViewModel>();
+        
+        NodeGraphManager = services.GetService<NodeGraphManagerViewModel>();
         
         ExtensionsSubViewModel = services.GetService<ExtensionsViewModel>(); // Must be last
 

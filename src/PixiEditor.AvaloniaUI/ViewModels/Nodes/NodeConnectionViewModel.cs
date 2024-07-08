@@ -1,6 +1,8 @@
-﻿namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;
+﻿using System.ComponentModel;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 
-public class NodeConnectionViewModel : ViewModelBase
+namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;
+internal class NodeConnectionViewModel : ViewModelBase
 {
     private NodeViewModel inputNode;
     private NodeViewModel outputNode;
@@ -10,13 +12,27 @@ public class NodeConnectionViewModel : ViewModelBase
     public NodeViewModel InputNode
     {
         get => inputNode;
-        set => SetProperty(ref inputNode, value);
+        set
+        {
+            if(InputNode != null)
+                InputNode.PropertyChanged -= OnInputNodePropertyChanged;
+            SetProperty(ref inputNode, value);
+            if(InputNode != null)
+                InputNode.PropertyChanged += OnInputNodePropertyChanged;
+        }
     }
 
     public NodeViewModel OutputNode
     {
         get => outputNode;
-        set => SetProperty(ref outputNode, value);
+        set
+        {
+            if(OutputNode != null)
+                OutputNode.PropertyChanged -= OnOutputNodePropertyChanged;
+            SetProperty(ref outputNode, value);
+            if(OutputNode != null)
+                OutputNode.PropertyChanged += OnOutputNodePropertyChanged;
+        }
     }
 
     public NodePropertyViewModel InputProperty
@@ -29,5 +45,26 @@ public class NodeConnectionViewModel : ViewModelBase
     {
         get => outputProperty;
         set => SetProperty(ref outputProperty, value);
+    }
+
+    public NodeConnectionViewModel()
+    {
+        
+    }
+    
+    private void OnInputNodePropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(INodeHandler.PositionBindable))
+        {
+            OnPropertyChanged(nameof(InputProperty));
+        }
+    }
+    
+    private void OnOutputNodePropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(INodeHandler.PositionBindable))
+        {
+            OnPropertyChanged(nameof(OutputProperty));
+        }
     }
 }

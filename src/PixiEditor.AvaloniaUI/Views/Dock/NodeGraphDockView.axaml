@@ -4,11 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes"
              xmlns:dock="clr-namespace:PixiEditor.AvaloniaUI.ViewModels.Dock"
+             xmlns:xaml="clr-namespace:PixiEditor.AvaloniaUI.Models.Commands.XAML"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="dock:NodeGraphDockViewModel"
              x:Class="PixiEditor.AvaloniaUI.Views.Dock.NodeGraphDockView">
     <Design.DataContext>
         <dock:NodeGraphDockViewModel/>
     </Design.DataContext>
-    <nodes:NodeGraphView NodeGraph="{Binding DocumentManagerSubViewModel.ActiveDocument.NodeGraph}"/>
+    <nodes:NodeGraphView 
+        ChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.ChangeNodePos, UseProvided=True}"
+        EndChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.EndChangeNodePos, UseProvided=True}"
+        NodeGraph="{Binding DocumentManagerSubViewModel.ActiveDocument.NodeGraph}"/>
 </UserControl>

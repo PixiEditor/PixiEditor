@@ -3,7 +3,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 
 namespace PixiEditor.AvaloniaUI.Models.Handlers;
 
-public interface INodeGraphHandler
+internal interface INodeGraphHandler
 {
    public ObservableCollection<INodeHandler> AllNodes { get; }
    public ObservableCollection<NodeConnectionViewModel> Connections { get; }

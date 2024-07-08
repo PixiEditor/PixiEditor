@@ -2,33 +2,25 @@
 using Avalonia;
 using ChunkyImageLib;
 using CommunityToolkit.Mvvm.ComponentModel;
+using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Structures;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
+using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;
-
-public class NodeViewModel : ObservableObject, INodeHandler
+internal class NodeViewModel : ObservableObject, INodeHandler
 {
     private string nodeName;
     private VecD position;
     private ObservableRangeCollection<INodePropertyHandler> inputs = new();
     private ObservableRangeCollection<INodePropertyHandler> outputs = new();
     private Surface resultPreview;
+    private bool isSelected;
 
     protected Guid id;
-
-    public NodeViewModel()
-    {
-        
-    }
-
-    public NodeViewModel(string nodeName, Guid id, VecD position)
-    {
-        this.nodeName = nodeName;
-        this.id = id;
-        this.position = position;
-    }
 
     public Guid Id
     {
@@ -42,10 +34,18 @@ public class NodeViewModel : ObservableObject, INodeHandler
         set => SetProperty(ref nodeName, value);
     }
 
-    public VecD Position
+    public VecD PositionBindable
     {
         get => position;
-        set => SetProperty(ref position, value);
+        set
+        {
+            if (!Document.UpdateableChangeActive)
+            {
+                Internals.ActionAccumulator.AddFinishedActions(
+                    new NodePosition_Action(Id, value),
+                    new EndNodePosition_Action());
+            }
+        }
     }
 
     public ObservableRangeCollection<INodePropertyHandler> Inputs
@@ -64,6 +64,36 @@ public class NodeViewModel : ObservableObject, INodeHandler
     {
         get => resultPreview;
         set => SetProperty(ref resultPreview, value);
+    }
+    
+    public bool IsSelected
+    {
+        get => isSelected;
+        set => SetProperty(ref isSelected, value);
+    }
+
+    internal DocumentViewModel Document { get; init; }
+    internal DocumentInternalParts Internals { get; init; }
+    
+    
+    public NodeViewModel()
+    {
+        
+    }
+
+    public NodeViewModel(string nodeName, Guid id, VecD position, DocumentViewModel document, DocumentInternalParts internals)
+    {
+        this.nodeName = nodeName;
+        this.id = id;
+        this.position = position;
+        Document = document;
+        Internals = internals;
+    }
+    
+    public void SetPosition(VecD newPosition)
+    {
+        position = newPosition;
+        OnPropertyChanged(nameof(PositionBindable));
     }
 
     public void TraverseBackwards(Func<INodeHandler, bool> func)

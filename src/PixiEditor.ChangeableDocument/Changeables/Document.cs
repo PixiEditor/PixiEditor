@@ -216,7 +216,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid);
     }
 
-    public T FindNode<T>(Guid guid) where T : Node
+    public T? FindNode<T>(Guid guid) where T : Node
     {
         return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
     }

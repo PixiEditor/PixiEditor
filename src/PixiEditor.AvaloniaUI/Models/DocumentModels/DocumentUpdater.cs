@@ -172,6 +172,9 @@ internal class DocumentUpdater
             case ConnectProperty_ChangeInfo info:
                 ProcessConnectProperty(info);
                 break;
+            case NodePosition_ChangeInfo info:
+                ProcessNodePosition(info);
+                break;
         }
     }
 
@@ -481,8 +484,11 @@ internal class DocumentUpdater
     
     private void ProcessCreateNode<T>(CreateNode_ChangeInfo info) where T : NodeViewModel, new()
     {
-        T node = new T() { NodeName = info.NodeName, Id = info.Id, Position = info.Position };
+        T node = new T() { NodeName = info.NodeName, Id = info.Id, 
+            Document = (DocumentViewModel)doc, Internals = helper };
 
+        node.SetPosition(info.Position);
+        
         List<INodePropertyHandler> inputs = CreateProperties(info.Inputs, node, true);
         List<INodePropertyHandler> outputs = CreateProperties(info.Outputs, node, false);
         node.Inputs.AddRange(inputs);
@@ -523,5 +529,11 @@ internal class DocumentUpdater
         };
         
         doc.NodeGraphHandler.SetConnection(connection);
+    }
+    
+    private void ProcessNodePosition(NodePosition_ChangeInfo info)
+    {
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+        node.SetPosition(info.NewPosition);
     }
 }

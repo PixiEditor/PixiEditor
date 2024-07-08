@@ -29,7 +29,7 @@ internal class CreateNode_Change : Change
             id = Guid.NewGuid();
         
         Node node = (Node)Activator.CreateInstance(nodeType);
-        node.Position = new VecD(100, 100);
+        node.Position = new VecD(0, 0);
         node.Id = id;
         target.NodeGraph.AddNode(node);
         ignoreInUndo = false;

@@ -2,7 +2,7 @@
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Nodes.Properties;
 
-public class GenericPropertyViewModel : NodePropertyViewModel
+internal class GenericPropertyViewModel : NodePropertyViewModel
 {
     public GenericPropertyViewModel(INodeHandler node) : base(node)
     {

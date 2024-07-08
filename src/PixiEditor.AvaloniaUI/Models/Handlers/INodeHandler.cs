@@ -12,7 +12,8 @@ public interface INodeHandler
     public ObservableRangeCollection<INodePropertyHandler> Inputs { get; }
     public ObservableRangeCollection<INodePropertyHandler> Outputs { get; }
     public Surface ResultPreview { get; set; }
-    public VecD Position { get; set; }
+    public VecD PositionBindable { get; set; }
+    public bool IsSelected { get; set; }
     void TraverseBackwards(Func<INodeHandler, bool> func);
     void TraverseForwards(Func<INodeHandler, bool> func);
 }

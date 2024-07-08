@@ -13,8 +13,8 @@ public static class DocumentEvaluator
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            ChunkyImage? evaulated = graph.Execute(frame);
-            if (evaulated is null)
+            ChunkyImage? evaluated = graph.Execute(frame);
+            if (evaluated is null)
             {
                 return new EmptyChunk();
             }
@@ -29,7 +29,7 @@ public static class DocumentEvaluator
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
 
-            evaulated.DrawMostUpToDateChunkOn(chunkPos, resolution, chunk.Surface.DrawingSurface, VecI.Zero,
+            evaluated.DrawMostUpToDateChunkOn(chunkPos, resolution, chunk.Surface.DrawingSurface, VecI.Zero,
                 context.ReplacingPaintWithOpacity);
             
             chunk.Surface.DrawingSurface.Canvas.Restore();

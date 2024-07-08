@@ -1,9 +1,13 @@
 ﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 using Avalonia.VisualTree;
 using ChunkyImageLib;
+using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
@@ -11,24 +15,50 @@ using PixiEditor.AvaloniaUI.Views.Nodes.Properties;
 
 namespace PixiEditor.AvaloniaUI.Views.Nodes;
 
+[PseudoClasses(":selected")]
 public class NodeView : TemplatedControl
 {
+    public static readonly StyledProperty<INodeHandler> NodeProperty = AvaloniaProperty.Register<NodeView, INodeHandler>(
+        nameof(Node));
+    
     public static readonly StyledProperty<string> DisplayNameProperty = AvaloniaProperty.Register<NodeView, string>(
         nameof(DisplayName), "Node");
 
-    public static readonly StyledProperty<ObservableRangeCollection<INodePropertyHandler>> InputsProperty = AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
-        nameof(Inputs));
-    
-    public static readonly StyledProperty<ObservableRangeCollection<INodePropertyHandler>> OutputsProperty = AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
-        nameof(Outputs));
+    public static readonly StyledProperty<ObservableRangeCollection<INodePropertyHandler>> InputsProperty =
+        AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
+            nameof(Inputs));
+
+    public static readonly StyledProperty<ObservableRangeCollection<INodePropertyHandler>> OutputsProperty =
+        AvaloniaProperty.Register<NodeView, ObservableRangeCollection<INodePropertyHandler>>(
+            nameof(Outputs));
 
     public static readonly StyledProperty<Surface> ResultPreviewProperty = AvaloniaProperty.Register<NodeView, Surface>(
         nameof(ResultPreview));
 
+    public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<NodeView, bool>(
+        nameof(IsSelected));
+
+    public static readonly StyledProperty<ICommand> SelectNodeCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>("SelectNodeCommand");
+    public static readonly StyledProperty<ICommand> StartDragCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>("StartDragCommand");
+    public static readonly StyledProperty<ICommand> DragCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>("DragCommand");
+    public static readonly StyledProperty<ICommand> EndDragCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>("EndDragCommand");
+
+    public INodeHandler Node
+    {
+        get => GetValue(NodeProperty);
+        set => SetValue(NodeProperty, value);
+    }
+    
+    public bool IsSelected
+    {
+        get => GetValue(IsSelectedProperty);
+        set => SetValue(IsSelectedProperty, value);
+    }
+
     public Surface ResultPreview
     {
-        get => GetValue( ResultPreviewProperty);
-        set => SetValue( ResultPreviewProperty, value);
+        get => GetValue(ResultPreviewProperty);
+        set => SetValue(ResultPreviewProperty, value);
     }
 
     public ObservableRangeCollection<INodePropertyHandler> Outputs
@@ -49,15 +79,101 @@ public class NodeView : TemplatedControl
         set => SetValue(DisplayNameProperty, value);
     }
 
+    public ICommand SelectNodeCommand
+    {
+        get { return (ICommand)GetValue(SelectNodeCommandProperty); }
+        set { SetValue(SelectNodeCommandProperty, value); }
+    }
+
+    public ICommand StartDragCommand
+    {
+        get { return (ICommand)GetValue(StartDragCommandProperty); }
+        set { SetValue(StartDragCommandProperty, value); }
+    }
+
+    public ICommand DragCommand
+    {
+        get { return (ICommand)GetValue(DragCommandProperty); }
+        set { SetValue(DragCommandProperty, value); }
+    }
+
+    public ICommand EndDragCommand
+    {
+        get { return (ICommand)GetValue(EndDragCommandProperty); }
+        set { SetValue(EndDragCommandProperty, value); }
+    }
+
+    static NodeView()
+    {
+        IsSelectedProperty.Changed.Subscribe(NodeSelectionChanged);
+    }
+
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+        if(e.GetMouseButton(this) != MouseButton.Left)
+            return;
+        
+        var originalSource = e.Source;
+        e.Source = Node; 
+        if (SelectNodeCommand != null && SelectNodeCommand.CanExecute(e))
+        {
+            SelectNodeCommand.Execute(e);
+        }
+        
+        if(StartDragCommand != null && StartDragCommand.CanExecute(e))
+        {
+            e.Pointer.Capture(this);
+            StartDragCommand.Execute(e);
+        }
+        
+        e.Source = originalSource;
+        e.Handled = true;
+    }
+    
+    protected override void OnPointerMoved(PointerEventArgs e)
+    {
+        base.OnPointerMoved(e);
+        if(e.Pointer.Captured != this)
+            return;
+        
+        if (DragCommand != null && DragCommand.CanExecute(e))
+        {
+            DragCommand.Execute(e);
+        }
+    }
+
+    protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
+    {
+        var originalSource = e.Source;
+        e.Source = Node; 
+        if (EndDragCommand != null && EndDragCommand.CanExecute(e))
+        {
+            EndDragCommand.Execute(e);
+        }
+        
+        e.Source = originalSource;
+        e.Handled = true;
+    }
+
     public Point GetSocketPoint(INodePropertyHandler property, Canvas canvas)
     {
-        NodePropertyView propertyView = this.GetVisualDescendants().OfType<NodePropertyView>().FirstOrDefault(x => x.DataContext == property);
-        
+        NodePropertyView propertyView = this.GetVisualDescendants().OfType<NodePropertyView>()
+            .FirstOrDefault(x => x.DataContext == property);
+
         if (propertyView is null)
         {
             return default;
         }
 
         return propertyView.GetSocketPoint(property.IsInput, canvas);
+    }
+
+    private static void NodeSelectionChanged(AvaloniaPropertyChangedEventArgs<bool> e)
+    {
+        if (e.Sender is NodeView nodeView)
+        {
+            nodeView.PseudoClasses.Set(":selected", e.NewValue.Value);
+        }
     }
 }
