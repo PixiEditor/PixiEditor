@@ -12,6 +12,7 @@
         <dock:NodeGraphDockViewModel/>
     </Design.DataContext>
     <nodes:NodeGraphView
+        ConnectPropertiesCommand="{xaml:Command PixiEditor.NodeGraph.ConnectProperties, UseProvided=True}"
         CreateNodeCommand="{xaml:Command PixiEditor.NodeGraph.CreateNode, UseProvided=True}"
         ChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.ChangeNodePos, UseProvided=True}"
         EndChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.EndChangeNodePos, UseProvided=True}"

@@ -47,6 +47,8 @@
                                         DragCommand="{Binding DraggedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
                                         EndDragCommand="{Binding EndDragCommand,
                                         RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                        SocketDropCommand="{Binding SocketDropCommand,
+                                        RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
                                         ResultPreview="{Binding ResultPreview}" />
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

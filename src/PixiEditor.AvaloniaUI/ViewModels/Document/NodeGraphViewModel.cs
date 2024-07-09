@@ -114,4 +114,14 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     {
         Internals.ActionAccumulator.AddFinishedActions(new CreateNode_Action(nodeType, Guid.NewGuid()));
     }
+
+    public void ConnectProperties(INodePropertyHandler start, INodePropertyHandler end)
+    {
+        INodeHandler inputNode = start.IsInput ? start.Node : end.Node;
+        INodeHandler outputNode = start.IsInput ? end.Node : start.Node;
+        string inputProperty = start.IsInput ? start.PropertyName : end.PropertyName;
+        string outputProperty = start.IsInput ? end.PropertyName : start.PropertyName;
+
+        Internals.ActionAccumulator.AddFinishedActions(new ConnectProperties_Action(inputNode.Id, outputNode.Id, inputProperty, outputProperty));
+    }
 }

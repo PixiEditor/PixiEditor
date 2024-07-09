@@ -11,6 +11,7 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
+using PixiEditor.AvaloniaUI.Views.Nodes.Properties;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Numerics;
 using Point = Avalonia.Point;
@@ -51,9 +52,22 @@ internal class NodeGraphView : Zoombox.Zoombox
         nameof(SearchQuery));
 
     public static readonly StyledProperty<ObservableCollection<Type>> AllNodeTypesProperty = AvaloniaProperty.Register<NodeGraphView, ObservableCollection<Type>>(
-        "AllNodeTypes");
+        nameof(AllNodeTypes));
+
+    public static readonly StyledProperty<ICommand> SocketDropCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>(
+        nameof(SocketDropCommand));
 
     public static readonly StyledProperty<ICommand> CreateNodeCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>("CreateNodeCommand");
+
+    public static readonly StyledProperty<ICommand> ConnectPropertiesCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>(
+        "ConnectPropertiesCommand");
+
+    public ICommand ConnectPropertiesCommand
+    {
+        get => GetValue(ConnectPropertiesCommandProperty);
+        set => SetValue(ConnectPropertiesCommandProperty, value);
+    }
+
     public ObservableCollection<Type> AllNodeTypes
     {
         get => GetValue(AllNodeTypesProperty);
@@ -120,10 +134,21 @@ internal class NodeGraphView : Zoombox.Zoombox
         set { SetValue(CreateNodeCommandProperty, value); }
     }
 
+    public ICommand SocketDropCommand
+    {
+        get => GetValue(SocketDropCommandProperty);
+        set => SetValue(SocketDropCommandProperty, value);
+    }
+
     private bool isDraggingNodes;
+    private bool isDraggingConnection;
     private VecD clickPointOffset;
 
     private List<VecD> initialNodePositions;
+    private INodePropertyHandler startConnectionProperty;
+    private INodePropertyHandler endConnectionProperty;
+    private INodeHandler startConnectionNode;
+    private INodeHandler endConnectionNode;
 
     public NodeGraphView()
     {
@@ -131,6 +156,7 @@ internal class NodeGraphView : Zoombox.Zoombox
         StartDraggingCommand = new RelayCommand<PointerPressedEventArgs>(StartDragging);
         DraggedCommand = new RelayCommand<PointerEventArgs>(Dragged);
         EndDragCommand = new RelayCommand<PointerCaptureLostEventArgs>(EndDrag);
+        SocketDropCommand = new RelayCommand<NodeSocket>(SocketDrop);
 
         AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<Node>());
     }
@@ -156,10 +182,19 @@ internal class NodeGraphView : Zoombox.Zoombox
     {
         if (e.GetMouseButton(this) == MouseButton.Left)
         {
-            isDraggingNodes = true;
-            Point pt = e.GetPosition(this);
-            clickPointOffset = ToZoomboxSpace(new VecD(pt.X, pt.Y));
-            initialNodePositions = SelectedNodes.Select(x => x.PositionBindable).ToList();
+            if (e.Source is NodeSocket nodeSocket)
+            {
+                startConnectionProperty = nodeSocket.Property;
+                startConnectionNode = nodeSocket.Node;
+                isDraggingConnection = true;
+            }
+            else
+            {
+                isDraggingNodes = true;
+                Point pt = e.GetPosition(this);
+                clickPointOffset = ToZoomboxSpace(new VecD(pt.X, pt.Y));
+                initialNodePositions = SelectedNodes.Select(x => x.PositionBindable).ToList();
+            }
         }
     }
 
@@ -179,13 +214,39 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     private void EndDrag(PointerCaptureLostEventArgs e)
     {
-        isDraggingNodes = false;
-        EndChangeNodePosCommand?.Execute(null);
+        if (isDraggingNodes)
+        {
+            isDraggingNodes = false;
+            EndChangeNodePosCommand?.Execute(null);
+        }
+    }
+
+    private void SocketDrop(NodeSocket socket)
+    {
+        endConnectionNode = socket.Node;
+        endConnectionProperty = socket.Property;
+
+        if (startConnectionNode == null || endConnectionNode == null || startConnectionProperty == null || endConnectionProperty == null)
+        {
+            return;
+        }
+
+        var connection = (startConnectionProperty, endConnectionProperty);
+
+        if (startConnectionNode == endConnectionNode)
+        {
+            return;
+        }
+
+        if(ConnectPropertiesCommand != null && ConnectPropertiesCommand.CanExecute(connection))
+        {
+            ConnectPropertiesCommand.Execute(connection);
+        }
     }
 
     private void SelectNode(PointerPressedEventArgs e)
     {
-        NodeViewModel viewModel = (NodeViewModel)e.Source;
+        if (e.Source is not NodeViewModel viewModel) return;
 
         if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
         {

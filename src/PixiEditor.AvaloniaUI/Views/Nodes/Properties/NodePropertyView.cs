@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 
 namespace PixiEditor.AvaloniaUI.Views.Nodes.Properties;
@@ -24,6 +25,13 @@ public abstract class NodePropertyView : UserControl
         base.OnApplyTemplate(e);
         InputSocket = e.NameScope.Find<NodeSocket>("PART_InputSocket");
         OutputSocket = e.NameScope.Find<NodeSocket>("PART_OutputSocket");
+
+        INodePropertyHandler propertyHandler = DataContext as INodePropertyHandler;
+
+        InputSocket.Property = propertyHandler;
+        InputSocket.Node = propertyHandler.Node;
+        OutputSocket.Node = propertyHandler.Node;
+        OutputSocket.Property = propertyHandler;
     }
 
     public Point GetSocketPoint(bool getInputSocket, Canvas canvas)

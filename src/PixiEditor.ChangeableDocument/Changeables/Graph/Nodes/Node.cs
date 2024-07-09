@@ -171,4 +171,14 @@ public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
         }
         return clone;
     }
+
+    public InputProperty? GetInputProperty(string inputProperty)
+    {
+        return inputs.FirstOrDefault(x => x.InternalPropertyName == inputProperty);
+    }
+
+    public OutputProperty? GetOutputProperty(string outputProperty)
+    {
+        return outputs.FirstOrDefault(x => x.InternalPropertyName == outputProperty);
+    }
 }

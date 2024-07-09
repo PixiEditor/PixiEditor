@@ -16,6 +16,12 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateNode(nodeType);
     }
 
+    [Command.Internal("PixiEditor.NodeGraph.ConnectProperties")]
+    public void ConnectProperties((INodePropertyHandler input, INodePropertyHandler output) args)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.ConnectProperties(args.input, args.output);
+    }
+
     [Command.Internal("PixiEditor.NodeGraph.ChangeNodePos")]
     public void ChangeNodePos((INodeHandler node, VecD newPos) args)
     {

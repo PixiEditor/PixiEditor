@@ -103,6 +103,17 @@ public class NodeView : TemplatedControl
         set { SetValue(EndDragCommandProperty, value); }
     }
 
+    public static readonly StyledProperty<ICommand> SocketDropCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>(
+        nameof(SocketDropCommand));
+
+    public ICommand SocketDropCommand
+    {
+        get => GetValue(SocketDropCommandProperty);
+        set => SetValue(SocketDropCommandProperty, value);
+    }
+
+    private bool captured;
+
     static NodeView()
     {
         IsSelectedProperty.Changed.Subscribe(NodeSelectionChanged);
@@ -115,7 +126,7 @@ public class NodeView : TemplatedControl
             return;
         
         var originalSource = e.Source;
-        e.Source = Node; 
+        e.Source = e.Source is NodeSocket socket ? socket : Node;
         if (SelectNodeCommand != null && SelectNodeCommand.CanExecute(e))
         {
             SelectNodeCommand.Execute(e);
@@ -123,7 +134,12 @@ public class NodeView : TemplatedControl
         
         if(StartDragCommand != null && StartDragCommand.CanExecute(e))
         {
-            e.Pointer.Capture(this);
+            if (e.Source is not NodeSocket)
+            {
+                e.Pointer.Capture(this);
+                captured = true;
+            }
+
             StartDragCommand.Execute(e);
         }
         
@@ -134,25 +150,40 @@ public class NodeView : TemplatedControl
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         base.OnPointerMoved(e);
-        if(e.Pointer.Captured != this)
+
+        if(!Equals(e.Pointer.Captured, this) && e.Source is not NodeSocket socket)
             return;
-        
+
         if (DragCommand != null && DragCommand.CanExecute(e))
         {
             DragCommand.Execute(e);
         }
     }
 
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
+        if (e.Source is NodeSocket socket)
+        {
+            if (SocketDropCommand != null && SocketDropCommand.CanExecute(socket))
+            {
+                SocketDropCommand?.Execute(socket);
+            }
+        }
+    }
+
     protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
     {
+        if(!captured) return;
+
         var originalSource = e.Source;
-        e.Source = Node; 
+        e.Source = Node;
         if (EndDragCommand != null && EndDragCommand.CanExecute(e))
         {
             EndDragCommand.Execute(e);
         }
         
         e.Source = originalSource;
+        captured = false;
         e.Handled = true;
     }
 
