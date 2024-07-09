@@ -70,9 +70,24 @@ internal class ConnectProperties_Change : Change
         OutputProperty outputProp = outputNode.GetOutputProperty(OutputProperty);
 
         outputProp.DisconnectFrom(inputProp);
+        
+        ConnectProperty_ChangeInfo change = new(null, InputNodeId, null, InputProperty);
+        
         inputProp.Connection = originalConnection;
 
+        List<IChangeInfo> changes = new()
+        {
+            change,
+        };
+        
+        if (originalConnection != null)
+        {
+            ConnectProperty_ChangeInfo oldConnection = new(originalConnection.Node.Id, InputNodeId,
+                originalConnection.InternalPropertyName, InputProperty);
+            changes.Add(oldConnection);
+        }
 
-        return new ConnectProperty_ChangeInfo(outputNode.Id, inputNode.Id, OutputProperty, InputProperty);
+
+        return changes;
     }
 }

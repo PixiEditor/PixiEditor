@@ -12,4 +12,5 @@ internal interface INodeGraphHandler
    public void AddNode(INodeHandler node);
    public void RemoveNode(Guid nodeId);
    public void SetConnection(NodeConnectionViewModel connection);
+   public void RemoveConnection(Guid nodeId, string property);
 }

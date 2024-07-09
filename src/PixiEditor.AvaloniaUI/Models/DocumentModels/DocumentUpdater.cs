@@ -518,17 +518,25 @@ internal class DocumentUpdater
     
     private void ProcessConnectProperty(ConnectProperty_ChangeInfo info)
     {
-        NodeViewModel outputNode = doc.StructureHelper.FindNode<NodeViewModel>(info.SourceNodeId);
+        NodeViewModel outputNode = info.SourceNodeId.HasValue ? doc.StructureHelper.FindNode<NodeViewModel>(info.SourceNodeId.Value) : null;
         NodeViewModel inputNode = doc.StructureHelper.FindNode<NodeViewModel>(info.TargetNodeId);
-        NodeConnectionViewModel connection = new NodeConnectionViewModel()
+
+        if (inputNode != null && outputNode != null)
         {
-            InputNode = inputNode,
-            OutputNode = outputNode,
-            InputProperty = inputNode.FindInputProperty(info.TargetProperty),
-            OutputProperty = outputNode.FindOutputProperty(info.SourceProperty)
-        };
-        
-        doc.NodeGraphHandler.SetConnection(connection);
+            NodeConnectionViewModel connection = new NodeConnectionViewModel()
+            {
+                InputNode = inputNode,
+                OutputNode = outputNode,
+                InputProperty = inputNode.FindInputProperty(info.TargetProperty),
+                OutputProperty = outputNode.FindOutputProperty(info.SourceProperty)
+            };
+            
+            doc.NodeGraphHandler.SetConnection(connection);
+        }
+        else
+        {
+            doc.NodeGraphHandler.RemoveConnection(info.TargetNodeId, info.TargetProperty);
+        }
     }
     
     private void ProcessNodePosition(NodePosition_ChangeInfo info)
