@@ -11,7 +11,6 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
 {
     public CreateLayer_ChangeInfo(
         Guid parentGuid,
-        int index,
         float opacity,
         bool isVisible,
         bool clipToMemberBelow,
@@ -23,7 +22,7 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
         bool lockTransparency,
         ImmutableArray<NodePropertyInfo> inputs,
         ImmutableArray<NodePropertyInfo> outputs) :
-        base(parentGuid, index, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
+        base(parentGuid, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
             maskIsVisible, inputs, outputs)
     {
         LockTransparency = lockTransparency;
@@ -31,11 +30,10 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
 
     public bool LockTransparency { get; }
 
-    internal static CreateLayer_ChangeInfo FromLayer(Guid parentGuid, int index, LayerNode layer)
+    internal static CreateLayer_ChangeInfo FromLayer(Guid parentGuid, LayerNode layer)
     {
         return new CreateLayer_ChangeInfo(
             parentGuid,
-            index,
             layer.Opacity.Value,
             layer.IsVisible.Value,
             layer.ClipToMemberBelow.Value,

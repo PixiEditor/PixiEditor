@@ -11,15 +11,13 @@ internal class CreateStructureMember_Change : Change
     private Guid newMemberGuid;
 
     private Guid parentFolderGuid;
-    private int parentFolderIndex;
     private StructureMemberType type;
 
     [GenerateMakeChangeAction]
-    public CreateStructureMember_Change(Guid parentFolder, Guid newGuid, int parentFolderIndex,
+    public CreateStructureMember_Change(Guid parentFolder, Guid newGuid,
         StructureMemberType type)
     {
         this.parentFolderGuid = parentFolder;
-        this.parentFolderIndex = parentFolderIndex;
         this.type = type;
         newMemberGuid = newGuid;
     }
@@ -62,9 +60,9 @@ internal class CreateStructureMember_Change : Change
     {
         return type switch
         {
-             StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid, parentFolderIndex,
+             StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid,
                 (LayerNode)member),
-            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentFolderGuid, parentFolderIndex,
+            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentFolderGuid,
                 (FolderNode)member),
             _ => throw new NotSupportedException(),
         };

@@ -9,7 +9,6 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
 {
     public CreateFolder_ChangeInfo(
         Guid parentGuid,
-        int index,
         float opacity,
         bool isVisible,
         bool clipToMemberBelow,
@@ -20,16 +19,15 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
         bool maskIsVisible,
         ImmutableArray<NodePropertyInfo> Inputs,
         ImmutableArray<NodePropertyInfo> Outputs
-    ) : base(parentGuid, index, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
+    ) : base(parentGuid, opacity, isVisible, clipToMemberBelow, name, blendMode, guidValue, hasMask,
         maskIsVisible, Inputs, Outputs)
     {
     }
 
-    internal static CreateFolder_ChangeInfo FromFolder(Guid parentGuid, int index, FolderNode folder)
+    internal static CreateFolder_ChangeInfo FromFolder(Guid parentGuid, FolderNode folder)
     {
         return new CreateFolder_ChangeInfo(
             parentGuid,
-            index,
             folder.Opacity.Value,
             folder.IsVisible.Value,
             folder.ClipToMemberBelow.Value,

@@ -2,6 +2,7 @@
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Extensions.Common.Localization;
 
@@ -17,16 +18,20 @@ internal class DocumentStructureHelper
         this.internals = internals;
     }
 
-    private string GetUniqueName(string name, IFolderHandler folder)
+    private string GetUniqueName(string name, INodeHandler node)
     {
         int count = 1;
-        //TODO: implement this
-        /*foreach (var child in folder.Children)
+        node.TraverseBackwards(newNode =>
         {
-            string childName = child.NameBindable;
-            if (childName.StartsWith(name))
-                count++;
-        }*/
+            if (newNode is IStructureMemberHandler structureMemberHandler)
+            {
+                string childName = structureMemberHandler.NameBindable;
+                if (childName.StartsWith(name))
+                    count++;
+            }
+            
+            return true;
+        });
         return $"{name} {count}";
     }
 
@@ -37,8 +42,10 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member on top
-            //internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(doc.StructureRoot.Id, guid, doc.StructureRoot.Children.Count, type));
-            //name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), doc.StructureRoot);
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(
+                doc.NodeGraphHandler.OutputNode.Id, 
+                guid, type));
+            name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), doc.NodeGraphHandler.OutputNode);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
                 internals.ActionAccumulator.AddFinishedActions();
@@ -48,7 +55,7 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member inside folder on top
-            //internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.Id, guid, folder.Children.Count, type));
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(folder.Id, guid, type));
             name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), folder);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)
@@ -60,10 +67,10 @@ internal class DocumentStructureHelper
             Guid guid = Guid.NewGuid();
             //put member above the layer
             List<IStructureMemberHandler> path = doc.StructureHelper.FindPath(layer.Id);
-            if (path.Count < 2)
+            if (path.Count < 1)
                 throw new InvalidOperationException("Couldn't find a path to the selected member");
-            IFolderHandler parent = (IFolderHandler)path[1];
-            //internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, parent.Children.IndexOf(layer) + 1, type));
+            INodeHandler parent = path[0];
+            internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, type));
             name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), parent);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));
             if (finish)

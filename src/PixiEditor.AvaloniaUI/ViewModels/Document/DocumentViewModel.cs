@@ -192,7 +192,6 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public ReferenceLayerViewModel ReferenceLayerViewModel { get; }
     public LineToolOverlayViewModel LineToolOverlayViewModel { get; }
     public AnimationDataViewModel AnimationDataViewModel { get; }
-    public NodeGraphManagerViewModel NodeGraphManagerViewModel { get; }
 
     public IReadOnlyCollection<IStructureMemberHandler> SoftSelectedStructureMembers => softSelectedStructureMembers;
     private DocumentInternalParts Internals { get; }
@@ -283,7 +282,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
         {
             acc.AddActions(
-                new CreateStructureMember_Action(parentGuid, member.Id, 0,
+                new CreateStructureMember_Action(parentGuid, member.Id,
                     member is DocumentViewModelBuilder.LayerBuilder
                         ? StructureMemberType.Layer
                         : StructureMemberType.Folder),

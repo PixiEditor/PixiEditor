@@ -23,6 +23,11 @@ public class MergeNode : Node
 
     public override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
+        if(Top.Value == null && Bottom.Value == null)
+        {
+            return null;
+        }
+        
         VecI size = Top.Value?.CommittedSize ?? Bottom.Value.CommittedSize;
         
         Output.Value = new ChunkyImage(size);

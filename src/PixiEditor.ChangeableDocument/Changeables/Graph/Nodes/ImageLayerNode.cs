@@ -28,10 +28,25 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override ChunkyImage OnExecute(KeyFrameTime frame)
     {
-        var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame)); 
-        var result = imageFrame?.Image ?? frames[0].Image;
-        Output.Value = result;
-        return result;
+        var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame));
+        var frameImage = imageFrame?.Image ?? frames[0].Image;
+
+        if (Background.Value != null)
+        {
+            VecI size = GetBiggerSize(frameImage.LatestSize, Background.Value.LatestSize);
+            ChunkyImage combined = new(size);
+            combined.EnqueueDrawChunkyImage(VecI.Zero, Background.Value);
+            combined.EnqueueDrawChunkyImage(VecI.Zero, frameImage);
+            combined.CommitChanges();
+            
+            Output.Value = combined;
+        }
+        else
+        {
+            Output.Value = frameImage;
+        }
+        
+        return Output.Value;
     }
 
     public override void Dispose()
@@ -41,6 +56,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             frame.Image.Dispose();
         }
+    }
+    
+    private VecI GetBiggerSize(VecI size1, VecI size2)
+    {
+        return new VecI(Math.Max(size1.X, size2.X), Math.Max(size1.Y, size2.Y));
     }
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);

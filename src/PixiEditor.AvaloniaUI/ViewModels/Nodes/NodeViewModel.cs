@@ -120,7 +120,7 @@ internal class NodeViewModel : ObservableObject, INodeHandler
             {
                 if (inputProperty.ConnectedOutput != null)
                 {
-                    queueNodes.Enqueue(inputProperty.Node);
+                    queueNodes.Enqueue(inputProperty.ConnectedOutput.Node);
                 }
             }
         }

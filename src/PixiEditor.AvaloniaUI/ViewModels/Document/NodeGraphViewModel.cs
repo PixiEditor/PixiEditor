@@ -47,7 +47,12 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         if (existingInputConnection != null)
         {
             Connections.Remove(existingInputConnection);
+            existingInputConnection.InputProperty.ConnectedOutput = null;
+            existingInputConnection.OutputProperty.ConnectedInputs.Remove(existingInputConnection.InputProperty);
         }
+        
+        connection.InputProperty.ConnectedOutput = connection.OutputProperty;
+        connection.OutputProperty.ConnectedInputs.Add(connection.InputProperty);
         
         Connections.Add(connection);
     }
@@ -57,8 +62,10 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         var connection = Connections.FirstOrDefault(x => x.InputProperty.Node.Id == nodeId && x.InputProperty.PropertyName == property);
         if (connection != null)
         {
+            connection.InputProperty.ConnectedOutput = null;
+            connection.OutputProperty.ConnectedInputs.Remove(connection.InputProperty);
             Connections.Remove(connection);
-        } 
+        }
     }
 
     public bool TryTraverse(Func<INodeHandler, bool> func)
