@@ -11,7 +11,8 @@
     <Design.DataContext>
         <dock:NodeGraphDockViewModel/>
     </Design.DataContext>
-    <nodes:NodeGraphView 
+    <nodes:NodeGraphView
+        CreateNodeCommand="{xaml:Command PixiEditor.NodeGraph.CreateNode, UseProvided=True}"
         ChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.ChangeNodePos, UseProvided=True}"
         EndChangeNodePosCommand="{xaml:Command PixiEditor.NodeGraph.EndChangeNodePos, UseProvided=True}"
         NodeGraph="{Binding DocumentManagerSubViewModel.ActiveDocument.NodeGraph}"/>

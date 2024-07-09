@@ -1,0 +1,30 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes"
+                    xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+                    xmlns:input="clr-namespace:PixiEditor.AvaloniaUI.Views.Input">
+    <ControlTheme TargetType="nodes:NodePicker" x:Key="{x:Type nodes:NodePicker}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid MinWidth="200">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <input:InputBox
+                        Text="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+                    <ItemsControl MinHeight="200" Grid.Row="1" ItemsSource="{TemplateBinding FilteredNodeTypes}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding SelectNodeCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodePicker}}"
+                                        CommandParameter="{Binding}"
+                                        Content="{Binding Name}" />
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

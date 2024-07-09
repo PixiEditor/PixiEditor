@@ -1,8 +1,11 @@
 ﻿using System.Collections.Immutable;
+using System.Reflection;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Numerics;
+using Type = System.Type;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
@@ -10,12 +13,24 @@ internal class CreateNode_Change : Change
 {
     private Type nodeType;
     private Guid id;
+    private static Dictionary<Type, NodeFactory> allFactories;
     
     [GenerateMakeChangeAction]
     public CreateNode_Change(Type nodeType, Guid id)
     {
         this.id = id;
         this.nodeType = nodeType;
+
+        if (allFactories == null)
+        {
+            allFactories = new Dictionary<Type, NodeFactory>();
+            var factoryTypes = Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(NodeFactory)) && !x.IsAbstract && !x.IsInterface).ToImmutableArray();
+            foreach (var factoryType in factoryTypes)
+            {
+                NodeFactory factory = (NodeFactory)Activator.CreateInstance(factoryType);
+                allFactories.Add(factory.NodeType, factory);
+            }
+        }
     }
     
     public override bool InitializeAndValidate(Document target)
@@ -27,8 +42,17 @@ internal class CreateNode_Change : Change
     {
         if(id == Guid.Empty)
             id = Guid.NewGuid();
+
+        Node node = null;
+        if (allFactories.TryGetValue(nodeType, out NodeFactory factory))
+        {
+            node = factory.CreateNode(target);
+        }
+        else
+        {
+            node = (Node)Activator.CreateInstance(nodeType);
+        }
         
-        Node node = (Node)Activator.CreateInstance(nodeType);
         node.Position = new VecD(0, 0);
         node.Id = id;
         target.NodeGraph.AddNode(node);

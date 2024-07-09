@@ -109,4 +109,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     {
         Internals.ActionAccumulator.AddFinishedActions(new EndNodePosition_Action());
     }
+
+    public void CreateNode(Type nodeType)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new CreateNode_Action(nodeType, Guid.NewGuid()));
+    }
 }

@@ -17,6 +17,7 @@
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/NodeView.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/NodeSocket.axaml"/>
                 <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/ConnectionView.axaml"/>
+                <MergeResourceInclude Source="avares://PixiEditor.AvaloniaUI/Styles/Templates/NodePicker.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Styles.Resources>

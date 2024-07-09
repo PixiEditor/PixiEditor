@@ -6,78 +6,85 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Background="Transparent">
-                    <ItemsControl ClipToBounds="False"
-                                  ItemsSource="{Binding NodeGraph.AllNodes, RelativeSource={RelativeSource TemplatedParent}}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas RenderTransformOrigin="0, 0">
-                                    <Canvas.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform
-                                                ScaleX="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                                ScaleY="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
-                                            <TranslateTransform
-                                                X="{Binding CanvasX, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                                Y="{Binding CanvasY, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
-                                        </TransformGroup>
-                                    </Canvas.RenderTransform>
-                                </Canvas>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <nodes:NodeView
-                                    Node="{Binding}"
-                                    DisplayName="{Binding NodeName}"
-                                    Inputs="{Binding Inputs}"
-                                    Outputs="{Binding Outputs}"
-                                    IsSelected="{Binding IsSelected}"
-                                    SelectNodeCommand="{Binding SelectNodeCommand, 
+                    <Grid.ContextFlyout>
+                        <Flyout>
+                            <nodes:NodePicker
+                                AllNodeTypes="{Binding AllNodeTypes, RelativeSource={RelativeSource TemplatedParent}}"
+                                SearchQuery="{Binding SearchQuery, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                SelectNodeCommand="{Binding CreateNodeCommand, RelativeSource={RelativeSource TemplatedParent}}"
+                                />
+                        </Flyout>
+                        </Grid.ContextFlyout>
+                        <ItemsControl ClipToBounds="False"
+                                      ItemsSource="{Binding NodeGraph.AllNodes, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas RenderTransformOrigin="0, 0">
+                                        <Canvas.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform
+                                                    ScaleX="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                    ScaleY="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                                <TranslateTransform
+                                                    X="{Binding CanvasX, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                    Y="{Binding CanvasY, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                            </TransformGroup>
+                                        </Canvas.RenderTransform>
+                                    </Canvas>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <nodes:NodeView
+                                        Node="{Binding}"
+                                        DisplayName="{Binding NodeName}"
+                                        Inputs="{Binding Inputs}"
+                                        Outputs="{Binding Outputs}"
+                                        IsSelected="{Binding IsSelected}"
+                                        SelectNodeCommand="{Binding SelectNodeCommand,
                                     RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                    StartDragCommand="{Binding StartDraggingCommand,
+                                        StartDragCommand="{Binding StartDraggingCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                        DragCommand="{Binding DraggedCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                        EndDragCommand="{Binding EndDragCommand,
                                         RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                    DragCommand="{Binding DraggedCommand,
-                                        RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                    EndDragCommand="{Binding EndDragCommand,
-                                        RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                    ResultPreview="{Binding ResultPreview}" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemContainerTheme>
-                            <ControlTheme TargetType="ContentPresenter">
-                                <Setter Property="Canvas.Left" Value="{Binding PositionBindable.X}" />
-                                <Setter Property="Canvas.Top" Value="{Binding PositionBindable.Y}" />
-                            </ControlTheme>
-                        </ItemsControl.ItemContainerTheme>
-                    </ItemsControl>
-                    <ItemsControl Name="PART_Connections"
-                        ItemsSource="{Binding NodeGraph.Connections, RelativeSource={RelativeSource TemplatedParent}}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas RenderTransformOrigin="0, 0">
-                                    <Canvas.RenderTransform>
-                                        <TransformGroup>
-                                            <ScaleTransform
-                                                ScaleX="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                                ScaleY="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
-                                            <TranslateTransform
-                                                X="{Binding CanvasX, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
-                                                Y="{Binding CanvasY, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
-                                        </TransformGroup>
-                                    </Canvas.RenderTransform>
-                                </Canvas>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <nodes:ConnectionView
-                                    InputNodePosition="{Binding InputNode.PositionBindable}"
-                                    OutputNodePosition="{Binding OutputNode.PositionBindable}"
-                                    InputProperty="{Binding InputProperty}"
-                                    OutputProperty="{Binding OutputProperty}" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                                        ResultPreview="{Binding ResultPreview}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemContainerTheme>
+                                <ControlTheme TargetType="ContentPresenter">
+                                    <Setter Property="Canvas.Left" Value="{Binding PositionBindable.X}" />
+                                    <Setter Property="Canvas.Top" Value="{Binding PositionBindable.Y}" />
+                                </ControlTheme>
+                            </ItemsControl.ItemContainerTheme>
+                        </ItemsControl>
+                        <ItemsControl Name="PART_Connections"
+                                      ItemsSource="{Binding NodeGraph.Connections, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas RenderTransformOrigin="0, 0">
+                                        <Canvas.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform
+                                                    ScaleX="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                    ScaleY="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                                <TranslateTransform
+                                                    X="{Binding CanvasX, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                    Y="{Binding CanvasY, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                            </TransformGroup>
+                                        </Canvas.RenderTransform>
+                                    </Canvas>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <nodes:ConnectionView
+                                        InputNodePosition="{Binding InputNode.PositionBindable}"
+                                        OutputNodePosition="{Binding OutputNode.PositionBindable}"
+                                        InputProperty="{Binding InputProperty}"
+                                        OutputProperty="{Binding OutputProperty}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                 </Grid>
             </ControlTemplate>
         </Setter>

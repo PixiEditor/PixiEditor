@@ -10,6 +10,12 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     {
     }
 
+    [Command.Internal("PixiEditor.NodeGraph.CreateNode")]
+    public void CreateNode(Type nodeType)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateNode(nodeType);
+    }
+
     [Command.Internal("PixiEditor.NodeGraph.ChangeNodePos")]
     public void ChangeNodePos((INodeHandler node, VecD newPos) args)
     {

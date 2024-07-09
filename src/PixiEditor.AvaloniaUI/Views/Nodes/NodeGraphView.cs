@@ -11,6 +11,7 @@ using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Numerics;
 using Point = Avalonia.Point;
 
@@ -45,6 +46,25 @@ internal class NodeGraphView : Zoombox.Zoombox
     public static readonly StyledProperty<ICommand> EndChangeNodePosCommandProperty =
         AvaloniaProperty.Register<NodeGraphView, ICommand>(
             nameof(EndChangeNodePosCommand));
+
+    public static readonly StyledProperty<string> SearchQueryProperty = AvaloniaProperty.Register<NodeGraphView, string>(
+        nameof(SearchQuery));
+
+    public static readonly StyledProperty<ObservableCollection<Type>> AllNodeTypesProperty = AvaloniaProperty.Register<NodeGraphView, ObservableCollection<Type>>(
+        "AllNodeTypes");
+
+    public static readonly StyledProperty<ICommand> CreateNodeCommandProperty = AvaloniaProperty.Register<NodeGraphView, ICommand>("CreateNodeCommand");
+    public ObservableCollection<Type> AllNodeTypes
+    {
+        get => GetValue(AllNodeTypesProperty);
+        set => SetValue(AllNodeTypesProperty, value);
+    }
+
+    public string SearchQuery
+    {
+        get => GetValue(SearchQueryProperty);
+        set => SetValue(SearchQueryProperty, value);
+    }
 
     public ICommand EndChangeNodePosCommand
     {
@@ -94,6 +114,12 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     protected override Type StyleKeyOverride => typeof(NodeGraphView);
 
+    public ICommand CreateNodeCommand
+    {
+        get { return (ICommand)GetValue(CreateNodeCommandProperty); }
+        set { SetValue(CreateNodeCommandProperty, value); }
+    }
+
     private bool isDraggingNodes;
     private VecD clickPointOffset;
 
@@ -105,11 +131,8 @@ internal class NodeGraphView : Zoombox.Zoombox
         StartDraggingCommand = new RelayCommand<PointerPressedEventArgs>(StartDragging);
         DraggedCommand = new RelayCommand<PointerEventArgs>(Dragged);
         EndDragCommand = new RelayCommand<PointerCaptureLostEventArgs>(EndDrag);
-    }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
-        base.OnApplyTemplate(e);
+        AllNodeTypes = new ObservableCollection<Type>(GatherAssemblyTypes<Node>());
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -117,7 +140,16 @@ internal class NodeGraphView : Zoombox.Zoombox
         base.OnPointerPressed(e);
 
         if (e.GetMouseButton(this) == MouseButton.Left)
+        {
             ClearSelection();
+        }
+    }
+
+    private IEnumerable<Type> GatherAssemblyTypes<T>()
+    {
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(x => x.GetTypes())
+            .Where(x => typeof(T).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
     }
 
     private void StartDragging(PointerPressedEventArgs e)
