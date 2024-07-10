@@ -664,16 +664,22 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
     }
 
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
-    public void EnqueueDrawChunkyImage(VecI pos, ChunkyImage image, bool flipHor = false, bool flipVer = false)
+    public void EnqueueDrawCommitedChunkyImage(VecI pos, ChunkyImage image, bool flipHor = false, bool flipVer = false)
     {
         lock (lockObject)
         {
             ThrowIfDisposed();
-            ChunkyImageOperation operation = new(image, pos, flipHor, flipVer);
+            ChunkyImageOperation operation = new(image, pos, flipHor, flipVer, false);
             EnqueueOperation(operation);
         }
     }
-
+    public void EnqueueDrawUpToDateChunkyImage(VecI pos, ChunkyImage image, bool flipHor = false, bool flipVer = false)
+    {
+        ThrowIfDisposed();
+        ChunkyImageOperation operation = new(image, pos, flipHor, flipVer, true);
+        EnqueueOperation(operation);
+    }
+    
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public void EnqueueClearRegion(RectI region)
     {
@@ -1323,5 +1329,5 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
             ChunkyImage clone = CloneFromCommitted();
             return clone;
         }
-    }
+    } 
 }

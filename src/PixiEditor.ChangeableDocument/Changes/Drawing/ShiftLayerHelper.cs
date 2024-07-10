@@ -13,7 +13,7 @@ internal static class ShiftLayerHelper
         targetImage.CancelChanges();
         if (!keepOriginal)
             targetImage.EnqueueClear();
-        targetImage.EnqueueDrawChunkyImage(delta, targetImage, false, false);
+        targetImage.EnqueueDrawCommitedChunkyImage(delta, targetImage, false, false);
         var curArea = targetImage.FindAffectedArea();
 
         curArea.UnionWith(prevArea);

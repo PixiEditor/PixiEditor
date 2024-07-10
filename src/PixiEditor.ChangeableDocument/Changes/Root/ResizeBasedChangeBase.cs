@@ -33,7 +33,7 @@ internal abstract class ResizeBasedChangeBase : Change
     {
         img.EnqueueResize(size);
         img.EnqueueClear();
-        img.EnqueueDrawChunkyImage(offset, img);
+        img.EnqueueDrawCommitedChunkyImage(offset, img);
 
         deletedChunksDict.Add(memberGuid, new CommittedChunkStorage(img, img.FindAffectedArea().Chunks));
         img.CommitChanges();

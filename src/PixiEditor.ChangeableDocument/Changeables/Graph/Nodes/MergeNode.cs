@@ -34,12 +34,12 @@ public class MergeNode : Node
         
         if (Bottom.Value != null)
         {
-            Output.Value.EnqueueDrawChunkyImage(VecI.Zero, Bottom.Value);
+            Output.Value.EnqueueDrawCommitedChunkyImage(VecI.Zero, Bottom.Value);
         }
         
         if (Top.Value != null)
         {
-            Output.Value.EnqueueDrawChunkyImage(VecI.Zero, Top.Value);
+            Output.Value.EnqueueDrawCommitedChunkyImage(VecI.Zero, Top.Value);
         }
         
         Output.Value.CommitChanges();

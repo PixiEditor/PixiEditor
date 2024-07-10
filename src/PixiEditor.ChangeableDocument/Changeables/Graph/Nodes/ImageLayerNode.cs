@@ -35,8 +35,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             VecI size = GetBiggerSize(frameImage.LatestSize, Background.Value.LatestSize);
             ChunkyImage combined = new(size);
-            combined.EnqueueDrawChunkyImage(VecI.Zero, Background.Value);
-            combined.EnqueueDrawChunkyImage(VecI.Zero, frameImage);
+            combined.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Background.Value);
+            combined.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
             combined.CommitChanges();
             
             Output.Value = combined;

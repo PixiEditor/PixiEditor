@@ -39,7 +39,7 @@ internal class ApplyLayerMask_Change : Change
         var layerImage = layer.GetLayerImageAtFrame(frame);
         ChunkyImage newLayerImage = new ChunkyImage(target.Size);
         newLayerImage.AddRasterClip(layer.Mask.Value);
-        newLayerImage.EnqueueDrawChunkyImage(VecI.Zero, layerImage);
+        newLayerImage.EnqueueDrawCommitedChunkyImage(VecI.Zero, layerImage);
         newLayerImage.CommitChanges();
 
         var affectedChunks = layerImage.FindAllChunks();
