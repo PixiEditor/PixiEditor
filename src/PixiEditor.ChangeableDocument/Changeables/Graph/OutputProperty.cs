@@ -12,7 +12,6 @@ public class OutputProperty : IOutputProperty
     public string InternalPropertyName { get; }
     public string DisplayName { get; }
     public Node Node { get; }
-
     public Type ValueType { get; }
 
     IReadOnlyNode INodeProperty.Node => Node;
@@ -23,10 +22,6 @@ public class OutputProperty : IOutputProperty
         set
         {
             _value = value;
-            foreach (var connection in Connections)
-            {
-                connection.Value = value;
-            }
         }
     }
 

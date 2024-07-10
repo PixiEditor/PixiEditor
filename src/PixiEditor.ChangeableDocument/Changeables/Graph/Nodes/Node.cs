@@ -23,14 +23,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public ChunkyImage? Execute(KeyFrameTime frameTime)
     {
-        foreach (var input in inputs)
-        {
-            if (input.Connection != null)
-            {
-                input.Value = input.Connection.Value;
-            }
-        }
-
         return OnExecute(frameTime);
     }
 
@@ -147,11 +139,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             if (output.Value is IDisposable disposable)
             {
-                foreach (var connection in output.Connections)
-                { 
-                    connection.Value = default!;
-                }
-                
                 disposable.Dispose();
             }
         }

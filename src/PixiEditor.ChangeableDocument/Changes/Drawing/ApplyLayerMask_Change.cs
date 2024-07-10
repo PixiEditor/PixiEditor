@@ -48,8 +48,8 @@ internal class ApplyLayerMask_Change : Change
         layer.SetLayerImageAtFrame(frame, newLayerImage);
         toDispose.Dispose();
 
-        var toDisposeMask = layer.Mask.Value;
-        layer.Mask.Value = null;
+        var toDisposeMask = layer.Mask.NonOverridenValue;
+        layer.Mask.NonOverridenValue = null;
         toDisposeMask.Dispose();
 
         ignoreInUndo = false;
@@ -72,7 +72,7 @@ internal class ApplyLayerMask_Change : Change
         savedMask.ApplyChunksToImage(newMask);
         var affectedChunksMask = newMask.FindAffectedArea();
         newMask.CommitChanges();
-        layer.Mask.Value = newMask;
+        layer.Mask.NonOverridenValue = newMask;
 
         var layerImage = layer.GetLayerImageAtFrame(frame);
         

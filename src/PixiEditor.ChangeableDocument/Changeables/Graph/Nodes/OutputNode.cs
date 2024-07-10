@@ -13,7 +13,7 @@ public class OutputNode : Node, IBackgroundInput
     
     public override bool Validate()
     {
-        return Input.Value != null;
+        return Input.Connection != null;
     }
 
     public override Node CreateCopy()

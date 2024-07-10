@@ -93,8 +93,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     bool ITransparencyLockable.LockTransparency
     {
-        get => LockTransparency.Value;
-        set => LockTransparency.Value = value;
+        get => LockTransparency.Value; // TODO: I wonder if it should be NonOverridenValue
+        set => LockTransparency.NonOverridenValue = value;
     }
 
     public void SetKeyFrameLength(Guid keyFrameGuid, int startFrame, int duration)

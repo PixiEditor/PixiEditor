@@ -26,14 +26,14 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
     {
         if (!document.TryFindMember(memberGuid, out var member))
             return false;
-        originalOpacity = member.Opacity.Value;
+        originalOpacity = member.Opacity.NonOverridenValue;
         return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> ApplyTemporarily(Document target)
     {
         var member = target.FindMemberOrThrow(memberGuid);
-        member.Opacity.Value = newOpacity;
+        member.Opacity.NonOverridenValue = newOpacity;
         return new StructureMemberOpacity_ChangeInfo(memberGuid, newOpacity);
     }
 
@@ -46,7 +46,7 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
         }
 
         var member = document.FindMemberOrThrow(memberGuid);
-        member.Opacity.Value = newOpacity;
+        member.Opacity.NonOverridenValue = newOpacity;
 
         ignoreInUndo = false;
         return new StructureMemberOpacity_ChangeInfo(memberGuid, newOpacity);
@@ -58,7 +58,7 @@ internal class StructureMemberOpacity_UpdateableChange : UpdateableChange
             return new None();
 
         var member = document.FindMemberOrThrow(memberGuid);
-        member.Opacity.Value = originalOpacity;
+        member.Opacity.NonOverridenValue = originalOpacity;
 
         return new StructureMemberOpacity_ChangeInfo(memberGuid, originalOpacity);
     }

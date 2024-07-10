@@ -22,7 +22,7 @@ internal class CreateStructureMemberMask_Change : Change
         var member = target.FindMemberOrThrow(targetMember);
         if (member.Mask is not null)
             throw new InvalidOperationException("Cannot create a mask; the target member already has one");
-        member.Mask.Value = new ChunkyImage(target.Size);
+        member.Mask.NonOverridenValue = new ChunkyImage(target.Size);
 
         ignoreInUndo = false;
         return new StructureMemberMask_ChangeInfo(targetMember, true);
@@ -33,8 +33,8 @@ internal class CreateStructureMemberMask_Change : Change
         var member = target.FindMemberOrThrow(targetMember);
         if (member.Mask is null)
             throw new InvalidOperationException("Cannot delete the mask; the target member has no mask");
-        member.Mask.Value.Dispose();
-        member.Mask.Value = null;
+        member.Mask.NonOverridenValue.Dispose();
+        member.Mask.NonOverridenValue = null;
         return new StructureMemberMask_ChangeInfo(targetMember, false);
     }
 }
