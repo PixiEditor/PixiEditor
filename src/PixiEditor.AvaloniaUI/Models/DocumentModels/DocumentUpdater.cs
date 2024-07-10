@@ -65,6 +65,7 @@ internal class DocumentUpdater
                 ProcessCreateStructureMember(info);
                 break;
             case DeleteStructureMember_ChangeInfo info:
+                ProcessDeleteNode(info);
                 ProcessDeleteStructureMember(info);
                 break;
             case StructureMemberName_ChangeInfo info:
@@ -401,7 +402,7 @@ internal class DocumentUpdater
 
     private void ProcessDeleteStructureMember(DeleteStructureMember_ChangeInfo info)
     {
-        (IStructureMemberHandler memberVM, IFolderHandler folderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.Id);
+        IStructureMemberHandler memberVM = doc.StructureHelper.Find(info.Id);
         //folderVM.Children.Remove(memberVM);
         if (doc.SelectedStructureMember == memberVM)
             doc.SetSelectedMember(null);
@@ -513,6 +514,7 @@ internal class DocumentUpdater
     
     private void ProcessDeleteNode(DeleteNode_ChangeInfo info)
     {
+        doc.NodeGraphHandler.RemoveConnections(info.Id);
         doc.NodeGraphHandler.RemoveNode(info.Id);
     }
     

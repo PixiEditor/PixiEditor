@@ -82,9 +82,19 @@ internal class CreateStructureMember_Change : Change
 
         document.NodeGraph.RemoveNode(child);
 
-        childBackgroundConnection?.ConnectTo(backgroundInput.Background);
+        List<IChangeInfo> changes = new()
+        {
+            new DeleteStructureMember_ChangeInfo(newMemberGuid, parentFolderGuid),
+        };
 
-        return new DeleteStructureMember_ChangeInfo(newMemberGuid, parentFolderGuid);
+        if (childBackgroundConnection != null)
+        {
+            childBackgroundConnection?.ConnectTo(backgroundInput.Background);
+            ConnectProperty_ChangeInfo change = new(childBackgroundConnection.Node.Id, backgroundInput.Background.Node.Id, childBackgroundConnection.InternalPropertyName, backgroundInput.Background.InternalPropertyName);
+            changes.Add(change);
+        }
+
+        return changes;
     }
 
     private static List<ConnectProperty_ChangeInfo> AppendMember(IBackgroundInput backgroundInput, StructureNode member)

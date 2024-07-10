@@ -67,6 +67,17 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
             Connections.Remove(connection);
         }
     }
+    
+    public void RemoveConnections(Guid nodeId)
+    {
+        var connections = Connections.Where(x => x.InputProperty.Node.Id == nodeId || x.OutputProperty.Node.Id == nodeId).ToList();
+        foreach (var connection in connections)
+        {
+            connection.InputProperty.ConnectedOutput = null;
+            connection.OutputProperty.ConnectedInputs.Remove(connection.InputProperty);
+            Connections.Remove(connection);
+        }
+    }
 
     public bool TryTraverse(Func<INodeHandler, bool> func)
     {
