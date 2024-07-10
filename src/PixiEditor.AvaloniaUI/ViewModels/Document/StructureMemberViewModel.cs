@@ -18,9 +18,6 @@ namespace PixiEditor.AvaloniaUI.ViewModels.Document;
 #nullable enable
 internal abstract class StructureMemberViewModel : NodeViewModel, IStructureMemberHandler
 {
-    public DocumentViewModel Document { get; }
-    protected DocumentInternalParts Internals { get; }
-
     private string name = "";
 
     public StructureMemberViewModel()

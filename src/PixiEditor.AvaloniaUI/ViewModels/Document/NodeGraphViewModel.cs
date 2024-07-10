@@ -3,6 +3,7 @@ using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -12,6 +13,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
+    public ObservableCollection<IStructureMemberHandler> StructureTree { get; } = new();
     public INodeHandler? OutputNode { get; private set; }
     
     private DocumentInternalParts Internals { get; }
@@ -28,6 +30,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         {
             OutputNode = node; // TODO: this is not really correct yet, a way to check what node type is added is needed
         }
+
+        if (node is IStructureMemberHandler handler)
+        {
+            StructureTree.Add(handler);
+        }
         
         AllNodes.Add(node);
     }
@@ -35,6 +42,12 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public void RemoveNode(Guid nodeId)
     {
         var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
+        
+        if (node is IStructureMemberHandler handler)
+        {
+            StructureTree.Remove(handler);
+        }
+        
         if (node != null)
         {
             AllNodes.Remove(node);

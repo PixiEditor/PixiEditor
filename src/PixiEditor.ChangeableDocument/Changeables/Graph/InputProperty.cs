@@ -27,6 +27,22 @@ public class InputProperty : IInputProperty
     {
         if(Value is ICloneable cloneable)
             return new InputProperty(forNode, InternalPropertyName, DisplayName, cloneable.Clone(), ValueType);
+
+        if (Value is Enum enumVal)
+        {
+            return new InputProperty(forNode, InternalPropertyName, DisplayName, enumVal, ValueType);
+        }
+
+        if (Value is null)
+        {
+            object? nullValue = null;
+            if (ValueType.IsValueType)
+            {
+                nullValue = Activator.CreateInstance(ValueType);
+            }
+            
+            return new InputProperty(forNode, InternalPropertyName, DisplayName, nullValue, ValueType);
+        }
         
         if(!Value.GetType().IsPrimitive && Value.GetType() != typeof(string))
             throw new InvalidOperationException("Value is not cloneable and not a primitive type");

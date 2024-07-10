@@ -4,14 +4,14 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
+public abstract class Node : IReadOnlyNode, IDisposable
 {
     private List<InputProperty> inputs = new();
     private List<OutputProperty> outputs = new();
 
     private List<IReadOnlyNode> _connectedNodes = new();
 
-    public Guid Id { get; internal set; } = id ?? Guid.NewGuid();
+    public Guid Id { get; internal set; } = Guid.NewGuid();
 
     public IReadOnlyCollection<InputProperty> InputProperties => inputs;
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
@@ -137,7 +137,7 @@ public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
     {
         foreach (var input in inputs)
         {
-            if (input.Value is IDisposable disposable)
+            if (input is { Connection: null, Value: IDisposable disposable })
             {
                 disposable.Dispose();
             }
@@ -152,9 +152,11 @@ public abstract class Node(Guid? id = null) : IReadOnlyNode, IDisposable
         }
     }
     
-    public virtual Node Clone()
+    public abstract Node CreateCopy();
+    
+    public Node Clone()
     {
-        var clone = (Node)MemberwiseClone();
+        var clone = CreateCopy();
         clone.Id = Guid.NewGuid();
         clone.inputs = new List<InputProperty>();
         clone.outputs = new List<OutputProperty>();

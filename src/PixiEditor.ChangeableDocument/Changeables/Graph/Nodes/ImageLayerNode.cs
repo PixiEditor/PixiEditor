@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -9,11 +10,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public InputProperty<bool> LockTransparency { get; }
 
     private List<ImageFrame> frames = new List<ImageFrame>();
+    private VecI size;
 
     public ImageLayerNode(VecI size)
     {
         LockTransparency = CreateInput<bool>("LockTransparency", "LOCK_TRANSPARENCY", false);
         frames.Add(new ImageFrame(Guid.NewGuid(), 0, 0, new(size)));
+        this.size = size;
     }
 
     public override bool Validate()
@@ -57,7 +60,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             frame.Image.Dispose();
         }
     }
-    
+
+    public override Node CreateCopy()
+    {
+        return new ImageLayerNode(size)
+        {
+            frames = frames.Select(x =>
+                new ImageFrame(x.KeyFrameGuid, x.StartFrame, x.Duration, x.Image.CloneFromCommitted())).ToList(),
+            MemberName = MemberName,
+        };
+    }
+
     private VecI GetBiggerSize(VecI size1, VecI size2)
     {
         return new VecI(Math.Max(size1.X, size2.X), Math.Max(size1.Y, size2.Y));

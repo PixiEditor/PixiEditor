@@ -6,7 +6,4 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public abstract class LayerNode : StructureNode, IReadOnlyLayerNode
 {
-    public LayerNode(Guid? id = null) : base(id)
-    {
-    }
 }

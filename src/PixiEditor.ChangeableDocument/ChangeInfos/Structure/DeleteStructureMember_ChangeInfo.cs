@@ -2,4 +2,4 @@
 
 namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
-public record class DeleteStructureMember_ChangeInfo(Guid Id, Guid ParentGuid) : DeleteNode_ChangeInfo(Id);
+public record class DeleteStructureMember_ChangeInfo(Guid Id) : DeleteNode_ChangeInfo(Id);

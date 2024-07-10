@@ -19,7 +19,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     
     public string MemberName { get; set; } = string.Empty;
 
-    protected StructureNode(Guid? id = null) : base(id)
+    protected StructureNode()
     {
         Background = CreateInput<ChunkyImage?>("Background", "BACKGROUND", null);
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);

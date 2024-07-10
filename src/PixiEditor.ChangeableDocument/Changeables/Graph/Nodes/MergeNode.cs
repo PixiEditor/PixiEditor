@@ -21,6 +21,11 @@ public class MergeNode : Node
         return Top.Value != null || Bottom.Value != null;
     }
 
+    public override Node CreateCopy()
+    {
+        return new MergeNode();
+    }
+
     public override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
         if(Top.Value == null && Bottom.Value == null)

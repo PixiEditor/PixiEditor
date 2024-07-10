@@ -61,7 +61,7 @@ internal class AffectedAreasGatherer
                     break;
                 case DeleteStructureMember_ChangeInfo info:
                     AddWholeCanvasToMainImage();
-                    AddWholeCanvasToImagePreviews(info.ParentGuid);
+                    AddWholeCanvasToImagePreviews(info.Id); // TODO: ParentGuid was here, make sure previews are updated correctly
                     break;
                 case MoveStructureMember_ChangeInfo info:
                     AddAllToMainImage(info.Id, ActiveFrame);

@@ -84,7 +84,7 @@ internal class CreateStructureMember_Change : Change
 
         List<IChangeInfo> changes = new()
         {
-            new DeleteStructureMember_ChangeInfo(newMemberGuid, parentFolderGuid),
+            new DeleteStructureMember_ChangeInfo(newMemberGuid),
         };
 
         if (childBackgroundConnection != null)

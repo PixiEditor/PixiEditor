@@ -520,8 +520,8 @@ internal class DocumentUpdater
     
     private void ProcessConnectProperty(ConnectProperty_ChangeInfo info)
     {
-        NodeViewModel outputNode = info.SourceNodeId.HasValue ? doc.StructureHelper.FindNode<NodeViewModel>(info.SourceNodeId.Value) : null;
-        NodeViewModel inputNode = doc.StructureHelper.FindNode<NodeViewModel>(info.TargetNodeId);
+        NodeViewModel outputNode = info.OutputNodeId.HasValue ? doc.StructureHelper.FindNode<NodeViewModel>(info.OutputNodeId.Value) : null;
+        NodeViewModel inputNode = doc.StructureHelper.FindNode<NodeViewModel>(info.InputNodeId);
 
         if (inputNode != null && outputNode != null)
         {
@@ -529,15 +529,15 @@ internal class DocumentUpdater
             {
                 InputNode = inputNode,
                 OutputNode = outputNode,
-                InputProperty = inputNode.FindInputProperty(info.TargetProperty),
-                OutputProperty = outputNode.FindOutputProperty(info.SourceProperty)
+                InputProperty = inputNode.FindInputProperty(info.InputProperty),
+                OutputProperty = outputNode.FindOutputProperty(info.OutputProperty)
             };
             
             doc.NodeGraphHandler.SetConnection(connection);
         }
         else
         {
-            doc.NodeGraphHandler.RemoveConnection(info.TargetNodeId, info.TargetProperty);
+            doc.NodeGraphHandler.RemoveConnection(info.InputNodeId, info.OutputProperty);
         }
     }
     

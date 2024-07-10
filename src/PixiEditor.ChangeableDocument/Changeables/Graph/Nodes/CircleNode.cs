@@ -42,4 +42,6 @@ public class CircleNode : Node
     {
         return Radius.Value > 0 && StrokeWidth.Value > 0;
     }
+
+    public override Node CreateCopy() => new CircleNode();
 }

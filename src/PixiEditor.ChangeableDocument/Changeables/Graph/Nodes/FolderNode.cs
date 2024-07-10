@@ -11,8 +11,11 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
         return true;
     }
 
+    public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
+
     public override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
+        Output.Value = Background.Value;
         return Background.Value;
     }
 
@@ -44,11 +47,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
       }
 
       return bounds;*/
-    }
-
-    public void InsertStructureMember(StructureNode structureMember)
-    {
-       
     }
 
     /// <summary>

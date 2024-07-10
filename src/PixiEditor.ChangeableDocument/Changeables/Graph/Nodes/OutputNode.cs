@@ -15,7 +15,12 @@ public class OutputNode : Node, IBackgroundInput
     {
         return Input.Value != null;
     }
-    
+
+    public override Node CreateCopy()
+    {
+        return new OutputNode();
+    }
+
     public override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
         return Input.Value;
