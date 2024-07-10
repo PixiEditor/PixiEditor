@@ -18,9 +18,10 @@ namespace PixiEditor.AvaloniaUI.Views.Nodes;
 [PseudoClasses(":selected")]
 public class NodeView : TemplatedControl
 {
-    public static readonly StyledProperty<INodeHandler> NodeProperty = AvaloniaProperty.Register<NodeView, INodeHandler>(
-        nameof(Node));
-    
+    public static readonly StyledProperty<INodeHandler> NodeProperty =
+        AvaloniaProperty.Register<NodeView, INodeHandler>(
+            nameof(Node));
+
     public static readonly StyledProperty<string> DisplayNameProperty = AvaloniaProperty.Register<NodeView, string>(
         nameof(DisplayName), "Node");
 
@@ -38,17 +39,24 @@ public class NodeView : TemplatedControl
     public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<NodeView, bool>(
         nameof(IsSelected));
 
-    public static readonly StyledProperty<ICommand> SelectNodeCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>("SelectNodeCommand");
-    public static readonly StyledProperty<ICommand> StartDragCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>("StartDragCommand");
-    public static readonly StyledProperty<ICommand> DragCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>("DragCommand");
-    public static readonly StyledProperty<ICommand> EndDragCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>("EndDragCommand");
+    public static readonly StyledProperty<ICommand> SelectNodeCommandProperty =
+        AvaloniaProperty.Register<NodeView, ICommand>("SelectNodeCommand");
+
+    public static readonly StyledProperty<ICommand> StartDragCommandProperty =
+        AvaloniaProperty.Register<NodeView, ICommand>("StartDragCommand");
+
+    public static readonly StyledProperty<ICommand> DragCommandProperty =
+        AvaloniaProperty.Register<NodeView, ICommand>("DragCommand");
+
+    public static readonly StyledProperty<ICommand> EndDragCommandProperty =
+        AvaloniaProperty.Register<NodeView, ICommand>("EndDragCommand");
 
     public INodeHandler Node
     {
         get => GetValue(NodeProperty);
         set => SetValue(NodeProperty, value);
     }
-    
+
     public bool IsSelected
     {
         get => GetValue(IsSelectedProperty);
@@ -103,8 +111,9 @@ public class NodeView : TemplatedControl
         set { SetValue(EndDragCommandProperty, value); }
     }
 
-    public static readonly StyledProperty<ICommand> SocketDropCommandProperty = AvaloniaProperty.Register<NodeView, ICommand>(
-        nameof(SocketDropCommand));
+    public static readonly StyledProperty<ICommand> SocketDropCommandProperty =
+        AvaloniaProperty.Register<NodeView, ICommand>(
+            nameof(SocketDropCommand));
 
     public ICommand SocketDropCommand
     {
@@ -122,17 +131,17 @@ public class NodeView : TemplatedControl
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        if(e.GetMouseButton(this) != MouseButton.Left)
+        if (e.GetMouseButton(this) != MouseButton.Left)
             return;
-        
+
         var originalSource = e.Source;
         e.Source = e.Source is NodeSocket socket ? socket : Node;
         if (SelectNodeCommand != null && SelectNodeCommand.CanExecute(e))
         {
             SelectNodeCommand.Execute(e);
         }
-        
-        if(StartDragCommand != null && StartDragCommand.CanExecute(e))
+
+        if (StartDragCommand != null && StartDragCommand.CanExecute(e))
         {
             if (e.Source is not NodeSocket)
             {
@@ -142,16 +151,16 @@ public class NodeView : TemplatedControl
 
             StartDragCommand.Execute(e);
         }
-        
+
         e.Source = originalSource;
         e.Handled = true;
     }
-    
+
     protected override void OnPointerMoved(PointerEventArgs e)
     {
         base.OnPointerMoved(e);
 
-        if(!Equals(e.Pointer.Captured, this) && e.Source is not NodeSocket socket)
+        if (!Equals(e.Pointer.Captured, this) && e.Source is not NodeSocket socket)
             return;
 
         if (DragCommand != null && DragCommand.CanExecute(e))
@@ -162,18 +171,21 @@ public class NodeView : TemplatedControl
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
-        if (e.Source is NodeSocket socket)
+        NodeSocket socket = null;
+        if (e.Source is NodeSocket sourceSocket)
         {
-            if (SocketDropCommand != null && SocketDropCommand.CanExecute(socket))
-            {
-                SocketDropCommand?.Execute(socket);
-            }
+            socket = sourceSocket;
+        }
+
+        if (SocketDropCommand != null && SocketDropCommand.CanExecute(socket))
+        {
+            SocketDropCommand?.Execute(socket);
         }
     }
 
     protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
     {
-        if(!captured) return;
+        if (!captured) return;
 
         var originalSource = e.Source;
         e.Source = Node;
@@ -181,7 +193,7 @@ public class NodeView : TemplatedControl
         {
             EndDragCommand.Execute(e);
         }
-        
+
         e.Source = originalSource;
         captured = false;
         e.Handled = true;

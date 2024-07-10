@@ -538,7 +538,7 @@ internal class DocumentUpdater
         }
         else
         {
-            doc.NodeGraphHandler.RemoveConnection(info.InputNodeId, info.OutputProperty);
+            doc.NodeGraphHandler.RemoveConnection(info.InputNodeId, info.InputProperty);
         }
     }
     

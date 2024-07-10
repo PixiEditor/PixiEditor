@@ -171,6 +171,15 @@ internal class NodeGraphView : Zoombox.Zoombox
         }
     }
 
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
+    {
+        base.OnPointerReleased(e);
+        if (startConnectionProperty != null)
+        {
+            SocketDrop(null);
+        }
+    }
+
     private IEnumerable<Type> GatherAssemblyTypes<T>()
     {
         return AppDomain.CurrentDomain.GetAssemblies()
@@ -223,25 +232,40 @@ internal class NodeGraphView : Zoombox.Zoombox
 
     private void SocketDrop(NodeSocket socket)
     {
-        endConnectionNode = socket.Node;
-        endConnectionProperty = socket.Property;
-
-        if (startConnectionNode == null || endConnectionNode == null || startConnectionProperty == null || endConnectionProperty == null)
+        if(startConnectionProperty == null)
         {
             return;
         }
-
-        var connection = (startConnectionProperty, endConnectionProperty);
-
-        if (startConnectionNode == endConnectionNode)
+        
+        (INodePropertyHandler, INodePropertyHandler) connection = (startConnectionProperty, null);
+        if (socket != null)
         {
-            return;
+            endConnectionNode = socket.Node;
+            endConnectionProperty = socket.Property;
+
+            if (startConnectionNode == null || endConnectionNode == null || startConnectionProperty == null ||
+                endConnectionProperty == null)
+            {
+                return;
+            }
+
+            connection = (startConnectionProperty, endConnectionProperty);
+
+            if (startConnectionNode == endConnectionNode)
+            {
+                return;
+            }
         }
 
         if(ConnectPropertiesCommand != null && ConnectPropertiesCommand.CanExecute(connection))
         {
             ConnectPropertiesCommand.Execute(connection);
         }
+        
+        startConnectionProperty = null;
+        endConnectionProperty = null;
+        startConnectionNode = null;
+        endConnectionNode = null;
     }
 
     private void SelectNode(PointerPressedEventArgs e)

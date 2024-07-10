@@ -34,9 +34,16 @@ public class MergeNode : Node
         }
         
         VecI size = Top.Value?.CommittedSize ?? Bottom.Value.CommittedSize;
-        
-        Output.Value = new ChunkyImage(size);
-        
+
+        if (Output.Value == null || Output.Value.LatestSize != size)
+        {
+            Output.Value = new ChunkyImage(size);
+        }
+        else
+        {
+            Output.Value.EnqueueClear();
+        }
+
         if (Bottom.Value != null)
         {
             Output.Value.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Bottom.Value);
