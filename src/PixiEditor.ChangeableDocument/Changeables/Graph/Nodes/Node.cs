@@ -147,6 +147,11 @@ public abstract class Node : IReadOnlyNode, IDisposable
         {
             if (output.Value is IDisposable disposable)
             {
+                foreach (var connection in output.Connections)
+                { 
+                    connection.Value = default!;
+                }
+                
                 disposable.Dispose();
             }
         }

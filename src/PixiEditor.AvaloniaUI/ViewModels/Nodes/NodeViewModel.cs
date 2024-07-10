@@ -126,6 +126,36 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
+    public void TraverseBackwards(Func<INodeHandler, INodeHandler, bool> func)
+    {
+        var visited = new HashSet<INodeHandler>();
+        var queueNodes = new Queue<(INodeHandler, INodeHandler)>();
+        queueNodes.Enqueue((this, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add(node.Item1))
+            {
+                continue;
+            }
+            
+            if (!func(node.Item1, node.Item2))
+            {
+                return;
+            }
+
+            foreach (var inputProperty in node.Item1.Inputs)
+            {
+                if (inputProperty.ConnectedOutput != null)
+                {
+                    queueNodes.Enqueue((inputProperty.ConnectedOutput.Node, node.Item1));
+                } 
+            }
+        }
+    }
+
     public void TraverseForwards(Func<INodeHandler, bool> func)
     {
         var visited = new HashSet<INodeHandler>();
@@ -151,6 +181,36 @@ internal class NodeViewModel : ObservableObject, INodeHandler
                 foreach (var connection in outputProperty.ConnectedInputs)
                 {
                     queueNodes.Enqueue(connection.Node);
+                }
+            }
+        }
+    }
+    
+    public void TraverseForwards(Func<INodeHandler, INodeHandler, bool> func)
+    {
+        var visited = new HashSet<INodeHandler>();
+        var queueNodes = new Queue<(INodeHandler, INodeHandler)>();
+        queueNodes.Enqueue((this, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add(node.Item1))
+            {
+                continue;
+            }
+            
+            if (!func(node.Item1, node.Item2))
+            {
+                return;
+            }
+
+            foreach (var outputProperty in node.Item1.Outputs)
+            {
+                foreach (var connection in outputProperty.ConnectedInputs)
+                {
+                    queueNodes.Enqueue((connection.Node, node.Item1));
                 }
             }
         }

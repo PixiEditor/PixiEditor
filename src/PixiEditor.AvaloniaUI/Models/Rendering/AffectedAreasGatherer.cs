@@ -140,7 +140,13 @@ internal class AffectedAreasGatherer
         var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyLayerNode layer)
         {
-            var chunks = layer.Execute(frame).FindAllChunks();
+            var result = layer.Execute(frame);
+            if (result == null)
+            {
+                AddWholeCanvasToImagePreviews(memberGuid, ignoreSelf);
+                return;
+            }
+            var chunks = result.FindAllChunks();
             AddToImagePreviews(memberGuid, new AffectedArea(chunks), ignoreSelf);
         }
         else if (member is IReadOnlyFolderNode folder)
@@ -156,7 +162,14 @@ internal class AffectedAreasGatherer
         var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyLayerNode layer)
         {
-            var chunks = layer.Execute(frame).FindAllChunks();
+            var result = layer.Execute(frame);
+            if (result == null)
+            {
+                AddWholeCanvasToMainImage();
+                return;
+            }
+            
+            var chunks = result.FindAllChunks();
             if (layer.Mask.Value is not null && layer.MaskIsVisible.Value && useMask)
                 chunks.IntersectWith(layer.Mask.Value.FindAllChunks());
             AddToMainImage(new AffectedArea(chunks));

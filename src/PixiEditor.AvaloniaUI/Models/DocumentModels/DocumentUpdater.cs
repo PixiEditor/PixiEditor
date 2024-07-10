@@ -352,12 +352,12 @@ internal class DocumentUpdater
         IStructureMemberHandler memberVM;
         if (info is CreateLayer_ChangeInfo layerInfo)
         {
-            memberVM = doc.LayerHandlerFactory.CreateLayerHandler(helper, info.Id);
+            memberVM = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == info.Id) as ILayerHandler;
             ((ILayerHandler)memberVM).SetLockTransparency(layerInfo.LockTransparency);
         }
         else if (info is CreateFolder_ChangeInfo)
         {
-            memberVM = doc.FolderHandlerFactory.CreateFolderHandler(helper, info.Id);
+            memberVM = doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == info.Id) as IFolderHandler;
         }
         else
         {
@@ -485,7 +485,8 @@ internal class DocumentUpdater
     
     private void ProcessCreateNode<T>(CreateNode_ChangeInfo info) where T : NodeViewModel, new()
     {
-        T node = new T() { NodeName = info.NodeName, Id = info.Id, 
+        T node = new T() { 
+            NodeName = info.NodeName, Id = info.Id, 
             Document = (DocumentViewModel)doc, Internals = helper };
 
         node.SetPosition(info.Position);

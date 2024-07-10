@@ -40,12 +40,6 @@ internal class LayerViewModel : StructureMemberViewModel, ILayerHandler
         }
     }
 
-    public override void SetName(string name)
-    {
-        base.SetName(name);
-        NodeName = NameBindable;
-    }
-
     public LayerViewModel(DocumentViewModel doc, DocumentInternalParts internals, Guid id) : base(doc, internals, id)
     {
     }

@@ -13,7 +13,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
-    public ObservableCollection<IStructureMemberHandler> StructureTree { get; } = new();
+    public StructureTree StructureTree { get; } = new();
     public INodeHandler? OutputNode { get; private set; }
     
     private DocumentInternalParts Internals { get; }
@@ -30,28 +30,21 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         {
             OutputNode = node; // TODO: this is not really correct yet, a way to check what node type is added is needed
         }
-
-        if (node is IStructureMemberHandler handler)
-        {
-            StructureTree.Add(handler);
-        }
         
         AllNodes.Add(node);
+        StructureTree.Update(this);
     }
     
     public void RemoveNode(Guid nodeId)
     {
         var node = AllNodes.FirstOrDefault(x => x.Id == nodeId);
         
-        if (node is IStructureMemberHandler handler)
-        {
-            StructureTree.Remove(handler);
-        }
-        
         if (node != null)
         {
             AllNodes.Remove(node);
         }
+        
+        StructureTree.Update(this);
     }
 
     public void SetConnection(NodeConnectionViewModel connection)
@@ -68,6 +61,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         connection.OutputProperty.ConnectedInputs.Add(connection.InputProperty);
         
         Connections.Add(connection);
+        
+        StructureTree.Update(this);
     }
 
     public void RemoveConnection(Guid nodeId, string property)
@@ -79,6 +74,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
             connection.OutputProperty.ConnectedInputs.Remove(connection.InputProperty);
             Connections.Remove(connection);
         }
+        
+        StructureTree.Update(this);
     }
     
     public void RemoveConnections(Guid nodeId)
@@ -90,6 +87,8 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
             connection.OutputProperty.ConnectedInputs.Remove(connection.InputProperty);
             Connections.Remove(connection);
         }
+        
+        StructureTree.Update(this);
     }
 
     public bool TryTraverse(Func<INodeHandler, bool> func)

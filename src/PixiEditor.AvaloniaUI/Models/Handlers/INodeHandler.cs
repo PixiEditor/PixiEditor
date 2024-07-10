@@ -15,5 +15,7 @@ public interface INodeHandler
     public VecD PositionBindable { get; set; }
     public bool IsSelected { get; set; }
     void TraverseBackwards(Func<INodeHandler, bool> func);
+    void TraverseBackwards(Func<INodeHandler, INodeHandler, bool> func);
     void TraverseForwards(Func<INodeHandler, bool> func);
+    void TraverseForwards(Func<INodeHandler, INodeHandler, bool> func);
 }

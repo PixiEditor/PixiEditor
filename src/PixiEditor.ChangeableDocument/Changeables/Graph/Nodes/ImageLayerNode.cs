@@ -1,6 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -19,25 +18,31 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         this.size = size;
     }
 
-    public override bool Validate()
-    {
-        return true;
-    }
-
     public override RectI? GetTightBounds(KeyFrameTime frameTime)
     {
         return Execute(frameTime).FindTightCommittedBounds();
     }
 
+    public override bool Validate()
+    {
+        return true; 
+    }
+
     public override ChunkyImage OnExecute(KeyFrameTime frame)
     {
+        if (!IsVisible.Value)
+        {
+            Output.Value = Background.Value;
+            return Output.Value;
+        }
+        
         var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame));
         var frameImage = imageFrame?.Image ?? frames[0].Image;
 
         if (Background.Value != null)
         {
-            VecI size = GetBiggerSize(frameImage.LatestSize, Background.Value.LatestSize);
-            ChunkyImage combined = new(size);
+            VecI targetSize = GetBiggerSize(frameImage.LatestSize, Background.Value.LatestSize);
+            ChunkyImage combined = new(targetSize);
             combined.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Background.Value);
             combined.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
             combined.CommitChanges();
