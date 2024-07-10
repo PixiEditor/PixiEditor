@@ -48,6 +48,11 @@ public class OutputProperty : IOutputProperty
     {
         if (Connections.Contains(property)) return;
 
+        if (property.Connection != null)
+        {
+            property.Connection.DisconnectFrom(property);
+        }
+        
         _connections.Add(property);
         property.Connection = this;
         Connected?.Invoke(property, this);

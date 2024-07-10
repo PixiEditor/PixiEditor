@@ -62,6 +62,7 @@ internal class DocumentStructureModule
             throw new ArgumentException("Couldn't find child and parent");
         return (path[0], (IFolderHandler)path[1]);
     }
+    
     public List<IStructureMemberHandler> FindPath(Guid guid)
     {
         List<INodeHandler>? list = new List<INodeHandler>();
