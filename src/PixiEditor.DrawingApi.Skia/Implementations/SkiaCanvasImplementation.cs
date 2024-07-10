@@ -104,6 +104,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[objPtr].DrawRect(x, y, width, height, _paintImpl[paint.ObjectPointer]);
         }
 
+        public void DrawCircle(IntPtr objPtr, int x, int y, int radius, Paint paint)
+        {
+            ManagedInstances[objPtr].DrawCircle(x, y, radius, _paintImpl[paint.ObjectPointer]);
+        }
+
         public void ClipPath(IntPtr objPtr, VectorPath clipPath, ClipOperation clipOperation, bool antialias)
         {
             SKCanvas canvas = ManagedInstances[objPtr];

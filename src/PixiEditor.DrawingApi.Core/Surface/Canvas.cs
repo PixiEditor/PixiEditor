@@ -112,6 +112,12 @@ namespace PixiEditor.DrawingApi.Core.Surface
             Changed?.Invoke(new RectD(x, y, width, height));
         }
         
+        public void DrawCircle(int x, int y, int radius, Paint paint)
+        {
+            DrawingBackendApi.Current.CanvasImplementation.DrawCircle(ObjectPointer, x, y, radius, paint);
+            Changed?.Invoke(new RectD(x - radius, y - radius, radius * 2, radius * 2));
+        }
+        
         public void DrawRect(RectI rect, Paint paint) => DrawRect(rect.X, rect.Y, rect.Width, rect.Height, paint);
 
         public void ClipPath(VectorPath clipPath) => ClipPath(clipPath, ClipOperation.Intersect);

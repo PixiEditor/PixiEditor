@@ -22,6 +22,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void DrawPoint(IntPtr objPtr, VecI pos, Paint paint);
         public void DrawPoints(IntPtr objPtr, PointMode pointMode, Point[] points, Paint paint);
         public void DrawRect(IntPtr objPtr, int x, int y, int width, int height, Paint paint);
+        public void DrawCircle(IntPtr objPtr, int x, int y, int radius, Paint paint);
         public void ClipPath(IntPtr objPtr, VectorPath clipPath, ClipOperation clipOperation, bool antialias);
         public void ClipRect(IntPtr objPtr, RectD rect, ClipOperation clipOperation);
         public void Clear(IntPtr objPtr);
