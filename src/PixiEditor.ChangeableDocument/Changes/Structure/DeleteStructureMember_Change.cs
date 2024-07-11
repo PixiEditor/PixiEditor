@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -79,29 +80,7 @@ internal class DeleteStructureMember_Change : Change
         
         changes.Add(createChange);
 
-        foreach (var connection in originalOutputConnections)
-        {
-            copy.Output.ConnectTo(connection);
-            changes.Add(new ConnectProperty_ChangeInfo(copy.Id, connection.Node.Id, copy.Output.InternalPropertyName,
-                connection.InternalPropertyName));
-        }
-
-        foreach (var connection in originalInputConnections)
-        {
-            if (connection.Item2 is null)
-                continue;
-
-            IInputProperty? input =
-                copy.InputProperties.FirstOrDefault(x => x.InternalPropertyName == connection.Item1.InternalPropertyName);
-
-            if (input != null)
-            {
-                connection.Item2.ConnectTo(input);
-                changes.Add(new ConnectProperty_ChangeInfo(connection.Item2.Node.Id, copy.Id,
-                    connection.Item2.InternalPropertyName,
-                    input.InternalPropertyName));
-            }
-        }
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalOutputConnections, originalInputConnections, copy)); 
         
         return changes;
     }

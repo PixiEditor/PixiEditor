@@ -12,8 +12,10 @@ internal class MoveStructureMember_Change : Change
     private Guid targetNodeGuid;
 
     private Guid originalFolderGuid;
-    
-    private Guid originalParentGuid;
+
+    private List<IInputProperty> originalOutputConnections = new();
+    private List<(IInputProperty, IOutputProperty?)> originalInputConnections = new();
+
 
     [GenerateMakeChangeAction]
     public MoveStructureMember_Change(Guid memberGuid, Guid targetNode)
@@ -29,12 +31,8 @@ internal class MoveStructureMember_Change : Change
         if (member is null || targetFolder is null)
             return false;
 
-        member.TraverseForwards(node =>
-        {
-            originalParentGuid = node.Id;
-            return false;
-        });
-        
+        originalOutputConnections = member.Output.Connections.ToList();
+        originalInputConnections = member.InputProperties.Select(x => ((IInputProperty)x, x.Connection)).ToList();
         return true;
     }
 
@@ -44,17 +42,19 @@ internal class MoveStructureMember_Change : Change
         var targetNode = document.FindNode(targetNodeGuid);
         if (sourceNode is null || targetNode is not IBackgroundInput backgroundInput)
             return [];
-        
+
         List<IChangeInfo> changes = new();
-        
+
         changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
-        changes.AddRange(NodeOperations.AppendMember(backgroundInput.Background, sourceNode.Output, sourceNode.Background,
+        changes.AddRange(NodeOperations.AppendMember(backgroundInput.Background, sourceNode.Output,
+            sourceNode.Background,
             sourceNode.Id));
-        
+
         return changes;
     }
 
-    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
     {
         var changes = Move(target, memberGuid, targetNodeGuid);
         ignoreInUndo = false;
@@ -63,8 +63,13 @@ internal class MoveStructureMember_Change : Change
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
-        // TODO: this is lossy, original connections might be lost
-        var changes = Move(target, memberGuid, originalFolderGuid);
-        return changes; 
+        StructureNode member = target.FindMember(memberGuid);
+
+        List<IChangeInfo> changes = new List<IChangeInfo>();
+        
+        changes.AddRange(NodeOperations.DetachStructureNode(member));
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalOutputConnections,
+            originalInputConnections, member));
+        return changes;
     }
 }
