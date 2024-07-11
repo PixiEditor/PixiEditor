@@ -128,7 +128,7 @@
                       ItemsSource="{Binding DataContext.ActiveDocument.NodeGraph.StructureTree.Members, ElementName=layersManager}">
                 <TreeView.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <panels:ReversedOrderStackPanel />
+                        <StackPanel />
                     </ItemsPanelTemplate>
                 </TreeView.ItemsPanel>
                 <TreeView.Resources>

@@ -66,10 +66,7 @@ internal class DocumentStructureHelper
         {
             Guid guid = Guid.NewGuid();
             //put member above the layer
-            List<IStructureMemberHandler> path = doc.StructureHelper.FindPath(layer.Id);
-            if (path.Count < 1)
-                throw new InvalidOperationException("Couldn't find a path to the selected member");
-            INodeHandler parent = path.Count == 1 ? doc.NodeGraphHandler.OutputNode : path[1];
+            INodeHandler parent = doc.StructureHelper.GetFirstForwardNode(layer);
             internals.ActionAccumulator.AddActions(new CreateStructureMember_Action(parent.Id, guid, type));
             name ??= GetUniqueName(type == StructureMemberType.Layer ? new LocalizedString("NEW_LAYER") : new LocalizedString("NEW_FOLDER"), parent);
             internals.ActionAccumulator.AddActions(new StructureMemberName_Action(guid, name));

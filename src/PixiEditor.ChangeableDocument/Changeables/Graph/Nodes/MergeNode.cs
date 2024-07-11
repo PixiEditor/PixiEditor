@@ -1,9 +1,10 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public class MergeNode : Node
+public class MergeNode : Node, IBackgroundInput
 {
     public InputProperty<ChunkyImage?> Top { get; }
     public InputProperty<ChunkyImage?> Bottom { get; }
@@ -58,4 +59,6 @@ public class MergeNode : Node
         
         return Output.Value;
     }
+
+    InputProperty<ChunkyImage> IBackgroundInput.Background => Bottom;
 }

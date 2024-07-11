@@ -1,8 +1,10 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -39,28 +41,39 @@ internal class CreateStructureMember_Change : Change
         };
 
         document.TryFindNode<Node>(parentFolderGuid, out var parentNode);
-        document.NodeGraph.AddNode(member);
+
+        List<IChangeInfo> changes = new() { CreateChangeInfo(member) };
 
         IBackgroundInput backgroundInput = (IBackgroundInput)parentNode;
-        List<ConnectProperty_ChangeInfo> connectPropertyChangeInfo = AppendMember(backgroundInput, member);
         
-        List<IChangeInfo> changes = new()
+        if (member is FolderNode folder)
         {
-            CreateChangeInfo(member),
-        };
-        
-        changes.AddRange(connectPropertyChangeInfo);
+            MergeNode mergeNode = new() { Id = Guid.NewGuid() };
+            document.NodeGraph.AddNode(mergeNode);
+            document.NodeGraph.AddNode(member);
+            
+            changes.Add(CreateNode_ChangeInfo.CreateFromNode(mergeNode));
+            AppendFolder(backgroundInput, folder, mergeNode, changes);
+        }
+        else
+        {
+            document.NodeGraph.AddNode(member);
+            List<ConnectProperty_ChangeInfo> connectPropertyChangeInfo =
+                AppendMember(backgroundInput.Background, member.Output, member.Background, member.Id);
+            changes.AddRange(connectPropertyChangeInfo);
+        }
+
 
         ignoreInUndo = false;
-        
+
         return changes;
     }
-    
+
     private IChangeInfo CreateChangeInfo(StructureNode member)
     {
         return type switch
         {
-             StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid,
+            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentFolderGuid,
                 (LayerNode)member),
             StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentFolderGuid,
                 (FolderNode)member),
@@ -82,40 +95,52 @@ internal class CreateStructureMember_Change : Change
 
         document.NodeGraph.RemoveNode(child);
 
-        List<IChangeInfo> changes = new()
-        {
-            new DeleteStructureMember_ChangeInfo(newMemberGuid),
-        };
+        List<IChangeInfo> changes = new() { new DeleteStructureMember_ChangeInfo(newMemberGuid), };
 
         if (childBackgroundConnection != null)
         {
             childBackgroundConnection?.ConnectTo(backgroundInput.Background);
-            ConnectProperty_ChangeInfo change = new(childBackgroundConnection.Node.Id, backgroundInput.Background.Node.Id, childBackgroundConnection.InternalPropertyName, backgroundInput.Background.InternalPropertyName);
+            ConnectProperty_ChangeInfo change = new(childBackgroundConnection.Node.Id,
+                backgroundInput.Background.Node.Id, childBackgroundConnection.InternalPropertyName,
+                backgroundInput.Background.InternalPropertyName);
             changes.Add(change);
         }
 
         return changes;
     }
 
-    private static List<ConnectProperty_ChangeInfo> AppendMember(IBackgroundInput backgroundInput, StructureNode member)
+    private static void AppendFolder(IBackgroundInput backgroundInput, FolderNode folder, MergeNode mergeNode, List<IChangeInfo> changes)
+    {
+        var appened = AppendMember(backgroundInput.Background, mergeNode.Output, mergeNode.Bottom, mergeNode.Id);
+        changes.AddRange(appened);
+        
+        appened = AppendMember(mergeNode.Top, folder.Output, folder.Background, folder.Id);
+        changes.AddRange(appened);
+    }
+
+    private static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<ChunkyImage?> parentInput,
+        OutputProperty<ChunkyImage> toAddOutput,
+        InputProperty<ChunkyImage> toAddInput, Guid memberId)
     {
         List<ConnectProperty_ChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;
-        if (backgroundInput.Background.Connection != null)
+        if (parentInput.Connection != null)
         {
-            previouslyConnected = backgroundInput.Background.Connection;
+            previouslyConnected = parentInput.Connection;
         }
 
-        member.Output.ConnectTo(backgroundInput.Background);
+        toAddOutput.ConnectTo(parentInput);
 
         if (previouslyConnected != null)
         {
-            member.Background.Connection = previouslyConnected;
-            changes.Add(new ConnectProperty_ChangeInfo(previouslyConnected.Node.Id, member.Id, previouslyConnected.InternalPropertyName, member.Background.InternalPropertyName));
+            toAddInput.Connection = previouslyConnected;
+            changes.Add(new ConnectProperty_ChangeInfo(previouslyConnected.Node.Id, memberId,
+                previouslyConnected.InternalPropertyName, toAddInput.InternalPropertyName));
         }
-        
-        changes.Add(new ConnectProperty_ChangeInfo(member.Id, backgroundInput.Background.Node.Id, member.Output.InternalPropertyName, backgroundInput.Background.InternalPropertyName));
-        
+
+        changes.Add(new ConnectProperty_ChangeInfo(memberId, parentInput.Node.Id,
+            toAddOutput.InternalPropertyName, parentInput.InternalPropertyName));
+
         return changes;
     }
 }

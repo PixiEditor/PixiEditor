@@ -6,17 +6,21 @@ namespace PixiEditor.AvaloniaUI.Models.DocumentModels.Public;
 internal class DocumentStructureModule
 {
     private readonly IDocument doc;
+
     public DocumentStructureModule(IDocument owner)
     {
         this.doc = owner;
     }
 
-    public IStructureMemberHandler FindOrThrow(Guid guid) => Find(guid) ?? throw new ArgumentException("Could not find member with guid " + guid.ToString());
+    public IStructureMemberHandler FindOrThrow(Guid guid) => Find(guid) ??
+                                                             throw new ArgumentException(
+                                                                 "Could not find member with guid " + guid.ToString());
+
     public IStructureMemberHandler? Find(Guid guid)
     {
-        return FindNode<IStructureMemberHandler>(guid); 
+        return FindNode<IStructureMemberHandler>(guid);
     }
-    
+
     public T? FindNode<T>(Guid guid) where T : class, INodeHandler
     {
         return doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
@@ -26,7 +30,9 @@ internal class DocumentStructureModule
     {
         return FindFirstWhere(predicate, doc.NodeGraphHandler);
     }
-    private IStructureMemberHandler? FindFirstWhere(Predicate<IStructureMemberHandler> predicate, INodeGraphHandler graphVM)
+
+    private IStructureMemberHandler? FindFirstWhere(Predicate<IStructureMemberHandler> predicate,
+        INodeGraphHandler graphVM)
     {
         IStructureMemberHandler? result = null;
         graphVM.TryTraverse(node =>
@@ -39,7 +45,7 @@ internal class DocumentStructureModule
 
             return true;
         });
-        
+
         return result;
     }
 
@@ -52,7 +58,7 @@ internal class DocumentStructureModule
             1 => (path[0], null),
             >= 2 => (path[0], (IFolderHandler)path[1]),
             _ => (null, null),
-        }; 
+        };
     }
 
     public (IStructureMemberHandler, IFolderHandler) FindChildAndParentOrThrow(Guid childGuid)
@@ -62,14 +68,14 @@ internal class DocumentStructureModule
             throw new ArgumentException("Couldn't find child and parent");
         return (path[0], (IFolderHandler)path[1]);
     }
-    
+
     public List<IStructureMemberHandler> FindPath(Guid guid)
     {
         List<INodeHandler>? list = new List<INodeHandler>();
         FillPath(doc.NodeGraphHandler.OutputNode, guid, list);
         return list.Cast<IStructureMemberHandler>().ToList();
     }
-    
+
     /// <summary>
     ///     Returns all layers in the document.
     /// </summary>
@@ -77,17 +83,17 @@ internal class DocumentStructureModule
     public List<ILayerHandler> GetAllLayers()
     {
         List<ILayerHandler> layers = new List<ILayerHandler>();
-        
+
         doc.NodeGraphHandler.TryTraverse(node =>
         {
             if (node is ILayerHandler layer)
                 layers.Add(layer);
             return true;
         });
-        
+
         return layers;
     }
-    
+
     private bool FillPath(INodeHandler node, Guid guid, List<INodeHandler> toFill)
     {
         if (node.Id == guid)
@@ -115,5 +121,20 @@ internal class DocumentStructureModule
         });
 
         return found;
+    }
+
+    public INodeHandler? GetFirstForwardNode(INodeHandler startNode)
+    {
+        INodeHandler? result = null;
+        startNode.TraverseForwards(node =>
+        {
+            if(node == startNode)
+                return true;
+            
+            result = node;
+            return false;
+        });
+
+        return result;
     }
 }

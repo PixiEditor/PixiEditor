@@ -7,7 +7,7 @@ internal class StructureTree
 {
     public ObservableCollection<IStructureMemberHandler> Members { get; } = new();
    
-    private Dictionary<IStructureMemberHandler, ObservableCollection<IStructureMemberHandler>> _memberMap = new();
+    private Dictionary<INodeHandler, ObservableCollection<IStructureMemberHandler>> _memberMap = new();
 
     public void Update(NodeGraphViewModel nodeGraphViewModel)
     {
@@ -23,9 +23,18 @@ internal class StructureTree
         ObservableCollection<IStructureMemberHandler> lastRoot = Members;
         nodeGraphViewModel.OutputNode.TraverseBackwards((node, previous) =>
         {
-            if (node is IStructureMemberHandler structureMemberHandler)
+            if (previous != null && _memberMap.TryGetValue(previous, out var value))
             {
-                membersMet.Add(structureMemberHandler);
+                if (lastRoot != value)
+                {
+                    lastRoot = value;
+                    relativeFolderIndex = lastRoot.Count - 1;
+                }
+            }
+            
+            if(node is IStructureMemberHandler structureMember)
+            {
+                membersMet.Add(structureMember);
             }
             
             if (previous is IFolderHandler folder)
@@ -37,12 +46,15 @@ internal class StructureTree
             if (node is IFolderHandler handler)
             {
                 UpdateMember(handler, relativeFolderIndex, lastRoot);
+                relativeFolderIndex++;
             }
             if (node is ILayerHandler layerHandler)
             {
                 UpdateMember(layerHandler, relativeFolderIndex, lastRoot);
                 relativeFolderIndex++;
             }
+            
+            _memberMap.TryAdd(node, lastRoot);
             
             return true;
         });
@@ -53,8 +65,9 @@ internal class StructureTree
         {
             if (!membersMet.Contains(member.Key))
             {
-                toRemove.Add(member.Key);
-                member.Value.Remove(member.Key);
+                if(member.Key is not IStructureMemberHandler structureMemberHandler) continue;
+                toRemove.Add(structureMemberHandler);
+                member.Value.Remove(structureMemberHandler);
             }
         }
         
@@ -69,7 +82,8 @@ internal class StructureTree
         bool existsInMembers = _memberMap.ContainsKey(member);
         if(!existsInMembers)
         {
-            root.Insert(relativeIndex, member);
+            int clampIndex = Math.Clamp(relativeIndex, 0, root.Count);
+            root.Insert(clampIndex, member);
             _memberMap.Add(member, root);
             return;
         }
@@ -85,9 +99,10 @@ internal class StructureTree
         }
             
         bool existsAtIndex = root.Count > relativeIndex && root[relativeIndex] == member;
-        if (!existsAtIndex)
+        if (!existsAtIndex) //TODO: this is inefficient, causes a lot of reordering, make the algorithm better
         {
-            root.Move(root.IndexOf(member), relativeIndex);
+            int clampedIndex = Math.Clamp(relativeIndex, 0, root.Count - 1);
+            root.Move(root.IndexOf(member), clampedIndex);
         }
     }
 }

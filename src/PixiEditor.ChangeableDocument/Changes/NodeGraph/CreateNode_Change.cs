@@ -58,10 +58,7 @@ internal class CreateNode_Change : Change
         target.NodeGraph.AddNode(node);
         ignoreInUndo = false;
         
-        var inputInfos = CreateNode_ChangeInfo.CreatePropertyInfos(node.InputProperties, true, id);
-        var outputInfos = CreateNode_ChangeInfo.CreatePropertyInfos(node.OutputProperties, false, id);
-        
-        return new CreateNode_ChangeInfo(nodeType.Name, node.Position, id, inputInfos, outputInfos);
+        return CreateNode_ChangeInfo.CreateFromNode(node); 
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
