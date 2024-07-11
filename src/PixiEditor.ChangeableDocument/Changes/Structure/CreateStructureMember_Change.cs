@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 using PixiEditor.ChangeableDocument.Enums;
 using PixiEditor.Numerics;
 
@@ -59,7 +60,7 @@ internal class CreateStructureMember_Change : Change
         {
             document.NodeGraph.AddNode(member);
             List<ConnectProperty_ChangeInfo> connectPropertyChangeInfo =
-                AppendMember(backgroundInput.Background, member.Output, member.Background, member.Id);
+                NodeOperations.AppendMember(backgroundInput.Background, member.Output, member.Background, member.Id);
             changes.AddRange(connectPropertyChangeInfo);
         }
 
@@ -111,36 +112,12 @@ internal class CreateStructureMember_Change : Change
 
     private static void AppendFolder(IBackgroundInput backgroundInput, FolderNode folder, MergeNode mergeNode, List<IChangeInfo> changes)
     {
-        var appened = AppendMember(backgroundInput.Background, mergeNode.Output, mergeNode.Bottom, mergeNode.Id);
+        var appened = NodeOperations.AppendMember(backgroundInput.Background, mergeNode.Output, mergeNode.Bottom, mergeNode.Id);
         changes.AddRange(appened);
         
-        appened = AppendMember(mergeNode.Top, folder.Output, folder.Background, folder.Id);
+        appened = NodeOperations.AppendMember(mergeNode.Top, folder.Output, folder.Background, folder.Id);
         changes.AddRange(appened);
     }
 
-    private static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<ChunkyImage?> parentInput,
-        OutputProperty<ChunkyImage> toAddOutput,
-        InputProperty<ChunkyImage> toAddInput, Guid memberId)
-    {
-        List<ConnectProperty_ChangeInfo> changes = new();
-        IOutputProperty? previouslyConnected = null;
-        if (parentInput.Connection != null)
-        {
-            previouslyConnected = parentInput.Connection;
-        }
-
-        toAddOutput.ConnectTo(parentInput);
-
-        if (previouslyConnected != null)
-        {
-            toAddInput.Connection = previouslyConnected;
-            changes.Add(new ConnectProperty_ChangeInfo(previouslyConnected.Node.Id, memberId,
-                previouslyConnected.InternalPropertyName, toAddInput.InternalPropertyName));
-        }
-
-        changes.Add(new ConnectProperty_ChangeInfo(memberId, parentInput.Node.Id,
-            toAddOutput.InternalPropertyName, parentInput.InternalPropertyName));
-
-        return changes;
-    }
+    
 }

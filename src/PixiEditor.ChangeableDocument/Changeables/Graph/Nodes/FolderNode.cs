@@ -15,6 +15,12 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
+        if (!IsVisible.Value)
+        {
+            Output.Value = null;
+            return null;
+        }
+        
         Output.Value = Background.Value;
         return Background.Value;
     }

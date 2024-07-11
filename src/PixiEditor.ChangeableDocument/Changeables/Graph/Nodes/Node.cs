@@ -1,9 +1,11 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using System.Diagnostics;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[DebuggerDisplay("Type = {GetType().Name}")]
 public abstract class Node : IReadOnlyNode, IDisposable
 {
     private List<InputProperty> inputs = new();

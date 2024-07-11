@@ -19,7 +19,7 @@ public class MergeNode : Node, IBackgroundInput
     
     public override bool Validate()
     {
-        return Top.Value != null || Bottom.Value != null;
+        return Top.Connection != null || Bottom.Connection != null;
     }
 
     public override Node CreateCopy()
@@ -31,6 +31,7 @@ public class MergeNode : Node, IBackgroundInput
     {
         if(Top.Value == null && Bottom.Value == null)
         {
+            Output.Value = null;
             return null;
         }
         

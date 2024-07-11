@@ -28,6 +28,9 @@ internal class DisconnectProperty_Change : Change
             return false;
         
         originalConnection = node.GetInputProperty(property).Connection;
+        if (originalConnection is null)
+            return false;
+        
         return true;
     }
 
