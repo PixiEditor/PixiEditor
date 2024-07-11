@@ -4,8 +4,15 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public class FolderNode : StructureNode, IReadOnlyFolderNode 
+public class FolderNode : StructureNode, IReadOnlyFolderNode
 {
+    public InputProperty<ChunkyImage?> Content { get; }
+
+    public FolderNode()
+    {
+        Content = CreateInput<ChunkyImage?>("Content", "CONTENT", null);
+    }
+
     public override bool Validate()
     {
         return true;
@@ -15,14 +22,29 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
-        if (!IsVisible.Value)
+        if (!IsVisible.Value || Content.Value == null)
         {
-            Output.Value = null;
-            return null;
+            Output.Value = Background.Value;
+            return Output.Value;
         }
+
+        VecI size = Content.Value?.CommittedSize ?? Background.Value.CommittedSize;
         
-        Output.Value = Background.Value;
-        return Background.Value;
+        Output.Value = new ChunkyImage(size);
+
+        if (Background.Value != null)
+        {
+            Output.Value.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Background.Value);
+        }
+
+        if (Content.Value != null)
+        {
+            Output.Value.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Content.Value);
+        }
+
+        Output.Value.CommitChanges();
+
+        return Output.Value;
     }
 
     public override RectI? GetTightBounds(KeyFrameTime frameTime)

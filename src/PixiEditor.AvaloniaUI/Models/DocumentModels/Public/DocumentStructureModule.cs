@@ -72,7 +72,9 @@ internal class DocumentStructureModule
     public List<IStructureMemberHandler> FindPath(Guid guid)
     {
         List<INodeHandler>? list = new List<INodeHandler>();
-        FillPath(doc.NodeGraphHandler.OutputNode, guid, list);
+        var targetNode = FindNode<INodeHandler>(guid);
+        if (targetNode == null) return [];
+        FillPath(targetNode, list);
         return list.Cast<IStructureMemberHandler>().ToList();
     }
 
@@ -94,33 +96,17 @@ internal class DocumentStructureModule
         return layers;
     }
 
-    private bool FillPath(INodeHandler node, Guid guid, List<INodeHandler> toFill)
+    private void FillPath(INodeHandler node, List<INodeHandler> toFill)
     {
-        if (node.Id == guid)
+        node.TraverseForwards(newNode =>
         {
-            return true;
-        }
-
-        if (node is IStructureMemberHandler structureNode)
-        {
-            toFill.Add(structureNode);
-        }
-
-        bool found = false;
-
-        node.TraverseBackwards(newNode =>
-        {
-            if (newNode is IStructureMemberHandler strNode && newNode.Id == guid)
+            if (newNode is IStructureMemberHandler strNode)
             {
                 toFill.Add(strNode);
-                found = true;
-                return false;
             }
 
             return true;
         });
-
-        return found;
     }
 
     public INodeHandler? GetFirstForwardNode(INodeHandler startNode)
@@ -135,6 +121,54 @@ internal class DocumentStructureModule
             return false;
         });
 
+        return result;
+    }
+
+    public IStructureMemberHandler? GetAboveMember(Guid memberId, bool includeFolders)
+    {
+        INodeHandler member = FindNode<INodeHandler>(memberId);
+        if (member == null)
+            return null;
+        
+        IStructureMemberHandler? result = null;
+        member.TraverseForwards(node =>
+        {
+            if (node != member && node is IStructureMemberHandler structureMemberNode)
+            {
+                if(node is IFolderHandler && !includeFolders)
+                    return true;
+                
+                result = structureMemberNode;
+                return false;
+            }
+
+            return true;
+        });
+        
+        return result;
+    }
+    
+    public IStructureMemberHandler? GetBelowMember(Guid memberId, bool includeFolders)
+    {
+        INodeHandler member = FindNode<INodeHandler>(memberId);
+        if (member == null)
+            return null;
+        
+        IStructureMemberHandler? result = null;
+        member.TraverseBackwards(node =>
+        {
+            if (node != member && node is IStructureMemberHandler structureMemberNode)
+            {
+                if(node is IFolderHandler && !includeFolders)
+                    return true;
+                
+                result = structureMemberNode;
+                return false;
+            }
+
+            return true;
+        });
+        
         return result;
     }
 }

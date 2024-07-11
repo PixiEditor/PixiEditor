@@ -7,6 +7,7 @@ using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Structures;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.Numerics;
 
@@ -156,6 +157,36 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         }
     }
 
+    public void TraverseBackwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func)
+    {
+        var visited = new HashSet<INodeHandler>();
+        var queueNodes = new Queue<(INodeHandler, INodeHandler, INodePropertyHandler)>();
+        queueNodes.Enqueue((this, null, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add(node.Item1))
+            {
+                continue;
+            }
+            
+            if (!func(node.Item1, node.Item2, node.Item3))
+            {
+                return;
+            }
+
+            foreach (var inputProperty in node.Item1.Inputs)
+            {
+                if (inputProperty.ConnectedOutput != null)
+                {
+                    queueNodes.Enqueue((inputProperty.ConnectedOutput.Node, node.Item1, inputProperty));
+                } 
+            }
+        }
+    }
+
     public void TraverseForwards(Func<INodeHandler, bool> func)
     {
         var visited = new HashSet<INodeHandler>();
@@ -211,6 +242,36 @@ internal class NodeViewModel : ObservableObject, INodeHandler
                 foreach (var connection in outputProperty.ConnectedInputs)
                 {
                     queueNodes.Enqueue((connection.Node, node.Item1));
+                }
+            }
+        }
+    }
+    
+    public void TraverseForwards(Func<INodeHandler, INodeHandler, INodePropertyHandler, bool> func)
+    {
+        var visited = new HashSet<INodeHandler>();
+        var queueNodes = new Queue<(INodeHandler, INodeHandler, INodePropertyHandler)>();
+        queueNodes.Enqueue((this, null, null));
+
+        while (queueNodes.Count > 0)
+        {
+            var node = queueNodes.Dequeue();
+
+            if (!visited.Add(node.Item1))
+            {
+                continue;
+            }
+            
+            if (!func(node.Item1, node.Item2, node.Item3))
+            {
+                return;
+            }
+
+            foreach (var outputProperty in node.Item1.Outputs)
+            {
+                foreach (var connection in outputProperty.ConnectedInputs)
+                {
+                    queueNodes.Enqueue((connection.Node, node.Item1, outputProperty));
                 }
             }
         }

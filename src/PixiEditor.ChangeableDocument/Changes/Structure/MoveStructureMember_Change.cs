@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -15,13 +16,16 @@ internal class MoveStructureMember_Change : Change
 
     private List<IInputProperty> originalOutputConnections = new();
     private List<(IInputProperty, IOutputProperty?)> originalInputConnections = new();
+    
+    private bool putInsideFolder;
 
 
     [GenerateMakeChangeAction]
-    public MoveStructureMember_Change(Guid memberGuid, Guid targetNode)
+    public MoveStructureMember_Change(Guid memberGuid, Guid targetNode, bool putInsideFolder)
     {
         this.memberGuid = memberGuid;
         this.targetNodeGuid = targetNode;
+        this.putInsideFolder = putInsideFolder;
     }
 
     public override bool InitializeAndValidate(Document document)
@@ -36,7 +40,7 @@ internal class MoveStructureMember_Change : Change
         return true;
     }
 
-    private static List<IChangeInfo> Move(Document document, Guid sourceNodeGuid, Guid targetNodeGuid)
+    private static List<IChangeInfo> Move(Document document, Guid sourceNodeGuid, Guid targetNodeGuid, bool putInsideFolder)
     {
         var sourceNode = document.FindMember(sourceNodeGuid);
         var targetNode = document.FindNode(targetNodeGuid);
@@ -45,8 +49,15 @@ internal class MoveStructureMember_Change : Change
 
         List<IChangeInfo> changes = new();
 
+        InputProperty<ChunkyImage?> inputProperty = backgroundInput.Background;
+
+        if (targetNode is FolderNode folder && putInsideFolder)
+        {
+            inputProperty = folder.Content;
+        }
+
         changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
-        changes.AddRange(NodeOperations.AppendMember(backgroundInput.Background, sourceNode.Output,
+        changes.AddRange(NodeOperations.AppendMember(inputProperty, sourceNode.Output,
             sourceNode.Background,
             sourceNode.Id));
 
@@ -56,7 +67,7 @@ internal class MoveStructureMember_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
         out bool ignoreInUndo)
     {
-        var changes = Move(target, memberGuid, targetNodeGuid);
+        var changes = Move(target, memberGuid, targetNodeGuid, putInsideFolder);
         ignoreInUndo = false;
         return changes;
     }

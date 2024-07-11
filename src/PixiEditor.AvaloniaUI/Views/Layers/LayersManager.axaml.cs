@@ -132,9 +132,8 @@ internal partial class LayersManager : UserControl
 
         if (droppedGuid is not null && ActiveDocument is not null)
         {
-            // TODO: Implement this
-            /*ActiveDocument.Operations.MoveStructureMember((Guid)droppedGuid,
-                ActiveDocument.NodeGraph.Children[0].GuidValue, StructureMemberPlacement.Below);*/
+            ActiveDocument.Operations.MoveStructureMember((Guid)droppedGuid,
+                ActiveDocument.NodeGraph.StructureTree.Members[^1].Id, StructureMemberPlacement.Below);
             e.Handled = true;
         }
 

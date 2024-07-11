@@ -431,15 +431,7 @@ internal class DocumentUpdater
 
     private void ProcessMoveStructureMember(MoveStructureMember_ChangeInfo info)
     {
-        /*(IStructureMemberHandler memberVM, IFolderHandler curFolderVM) = doc.StructureHelper.FindChildAndParentOrThrow(info.Id);
-
-        IFolderHandler? targetFolderVM = (IFolderHandler)doc.StructureHelper.FindOrThrow(info.ParentToGuid);
-
-        curFolderVM.Children.Remove(memberVM);
-        targetFolderVM.Children.Insert(info.NewIndex, memberVM);*/
-
-        // TODO: Make sure property changed events are raised internally
-        //doc.InternalRaiseLayersChanged(new LayersChangedEventArgs(info.Id, LayerAction.Move));
+         
     }
     
     private void ProcessCreateRasterKeyFrame(CreateRasterKeyFrame_ChangeInfo info)

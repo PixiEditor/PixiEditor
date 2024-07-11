@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Layers;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
@@ -94,41 +95,17 @@ internal class DocumentStructureHelper
     {
         if (memberToMoveInto == memberToMove)
             return;
-        
-        internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMove, memberToMoveInto));
+
+        internals.ActionAccumulator.AddFinishedActions(new MoveStructureMember_Action(memberToMove, memberToMoveInto,
+            true));
     }
 
-    private void HandleMoveAboveBelow(Guid memberToMove, Guid referenceMember, bool above)
+    private void HandleMoveAboveBelow(Guid memberToMove, Guid referenceMemberId, bool above)
     {
-        /*IFolderHandler targetFolder = (IFolderHandler)memberToMoveRelativeToPath[1];
-        if (memberToMovePath[1].Id == memberToMoveRelativeToPath[1].Id)
-        {
-            // members are in the same folder
-            int indexOfMemberToMove = targetFolder.Children.IndexOf(memberToMovePath[0]);
-            int indexOfMemberToMoveAbove = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
-            int index = indexOfMemberToMoveAbove;
-            if (above)
-                index++;
-            if (indexOfMemberToMove < indexOfMemberToMoveAbove)
-                index--;
-
-            Guid targetNodeId = targetFolder.Children[Math.Clamp(index, 0, targetFolder.Children.Count - 1)].Id;
-            internals.ActionAccumulator.AddFinishedActions(
-                new MoveStructureMember_Action(memberToMovePath[0].Id, targetNodeId));
-        }
-        else
-        {
-            // members are in different folders
-            if (memberToMoveRelativeToPath.Contains(memberToMovePath[0]))
-                return;
-            int index = targetFolder.Children.IndexOf(memberToMoveRelativeToPath[0]);
-            if (above)
-                index++;
-
-            Guid targetNodeId = targetFolder.Children[Math.Clamp(index, 0, targetFolder.Children.Count - 1)].Id;
-            internals.ActionAccumulator.AddFinishedActions(
-                new MoveStructureMember_Action(memberToMovePath[0].Id, targetNodeId));
-        }*/
+        var referenceMember = doc.StructureHelper.FindNode<INodeHandler>(referenceMemberId);
+        var memberToMoveInto = !above ? referenceMember : doc.StructureHelper.GetFirstForwardNode(referenceMember);
+        internals.ActionAccumulator.AddFinishedActions(
+            new MoveStructureMember_Action(memberToMove, memberToMoveInto.Id, above && memberToMoveInto is IFolderHandler));
     }
 
     public void TryMoveStructureMember(Guid memberToMove, Guid memberToMoveIntoOrNextTo,
@@ -140,22 +117,19 @@ internal class DocumentStructureHelper
                 HandleMoveAboveBelow(memberToMove, memberToMoveIntoOrNextTo, true);
                 break;
             case StructureMemberPlacement.Below:
-                //HandleMoveAboveBelow(memberPath, refPath, false);
+                HandleMoveAboveBelow(memberToMove, memberToMoveIntoOrNextTo, false);
                 break;
             case StructureMemberPlacement.Inside:
                 HandleMoveInside(memberToMove, memberToMoveIntoOrNextTo);
                 break;
             case StructureMemberPlacement.BelowOutsideFolder:
             {
-                /*IFolderHandler refFolder = (IFolderHandler)refPath[1];
-                int refIndexInParent = refFolder.Children.IndexOf(refPath[0]);
-                if (refIndexInParent > 0 || refPath.Count == 2)
-                {
-                    HandleMoveAboveBelow(memberPath, refPath, false);
-                    break;
-                }
-
-                HandleMoveAboveBelow(memberPath, doc.StructureHelper.FindPath(refPath[1].Id), false);*/
+                var path = doc.StructureHelper.FindPath(memberToMoveIntoOrNextTo);
+                var folder = path.FirstOrDefault(x => x is IFolderHandler) as IFolderHandler;
+                if (folder is null)
+                    HandleMoveAboveBelow(memberToMove, memberToMoveIntoOrNextTo, false);
+                else
+                    HandleMoveAboveBelow(memberToMove, folder.Id, false);
             }
                 break;
         }

@@ -196,16 +196,12 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         var member = doc?.SelectedStructureMember;
         if (member is null)
             return false;
-        var path = doc!.StructureHelper.FindPath(member.Id);
-        if (path.Count < 2)
-            return false;
-        var parent = (FolderViewModel)path[1];
-        int index = parent.Children.IndexOf(path[0]);
-        if (above && index == parent.Children.Count - 1)
-            return false;
-        if (!above && index == 0)
-            return false;
-        return true;
+        if (above)
+        {
+            return doc.StructureHelper.GetAboveMember(member.Id, false) is not null;
+        }
+        
+        return doc.StructureHelper.GetBelowMember(member.Id, false) is not null;
     }
 
     private void MoveSelectedMember(bool upwards)

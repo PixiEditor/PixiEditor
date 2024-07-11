@@ -21,7 +21,7 @@ internal class StructureTree
         int relativeFolderIndex = 0;
         List<IStructureMemberHandler> membersMet = new();
         ObservableCollection<IStructureMemberHandler> lastRoot = Members;
-        nodeGraphViewModel.OutputNode.TraverseBackwards((node, previous) =>
+        nodeGraphViewModel.OutputNode.TraverseBackwards((node, previous, property) =>
         {
             if (previous != null && _memberMap.TryGetValue(previous, out var value))
             {
@@ -39,8 +39,11 @@ internal class StructureTree
             
             if (previous is IFolderHandler folder)
             {
-                lastRoot = folder.Children;
-                relativeFolderIndex = 0;
+                if (property.PropertyName == "Content")
+                {
+                    lastRoot = folder.Children;
+                    relativeFolderIndex = 0;
+                }
             }
             
             if (node is IFolderHandler handler)

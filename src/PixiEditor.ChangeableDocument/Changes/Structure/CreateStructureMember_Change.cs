@@ -49,12 +49,8 @@ internal class CreateStructureMember_Change : Change
         
         if (member is FolderNode folder)
         {
-            MergeNode mergeNode = new() { Id = Guid.NewGuid() };
-            document.NodeGraph.AddNode(mergeNode);
             document.NodeGraph.AddNode(member);
-            
-            changes.Add(CreateNode_ChangeInfo.CreateFromNode(mergeNode));
-            AppendFolder(backgroundInput, folder, mergeNode, changes);
+            AppendFolder(backgroundInput, folder, changes);
         }
         else
         {
@@ -110,12 +106,9 @@ internal class CreateStructureMember_Change : Change
         return changes;
     }
 
-    private static void AppendFolder(IBackgroundInput backgroundInput, FolderNode folder, MergeNode mergeNode, List<IChangeInfo> changes)
+    private static void AppendFolder(IBackgroundInput backgroundInput, FolderNode folder, List<IChangeInfo> changes)
     {
-        var appened = NodeOperations.AppendMember(backgroundInput.Background, mergeNode.Output, mergeNode.Bottom, mergeNode.Id);
-        changes.AddRange(appened);
-        
-        appened = NodeOperations.AppendMember(mergeNode.Top, folder.Output, folder.Background, folder.Id);
+        var appened = NodeOperations.AppendMember(backgroundInput.Background, folder.Output, folder.Background, folder.Id);
         changes.AddRange(appened);
     }
 

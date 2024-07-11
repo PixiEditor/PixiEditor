@@ -39,19 +39,24 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame));
         var frameImage = imageFrame?.Image ?? frames[0].Image;
 
+        ChunkyImage result;
+
         if (Background.Value != null)
         {
             VecI targetSize = GetBiggerSize(frameImage.LatestSize, Background.Value.LatestSize);
-            ChunkyImage combined = new(targetSize);
-            combined.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Background.Value);
-            combined.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
-            combined.CommitChanges();
+            result = new ChunkyImage(targetSize);
+            result.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Background.Value);
+            result.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
+            result.CommitChanges();
             
-            Output.Value = combined;
+            Output.Value = result;
         }
         else
         {
-            Output.Value = frameImage;
+            result = new ChunkyImage(frameImage.LatestSize);
+            result.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
+            result.CommitChanges();
+            Output.Value = result;
         }
         
         return Output.Value;
