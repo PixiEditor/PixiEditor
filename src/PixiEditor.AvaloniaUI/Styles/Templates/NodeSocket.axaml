@@ -7,9 +7,9 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Margin="0, 0, 2, 0" ui:Translator.Key="{TemplateBinding Label}" IsVisible="{Binding !IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    <TextBlock VerticalAlignment="Center" Margin="0, 0, 2, 0" ui:Translator.Key="{TemplateBinding Label}" IsVisible="{Binding !IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
                     <Ellipse Width="10" Height="10" Fill="{TemplateBinding SocketBrush}" Name="PART_ConnectPort"/>
-                    <TextBlock Margin="2, 0, 0, 0" ui:Translator.Key="{TemplateBinding Label}" IsVisible="{Binding IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    <TextBlock VerticalAlignment="Center" Margin="2, 0, 0, 0" ui:Translator.Key="{TemplateBinding Label}" IsVisible="{Binding IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
                 </StackPanel>
             </ControlTemplate>
         </Setter>

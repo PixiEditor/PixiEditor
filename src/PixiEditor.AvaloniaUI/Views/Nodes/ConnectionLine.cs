@@ -63,6 +63,6 @@ public class ConnectionLine : Control
         ctx.BeginFigure(p1, false);
         ctx.CubicBezierTo(controlPoint, controlPoint2, p2);
         
-        context.DrawGeometry(Color, new Pen(Color, Thickness), geometry);
+        context.DrawGeometry(Color, new Pen(Color, Thickness) { LineCap = PenLineCap.Round }, geometry);
     }
 }
