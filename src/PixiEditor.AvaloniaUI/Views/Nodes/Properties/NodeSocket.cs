@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.Media;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 
@@ -11,6 +12,15 @@ public class NodeSocket : TemplatedControl
 {
     public static readonly StyledProperty<bool> IsInputProperty = AvaloniaProperty.Register<NodeSocket, bool>("IsInput");
     public static readonly StyledProperty<string> LabelProperty = AvaloniaProperty.Register<NodeSocket, string>("Label");
+
+    public static readonly StyledProperty<IBrush> SocketBrushProperty = AvaloniaProperty.Register<NodeSocket, IBrush>(
+        "SocketBrush");
+
+    public IBrush SocketBrush
+    {
+        get => GetValue(SocketBrushProperty);
+        set => SetValue(SocketBrushProperty, value);
+    }
 
     public static readonly StyledProperty<INodeHandler> NodeProperty = AvaloniaProperty.Register<NodeSocket, INodeHandler>(
         "Node");

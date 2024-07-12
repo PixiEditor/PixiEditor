@@ -606,5 +606,14 @@
   "VIDEO_FILES": "Video Files",
   "MP4_FILE": "MP4 Videos",
   "COLUMNS": "Columns",
-    "ROWS": "Rows"
+    "ROWS": "Rows",
+  "BACKGROUND": "Background",
+  "OPACITY": "Opacity",
+  "IS_VISIBLE": "Is visible",
+  "CLIP_TO_MEMBER_BELOW": "Clip to member below",
+  "BLEND_MODE": "Blend mode",
+  "MASK": "Mask",
+  "MASK_IS_VISIBLE": "Mask is visible",
+  "OUTPUT": "Output",
+  "INPUT": "Input"
 }

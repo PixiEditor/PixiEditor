@@ -21,7 +21,7 @@ public record CreateNode_ChangeInfo(
 
     public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node)
     {
-        return new CreateNode_ChangeInfo(node.GetType().Name, node.Position, node.Id,
+        return new CreateNode_ChangeInfo(node.GetType().Name.Replace("Node", ""), node.Position, node.Id,
             CreatePropertyInfos(node.InputProperties, true, node.Id),
             CreatePropertyInfos(node.OutputProperties, false, node.Id));
     }

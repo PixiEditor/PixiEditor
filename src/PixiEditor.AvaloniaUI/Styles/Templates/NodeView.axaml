@@ -1,24 +1,27 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes"
-                    xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals">
+                    xmlns:visuals="clr-namespace:PixiEditor.AvaloniaUI.Views.Visuals"
+                    xmlns:ui="clr-namespace:PixiEditor.Extensions.UI;assembly=PixiEditor.Extensions">
     <ControlTheme TargetType="nodes:NodeView" x:Key="{x:Type nodes:NodeView}">
         <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
-        <Setter Property="Margin" Value="5" />
         <Setter Property="Padding" Value="5" />
+        <Setter Property="ClipToBounds" Value="False"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
-                        BoxShadow="0 0 5 0 Black"
                         Margin="{TemplateBinding Margin}"
                         Name="RootBorder">
-                        <Grid>
+                    <Border.Effect>
+                        <DropShadowEffect Opacity="0.5" BlurRadius="25"></DropShadowEffect>
+                    </Border.Effect>
+                    <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -27,11 +30,10 @@
                             <Border Padding="{TemplateBinding Padding}" Grid.ColumnSpan="3" Grid.Row="0"
                                     CornerRadius="4.5, 4.5, 0 ,0"
                                     Background="{DynamicResource ThemeControlHighBrush}">
-                                <TextBlock Text="{TemplateBinding DisplayName}"
+                                <TextBlock ui:Translator.Key="{TemplateBinding DisplayName}"
                                            FontWeight="Bold" />
                             </Border>
-                            <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}"
-                                    Padding="{TemplateBinding Padding}">
+                            <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="0.5*" />
