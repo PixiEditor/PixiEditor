@@ -23,7 +23,7 @@ public static class DocumentEvaluator
 
             chunk.Surface.DrawingSurface.Canvas.Save();
             chunk.Surface.DrawingSurface.Canvas.Clear();
-            
+
             if (transformedClippingRect is not null)
             {
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
@@ -31,7 +31,44 @@ public static class DocumentEvaluator
 
             evaluated.DrawMostUpToDateChunkOn(chunkPos, resolution, chunk.Surface.DrawingSurface, VecI.Zero,
                 context.ReplacingPaintWithOpacity);
-            
+
+            chunk.Surface.DrawingSurface.Canvas.Restore();
+
+            return chunk;
+        }
+        catch (ObjectDisposedException)
+        {
+            return new EmptyChunk();
+        }
+    }
+
+    public static OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution,
+        IReadOnlyNode node, int frame, RectI? globalClippingRect = null)
+    {
+        using RenderingContext context = new();
+        try
+        {
+            RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
+
+            IReadOnlyChunkyImage? evaluated = node.Execute(frame);
+            if (evaluated is null)
+            {
+                return new EmptyChunk();
+            }
+
+            Chunk chunk = Chunk.Create(resolution);
+
+            chunk.Surface.DrawingSurface.Canvas.Save();
+            chunk.Surface.DrawingSurface.Canvas.Clear();
+
+            if (transformedClippingRect is not null)
+            {
+                chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
+            }
+
+            evaluated.DrawMostUpToDateChunkOn(chunkPos, resolution, chunk.Surface.DrawingSurface, VecI.Zero,
+                context.ReplacingPaintWithOpacity);
+
             chunk.Surface.DrawingSurface.Canvas.Restore();
 
             return chunk;

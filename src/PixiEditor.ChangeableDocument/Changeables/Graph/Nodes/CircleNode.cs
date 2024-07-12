@@ -25,7 +25,7 @@ public class CircleNode : Node
         Output = CreateOutput<ChunkyImage>("Output", "OUTPUT", null);
     }
     
-    public override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
     {
         Output.Value = new ChunkyImage(new VecI(Radius.Value * 2, Radius.Value * 2));
         

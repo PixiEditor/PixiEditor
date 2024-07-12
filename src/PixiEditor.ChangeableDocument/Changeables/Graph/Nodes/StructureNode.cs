@@ -32,7 +32,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         Output = CreateOutput<ChunkyImage?>("Output", "OUTPUT", null);
     }
 
-    public abstract override ChunkyImage? OnExecute(KeyFrameTime frameTime);
+    protected abstract override ChunkyImage? OnExecute(KeyFrameTime frameTime);
     public abstract override bool Validate();
 
     public abstract RectI? GetTightBounds(KeyFrameTime frameTime);

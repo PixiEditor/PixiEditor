@@ -207,9 +207,10 @@ internal class AffectedAreasGatherer
     private void AddToImagePreviews(Guid memberGuid, AffectedArea area, bool ignoreSelf = false)
     {
         var path = tracker.Document.FindMemberPath(memberGuid);
-        if (path.Count < 2)
+        int minCount = ignoreSelf ? 2 : 1;
+        if (path.Count < minCount)
             return;
-        for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
+        for (int i = ignoreSelf ? 1 : 0; i < path.Count; i++)
         {
             var member = path[i];
             if (!ImagePreviewAreas.ContainsKey(member.Id))

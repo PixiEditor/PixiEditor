@@ -18,17 +18,19 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyCollection<InputProperty> InputProperties => inputs;
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
     public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes => _connectedNodes;
+    public IReadOnlyChunkyImage CachedResult { get; private set; }
 
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
 
-    public ChunkyImage? Execute(KeyFrameTime frameTime)
+    public IReadOnlyChunkyImage? Execute(KeyFrameTime frameTime)
     {
-        return OnExecute(frameTime);
+        CachedResult = OnExecute(frameTime);
+        return CachedResult;
     }
 
-    public abstract ChunkyImage? OnExecute(KeyFrameTime frameTime);
+    protected abstract ChunkyImage? OnExecute(KeyFrameTime frameTime);
     public abstract bool Validate();
 
     public void RemoveKeyFrame(Guid keyFrameGuid)
@@ -145,9 +147,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
             }
         }
     }
-    
+
     public abstract Node CreateCopy();
-    
+
     public Node Clone()
     {
         var clone = CreateCopy();
@@ -160,11 +162,13 @@ public abstract class Node : IReadOnlyNode, IDisposable
             var newInput = input.Clone(clone);
             clone.inputs.Add(newInput);
         }
+
         foreach (var output in outputs)
         {
             var newOutput = output.Clone(clone);
             clone.outputs.Add(newOutput);
         }
+
         return clone;
     }
 

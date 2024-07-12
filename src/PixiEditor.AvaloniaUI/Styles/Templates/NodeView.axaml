@@ -6,7 +6,7 @@
         <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="5" />
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
         <Setter Property="Margin" Value="5" />
         <Setter Property="Padding" Value="5" />
         <Setter Property="Template">
@@ -15,50 +15,58 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
+                        BoxShadow="0 0 5 0 Black"
                         Margin="{TemplateBinding Margin}"
-                        Name="RootBorder"
-                        Padding="{TemplateBinding Padding}">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.ColumnSpan="3" Grid.Row="0" Text="{TemplateBinding DisplayName}"
-                                   FontWeight="Bold" />
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="0.5*" />
-                                <ColumnDefinition Width="0.5*" />
-                            </Grid.ColumnDefinitions>
+                        Name="RootBorder">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Border Padding="{TemplateBinding Padding}" Grid.ColumnSpan="3" Grid.Row="0"
+                                    CornerRadius="4.5, 4.5, 0 ,0"
+                                    Background="{DynamicResource ThemeControlHighBrush}">
+                                <TextBlock Text="{TemplateBinding DisplayName}"
+                                           FontWeight="Bold" />
+                            </Border>
+                            <Border Grid.Row="1" Background="{DynamicResource ThemeControlMidBrush}"
+                                    Padding="{TemplateBinding Padding}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="0.5*" />
+                                        <ColumnDefinition Width="0.5*" />
+                                    </Grid.ColumnDefinitions>
 
-                            <ItemsControl ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
-                                <ItemsControl.ItemContainerTheme>
-                                    <ControlTheme TargetType="ContentPresenter">
-                                        <Setter Property="DataContext" Value="." />
-                                    </ControlTheme>
-                                </ItemsControl.ItemContainerTheme>
-                            </ItemsControl>
-                            <ItemsControl Grid.Column="1" ItemsSource="{TemplateBinding Outputs}" ClipToBounds="False">
-                                <ItemsControl.ItemContainerTheme>
-                                    <ControlTheme TargetType="ContentPresenter">
-                                        <Setter Property="DataContext" Value="." />
-                                    </ControlTheme>
-                                </ItemsControl.ItemContainerTheme>
-                            </ItemsControl>
+                                    <ItemsControl ItemsSource="{TemplateBinding Inputs}" ClipToBounds="False">
+                                        <ItemsControl.ItemContainerTheme>
+                                            <ControlTheme TargetType="ContentPresenter">
+                                                <Setter Property="DataContext" Value="." />
+                                            </ControlTheme>
+                                        </ItemsControl.ItemContainerTheme>
+                                    </ItemsControl>
+                                    <ItemsControl Grid.Column="1" ItemsSource="{TemplateBinding Outputs}"
+                                                  ClipToBounds="False">
+                                        <ItemsControl.ItemContainerTheme>
+                                            <ControlTheme TargetType="ContentPresenter">
+                                                <Setter Property="DataContext" Value="." />
+                                            </ControlTheme>
+                                        </ItemsControl.ItemContainerTheme>
+                                    </ItemsControl>
+                                </Grid>
+                            </Border>
+                            <Border CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
+                                <visuals:SurfaceControl Width="200" Height="200"
+                                                        Surface="{TemplateBinding ResultPreview}"
+                                                        RenderOptions.BitmapInterpolationMode="None">
+                                    <visuals:SurfaceControl.Background>
+                                        <ImageBrush Source="/Images/CheckerTile.png"
+                                                    TileMode="Tile" DestinationRect="0, 0, 25, 25" />
+                                    </visuals:SurfaceControl.Background>
+                                </visuals:SurfaceControl>
+                            </Border>
                         </Grid>
-                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Grid.Row="2">
-                            <visuals:SurfaceControl Width="50" Height="50"
-                                                    Surface="{TemplateBinding ResultPreview}"
-                                                    RenderOptions.BitmapInterpolationMode="None">
-                                <visuals:SurfaceControl.Background>
-                                    <ImageBrush Source="/Images/CheckerTile.png"
-                                                TileMode="Tile" DestinationRect="0, 0, 25, 25" />
-                                </visuals:SurfaceControl.Background>
-                            </visuals:SurfaceControl>
-                        </Border>
-                    </Grid>
-                </Border>
+                    </Border>
             </ControlTemplate>
         </Setter>
 

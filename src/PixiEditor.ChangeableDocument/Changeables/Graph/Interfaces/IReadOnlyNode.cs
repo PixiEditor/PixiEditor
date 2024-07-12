@@ -10,8 +10,9 @@ public interface IReadOnlyNode
     public IReadOnlyCollection<IOutputProperty> OutputProperties { get; }
     public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes { get; }
     public VecD Position { get; }
+    public IReadOnlyChunkyImage? CachedResult { get; }
 
-    public ChunkyImage? Execute(KeyFrameTime frame);
+    public IReadOnlyChunkyImage? Execute(KeyFrameTime frame);
     public bool Validate();
     
     /// <summary>

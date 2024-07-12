@@ -4,9 +4,10 @@
 
     <ControlTheme TargetType="nodes:ConnectionView" x:Key="{x:Type nodes:ConnectionView}">
         <Setter Property="ClipToBounds" Value="False"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
         <Setter Property="Template">
             <ControlTemplate>
-                    <Line Stroke="{DynamicResource ThemeForegroundBrush}" StrokeThickness="2"
+                    <nodes:ConnectionLine Color="{DynamicResource ThemeForegroundBrush}" Thickness="2"
                           StartPoint="{Binding StartPoint, RelativeSource={RelativeSource TemplatedParent}}"
                           EndPoint="{Binding EndPoint, RelativeSource={RelativeSource TemplatedParent}}" />
             </ControlTemplate>

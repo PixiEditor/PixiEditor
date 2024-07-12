@@ -28,7 +28,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return true; 
     }
 
-    public override ChunkyImage OnExecute(KeyFrameTime frame)
+    protected override ChunkyImage OnExecute(KeyFrameTime frame)
     {
         if (!IsVisible.Value)
         {

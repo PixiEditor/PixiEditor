@@ -20,7 +20,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
-    public override ChunkyImage? OnExecute(KeyFrameTime frame)
+    protected override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
         if (!IsVisible.Value || Content.Value == null)
         {

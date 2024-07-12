@@ -20,4 +20,6 @@ public interface IReadOnlyChunkyImage
     AffectedArea FindAffectedArea(int fromOperationIndex = 0);
     HashSet<VecI> FindCommittedChunks();
     HashSet<VecI> FindAllChunks();
+    VecI CommittedSize { get; }
+    VecI LatestSize { get; }
 }

@@ -307,7 +307,14 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         if (NodeGraph.OutputNode == null) return [];
 
         var list = new List<Node>();
-        FillNodePath(NodeGraph.OutputNode, guid, list);
+        
+        var targetNode = FindNode(guid);
+        if (targetNode == null)
+        {
+            return [];
+        }
+        
+        FillNodePath(targetNode, list);
         return list;
     }
 
@@ -320,37 +327,28 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         if (NodeGraph.OutputNode == null) return [];
 
         var list = new List<Node>();
-        FillNodePath(NodeGraph.OutputNode, guid, list);
+        var targetNode = FindNode(guid);
+        if (targetNode == null)
+        {
+            return [];
+        }
+        FillNodePath(targetNode, list);
         return list.Cast<StructureNode>().ToList();
     }
 
-    private bool FillNodePath(Node node, Guid guid, List<Node> toFill)
+    private bool FillNodePath(Node node, List<Node> toFill)
     {
-        if (node.Id == guid)
+        node.TraverseForwards(newNode =>
         {
-            return true;
-        }
-
-        if (node is StructureNode structureNode)
-        {
-            toFill.Add(structureNode);
-        }
-
-        bool found = false;
-
-        node.TraverseBackwards((newNode) =>
-        {
-            if (newNode is StructureNode strNode && newNode.Id == guid)
+            if (newNode is StructureNode strNode)
             {
                 toFill.Add(strNode);
-                found = true;
-                return false;
             }
 
             return true;
         });
-
-        return found;
+        
+        return true;
     }
 
     public List<Guid> ExtractLayers(IList<Guid> members)

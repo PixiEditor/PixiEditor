@@ -73,6 +73,7 @@ internal class MemberPreviewUpdater
         }).ConfigureAwait(true);
 
         RecreatePreviewBitmaps(changedMainPreviewBounds!, changedMaskPreviewBounds!);
+        
         var renderInfos = await Task.Run(() => Render(changedMainPreviewBounds!, changedMaskPreviewBounds))
             .ConfigureAwait(true);
 
@@ -387,6 +388,7 @@ internal class MemberPreviewUpdater
         RenderWholeCanvasPreview(mainPreviewChunksToRerender, maskPreviewChunksToRerender, infos);
         RenderMainPreviews(mainPreviewChunksToRerender, recreatedMainPreviewSizes, infos);
         RenderMaskPreviews(maskPreviewChunksToRerender, recreatedMaskPreviewSizes, infos);
+        RenderNodePreviews();
 
         return infos;
 
@@ -436,8 +438,8 @@ internal class MemberPreviewUpdater
                 _ => ChunkResolution.Eighth,
             };
             var pos = chunkPos * resolution.PixelSize();
-            /*var rendered = ChunkRenderer.MergeWholeStructure(chunkPos, resolution,
-                internals.Tracker.Document.StructureRoot, doc.AnimationHandler.ActiveFrameBindable);
+            var rendered = DocumentEvaluator.RenderChunk(chunkPos, resolution,
+                internals.Tracker.Document.NodeGraph, doc.AnimationHandler.ActiveFrameBindable);
             doc.PreviewSurface.DrawingSurface.Canvas.Save();
             doc.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
             doc.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)cumulative.GlobalArea);
@@ -453,7 +455,7 @@ internal class MemberPreviewUpdater
                 renderedChunk.DrawOnSurface(doc.PreviewSurface.DrawingSurface, pos, SmoothReplacingPaint);
             }
 
-            doc.PreviewSurface.DrawingSurface.Canvas.Restore();*/
+            doc.PreviewSurface.DrawingSurface.Canvas.Restore();
         }
 
         if (somethingChanged)
@@ -549,7 +551,7 @@ internal class MemberPreviewUpdater
             var pos = chunk * ChunkResolution.Full.PixelSize();
             // drawing in full res here is kinda slow
             // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
-            /*OneOf<Chunk, EmptyChunk> rendered = ChunkRenderer.MergeWholeStructure(chunk, ChunkResolution.Full, folder,
+            OneOf<Chunk, EmptyChunk> rendered = DocumentEvaluator.RenderChunk(chunk, ChunkResolution.Full, folder,
                 doc.AnimationHandler.ActiveFrameBindable);
             if (rendered.IsT0)
             {
@@ -561,7 +563,7 @@ internal class MemberPreviewUpdater
             {
                 memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkResolution.Full.PixelSize(),
                     ChunkResolution.Full.PixelSize(), ClearPaint);
-            }*/
+            }
         }
 
         memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
@@ -581,11 +583,18 @@ internal class MemberPreviewUpdater
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
-            if (!layer.Execute(doc.AnimationHandler.ActiveFrameBindable).DrawCommittedChunkOn(chunk,
+            IReadOnlyChunkyImage? result = layer is IReadOnlyImageNode raster
+                ? raster.GetLayerImageAtFrame(doc.AnimationHandler.ActiveFrameBindable)
+                : layer.Execute(doc.AnimationHandler.ActiveFrameBindable);
+            
+            if (!result.DrawCommittedChunkOn(
+                    chunk,
                     ChunkResolution.Full, memberVM.PreviewSurface.DrawingSurface, pos,
                     scaling < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint))
+            {
                 memberVM.PreviewSurface.DrawingSurface.Canvas.DrawRect(pos.X, pos.Y, ChunkyImage.FullChunkSize,
                     ChunkyImage.FullChunkSize, ClearPaint);
+            }
         }
 
         memberVM.PreviewSurface.DrawingSurface.Canvas.Restore();
@@ -673,5 +682,36 @@ internal class MemberPreviewUpdater
             memberVM.MaskPreviewSurface.DrawingSurface.Canvas.Restore();
             infos.Add(new MaskPreviewDirty_RenderInfo(guid));
         }
+    }
+    
+    private void RenderNodePreviews()
+    {
+        // TODO: recreate only changed previews
+        internals.Tracker.Document.NodeGraph.TryTraverse(node =>
+        {
+            if (node.CachedResult != null)
+            {
+               var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
+
+               // TODO: do it in recreate preview bitmaps
+               if (nodeVm.ResultPreview == null)
+               {
+                     nodeVm.ResultPreview = new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
+               }
+               
+               float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.CommittedSize.X;
+               float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.CommittedSize.Y;
+               
+               nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
+               nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
+               
+               nodeVm.ResultPreview.DrawingSurface.Canvas.Clear();
+               node.CachedResult.DrawCommittedRegionOn(
+                   new RectI(0, 0, node.CachedResult.CommittedSize.X, node.CachedResult.CommittedSize.Y), ChunkResolution.Full,
+                   nodeVm.ResultPreview.DrawingSurface, new VecI(0, 0), ReplacingPaint);
+               
+               nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
+            }
+        });
     }
 }

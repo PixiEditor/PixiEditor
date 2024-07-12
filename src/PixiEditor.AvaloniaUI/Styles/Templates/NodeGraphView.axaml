@@ -15,7 +15,7 @@
                                 />
                         </Flyout>
                         </Grid.ContextFlyout>
-                        <ItemsControl ClipToBounds="False"
+                        <ItemsControl ZIndex="1" ClipToBounds="False"
                                       ItemsSource="{Binding NodeGraph.AllNodes, RelativeSource={RelativeSource TemplatedParent}}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>

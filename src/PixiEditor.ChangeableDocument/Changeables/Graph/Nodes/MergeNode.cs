@@ -27,7 +27,7 @@ public class MergeNode : Node, IBackgroundInput
         return new MergeNode();
     }
 
-    public override ChunkyImage? OnExecute(KeyFrameTime frame)
+    protected override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
         if(Top.Value == null && Bottom.Value == null)
         {

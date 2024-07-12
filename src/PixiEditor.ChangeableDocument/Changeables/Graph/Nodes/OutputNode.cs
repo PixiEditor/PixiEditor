@@ -21,7 +21,7 @@ public class OutputNode : Node, IBackgroundInput
         return new OutputNode();
     }
 
-    public override ChunkyImage? OnExecute(KeyFrameTime frame)
+    protected override ChunkyImage? OnExecute(KeyFrameTime frame)
     {
         return Input.Value;
     }
