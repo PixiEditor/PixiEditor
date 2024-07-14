@@ -108,6 +108,19 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
+    protected FieldInputProperty<T> CreateFieldInput<T>(string propName, string displayName,
+        Func<IFieldContext, T> defaultFunc)
+    {
+        var property = new FieldInputProperty<T>(this, propName, displayName, defaultFunc);
+        if (InputProperties.Any(x => x.InternalPropertyName == propName))
+        {
+            throw new InvalidOperationException($"Input with name {propName} already exists.");
+        }
+
+        inputs.Add(property);
+        return property;
+    }
+
     protected InputProperty<T> CreateInput<T>(string propName, string displayName, T defaultValue)
     {
         var property = new InputProperty<T>(this, propName, displayName, defaultValue);
@@ -117,6 +130,16 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         inputs.Add(property);
+        return property;
+    }
+
+    protected FieldOutputProperty<T> CreateFieldOutput<T>(string propName, string displayName,
+        Func<IFieldContext, T> defaultFunc)
+    {
+        var property = new FieldOutputProperty<T>(this, propName, displayName, defaultFunc);
+        outputs.Add(property);
+        property.Connected += (input, _) => _connectedNodes.Add(input.Node);
+        property.Disconnected += (input, _) => _connectedNodes.Remove(input.Node);
         return property;
     }
 

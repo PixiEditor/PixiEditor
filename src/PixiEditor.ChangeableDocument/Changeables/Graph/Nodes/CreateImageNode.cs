@@ -10,14 +10,14 @@ public class CreateImageNode : Node
 {
     public InputProperty<int> Width { get; }
     public InputProperty<int> Height { get; }
-    public InputProperty<Func<IFieldContext, Color>> Color { get; }
+    public FieldInputProperty<Color> Color { get; }
     public OutputProperty<ChunkyImage> Output { get; }
     
     public CreateImageNode() 
     {
-        Width = CreateInput<int>("Width", "WIDTH", 32);
-        Height = CreateInput<int>("Height", "HEIGHT", 32);
-        Color = CreateInput<Func<IFieldContext, Color>>("Color", "COLOR", _ => new Color(0, 0, 0, 255));
+        Width = CreateInput("Width", "WIDTH", 32);
+        Height = CreateInput("Height", "HEIGHT", 32);
+        Color = CreateFieldInput("Color", "COLOR", _ => new Color(0, 0, 0, 255));
         Output = CreateOutput<ChunkyImage>("Output", "OUTPUT", null);
     }
 

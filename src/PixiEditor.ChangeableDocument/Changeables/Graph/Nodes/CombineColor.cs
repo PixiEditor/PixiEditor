@@ -6,24 +6,24 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class CombineColor : Node
 {
-    public OutputProperty<Func<IFieldContext, Color>> Color { get; }
+    public FieldOutputProperty<Color> Color { get; }
     
-    public InputProperty<Func<IFieldContext, double>> R { get; }
+    public FieldInputProperty<double> R { get; }
     
-    public InputProperty<Func<IFieldContext, double>> G { get; }
+    public FieldInputProperty<double> G { get; }
     
-    public InputProperty<Func<IFieldContext, double>> B { get; }
+    public FieldInputProperty<double> B { get; }
     
-    public InputProperty<Func<IFieldContext, double>> A { get; }
+    public FieldInputProperty<double> A { get; }
 
     public CombineColor()
     {
-        Color = CreateOutput<Func<IFieldContext, Color>>(nameof(Color), "COLOR", GetColor);
+        Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
         
-        R = CreateInput<Func<IFieldContext, double>>("R", "R", _ => 0);
-        G = CreateInput<Func<IFieldContext, double>>("G", "G", _ => 0);
-        B = CreateInput<Func<IFieldContext, double>>("B", "B", _ => 0);
-        A = CreateInput<Func<IFieldContext, double>>("A", "A", _ => 1);
+        R = CreateFieldInput("R", "R", _ => 0d);
+        G = CreateFieldInput("G", "G", _ => 0d);
+        B = CreateFieldInput("B", "B", _ => 0d);
+        A = CreateFieldInput("A", "A", _ => 1d);
     }
 
     private Color GetColor(IFieldContext ctx)

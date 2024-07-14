@@ -6,11 +6,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class ImageSpaceNode : Node
 {
-    public OutputProperty<Func<IFieldContext, VecD>> Position { get; }
+    public FieldOutputProperty<VecD> Position { get; }
 
     public ImageSpaceNode()
     {
-        Position = CreateOutput<Func<IFieldContext, VecD>>(nameof(Position), "PIXEL_COORDINATE", ctx => ctx.Position);
+        Position = CreateFieldOutput(nameof(Position), "PIXEL_COORDINATE", ctx => ctx.Position);
     }
     
     protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
