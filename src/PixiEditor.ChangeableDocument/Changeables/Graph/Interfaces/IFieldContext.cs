@@ -5,4 +5,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 public interface IFieldContext
 {
     public VecD Position { get; }
+    
+    public VecI Size { get; }
 }

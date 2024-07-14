@@ -8,31 +8,32 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class CreateImageNode : Node
 {
-    public InputProperty<int> Width { get; }
-    public InputProperty<int> Height { get; }
+    public InputProperty<VecI> Size { get; }
+    
     public FieldInputProperty<Color> Color { get; }
+    
     public OutputProperty<ChunkyImage> Output { get; }
+    
     
     public CreateImageNode() 
     {
-        Width = CreateInput("Width", "WIDTH", 32);
-        Height = CreateInput("Height", "HEIGHT", 32);
-        Color = CreateFieldInput("Color", "COLOR", _ => new Color(0, 0, 0, 255));
-        Output = CreateOutput<ChunkyImage>("Output", "OUTPUT", null);
+        Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32));
+        Color = CreateFieldInput(nameof(Color), "COLOR", _ => new Color(0, 0, 0, 255));
+        Output = CreateOutput<ChunkyImage>(nameof(Output), "OUTPUT", null);
     }
 
     protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
     {
-        var width = Width.Value;
-        var height = Height.Value;
-        
-        Output.Value = new ChunkyImage(new VecI(Width.Value, Height.Value));
+        var width = Size.Value.X;
+        var height = Size.Value.Y;
+
+        Output.Value = new ChunkyImage(Size.Value);
 
         for (int y = 0; y < width; y++)
         {
             for (int x = 0; x < height; x++)
             {
-                var context = new CreateImageContext(new VecD((double)x / width, (double)y / width));
+                var context = new CreateImageContext(new VecD((double)x / width, (double)y / width), new VecI(width, height));
                 var color = Color.Value(context);
 
                 Output.Value.EnqueueDrawPixel(new VecI(x, y), color, BlendMode.Src);
@@ -44,14 +45,11 @@ public class CreateImageNode : Node
         return Output.Value;
     }
 
-    public override bool Validate()
-    {
-        return Width.Value > 0 && Height.Value > 0;
-    }
+    public override bool Validate() => true;
 
     public override Node CreateCopy() => new CreateImageNode();
 
-    record CreateImageContext(VecD Position) : IFieldContext
+    record CreateImageContext(VecD Position, VecI Size) : IFieldContext
     {
     }
 }
