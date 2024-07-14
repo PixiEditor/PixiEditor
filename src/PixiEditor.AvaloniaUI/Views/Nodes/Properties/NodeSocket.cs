@@ -11,6 +11,7 @@ namespace PixiEditor.AvaloniaUI.Views.Nodes.Properties;
 public class NodeSocket : TemplatedControl
 {
     public static readonly StyledProperty<bool> IsInputProperty = AvaloniaProperty.Register<NodeSocket, bool>("IsInput");
+    public static readonly StyledProperty<bool> IsFuncProperty = AvaloniaProperty.Register<NodeSocket, bool>(nameof(IsFunc));
     public static readonly StyledProperty<string> LabelProperty = AvaloniaProperty.Register<NodeSocket, string>("Label");
 
     public static readonly StyledProperty<IBrush> SocketBrushProperty = AvaloniaProperty.Register<NodeSocket, IBrush>(
@@ -35,6 +36,12 @@ public class NodeSocket : TemplatedControl
     {
         get { return (bool)GetValue(IsInputProperty); }
         set { SetValue(IsInputProperty, value); }
+    }
+
+    public bool IsFunc
+    {
+        get => GetValue(IsFuncProperty);
+        set => SetValue(IsFuncProperty, value);
     }
 
     public string Label

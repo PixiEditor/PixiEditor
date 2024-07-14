@@ -8,7 +8,16 @@
             <ControlTemplate>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock VerticalAlignment="Center" Margin="0, 0, 2, 0" ui:Translator.Key="{TemplateBinding Label}" IsVisible="{Binding !IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
-                    <Ellipse Width="10" Height="10" Fill="{TemplateBinding SocketBrush}" Name="PART_ConnectPort"/>
+                    <Grid Name="PART_ConnectPort">
+                        <Ellipse Width="10" Height="10" 
+                                 Fill="{TemplateBinding SocketBrush}" 
+                                 IsVisible="{Binding !IsFunc, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <Rectangle Width="10" Height="10"
+                                   RadiusX="1" RadiusY="1"
+                                   Fill="{TemplateBinding SocketBrush}"
+                                   RenderTransform="rotate(45deg)"
+                                   IsVisible="{Binding IsFunc, RelativeSource={RelativeSource TemplatedParent}}"/>
+                    </Grid>
                     <TextBlock VerticalAlignment="Center" Margin="2, 0, 0, 0" ui:Translator.Key="{TemplateBinding Label}" IsVisible="{Binding IsInput, RelativeSource={RelativeSource TemplatedParent}}"/>
                 </StackPanel>
             </ControlTemplate>

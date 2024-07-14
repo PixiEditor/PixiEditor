@@ -499,6 +499,7 @@ internal class DocumentUpdater
             prop.DisplayName = input.DisplayName;
             prop.PropertyName = input.PropertyName;
             prop.IsInput = isInput;
+            prop.IsFunc = input.ValueType.IsAssignableTo(typeof(Delegate));
             inputs.Add(prop);
         }
         

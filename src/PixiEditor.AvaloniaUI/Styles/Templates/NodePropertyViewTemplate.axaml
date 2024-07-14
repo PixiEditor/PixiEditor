@@ -12,6 +12,7 @@
                                            Node="{Binding DataContext.Node, RelativeSource={RelativeSource TemplatedParent}}"
                                            Label="{Binding DataContext.DisplayName, RelativeSource={RelativeSource TemplatedParent}}"
                                            SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsVisible="{Binding DataContext.IsInput, 
                     RelativeSource={RelativeSource TemplatedParent}}">
                         <properties:NodeSocket.IsInput>
@@ -21,6 +22,7 @@
                     <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}" />
                     <properties:NodeSocket Grid.Column="2" Name="PART_OutputSocket"
                                            Label="{Binding DataContext.DisplayName, RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsVisible="{Binding !DataContext.IsInput,
                     RelativeSource={RelativeSource TemplatedParent}}"
                                            SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}">

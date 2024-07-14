@@ -15,6 +15,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     private object value;
     private INodeHandler node;
     private bool isInput;
+    private bool isFunc;
     private IBrush socketBrush;
     
     private ObservableCollection<INodePropertyHandler> connectedInputs = new();
@@ -36,6 +37,12 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     {
         get => isInput;
         set => SetProperty(ref isInput, value);
+    }
+
+    public bool IsFunc
+    {
+        get => isFunc;
+        set => SetProperty(ref isFunc, value);
     }
 
     public INodePropertyHandler? ConnectedOutput
@@ -74,7 +81,14 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     {
         Node = node;
         PropertyType = propertyType;
-        if (Application.Current.Styles.TryGetResource($"{PropertyType.Name}SocketBrush", App.Current.ActualThemeVariant, out object brush))
+        var targetType = propertyType;
+
+        if (propertyType.IsAssignableTo(typeof(Delegate)))
+        {
+            targetType = propertyType.GetMethod("Invoke").ReturnType;
+        }
+
+        if (Application.Current.Styles.TryGetResource($"{targetType.Name}SocketBrush", App.Current.ActualThemeVariant, out object brush))
         {
             if (brush is IBrush brushValue)
             {
