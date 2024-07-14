@@ -170,6 +170,12 @@ internal class DocumentUpdater
             case DeleteNode_ChangeInfo info:
                 ProcessDeleteNode(info);
                 break;
+            case CreateNodeFrame_ChangeInfo info:
+                ProcessCreateNodeFrame(info);
+                break;
+            case DeleteNodeFrame_ChangeInfo info:
+                ProcessDeleteNodeFrame(info);
+                break;
             case ConnectProperty_ChangeInfo info:
                 ProcessConnectProperty(info);
                 break;
@@ -512,6 +518,16 @@ internal class DocumentUpdater
         doc.NodeGraphHandler.RemoveNode(info.Id);
     }
     
+    private void ProcessCreateNodeFrame(CreateNodeFrame_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.AddFrame(info.Id, info.NodeIds);
+    }
+
+    private void ProcessDeleteNodeFrame(DeleteNodeFrame_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.RemoveFrame(info.Id);
+    }
+
     private void ProcessConnectProperty(ConnectProperty_ChangeInfo info)
     {
         NodeViewModel outputNode = info.OutputNodeId.HasValue ? doc.StructureHelper.FindNode<NodeViewModel>(info.OutputNodeId.Value) : null;

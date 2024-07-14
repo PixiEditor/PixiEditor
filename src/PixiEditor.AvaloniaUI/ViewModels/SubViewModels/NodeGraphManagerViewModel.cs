@@ -10,6 +10,12 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     {
     }
 
+    [Command.Debug("PixiEditor.NodeGraph.CreateNodeFrameAroundEverything", "Create node frame", "Create node frame")]
+    public void CreateNodeFrameAroundEverything()
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateNodeFrameAroundEverything();
+    }
+
     [Command.Internal("PixiEditor.NodeGraph.CreateNode")]
     public void CreateNode(Type nodeType)
     {

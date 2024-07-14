@@ -87,6 +87,41 @@
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
+                    <ItemsControl
+                        ZIndex="-1"
+                        Name="PART_Frames"
+                        ItemsSource="{Binding NodeGraph.Frames, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas RenderTransformOrigin="0, 0">
+                                        <Canvas.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform
+                                                    ScaleX="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                    ScaleY="{Binding Scale, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                                <TranslateTransform
+                                                    X="{Binding CanvasX, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}"
+                                                    Y="{Binding CanvasY, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeGraphView}}" />
+                                            </TransformGroup>
+                                        </Canvas.RenderTransform>
+                                    </Canvas>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <nodes:NodeFrameView
+                                        TopLeft="{Binding TopLeft}"
+                                        BottomRight="{Binding BottomRight}"
+                                        Size="{Binding Size}" />
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemContainerTheme>
+                                <ControlTheme TargetType="ContentPresenter">
+                                    <Setter Property="Canvas.Left" Value="{Binding TopLeft.X}" />
+                                    <Setter Property="Canvas.Top" Value="{Binding TopLeft.Y}" />
+                                </ControlTheme>
+                            </ItemsControl.ItemContainerTheme>
+                        </ItemsControl>
                 </Grid>
             </ControlTemplate>
         </Setter>

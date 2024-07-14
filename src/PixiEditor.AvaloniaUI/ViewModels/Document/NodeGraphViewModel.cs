@@ -5,6 +5,7 @@ using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -14,6 +15,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
+    public ObservableCollection<NodeFrameViewModel> Frames { get; } = new();
     public StructureTree StructureTree { get; } = new();
     public INodeHandler? OutputNode { get; private set; }
 
@@ -46,6 +48,22 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         }
 
         StructureTree.Update(this);
+    }
+
+    public void AddFrame(Guid frameId, IEnumerable<Guid> nodes)
+    {
+        var frame = new NodeFrameViewModel(frameId, AllNodes.Where(x => nodes.Contains(x.Id)));
+        
+        Frames.Add(frame);
+    }
+
+    public void RemoveFrame(Guid guid)
+    {
+        var frame = Frames.FirstOrDefault(x => x.Id == guid);
+
+        if (frame == null) return;
+
+        Frames.Remove(frame);
     }
 
     public void SetConnection(NodeConnectionViewModel connection)
@@ -155,6 +173,17 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public void CreateNode(Type nodeType)
     {
         Internals.ActionAccumulator.AddFinishedActions(new CreateNode_Action(nodeType, Guid.NewGuid()));
+    }
+
+    // TODO: Remove this
+    public void CreateNodeFrameAroundEverything()
+    {
+        CreateNodeFrame(AllNodes);
+    }
+    
+    public void CreateNodeFrame(IEnumerable<INodeHandler> nodes)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new CreateNodeFrame_Action(Guid.NewGuid(), nodes.Select(x => x.Id)));
     }
 
     public void ConnectProperties(INodePropertyHandler? start, INodePropertyHandler? end)
