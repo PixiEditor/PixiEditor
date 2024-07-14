@@ -6,28 +6,33 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public class CreateImageNode : Node
+public class ModifyImageRightNode : Node
 {
-    public InputProperty<VecI> Size { get; }
+    public InputProperty<ChunkyImage?> _InternalImage { get; }
     
     public FieldInputProperty<Color> Color { get; }
     
     public OutputProperty<ChunkyImage> Output { get; }
     
-    
-    public CreateImageNode() 
+    public ModifyImageRightNode() 
     {
-        Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32));
+        _InternalImage = CreateInput<ChunkyImage>(nameof(_InternalImage), "_InternalImage", null);
         Color = CreateFieldInput(nameof(Color), "COLOR", _ => new Color(0, 0, 0, 255));
         Output = CreateOutput<ChunkyImage>(nameof(Output), "OUTPUT", null);
     }
 
     protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
     {
-        var width = Size.Value.X;
-        var height = Size.Value.Y;
+        if (_InternalImage.Value == null)
+        {
+            return null;
+        }
+        
+        var size = _InternalImage.Value.CommittedSize;
+        var width = size.X;
+        var height = size.Y;
 
-        Output.Value = new ChunkyImage(Size.Value);
+        Output.Value = new ChunkyImage(size);
 
         for (int y = 0; y < width; y++)
         {
@@ -47,7 +52,7 @@ public class CreateImageNode : Node
 
     public override bool Validate() => true;
 
-    public override Node CreateCopy() => new CreateImageNode();
+    public override Node CreateCopy() => new ModifyImageRightNode();
 
     record CreateImageContext(VecD Position, VecI Size) : IFieldContext
     {

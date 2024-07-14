@@ -5,18 +5,18 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public class SampleImageNode : Node
+public class ModifyImageLeftNode : Node
 {
     public InputProperty<ChunkyImage?> Image { get; }
     
-    public FieldInputProperty<VecD> Coordinate { get; }
+    public FieldOutputProperty<VecD> Coordinate { get; }
     
     public FieldOutputProperty<Color> Color { get; }
     
-    public SampleImageNode()
+    public ModifyImageLeftNode()
     {
         Image = CreateInput<ChunkyImage>(nameof(Image), "IMAGE", null);
-        Coordinate = CreateFieldInput(nameof(Coordinate), "COORDINATE", ctx => ctx.Position);
+        Coordinate = CreateFieldOutput(nameof(Coordinate), "COORDINATE", ctx => ctx.Position);
         Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
     }
 
@@ -41,5 +41,5 @@ public class SampleImageNode : Node
 
     public override bool Validate() => Image.Value != null;
 
-    public override Node CreateCopy() => new SampleImageNode();
+    public override Node CreateCopy() => new ModifyImageLeftNode();
 }
