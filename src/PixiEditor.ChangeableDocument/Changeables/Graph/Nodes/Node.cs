@@ -109,7 +109,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
     protected FieldInputProperty<T> CreateFieldInput<T>(string propName, string displayName,
-        Func<IFieldContext, T> defaultFunc)
+        Func<FieldContext, T> defaultFunc)
     {
         var property = new FieldInputProperty<T>(this, propName, displayName, defaultFunc);
         if (InputProperties.Any(x => x.InternalPropertyName == propName))
@@ -134,7 +134,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
     protected FieldOutputProperty<T> CreateFieldOutput<T>(string propName, string displayName,
-        Func<IFieldContext, T> defaultFunc)
+        Func<FieldContext, T> defaultFunc)
     {
         var property = new FieldOutputProperty<T>(this, propName, displayName, defaultFunc);
         outputs.Add(property);

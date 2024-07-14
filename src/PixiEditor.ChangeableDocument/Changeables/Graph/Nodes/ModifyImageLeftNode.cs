@@ -20,7 +20,7 @@ public class ModifyImageLeftNode : Node
         Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
     }
 
-    private Color GetColor(IFieldContext context)
+    private Color GetColor(FieldContext context)
     {
         if (Image.Value is not { } image)
         {

@@ -2,12 +2,15 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class ModifyImageRightNode : Node
 {
+    private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
+    
     public InputProperty<ChunkyImage?> _InternalImage { get; }
     
     public FieldInputProperty<Color> Color { get; }
@@ -33,18 +36,21 @@ public class ModifyImageRightNode : Node
         var height = size.Y;
 
         Output.Value = new ChunkyImage(size);
+        using var surface = new Surface(size);
 
         for (int y = 0; y < width; y++)
         {
             for (int x = 0; x < height; x++)
             {
-                var context = new CreateImageContext(new VecD((double)x / width, (double)y / width), new VecI(width, height));
+                var context = new FieldContext(new VecD((double)x / width, (double)y / width), new VecI(width, height));
                 var color = Color.Value(context);
 
-                Output.Value.EnqueueDrawPixel(new VecI(x, y), color, BlendMode.Src);
+                drawingPaint.Color = color;
+                surface.DrawingSurface.Canvas.DrawPixel(x, y, drawingPaint);
             }
         }
 
+        Output.Value.EnqueueDrawImage(VecI.Zero, surface);
         Output.Value.CommitChanges();
 
         return Output.Value;
@@ -53,8 +59,4 @@ public class ModifyImageRightNode : Node
     public override bool Validate() => true;
 
     public override Node CreateCopy() => new ModifyImageRightNode();
-
-    record CreateImageContext(VecD Position, VecI Size) : IFieldContext
-    {
-    }
 }

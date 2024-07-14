@@ -26,7 +26,7 @@ public class CombineColor : Node
         A = CreateFieldInput("A", "A", _ => 1d);
     }
 
-    private Color GetColor(IFieldContext ctx)
+    private Color GetColor(FieldContext ctx)
     {
         var r = R.Value(ctx) * 255;
         var g = G.Value(ctx) * 255;
