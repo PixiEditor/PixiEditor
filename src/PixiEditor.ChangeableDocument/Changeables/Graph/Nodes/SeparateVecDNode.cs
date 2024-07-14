@@ -4,7 +4,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public class SeparateVecI : Node
+public class SeparateVecDNode : Node
 {
     public FieldInputProperty<VecD> Vector { get; }
     
@@ -12,7 +12,7 @@ public class SeparateVecI : Node
     
     public FieldOutputProperty<double> Y { get; }
 
-    public SeparateVecI()
+    public SeparateVecDNode()
     {
         X = CreateFieldOutput("X", "X", ctx => Vector.Value(ctx).X);
         Y = CreateFieldOutput("Y", "Y", ctx => Vector.Value(ctx).Y);
@@ -26,5 +26,5 @@ public class SeparateVecI : Node
 
     public override bool Validate() => true;
 
-    public override Node CreateCopy() => new SeparateVecI();
+    public override Node CreateCopy() => new SeparateVecDNode();
 }

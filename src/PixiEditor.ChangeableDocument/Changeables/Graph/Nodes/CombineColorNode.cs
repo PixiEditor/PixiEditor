@@ -4,7 +4,7 @@ using PixiEditor.DrawingApi.Core.ColorsImpl;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public class CombineColor : Node
+public class CombineColorNode : Node
 {
     public FieldOutputProperty<Color> Color { get; }
     
@@ -16,7 +16,7 @@ public class CombineColor : Node
     
     public FieldInputProperty<double> A { get; }
 
-    public CombineColor()
+    public CombineColorNode()
     {
         Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
         
@@ -43,5 +43,5 @@ public class CombineColor : Node
 
     public override bool Validate() => true;
 
-    public override Node CreateCopy() => new SeparateVecI();
+    public override Node CreateCopy() => new SeparateVecDNode();
 }
