@@ -11,6 +11,8 @@ public interface IReadOnlyNode
     public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes { get; }
     public VecD Position { get; }
     public IReadOnlyChunkyImage? CachedResult { get; }
+    
+    public string InternalName { get; }
 
     public IReadOnlyChunkyImage? Execute(KeyFrameTime frame);
     public bool Validate();

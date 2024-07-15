@@ -11,6 +11,7 @@ public interface INodeHandler : INotifyPropertyChanged
 {
     public Guid Id { get; }
     public string NodeName { get; set; }
+    public string InternalName { get; }
     public ObservableRangeCollection<INodePropertyHandler> Inputs { get; }
     public ObservableRangeCollection<INodePropertyHandler> Outputs { get; }
     public Surface ResultPreview { get; set; }

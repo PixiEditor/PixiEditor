@@ -486,9 +486,14 @@ internal class DocumentUpdater
     
     private void ProcessCreateNode<T>(CreateNode_ChangeInfo info) where T : NodeViewModel, new()
     {
-        T node = new T() { 
-            NodeName = info.NodeName, Id = info.Id, 
-            Document = (DocumentViewModel)doc, Internals = helper };
+        T node = new T()
+        {
+            NodeName = info.NodeName,
+            InternalName = info.InternalName,
+            Id = info.Id,
+            Document = (DocumentViewModel)doc,
+            Internals = helper
+        };
 
         node.SetPosition(info.Position);
         

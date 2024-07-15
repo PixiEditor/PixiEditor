@@ -35,6 +35,8 @@ internal class NodeViewModel : ObservableObject, INodeHandler
         set => SetProperty(ref nodeName, value);
     }
 
+    public string InternalName { get; init; }
+
     public VecD PositionBindable
     {
         get => position;

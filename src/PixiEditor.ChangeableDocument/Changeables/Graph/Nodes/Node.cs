@@ -20,6 +20,13 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes => _connectedNodes;
     public IReadOnlyChunkyImage CachedResult { get; private set; }
 
+    public virtual string InternalName { get; }
+
+    protected Node()
+    {
+        InternalName = $"PixiEditor.{GetType().Name}";
+    }
+    
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
