@@ -3,28 +3,21 @@ using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
-public abstract class NodeFactory
+public interface INodeFactory
 {
     public Type NodeType { get; }
 
-    public NodeFactory(Type nodeType)
-    {
-        NodeType = nodeType;
-    }
-
-    public abstract Node CreateNode(IReadOnlyDocument document);
+    public Node CreateNode(IReadOnlyDocument document);
 }
 
-public abstract class NodeFactory<T> : NodeFactory where T : Node
+public abstract class NodeFactory<T> : INodeFactory where T : Node
 {
-    public NodeFactory() : base(typeof(T))
-    {
-    }
+    public Type NodeType { get; } = typeof(T);
+    
+    public abstract T CreateNode(IReadOnlyDocument document);
 
-    public abstract T CreateNode<T>(IReadOnlyDocument document) where T : Node;
-
-    public override Node CreateNode(IReadOnlyDocument document)
+    Node INodeFactory.CreateNode(IReadOnlyDocument document)
     {
-        return CreateNode<T>(document);
+        return CreateNode(document);
     }
 }

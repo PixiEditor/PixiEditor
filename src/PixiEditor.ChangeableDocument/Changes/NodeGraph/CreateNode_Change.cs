@@ -13,7 +13,7 @@ internal class CreateNode_Change : Change
 {
     private Type nodeType;
     private Guid id;
-    private static Dictionary<Type, NodeFactory> allFactories;
+    private static Dictionary<Type, INodeFactory> allFactories;
     
     [GenerateMakeChangeAction]
     public CreateNode_Change(Type nodeType, Guid id)
@@ -23,11 +23,11 @@ internal class CreateNode_Change : Change
 
         if (allFactories == null)
         {
-            allFactories = new Dictionary<Type, NodeFactory>();
-            var factoryTypes = Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(NodeFactory)) && !x.IsAbstract && !x.IsInterface).ToImmutableArray();
+            allFactories = new Dictionary<Type, INodeFactory>();
+            var factoryTypes = Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(INodeFactory)) && !x.IsAbstract && !x.IsInterface).ToImmutableArray();
             foreach (var factoryType in factoryTypes)
             {
-                NodeFactory factory = (NodeFactory)Activator.CreateInstance(factoryType);
+                INodeFactory factory = (INodeFactory)Activator.CreateInstance(factoryType);
                 allFactories.Add(factory.NodeType, factory);
             }
         }
@@ -44,7 +44,7 @@ internal class CreateNode_Change : Change
             id = Guid.NewGuid();
 
         Node node = null;
-        if (allFactories.TryGetValue(nodeType, out NodeFactory factory))
+        if (allFactories.TryGetValue(nodeType, out INodeFactory factory))
         {
             node = factory.CreateNode(target);
         }
