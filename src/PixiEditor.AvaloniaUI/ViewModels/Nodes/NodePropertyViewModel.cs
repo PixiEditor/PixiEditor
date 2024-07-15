@@ -110,8 +110,14 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
 
     public static NodePropertyViewModel? CreateFromType(Type type, INodeHandler node)
     {
-        string name = type.Name;
-        name += "PropertyViewModel";
+        Type propertyType = type;
+        
+        if (type.IsAssignableTo(typeof(Delegate)))
+        {
+            propertyType = type.GetMethod("Invoke").ReturnType;
+        }
+        
+        string name = $"{propertyType.Name}PropertyViewModel";
         
         Type viewModelType = Type.GetType($"PixiEditor.AvaloniaUI.ViewModels.Nodes.Properties.{name}");
         if (viewModelType == null)
