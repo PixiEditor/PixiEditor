@@ -51,11 +51,12 @@ public sealed class NodeZoneViewModel : NodeFrameViewModelBase
         const int defaultXOffset = -30;
         const int defaultYOffset = -45;
         
+        // TODO: Use the actual node height
         foreach (var node in Nodes)
         {
             if (node == start)
             {
-                list.Add(new RectD(node.PositionBindable + new VecD(50, defaultYOffset), new VecD(100, 400)));
+                list.Add(new RectD(node.PositionBindable + new VecD(100, defaultYOffset), new VecD(100, 400)));
                 continue;
             }
 

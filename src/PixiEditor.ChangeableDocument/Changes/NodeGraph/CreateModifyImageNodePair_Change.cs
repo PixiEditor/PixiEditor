@@ -36,8 +36,8 @@ internal class CreateModifyImageNodePair_Change : Change
 
         return new List<IChangeInfo>
         {
-            CreateNode_ChangeInfo.CreateFromNode(start, "Modify Image"),
-            CreateNode_ChangeInfo.CreateFromNode(end, "Modify Image"),
+            CreateNode_ChangeInfo.CreateFromNode(start, "Modify Image Start"),
+            CreateNode_ChangeInfo.CreateFromNode(end, "Modify Image End"),
             new CreateNodeZone_ChangeInfo(zoneId, "PixiEditor.ModifyImageZone", startId, endId)
         };
     }

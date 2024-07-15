@@ -16,6 +16,8 @@ internal sealed class NodeFrameViewModel : NodeFrameViewModelBase
 
     protected override void CalculateBounds()
     {
+        
+        // TODO: Use the GetBounds like in NodeZoneViewModel
         if (Nodes.Count == 0)
         {
             if (TopLeft == BottomRight)
