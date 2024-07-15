@@ -172,7 +172,18 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
     public void CreateNode(Type nodeType)
     {
-        Internals.ActionAccumulator.AddFinishedActions(new CreateNode_Action(nodeType, Guid.NewGuid()));
+        IAction change;
+        
+        if (nodeType == typeof(ModifyImageLeftNode) || nodeType == typeof(ModifyImageRightNode))
+        {
+            change = new CreateModifyImageNodePair_Action(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+        }
+        else
+        {
+            change = new CreateNode_Action(nodeType, Guid.NewGuid());
+        }
+        
+        Internals.ActionAccumulator.AddFinishedActions(change);
     }
 
     // TODO: Remove this

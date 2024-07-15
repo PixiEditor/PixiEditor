@@ -9,29 +9,28 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class ModifyImageRightNode : Node
 {
-    private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
+    private ModifyImageLeftNode startNode;
     
-    public InputProperty<ChunkyImage?> _InternalImage { get; }
+    private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
     
     public FieldInputProperty<Color> Color { get; }
     
     public OutputProperty<ChunkyImage> Output { get; }
     
-    public ModifyImageRightNode() 
+    public ModifyImageRightNode(ModifyImageLeftNode startNode)
     {
-        _InternalImage = CreateInput<ChunkyImage>(nameof(_InternalImage), "_InternalImage", null);
+        this.startNode = startNode;
         Color = CreateFieldInput(nameof(Color), "COLOR", _ => new Color(0, 0, 0, 255));
         Output = CreateOutput<ChunkyImage>(nameof(Output), "OUTPUT", null);
     }
 
     protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
     {
-        if (_InternalImage.Value == null)
+        if (startNode.Image.Value is not { CommittedSize: var size })
         {
             return null;
         }
         
-        var size = _InternalImage.Value.CommittedSize;
         var width = size.X;
         var height = size.Y;
 
@@ -58,5 +57,5 @@ public class ModifyImageRightNode : Node
 
     public override bool Validate() => true;
 
-    public override Node CreateCopy() => new ModifyImageRightNode();
+    public override Node CreateCopy() => throw new NotImplementedException();
 }

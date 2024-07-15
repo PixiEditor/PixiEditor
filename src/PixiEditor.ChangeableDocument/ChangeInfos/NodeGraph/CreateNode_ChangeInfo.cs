@@ -19,9 +19,12 @@ public record CreateNode_ChangeInfo(
             .ToImmutableArray();
     }
 
-    public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node)
+    public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node) =>
+        CreateFromNode(node, node.GetType().Name.Replace("Node", ""));
+    
+    public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node, string name)
     {
-        return new CreateNode_ChangeInfo(node.GetType().Name.Replace("Node", ""), node.Position, node.Id,
+        return new CreateNode_ChangeInfo(name, node.Position, node.Id,
             CreatePropertyInfos(node.InputProperties, true, node.Id),
             CreatePropertyInfos(node.OutputProperties, false, node.Id));
     }
