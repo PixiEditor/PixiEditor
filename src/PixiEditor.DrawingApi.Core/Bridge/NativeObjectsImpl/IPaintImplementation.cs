@@ -28,5 +28,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl
 
         public void SetColorFilter(Paint paint, ColorFilter value);
         public object GetNativePaint(IntPtr objectPointer);
+        public Shader GetShader(Paint paint);
+        public void SetShader(Paint paint, Shader shader);
     }
 }
