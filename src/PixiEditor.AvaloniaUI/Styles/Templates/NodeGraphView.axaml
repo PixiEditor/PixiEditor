@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes">
+                    xmlns:nodes="clr-namespace:PixiEditor.AvaloniaUI.Views.Nodes"
+                    xmlns:converters="clr-namespace:PixiEditor.AvaloniaUI.Helpers.Converters">
     <ControlTheme TargetType="nodes:NodeGraphView" x:Key="{x:Type nodes:NodeGraphView}">
         <Setter Property="ZoomMode" Value="Move" />
         <Setter Property="Template">
@@ -39,6 +40,7 @@
                                         Node="{Binding}"
                                         DisplayName="{Binding NodeName}"
                                         Inputs="{Binding Inputs}"
+                                        BorderBrush="{Binding InternalName, Converter={converters:NodeInternalNameToStyleConverter}, ConverterParameter='BorderBrush'}"
                                         Outputs="{Binding Outputs}"
                                         IsSelected="{Binding IsSelected}"
                                         SelectNodeCommand="{Binding SelectNodeCommand,
