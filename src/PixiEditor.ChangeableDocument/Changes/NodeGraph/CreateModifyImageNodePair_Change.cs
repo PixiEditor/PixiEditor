@@ -38,7 +38,7 @@ internal class CreateModifyImageNodePair_Change : Change
         {
             CreateNode_ChangeInfo.CreateFromNode(start, "Modify Image"),
             CreateNode_ChangeInfo.CreateFromNode(end, "Modify Image"),
-            new CreateNodeFrame_ChangeInfo(zoneId, [startId, endId])
+            new CreateNodeZone_ChangeInfo(zoneId, startId, endId)
         };
     }
 
@@ -51,7 +51,7 @@ internal class CreateModifyImageNodePair_Change : Change
         return new List<IChangeInfo> { startChange, endChange, zoneChange };
     }
 
-    private DeleteNode_ChangeInfo RemoveNode(Document target, Guid id)
+    private static DeleteNode_ChangeInfo RemoveNode(Document target, Guid id)
     {
         Node node = target.FindNodeOrThrow<Node>(id);
         target.NodeGraph.RemoveNode(node);

@@ -173,6 +173,9 @@ internal class DocumentUpdater
             case CreateNodeFrame_ChangeInfo info:
                 ProcessCreateNodeFrame(info);
                 break;
+            case CreateNodeZone_ChangeInfo info:
+                ProcessCreateNodeZone(info);
+                break;
             case DeleteNodeFrame_ChangeInfo info:
                 ProcessDeleteNodeFrame(info);
                 break;
@@ -521,6 +524,11 @@ internal class DocumentUpdater
     private void ProcessCreateNodeFrame(CreateNodeFrame_ChangeInfo info)
     {
         doc.NodeGraphHandler.AddFrame(info.Id, info.NodeIds);
+    }
+
+    private void ProcessCreateNodeZone(CreateNodeZone_ChangeInfo info)
+    {
+        doc.NodeGraphHandler.AddZone(info.Id, info.StartId, info.EndId);
     }
 
     private void ProcessDeleteNodeFrame(DeleteNodeFrame_ChangeInfo info)

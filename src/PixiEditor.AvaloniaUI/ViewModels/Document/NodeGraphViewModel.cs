@@ -15,7 +15,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public DocumentViewModel DocumentViewModel { get; }
     public ObservableCollection<INodeHandler> AllNodes { get; } = new();
     public ObservableCollection<NodeConnectionViewModel> Connections { get; } = new();
-    public ObservableCollection<NodeFrameViewModel> Frames { get; } = new();
+    public ObservableCollection<NodeFrameViewModelBase> Frames { get; } = new();
     public StructureTree StructureTree { get; } = new();
     public INodeHandler? OutputNode { get; private set; }
 
@@ -55,6 +55,16 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         var frame = new NodeFrameViewModel(frameId, AllNodes.Where(x => nodes.Contains(x.Id)));
         
         Frames.Add(frame);
+    }
+
+    public void AddZone(Guid frameId, Guid startId, Guid endId)
+    {
+        var start = AllNodes.First(x => x.Id == startId);
+        var end = AllNodes.First(x => x.Id == endId);
+        
+        var zone = new NodeZoneViewModel(frameId, start, end);
+        
+        Frames.Add(zone);
     }
 
     public void RemoveFrame(Guid guid)

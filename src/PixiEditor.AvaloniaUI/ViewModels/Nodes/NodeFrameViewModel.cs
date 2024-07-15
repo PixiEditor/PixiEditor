@@ -7,89 +7,14 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Nodes;
 
-internal class NodeFrameViewModel : ObservableObject
+internal sealed class NodeFrameViewModel : NodeFrameViewModelBase
 {
-    private Guid id;
-    private VecD topLeft;
-    private VecD bottomRight;
-    private VecD size;
-    
-    public ObservableCollection<INodeHandler> Nodes { get; }
-
-    public Guid Id
+    public NodeFrameViewModel(Guid id, IEnumerable<INodeHandler> nodes) : base(id, nodes)
     {
-        get => id;
-        set => SetProperty(ref id, value);
-    }
-    
-    public VecD TopLeft
-    {
-        get => topLeft;
-        set => SetProperty(ref topLeft, value);
-    }
-
-    public VecD BottomRight
-    {
-        get => bottomRight;
-        set => SetProperty(ref bottomRight, value);
-    }
-
-    public VecD Size
-    {
-        get => size;
-        set => SetProperty(ref size, value);
-    }
-
-    public NodeFrameViewModel(Guid id, IEnumerable<INodeHandler> nodes)
-    {
-        Id = id;
-        Nodes = new ObservableCollection<INodeHandler>(nodes);
-
-        Nodes.CollectionChanged += OnCollectionChanged;
-        AddHandlers(Nodes);
-
         CalculateBounds();
     }
 
-    private void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        var action = e.Action;
-        if (action != NotifyCollectionChangedAction.Add && action != NotifyCollectionChangedAction.Remove && action != NotifyCollectionChangedAction.Replace && action != NotifyCollectionChangedAction.Reset)
-        {
-            return;
-        }
-        
-        AddHandlers((IEnumerable<NodeViewModel>)e.NewItems);
-        RemoveHandlers((IEnumerable<NodeViewModel>)e.OldItems);
-    }
-
-    private void AddHandlers(IEnumerable<INodeHandler> nodes)
-    {
-        foreach (var node in nodes)
-        {
-            node.PropertyChanged += NodePropertyChanged;
-        }
-    }
-
-    private void RemoveHandlers(IEnumerable<INodeHandler> nodes)
-    {
-        foreach (var node in nodes)
-        {
-            node.PropertyChanged -= NodePropertyChanged;
-        }
-    }
-
-    private void NodePropertyChanged(object? sender, PropertyChangedEventArgs e)
-    {
-        if (e.PropertyName != nameof(INodeHandler.PositionBindable))
-        {
-            return;
-        }
-        
-        CalculateBounds();
-    }
-
-    private void CalculateBounds()
+    protected override void CalculateBounds()
     {
         if (Nodes.Count == 0)
         {
