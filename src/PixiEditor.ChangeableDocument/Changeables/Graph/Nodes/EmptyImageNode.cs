@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -15,11 +16,11 @@ public class EmptyImageNode : Node
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32));
     }
     
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(KeyFrameTime frameTime)
     {
-        Output.Value = new ChunkyImage(Size.Value);
+        using var surface = new Surface(Size.Value);
 
-        return Output.Value;
+        return surface.DrawingSurface.Snapshot();
     }
 
     public override bool Validate() => Size.Value is { X: > 0, Y: > 0 };

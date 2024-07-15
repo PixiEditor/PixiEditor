@@ -12,11 +12,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public class SkiaImageImplementation : SkObjectImplementation<SKImage>, IImageImplementation
     {
         private readonly SkObjectImplementation<SKData> _imgImplementation;
+        private readonly SkiaPixmapImplementation _pixmapImplementation;
         private SkObjectImplementation<SKSurface>? _surfaceImplementation;
         
-        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation)
+        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation, SkiaPixmapImplementation pixmapImplementation)
         {
             _imgImplementation = imgDataImplementation;
+            _pixmapImplementation = pixmapImplementation;
         }
         
         public void SetSurfaceImplementation(SkObjectImplementation<SKSurface> surfaceImplementation)
@@ -118,6 +120,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             var clone = SKImage.FromEncodedData(encoded);
             ManagedInstances[clone.Handle] = clone;
             return new Image(clone.Handle);
+        }
+
+        public Pixmap PeekPixels(IntPtr objectPointer)
+        {
+            var nativePixmap = ManagedInstances[objectPointer].PeekPixels();
+
+            return _pixmapImplementation.CreateFrom(nativePixmap);
         }
 
         public object GetNativeImage(IntPtr objectPointer)

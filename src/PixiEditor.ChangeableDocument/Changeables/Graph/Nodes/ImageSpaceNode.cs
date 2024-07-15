@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -16,7 +17,7 @@ public class ImageSpaceNode : Node
         Size = CreateFieldOutput(nameof(Size), "SIZE", ctx => ctx.Size);
     }
     
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(KeyFrameTime frameTime)
     {
         return null;
     }

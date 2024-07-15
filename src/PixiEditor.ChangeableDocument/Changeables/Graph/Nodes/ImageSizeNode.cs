@@ -1,23 +1,24 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class ImageSizeNode : Node
 {
-    public InputProperty<ChunkyImage?> Image { get; }
+    public InputProperty<Image?> Image { get; }
     
     public OutputProperty<VecI> Size { get; }
     
     public ImageSizeNode()
     {
-        Image = CreateInput<ChunkyImage>(nameof(Image), "IMAGE", null);
+        Image = CreateInput<Image>(nameof(Image), "IMAGE", null);
         Size = CreateOutput(nameof(Size), "SIZE", new VecI());
     }
     
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(KeyFrameTime frameTime)
     {
-        Size.Value = Image.Value?.CommittedSize ?? new VecI();
+        Size.Value = Image.Value?.Size ?? new VecI();
 
         return null;
     }

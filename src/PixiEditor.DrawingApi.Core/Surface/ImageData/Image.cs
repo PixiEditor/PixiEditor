@@ -56,6 +56,11 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
             return DrawingBackendApi.Current.ImageImplementation.Encode(this, format, quality);
         }
 
+        public Pixmap PeekPixels()
+        {
+            return DrawingBackendApi.Current.ImageImplementation.PeekPixels(ObjectPointer);
+        }
+
         public object Clone()
         {
             return DrawingBackendApi.Current.ImageImplementation.Clone(this);

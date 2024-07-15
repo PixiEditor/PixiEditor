@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -19,7 +20,7 @@ public class SeparateVecDNode : Node
         Vector = CreateFieldInput("Vector", "VECTOR", _ => new VecD(0, 0));
     }
 
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(KeyFrameTime frameTime)
     {
         return null;
     }

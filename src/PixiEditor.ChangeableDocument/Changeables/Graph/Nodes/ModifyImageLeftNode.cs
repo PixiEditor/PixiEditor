@@ -1,13 +1,17 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class ModifyImageLeftNode : Node
 {
-    public InputProperty<ChunkyImage?> Image { get; }
+    private Pixmap? pixmap;
+    
+    public InputProperty<Image?> Image { get; }
     
     public FieldOutputProperty<VecD> Coordinate { get; }
     
@@ -15,26 +19,28 @@ public class ModifyImageLeftNode : Node
     
     public ModifyImageLeftNode()
     {
-        Image = CreateInput<ChunkyImage>(nameof(Image), "IMAGE", null);
+        Image = CreateInput<Image>(nameof(Image), "IMAGE", null);
         Coordinate = CreateFieldOutput(nameof(Coordinate), "COORDINATE", ctx => ctx.Position);
         Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
     }
 
     private Color GetColor(FieldContext context)
     {
-        if (Image.Value is not { } image)
-        {
+        if (pixmap == null)
             return new Color();
-        }
         
-        var pos = new VecI(
-            (int)(context.Position.X * context.Size.X),
-            (int)(context.Position.Y * context.Size.Y));
+        var x = context.Position.X * context.Size.X;
+        var y = context.Position.Y * context.Size.Y;
         
-        return image.GetCommittedPixel(pos);
+        return pixmap.GetPixelColor((int)x, (int)y);
     }
 
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    internal void PreparePixmap()
+    {
+        pixmap = Image.Value?.PeekPixels();
+    }
+
+    protected override Image? OnExecute(KeyFrameTime frameTime)
     {
         return Image.Value;
     }

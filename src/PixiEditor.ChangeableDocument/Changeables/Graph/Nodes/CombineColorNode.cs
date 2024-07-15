@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -36,7 +37,7 @@ public class CombineColorNode : Node
         return new Color((byte)r, (byte)g, (byte)b, (byte)a);
     }
     
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(KeyFrameTime frameTime)
     {
         return null;
     }

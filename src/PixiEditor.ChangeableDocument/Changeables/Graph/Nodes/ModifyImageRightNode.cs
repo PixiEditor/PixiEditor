@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -15,26 +16,27 @@ public class ModifyImageRightNode : Node
     
     public FieldInputProperty<Color> Color { get; }
     
-    public OutputProperty<ChunkyImage> Output { get; }
+    public OutputProperty<Image> Output { get; }
     
     public ModifyImageRightNode(ModifyImageLeftNode startNode)
     {
         this.startNode = startNode;
         Color = CreateFieldInput(nameof(Color), "COLOR", _ => new Color(0, 0, 0, 255));
-        Output = CreateOutput<ChunkyImage>(nameof(Output), "OUTPUT", null);
+        Output = CreateOutput<Image>(nameof(Output), "OUTPUT", null);
     }
 
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(KeyFrameTime frameTime)
     {
-        if (startNode.Image.Value is not { CommittedSize: var size })
+        if (startNode.Image.Value is not { Size: var size })
         {
             return null;
         }
         
+        startNode.PreparePixmap();
+        
         var width = size.X;
         var height = size.Y;
 
-        Output.Value = new ChunkyImage(size);
         using var surface = new Surface(size);
 
         for (int y = 0; y < width; y++)
@@ -49,8 +51,7 @@ public class ModifyImageRightNode : Node
             }
         }
 
-        Output.Value.EnqueueDrawImage(VecI.Zero, surface);
-        Output.Value.CommitChanges();
+        Output.Value = surface.DrawingSurface.Snapshot();
 
         return Output.Value;
     }

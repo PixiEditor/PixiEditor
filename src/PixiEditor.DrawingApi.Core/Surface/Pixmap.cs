@@ -1,6 +1,8 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Surface;
 
@@ -37,6 +39,13 @@ public class Pixmap : NativeObject
     public override void Dispose()
     {
         DrawingBackendApi.Current.PixmapImplementation.Dispose(ObjectPointer);
+    }
+
+    public Color GetPixelColor(int x, int y) => GetPixelColor(new VecI(x, y));
+    
+    public Color GetPixelColor(VecI position)
+    {
+        return DrawingBackendApi.Current.PixmapImplementation.GetPixelColor(ObjectPointer, position);
     }
 
     public IntPtr GetPixels()

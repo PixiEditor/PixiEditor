@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -25,7 +26,7 @@ public class SeparateColorNode : Node
         A = CreateFieldOutput(nameof(A), "A", ctx => Color.Value(ctx).A / 255d);
     }
 
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(KeyFrameTime frameTime)
     {
         return null;
     }
