@@ -4,7 +4,11 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Interactivity;
+using Avalonia.OpenGL;
+using Avalonia.Rendering.Composition;
+using Avalonia.Skia;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Microsoft.Extensions.DependencyInjection;
 using PixiEditor.AvaloniaUI.Helpers;
 using PixiEditor.AvaloniaUI.Initialization;
@@ -52,8 +56,10 @@ internal partial class MainWindow : Window
             .BuildServiceProvider();
 
         AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader();
+        
+        GRContext recordingContext = GetGrRecordingContext();
 
-        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend();
+        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend(recordingContext);
         DrawingBackendApi.SetupBackend(skiaDrawingBackend);
 
         preferences = services.GetRequiredService<IPreferences>();
@@ -62,6 +68,29 @@ internal partial class MainWindow : Window
         DataContext.Setup(services);
 
         InitializeComponent();
+    }
+
+    private static GRContext GetGrRecordingContext()
+    {
+        Compositor compositor = Compositor.TryGetDefaultCompositor();
+        var interop = compositor.TryGetCompositionGpuInterop();
+        var contextSharingFeature =
+            compositor.TryGetRenderInterfaceFeature(typeof(IOpenGlTextureSharingRenderInterfaceContextFeature)).Result as IOpenGlTextureSharingRenderInterfaceContextFeature;
+
+        if (contextSharingFeature.CanCreateSharedContext)
+        {
+
+            IGlContext? glContext = contextSharingFeature.CreateSharedContext();
+            glContext.MakeCurrent();
+            return GRContext.CreateGl(GRGlInterface.Create(glContext.GlInterface.GetProcAddress));
+        }
+
+        var contextFactory = AvaloniaLocator.Current.GetRequiredService<IPlatformGraphicsOpenGlContextFactory>();
+        var ctx = contextFactory.CreateContext(null);
+        ctx.MakeCurrent();
+        var ctxInterface = GRGlInterface.Create(ctx.GlInterface.GetProcAddress);
+        var grContext = GRContext.CreateGl(ctxInterface);
+        return grContext;
     }
 
     public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)

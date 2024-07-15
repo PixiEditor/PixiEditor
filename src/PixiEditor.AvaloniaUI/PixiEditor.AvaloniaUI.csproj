@@ -19,6 +19,8 @@
     <ImplicitUsings>true</ImplicitUsings>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <AvaloniaAccessUnstablePrivateApis>true</AvaloniaAccessUnstablePrivateApis>
+    <Avalonia_I_Want_To_Use_Private_Apis_In_Nuget_Package_And_Promise_To_Pin_The_Exact_Avalonia_Version_In_Package_Dependency>true</Avalonia_I_Want_To_Use_Private_Apis_In_Nuget_Package_And_Promise_To_Pin_The_Exact_Avalonia_Version_In_Package_Dependency>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(RuntimeIdentifier)'=='win-x64'">
@@ -76,12 +78,15 @@
     <PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.1"/>
     <PackageReference Include="PixiEditor.ColorPicker.AvaloniaUI" Version="1.0.5"/>
   </ItemGroup>
+  
+  <PropertyGroup>
+  </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj"/>
-    <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj" />
-    <ProjectReference Include="..\PixiEditor.AnimationRenderer.FFmpeg\PixiEditor.AnimationRenderer.FFmpeg.csproj" />
+    <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj"/>
+    <ProjectReference Include="..\PixiEditor.AnimationRenderer.FFmpeg\PixiEditor.AnimationRenderer.FFmpeg.csproj"/>
     <ProjectReference Include="..\PixiEditor.ChangeableDocument.Gen\PixiEditor.ChangeableDocument.Gen.csproj"/>
     <ProjectReference Include="..\PixiEditor.ChangeableDocument\PixiEditor.ChangeableDocument.csproj"/>
     <ProjectReference Include="..\PixiEditor.DrawingApi.Core\PixiEditor.DrawingApi.Core.csproj"/>
@@ -119,26 +124,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\Copy.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\Cut.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\Paste.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\CenterContent.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\ResizeCanvas.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\ResizeDocument.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate180Deg.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate270Deg.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate90Deg.png" />
-    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate90DegLayers.png" />
-    <UpToDateCheckInput Remove="Images\News\Article.png" />
-    <UpToDateCheckInput Remove="Images\News\Misc.png" />
-    <UpToDateCheckInput Remove="Images\News\NewVersion.png" />
-    <UpToDateCheckInput Remove="Images\News\OfficialAnnouncement.png" />
-    <UpToDateCheckInput Remove="Images\News\YouTube.png" />
-    <UpToDateCheckInput Remove="Styles\Templates\NodeProperties\ImageNodePropertyView.axaml" />
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\Copy.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\Cut.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\Paste.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\PasteAsNewLayer.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Clipboard\PasteReferenceLayer.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\CenterContent.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\ResizeCanvas.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\ResizeDocument.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate180Deg.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate180DegLayers.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate270Deg.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate270DegLayers.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate90Deg.png"/>
+    <UpToDateCheckInput Remove="Images\Commands\PixiEditor\Document\Rotate90DegLayers.png"/>
+    <UpToDateCheckInput Remove="Images\News\Article.png"/>
+    <UpToDateCheckInput Remove="Images\News\Misc.png"/>
+    <UpToDateCheckInput Remove="Images\News\NewVersion.png"/>
+    <UpToDateCheckInput Remove="Images\News\OfficialAnnouncement.png"/>
+    <UpToDateCheckInput Remove="Images\News\YouTube.png"/>
+    <UpToDateCheckInput Remove="Styles\Templates\NodeProperties\ImageNodePropertyView.axaml"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -28,12 +28,12 @@ public static class DocumentEvaluator
             {
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
-
+            
             evaluated.DrawMostUpToDateChunkOn(chunkPos, resolution, chunk.Surface.DrawingSurface, VecI.Zero,
                 context.ReplacingPaintWithOpacity);
 
             chunk.Surface.DrawingSurface.Canvas.Restore();
-
+            
             return chunk;
         }
         catch (ObjectDisposedException)

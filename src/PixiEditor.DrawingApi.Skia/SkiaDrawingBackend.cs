@@ -2,6 +2,7 @@
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.Bridge.Operations;
 using PixiEditor.DrawingApi.Skia.Implementations;
+using SkiaSharp;
 
 namespace PixiEditor.DrawingApi.Skia
 {
@@ -19,8 +20,9 @@ namespace PixiEditor.DrawingApi.Skia
         public IColorSpaceImplementation ColorSpaceImplementation { get; }
         public IBitmapImplementation BitmapImplementation { get; }
         public IColorFilterImplementation ColorFilterImplementation { get; set; }
+        public IShaderImplementation ShaderImplementation { get; set; }
 
-        public SkiaDrawingBackend()
+        public SkiaDrawingBackend(GRContext graphicsContext)
         {
             ColorImplementation = new SkiaColorImplementation();
             
@@ -33,7 +35,10 @@ namespace PixiEditor.DrawingApi.Skia
             SkiaColorFilterImplementation colorFilterImpl = new SkiaColorFilterImplementation();
             ColorFilterImplementation = colorFilterImpl;
             
-            SkiaPaintImplementation paintImpl = new SkiaPaintImplementation(colorFilterImpl);
+            SkiaShaderImplementation shaderImpl = new SkiaShaderImplementation();
+            ShaderImplementation = shaderImpl;
+            
+            SkiaPaintImplementation paintImpl = new SkiaPaintImplementation(colorFilterImpl, shaderImpl);
             PaintImplementation = paintImpl;
             
             SkiaPathImplementation pathImpl = new SkiaPathImplementation();
@@ -52,7 +57,7 @@ namespace PixiEditor.DrawingApi.Skia
             
             SkiaCanvasImplementation canvasImpl = new SkiaCanvasImplementation(paintImpl, imgImpl, bitmapImpl, pathImpl);
             
-            var surfaceImpl = new SkiaSurfaceImplementation(pixmapImpl, canvasImpl, paintImpl);
+            var surfaceImpl = new SkiaSurfaceImplementation(graphicsContext, pixmapImpl, canvasImpl, paintImpl);
 
             canvasImpl.SetSurfaceImplementation(surfaceImpl);
             imgImpl.SetSurfaceImplementation(surfaceImpl);

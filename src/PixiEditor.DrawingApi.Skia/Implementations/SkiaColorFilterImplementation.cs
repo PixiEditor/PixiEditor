@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
@@ -28,5 +29,6 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             return ManagedInstances[objectPointer];
         }
+
     }
 }

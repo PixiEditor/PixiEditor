@@ -137,6 +137,7 @@ public class Surface : IDisposable, ICloneable
     {
         if (other.Size != Size)
             throw new ArgumentException("Target Surface must have the same dimensions");
+        DrawingSurface.Canvas.Flush();
         int bytesC = Size.X * Size.Y * BytesPerPixel;
         using var pixmap = other.DrawingSurface.PeekPixels();
         Buffer.MemoryCopy((void*)PixelBuffer, (void*)pixmap.GetPixels(), bytesC, bytesC);
