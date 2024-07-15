@@ -24,7 +24,7 @@ internal class RenderingContext : IDisposable
         ReplacingPaintWithOpacity.Color = opacityColor;
     }
 
-    private static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)
+    public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)
     {
         return blendMode switch
         {

@@ -1,16 +1,17 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class FolderNode : StructureNode, IReadOnlyFolderNode
 {
-    public InputProperty<ChunkyImage?> Content { get; }
+    public InputProperty<Image?> Content { get; }
 
     public FolderNode()
     {
-        Content = CreateInput<ChunkyImage?>("Content", "CONTENT", null);
+        Content = CreateInput<Image?>("Content", "CONTENT", null);
     }
 
     public override bool Validate()
@@ -20,7 +21,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
-    protected override ChunkyImage? OnExecute(KeyFrameTime frame)
+    protected override Image? OnExecute(KeyFrameTime frame)
     {
         if (!IsVisible.Value || Content.Value == null)
         {
@@ -28,28 +29,30 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
             return Output.Value;
         }
 
-        VecI size = Content.Value?.CommittedSize ?? Background.Value.CommittedSize;
+        VecI size = Content.Value?.Size ?? Background.Value.Size;
         
-        Output.Value = new ChunkyImage(size);
+        Surface workingSurface = new Surface(size);
 
         if (Background.Value != null)
         {
-            Output.Value.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Background.Value);
+            workingSurface.DrawingSurface.Canvas.DrawImage(Background.Value, 0, 0);
         }
 
         if (Content.Value != null)
         {
-            Output.Value.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Content.Value);
+            workingSurface.DrawingSurface.Canvas.DrawImage(Content.Value, 0, 0);
         }
 
-        Output.Value.CommitChanges();
-
+        Output.Value = workingSurface.DrawingSurface.Snapshot();
+        
+        workingSurface.Dispose();
         return Output.Value;
     }
 
     public override RectI? GetTightBounds(KeyFrameTime frameTime)
     {
-        return Background.Value?.FindTightCommittedBounds();
+        // TODO: Implement GetTightBounds
+        return RectI.Create(0, 0, Content.Value?.Width ?? 0, Content.Value?.Height ?? 0); 
         /*if (Children.Count == 0)
       {
           return null;

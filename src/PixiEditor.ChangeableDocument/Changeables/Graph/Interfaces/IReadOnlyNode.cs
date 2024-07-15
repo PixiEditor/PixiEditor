@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
@@ -8,11 +9,10 @@ public interface IReadOnlyNode
     public Guid Id { get; }
     public IReadOnlyCollection<IInputProperty> InputProperties { get; }
     public IReadOnlyCollection<IOutputProperty> OutputProperties { get; }
-    public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes { get; }
     public VecD Position { get; }
-    public IReadOnlyChunkyImage? CachedResult { get; }
+    public Image? CachedResult { get; }
 
-    public IReadOnlyChunkyImage? Execute(KeyFrameTime frame);
+    public Image? Execute(KeyFrameTime frame);
     public bool Validate();
     
     /// <summary>

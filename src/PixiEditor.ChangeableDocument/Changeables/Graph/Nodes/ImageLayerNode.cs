@@ -1,5 +1,9 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -10,6 +14,8 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private List<ImageFrame> frames = new List<ImageFrame>();
     private VecI size;
+    
+    private Paint blendPaint = new Paint();
 
     public ImageLayerNode(VecI size)
     {
@@ -20,45 +26,54 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     public override RectI? GetTightBounds(KeyFrameTime frameTime)
     {
-        return Execute(frameTime).FindTightCommittedBounds();
+        return GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
     public override bool Validate()
     {
-        return true; 
+        return true;
     }
 
-    protected override ChunkyImage OnExecute(KeyFrameTime frame)
+    protected override Image? OnExecute(KeyFrameTime frame)
     {
-        if (!IsVisible.Value)
+        if (!IsVisible.Value || Opacity.Value <= 0)
         {
             Output.Value = Background.Value;
             return Output.Value;
         }
-        
+
         var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame));
         var frameImage = imageFrame?.Image ?? frames[0].Image;
 
-        ChunkyImage result;
+        Surface workingSurface;
+        
+        blendPaint.Color = new Color(255, 255, 255, (byte)Math.Round(Opacity.Value * 255));
+        blendPaint.BlendMode = DrawingApi.Core.Surface.BlendMode.Src;
 
         if (Background.Value != null)
         {
-            VecI targetSize = GetBiggerSize(frameImage.LatestSize, Background.Value.LatestSize);
-            result = new ChunkyImage(targetSize);
-            result.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Background.Value);
-            result.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
-            result.CommitChanges();
+            VecI targetSize = GetBiggerSize(frameImage.LatestSize, Background.Value.Size);
+            workingSurface = new Surface(targetSize);
+            workingSurface.DrawingSurface.Canvas.DrawImage(Background.Value, 0, 0, blendPaint);
+            blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             
-            Output.Value = result;
+            frameImage.DrawMostUpToDateRegionOn(
+                new RectI(0, 0, frameImage.LatestSize.X, frameImage.LatestSize.Y), 
+                ChunkResolution.Full, workingSurface.DrawingSurface, VecI.Zero, blendPaint);
         }
         else
         {
-            result = new ChunkyImage(frameImage.LatestSize);
-            result.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
-            result.CommitChanges();
-            Output.Value = result;
+            workingSurface = new Surface(frameImage.LatestSize);
+            
+            frameImage.DrawMostUpToDateRegionOn(
+                new RectI(0, 0, frameImage.LatestSize.X, frameImage.LatestSize.Y), 
+                ChunkResolution.Full, workingSurface.DrawingSurface, VecI.Zero, blendPaint);
         }
+
+
+        Output.Value = workingSurface.DrawingSurface.Snapshot();
         
+        workingSurface.Dispose();
         return Output.Value;
     }
 

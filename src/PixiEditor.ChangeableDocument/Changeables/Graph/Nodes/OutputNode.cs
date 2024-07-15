@@ -1,14 +1,15 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class OutputNode : Node, IBackgroundInput
 {
-    public InputProperty<ChunkyImage?> Input { get; } 
+    public InputProperty<Image?> Input { get; } 
     public OutputNode()
     {
-        Input = CreateInput<ChunkyImage>("Background", "INPUT", null);
+        Input = CreateInput<Image>("Background", "INPUT", null);
     }
     
     public override bool Validate()
@@ -21,10 +22,10 @@ public class OutputNode : Node, IBackgroundInput
         return new OutputNode();
     }
 
-    protected override ChunkyImage? OnExecute(KeyFrameTime frame)
+    protected override Image? OnExecute(KeyFrameTime frame)
     {
         return Input.Value;
     }
 
-    InputProperty<ChunkyImage?> IBackgroundInput.Background => Input;
+    InputProperty<Image?> IBackgroundInput.Background => Input;
 }

@@ -43,6 +43,9 @@ namespace PixiEditor.DrawingApi.Core.Surface
 
         public void DrawImage(Image image, int x, int y) =>
             DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, x, y);
+        
+        public void DrawImage(Image image, int x, int y, Paint paint) =>
+            DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, x, y, paint);
 
         public void DrawImage(Image image, RectD rect, Paint paint) =>
             DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, rect, paint);

@@ -1,5 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Surface.ImageData
 {
@@ -18,6 +19,8 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
         public int Width => DrawingBackendApi.Current.ImageImplementation.GetWidth(ObjectPointer);
         
         public int Height => DrawingBackendApi.Current.ImageImplementation.GetHeight(ObjectPointer);
+        
+        public VecI Size => new VecI(Width, Height);
         
         public Image(IntPtr objPtr) : base(objPtr)
         {

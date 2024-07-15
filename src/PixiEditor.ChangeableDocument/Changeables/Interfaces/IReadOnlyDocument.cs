@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.DrawingApi.Core.Numerics;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -50,7 +51,7 @@ public interface IReadOnlyDocument
     /// </summary>
     void ForEveryReadonlyMember(Action<IReadOnlyStructureNode> action);
     
-    public Surface? GetLayerRasterizedImage(Guid layerGuid, int frame);
+    public Image? GetLayerRasterizedImage(Guid layerGuid, int frame);
     public RectI? GetChunkAlignedLayerBounds(Guid layerGuid, int frame);
 
     /// <summary>

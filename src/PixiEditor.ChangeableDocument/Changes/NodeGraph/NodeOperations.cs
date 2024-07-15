@@ -2,14 +2,15 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 public static class NodeOperations
 {
-    public static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<ChunkyImage?> parentInput,
-        OutputProperty<ChunkyImage> toAddOutput,
-        InputProperty<ChunkyImage> toAddInput, Guid memberId)
+    public static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<Image?> parentInput,
+        OutputProperty<Image> toAddOutput,
+        InputProperty<Image> toAddInput, Guid memberId)
     {
         List<ConnectProperty_ChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;

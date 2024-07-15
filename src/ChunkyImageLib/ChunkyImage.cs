@@ -85,7 +85,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
     private VectorPath? clippingPath;
     private double? horizontalSymmetryAxis = null;
     private double? verticalSymmetryAxis = null;
-
+    private float opacity = 1;
+    
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> committedChunks;
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, Chunk>> latestChunks;
     private readonly Dictionary<ChunkResolution, Dictionary<VecI, LatestChunkData>> latestChunksData;
@@ -1140,7 +1141,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
         affectedAreaPos = (affectedAreaPos - chunkPos * FullChunkSize) * scale;
         affectedAreaSize = affectedAreaSize * scale;
         targetChunk.Surface.DrawingSurface.Canvas.ClipRect(new RectD(affectedAreaPos, affectedAreaSize));
-
+        
         operation.DrawOnChunk(targetChunk, chunkPos);
         targetChunk.Surface.DrawingSurface.Canvas.RestoreToCount(count);
     }

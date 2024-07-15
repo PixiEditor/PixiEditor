@@ -55,6 +55,12 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             canvas.DrawImage(_imageImpl.ManagedInstances[image.ObjectPointer], x, y);
         }
 
+        public void DrawImage(IntPtr objPtr, Image image, int x, int y, Paint paint)
+        {
+            var canvas = ManagedInstances[objPtr];
+            canvas.DrawImage(_imageImpl.ManagedInstances[image.ObjectPointer], x, y, _paintImpl.ManagedInstances[paint.ObjectPointer]);
+        }
+
         public int Save(IntPtr objPtr)
         {
             return ManagedInstances[objPtr].Save();
