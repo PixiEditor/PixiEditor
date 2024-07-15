@@ -10,4 +10,9 @@ public record KeyFrameTime
     public int Frame { get; init; }
     
     public static implicit operator KeyFrameTime(int frame) => new KeyFrameTime(frame);
+
+    public virtual bool Equals(KeyFrameTime? other)
+    {
+        return other != null && Frame == other.Frame;
+    }
 }
