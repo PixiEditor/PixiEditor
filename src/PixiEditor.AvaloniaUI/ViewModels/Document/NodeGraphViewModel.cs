@@ -175,6 +175,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         Internals.ActionAccumulator.AddActions(new NodePosition_Action(node.Id, newPos));
     }
 
+    public void UpdatePropertyValue(INodeHandler node, string property, object? value)
+    {
+        Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value));
+    }
+    
     public void EndChangeNodePosition()
     {
         Internals.ActionAccumulator.AddFinishedActions(new EndNodePosition_Action());

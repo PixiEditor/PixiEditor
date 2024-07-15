@@ -33,6 +33,12 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.SetNodePosition(args.node, args.newPos);
     }
+
+    [Command.Internal("PixiEditor.NodeGraph.UpdateValue")]
+    public void UpdatePropertyValue((INodeHandler node, string property, object value) args)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.UpdatePropertyValue(args.node, args.property, args.value);
+    }
     
     [Command.Internal("PixiEditor.NodeGraph.EndChangeNodePos")]
     public void EndChangeNodePos()

@@ -19,7 +19,7 @@ public class SeparateColorNode : Node
 
     public SeparateColorNode()
     {
-        Color = CreateFieldInput(nameof(Color), "COLOR", _ => new Color());
+        Color = CreateFieldInput(nameof(Color), "COLOR", new Color());
         R = CreateFieldOutput(nameof(R), "R", ctx => Color.Value(ctx).R / 255d);
         G = CreateFieldOutput(nameof(G), "G", ctx => Color.Value(ctx).G / 255d);
         B = CreateFieldOutput(nameof(B), "B", ctx => Color.Value(ctx).B / 255d);

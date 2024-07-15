@@ -12,7 +12,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
 {
     private string propertyName;
     private string displayName;
-    private object value;
+    private object? _value;
     private INodeHandler node;
     private bool isInput;
     private bool isFunc;
@@ -27,10 +27,16 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         set => SetProperty(ref displayName, value);
     }
     
-    public object Value
+    public object? Value
     {
-        get => value;
-        set => SetProperty(ref value, value);
+        get => _value;
+        set
+        {
+            if (SetProperty(ref _value, value))
+            {
+                ViewModelMain.Current.NodeGraphManager.UpdatePropertyValue((node, PropertyName, value));
+            }
+        }
     }
     
     public bool IsInput
@@ -127,16 +133,22 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         
         return (NodePropertyViewModel)Activator.CreateInstance(viewModelType, node, type);
     }
+
+    public void InternalSetValue(object? value) => SetProperty(ref _value, value);
 }
 
 internal abstract class NodePropertyViewModel<T> : NodePropertyViewModel
 {
-    private T nodeValue;
-    
     public new T Value
     {
-        get => nodeValue;
-        set => SetProperty(ref nodeValue, value);
+        get
+        {
+            if (base.Value == null)
+                return default;
+
+            return (T)base.Value;
+        }
+        set => base.Value = value;
     }
     
     public NodePropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)

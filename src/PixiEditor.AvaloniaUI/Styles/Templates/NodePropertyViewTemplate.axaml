@@ -18,7 +18,7 @@
                             <x:Boolean>True</x:Boolean>
                         </properties:NodeSocket.IsInput>
                     </properties:NodeSocket>
-                    <ContentPresenter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Content="{TemplateBinding Content}" />
+                    <ContentPresenter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Top" Content="{TemplateBinding Content}" />
                     <properties:NodeSocket Grid.Column="2" Name="PART_OutputSocket"
                                            Label="{Binding DataContext.DisplayName, RelativeSource={RelativeSource TemplatedParent}}"
                                            HorizontalAlignment="Right"

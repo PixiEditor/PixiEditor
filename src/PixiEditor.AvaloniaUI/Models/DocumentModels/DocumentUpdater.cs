@@ -185,6 +185,9 @@ internal class DocumentUpdater
             case NodePosition_ChangeInfo info:
                 ProcessNodePosition(info);
                 break;
+            case PropertyValueUpdated_ChangeInfo info:
+                ProcessNodePropertyValueUpdated(info);
+                break;
         }
     }
 
@@ -568,5 +571,13 @@ internal class DocumentUpdater
     {
         NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
         node.SetPosition(info.NewPosition);
+    }
+    
+    private void ProcessNodePropertyValueUpdated(PropertyValueUpdated_ChangeInfo info)
+    {
+        NodeViewModel node = doc.StructureHelper.FindNode<NodeViewModel>(info.NodeId);
+        var property = node.FindInputProperty(info.Property);
+        
+        property.InternalSetValue(info.Value);
     }
 }

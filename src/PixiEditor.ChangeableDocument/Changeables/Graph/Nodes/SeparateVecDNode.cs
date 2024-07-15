@@ -17,7 +17,7 @@ public class SeparateVecDNode : Node
     {
         X = CreateFieldOutput("X", "X", ctx => Vector.Value(ctx).X);
         Y = CreateFieldOutput("Y", "Y", ctx => Vector.Value(ctx).Y);
-        Vector = CreateFieldInput("Vector", "VECTOR", _ => new VecD(0, 0));
+        Vector = CreateFieldInput("Vector", "VECTOR", new VecD(0, 0));
     }
 
     protected override Image? OnExecute(KeyFrameTime frameTime)

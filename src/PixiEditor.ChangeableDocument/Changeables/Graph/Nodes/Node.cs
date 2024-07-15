@@ -116,10 +116,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
-    protected FieldInputProperty<T> CreateFieldInput<T>(string propName, string displayName,
-        Func<FieldContext, T> defaultFunc)
+    protected FieldInputProperty<T> CreateFieldInput<T>(string propName, string displayName, T defaultValue)
     {
-        var property = new FieldInputProperty<T>(this, propName, displayName, defaultFunc);
+        var property = new FieldInputProperty<T>(this, propName, displayName, defaultValue);
         if (InputProperties.Any(x => x.InternalPropertyName == propName))
         {
             throw new InvalidOperationException($"Input with name {propName} already exists.");

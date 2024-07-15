@@ -21,10 +21,10 @@ public class CombineColorNode : Node
     {
         Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
         
-        R = CreateFieldInput("R", "R", _ => 0d);
-        G = CreateFieldInput("G", "G", _ => 0d);
-        B = CreateFieldInput("B", "B", _ => 0d);
-        A = CreateFieldInput("A", "A", _ => 1d);
+        R = CreateFieldInput("R", "R", 0d);
+        G = CreateFieldInput("G", "G", 0d);
+        B = CreateFieldInput("B", "B", 0d);
+        A = CreateFieldInput("A", "A", 0d);
     }
 
     private Color GetColor(FieldContext ctx)

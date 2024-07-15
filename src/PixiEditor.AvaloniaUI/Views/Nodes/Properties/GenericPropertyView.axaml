@@ -9,6 +9,7 @@
              x:Class="PixiEditor.AvaloniaUI.Views.Nodes.Properties.GenericPropertyView">
     <Grid>
         <TextBlock
+            VerticalAlignment="Center"
             ui:Translator.Key="{Binding DisplayName}"
             HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Left'}}"/>
     </Grid>
