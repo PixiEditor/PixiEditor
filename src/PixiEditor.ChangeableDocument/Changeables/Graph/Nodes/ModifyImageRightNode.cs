@@ -21,7 +21,7 @@ public class ModifyImageRightNode : Node
     public ModifyImageRightNode(ModifyImageLeftNode startNode)
     {
         this.startNode = startNode;
-        Color = CreateFieldInput(nameof(Color), "COLOR", _ => new Color(0, 0, 0, 255));
+        Color = CreateFieldInput(nameof(Color), "COLOR", _ => new Color(0, 0, 0, 0));
         Output = CreateOutput<Image>(nameof(Output), "OUTPUT", null);
     }
 
