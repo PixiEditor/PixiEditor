@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -18,7 +19,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyCollection<InputProperty> InputProperties => inputs;
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
     public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes => _connectedNodes;
-    public IReadOnlyChunkyImage CachedResult { get; private set; }
+    public Image? CachedResult { get; private set; }
 
     public virtual string InternalName { get; }
 
@@ -31,13 +32,13 @@ public abstract class Node : IReadOnlyNode, IDisposable
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
 
-    public IReadOnlyChunkyImage? Execute(KeyFrameTime frameTime)
+    public Image? Execute(KeyFrameTime frameTime)
     {
         CachedResult = OnExecute(frameTime);
         return CachedResult;
     }
 
-    protected abstract ChunkyImage? OnExecute(KeyFrameTime frameTime);
+    protected abstract Image? OnExecute(KeyFrameTime frameTime);
     public abstract bool Validate();
 
     public void RemoveKeyFrame(Guid keyFrameGuid)

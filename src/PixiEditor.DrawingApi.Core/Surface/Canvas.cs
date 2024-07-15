@@ -10,9 +10,9 @@ using PixiEditor.Numerics;
 namespace PixiEditor.DrawingApi.Core.Surface
 {
     public delegate void SurfaceChangedEventHandler(RectD? changedRect);
+
     public class Canvas : NativeObject
     {
-
         public override object Native => DrawingBackendApi.Current.CanvasImplementation.GetNativeCanvas(ObjectPointer);
         public event SurfaceChangedEventHandler? Changed;
 
@@ -21,6 +21,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
         }
 
         public void DrawPixel(VecI position, Paint drawingPaint) => DrawPixel(position.X, position.Y, drawingPaint);
+
         public void DrawPixel(int posX, int posY, Paint drawingPaint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawPixel(ObjectPointer, posX, posY, drawingPaint);
@@ -34,15 +35,19 @@ namespace PixiEditor.DrawingApi.Core.Surface
         }
 
         public void DrawSurface(DrawingSurface original, int x, int y) => DrawSurface(original, x, y, null);
-        
+
         public void DrawSurface(DrawingSurface surfaceToDraw, VecI size, Paint paint)
         {
             DrawSurface(surfaceToDraw, size.X, size.Y, paint);
         }
 
-        public void DrawImage(Image image, int x, int y) => DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, x, y);
+        public void DrawImage(Image image, int x, int y) =>
+            DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, x, y);
         
-        public void DrawImage(Image image, RectD rect, Paint paint) => 
+        public void DrawImage(Image image, int x, int y, Paint paint) =>
+            DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, x, y, paint);
+
+        public void DrawImage(Image image, RectD rect, Paint paint) =>
             DrawingBackendApi.Current.CanvasImplementation.DrawImage(ObjectPointer, image, rect, paint);
 
         public int Save()
@@ -54,7 +59,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
         {
             DrawingBackendApi.Current.CanvasImplementation.Restore(ObjectPointer);
         }
-        
+
         public void Scale(float s) => Scale(s, s);
 
         /// <param name="size">The amount to scale.</param>
@@ -93,7 +98,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
             DrawingBackendApi.Current.CanvasImplementation.DrawPath(ObjectPointer, path, paint);
             Changed?.Invoke(path.Bounds);
         }
-        
+
         public void DrawPoint(VecI pos, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawPoint(ObjectPointer, pos, paint);
@@ -111,20 +116,20 @@ namespace PixiEditor.DrawingApi.Core.Surface
             DrawingBackendApi.Current.CanvasImplementation.DrawRect(ObjectPointer, x, y, width, height, paint);
             Changed?.Invoke(new RectD(x, y, width, height));
         }
-        
+
         public void DrawCircle(int x, int y, int radius, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawCircle(ObjectPointer, x, y, radius, paint);
             Changed?.Invoke(new RectD(x - radius, y - radius, radius * 2, radius * 2));
         }
-        
+
         public void DrawRect(RectI rect, Paint paint) => DrawRect(rect.X, rect.Y, rect.Width, rect.Height, paint);
 
         public void ClipPath(VectorPath clipPath) => ClipPath(clipPath, ClipOperation.Intersect);
 
         public void ClipPath(VectorPath clipPath, ClipOperation clipOperation) =>
             ClipPath(clipPath, clipOperation, false);
-        
+
         public void ClipPath(VectorPath clipPath, ClipOperation clipOperation, bool antialias)
         {
             DrawingBackendApi.Current.CanvasImplementation.ClipPath(ObjectPointer, clipPath, clipOperation, antialias);
@@ -140,7 +145,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
             DrawingBackendApi.Current.CanvasImplementation.Clear(ObjectPointer);
             Changed?.Invoke(null);
         }
-        
+
         public void Clear(Color color)
         {
             DrawingBackendApi.Current.CanvasImplementation.Clear(ObjectPointer, color);
@@ -187,6 +192,12 @@ namespace PixiEditor.DrawingApi.Core.Surface
         public void DrawBitmap(Bitmap bitmap, int x, int y)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawBitmap(ObjectPointer, bitmap, x, y);
+            Changed?.Invoke(null);
+        }
+
+        public void DrawPaint(Paint paint)
+        {
+            DrawingBackendApi.Current.CanvasImplementation.DrawPaint(ObjectPointer, paint);
             Changed?.Invoke(null);
         }
 

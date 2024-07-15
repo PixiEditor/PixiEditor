@@ -138,14 +138,15 @@ internal class AffectedAreasGatherer
     private void AddAllToImagePreviews(Guid memberGuid, int frame, bool ignoreSelf = false)
     {
         var member = tracker.Document.FindMember(memberGuid);
-        if (member is IReadOnlyLayerNode layer)
+        if (member is IReadOnlyImageNode layer)
         {
-            var result = layer.Execute(frame);
+            var result = layer.GetLayerImageAtFrame(frame);
             if (result == null)
             {
                 AddWholeCanvasToImagePreviews(memberGuid, ignoreSelf);
                 return;
             }
+            
             var chunks = result.FindAllChunks();
             AddToImagePreviews(memberGuid, new AffectedArea(chunks), ignoreSelf);
         }
@@ -160,9 +161,9 @@ internal class AffectedAreasGatherer
     private void AddAllToMainImage(Guid memberGuid, int frame, bool useMask = true)
     {
         var member = tracker.Document.FindMember(memberGuid);
-        if (member is IReadOnlyLayerNode layer)
+        if (member is IReadOnlyImageNode layer)
         {
-            var result = layer.Execute(frame);
+            var result = layer.GetLayerImageAtFrame(frame);
             if (result == null)
             {
                 AddWholeCanvasToMainImage();

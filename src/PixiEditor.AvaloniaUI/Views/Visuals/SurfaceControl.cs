@@ -72,7 +72,7 @@ internal class SurfaceControl : Control
         {
             result = Stretch.CalculateSize(availableSize, new Size(source.Size.X, source.Size.Y));
         }
-        else
+        else if(Width > 0 && Height > 0)
         {
             result = Stretch.CalculateSize(availableSize, new Size(Width, Height));
         }

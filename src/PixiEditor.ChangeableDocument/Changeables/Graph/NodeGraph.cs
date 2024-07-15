@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -93,7 +94,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return true;
     }
 
-    public ChunkyImage? Execute(int frame)
+    public Image? Execute(int frame)
     {
         if (OutputNode == null) return null;
 

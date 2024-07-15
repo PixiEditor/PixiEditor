@@ -1,5 +1,8 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -12,7 +15,7 @@ public class CircleNode : Node
     public InputProperty<Color> StrokeColor { get; }
     public InputProperty<Color> FillColor { get; }
     public InputProperty<int> StrokeWidth { get; }
-    public OutputProperty<ChunkyImage> Output { get; }
+    public OutputProperty<Image> Output { get; }
     
     public CircleNode() 
     {
@@ -22,18 +25,22 @@ public class CircleNode : Node
         StrokeColor = CreateInput<Color>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
         FillColor = CreateInput<Color>("FillColor", "FILL_COLOR", new Color(0, 0, 0, 255));
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
-        Output = CreateOutput<ChunkyImage>("Output", "OUTPUT", null);
+        Output = CreateOutput<Image?>("Output", "OUTPUT", null);
     }
     
-    protected override ChunkyImage? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(KeyFrameTime frameTime)
     {
-        Output.Value = new ChunkyImage(new VecI(Radius.Value * 2, Radius.Value * 2));
+        Surface workingSurface = new Surface(new VecI(Radius.Value * 2, Radius.Value * 2));
         
-        Output.Value.EnqueueDrawEllipse(
-            RectI.Create(X.Value, Y.Value, Radius.Value * 2, Radius.Value * 2), 
-            FillColor.Value, StrokeColor.Value, StrokeWidth.Value);
+        using Paint paint = new Paint();
+        paint.StrokeWidth = StrokeWidth.Value;
+        paint.Color = StrokeColor.Value;
         
-        Output.Value.CommitChanges();
+        workingSurface.DrawingSurface.Canvas.DrawCircle(Radius.Value, Radius.Value, Radius.Value, paint);
+        
+        Output.Value = workingSurface.DrawingSurface.Snapshot();
+        
+        workingSurface.Dispose();
         
         return Output.Value;
     }

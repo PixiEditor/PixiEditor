@@ -9,6 +9,9 @@ namespace PixiEditor.DrawingApi.Core.Surface.PaintImpl
     /// </summary>
     public class Paint : NativeObject
     {
+        private ColorFilter? colorFilter;
+        private Shader? shader;
+        
         public override object Native => DrawingBackendApi.Current.PaintImplementation.GetNativePaint(ObjectPointer);
 
         public Color Color
@@ -53,10 +56,24 @@ namespace PixiEditor.DrawingApi.Core.Surface.PaintImpl
             set => DrawingBackendApi.Current.PaintImplementation.SetStrokeWidth(this, value);
         }
         
-        public ColorFilter ColorFilter 
+        public ColorFilter ColorFilter
         {
-            get => DrawingBackendApi.Current.PaintImplementation.GetColorFilter(this);
-            set => DrawingBackendApi.Current.PaintImplementation.SetColorFilter(this, value);
+            get => colorFilter ??= DrawingBackendApi.Current.PaintImplementation.GetColorFilter(this);
+            set
+            {
+                DrawingBackendApi.Current.PaintImplementation.SetColorFilter(this, value);
+                colorFilter = value;
+            }
+        }
+
+        public Shader Shader
+        {
+            get => shader ??= DrawingBackendApi.Current.PaintImplementation.GetShader(this);
+            set
+            {
+                DrawingBackendApi.Current.PaintImplementation.SetShader(this, value);
+                shader = value;
+            }
         }
 
         public Paint(IntPtr objPtr) : base(objPtr)

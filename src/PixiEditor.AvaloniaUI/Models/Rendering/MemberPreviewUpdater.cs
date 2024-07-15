@@ -583,9 +583,8 @@ internal class MemberPreviewUpdater
         foreach (var chunk in area.Chunks)
         {
             var pos = chunk * ChunkResolution.Full.PixelSize();
-            IReadOnlyChunkyImage? result = layer is IReadOnlyImageNode raster
-                ? raster.GetLayerImageAtFrame(doc.AnimationHandler.ActiveFrameBindable)
-                : layer.Execute(doc.AnimationHandler.ActiveFrameBindable);
+            if (layer is not IReadOnlyImageNode raster) return;
+            IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(doc.AnimationHandler.ActiveFrameBindable);
             
             if (!result.DrawCommittedChunkOn(
                     chunk,
@@ -699,17 +698,19 @@ internal class MemberPreviewUpdater
                      nodeVm.ResultPreview = new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
                }
                
-               float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.CommittedSize.X;
-               float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.CommittedSize.Y;
+               float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Width;
+               float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Height;
                
                nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
                nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
                
                nodeVm.ResultPreview.DrawingSurface.Canvas.Clear();
-               node.CachedResult.DrawCommittedRegionOn(
-                   new RectI(0, 0, node.CachedResult.CommittedSize.X, node.CachedResult.CommittedSize.Y), ChunkResolution.Full,
-                   nodeVm.ResultPreview.DrawingSurface, new VecI(0, 0), ReplacingPaint);
-               
+
+               if (node.CachedResult != null)
+               {
+                   nodeVm.ResultPreview.DrawingSurface.Canvas.DrawImage(node.CachedResult, new RectD(0, 0, node.CachedResult.Width, node.CachedResult.Height), ReplacingPaint);
+               }
+
                nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
             }
         });

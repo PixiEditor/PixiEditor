@@ -3,6 +3,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 using PixiEditor.ChangeableDocument.Changes.NodeGraph;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changes.Structure;
 
@@ -49,7 +50,7 @@ internal class MoveStructureMember_Change : Change
 
         List<IChangeInfo> changes = new();
 
-        InputProperty<ChunkyImage?> inputProperty = backgroundInput.Background;
+        InputProperty<Image?> inputProperty = backgroundInput.Background;
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {

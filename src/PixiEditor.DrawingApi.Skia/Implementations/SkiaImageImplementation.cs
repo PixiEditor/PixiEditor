@@ -110,6 +110,15 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             return ManagedInstances[objectPointer].Height;
         }
+        
+        public Image Clone(Image image)
+        {
+            var native = ManagedInstances[image.ObjectPointer];
+            var encoded = native.Encode();
+            var clone = SKImage.FromEncodedData(encoded);
+            ManagedInstances[clone.Handle] = clone;
+            return new Image(clone.Handle);
+        }
 
         public object GetNativeImage(IntPtr objectPointer)
         {

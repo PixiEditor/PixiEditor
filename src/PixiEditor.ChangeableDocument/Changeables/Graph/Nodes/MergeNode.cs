@@ -1,20 +1,21 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class MergeNode : Node, IBackgroundInput
 {
-    public InputProperty<ChunkyImage?> Top { get; }
-    public InputProperty<ChunkyImage?> Bottom { get; }
-    public OutputProperty<ChunkyImage> Output { get; }
+    public InputProperty<Image?> Top { get; }
+    public InputProperty<Image?> Bottom { get; }
+    public OutputProperty<Image?> Output { get; }
     
     public MergeNode() 
     {
-        Top = CreateInput<ChunkyImage>("Top", "TOP", null);
-        Bottom = CreateInput<ChunkyImage>("Bottom", "BOTTOM", null);
-        Output = CreateOutput<ChunkyImage>("Output", "OUTPUT", null);
+        Top = CreateInput<Image?>("Top", "TOP", null);
+        Bottom = CreateInput<Image?>("Bottom", "BOTTOM", null);
+        Output = CreateOutput<Image?>("Output", "OUTPUT", null);
     }
     
     public override bool Validate()
@@ -27,7 +28,7 @@ public class MergeNode : Node, IBackgroundInput
         return new MergeNode();
     }
 
-    protected override ChunkyImage? OnExecute(KeyFrameTime frame)
+    protected override Image? OnExecute(KeyFrameTime frame)
     {
         if(Top.Value == null && Bottom.Value == null)
         {
@@ -35,31 +36,26 @@ public class MergeNode : Node, IBackgroundInput
             return null;
         }
         
-        VecI size = Top.Value?.CommittedSize ?? Bottom.Value.CommittedSize;
-
-        if (Output.Value == null || Output.Value.LatestSize != size)
+        int width = Top.Value?.Width ?? Bottom.Value.Width;
+        int height = Top.Value?.Height ?? Bottom.Value.Height;
+        
+        Surface workingSurface = new Surface(new VecI(width, height));
+        
+        if(Bottom.Value != null)
         {
-            Output.Value = new ChunkyImage(size);
-        }
-        else
-        {
-            Output.Value.EnqueueClear();
-        }
-
-        if (Bottom.Value != null)
-        {
-            Output.Value.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Bottom.Value);
+            workingSurface.DrawingSurface.Canvas.DrawImage(Bottom.Value, 0, 0);
         }
         
-        if (Top.Value != null)
+        if(Top.Value != null)
         {
-            Output.Value.EnqueueDrawUpToDateChunkyImage(VecI.Zero, Top.Value);
+            workingSurface.DrawingSurface.Canvas.DrawImage(Top.Value, 0, 0);
         }
         
-        Output.Value.CommitChanges();
+        Output.Value = workingSurface.DrawingSurface.Snapshot();
         
+        workingSurface.Dispose();
         return Output.Value;
     }
 
-    InputProperty<ChunkyImage> IBackgroundInput.Background => Bottom;
+    InputProperty<Image> IBackgroundInput.Background => Bottom;
 }

@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
@@ -13,7 +14,7 @@ public static class DocumentEvaluator
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            ChunkyImage? evaluated = graph.Execute(frame);
+            Image? evaluated = graph.Execute(frame);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -28,9 +29,8 @@ public static class DocumentEvaluator
             {
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
-
-            evaluated.DrawMostUpToDateChunkOn(chunkPos, resolution, chunk.Surface.DrawingSurface, VecI.Zero,
-                context.ReplacingPaintWithOpacity);
+            
+            chunk.Surface.DrawingSurface.Canvas.DrawImage(evaluated, 0, 0, context.ReplacingPaintWithOpacity);
 
             chunk.Surface.DrawingSurface.Canvas.Restore();
 
@@ -50,7 +50,7 @@ public static class DocumentEvaluator
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            IReadOnlyChunkyImage? evaluated = node.Execute(frame);
+            Image? evaluated = node.Execute(frame);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -65,9 +65,8 @@ public static class DocumentEvaluator
             {
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
-
-            evaluated.DrawMostUpToDateChunkOn(chunkPos, resolution, chunk.Surface.DrawingSurface, VecI.Zero,
-                context.ReplacingPaintWithOpacity);
+            
+            chunk.Surface.DrawingSurface.Canvas.DrawImage(evaluated, 0, 0, context.ReplacingPaintWithOpacity);
 
             chunk.Surface.DrawingSurface.Canvas.Restore();
 

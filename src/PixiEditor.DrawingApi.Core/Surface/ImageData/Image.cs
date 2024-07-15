@@ -1,5 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.DrawingApi.Core.Surface.ImageData
 {
@@ -11,13 +12,15 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
     ///     <para />
     ///     <para>An image always has a non-zero dimensions. If there is a request to create a new image, either directly or via a surface, and either of the requested dimensions are zero, then <see langword="null" /> will be returned.</para>
     /// </remarks>
-    public class Image : NativeObject
+    public class Image : NativeObject, ICloneable
     {
         public override object Native => DrawingBackendApi.Current.ImageImplementation.GetNativeImage(ObjectPointer);
 
         public int Width => DrawingBackendApi.Current.ImageImplementation.GetWidth(ObjectPointer);
         
         public int Height => DrawingBackendApi.Current.ImageImplementation.GetHeight(ObjectPointer);
+        
+        public VecI Size => new VecI(Width, Height);
         
         public Image(IntPtr objPtr) : base(objPtr)
         {
@@ -51,6 +54,11 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
         public ImgData Encode(EncodedImageFormat format, int quality = 100)
         {
             return DrawingBackendApi.Current.ImageImplementation.Encode(this, format, quality);
+        }
+
+        public object Clone()
+        {
+            return DrawingBackendApi.Current.ImageImplementation.Clone(this);
         }
     }
 }

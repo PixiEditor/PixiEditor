@@ -10,11 +10,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     public class SkiaPaintImplementation : SkObjectImplementation<SKPaint>, IPaintImplementation
     {
         private readonly SkiaColorFilterImplementation colorFilterImplementation;
+        private readonly SkiaShaderImplementation shaderImplementation;
  
-        public SkiaPaintImplementation(SkiaColorFilterImplementation colorFilterImpl)
+        public SkiaPaintImplementation(SkiaColorFilterImplementation colorFilterImpl, SkiaShaderImplementation shaderImpl)
         {
             colorFilterImplementation = colorFilterImpl;
+            shaderImplementation = shaderImpl;
         }
+
         
         public IntPtr CreatePaint()
         {
@@ -144,6 +147,18 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         {
             SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
             skPaint.ColorFilter = colorFilterImplementation[value.ObjectPointer];
+        }
+        
+        public Shader GetShader(Paint paint)
+        {
+            SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
+            return new Shader(skPaint.Shader.Handle);
+        }
+        
+        public void SetShader(Paint paint, Shader shader)
+        {
+            SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
+            skPaint.Shader = shaderImplementation[shader.ObjectPointer];
         }
 
         public object GetNativePaint(IntPtr objectPointer)

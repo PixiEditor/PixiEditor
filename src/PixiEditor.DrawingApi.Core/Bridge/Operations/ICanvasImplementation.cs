@@ -38,5 +38,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void DrawBitmap(IntPtr objPtr, Bitmap bitmap, int x, int y);
         public void Dispose(IntPtr objectPointer);
         public object GetNativeCanvas(IntPtr objectPointer);
+        public void DrawPaint(IntPtr objectPointer, Paint paint);
+        public void DrawImage(IntPtr objectPointer, Image image, int x, int y, Paint paint);
     }
 }
