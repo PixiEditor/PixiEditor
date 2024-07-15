@@ -39,11 +39,11 @@ public class ModifyImageRightNode : Node
 
         using var surface = new Surface(size);
 
-        for (int y = 0; y < width; y++)
+        for (int y = 0; y < height; y++)
         {
-            for (int x = 0; x < height; x++)
+            for (int x = 0; x < width; x++)
             {
-                var context = new FieldContext(new VecD((double)x / width, (double)y / width), new VecI(width, height));
+                var context = new FieldContext(new VecD((double)x / width, (double)y / height), new VecI(width, height));
                 var color = Color.Value(context);
 
                 drawingPaint.Color = color;
