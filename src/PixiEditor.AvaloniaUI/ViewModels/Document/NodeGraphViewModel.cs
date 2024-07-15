@@ -57,12 +57,12 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         Frames.Add(frame);
     }
 
-    public void AddZone(Guid frameId, Guid startId, Guid endId)
+    public void AddZone(Guid frameId, string internalName, Guid startId, Guid endId)
     {
         var start = AllNodes.First(x => x.Id == startId);
         var end = AllNodes.First(x => x.Id == endId);
         
-        var zone = new NodeZoneViewModel(frameId, start, end);
+        var zone = new NodeZoneViewModel(frameId, internalName, start, end);
         
         Frames.Add(zone);
     }

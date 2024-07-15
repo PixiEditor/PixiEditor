@@ -49,6 +49,10 @@
             <Color x:Key="VecISocketColor">#c9b4ca</Color>
             
             <Color x:Key="PixiEditorModifyImageNodeBorderColor">#68abdf</Color>
+            <Color x:Key="PixiEditorModifyImageNodeBackgroundColor">#4068abdf</Color>
+
+            <Color x:Key="NodeFrameBorderColor">#101010</Color>
+            <Color x:Key="NodeFrameBackgroundColor">#40101010</Color>
 
             <system:Double x:Key="ThemeDisabledOpacity">0.4</system:Double>
 
@@ -95,6 +99,11 @@
             
             <SolidColorBrush x:Key="PixiEditorModifyImageLeftNodeBorderBrush" Color="{StaticResource PixiEditorModifyImageNodeBorderColor}"/>
             <SolidColorBrush x:Key="PixiEditorModifyImageRightNodeBorderBrush" Color="{StaticResource PixiEditorModifyImageNodeBorderColor}"/>
+            <SolidColorBrush x:Key="PixiEditorModifyImageZoneBorderBrush" Color="{StaticResource PixiEditorModifyImageNodeBorderColor}"/>
+            <SolidColorBrush x:Key="PixiEditorModifyImageZoneBackgroundBrush" Color="{StaticResource PixiEditorModifyImageNodeBackgroundColor}"/>
+            
+            <SolidColorBrush x:Key="NodeFrameBorderBrush" Color="{StaticResource NodeFrameBorderColor}"/>
+            <SolidColorBrush x:Key="NodeFrameBackgroundBrush" Color="{StaticResource NodeFrameBackgroundColor}"/>
 
             <CornerRadius x:Key="ControlCornerRadius">5</CornerRadius>
             <CornerRadius x:Key="ControlCornerRadiusTop">5, 5, 0, 0</CornerRadius>

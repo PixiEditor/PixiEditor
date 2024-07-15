@@ -16,6 +16,8 @@ public abstract class NodeFrameViewModelBase : ObservableObject
     
     public ObservableCollection<INodeHandler> Nodes { get; }
 
+    public string InternalName { get; init; }
+    
     public Guid Id
     {
         get => id;

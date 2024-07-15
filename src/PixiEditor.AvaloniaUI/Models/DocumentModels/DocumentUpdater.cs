@@ -533,7 +533,7 @@ internal class DocumentUpdater
 
     private void ProcessCreateNodeZone(CreateNodeZone_ChangeInfo info)
     {
-        doc.NodeGraphHandler.AddZone(info.Id, info.StartId, info.EndId);
+        doc.NodeGraphHandler.AddZone(info.Id, info.internalName, info.StartId, info.EndId);
     }
 
     private void ProcessDeleteNodeFrame(DeleteNodeFrame_ChangeInfo info)

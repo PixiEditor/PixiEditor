@@ -8,7 +8,9 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Grid Width="{Binding Size.X, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}">
-                        <Rectangle Fill="#60000000" Stroke="#90000000" StrokeThickness="2" RadiusX="10" RadiusY="10"
+                        <Rectangle Fill="{TemplateBinding Background}"
+                                   Stroke="{TemplateBinding BorderBrush}"
+                                   StrokeThickness="2" RadiusX="10" RadiusY="10"
                                    Width="{Binding Size.X, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}"
                                    Height="{Binding Size.Y, RelativeSource={RelativeSource FindAncestor, AncestorType=nodes:NodeFrameView}}" />
                         <TextBlock Margin="10,10,0,0" Foreground="#C0FFFFFF" Text="Untitled..." FontStyle="Italic" />

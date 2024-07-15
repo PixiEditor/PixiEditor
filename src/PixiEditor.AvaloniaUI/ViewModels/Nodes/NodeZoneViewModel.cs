@@ -8,8 +8,10 @@ public sealed class NodeZoneViewModel : NodeFrameViewModelBase
     private INodeHandler start;
     private INodeHandler end;
     
-    public NodeZoneViewModel(Guid id, INodeHandler start, INodeHandler end) : base(id, [start, end])
+    public NodeZoneViewModel(Guid id, string internalName, INodeHandler start, INodeHandler end) : base(id, [start, end])
     {
+        InternalName = internalName;
+        
         this.start = start;
         this.end = end;
         

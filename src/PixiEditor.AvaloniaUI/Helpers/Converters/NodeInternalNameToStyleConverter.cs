@@ -8,8 +8,11 @@ namespace PixiEditor.AvaloniaUI.Helpers.Converters;
 
 internal class NodeInternalNameToStyleConverter : SingleInstanceConverter<NodeInternalNameToStyleConverter>
 {
-    public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public override object Convert(object? value, Type targetType, object parameter, CultureInfo culture)
     {
+        if (value == null)
+            return AvaloniaProperty.UnsetValue;
+        
         string s = (string)value;
         s = s.Replace(".", string.Empty);
         

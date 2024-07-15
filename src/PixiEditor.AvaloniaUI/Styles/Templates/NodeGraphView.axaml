@@ -114,7 +114,20 @@
                                     <nodes:NodeFrameView
                                         TopLeft="{Binding TopLeft}"
                                         BottomRight="{Binding BottomRight}"
-                                        Size="{Binding Size}" />
+                                        Size="{Binding Size}">
+                                        <nodes:NodeFrameView.Background>
+                                            <MultiBinding Converter="{converters:UnsetSkipMultiConverter}">
+                                                 <Binding Path="InternalName" Converter="{converters:NodeInternalNameToStyleConverter}" ConverterParameter="BackgroundBrush" />
+                                                 <DynamicResource ResourceKey="NodeFrameBackgroundBrush"/>
+                                            </MultiBinding>
+                                        </nodes:NodeFrameView.Background>
+                                        <nodes:NodeFrameView.BorderBrush>
+                                            <MultiBinding Converter="{converters:UnsetSkipMultiConverter}">
+                                                <Binding Path="InternalName" Converter="{converters:NodeInternalNameToStyleConverter}" ConverterParameter="BorderBrush" />
+                                                <DynamicResource ResourceKey="NodeFrameBorderBrush"/>
+                                            </MultiBinding>
+                                        </nodes:NodeFrameView.BorderBrush>
+                                    </nodes:NodeFrameView>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                             <ItemsControl.ItemContainerTheme>
