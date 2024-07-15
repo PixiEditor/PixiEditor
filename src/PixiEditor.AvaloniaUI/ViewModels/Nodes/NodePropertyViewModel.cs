@@ -20,7 +20,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     
     private ObservableCollection<INodePropertyHandler> connectedInputs = new();
     private INodePropertyHandler? connectedOutput;
-    
+
     public string DisplayName
     {
         get => displayName;

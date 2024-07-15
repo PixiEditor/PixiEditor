@@ -14,17 +14,22 @@ internal class BoolToValueConverter : MarkupConverter
     {
         if (value is bool and true)
         {
-            return GetValue(TrueValue);
+            return GetValue(TrueValue, targetType);
         }
 
-        return GetValue(FalseValue);
+        return GetValue(FalseValue, targetType);
     }
 
-    private object GetValue(object value)
+    private object GetValue(object value, Type targetType)
     {
         if (value is string s && s.StartsWith("localized:"))
         {
             return new LocalizedString(s.Split("localized:")[1]);
+        }
+
+        if (value is string enumString && targetType.IsEnum)
+        {
+            return Enum.Parse(targetType, enumString);
         }
 
         return value;

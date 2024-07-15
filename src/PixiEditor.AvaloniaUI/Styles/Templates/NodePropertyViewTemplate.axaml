@@ -6,7 +6,7 @@
         <Setter Property="ClipToBounds" Value="False" />
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid Margin="-5, 2" ColumnDefinitions="Auto, *, Auto">
+                <Grid Margin="-5, 2" ColumnDefinitions="15, *, 15" MinHeight="18">
                     <properties:NodeSocket Name="PART_InputSocket"
                                            Node="{Binding DataContext.Node, RelativeSource={RelativeSource TemplatedParent}}"
                                            Label="{Binding DataContext.DisplayName, RelativeSource={RelativeSource TemplatedParent}}"
@@ -18,12 +18,12 @@
                             <x:Boolean>True</x:Boolean>
                         </properties:NodeSocket.IsInput>
                     </properties:NodeSocket>
-                    <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}" />
+                    <ContentPresenter Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Content="{TemplateBinding Content}" />
                     <properties:NodeSocket Grid.Column="2" Name="PART_OutputSocket"
                                            Label="{Binding DataContext.DisplayName, RelativeSource={RelativeSource TemplatedParent}}"
+                                           HorizontalAlignment="Right"
                                            IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}"
-                                           IsVisible="{Binding !DataContext.IsInput,
-                    RelativeSource={RelativeSource TemplatedParent}}"
+                                           IsVisible="{Binding !DataContext.IsInput,RelativeSource={RelativeSource TemplatedParent}}"
                                            SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}">
                         <properties:NodeSocket.IsInput>
                             <x:Boolean>False</x:Boolean>
