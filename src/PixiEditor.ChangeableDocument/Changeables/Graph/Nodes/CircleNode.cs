@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -7,19 +8,15 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class CircleNode : Node
 {
-    public InputProperty<int> Radius { get; }
-    public InputProperty<int> X { get; }
-    public InputProperty<int> Y { get; }
+    public InputProperty<VecI> Radius { get; }
     public InputProperty<Color> StrokeColor { get; }
     public InputProperty<Color> FillColor { get; }
     public InputProperty<int> StrokeWidth { get; }
     public OutputProperty<Surface> Output { get; }
     
-    public CircleNode() 
+    public CircleNode()
     {
-        Radius = CreateInput<int>("Radius", "RADIUS", 10);
-        X = CreateInput<int>("X", "X", 0);
-        Y = CreateInput<int>("Y", "Y", 0);
+        Radius = CreateInput<VecI>("Radius", "RADIUS", new VecI(32, 32));
         StrokeColor = CreateInput<Color>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
         FillColor = CreateInput<Color>("FillColor", "FILL_COLOR", new Color(0, 0, 0, 255));
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
@@ -28,13 +25,23 @@ public class CircleNode : Node
     
     protected override Surface? OnExecute(RenderingContext context)
     {
-        Surface workingSurface = new Surface(new VecI(Radius.Value * 2, Radius.Value * 2));
+        var radius = Radius.Value / 2;
+        var strokeWidth = StrokeWidth.Value;
+        var strokeOffset = new VecI(strokeWidth / 2);
+        
+        Surface workingSurface = new Surface(Radius.Value + strokeOffset * 2);
         
         using Paint paint = new Paint();
-        paint.StrokeWidth = StrokeWidth.Value;
-        paint.Color = StrokeColor.Value;
+        paint.Color = FillColor.Value;
+        paint.Style = PaintStyle.Fill;
         
-        workingSurface.DrawingSurface.Canvas.DrawCircle(Radius.Value, Radius.Value, Radius.Value, paint);
+        workingSurface.DrawingSurface.Canvas.DrawOval(radius + strokeOffset, radius, paint);
+        
+        paint.Color = StrokeColor.Value;
+        paint.StrokeWidth = strokeWidth;
+        paint.Style = PaintStyle.Stroke;
+
+        workingSurface.DrawingSurface.Canvas.DrawOval(radius + strokeOffset, radius, paint);
 
         Output.Value = workingSurface;
         
@@ -43,7 +50,7 @@ public class CircleNode : Node
 
     public override bool Validate()
     {
-        return Radius.Value > 0 && StrokeWidth.Value > 0;
+        return Radius.Value is { X: > 0, Y: > 0 } && StrokeWidth.Value > 0;
     }
 
     public override Node CreateCopy() => new CircleNode();
