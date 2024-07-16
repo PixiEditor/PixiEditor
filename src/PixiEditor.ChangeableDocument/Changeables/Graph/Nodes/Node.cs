@@ -23,7 +23,13 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public Image? CachedResult { get; private set; }
 
     public virtual string InternalName { get; }
+    
+    protected virtual bool AffectedByAnimation { get; }
+    
+    protected virtual bool AffectedByChunkResolution { get; }
 
+    protected virtual bool AffectedByChunkToUpdate { get; }
+    
     protected Node()
     {
         InternalName = $"PixiEditor.{GetType().Name}";
@@ -51,9 +57,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
     
     protected virtual bool CacheChanged(RenderingContext context)
     {
-        return !context.FrameTime.Equals(_lastFrameTime)
-               || context.Resolution != _lastResolution
-               || context.ChunkToUpdate != _lastChunkPos
+        return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
+               || (context.Resolution != _lastResolution && AffectedByChunkResolution)
+               || (context.ChunkToUpdate != _lastChunkPos && AffectedByChunkToUpdate)
                || inputs.Any(x => x.CacheChanged);
     }
     
