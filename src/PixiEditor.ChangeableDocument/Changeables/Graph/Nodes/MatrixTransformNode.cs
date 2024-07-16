@@ -6,7 +6,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class MatrixTransformNode : Node
 {
-    private Matrix4x5F previousMatrix = new(
+    private ColorMatrix previousMatrix = new(
         (1, 0, 0, 0, 0),
         (0, 1, 0, 0, 0),
         (0, 0, 1, 0, 0),
@@ -18,7 +18,7 @@ public class MatrixTransformNode : Node
     
     public InputProperty<Surface?> Input { get; }
     
-    public InputProperty<Matrix4x5F> Matrix { get; }
+    public InputProperty<ColorMatrix> Matrix { get; }
 
     public MatrixTransformNode()
     {

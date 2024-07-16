@@ -28,9 +28,9 @@ public class ColorFilter : NativeObject
         return new ColorFilter(DrawingBackendApi.Current.ColorFilterImplementation.CreateColorMatrix(matrix));
     }
 
-    public static ColorFilter CreateColorMatrix(Matrix4x5F matrix)
+    public static ColorFilter CreateColorMatrix(ColorMatrix matrix)
     {
-        float[] values = new float[Matrix4x5F.Width * Matrix4x5F.Height];
+        float[] values = new float[ColorMatrix.Width * ColorMatrix.Height];
         matrix.TryGetMembers(values);
 
         return CreateColorMatrix(values);

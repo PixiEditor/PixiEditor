@@ -36,6 +36,28 @@ public record struct Matrix4x5F
         left.M31 * right.M15 + left.M32 * right.M25 + left.M33 * right.M35 + left.M34 * right.M45,
         left.M41 * right.M15 + left.M42 * right.M25 + left.M43 * right.M35 + left.M44 * right.M45);
 
+    public static implicit operator Matrix4x5F(ColorMatrix toConvert) => new(
+        toConvert.M11,
+        toConvert.M12,
+        toConvert.M13,
+        toConvert.M14,
+        toConvert.M15,
+        toConvert.M21,
+        toConvert.M22,
+        toConvert.M23,
+        toConvert.M24,
+        toConvert.M25,
+        toConvert.M31,
+        toConvert.M32,
+        toConvert.M33,
+        toConvert.M34,
+        toConvert.M35,
+        toConvert.M41,
+        toConvert.M42,
+        toConvert.M43,
+        toConvert.M44,
+        toConvert.M45);
+
     private Matrix4x5F(float m11, float m12, float m13, float m14, float m15, float m21, float m22, float m23, float m24,
         float m25, float m31, float m32, float m33, float m34, float m35, float m41, float m42, float m43, float m44,
         float m45)
