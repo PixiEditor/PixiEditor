@@ -10,6 +10,7 @@
                     <properties:NodeSocket Name="PART_InputSocket"
                                            Node="{Binding DataContext.Node, RelativeSource={RelativeSource TemplatedParent}}"
                                            Label="{Binding DataContext.DisplayName, RelativeSource={RelativeSource TemplatedParent}}"
+                                           ClipToBounds="False"
                                            SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsVisible="{Binding DataContext.IsInput, 
@@ -22,6 +23,7 @@
                     <properties:NodeSocket Grid.Column="2" Name="PART_OutputSocket"
                                            Label="{Binding DataContext.DisplayName, RelativeSource={RelativeSource TemplatedParent}}"
                                            HorizontalAlignment="Right"
+                                           ClipToBounds="False"
                                            IsFunc="{Binding DataContext.IsFunc, RelativeSource={RelativeSource TemplatedParent}}"
                                            IsVisible="{Binding !DataContext.IsInput,RelativeSource={RelativeSource TemplatedParent}}"
                                            SocketBrush="{Binding DataContext.SocketBrush, RelativeSource={RelativeSource TemplatedParent}}">
