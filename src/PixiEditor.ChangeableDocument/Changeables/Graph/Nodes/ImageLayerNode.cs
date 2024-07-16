@@ -263,15 +263,18 @@ class ImageFrame
     public int Duration { get; set; }
     public ChunkyImage Image { get; set; }
     
+    private int lastCommitCounter = 0;
+    
     public bool RequiresUpdate
     {
         get
         {
-            return Image.QueueLength != lastQueueLength;
+            return Image.QueueLength != lastQueueLength || Image.CommitCounter != lastCommitCounter;
         }
         set
         {
             lastQueueLength = Image.QueueLength;
+            lastCommitCounter = Image.CommitCounter;
         }
     }
 
