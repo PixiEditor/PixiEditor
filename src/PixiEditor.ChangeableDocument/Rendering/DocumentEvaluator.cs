@@ -9,12 +9,12 @@ public static class DocumentEvaluator
     public static OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution,
         IReadOnlyNodeGraph graph, int frame, RectI? globalClippingRect = null)
     {
-        using RenderingContext context = new();
+        using RenderingContext context = new(frame, chunkPos, resolution);
         try
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Image? evaluated = graph.Execute(frame);
+            Image? evaluated = graph.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -54,12 +54,12 @@ public static class DocumentEvaluator
     public static OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution,
         IReadOnlyNode node, int frame, RectI? globalClippingRect = null)
     {
-        using RenderingContext context = new();
+        using RenderingContext context = new(frame, chunkPos, resolution);
         try
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Image? evaluated = node.Execute(frame);
+            Image? evaluated = node.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();

@@ -24,7 +24,6 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public Shader? CreateFromSksl(string sksl, bool isOpaque, out string errors)
         {
             SKRuntimeEffect effect = SKRuntimeEffect.Create(sksl, out errors);
-            
             if (string.IsNullOrEmpty(errors))
             {
                 SKShader shader = effect.ToShader(isOpaque);

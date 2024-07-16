@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
@@ -40,7 +41,7 @@ public class ModifyImageLeftNode : Node
         pixmap = Image.Value?.PeekPixels();
     }
 
-    protected override Image? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(RenderingContext context)
     {
         return Image.Value;
     }

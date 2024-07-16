@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -22,7 +23,7 @@ public class OutputNode : Node, IBackgroundInput
         return new OutputNode();
     }
 
-    protected override Image? OnExecute(KeyFrameTime frame)
+    protected override Image? OnExecute(RenderingContext context)
     {
         return Input.Value;
     }

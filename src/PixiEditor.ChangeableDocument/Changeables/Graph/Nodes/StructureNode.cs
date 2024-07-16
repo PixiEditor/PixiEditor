@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Enums;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
@@ -33,7 +34,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         Output = CreateOutput<Image?>("Output", "OUTPUT", null);
     }
 
-    protected abstract override Image? OnExecute(KeyFrameTime frameTime);
+    protected abstract override Image? OnExecute(RenderingContext context);
     public abstract override bool Validate();
 
     public abstract RectI? GetTightBounds(KeyFrameTime frameTime);

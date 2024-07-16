@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
@@ -21,7 +22,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
-    protected override Image? OnExecute(KeyFrameTime frame)
+    protected override Image? OnExecute(RenderingContext context)
     {
         if (!IsVisible.Value || Content.Value == null)
         {

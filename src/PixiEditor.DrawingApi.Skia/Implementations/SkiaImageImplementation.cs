@@ -14,7 +14,6 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         private readonly SkObjectImplementation<SKData> _imgImplementation;
         private readonly SkiaPixmapImplementation _pixmapImplementation;
         private SkObjectImplementation<SKSurface>? _surfaceImplementation;
-        private SkiaPixmapImplementation _pixmapImplementation;
         private SkiaColorSpaceImplementation colorSpaceImpl;
         
         public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation, SkiaPixmapImplementation pixmapImplementation)

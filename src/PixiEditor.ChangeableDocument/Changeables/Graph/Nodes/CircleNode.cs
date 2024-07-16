@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
@@ -28,7 +29,7 @@ public class CircleNode : Node
         Output = CreateOutput<Image?>("Output", "OUTPUT", null);
     }
     
-    protected override Image? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(RenderingContext context)
     {
         Surface workingSurface = new Surface(new VecI(Radius.Value * 2, Radius.Value * 2));
         

@@ -36,7 +36,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return true;
     }
 
-    protected override Image? OnExecute(KeyFrameTime frame)
+    protected override Image? OnExecute(RenderingContext context)
     {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
@@ -44,7 +44,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return Output.Value;
         }
 
-        var frameImage = GetFrameImage(frame).Image;
+        var frameImage = GetFrameImage(context.FrameTime).Image;
 
         Surface workingSurface;
         
@@ -113,16 +113,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-    protected override bool CacheChanged(KeyFrameTime frameTime)
+    protected override bool CacheChanged(RenderingContext context)
     {
-        var frame = GetFrameImage(frameTime);
-        return base.CacheChanged(frameTime) || frame?.RequiresUpdate == true;
+        var frame = GetFrameImage(context.FrameTime);
+        return base.CacheChanged(context) || frame?.RequiresUpdate == true;
     }
 
-    protected override void UpdateCache(KeyFrameTime time)
+    protected override void UpdateCache(RenderingContext context)
     {
-        base.UpdateCache(time);
-        var imageFrame = GetFrameImage(time);
+        base.UpdateCache(context);
+        var imageFrame = GetFrameImage(context.FrameTime);
         if (imageFrame is not null && imageFrame.RequiresUpdate)
         {
             imageFrame.RequiresUpdate = false; 

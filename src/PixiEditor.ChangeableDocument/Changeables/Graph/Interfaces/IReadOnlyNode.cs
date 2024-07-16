@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
@@ -14,7 +15,7 @@ public interface IReadOnlyNode
     
     public string InternalName { get; }
 
-    public Image? Execute(KeyFrameTime frame);
+    public Image? Execute(RenderingContext context);
     public bool Validate();
     
     /// <summary>
