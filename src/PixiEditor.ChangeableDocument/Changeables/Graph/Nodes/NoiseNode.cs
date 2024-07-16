@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
@@ -27,7 +28,7 @@ public class NoiseNode : Node
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
     
-    protected override Image OnExecute(KeyFrameTime frameTime)
+    protected override Image OnExecute(RenderingContext context)
     {
         if (Math.Abs(previousScale - Scale.Value) > 0.000001 || double.IsNaN(previousScale))
         {
