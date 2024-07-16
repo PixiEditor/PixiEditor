@@ -126,11 +126,17 @@ namespace PixiEditor.DrawingApi.Core.Surface
             Changed?.Invoke(new RectD(centerX - radius, centerY - radius, radius * 2, radius * 2));
         }
 
+        public void DrawCircle(VecI center, int radius, Paint paint) =>
+            DrawCircle(center.X, center.Y, radius, paint);
+
         public void DrawOval(int centerX, int centerY, int radiusX, int radiusY, Paint paint)
         {
             DrawingBackendApi.Current.CanvasImplementation.DrawOval(ObjectPointer, centerX, centerY, radiusX, radiusY, paint);
             Changed?.Invoke(new RectD(centerX - radiusX, centerY - radiusY, radiusX * 2, radiusY * 2));
         }
+
+        public void DrawOval(VecI center, VecI radius, Paint paint) =>
+            DrawOval(center.X, center.Y, radius.X, radius.Y, paint);
 
         public void DrawRect(RectI rect, Paint paint) => DrawRect(rect.X, rect.Y, rect.Width, rect.Height, paint);
 
