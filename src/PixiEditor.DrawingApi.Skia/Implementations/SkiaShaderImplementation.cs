@@ -47,6 +47,18 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return new Shader(shader.Handle);
         }
 
+        public Shader CreatePerlinNoiseTurbulence(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed)
+        {
+            SKShader shader = SKShader.CreatePerlinNoiseTurbulence(
+                baseFrequencyX,
+                baseFrequencyY,
+                numOctaves,
+                seed);
+
+            ManagedInstances[shader.Handle] = shader;
+            return new Shader(shader.Handle);
+        }
+
         public object GetNativeShader(IntPtr objectPointer)
         {
             return ManagedInstances[objectPointer]; 
