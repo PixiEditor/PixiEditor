@@ -20,6 +20,7 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     public ExecutionTrigger<VecI> CenterViewportTrigger { get; } = new ExecutionTrigger<VecI>();
     public ExecutionTrigger<double> ZoomViewportTrigger { get; } = new ExecutionTrigger<double>();
 
+    
     public string Index => _index;
 
     public string Id => id;
@@ -56,6 +57,14 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
             _flipY = value;
             OnPropertyChanged(nameof(FlipY));
         }
+    }
+
+    private ViewportColorChannels _channels = ViewportColorChannels.Default;
+    
+    public ViewportColorChannels Channels
+    {
+        get => _channels;
+        set => SetProperty(ref _channels, value);
     }
 
     public void IndexChanged()

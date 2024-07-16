@@ -40,6 +40,7 @@ internal class LayoutManager
         TimelineDockViewModel timelineDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
         
         NodeGraphDockViewModel nodeGraphDockViewModel = new(mainViewModel.DocumentManagerSubViewModel);
+        ChannelsDockViewModel channelsDockDockViewModel = new(mainViewModel.WindowSubViewModel);
 
         RegisterDockable(layersDockViewModel);
         RegisterDockable(colorPickerDockViewModel);
@@ -49,6 +50,7 @@ internal class LayoutManager
         RegisterDockable(paletteViewerDockViewModel);
         RegisterDockable(timelineDockViewModel);
         RegisterDockable(nodeGraphDockViewModel);
+        RegisterDockable(channelsDockDockViewModel);
         
         DefaultLayout = new LayoutTree
         {
