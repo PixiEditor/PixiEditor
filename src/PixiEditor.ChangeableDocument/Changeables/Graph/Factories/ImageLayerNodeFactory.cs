@@ -5,8 +5,8 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Factories;
 
 public class ImageLayerNodeFactory : NodeFactory<ImageLayerNode>
 {
-    public override T CreateNode<T>(IReadOnlyDocument document)
+    public override ImageLayerNode CreateNode(IReadOnlyDocument document)
     {
-        return (T)(object)new ImageLayerNode(document.Size);
+        return new ImageLayerNode(document.Size);
     }
 }

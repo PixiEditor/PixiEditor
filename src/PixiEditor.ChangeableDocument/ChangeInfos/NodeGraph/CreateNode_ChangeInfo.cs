@@ -6,6 +6,7 @@ using PixiEditor.Numerics;
 namespace PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 
 public record CreateNode_ChangeInfo(
+    string InternalName,
     string NodeName,
     VecD Position,
     Guid Id,
@@ -19,10 +20,13 @@ public record CreateNode_ChangeInfo(
             .ToImmutableArray();
     }
 
-    public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node)
+    public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node) =>
+        CreateFromNode(node, node.GetType().Name.Replace("Node", ""));
+    
+    public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node, string name)
     {
-        return new CreateNode_ChangeInfo(node.GetType().Name.Replace("Node", ""), node.Position, node.Id,
-            CreatePropertyInfos(node.InputProperties, true, node.Id),
-            CreatePropertyInfos(node.OutputProperties, false, node.Id));
+        return new CreateNode_ChangeInfo(node.InternalName, name, node.Position,
+            node.Id,
+            CreatePropertyInfos(node.InputProperties, true, node.Id), CreatePropertyInfos(node.OutputProperties, false, node.Id));
     }
 }

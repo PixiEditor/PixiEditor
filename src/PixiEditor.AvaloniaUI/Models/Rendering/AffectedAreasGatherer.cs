@@ -3,6 +3,7 @@ using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.ChangeableDocument;
+using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
@@ -128,6 +129,10 @@ internal class AffectedAreasGatherer
                     AddWholeCanvasToEveryImagePreview();
                     break;
                 case ConnectProperty_ChangeInfo:
+                    AddWholeCanvasToMainImage();
+                    AddWholeCanvasToEveryImagePreview();
+                    break;
+                case PropertyValueUpdated_ChangeInfo:
                     AddWholeCanvasToMainImage();
                     AddWholeCanvasToEveryImagePreview();
                     break;

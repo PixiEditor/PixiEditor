@@ -12,30 +12,43 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
 {
     private string propertyName;
     private string displayName;
-    private object value;
+    private object? _value;
     private INodeHandler node;
     private bool isInput;
+    private bool isFunc;
     private IBrush socketBrush;
     
     private ObservableCollection<INodePropertyHandler> connectedInputs = new();
     private INodePropertyHandler? connectedOutput;
-    
+
     public string DisplayName
     {
         get => displayName;
         set => SetProperty(ref displayName, value);
     }
     
-    public object Value
+    public object? Value
     {
-        get => value;
-        set => SetProperty(ref value, value);
+        get => _value;
+        set
+        {
+            if (SetProperty(ref _value, value))
+            {
+                ViewModelMain.Current.NodeGraphManager.UpdatePropertyValue((node, PropertyName, value));
+            }
+        }
     }
     
     public bool IsInput
     {
         get => isInput;
         set => SetProperty(ref isInput, value);
+    }
+
+    public bool IsFunc
+    {
+        get => isFunc;
+        set => SetProperty(ref isFunc, value);
     }
 
     public INodePropertyHandler? ConnectedOutput
@@ -74,7 +87,14 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     {
         Node = node;
         PropertyType = propertyType;
-        if (Application.Current.Styles.TryGetResource($"{PropertyType.Name}SocketBrush", App.Current.ActualThemeVariant, out object brush))
+        var targetType = propertyType;
+
+        if (propertyType.IsAssignableTo(typeof(Delegate)))
+        {
+            targetType = propertyType.GetMethod("Invoke").ReturnType;
+        }
+
+        if (Application.Current.Styles.TryGetResource($"{targetType.Name}SocketBrush", App.Current.ActualThemeVariant, out object brush))
         {
             if (brush is IBrush brushValue)
             {
@@ -96,27 +116,44 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
 
     public static NodePropertyViewModel? CreateFromType(Type type, INodeHandler node)
     {
-        string name = type.Name;
-        name += "PropertyViewModel";
+        Type propertyType = type;
+        
+        if (type.IsAssignableTo(typeof(Delegate)))
+        {
+            propertyType = type.GetMethod("Invoke").ReturnType;
+        }
+        
+        string name = $"{propertyType.Name}PropertyViewModel";
         
         Type viewModelType = Type.GetType($"PixiEditor.AvaloniaUI.ViewModels.Nodes.Properties.{name}");
         if (viewModelType == null)
         {
+            if (propertyType.IsEnum)
+            {
+                return new GenericEnumPropertyViewModel(node, type, propertyType);
+            }
+            
             return new GenericPropertyViewModel(node, type);
         }
         
         return (NodePropertyViewModel)Activator.CreateInstance(viewModelType, node, type);
     }
+
+    public void InternalSetValue(object? value) => SetProperty(ref _value, value);
 }
 
 internal abstract class NodePropertyViewModel<T> : NodePropertyViewModel
 {
-    private T nodeValue;
-    
     public new T Value
     {
-        get => nodeValue;
-        set => SetProperty(ref nodeValue, value);
+        get
+        {
+            if (base.Value == null)
+                return default;
+
+            return (T)base.Value;
+        }
+        set => base.Value = value;
     }
     
     public NodePropertyViewModel(NodeViewModel node, Type valueType) : base(node, valueType)

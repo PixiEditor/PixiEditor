@@ -21,6 +21,13 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes => _connectedNodes;
     public Image? CachedResult { get; private set; }
 
+    public virtual string InternalName { get; }
+
+    protected Node()
+    {
+        InternalName = $"PixiEditor.{GetType().Name}";
+    }
+    
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
@@ -129,6 +136,18 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
+    protected FieldInputProperty<T> CreateFieldInput<T>(string propName, string displayName, T defaultValue)
+    {
+        var property = new FieldInputProperty<T>(this, propName, displayName, defaultValue);
+        if (InputProperties.Any(x => x.InternalPropertyName == propName))
+        {
+            throw new InvalidOperationException($"Input with name {propName} already exists.");
+        }
+
+        inputs.Add(property);
+        return property;
+    }
+
     protected InputProperty<T> CreateInput<T>(string propName, string displayName, T defaultValue)
     {
         var property = new InputProperty<T>(this, propName, displayName, defaultValue);
@@ -138,6 +157,16 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
 
         inputs.Add(property);
+        return property;
+    }
+
+    protected FieldOutputProperty<T> CreateFieldOutput<T>(string propName, string displayName,
+        Func<FieldContext, T> defaultFunc)
+    {
+        var property = new FieldOutputProperty<T>(this, propName, displayName, defaultFunc);
+        outputs.Add(property);
+        property.Connected += (input, _) => _connectedNodes.Add(input.Node);
+        property.Disconnected += (input, _) => _connectedNodes.Remove(input.Node);
         return property;
     }
 

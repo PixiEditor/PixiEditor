@@ -11,6 +11,8 @@ public interface IReadOnlyNode
     public IReadOnlyCollection<IOutputProperty> OutputProperties { get; }
     public VecD Position { get; }
     public Image? CachedResult { get; }
+    
+    public string InternalName { get; }
 
     public Image? Execute(KeyFrameTime frame);
     public bool Validate();

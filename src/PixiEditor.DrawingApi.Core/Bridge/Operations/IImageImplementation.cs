@@ -1,4 +1,5 @@
 ﻿using System;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
@@ -21,6 +22,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public int GetHeight(IntPtr objectPointer);
         public object GetNativeImage(IntPtr objectPointer);
         public Image Clone(Image image);
-        public Pixmap PeekPixels(Image image);
+        public Pixmap PeekPixels(IntPtr objectPointer);
     }
 }

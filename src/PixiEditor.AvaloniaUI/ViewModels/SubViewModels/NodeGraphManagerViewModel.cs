@@ -10,6 +10,12 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     {
     }
 
+    [Command.Debug("PixiEditor.NodeGraph.CreateNodeFrameAroundEverything", "Create node frame", "Create node frame")]
+    public void CreateNodeFrameAroundEverything()
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.CreateNodeFrameAroundEverything();
+    }
+
     [Command.Internal("PixiEditor.NodeGraph.CreateNode")]
     public void CreateNode(Type nodeType)
     {
@@ -26,6 +32,12 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     public void ChangeNodePos((INodeHandler node, VecD newPos) args)
     {
         Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.SetNodePosition(args.node, args.newPos);
+    }
+
+    [Command.Internal("PixiEditor.NodeGraph.UpdateValue")]
+    public void UpdatePropertyValue((INodeHandler node, string property, object value) args)
+    {
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.UpdatePropertyValue(args.node, args.property, args.value);
     }
     
     [Command.Internal("PixiEditor.NodeGraph.EndChangeNodePos")]
