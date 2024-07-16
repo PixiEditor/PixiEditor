@@ -31,10 +31,10 @@ public static class DocumentEvaluator
             }
             
             VecD pos = chunkPos;
-            int x = (int)(pos.X * ChunkyImage.FullChunkSize);
-            int y = (int)(pos.Y * ChunkyImage.FullChunkSize);
-            int width = ChunkyImage.FullChunkSize;
-            int height = ChunkyImage.FullChunkSize;
+            int x = (int)(pos.X * ChunkyImage.FullChunkSize * resolution.Multiplier());
+            int y = (int)(pos.Y * ChunkyImage.FullChunkSize * resolution.Multiplier());
+            int width = (int)(ChunkyImage.FullChunkSize * resolution.Multiplier());
+            int height = (int)(ChunkyImage.FullChunkSize * resolution.Multiplier());
             
             RectD sourceRect = new(x, y, width, height);
             RectD destRect = new(0, 0, chunk.PixelSize.X, chunk.PixelSize.Y);
