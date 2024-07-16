@@ -19,6 +19,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private Paint blendPaint = new Paint();
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surface.BlendMode.DstIn };
 
+    // Handled by overriden CacheChanged
+    protected override bool AffectedByAnimation => false;
+
+    protected override bool AffectedByChunkResolution => true;
+
+    protected override bool AffectedByChunkToUpdate => true;
+
     public ImageLayerNode(VecI size)
     {
         LockTransparency = CreateInput<bool>("LockTransparency", "LOCK_TRANSPARENCY", false);
