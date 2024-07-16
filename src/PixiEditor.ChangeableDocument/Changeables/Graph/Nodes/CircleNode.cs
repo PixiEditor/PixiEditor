@@ -1,8 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -16,7 +13,7 @@ public class CircleNode : Node
     public InputProperty<Color> StrokeColor { get; }
     public InputProperty<Color> FillColor { get; }
     public InputProperty<int> StrokeWidth { get; }
-    public OutputProperty<Image> Output { get; }
+    public OutputProperty<Surface> Output { get; }
     
     public CircleNode() 
     {
@@ -26,10 +23,10 @@ public class CircleNode : Node
         StrokeColor = CreateInput<Color>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
         FillColor = CreateInput<Color>("FillColor", "FILL_COLOR", new Color(0, 0, 0, 255));
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
-        Output = CreateOutput<Image?>("Output", "OUTPUT", null);
+        Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
     }
     
-    protected override Image? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         Surface workingSurface = new Surface(new VecI(Radius.Value * 2, Radius.Value * 2));
         
@@ -38,10 +35,8 @@ public class CircleNode : Node
         paint.Color = StrokeColor.Value;
         
         workingSurface.DrawingSurface.Canvas.DrawCircle(Radius.Value, Radius.Value, Radius.Value, paint);
-        
-        Output.Value = workingSurface.DrawingSurface.Snapshot();
-        
-        workingSurface.Dispose();
+
+        Output.Value = workingSurface;
         
         return Output.Value;
     }

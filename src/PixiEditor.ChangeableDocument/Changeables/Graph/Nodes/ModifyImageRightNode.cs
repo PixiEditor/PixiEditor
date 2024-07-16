@@ -17,16 +17,16 @@ public class ModifyImageRightNode : Node
     
     public FieldInputProperty<Color> Color { get; }
     
-    public OutputProperty<Image> Output { get; }
+    public OutputProperty<Surface> Output { get; }
     
     public ModifyImageRightNode(ModifyImageLeftNode startNode)
     {
         this.startNode = startNode;
         Color = CreateFieldInput(nameof(Color), "COLOR", new Color());
-        Output = CreateOutput<Image>(nameof(Output), "OUTPUT", null);
+        Output = CreateOutput<Surface>(nameof(Output), "OUTPUT", null);
     }
 
-    protected override Image? OnExecute(RenderingContext renderingContext)
+    protected override Surface? OnExecute(RenderingContext renderingContext)
     {
         if (startNode.Image.Value is not { Size: var size })
         {
@@ -38,7 +38,7 @@ public class ModifyImageRightNode : Node
         var width = size.X;
         var height = size.Y;
 
-        using var surface = new Surface(size);
+        var surface = new Surface(size);
 
         for (int y = 0; y < height; y++)
         {
@@ -52,7 +52,7 @@ public class ModifyImageRightNode : Node
             }
         }
 
-        Output.Value = surface.DrawingSurface.Snapshot();
+        Output.Value = surface;
 
         return Output.Value;
     }

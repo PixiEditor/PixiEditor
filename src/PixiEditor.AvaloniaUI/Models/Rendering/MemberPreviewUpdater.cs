@@ -698,8 +698,8 @@ internal class MemberPreviewUpdater
                      nodeVm.ResultPreview = new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
                }
                
-               float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Width;
-               float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Height;
+               float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Size.X;
+               float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Size.Y;
                
                nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
                nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
@@ -708,7 +708,7 @@ internal class MemberPreviewUpdater
 
                if (node.CachedResult != null)
                {
-                   nodeVm.ResultPreview.DrawingSurface.Canvas.DrawImage(node.CachedResult, new RectD(0, 0, node.CachedResult.Width, node.CachedResult.Height), ReplacingPaint);
+                   nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0, ReplacingPaint);
                }
 
                nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();

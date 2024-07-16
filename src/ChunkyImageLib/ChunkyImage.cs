@@ -65,6 +65,8 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
     private static Paint SmoothReplacingPaint { get; } = new Paint() { BlendMode = BlendMode.Src, FilterQuality = FilterQuality.Medium };
     private static Paint AddingPaint { get; } = new Paint() { BlendMode = BlendMode.Plus };
     private readonly Paint blendModePaint = new Paint() { BlendMode = BlendMode.Src };
+    
+    public int CommitCounter => commitCounter;
 
     public VecI CommittedSize { get; private set; }
     public VecI LatestSize { get; private set; }

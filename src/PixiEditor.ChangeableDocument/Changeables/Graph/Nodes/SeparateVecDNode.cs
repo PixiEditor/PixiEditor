@@ -21,7 +21,7 @@ public class SeparateVecDNode : Node
         Vector = CreateFieldInput("Vector", "VECTOR", new VecD(0, 0));
     }
 
-    protected override Image? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         return null;
     }

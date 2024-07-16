@@ -11,7 +11,7 @@ public class CreateImageNode : Node
 {
     private Paint _paint = new();
     
-    public OutputProperty<Image> Output { get; }
+    public OutputProperty<Surface> Output { get; }
 
     public InputProperty<VecI> Size { get; }
     
@@ -19,19 +19,19 @@ public class CreateImageNode : Node
 
     public CreateImageNode()
     {
-        Output = CreateOutput<Image>(nameof(Output), "EMPTY_IMAGE", null);
+        Output = CreateOutput<Surface>(nameof(Output), "EMPTY_IMAGE", null);
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32));
         Fill = CreateInput(nameof(Fill), "FILL", new Color(0, 0, 0, 255));
     }
     
-    protected override Image? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
-        using var surface = new Surface(Size.Value);
+        var surface = new Surface(Size.Value);
 
         _paint.Color = Fill.Value;
         surface.DrawingSurface.Canvas.DrawPaint(_paint);
 
-        Output.Value = surface.DrawingSurface.Snapshot();
+        Output.Value = surface;
 
         return Output.Value;
     }

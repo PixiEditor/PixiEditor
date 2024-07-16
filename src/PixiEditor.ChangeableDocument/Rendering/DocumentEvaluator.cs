@@ -14,7 +14,7 @@ public static class DocumentEvaluator
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Image? evaluated = graph.Execute(context);
+            Surface? evaluated = graph.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -31,15 +31,17 @@ public static class DocumentEvaluator
             }
             
             VecD pos = chunkPos;
-            int x = (int)(pos.X * ChunkyImage.FullChunkSize);
-            int y = (int)(pos.Y * ChunkyImage.FullChunkSize);
-            int width = ChunkyImage.FullChunkSize;
-            int height = ChunkyImage.FullChunkSize;
+            int x = (int)(pos.X * ChunkyImage.FullChunkSize * resolution.Multiplier());
+            int y = (int)(pos.Y * ChunkyImage.FullChunkSize * resolution.Multiplier());
+            int width = (int)(ChunkyImage.FullChunkSize * resolution.Multiplier());
+            int height = (int)(ChunkyImage.FullChunkSize * resolution.Multiplier());
             
             RectD sourceRect = new(x, y, width, height);
             RectD destRect = new(0, 0, chunk.PixelSize.X, chunk.PixelSize.Y);
+
+            using var chunkSnapshot = evaluated.DrawingSurface.Snapshot((RectI)sourceRect);
             
-            chunk.Surface.DrawingSurface.Canvas.DrawImage(evaluated, sourceRect, destRect, context.ReplacingPaintWithOpacity);
+            chunk.Surface.DrawingSurface.Canvas.DrawImage(chunkSnapshot, 0, 0, context.ReplacingPaintWithOpacity);
 
             chunk.Surface.DrawingSurface.Canvas.Restore();
 
@@ -59,7 +61,7 @@ public static class DocumentEvaluator
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Image? evaluated = node.Execute(context);
+            Surface? evaluated = node.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -75,7 +77,7 @@ public static class DocumentEvaluator
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
             
-            chunk.Surface.DrawingSurface.Canvas.DrawImage(evaluated, transformedClippingRect.Value.X, transformedClippingRect.Value.Y, context.ReplacingPaintWithOpacity);
+            chunk.Surface.DrawingSurface.Canvas.DrawSurface(evaluated.DrawingSurface, transformedClippingRect.Value.X, transformedClippingRect.Value.Y, context.ReplacingPaintWithOpacity);
 
             chunk.Surface.DrawingSurface.Canvas.Restore();
 

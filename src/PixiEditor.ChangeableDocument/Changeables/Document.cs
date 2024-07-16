@@ -84,7 +84,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
 
         using var paint = new Paint();
 
-        Image image;
+        Surface image;
         
         if (layer is IReadOnlyImageNode imageNode)
         {
@@ -95,17 +95,22 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
                 ChunkResolution.Full,
                 chunkSurface.DrawingSurface,
                 VecI.Zero);
-            
-            image = chunkSurface.DrawingSurface.Snapshot();
+
+            image = chunkSurface;
         }
         else
         {
             image = layer.Execute(new RenderingContext(frame));
         }
         
-        surface.DrawingSurface.Canvas.DrawImage(image, (RectD)tightBounds.Value, paint);
+        //todo: idk if it's correct
+        surface.DrawingSurface.Canvas.DrawSurface(image.DrawingSurface, 0, 0, paint);
 
-        return surface.DrawingSurface.Snapshot();
+        var snapshot = surface.DrawingSurface.Snapshot();
+        surface.Dispose();
+        image.Dispose();
+
+        return snapshot;
     }
 
     public RectI? GetChunkAlignedLayerBounds(Guid layerGuid, int frame)
