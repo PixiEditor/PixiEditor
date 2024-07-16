@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
@@ -95,7 +96,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return true;
     }
 
-    public Image? Execute(int frame)
+    public Image? Execute(RenderingContext context)
     {
         Stopwatch stopwatch = new();
         if (OutputNode == null) return null;
@@ -107,7 +108,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
             var node = queue.Dequeue();
             
             stopwatch.Restart();
-            node.Execute(frame);
+            node.Execute(context);
             Console.WriteLine($"{node.GetType().Name} took {stopwatch.ElapsedMilliseconds}ms to execute");
         }
 

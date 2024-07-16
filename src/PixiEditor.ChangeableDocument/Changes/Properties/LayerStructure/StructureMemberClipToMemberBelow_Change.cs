@@ -16,16 +16,16 @@ internal class StructureMemberClipToMemberBelow_Change : Change
 
     public override bool InitializeAndValidate(Document target)
     {
-        if (!target.TryFindMember(memberGuid, out var member) || member.ClipToMemberBelow.NonOverridenValue == newValue)
+        if (!target.TryFindMember(memberGuid, out var member) || member.ClipToPreviousMember.NonOverridenValue == newValue)
             return false;
-        originalValue = member.ClipToMemberBelow.NonOverridenValue;
+        originalValue = member.ClipToPreviousMember.NonOverridenValue;
         return true;
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
     {
         var member = target.FindMemberOrThrow(memberGuid);
-        member.ClipToMemberBelow.NonOverridenValue = newValue;
+        member.ClipToPreviousMember.NonOverridenValue = newValue;
         ignoreInUndo = false;
         return new StructureMemberClipToMemberBelow_ChangeInfo(memberGuid, newValue);
     }
@@ -33,7 +33,7 @@ internal class StructureMemberClipToMemberBelow_Change : Change
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
     {
         var member = target.FindMemberOrThrow(memberGuid);
-        member.ClipToMemberBelow.NonOverridenValue = originalValue;
+        member.ClipToPreviousMember.NonOverridenValue = originalValue;
         return new StructureMemberClipToMemberBelow_ChangeInfo(memberGuid, originalValue);
     }
 

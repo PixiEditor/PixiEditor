@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
@@ -17,7 +18,7 @@ public class ImageSpaceNode : Node
         Size = CreateFieldOutput(nameof(Size), "SIZE", ctx => ctx.Size);
     }
     
-    protected override Image? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(RenderingContext context)
     {
         return null;
     }

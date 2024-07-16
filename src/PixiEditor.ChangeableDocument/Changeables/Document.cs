@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
@@ -82,7 +83,27 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         Surface surface = new Surface(tightBounds.Value.Size);
 
         using var paint = new Paint();
-        surface.DrawingSurface.Canvas.DrawImage(layer.Execute(frame), (RectD)tightBounds.Value, paint);
+
+        Image image;
+        
+        if (layer is IReadOnlyImageNode imageNode)
+        {
+            var chunkyImage = imageNode.GetLayerImageAtFrame(frame);
+            using Surface chunkSurface = new Surface(chunkyImage.CommittedSize);
+            chunkyImage.DrawCommittedRegionOn(
+                new RectI(0, 0, chunkyImage.CommittedSize.X, chunkyImage.CommittedSize.Y), 
+                ChunkResolution.Full,
+                chunkSurface.DrawingSurface,
+                VecI.Zero);
+            
+            image = chunkSurface.DrawingSurface.Snapshot();
+        }
+        else
+        {
+            image = layer.Execute(new RenderingContext(frame));
+        }
+        
+        surface.DrawingSurface.Canvas.DrawImage(image, (RectD)tightBounds.Value, paint);
 
         return surface.DrawingSurface.Snapshot();
     }

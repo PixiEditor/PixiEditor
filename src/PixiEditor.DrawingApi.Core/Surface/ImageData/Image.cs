@@ -12,7 +12,7 @@ namespace PixiEditor.DrawingApi.Core.Surface.ImageData
     ///     <para />
     ///     <para>An image always has a non-zero dimensions. If there is a request to create a new image, either directly or via a surface, and either of the requested dimensions are zero, then <see langword="null" /> will be returned.</para>
     /// </remarks>
-    public class Image : NativeObject, ICloneable
+    public class Image : NativeObject, ICloneable, IPixelsMap
     {
         public override object Native => DrawingBackendApi.Current.ImageImplementation.GetNativeImage(ObjectPointer);
 

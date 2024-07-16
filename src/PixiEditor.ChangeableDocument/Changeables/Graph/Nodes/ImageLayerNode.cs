@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
@@ -16,6 +17,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private VecI size;
     
     private Paint blendPaint = new Paint();
+    private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surface.BlendMode.DstIn };
 
     public ImageLayerNode(VecI size)
     {
@@ -34,15 +36,15 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return true;
     }
 
-    protected override Image? OnExecute(KeyFrameTime frame)
+    protected override Image? OnExecute(RenderingContext context)
     {
-        if (!IsVisible.Value || Opacity.Value <= 0)
+        if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
             Output.Value = Background.Value;
             return Output.Value;
         }
 
-        var frameImage = GetFrameImage(frame).Image;
+        var frameImage = GetFrameImage(context.FrameTime).Image;
 
         Surface workingSurface;
         
@@ -56,29 +58,23 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             workingSurface.DrawingSurface.Canvas.DrawImage(Background.Value, 0, 0, blendPaint);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             
-            using ChunkyImage img = new ChunkyImage(targetSize);
-            img.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
-
-            ApplyMaskIfPresent(img);
-            img.CommitChanges();
-
-            img.DrawMostUpToDateRegionOn(
+            frameImage.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, frameImage.LatestSize.X, frameImage.LatestSize.Y), 
                 ChunkResolution.Full, workingSurface.DrawingSurface, VecI.Zero, blendPaint);
+            
+            ApplyMaskIfPresent(workingSurface);
+            ApplyRasterClip(workingSurface);
         }
         else
         {
             workingSurface = new Surface(frameImage.LatestSize);
             
-            using ChunkyImage img = new ChunkyImage(frameImage.LatestSize);
-            img.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
-            
-            ApplyMaskIfPresent(img);
-            img.CommitChanges();
-            
-            img.DrawMostUpToDateRegionOn(
+            frameImage.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, frameImage.LatestSize.X, frameImage.LatestSize.Y), 
                 ChunkResolution.Full, workingSurface.DrawingSurface, VecI.Zero, blendPaint);
+            
+            ApplyMaskIfPresent(workingSurface);
+            ApplyRasterClip(workingSurface);
         }
 
 
@@ -88,6 +84,19 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return Output.Value;
     }
 
+    private bool IsEmptyMask()
+    {
+        return Mask.Value != null && MaskIsVisible.Value && !Mask.Value.LatestOrCommittedChunkExists();
+    }
+    
+    private void ApplyRasterClip(Surface surface)
+    {
+        if (ClipToPreviousMember.Value)
+        {
+            OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value);
+        }
+    }
+
     private ImageFrame GetFrameImage(KeyFrameTime frame)
     {
         var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame));
@@ -95,24 +104,25 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return frameImage;
     }
 
-    private void ApplyMaskIfPresent(ChunkyImage img)
+    private void ApplyMaskIfPresent(Surface surface)
     {
-        if (Mask.Value != null)
+        if (Mask.Value != null && MaskIsVisible.Value)
         {
-            img.EnqueueApplyMask(Mask.Value);
+            RectI region = new RectI(0, 0, size.X, size.Y);
+            Mask.Value.DrawMostUpToDateRegionOn(region, ChunkResolution.Full, surface.DrawingSurface, VecI.Zero, maskPaint);
         }
     }
 
-    protected override bool CacheChanged(KeyFrameTime frameTime)
+    protected override bool CacheChanged(RenderingContext context)
     {
-        var frame = GetFrameImage(frameTime);
-        return base.CacheChanged(frameTime) || frame?.RequiresUpdate == true;
+        var frame = GetFrameImage(context.FrameTime);
+        return base.CacheChanged(context) || frame?.RequiresUpdate == true;
     }
 
-    protected override void UpdateCache(KeyFrameTime time)
+    protected override void UpdateCache(RenderingContext context)
     {
-        base.UpdateCache(time);
-        var imageFrame = GetFrameImage(time);
+        base.UpdateCache(context);
+        var imageFrame = GetFrameImage(context.FrameTime);
         if (imageFrame is not null && imageFrame.RequiresUpdate)
         {
             imageFrame.RequiresUpdate = false; 

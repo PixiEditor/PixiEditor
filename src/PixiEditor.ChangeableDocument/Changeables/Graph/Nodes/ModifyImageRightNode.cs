@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
@@ -25,7 +26,7 @@ public class ModifyImageRightNode : Node
         Output = CreateOutput<Image>(nameof(Output), "OUTPUT", null);
     }
 
-    protected override Image? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(RenderingContext renderingContext)
     {
         if (startNode.Image.Value is not { Size: var size })
         {

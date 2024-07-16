@@ -1,5 +1,6 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
@@ -28,7 +29,7 @@ public class MergeNode : Node, IBackgroundInput
         return new MergeNode();
     }
 
-    protected override Image? OnExecute(KeyFrameTime frame)
+    protected override Image? OnExecute(RenderingContext context)
     {
         if(Top.Value == null && Bottom.Value == null)
         {

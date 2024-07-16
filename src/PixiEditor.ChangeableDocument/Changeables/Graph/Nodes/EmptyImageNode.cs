@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
@@ -23,7 +24,7 @@ public class CreateImageNode : Node
         Fill = CreateInput(nameof(Fill), "FILL", new Color(0, 0, 0, 255));
     }
     
-    protected override Image? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(RenderingContext context)
     {
         using var surface = new Surface(Size.Value);
 

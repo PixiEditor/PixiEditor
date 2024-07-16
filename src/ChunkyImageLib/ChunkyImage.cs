@@ -377,6 +377,22 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable, ICloneable
         }
     }
 
+    public bool LatestOrCommittedChunkExists()
+    {
+        lock (lockObject)
+        {
+            ThrowIfDisposed();
+            var chunks = FindAllChunks();
+            foreach (var chunk in chunks)
+            {
+                if (LatestOrCommittedChunkExists(chunk))
+                    return true;
+            }
+        }
+        
+        return false;
+    }
+
     /// <exception cref="ObjectDisposedException">This image is disposed</exception>
     public bool DrawCommittedChunkOn(VecI chunkPos, ChunkResolution resolution, DrawingSurface surface, VecI pos, Paint? paint = null)
     {

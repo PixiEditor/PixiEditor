@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
@@ -16,7 +17,7 @@ public class ImageSizeNode : Node
         Size = CreateOutput(nameof(Size), "SIZE", new VecI());
     }
     
-    protected override Image? OnExecute(KeyFrameTime frameTime)
+    protected override Image? OnExecute(RenderingContext context)
     {
         Size.Value = Image.Value?.Size ?? new VecI();
 

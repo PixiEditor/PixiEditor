@@ -32,7 +32,7 @@ public record class CreateFolder_ChangeInfo : CreateStructureMember_ChangeInfo
             parentGuid,
             folder.Opacity.Value,
             folder.IsVisible.Value,
-            folder.ClipToMemberBelow.Value,
+            folder.ClipToPreviousMember.Value,
             folder.MemberName,
             folder.BlendMode.Value,
             folder.Id,

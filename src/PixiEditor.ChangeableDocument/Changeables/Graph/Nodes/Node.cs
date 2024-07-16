@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
@@ -33,32 +34,39 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public VecD Position { get; set; }
 
     private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1);
+    private ChunkResolution? _lastResolution;
+    private VecI? _lastChunkPos;
 
-    public Image? Execute(KeyFrameTime frameTime)
+    public Image? Execute(RenderingContext context)
     {
-        if(!CacheChanged(frameTime)) return CachedResult;
+        if(!CacheChanged(context)) return CachedResult;
         
-        CachedResult = OnExecute(frameTime);
-        UpdateCache(frameTime);
+        CachedResult = OnExecute(context);
+        UpdateCache(context);
         return CachedResult;
     }
 
-    protected abstract Image? OnExecute(KeyFrameTime frameTime);
+    protected abstract Image? OnExecute(RenderingContext context);
     public abstract bool Validate();
     
-    protected virtual bool CacheChanged(KeyFrameTime frameTime)
+    protected virtual bool CacheChanged(RenderingContext context)
     {
-        return !frameTime.Equals(_lastFrameTime) || inputs.Any(x => x.CacheChanged);
+        return !context.FrameTime.Equals(_lastFrameTime)
+               || context.Resolution != _lastResolution
+               || context.ChunkToUpdate != _lastChunkPos
+               || inputs.Any(x => x.CacheChanged);
     }
     
-    protected virtual void UpdateCache(KeyFrameTime time)
+    protected virtual void UpdateCache(RenderingContext context)
     {
         foreach (var input in inputs)
         {
             input.UpdateCache();
         }
         
-        _lastFrameTime = time;
+        _lastFrameTime = context.FrameTime;
+        _lastResolution = context.Resolution;
+        _lastChunkPos = context.ChunkToUpdate;
     }
 
     public void RemoveKeyFrame(Guid keyFrameGuid)
