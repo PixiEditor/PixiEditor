@@ -128,6 +128,11 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         Type viewModelType = Type.GetType($"PixiEditor.AvaloniaUI.ViewModels.Nodes.Properties.{name}");
         if (viewModelType == null)
         {
+            if (propertyType.IsEnum)
+            {
+                return new GenericEnumPropertyViewModel(node, type, propertyType);
+            }
+            
             return new GenericPropertyViewModel(node, type);
         }
         
