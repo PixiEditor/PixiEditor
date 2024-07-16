@@ -21,30 +21,30 @@ public class SeparateChannelsNode : Node
     private readonly ColorFilter _blueGrayscaleFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseBlue + ColorMatrix.MapBlueToRedGreen + ColorMatrix.OpaqueAlphaOffset);
     private readonly ColorFilter _alphaGrayscaleFilter = ColorFilter.CreateColorMatrix(ColorMatrix.MapAlphaToRedGreenBlue + ColorMatrix.OpaqueAlphaOffset);
 
-    public OutputProperty<Image?> Red { get; }
+    public OutputProperty<Surface?> Red { get; }
     
-    public OutputProperty<Image?> Green { get; }
+    public OutputProperty<Surface?> Green { get; }
     
-    public OutputProperty<Image?> Blue { get; }
+    public OutputProperty<Surface?> Blue { get; }
 
-    public OutputProperty<Image?> Alpha { get; }
+    public OutputProperty<Surface?> Alpha { get; }
     
-    public InputProperty<Image?> Image { get; }
+    public InputProperty<Surface?> Image { get; }
     
     public InputProperty<bool> Grayscale { get; }
 
     public SeparateChannelsNode()
     {
-        Red = CreateOutput<Image>(nameof(Red), "RED", null);
-        Green = CreateOutput<Image>(nameof(Green), "GREEN", null);
-        Blue = CreateOutput<Image>(nameof(Blue), "BLUE", null);
-        Alpha = CreateOutput<Image>(nameof(Alpha), "ALPHA", null);
+        Red = CreateOutput<Surface>(nameof(Red), "RED", null);
+        Green = CreateOutput<Surface>(nameof(Green), "GREEN", null);
+        Blue = CreateOutput<Surface>(nameof(Blue), "BLUE", null);
+        Alpha = CreateOutput<Surface>(nameof(Alpha), "ALPHA", null);
         
-        Image = CreateInput<Image>(nameof(Image), "IMAGE", null);
+        Image = CreateInput<Surface>(nameof(Image), "IMAGE", null);
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
     
-    protected override Image OnExecute(RenderingContext context)
+    protected override Surface OnExecute(RenderingContext context)
     {
         var image = Image.Value;
         var grayscale = Grayscale.Value;
@@ -59,33 +59,31 @@ public class SeparateChannelsNode : Node
         Blue.Value = GetImage(image, blue);
         Alpha.Value = GetImage(image, alpha);
 
-        using var previewSurface = new Surface(image.Size);
+        var previewSurface = new Surface(image.Size * 2);
 
-        var half = image.Size / 2;
-        var halfX = half.X;
-        var halfY = half.Y;
+        var size = image.Size;
         
-        var redRect = new RectD(new VecD(), half);
-        var greenRect = new RectD(new VecD(halfX, 0), half);
-        var blueRect = new RectD(new VecD(0, halfY), half);
-        var alphaRect = new RectD(new VecD(halfX, halfY), half);
+        var redPos = new VecI();
+        var greenPos = new VecI(size.X, 0);
+        var bluePos = new VecI(0, size.Y);
+        var alphaPos = new VecI(size.X, size.Y);
         
-        previewSurface.DrawingSurface.Canvas.DrawImage(Red.Value, redRect, context.ReplacingPaintWithOpacity);
-        previewSurface.DrawingSurface.Canvas.DrawImage(Green.Value, greenRect, context.ReplacingPaintWithOpacity);
-        previewSurface.DrawingSurface.Canvas.DrawImage(Blue.Value, blueRect, context.ReplacingPaintWithOpacity);
-        previewSurface.DrawingSurface.Canvas.DrawImage(Alpha.Value, alphaRect, context.ReplacingPaintWithOpacity);
+        previewSurface.DrawingSurface.Canvas.DrawSurface(Red.Value.DrawingSurface, redPos, context.ReplacingPaintWithOpacity);
+        previewSurface.DrawingSurface.Canvas.DrawSurface(Green.Value.DrawingSurface, greenPos, context.ReplacingPaintWithOpacity);
+        previewSurface.DrawingSurface.Canvas.DrawSurface(Blue.Value.DrawingSurface, bluePos, context.ReplacingPaintWithOpacity);
+        previewSurface.DrawingSurface.Canvas.DrawSurface(Alpha.Value.DrawingSurface, alphaPos, context.ReplacingPaintWithOpacity);
         
-        return previewSurface.DrawingSurface.Snapshot();
+        return previewSurface;
     }
 
-    private Image GetImage(Image image, ColorFilter filter)
+    private Surface GetImage(Surface image, ColorFilter filter)
     {
-        using var imageSurface = new Surface(image.Size);
+        var imageSurface = new Surface(image.Size);
 
         _paint.ColorFilter = filter;
-        imageSurface.DrawingSurface.Canvas.DrawImage(image, 0, 0, _paint);
+        imageSurface.DrawingSurface.Canvas.DrawSurface(image.DrawingSurface, 0, 0, _paint);
 
-        return imageSurface.DrawingSurface.Snapshot();
+        return imageSurface;
     }
 
     public override bool Validate() => Image.Value != null;

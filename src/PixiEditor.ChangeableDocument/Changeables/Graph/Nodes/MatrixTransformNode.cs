@@ -1,5 +1,4 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -7,7 +6,6 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class MatrixTransformNode : Node
 {
-    
     private Matrix4x5F previousMatrix = new(
         (1, 0, 0, 0, 0),
         (0, 1, 0, 0, 0),
@@ -16,22 +14,22 @@ public class MatrixTransformNode : Node
     
     private Paint paint;
     
-    public OutputProperty<Image> Transformed { get; }
+    public OutputProperty<Surface> Transformed { get; }
     
-    public InputProperty<Image?> Input { get; }
+    public InputProperty<Surface?> Input { get; }
     
     public InputProperty<Matrix4x5F> Matrix { get; }
 
     public MatrixTransformNode()
     {
-        Transformed = CreateOutput<Image>(nameof(Transformed), "TRANSFORMED", null);
-        Input = CreateInput<Image>(nameof(Input), "INPUT", null);
+        Transformed = CreateOutput<Surface>(nameof(Transformed), "TRANSFORMED", null);
+        Input = CreateInput<Surface>(nameof(Input), "INPUT", null);
         Matrix = CreateInput(nameof(Matrix), "MATRIX", previousMatrix);
 
         paint = new Paint { ColorFilter = ColorFilter.CreateColorMatrix(previousMatrix) };
     }
     
-    protected override Image? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         var currentMatrix = Matrix.Value;
         if (previousMatrix != currentMatrix)
@@ -40,11 +38,11 @@ public class MatrixTransformNode : Node
             previousMatrix = currentMatrix;
         }
 
-        using var workingSurface = new Surface(Input.Value.Size);
+        var workingSurface = new Surface(Input.Value.Size);
         
-        workingSurface.DrawingSurface.Canvas.DrawImage(Input.Value, 0, 0, paint);
+        workingSurface.DrawingSurface.Canvas.DrawSurface(Input.Value.DrawingSurface, 0, 0, paint);
 
-        Transformed.Value = workingSurface.DrawingSurface.Snapshot();
+        Transformed.Value = workingSurface;
         
         return Transformed.Value;
     }
