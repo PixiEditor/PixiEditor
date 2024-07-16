@@ -27,8 +27,14 @@ internal class ChannelsDockViewModel : DockableViewModel
 
     private ViewportColorChannels Channels
     {
-        get => ActiveViewport.Channels;
-        set => ActiveViewport.Channels = value;
+        get => ActiveViewport?.Channels ?? ViewportColorChannels.Default;
+        set
+        {
+            if (ActiveViewport != null)
+            {
+                ActiveViewport.Channels = value;
+            }
+        }
     }
 
     public ChannelsDockViewModel(WindowViewModel windowViewModel)
