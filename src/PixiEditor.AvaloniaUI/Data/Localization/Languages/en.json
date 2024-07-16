@@ -616,5 +616,22 @@
   "STROKE_WIDTH": "Stroke width",
   "FILL_COLOR": "Fill color",
   "TOP": "Top",
-  "BOTTOM": "Bottom"
+  "BOTTOM": "Bottom",
+  "CHANNELS_DOCK_TITLE": "Channels",
+  "RED": "Red",
+  "GREEN": "Green",
+  "BLUE": "Blue",
+  "ALPHA": "Alpha",
+  "COLOR": "Color",
+  "COORDINATE": "Coordinate",
+  "VECTOR": "Vector",
+  "MATRIX": "Matrix",
+  "TRANSFORMED": "Transformed",
+  "GRAYSCALE": "Grayscale",
+  "CLAMP": "Clamp",
+  "SIZE": "Size",
+  "EMPTY_IMAGE": "Empty image",
+  "NOISE": "Noise",
+  "SCALE": "Scale",
+  "SEED": "Seed"
 }
