@@ -42,8 +42,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return Output.Value;
         }
 
-        var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame));
-        var frameImage = imageFrame?.Image ?? frames[0].Image;
+        var frameImage = GetFrameImage(frame).Image;
 
         Surface workingSurface;
         
@@ -57,7 +56,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             workingSurface.DrawingSurface.Canvas.DrawImage(Background.Value, 0, 0, blendPaint);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             
-            frameImage.DrawMostUpToDateRegionOn(
+            using ChunkyImage img = new ChunkyImage(targetSize);
+            img.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
+
+            ApplyMaskIfPresent(img);
+            img.CommitChanges();
+
+            img.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, frameImage.LatestSize.X, frameImage.LatestSize.Y), 
                 ChunkResolution.Full, workingSurface.DrawingSurface, VecI.Zero, blendPaint);
         }
@@ -65,7 +70,13 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             workingSurface = new Surface(frameImage.LatestSize);
             
-            frameImage.DrawMostUpToDateRegionOn(
+            using ChunkyImage img = new ChunkyImage(frameImage.LatestSize);
+            img.EnqueueDrawUpToDateChunkyImage(VecI.Zero, frameImage);
+            
+            ApplyMaskIfPresent(img);
+            img.CommitChanges();
+            
+            img.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, frameImage.LatestSize.X, frameImage.LatestSize.Y), 
                 ChunkResolution.Full, workingSurface.DrawingSurface, VecI.Zero, blendPaint);
         }
@@ -75,6 +86,37 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         
         workingSurface.Dispose();
         return Output.Value;
+    }
+
+    private ImageFrame GetFrameImage(KeyFrameTime frame)
+    {
+        var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame));
+        var frameImage = imageFrame ?? frames[0];
+        return frameImage;
+    }
+
+    private void ApplyMaskIfPresent(ChunkyImage img)
+    {
+        if (Mask.Value != null)
+        {
+            img.EnqueueApplyMask(Mask.Value);
+        }
+    }
+
+    protected override bool CacheChanged(KeyFrameTime frameTime)
+    {
+        var frame = GetFrameImage(frameTime);
+        return base.CacheChanged(frameTime) || frame?.RequiresUpdate == true;
+    }
+
+    protected override void UpdateCache(KeyFrameTime time)
+    {
+        base.UpdateCache(time);
+        var imageFrame = GetFrameImage(time);
+        if (imageFrame is not null && imageFrame.RequiresUpdate)
+        {
+            imageFrame.RequiresUpdate = false; 
+        }
     }
 
     public override void Dispose()
@@ -210,8 +252,21 @@ class ImageFrame
     public int StartFrame { get; set; }
     public int Duration { get; set; }
     public ChunkyImage Image { get; set; }
+    
+    public bool RequiresUpdate
+    {
+        get
+        {
+            return Image.QueueLength != lastQueueLength;
+        }
+        set
+        {
+            lastQueueLength = Image.QueueLength;
+        }
+    }
 
     public Guid KeyFrameGuid { get; set; }
+    private int lastQueueLength = 0;
 
     public ImageFrame(Guid keyFrameGuid, int startFrame, int duration, ChunkyImage image)
     {

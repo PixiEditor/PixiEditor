@@ -32,14 +32,34 @@ public abstract class Node : IReadOnlyNode, IDisposable
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
 
+    private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1);
+
     public Image? Execute(KeyFrameTime frameTime)
     {
+        if(!CacheChanged(frameTime)) return CachedResult;
+        
         CachedResult = OnExecute(frameTime);
+        UpdateCache(frameTime);
         return CachedResult;
     }
 
     protected abstract Image? OnExecute(KeyFrameTime frameTime);
     public abstract bool Validate();
+    
+    protected virtual bool CacheChanged(KeyFrameTime frameTime)
+    {
+        return !frameTime.Equals(_lastFrameTime) || inputs.Any(x => x.CacheChanged);
+    }
+    
+    protected virtual void UpdateCache(KeyFrameTime time)
+    {
+        foreach (var input in inputs)
+        {
+            input.UpdateCache();
+        }
+        
+        _lastFrameTime = time;
+    }
 
     public void RemoveKeyFrame(Guid keyFrameGuid)
     {

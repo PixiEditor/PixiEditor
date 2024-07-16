@@ -6,6 +6,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 public class InputProperty : IInputProperty
 {
     private object _internalValue;
+    private int _lastExecuteHash = -1;
     public string InternalPropertyName { get; }
     public string DisplayName { get; }
 
@@ -17,11 +18,53 @@ public class InputProperty : IInputProperty
     public object NonOverridenValue
     {
         get => _internalValue;
-        set => _internalValue = value;
+        set
+        {
+            _internalValue = value;
+        }
     }
-    
+
     public Node Node { get; }
     public Type ValueType { get; } 
+    internal bool CacheChanged
+    {
+        get
+        {
+            if (Value is ICacheable cacheable)
+            {
+                return cacheable.GetCacheHash() != _lastExecuteHash;
+            }
+
+            if(Value is null)
+            {
+                return _lastExecuteHash != 0;
+            }
+            
+            if(Value.GetType().IsValueType || Value.GetType() == typeof(string))
+            {
+                return Value.GetHashCode() != _lastExecuteHash;
+            }
+
+            return true;
+        }
+    }
+
+    internal void UpdateCache()
+    {
+        if (Value is null)
+        {
+            _lastExecuteHash = 0;
+        }
+        else if (Value is ICacheable cacheable)
+        {
+            _lastExecuteHash = cacheable.GetCacheHash();
+        }
+        else
+        {
+            _lastExecuteHash = Value.GetHashCode();
+        }
+    }
+    
     IReadOnlyNode INodeProperty.Node => Node;
     
     public IOutputProperty? Connection { get; set; }

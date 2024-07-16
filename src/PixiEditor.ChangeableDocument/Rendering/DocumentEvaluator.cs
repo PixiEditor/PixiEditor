@@ -30,7 +30,16 @@ public static class DocumentEvaluator
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
             
-            chunk.Surface.DrawingSurface.Canvas.DrawImage(evaluated, 0, 0, context.ReplacingPaintWithOpacity);
+            VecD pos = chunkPos;
+            int x = (int)(pos.X * ChunkyImage.FullChunkSize);
+            int y = (int)(pos.Y * ChunkyImage.FullChunkSize);
+            int width = ChunkyImage.FullChunkSize;
+            int height = ChunkyImage.FullChunkSize;
+            
+            RectD sourceRect = new(x, y, width, height);
+            RectD destRect = new(0, 0, chunk.PixelSize.X, chunk.PixelSize.Y);
+            
+            chunk.Surface.DrawingSurface.Canvas.DrawImage(evaluated, sourceRect, destRect, context.ReplacingPaintWithOpacity);
 
             chunk.Surface.DrawingSurface.Canvas.Restore();
 
@@ -66,7 +75,7 @@ public static class DocumentEvaluator
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
             
-            chunk.Surface.DrawingSurface.Canvas.DrawImage(evaluated, 0, 0, context.ReplacingPaintWithOpacity);
+            chunk.Surface.DrawingSurface.Canvas.DrawImage(evaluated, transformedClippingRect.Value.X, transformedClippingRect.Value.Y, context.ReplacingPaintWithOpacity);
 
             chunk.Surface.DrawingSurface.Canvas.Restore();
 

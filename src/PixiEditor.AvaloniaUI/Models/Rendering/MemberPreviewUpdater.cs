@@ -190,7 +190,7 @@ internal class MemberPreviewUpdater
             if (member is null)
                 continue;
 
-            if (forMasks && member.Mask is null)
+            if (forMasks && member.Mask.Value is null)
             {
                 newPreviewBitmapSizes.Add(guid, null);
                 continue;
@@ -277,7 +277,7 @@ internal class MemberPreviewUpdater
     private RectI? GetOrFindMemberTightBounds(IReadOnlyStructureNode member, int atFrame,
         AffectedArea currentlyAffectedArea, bool forMask)
     {
-        if (forMask && member.Mask is null)
+        if (forMask && member.Mask.Value is null)
             throw new InvalidOperationException();
 
         RectI? prevTightBounds = null;
@@ -307,10 +307,10 @@ internal class MemberPreviewUpdater
     /// </summary>
     private RectI? FindLayerTightBounds(IReadOnlyLayerNode layer, int frame, bool forMask)
     {
-        if (layer.Mask is null && forMask)
+        if (layer.Mask.Value is null && forMask)
             throw new InvalidOperationException();
 
-        if (layer.Mask is not null && forMask)
+        if (layer.Mask.Value is not null && forMask)
             return FindImageTightBoundsFast(layer.Mask.Value);
 
         if (layer is IReadOnlyImageNode raster)
@@ -328,7 +328,7 @@ internal class MemberPreviewUpdater
     {
         if (forMask)
         {
-            if (folder.Mask is null)
+            if (folder.Mask.Value is null)
                 throw new InvalidOperationException();
             return FindImageTightBoundsFast(folder.Mask.Value);
         }

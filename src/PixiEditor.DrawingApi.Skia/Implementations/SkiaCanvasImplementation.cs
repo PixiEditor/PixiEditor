@@ -183,11 +183,20 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[objectPointer].RotateDegrees(degrees, centerX, centerY);
         }
 
-        public void DrawImage(IntPtr objPtr, Image image, RectD rect, Paint paint)
+        public void DrawImage(IntPtr objPtr, Image image, RectD destRect, Paint paint)
         {
             ManagedInstances[objPtr].DrawImage(
                 _imageImpl[image.ObjectPointer],
-                rect.ToSKRect(),
+                destRect.ToSKRect(),
+                _paintImpl[paint.ObjectPointer]);
+        }
+
+        public void DrawImage(IntPtr obj, Image image, RectD sourceRect, RectD destRect, Paint paint)
+        {
+            ManagedInstances[obj].DrawImage(
+                _imageImpl[image.ObjectPointer],
+                sourceRect.ToSKRect(),
+                destRect.ToSKRect(),
                 _paintImpl[paint.ObjectPointer]);
         }
 
