@@ -79,15 +79,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         if (Background.Value != null)
         {
-            workingSurface.DrawingSurface.Canvas.DrawImage(Background.Value, 0, 0, blendPaint);
+            RectD sourceRect = CalculateSourceRect(Background.Value, targetSize, context);
+            RectD destRect = CalculateDestRect(Background.Value, targetSize, context);
+            workingSurface.DrawingSurface.Canvas.DrawImage(Background.Value, sourceRect, destRect, blendPaint);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
         }
 
         
         DrawLayer(frameImage, context, workingSurface);
             
-        ApplyMaskIfPresent(workingSurface);
-        ApplyRasterClip(workingSurface);
+        ApplyMaskIfPresent(workingSurface, context);
+        ApplyRasterClip(workingSurface, context);
         return workingSurface;
     }
 
@@ -115,11 +117,18 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return Mask.Value != null && MaskIsVisible.Value && !Mask.Value.LatestOrCommittedChunkExists();
     }
     
-    private void ApplyRasterClip(Surface surface)
+    private void ApplyRasterClip(Surface surface, RenderingContext context)
     {
         if (ClipToPreviousMember.Value)
         {
-            OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value);
+            RectI? clippingRect = null;
+            if (context.Resolution.HasValue && context.ChunkToUpdate.HasValue)
+            {
+                VecI chunkStart = context.ChunkToUpdate.Value * context.Resolution.Value.PixelSize();
+                VecI size = new VecI(context.Resolution.Value.PixelSize());
+                clippingRect = new RectI(chunkStart, size);
+            }
+            OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value, clippingRect);
         }
     }
 
@@ -130,13 +139,64 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return frameImage;
     }
 
-    private void ApplyMaskIfPresent(Surface surface)
+    private void ApplyMaskIfPresent(Surface surface, RenderingContext context)
     {
         if (Mask.Value != null && MaskIsVisible.Value)
         {
-            RectI region = new RectI(0, 0, size.X, size.Y);
-            Mask.Value.DrawMostUpToDateRegionOn(region, ChunkResolution.Full, surface.DrawingSurface, VecI.Zero, maskPaint);
+            ChunkyImage mask = Mask.Value;
+            if (context.Resolution.HasValue && context.ChunkToUpdate.HasValue)
+            {
+                mask.DrawMostUpToDateChunkOn(
+                    context.ChunkToUpdate.Value, 
+                    context.Resolution.Value,
+                    surface.DrawingSurface, 
+                    context.ChunkToUpdate.Value * context.Resolution.Value.PixelSize(),
+                    maskPaint);
+            }
+            else
+            {
+                mask.DrawMostUpToDateRegionOn(
+                    new RectI(0, 0, mask.LatestSize.X, mask.LatestSize.Y),
+                    ChunkResolution.Full, surface.DrawingSurface, VecI.Zero, maskPaint);
+            }
         }
+    }
+    
+    private RectD CalculateSourceRect(Image image, VecI targetSize, RenderingContext context)
+    {
+        if(context.Resolution == null || context.ChunkToUpdate == null)
+        {
+            return new RectD(0, 0, image.Size.X, image.Size.Y);
+        }
+        
+        float multiplierToFit = image.Size.X / (float)targetSize.X;
+        int chunkSize = context.Resolution.Value.PixelSize(); 
+        VecI chunkPos = context.ChunkToUpdate.Value;
+        
+        int x = (int)(chunkPos.X * chunkSize * multiplierToFit);
+        int y = (int)(chunkPos.Y * chunkSize * multiplierToFit);
+        int width = (int)(chunkSize * multiplierToFit);
+        int height = (int)(chunkSize * multiplierToFit);
+        
+        return new RectD(x, y, width, height);
+    }
+    
+    private RectD CalculateDestRect(Image image, VecI targetSize, RenderingContext context)
+    {
+        if(context.Resolution == null || context.ChunkToUpdate == null)
+        {
+            return new RectD(0, 0, targetSize.X, targetSize.Y);
+        }
+        
+        int chunkSize = context.Resolution.Value.PixelSize(); 
+        VecI chunkPos = context.ChunkToUpdate.Value;
+        
+        int x = (int)(chunkPos.X * chunkSize);
+        int y = (int)(chunkPos.Y * chunkSize);
+        int width = chunkSize;
+        int height = chunkSize;
+        
+        return new RectD(x, y, width, height);
     }
 
     protected override bool CacheChanged(RenderingContext context)
