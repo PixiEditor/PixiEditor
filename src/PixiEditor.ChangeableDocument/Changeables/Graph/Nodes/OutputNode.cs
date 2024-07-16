@@ -7,10 +7,10 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class OutputNode : Node, IBackgroundInput
 {
-    public InputProperty<Image?> Input { get; } 
+    public InputProperty<Surface?> Input { get; } 
     public OutputNode()
     {
-        Input = CreateInput<Image>("Background", "INPUT", null);
+        Input = CreateInput<Surface>("Background", "INPUT", null);
     }
     
     public override bool Validate()
@@ -23,10 +23,10 @@ public class OutputNode : Node, IBackgroundInput
         return new OutputNode();
     }
 
-    protected override Image? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         return Input.Value;
     }
 
-    InputProperty<Image?> IBackgroundInput.Background => Input;
+    InputProperty<Surface?> IBackgroundInput.Background => Input;
 }

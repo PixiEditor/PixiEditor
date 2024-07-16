@@ -38,7 +38,7 @@ public class CombineColorNode : Node
         return new Color((byte)r, (byte)g, (byte)b, (byte)a);
     }
     
-    protected override Image? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         return null;
     }

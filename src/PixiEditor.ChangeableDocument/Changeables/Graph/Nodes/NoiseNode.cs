@@ -12,7 +12,7 @@ public class NoiseNode : Node
     private double previousScale = double.NaN;
     private Paint paint = new();
     
-    public OutputProperty<Image> Noise { get; }
+    public OutputProperty<Surface> Noise { get; }
 
     public InputProperty<VecI> Size { get; }
     
@@ -22,13 +22,13 @@ public class NoiseNode : Node
 
     public NoiseNode()
     {
-        Noise = CreateOutput<Image>(nameof(Noise), "NOISE", null);
+        Noise = CreateOutput<Surface>(nameof(Noise), "NOISE", null);
         Size = CreateInput(nameof(Size), "SIZE", new VecI());
         Scale = CreateInput(nameof(Scale), "SCALE", 0d);
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
     
-    protected override Image OnExecute(RenderingContext context)
+    protected override Surface OnExecute(RenderingContext context)
     {
         if (Math.Abs(previousScale - Scale.Value) > 0.000001 || double.IsNaN(previousScale))
         {
@@ -40,11 +40,11 @@ public class NoiseNode : Node
         
         var size = Size.Value;
         
-        using var workingSurface = new Surface(size);
+        var workingSurface = new Surface(size);
         
         workingSurface.DrawingSurface.Canvas.DrawPaint(paint);
 
-        Noise.Value = workingSurface.DrawingSurface.Snapshot();
+        Noise.Value = workingSurface;
         
         return Noise.Value;
     }

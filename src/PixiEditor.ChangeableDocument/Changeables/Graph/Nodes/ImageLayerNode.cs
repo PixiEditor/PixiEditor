@@ -45,7 +45,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return true;
     }
 
-    protected override Image? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())
         {
@@ -58,9 +58,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         blendPaint.Color = new Color(255, 255, 255, (byte)Math.Round(Opacity.Value * 255));
         blendPaint.BlendMode = DrawingApi.Core.Surface.BlendMode.Src;
 
-        var finalSurface = RenderImage(frameImage, context);
+        var renderedSurface = RenderImage(frameImage, context);
 
-        Output.Value = finalSurface.DrawingSurface.Snapshot();
+        Output.Value = renderedSurface;
         
         return Output.Value;
     }
@@ -80,8 +80,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (Background.Value != null)
         {
             RectD sourceRect = CalculateSourceRect(Background.Value, targetSize, context);
-            RectD destRect = CalculateDestRect(Background.Value, targetSize, context);
-            workingSurface.DrawingSurface.Canvas.DrawImage(Background.Value, sourceRect, destRect, blendPaint);
+            workingSurface.DrawingSurface.Canvas.DrawSurface(Background.Value.DrawingSurface, (int)sourceRect.X, (int)sourceRect.Y, blendPaint);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
         }
 
@@ -162,7 +161,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
     
-    private RectD CalculateSourceRect(Image image, VecI targetSize, RenderingContext context)
+    private RectD CalculateSourceRect(Surface image, VecI targetSize, RenderingContext context)
     {
         if(context.Resolution == null || context.ChunkToUpdate == null)
         {
@@ -177,24 +176,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int y = (int)(chunkPos.Y * chunkSize * multiplierToFit);
         int width = (int)(chunkSize * multiplierToFit);
         int height = (int)(chunkSize * multiplierToFit);
-        
-        return new RectD(x, y, width, height);
-    }
-    
-    private RectD CalculateDestRect(Image image, VecI targetSize, RenderingContext context)
-    {
-        if(context.Resolution == null || context.ChunkToUpdate == null)
-        {
-            return new RectD(0, 0, targetSize.X, targetSize.Y);
-        }
-        
-        int chunkSize = context.Resolution.Value.PixelSize(); 
-        VecI chunkPos = context.ChunkToUpdate.Value;
-        
-        int x = (int)(chunkPos.X * chunkSize);
-        int y = (int)(chunkPos.Y * chunkSize);
-        int width = chunkSize;
-        int height = chunkSize;
         
         return new RectD(x, y, width, height);
     }

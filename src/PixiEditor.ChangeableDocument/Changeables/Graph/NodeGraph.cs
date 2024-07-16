@@ -96,7 +96,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         return true;
     }
 
-    public Image? Execute(RenderingContext context)
+    public Surface? Execute(RenderingContext context)
     {
         Stopwatch stopwatch = new();
         if (OutputNode == null) return null;

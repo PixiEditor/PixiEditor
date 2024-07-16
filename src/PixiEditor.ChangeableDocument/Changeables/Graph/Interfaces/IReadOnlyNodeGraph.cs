@@ -10,5 +10,5 @@ public interface IReadOnlyNodeGraph
     public void AddNode(IReadOnlyNode node);
     public void RemoveNode(IReadOnlyNode node);
     public bool TryTraverse(Action<IReadOnlyNode> action);
-    public Image? Execute(RenderingContext context);
+    public Surface? Execute(RenderingContext context);
 }

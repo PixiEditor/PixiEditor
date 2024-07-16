@@ -20,7 +20,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyCollection<InputProperty> InputProperties => inputs;
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
     public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes => _connectedNodes;
-    public Image? CachedResult { get; private set; }
+    public Surface? CachedResult { get; private set; }
 
     public virtual string InternalName { get; }
     
@@ -43,16 +43,21 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private ChunkResolution? _lastResolution;
     private VecI? _lastChunkPos;
 
-    public Image? Execute(RenderingContext context)
+    public Surface? Execute(RenderingContext context)
     {
         if(!CacheChanged(context)) return CachedResult;
         
         CachedResult = OnExecute(context);
+        if (CachedResult is { IsDisposed: true })
+        {
+            throw new ObjectDisposedException("Surface was disposed after execution.");
+        }
+        
         UpdateCache(context);
         return CachedResult;
     }
 
-    protected abstract Image? OnExecute(RenderingContext context);
+    protected abstract Surface? OnExecute(RenderingContext context);
     public abstract bool Validate();
     
     protected virtual bool CacheChanged(RenderingContext context)

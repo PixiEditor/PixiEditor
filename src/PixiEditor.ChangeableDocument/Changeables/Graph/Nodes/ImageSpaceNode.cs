@@ -18,7 +18,7 @@ public class ImageSpaceNode : Node
         Size = CreateFieldOutput(nameof(Size), "SIZE", ctx => ctx.Size);
     }
     
-    protected override Image? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         return null;
     }

@@ -8,15 +8,15 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class MergeNode : Node, IBackgroundInput
 {
-    public InputProperty<Image?> Top { get; }
-    public InputProperty<Image?> Bottom { get; }
-    public OutputProperty<Image?> Output { get; }
+    public InputProperty<Surface?> Top { get; }
+    public InputProperty<Surface?> Bottom { get; }
+    public OutputProperty<Surface?> Output { get; }
     
     public MergeNode() 
     {
-        Top = CreateInput<Image?>("Top", "TOP", null);
-        Bottom = CreateInput<Image?>("Bottom", "BOTTOM", null);
-        Output = CreateOutput<Image?>("Output", "OUTPUT", null);
+        Top = CreateInput<Surface?>("Top", "TOP", null);
+        Bottom = CreateInput<Surface?>("Bottom", "BOTTOM", null);
+        Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
     }
     
     public override bool Validate()
@@ -29,7 +29,7 @@ public class MergeNode : Node, IBackgroundInput
         return new MergeNode();
     }
 
-    protected override Image? OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         if(Top.Value == null && Bottom.Value == null)
         {
@@ -37,26 +37,25 @@ public class MergeNode : Node, IBackgroundInput
             return null;
         }
         
-        int width = Top.Value?.Width ?? Bottom.Value.Width;
-        int height = Top.Value?.Height ?? Bottom.Value.Height;
+        int width = Top.Value?.Size.X ?? Bottom.Value.Size.X;
+        int height = Top.Value?.Size.Y ?? Bottom.Value.Size.Y;
         
         Surface workingSurface = new Surface(new VecI(width, height));
         
         if(Bottom.Value != null)
         {
-            workingSurface.DrawingSurface.Canvas.DrawImage(Bottom.Value, 0, 0);
+            workingSurface.DrawingSurface.Canvas.DrawSurface(Bottom.Value.DrawingSurface, 0, 0);
         }
         
         if(Top.Value != null)
         {
-            workingSurface.DrawingSurface.Canvas.DrawImage(Top.Value, 0, 0);
+            workingSurface.DrawingSurface.Canvas.DrawSurface(Top.Value.DrawingSurface, 0, 0);
         }
+
+        Output.Value = workingSurface;
         
-        Output.Value = workingSurface.DrawingSurface.Snapshot();
-        
-        workingSurface.Dispose();
         return Output.Value;
     }
 
-    InputProperty<Image> IBackgroundInput.Background => Bottom;
+    InputProperty<Surface> IBackgroundInput.Background => Bottom;
 }
