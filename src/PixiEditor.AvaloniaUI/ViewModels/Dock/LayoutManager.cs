@@ -93,7 +93,8 @@ internal class LayoutManager
                         SplitDirection = DockingDirection.Bottom,
                         Second = new DockableArea
                         {
-                            Id = "LayersArea", ActiveDockable = DockContext.CreateDockable(layersDockViewModel)
+                            Id = "LayersArea",
+                            Dockables = [ DockContext.CreateDockable(layersDockViewModel), DockContext.CreateDockable(channelsDockDockViewModel) ]
                         },
                     },
                     FirstSize = 0.66,
