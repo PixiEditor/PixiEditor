@@ -12,6 +12,7 @@
     </Design.DataContext>
     
     <StackPanel>
+        <!-- TODO: Improve this UI -->
         <Grid ColumnDefinitions="*,Auto">
             <TextBlock ui:Translator.Key="RED" />
             <StackPanel Grid.Column="1" Orientation="Horizontal">
