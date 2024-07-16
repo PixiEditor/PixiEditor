@@ -28,7 +28,13 @@ namespace PixiEditor.DrawingApi.Skia
             SkiaImgDataImplementation dataImpl = new SkiaImgDataImplementation();
             ImgDataImplementation = dataImpl;
             
-            SkiaImageImplementation imgImpl = new SkiaImageImplementation(dataImpl);
+            SkiaColorSpaceImplementation colorSpaceImpl = new SkiaColorSpaceImplementation();
+            ColorSpaceImplementation = colorSpaceImpl;
+
+            SkiaPixmapImplementation pixmapImpl = new SkiaPixmapImplementation(colorSpaceImpl);
+            PixmapImplementation = pixmapImpl;
+            
+            SkiaImageImplementation imgImpl = new SkiaImageImplementation(dataImpl, pixmapImpl);
             ImageImplementation = imgImpl;
             
             SkiaColorFilterImplementation colorFilterImpl = new SkiaColorFilterImplementation();
@@ -44,12 +50,6 @@ namespace PixiEditor.DrawingApi.Skia
             PathImplementation = pathImpl;
             
             MatrixImplementation = new SkiaMatrixImplementation();
-            
-            SkiaColorSpaceImplementation colorSpaceImpl = new SkiaColorSpaceImplementation();
-            ColorSpaceImplementation = colorSpaceImpl;
-
-            SkiaPixmapImplementation pixmapImpl = new SkiaPixmapImplementation(colorSpaceImpl);
-            PixmapImplementation = pixmapImpl;
             
             SkiaBitmapImplementation bitmapImpl = new SkiaBitmapImplementation(imgImpl);
             BitmapImplementation = bitmapImpl;

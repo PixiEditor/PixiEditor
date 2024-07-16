@@ -36,7 +36,7 @@ public record class CreateLayer_ChangeInfo : CreateStructureMember_ChangeInfo
             parentGuid,
             layer.Opacity.Value,
             layer.IsVisible.Value,
-            layer.ClipToMemberBelow.Value,
+            layer.ClipToPreviousMember.Value,
             layer.MemberName,
             layer.BlendMode.Value,
             layer.Id,

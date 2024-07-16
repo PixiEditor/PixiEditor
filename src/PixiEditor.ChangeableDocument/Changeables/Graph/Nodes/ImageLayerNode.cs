@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using ChunkyImageLib.Operations;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
@@ -62,6 +63,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 ChunkResolution.Full, workingSurface.DrawingSurface, VecI.Zero, blendPaint);
             
             ApplyMaskIfPresent(workingSurface);
+            ApplyRasterClip(workingSurface);
         }
         else
         {
@@ -72,6 +74,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 ChunkResolution.Full, workingSurface.DrawingSurface, VecI.Zero, blendPaint);
             
             ApplyMaskIfPresent(workingSurface);
+            ApplyRasterClip(workingSurface);
         }
 
 
@@ -84,6 +87,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     private bool IsEmptyMask()
     {
         return Mask.Value != null && MaskIsVisible.Value && !Mask.Value.LatestOrCommittedChunkExists();
+    }
+    
+    private void ApplyRasterClip(Surface surface)
+    {
+        if (ClipToPreviousMember.Value)
+        {
+            OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value);
+        }
     }
 
     private ImageFrame GetFrameImage(KeyFrameTime frame)

@@ -13,10 +13,15 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     {
         private readonly SkObjectImplementation<SKData> _imgImplementation;
         private SkObjectImplementation<SKSurface>? _surfaceImplementation;
+        private SkiaPixmapImplementation _pixmapImplementation;
+        private SkiaColorSpaceImplementation colorSpaceImpl;
         
-        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation)
+        public SkiaImageImplementation(
+            SkObjectImplementation<SKData> imgDataImplementation, 
+            SkiaPixmapImplementation pixmapImplementation)
         {
             _imgImplementation = imgDataImplementation;
+            _pixmapImplementation = pixmapImplementation;
         }
         
         public void SetSurfaceImplementation(SkObjectImplementation<SKSurface> surfaceImplementation)
@@ -74,6 +79,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
                 return null;
             ManagedInstances[nativeImg.Handle] = nativeImg;
             return new Image(nativeImg.Handle);
+        }
+        
+        public Pixmap PeekPixels(Image image)
+        {
+            var native = ManagedInstances[image.ObjectPointer];
+            var pixmap = native.PeekPixels();
+            return _pixmapImplementation.CreateFrom(pixmap);
         }
 
         public void GetColorShifts(ref int platformColorAlphaShift, ref int platformColorRedShift, ref int platformColorGreenShift,

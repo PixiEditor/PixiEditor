@@ -8,7 +8,7 @@ public interface IReadOnlyStructureNode : IReadOnlyNode
 {
     public InputProperty<float> Opacity { get; }
     public InputProperty<bool> IsVisible { get; }
-    public InputProperty<bool> ClipToMemberBelow { get; }
+    public InputProperty<bool> ClipToPreviousMember { get; }
     public InputProperty<BlendMode> BlendMode { get; }
     public InputProperty<ChunkyImage?> Mask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
