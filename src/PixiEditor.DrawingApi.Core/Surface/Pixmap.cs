@@ -1,5 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.DrawingApi.Core.Surface;
@@ -42,6 +43,11 @@ public class Pixmap : NativeObject
     public IntPtr GetPixels()
     {
         return DrawingBackendApi.Current.PixmapImplementation.GetPixels(ObjectPointer);
+    }
+    
+    public Color GetColor(int x, int y)
+    {
+        return DrawingBackendApi.Current.PixmapImplementation.GetColor(this, x, y);
     }
 
     public Span<T> GetPixelSpan<T>() where T : unmanaged

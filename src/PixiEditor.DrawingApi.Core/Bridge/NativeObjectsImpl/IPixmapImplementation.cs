@@ -1,4 +1,5 @@
 ﻿using System;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
@@ -21,4 +22,5 @@ public interface IPixmapImplementation
 
     public int GetBytesSize(Pixmap pixmap);
     public object GetNativePixmap(IntPtr objectPointer);
+    public Color GetColor(Pixmap pixmap, int x, int y);
 }

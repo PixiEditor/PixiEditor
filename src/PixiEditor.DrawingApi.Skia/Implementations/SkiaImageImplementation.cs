@@ -13,10 +13,12 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
     {
         private readonly SkObjectImplementation<SKData> _imgImplementation;
         private SkObjectImplementation<SKSurface>? _surfaceImplementation;
+        private SkiaPixmapImplementation pixmapImpl;
         
-        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation)
+        public SkiaImageImplementation(SkObjectImplementation<SKData> imgDataImplementation, SkiaPixmapImplementation pixmapImplementation)
         {
             _imgImplementation = imgDataImplementation;
+            pixmapImpl = pixmapImplementation;
         }
         
         public void SetSurfaceImplementation(SkObjectImplementation<SKSurface> surfaceImplementation)
@@ -109,6 +111,21 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public int GetHeight(IntPtr objectPointer)
         {
             return ManagedInstances[objectPointer].Height;
+        }
+        
+        public Pixmap PeekPixels(Image image)
+        {
+            var native = ManagedInstances[image.ObjectPointer];
+            var pixmap = native.PeekPixels();
+            if (pixmap is null)
+            {
+                ImageInfo info = new ImageInfo(image.Width, image.Height);
+                SKBitmap skBitmap = new SKBitmap(info.ToSkImageInfo());
+                pixmap = skBitmap.PeekPixels();
+                native.ReadPixels(skBitmap.PeekPixels());
+            }
+            
+            return pixmapImpl.CreateFrom(pixmap);
         }
 
         public object GetNativeImage(IntPtr objectPointer)

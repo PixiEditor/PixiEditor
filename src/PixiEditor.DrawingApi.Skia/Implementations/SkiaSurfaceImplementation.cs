@@ -83,7 +83,13 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
 
         public DrawingSurface Create(ImageInfo imageInfo)
         {
-            SKSurface skSurface = SKSurface.Create(grContext, false, imageInfo.ToSkImageInfo());
+            SKSurface skSurface = SKSurface.Create(imageInfo.ToSkImageInfo());
+            return CreateDrawingSurface(skSurface);
+        }
+
+        public DrawingSurface Create(ImageInfo imageInfo, bool isGpuBacked)
+        {
+            SKSurface skSurface = SKSurface.Create(grContext, isGpuBacked, imageInfo.ToSkImageInfo());
             return CreateDrawingSurface(skSurface);
         }
 

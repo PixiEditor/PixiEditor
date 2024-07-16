@@ -20,5 +20,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public int GetWidth(IntPtr objectPointer);
         public int GetHeight(IntPtr objectPointer);
         public object GetNativeImage(IntPtr objectPointer);
+        public Pixmap PeekPixels(Image image);
     }
 }

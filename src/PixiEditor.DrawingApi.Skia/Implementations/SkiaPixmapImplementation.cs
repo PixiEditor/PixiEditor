@@ -1,5 +1,6 @@
 ﻿using System;
 using PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
+using PixiEditor.DrawingApi.Core.ColorsImpl;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using SkiaSharp;
@@ -57,6 +58,12 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         public object GetNativePixmap(IntPtr objectPointer)
         {
             return ManagedInstances[objectPointer];
+        }
+        
+        public Color GetColor(Pixmap pixmap, int x, int y)
+        {
+            SKColor color = ManagedInstances[pixmap.ObjectPointer].GetPixelColor(x, y);
+            return new Color(color.Red, color.Green, color.Blue, color.Alpha);
         }
 
         public Pixmap CreateFrom(SKPixmap pixmap)

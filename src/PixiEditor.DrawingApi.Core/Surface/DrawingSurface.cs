@@ -65,6 +65,11 @@ namespace PixiEditor.DrawingApi.Core.Surface
             return DrawingBackendApi.Current.SurfaceImplementation.Create(imageInfo, pixelBuffer);
         }
 
+        public static DrawingSurface Create(ImageInfo info, bool isGpuBacked)
+        {
+            return DrawingBackendApi.Current.SurfaceImplementation.Create(info, isGpuBacked);
+        }
+
         public override void Dispose()
         {
             Canvas.Changed -= OnCanvasChanged;
