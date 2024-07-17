@@ -1,6 +1,7 @@
-﻿using PixiEditor.Numerics;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.Numerics;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
 public record struct FieldContext(VecD Position, VecI Size, bool HasContext)
 {
