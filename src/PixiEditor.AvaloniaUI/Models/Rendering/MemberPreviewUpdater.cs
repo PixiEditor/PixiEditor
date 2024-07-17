@@ -438,8 +438,7 @@ internal class MemberPreviewUpdater
                 _ => ChunkResolution.Eighth,
             };
             var pos = chunkPos * resolution.PixelSize();
-            var rendered = DocumentEvaluator.RenderChunk(chunkPos, resolution,
-                internals.Tracker.Document.NodeGraph, doc.AnimationHandler.ActiveFrameBindable);
+            var rendered = doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameBindable);
             doc.PreviewSurface.DrawingSurface.Canvas.Save();
             doc.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
             doc.PreviewSurface.DrawingSurface.Canvas.ClipRect((RectD)cumulative.GlobalArea);
@@ -551,7 +550,7 @@ internal class MemberPreviewUpdater
             var pos = chunk * ChunkResolution.Full.PixelSize();
             // drawing in full res here is kinda slow
             // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
-            OneOf<Chunk, EmptyChunk> rendered = DocumentEvaluator.RenderChunk(chunk, ChunkResolution.Full, folder,
+            OneOf<Chunk, EmptyChunk> rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, folder,
                 doc.AnimationHandler.ActiveFrameBindable);
             if (rendered.IsT0)
             {

@@ -1,20 +1,27 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
 
-public static class DocumentEvaluator
+public class DocumentEvaluator
 {
-    public static OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution,
-        IReadOnlyNodeGraph graph, int frame, RectI? globalClippingRect = null)
+    public DocumentEvaluator(IReadOnlyDocument document)
     {
-        using RenderingContext context = new(frame, chunkPos, resolution);
+        Document = document;
+    }
+
+    private IReadOnlyDocument Document { get; }
+    
+    public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, int frame, RectI? globalClippingRect = null)
+    {
+        using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
         try
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Surface? evaluated = graph.Execute(context);
+            Surface? evaluated = Document.NodeGraph.Execute(context);
             if (evaluated is null)
             {
                 return new EmptyChunk();
@@ -52,10 +59,10 @@ public static class DocumentEvaluator
         }
     }
 
-    public static OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution,
+    public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution,
         IReadOnlyNode node, int frame, RectI? globalClippingRect = null)
     {
-        using RenderingContext context = new(frame, chunkPos, resolution);
+        using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
         try
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);

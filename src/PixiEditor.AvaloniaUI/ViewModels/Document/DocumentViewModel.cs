@@ -151,6 +151,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DocumentStructureModule StructureHelper { get; }
     public DocumentToolsModule Tools { get; }
     public DocumentOperationsModule Operations { get; }
+    public DocumentEvaluator Renderer { get; }
     public DocumentEventsModule EventInlet { get; }
 
     public ActionDisplayList ActionDisplays { get; } =
@@ -231,6 +232,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         PreviewSurface = new Surface(new VecI(previewSize.X, previewSize.Y));
 
         ReferenceLayerViewModel = new(this, Internals);
+
+        Renderer = new DocumentEvaluator(Internals.Tracker.Document);
     }
 
     /// <summary>
@@ -559,8 +562,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             if (scope == DocumentScope.AllLayers)
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
-                return DocumentEvaluator.RenderChunk(chunkPos, ChunkResolution.Full,
-                        Internals.Tracker.Document.NodeGraph,
+                return Renderer.RenderChunk(chunkPos, ChunkResolution.Full,
                         frame)
                     .Match(
                         chunk =>

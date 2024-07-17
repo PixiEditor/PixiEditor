@@ -195,7 +195,7 @@ internal class CanvasUpdater
             screenSurface.DrawingSurface.Canvas.ClipRect((RectD)globalScaledClippingRectangle);
         }
 
-        DocumentEvaluator.RenderChunk(chunkPos, resolution, internals.Tracker.Document.NodeGraph, doc.AnimationHandler.ActiveFrameBindable, globalClippingRectangle).Switch(
+        doc.Renderer.RenderChunk(chunkPos, resolution, doc.AnimationHandler.ActiveFrameBindable, globalClippingRectangle).Switch(
             (Chunk chunk) =>
             {
                 screenSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface, chunkPos.Multiply(chunk.PixelSize), ReplacingPaint);

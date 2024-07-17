@@ -63,7 +63,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     protected virtual bool CacheChanged(RenderingContext context)
     {
         return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
-               || (context.Resolution != _lastResolution && AffectedByChunkResolution)
+               || (context.ChunkResolution != _lastResolution && AffectedByChunkResolution)
                || (context.ChunkToUpdate != _lastChunkPos && AffectedByChunkToUpdate)
                || inputs.Any(x => x.CacheChanged);
     }
@@ -76,7 +76,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
         
         _lastFrameTime = context.FrameTime;
-        _lastResolution = context.Resolution;
+        _lastResolution = context.ChunkResolution;
         _lastChunkPos = context.ChunkToUpdate;
     }
 

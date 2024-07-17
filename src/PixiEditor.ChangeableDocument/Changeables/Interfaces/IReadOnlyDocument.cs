@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Numerics;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
@@ -45,7 +46,7 @@ public interface IReadOnlyDocument
     /// The position of the vertical symmetry axis (Mirrors left and right)
     /// </summary>
     double VerticalSymmetryAxisX { get; }
-
+    
     /// <summary>
     /// Performs the specified action on each readonly member of the document
     /// </summary>

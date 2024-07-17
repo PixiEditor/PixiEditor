@@ -67,9 +67,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private Surface RenderImage(ChunkyImage frameImage, RenderingContext context)
     {
-        ChunkResolution targetResolution = context.Resolution ?? ChunkResolution.Full;
+        ChunkResolution targetResolution = context.ChunkResolution;
         bool hasSurface = workingSurfaces.TryGetValue(targetResolution, out Surface workingSurface);
-        VecI targetSize = (VecI)(frameImage.LatestSize * context.Resolution!.Value.Multiplier());
+        VecI targetSize = (VecI)(frameImage.LatestSize * targetResolution.Multiplier());
 
         if (Background.Value != null)
         {
@@ -91,21 +91,12 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface)
     {
-        if (context.ChunkToUpdate == null)
-        {
-            frameImage.DrawMostUpToDateRegionOn(
-                new RectI(0, 0, frameImage.LatestSize.X, frameImage.LatestSize.Y),
-                ChunkResolution.Full, workingSurface.DrawingSurface, VecI.Zero, blendPaint);
-        }
-        else
-        {
-            frameImage.DrawMostUpToDateChunkOn(
-                context.ChunkToUpdate.Value,
-                context.Resolution.Value,
+       frameImage.DrawMostUpToDateChunkOn(
+                context.ChunkToUpdate,
+                context.ChunkResolution,
                 workingSurface.DrawingSurface,
-                context.ChunkToUpdate.Value * context.Resolution.Value.PixelSize(),
+                context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
                 blendPaint);
-        }
     }
 
     private bool IsEmptyMask()
@@ -118,12 +109,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (ClipToPreviousMember.Value)
         {
             RectI? clippingRect = null;
-            if (context.Resolution.HasValue && context.ChunkToUpdate.HasValue)
-            {
-                VecI chunkStart = context.ChunkToUpdate.Value * context.Resolution.Value.PixelSize();
-                VecI size = new VecI(context.Resolution.Value.PixelSize());
-                clippingRect = new RectI(chunkStart, size);
-            }
+            VecI chunkStart = context.ChunkToUpdate * context.ChunkResolution.PixelSize();
+            VecI size = new VecI(context.ChunkResolution.PixelSize());
+            clippingRect = new RectI(chunkStart, size);
 
             OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value, clippingRect);
         }
@@ -140,35 +128,25 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     {
         if (Mask.Value != null && MaskIsVisible.Value)
         {
-            ChunkyImage mask = Mask.Value;
-            if (context.Resolution.HasValue && context.ChunkToUpdate.HasValue)
-            {
-                mask.DrawMostUpToDateChunkOn(
-                    context.ChunkToUpdate.Value,
-                    context.Resolution.Value,
+            Mask.Value.DrawMostUpToDateChunkOn(
+                    context.ChunkToUpdate,
+                    context.ChunkResolution,
                     surface.DrawingSurface,
-                    context.ChunkToUpdate.Value * context.Resolution.Value.PixelSize(),
+                    context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
                     maskPaint);
-            }
-            else
-            {
-                mask.DrawMostUpToDateRegionOn(
-                    new RectI(0, 0, mask.LatestSize.X, mask.LatestSize.Y),
-                    ChunkResolution.Full, surface.DrawingSurface, VecI.Zero, maskPaint);
-            }
         }
     }
 
     private RectD CalculateSourceRect(Surface image, VecI targetSize, RenderingContext context)
     {
-        if (context.Resolution == null || context.ChunkToUpdate == null)
+        if (context.ChunkResolution == null || context.ChunkToUpdate == null)
         {
             return new RectD(0, 0, image.Size.X, image.Size.Y);
         }
 
         float multiplierToFit = image.Size.X / (float)targetSize.X;
-        int chunkSize = context.Resolution.Value.PixelSize();
-        VecI chunkPos = context.ChunkToUpdate.Value;
+        int chunkSize = context.ChunkResolution.PixelSize();
+        VecI chunkPos = context.ChunkToUpdate;
 
         int x = (int)(chunkPos.X * chunkSize * multiplierToFit);
         int y = (int)(chunkPos.Y * chunkSize * multiplierToFit);
