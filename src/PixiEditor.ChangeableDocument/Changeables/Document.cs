@@ -100,7 +100,7 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         }
         else
         {
-            image = layer.Execute(new RenderingContext(frame));
+            image = new Surface(layer.Execute(new RenderingContext(frame)));
         }
         
         //todo: idk if it's correct

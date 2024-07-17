@@ -76,7 +76,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             workingSurface = Background.Value;
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
         }
-        else if (!hasSurface || workingSurface.Size != targetSize)
+        else if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
         {
             workingSurfaces[targetResolution] = new Surface(targetSize);
             workingSurface = workingSurfaces[targetResolution];

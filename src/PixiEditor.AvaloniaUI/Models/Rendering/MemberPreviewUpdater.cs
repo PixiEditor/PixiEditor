@@ -688,7 +688,7 @@ internal class MemberPreviewUpdater
         // TODO: recreate only changed previews
         internals.Tracker.Document.NodeGraph.TryTraverse(node =>
         {
-            if (node.CachedResult != null)
+            if (node.CachedResult is { IsDisposed: false })
             {
                var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
 

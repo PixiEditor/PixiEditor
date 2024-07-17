@@ -37,7 +37,6 @@ public static class DocumentEvaluator
             int height = (int)(ChunkyImage.FullChunkSize * resolution.Multiplier());
             
             RectD sourceRect = new(x, y, width, height);
-            RectD destRect = new(0, 0, chunk.PixelSize.X, chunk.PixelSize.Y);
 
             using var chunkSnapshot = evaluated.DrawingSurface.Snapshot((RectI)sourceRect);
             
