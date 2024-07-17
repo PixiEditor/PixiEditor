@@ -98,7 +98,6 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 
     public Surface? Execute(RenderingContext context)
     {
-        Stopwatch stopwatch = new();
         if (OutputNode == null) return null;
 
         var queue = CalculateExecutionQueue(OutputNode);
@@ -107,7 +106,6 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         {
             var node = queue.Dequeue();
             
-            stopwatch.Restart();
             if (node is Node typedNode)
             {
                 typedNode.ExecuteInternal(context);
@@ -116,8 +114,6 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
             {
                 node.Execute(context);
             }
-            
-            Console.WriteLine($"{node.GetType().Name} took {stopwatch.ElapsedMilliseconds}ms to execute");
         }
 
         return OutputNode.Input.Value;
