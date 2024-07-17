@@ -145,10 +145,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return new ColorFilter(skPaint.ColorFilter.Handle);
         }
 
-        public void SetColorFilter(Paint paint, ColorFilter value)
+        public void SetColorFilter(Paint paint, ColorFilter? value)
         {
             SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
-            skPaint.ColorFilter = colorFilterImplementation[value.ObjectPointer];
+            skPaint.ColorFilter = value == null ? null : colorFilterImplementation[value.ObjectPointer];
         }
 
         public ImageFilter GetImageFilter(Paint paint)
@@ -157,10 +157,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return new ImageFilter(skPaint.ColorFilter.Handle);
         }
 
-        public void SetImageFilter(Paint paint, ImageFilter value)
+        public void SetImageFilter(Paint paint, ImageFilter? value)
         {
             SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
-            skPaint.ImageFilter = imageFilterImplementation[value.ObjectPointer];
+            skPaint.ImageFilter = value == null ? null : imageFilterImplementation[value.ObjectPointer];
         }
 
         public Shader GetShader(Paint paint)
@@ -169,10 +169,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return new Shader(skPaint.Shader.Handle);
         }
         
-        public void SetShader(Paint paint, Shader shader)
+        public void SetShader(Paint paint, Shader? shader)
         {
             SKPaint skPaint = ManagedInstances[paint.ObjectPointer];
-            skPaint.Shader = shaderImplementation[shader.ObjectPointer];
+            skPaint.Shader = shader == null ? null : shaderImplementation[shader.ObjectPointer];
         }
 
         public object GetNativePaint(IntPtr objectPointer)
