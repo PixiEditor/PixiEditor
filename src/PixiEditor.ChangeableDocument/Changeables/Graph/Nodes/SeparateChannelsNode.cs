@@ -44,9 +44,13 @@ public class SeparateChannelsNode : Node
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
     
-    protected override Surface OnExecute(RenderingContext context)
+    protected override Surface? OnExecute(RenderingContext context)
     {
         var image = Image.Value;
+
+        if (image == null)
+            return null;
+        
         var grayscale = Grayscale.Value;
 
         var red = !grayscale ? _redFilter : _redGrayscaleFilter;
@@ -86,7 +90,7 @@ public class SeparateChannelsNode : Node
         return imageSurface;
     }
 
-    public override bool Validate() => Image.Value != null;
+    public override bool Validate() => true;
 
     public override Node CreateCopy() => new SeparateChannelsNode();
 }

@@ -38,6 +38,10 @@ public class KernelFilterNode : Node
     protected override Surface? OnExecute(RenderingContext context)
     {
         var input = Image.Value;
+
+        if (input == null)
+            return null;
+        
         var kernel = Kernel.Value;
         var workingSurface = new Surface(input.Size);
 
@@ -52,7 +56,7 @@ public class KernelFilterNode : Node
         return workingSurface;
     }
 
-    public override bool Validate() => Image.Value != null;
+    public override bool Validate() => true;
 
     public override Node CreateCopy() => new KernelFilterNode();
 }

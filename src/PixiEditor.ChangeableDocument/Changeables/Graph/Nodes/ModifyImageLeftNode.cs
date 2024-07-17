@@ -49,7 +49,7 @@ public class ModifyImageLeftNode : Node
         return Image.Value;
     }
 
-    public override bool Validate() => Image.Connection != null;
+    public override bool Validate() => true;
 
     public override Node CreateCopy() => new ModifyImageLeftNode();
 }

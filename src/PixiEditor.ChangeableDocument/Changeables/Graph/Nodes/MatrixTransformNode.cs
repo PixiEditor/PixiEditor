@@ -31,6 +31,9 @@ public class MatrixTransformNode : Node
     
     protected override Surface? OnExecute(RenderingContext context)
     {
+        if (Input.Value == null)
+            return null;
+        
         var currentMatrix = Matrix.Value;
         if (previousMatrix != currentMatrix)
         {
@@ -47,7 +50,7 @@ public class MatrixTransformNode : Node
         return Transformed.Value;
     }
 
-    public override bool Validate() => Input.Value != null;
+    public override bool Validate() => true;
 
     public override Node CreateCopy() => new MatrixTransformNode();
 }
