@@ -27,6 +27,8 @@ public class ModifyImageLeftNode : Node
 
     private Color GetColor(FieldContext context)
     {
+        context.ThrowOnMissingContext();
+        
         if (pixmap == null)
             return new Color();
         

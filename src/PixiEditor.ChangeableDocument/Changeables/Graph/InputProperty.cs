@@ -12,7 +12,28 @@ public class InputProperty : IInputProperty
 
     public object Value
     {
-        get => Connection != null ? Connection.Value : _internalValue;
+        get
+        {
+            if (Connection == null)
+            {
+                return _internalValue;
+            }
+
+            var connectionValue = Connection.Value;
+            
+            if (!ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is Delegate connectionField)
+            {
+                return connectionField.DynamicInvoke(FieldContext.NoContext);
+            }
+
+            if (ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is not Delegate)
+            {
+                Func<FieldContext, object> field = _ => connectionValue;
+                return field;
+            }
+
+            return connectionValue;
+        }
     }
     
     public object NonOverridenValue
