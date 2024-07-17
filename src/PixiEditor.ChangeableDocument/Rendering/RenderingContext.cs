@@ -18,17 +18,19 @@ public class RenderingContext : IDisposable
     public KeyFrameTime FrameTime { get; }
     public VecI ChunkToUpdate { get; }
     public ChunkResolution ChunkResolution { get; }
-    
+    public VecI DocumentSize { get; set; }
+
     /// <summary>
     ///     This surface is unique to each rendering context and is used to draw on to avoid leaking
     /// internal node surfaces and cloning them. It is disposed after rendering.
     /// </summary>
-    public Surface WorkingSurface { get; }
+    //public Surface WorkingSurface { get; }
 
     public RenderingContext(KeyFrameTime frameTime, VecI docSize)
     {
         FrameTime = frameTime;
-        WorkingSurface = new Surface(docSize);
+        DocumentSize = docSize;
+        //WorkingSurface = new Surface(docSize);
     }
     
     public RenderingContext(KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize)
@@ -36,7 +38,8 @@ public class RenderingContext : IDisposable
         FrameTime = frameTime;
         ChunkToUpdate = chunkToUpdate;
         ChunkResolution = chunkResolution;
-        WorkingSurface = new Surface(docSize);
+        DocumentSize = docSize;
+        //WorkingSurface = new Surface(docSize);
     }
 
     public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)

@@ -845,4 +845,16 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             File.Delete(file);
         }
     }
+
+    public void Dispose()
+    {
+        foreach (var (_, surface) in Surfaces)
+        {
+            surface.Dispose();
+        }
+
+        PreviewSurface.Dispose();
+        Internals.Tracker.Dispose();
+        Internals.Tracker.Document.Dispose();
+    }
 }
