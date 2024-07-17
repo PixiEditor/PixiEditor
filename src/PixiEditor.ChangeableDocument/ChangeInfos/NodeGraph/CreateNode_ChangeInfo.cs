@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Immutable;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.Numerics;
 
@@ -16,7 +17,7 @@ public record CreateNode_ChangeInfo(
     public static ImmutableArray<NodePropertyInfo> CreatePropertyInfos(IEnumerable<INodeProperty> properties,
         bool isInput, Guid guid)
     {
-        return properties.Select(p => new NodePropertyInfo(p.InternalPropertyName, p.DisplayName, p.ValueType, isInput, guid))
+        return properties.Select(p => new NodePropertyInfo(p.InternalPropertyName, p.DisplayName, p.ValueType, isInput, GetNonOverridenValue(p), guid))
             .ToImmutableArray();
     }
 
@@ -29,4 +30,11 @@ public record CreateNode_ChangeInfo(
             node.Id,
             CreatePropertyInfos(node.InputProperties, true, node.Id), CreatePropertyInfos(node.OutputProperties, false, node.Id));
     }
+
+    private static object? GetNonOverridenValue(INodeProperty property) => property switch
+    {
+        IFieldInputProperty fieldProperty => fieldProperty.GetFieldConstantValue(),
+        IInputProperty inputProperty => inputProperty.NonOverridenValue,
+        _ => null
+    };
 }

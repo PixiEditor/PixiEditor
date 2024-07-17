@@ -1,4 +1,5 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
@@ -27,6 +28,8 @@ public class ModifyImageLeftNode : Node
 
     private Color GetColor(FieldContext context)
     {
+        context.ThrowOnMissingContext();
+        
         if (pixmap == null)
             return new Color();
         

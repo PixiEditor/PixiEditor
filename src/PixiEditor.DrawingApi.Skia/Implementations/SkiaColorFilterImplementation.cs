@@ -17,6 +17,14 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             return skColorFilter.Handle;
         }
 
+        public IntPtr CreateColorMatrix(float[] matrix)
+        {
+            var skColorFilter = SKColorFilter.CreateColorMatrix(matrix);
+            ManagedInstances[skColorFilter.Handle] = skColorFilter;
+
+            return skColorFilter.Handle;
+        }
+
         public void Dispose(ColorFilter colorFilter)
         {
             SKColorFilter skColorFilter = ManagedInstances[colorFilter.ObjectPointer];

@@ -11,6 +11,10 @@
                              x:Class="PixiEditor.AvaloniaUI.Views.Nodes.Properties.ColorPropertyView">
     <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
-        <colorPicker:PortableColorPicker PointerPressed="InputElement_OnPointerPressed" Width="40" Height="20" IsVisible="{Binding IsInput}" SelectedColor="{Binding Value, Mode=TwoWay}" />
+        <colorPicker:PortableColorPicker
+            PointerPressed="InputElement_OnPointerPressed"
+            Width="40" Height="20"
+            IsVisible="{Binding IsInput}"
+            SelectedColor="{Binding Value, Mode=TwoWay}" />
     </Grid>
 </properties:NodePropertyView>

@@ -8,6 +8,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.NativeObjectsImpl;
 public interface IColorFilterImplementation
 {
     public IntPtr CreateBlendMode(Color color, BlendMode blendMode);
+    public IntPtr CreateColorMatrix(float[] matrix);
     public void Dispose(ColorFilter colorFilter);
     public object GetNativeColorFilter(IntPtr objectPointer);
 }

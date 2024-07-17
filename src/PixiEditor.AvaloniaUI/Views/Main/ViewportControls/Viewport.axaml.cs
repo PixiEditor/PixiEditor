@@ -84,6 +84,9 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     public static readonly StyledProperty<ICommand> MiddleMouseClickedCommandProperty =
         AvaloniaProperty.Register<Viewport, ICommand>(nameof(MiddleMouseClickedCommand), null);
 
+    public static readonly StyledProperty<ViewportColorChannels> ChannelsProperty = AvaloniaProperty.Register<Viewport, ViewportColorChannels>(
+        nameof(Channels));
+
     public ICommand? MiddleMouseClickedCommand
     {
         get => (ICommand?)GetValue(MiddleMouseClickedCommandProperty);
@@ -191,6 +194,12 @@ internal partial class Viewport : UserControl, INotifyPropertyChanged
     {
         get => (bool)GetValue(FlipYProperty);
         set => SetValue(FlipYProperty, value);
+    }
+
+    public ViewportColorChannels Channels
+    {
+        get => GetValue(ChannelsProperty);
+        set => SetValue(ChannelsProperty, value);
     }
 
     private double angleRadians = 0;
