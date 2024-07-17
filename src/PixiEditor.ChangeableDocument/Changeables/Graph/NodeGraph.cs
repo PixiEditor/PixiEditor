@@ -4,6 +4,7 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
+using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -83,20 +84,20 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
 
     public bool TryTraverse(Action<IReadOnlyNode> action)
     {
-        if(OutputNode == null) return false;
-        
+        if (OutputNode == null) return false;
+
         var queue = CalculateExecutionQueue(OutputNode, false);
-        
+
         while (queue.Count > 0)
         {
             var node = queue.Dequeue();
             action(node);
         }
-        
+
         return true;
     }
 
-    public Surface? Execute(RenderingContext context)
+    public Chunk? Execute(RenderingContext context)
     {
         Stopwatch stopwatch = new();
         if (OutputNode == null) return null;
@@ -106,12 +107,27 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         while (queue.Count > 0)
         {
             var node = queue.Dequeue();
-            
+
             stopwatch.Restart();
-            node.Execute(context);
+            if (node is Node typedNode)
+            {
+                typedNode.ExecuteInternal(context);
+            }
+            else
+            {
+                node.Execute(context);
+            }
+
             Console.WriteLine($"{node.GetType().Name} took {stopwatch.ElapsedMilliseconds}ms to execute");
         }
 
-        return OutputNode.Input.Value;
+        if (OutputNode?.Input.Value != null)
+        {
+            Chunk result = Chunk.Create(context.ChunkResolution);
+            result.Surface.DrawingSurface.Canvas.DrawSurface(OutputNode.Input.Value.Surface.DrawingSurface, 0, 0);
+            return result;
+        }
+
+        return null;
     }
 }

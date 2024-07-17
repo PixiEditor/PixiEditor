@@ -27,7 +27,7 @@ public class SeparateColorNode : Node
         A = CreateFieldOutput(nameof(A), "A", ctx => Color.Value(ctx).A / 255d);
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Chunk? OnExecute(RenderingContext context)
     {
         return null;
     }

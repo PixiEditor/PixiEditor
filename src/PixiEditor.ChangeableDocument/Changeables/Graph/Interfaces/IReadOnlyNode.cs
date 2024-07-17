@@ -11,11 +11,11 @@ public interface IReadOnlyNode
     public IReadOnlyCollection<IInputProperty> InputProperties { get; }
     public IReadOnlyCollection<IOutputProperty> OutputProperties { get; }
     public VecD Position { get; }
-    public Surface? CachedResult { get; }
+    public ChunkyImage? CachedResult { get; }
     
     public string InternalName { get; }
 
-    public Surface? Execute(RenderingContext context);
+    public Chunk? Execute(RenderingContext context);
     public bool Validate();
     
     /// <summary>

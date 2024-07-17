@@ -7,19 +7,19 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class ImageSizeNode : Node
 {
-    public InputProperty<Surface?> Image { get; }
+    public InputProperty<ChunkyImage?> Image { get; }
     
     public OutputProperty<VecI> Size { get; }
     
     public ImageSizeNode()
     {
-        Image = CreateInput<Surface>(nameof(Image), "IMAGE", null);
+        Image = CreateInput<ChunkyImage>(nameof(Image), "IMAGE", null);
         Size = CreateOutput(nameof(Size), "SIZE", new VecI());
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Chunk? OnExecute(RenderingContext context)
     {
-        Size.Value = Image.Value?.Size ?? new VecI();
+        Size.Value = Image.Value?.CommittedSize ?? new VecI();
 
         return null;
     }

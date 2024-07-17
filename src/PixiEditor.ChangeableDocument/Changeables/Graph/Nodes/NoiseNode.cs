@@ -28,9 +28,9 @@ public class NoiseNode : Node
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
     
-    protected override Surface OnExecute(RenderingContext context)
+    protected override Chunk OnExecute(RenderingContext context)
     {
-        if (Math.Abs(previousScale - Scale.Value) > 0.000001 || double.IsNaN(previousScale))
+        /*if (Math.Abs(previousScale - Scale.Value) > 0.000001 || double.IsNaN(previousScale))
         {
             var shader = Shader.CreatePerlinNoiseTurbulence((float)(1d / Scale.Value), (float)(1d / Scale.Value), 4, (float)Seed.Value);
             paint.Shader = shader;
@@ -46,7 +46,9 @@ public class NoiseNode : Node
 
         Noise.Value = workingSurface;
         
-        return Noise.Value;
+        return Noise.Value;*/
+        
+        return null;
     }
 
     public override bool Validate() => Size.Value is { X: > 0, Y: > 0 };

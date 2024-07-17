@@ -44,9 +44,9 @@ public class SeparateChannelsNode : Node
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
     
-    protected override Surface OnExecute(RenderingContext context)
+    protected override Chunk OnExecute(RenderingContext context)
     {
-        var image = Image.Value;
+        /*var image = Image.Value;
         var grayscale = Grayscale.Value;
 
         var red = !grayscale ? _redFilter : _redGrayscaleFilter;
@@ -73,7 +73,9 @@ public class SeparateChannelsNode : Node
         previewSurface.DrawingSurface.Canvas.DrawSurface(Blue.Value.DrawingSurface, bluePos, context.ReplacingPaintWithOpacity);
         previewSurface.DrawingSurface.Canvas.DrawSurface(Alpha.Value.DrawingSurface, alphaPos, context.ReplacingPaintWithOpacity);
         
-        return previewSurface;
+        return previewSurface;*/
+        
+        return null;
     }
 
     private Surface GetImage(Surface image, ColorFilter filter)

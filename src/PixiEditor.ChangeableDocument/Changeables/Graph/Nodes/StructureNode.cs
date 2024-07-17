@@ -9,7 +9,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundInput
 {
-    public InputProperty<Surface?> Background { get; }
+    public InputProperty<Chunk?> Background { get; }
     public InputProperty<float> Opacity { get; } 
     public InputProperty<bool> IsVisible { get; }
     public InputProperty<bool> ClipToPreviousMember { get; }
@@ -17,13 +17,13 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public InputProperty<ChunkyImage?> Mask { get; }
     public InputProperty<bool> MaskIsVisible { get; }
     
-    public OutputProperty<Surface?> Output { get; }
+    public OutputProperty<Chunk?> Output { get; }
     
     public string MemberName { get; set; } = string.Empty;
 
     protected StructureNode()
     {
-        Background = CreateInput<Surface?>("Background", "BACKGROUND", null);
+        Background = CreateInput<Chunk?>("Background", "BACKGROUND", null);
         Opacity = CreateInput<float>("Opacity", "OPACITY", 1);
         IsVisible = CreateInput<bool>("IsVisible", "IS_VISIBLE", true);
         ClipToPreviousMember = CreateInput<bool>("ClipToMemberBelow", "CLIP_TO_MEMBER_BELOW", false);
@@ -31,10 +31,10 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
         Mask = CreateInput<ChunkyImage?>("Mask", "MASK", null);
         MaskIsVisible = CreateInput<bool>("MaskIsVisible", "MASK_IS_VISIBLE", true);
         
-        Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
+        Output = CreateOutput<Chunk?>("Output", "OUTPUT", null);
     }
 
-    protected abstract override Surface? OnExecute(RenderingContext context);
+    protected abstract override Chunk? OnExecute(RenderingContext context);
     public abstract override bool Validate();
 
     public abstract RectI? GetTightBounds(KeyFrameTime frameTime);

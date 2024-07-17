@@ -8,9 +8,9 @@ namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 public static class NodeOperations
 {
-    public static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<Surface?> parentInput,
-        OutputProperty<Surface> toAddOutput,
-        InputProperty<Surface> toAddInput, Guid memberId)
+    public static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<Chunk?> parentInput,
+        OutputProperty<Chunk> toAddOutput,
+        InputProperty<Chunk> toAddInput, Guid memberId)
     {
         List<ConnectProperty_ChangeInfo> changes = new();
         IOutputProperty? previouslyConnected = null;

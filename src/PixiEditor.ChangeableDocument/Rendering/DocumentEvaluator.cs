@@ -21,13 +21,13 @@ public class DocumentEvaluator
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Surface? evaluated = Document.NodeGraph.Execute(context);
-            if (evaluated is null)
+            Chunk? chunk = Document.NodeGraph.Execute(context);
+            if (chunk is null)
             {
                 return new EmptyChunk();
             }
-
-            Chunk chunk = Chunk.Create(resolution);
+            
+            /*Chunk chunk = Chunk.Create(resolution);
 
             chunk.Surface.DrawingSurface.Canvas.Save();
             chunk.Surface.DrawingSurface.Canvas.Clear();
@@ -49,7 +49,7 @@ public class DocumentEvaluator
             
             chunk.Surface.DrawingSurface.Canvas.DrawImage(chunkSnapshot, 0, 0, context.ReplacingPaintWithOpacity);
 
-            chunk.Surface.DrawingSurface.Canvas.Restore();
+            chunk.Surface.DrawingSurface.Canvas.Restore();*/
 
             return chunk;
         }
@@ -67,25 +67,20 @@ public class DocumentEvaluator
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
 
-            Surface? evaluated = node.Execute(context);
-            if (evaluated is null)
+            Chunk? chunk = node.Execute(context);
+            if (chunk is null)
             {
                 return new EmptyChunk();
             }
 
-            Chunk chunk = Chunk.Create(resolution);
-
-            chunk.Surface.DrawingSurface.Canvas.Save();
-            chunk.Surface.DrawingSurface.Canvas.Clear();
-
-            if (transformedClippingRect is not null)
+            /*if (transformedClippingRect is not null)
             {
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
             }
             
             chunk.Surface.DrawingSurface.Canvas.DrawSurface(evaluated.DrawingSurface, transformedClippingRect.Value.X, transformedClippingRect.Value.Y, context.ReplacingPaintWithOpacity);
 
-            chunk.Surface.DrawingSurface.Canvas.Restore();
+            chunk.Surface.DrawingSurface.Canvas.Restore();*/
 
             return chunk;
         }

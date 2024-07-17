@@ -8,15 +8,15 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class MergeNode : Node, IBackgroundInput
 {
-    public InputProperty<Surface?> Top { get; }
-    public InputProperty<Surface?> Bottom { get; }
-    public OutputProperty<Surface?> Output { get; }
+    public InputProperty<Chunk?> Top { get; }
+    public InputProperty<Chunk?> Bottom { get; }
+    public OutputProperty<Chunk?> Output { get; }
     
     public MergeNode() 
     {
-        Top = CreateInput<Surface?>("Top", "TOP", null);
-        Bottom = CreateInput<Surface?>("Bottom", "BOTTOM", null);
-        Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
+        Top = CreateInput<Chunk?>("Top", "TOP", null);
+        Bottom = CreateInput<Chunk?>("Bottom", "BOTTOM", null);
+        Output = CreateOutput<Chunk?>("Output", "OUTPUT", null);
     }
     
     public override bool Validate()
@@ -29,9 +29,9 @@ public class MergeNode : Node, IBackgroundInput
         return new MergeNode();
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Chunk? OnExecute(RenderingContext context)
     {
-        if(Top.Value == null && Bottom.Value == null)
+        /*if(Top.Value == null && Bottom.Value == null)
         {
             Output.Value = null;
             return null;
@@ -54,8 +54,10 @@ public class MergeNode : Node, IBackgroundInput
 
         Output.Value = workingSurface;
         
-        return Output.Value;
+        return Output.Value;*/
+        
+        return null;
     }
 
-    InputProperty<Surface> IBackgroundInput.Background => Bottom;
+    InputProperty<Chunk> IBackgroundInput.Background => Bottom;
 }

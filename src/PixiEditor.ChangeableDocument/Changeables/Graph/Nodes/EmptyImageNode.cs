@@ -11,7 +11,7 @@ public class CreateImageNode : Node
 {
     private Paint _paint = new();
     
-    public OutputProperty<Surface> Output { get; }
+    public OutputProperty<ChunkyImage> Output { get; }
 
     public InputProperty<VecI> Size { get; }
     
@@ -19,21 +19,29 @@ public class CreateImageNode : Node
 
     public CreateImageNode()
     {
-        Output = CreateOutput<Surface>(nameof(Output), "EMPTY_IMAGE", null);
+        Output = CreateOutput<ChunkyImage>(nameof(Output), "EMPTY_IMAGE", null);
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32));
         Fill = CreateInput(nameof(Fill), "FILL", new Color(0, 0, 0, 255));
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    private ChunkyImage? Image { get; set; }
+    
+    protected override Chunk? OnExecute(RenderingContext context)
     {
-        var surface = new Surface(Size.Value);
-
+        if(Image == null || Image.LatestSize != Size.Value)
+        {
+            Image = new ChunkyImage(Size.Value);
+        }
+        
         _paint.Color = Fill.Value;
-        surface.DrawingSurface.Canvas.DrawPaint(_paint);
+        Image.EnqueueDrawPaint(_paint);
 
-        Output.Value = surface;
+        Chunk result = Chunk.Create(context.ChunkResolution);
+        Image.DrawMostUpToDateChunkOn(context.ChunkToUpdate, context.ChunkResolution, result.Surface.DrawingSurface, VecI.Zero);
 
-        return Output.Value;
+        Output.Value = Image;
+
+        return result;
     }
 
     public override bool Validate() => Size.Value is { X: > 0, Y: > 0 };

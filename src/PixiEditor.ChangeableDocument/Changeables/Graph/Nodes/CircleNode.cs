@@ -12,7 +12,9 @@ public class CircleNode : Node
     public InputProperty<Color> StrokeColor { get; }
     public InputProperty<Color> FillColor { get; }
     public InputProperty<int> StrokeWidth { get; }
-    public OutputProperty<Surface> Output { get; }
+    public OutputProperty<Chunk> Output { get; }
+    
+    private ChunkyImage? workingImage;
     
     public CircleNode()
     {
@@ -20,23 +22,40 @@ public class CircleNode : Node
         StrokeColor = CreateInput<Color>("StrokeColor", "STROKE_COLOR", new Color(0, 0, 0, 255));
         FillColor = CreateInput<Color>("FillColor", "FILL_COLOR", new Color(0, 0, 0, 255));
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
-        Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
+        Output = CreateOutput<Chunk?>("Output", "OUTPUT", null);
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Chunk? OnExecute(RenderingContext context)
     {
-        var radius = Radius.Value / 2;
-        var strokeWidth = StrokeWidth.Value;
-        var strokeOffset = new VecI(strokeWidth / 2);
+        var radius = Radius.Value;
+        VecI targetDimensions = radius * 2;
         
-        Surface workingSurface = new Surface(Radius.Value + strokeOffset * 2);
+        if(workingImage is null || workingImage.LatestSize.X != targetDimensions.X || workingImage.LatestSize.Y != targetDimensions.Y)
+        {
+            workingImage?.Dispose();
+            workingImage = new ChunkyImage(targetDimensions);
+        }
         
+        RectI location = new RectI(VecI.Zero, targetDimensions);
+        
+        workingImage.EnqueueDrawEllipse(location, StrokeColor.Value, FillColor.Value, StrokeWidth.Value);
+        workingImage.CommitChanges();
+
+        Chunk output = Chunk.Create(context.ChunkResolution);
+        workingImage.DrawMostUpToDateChunkOn(context.ChunkToUpdate, context.ChunkResolution,
+            output.Surface.DrawingSurface, VecI.Zero);
+
+        Output.Value = output;
+        return output;
+
+        /*Surface workingSurface = new Surface(Radius.Value + strokeOffset * 2);
+
         using Paint paint = new Paint();
         paint.Color = FillColor.Value;
         paint.Style = PaintStyle.Fill;
-        
+
         workingSurface.DrawingSurface.Canvas.DrawOval(radius + strokeOffset, radius, paint);
-        
+
         paint.Color = StrokeColor.Value;
         paint.StrokeWidth = strokeWidth;
         paint.Style = PaintStyle.Stroke;
@@ -44,8 +63,8 @@ public class CircleNode : Node
         workingSurface.DrawingSurface.Canvas.DrawOval(radius + strokeOffset, radius, paint);
 
         Output.Value = workingSurface;
-        
-        return Output.Value;
+
+        return Output.Value;*/
     }
 
     public override bool Validate()

@@ -13,7 +13,7 @@ public class ModifyImageLeftNode : Node
 {
     private Pixmap? pixmap;
     
-    public InputProperty<Surface?> Image { get; }
+    public InputProperty<ChunkyImage?> Image { get; }
     
     public FieldOutputProperty<VecD> Coordinate { get; }
     
@@ -21,7 +21,7 @@ public class ModifyImageLeftNode : Node
     
     public ModifyImageLeftNode()
     {
-        Image = CreateInput<Surface>(nameof(Surface), "IMAGE", null);
+        Image = CreateInput<ChunkyImage>(nameof(Surface), "IMAGE", null);
         Coordinate = CreateFieldOutput(nameof(Coordinate), "COORDINATE", ctx => ctx.Position);
         Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
     }
@@ -41,12 +41,13 @@ public class ModifyImageLeftNode : Node
 
     internal void PreparePixmap()
     {
-        pixmap = Image.Value?.PeekPixels();
+        //pixmap = Image.Value?.PeekPixels();
     }
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Chunk? OnExecute(RenderingContext context)
     {
-        return Image.Value;
+        return null;
+        //return Image.Value;
     }
 
     public override bool Validate() => Image.Connection != null;

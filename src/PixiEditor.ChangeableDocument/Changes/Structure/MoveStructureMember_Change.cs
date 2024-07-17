@@ -50,7 +50,7 @@ internal class MoveStructureMember_Change : Change
 
         List<IChangeInfo> changes = new();
 
-        InputProperty<Surface?> inputProperty = backgroundInput.Background;
+        InputProperty<Chunk?> inputProperty = backgroundInput.Background;
 
         if (targetNode is FolderNode folder && putInsideFolder)
         {

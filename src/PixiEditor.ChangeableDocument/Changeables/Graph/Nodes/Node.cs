@@ -3,7 +3,6 @@ using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
@@ -21,21 +20,21 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyCollection<InputProperty> InputProperties => inputs;
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
     public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes => _connectedNodes;
-    public Surface? CachedResult { get; private set; }
+    public ChunkyImage? CachedResult { get; private set; }
 
     public virtual string InternalName { get; }
-    
+
     protected virtual bool AffectedByAnimation { get; }
-    
+
     protected virtual bool AffectedByChunkResolution { get; }
 
     protected virtual bool AffectedByChunkToUpdate { get; }
-    
+
     protected Node()
     {
         InternalName = $"PixiEditor.{GetType().Name}";
     }
-    
+
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
@@ -43,39 +42,58 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1);
     private ChunkResolution? _lastResolution;
     private VecI? _lastChunkPos;
+    private ChunkyImage _cache;
+    private Chunk? lastRenderedChunk;
 
-    public Surface? Execute(RenderingContext context)
+    public Chunk? Execute(RenderingContext context)
     {
-        if(!CacheChanged(context)) return CachedResult;
+        var result = ExecuteInternal(context);
         
-        CachedResult = OnExecute(context);
-        if (CachedResult is { IsDisposed: true })
-        {
-            throw new ObjectDisposedException("Surface was disposed after execution.");
-        }
+        // copy the result to avoid leaking the internal chunks, that are mostly caches used by nodes.
+        Chunk returnCopy = Chunk.Create(context.ChunkResolution);
+        returnCopy.Surface.DrawingSurface.Canvas.DrawSurface(result.Surface.DrawingSurface, 0, 0);
         
-        UpdateCache(context);
-        return CachedResult;
+        return returnCopy;
     }
 
-    protected abstract Surface? OnExecute(RenderingContext context);
+    internal Chunk ExecuteInternal(RenderingContext context)
+    {
+        if (CachedResult == null)
+        {
+            CachedResult = new ChunkyImage(context.DocumentSize);
+        }
+
+        if (!CacheChanged(context))
+        {
+            return lastRenderedChunk;
+        }
+
+        lastRenderedChunk = OnExecute(context);
+
+        CachedResult.SetCommitedChunk(lastRenderedChunk, context.ChunkToUpdate, context.ChunkResolution);
+
+        UpdateCache(context);
+        return lastRenderedChunk;
+    }
+
+    protected abstract Chunk? OnExecute(RenderingContext context);
     public abstract bool Validate();
-    
+
     protected virtual bool CacheChanged(RenderingContext context)
     {
         return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
-               || (context.ChunkResolution != _lastResolution && AffectedByChunkResolution)
-               || (context.ChunkToUpdate != _lastChunkPos && AffectedByChunkToUpdate)
+               || (context.ChunkResolution != _lastResolution /*&& AffectedByChunkResolution*/)
+               || (context.ChunkToUpdate != _lastChunkPos /*&& AffectedByChunkToUpdate*/)
                || inputs.Any(x => x.CacheChanged);
     }
-    
+
     protected virtual void UpdateCache(RenderingContext context)
     {
         foreach (var input in inputs)
         {
             input.UpdateCache();
         }
-        
+
         _lastFrameTime = context.FrameTime;
         _lastResolution = context.ChunkResolution;
         _lastChunkPos = context.ChunkToUpdate;
@@ -216,6 +234,8 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 disposable.Dispose();
             }
         }
+
+        CachedResult?.Dispose();
     }
 
     public abstract Node CreateCopy();

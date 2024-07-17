@@ -8,11 +8,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class FolderNode : StructureNode, IReadOnlyFolderNode
 {
-    public InputProperty<Surface?> Content { get; }
+    public InputProperty<Chunk?> Content { get; }
 
     public FolderNode()
     {
-        Content = CreateInput<Surface?>("Content", "CONTENT", null);
+        Content = CreateInput<Chunk?>("Content", "CONTENT", null);
     }
 
     public override bool Validate()
@@ -22,7 +22,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Chunk? OnExecute(RenderingContext context)
     {
         if (!IsVisible.Value || Content.Value == null)
         {
@@ -30,9 +30,9 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
             return Output.Value;
         }
 
-        VecI size = Content.Value?.Size ?? Background.Value.Size;
+        //VecI size = Content.Value?.Size ?? Background.Value.Size;
         
-        Surface workingSurface = new Surface(size);
+        /*Surface workingSurface = new Surface(size);
 
         if (Background.Value != null)
         {
@@ -44,7 +44,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
             workingSurface.DrawingSurface.Canvas.DrawSurface(Content.Value.DrawingSurface, 0, 0);
         }
 
-        Output.Value = workingSurface;
+        Output.Value = workingSurface;*/
         
         return Output.Value;
     }
@@ -52,7 +52,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
     public override RectI? GetTightBounds(KeyFrameTime frameTime)
     {
         // TODO: Implement GetTightBounds
-        return RectI.Create(0, 0, Content.Value?.Size.X ?? 0, Content.Value?.Size.Y ?? 0); 
+        return CachedResult.FindTightCommittedBounds(ChunkResolution.Full);
         /*if (Children.Count == 0)
       {
           return null;

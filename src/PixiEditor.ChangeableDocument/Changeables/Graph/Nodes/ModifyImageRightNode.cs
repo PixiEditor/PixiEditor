@@ -18,18 +18,18 @@ public class ModifyImageRightNode : Node
     
     public FieldInputProperty<Color> Color { get; }
     
-    public OutputProperty<Surface> Output { get; }
+    public OutputProperty<Chunk> Output { get; }
     
     public ModifyImageRightNode(ModifyImageLeftNode startNode)
     {
         this.startNode = startNode;
         Color = CreateFieldInput(nameof(Color), "COLOR", new Color());
-        Output = CreateOutput<Surface>(nameof(Output), "OUTPUT", null);
+        Output = CreateOutput<Chunk>(nameof(Output), "OUTPUT", null);
     }
 
-    protected override Surface? OnExecute(RenderingContext renderingContext)
+    protected override Chunk? OnExecute(RenderingContext renderingContext)
     {
-        if (startNode.Image.Value is not { Size: var size })
+        /*if (startNode.Image.Value is not { Size: var size })
         {
             return null;
         }
@@ -55,7 +55,9 @@ public class ModifyImageRightNode : Node
 
         Output.Value = surface;
 
-        return Output.Value;
+        return Output.Value;*/
+        
+        return null;
     }
 
     public override bool Validate() => true;

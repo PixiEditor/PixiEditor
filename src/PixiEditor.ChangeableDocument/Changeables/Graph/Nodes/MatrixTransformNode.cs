@@ -14,24 +14,24 @@ public class MatrixTransformNode : Node
     
     private Paint paint;
     
-    public OutputProperty<Surface> Transformed { get; }
+    public OutputProperty<Chunk> Transformed { get; }
     
-    public InputProperty<Surface?> Input { get; }
+    public InputProperty<Chunk?> Input { get; }
     
     public InputProperty<ColorMatrix> Matrix { get; }
 
     public MatrixTransformNode()
     {
-        Transformed = CreateOutput<Surface>(nameof(Transformed), "TRANSFORMED", null);
-        Input = CreateInput<Surface>(nameof(Input), "INPUT", null);
+        Transformed = CreateOutput<Chunk>(nameof(Transformed), "TRANSFORMED", null);
+        Input = CreateInput<Chunk>(nameof(Input), "INPUT", null);
         Matrix = CreateInput(nameof(Matrix), "MATRIX", previousMatrix);
 
         paint = new Paint { ColorFilter = ColorFilter.CreateColorMatrix(previousMatrix) };
     }
     
-    protected override Surface? OnExecute(RenderingContext context)
+    protected override Chunk? OnExecute(RenderingContext context)
     {
-        var currentMatrix = Matrix.Value;
+        /*var currentMatrix = Matrix.Value;
         if (previousMatrix != currentMatrix)
         {
             paint.ColorFilter = ColorFilter.CreateColorMatrix(Matrix.Value);
@@ -44,7 +44,9 @@ public class MatrixTransformNode : Node
 
         Transformed.Value = workingSurface;
         
-        return Transformed.Value;
+        return Transformed.Value;*/
+        
+        return null;
     }
 
     public override bool Validate() => Input.Value != null;
