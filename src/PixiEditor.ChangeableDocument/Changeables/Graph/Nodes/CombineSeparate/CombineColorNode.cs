@@ -1,11 +1,8 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 public class CombineColorNode : Node
 {
@@ -46,5 +43,5 @@ public class CombineColorNode : Node
 
     public override bool Validate() => true;
 
-    public override Node CreateCopy() => new SeparateVecDNode();
+    public override Node CreateCopy() => new CombineColorNode();
 }

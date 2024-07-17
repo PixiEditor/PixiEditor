@@ -1,10 +1,7 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
-using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
-using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
+﻿using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Numerics;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 public class SeparateVecDNode : Node
 {

@@ -1,11 +1,8 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
-using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 public class SeparateChannelsNode : Node
 {
