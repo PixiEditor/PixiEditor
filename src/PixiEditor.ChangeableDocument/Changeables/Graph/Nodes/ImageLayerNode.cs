@@ -15,10 +15,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private List<ImageFrame> frames = new List<ImageFrame>();
     private VecI size;
-    
+
     private Paint blendPaint = new Paint();
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surface.BlendMode.DstIn };
-    
+
     private Dictionary<ChunkResolution, Surface> workingSurfaces = new Dictionary<ChunkResolution, Surface>();
 
     // Handled by overriden CacheChanged
@@ -61,7 +61,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var renderedSurface = RenderImage(frameImage, context);
 
         Output.Value = renderedSurface;
-        
+
         return Output.Value;
     }
 
@@ -70,23 +70,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         ChunkResolution targetResolution = context.Resolution ?? ChunkResolution.Full;
         bool hasSurface = workingSurfaces.TryGetValue(targetResolution, out Surface workingSurface);
         VecI targetSize = (VecI)(frameImage.LatestSize * context.Resolution!.Value.Multiplier());
-        
-        if (!hasSurface || workingSurface.Size != targetSize)
-        {
-            workingSurfaces[context.Resolution ?? ChunkResolution.Full] = new Surface(targetSize);
-            workingSurface = workingSurfaces[context.Resolution ?? ChunkResolution.Full];
-        }
 
         if (Background.Value != null)
         {
-            RectD sourceRect = CalculateSourceRect(Background.Value, targetSize, context);
-            workingSurface.DrawingSurface.Canvas.DrawSurface(Background.Value.DrawingSurface, (int)sourceRect.X, (int)sourceRect.Y, blendPaint);
+            workingSurface = Background.Value;
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
         }
+        else if (!hasSurface || workingSurface.Size != targetSize)
+        {
+            workingSurfaces[targetResolution] = new Surface(targetSize);
+            workingSurface = workingSurfaces[targetResolution];
+        }
 
-        
         DrawLayer(frameImage, context, workingSurface);
-            
+
         ApplyMaskIfPresent(workingSurface, context);
         ApplyRasterClip(workingSurface, context);
         return workingSurface;
@@ -94,7 +91,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface)
     {
-        if(context.ChunkToUpdate == null)
+        if (context.ChunkToUpdate == null)
         {
             frameImage.DrawMostUpToDateRegionOn(
                 new RectI(0, 0, frameImage.LatestSize.X, frameImage.LatestSize.Y),
@@ -103,9 +100,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         else
         {
             frameImage.DrawMostUpToDateChunkOn(
-                context.ChunkToUpdate.Value, 
+                context.ChunkToUpdate.Value,
                 context.Resolution.Value,
-                workingSurface.DrawingSurface, 
+                workingSurface.DrawingSurface,
                 context.ChunkToUpdate.Value * context.Resolution.Value.PixelSize(),
                 blendPaint);
         }
@@ -115,7 +112,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     {
         return Mask.Value != null && MaskIsVisible.Value && !Mask.Value.LatestOrCommittedChunkExists();
     }
-    
+
     private void ApplyRasterClip(Surface surface, RenderingContext context)
     {
         if (ClipToPreviousMember.Value)
@@ -127,6 +124,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 VecI size = new VecI(context.Resolution.Value.PixelSize());
                 clippingRect = new RectI(chunkStart, size);
             }
+
             OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value, clippingRect);
         }
     }
@@ -146,9 +144,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             if (context.Resolution.HasValue && context.ChunkToUpdate.HasValue)
             {
                 mask.DrawMostUpToDateChunkOn(
-                    context.ChunkToUpdate.Value, 
+                    context.ChunkToUpdate.Value,
                     context.Resolution.Value,
-                    surface.DrawingSurface, 
+                    surface.DrawingSurface,
                     context.ChunkToUpdate.Value * context.Resolution.Value.PixelSize(),
                     maskPaint);
             }
@@ -160,23 +158,23 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             }
         }
     }
-    
+
     private RectD CalculateSourceRect(Surface image, VecI targetSize, RenderingContext context)
     {
-        if(context.Resolution == null || context.ChunkToUpdate == null)
+        if (context.Resolution == null || context.ChunkToUpdate == null)
         {
             return new RectD(0, 0, image.Size.X, image.Size.Y);
         }
-        
+
         float multiplierToFit = image.Size.X / (float)targetSize.X;
-        int chunkSize = context.Resolution.Value.PixelSize(); 
+        int chunkSize = context.Resolution.Value.PixelSize();
         VecI chunkPos = context.ChunkToUpdate.Value;
-        
+
         int x = (int)(chunkPos.X * chunkSize * multiplierToFit);
         int y = (int)(chunkPos.Y * chunkSize * multiplierToFit);
         int width = (int)(chunkSize * multiplierToFit);
         int height = (int)(chunkSize * multiplierToFit);
-        
+
         return new RectD(x, y, width, height);
     }
 
@@ -192,7 +190,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         var imageFrame = GetFrameImage(context.FrameTime);
         if (imageFrame is not null && imageFrame.RequiresUpdate)
         {
-            imageFrame.RequiresUpdate = false; 
+            imageFrame.RequiresUpdate = false;
         }
     }
 
@@ -329,9 +327,9 @@ class ImageFrame
     public int StartFrame { get; set; }
     public int Duration { get; set; }
     public ChunkyImage Image { get; set; }
-    
+
     private int lastCommitCounter = 0;
-    
+
     public bool RequiresUpdate
     {
         get
