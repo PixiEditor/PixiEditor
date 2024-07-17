@@ -24,18 +24,18 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public Surface? CachedResult { get; private set; }
 
     public virtual string InternalName { get; }
-    
+
     protected virtual bool AffectedByAnimation { get; }
-    
+
     protected virtual bool AffectedByChunkResolution { get; }
 
     protected virtual bool AffectedByChunkToUpdate { get; }
-    
+
     protected Node()
     {
         InternalName = $"PixiEditor.{GetType().Name}";
     }
-    
+
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
@@ -46,21 +46,29 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public Surface? Execute(RenderingContext context)
     {
-        if(!CacheChanged(context)) return CachedResult;
-        
+        var result = ExecuteInternal(context);
+
+        var copy = new Surface(result);
+        return copy;
+    }
+
+    internal Surface ExecuteInternal(RenderingContext context)
+    {
+        if (!CacheChanged(context)) return CachedResult;
+
         CachedResult = OnExecute(context);
         if (CachedResult is { IsDisposed: true })
         {
             throw new ObjectDisposedException("Surface was disposed after execution.");
         }
-        
+
         UpdateCache(context);
         return CachedResult;
     }
 
     protected abstract Surface? OnExecute(RenderingContext context);
     public abstract bool Validate();
-    
+
     protected virtual bool CacheChanged(RenderingContext context)
     {
         return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
@@ -68,14 +76,14 @@ public abstract class Node : IReadOnlyNode, IDisposable
                || (context.ChunkToUpdate != _lastChunkPos && AffectedByChunkToUpdate)
                || inputs.Any(x => x.CacheChanged);
     }
-    
+
     protected virtual void UpdateCache(RenderingContext context)
     {
         foreach (var input in inputs)
         {
             input.UpdateCache();
         }
-        
+
         _lastFrameTime = context.FrameTime;
         _lastResolution = context.ChunkResolution;
         _lastChunkPos = context.ChunkToUpdate;

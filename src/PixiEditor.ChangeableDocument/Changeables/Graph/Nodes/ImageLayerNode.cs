@@ -71,37 +71,73 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         bool hasSurface = workingSurfaces.TryGetValue(targetResolution, out Surface workingSurface);
         VecI targetSize = (VecI)(frameImage.LatestSize * targetResolution.Multiplier());
 
-        if (Background.Value != null)
-        {
-            workingSurface = Background.Value;
-            blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
-        }
-        else if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
+        if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
         {
             workingSurfaces[targetResolution] = new Surface(targetSize);
             workingSurface = workingSurfaces[targetResolution];
         }
 
-        DrawLayer(frameImage, context, workingSurface);
+        if (!HasOperations())
+        {
+            if (Background.Value != null)
+            {
+                DrawBackground(workingSurface, context);
+                blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
+            }
+            
+            DrawLayer(frameImage, context, workingSurface);
+            Output.Value = workingSurface;
+            return workingSurface;
+        }
 
+        DrawLayer(frameImage, context, workingSurface);
+        
+        // shit gets downhill with mask on big canvases, TODO: optimize
         ApplyMaskIfPresent(workingSurface, context);
         ApplyRasterClip(workingSurface, context);
+            
+        if (Background.Value != null)
+        {
+            Surface tempSurface = new Surface(workingSurface.Size);
+            DrawBackground(tempSurface, context);
+            blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
+            tempSurface.DrawingSurface.Canvas.DrawSurface(workingSurface.DrawingSurface, 0, 0, blendPaint);
+            
+            Output.Value = tempSurface;
+            return tempSurface;
+        }
+            
+        Output.Value = workingSurface;
         return workingSurface;
+    }
+
+    private void DrawBackground(Surface workingSurface, RenderingContext context)
+    {
+        RectI source = CalculateSourceRect(Background.Value, workingSurface.Size, context);
+        RectI target = CalculateDestinationRect(context);
+        using var snapshot = Background.Value.DrawingSurface.Snapshot(source);
+        
+        workingSurface.DrawingSurface.Canvas.DrawImage(snapshot, target.X, target.Y, blendPaint);
     }
 
     private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface)
     {
-       frameImage.DrawMostUpToDateChunkOn(
-                context.ChunkToUpdate,
-                context.ChunkResolution,
-                workingSurface.DrawingSurface,
-                context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
-                blendPaint);
+        frameImage.DrawMostUpToDateChunkOn(
+            context.ChunkToUpdate,
+            context.ChunkResolution,
+            workingSurface.DrawingSurface,
+            context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
+            blendPaint);
     }
 
     private bool IsEmptyMask()
     {
         return Mask.Value != null && MaskIsVisible.Value && !Mask.Value.LatestOrCommittedChunkExists();
+    }
+
+    private bool HasOperations()
+    {
+        return (MaskIsVisible.Value && Mask.Value != null) || ClipToPreviousMember.Value;
     }
 
     private void ApplyRasterClip(Surface surface, RenderingContext context)
@@ -129,21 +165,16 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         if (Mask.Value != null && MaskIsVisible.Value)
         {
             Mask.Value.DrawMostUpToDateChunkOn(
-                    context.ChunkToUpdate,
-                    context.ChunkResolution,
-                    surface.DrawingSurface,
-                    context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
-                    maskPaint);
+                context.ChunkToUpdate,
+                context.ChunkResolution,
+                surface.DrawingSurface,
+                context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
+                maskPaint);
         }
     }
 
-    private RectD CalculateSourceRect(Surface image, VecI targetSize, RenderingContext context)
+    private RectI CalculateSourceRect(Surface image, VecI targetSize, RenderingContext context)
     {
-        if (context.ChunkResolution == null || context.ChunkToUpdate == null)
-        {
-            return new RectD(0, 0, image.Size.X, image.Size.Y);
-        }
-
         float multiplierToFit = image.Size.X / (float)targetSize.X;
         int chunkSize = context.ChunkResolution.PixelSize();
         VecI chunkPos = context.ChunkToUpdate;
@@ -153,7 +184,20 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         int width = (int)(chunkSize * multiplierToFit);
         int height = (int)(chunkSize * multiplierToFit);
 
-        return new RectD(x, y, width, height);
+        return new RectI(x, y, width, height);
+    }
+    
+    private RectI CalculateDestinationRect(RenderingContext context)
+    {
+        int chunkSize = context.ChunkResolution.PixelSize();
+        VecI chunkPos = context.ChunkToUpdate;
+
+        int x = chunkPos.X * chunkSize;
+        int y = chunkPos.Y * chunkSize;
+        int width = chunkSize;
+        int height = chunkSize;
+
+        return new RectI(x, y, width, height);
     }
 
     protected override bool CacheChanged(RenderingContext context)
@@ -189,11 +233,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 new ImageFrame(x.KeyFrameGuid, x.StartFrame, x.Duration, x.Image.CloneFromCommitted())).ToList(),
             MemberName = MemberName,
         };
-    }
-
-    private VecI GetBiggerSize(VecI size1, VecI size2)
-    {
-        return new VecI(Math.Max(size1.X, size2.X), Math.Max(size1.Y, size2.Y));
     }
 
     IReadOnlyChunkyImage IReadOnlyImageNode.GetLayerImageAtFrame(int frame) => GetLayerImageAtFrame(frame);

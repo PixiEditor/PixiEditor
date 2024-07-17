@@ -703,17 +703,15 @@ internal class MemberPreviewUpdater
                     new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
             }
 
-            float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.LatestSize.X;
-            float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.LatestSize.Y;
+            float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Size.X;
+            float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Size.Y;
 
             nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
             nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
 
-            RectI region = new RectI(0, 0, node.CachedResult.LatestSize.X, node.CachedResult.LatestSize.Y);
-            
-            node.CachedResult.DrawMostUpToDateRegionOn(region, ChunkResolution.Full, nodeVm.ResultPreview.DrawingSurface,
-                VecI.Zero,
-                scalingX < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
+            RectI region = new RectI(0, 0, node.CachedResult.Size.X, node.CachedResult.Size.Y);
+           
+            nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0, ReplacingPaint);
 
             nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
             infos.Add(new NodePreviewDirty_RenderInfo(node.Id));

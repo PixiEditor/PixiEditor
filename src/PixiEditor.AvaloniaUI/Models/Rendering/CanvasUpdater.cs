@@ -189,6 +189,9 @@ internal class CanvasUpdater
 
     private void RenderChunk(VecI chunkPos, Surface screenSurface, ChunkResolution resolution, RectI? globalClippingRectangle, RectI? globalScaledClippingRectangle)
     {
+        if(screenSurface is null || screenSurface.IsDisposed)
+            return;
+        
         if (globalScaledClippingRectangle is not null)
         {
             screenSurface.DrawingSurface.Canvas.Save();

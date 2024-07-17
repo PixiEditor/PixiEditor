@@ -108,7 +108,15 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
             var node = queue.Dequeue();
             
             stopwatch.Restart();
-            node.Execute(context);
+            if (node is Node typedNode)
+            {
+                typedNode.ExecuteInternal(context);
+            }
+            else
+            {
+                node.Execute(context);
+            }
+            
             Console.WriteLine($"{node.GetType().Name} took {stopwatch.ElapsedMilliseconds}ms to execute");
         }
 
