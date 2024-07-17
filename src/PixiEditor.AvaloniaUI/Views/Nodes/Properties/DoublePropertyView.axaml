@@ -11,6 +11,6 @@
                              x:Class="PixiEditor.AvaloniaUI.Views.Nodes.Properties.DoublePropertyView">
     <Grid HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
-        <input:NumberInput HorizontalAlignment="Right" MinWidth="100" IsVisible="{Binding IsInput}" Value="{Binding Value, Mode=TwoWay}" />
+        <input:NumberInput HorizontalAlignment="Right" MinWidth="100" Decimals="6" IsVisible="{Binding IsInput}" Value="{Binding Value, Mode=TwoWay}" />
     </Grid>
 </properties:NodePropertyView>
