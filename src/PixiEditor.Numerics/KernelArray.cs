@@ -11,6 +11,8 @@ public class KernelArray
     public int RadiusX => Width / 2;
     
     public int RadiusY => Height / 2;
+
+    public float Sum => _buffer.Sum();
     
     public KernelArray(int width, int height)
     {

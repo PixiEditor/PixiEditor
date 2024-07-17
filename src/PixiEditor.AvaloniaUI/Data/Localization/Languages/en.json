@@ -633,5 +633,12 @@
   "EMPTY_IMAGE": "Empty image",
   "NOISE": "Noise",
   "SCALE": "Scale",
-  "SEED": "Seed"
+  "SEED": "Seed",
+  "KERNEL": "Kernel",
+  "KERNEL_VIEW_SUM": "Sum:",
+  "KERNEL_VIEW_SUM_TOOLTIP": "The sum of all values. You likely want to aim for a value of 1 or 0",
+  "GAIN": "Gain",
+  "BIAS": "Bias",
+  "TILE_MODE": "Tile Mode",
+  "ON_ALPHA": "On Alpha"
 }

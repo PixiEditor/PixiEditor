@@ -18,6 +18,8 @@ public class Kernel
         set => _buffer[x, y] = value;
     }
 
+    public float Sum => _buffer.Sum;
+    
     public Kernel(int width, int height)
     {
         if (width % 2 == 0)

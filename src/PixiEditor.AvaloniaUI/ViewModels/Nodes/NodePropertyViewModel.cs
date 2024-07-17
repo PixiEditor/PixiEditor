@@ -139,7 +139,7 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
         return (NodePropertyViewModel)Activator.CreateInstance(viewModelType, node, type);
     }
 
-    public void InternalSetValue(object? value) => SetProperty(ref _value, value);
+    public void InternalSetValue(object? value) => SetProperty(ref _value, value, nameof(Value));
 }
 
 internal abstract class NodePropertyViewModel<T> : NodePropertyViewModel
