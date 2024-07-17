@@ -150,6 +150,9 @@ internal partial class Navigation : UserControl
         int x = (int)mousePosConverted.X;
         int y = (int)mousePosConverted.Y;
 
+        if (x < 0 || x > Document.Width || y < 0 || y > Document.Height)
+            return;
+        
         Thickness newPos = new Thickness(x, y, 0, 0);
 
         if (ColorCursorPosition == newPos)
