@@ -73,7 +73,7 @@ internal class MemberPreviewUpdater
         }).ConfigureAwait(true);
 
         RecreatePreviewBitmaps(changedMainPreviewBounds!, changedMaskPreviewBounds!);
-        
+
         var renderInfos = await Task.Run(() => Render(changedMainPreviewBounds!, changedMaskPreviewBounds))
             .ConfigureAwait(true);
 
@@ -388,7 +388,7 @@ internal class MemberPreviewUpdater
         RenderWholeCanvasPreview(mainPreviewChunksToRerender, maskPreviewChunksToRerender, infos);
         RenderMainPreviews(mainPreviewChunksToRerender, recreatedMainPreviewSizes, infos);
         RenderMaskPreviews(maskPreviewChunksToRerender, recreatedMaskPreviewSizes, infos);
-        RenderNodePreviews();
+        RenderNodePreviews(infos);
 
         return infos;
 
@@ -451,7 +451,7 @@ internal class MemberPreviewUpdater
             else if (rendered.IsT0)
             {
                 using var renderedChunk = rendered.AsT0;
-                renderedChunk.DrawOnSurface(doc.PreviewSurface.DrawingSurface, pos, SmoothReplacingPaint);
+                renderedChunk.DrawChunkOn(doc.PreviewSurface.DrawingSurface, pos, SmoothReplacingPaint);
             }
 
             doc.PreviewSurface.DrawingSurface.Canvas.Restore();
@@ -513,7 +513,7 @@ internal class MemberPreviewUpdater
                     {
                         foreach (var child in group.Children)
                         {
-                            if (member is IReadOnlyImageNode rasterLayer) 
+                            if (member is IReadOnlyImageNode rasterLayer)
                             {
                                 RenderAnimationFramePreview(rasterLayer, child, affArea.Value);
                             }
@@ -538,7 +538,8 @@ internal class MemberPreviewUpdater
     /// <summary>
     /// Re-render the <paramref name="area"/> of the main preview of the <paramref name="memberVM"/> folder
     /// </summary>
-    private void RenderFolderMainPreview(IReadOnlyFolderNode folder, IStructureMemberHandler memberVM, AffectedArea area,
+    private void RenderFolderMainPreview(IReadOnlyFolderNode folder, IStructureMemberHandler memberVM,
+        AffectedArea area,
         VecI position, float scaling)
     {
         memberVM.PreviewSurface.DrawingSurface.Canvas.Save();
@@ -584,7 +585,7 @@ internal class MemberPreviewUpdater
             var pos = chunk * ChunkResolution.Full.PixelSize();
             if (layer is not IReadOnlyImageNode raster) return;
             IReadOnlyChunkyImage? result = raster.GetLayerImageAtFrame(doc.AnimationHandler.ActiveFrameBindable);
-            
+
             if (!result.DrawCommittedChunkOn(
                     chunk,
                     ChunkResolution.Full, memberVM.PreviewSurface.DrawingSurface, pos,
@@ -602,9 +603,10 @@ internal class MemberPreviewUpdater
     {
         if (keyFrameVM.PreviewSurface is null)
         {
-            keyFrameVM.PreviewSurface = new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
+            keyFrameVM.PreviewSurface =
+                new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
         }
-        
+
         keyFrameVM.PreviewSurface!.DrawingSurface.Canvas.Save();
         float scaling = (float)keyFrameVM.PreviewSurface.Size.X / internals.Tracker.Document.Size.X;
         keyFrameVM.PreviewSurface.DrawingSurface.Canvas.Scale(scaling);
@@ -681,37 +683,40 @@ internal class MemberPreviewUpdater
             infos.Add(new MaskPreviewDirty_RenderInfo(guid));
         }
     }
-    
-    private void RenderNodePreviews()
+
+    private void RenderNodePreviews(List<IRenderInfo> infos)
     {
-        // TODO: recreate only changed previews
-        internals.Tracker.Document.NodeGraph.TryTraverse(node =>
+        internals.Tracker.Document.NodeGraph.TryTraverse((node) =>
         {
-            if (node.CachedResult is { IsDisposed: false })
+            if (node is null)
+                return;
+
+            if (node.CachedResult == null)
             {
-               var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
-
-               // TODO: do it in recreate preview bitmaps
-               if (nodeVm.ResultPreview == null)
-               {
-                     nodeVm.ResultPreview = new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
-               }
-               
-               float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.Size.X;
-               float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.Size.Y;
-               
-               nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
-               nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
-               
-               nodeVm.ResultPreview.DrawingSurface.Canvas.Clear();
-
-               if (node.CachedResult != null)
-               {
-                   nodeVm.ResultPreview.DrawingSurface.Canvas.DrawSurface(node.CachedResult.DrawingSurface, 0, 0, ReplacingPaint);
-               }
-
-               nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
+                return;
             }
+
+            var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
+            if (nodeVm.ResultPreview == null)
+            {
+                nodeVm.ResultPreview =
+                    new Surface(StructureHelpers.CalculatePreviewSize(internals.Tracker.Document.Size));
+            }
+
+            float scalingX = (float)nodeVm.ResultPreview.Size.X / node.CachedResult.LatestSize.X;
+            float scalingY = (float)nodeVm.ResultPreview.Size.Y / node.CachedResult.LatestSize.Y;
+
+            nodeVm.ResultPreview.DrawingSurface.Canvas.Save();
+            nodeVm.ResultPreview.DrawingSurface.Canvas.Scale(scalingX, scalingY);
+
+            RectI region = new RectI(0, 0, node.CachedResult.LatestSize.X, node.CachedResult.LatestSize.Y);
+            
+            node.CachedResult.DrawMostUpToDateRegionOn(region, ChunkResolution.Full, nodeVm.ResultPreview.DrawingSurface,
+                VecI.Zero,
+                scalingX < smoothingThreshold ? SmoothReplacingPaint : ReplacingPaint);
+
+            nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
+            infos.Add(new NodePreviewDirty_RenderInfo(node.Id));
         });
     }
 }

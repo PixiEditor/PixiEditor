@@ -163,6 +163,14 @@ internal class ActionAccumulator
                         document.PreviewSurface.AddDirtyRect(new RectI(0, 0, document.PreviewSurface.Size.X, document.PreviewSurface.Size.Y));
                     }
                     break;
+                case NodePreviewDirty_RenderInfo info:
+                    {
+                        var node = document.StructureHelper.Find(info.NodeId);
+                        if (node is null || node.PreviewSurface is null)
+                            continue;
+                        node.PreviewSurface.AddDirtyRect(new RectI(0, 0, node.PreviewSurface.Size.X, node.PreviewSurface.Size.Y));
+                    }
+                    break;
             }
         }
     }

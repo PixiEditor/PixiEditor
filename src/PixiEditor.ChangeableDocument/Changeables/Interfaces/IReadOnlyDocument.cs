@@ -8,7 +8,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Interfaces;
 
-public interface IReadOnlyDocument
+public interface IReadOnlyDocument : IDisposable
 {    
     /// <summary>
     /// The root folder of the document
@@ -55,6 +55,8 @@ public interface IReadOnlyDocument
     public Image? GetLayerRasterizedImage(Guid layerGuid, int frame);
     public RectI? GetChunkAlignedLayerBounds(Guid layerGuid, int frame);
 
+    IReadOnlyNode FindNode(Guid guid);
+    
     /// <summary>
     /// Finds the member with the <paramref name="guid"/> or returns null if not found
     /// </summary>

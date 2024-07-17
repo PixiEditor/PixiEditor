@@ -100,7 +100,9 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
         }
         else
         {
-            image = new Surface(layer.Execute(new RenderingContext(frame, Size)));
+            return null;
+            /*TODO: this*/
+            // image = new Surface(layer.Execute(new RenderingContext(frame, Size)));
         }
         
         //todo: idk if it's correct
@@ -241,6 +243,8 @@ internal class Document : IChangeable, IReadOnlyDocument, IDisposable
     {
         return NodeGraph.Nodes.FirstOrDefault(x => x.Id == guid);
     }
+    
+    IReadOnlyNode IReadOnlyDocument.FindNode(Guid guid) => FindNodeOrThrow<Node>(guid);
 
     public T? FindNode<T>(Guid guid) where T : Node
     {
