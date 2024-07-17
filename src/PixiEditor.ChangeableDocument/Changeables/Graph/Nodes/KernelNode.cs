@@ -28,7 +28,7 @@ public class KernelFilterNode : Node
     {
         Transformed = CreateOutput<Surface>(nameof(Transformed), "TRANSFORMED", null);
         Image = CreateInput<Surface>(nameof(Image), "IMAGE", null);
-        Kernel = CreateInput(nameof(Kernel), "KERNEL", new Kernel(3, 3));
+        Kernel = CreateInput(nameof(Kernel), "KERNEL", Numerics.Kernel.Identity(3, 3));
         Gain = CreateInput(nameof(Gain), "GAIN", 1d);
         Bias = CreateInput(nameof(Bias), "BIAS", 0d);
         Tile = CreateInput(nameof(Tile), "TILE_MODE", TileMode.Clamp);

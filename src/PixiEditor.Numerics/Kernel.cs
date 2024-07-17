@@ -30,6 +30,9 @@ public class Kernel
         _buffer = new KernelArray(width, height);
     }
 
+    public static Kernel Identity(int width, int height) =>
+        new(width, height) { [0, 0] = 1 };
+
     public void Resize(int width, int height)
     {
         var old = _buffer;
@@ -46,7 +49,7 @@ public class Kernel
         {
             for (int x = -newRadiusX; x <= newRadiusX; x++)
             {
-                if (x < oldRadiusX || x > oldRadiusX || y < oldRadiusY || y > oldRadiusY)
+                if (x < -oldRadiusX || x > oldRadiusX || y < -oldRadiusY || y > oldRadiusY)
                     continue;
 
                 _buffer[x, y] = old[x, y];
