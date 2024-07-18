@@ -78,12 +78,17 @@ public class DocumentEvaluator
             chunk.Surface.DrawingSurface.Canvas.Save();
             chunk.Surface.DrawingSurface.Canvas.Clear();
 
+            int x = 0;
+            int y = 0;
+            
             if (transformedClippingRect is not null)
             {
                 chunk.Surface.DrawingSurface.Canvas.ClipRect((RectD)transformedClippingRect);
+                x = transformedClippingRect.Value.X;
+                y = transformedClippingRect.Value.Y;
             }
             
-            chunk.Surface.DrawingSurface.Canvas.DrawSurface(evaluated.DrawingSurface, transformedClippingRect.Value.X, transformedClippingRect.Value.Y, context.ReplacingPaintWithOpacity);
+            chunk.Surface.DrawingSurface.Canvas.DrawSurface(evaluated.DrawingSurface, x, y, context.ReplacingPaintWithOpacity);
 
             chunk.Surface.DrawingSurface.Canvas.Restore();
 

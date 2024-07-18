@@ -49,6 +49,8 @@ internal class MoveStructureMember_Change : Change
             return [];
 
         List<IChangeInfo> changes = new();
+        
+        Guid oldBackgroundId = sourceNode.Background.Node.Id;
 
         InputProperty<Surface?> inputProperty = backgroundInput.Background;
 
@@ -57,10 +59,14 @@ internal class MoveStructureMember_Change : Change
             inputProperty = folder.Content;
         }
 
+        MoveStructureMember_ChangeInfo changeInfo = new(sourceNodeGuid, oldBackgroundId, targetNodeGuid);
+        
         changes.AddRange(NodeOperations.DetachStructureNode(sourceNode));
         changes.AddRange(NodeOperations.AppendMember(inputProperty, sourceNode.Output,
             sourceNode.Background,
             sourceNode.Id));
+        
+        changes.Add(changeInfo);
 
         return changes;
     }
@@ -79,9 +85,14 @@ internal class MoveStructureMember_Change : Change
 
         List<IChangeInfo> changes = new List<IChangeInfo>();
         
+        MoveStructureMember_ChangeInfo changeInfo = new(memberGuid, targetNodeGuid, originalFolderGuid);
+        
         changes.AddRange(NodeOperations.DetachStructureNode(member));
         changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalOutputConnections,
             originalInputConnections, member));
+        
+        changes.Add(changeInfo);
+        
         return changes;
     }
 }

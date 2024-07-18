@@ -551,8 +551,19 @@ internal class MemberPreviewUpdater
             var pos = chunk * ChunkResolution.Full.PixelSize();
             // drawing in full res here is kinda slow
             // we could switch to a lower resolution based on (canvas size / preview size) to make it run faster
-            OneOf<Chunk, EmptyChunk> rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, folder,
-                doc.AnimationHandler.ActiveFrameBindable);
+            var contentNode = folder.Content.Connection?.Node;
+
+            OneOf<Chunk, EmptyChunk> rendered;
+
+            if (contentNode is null)
+            {
+                rendered = new EmptyChunk();
+            }
+            else
+            {
+                rendered = doc.Renderer.RenderChunk(chunk, ChunkResolution.Full, contentNode, doc.AnimationHandler.ActiveFrameBindable);
+            }
+            
             if (rendered.IsT0)
             {
                 memberVM.PreviewSurface.DrawingSurface.Canvas.DrawSurface(rendered.AsT0.Surface.DrawingSurface, pos,
@@ -697,6 +708,11 @@ internal class MemberPreviewUpdater
             }
 
             var nodeVm = doc.StructureHelper.FindNode<INodeHandler>(node.Id);
+            if (nodeVm == null)
+            {
+                return;
+            }
+            
             if (nodeVm.ResultPreview == null)
             {
                 nodeVm.ResultPreview =

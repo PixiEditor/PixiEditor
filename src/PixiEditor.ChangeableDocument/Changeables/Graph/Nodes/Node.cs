@@ -14,13 +14,10 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private List<InputProperty> inputs = new();
     private List<OutputProperty> outputs = new();
 
-    private List<IReadOnlyNode> _connectedNodes = new();
-
     public Guid Id { get; internal set; } = Guid.NewGuid();
 
     public IReadOnlyCollection<InputProperty> InputProperties => inputs;
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
-    public IReadOnlyCollection<IReadOnlyNode> ConnectedOutputNodes => _connectedNodes;
     public Surface? CachedResult { get; private set; }
 
     public virtual string InternalName { get; }
@@ -156,9 +153,12 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
             foreach (var outputProperty in node.OutputProperties)
             {
-                foreach (var outputNode in ConnectedOutputNodes)
+                foreach (var connection in outputProperty.Connections)
                 {
-                    queueNodes.Enqueue(outputNode);
+                    if (connection.Connection != null)
+                    {
+                        queueNodes.Enqueue(connection.Node);
+                    }
                 }
             }
         }
@@ -193,8 +193,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var property = new FieldOutputProperty<T>(this, propName, displayName, defaultFunc);
         outputs.Add(property);
-        property.Connected += (input, _) => _connectedNodes.Add(input.Node);
-        property.Disconnected += (input, _) => _connectedNodes.Remove(input.Node);
         return property;
     }
 
@@ -202,8 +200,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var property = new OutputProperty<T>(this, propName, displayName, defaultValue);
         outputs.Add(property);
-        property.Connected += (input, _) => _connectedNodes.Add(input.Node);
-        property.Disconnected += (input, _) => _connectedNodes.Remove(input.Node);
         return property;
     }
 
@@ -234,7 +230,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
         clone.Id = Guid.NewGuid();
         clone.inputs = new List<InputProperty>();
         clone.outputs = new List<OutputProperty>();
-        clone._connectedNodes = new List<IReadOnlyNode>();
         foreach (var input in inputs)
         {
             var newInput = input.Clone(clone);
