@@ -19,6 +19,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent };
     
     // Handled by overriden CacheChanged
+    protected override string NodeUniqueName => "ImageLayer";
     protected override bool AffectedByAnimation => true;
 
     protected override bool AffectedByChunkResolution => true;

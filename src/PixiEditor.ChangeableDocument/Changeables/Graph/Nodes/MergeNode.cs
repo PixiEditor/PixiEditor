@@ -29,6 +29,8 @@ public class MergeNode : Node, IBackgroundInput
         return new MergeNode();
     }
 
+    protected override string NodeUniqueName => "Merge";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         if(Top.Value == null && Bottom.Value == null)

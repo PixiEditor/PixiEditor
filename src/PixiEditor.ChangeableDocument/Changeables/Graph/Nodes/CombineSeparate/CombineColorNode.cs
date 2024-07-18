@@ -35,7 +35,9 @@ public class CombineColorNode : Node
 
         return new Color((byte)r, (byte)g, (byte)b, (byte)a);
     }
-    
+
+    protected override string NodeUniqueName => "CombineColor"; 
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         return null;

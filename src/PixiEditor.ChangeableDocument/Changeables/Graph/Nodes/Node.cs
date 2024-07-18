@@ -21,7 +21,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
     public Surface? CachedResult { get; private set; }
 
-    public virtual string InternalName { get; }
+    public virtual string InternalName => $"PixiEditor.{NodeUniqueName}";
+    
+    protected abstract string NodeUniqueName { get; }
 
     protected virtual bool AffectedByAnimation { get; }
 
@@ -31,7 +33,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     protected Node()
     {
-        InternalName = $"PixiEditor.{GetType().Name}";
     }
 
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;

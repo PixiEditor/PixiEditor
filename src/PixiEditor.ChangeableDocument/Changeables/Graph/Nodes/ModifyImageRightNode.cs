@@ -27,6 +27,8 @@ public class ModifyImageRightNode : Node
         Output = CreateOutput<Surface>(nameof(Output), "OUTPUT", null);
     }
 
+    protected override string NodeUniqueName => "ModifyImageRight";
+
     protected override Surface? OnExecute(RenderingContext renderingContext)
     {
         if (startNode.Image.Value is not { Size: var size })

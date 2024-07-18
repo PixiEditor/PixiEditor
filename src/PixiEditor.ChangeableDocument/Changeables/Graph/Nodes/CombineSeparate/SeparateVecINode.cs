@@ -18,6 +18,8 @@ public class SeparateVecINode : Node
         Vector = CreateFieldInput("Vector", "VECTOR", new VecI(0, 0));
     }
 
+    protected override string NodeUniqueName => "SeparateVecI";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         return null;

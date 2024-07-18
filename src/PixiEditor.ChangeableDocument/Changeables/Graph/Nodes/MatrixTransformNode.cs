@@ -28,7 +28,9 @@ public class MatrixTransformNode : Node
 
         paint = new Paint { ColorFilter = ColorFilter.CreateColorMatrix(previousMatrix) };
     }
-    
+
+    protected override string NodeUniqueName => "MatrixTransform";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         if (Input.Value == null)

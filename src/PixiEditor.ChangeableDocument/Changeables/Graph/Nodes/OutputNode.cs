@@ -23,6 +23,8 @@ public class OutputNode : Node, IBackgroundInput
         return new OutputNode();
     }
 
+    protected override string NodeUniqueName => "Output";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         return Input.Value;

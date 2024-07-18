@@ -381,17 +381,35 @@ internal class DocumentOperationsModule : IDocumentOperations
     {
         if (Internals.ChangeController.IsChangeActive || members.Count < 2)
             return;
-        var (child, parent) = Document.StructureHelper.FindChildAndParent(members[0]);
-        if (child is null || parent is null)
+
+        IStructureMemberHandler? node = Document.StructureHelper.FindNode<IStructureMemberHandler>(members[0]);
+        
+        if (node is null)
             return;
-        //int index = parent.Children.IndexOf(child);
+
+        INodeHandler? parent = null;
+
+        node.TraverseForwards(node =>
+        {
+            if (!members.Contains(node.Id))
+            {
+                parent = node;
+                return false;
+            }
+            
+            return true;
+        });
+        
+        if (parent is null)
+            return;
+        
         Guid newGuid = Guid.NewGuid();
 
         //make a new layer, put combined image onto it, delete layers that were merged
-        /*Internals.ActionAccumulator.AddActions(
-            new CreateStructureMember_Action(parent.Id, newGuid, index, StructureMemberType.Layer),
-            new StructureMemberName_Action(newGuid, child.NameBindable),
-            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid, Document.AnimationHandler.ActiveFrameBindable));*/
+        Internals.ActionAccumulator.AddActions(
+            new CreateStructureMember_Action(parent.Id, newGuid, StructureMemberType.Layer),
+            new StructureMemberName_Action(newGuid, node.NameBindable),
+            new CombineStructureMembersOnto_Action(members.ToHashSet(), newGuid, Document.AnimationHandler.ActiveFrameBindable));
         foreach (var member in members)
             Internals.ActionAccumulator.AddActions(new DeleteStructureMember_Action(member));
         Internals.ActionAccumulator.AddActions(new ChangeBoundary_Action());

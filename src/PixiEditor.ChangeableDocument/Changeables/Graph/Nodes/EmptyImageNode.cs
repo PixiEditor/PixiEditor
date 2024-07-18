@@ -23,7 +23,9 @@ public class CreateImageNode : Node
         Size = CreateInput(nameof(Size), "SIZE", new VecI(32, 32));
         Fill = CreateInput(nameof(Fill), "FILL", new Color(0, 0, 0, 255));
     }
-    
+
+    protected override string NodeUniqueName => "EmptyImage";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         var surface = new Surface(Size.Value);

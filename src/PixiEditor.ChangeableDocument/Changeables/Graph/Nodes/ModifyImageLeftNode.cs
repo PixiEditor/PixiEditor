@@ -44,6 +44,8 @@ public class ModifyImageLeftNode : Node
         pixmap = Image.Value?.PeekPixels();
     }
 
+    protected override string NodeUniqueName => "ModifyImageLeft";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         return Image.Value;

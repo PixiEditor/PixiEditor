@@ -11,6 +11,8 @@ public class CombineVecI : Node
     public FieldInputProperty<int> X { get; }
     
     public FieldInputProperty<int> Y { get; }
+    
+    
 
     public CombineVecI()
     {
@@ -27,6 +29,8 @@ public class CombineVecI : Node
 
         return new VecI(r, g);
     }
+
+    protected override string NodeUniqueName => "CombineVecI";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

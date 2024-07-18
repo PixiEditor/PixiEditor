@@ -8,16 +8,18 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class ImageSpaceNode : Node
 {
-    public FieldOutputProperty<VecD> Position { get; }
+    public FieldOutputProperty<VecD> SpacePosition { get; }
     
     public FieldOutputProperty<VecI> Size { get; }
 
     public ImageSpaceNode()
     {
-        Position = CreateFieldOutput(nameof(Position), "PIXEL_COORDINATE", ctx => ctx.Position);
+        SpacePosition = CreateFieldOutput(nameof(SpacePosition), "PIXEL_COORDINATE", ctx => ctx.Position);
         Size = CreateFieldOutput(nameof(Size), "SIZE", ctx => ctx.Size);
     }
-    
+
+    protected override string NodeUniqueName => "ImageSpace";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         return null;

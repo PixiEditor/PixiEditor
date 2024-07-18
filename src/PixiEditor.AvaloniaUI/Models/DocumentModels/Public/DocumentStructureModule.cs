@@ -26,20 +26,21 @@ internal class DocumentStructureModule
         return doc.NodeGraphHandler.AllNodes.FirstOrDefault(x => x.Id == guid && x is T) as T;
     }
 
-    public IStructureMemberHandler? FindFirstWhere(Predicate<IStructureMemberHandler> predicate)
+    public INodeHandler? FindFirstWhere(Predicate<INodeHandler> predicate)
     {
         return FindFirstWhere(predicate, doc.NodeGraphHandler);
     }
 
-    private IStructureMemberHandler? FindFirstWhere(Predicate<IStructureMemberHandler> predicate,
+    private INodeHandler? FindFirstWhere(
+        Predicate<INodeHandler> predicate,
         INodeGraphHandler graphVM)
     {
-        IStructureMemberHandler? result = null;
+        INodeHandler? result = null;
         graphVM.TryTraverse(node =>
         {
-            if (node is IStructureMemberHandler structureMemberNode && predicate(structureMemberNode))
+            if (predicate(node))
             {
-                result = structureMemberNode;
+                result = node;
                 return false;
             }
 
@@ -49,14 +50,14 @@ internal class DocumentStructureModule
         return result;
     }
 
-    public (IStructureMemberHandler?, IFolderHandler?) FindChildAndParent(Guid childGuid)
+    public (IStructureMemberHandler?, INodeHandler?) FindChildAndParent(Guid childGuid)
     {
         List<IStructureMemberHandler>? path = FindPath(childGuid);
         return path.Count switch
         {
             0 => (null, null),
             1 => (path[0], null),
-            >= 2 => (path[0], (IFolderHandler)path[1]),
+            >= 2 => (path[0], path[1]),
             _ => (null, null),
         };
     }

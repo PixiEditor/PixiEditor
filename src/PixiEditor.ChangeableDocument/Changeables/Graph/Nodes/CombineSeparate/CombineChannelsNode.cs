@@ -43,7 +43,9 @@ public class CombineChannelsNode : Node
         Image = CreateOutput<Surface>(nameof(Image), "IMAGE", null);
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
-    
+
+    protected override string NodeUniqueName => "CombineChannels";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         var size = GetSize();

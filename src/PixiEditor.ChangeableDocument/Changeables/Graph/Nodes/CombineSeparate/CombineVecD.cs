@@ -12,6 +12,8 @@ public class CombineVecD : Node
     public FieldInputProperty<double> X { get; }
     
     public FieldInputProperty<double> Y { get; }
+    
+    
 
     public CombineVecD()
     {
@@ -28,6 +30,8 @@ public class CombineVecD : Node
 
         return new VecD(r, g);
     }
+
+    protected override string NodeUniqueName => "CombineVecD";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

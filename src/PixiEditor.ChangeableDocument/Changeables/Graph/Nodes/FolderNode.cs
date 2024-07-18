@@ -23,6 +23,8 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
 
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
+    protected override string NodeUniqueName => "Folder";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         if(Background.Value == null && Content.Value == null)

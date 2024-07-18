@@ -22,9 +22,12 @@ public class CircleNode : Node
         StrokeWidth = CreateInput<int>("StrokeWidth", "STROKE_WIDTH", 1);
         Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
     }
-    
+
+    protected override string NodeUniqueName => "Circle";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
+        /*TODO: ChunkyImage*/
         var radius = Radius.Value / 2;
         var strokeWidth = StrokeWidth.Value;
         var strokeOffset = new VecI(strokeWidth / 2);

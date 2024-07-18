@@ -40,7 +40,9 @@ public class SeparateChannelsNode : Node
         Image = CreateInput<Surface>(nameof(Image), "IMAGE", null);
         Grayscale = CreateInput(nameof(Grayscale), "GRAYSCALE", false);
     }
-    
+
+    protected override string NodeUniqueName => "SeparateChannels";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         var image = Image.Value;

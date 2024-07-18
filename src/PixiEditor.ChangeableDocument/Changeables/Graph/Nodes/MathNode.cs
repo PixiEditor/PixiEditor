@@ -49,7 +49,9 @@ public class MathNode : Node
     }
 
     private (double x, double y) GetValues(FieldContext context) => (X.Value(context), Y.Value(context));
-    
+
+    protected override string NodeUniqueName => "Math";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         return null;

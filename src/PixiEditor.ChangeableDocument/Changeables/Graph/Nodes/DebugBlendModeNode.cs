@@ -28,7 +28,9 @@ public class DebugBlendModeNode : Node
 
         Result = CreateOutput<Surface>(nameof(Result), "Result", null);
     }
-    
+
+    protected override string NodeUniqueName => "DebugBlendMode";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         if (Dst.Value is not { } dst || Src.Value is not { } src)

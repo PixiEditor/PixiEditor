@@ -34,7 +34,9 @@ public class KernelFilterNode : Node
         Tile = CreateInput(nameof(Tile), "TILE_MODE", TileMode.Clamp);
         OnAlpha = CreateInput(nameof(OnAlpha), "ON_ALPHA", false);
     }
-    
+
+    protected override string NodeUniqueName => "KernelFilter";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         var input = Image.Value;

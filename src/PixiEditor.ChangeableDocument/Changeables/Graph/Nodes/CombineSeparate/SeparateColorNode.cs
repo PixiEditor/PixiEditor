@@ -24,6 +24,8 @@ public class SeparateColorNode : Node
         A = CreateFieldOutput(nameof(A), "A", ctx => Color.Value(ctx).A / 255d);
     }
 
+    protected override string NodeUniqueName => "SeparateColor";
+
     protected override Surface? OnExecute(RenderingContext context)
     {
         return null;

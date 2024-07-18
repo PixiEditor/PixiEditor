@@ -27,7 +27,9 @@ public class NoiseNode : Node
         Scale = CreateInput(nameof(Scale), "SCALE", 0d);
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
-    
+
+    protected override string NodeUniqueName => "Noise";
+
     protected override Surface OnExecute(RenderingContext context)
     {
         if (Math.Abs(previousScale - Scale.Value) > 0.000001 || double.IsNaN(previousScale))
