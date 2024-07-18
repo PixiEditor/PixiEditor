@@ -15,13 +15,9 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private VecI size;
 
-    private Paint blendPaint = new Paint();
-    private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surface.BlendMode.DstIn };
     private static readonly Paint clearPaint = new() { BlendMode = DrawingApi.Core.Surface.BlendMode.Src, 
         Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent };
-
-    private Dictionary<ChunkResolution, Surface> workingSurfaces = new Dictionary<ChunkResolution, Surface>();
-
+    
     // Handled by overriden CacheChanged
     protected override bool AffectedByAnimation => true;
 
@@ -56,7 +52,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         var frameImage = GetFrameImage(context.FrameTime).Data;
 
-        blendPaint.Color = new Color(255, 255, 255, (byte)Math.Round(Opacity.Value * 255));
+        blendPaint.Color = new Color(255, 255, 255, 255);
         blendPaint.BlendMode = DrawingApi.Core.Surface.BlendMode.Src;
 
         var renderedSurface = RenderImage(frameImage, context);
@@ -68,30 +64,23 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private Surface RenderImage(ChunkyImage frameImage, RenderingContext context)
     {
-        ChunkResolution targetResolution = context.ChunkResolution;
-        bool hasSurface = workingSurfaces.TryGetValue(targetResolution, out Surface workingSurface);
-        VecI targetSize = (VecI)(frameImage.LatestSize * targetResolution.Multiplier());
-
-        if (!hasSurface || workingSurface.Size != targetSize || workingSurface.IsDisposed)
-        {
-            workingSurfaces[targetResolution] = new Surface(targetSize);
-            workingSurface = workingSurfaces[targetResolution];
-        }
+        var workingSurface = TryInitWorkingSurface(frameImage.LatestSize, context);
 
         if (!HasOperations())
         {
+            bool canClear = Background.Value == null;
             if (Background.Value != null)
             {
                 DrawBackground(workingSurface, context);
                 blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             }
 
-            DrawLayer(frameImage, context, workingSurface);
+            DrawLayer(frameImage, context, workingSurface, canClear);
             Output.Value = workingSurface;
             return workingSurface;
         }
 
-        DrawLayer(frameImage, context, workingSurface);
+        DrawLayer(frameImage, context, workingSurface, true);
 
         // shit gets downhill with mask on big canvases, TODO: optimize
         ApplyMaskIfPresent(workingSurface, context);
@@ -112,48 +101,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return workingSurface;
     }
 
-    private void DrawBackground(Surface workingSurface, RenderingContext context)
+    private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface, bool shouldClear)
     {
-        RectI source = CalculateSourceRect(Background.Value, workingSurface.Size, context);
-        RectI target = CalculateDestinationRect(context);
-        using var snapshot = Background.Value.DrawingSurface.Snapshot(source);
-
-        workingSurface.DrawingSurface.Canvas.DrawImage(snapshot, target.X, target.Y, blendPaint);
-    }
-
-    private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface)
-    {
+        blendPaint.Color = blendPaint.Color.WithAlpha((byte)Math.Round(Opacity.Value * 255)); 
         if (!frameImage.DrawMostUpToDateChunkOn(
                 context.ChunkToUpdate,
                 context.ChunkResolution,
                 workingSurface.DrawingSurface,
                 context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
-                blendPaint))
+                blendPaint) && shouldClear)
         {
             workingSurface.DrawingSurface.Canvas.DrawRect(CalculateDestinationRect(context), clearPaint);
-        }
-    }
-
-    private bool IsEmptyMask()
-    {
-        return Mask.Value != null && MaskIsVisible.Value && !Mask.Value.LatestOrCommittedChunkExists();
-    }
-
-    private bool HasOperations()
-    {
-        return (MaskIsVisible.Value && Mask.Value != null) || ClipToPreviousMember.Value;
-    }
-
-    private void ApplyRasterClip(Surface surface, RenderingContext context)
-    {
-        if (ClipToPreviousMember.Value)
-        {
-            RectI? clippingRect = null;
-            VecI chunkStart = context.ChunkToUpdate * context.ChunkResolution.PixelSize();
-            VecI size = new VecI(context.ChunkResolution.PixelSize());
-            clippingRect = new RectI(chunkStart, size);
-
-            OperationHelper.ClampAlpha(surface.DrawingSurface, Background.Value, clippingRect);
         }
     }
 
@@ -167,46 +125,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         
         var frameImage = imageFrame ?? keyFrames[0];
         return frameImage as ImageFrame;
-    }
-
-    private void ApplyMaskIfPresent(Surface surface, RenderingContext context)
-    {
-        if (Mask.Value != null && MaskIsVisible.Value)
-        {
-            Mask.Value.DrawMostUpToDateChunkOn(
-                context.ChunkToUpdate,
-                context.ChunkResolution,
-                surface.DrawingSurface,
-                context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
-                maskPaint);
-        }
-    }
-
-    private RectI CalculateSourceRect(Surface image, VecI targetSize, RenderingContext context)
-    {
-        float multiplierToFit = image.Size.X / (float)targetSize.X;
-        int chunkSize = context.ChunkResolution.PixelSize();
-        VecI chunkPos = context.ChunkToUpdate;
-
-        int x = (int)(chunkPos.X * chunkSize * multiplierToFit);
-        int y = (int)(chunkPos.Y * chunkSize * multiplierToFit);
-        int width = (int)(chunkSize * multiplierToFit);
-        int height = (int)(chunkSize * multiplierToFit);
-
-        return new RectI(x, y, width, height);
-    }
-
-    private RectI CalculateDestinationRect(RenderingContext context)
-    {
-        int chunkSize = context.ChunkResolution.PixelSize();
-        VecI chunkPos = context.ChunkToUpdate;
-
-        int x = chunkPos.X * chunkSize;
-        int y = chunkPos.Y * chunkSize;
-        int width = chunkSize;
-        int height = chunkSize;
-
-        return new RectI(x, y, width, height);
     }
 
     protected override bool CacheChanged(RenderingContext context)
@@ -291,8 +209,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public override void Dispose()
     {
         base.Dispose();
-        blendPaint.Dispose();
-        maskPaint.Dispose();
         clearPaint.Dispose();
         foreach (var surface in workingSurfaces.Values)
         {
