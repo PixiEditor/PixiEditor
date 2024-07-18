@@ -13,16 +13,17 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 {
     public InputProperty<bool> LockTransparency { get; }
 
-    private List<ImageFrame> frames = new List<ImageFrame>();
     private VecI size;
 
     private Paint blendPaint = new Paint();
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surface.BlendMode.DstIn };
+    private static readonly Paint clearPaint = new() { BlendMode = DrawingApi.Core.Surface.BlendMode.Src, 
+        Color = PixiEditor.DrawingApi.Core.ColorsImpl.Colors.Transparent };
 
     private Dictionary<ChunkResolution, Surface> workingSurfaces = new Dictionary<ChunkResolution, Surface>();
 
     // Handled by overriden CacheChanged
-    protected override bool AffectedByAnimation => false;
+    protected override bool AffectedByAnimation => true;
 
     protected override bool AffectedByChunkResolution => true;
 
@@ -31,7 +32,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
     public ImageLayerNode(VecI size)
     {
         LockTransparency = CreateInput<bool>("LockTransparency", "LOCK_TRANSPARENCY", false);
-        frames.Add(new ImageFrame(Guid.NewGuid(), 0, 0, new(size)));
+        keyFrames.Add(new ImageFrame(Guid.NewGuid(), 0, 0, new(size)));
         this.size = size;
     }
 
@@ -53,7 +54,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
             return Output.Value;
         }
 
-        var frameImage = GetFrameImage(context.FrameTime).Image;
+        var frameImage = GetFrameImage(context.FrameTime).Data;
 
         blendPaint.Color = new Color(255, 255, 255, (byte)Math.Round(Opacity.Value * 255));
         blendPaint.BlendMode = DrawingApi.Core.Surface.BlendMode.Src;
@@ -84,29 +85,29 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
                 DrawBackground(workingSurface, context);
                 blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             }
-            
+
             DrawLayer(frameImage, context, workingSurface);
             Output.Value = workingSurface;
             return workingSurface;
         }
 
         DrawLayer(frameImage, context, workingSurface);
-        
+
         // shit gets downhill with mask on big canvases, TODO: optimize
         ApplyMaskIfPresent(workingSurface, context);
         ApplyRasterClip(workingSurface, context);
-            
+
         if (Background.Value != null)
         {
             Surface tempSurface = new Surface(workingSurface.Size);
             DrawBackground(tempSurface, context);
             blendPaint.BlendMode = RenderingContext.GetDrawingBlendMode(BlendMode.Value);
             tempSurface.DrawingSurface.Canvas.DrawSurface(workingSurface.DrawingSurface, 0, 0, blendPaint);
-            
+
             Output.Value = tempSurface;
             return tempSurface;
         }
-            
+
         Output.Value = workingSurface;
         return workingSurface;
     }
@@ -116,18 +117,21 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         RectI source = CalculateSourceRect(Background.Value, workingSurface.Size, context);
         RectI target = CalculateDestinationRect(context);
         using var snapshot = Background.Value.DrawingSurface.Snapshot(source);
-        
+
         workingSurface.DrawingSurface.Canvas.DrawImage(snapshot, target.X, target.Y, blendPaint);
     }
 
     private void DrawLayer(ChunkyImage frameImage, RenderingContext context, Surface workingSurface)
     {
-        frameImage.DrawMostUpToDateChunkOn(
-            context.ChunkToUpdate,
-            context.ChunkResolution,
-            workingSurface.DrawingSurface,
-            context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
-            blendPaint);
+        if (!frameImage.DrawMostUpToDateChunkOn(
+                context.ChunkToUpdate,
+                context.ChunkResolution,
+                workingSurface.DrawingSurface,
+                context.ChunkToUpdate * context.ChunkResolution.PixelSize(),
+                blendPaint))
+        {
+            workingSurface.DrawingSurface.Canvas.DrawRect(CalculateDestinationRect(context), clearPaint);
+        }
     }
 
     private bool IsEmptyMask()
@@ -155,9 +159,14 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
     private ImageFrame GetFrameImage(KeyFrameTime frame)
     {
-        var imageFrame = frames.FirstOrDefault(x => x.IsInFrame(frame.Frame));
-        var frameImage = imageFrame ?? frames[0];
-        return frameImage;
+        var imageFrame = keyFrames.LastOrDefault(x => x.IsInFrame(frame.Frame));
+        if (imageFrame is not ImageFrame)
+        {
+            return keyFrames[0] as ImageFrame;
+        }
+        
+        var frameImage = imageFrame ?? keyFrames[0];
+        return frameImage as ImageFrame;
     }
 
     private void ApplyMaskIfPresent(Surface surface, RenderingContext context)
@@ -186,7 +195,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
 
         return new RectI(x, y, width, height);
     }
-    
+
     private RectI CalculateDestinationRect(RenderingContext context)
     {
         int chunkSize = context.ChunkResolution.PixelSize();
@@ -216,21 +225,10 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         }
     }
 
-    public override void Dispose()
-    {
-        base.Dispose();
-        foreach (var frame in frames)
-        {
-            frame.Image.Dispose();
-        }
-    }
-
     public override Node CreateCopy()
     {
         return new ImageLayerNode(size)
         {
-            frames = frames.Select(x =>
-                new ImageFrame(x.KeyFrameGuid, x.StartFrame, x.Duration, x.Image.CloneFromCommitted())).ToList(),
             MemberName = MemberName,
         };
     }
@@ -251,128 +249,78 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         set => LockTransparency.NonOverridenValue = value;
     }
 
-    public void SetKeyFrameLength(Guid keyFrameGuid, int startFrame, int duration)
-    {
-        ImageFrame frame = frames.FirstOrDefault(x => x.KeyFrameGuid == keyFrameGuid);
-        if (frame is not null)
-        {
-            frame.StartFrame = startFrame;
-            frame.Duration = duration;
-        }
-    }
-
     public void ForEveryFrame(Action<ChunkyImage> action)
     {
-        foreach (var frame in frames)
+        foreach (var frame in keyFrames)
         {
-            action(frame.Image);
+            if (frame is ImageFrame imageFrame)
+            {
+                action(imageFrame.Data);
+            }
         }
     }
 
     public ChunkyImage GetLayerImageAtFrame(int frame)
     {
-        return frames.FirstOrDefault(x => x.IsInFrame(frame))?.Image ?? frames[0].Image;
+        return GetFrameImage(frame).Data;
     }
 
     public ChunkyImage GetLayerImageByKeyFrameGuid(Guid keyFrameGuid)
     {
-        return frames.FirstOrDefault(x => x.KeyFrameGuid == keyFrameGuid)?.Image ?? frames[0].Image;
+        foreach (var keyFrame in keyFrames)
+        {
+            if (keyFrame.KeyFrameGuid == keyFrameGuid)
+            {
+                return (keyFrame as ImageFrame).Data;
+            }
+        }
+
+        return (keyFrames[0] as ImageFrame).Data;        
     }
 
     public void SetLayerImageAtFrame(int frame, ChunkyImage newLayerImage)
     {
-        ImageFrame existingFrame = frames.FirstOrDefault(x => x.IsInFrame(frame));
-        if (existingFrame is not null)
+        var existingFrame = keyFrames.FirstOrDefault(x => x.IsInFrame(frame));
+        if (existingFrame is not null && existingFrame is ImageFrame imgFrame)
         {
-            existingFrame.Image.Dispose();
-            existingFrame.Image = newLayerImage;
+            existingFrame.Dispose();
+            imgFrame.Data = newLayerImage;
         }
     }
-    /*
-          /// <summary>
-        /// Creates a clone of the layer, its image and its mask
-        /// </summary>
-        internal override RasterLayer Clone()
-        {
-            List<ImageFrame> clonedFrames = new();
-            foreach (var frame in frameImages)
-            {
-                clonedFrames.Add(new ImageFrame(frame.KeyFrameGuid, frame.StartFrame, frame.Duration,
-                    frame.Image.CloneFromCommitted()));
-            }
 
-            return new RasterLayer(clonedFrames)
-            {
-                GuidValue = GuidValue,
-                IsVisible = IsVisible,
-                Name = Name,
-                Opacity = Opacity,
-                Mask = Mask?.CloneFromCommitted(),
-                ClipToMemberBelow = ClipToMemberBelow,
-                MaskIsVisible = MaskIsVisible,
-                BlendMode = BlendMode,
-                LockTransparency = LockTransparency
-            };
-        }
-        public override void RemoveKeyFrame(Guid keyFrameGuid)
+    public override void Dispose()
+    {
+        base.Dispose();
+        blendPaint.Dispose();
+        maskPaint.Dispose();
+        clearPaint.Dispose();
+        foreach (var surface in workingSurfaces.Values)
         {
-            // Remove all in case I'm the lucky winner of guid collision
-            frameImages.RemoveAll(x => x.KeyFrameGuid == keyFrameGuid);
+            surface.Dispose();
         }
-
-        public void SetLayerImageAtFrame(int frame, ChunkyImage newLayerImage)
-        {
-            ImageFrame existingFrame = frameImages.FirstOrDefault(x => x.IsInFrame(frame));
-            if (existingFrame is not null)
-            {
-                existingFrame.Image.Dispose();
-                existingFrame.Image = newLayerImage;
-            }
-        }
-
-
-        public void AddFrame(Guid keyFrameGuid, int startFrame, int duration, ChunkyImage frameImg)
-        {
-            ImageFrame newFrame = new(keyFrameGuid, startFrame, duration, frameImg);
-            frames.Add(newFrame);
-        }
-        */
+    }
 }
 
-class ImageFrame
+class ImageFrame : KeyFrameData<ChunkyImage>
 {
-    public int StartFrame { get; set; }
-    public int Duration { get; set; }
-    public ChunkyImage Image { get; set; }
-
     private int lastCommitCounter = 0;
 
-    public bool RequiresUpdate
+    public override bool RequiresUpdate
     {
         get
         {
-            return Image.QueueLength != lastQueueLength || Image.CommitCounter != lastCommitCounter;
+            return Data.QueueLength != lastQueueLength || Data.CommitCounter != lastCommitCounter;
         }
         set
         {
-            lastQueueLength = Image.QueueLength;
-            lastCommitCounter = Image.CommitCounter;
+            lastQueueLength = Data.QueueLength;
+            lastCommitCounter = Data.CommitCounter;
         }
     }
 
-    public Guid KeyFrameGuid { get; set; }
     private int lastQueueLength = 0;
 
-    public ImageFrame(Guid keyFrameGuid, int startFrame, int duration, ChunkyImage image)
+    public ImageFrame(Guid keyFrameGuid, int startFrame, int duration, ChunkyImage image) : base(keyFrameGuid, image, startFrame, duration)
     {
-        StartFrame = startFrame;
-        Duration = duration;
-        Image = image;
-        KeyFrameGuid = keyFrameGuid;
-    }
-
-    public bool IsInFrame(int frame)
-    {
-        return frame >= StartFrame && frame < StartFrame + Duration;
     }
 }

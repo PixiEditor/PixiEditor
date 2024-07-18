@@ -34,7 +34,8 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         activeDocument.AnimationDataViewModel.CreateRasterKeyFrame(
             activeDocument.SelectedStructureMember.Id,
             newFrame,
-            toCloneFrom);
+            toCloneFrom, 
+            frameToCopyFrom);
         
         activeDocument.Operations.SetActiveFrame(newFrame);
     }

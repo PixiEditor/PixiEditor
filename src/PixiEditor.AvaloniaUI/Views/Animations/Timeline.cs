@@ -188,7 +188,7 @@ internal class Timeline : TemplatedControl, INotifyPropertyChanged
 
     public bool DragAllSelectedKeyFrames(int delta)
     {
-        bool canDrag = SelectedKeyFrames.All(x => x.StartFrameBindable + delta >= 0);
+        bool canDrag = SelectedKeyFrames.All(x => x.StartFrameBindable + delta > 0);
         if (!canDrag)
         {
             return false;

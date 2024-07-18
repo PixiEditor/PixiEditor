@@ -9,7 +9,7 @@ internal class AnimationData : IReadOnlyAnimationData
 
     private List<KeyFrame> keyFrames = new List<KeyFrame>();
     private readonly Document document;
-    
+
     public AnimationData(Document document)
     {
         this.document = document;
@@ -39,7 +39,7 @@ internal class AnimationData : IReadOnlyAnimationData
             {
                 node.RemoveKeyFrame(frame.Id);
             }
-            
+
             parent?.Children.Remove(frame);
         });
     }
@@ -48,7 +48,7 @@ internal class AnimationData : IReadOnlyAnimationData
     {
         return TryFindKeyFrameCallback(id, out keyFrame, null);
     }
-    
+
     private bool TryFindKeyFrameCallback<T>(Guid id, out T? foundKeyFrame,
         Action<KeyFrame, GroupKeyFrame?> onFound = null) where T : IReadOnlyKeyFrame
     {

@@ -13,6 +13,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
 {
     private List<InputProperty> inputs = new();
     private List<OutputProperty> outputs = new();
+    protected List<KeyFrameData> keyFrames = new();
 
     public Guid Id { get; internal set; } = Guid.NewGuid();
 
@@ -40,6 +41,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1);
     private ChunkResolution? _lastResolution;
     private VecI? _lastChunkPos;
+    private bool _keyFramesDirty;
 
     public Surface? Execute(RenderingContext context)
     {
@@ -69,6 +71,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     protected virtual bool CacheChanged(RenderingContext context)
     {
         return (!context.FrameTime.Equals(_lastFrameTime) && AffectedByAnimation)
+               || (AffectedByAnimation && _keyFramesDirty)
                || (context.ChunkResolution != _lastResolution && AffectedByChunkResolution)
                || (context.ChunkToUpdate != _lastChunkPos && AffectedByChunkToUpdate)
                || inputs.Any(x => x.CacheChanged);
@@ -84,21 +87,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         _lastFrameTime = context.FrameTime;
         _lastResolution = context.ChunkResolution;
         _lastChunkPos = context.ChunkToUpdate;
-    }
-
-    public void RemoveKeyFrame(Guid keyFrameGuid)
-    {
-        // TODO: Implement
-    }
-
-    public void SetKeyFrameLength(Guid keyFrameGuid, int startFrame, int duration)
-    {
-        // TODO: Implement
-    }
-
-    public void AddFrame<T>(Guid keyFrameGuid, int startFrame, int duration, T value)
-    {
-        // TODO: Implement
+        _keyFramesDirty = false;
     }
 
     public void TraverseBackwards(Func<IReadOnlyNode, bool> action)
@@ -164,6 +153,34 @@ public abstract class Node : IReadOnlyNode, IDisposable
         }
     }
 
+    public void RemoveKeyFrame(Guid keyFrameId)
+    {
+        keyFrames.RemoveAll(x => x.KeyFrameGuid == keyFrameId);
+        _keyFramesDirty = true;
+    }
+
+    public void SetKeyFrameLength(Guid id, int startFrame, int duration)
+    {
+        KeyFrameData frame = keyFrames.FirstOrDefault(x => x.KeyFrameGuid == id);
+        if (frame is not null)
+        {
+            frame.StartFrame = startFrame;
+            frame.Duration = duration;
+            _keyFramesDirty = true;
+        }
+    }
+
+    public void AddFrame<T>(Guid id, T value) where T : KeyFrameData
+    {
+        if (keyFrames.Any(x => x.KeyFrameGuid == id))
+        {
+            throw new InvalidOperationException("Key frame with this id already exists.");
+        }
+        
+        keyFrames.Add(value);
+        _keyFramesDirty = true;
+    }
+
     protected FieldInputProperty<T> CreateFieldInput<T>(string propName, string displayName, T defaultValue)
     {
         var property = new FieldInputProperty<T>(this, propName, displayName, defaultValue);
@@ -220,6 +237,14 @@ public abstract class Node : IReadOnlyNode, IDisposable
                 disposable.Dispose();
             }
         }
+        
+        if(keyFrames is not null)
+        {
+            foreach (var keyFrame in keyFrames)
+            {
+               keyFrame.Dispose(); 
+            }
+        }
     }
 
     public abstract Node CreateCopy();
@@ -230,6 +255,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
         clone.Id = Guid.NewGuid();
         clone.inputs = new List<InputProperty>();
         clone.outputs = new List<OutputProperty>();
+        clone.keyFrames = new List<KeyFrameData>();
         foreach (var input in inputs)
         {
             var newInput = input.Clone(clone);

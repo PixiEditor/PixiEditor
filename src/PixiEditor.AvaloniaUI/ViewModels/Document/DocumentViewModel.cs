@@ -419,13 +419,13 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 for (int j = 0; j < sizeInChunks.Y; j++)
                 {
                     // TODO: Implement this
-                    /*var maybeChunk = ChunkRenderer.MergeWholeStructure(new(i, j), ChunkResolution.Full,
-                        Internals.Tracker.Document.StructureRoot, frame);
+                    var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frame);
                     if (maybeChunk.IsT1)
                         continue;
                     using Chunk chunk = maybeChunk.AsT0;
-                    finalSurface.DrawingSurface.Canvas.DrawSurface(chunk.Surface.DrawingSurface,
-                        i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);*/
+                    finalSurface.DrawingSurface.Canvas.DrawSurface(
+                        chunk.Surface.DrawingSurface,
+                        i * ChunkyImage.FullChunkSize, j * ChunkyImage.FullChunkSize);
                 }
             }
 

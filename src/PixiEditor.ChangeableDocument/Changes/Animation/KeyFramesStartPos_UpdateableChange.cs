@@ -14,7 +14,7 @@ internal class KeyFramesStartPos_UpdateableChange : UpdateableChange
     public KeyFramesStartPos_UpdateableChange(List<Guid> keyFramesGuid, int delta)
     {
         KeyFramesGuid = keyFramesGuid.ToArray();
-        Delta = 0;
+        Delta = delta;
     }
 
     [UpdateChangeMethod]

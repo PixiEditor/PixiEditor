@@ -255,10 +255,10 @@ internal class AffectedAreasGatherer
     private void AddWholeCanvasToImagePreviews(Guid memberGuid, bool ignoreSelf = false)
     {
         var path = tracker.Document.FindMemberPath(memberGuid);
-        if (path.Count < 2)
+        if (path.Count < 1 || path.Count == 1 && ignoreSelf)
             return;
         // skip root folder
-        for (int i = ignoreSelf ? 1 : 0; i < path.Count - 1; i++)
+        for (int i = ignoreSelf ? 1 : 0; i < path.Count; i++)
         {
             var member = path[i];
             if (!ImagePreviewAreas.ContainsKey(member.Id))
