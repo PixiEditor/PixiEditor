@@ -3,11 +3,13 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 
-public record struct FuncContext(VecD Position, VecI Size, bool HasContext)
+public class FuncContext
 {
-    public FuncContext(VecD position, VecI size) : this(position, size, true) { }
-
-    public static FuncContext NoContext => new(VecD.Zero, VecI.Zero, false);
+    public static FuncContext NoContext { get; } = new();
+    
+    public VecD Position { get; private set; }
+    public VecI Size { get; private set; }
+    public bool HasContext { get; private set; }
 
     public void ThrowOnMissingContext()
     {
@@ -15,5 +17,11 @@ public record struct FuncContext(VecD Position, VecI Size, bool HasContext)
         {
             throw new NoNodeFuncContextException();
         }
+    }
+
+    public void UpdateContext(VecD position, VecI size)
+    {
+        Position = position;
+        Size = size;
     }
 }
