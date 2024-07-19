@@ -37,15 +37,52 @@ public class NodeSystemTests
     public void TestThatCreateSimpleNodeDoesntThrow()
     {
         var allNodeTypes = typeof(Node).Assembly.GetTypes()
-            .Where(x => x.IsAssignableTo(typeof(Node)) && x is { IsAbstract: false, IsInterface: false }).ToList();
+            .Where(x => 
+                x.IsAssignableTo(typeof(Node)) 
+                && x is { IsAbstract: false, IsInterface: false }
+                && x.GetCustomAttribute<PairNodeAttribute>() == null).ToList();
 
         IReadOnlyDocument target = new MockDocument();
 
         foreach (var type in allNodeTypes)
         {
-            if(type.GetCustomAttribute<PairNodeAttribute>() != null) continue;
             var node = NodeOperations.CreateNode(type, target);
             Assert.NotNull(node);
+        }
+    }
+    
+    [Fact]
+    public void TestThatCreatePairNodeDoesntThrow()
+    {
+        var allNodeTypes = typeof(Node).Assembly.GetTypes()
+            .Where(x => 
+                x.IsAssignableTo(typeof(Node)) 
+                && x is { IsAbstract: false, IsInterface: false }
+                && x.GetCustomAttribute<PairNodeAttribute>() != null).ToList();
+
+        IReadOnlyDocument target = new MockDocument();
+        
+        Dictionary<Type, Type> pairs = new();
+
+        for (var i = 0; i < allNodeTypes.Count; i++)
+        {
+            var type = allNodeTypes[i];
+            var pairAttribute = type.GetCustomAttribute<PairNodeAttribute>();
+            
+            if(pairAttribute == null) continue;
+            
+            if(!pairAttribute.IsStartingType) continue;
+            
+            pairs[type] = pairAttribute.OtherType;
+        }
+
+        foreach (var type in pairs)
+        {
+            var startNode = NodeOperations.CreateNode(type.Key, target);
+            var endNode = NodeOperations.CreateNode(type.Value, target, startNode);
+            
+            Assert.NotNull(startNode);
+            Assert.NotNull(endNode);
         }
     }
 }
