@@ -1,6 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
+using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
@@ -10,21 +11,33 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 public class NoiseNode : Node
 {
     private double previousScale = double.NaN;
+    private double previousSeed = double.NaN;
+    private NoiseType previousNoiseType = Nodes.NoiseType.TurbulencePerlin;
+    private int previousOctaves = -1;
+    
     private Paint paint = new();
     
+    private static readonly ColorFilter grayscaleFilter = ColorFilter.CreateColorMatrix(
+        ColorMatrix.MapAlphaToRedGreenBlue + ColorMatrix.OpaqueAlphaOffset);
+    
     public OutputProperty<Surface> Noise { get; }
-
+    
+    public InputProperty<NoiseType> NoiseType { get; }
     public InputProperty<VecI> Size { get; }
     
     public InputProperty<double> Scale { get; }
+    
+    public InputProperty<int> Octaves { get; }
     
     public InputProperty<double> Seed { get; }
 
     public NoiseNode()
     {
         Noise = CreateOutput<Surface>(nameof(Noise), "NOISE", null);
-        Size = CreateInput(nameof(Size), "SIZE", new VecI());
-        Scale = CreateInput(nameof(Scale), "SCALE", 0d);
+        NoiseType = CreateInput(nameof(NoiseType), "NOISE_TYPE", Nodes.NoiseType.TurbulencePerlin);
+        Size = CreateInput(nameof(Size), "SIZE", new VecI(64, 64));
+        Scale = CreateInput(nameof(Scale), "SCALE", 10d);
+        Octaves = CreateInput(nameof(Octaves), "OCTAVES", 1);
         Seed = CreateInput(nameof(Seed), "SEED", 0d);
     }
 
@@ -32,18 +45,34 @@ public class NoiseNode : Node
 
     protected override Surface OnExecute(RenderingContext context)
     {
-        if (Math.Abs(previousScale - Scale.Value) > 0.000001 || double.IsNaN(previousScale))
+        if (Math.Abs(previousScale - Scale.Value) > 0.000001 
+            || previousSeed != Seed.Value
+            || previousOctaves != Octaves.Value
+            || previousNoiseType != NoiseType.Value
+            || double.IsNaN(previousScale))
         {
-            var shader = Shader.CreatePerlinNoiseTurbulence((float)(1d / Scale.Value), (float)(1d / Scale.Value), 4, (float)Seed.Value);
+            var shader = SelectShader();
+            if (shader == null)
+            {
+                Noise.Value = null;
+                return null;
+            }
+            
             paint.Shader = shader;
-
+            
+            // Define a grayscale color filter to apply to the image
+            paint.ColorFilter = grayscaleFilter; 
+            
             previousScale = Scale.Value;
+            previousSeed = Seed.Value;
+            previousOctaves = Octaves.Value;
+            previousNoiseType = NoiseType.Value;
         }
         
         var size = Size.Value;
         
         var workingSurface = new Surface(size);
-        
+       
         workingSurface.DrawingSurface.Canvas.DrawPaint(paint);
 
         Noise.Value = workingSurface;
@@ -51,8 +80,30 @@ public class NoiseNode : Node
         return Noise.Value;
     }
 
+    private Shader SelectShader()
+    {
+        Shader shader = NoiseType.Value switch
+        {
+            Nodes.NoiseType.TurbulencePerlin => Shader.CreatePerlinNoiseTurbulence(
+                (float)(1d / Scale.Value),
+                (float)(1d / Scale.Value), Octaves.Value, (float)Seed.Value),
+            Nodes.NoiseType.FractalPerlin => Shader.CreatePerlinFractalNoise(
+                (float)(1d / Scale.Value),
+                (float)(1d / Scale.Value), Octaves.Value, (float)Seed.Value),
+            _ => null
+        };
+
+        return shader;
+    }
+
     public override string DisplayName { get; set; } = "NOISE_NODE";
     public override bool AreInputsLegal() => Size.Value is { X: > 0, Y: > 0 }; 
 
     public override Node CreateCopy() => new NoiseNode();
+}
+
+public enum NoiseType
+{
+    TurbulencePerlin,
+    FractalPerlin
 }

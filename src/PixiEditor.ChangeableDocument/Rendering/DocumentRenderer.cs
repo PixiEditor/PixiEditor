@@ -48,6 +48,16 @@ public class DocumentRenderer
             int height = (int)(ChunkyImage.FullChunkSize * resolution.Multiplier());
 
             RectD sourceRect = new(x, y, width, height);
+            
+            RectD availableRect = new(0, 0, evaluated.Size.X, evaluated.Size.Y);
+            
+            sourceRect = sourceRect.Intersect(availableRect);
+            
+            if (sourceRect.IsZeroOrNegativeArea)
+            {
+                chunk.Dispose();
+                return new EmptyChunk();
+            }
 
             using var chunkSnapshot = evaluated.DrawingSurface.Snapshot((RectI)sourceRect);
 

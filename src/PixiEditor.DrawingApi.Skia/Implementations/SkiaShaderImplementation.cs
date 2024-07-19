@@ -57,6 +57,18 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[shader.Handle] = shader;
             return new Shader(shader.Handle);
         }
+        
+        public Shader CreatePerlinFractalNoise(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed)
+        {
+            SKShader shader = SKShader.CreatePerlinNoiseFractalNoise(
+                baseFrequencyX,
+                baseFrequencyY,
+                numOctaves,
+                seed);
+
+            ManagedInstances[shader.Handle] = shader;
+            return new Shader(shader.Handle);
+        }
 
         public object GetNativeShader(IntPtr objectPointer)
         {
