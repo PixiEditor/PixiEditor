@@ -26,6 +26,7 @@ using PixiEditor.AvaloniaUI.Views.Overlays.SymmetryOverlay;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
 using PixiEditor.ChangeableDocument.Actions.Undo;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -408,7 +409,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     /// Tries rendering the whole document
     /// </summary>
     /// <returns><see cref="Error"/> if the ChunkyImage was disposed, otherwise a <see cref="Surface"/> of the rendered document</returns>
-    public OneOf<Error, Surface> TryRenderWholeImage(int frame)
+    public OneOf<Error, Surface> TryRenderWholeImage(KeyFrameTime frameTime)
     {
         try
         {
@@ -419,7 +420,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
                 for (int j = 0; j < sizeInChunks.Y; j++)
                 {
                     // TODO: Implement this
-                    var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frame);
+                    var maybeChunk = Renderer.RenderChunk(new(i, j), ChunkResolution.Full, frameTime);
                     if (maybeChunk.IsT1)
                         continue;
                     using Chunk chunk = maybeChunk.AsT0;
@@ -552,7 +553,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         return bitmap.GetSRGBPixel(new VecI((int)transformed.X, (int)transformed.Y));
     }
 
-    public Color PickColorFromCanvas(VecI pos, DocumentScope scope, int frame)
+    public Color PickColorFromCanvas(VecI pos, DocumentScope scope, KeyFrameTime frameTime)
     {
         // there is a tiny chance that the image might get disposed by another thread
         try
@@ -563,7 +564,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             {
                 VecI chunkPos = OperationHelper.GetChunkPos(pos, ChunkyImage.FullChunkSize);
                 return Renderer.RenderChunk(chunkPos, ChunkResolution.Full,
-                        frame)
+                        frameTime)
                     .Match(
                         chunk =>
                         {
@@ -580,7 +581,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
             IReadOnlyStructureNode? maybeMember = Internals.Tracker.Document.FindMember(layerVm.Id);
             if (maybeMember is not IReadOnlyImageNode layer)
                 return Colors.Transparent;
-            return layer.GetLayerImageAtFrame(frame).GetMostUpToDatePixel(pos);
+            return layer.GetLayerImageAtFrame(frameTime.Frame).GetMostUpToDatePixel(pos);
         }
         catch (ObjectDisposedException)
         {
@@ -751,7 +752,9 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         Image[] images = new Image[framesCount];
         for (int i = firstFrame; i < lastFrame; i++)
         {
-            var surface = TryRenderWholeImage(i);
+            double normalizedTime = (double)(i - firstFrame) / framesCount;
+            KeyFrameTime frameTime = new KeyFrameTime(i, normalizedTime);
+            var surface = TryRenderWholeImage(frameTime);
             if (surface.IsT0)
             {
                 continue;

@@ -36,7 +36,7 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
-    public override bool Validate()
+    public override bool AreInputsLegal()
     {
         return true;
     }

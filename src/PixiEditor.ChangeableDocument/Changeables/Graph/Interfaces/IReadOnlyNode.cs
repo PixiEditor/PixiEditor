@@ -17,7 +17,14 @@ public interface IReadOnlyNode
     string DisplayName { get; }
 
     public Surface? Execute(RenderingContext context);
-    public bool Validate();
+    
+    /// <summary>
+    ///     Checks if the inputs are legal. If they are not, the node should not be executed.
+    /// Note that all nodes connected to any output of this node won't be executed either.
+    /// </summary>
+    /// <example>Divide node has two inputs, if the second input is 0, the node should not be executed. Since division by 0 is illegal</example>
+    /// <returns>True if the inputs are legal, false otherwise.</returns>
+    public bool AreInputsLegal();
     
     /// <summary>
     ///     Traverses the graph backwards from this node. Backwards means towards the input nodes.

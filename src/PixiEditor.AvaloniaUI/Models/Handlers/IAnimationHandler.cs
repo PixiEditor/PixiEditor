@@ -1,9 +1,12 @@
-﻿namespace PixiEditor.AvaloniaUI.Models.Handlers;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+
+namespace PixiEditor.AvaloniaUI.Models.Handlers;
 
 internal interface IAnimationHandler
 {
     public IReadOnlyCollection<IKeyFrameHandler> KeyFrames { get; }
     public int ActiveFrameBindable { get; set; }
+    public KeyFrameTime ActiveFrameTime { get; }
     public void CreateRasterKeyFrame(Guid targetLayerGuid, int frame, Guid? toCloneFrom = null, int? frameToCopyFrom = null);
     public void SetActiveFrame(int newFrame);
     public void SetFrameLength(Guid keyFrameId, int newStartFrame, int newDuration);

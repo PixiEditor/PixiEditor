@@ -17,6 +17,7 @@
         ActiveFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.ActiveFrameBindable, Mode=TwoWay}"
         NewKeyFrameCommand="{xaml:Command PixiEditor.Animation.CreateRasterKeyFrame}"
         Fps="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.FrameRate, Mode=TwoWay}"
+        DefaultEndFrame="{Binding DocumentManagerSubViewModel.ActiveDocument.AnimationDataViewModel.DefaultEndFrame}"
         DuplicateKeyFrameCommand="{xaml:Command PixiEditor.Animation.DuplicateRasterKeyFrame}"
         DeleteKeyFrameCommand="{xaml:Command PixiEditor.Animation.DeleteKeyFrames, UseProvided=True}"
         ChangeKeyFramesLengthCommand="{xaml:Command PixiEditor.Animation.ChangeKeyFramesStartPos, UseProvided=True}"/>

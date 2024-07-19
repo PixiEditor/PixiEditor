@@ -54,7 +54,7 @@ public class MatrixTransformNode : Node
         return Transformed.Value;
     }
 
-    public override bool Validate() => true;
+    public override bool AreInputsLegal() => true;
 
     public override Node CreateCopy() => new MatrixTransformNode();
 }

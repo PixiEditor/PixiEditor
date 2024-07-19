@@ -13,12 +13,6 @@ public class CombineChannelsNode : Node
     private readonly ColorFilter _redFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseRed + ColorMatrix.OpaqueAlphaOffset);
     private readonly ColorFilter _greenFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseGreen + ColorMatrix.OpaqueAlphaOffset);
     private readonly ColorFilter _blueFilter = ColorFilter.CreateColorMatrix(ColorMatrix.UseBlue + ColorMatrix.OpaqueAlphaOffset);
-    
-    private readonly ColorFilter _alphaGrayscaleFilter = ColorFilter.CreateColorMatrix(new ColorMatrix(
-        (0, 0, 0, 0, 0),
-        (0, 0, 0, 0, 0),
-        (0, 0, 0, 0, 0),
-        (1, 0, 0, 0, 0)));
 
     public InputProperty<Surface> Red { get; }
     
@@ -75,7 +69,7 @@ public class CombineChannelsNode : Node
 
         if (Alpha.Value is { } alpha)
         {
-            _clearPaint.ColorFilter = Grayscale.Value ? _alphaGrayscaleFilter : null;
+            _clearPaint.ColorFilter = Grayscale.Value ? Filters.AlphaGrayscaleFilter : null;
 
             workingSurface.DrawingSurface.Canvas.DrawSurface(alpha.DrawingSurface, 0, 0, _clearPaint);
         }
@@ -113,7 +107,7 @@ public class CombineChannelsNode : Node
     }
 
     public override string DisplayName { get; set; } = "COMBINE_CHANNELS_NODE";
-    public override bool Validate() => true;
+    public override bool AreInputsLegal() => true;
 
     public override Node CreateCopy() => new CombineChannelsNode();
 }

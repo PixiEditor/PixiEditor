@@ -4,6 +4,7 @@ using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Models.DocumentPassthroughActions;
 using PixiEditor.ChangeableDocument;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos;
@@ -26,9 +27,9 @@ internal class AffectedAreasGatherer
     public Dictionary<Guid, AffectedArea> ImagePreviewAreas { get; private set; } = new();
     public Dictionary<Guid, AffectedArea> MaskPreviewAreas { get; private set; } = new();
     
-    private int ActiveFrame { get; set; }
+    private KeyFrameTime ActiveFrame { get; set; }
 
-    public AffectedAreasGatherer(int activeFrame, DocumentChangeTracker tracker,
+    public AffectedAreasGatherer(KeyFrameTime activeFrame, DocumentChangeTracker tracker,
         IReadOnlyList<IChangeInfo> changes)
     {
         this.tracker = tracker;
@@ -140,12 +141,12 @@ internal class AffectedAreasGatherer
         }
     }
 
-    private void AddAllToImagePreviews(Guid memberGuid, int frame, bool ignoreSelf = false)
+    private void AddAllToImagePreviews(Guid memberGuid, KeyFrameTime frame, bool ignoreSelf = false)
     {
         var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyImageNode layer)
         {
-            var result = layer.GetLayerImageAtFrame(frame);
+            var result = layer.GetLayerImageAtFrame(frame.Frame);
             if (result == null)
             {
                 AddWholeCanvasToImagePreviews(memberGuid, ignoreSelf);
@@ -163,12 +164,12 @@ internal class AffectedAreasGatherer
         }
     }
 
-    private void AddAllToMainImage(Guid memberGuid, int frame, bool useMask = true)
+    private void AddAllToMainImage(Guid memberGuid, KeyFrameTime frame, bool useMask = true)
     {
         var member = tracker.Document.FindMember(memberGuid);
         if (member is IReadOnlyImageNode layer)
         {
-            var result = layer.GetLayerImageAtFrame(frame);
+            var result = layer.GetLayerImageAtFrame(frame.Frame);
             if (result == null)
             {
                 AddWholeCanvasToMainImage();

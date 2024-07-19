@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
+﻿using System.Reflection;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
@@ -29,8 +30,7 @@ public class InputProperty : IInputProperty
 
             if (ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is not Delegate)
             {
-                Func<FuncContext, object> field = _ => connectionValue;
-                return field;
+                return FuncFactory(connectionValue);
             }
 
             return connectionValue;
@@ -44,6 +44,12 @@ public class InputProperty : IInputProperty
         {
             _internalValue = value;
         }
+    }
+
+    protected virtual object FuncFactory(object toReturn)
+    {
+        Func<FuncContext, object> func = _ => toReturn;
+        return func;
     }
 
     public Node Node { get; }
@@ -133,13 +139,44 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
 {
     public new T Value
     {
-        get => (T)(base.Value ?? default);
+        get
+        {
+            object value = base.Value;
+            if (value is null) return default(T);
+
+            return (T)value;
+        }
     }
 
     public T NonOverridenValue
     {
-        get => (T)(base.NonOverridenValue ?? default);
+        get => (T)(base.NonOverridenValue ?? default(T));
         set => base.NonOverridenValue = value;
+    }
+
+    /*
+    private T CastFunc(Func<FuncContext, object> func)
+    {
+        Type targetReturnType = Connection.ValueType;
+        Type funcType = typeof(Func<,>).MakeGenericType(typeof(FuncContext), targetReturnType);
+
+        var methodInfo = func.Method;
+        
+        // methodInfo returns Object, we need to wrap it so it returns targetReturnType
+        
+        MethodInfo castMethod = typeof(InputProperty<T>).GetMethod(nameof(Cast), BindingFlags.NonPublic | BindingFlags.Static)!;
+        
+        MethodInfo genericCastMethod = castMethod.MakeGenericMethod(targetReturnType);
+        
+        
+        
+        // T i Func<FuncContext, targetReturnType> so we need to return it
+        return (T)(object)Delegate.CreateDelegate(funcType, methodInfo);
+    }*/
+    
+    private static Func<FuncContext, T> Cast<T>(Func<FuncContext, object> func)
+    {
+        return context => (T)func(context);
     }
     
     internal InputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node, internalName, displayName, defaultValue, typeof(T))

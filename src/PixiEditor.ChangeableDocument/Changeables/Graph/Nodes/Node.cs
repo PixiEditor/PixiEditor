@@ -52,7 +52,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public VecD Position { get; set; }
     public abstract string DisplayName { get; set; }
 
-    private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1);
+    private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1, 0);
     private ChunkResolution? _lastResolution;
     private VecI? _lastChunkPos;
     private bool _keyFramesDirty;
@@ -81,7 +81,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
     protected abstract Surface? OnExecute(RenderingContext context);
-    public abstract bool Validate();
+    public abstract bool AreInputsLegal();
 
     protected virtual bool CacheChanged(RenderingContext context)
     {

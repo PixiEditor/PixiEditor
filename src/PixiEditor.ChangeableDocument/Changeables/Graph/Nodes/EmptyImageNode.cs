@@ -39,7 +39,7 @@ public class CreateImageNode : Node
     }
  
     public override string DisplayName { get; set; } = "CREATE_IMAGE_NODE";
-    public override bool Validate() => Size.Value is { X: > 0, Y: > 0 };
+    public override bool AreInputsLegal() => Size.Value is { X: > 0, Y: > 0 };
 
     public override Node CreateCopy() => new CreateImageNode();
 }

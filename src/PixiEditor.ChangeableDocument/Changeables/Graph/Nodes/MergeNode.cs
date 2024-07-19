@@ -21,7 +21,7 @@ public class MergeNode : Node, IBackgroundInput
 
     public override string DisplayName { get; set; } = "MERGE_NODE";
 
-    public override bool Validate()
+    public override bool AreInputsLegal()
     {
         return Top.Connection != null || Bottom.Connection != null;
     }
