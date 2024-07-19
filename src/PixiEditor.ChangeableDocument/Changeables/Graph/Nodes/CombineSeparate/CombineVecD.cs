@@ -7,11 +7,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 public class CombineVecD : Node
 {
-    public FieldOutputProperty<VecD> Vector { get; }
+    public FuncOutputProperty<VecD> Vector { get; }
     
-    public FieldInputProperty<double> X { get; }
+    public FuncInputProperty<double> X { get; }
     
-    public FieldInputProperty<double> Y { get; }
+    public FuncInputProperty<double> Y { get; }
     
     
     public override string DisplayName { get; set; } = "COMBINE_VECD_NODE";
@@ -20,11 +20,11 @@ public class CombineVecD : Node
     {
         Vector = CreateFieldOutput(nameof(Vector), "VECTOR", GetVector);
 
-        X = CreateFieldInput(nameof(X), "X", 0d);
-        Y = CreateFieldInput(nameof(Y), "Y", 0d);
+        X = CreateFuncInput(nameof(X), "X", 0d);
+        Y = CreateFuncInput(nameof(Y), "Y", 0d);
     }
     
-    private VecD GetVector(FieldContext ctx)
+    private VecD GetVector(FuncContext ctx)
     {
         var r = X.Value(ctx);
         var g = Y.Value(ctx);

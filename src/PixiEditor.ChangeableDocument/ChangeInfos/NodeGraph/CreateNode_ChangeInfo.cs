@@ -30,7 +30,7 @@ public record CreateNode_ChangeInfo(
 
     private static object? GetNonOverridenValue(INodeProperty property) => property switch
     {
-        IFieldInputProperty fieldProperty => fieldProperty.GetFieldConstantValue(),
+        IFuncInputProperty fieldProperty => fieldProperty.GetFuncConstantValue(),
         IInputProperty inputProperty => inputProperty.NonOverridenValue,
         _ => null
     };

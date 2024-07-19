@@ -4,9 +4,9 @@ using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
-public class FieldOutputProperty<T> : OutputProperty<Func<FieldContext, T>>
+public class FuncOutputProperty<T> : OutputProperty<Func<FuncContext, T>>
 {
-    internal FieldOutputProperty(Node node, string internalName, string displayName, Func<FieldContext, T> defaultValue) : base(node, internalName, displayName, defaultValue)
+    internal FuncOutputProperty(Node node, string internalName, string displayName, Func<FuncContext, T> defaultValue) : base(node, internalName, displayName, defaultValue)
     {
     }
 }

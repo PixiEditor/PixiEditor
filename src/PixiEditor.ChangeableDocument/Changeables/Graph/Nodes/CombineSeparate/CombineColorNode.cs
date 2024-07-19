@@ -6,15 +6,15 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 public class CombineColorNode : Node
 {
-    public FieldOutputProperty<Color> Color { get; }
+    public FuncOutputProperty<Color> Color { get; }
 
-    public FieldInputProperty<double> R { get; }
+    public FuncInputProperty<double> R { get; }
 
-    public FieldInputProperty<double> G { get; }
+    public FuncInputProperty<double> G { get; }
 
-    public FieldInputProperty<double> B { get; }
+    public FuncInputProperty<double> B { get; }
 
-    public FieldInputProperty<double> A { get; }
+    public FuncInputProperty<double> A { get; }
 
     public override string DisplayName { get; set; } = "COMBINE_COLOR_NODE";
 
@@ -22,13 +22,13 @@ public class CombineColorNode : Node
     {
         Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
 
-        R = CreateFieldInput("R", "R", 0d);
-        G = CreateFieldInput("G", "G", 0d);
-        B = CreateFieldInput("B", "B", 0d);
-        A = CreateFieldInput("A", "A", 0d);
+        R = CreateFuncInput("R", "R", 0d);
+        G = CreateFuncInput("G", "G", 0d);
+        B = CreateFuncInput("B", "B", 0d);
+        A = CreateFuncInput("A", "A", 0d);
     }
 
-    private Color GetColor(FieldContext ctx)
+    private Color GetColor(FuncContext ctx)
     {
         var r = R.Value(ctx) * 255;
         var g = G.Value(ctx) * 255;

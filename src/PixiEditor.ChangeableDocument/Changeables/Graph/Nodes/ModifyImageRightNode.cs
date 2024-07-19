@@ -17,7 +17,7 @@ public class ModifyImageRightNode : Node
     
     private Paint drawingPaint = new Paint() { BlendMode = BlendMode.Src };
     
-    public FieldInputProperty<Color> Color { get; }
+    public FuncInputProperty<Color> Color { get; }
     
     public OutputProperty<Surface> Output { get; }
 
@@ -26,7 +26,7 @@ public class ModifyImageRightNode : Node
     public ModifyImageRightNode(ModifyImageLeftNode startNode)
     {
         this.startNode = startNode;
-        Color = CreateFieldInput(nameof(Color), "COLOR", new Color());
+        Color = CreateFuncInput(nameof(Color), "COLOR", new Color());
         Output = CreateOutput<Surface>(nameof(Output), "OUTPUT", null);
     }
 
@@ -50,7 +50,7 @@ public class ModifyImageRightNode : Node
         {
             for (int x = 0; x < width; x++)
             {
-                var context = new FieldContext(new VecD((double)x / width, (double)y / height), new VecI(width, height));
+                var context = new FuncContext(new VecD((double)x / width, (double)y / height), new VecI(width, height));
                 var color = Color.Value(context);
 
                 drawingPaint.Color = color;

@@ -5,11 +5,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 public class SeparateVecINode : Node
 {
-    public FieldInputProperty<VecI> Vector { get; }
+    public FuncInputProperty<VecI> Vector { get; }
     
-    public FieldOutputProperty<int> X { get; }
+    public FuncOutputProperty<int> X { get; }
     
-    public FieldOutputProperty<int> Y { get; }
+    public FuncOutputProperty<int> Y { get; }
     
     public override string DisplayName { get; set; } = "SEPARATE_VECI_NODE";
 
@@ -17,7 +17,7 @@ public class SeparateVecINode : Node
     {
         X = CreateFieldOutput("X", "X", ctx => Vector.Value(ctx).X);
         Y = CreateFieldOutput("Y", "Y", ctx => Vector.Value(ctx).Y);
-        Vector = CreateFieldInput("Vector", "VECTOR", new VecI(0, 0));
+        Vector = CreateFuncInput("Vector", "VECTOR", new VecI(0, 0));
     }
 
     protected override string NodeUniqueName => "SeparateVecI";

@@ -24,12 +24,12 @@ public class InputProperty : IInputProperty
             
             if (!ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is Delegate connectionField)
             {
-                return connectionField.DynamicInvoke(FieldContext.NoContext);
+                return connectionField.DynamicInvoke(FuncContext.NoContext);
             }
 
             if (ValueType.IsAssignableTo(typeof(Delegate)) && connectionValue is not Delegate)
             {
-                Func<FieldContext, object> field = _ => connectionValue;
+                Func<FuncContext, object> field = _ => connectionValue;
                 return field;
             }
 

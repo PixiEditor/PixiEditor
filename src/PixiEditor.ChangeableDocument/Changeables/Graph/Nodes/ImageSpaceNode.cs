@@ -8,9 +8,9 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class ImageSpaceNode : Node
 {
-    public FieldOutputProperty<VecD> SpacePosition { get; }
+    public FuncOutputProperty<VecD> SpacePosition { get; }
     
-    public FieldOutputProperty<VecI> Size { get; }
+    public FuncOutputProperty<VecI> Size { get; }
 
     public override string DisplayName { get; set; } = "IMAGE_SPACE_NODE";
     public ImageSpaceNode()

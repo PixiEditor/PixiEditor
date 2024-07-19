@@ -6,11 +6,11 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 public class CombineVecI : Node
 {
-    public FieldOutputProperty<VecI> Vector { get; }
+    public FuncOutputProperty<VecI> Vector { get; }
     
-    public FieldInputProperty<int> X { get; }
+    public FuncInputProperty<int> X { get; }
     
-    public FieldInputProperty<int> Y { get; }
+    public FuncInputProperty<int> Y { get; }
 
     public override string DisplayName { get; set; } = "COMBINE_VECI_NODE";
 
@@ -18,11 +18,11 @@ public class CombineVecI : Node
     {
         Vector = CreateFieldOutput(nameof(Vector), "VECTOR", GetVector);
 
-        X = CreateFieldInput(nameof(X), "X", 0);
-        Y = CreateFieldInput(nameof(Y), "Y", 0);
+        X = CreateFuncInput(nameof(X), "X", 0);
+        Y = CreateFuncInput(nameof(Y), "Y", 0);
     }
 
-    private VecI GetVector(FieldContext ctx)
+    private VecI GetVector(FuncContext ctx)
     {
         var r = X.Value(ctx);
         var g = Y.Value(ctx);

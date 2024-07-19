@@ -44,9 +44,9 @@ internal class UpdatePropertyValue_Change : Change
 
     private static void SetValue(InputProperty property, object? value)
     {
-        if (property is IFieldInputProperty fieldInput)
+        if (property is IFuncInputProperty fieldInput)
         {
-            fieldInput.SetFieldConstantValue(value);
+            fieldInput.SetFuncConstantValue(value);
         }
         else
         {
@@ -57,9 +57,9 @@ internal class UpdatePropertyValue_Change : Change
 
     private static object? GetValue(InputProperty property)
     {
-        if (property is IFieldInputProperty fieldInput)
+        if (property is IFuncInputProperty fieldInput)
         {
-            return fieldInput.GetFieldConstantValue();
+            return fieldInput.GetFuncConstantValue();
         }
 
         return property.NonOverridenValue;

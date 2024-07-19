@@ -196,9 +196,9 @@ public abstract class Node : IReadOnlyNode, IDisposable
         _keyFramesDirty = true;
     }
 
-    protected FieldInputProperty<T> CreateFieldInput<T>(string propName, string displayName, T defaultValue)
+    protected FuncInputProperty<T> CreateFuncInput<T>(string propName, string displayName, T defaultValue)
     {
-        var property = new FieldInputProperty<T>(this, propName, displayName, defaultValue);
+        var property = new FuncInputProperty<T>(this, propName, displayName, defaultValue);
         if (InputProperties.Any(x => x.InternalPropertyName == propName))
         {
             throw new InvalidOperationException($"Input with name {propName} already exists.");
@@ -220,10 +220,10 @@ public abstract class Node : IReadOnlyNode, IDisposable
         return property;
     }
 
-    protected FieldOutputProperty<T> CreateFieldOutput<T>(string propName, string displayName,
-        Func<FieldContext, T> defaultFunc)
+    protected FuncOutputProperty<T> CreateFieldOutput<T>(string propName, string displayName,
+        Func<FuncContext, T> defaultFunc)
     {
-        var property = new FieldOutputProperty<T>(this, propName, displayName, defaultFunc);
+        var property = new FuncOutputProperty<T>(this, propName, displayName, defaultFunc);
         outputs.Add(property);
         return property;
     }

@@ -5,21 +5,21 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 
 public class SeparateColorNode : Node
 {
-    public FieldInputProperty<Color> Color { get; }
+    public FuncInputProperty<Color> Color { get; }
     
-    public FieldOutputProperty<double> R { get; }
+    public FuncOutputProperty<double> R { get; }
     
-    public FieldOutputProperty<double> G { get; }
+    public FuncOutputProperty<double> G { get; }
     
-    public FieldOutputProperty<double> B { get; }
+    public FuncOutputProperty<double> B { get; }
     
-    public FieldOutputProperty<double> A { get; }
+    public FuncOutputProperty<double> A { get; }
     
     public override string DisplayName { get; set; } = "SEPARATE_COLOR_NODE";
 
     public SeparateColorNode()
     {
-        Color = CreateFieldInput(nameof(Color), "COLOR", new Color());
+        Color = CreateFuncInput(nameof(Color), "COLOR", new Color());
         R = CreateFieldOutput(nameof(R), "R", ctx => Color.Value(ctx).R / 255d);
         G = CreateFieldOutput(nameof(G), "G", ctx => Color.Value(ctx).G / 255d);
         B = CreateFieldOutput(nameof(B), "B", ctx => Color.Value(ctx).B / 255d);

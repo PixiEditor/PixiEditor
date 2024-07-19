@@ -16,9 +16,9 @@ public class ModifyImageLeftNode : Node
 
     public InputProperty<Surface?> Image { get; }
     
-    public FieldOutputProperty<VecD> Coordinate { get; }
+    public FuncOutputProperty<VecD> Coordinate { get; }
     
-    public FieldOutputProperty<Color> Color { get; }
+    public FuncOutputProperty<Color> Color { get; }
 
     public override string DisplayName { get; set; } = "MODIFY_IMAGE_LEFT_NODE";
 
@@ -29,7 +29,7 @@ public class ModifyImageLeftNode : Node
         Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
     }
 
-    private Color GetColor(FieldContext context)
+    private Color GetColor(FuncContext context)
     {
         context.ThrowOnMissingContext();
         

@@ -9,15 +9,15 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class MathNode : Node
 {
-    public FieldOutputProperty<double> Result { get; }
+    public FuncOutputProperty<double> Result { get; }
 
     public InputProperty<MathNodeMode> Mode { get; }
     
     public InputProperty<bool> Clamp { get; }
 
-    public FieldInputProperty<double> X { get; }
+    public FuncInputProperty<double> X { get; }
     
-    public FieldInputProperty<double> Y { get; }
+    public FuncInputProperty<double> Y { get; }
     
     
     public override string DisplayName { get; set; } = "MATH_NODE";
@@ -27,11 +27,11 @@ public class MathNode : Node
         Result = CreateFieldOutput(nameof(Result), "RESULT", Calculate);
         Mode = CreateInput(nameof(Mode), "MATH_MODE", MathNodeMode.Add);
         Clamp = CreateInput(nameof(Clamp), "CLAMP", false);
-        X = CreateFieldInput(nameof(X), "X", 0d);
-        Y = CreateFieldInput(nameof(Y), "Y", 0d);
+        X = CreateFuncInput(nameof(X), "X", 0d);
+        Y = CreateFuncInput(nameof(Y), "Y", 0d);
     }
 
-    private double Calculate(FieldContext context)
+    private double Calculate(FuncContext context)
     {
         var (x, y) = GetValues(context);
 
@@ -51,7 +51,7 @@ public class MathNode : Node
         return result;
     }
 
-    private (double x, double y) GetValues(FieldContext context) => (X.Value(context), Y.Value(context));
+    private (double x, double y) GetValues(FuncContext context) => (X.Value(context), Y.Value(context));
 
     protected override string NodeUniqueName => "Math";
 
