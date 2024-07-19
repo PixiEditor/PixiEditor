@@ -22,6 +22,12 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     public OutputProperty<Surface?> Output { get; }
 
     public string MemberName { get; set; } = string.Empty;
+    
+    public override string DisplayName
+    {
+        get => MemberName;
+        set => MemberName = value;
+    }
 
     protected Dictionary<ChunkResolution, Surface> workingSurfaces = new Dictionary<ChunkResolution, Surface>();
     private Paint maskPaint = new Paint() { BlendMode = DrawingApi.Core.Surface.BlendMode.DstIn };

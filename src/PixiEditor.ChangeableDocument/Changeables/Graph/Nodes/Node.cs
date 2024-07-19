@@ -50,6 +50,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     IReadOnlyCollection<IInputProperty> IReadOnlyNode.InputProperties => inputs;
     IReadOnlyCollection<IOutputProperty> IReadOnlyNode.OutputProperties => outputs;
     public VecD Position { get; set; }
+    public abstract string DisplayName { get; set; }
 
     private KeyFrameTime _lastFrameTime = new KeyFrameTime(-1);
     private ChunkResolution? _lastResolution;

@@ -14,6 +14,8 @@ public class SeparateColorNode : Node
     public FieldOutputProperty<double> B { get; }
     
     public FieldOutputProperty<double> A { get; }
+    
+    public override string DisplayName { get; set; } = "SEPARATE_COLOR_NODE";
 
     public SeparateColorNode()
     {

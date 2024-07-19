@@ -12,6 +12,7 @@ public class ImageSpaceNode : Node
     
     public FieldOutputProperty<VecI> Size { get; }
 
+    public override string DisplayName { get; set; } = "IMAGE_SPACE_NODE";
     public ImageSpaceNode()
     {
         SpacePosition = CreateFieldOutput(nameof(SpacePosition), "PIXEL_COORDINATE", ctx => ctx.Position);

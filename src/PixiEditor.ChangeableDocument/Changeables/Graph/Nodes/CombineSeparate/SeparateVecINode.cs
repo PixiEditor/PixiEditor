@@ -10,6 +10,8 @@ public class SeparateVecINode : Node
     public FieldOutputProperty<int> X { get; }
     
     public FieldOutputProperty<int> Y { get; }
+    
+    public override string DisplayName { get; set; } = "SEPARATE_VECI_NODE";
 
     public SeparateVecINode()
     {

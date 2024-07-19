@@ -20,6 +20,8 @@ public class MatrixTransformNode : Node
     
     public InputProperty<ColorMatrix> Matrix { get; }
 
+    public override string DisplayName { get; set; } = "MATRIX_TRANSFORM_NODE";
+    
     public MatrixTransformNode()
     {
         Transformed = CreateOutput<Surface>(nameof(Transformed), "TRANSFORMED", null);

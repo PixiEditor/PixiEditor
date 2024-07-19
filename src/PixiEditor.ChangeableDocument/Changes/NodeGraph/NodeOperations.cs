@@ -1,6 +1,9 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿using System.Collections.Immutable;
+using System.Reflection;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.ChangeableDocument.Changes.Structure;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
@@ -9,6 +12,35 @@ namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 public static class NodeOperations
 {
+    private static Dictionary<Type, INodeFactory> allFactories;
+
+    static NodeOperations()
+    {
+        allFactories = new Dictionary<Type, INodeFactory>();
+        var factoryTypes = typeof(Node).Assembly.GetTypes().Where(x =>
+            x.IsAssignableTo(typeof(INodeFactory)) && x is { IsAbstract: false, IsInterface: false }).ToImmutableArray();
+        foreach (var factoryType in factoryTypes)
+        {
+            INodeFactory factory = (INodeFactory)Activator.CreateInstance(factoryType);
+            allFactories.Add(factory.NodeType, factory);
+        }
+    }
+
+    public static Node CreateNode(Type nodeType, IReadOnlyDocument target, params object[] optionalParameters)
+    {
+        Node node = null;
+        if (allFactories.TryGetValue(nodeType, out INodeFactory factory))
+        {
+            node = factory.CreateNode(target);
+        }
+        else
+        {
+            node = (Node)Activator.CreateInstance(nodeType, optionalParameters);
+        }
+        
+        return node;
+    }
+
     public static List<ConnectProperty_ChangeInfo> AppendMember(InputProperty<Surface?> parentInput,
         OutputProperty<Surface> toAddOutput,
         InputProperty<Surface> toAddInput, Guid memberId)
@@ -53,7 +85,7 @@ public static class NodeOperations
                 changes.Add(new ConnectProperty_ChangeInfo(output.Node.Id, input.Node.Id,
                     output.InternalPropertyName, input.InternalPropertyName));
             }
-            
+
             structureNode.Background.Connection.DisconnectFrom(structureNode.Background);
             changes.Add(new ConnectProperty_ChangeInfo(null, structureNode.Id, null,
                 structureNode.Background.InternalPropertyName));
@@ -72,7 +104,8 @@ public static class NodeOperations
 
     public static List<IChangeInfo> ConnectStructureNodeProperties(
         List<PropertyConnection> originalOutputConnections,
-        List<(PropertyConnection, PropertyConnection?)> originalInputConnections, StructureNode node, IReadOnlyNodeGraph graph)
+        List<(PropertyConnection, PropertyConnection?)> originalInputConnections, StructureNode node,
+        IReadOnlyNodeGraph graph)
     {
         List<IChangeInfo> changes = new();
         foreach (var connection in originalOutputConnections)
@@ -87,15 +120,15 @@ public static class NodeOperations
         foreach (var connection in originalInputConnections)
         {
             var outputNode = graph.AllNodes.FirstOrDefault(x => x.Id == connection.Item2?.NodeId);
-            
+
             if (outputNode is null)
                 continue;
 
             IOutputProperty output = outputNode.GetOutputProperty(connection.Item2.PropertyName);
-            
+
             if (output is null)
                 continue;
-            
+
             IInputProperty? input =
                 node.GetInputProperty(connection.Item1.PropertyName);
 
@@ -111,4 +144,5 @@ public static class NodeOperations
         return changes;
     }
 }
+
 public record PropertyConnection(Guid? NodeId, string? PropertyName);

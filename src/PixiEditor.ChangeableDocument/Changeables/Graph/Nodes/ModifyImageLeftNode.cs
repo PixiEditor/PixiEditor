@@ -9,16 +9,19 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
+[PairNode(typeof(ModifyImageRightNode), "ModifyImageZone", true)]
 public class ModifyImageLeftNode : Node
 {
     private Pixmap? pixmap;
-    
+
     public InputProperty<Surface?> Image { get; }
     
     public FieldOutputProperty<VecD> Coordinate { get; }
     
     public FieldOutputProperty<Color> Color { get; }
-    
+
+    public override string DisplayName { get; set; } = "MODIFY_IMAGE_LEFT_NODE";
+
     public ModifyImageLeftNode()
     {
         Image = CreateInput<Surface>(nameof(Surface), "IMAGE", null);

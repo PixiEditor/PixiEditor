@@ -14,6 +14,7 @@ public class CombineVecD : Node
     public FieldInputProperty<double> Y { get; }
     
     
+    public override string DisplayName { get; set; } = "COMBINE_VECD_NODE";
 
     public CombineVecD()
     {

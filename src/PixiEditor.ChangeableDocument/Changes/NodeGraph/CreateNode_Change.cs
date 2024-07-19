@@ -13,29 +13,17 @@ internal class CreateNode_Change : Change
 {
     private Type nodeType;
     private Guid id;
-    private static Dictionary<Type, INodeFactory> allFactories;
     
     [GenerateMakeChangeAction]
     public CreateNode_Change(Type nodeType, Guid id)
     {
         this.id = id;
         this.nodeType = nodeType;
-
-        if (allFactories == null)
-        {
-            allFactories = new Dictionary<Type, INodeFactory>();
-            var factoryTypes = Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(INodeFactory)) && !x.IsAbstract && !x.IsInterface).ToImmutableArray();
-            foreach (var factoryType in factoryTypes)
-            {
-                INodeFactory factory = (INodeFactory)Activator.CreateInstance(factoryType);
-                allFactories.Add(factory.NodeType, factory);
-            }
-        }
     }
     
     public override bool InitializeAndValidate(Document target)
     {
-        return nodeType.IsSubclassOf(typeof(Node));
+        return nodeType.IsSubclassOf(typeof(Node)) && nodeType is { IsAbstract: false, IsInterface: false };
     }
 
     public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply, out bool ignoreInUndo)
@@ -43,15 +31,7 @@ internal class CreateNode_Change : Change
         if(id == Guid.Empty)
             id = Guid.NewGuid();
 
-        Node node = null;
-        if (allFactories.TryGetValue(nodeType, out INodeFactory factory))
-        {
-            node = factory.CreateNode(target);
-        }
-        else
-        {
-            node = (Node)Activator.CreateInstance(nodeType);
-        }
+        Node node = NodeOperations.CreateNode(nodeType, target);
         
         node.Position = new VecD(0, 0);
         node.Id = id;

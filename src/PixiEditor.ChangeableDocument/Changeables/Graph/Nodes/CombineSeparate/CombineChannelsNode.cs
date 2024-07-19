@@ -112,6 +112,7 @@ public class CombineChannelsNode : Node
         return final.Size;
     }
 
+    public override string DisplayName { get; set; } = "COMBINE_CHANNELS_NODE";
     public override bool Validate() => true;
 
     public override Node CreateCopy() => new CombineChannelsNode();

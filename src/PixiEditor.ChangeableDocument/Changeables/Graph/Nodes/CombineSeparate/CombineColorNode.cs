@@ -7,19 +7,21 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.CombineSeparate;
 public class CombineColorNode : Node
 {
     public FieldOutputProperty<Color> Color { get; }
-    
+
     public FieldInputProperty<double> R { get; }
-    
+
     public FieldInputProperty<double> G { get; }
-    
+
     public FieldInputProperty<double> B { get; }
-    
+
     public FieldInputProperty<double> A { get; }
+
+    public override string DisplayName { get; set; } = "COMBINE_COLOR_NODE";
 
     public CombineColorNode()
     {
         Color = CreateFieldOutput(nameof(Color), "COLOR", GetColor);
-        
+
         R = CreateFieldInput("R", "R", 0d);
         G = CreateFieldInput("G", "G", 0d);
         B = CreateFieldInput("B", "B", 0d);
@@ -36,7 +38,7 @@ public class CombineColorNode : Node
         return new Color((byte)r, (byte)g, (byte)b, (byte)a);
     }
 
-    protected override string NodeUniqueName => "CombineColor"; 
+    protected override string NodeUniqueName => "CombineColor";
 
     protected override Surface? OnExecute(RenderingContext context)
     {

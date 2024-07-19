@@ -20,6 +20,7 @@ public class DebugBlendModeNode : Node
 
     public OutputProperty<Surface> Result { get; }
 
+    public override string DisplayName { get; set; } = "Debug Blend Mode";
     public DebugBlendModeNode()
     {
         Dst = CreateInput<Surface?>(nameof(Dst), "Dst", null);

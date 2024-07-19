@@ -9,37 +9,24 @@ using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
 using DrawingApiBlendMode = PixiEditor.DrawingApi.Core.Surface.BlendMode;
 
 namespace PixiEditor.ChangeableDocument.Rendering;
+
 public class RenderingContext : IDisposable
 {
-    public Paint BlendModePaint = new () { BlendMode = DrawingApiBlendMode.SrcOver };
-    public Paint BlendModeOpacityPaint = new () { BlendMode = DrawingApiBlendMode.SrcOver };
-    public Paint ReplacingPaintWithOpacity = new () { BlendMode = DrawingApiBlendMode.Src };
+    public Paint BlendModePaint = new() { BlendMode = DrawingApiBlendMode.SrcOver };
+    public Paint BlendModeOpacityPaint = new() { BlendMode = DrawingApiBlendMode.SrcOver };
+    public Paint ReplacingPaintWithOpacity = new() { BlendMode = DrawingApiBlendMode.Src };
 
     public KeyFrameTime FrameTime { get; }
     public VecI ChunkToUpdate { get; }
     public ChunkResolution ChunkResolution { get; }
     public VecI DocumentSize { get; set; }
 
-    /// <summary>
-    ///     This surface is unique to each rendering context and is used to draw on to avoid leaking
-    /// internal node surfaces and cloning them. It is disposed after rendering.
-    /// </summary>
-    //public Surface WorkingSurface { get; }
-
-    public RenderingContext(KeyFrameTime frameTime, VecI docSize)
-    {
-        FrameTime = frameTime;
-        DocumentSize = docSize;
-        //WorkingSurface = new Surface(docSize);
-    }
-    
     public RenderingContext(KeyFrameTime frameTime, VecI chunkToUpdate, ChunkResolution chunkResolution, VecI docSize)
     {
         FrameTime = frameTime;
         ChunkToUpdate = chunkToUpdate;
         ChunkResolution = chunkResolution;
         DocumentSize = docSize;
-        //WorkingSurface = new Surface(docSize);
     }
 
     public static DrawingApiBlendMode GetDrawingBlendMode(BlendMode blendMode)

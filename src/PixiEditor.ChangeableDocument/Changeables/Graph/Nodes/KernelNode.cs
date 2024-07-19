@@ -24,6 +24,7 @@ public class KernelFilterNode : Node
 
     public InputProperty<bool> OnAlpha { get; }
 
+    public override string DisplayName { get; set; } = "KERNEL_FILTER_NODE";
     public KernelFilterNode()
     {
         Transformed = CreateOutput<Surface>(nameof(Transformed), "TRANSFORMED", null);

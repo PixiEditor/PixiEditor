@@ -19,6 +19,9 @@ public class MathNode : Node
     
     public FieldInputProperty<double> Y { get; }
     
+    
+    public override string DisplayName { get; set; } = "MATH_NODE";
+    
     public MathNode()
     {
         Result = CreateFieldOutput(nameof(Result), "RESULT", Calculate);

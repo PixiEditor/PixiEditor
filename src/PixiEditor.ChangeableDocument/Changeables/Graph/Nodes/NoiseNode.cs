@@ -51,6 +51,7 @@ public class NoiseNode : Node
         return Noise.Value;
     }
 
+    public override string DisplayName { get; set; } = "NOISE_NODE";
     public override bool Validate() => Size.Value is { X: > 0, Y: > 0 };
 
     public override Node CreateCopy() => new NoiseNode();

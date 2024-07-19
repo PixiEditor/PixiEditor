@@ -18,7 +18,9 @@ public class MergeNode : Node, IBackgroundInput
         Bottom = CreateInput<Surface?>("Bottom", "BOTTOM", null);
         Output = CreateOutput<Surface?>("Output", "OUTPUT", null);
     }
-    
+
+    public override string DisplayName { get; set; } = "MERGE_NODE";
+
     public override bool Validate()
     {
         return Top.Connection != null || Bottom.Connection != null;

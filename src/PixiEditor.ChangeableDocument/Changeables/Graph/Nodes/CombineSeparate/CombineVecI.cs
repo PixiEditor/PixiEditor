@@ -11,8 +11,8 @@ public class CombineVecI : Node
     public FieldInputProperty<int> X { get; }
     
     public FieldInputProperty<int> Y { get; }
-    
-    
+
+    public override string DisplayName { get; set; } = "COMBINE_VECI_NODE";
 
     public CombineVecI()
     {

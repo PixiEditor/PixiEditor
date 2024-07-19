@@ -12,7 +12,7 @@ using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables;
 
-internal class Document : IChangeable, IReadOnlyDocument, IDisposable
+internal class Document : IChangeable, IReadOnlyDocument
 {
     IReadOnlyNodeGraph IReadOnlyDocument.NodeGraph => NodeGraph;
     IReadOnlySelection IReadOnlyDocument.Selection => Selection;

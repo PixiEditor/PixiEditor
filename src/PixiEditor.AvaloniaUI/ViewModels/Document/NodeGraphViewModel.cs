@@ -1,9 +1,12 @@
 ﻿using System.Collections.ObjectModel;
+using System.Reflection;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.ChangeableDocument.Actions;
 using PixiEditor.ChangeableDocument.Actions.Generated;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
 using PixiEditor.Numerics;
@@ -189,9 +192,10 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     {
         IAction change;
         
-        if (nodeType == typeof(ModifyImageLeftNode) || nodeType == typeof(ModifyImageRightNode))
+        PairNodeAttribute? pairAttribute = nodeType.GetCustomAttribute<PairNodeAttribute>(true);
+        if (pairAttribute != null)
         {
-            change = new CreateModifyImageNodePair_Action(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid());
+            change = new CreateNodePair_Action(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), nodeType);
         }
         else
         {

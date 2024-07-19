@@ -7,6 +7,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
 public class OutputNode : Node, IBackgroundInput
 {
+    public override string DisplayName { get; set; } = "OUTPUT_NODE";
     public InputProperty<Surface?> Input { get; } 
     public OutputNode()
     {

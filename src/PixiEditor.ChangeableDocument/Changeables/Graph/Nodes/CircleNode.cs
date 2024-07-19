@@ -51,6 +51,8 @@ public class CircleNode : Node
         return Output.Value;
     }
 
+    public override string DisplayName { get; set; } = "CIRCLE_NODE";
+
     public override bool Validate()
     {
         return Radius.Value is { X: > 0, Y: > 0 } && StrokeWidth.Value > 0;

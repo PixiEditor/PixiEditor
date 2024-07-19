@@ -43,6 +43,8 @@ public class SeparateChannelsNode : Node
 
     protected override string NodeUniqueName => "SeparateChannels";
 
+    public override string DisplayName { get; set; } = "SEPARATE_CHANNELS_NODE";
+    
     protected override Surface? OnExecute(RenderingContext context)
     {
         var image = Image.Value;

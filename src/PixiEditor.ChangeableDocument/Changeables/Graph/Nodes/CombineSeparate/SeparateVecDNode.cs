@@ -10,6 +10,8 @@ public class SeparateVecDNode : Node
     public FieldOutputProperty<double> X { get; }
     
     public FieldOutputProperty<double> Y { get; }
+    
+    public override string DisplayName { get; set; } = "SEPARATE_VECD_NODE";
 
     public SeparateVecDNode()
     {

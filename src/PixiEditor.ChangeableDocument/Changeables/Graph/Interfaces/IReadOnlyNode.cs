@@ -14,6 +14,7 @@ public interface IReadOnlyNode
     public Surface? CachedResult { get; }
     
     public string InternalName { get; }
+    string DisplayName { get; }
 
     public Surface? Execute(RenderingContext context);
     public bool Validate();

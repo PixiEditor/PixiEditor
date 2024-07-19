@@ -20,13 +20,10 @@ public record CreateNode_ChangeInfo(
         return properties.Select(p => new NodePropertyInfo(p.InternalPropertyName, p.DisplayName, p.ValueType, isInput, GetNonOverridenValue(p), guid))
             .ToImmutableArray();
     }
-
-    public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node) =>
-        CreateFromNode(node, node.GetType().Name.Replace("Node", ""));
     
-    public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node, string name)
+    public static CreateNode_ChangeInfo CreateFromNode(IReadOnlyNode node)
     {
-        return new CreateNode_ChangeInfo(node.InternalName, name, node.Position,
+        return new CreateNode_ChangeInfo(node.InternalName, node.DisplayName, node.Position,
             node.Id,
             CreatePropertyInfos(node.InputProperties, true, node.Id), CreatePropertyInfos(node.OutputProperties, false, node.Id));
     }
