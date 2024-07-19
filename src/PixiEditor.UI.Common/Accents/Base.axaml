@@ -48,7 +48,7 @@
             <Color x:Key="VecDSocketColor">#c984ca</Color>
             <Color x:Key="VecISocketColor">#c9b4ca</Color>
             
-            <Color x:Key="PixiEditorModifyImageNodeBorderColor">#68abdf</Color>
+            <Color x:Key="PixiEditorModifyImageBorderColor">#68abdf</Color>
             <Color x:Key="PixiEditorModifyImageNodeBackgroundColor">#4068abdf</Color>
 
             <Color x:Key="NodeFrameBorderColor">#101010</Color>
@@ -97,9 +97,9 @@
             <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}"/>
             <SolidColorBrush x:Key="VecISocketBrush" Color="{StaticResource VecISocketColor}"/>
             
-            <SolidColorBrush x:Key="PixiEditorModifyImageLeftNodeBorderBrush" Color="{StaticResource PixiEditorModifyImageNodeBorderColor}"/>
-            <SolidColorBrush x:Key="PixiEditorModifyImageRightNodeBorderBrush" Color="{StaticResource PixiEditorModifyImageNodeBorderColor}"/>
-            <SolidColorBrush x:Key="PixiEditorModifyImageZoneBorderBrush" Color="{StaticResource PixiEditorModifyImageNodeBorderColor}"/>
+            <SolidColorBrush x:Key="PixiEditorModifyImageLeftBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
+            <SolidColorBrush x:Key="PixiEditorModifyImageRightBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
+            <SolidColorBrush x:Key="PixiEditorModifyImageZoneBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
             <SolidColorBrush x:Key="PixiEditorModifyImageZoneBackgroundBrush" Color="{StaticResource PixiEditorModifyImageNodeBackgroundColor}"/>
             
             <SolidColorBrush x:Key="NodeFrameBorderBrush" Color="{StaticResource NodeFrameBorderColor}"/>

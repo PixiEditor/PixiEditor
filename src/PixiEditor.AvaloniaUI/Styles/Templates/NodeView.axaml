@@ -69,7 +69,6 @@
 
         <Style Selector="^:selected /template/ Border#RootBorder">
             <Setter Property="BorderBrush" Value="{DynamicResource ThemeAccent2Brush}" />
-            <Setter Property="BorderThickness" Value="1" />
         </Style>
     </ControlTheme>
 </ResourceDictionary>

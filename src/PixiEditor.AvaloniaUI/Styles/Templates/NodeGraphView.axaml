@@ -41,6 +41,7 @@
                                         DisplayName="{Binding NodeName}"
                                         Inputs="{Binding Inputs}"
                                         BorderBrush="{Binding InternalName, Converter={converters:NodeInternalNameToStyleConverter}, ConverterParameter='BorderBrush'}"
+                                        BorderThickness="2"
                                         Outputs="{Binding Outputs}"
                                         IsSelected="{Binding IsSelected}"
                                         SelectNodeCommand="{Binding SelectNodeCommand,
