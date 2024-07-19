@@ -16,7 +16,7 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
         Content = CreateInput<Surface?>("Content", "CONTENT", null);
     }
 
-    public override bool Validate()
+    public override bool AreInputsLegal()
     {
         return true;
     }

@@ -113,7 +113,7 @@ public class CombineChannelsNode : Node
     }
 
     public override string DisplayName { get; set; } = "COMBINE_CHANNELS_NODE";
-    public override bool Validate() => true;
+    public override bool AreInputsLegal() => true;
 
     public override Node CreateCopy() => new CombineChannelsNode();
 }

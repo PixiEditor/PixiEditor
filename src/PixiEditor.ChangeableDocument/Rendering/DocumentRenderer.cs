@@ -1,4 +1,5 @@
-﻿using PixiEditor.ChangeableDocument.Changeables.Graph;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
+using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
@@ -16,10 +17,10 @@ public class DocumentRenderer
 
     private IReadOnlyDocument Document { get; }
 
-    public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, int frame,
+    public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution, KeyFrameTime frameTime,
         RectI? globalClippingRect = null)
     {
-        using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
+        using RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
         try
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);
@@ -63,9 +64,9 @@ public class DocumentRenderer
     }
 
     public OneOf<Chunk, EmptyChunk> RenderChunk(VecI chunkPos, ChunkResolution resolution,
-        IReadOnlyNode node, int frame, RectI? globalClippingRect = null)
+        IReadOnlyNode node, KeyFrameTime frameTime, RectI? globalClippingRect = null)
     {
-        using RenderingContext context = new(frame, chunkPos, resolution, Document.Size);
+        using RenderingContext context = new(frameTime, chunkPos, resolution, Document.Size);
         try
         {
             RectI? transformedClippingRect = TransformClipRect(globalClippingRect, resolution, chunkPos);

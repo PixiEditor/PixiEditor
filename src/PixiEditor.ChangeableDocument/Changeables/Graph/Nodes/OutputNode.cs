@@ -14,7 +14,7 @@ public class OutputNode : Node, IBackgroundInput
         Input = CreateInput<Surface>("Background", "INPUT", null);
     }
     
-    public override bool Validate()
+    public override bool AreInputsLegal()
     {
         return Input.Connection != null;
     }

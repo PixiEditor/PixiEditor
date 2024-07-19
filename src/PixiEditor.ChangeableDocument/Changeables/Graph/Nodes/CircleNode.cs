@@ -53,7 +53,7 @@ public class CircleNode : Node
 
     public override string DisplayName { get; set; } = "CIRCLE_NODE";
 
-    public override bool Validate()
+    public override bool AreInputsLegal()
     {
         return Radius.Value is { X: > 0, Y: > 0 } && StrokeWidth.Value > 0;
     }

@@ -63,7 +63,7 @@ public class ModifyImageRightNode : Node
         return Output.Value;
     }
 
-    public override bool Validate() => true;
+    public override bool AreInputsLegal() => true;
 
     public override Node CreateCopy() => throw new NotImplementedException();
 }
