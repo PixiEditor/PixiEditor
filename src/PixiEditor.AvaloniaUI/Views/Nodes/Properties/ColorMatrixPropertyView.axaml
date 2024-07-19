@@ -10,7 +10,7 @@
                              x:Class="PixiEditor.AvaloniaUI.Views.Nodes.Properties.ColorMatrixPropertyView">
     <StackPanel HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock ui:Translator.Key="{Binding DisplayName}" />
-        <Grid IsVisible="{Binding IsInput}" ColumnDefinitions="Auto,*,*,*,*,*" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
+        <Grid IsVisible="{Binding ShowInputField}" ColumnDefinitions="Auto,*,*,*,*,*" RowDefinitions="Auto, Auto, Auto, Auto, Auto">
             <TextBlock Grid.Row="0" Grid.Column="0" Text="T\F" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"  />
             
             <TextBlock Grid.Row="1" Grid.Column="0" Text="R" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="1,0" TextAlignment="Center" />

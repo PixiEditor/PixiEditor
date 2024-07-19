@@ -14,7 +14,7 @@
         <colorPicker:PortableColorPicker
             PointerPressed="InputElement_OnPointerPressed"
             Width="40" Height="20"
-            IsVisible="{Binding IsInput}"
+            IsVisible="{Binding ShowInputField}"
             SelectedColor="{Binding Value, Mode=TwoWay}" />
     </Grid>
 </properties:NodePropertyView>

@@ -42,7 +42,13 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     public bool IsInput
     {
         get => isInput;
-        set => SetProperty(ref isInput, value);
+        set
+        {
+            if (SetProperty(ref isInput, value))
+            {
+                OnPropertyChanged(nameof(ShowInputField));
+            }
+        }
     }
 
     public bool IsFunc
@@ -54,7 +60,18 @@ internal abstract class NodePropertyViewModel : ViewModelBase, INodePropertyHand
     public INodePropertyHandler? ConnectedOutput
     {
         get => connectedOutput;
-        set => SetProperty(ref connectedOutput, value);
+        set
+        {
+            if (SetProperty(ref connectedOutput, value))
+            {
+                OnPropertyChanged(nameof(ShowInputField));
+            }
+        }
+    }
+
+    public bool ShowInputField
+    {
+        get => IsInput && ConnectedOutput == null;
     }
 
     public ObservableCollection<INodePropertyHandler> ConnectedInputs
