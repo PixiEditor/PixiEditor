@@ -11,7 +11,7 @@ public class InputProperty : IInputProperty
     public string InternalPropertyName { get; }
     public string DisplayName { get; }
 
-    public object Value
+    public object? Value
     {
         get
         {
@@ -133,12 +133,12 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
 {
     public new T Value
     {
-        get => (T)base.Value;
+        get => (T)(base.Value ?? default);
     }
 
     public T NonOverridenValue
     {
-        get => (T)base.NonOverridenValue;
+        get => (T)(base.NonOverridenValue ?? default);
         set => base.NonOverridenValue = value;
     }
     

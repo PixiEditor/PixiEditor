@@ -10,8 +10,8 @@ internal class DeleteStructureMember_Change : Change
 {
     private Guid memberGuid;
     private int originalIndex;
-    private List<IInputProperty> originalOutputConnections = new();
-    private List<(IInputProperty, IOutputProperty?)> originalInputConnections = new();
+    private List<PropertyConnection> originalOutputConnections = new();
+    private List<(PropertyConnection input, PropertyConnection? output)> originalInputConnections = new();
     private StructureNode? savedCopy;
 
     [GenerateMakeChangeAction]
@@ -26,8 +26,13 @@ internal class DeleteStructureMember_Change : Change
         if (member is null)
             return false;
 
-        originalOutputConnections = member.Output.Connections.ToList();
-        originalInputConnections = member.InputProperties.Select(x => ((IInputProperty)x, x.Connection)).ToList();
+        originalOutputConnections = member.Output.Connections.Select(x => new PropertyConnection(x.Node.Id, x.InternalPropertyName))
+            .ToList();
+        
+        originalInputConnections = member.InputProperties.Select(x => 
+            (new PropertyConnection(x.Node.Id, x.InternalPropertyName), new PropertyConnection(x.Connection?.Node.Id, x.Connection?.InternalPropertyName)))
+            .ToList();
+        
         savedCopy = (StructureNode)member.Clone();
         savedCopy.Id = memberGuid;
         return true;
@@ -52,6 +57,8 @@ internal class DeleteStructureMember_Change : Change
                 bgConnection.ConnectTo(connection);
                 changes.Add(new ConnectProperty_ChangeInfo(bgConnection.Node.Id, connection.Node.Id,
                     bgConnection.InternalPropertyName, connection.InternalPropertyName));
+                
+                node.Output.DisconnectFrom(connection);
             }
         }
 
@@ -80,7 +87,7 @@ internal class DeleteStructureMember_Change : Change
         
         changes.Add(createChange);
 
-        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalOutputConnections, originalInputConnections, copy)); 
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalOutputConnections, originalInputConnections, copy, doc.NodeGraph)); 
         
         return changes;
     }
@@ -90,3 +97,4 @@ internal class DeleteStructureMember_Change : Change
         savedCopy?.Dispose();
     }
 }
+

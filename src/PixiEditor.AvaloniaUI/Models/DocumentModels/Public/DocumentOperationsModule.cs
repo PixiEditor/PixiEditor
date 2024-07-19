@@ -389,11 +389,11 @@ internal class DocumentOperationsModule : IDocumentOperations
 
         INodeHandler? parent = null;
 
-        node.TraverseForwards(node =>
+        node.TraverseForwards(traversedNode =>
         {
-            if (!members.Contains(node.Id))
+            if (!members.Contains(traversedNode.Id))
             {
-                parent = node;
+                parent = traversedNode;
                 return false;
             }
             

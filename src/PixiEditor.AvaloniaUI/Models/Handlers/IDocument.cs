@@ -41,7 +41,7 @@ internal interface IDocument : IHandler
     public double HorizontalSymmetryAxisYBindable { get; }
     public double VerticalSymmetryAxisXBindable { get; }
     public IDocumentOperations Operations { get; }
-    public DocumentEvaluator Renderer { get; }
+    public DocumentRenderer Renderer { get; }
     public void RemoveSoftSelectedMember(IStructureMemberHandler member);
     public void ClearSoftSelectedMembers();
     public void AddSoftSelectedMember(IStructureMemberHandler member);

@@ -102,6 +102,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     protected void DrawSurface(Surface workingSurface, Surface source, RenderingContext context)
     {
+        // Maybe clip rect will allow to avoid snapshotting? Idk if it will be faster
         RectI sourceRect = CalculateSourceRect(source, workingSurface.Size, context);
         RectI targetRect = CalculateDestinationRect(context);
         using var snapshot = source.DrawingSurface.Snapshot(sourceRect);

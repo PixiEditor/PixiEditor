@@ -19,7 +19,19 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public IReadOnlyCollection<InputProperty> InputProperties => inputs;
     public IReadOnlyCollection<OutputProperty> OutputProperties => outputs;
-    public Surface? CachedResult { get; private set; }
+
+    public Surface? CachedResult
+    {
+        get
+        {
+            if(_lastCachedResult == null || _lastCachedResult.IsDisposed) return null;
+            return _lastCachedResult;
+        }
+        private set
+        {
+            _lastCachedResult = value;
+        }
+    }
 
     public virtual string InternalName => $"PixiEditor.{NodeUniqueName}";
     
@@ -43,6 +55,7 @@ public abstract class Node : IReadOnlyNode, IDisposable
     private ChunkResolution? _lastResolution;
     private VecI? _lastChunkPos;
     private bool _keyFramesDirty;
+    private Surface? _lastCachedResult;
 
     public Surface? Execute(RenderingContext context)
     {
@@ -223,19 +236,22 @@ public abstract class Node : IReadOnlyNode, IDisposable
 
     public virtual void Dispose()
     {
+        DisconnectAll();
         foreach (var input in inputs)
         {
-            if (input is { Connection: null, Value: IDisposable disposable })
+            if (input is { Connection: null, NonOverridenValue: IDisposable disposable })
             {
                 disposable.Dispose();
+                input.NonOverridenValue = default;
             }
         }
 
         foreach (var output in outputs)
         {
-            if (output.Value is IDisposable disposable)
+            if (output.Connections.Count == 0 && output.Value is IDisposable disposable)
             {
                 disposable.Dispose();
+                output.Value = default;
             }
         }
         
@@ -247,6 +263,24 @@ public abstract class Node : IReadOnlyNode, IDisposable
             }
         }
     }
+    
+    public void DisconnectAll()
+    {
+        foreach (var input in inputs)
+        {
+            input.Connection?.DisconnectFrom(input);
+        }
+
+        foreach (var output in outputs)
+        {
+            var connections = output.Connections.ToArray();
+            for (var i = 0; i < connections.Length; i++)
+            {
+                var conn = connections[i];
+                output.DisconnectFrom(conn);
+            }
+        }
+    }
 
     public abstract Node CreateCopy();
 
@@ -254,19 +288,19 @@ public abstract class Node : IReadOnlyNode, IDisposable
     {
         var clone = CreateCopy();
         clone.Id = Guid.NewGuid();
-        clone.inputs = new List<InputProperty>();
-        clone.outputs = new List<OutputProperty>();
-        clone.keyFrames = new List<KeyFrameData>();
-        foreach (var input in inputs)
+
+        for (var i = 0; i < clone.inputs.Count; i++)
         {
+            var input = inputs[i];
             var newInput = input.Clone(clone);
-            clone.inputs.Add(newInput);
+            input.NonOverridenValue = newInput.NonOverridenValue;
         }
 
-        foreach (var output in outputs)
+        for (var i = 0; i < clone.outputs.Count; i++)
         {
+            var output = outputs[i];
             var newOutput = output.Clone(clone);
-            clone.outputs.Add(newOutput);
+            output.Value = newOutput.Value;
         }
 
         return clone;
@@ -280,5 +314,15 @@ public abstract class Node : IReadOnlyNode, IDisposable
     public OutputProperty? GetOutputProperty(string outputProperty)
     {
         return outputs.FirstOrDefault(x => x.InternalPropertyName == outputProperty);
+    }
+    
+    IInputProperty? IReadOnlyNode.GetInputProperty(string inputProperty)
+    {
+        return GetInputProperty(inputProperty);
+    }
+    
+    IOutputProperty? IReadOnlyNode.GetOutputProperty(string outputProperty)
+    {
+        return GetOutputProperty(outputProperty);
     }
 }

@@ -1,9 +1,7 @@
-﻿using ChunkyImageLib.Operations;
-using PixiEditor.ChangeableDocument.Changeables.Animations;
+﻿using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Interfaces;
 using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.ColorsImpl;
-using PixiEditor.DrawingApi.Core.Surface.ImageData;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
@@ -149,6 +147,11 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return new ImageLayerNode(size)
         {
             MemberName = MemberName,
+            keyFrames = new List<KeyFrameData>()
+            {
+                // we are only copying the layer image, keyframes probably shouldn't be copied since they are controlled by AnimationData
+                new ImageFrame(Guid.NewGuid(), 0, 0, ((ImageFrame)keyFrames[0]).Data.CloneFromCommitted())
+            }
         };
     }
 
@@ -204,16 +207,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         {
             existingFrame.Dispose();
             imgFrame.Data = newLayerImage;
-        }
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
-        clearPaint.Dispose();
-        foreach (var surface in workingSurfaces.Values)
-        {
-            surface.Dispose();
         }
     }
 }

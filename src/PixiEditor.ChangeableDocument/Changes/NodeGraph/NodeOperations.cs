@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Changes.Structure;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
 
 namespace PixiEditor.ChangeableDocument.Changes.NodeGraph;
@@ -69,31 +70,40 @@ public static class NodeOperations
         return changes;
     }
 
-    public static List<IChangeInfo> ConnectStructureNodeProperties(List<IInputProperty> originalOutputConnections,
-        List<(IInputProperty, IOutputProperty?)> originalInputConnections, StructureNode node)
+    public static List<IChangeInfo> ConnectStructureNodeProperties(
+        List<PropertyConnection> originalOutputConnections,
+        List<(PropertyConnection, PropertyConnection?)> originalInputConnections, StructureNode node, IReadOnlyNodeGraph graph)
     {
         List<IChangeInfo> changes = new();
         foreach (var connection in originalOutputConnections)
         {
-            node.Output.ConnectTo(connection);
-            changes.Add(new ConnectProperty_ChangeInfo(node.Id, connection.Node.Id, node.Output.InternalPropertyName,
-                connection.InternalPropertyName));
+            var inputNode = graph.AllNodes.FirstOrDefault(x => x.Id == connection.NodeId);
+            IInputProperty property = inputNode.GetInputProperty(connection.PropertyName);
+            node.Output.ConnectTo(property);
+            changes.Add(new ConnectProperty_ChangeInfo(node.Id, property.Node.Id, node.Output.InternalPropertyName,
+                property.InternalPropertyName));
         }
 
         foreach (var connection in originalInputConnections)
         {
-            if (connection.Item2 is null)
+            var outputNode = graph.AllNodes.FirstOrDefault(x => x.Id == connection.Item2?.NodeId);
+            
+            if (outputNode is null)
                 continue;
 
+            IOutputProperty output = outputNode.GetOutputProperty(connection.Item2.PropertyName);
+            
+            if (output is null)
+                continue;
+            
             IInputProperty? input =
-                node.InputProperties.FirstOrDefault(
-                    x => x.InternalPropertyName == connection.Item1.InternalPropertyName);
+                node.GetInputProperty(connection.Item1.PropertyName);
 
             if (input != null)
             {
-                connection.Item2.ConnectTo(input);
-                changes.Add(new ConnectProperty_ChangeInfo(connection.Item2.Node.Id, node.Id,
-                    connection.Item2.InternalPropertyName,
+                output.ConnectTo(input);
+                changes.Add(new ConnectProperty_ChangeInfo(output.Node.Id, node.Id,
+                    output.InternalPropertyName,
                     input.InternalPropertyName));
             }
         }
@@ -101,3 +111,4 @@ public static class NodeOperations
         return changes;
     }
 }
+public record PropertyConnection(Guid? NodeId, string? PropertyName);

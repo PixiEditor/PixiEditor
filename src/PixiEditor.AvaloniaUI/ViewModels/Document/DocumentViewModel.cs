@@ -151,7 +151,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     public DocumentStructureModule StructureHelper { get; }
     public DocumentToolsModule Tools { get; }
     public DocumentOperationsModule Operations { get; }
-    public DocumentEvaluator Renderer { get; }
+    public DocumentRenderer Renderer { get; }
     public DocumentEventsModule EventInlet { get; }
 
     public ActionDisplayList ActionDisplays { get; } =
@@ -233,7 +233,7 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
 
         ReferenceLayerViewModel = new(this, Internals);
 
-        Renderer = new DocumentEvaluator(Internals.Tracker.Document);
+        Renderer = new DocumentRenderer(Internals.Tracker.Document);
     }
 
     /// <summary>

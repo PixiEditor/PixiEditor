@@ -29,4 +29,7 @@ public interface IReadOnlyNode
     /// </summary>
     /// <param name="action">The action to perform on each node.</param>
     public void TraverseForwards(Func<IReadOnlyNode, bool> action);
+    
+    public IInputProperty? GetInputProperty(string internalName);
+    public IOutputProperty? GetOutputProperty(string internalName);
 }

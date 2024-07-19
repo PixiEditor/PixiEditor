@@ -7,6 +7,7 @@ using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.Models.Layers;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
+using PixiEditor.ChangeableDocument.Changeables.Graph.Exceptions;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos;
 using PixiEditor.ChangeableDocument.ChangeInfos.Animation;
@@ -65,8 +66,8 @@ internal class DocumentUpdater
                 ProcessCreateStructureMember(info);
                 break;
             case DeleteStructureMember_ChangeInfo info:
-                ProcessDeleteNode(info);
                 ProcessDeleteStructureMember(info);
+                ProcessDeleteNode(info);
                 break;
             case StructureMemberName_ChangeInfo info:
                 ProcessUpdateStructureMemberName(info);
@@ -562,9 +563,15 @@ internal class DocumentUpdater
             
             doc.NodeGraphHandler.SetConnection(connection);
         }
-        else
+        else if(info.OutputProperty == null)
         {
             doc.NodeGraphHandler.RemoveConnection(info.InputNodeId, info.InputProperty);
+        }
+        else
+        {
+#if DEBUG
+            throw new MissingNodeException("Connection requested for a node that doesn't exist");
+#endif
         }
     }
     
