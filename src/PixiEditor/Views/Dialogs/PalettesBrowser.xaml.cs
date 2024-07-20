@@ -268,7 +268,6 @@ internal partial class PalettesBrowser : Window, IPopupWindow
                 default:
                     throw new ArgumentOutOfRangeException(nameof(refreshType), refreshType, null);
             }
-
         });
     }
 
@@ -311,14 +310,9 @@ internal partial class PalettesBrowser : Window, IPopupWindow
     private void HandleCachePaletteCreated(Palette updatedItem)
     {
         if (!SortedResults.Contains(updatedItem))
-        {
             SortedResults.Add(updatedItem);
-        }
-
         if(!PaletteList.Palettes.Contains(updatedItem))
-        {
             PaletteList.Palettes.Add(updatedItem);
-        }
 
         Sort();
     }
@@ -329,13 +323,9 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         var favouritePalettes = IPreferences.Current.GetLocalPreference(PreferencesConstants.FavouritePalettes, new List<string>());
 
         if (palette.IsFavourite && !favouritePalettes.Contains(palette.Name))
-        {
             favouritePalettes.Add(palette.Name);
-        }
         else
-        {
             favouritePalettes.RemoveAll(x => x == palette.Name);
-        }
 
         IPreferences.Current.UpdateLocalPreference(PreferencesConstants.FavouritePalettes, favouritePalettes);
         await UpdatePaletteList();
@@ -410,13 +400,9 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         PaletteList?.Palettes?.Clear();
         PaletteList src = await FetchPaletteList(Filtering);
         if (PaletteList == null)
-        {
             PaletteList = src;
-        }
         else
-        {
             AddToPaletteList(src.Palettes);
-        }
 
         Sort();
 
@@ -566,9 +552,7 @@ internal partial class PalettesBrowser : Window, IPopupWindow
         }
 
         if (sorted != null)
-        {
             SortedResults = new WpfObservableRangeCollection<Palette>(sorted);
-        }
     }
 
     private void OpenFolder_OnClick(object sender, RoutedEventArgs e)
@@ -637,7 +621,6 @@ internal partial class PalettesBrowser : Window, IPopupWindow
 
         ProcessHelpers.ShellExecute(url);
     }
-
 
     private async void ImportFromFile_OnClick(object sender, RoutedEventArgs e)
     {
