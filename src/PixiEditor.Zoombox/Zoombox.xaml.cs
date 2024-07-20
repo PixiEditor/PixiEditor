@@ -346,15 +346,18 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
 
         activeDragOperation?.Terminate();
 
-        if (ZoomMode == ZoomboxMode.Move)
-            activeDragOperation = new MoveDragOperation(this);
-        else if (ZoomMode == ZoomboxMode.Zoom)
-            activeDragOperation = new ZoomDragOperation(this);
-        else if (ZoomMode == ZoomboxMode.Rotate)
-            activeDragOperation = new RotateDragOperation(this);
-        else
-            throw new InvalidOperationException("Unknown zoombox mode");
-
+        switch (ZoomMode)
+        {
+            case ZoomboxMode.Move:
+                activeDragOperation = new MoveDragOperation(this); break;
+            case  ZoomboxMode.Zoom:
+                activeDragOperation = new ZoomDragOperation(this); break;
+            case  ZoomboxMode.Rotate:
+                activeDragOperation = new RotateDragOperation(this); break;
+            default:
+                throw new InvalidOperationException("Unknown zoombox mode");
+        }
+        
         activeDragOperation.Start(e);
     }
 
