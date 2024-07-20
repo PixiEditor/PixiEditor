@@ -28,6 +28,7 @@ namespace PixiEditor.DrawingApi.Core.Bridge.Operations
         public void Clear(IntPtr objPtr);
         public void Clear(IntPtr objPtr, Color color);
         public void DrawLine(IntPtr objPtr, VecI from, VecI to, Paint paint);
+        public void DrawText(IntPtr objPtr, string text, float x, float y, Paint paint);
         public void Flush(IntPtr objPtr);
         public void SetMatrix(IntPtr objPtr, Matrix3X3 finalMatrix);
         public void RestoreToCount(IntPtr objPtr, int count);

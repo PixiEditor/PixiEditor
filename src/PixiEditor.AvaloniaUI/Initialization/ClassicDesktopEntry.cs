@@ -78,13 +78,6 @@ internal class ClassicDesktopEntry
         desktop.MainWindow.Show();
     }
 
-    private void InitPlatform()
-    {
-        var platform = GetActivePlatform();
-        IPlatform.RegisterPlatform(platform);
-        platform.PerformHandshake();
-    }
-
     public ExtensionLoader InitApp()
     {
         LoadingWindow.ShowInNewThread();
@@ -98,6 +91,14 @@ internal class ClassicDesktopEntry
         extensionLoader.LoadExtensions();
 
         return extensionLoader;
+    }
+    
+    
+    private void InitPlatform()
+    {
+        var platform = GetActivePlatform();
+        IPlatform.RegisterPlatform(platform);
+        platform.PerformHandshake();
     }
 
     private IPlatform GetActivePlatform()

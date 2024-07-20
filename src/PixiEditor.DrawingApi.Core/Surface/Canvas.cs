@@ -154,6 +154,12 @@ namespace PixiEditor.DrawingApi.Core.Surface
             DrawingBackendApi.Current.CanvasImplementation.DrawLine(ObjectPointer, from, to, paint);
             Changed?.Invoke(new RectD(from, to));
         }
+        
+        public void DrawText(string text, float x, float y, Paint paint)
+        {
+            DrawingBackendApi.Current.CanvasImplementation.DrawText(ObjectPointer, text, x, y, paint);
+            Changed?.Invoke(null);
+        }
 
         public void Flush()
         {

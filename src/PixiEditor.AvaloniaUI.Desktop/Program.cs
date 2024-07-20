@@ -19,8 +19,7 @@ public class Program
             .UsePlatformDetect()
             .With(new Win32PlatformOptions()
             {
-                RenderingMode = new [] { Win32RenderingMode.Wgl },
+                RenderingMode = new [] { Win32RenderingMode.AngleEgl },
                 OverlayPopups = true
-            })
-            .LogToTrace();
+            }).LogToTrace();
 }

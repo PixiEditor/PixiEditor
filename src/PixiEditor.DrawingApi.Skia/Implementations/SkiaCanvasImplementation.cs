@@ -145,6 +145,11 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             var canvas = ManagedInstances[objectPointer];
             canvas.DrawPaint(_paintImpl[paint.ObjectPointer]);
         }
+        
+        public void DrawText(IntPtr objPtr, string text, float x, float y, Paint paint)
+        {
+            ManagedInstances[objPtr].DrawText(text, x, y, _paintImpl[paint.ObjectPointer]);
+        }
 
         public void Flush(IntPtr objPtr)
         {
