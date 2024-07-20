@@ -367,11 +367,9 @@ public partial class Zoombox : ContentControl, INotifyPropertyChanged
             activeDragOperation.Terminate();
             activeDragOperation = null;
         }
-        else
-        {
-            if (ZoomMode == ZoomboxMode.Zoom && e.ChangedButton == MouseButton.Left)
-                ZoomInto(ToVecD(e.GetPosition(mainCanvas)), ZoomOutOnClick ? -1 : 1);
-        }
+        else if (ZoomMode == ZoomboxMode.Zoom && e.ChangedButton == MouseButton.Left)
+            ZoomInto(ToVecD(e.GetPosition(mainCanvas)), ZoomOutOnClick ? -1 : 1);
+
         activeMouseDownEventArgs = null;
     }
 
