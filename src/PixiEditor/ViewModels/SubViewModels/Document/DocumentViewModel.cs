@@ -115,7 +115,6 @@ internal partial class DocumentViewModel : NotifyableObject
     private readonly HashSet<StructureMemberViewModel> softSelectedStructureMembers = new();
     public IReadOnlyCollection<StructureMemberViewModel> SoftSelectedStructureMembers => softSelectedStructureMembers;
 
-
     public bool UpdateableChangeActive => Internals.ChangeController.IsChangeActive;
     public bool HasSavedUndo => Internals.Tracker.HasSavedUndo;
     public bool HasSavedRedo => Internals.Tracker.HasSavedRedo;
@@ -238,14 +237,10 @@ internal partial class DocumentViewModel : NotifyableObject
             acc.AddActions(new StructureMemberClipToMemberBelow_Action(member.ClipToMemberBelow, member.GuidValue));
 
             if (member is DocumentViewModelBuilder.LayerBuilder layerBuilder)
-            {
                 acc.AddActions(new LayerLockTransparency_Action(layerBuilder.GuidValue, layerBuilder.LockAlpha));
-            }
 
             if (member is DocumentViewModelBuilder.LayerBuilder layer && layer.Surface is not null)
-            {
                 PasteImage(member.GuidValue, layer.Surface, layer.Width, layer.Height, layer.OffsetX, layer.OffsetY, false);
-            }
             
             acc.AddActions(
                 new StructureMemberOpacity_Action(member.GuidValue, member.Opacity),
@@ -266,9 +261,7 @@ internal partial class DocumentViewModel : NotifyableObject
             acc.AddFinishedActions();
 
             if (member is DocumentViewModelBuilder.FolderBuilder { Children: not null } folder)
-            {
                 AddMembers(member.GuidValue, folder.Children);
-            }
         }
 
         void PasteImage(Guid guid, DocumentViewModelBuilder.SurfaceBuilder surface, int width, int height, int offsetX, int offsetY, bool onMask)
@@ -283,9 +276,7 @@ internal partial class DocumentViewModel : NotifyableObject
             foreach (var child in builders.Reverse())
             {
                 if (child.GuidValue == default)
-                {
                     child.GuidValue = Guid.NewGuid();
-                }
 
                 AddMember(parentGuid, child);
             }
@@ -405,15 +396,12 @@ internal partial class DocumentViewModel : NotifyableObject
                 return canvasColor;
 
             if (!referenceTopmost)
-            {
                 return ColorHelpers.BlendColors(referenceColor, canvasColor);
-            }
 
             byte referenceAlpha = canvasColor.A == 0 ? referenceColor.A : (byte)(referenceColor.A * ReferenceLayerViewModel.TopMostOpacity);
             
             referenceColor = new Color(referenceColor.R, referenceColor.G, referenceColor.B, referenceAlpha);
             return ColorHelpers.BlendColors(canvasColor, referenceColor);
-
         }
         if (includeCanvas)
             return PickColorFromCanvas((VecI)pos, scope);
@@ -554,9 +542,8 @@ internal partial class DocumentViewModel : NotifyableObject
             if (foundMember != null)
             {
                 if (foundMember is LayerViewModel layer && selectedMembers.Contains(foundMember.GuidValue) && !result.Contains(layer.GuidValue))
-                {
                     result.Add(layer.GuidValue);
-                }
+
                 else if (foundMember is FolderViewModel folder && selectedMembers.Contains(foundMember.GuidValue))
                 {
                     if (includeFoldersWithMask && folder.HasMaskBindable && !result.Contains(folder.GuidValue))
@@ -574,9 +561,8 @@ internal partial class DocumentViewModel : NotifyableObject
         foreach (var member in folder.Children)
         {
             if (member is LayerViewModel layer && !list.Contains(layer.GuidValue))
-            {
                 list.Add(layer.GuidValue);
-            }
+                
             else if (member is FolderViewModel childFolder)
             {
                 if (includeFoldersWithMask && childFolder.HasMaskBindable && !list.Contains(childFolder.GuidValue))
