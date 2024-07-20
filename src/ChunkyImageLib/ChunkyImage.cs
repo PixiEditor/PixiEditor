@@ -1276,8 +1276,7 @@ public class ChunkyImage : IReadOnlyChunkyImage, IDisposable
 
     private void ThrowIfDisposed()
     {
-        if (disposed)
-            throw new ObjectDisposedException(nameof(ChunkyImage));
+        ObjectDisposedException.ThrowIf(_disposed, this);
     }
 
     public void Dispose()
