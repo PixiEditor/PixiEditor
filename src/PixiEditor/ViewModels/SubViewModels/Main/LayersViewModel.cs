@@ -23,13 +23,10 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
 {
     public LayersViewModel(ViewModelMain owner)
         : base(owner)
-    {
-    }
+    {}
 
     public void CreateFolderFromActiveLayers()
-    {
-
-    }
+    {}
 
     public bool CanCreateFolderFromSelected()
     {
