@@ -393,7 +393,6 @@ internal class CommandController
             where TAttr : Evaluator.EvaluatorAttribute
             => AddEvaluatorFactory<TAttr, T, TParameter>(method, instance, attribute, evaluators,
                 x => new T() { Name = attribute.Name, Evaluate = x });
-
         {
             foreach (var type in compiledCommandList.Evaluators)
             {
