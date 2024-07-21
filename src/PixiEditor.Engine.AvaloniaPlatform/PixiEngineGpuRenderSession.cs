@@ -7,8 +7,8 @@ public class PixiEngineGpuRenderSession : ISkiaGpuRenderSession
 {
     public PixiEngineSkiaSurface Surface { get; }
     public GRContext GrContext { get; }
-    
-    SKSurface ISkiaGpuRenderSession.SkSurface => Surface.BackendSurface.Native as SKSurface;
+
+    SKSurface ISkiaGpuRenderSession.SkSurface => Surface.Surface;
     double ISkiaGpuRenderSession.ScaleFactor => Surface.RenderScaling;
     GRSurfaceOrigin ISkiaGpuRenderSession.SurfaceOrigin => GRSurfaceOrigin.BottomLeft;
     
@@ -20,6 +20,6 @@ public class PixiEngineGpuRenderSession : ISkiaGpuRenderSession
     
     public void Dispose()
     {
-        (Surface.BackendSurface.Native as SKSurface)?.Flush(true);
+        //Surface.Surface?.Flush(true);
     }
 }

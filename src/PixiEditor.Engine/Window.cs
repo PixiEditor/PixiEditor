@@ -1,4 +1,5 @@
-﻿using PixiEditor.Engine.Helpers;
+﻿using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.Engine.Helpers;
 using PixiEditor.Numerics;
 using Silk.NET.GLFW;
 using Silk.NET.Maths;
@@ -36,6 +37,8 @@ public class Window
         set => _window.TopMost = value;
     }
 
+    public SKSurface FramebufferSurface => frontBufferSurface;
+
     public event Action<SKSurface, double> Render;
     public event Action Init;
     internal event Action<GRContext> InitWithGrContext;
@@ -53,7 +56,7 @@ public class Window
             throw new InvalidOperationException("PixiEngine is not initialized.");
 
         _window = PixiEngine.ActiveEngine.GetWindow(options);
-
+        
         if (!_window.IsInitialized)
         {
             _window.Load += () =>

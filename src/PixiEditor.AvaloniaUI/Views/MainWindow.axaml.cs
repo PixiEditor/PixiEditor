@@ -17,10 +17,12 @@ using PixiEditor.AvaloniaUI.Models.IO;
 using PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
 using PixiEditor.DrawingApi.Core.Bridge;
 using PixiEditor.DrawingApi.Skia;
+using PixiEditor.Engine;
 using PixiEditor.Extensions.CommonApi.UserPreferences;
 using PixiEditor.Extensions.Runtime;
 using PixiEditor.Platform;
 using ViewModelMain = PixiEditor.AvaloniaUI.ViewModels.ViewModelMain;
+using Window = Avalonia.Controls.Window;
 
 namespace PixiEditor.AvaloniaUI.Views;
 
@@ -57,10 +59,13 @@ internal partial class MainWindow : Window
 
         AsyncImageLoader.ImageLoader.AsyncImageLoader = new DiskCachedWebImageLoader();
         
-        GRContext recordingContext = GetGrRecordingContext();
+        //GRContext recordingContext = GetGrRecordingContext();
 
-        SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend(recordingContext);
-        DrawingBackendApi.SetupBackend(skiaDrawingBackend);
+        /*SkiaDrawingBackend skiaDrawingBackend = new SkiaDrawingBackend(recordingContext);
+        DrawingBackendApi.SetupBackend(skiaDrawingBackend);*/
+        
+        SkiaPixiEngine engine = SkiaPixiEngine.Create();
+        engine.SetupBackendWindowLess();
 
         preferences = services.GetRequiredService<IPreferences>();
         platform = services.GetRequiredService<IPlatform>();
@@ -70,7 +75,7 @@ internal partial class MainWindow : Window
         InitializeComponent();
     }
 
-    private static GRContext GetGrRecordingContext()
+    /*private static GRContext GetGrRecordingContext()
     {
         Compositor compositor = Compositor.TryGetDefaultCompositor();
         var interop = compositor.TryGetCompositionGpuInterop();
@@ -91,7 +96,7 @@ internal partial class MainWindow : Window
         var ctxInterface = GRGlInterface.Create(ctx.GlInterface.GetProcAddress);
         var grContext = GRContext.CreateGl(ctxInterface);
         return grContext;
-    }
+    }*/
 
     public static MainWindow CreateWithRecoveredDocuments(CrashReport report, out bool showMissingFilesDialog)
     {

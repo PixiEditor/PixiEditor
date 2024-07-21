@@ -9,10 +9,10 @@ namespace PixiEditor.Engine.AvaloniaPlatform;
 
 internal sealed class PixiEngineTopLevelImpl : ITopLevelImpl
 {
-    public Size ClientSize { get; }
-    public Size? FrameSize { get; }
-    public double RenderScaling { get; }
-    public IEnumerable<object> Surfaces { get; }
+    public Size ClientSize { get; private set; }
+    public Size? FrameSize { get; private set; }
+    public double RenderScaling { get; } = 1;
+    public IEnumerable<object> Surfaces { get; private set; }
     public Action<RawInputEventArgs>? Input { get; set; }
     public Action<Rect>? Paint { get; set; }
     public Action<Size, WindowResizeReason>? Resized { get; set; }
@@ -38,6 +38,8 @@ internal sealed class PixiEngineTopLevelImpl : ITopLevelImpl
         }
     }
 
+    private PixiEngineSkiaSurface _surface;
+
     private IInputRoot? _inputRoot;
     private ICursorImpl _cursor;
     private WindowTransparencyLevel _transparencyLevel;
@@ -45,6 +47,12 @@ internal sealed class PixiEngineTopLevelImpl : ITopLevelImpl
     public PixiEngineTopLevelImpl(Compositor compositor)
     {
         Compositor = compositor;
+    }
+    
+    public void SetRenderSize(Size size)
+    {
+        ClientSize = size;
+        FrameSize = size;
     }
 
     public object? TryGetFeature(Type featureType)

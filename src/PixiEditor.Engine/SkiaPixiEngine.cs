@@ -26,20 +26,6 @@ public sealed class SkiaPixiEngine : PixiEngine
         return new SkiaPixiEngine(new SkiaDrawingBackend());
     }
 
-    public override IWindow GetWindow(WindowOptions options)
-    {
-        if (!_mainWindow.IsVisible)
-        {
-            _mainWindow.IsVisible = true;
-            _mainWindow.Size = options.Size;
-            _mainWindow.Title = options.Title;
-            
-            return _mainWindow;
-        }
-        
-        return base.GetWindow(options); 
-    }
-
     public void SetupBackendWindowLess()
     {
         _mainWindow = Silk.NET.Windowing.Window.Create(WindowOptions.Default with { IsVisible = false, Size = new Vector2D<int>(1, 1)}); 
@@ -50,7 +36,7 @@ public sealed class SkiaPixiEngine : PixiEngine
             GlContext = _mainWindow.GLContext;
             Setup(GrContext);
         };
-        
+
         _mainWindow.Initialize();
     }
 

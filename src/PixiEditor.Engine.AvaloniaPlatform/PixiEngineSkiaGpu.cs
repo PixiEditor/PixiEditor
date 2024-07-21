@@ -40,6 +40,9 @@ public class PixiEngineSkiaGpu : ISkiaGpu
 
     ISkiaSurface? ISkiaGpu.TryCreateSurface(PixelSize size, ISkiaGpuRenderSession? session)
     {
+        if(size.Width <= 0 || size.Height <= 0)
+            return null;
+        
         return new PixiEngineSkiaSurface(DrawingSurface.Create(new ImageInfo(size.Width, size.Height)), session?.ScaleFactor ?? 1);
     }
 

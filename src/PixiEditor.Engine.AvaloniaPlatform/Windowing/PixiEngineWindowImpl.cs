@@ -4,6 +4,8 @@ using Avalonia.Input;
 using Avalonia.Input.Raw;
 using Avalonia.Platform;
 using Avalonia.Rendering.Composition;
+using PixiEditor.Engine.Helpers;
+using SkiaSharp;
 
 namespace PixiEditor.Engine.AvaloniaPlatform.Windowing;
 
@@ -62,12 +64,21 @@ public class PixiEngineWindowImpl : IWindowImpl
     private WindowTransparencyLevel _transparencyLevel;
     private Window _underlyingWindow;
 
-    public PixiEngineWindowImpl(Window underlyingWindow)
+    public PixiEngineWindowImpl(Window underlyingWindow, PixiEngineTopLevel topLevel)
     {
         _underlyingWindow = underlyingWindow;
         Compositor = PixiEnginePlatform.Compositor;
+        
+        topLevel.Impl.Surface = new PixiEngineSkiaSurface(underlyingWindow.FramebufferSurface, topLevel.RenderScaling);
+        topLevel.Impl.SetRenderSize(new Size(underlyingWindow.Size.X, underlyingWindow.Size.Y));
+        ClientSize = new Size(underlyingWindow.Size.X, underlyingWindow.Size.Y);
+        
+        topLevel.Prepare();
+        topLevel.StartRendering();
+        
+        topLevel.Content = underlyingWindow;
     }
-    
+
     object? IOptionalFeatureProvider.TryGetFeature(Type featureType) { return null; }
 
     void ITopLevelImpl.SetInputRoot(IInputRoot inputRoot)

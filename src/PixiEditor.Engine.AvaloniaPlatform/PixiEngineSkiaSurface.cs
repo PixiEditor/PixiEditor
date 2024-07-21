@@ -8,16 +8,35 @@ public class PixiEngineSkiaSurface : ISkiaSurface
 {
     public DrawingSurface BackendSurface { get; }
 
-    SKSurface ISkiaSurface.Surface => BackendSurface.Native as SKSurface;
+    public SKSurface Surface => nonDrawingSurface ?? BackendSurface?.Native as SKSurface;
     public bool CanBlit => false;
-    public bool IsDisposed => BackendSurface.IsDisposed;
+    public bool IsDisposed
+    {
+        get
+        {
+            if (nonDrawingSurface != null)
+            {
+                return false;
+            }
+            
+            return BackendSurface.IsDisposed;
+        }
+    }
+
     public double RenderScaling { get; }
-    
+
+    private SKSurface? nonDrawingSurface;
 
     public PixiEngineSkiaSurface(DrawingSurface surface, double renderScaling)
     {
         BackendSurface = surface;
         RenderScaling = renderScaling;
+    }
+
+    public PixiEngineSkiaSurface(SKSurface surface, double scaling)
+    {
+       nonDrawingSurface = surface;
+       RenderScaling = scaling;
     }
 
     public void Blit(SKCanvas canvas)
