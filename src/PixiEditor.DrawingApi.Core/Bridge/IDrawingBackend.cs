@@ -19,5 +19,6 @@ namespace PixiEditor.DrawingApi.Core.Bridge
         public IBitmapImplementation BitmapImplementation { get; }
         public IColorFilterImplementation ColorFilterImplementation { get; set; }
         public IShaderImplementation ShaderImplementation { get; set; }
+        public bool IsGpuAccelerated { get; }
     }
 }

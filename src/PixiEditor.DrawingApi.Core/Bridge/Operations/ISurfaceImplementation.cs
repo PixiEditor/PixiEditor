@@ -15,7 +15,6 @@ public interface ISurfaceImplementation
     public DrawingSurface Create(ImageInfo imageInfo, IntPtr pixelBuffer);
     public DrawingSurface Create(Pixmap pixmap);
     public DrawingSurface Create(ImageInfo imageInfo);
-    public DrawingSurface Create(ImageInfo imageInfo, bool isGpuBacked);
     public void Dispose(DrawingSurface drawingSurface);
     public object GetNativeSurface(IntPtr objectPointer);
 }

@@ -1,12 +1,14 @@
-﻿using Silk.NET.GLFW;
+﻿using PixiEditor.Engine.Helpers;
+using PixiEditor.Numerics;
+using Silk.NET.GLFW;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 using SkiaSharp;
 
-namespace PixiEditor.AvaloniaHeadless;
+namespace PixiEditor.Engine;
 
-public class AppWindow
+public class Window
 {
     private GL gl;
     private IWindow _window;
@@ -14,32 +16,44 @@ public class AppWindow
 
     private SKSurface frontBufferSurface;
     
-    public event Action<SKSurface, double> Render;
-    public event Action<GRContext> Init;
+    public string Title
+    {
+        get => _window.Title;
+        set => _window.Title = value;
+    }
     
-    public Func<Delegate, string[], object> Dispatcher => _window.Invoke;
+    public VecI Size
+    {
+        get => _window.Size.ToVecI();
+        set => _window.Size = value.ToVector2D();
+    }
 
-    public AppWindow()
+    public event Action<SKSurface, double> Render;
+    public event Action Init;
+    internal event Action<GRContext> InitWithGrContext;
+
+    public Window(string title, VecI size)
     {
         WindowOptions options = WindowOptions.Default with
         {
-            Title = "OpenGL Window", Size = new Vector2D<int>(1200, 600)
+            Title = title, Size = size.ToVector2D()
         };
 
-        _window = Window.Create(options);
+        _window = Silk.NET.Windowing.Window.Create(options);
 
         _window.Load += () =>
         {
             gl = GL.GetApi(_window);
             frontBufferSurface = SKSurface.Create(new SKImageInfo(1200, 600));
-            
+
             _window.GLContext.MakeCurrent();
 
             InitSkiaSurface();
-            
-            Init?.Invoke(_grContext);
+
+            InitWithGrContext?.Invoke(_grContext);
+            Init?.Invoke();
         };
-        
+
         _window.Render += OnRender;
     }
 
@@ -47,11 +61,11 @@ public class AppWindow
     {
         _window.Run();
     }
-    
+
     private void OnRender(double deltaTime)
     {
         frontBufferSurface.Canvas.Clear(SKColors.White);
-        Render?.Invoke(frontBufferSurface, deltaTime); 
+        Render?.Invoke(frontBufferSurface, deltaTime);
         frontBufferSurface.Canvas.Flush();
     }
 
