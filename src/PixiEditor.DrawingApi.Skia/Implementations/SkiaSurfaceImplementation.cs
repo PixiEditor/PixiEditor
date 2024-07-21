@@ -115,5 +115,10 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             
             return surface;
         }
+        
+        public void Flush(DrawingSurface drawingSurface)
+        {
+            ManagedInstances[drawingSurface.ObjectPointer].Flush(true);
+        }
     }
 }

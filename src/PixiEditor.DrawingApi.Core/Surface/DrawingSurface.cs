@@ -11,6 +11,8 @@ namespace PixiEditor.DrawingApi.Core.Surface
     {
         public override object Native => DrawingBackendApi.Current.SurfaceImplementation.GetNativeSurface(ObjectPointer);
         public Canvas Canvas { get; private set; }
+        public bool IsDisposed { get; private set; }
+
         public event SurfaceChangedEventHandler? Changed;
 
         public DrawingSurface(IntPtr objPtr, Canvas canvas) : base(objPtr)
@@ -67,6 +69,7 @@ namespace PixiEditor.DrawingApi.Core.Surface
 
         public override void Dispose()
         {
+            IsDisposed = true;
             Canvas.Changed -= OnCanvasChanged;
             Canvas.Dispose(); // TODO: make sure this is correct
             DrawingBackendApi.Current.SurfaceImplementation.Dispose(this);
@@ -75,6 +78,11 @@ namespace PixiEditor.DrawingApi.Core.Surface
         private void OnCanvasChanged(RectD? changedrect)
         {
             Changed?.Invoke(changedrect);
+        }
+
+        public void Flush()
+        {
+            DrawingBackendApi.Current.SurfaceImplementation.Flush(this);
         }
     }
 }

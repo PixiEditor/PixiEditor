@@ -14,58 +14,86 @@ internal sealed class PixiEngineTopLevelImpl : ITopLevelImpl
     public double RenderScaling { get; }
     public IEnumerable<object> Surfaces { get; }
     public Action<RawInputEventArgs>? Input { get; set; }
-    public Action<Rect>? Paint { get; set;  }
+    public Action<Rect>? Paint { get; set; }
     public Action<Size, WindowResizeReason>? Resized { get; set; }
     public Action<double>? ScalingChanged { get; set; }
     public Action<WindowTransparencyLevel>? TransparencyLevelChanged { get; set; }
     public Compositor Compositor { get; }
     public Action? Closed { get; set; }
     public Action? LostFocus { get; set; }
-    public WindowTransparencyLevel TransparencyLevel { get; }
     public AcrylicPlatformCompensationLevels AcrylicCompensationLevels { get; }
+
+    public WindowTransparencyLevel TransparencyLevel
+    {
+        get => _transparencyLevel;
+        private set
+        {
+            if (_transparencyLevel.Equals(value))
+            {
+                return;
+            }
+            
+            _transparencyLevel = value;
+            TransparencyLevelChanged?.Invoke(value);
+        }
+    }
+
+    private IInputRoot? _inputRoot;
+    private ICursorImpl _cursor;
+    private WindowTransparencyLevel _transparencyLevel;
+
+    public PixiEngineTopLevelImpl(Compositor compositor)
+    {
+        Compositor = compositor;
+    }
 
     public object? TryGetFeature(Type featureType)
     {
-        throw new NotImplementedException();
+        return null;
     }
 
-    public void SetInputRoot(IInputRoot inputRoot)
+    void ITopLevelImpl.SetInputRoot(IInputRoot inputRoot)
     {
-        throw new NotImplementedException();
+        _inputRoot = inputRoot;
     }
 
     public Point PointToClient(PixelPoint point)
     {
-        throw new NotImplementedException();
+        return point.ToPoint(RenderScaling);
     }
 
     public PixelPoint PointToScreen(Point point)
     {
-        throw new NotImplementedException();
+        return PixelPoint.FromPoint(point, RenderScaling);
     }
 
     public void SetCursor(ICursorImpl? cursor)
     {
-        throw new NotImplementedException();
+        _cursor = cursor;
     }
 
-    public IPopupImpl? CreatePopup()
+    IPopupImpl? ITopLevelImpl.CreatePopup()
     {
-        throw new NotImplementedException();
+        return null;
     }
 
-    public void SetTransparencyLevelHint(IReadOnlyList<WindowTransparencyLevel> transparencyLevels)
+    void ITopLevelImpl.SetTransparencyLevelHint(IReadOnlyList<WindowTransparencyLevel> transparencyLevels)
     {
-        throw new NotImplementedException();
+        foreach (var transparencyLevel in transparencyLevels)
+        {
+            if (transparencyLevel == WindowTransparencyLevel.Transparent ||
+                transparencyLevel == WindowTransparencyLevel.None)
+            {
+                TransparencyLevel = transparencyLevel;
+                return;
+            }
+        }
     }
 
-    public void SetFrameThemeVariant(PlatformThemeVariant themeVariant)
-    {
-        throw new NotImplementedException();
-    }
+    public void SetFrameThemeVariant(PlatformThemeVariant themeVariant) { }
 
     public void Dispose()
     {
-        throw new NotImplementedException();
+       Closed?.Invoke(); 
     }
 }

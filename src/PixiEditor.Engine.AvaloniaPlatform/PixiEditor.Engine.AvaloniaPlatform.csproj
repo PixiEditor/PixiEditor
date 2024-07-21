@@ -12,4 +12,8 @@
     <PackageReference Include="Avalonia.Skia" Version="$(AvaloniaVersion)"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\PixiEditor.Engine\PixiEditor.Engine.csproj" />
+  </ItemGroup>
+
 </Project>

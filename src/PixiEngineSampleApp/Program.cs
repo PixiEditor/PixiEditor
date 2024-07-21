@@ -18,11 +18,13 @@ public static class Program
 
     public static void Main()
     {
+        SkiaPixiEngine.Create().SetupBackendWindowLess();
+        
         Window mainWindow = new Window("PixiEngineSampleApp", new VecI(1200, 600));
         mainWindow.Render += WindowOnRender;
         mainWindow.Init += Init;
         
-        SkiaPixiEngine.CreateAndRun(mainWindow);
+        mainWindow.Run();
     }
 
     private static void Init()
@@ -39,6 +41,7 @@ public static class Program
         {
             _drawingSurface.Canvas.Clear();
             _drawingSurface.Canvas.DrawText("Seconds: " + _time, 10, 10, _paint);
+            _drawingSurface.Flush();
             _time++;
             _lastTime = 0;
         }

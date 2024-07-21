@@ -17,4 +17,5 @@ public interface ISurfaceImplementation
     public DrawingSurface Create(ImageInfo imageInfo);
     public void Dispose(DrawingSurface drawingSurface);
     public object GetNativeSurface(IntPtr objectPointer);
+    public void Flush(DrawingSurface drawingSurface);
 }
