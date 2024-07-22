@@ -13,11 +13,6 @@ public class OutputNode : Node, IBackgroundInput
     {
         Input = CreateInput<Surface>("Background", "INPUT", null);
     }
-    
-    public override bool AreInputsLegal()
-    {
-        return Input.Connection != null;
-    }
 
     public override Node CreateCopy()
     {

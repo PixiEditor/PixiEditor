@@ -91,7 +91,6 @@ public class SeparateChannelsNode : Node
         return imageSurface;
     }
 
-    public override bool AreInputsLegal() => true;
 
     public override Node CreateCopy() => new SeparateChannelsNode();
 }

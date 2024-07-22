@@ -47,7 +47,6 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
     }
 
     protected abstract override Surface? OnExecute(RenderingContext context);
-    public abstract override bool AreInputsLegal();
 
     protected Surface TryInitWorkingSurface(VecI imageSize, RenderingContext context)
     {

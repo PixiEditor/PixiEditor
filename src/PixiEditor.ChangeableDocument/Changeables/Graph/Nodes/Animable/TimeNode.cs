@@ -26,11 +26,6 @@ public class TimeNode : Node
         return null;
     }
 
-    public override bool AreInputsLegal()
-    {
-        return true;
-    }
-
     public override Node CreateCopy()
     {
         return new TimeNode();

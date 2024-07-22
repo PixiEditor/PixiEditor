@@ -43,6 +43,13 @@ public class EllipseNode : Node
             workingImage.LatestSize.Y != targetDimensions.Y)
         {
             workingImage?.Dispose();
+
+            if (Radius.Value.LongestAxis <= 0)
+            {
+                Output.Value = null;
+                return null;
+            }
+            
             workingImage = new ChunkyImage(targetDimensions);
 
             targetSurface = new Surface(targetDimensions);
@@ -69,11 +76,6 @@ public class EllipseNode : Node
     }
 
     public override string DisplayName { get; set; } = "ELLIPSE_NODE";
-
-    public override bool AreInputsLegal()
-    {
-        return Radius.Value is { X: > 0, Y: > 0 } && StrokeWidth.Value > 0;
-    }
 
     public override Node CreateCopy() => new EllipseNode();
 }

@@ -54,7 +54,6 @@ public class ModifyImageLeftNode : Node
         return Image.Value;
     }
 
-    public override bool AreInputsLegal() => true;
 
     public override Node CreateCopy() => new ModifyImageLeftNode();
 }

@@ -59,7 +59,6 @@ public class KernelFilterNode : Node
         return workingSurface;
     }
 
-    public override bool AreInputsLegal() => true;
 
     public override Node CreateCopy() => new KernelFilterNode();
 }

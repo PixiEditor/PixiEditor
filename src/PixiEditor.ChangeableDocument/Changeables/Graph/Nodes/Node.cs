@@ -81,7 +81,6 @@ public abstract class Node : IReadOnlyNode, IDisposable
     }
 
     protected abstract Surface? OnExecute(RenderingContext context);
-    public abstract bool AreInputsLegal();
 
     protected virtual bool CacheChanged(RenderingContext context)
     {

@@ -2,6 +2,7 @@
 using PixiEditor.ChangeableDocument.Changeables.Graph.Context;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+using PixiEditor.ChangeableDocument.Changes.NodeGraph;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
@@ -143,8 +144,11 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
         {
             object value = base.Value;
             if (value is null) return default(T);
+            
+            if(value is T tValue)
+                return tValue;
 
-            return (T)value;
+            return ConversionTable.TryConvert(value, typeof(T), out object result) ? (T)result : default;
         }
     }
 
@@ -152,31 +156,6 @@ public class InputProperty<T> : InputProperty, IInputProperty<T>
     {
         get => (T)(base.NonOverridenValue ?? default(T));
         set => base.NonOverridenValue = value;
-    }
-
-    /*
-    private T CastFunc(Func<FuncContext, object> func)
-    {
-        Type targetReturnType = Connection.ValueType;
-        Type funcType = typeof(Func<,>).MakeGenericType(typeof(FuncContext), targetReturnType);
-
-        var methodInfo = func.Method;
-        
-        // methodInfo returns Object, we need to wrap it so it returns targetReturnType
-        
-        MethodInfo castMethod = typeof(InputProperty<T>).GetMethod(nameof(Cast), BindingFlags.NonPublic | BindingFlags.Static)!;
-        
-        MethodInfo genericCastMethod = castMethod.MakeGenericMethod(targetReturnType);
-        
-        
-        
-        // T i Func<FuncContext, targetReturnType> so we need to return it
-        return (T)(object)Delegate.CreateDelegate(funcType, methodInfo);
-    }*/
-    
-    private static Func<FuncContext, T> Cast<T>(Func<FuncContext, object> func)
-    {
-        return context => (T)func(context);
     }
     
     internal InputProperty(Node node, string internalName, string displayName, T defaultValue) : base(node, internalName, displayName, defaultValue, typeof(T))

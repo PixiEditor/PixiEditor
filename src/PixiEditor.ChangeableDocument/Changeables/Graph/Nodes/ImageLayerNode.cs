@@ -36,11 +36,6 @@ public class ImageLayerNode : LayerNode, IReadOnlyImageNode
         return GetLayerImageAtFrame(frameTime.Frame).FindTightCommittedBounds();
     }
 
-    public override bool AreInputsLegal()
-    {
-        return true;
-    }
-
     protected override Surface? OnExecute(RenderingContext context)
     {
         if (!IsVisible.Value || Opacity.Value <= 0 || IsEmptyMask())

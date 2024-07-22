@@ -24,7 +24,6 @@ public interface IReadOnlyNode
     /// </summary>
     /// <example>Divide node has two inputs, if the second input is 0, the node should not be executed. Since division by 0 is illegal</example>
     /// <returns>True if the inputs are legal, false otherwise.</returns>
-    public bool AreInputsLegal();
     
     /// <summary>
     ///     Traverses the graph backwards from this node. Backwards means towards the input nodes.

@@ -50,7 +50,6 @@ public class DebugBlendModeNode : Node
         return workingSurface;
     }
 
-    public override bool AreInputsLegal() => true;
 
     public override Node CreateCopy() => new DebugBlendModeNode();
 }

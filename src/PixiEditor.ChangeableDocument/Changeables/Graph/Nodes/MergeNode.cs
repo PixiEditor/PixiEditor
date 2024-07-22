@@ -21,11 +21,6 @@ public class MergeNode : Node, IBackgroundInput
 
     public override string DisplayName { get; set; } = "MERGE_NODE";
 
-    public override bool AreInputsLegal()
-    {
-        return Top.Connection != null || Bottom.Connection != null;
-    }
-
     public override Node CreateCopy()
     {
         return new MergeNode();

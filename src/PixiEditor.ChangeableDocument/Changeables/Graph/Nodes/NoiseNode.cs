@@ -97,7 +97,6 @@ public class NoiseNode : Node
     }
 
     public override string DisplayName { get; set; } = "NOISE_NODE";
-    public override bool AreInputsLegal() => Size.Value is { X: > 0, Y: > 0 }; 
 
     public override Node CreateCopy() => new NoiseNode();
 }

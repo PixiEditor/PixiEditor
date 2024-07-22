@@ -36,7 +36,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         _nodes.Remove(node);
     }
 
-    private Queue<IReadOnlyNode> CalculateExecutionQueue(OutputNode outputNode, bool validate = true)
+    private Queue<IReadOnlyNode> CalculateExecutionQueue(OutputNode outputNode)
     {
         // backwards breadth-first search
         var visited = new HashSet<IReadOnlyNode>();
@@ -47,7 +47,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
         while (queueNodes.Count > 0)
         {
             var node = queueNodes.Dequeue();
-            if (!visited.Add(node) || (validate && !node.AreInputsLegal()))
+            if (!visited.Add(node))
             {
                 continue;
             }
@@ -85,7 +85,7 @@ public class NodeGraph : IReadOnlyNodeGraph, IDisposable
     {
         if(OutputNode == null) return false;
         
-        var queue = CalculateExecutionQueue(OutputNode, false);
+        var queue = CalculateExecutionQueue(OutputNode);
         
         while (queue.Count > 0)
         {

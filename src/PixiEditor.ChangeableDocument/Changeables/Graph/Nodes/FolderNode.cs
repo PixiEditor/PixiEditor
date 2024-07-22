@@ -16,11 +16,6 @@ public class FolderNode : StructureNode, IReadOnlyFolderNode
         Content = CreateInput<Surface?>("Content", "CONTENT", null);
     }
 
-    public override bool AreInputsLegal()
-    {
-        return true;
-    }
-
     public override Node CreateCopy() => new FolderNode { MemberName = MemberName };
 
     protected override string NodeUniqueName => "Folder";

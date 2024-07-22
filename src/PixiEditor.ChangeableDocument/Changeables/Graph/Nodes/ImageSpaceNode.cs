@@ -26,7 +26,6 @@ public class ImageSpaceNode : Node
         return null;
     }
 
-    public override bool AreInputsLegal() => true;
 
     public override Node CreateCopy() => new ImageSpaceNode();
 }
