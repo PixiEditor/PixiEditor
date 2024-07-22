@@ -697,7 +697,7 @@ internal class MemberPreviewUpdater
 
     private void RenderNodePreviews(List<IRenderInfo> infos)
     {
-        internals.Tracker.Document.NodeGraph.TryTraverse((node) =>
+        foreach(var node in internals.Tracker.Document.NodeGraph.AllNodes)
         {
             if (node is null)
                 return;
@@ -731,6 +731,6 @@ internal class MemberPreviewUpdater
 
             nodeVm.ResultPreview.DrawingSurface.Canvas.Restore();
             infos.Add(new NodePreviewDirty_RenderInfo(node.Id));
-        });
+        }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System.Collections.Immutable;
 using System.Reflection;
+using PixiEditor.ChangeableDocument.Changeables.Animations;
 using PixiEditor.ChangeableDocument.Changeables.Graph;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Interfaces;
 using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 using PixiEditor.ChangeableDocument.ChangeInfos.NodeGraph;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.Numerics;
 using Type = System.Type;
 
@@ -35,8 +37,12 @@ internal class CreateNode_Change : Change
         
         node.Position = new VecD(0, 0);
         node.Id = id;
+        
         target.NodeGraph.AddNode(node);
         ignoreInUndo = false;
+       
+        using RenderingContext context = new RenderingContext(new KeyFrameTime(0, 0), VecI.Zero, ChunkResolution.Full, target.Size);
+        node.ExecuteInternal(context);
         
         return CreateNode_ChangeInfo.CreateFromNode(node); 
     }

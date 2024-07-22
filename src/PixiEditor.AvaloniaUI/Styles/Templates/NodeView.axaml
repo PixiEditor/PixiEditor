@@ -16,6 +16,7 @@
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
                         CornerRadius="{TemplateBinding CornerRadius}"
+                        MinWidth="200"
                         Margin="{TemplateBinding Margin}"
                         Name="RootBorder">
                     <Border.Effect>
@@ -52,7 +53,8 @@
                                     </ItemsControl>
                                 </StackPanel>
                             </Border>
-                            <Border CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
+                            <Border IsVisible="{Binding !!ResultPreview, RelativeSource={RelativeSource TemplatedParent}}"
+                                CornerRadius="0, 0, 4.5, 4.5" Grid.Row="2" ClipToBounds="True">
                                 <visuals:SurfaceControl Width="200" Height="200"
                                                         Surface="{TemplateBinding ResultPreview}"
                                                         RenderOptions.BitmapInterpolationMode="None">
