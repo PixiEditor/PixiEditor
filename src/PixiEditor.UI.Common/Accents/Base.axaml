@@ -47,6 +47,7 @@
             <Color x:Key="ColorSocketColor">#99e4aa</Color>
             <Color x:Key="VecDSocketColor">#c984ca</Color>
             <Color x:Key="VecISocketColor">#c9b4ca</Color>
+            <Color x:Key="IntSocketColor">#4C64B1</Color>
             
             <Color x:Key="PixiEditorModifyImageBorderColor">#68abdf</Color>
             <Color x:Key="PixiEditorModifyImageNodeBackgroundColor">#4068abdf</Color>
@@ -96,6 +97,7 @@
             <SolidColorBrush x:Key="ColorSocketBrush" Color="{StaticResource ColorSocketColor}"/>
             <SolidColorBrush x:Key="VecDSocketBrush" Color="{StaticResource VecDSocketColor}"/>
             <SolidColorBrush x:Key="VecISocketBrush" Color="{StaticResource VecISocketColor}"/>
+            <SolidColorBrush x:Key="Int32SocketBrush" Color="{StaticResource IntSocketColor}"/>
             
             <SolidColorBrush x:Key="PixiEditorModifyImageLeftBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
             <SolidColorBrush x:Key="PixiEditorModifyImageRightBorderBrush" Color="{StaticResource PixiEditorModifyImageBorderColor}"/>
