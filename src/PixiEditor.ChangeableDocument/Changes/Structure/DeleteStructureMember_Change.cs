@@ -10,8 +10,7 @@ internal class DeleteStructureMember_Change : Change
 {
     private Guid memberGuid;
     private int originalIndex;
-    private List<PropertyConnection> originalOutputConnections = new();
-    private List<(PropertyConnection input, PropertyConnection? output)> originalInputConnections = new();
+    private ConnectionsData originalConnections; 
     private StructureNode? savedCopy;
 
     [GenerateMakeChangeAction]
@@ -26,12 +25,7 @@ internal class DeleteStructureMember_Change : Change
         if (member is null)
             return false;
 
-        originalOutputConnections = member.Output.Connections.Select(x => new PropertyConnection(x.Node.Id, x.InternalPropertyName))
-            .ToList();
-        
-        originalInputConnections = member.InputProperties.Select(x => 
-            (new PropertyConnection(x.Node.Id, x.InternalPropertyName), new PropertyConnection(x.Connection?.Node.Id, x.Connection?.InternalPropertyName)))
-            .ToList();
+        originalConnections = NodeOperations.CreateConnectionsData(member); 
         
         savedCopy = (StructureNode)member.Clone();
         savedCopy.Id = memberGuid;
@@ -80,14 +74,14 @@ internal class DeleteStructureMember_Change : Change
 
         IChangeInfo createChange = copy switch
         {
-            LayerNode => CreateLayer_ChangeInfo.FromLayer(memberGuid, (LayerNode)copy),
-            FolderNode => CreateFolder_ChangeInfo.FromFolder(memberGuid, (FolderNode)copy),
+            LayerNode => CreateLayer_ChangeInfo.FromLayer((LayerNode)copy),
+            FolderNode => CreateFolder_ChangeInfo.FromFolder((FolderNode)copy),
             _ => throw new NotSupportedException(),
         };
         
         changes.Add(createChange);
 
-        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalOutputConnections, originalInputConnections, copy, doc.NodeGraph)); 
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, copy, doc.NodeGraph)); 
         
         return changes;
     }

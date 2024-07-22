@@ -127,7 +127,7 @@ public class InputProperty : IInputProperty
             return new InputProperty(forNode, InternalPropertyName, DisplayName, nullValue, ValueType);
         }
         
-        if(!NonOverridenValue.GetType().IsPrimitive && NonOverridenValue.GetType() != typeof(string))
+        if(!NonOverridenValue.GetType().IsValueType && NonOverridenValue.GetType() != typeof(string))
             throw new InvalidOperationException("Value is not cloneable and not a primitive type");
         
         return new InputProperty(forNode, InternalPropertyName, DisplayName, NonOverridenValue, ValueType);

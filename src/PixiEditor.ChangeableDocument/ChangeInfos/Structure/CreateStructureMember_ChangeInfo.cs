@@ -8,7 +8,6 @@ namespace PixiEditor.ChangeableDocument.ChangeInfos.Structure;
 
 public abstract record class CreateStructureMember_ChangeInfo(
     string InternalName,
-    Guid ParentGuid,
     float Opacity,
     bool IsVisible,
     bool ClipToMemberBelow,

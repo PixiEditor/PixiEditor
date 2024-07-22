@@ -18,7 +18,8 @@ public static class NodeOperations
     {
         allFactories = new Dictionary<Type, INodeFactory>();
         var factoryTypes = typeof(Node).Assembly.GetTypes().Where(x =>
-            x.IsAssignableTo(typeof(INodeFactory)) && x is { IsAbstract: false, IsInterface: false }).ToImmutableArray();
+                x.IsAssignableTo(typeof(INodeFactory)) && x is { IsAbstract: false, IsInterface: false })
+            .ToImmutableArray();
         foreach (var factoryType in factoryTypes)
         {
             INodeFactory factory = (INodeFactory)Activator.CreateInstance(factoryType);
@@ -37,7 +38,7 @@ public static class NodeOperations
         {
             node = (Node)Activator.CreateInstance(nodeType, optionalParameters);
         }
-        
+
         return node;
     }
 
@@ -102,22 +103,48 @@ public static class NodeOperations
         return changes;
     }
 
-    public static List<IChangeInfo> ConnectStructureNodeProperties(
-        List<PropertyConnection> originalOutputConnections,
-        List<(PropertyConnection, PropertyConnection?)> originalInputConnections, StructureNode node,
+    public static ConnectionsData CreateConnectionsData(Node node)
+    {
+        var originalOutputConnections = new Dictionary<PropertyConnection, List<PropertyConnection>>();
+
+        foreach (var outputProp in node.OutputProperties)
+        {
+            PropertyConnection outputConnection = new(outputProp.Node.Id, outputProp.InternalPropertyName);
+            originalOutputConnections.Add(outputConnection, new List<PropertyConnection>());
+            foreach (var conn in outputProp.Connections)
+            {
+                originalOutputConnections[outputConnection]
+                    .Add(new PropertyConnection(conn.Node.Id, conn.InternalPropertyName));
+            }
+        }
+
+        var originalInputConnections = node.InputProperties.Select(x =>
+                (new PropertyConnection(x.Node.Id, x.InternalPropertyName),
+                    new PropertyConnection(x.Connection?.Node.Id, x.Connection?.InternalPropertyName)))
+            .ToList();
+        
+        return new ConnectionsData(originalOutputConnections, originalInputConnections);
+    }
+
+    public static List<IChangeInfo> ConnectStructureNodeProperties(ConnectionsData originalConnections, Node node,
         IReadOnlyNodeGraph graph)
     {
         List<IChangeInfo> changes = new();
-        foreach (var connection in originalOutputConnections)
+        foreach (var connections in originalConnections.originalOutputConnections)
         {
-            var inputNode = graph.AllNodes.FirstOrDefault(x => x.Id == connection.NodeId);
-            IInputProperty property = inputNode.GetInputProperty(connection.PropertyName);
-            node.Output.ConnectTo(property);
-            changes.Add(new ConnectProperty_ChangeInfo(node.Id, property.Node.Id, node.Output.InternalPropertyName,
-                property.InternalPropertyName));
+            PropertyConnection outputConnection = connections.Key;
+            IOutputProperty outputProp = node.GetOutputProperty(outputConnection.PropertyName);
+            foreach (var connection in connections.Value)
+            {
+                var inputNode = graph.AllNodes.FirstOrDefault(x => x.Id == connection.NodeId);
+                IInputProperty property = inputNode.GetInputProperty(connection.PropertyName);
+                outputProp.ConnectTo(property);
+                changes.Add(new ConnectProperty_ChangeInfo(node.Id, property.Node.Id, outputProp.InternalPropertyName,
+                    property.InternalPropertyName));
+            }
         }
 
-        foreach (var connection in originalInputConnections)
+        foreach (var connection in originalConnections.originalInputConnections)
         {
             var outputNode = graph.AllNodes.FirstOrDefault(x => x.Id == connection.Item2?.NodeId);
 
@@ -138,6 +165,37 @@ public static class NodeOperations
                 changes.Add(new ConnectProperty_ChangeInfo(output.Node.Id, node.Id,
                     output.InternalPropertyName,
                     input.InternalPropertyName));
+            }
+        }
+
+        return changes;
+    }
+
+    public static List<IChangeInfo> DetachNode(Changeables.Graph.NodeGraph target, Node? node)
+    {
+        List<IChangeInfo> changes = new();
+        if (node == null)
+        {
+            return changes;
+        }
+
+        foreach (var input in node.InputProperties)
+        {
+            if (input.Connection == null)
+            {
+                continue;
+            }
+
+            input.Connection.DisconnectFrom(input);
+            changes.Add(new ConnectProperty_ChangeInfo(null, node.Id, null, input.InternalPropertyName));
+        }
+
+        foreach (var output in node.OutputProperties)
+        {
+            foreach (var input in output.Connections.ToArray())
+            {
+                output.DisconnectFrom(input);
+                changes.Add(new ConnectProperty_ChangeInfo(null, input.Node.Id, null, input.InternalPropertyName));
             }
         }
 

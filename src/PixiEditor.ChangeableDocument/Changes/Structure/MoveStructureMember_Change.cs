@@ -15,8 +15,7 @@ internal class MoveStructureMember_Change : Change
 
     private Guid originalFolderGuid;
 
-    private List<PropertyConnection> originalOutputConnections = new();
-    private List<(PropertyConnection input, PropertyConnection? output)> originalInputConnections = new();
+    private ConnectionsData originalConnections; 
     
     private bool putInsideFolder;
 
@@ -36,12 +35,7 @@ internal class MoveStructureMember_Change : Change
         if (member is null || targetFolder is null)
             return false;
 
-        originalOutputConnections = member.Output.Connections.Select(x => new PropertyConnection(x.Node.Id, x.InternalPropertyName))
-            .ToList();
-        
-        originalInputConnections = member.InputProperties.Select(x => 
-            (new PropertyConnection(x.Node.Id, x.InternalPropertyName), new PropertyConnection(x.Connection?.Node.Id, x.Connection?.InternalPropertyName)))
-            .ToList();
+        originalConnections = NodeOperations.CreateConnectionsData(member); 
           
         return true;
     }
@@ -93,8 +87,7 @@ internal class MoveStructureMember_Change : Change
         MoveStructureMember_ChangeInfo changeInfo = new(memberGuid, targetNodeGuid, originalFolderGuid);
         
         changes.AddRange(NodeOperations.DetachStructureNode(member));
-        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(
-            originalOutputConnections, originalInputConnections, member, target.NodeGraph));
+        changes.AddRange(NodeOperations.ConnectStructureNodeProperties(originalConnections, member, target.NodeGraph));
         
         changes.Add(changeInfo);
         

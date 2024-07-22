@@ -1,5 +1,8 @@
-﻿using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
+﻿using Avalonia.Input;
+using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.Handlers;
+using PixiEditor.AvaloniaUI.ViewModels.Dock;
+using PixiEditor.AvaloniaUI.ViewModels.Nodes;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.SubViewModels;
@@ -8,6 +11,19 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
 {
     public NodeGraphManagerViewModel(ViewModelMain owner) : base(owner)
     {
+    }
+
+    [Command.Basic("PixiEditor.NodeGraph.DeleteSelectedNodes", "DELETE_NODES", "DELETE_NODES_DESCRIPTIVE", 
+        Key = Key.Delete, ShortcutContext = typeof(NodeGraphDockViewModel))]
+    public void DeleteSelectedNodes()
+    {
+        Guid[] selectedNodes = Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.AllNodes
+            .Where(x => x.IsSelected).Select(x => x.Id).ToArray();
+        
+        if (selectedNodes == null || selectedNodes.Length == 0)
+            return;
+
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.RemoveNodes(selectedNodes);
     }
 
     [Command.Debug("PixiEditor.NodeGraph.CreateNodeFrameAroundEverything", "Create node frame", "Create node frame")]
@@ -37,9 +53,10 @@ internal class NodeGraphManagerViewModel : SubViewModel<ViewModelMain>
     [Command.Internal("PixiEditor.NodeGraph.UpdateValue")]
     public void UpdatePropertyValue((INodeHandler node, string property, object value) args)
     {
-        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.UpdatePropertyValue(args.node, args.property, args.value);
+        Owner.DocumentManagerSubViewModel.ActiveDocument?.NodeGraph.UpdatePropertyValue(args.node, args.property,
+            args.value);
     }
-    
+
     [Command.Internal("PixiEditor.NodeGraph.EndChangeNodePos")]
     public void EndChangeNodePos()
     {

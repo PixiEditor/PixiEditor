@@ -131,10 +131,11 @@ internal class ViewportWindowViewModel : SubViewModel<WindowViewModel>, IDockabl
     void IDockableSelectionEvents.OnSelected()
     {
         Owner.ActiveWindow = this;
+        Owner.Owner.ShortcutController.OverwriteContext(this.GetType());
     }
 
     void IDockableSelectionEvents.OnDeselected()
     {
-
+        Owner.Owner.ShortcutController.ClearContext(GetType());
     }
 }

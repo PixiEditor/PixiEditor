@@ -70,10 +70,8 @@ internal class CreateStructureMember_Change : Change
     {
         return type switch
         {
-            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer(parentGuid,
-                (LayerNode)member),
-            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder(parentGuid,
-                (FolderNode)member),
+            StructureMemberType.Layer => CreateLayer_ChangeInfo.FromLayer((LayerNode)member),
+            StructureMemberType.Folder => CreateFolder_ChangeInfo.FromFolder((FolderNode)member),
             _ => throw new NotSupportedException(),
         };
     }

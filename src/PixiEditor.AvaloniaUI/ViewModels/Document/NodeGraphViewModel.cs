@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reflection;
+using Avalonia.Input;
+using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.DocumentModels;
 using PixiEditor.AvaloniaUI.Models.Handlers;
 using PixiEditor.AvaloniaUI.ViewModels.Nodes;
@@ -56,7 +58,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public void AddFrame(Guid frameId, IEnumerable<Guid> nodes)
     {
         var frame = new NodeFrameViewModel(frameId, AllNodes.Where(x => nodes.Contains(x.Id)));
-        
+
         Frames.Add(frame);
     }
 
@@ -64,9 +66,9 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     {
         var start = AllNodes.First(x => x.Id == startId);
         var end = AllNodes.First(x => x.Id == endId);
-        
+
         var zone = new NodeZoneViewModel(frameId, internalName, start, end);
-        
+
         Frames.Add(zone);
     }
 
@@ -182,7 +184,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     {
         Internals.ActionAccumulator.AddFinishedActions(new UpdatePropertyValue_Action(node.Id, property, value));
     }
-    
+
     public void EndChangeNodePosition()
     {
         Internals.ActionAccumulator.AddFinishedActions(new EndNodePosition_Action());
@@ -191,7 +193,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     public void CreateNode(Type nodeType)
     {
         IAction change;
-        
+
         PairNodeAttribute? pairAttribute = nodeType.GetCustomAttribute<PairNodeAttribute>(true);
         if (pairAttribute != null)
         {
@@ -201,8 +203,20 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
         {
             change = new CreateNode_Action(nodeType, Guid.NewGuid());
         }
-        
+
         Internals.ActionAccumulator.AddFinishedActions(change);
+    }
+
+    public void RemoveNodes(Guid[] selectedNodes)
+    {
+        IAction[] actions = new IAction[selectedNodes.Length];
+        
+        for (int i = 0; i < selectedNodes.Length; i++)
+        {
+            actions[i] = new DeleteNode_Action(selectedNodes[i]);
+        }
+        
+        Internals.ActionAccumulator.AddFinishedActions(actions);
     }
 
     // TODO: Remove this
@@ -210,10 +224,11 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
     {
         CreateNodeFrame(AllNodes);
     }
-    
+
     public void CreateNodeFrame(IEnumerable<INodeHandler> nodes)
     {
-        Internals.ActionAccumulator.AddFinishedActions(new CreateNodeFrame_Action(Guid.NewGuid(), nodes.Select(x => x.Id)));
+        Internals.ActionAccumulator.AddFinishedActions(new CreateNodeFrame_Action(Guid.NewGuid(),
+            nodes.Select(x => x.Id)));
     }
 
     public void ConnectProperties(INodePropertyHandler? start, INodePropertyHandler? end)
@@ -225,7 +240,7 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
         var input = start?.IsInput == true ? start : end;
         var output = start?.IsInput == false ? start : end;
-        
+
         if (input == null && output != null)
         {
             input = output.ConnectedInputs.FirstOrDefault();
@@ -246,10 +261,10 @@ internal class NodeGraphViewModel : ViewModelBase, INodeGraphHandler
 
         if (input == null) return;
 
-        IAction action = input != null && output != null ?
-            new ConnectProperties_Action(inputNode.Id, outputNode.Id, inputProperty, outputProperty) :
-            new DisconnectProperty_Action(inputNode.Id, inputProperty);
-        
+        IAction action = input != null && output != null
+            ? new ConnectProperties_Action(inputNode.Id, outputNode.Id, inputProperty, outputProperty)
+            : new DisconnectProperty_Action(inputNode.Id, inputProperty);
+
         Internals.ActionAccumulator.AddFinishedActions(action);
     }
 }

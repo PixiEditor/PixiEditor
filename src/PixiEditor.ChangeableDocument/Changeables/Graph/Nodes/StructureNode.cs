@@ -21,7 +21,7 @@ public abstract class StructureNode : Node, IReadOnlyStructureNode, IBackgroundI
 
     public OutputProperty<Surface?> Output { get; }
 
-    public string MemberName { get; set; } = string.Empty;
+    public string MemberName { get; set; } = "New Element"; // would be good to add localization here, it is set if node is created via node graph
     
     public override string DisplayName
     {
