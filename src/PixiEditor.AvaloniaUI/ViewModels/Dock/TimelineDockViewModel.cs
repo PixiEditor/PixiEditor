@@ -1,5 +1,6 @@
 ﻿using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.Extensions.Common.Localization;
+using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
@@ -23,5 +24,6 @@ internal class TimelineDockViewModel : DockableViewModel
     public TimelineDockViewModel(DocumentManagerViewModel documentManagerViewModel)
     {
         DocumentManagerSubViewModel = documentManagerViewModel;
+        TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Timeline);
     }
 }

@@ -36,7 +36,7 @@
                         <input:NumberInput Min="1"
                                            Value="{Binding Fps, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
                         <Panel>
-                            <ToggleButton HorizontalAlignment="Center" Content="Play" Name="PART_PlayToggle" />
+                            <ToggleButton Margin="0, 5" Width="24" HorizontalAlignment="Center" Classes="PlayButton" Name="PART_PlayToggle" />
                         </Panel>
                     </DockPanel>
 

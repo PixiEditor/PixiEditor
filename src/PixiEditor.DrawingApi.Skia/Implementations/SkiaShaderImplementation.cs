@@ -60,6 +60,9 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
         
         public Shader CreatePerlinFractalNoise(float baseFrequencyX, float baseFrequencyY, int numOctaves, float seed)
         {
+            if(baseFrequencyX <= 0 || baseFrequencyY <= 0)
+                throw new ArgumentException("Base frequency must be greater than 0");
+            
             SKShader shader = SKShader.CreatePerlinNoiseFractalNoise(
                 baseFrequencyX,
                 baseFrequencyY,
