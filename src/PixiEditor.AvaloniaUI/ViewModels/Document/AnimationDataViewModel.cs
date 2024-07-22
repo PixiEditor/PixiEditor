@@ -18,8 +18,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
     public DocumentViewModel Document { get; }
     protected DocumentInternalParts Internals { get; }
     public IReadOnlyCollection<IKeyFrameHandler> KeyFrames => keyFrames;
+    
+    public IReadOnlyCollection<IKeyFrameHandler> AllKeyFrames => allKeyFrames;
 
     private KeyFrameCollection keyFrames = new KeyFrameCollection();
+    private List<IKeyFrameHandler> allKeyFrames = new List<IKeyFrameHandler>();
 
     public int ActiveFrameBindable
     {
@@ -148,6 +151,11 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
         }
 
         keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Add, (KeyFrameViewModel)keyFrame);
+
+        if (!allKeyFrames.Contains(keyFrame))
+        {
+            allKeyFrames.Add(keyFrame);
+        }
     }
 
     public void RemoveKeyFrame(Guid keyFrameId)
@@ -157,6 +165,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
             parent.Children.Remove(frame);
             keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, (KeyFrameViewModel)frame);
         });
+        
+        allKeyFrames.RemoveAll(x => x.Id == keyFrameId);
     }
 
     public void AddSelectedKeyFrame(Guid keyFrameId)
@@ -194,6 +204,8 @@ internal class AnimationDataViewModel : ObservableObject, IAnimationHandler
                 parent.Children.Remove(frame);
                 framesToRemove.Add((KeyFrameViewModel)frame);
             });
+            
+            allKeyFrames.RemoveAll(x => x.Id == keyFrame);
         }
         
         keyFrames.NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, framesToRemove);

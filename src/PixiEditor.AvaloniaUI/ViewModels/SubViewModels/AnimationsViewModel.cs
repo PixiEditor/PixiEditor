@@ -1,7 +1,9 @@
-﻿using ChunkyImageLib;
+﻿using Avalonia.Input;
+using ChunkyImageLib;
 using PixiEditor.AnimationRenderer.Core;
 using PixiEditor.AvaloniaUI.Models.Commands.Attributes.Commands;
 using PixiEditor.AvaloniaUI.Models.IO;
+using PixiEditor.AvaloniaUI.ViewModels.Dock;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.DrawingApi.Core.Surface;
 using PixiEditor.DrawingApi.Core.Surface.ImageData;
@@ -40,15 +42,17 @@ internal class AnimationsViewModel : SubViewModel<ViewModelMain>
         activeDocument.Operations.SetActiveFrame(newFrame);
     }
     
-    [Command.Basic("PixiEditor.Animation.DeleteKeyFrames", "Delete key frames", "Delete key frames")]
-    public void DeleteKeyFrames(IList<KeyFrameViewModel> keyFrames)
+    [Command.Basic("PixiEditor.Animation.DeleteKeyFrames", "DELETE_KEY_FRAMES", "DELETE_KEY_FRAMES_DESCRIPTIVE",
+        ShortcutContext = typeof(TimelineDockViewModel), Key = Key.Delete)]
+    public void DeleteKeyFrames()
     {
         var activeDocument = Owner.DocumentManagerSubViewModel.ActiveDocument;
+        var selected = activeDocument.AnimationDataViewModel.AllKeyFrames.Where(x => x.IsSelected).ToArray();
 
-        if (activeDocument is null)
+        if (activeDocument is null || selected.Length == 0)
             return;
         
-        List<Guid> keyFrameIds = keyFrames.Select(x => x.Id).ToList();
+        List<Guid> keyFrameIds = selected.Select(x => x.Id).ToList();
         
         for(int i = 0; i < keyFrameIds.Count; i++)
         {

@@ -1,10 +1,11 @@
-﻿using PixiEditor.AvaloniaUI.ViewModels.Document;
+﻿using PixiDocks.Core.Docking.Events;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.Extensions.Common.Localization;
 using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
-internal class TimelineDockViewModel : DockableViewModel
+internal class TimelineDockViewModel : DockableViewModel, IDockableSelectionEvents
 {
     public const string TabId = "Timeline";
 
@@ -25,5 +26,15 @@ internal class TimelineDockViewModel : DockableViewModel
     {
         DocumentManagerSubViewModel = documentManagerViewModel;
         TabCustomizationSettings.Icon = PixiPerfectIcons.ToIcon(PixiPerfectIcons.Timeline);
+    }
+
+    void IDockableSelectionEvents.OnSelected()
+    {
+        documentManagerSubViewModel.Owner.ShortcutController?.OverwriteContext(GetType());
+    }
+
+    void IDockableSelectionEvents.OnDeselected()
+    {
+        documentManagerSubViewModel.Owner.ShortcutController?.ClearContext(GetType());
     }
 }

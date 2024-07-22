@@ -7,6 +7,7 @@ internal interface IKeyFrameHandler
     public Surface? PreviewSurface { get; set; }
     public int StartFrameBindable { get; }
     public int DurationBindable { get; }
+    public bool IsSelected { get; set; }
     public Guid LayerGuid { get; }
     public Guid Id { get; }
     public bool IsVisible { get; }

@@ -1,5 +1,6 @@
 ﻿using Avalonia.Media;
 using PixiDocks.Core.Docking;
+using PixiDocks.Core.Docking.Events;
 using PixiEditor.AvaloniaUI.Helpers.Converters;
 using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.Extensions.Common.Localization;
@@ -7,7 +8,7 @@ using PixiEditor.UI.Common.Fonts;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Dock;
 
-internal class LayersDockViewModel : DockableViewModel
+internal class LayersDockViewModel : DockableViewModel, IDockableSelectionEvents
 {
     public const string TabId = "Layers";
     public override string Id => TabId;
@@ -40,5 +41,15 @@ internal class LayersDockViewModel : DockableViewModel
     private void DocumentManager_ActiveDocumentChanged(object? sender, DocumentChangedEventArgs e)
     {
         ActiveDocument = e.NewDocument;
+    }
+
+    void IDockableSelectionEvents.OnSelected()
+    {
+        documentManager.Owner.ShortcutController.OverwriteContext(GetType());
+    }
+
+    void IDockableSelectionEvents.OnDeselected()
+    {
+        documentManager.Owner.ShortcutController.ClearContext(GetType());
     }
 }

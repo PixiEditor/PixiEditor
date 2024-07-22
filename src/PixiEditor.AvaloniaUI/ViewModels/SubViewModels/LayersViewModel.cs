@@ -55,7 +55,10 @@ internal class LayersViewModel : SubViewModel<ViewModelMain>
         return true;
     }
 
-    [Command.Basic("PixiEditor.Layer.DeleteSelected", "LAYER_DELETE_SELECTED", "LAYER_DELETE_SELECTED_DESCRIPTIVE", CanExecute = "PixiEditor.Layer.CanDeleteSelected", 
+    [Command.Basic("PixiEditor.Layer.DeleteSelected", "LAYER_DELETE_SELECTED", 
+        "LAYER_DELETE_SELECTED_DESCRIPTIVE", 
+        CanExecute = "PixiEditor.Layer.CanDeleteSelected", Key = Key.Delete, 
+        ShortcutContext = typeof(LayersDockViewModel),
         Icon = PixiPerfectIcons.Trash)]
     public void DeleteSelected()
     {
