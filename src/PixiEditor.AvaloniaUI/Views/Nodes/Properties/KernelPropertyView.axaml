@@ -38,7 +38,7 @@
         <ItemsControl ItemsSource="{Binding ReferenceCollections}" Margin="0,1">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <input:NumberInput Value="{Binding Value, Mode=TwoWay}" Decimals="4" />
+                    <input:NumberInput EnableScrollChange="False" Value="{Binding Value, Mode=TwoWay}" Decimals="4" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
             <ItemsControl.ItemsPanel>

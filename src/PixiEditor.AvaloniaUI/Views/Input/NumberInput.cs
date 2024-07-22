@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -31,6 +32,8 @@ internal partial class NumberInput : TextBox
     public static readonly StyledProperty<string> FormattedValueProperty = AvaloniaProperty.Register<NumberInput, string>(
         nameof(FormattedValue), "0");
 
+    public static readonly StyledProperty<bool> EnableScrollChangeProperty = AvaloniaProperty.Register<NumberInput, bool>(
+        "EnableScrollChange", true);
     public string FormattedValue
     {
         get => GetValue(FormattedValueProperty);
@@ -110,8 +113,21 @@ internal partial class NumberInput : TextBox
         'i', 'n', 'f', 't', 'y', 'e', 'I', 'N', 'F', 'T', 'Y', 'E'
     };
 
+
     protected override Type StyleKeyOverride => typeof(TextBox);
 
+    public bool EnableScrollChange
+    {
+        get { return (bool)GetValue(EnableScrollChangeProperty); }
+        set { SetValue(EnableScrollChangeProperty, value); }
+    }
+
+    private Control? leftGrabber;
+    private Control? rightGrabber;
+    
+    private double _pressedValue;
+    private double _pressedRelativeX;
+    
     static NumberInput()
     {
         ValueProperty.Changed.Subscribe(OnValueChanged);
@@ -138,6 +154,67 @@ internal partial class NumberInput : TextBox
         Focusable = true;
         TextAlignment = TextAlignment.Center;
         VerticalAlignment = VerticalAlignment.Center;
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        
+        InnerLeftContent = leftGrabber = CreateMouseGrabber(); 
+        leftGrabber.HorizontalAlignment = HorizontalAlignment.Left;
+        InnerRightContent = rightGrabber = CreateMouseGrabber(); 
+        rightGrabber.HorizontalAlignment = HorizontalAlignment.Right;
+    }
+
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
+    {
+        if (e.NewSize.Width < 100)
+        {
+            rightGrabber.IsVisible = false;
+        }
+        
+        leftGrabber.Height = e.NewSize.Height - 10;
+        leftGrabber.Width = e.NewSize.Width / 4f;
+        
+        rightGrabber.Height = e.NewSize.Height - 10;
+        rightGrabber.Width = e.NewSize.Width / 4f;
+    }
+
+    private Control CreateMouseGrabber()
+    {
+        var grabber = new Grid()
+        {
+            Cursor = new Cursor(StandardCursorType.SizeWestEast),
+            Background = Brushes.Transparent,
+        };
+
+        grabber.PointerPressed += GrabberPressed;
+        grabber.PointerMoved += GrabberMoved;
+        
+        return grabber;
+    }
+    
+    private void GrabberPressed(object sender, PointerPressedEventArgs e)
+    {
+        e.Pointer.Capture(leftGrabber);
+        _pressedValue = Value;
+        _pressedRelativeX = e.GetPosition(this).X;
+        e.Handled = true;
+    }
+    
+    private void GrabberMoved(object sender, PointerEventArgs e)
+    {
+        if(e.Pointer.Captured != null && (e.Pointer.Captured.Equals(leftGrabber) || e.Pointer.Captured.Equals(rightGrabber)))
+        {
+            double relativeX = e.GetPosition(this).X;
+            double diff = relativeX - _pressedRelativeX;
+
+            double pixelsPerUnit = 5;
+            
+            double newValue = _pressedValue + diff / pixelsPerUnit;
+            Value = (float)Math.Round(Math.Clamp(newValue, Min, Max), Decimals);
+            e.Handled = true; 
+        }
     }
 
     private void BindTextBoxBehavior(TextBoxFocusBehavior behavior)
@@ -258,6 +335,11 @@ internal partial class NumberInput : TextBox
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
     {
+        if (!EnableScrollChange)
+        {
+            return;
+        }
+        
         int step = (int)e.Delta.Y;
 
         double newValue = Value;

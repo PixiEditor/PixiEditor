@@ -11,8 +11,8 @@
     <StackPanel HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
         <TextBlock VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}"/>
         <StackPanel IsVisible="{Binding ShowInputField}">
-            <input:NumberInput MinWidth="100" Decimals="0" Value="{Binding XValue, Mode=TwoWay}" Margin="0,2" />
-            <input:NumberInput MinWidth="100" Decimals="0" Value="{Binding YValue, Mode=TwoWay}" />
+            <input:NumberInput EnableScrollChange="False" MinWidth="100" Decimals="0" Value="{Binding XValue, Mode=TwoWay}" Margin="0,2" />
+            <input:NumberInput EnableScrollChange="False" MinWidth="100" Decimals="0" Value="{Binding YValue, Mode=TwoWay}" />
         </StackPanel>
     </StackPanel>
 </properties:NodePropertyView>
