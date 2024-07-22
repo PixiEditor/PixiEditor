@@ -644,7 +644,7 @@
   "PIXEL_COORDINATE": "Pixel Coordinate",
   "OUTPUT_NODE": "Output",
   "NOISE_NODE": "Noise",
-  "CIRCLE_NODE": "Circle",
+  "ELLIPSE_NODE": "Ellipse",
   "CREATE_IMAGE_NODE": "Create Image",
   "FOLDER_NODE": "Folder",
   "IMAGE_LAYER_NODE": "Image Layer",
