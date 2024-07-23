@@ -9,6 +9,7 @@ public interface IColorFilterImplementation
 {
     public IntPtr CreateBlendMode(Color color, BlendMode blendMode);
     public IntPtr CreateColorMatrix(float[] matrix);
+    public IntPtr CreateCompose(ColorFilter outer, ColorFilter inner);
     public void Dispose(ColorFilter colorFilter);
     public object GetNativeColorFilter(IntPtr objectPointer);
 }

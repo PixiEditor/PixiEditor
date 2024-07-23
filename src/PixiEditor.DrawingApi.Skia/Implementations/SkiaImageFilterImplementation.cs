@@ -24,6 +24,17 @@ namespace PixiEditor.DrawingApi.Skia.Implementations
             ManagedInstances[skImageFilter.Handle] = skImageFilter;
             return skImageFilter.Handle;
         }
+        
+        public IntPtr CreateCompose(ImageFilter outer, ImageFilter inner)
+        {
+            var skOuter = ManagedInstances[outer.ObjectPointer];
+            var skInner = ManagedInstances[inner.ObjectPointer];
+
+            var compose = SKImageFilter.CreateCompose(skOuter, skInner);
+            ManagedInstances[compose.Handle] = compose;
+
+            return compose.Handle;
+        }
 
         public object GetNativeImageFilter(IntPtr objPtr) => ManagedInstances[objPtr];
     }
