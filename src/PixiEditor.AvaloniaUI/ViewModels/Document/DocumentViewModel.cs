@@ -42,6 +42,7 @@ using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using Color = PixiEditor.DrawingApi.Core.ColorsImpl.Color;
 using Colors = PixiEditor.DrawingApi.Core.ColorsImpl.Colors;
+using Node = PixiEditor.Parser.Graph.Node;
 using Point = Avalonia.Point;
 
 namespace PixiEditor.AvaloniaUI.ViewModels.Document;
@@ -245,6 +246,8 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
     {
         var builderInstance = new DocumentViewModelBuilder();
         builder(builderInstance);
+        
+        Dictionary<int, Guid> mappedIds = new();
 
         var viewModel = new DocumentViewModel();
         viewModel.Operations.ResizeCanvas(new VecI(builderInstance.Width, builderInstance.Height), ResizeAnchor.Center);
@@ -271,17 +274,27 @@ internal partial class DocumentViewModel : PixiObservableObject, IDocument
         viewModel.Swatches = new ObservableCollection<PaletteColor>(builderInstance.Swatches);
         viewModel.Palette = new ObservableRangeCollection<PaletteColor>(builderInstance.Palette);
 
-        Guid outputNodeGuid = Guid.NewGuid();
+        AddNodes(builderInstance.Graph);
 
-        acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
-
-        AddMembers(outputNodeGuid, builderInstance.Children);
+        if (builderInstance.Graph.AllNodes.Count == 0)
+        {
+            Guid outputNodeGuid = Guid.NewGuid();
+            acc.AddActions(new CreateNode_Action(typeof(OutputNode), outputNodeGuid));
+        }
+        
         AddAnimationData(builderInstance.AnimationData);
 
         acc.AddFinishedActions(new DeleteRecordedChanges_Action());
         viewModel.MarkAsSaved();
 
         return viewModel;
+
+        void AddNode(int id, Node serializedNode)
+        {
+            Guid guid = Guid.NewGuid();
+            mappedIds.Add(id, guid);
+            acc.AddActions(new CreateNode_Action(serializedNode.UniqueNodeName, guid)); 
+        }
 
         void AddMember(Guid parentGuid, DocumentViewModelBuilder.StructureMemberBuilder member)
         {
