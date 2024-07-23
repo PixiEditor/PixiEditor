@@ -163,6 +163,7 @@ public class Translator : Control
 
     private static void UpdateKey(AvaloniaObject d, string key)
     {
+        if(key == null) return;
         var parameters = GetLocalizedString(d).Parameters;
         LocalizedString localizedString = new(key, parameters);
 
