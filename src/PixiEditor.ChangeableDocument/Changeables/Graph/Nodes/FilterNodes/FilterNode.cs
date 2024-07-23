@@ -1,7 +1,7 @@
 ﻿using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 
-namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
+namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
 
 public abstract class FilterNode : Node
 {
