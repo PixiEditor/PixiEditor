@@ -1,59 +1,24 @@
-﻿using PixiEditor.ChangeableDocument.Rendering;
+﻿using PixiEditor.ChangeableDocument.Changeables.Graph.Nodes.FilterNodes;
+using PixiEditor.ChangeableDocument.Rendering;
 using PixiEditor.DrawingApi.Core.Surface.PaintImpl;
 using PixiEditor.Numerics;
 
 namespace PixiEditor.ChangeableDocument.Changeables.Graph.Nodes;
 
-public class MatrixTransformNode : Node
+public class MatrixTransformNode : FilterNode
 {
-    private ColorMatrix previousMatrix = new(
-        (1, 0, 0, 0, 0),
-        (0, 1, 0, 0, 0),
-        (0, 0, 1, 0, 0),
-        (0, 0, 0, 1, 0));
-    
-    private Paint paint;
-    
-    public OutputProperty<Surface> Transformed { get; }
-    
-    public InputProperty<Surface?> Input { get; }
-    
     public InputProperty<ColorMatrix> Matrix { get; }
 
-    public override string DisplayName { get; set; } = "MATRIX_TRANSFORM_NODE";
+    public override string DisplayName { get; set; } = "COLOR_MATRIX_FILTER_NODE";
     
     public MatrixTransformNode()
     {
-        Transformed = CreateOutput<Surface>(nameof(Transformed), "TRANSFORMED", null);
-        Input = CreateInput<Surface>(nameof(Input), "INPUT", null);
-        Matrix = CreateInput(nameof(Matrix), "MATRIX", previousMatrix);
-
-        paint = new Paint { ColorFilter = ColorFilter.CreateColorMatrix(previousMatrix) };
+        Matrix = CreateInput(nameof(Matrix), "MATRIX", ColorMatrix.Identity);
     }
 
-    protected override string NodeUniqueName => "MatrixTransform";
+    protected override string NodeUniqueName => "ColorMatrixFilter";
 
-    protected override Surface? OnExecute(RenderingContext context)
-    {
-        if (Input.Value == null)
-            return null;
-        
-        var currentMatrix = Matrix.Value;
-        if (previousMatrix != currentMatrix)
-        {
-            paint.ColorFilter = ColorFilter.CreateColorMatrix(Matrix.Value);
-            previousMatrix = currentMatrix;
-        }
-
-        var workingSurface = new Surface(Input.Value.Size);
-        
-        workingSurface.DrawingSurface.Canvas.DrawSurface(Input.Value.DrawingSurface, 0, 0, paint);
-
-        Transformed.Value = workingSurface;
-        
-        return Transformed.Value;
-    }
-
+    protected override ColorFilter? GetColorFilter() => ColorFilter.CreateColorMatrix(Matrix.Value);
 
     public override Node CreateCopy() => new MatrixTransformNode();
 }
