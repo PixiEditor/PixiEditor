@@ -1,22 +1,16 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Runtime.InteropServices;
-using ChunkyImageLib;
+﻿using ChunkyImageLib;
 using ChunkyImageLib.DataHolders;
 using PixiEditor.AvaloniaUI.Helpers.Extensions;
-using PixiEditor.AvaloniaUI.Views.Animations;
-using PixiEditor.DrawingApi.Core.Numerics;
-using PixiEditor.DrawingApi.Core.Surface;
+using PixiEditor.AvaloniaUI.ViewModels.Document;
 using PixiEditor.Extensions.CommonApi.Palettes;
 using PixiEditor.Numerics;
 using PixiEditor.Parser;
-using PixiEditor.Parser.Helpers;
-using BlendMode = PixiEditor.ChangeableDocument.Enums.BlendMode;
+using PixiEditor.Parser.Graph;
+using PixiEditor.Parser.Skia;
 
 namespace PixiEditor.AvaloniaUI.Helpers;
 
-internal class DocumentViewModelBuilder : ChildrenBuilder
+internal class DocumentViewModelBuilder : PixiParserV3DocumentEx.ChildrenBuilder
 {
     public int Width { get; set; }
     public int Height { get; set; }
@@ -26,6 +20,8 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
     public ReferenceLayerBuilder ReferenceLayer { get; set; }
     public List<KeyFrameBuilder> AnimationData { get; set; } = new List<KeyFrameBuilder>();
+    
+    public NodeGraphBuilder Graph { get; set; }
 
     public DocumentViewModelBuilder WithSize(int width, int height)
     {
@@ -55,11 +51,12 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
     public DocumentViewModelBuilder WithPalette<T>(IEnumerable<T> pallet, Func<T, PaletteColor> toColor) =>
         WithPalette(pallet.Select(toColor));
 
-    public DocumentViewModelBuilder WithReferenceLayer<T>(T reference, Action<T, ReferenceLayerBuilder> builder)
+    public DocumentViewModelBuilder WithReferenceLayer<T>(T reference, Action<T, ReferenceLayerBuilder, ImageEncoder?> builder,
+        ImageEncoder? encoder)
     {
         if (reference != null)
         {
-            WithReferenceLayer(x => builder(reference, x));
+            WithReferenceLayer(x => builder(reference, x, encoder));
         }
 
         return this;
@@ -76,19 +73,38 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
         return this;
     }
     
-    public DocumentViewModelBuilder WithAnimationData(AnimationData? animationData, Folder documentRootFolder)
+    public DocumentViewModelBuilder WithAnimationData(AnimationData? animationData)
     {
         AnimationData = new List<KeyFrameBuilder>();
 
         if (animationData != null && animationData.KeyFrameGroups.Count > 0)
         {
-            BuildKeyFrames(animationData.KeyFrameGroups.Cast<IKeyFrame>().ToList(), AnimationData, documentRootFolder);
+            BuildKeyFrames(animationData.KeyFrameGroups.Cast<IKeyFrame>().ToList(), AnimationData);
         }
 
         return this;
     }
+    
+    public DocumentViewModelBuilder WithGraph(NodeGraph graph)
+    {
+        Graph = new NodeGraphBuilder();
+        
+        if (graph.AllNodes != null)
+        {
+            foreach (var node in graph.AllNodes)
+            {
+                Graph.WithNode(new NodeBuilder()
+                    .WithId(node.Id)
+                    .WithPosition(node.Position)
+                    .WithName(node.Name)
+                    .WithUniqueNodeName(node.UniqueNodeName));
+            }
+        }
+        
+        return this;
+    }
 
-    private static void BuildKeyFrames(List<IKeyFrame> root, List<KeyFrameBuilder> data, Folder documentRootFolder)
+    private static void BuildKeyFrames(List<IKeyFrame> root, List<KeyFrameBuilder> data)
     {
         foreach (var keyFrame in root)
         {
@@ -120,251 +136,6 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
                 data?.Add(builder);
             }
 
-        }
-    }
-
-    public abstract class StructureMemberBuilder
-    {
-        private MaskBuilder maskBuilder;
-
-        public int OrderInStructure { get; set; }
-
-        public string Name { get; set; }
-
-        public bool IsVisible { get; set; }
-
-        public float Opacity { get; set; }
-
-        public BlendMode BlendMode { get; set; }
-
-        public bool ClipToMemberBelow { get; set; }
-
-        public bool HasMask => maskBuilder is not null;
-
-        [NotNull] public MaskBuilder Mask => maskBuilder ??= new MaskBuilder();
-
-        public Guid Id { get; set; }
-
-        public StructureMemberBuilder()
-        {
-            IsVisible = true;
-            Opacity = 1;
-        }
-
-        public StructureMemberBuilder WithOrderInStructure(int order)
-        {
-            OrderInStructure = order;
-            return this;
-        }
-
-        public StructureMemberBuilder WithName(string name)
-        {
-            Name = name;
-            return this;
-        }
-
-        public StructureMemberBuilder WithVisibility(bool visibility)
-        {
-            IsVisible = visibility;
-            return this;
-        }
-
-        public StructureMemberBuilder WithOpacity(float opacity)
-        {
-            Opacity = opacity;
-            return this;
-        }
-
-        public StructureMemberBuilder WithBlendMode(BlendMode blendMode)
-        {
-            BlendMode = blendMode;
-            return this;
-        }
-
-        public StructureMemberBuilder WithMask(Action<MaskBuilder> mask)
-        {
-            mask(Mask);
-            return this;
-        }
-
-        public StructureMemberBuilder WithMask<T>(T reference, Action<MaskBuilder, T> mask)
-        {
-            return reference != null ? WithMask(x => mask(x, reference)) : this;
-        }
-
-        public StructureMemberBuilder WithGuid(Guid guid)
-        {
-            Id = guid;
-            return this;
-        }
-
-        public StructureMemberBuilder WithClipToBelow(bool value)
-        {
-            ClipToMemberBelow = value;
-            return this;
-        }
-    }
-
-    public class LayerBuilder : StructureMemberBuilder
-    {
-        private int? width;
-        private int? height;
-
-        public SurfaceBuilder? Surface { get; set; }
-
-        public int Width
-        {
-            get => width ?? default;
-            set => width = value;
-        }
-
-        public int Height
-        {
-            get => height ?? default;
-            set => height = value;
-        }
-
-        public int OffsetX { get; set; }
-
-        public int OffsetY { get; set; }
-
-        public bool LockAlpha { get; set; }
-
-        public new LayerBuilder WithName(string name) => base.WithName(name) as LayerBuilder;
-
-        public new LayerBuilder WithVisibility(bool visibility) => base.WithVisibility(visibility) as LayerBuilder;
-
-        public new LayerBuilder WithOpacity(float opacity) => base.WithOpacity(opacity) as LayerBuilder;
-
-        public new LayerBuilder WithBlendMode(BlendMode blendMode) => base.WithBlendMode(blendMode) as LayerBuilder;
-
-        public new LayerBuilder WithClipToBelow(bool value) => base.WithClipToBelow(value) as LayerBuilder;
-
-        public LayerBuilder WithLockAlpha(bool layerLockAlpha)
-        {
-            LockAlpha = layerLockAlpha;
-            return this;
-        }
-
-        public new LayerBuilder WithMask(Action<MaskBuilder> mask) => base.WithMask(mask) as LayerBuilder;
-
-        public new LayerBuilder WithGuid(Guid guid) => base.WithGuid(guid) as LayerBuilder;
-
-        public LayerBuilder WithSurface(Surface surface)
-        {
-            Surface = new(surface);
-            return this;
-        }
-
-        public LayerBuilder WithSize(int width, int height)
-        {
-            Width = width;
-            Height = height;
-            return this;
-        }
-
-        public LayerBuilder WithSize(VecI size) => WithSize(size.X, size.Y);
-
-        public LayerBuilder WithRect(int width, int height, int offsetX, int offsetY)
-        {
-            Width = width;
-            Height = height;
-            OffsetX = offsetX;
-            OffsetY = offsetY;
-            return this;
-        }
-
-        public LayerBuilder WithSurface(Action<SurfaceBuilder> surface)
-        {
-            if (width is null || height is null)
-            {
-                throw new InvalidOperationException(
-                    "You must first set the width and height of the layer. You can do this by calling WithRect() or setting the Width and Height properties.");
-            }
-
-            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Width, Height)));
-            surface(surfaceBuilder);
-            Surface = surfaceBuilder;
-            return this;
-        }
-    }
-
-    public class FolderBuilder : StructureMemberBuilder
-    {
-        public List<StructureMemberBuilder> Children { get; set; } = new List<StructureMemberBuilder>();
-
-        public new FolderBuilder WithName(string name) => base.WithName(name) as FolderBuilder;
-
-        public new FolderBuilder WithVisibility(bool visibility) => base.WithVisibility(visibility) as FolderBuilder;
-
-        public new FolderBuilder WithOpacity(float opacity) => base.WithOpacity(opacity) as FolderBuilder;
-
-        public new FolderBuilder WithBlendMode(BlendMode blendMode) => base.WithBlendMode(blendMode) as FolderBuilder;
-
-        public new FolderBuilder WithMask(Action<MaskBuilder> mask) => base.WithMask(mask) as FolderBuilder;
-
-        public new FolderBuilder WithGuid(Guid guid) => base.WithGuid(guid) as FolderBuilder;
-
-        public FolderBuilder WithClipToBelow(bool value) => base.WithClipToBelow(value) as FolderBuilder;
-
-        public FolderBuilder WithChildren(Action<ChildrenBuilder> children)
-        {
-            ChildrenBuilder childrenBuilder = new();
-            children(childrenBuilder);
-            Children = childrenBuilder.Children;
-            return this;
-        }
-    }
-
-    public class SurfaceBuilder
-    {
-        public Surface Surface { get; set; }
-
-        public SurfaceBuilder(Surface surface)
-        {
-            Surface = surface;
-        }
-
-        public SurfaceBuilder WithImage(ReadOnlySpan<byte> buffer) => WithImage(buffer, 0, 0);
-
-        public SurfaceBuilder WithImage(ReadOnlySpan<byte> buffer, int x, int y)
-        {
-            if (buffer.IsEmpty) return this;
-
-            Surface.DrawingSurface.Canvas.DrawBitmap(Bitmap.Decode(buffer), x, y);
-            return this;
-        }
-    }
-
-    public class MaskBuilder
-    {
-        public bool IsVisible { get; set; }
-
-        public SurfaceBuilder Surface { get; set; }
-
-        public MaskBuilder()
-        {
-            IsVisible = true;
-        }
-
-        public MaskBuilder WithVisibility(bool isVisible)
-        {
-            IsVisible = isVisible;
-            return this;
-        }
-
-        public MaskBuilder WithSurface(Surface surface)
-        {
-            Surface = new SurfaceBuilder(surface);
-            return this;
-        }
-
-        public MaskBuilder WithSurface(int width, int height, Action<SurfaceBuilder> surface)
-        {
-            var surfaceBuilder = new SurfaceBuilder(new Surface(new VecI(Math.Max(width, 1), Math.Max(height, 1))));
-            surface(surfaceBuilder);
-            Surface = surfaceBuilder;
-            return this;
         }
     }
 
@@ -419,28 +190,6 @@ internal class DocumentViewModelBuilder : ChildrenBuilder
 
             return this;
         }
-    }
-}
-
-internal class ChildrenBuilder
-{
-    public List<DocumentViewModelBuilder.StructureMemberBuilder> Children { get; set; } =
-        new List<DocumentViewModelBuilder.StructureMemberBuilder>();
-
-    public ChildrenBuilder WithLayer(Action<DocumentViewModelBuilder.LayerBuilder> layer)
-    {
-        var layerBuilder = new DocumentViewModelBuilder.LayerBuilder();
-        layer(layerBuilder);
-        Children.Add(layerBuilder);
-        return this;
-    }
-
-    public ChildrenBuilder WithFolder(Action<DocumentViewModelBuilder.FolderBuilder> folder)
-    {
-        var folderBuilder = new DocumentViewModelBuilder.FolderBuilder();
-        folder(folderBuilder);
-        Children.Add(folderBuilder);
-        return this;
     }
 }
 
@@ -504,17 +253,52 @@ internal class GroupKeyFrameBuilder : KeyFrameBuilder
 
 internal class RasterKeyFrameBuilder : KeyFrameBuilder
 {
-    public DocumentViewModelBuilder.SurfaceBuilder Surface { get; set; }
-
-    public RasterKeyFrameBuilder WithSurface(Surface surface)
-    {
-        Surface = new DocumentViewModelBuilder.SurfaceBuilder(new Surface(surface));
-        return this;
-    }
-
     public new RasterKeyFrameBuilder WithVisibility(bool isVisible) => base.WithVisibility(isVisible) as RasterKeyFrameBuilder;
     public new RasterKeyFrameBuilder WithLayerGuid(Guid layerGuid) => base.WithLayerGuid(layerGuid) as RasterKeyFrameBuilder;
     public new RasterKeyFrameBuilder WithId(Guid id) => base.WithId(id) as RasterKeyFrameBuilder;
     public new RasterKeyFrameBuilder WithStartFrame(int startFrame) => base.WithStartFrame(startFrame) as RasterKeyFrameBuilder;
     public new RasterKeyFrameBuilder WithDuration(int duration) => base.WithDuration(duration) as RasterKeyFrameBuilder;
+}
+
+internal class NodeGraphBuilder
+{
+    public List<NodeBuilder> AllNodes { get; set; } = new List<NodeBuilder>();
+
+    public NodeGraphBuilder WithNode(NodeBuilder node)
+    {
+        AllNodes.Add(node);
+        return this;
+    }
+}
+
+internal class NodeBuilder
+{
+    public int Id { get; set; }
+    public Vector2 Position { get; set; }
+    public string Name { get; set; }
+    public string UniqueNodeName { get; set; }
+
+    public NodeBuilder WithId(int id)
+    {
+        Id = id;
+        return this;
+    }
+
+    public NodeBuilder WithPosition(Vector2 position)
+    {
+        Position = position;
+        return this;
+    }
+
+    public NodeBuilder WithName(string name)
+    {
+        Name = name;
+        return this;
+    }
+
+    public NodeBuilder WithUniqueNodeName(string uniqueNodeName)
+    {
+        UniqueNodeName = uniqueNodeName;
+        return this;
+    }
 }

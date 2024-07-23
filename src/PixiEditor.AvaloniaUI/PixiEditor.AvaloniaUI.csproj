@@ -72,13 +72,13 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.9.2"/>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3"/>
     <PackageReference Include="PixiEditor.ColorPicker.Models" Version="1.0.5"/>
-    <PackageReference Include="PixiEditor.Parser" Version="3.4.0"/>
-    <PackageReference Include="PixiEditor.Parser.Skia" Version="3.0.1"/>
     <PackageReference Include="PixiEditor.ColorPicker.AvaloniaUI" Version="1.0.5"/>
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\PixiDocks\src\PixiDocks.Avalonia\PixiDocks.Avalonia.csproj"/>
+    <ProjectReference Include="..\..\..\PixiParser\src\PixiParser.Skia\PixiParser.Skia.csproj" />
+    <ProjectReference Include="..\..\..\PixiParser\src\PixiParser\PixiParser.csproj" />
     <ProjectReference Include="..\ChunkyImageLib\ChunkyImageLib.csproj"/>
     <ProjectReference Include="..\PixiEditor.AnimationRenderer.Core\PixiEditor.AnimationRenderer.Core.csproj" />
     <ProjectReference Include="..\PixiEditor.AnimationRenderer.FFmpeg\PixiEditor.AnimationRenderer.FFmpeg.csproj" />

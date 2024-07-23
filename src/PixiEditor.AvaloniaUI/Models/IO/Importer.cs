@@ -102,7 +102,7 @@ internal class Importer : ObservableObject
         {
             try
             {
-                var doc = DepractedPixiParser.Deserialize(path).ToDocument();
+                var doc = DeprecatedPixiParser.Deserialize(path).ToDocument();
                 
                 if (associatePath)
                 {
@@ -130,7 +130,7 @@ internal class Importer : ObservableObject
         {
             try
             {
-                var doc = DepractedPixiParser.Deserialize(file).ToDocument();
+                var doc = DeprecatedPixiParser.Deserialize(file).ToDocument();
                 doc.FullFilePath = originalFilePath;
                 return doc;
             }
