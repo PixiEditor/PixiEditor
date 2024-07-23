@@ -5,7 +5,7 @@ namespace PixiEditor.ChangeableDocument.Changeables.Graph;
 
 public sealed class Filter : IDisposable
 {
-    private Filter(ColorFilter? colorFilter, ImageFilter? imageFilter)
+    public Filter(ColorFilter? colorFilter, ImageFilter? imageFilter)
     {
         ColorFilter = colorFilter;
         ImageFilter = imageFilter;
